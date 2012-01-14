@@ -8,7 +8,7 @@ QT       += core gui network
 TARGET = trace_server
 TEMPLATE = app
 DEFINES += TRACE_ENABLED
-INCLUDEPATH += ../boost_1_47_0
+INCLUDEPATH += ../../boost_1_47_0
 
 win32-msvc* {
 }

@@ -160,7 +160,7 @@ void MainWindow::openFiles (QStringList const & files)
 	}
 }
 
-void MainWindow::onFileImport ()
+void MainWindow::onFileLoad ()
 {
 	// @TODO: multi-selection?
 	QString fname = QFileDialog::getOpenFileName(this, tr("Open File"), "", tr("TLV Trace Files (*.tlv_trace)"));
@@ -169,13 +169,23 @@ void MainWindow::onFileImport ()
 	openFiles(files);
 }
 
-void MainWindow::onFileExport ()
+void MainWindow::onFileSave ()
 {
-	QString filename = QFileDialog::getSaveFileName(this, tr("Save File"), "", tr("Trace Files (*.trc)"));
+	QString filename = QFileDialog::getSaveFileName(this, tr("Save File"), "", tr("Trace Files (*.tlv_trace)"));
 
 	if (filename != "")
 	{
-		m_server->exportStorageTo(filename);
+		m_server->copyStorageTo(filename);
+	}
+}
+
+void MainWindow::onFileExportToCSV ()
+{
+	QString filename = QFileDialog::getSaveFileName(this, tr("Save File"), "", tr("Trace Files (*.csv)"));
+
+	if (filename != "")
+	{
+		m_server->exportStorageToCSV(filename);
 	}
 }
 
@@ -293,17 +303,19 @@ void MainWindow::setupMenuBar ()
 {
 	// File
 	QMenu * fileMenu = menuBar()->addMenu(tr("&File"));
-	fileMenu->addAction(tr("File &Import"), this, SLOT(onFileImport()), QKeySequence(Qt::ControlModifier + Qt::Key_I));
-	//fileMenu->addAction(m_tabWidget->newTabAction());
-	fileMenu->addAction(tr("File &Export..."), this, SLOT(onFileExport()), QKeySequence(Qt::ControlModifier + Qt::Key_E));
-	//fileMenu->addAction(tr("Open &Location..."), this, SLOT(slotSelectLineEdit()), QKeySequence(Qt::ControlModifier + Qt::Key_L));
-	//action->setCheckable(true);
-	//fileMenu->addSeparator();
+	fileMenu->addAction(tr("File &Load..."), this, SLOT(onFileLoad()), QKeySequence(Qt::ControlModifier + Qt::Key_L));
+	fileMenu->addAction(tr("File &Save..."), this, SLOT(onFileSave()), QKeySequence(Qt::ControlModifier + Qt::Key_S));
+	fileMenu->addAction(tr("File &Export (CSV)"), this, SLOT(onFileExportToCSV()), QKeySequence(Qt::ControlModifier + Qt::Key_E));
+
+	// Edit
 	QMenu * editMenu = menuBar()->addMenu(tr("&Edit"));
 	editMenu->addAction(tr("Find"), this, SLOT(onEditFind()), QKeySequence::Find);
 	editMenu->addAction(tr("Find Next"), this, SLOT(onEditFindNext()), QKeySequence::FindNext);
 	editMenu->addAction(tr("Find Prev"), this, SLOT(onEditFindPrev()), QKeySequence::FindPrevious);
 	new QShortcut(QKeySequence(Qt::Key_Slash), this, SLOT(onEditFind()));
+	editMenu->addSeparator();
+    //editMenu->addAction(tr("Kopy"), m_server, SLOT(onCopyToClipboard()), QKeySequence(Qt::ControlModifier + Qt::Key_K));
+    editMenu->addAction(tr("Copy"), m_server, SLOT(onCopyToClipboard()), QKeySequence::Copy);
 
 	QMenu * tools = menuBar()->addMenu(tr("&Tools"));
 	tools->addAction(tr("Settings"), this, SLOT(onSettings()));

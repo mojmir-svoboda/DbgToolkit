@@ -1,3 +1,5 @@
+#include <QApplication>
+#include <QClipboard>
 #include <QtGui>
 #include <QtNetwork/QtNetwork>
 #include <stdlib.h>
@@ -26,29 +28,36 @@ Server::Server(QObject *parent)
 	status = tr("Server running at IP: %1 port: %2").arg(serverAddress().toString()).arg(serverPort());
 }
 
-void Server::exportStorageTo (QString const & filename)
+Connection * Server::findCurrentConnection ()
 {
-	MainWindow * main_window = static_cast<MainWindow *>(parent());
-	int const n = main_window->getTabTrace()->currentIndex();
-	if (n >= 0)
-	{
-		connections[n]->exportStorageTo(filename);
-	}
+	Q_ASSERT(parent());
+	int const n = static_cast<MainWindow *>(parent())->getTabTrace()->currentIndex();
+	return n >= 0 ? connections[n] : 0;
 }
 
-void Server::onSectionResized (int idx, int oldSize, int newSize)
+void Server::copyStorageTo (QString const & filename)
 {
-	MainWindow * main_window = static_cast<MainWindow *>(parent());
-	int const n = main_window->getTabTrace()->currentIndex();
-	if (n >= 0)
+	if (Connection * conn = findCurrentConnection())
+		conn->copyStorageTo(filename);
+}
+
+void Server::exportStorageToCSV (QString const & filename)
+{
+	if (Connection * conn = findCurrentConnection())
+		conn->exportStorageToCSV(filename);
+}
+
+void Server::onSectionResized (int idx, int /*oldSize*/, int newSize)
+{
+	if (Connection * conn = findCurrentConnection())
 	{
-		QString const & name = connections[n]->m_name;
+		QString const & name = conn->m_name;
 		if (name.length())
 		{
+			MainWindow * main_window = static_cast<MainWindow *>(parent());
 			size_t app_idx = main_window->findAppName(name);
 			if (idx < main_window->getColumnSizes(app_idx).size())
 			{
-				qDebug("onSectionResized idx=%i size: %i->%i", idx, oldSize, newSize);
 				main_window->getColumnSizes(app_idx)[idx] = newSize;
 			}
 		}
@@ -57,24 +66,28 @@ void Server::onSectionResized (int idx, int oldSize, int newSize)
 
 void Server::onApplyFilterClicked ()
 {
-	qDebug("apply button!");
-	MainWindow * main_window = static_cast<MainWindow *>(parent());
-	int const n = main_window->getTabTrace()->currentIndex();
-	if (n >= 0)
-		connections[n]->onApplyFilterClicked();
+	if (Connection * conn = findCurrentConnection())
+		conn->onApplyFilterClicked();
 }
 
 void Server::onLevelValueChanged (int val)
 {
-	qDebug("level changed!");
-	MainWindow * main_window = static_cast<MainWindow *>(parent());
-	int const n = main_window->getTabTrace()->currentIndex();
-	if (n >= 0)
-		connections[n]->onLevelValueChanged(val);
+	qDebug("level changed: %u", val);
+	if (Connection * conn = findCurrentConnection())
+		conn->onLevelValueChanged(val);
 }
 
 void Server::onEditingFinished ()
 {
+}
+
+void Server::onCopyToClipboard ()
+{
+	if (Connection * conn = findCurrentConnection())
+	{
+		QString selection = conn->onCopyToClipboard();
+        qApp->clipboard()->setText(selection);
+	}
 }
 
 void Server::onDoubleClickedAtFileTree (QModelIndex idx)
@@ -103,7 +116,7 @@ void Server::onDoubleClickedAtFileTree (QModelIndex idx)
 	for (std::vector<QString>::const_reverse_iterator it=s.rbegin(), ite=s.rend(); it != ite; ++it)
 		file += std::string("/") + (*it).toStdString();
 
-	qDebug("file=%s", file.c_str());
+	//qDebug("file=%s", file.c_str());
 
 	bool const checked = (item->checkState() == Qt::Checked);
 	Connection::fileline_t filter_item(file, std::string());
@@ -114,14 +127,13 @@ void Server::onDoubleClickedAtFileTree (QModelIndex idx)
 	}
 
 	qDebug("dbl click! (checked=%u) %s : %s", checked, filter_item.first.c_str(), filter_item.second.c_str());
-	int const n = main_window->getTabTrace()->currentIndex();
 
-	if (n >= 0)
+	if (Connection * conn = findCurrentConnection())
 	{
 		if (!checked)
-			connections[n]->appendFileFilter(filter_item);
+			conn->appendFileFilter(filter_item);
 		else
-			connections[n]->removeFileFilter(filter_item);
+			conn->removeFileFilter(filter_item);
 	}
 	item->setCheckState(checked ? Qt::Unchecked : Qt::Checked);
 }

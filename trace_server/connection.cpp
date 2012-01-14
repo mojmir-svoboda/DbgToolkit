@@ -58,6 +58,32 @@ void Connection::onLevelValueChanged (int val)
 	}
 }
 
+QString Connection::onCopyToClipboard ()
+{
+	QAbstractItemModel * model = m_table_view_widget->model();
+	QItemSelectionModel * selection = m_table_view_widget->selectionModel();
+	QModelIndexList indexes = selection->selectedIndexes();
+
+	if (indexes.size() < 1)
+		return QString();
+
+	std::sort(indexes.begin(), indexes.end());
+
+	QString selected_text;
+	selected_text.reserve(4096);
+	for (int i = 0; i < indexes.size(); ++i)
+	{
+		QModelIndex const current = indexes.at(i);
+		selected_text.append(model->data(current).toString());
+		
+		if (i + 1 < indexes.size() && current.row() != indexes.at(i + 1).row())
+			selected_text.append('\n');	// switching rows
+		else
+			selected_text.append('\t');
+	}
+	return selected_text;
+}
+
 void Connection::setupColumns (QList<QString> * cs)
 {
 	m_columns_setup = cs;
@@ -68,7 +94,6 @@ void Connection::setupColumns (QList<QString> * cs)
 		if (tag_idx != tlv::tag_invalid)
 		{
 			m_tags2columns.insert(tag_idx, static_cast<int>(i)); // column index is int in Qt toolkit
-			//m_columns2tags[i] = tag_idx;
 			m_table_view_widget->model()->insertColumn(i);
 			qDebug("Connection::setupColumns col[%u] tag_idx=%u tag_name=%s", i, tag_idx, cs->at(i).toStdString().c_str());
 		}
@@ -111,15 +136,6 @@ inline size_t read_min (boost::circular_buffer<char> & ring, char * dst, size_t 
 		ring.pop_front();
 	}
 	return min;
-}
-
-inline void Dump (DecodedCommand const & c)
-{
-#ifdef _DEBUG
-	qDebug("command.hdr.cmd = 0x%x command.hdr.len = 0x%x", c.hdr.cmd, c.hdr.len);
-	for (size_t i = 0; i < c.tvs.size(); ++i)
-		qDebug("tlv[%u] t=%02x val=%s", i, c.tvs[i].m_tag, c.tvs[i].m_val.c_str());
-#endif
 }
 
 template <class T, typename T_Ret, typename T_Arg0, typename T_Arg1>
@@ -453,7 +469,7 @@ bool Connection::setupStorage (QString const & name)
 	{
 		m_storage = new QFile(name + ".tlv_trace");
 		m_storage->open(QIODevice::WriteOnly);
-		m_datastream = new QDataStream(m_storage);	 // we will serialize the data into the file
+		m_datastream = new QDataStream(m_storage);
 
 		if (!m_datastream)
 		{
@@ -463,7 +479,7 @@ bool Connection::setupStorage (QString const & name)
 	return true;
 }
 
-void Connection::exportStorageTo (QString const & filename)
+void Connection::copyStorageTo (QString const & filename)
 {
 	if (m_storage)
 	{
@@ -480,6 +496,26 @@ void Connection::exportStorageTo (QString const & filename)
 	}
 }
 
+void Connection::exportStorageToCSV (QString const & filename)
+{
+	QFile csv(filename);
+	csv.open(QIODevice::WriteOnly);
+	QTextStream str(&csv);
+	for (size_t r = 0, re = m_table_view_widget->model()->rowCount(); r < re; ++r)
+	{
+		for (size_t c = 0, ce = m_table_view_widget->model()->columnCount(); c < ce; ++c)
+		{
+			QModelIndex current = m_table_view_widget->model()->index(r, c, QModelIndex());
+			QString txt = m_table_view_widget->model()->data(current).toString();
+			str << "\"" << txt << "\"";
+			if (c < ce - 1)
+				str << ",\t";
+		}
+		str << "\n";
+	}
+	csv.close();
+}
+
 void Connection::closeStorage ()
 {
 	if (m_storage)
@@ -490,5 +526,14 @@ void Connection::closeStorage ()
 		m_storage = 0;
 	}
 }
+
+/*inline void Dump (DecodedCommand const & c)
+{
+#ifdef _DEBUG
+	qDebug("command.hdr.cmd = 0x%x command.hdr.len = 0x%x", c.hdr.cmd, c.hdr.len);
+	for (size_t i = 0; i < c.tvs.size(); ++i)
+		qDebug("tlv[%u] t=%02x val=%s", i, c.tvs[i].m_tag, c.tvs[i].m_val.c_str());
+#endif
+}*/
 
 

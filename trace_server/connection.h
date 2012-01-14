@@ -1,3 +1,24 @@
+/**
+ * Copyright (C) 2011 Mojmir Svoboda
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ * of the Software, and to permit persons to whom the Software is furnished to do
+ * so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ **/
 #ifndef CONNECTION_H
 #define CONNECTION_H
 
@@ -73,26 +94,29 @@ public slots:
 	void onTabTraceFocus (int i);
 	void onLevelValueChanged (int i);
 	void onApplyFilterClicked ();
+	QString onCopyToClipboard ();
+
 private slots:
 	void processReadyRead ();
 	void onDisconnected ();
 
 private:
 	friend class Server;
+	template <class T, typename T_Ret, typename T_Arg0, typename T_Arg1>
+	void processStream (T *, T_Ret (T::*read_member_t)(T_Arg0, T_Arg1));
 	bool tryHandleCommand (DecodedCommand const & cmd);
 	bool handleLogCommand (DecodedCommand const & cmd);
 	bool handleSetupCommand (DecodedCommand const & cmd);
 	bool appendToFilters (DecodedCommand const & cmd);
-	//int findTreeChild(QTreeView * parent, QString const & text);
+
 	bool setupStorage (QString const & name);
 	QString createStorageName () const;
 	void processDataStream (QDataStream & stream);
-	void exportStorageTo (QString const & filename);
+	void copyStorageTo (QString const & filename);
+	void exportStorageToCSV (QString const & filename);
 	void closeStorage ();
-	template <class T, typename T_Ret, typename T_Arg0, typename T_Arg1>
-	void processStream (T *, T_Ret (T::*read_member_t)(T_Arg0, T_Arg1));
 
-
+private:
 	MainWindow * m_main_window;
 	int m_app_idx;
 	int m_tab_idx;
@@ -105,7 +129,6 @@ private:
 	QList<QColor> m_thread_colors;
 	QList<QString> * m_columns_setup;
 	QMap<tlv::tag_t, int> m_tags2columns;
-	//QMap<int, tlv::tag_t> m_columns2tags;
 	ThreadSpecific m_tls;
 	enum { e_ringbuff_size = 16 * 1024 };
 	boost::circular_buffer<char> m_buffer;
