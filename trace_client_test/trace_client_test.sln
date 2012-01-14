@@ -1,0 +1,29 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "trace_client_test", "trace_client_test.vcxproj", "{2B9DE205-1191-49B0-8E2E-BFF3751B234E}"
+	ProjectSection(ProjectDependencies) = postProject
+		{92093A9C-7187-4C3F-A915-6061866AE142} = {92093A9C-7187-4C3F-A915-6061866AE142}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "trace_client", "..\trace_client\trace_client.vcxproj", "{92093A9C-7187-4C3F-A915-6061866AE142}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2B9DE205-1191-49B0-8E2E-BFF3751B234E}.Debug|Win32.ActiveCfg = Debug|Win32
+		{2B9DE205-1191-49B0-8E2E-BFF3751B234E}.Debug|Win32.Build.0 = Debug|Win32
+		{2B9DE205-1191-49B0-8E2E-BFF3751B234E}.Release|Win32.ActiveCfg = Release|Win32
+		{2B9DE205-1191-49B0-8E2E-BFF3751B234E}.Release|Win32.Build.0 = Release|Win32
+		{92093A9C-7187-4C3F-A915-6061866AE142}.Debug|Win32.ActiveCfg = Debug|Win32
+		{92093A9C-7187-4C3F-A915-6061866AE142}.Debug|Win32.Build.0 = Debug|Win32
+		{92093A9C-7187-4C3F-A915-6061866AE142}.Release|Win32.ActiveCfg = Release|Win32
+		{92093A9C-7187-4C3F-A915-6061866AE142}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
