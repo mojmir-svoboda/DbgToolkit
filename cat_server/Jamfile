@@ -1,0 +1,32 @@
+import modules ;
+
+BOOST_ROOT = [ modules.peek : BOOST_ROOT ] ;
+
+if $(BOOST_ROOT)
+{
+	use-project /boost : $(BOOST_ROOT) ;
+}
+
+project cat_server
+   : requirements
+		<library>$(BOOST_ROOT)//system
+		<library>$(BOOST_ROOT)//thread
+
+		<threading>multi
+		#<library>../libtorrent-rasterbar-0.15.7//torrent
+		<include>$(BOOST_ROOT)
+		<define>_WIN32_WINNT=0x0501				# TODO: platform specific!
+		<define>BOOST_ALL_NO_LIB
+		<define>BOOST_ASIO_HASH_MAP_BUCKETS=1021
+		<define>BOOST_EXCEPTION_DISABLE
+		<define>BOOST_FILESYSTEM_VERSION=2
+		<define>BOOST_SYSTEM_STATIC_LINK=1
+		<define>BOOST_THREAD_USE_LIB=1
+		<define>UNICODE
+
+	: default-build
+		<link>static
+   ;  
+
+exe cat_server : main.cpp connection.cpp ;
+
