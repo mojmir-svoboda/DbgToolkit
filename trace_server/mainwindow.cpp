@@ -49,6 +49,7 @@ MainWindow::MainWindow(QWidget *parent)
 	connect(getTreeViewFile(), SIGNAL(doubleClicked(QModelIndex)), m_server, SLOT(onDoubleClickedAtFileTree(QModelIndex)));
 	connect(ui->applyButton, SIGNAL(clicked()), m_server, SLOT(onApplyFilterClicked()));
 	connect(ui->levelSpinBox, SIGNAL(valueChanged(int)), m_server, SLOT(onLevelValueChanged(int)));
+    connect(ui->filterFileCheckBox, SIGNAL(stateChanged(int)), m_server, SLOT(onFilterFile(int)));
 
 	QTimer::singleShot(0, this, SLOT(loadState()));	// trigger lazy load of settings
 
@@ -110,7 +111,6 @@ QTreeView * MainWindow::getTreeViewFunc () { return ui->treeViewFunc; }
 QTreeView const * MainWindow::getTreeViewFunc () const { return ui->treeViewFunc; }
 
 bool MainWindow::scopesEnabled () const { return ui->scopesCheckBox->isChecked(); }
-bool MainWindow::persistentEnabled () const { return ui->persistentCheckBox->isChecked(); }
 
 void MainWindow::onEditFind ()
 {

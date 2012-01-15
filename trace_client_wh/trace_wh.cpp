@@ -55,7 +55,7 @@ DWORD WINAPI do_something ( LPVOID )
 		++i;
 		TRACE(trace::e_Info, trace::CTX_Default,  "Thread tick i=%u", i);
 		something_useful();
-		Sleep(3000);
+		Sleep(100);
 	}
 	return 0;
 }
@@ -111,8 +111,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		++i;
 		TRACE(trace::e_Info, trace::CTX_Default,  "Some another annoying message i=%u from main thread", i);
 
-		if (i == 4)
-			break;
+		//if (i == 4)
+		//	break;
 	}
 
 	g_Quit = 1;

@@ -25,14 +25,11 @@
        </widget>
       </item>
       <item>
-       <widget class="QCheckBox" name="persistentCheckBox">
+       <widget class="QCheckBox" name="filterFileCheckBox">
         <property name="text">
-         <string>Persistent</string>
+         <string>filterFile</string>
         </property>
        </widget>
-      </item>
-      <item>
-       <widget class="QSpinBox" name="levelSpinBox"/>
       </item>
       <item>
        <widget class="QPushButton" name="applyButton">
@@ -40,6 +37,9 @@
          <string>ApplyFlt!</string>
         </property>
        </widget>
+      </item>
+      <item>
+       <widget class="QSpinBox" name="levelSpinBox"/>
       </item>
       <item>
        <spacer name="horizontalSpacer">

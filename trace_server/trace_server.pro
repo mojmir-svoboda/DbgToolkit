@@ -26,7 +26,8 @@ SOURCES += main.cpp\
         mainwindow.cpp \
     modelview.cpp \
     server.cpp \
-    connection.cpp
+    connection.cpp \
+    sessionstate.cpp
 
 HEADERS  += mainwindow.h \
     modelview.h \
@@ -37,7 +38,8 @@ HEADERS  += mainwindow.h \
     ../tlv_parser/tlv_decoder.h \
     ../filters/nnode.hpp \
     ../filters/file_filter.hpp \
-    ../trace_client/trace.h
+    ../trace_client/trace.h \
+    sessionstate.h
 
 FORMS    += mainwindow.ui \
     settings.ui

@@ -26,8 +26,11 @@
 #include <QString>
 #include <vector>
 #include "../tlv_parser/tlv_parser.h"
+#include "sessionstate.h"
 
 class Connection;
+class SessionState;
+class QSortFilterProxyModel;
 
 class ModelView : public QAbstractTableModel
 {
@@ -40,7 +43,7 @@ public:
 	QVariant headerData (int section, Qt::Orientation orientation, int role) const;
 
 	void transactionStart ();
-	void appendCommand (tlv::StringCommand const & cmd, bool & excluded);
+	void appendCommand (QSortFilterProxyModel * filter, tlv::StringCommand const & cmd);
 	void transactionCommit ();
 
 	bool checkExistence (QModelIndex const & index) const;
@@ -52,7 +55,8 @@ public slots:
 
 private:
 
-	Connection * m_connection;
+	//Connection * m_connection;
+	SessionState & m_session_state;
 	typedef std::vector<QString> columns_t;
 	typedef std::vector<columns_t> rows_t;
 	rows_t m_rows;

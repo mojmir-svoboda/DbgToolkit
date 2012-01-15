@@ -25,20 +25,19 @@
 #include <QHostAddress>
 #include <QString>
 #include <QTcpSocket>
-#include <QTime>
-#include <QTimer>
 #include <QTableView>
-#include <QStandardItemModel>
+#include <QSortFilterProxyModel>
 #include "mainwindow.h"
 #include "../tlv_parser/tlv_parser.h"
 #include "../tlv_parser/tlv_decoder.h"
 #include "../filters/file_filter.hpp"
-#include "tls.h"
 #include <boost/circular_buffer.hpp>
+#include "sessionstate.h"
 
 class Server;
 class QFile;
 class QDataStream;
+class QStandardItemModel;
 
 struct DecodedCommand : tlv::StringCommand
 {
@@ -58,34 +57,39 @@ struct DecodedCommand : tlv::StringCommand
 	}
 };
 
+class FilterProxyModel : public QSortFilterProxyModel
+{
+	Q_OBJECT
+
+public:
+	FilterProxyModel (QObject * parent, SessionState & ss);
+
+public slots:
+	void force_update();
+
+protected:
+	bool filterAcceptsRow (int sourceRow, QModelIndex const & sourceParent) const;
+	SessionState & m_session_state;
+};
+
+
+/**@class		Connection
+ * @brief		represents incoming connection (or file stream)
+ */
 class Connection : public QTcpSocket
 {
 	Q_OBJECT
 public:
 	explicit Connection(QObject *parent = 0);
 	~Connection ();
-	void setTabWidget (int n) { m_tab_idx = n; }
-	void setTableViewWidget (QTableView * w) { m_table_view_widget = w; }
 	void setMainWindow (MainWindow * w) { m_main_window = w; }
-	void setupColumns (QList<QString> * cs);
-	void setupThreadColors (QList<QColor> const & tc);
-	void setupModelFile ();
-	QList<QString> const * getColumnsSetup() const { return m_columns_setup; }
-	QList<QString> * getColumnsSetup() { return m_columns_setup; }
-	int findColumn4Tag (tlv::tag_t tag) const;
-	void insertColumn4Tag (tlv::tag_t tag, int column_idx);
-	void insertColumn ();
-	QList<QColor> const & getThreadColors () const { return m_thread_colors; }
-	ThreadSpecific & getTLS () { return m_tls; }
-	ThreadSpecific const & getTLS () const { return m_tls; }
-
-	typedef std::pair<std::string, std::string> fileline_t;
-	typedef file_filter file_filters_t;
-	file_filters_t const & getFileFilters () const { return m_file_filters; }
-	void appendFileFilter(fileline_t const & item);
-	void removeFileFilter(fileline_t const & item);
-	bool isFileLineExcluded (fileline_t const & p);
+	void setTableViewWidget (QTableView * w) { m_table_view_widget = w; }
 	
+	SessionState & sessionState () { return m_session_state; }
+	SessionState const & sessionState () const { return m_session_state; }
+
+	void setupModelFile ();
+
 signals:
 	void readyForUse();
 	void newMessage (QString const & from, QString const & message);
@@ -95,6 +99,7 @@ public slots:
 	void onLevelValueChanged (int i);
 	void onApplyFilterClicked ();
 	QString onCopyToClipboard ();
+	void onFilterFile (int state);
 
 private slots:
 	void processReadyRead ();
@@ -118,23 +123,17 @@ private:
 
 private:
 	MainWindow * m_main_window;
-	int m_app_idx;
-	int m_tab_idx;
+	SessionState m_session_state;
 	int m_from_file;
 	QTableView * m_table_view_widget;
-	file_filters_t m_file_filters;
 	QStandardItemModel * m_tree_view_file_model;
 	QStandardItemModel * m_tree_view_func_model;
+	QSortFilterProxyModel * m_table_view_proxy;
 
-	QList<QColor> m_thread_colors;
-	QList<QString> * m_columns_setup;
-	QMap<tlv::tag_t, int> m_tags2columns;
-	ThreadSpecific m_tls;
 	enum { e_ringbuff_size = 16 * 1024 };
 	boost::circular_buffer<char> m_buffer;
 	DecodedCommand m_current_cmd;
 	tlv::TVDecoder m_decoder;
-	QString m_name;
 	QFile * m_storage;
 	QDataStream * m_datastream;
 };

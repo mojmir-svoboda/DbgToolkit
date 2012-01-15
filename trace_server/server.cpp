@@ -47,21 +47,11 @@ void Server::exportStorageToCSV (QString const & filename)
 		conn->exportStorageToCSV(filename);
 }
 
-void Server::onSectionResized (int idx, int /*oldSize*/, int newSize)
+void Server::onSectionResized (int idx, int /*old_size*/, int new_size)
 {
 	if (Connection * conn = findCurrentConnection())
-	{
-		QString const & name = conn->m_name;
-		if (name.length())
-		{
-			MainWindow * main_window = static_cast<MainWindow *>(parent());
-			size_t app_idx = main_window->findAppName(name);
-			if (idx < main_window->getColumnSizes(app_idx).size())
-			{
-				main_window->getColumnSizes(app_idx)[idx] = newSize;
-			}
-		}
-	}
+		if (conn->sessionState().getColumnSizes() && idx < conn->sessionState().getColumnSizes()->size())
+			conn->sessionState().getColumnSizes()->operator[](idx) = new_size;
 }
 
 void Server::onApplyFilterClicked ()
@@ -88,6 +78,12 @@ void Server::onCopyToClipboard ()
 		QString selection = conn->onCopyToClipboard();
         qApp->clipboard()->setText(selection);
 	}
+}
+
+void Server::onFilterFile (int state)
+{
+	if (Connection * conn = findCurrentConnection())
+		conn->onFilterFile(state);
 }
 
 void Server::onDoubleClickedAtFileTree (QModelIndex idx)
@@ -119,7 +115,7 @@ void Server::onDoubleClickedAtFileTree (QModelIndex idx)
 	//qDebug("file=%s", file.c_str());
 
 	bool const checked = (item->checkState() == Qt::Checked);
-	Connection::fileline_t filter_item(file, std::string());
+	fileline_t filter_item(file, std::string());
 	if (line_item)
 	{
 		QString const & val = model->data(idx, Qt::DisplayRole).toString();
@@ -131,9 +127,9 @@ void Server::onDoubleClickedAtFileTree (QModelIndex idx)
 	if (Connection * conn = findCurrentConnection())
 	{
 		if (!checked)
-			conn->appendFileFilter(filter_item);
+			conn->sessionState().appendFileFilter(filter_item);
 		else
-			conn->removeFileFilter(filter_item);
+			conn->sessionState().removeFileFilter(filter_item);
 	}
 	item->setCheckState(checked ? Qt::Unchecked : Qt::Checked);
 }
@@ -156,9 +152,9 @@ Connection * Server::createNewTableView ()
 	tableView->setModel(model);
 	horizontalLayout->addWidget(tableView);
 	connection->setTableViewWidget(tableView);
-	connection->setupThreadColors(main_window->getThreadColors());
+	connection->sessionState().setupThreadColors(main_window->getThreadColors());
 	int const n = main_window->getTabTrace()->addTab(tab, QString::fromUtf8("???"));
-	connection->setTabWidget(n);
+	connection->sessionState().setTabWidget(n);
 	main_window->getTabTrace()->setCurrentIndex(n);
 	connections.insert(std::make_pair(n, connection));
 	QObject::connect(main_window->getTabTrace(), SIGNAL(currentChanged(int)), connection, SLOT(onTabTraceFocus(int)));
@@ -170,7 +166,6 @@ void Server::incomingDataStream (QDataStream & stream)
 {
 	MainWindow * main_window = static_cast<MainWindow *>(parent());
 	Connection * connection = createNewTableView ();
-	qDebug("new data stream in tab=%i", connection->m_tab_idx);
 	main_window->statusBar()->showMessage(tr("Importing file!"));
 	connection->processDataStream(stream);
 }
@@ -182,7 +177,6 @@ void Server::incomingConnection (int socketDescriptor)
 	connection->setSocketDescriptor(socketDescriptor);
 	QObject::connect(connection, SIGNAL(readyRead()), connection, SLOT(processReadyRead()));
 	QObject::connect(connection, SIGNAL(disconnected()), connection, SLOT(onDisconnected()));
-	qDebug("new connection in tab=%i", connection->m_tab_idx);
 	main_window->statusBar()->showMessage(tr("Incomming connection!"));
 	emit newConnection(connection);
 }

@@ -5,6 +5,10 @@
 #include <QHeaderView>
 #include <QFile>
 #include <QDataStream>
+#include <QTime>
+#include <QTimer>
+#include <QSortFilterProxyModel>
+#include <QStandardItemModel>
 #include "modelview.h"
 #include <boost/tokenizer.hpp>
 #include "../tlv_parser/tlv_encoder.h"
@@ -12,17 +16,14 @@
 Connection::Connection (QObject * parent)
 	: QTcpSocket(parent)
 	, m_main_window(0)
-	, m_app_idx(-1)
-	, m_tab_idx(-2)
 	, m_from_file(false)
 	, m_table_view_widget(0)
 	, m_tree_view_file_model(0)
 	, m_tree_view_func_model(0)
-	, m_columns_setup(0)
+	, m_table_view_proxy(0)
 	, m_buffer(e_ringbuff_size)
 	, m_current_cmd()
 	, m_decoder()
-	, m_name()
 	, m_storage(0)
 	, m_datastream(0)
 { }
@@ -37,7 +38,7 @@ void Connection::onDisconnected ()
 
 void Connection::onTabTraceFocus (int i)
 {
-	if (i != m_tab_idx)
+	if (i != sessionState().m_tab_idx)
 		return;
 	m_main_window->getTreeViewFile()->setModel(m_tree_view_file_model);
 }
@@ -82,45 +83,6 @@ QString Connection::onCopyToClipboard ()
 			selected_text.append('\t');
 	}
 	return selected_text;
-}
-
-void Connection::setupColumns (QList<QString> * cs)
-{
-	m_columns_setup = cs;
-	m_tags2columns.clear();
-	for (size_t i = 0, ie = cs->size(); i < ie; ++i)
-	{
-		size_t const tag_idx = tlv::tag_for_name(cs->at(i).toStdString().c_str());
-		if (tag_idx != tlv::tag_invalid)
-		{
-			m_tags2columns.insert(tag_idx, static_cast<int>(i)); // column index is int in Qt toolkit
-			m_table_view_widget->model()->insertColumn(i);
-			qDebug("Connection::setupColumns col[%u] tag_idx=%u tag_name=%s", i, tag_idx, cs->at(i).toStdString().c_str());
-		}
-	}
-	m_current_cmd.tvs.reserve(cs->size());
-}
-
-void Connection::setupThreadColors (QList<QColor> const & tc)
-{
-	m_thread_colors = tc;
-}
-
-int Connection::findColumn4Tag (tlv::tag_t tag) const
-{
-	QMap<tlv::tag_t, int>::const_iterator it = m_tags2columns.find(tag);
-	if (it != m_tags2columns.end())
-		return it.value();
-	return -1;
-}
-void Connection::insertColumn4Tag (tlv::tag_t tag, int column_idx)
-{
-	m_tags2columns.insert(tag, column_idx);
-}
-void Connection::insertColumn ()
-{
-	m_columns_setup->push_back(QString());
-	m_main_window->getColumnSizes(m_app_idx).push_back(127);
 }
 
 
@@ -273,7 +235,7 @@ bool Connection::tryHandleCommand (DecodedCommand const & cmd)
 		static bool first = true;
 		if (first)
 		{*/
-			MainWindow::columns_sizes_t const & sizes = m_main_window->getColumnSizes(m_app_idx);
+			MainWindow::columns_sizes_t const & sizes = m_main_window->getColumnSizes(sessionState().m_app_idx);
 			for (size_t c = 0, ce = sizes.size(); c < ce; ++c)
 			{
 				m_table_view_widget->horizontalHeader()->resizeSection(c, sizes.at(c));
@@ -295,16 +257,17 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 		if (cmd.tvs[i].m_tag == tlv::tag_app)
 		{
 			QString app_name = QString::fromStdString(cmd.tvs[i].m_val);
-			m_name = app_name;
-			m_main_window->getTabTrace()->setTabText(m_tab_idx, app_name + QString::number(m_tab_idx));
+			sessionState().m_name = app_name;
+			m_main_window->getTabTrace()->setTabText(sessionState().m_tab_idx, app_name + QString::number(sessionState().m_tab_idx));
 			QString storage_name = createStorageName();
 			setupStorage(storage_name);
 
-			m_app_idx = m_main_window->findAppName(app_name);
-			m_columns_setup = &m_main_window->getColumnSetup(m_app_idx);
-			if (m_main_window->getColumnSetup(m_app_idx).size())	// load if config already exists
+			sessionState().m_app_idx = m_main_window->findAppName(app_name);
+			sessionState().m_columns_setup = &m_main_window->getColumnSetup(sessionState().m_app_idx);
+			if (m_main_window->getColumnSetup(sessionState().m_app_idx).size())	// load if config already exists
 			{
-				setupColumns(&m_main_window->getColumnSetup(m_app_idx));
+				sessionState().setupColumns(&m_main_window->getColumnSetup(sessionState().m_app_idx),
+						&m_main_window->getColumnSizes(sessionState().m_app_idx));
 				/*MainWindow::columns_sizes_t const & sizes = m_main_window->getColumnSizes(m_app_idx);
 				for (size_t c = 0, ce = sizes.size(); c < ce; ++c)
 				{
@@ -312,6 +275,14 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 				}*/
 			}
 
+			m_current_cmd.tvs.reserve(sessionState().m_columns_setup->size());
+
+			for (size_t i = 0, ie = sessionState().m_columns_setup->size(); i < ie; ++i)
+			{
+				m_table_view_widget->model()->insertColumn(i);
+			}
+
+			//m_table_view_widget->emit layoutChanged();
 		}
 	}
 	return true;
@@ -320,33 +291,88 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 bool Connection::handleLogCommand (DecodedCommand const & cmd)
 {
 	appendToFilters(cmd);
-	bool excluded = false;
 
 	if (cmd.hdr.cmd == tlv::cmd_scope_entry || (cmd.hdr.cmd == tlv::cmd_scope_exit))
 	{
-		// @TODO: hack na nefungujici scopes
-		//static_cast<ModelView *>(m_table_view_widget->model())->appendCommand(cmd, excluded);
 		if (!m_main_window->scopesEnabled())
 		{
-			excluded = true;
-		}
-		if (excluded) //@TODO: hack dup!
-		{
-			//m_table_view_widget->hideRow(m_table_view_widget->model()->rowCount() - 1);
+			if (m_table_view_proxy)
+			{
+				static_cast<ModelView *>(m_table_view_proxy->sourceModel())->appendCommand(m_table_view_proxy, cmd);
+			}
+			else
+			{
+				static_cast<ModelView *>(m_table_view_widget->model())->appendCommand(0, cmd);
+			}
 		}
 	}
 	else if (cmd.hdr.cmd == tlv::cmd_log)
 	{
-		static_cast<ModelView *>(m_table_view_widget->model())->appendCommand(cmd, excluded);
-		if (excluded)
+		if (m_table_view_proxy)
 		{
-			m_table_view_widget->hideRow(m_table_view_widget->model()->rowCount() - 1);
+			static_cast<ModelView *>(m_table_view_proxy->sourceModel())->appendCommand(m_table_view_proxy, cmd);
+		}
+		else
+		{
+			static_cast<ModelView *>(m_table_view_widget->model())->appendCommand(0, cmd);
 		}
 	}
 	return true;
 }
 
 //////////////////// filtering stuff //////////////////////////////
+FilterProxyModel::FilterProxyModel (QObject * parent, SessionState & ss) : QSortFilterProxyModel(parent), m_session_state(ss) { }
+
+void FilterProxyModel::force_update()
+{
+	invalidate();
+}
+
+bool FilterProxyModel::filterAcceptsRow (int sourceRow, QModelIndex const & sourceParent) const
+{
+	QString file, line;
+	int const col_idx = m_session_state.findColumn4Tag(tlv::tag_file);
+	if (col_idx >= 0)
+	{
+		QModelIndex data_idx = sourceModel()->index(sourceRow, col_idx, QModelIndex());
+		file = sourceModel()->data(data_idx).toString();
+	}
+	int const col_idx2 = m_session_state.findColumn4Tag(tlv::tag_line);
+	if (col_idx2 >= 0)
+	{
+		QModelIndex data_idx2 = sourceModel()->index(sourceRow, col_idx2, QModelIndex());
+		line = sourceModel()->data(data_idx2).toString();
+	}
+
+	bool const excluded = m_session_state.isFileLineExcluded(std::make_pair(file.toStdString(), line.toStdString()));
+	return !excluded;
+}
+
+void Connection::onFilterFile (int state)
+{
+	if (state == Qt::Unchecked)
+	{
+		m_table_view_widget->setModel(m_table_view_proxy->sourceModel());
+	}
+	else if (state == Qt::Checked)
+	{
+		if (!m_table_view_proxy)
+		{
+			m_table_view_proxy = new FilterProxyModel(this, m_session_state);
+
+			m_table_view_proxy->setSourceModel(m_table_view_widget->model());
+			m_table_view_widget->setModel(m_table_view_proxy);
+			m_table_view_proxy->setDynamicSortFilter(true);
+
+			connect(m_table_view_proxy->sourceModel(), SIGNAL(dataChanged(QModelIndex, QModelIndex)), m_table_view_proxy, SLOT(sourceDataChanged(QModelIndex, QModelIndex)));
+		}
+		else
+		{
+			m_table_view_widget->setModel(m_table_view_proxy);
+		}
+	}
+}
+
 void Connection::setupModelFile ()
 {
 	m_tree_view_file_model = new QStandardItemModel;
@@ -356,8 +382,8 @@ void Connection::setupModelFile ()
 
 void Connection::onApplyFilterClicked ()
 {
-	//excluded = m_connection->isFileLineExcluded(std::make_pair(file, line));
-	//m_table_view_widget->hideRow(m_table_view_widget->model()->rowCount() - 1);
+	if (m_table_view_proxy)
+		static_cast<FilterProxyModel *>(m_table_view_proxy)->force_update();
 }
 
 inline QList<QStandardItem *> addRow (QString const & str)
@@ -368,7 +394,7 @@ inline QList<QStandardItem *> addRow (QString const & str)
 	return row_items;
 }
 
-QStandardItem * findChildByText (QStandardItem * parent, QString const & txt)
+inline QStandardItem * findChildByText (QStandardItem * parent, QString const & txt)
 {
 	for (size_t i = 0, ie = parent->rowCount(); i < ie; ++i)
 	{
@@ -376,22 +402,6 @@ QStandardItem * findChildByText (QStandardItem * parent, QString const & txt)
 			return parent->child(i);
 	}
 	return 0;
-}
-
-bool Connection::isFileLineExcluded (fileline_t const & item)
-{
-	return m_file_filters.is_excluded(item.first + "/" + item.second);
-}
-
-void Connection::appendFileFilter (fileline_t const & item)
-{
-	m_file_filters.append(item.first + "/" + item.second);
-}
-
-void Connection::removeFileFilter (fileline_t const & item)
-{
-	m_file_filters.exclude_off(item.first + "/" + item.second);
-	//@TODO: if removing (file:.*), call showRows on corresponding lines! (or on Apply button click?)
 }
 
 bool Connection::appendToFilters (DecodedCommand const & cmd)
@@ -407,11 +417,11 @@ bool Connection::appendToFilters (DecodedCommand const & cmd)
 
 		if (cmd.tvs[i].m_tag == tlv::tag_tid)
 		{
-			int idx = m_tls.findThreadId(cmd.tvs[i].m_val);
+			int idx = sessionState().m_tls.findThreadId(cmd.tvs[i].m_val);
 			if (cmd.hdr.cmd == tlv::cmd_scope_entry)
-				m_tls.incrIndent(idx);
+				sessionState().m_tls.incrIndent(idx);
 			if (cmd.hdr.cmd == tlv::cmd_scope_exit)
-				m_tls.decrIndent(idx);
+				sessionState().m_tls.decrIndent(idx);
 		}
 	}
 
@@ -460,7 +470,7 @@ bool Connection::appendToFilters (DecodedCommand const & cmd)
 //////////////////// storage stuff //////////////////////////////
 QString Connection::createStorageName () const
 {
-	return m_name + QString::number(m_tab_idx);
+	return sessionState().m_name + QString::number(sessionState().m_tab_idx);
 }
 
 bool Connection::setupStorage (QString const & name)

@@ -54,6 +54,7 @@ public slots:
 	void onApplyFilterClicked ();
 	void onLevelValueChanged (int val);
 	void onCopyToClipboard ();
+	void onFilterFile (int state);
 
 protected:
 	void incomingConnection (int socketDescriptor);
