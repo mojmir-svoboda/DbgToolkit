@@ -82,8 +82,8 @@ struct Bar
 int main ()
 {
 	TRACE_APPNAME("testing application");
-	TRACE_CONNECT();
 	TRACE_SETLEVEL(trace::e_Debug);
+	TRACE_CONNECT();
 	// @TODO: following line crashes!
 	//TRACE(trace::e_Info, trace::CTX_Default,	"this is %s", "first message");
 	TRACE(trace::e_Info, trace::CTX_Default,  "args: %s and %s", "first arg", "second arg");

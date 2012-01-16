@@ -67,6 +67,7 @@ public:
 	QTreeView const * getTreeViewFile () const;
 	QTreeView * getTreeViewFunc ();
 	QTreeView const * getTreeViewFunc () const;
+	void setLevel (int i);
 	bool scopesEnabled () const;
 	bool autoScollEnabled () const;
 	void changeEvent (QEvent* e);

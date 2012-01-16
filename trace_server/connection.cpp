@@ -12,6 +12,7 @@
 #include "modelview.h"
 #include <boost/tokenizer.hpp>
 #include "../tlv_parser/tlv_encoder.h"
+#include "../trace_client/trace.h"
 
 Connection::Connection (QObject * parent)
 	: QThread(parent)
@@ -36,6 +37,8 @@ void Connection::onDisconnected ()
 {
 	qDebug("onDisconnected()");
 	closeStorage();
+	delete m_tcpstream;
+	m_tcpstream = 0;
 }
 
 void Connection::onTabTraceFocus (int i)
@@ -56,8 +59,8 @@ void Connection::onLevelValueChanged (int val)
 		using namespace tlv;
 		Encoder e(cmd_set_level, buff, 256);
 		e.Encode(TLV(tag_lvl, tlv_buff));
-		//if (e.Commit())
-			//write(e.buffer, e.total_len); /// @TODO:
+		if (m_tcpstream && e.Commit())
+			m_tcpstream->write(e.buffer, e.total_len); /// @TODO: async write
 	}
 }
 
@@ -287,6 +290,12 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 	qDebug("handle setup command");
 	for (size_t i=0, ie=cmd.tvs.size(); i < ie; ++i)
 	{
+		if (cmd.tvs[i].m_tag == tlv::tag_lvl)
+		{
+			int const level = QString::fromStdString(cmd.tvs[i].m_val).toInt();
+            m_main_window->setLevel(level);
+		}
+
 		if (cmd.tvs[i].m_tag == tlv::tag_app)
 		{
 			QString app_name = QString::fromStdString(cmd.tvs[i].m_val);

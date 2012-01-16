@@ -115,6 +115,11 @@ QTreeView const * MainWindow::getTreeViewFunc () const { return ui->treeViewFunc
 bool MainWindow::scopesEnabled () const { return ui->scopesCheckBox->isChecked(); }
 bool MainWindow::autoScollEnabled () const { return ui->autoScrollCheckBox->isChecked(); }
 
+void MainWindow::setLevel (int i)
+{
+    ui->levelSpinBox->setValue(i);
+}
+
 void MainWindow::onEditFind ()
 {
 	int const tab_idx = getTabTrace()->currentIndex();
