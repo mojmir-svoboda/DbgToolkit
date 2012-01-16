@@ -18,7 +18,24 @@
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
+       <widget class="QCheckBox" name="autoScrollCheckBox">
+        <property name="font">
+         <font>
+          <pointsize>7</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>autoScroll</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QCheckBox" name="scopesCheckBox">
+        <property name="font">
+         <font>
+          <pointsize>7</pointsize>
+         </font>
+        </property>
         <property name="text">
          <string>Scopes</string>
         </property>
@@ -26,6 +43,11 @@
       </item>
       <item>
        <widget class="QCheckBox" name="filterFileCheckBox">
+        <property name="font">
+         <font>
+          <pointsize>7</pointsize>
+         </font>
+        </property>
         <property name="text">
          <string>filterFile</string>
         </property>
@@ -33,6 +55,11 @@
       </item>
       <item>
        <widget class="QPushButton" name="applyButton">
+        <property name="font">
+         <font>
+          <pointsize>7</pointsize>
+         </font>
+        </property>
         <property name="text">
          <string>ApplyFlt!</string>
         </property>

@@ -68,6 +68,7 @@ public:
 	QTreeView * getTreeViewFunc ();
 	QTreeView const * getTreeViewFunc () const;
 	bool scopesEnabled () const;
+	bool autoScollEnabled () const;
 	void changeEvent (QEvent* e);
 	void dropEvent (QDropEvent * event);
 	void dragEnterEvent (QDragEnterEvent *event);

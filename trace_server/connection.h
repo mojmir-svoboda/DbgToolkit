@@ -27,6 +27,7 @@
 #include <QTcpSocket>
 #include <QTableView>
 #include <QSortFilterProxyModel>
+#include <QThread>
 #include "mainwindow.h"
 #include "../tlv_parser/tlv_parser.h"
 #include "../tlv_parser/tlv_decoder.h"
@@ -41,7 +42,8 @@ class QStandardItemModel;
 
 struct DecodedCommand : tlv::StringCommand
 {
-	std::vector<char> orig_message;
+	enum { e_max_sz = 2048 };
+	char orig_message[e_max_sz];
 	bool written_hdr;
 	bool written_payload;
 
@@ -49,8 +51,6 @@ struct DecodedCommand : tlv::StringCommand
 
 	void Reset ()
 	{
-		orig_message.clear();
-		orig_message.resize(2038);
 		written_hdr = written_payload = false;
 		hdr.Reset();
 		tvs.clear();
@@ -76,7 +76,7 @@ protected:
 /**@class		Connection
  * @brief		represents incoming connection (or file stream)
  */
-class Connection : public QTcpSocket
+class Connection : public QThread
 {
 	Q_OBJECT
 public:
@@ -88,11 +88,15 @@ public:
 	SessionState & sessionState () { return m_session_state; }
 	SessionState const & sessionState () const { return m_session_state; }
 
+	void setSocketDescriptor (int sd);
+
 	void setupModelFile ();
+	void run ();
 
 signals:
 	void readyForUse();
 	void newMessage (QString const & from, QString const & message);
+	void handleCommands ();
 	
 public slots:
 	void onTabTraceFocus (int i);
@@ -100,6 +104,7 @@ public slots:
 	void onApplyFilterClicked ();
 	QString onCopyToClipboard ();
 	void onFilterFile (int state);
+	void onHandleCommands ();
 
 private slots:
 	void processReadyRead ();
@@ -125,6 +130,7 @@ private:
 	MainWindow * m_main_window;
 	SessionState m_session_state;
 	int m_from_file;
+	bool m_first_line;
 	QTableView * m_table_view_widget;
 	QStandardItemModel * m_tree_view_file_model;
 	QStandardItemModel * m_tree_view_func_model;
@@ -133,9 +139,12 @@ private:
 	enum { e_ringbuff_size = 16 * 1024 };
 	boost::circular_buffer<char> m_buffer;
 	DecodedCommand m_current_cmd;
+	enum { e_ringcmd_size = 128 };
+	boost::circular_buffer<DecodedCommand> m_decoded_cmds;
 	tlv::TVDecoder m_decoder;
 	QFile * m_storage;
 	QDataStream * m_datastream;
+	QTcpSocket * m_tcpstream;
 };
 
 #endif // CONNECTION_H

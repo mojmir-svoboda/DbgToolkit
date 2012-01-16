@@ -175,10 +175,15 @@ void Server::incomingConnection (int socketDescriptor)
 	MainWindow * main_window = static_cast<MainWindow *>(parent());
 	Connection * connection = createNewTableView ();
 	connection->setSocketDescriptor(socketDescriptor);
-	QObject::connect(connection, SIGNAL(readyRead()), connection, SLOT(processReadyRead()));
-	QObject::connect(connection, SIGNAL(disconnected()), connection, SLOT(onDisconnected()));
+	QObject::connect(connection->m_tcpstream, SIGNAL(readyRead()), connection, SLOT(processReadyRead()));
+	QObject::connect(connection->m_tcpstream, SIGNAL(disconnected()), connection, SLOT(onDisconnected()));
 	main_window->statusBar()->showMessage(tr("Incomming connection!"));
 	emit newConnection(connection);
-}
 
+	// this is supposed to use blocking reads in own thread
+	/*Connection * connection = createNewTableView ();
+	connection->setSocketDescriptor(socketDescriptor);
+    connect(connection, SIGNAL(finished()), connection, SLOT(deleteLater()));
+	connection->start();*/
+}
 

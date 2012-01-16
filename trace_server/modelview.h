@@ -42,9 +42,11 @@ public:
 	QVariant data (const QModelIndex & index, int role = Qt::DisplayRole) const;
 	QVariant headerData (int section, Qt::Orientation orientation, int role) const;
 
-	void transactionStart ();
+	void transactionStart (size_t n);
 	void appendCommand (QSortFilterProxyModel * filter, tlv::StringCommand const & cmd);
 	void transactionCommit ();
+
+	void emitLayoutChanged ();
 
 	bool checkExistence (QModelIndex const & index) const;
 	bool checkColumnExistence (tlv::tag_t tag, QModelIndex const & index) const;

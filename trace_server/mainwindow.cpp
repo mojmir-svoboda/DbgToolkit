@@ -14,7 +14,9 @@
 #include <QVariant>
 #include <QDropEvent>
 #include <QDragEnterEvent>
+#include <QItemDelegate>
 #include <QUrl>
+#include "settings.h"
 #include "../tlv_parser/tlv_parser.h"
 
 #ifdef WIN32
@@ -111,6 +113,7 @@ QTreeView * MainWindow::getTreeViewFunc () { return ui->treeViewFunc; }
 QTreeView const * MainWindow::getTreeViewFunc () const { return ui->treeViewFunc; }
 
 bool MainWindow::scopesEnabled () const { return ui->scopesCheckBox->isChecked(); }
+bool MainWindow::autoScollEnabled () const { return ui->autoScrollCheckBox->isChecked(); }
 
 void MainWindow::onEditFind ()
 {
@@ -204,65 +207,6 @@ void MainWindow::onHotkeyShowOrHide ()
 	}
 }
 
-namespace {
-	struct SettingsModelView : QAbstractTableModel
-	{
-		//Q_OBJECT
-	public:
-		explicit SettingsModelView (QList<QString> const & app_names,
-					QList<MainWindow::columns_setup_t> const & col_setup)
-			: QAbstractTableModel(0)
-			, m_app_names(app_names)
-			, m_rows()
-		{
-			for (size_t i = 0, ie = app_names.size(); i < ie; ++i)
-			{
-				m_rows.push_back(QString());
-
-				for (size_t j = 0, je = col_setup.at(i).size(); j < je; ++j)
-					m_rows.back() += col_setup.at(i).at(j) + QString(", ");
-			}
-		}
-		virtual ~SettingsModelView () { }
-		int rowCount (const QModelIndex & parent = QModelIndex()) const { return m_app_names.size(); }
-		int columnCount (const QModelIndex & parent = QModelIndex()) const { return 2; }
-		QVariant data (const QModelIndex & index, int role = Qt::DisplayRole) const
-		{
-			if (role == Qt::DisplayRole)
-			{
-				QString str("");
-				if (index.column() == 0)
-					if (index.row() < m_app_names.size())
-						return m_app_names[index.row()];
-				if (index.column() == 1)
-                    if (index.row() < (int)m_rows.size())
-						return m_rows[index.row()];
-				return str;
-			}
-			return QVariant();
-		}
-		QVariant headerData (int section, Qt::Orientation orientation, int role) const
-		{
-			if (role == Qt::DisplayRole && orientation == Qt::Horizontal)
-			{
-				if (section == 0)
-					return QString("Application name");
-				if (section == 1)	
-					return QString("tags separated by ,");
-			}
-			return QVariant();
-		}
-
-	signals:
-		
-	public slots:
-
-	private:
-
-		QList<QString> const & m_app_names;
-		std::vector<QString> m_rows;
-	};
-}
 void MainWindow::onSettings ()
 {
 	QDialog dialog(this);
@@ -284,6 +228,9 @@ void MainWindow::onSettings ()
 	sett_dialog.tagsTableView->setModel(&model);
 	sett_dialog.tagsTableView->horizontalHeader()->resizeSection(0, 100);
 	sett_dialog.tagsTableView->horizontalHeader()->resizeSection(1, 400);
+
+   // sett_dialog.tagsTableView->setEditTriggers(QAbstractItemView::AllEditTriggers);
+	sett_dialog.tagsTableView->setItemDelegate(new SettingsEditDelegate());
 	//sett_dialog.iconLabel->setText(QString());
    // sett_dialog.iconLabel->setPixmap(mainWindow->style()->standardIcon(QStyle::SP_MessageBoxQuestion, 0, mainWindow).pixmap(32,
 
@@ -292,11 +239,24 @@ void MainWindow::onSettings ()
 	//proxyDialog.introLabel->setText(introMessage);
 	//proxyDialog.introLabel->setWordWrap(true);
 
-	if (dialog.exec() == QDialog::Accepted) {
-		//auth->setUser(proxyDialog.userNameLineEdit->text());
-		//auth->setPassword(proxyDialog.passwordLineEdit->text());
-	}
+	if (dialog.exec() == QDialog::Accepted)
+	{
+		for (int i = 0, ie = model.m_app_names.size(); i < ie; ++i)
+		{
+			boost::char_separator<char> sep(", ");
+			typedef boost::tokenizer<boost::char_separator<char> > tokenizer_t;
+			tokenizer_t tok(model.m_rows[i].toStdString(), sep);
 
+			for (tokenizer_t::const_iterator it = tok.begin(), ite = tok.end(); it != ite; ++it)
+			{
+				int const idx = findAppName(m_app_names[i]);
+				if (idx >= 0)
+				{
+					m_columns_setup[idx][i] = QString::fromStdString(*it);
+				}
+			}
+		}
+	}
 }
 
 void MainWindow::setupMenuBar ()

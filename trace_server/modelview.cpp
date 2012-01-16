@@ -36,6 +36,8 @@ inline bool ModelView::checkColumnExistence (tlv::tag_t tag, QModelIndex const &
 
 QVariant ModelView::data (const QModelIndex &index, int role) const
 {
+	if (!index.isValid())
+		return QVariant();
 	if (role == Qt::DisplayRole)
 	{
 		QString str("");
@@ -91,20 +93,24 @@ QVariant ModelView::headerData (int section, Qt::Orientation orientation, int ro
 	return QVariant();
 }
 
-void ModelView::transactionStart ()
+void ModelView::transactionStart (size_t n)
 {
-	//int const row = rowCount();
-	//beginInsertRows(QModelIndex(), row, row + 0);
+	int const row = rowCount();
+	beginInsertRows(QModelIndex(), row, row + n);
 
 	emit layoutAboutToBeChanged();
 }
 
 void ModelView::transactionCommit ()
 {
-	//endInsertRows();
+	endInsertRows();
 	emit layoutChanged();
 }
 
+void ModelView::emitLayoutChanged ()
+{
+	emit layoutChanged();
+}
 
 void ModelView::appendCommand (QSortFilterProxyModel * filter, tlv::StringCommand const & cmd)
 {

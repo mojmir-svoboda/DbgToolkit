@@ -14,15 +14,17 @@
 #include "../tlv_parser/tlv_encoder.h"
 
 Connection::Connection (QObject * parent)
-	: QTcpSocket(parent)
+	: QThread(parent)
 	, m_main_window(0)
 	, m_from_file(false)
+	, m_first_line(true)
 	, m_table_view_widget(0)
 	, m_tree_view_file_model(0)
 	, m_tree_view_func_model(0)
 	, m_table_view_proxy(0)
 	, m_buffer(e_ringbuff_size)
 	, m_current_cmd()
+	, m_decoded_cmds(e_ringcmd_size)
 	, m_decoder()
 	, m_storage(0)
 	, m_datastream(0)
@@ -54,8 +56,8 @@ void Connection::onLevelValueChanged (int val)
 		using namespace tlv;
 		Encoder e(cmd_set_level, buff, 256);
 		e.Encode(TLV(tag_lvl, tlv_buff));
-		if (e.Commit())
-			write(e.buffer, e.total_len);
+		//if (e.Commit())
+			//write(e.buffer, e.total_len); /// @TODO:
 	}
 }
 
@@ -100,6 +102,34 @@ inline size_t read_min (boost::circular_buffer<char> & ring, char * dst, size_t 
 	return min;
 }
 
+void Connection::onHandleCommands ()
+{
+	ModelView * model = static_cast<ModelView *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
+	size_t const rows = m_decoded_cmds.size();
+	model->transactionStart(rows);
+	for (size_t i = 0; i < rows; ++i)
+	{
+		DecodedCommand & cmd = m_decoded_cmds.front();
+		tryHandleCommand(cmd);
+		m_decoded_cmds.pop_front();
+	}
+
+	if (m_first_line)	// resize columns according to saved template
+	{
+		MainWindow::columns_sizes_t const & sizes = m_main_window->getColumnSizes(sessionState().m_app_idx);
+		for (size_t c = 0, ce = sizes.size(); c < ce; ++c)
+		{
+			m_table_view_widget->horizontalHeader()->resizeSection(c, sizes.at(c));
+		}
+		m_first_line = false;
+	}
+
+	model->transactionCommit();
+
+	if (m_main_window->autoScollEnabled())
+		m_table_view_widget->scrollToBottom();
+}
+
 template <class T, typename T_Ret, typename T_Arg0, typename T_Arg1>
 void Connection::processStream (T * t, T_Ret (T::*read_member_fn)(T_Arg0, T_Arg1))
 {
@@ -114,17 +144,15 @@ void Connection::processStream (T * t, T_Ret (T::*read_member_fn)(T_Arg0, T_Arg1
 			size_t const to_read = free_space < local_buff_sz ? free_space : local_buff_sz;
 
 			qint64 const count = (t->*read_member_fn)(local_buff, to_read);
-			//qDebug("RCV: readed=%u free=%u to_read=%u avail=%u", count, free_space, to_read, bytesAvailable());
 			if (count <= 0)
-				break;	// no more data in socket
+				break;	// no more data in stream
 
 			for (size_t i = 0; i < count; ++i)
 				m_buffer.push_back(local_buff[i]);
 		}
 
-		static_cast<ModelView *>(m_table_view_widget->model())->transactionStart();
 		// try process data in ring buffer
-		while (1)
+		while (!m_decoded_cmds.full())
 		{
 			if (!m_current_cmd.written_hdr)
 			{
@@ -157,9 +185,8 @@ void Connection::processStream (T * t, T_Ret (T::*read_member_fn)(T_Arg0, T_Arg1
 			{
 				if (m_decoder.decode_payload(&m_current_cmd.orig_message[0] + tlv::Header::e_Size, m_current_cmd.hdr.len, m_current_cmd))
 				{
-					//Dump(m_current_cmd);
 					//qDebug("CONN: hdr_sz=%u payload_sz=%u buff_sz=%u ",  tlv::Header::e_Size, m_current_cmd.hdr.len, m_buffer.size());
-					tryHandleCommand(m_current_cmd);
+					m_decoded_cmds.push_back(m_current_cmd);
 				}
 				else
 				{
@@ -172,8 +199,8 @@ void Connection::processStream (T * t, T_Ret (T::*read_member_fn)(T_Arg0, T_Arg1
 			}
 		}
 
-		// @TODO: scoped guard
-		static_cast<ModelView *>(m_table_view_widget->model())->transactionCommit();
+		if (m_decoded_cmds.size() > 0)
+			emit handleCommands();
 	}
 	catch (std::out_of_range const & e)
 	{
@@ -203,7 +230,26 @@ void Connection::processStream (T * t, T_Ret (T::*read_member_fn)(T_Arg0, T_Arg1
 
 void Connection::processReadyRead ()
 {
-	processStream(static_cast<QIODevice *>(this), &QTcpSocket::read);
+	processStream(static_cast<QIODevice *>(m_tcpstream), &QTcpSocket::read);
+}
+
+void Connection::setSocketDescriptor (int sd)
+{
+	m_tcpstream = new QTcpSocket(this);
+	m_tcpstream->setSocketDescriptor(sd);
+	connect(this, SIGNAL(handleCommands()), this, SLOT(onHandleCommands()));
+}
+
+void Connection::run ()
+{
+	while (1)
+	{
+		const int Timeout = 5 * 1000;
+		while (m_tcpstream->bytesAvailable() < tlv::Header::e_Size)
+			m_tcpstream->waitForReadyRead(Timeout);
+
+		processReadyRead();
+	}
 }
 
 void Connection::processDataStream (QDataStream & stream)
@@ -231,19 +277,6 @@ bool Connection::tryHandleCommand (DecodedCommand const & cmd)
 		handleLogCommand(cmd);
 	}
 
-/*	{	// hotfix for resizeSection on empty table .. perhaps due to transaction_begin, transaction end?
-		static bool first = true;
-		if (first)
-		{*/
-			MainWindow::columns_sizes_t const & sizes = m_main_window->getColumnSizes(sessionState().m_app_idx);
-			for (size_t c = 0, ce = sizes.size(); c < ce; ++c)
-			{
-				m_table_view_widget->horizontalHeader()->resizeSection(c, sizes.at(c));
-			}
-/*			first = false;
-		}
-	}*/
-
 	if (!m_from_file && m_datastream) // @TODO: && persistenCheckBox == true
 		m_datastream->writeRawData(&cmd.orig_message[0], cmd.hdr.len + tlv::Header::e_Size);
 	return true;
@@ -266,13 +299,7 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 			sessionState().m_columns_setup = &m_main_window->getColumnSetup(sessionState().m_app_idx);
 			if (m_main_window->getColumnSetup(sessionState().m_app_idx).size())	// load if config already exists
 			{
-				sessionState().setupColumns(&m_main_window->getColumnSetup(sessionState().m_app_idx),
-						&m_main_window->getColumnSizes(sessionState().m_app_idx));
-				/*MainWindow::columns_sizes_t const & sizes = m_main_window->getColumnSizes(m_app_idx);
-				for (size_t c = 0, ce = sizes.size(); c < ce; ++c)
-				{
-					m_table_view_widget->horizontalHeader()->resizeSection(c, sizes.at(c));
-				}*/
+				sessionState().setupColumns(&m_main_window->getColumnSetup(sessionState().m_app_idx), &m_main_window->getColumnSizes(sessionState().m_app_idx));
 			}
 
 			m_current_cmd.tvs.reserve(sessionState().m_columns_setup->size());
@@ -282,7 +309,12 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 				m_table_view_widget->model()->insertColumn(i);
 			}
 
-			//m_table_view_widget->emit layoutChanged();
+			MainWindow::columns_sizes_t const & sizes = *sessionState().m_columns_sizes;
+			for (size_t c = 0, ce = sizes.size(); c < ce; ++c)
+			{
+				m_table_view_widget->horizontalHeader()->resizeSection(c, sizes.at(c));
+			}
+			static_cast<ModelView *>(m_table_view_widget->model())->emitLayoutChanged();
 		}
 	}
 	return true;
@@ -296,26 +328,14 @@ bool Connection::handleLogCommand (DecodedCommand const & cmd)
 	{
 		if (!m_main_window->scopesEnabled())
 		{
-			if (m_table_view_proxy)
-			{
-				static_cast<ModelView *>(m_table_view_proxy->sourceModel())->appendCommand(m_table_view_proxy, cmd);
-			}
-			else
-			{
-				static_cast<ModelView *>(m_table_view_widget->model())->appendCommand(0, cmd);
-			}
+			ModelView * model = static_cast<ModelView *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
+			model->appendCommand(m_table_view_proxy, cmd);
 		}
 	}
 	else if (cmd.hdr.cmd == tlv::cmd_log)
 	{
-		if (m_table_view_proxy)
-		{
-			static_cast<ModelView *>(m_table_view_proxy->sourceModel())->appendCommand(m_table_view_proxy, cmd);
-		}
-		else
-		{
-			static_cast<ModelView *>(m_table_view_widget->model())->appendCommand(0, cmd);
-		}
+		ModelView * model = static_cast<ModelView *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
+		model->appendCommand(m_table_view_proxy, cmd);
 	}
 	return true;
 }
@@ -364,7 +384,7 @@ void Connection::onFilterFile (int state)
 			m_table_view_widget->setModel(m_table_view_proxy);
 			m_table_view_proxy->setDynamicSortFilter(true);
 
-			connect(m_table_view_proxy->sourceModel(), SIGNAL(dataChanged(QModelIndex, QModelIndex)), m_table_view_proxy, SLOT(sourceDataChanged(QModelIndex, QModelIndex)));
+			connect(m_table_view_proxy->sourceModel(), SIGNAL(dataChanged(QModelIndex, QModelIndex)), m_table_view_proxy, SLOT(dataChanged(QModelIndex, QModelIndex)));
 		}
 		else
 		{

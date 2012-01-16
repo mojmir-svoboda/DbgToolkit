@@ -27,7 +27,8 @@ SOURCES += main.cpp\
     modelview.cpp \
     server.cpp \
     connection.cpp \
-    sessionstate.cpp
+    sessionstate.cpp \
+    settings.cpp
 
 HEADERS  += mainwindow.h \
     modelview.h \
@@ -39,7 +40,8 @@ HEADERS  += mainwindow.h \
     ../filters/nnode.hpp \
     ../filters/file_filter.hpp \
     ../trace_client/trace.h \
-    sessionstate.h
+    sessionstate.h \
+    settings.h
 
 FORMS    += mainwindow.ui \
     settings.ui
