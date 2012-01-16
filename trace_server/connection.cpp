@@ -37,8 +37,6 @@ void Connection::onDisconnected ()
 {
 	qDebug("onDisconnected()");
 	closeStorage();
-	delete m_tcpstream;
-	m_tcpstream = 0;
 }
 
 void Connection::onTabTraceFocus (int i)
