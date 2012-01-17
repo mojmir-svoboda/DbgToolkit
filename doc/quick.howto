@@ -1,0 +1,42 @@
+1. WTF?
+=======
+
+This is a simple client-server application for logging messages from user's
+applications.
+
+Usage scenario is trivial:
+
+	1. user runs the server
+	2. application being debugged connects to server
+	3. application sends debugging messages to server
+	...
+	4. user terminated program
+
+2. setup client part
+====================
+
+To enable logging you must define
+	TRACE_ENABLED
+in your project(s).
+
+
+Client consists of project located in directory
+	.../flogging/trace_client/
+
+To select building strategy, you need to place one of following
+macros carefully:
+	TRACE_STATIC if you are building trace_client as static library
+	TRACE_DLL if you are building trace_client as shared library
+
+(Note: TRACE_DLL should not be specified on projects that uses trace_client)
+
+The important file is trace.h which normally has to be configured for
+user's debug levels and contexts. See flogging/trace_client_wh how to
+do that. Essentially there are 3 macros that control inclusion of
+user's files:
+
+	TRACE_CONFIG_INCLUDE="../trace_client_wh/wh_config.h"
+	TRACE_LEVELS_INCLUDE="../trace_client_wh/wh_levels.h"
+	TRACE_CONTEXTS_INCLUDE="../trace_client_wh/wh_contexts.h"
+
+

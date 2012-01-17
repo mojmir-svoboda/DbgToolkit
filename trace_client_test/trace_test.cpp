@@ -35,7 +35,7 @@ void my_custom_vaarg_fn (char const * fmt, ...)
 void something_useful_too ()
 {
 	TRACE_ENTRY(trace::e_Info, trace::CTX_Default);
-	TRACE(trace::e_Info, trace::CTX_Default,  "Worker thread issues some another annoying message");
+	TRACE(trace::e_Info, trace::CTX_Default,  "%s", "Worker thread issues some another annoying message");
 }
 
 void something_useful ()
@@ -55,7 +55,7 @@ DWORD WINAPI do_something ( LPVOID lpParam)
 		++i;
 		TRACE(trace::e_Info, trace::CTX_Default,  "Thread tick i=%u", i);
 		something_useful();
-		//Sleep(3000);
+		Sleep(100);
 	}
 	return 0;
 }
@@ -63,7 +63,7 @@ DWORD WINAPI do_something ( LPVOID lpParam)
 void foo ()
 {
 	TRACE_ENTRY(trace::e_Info, trace::CTX_Default);
-	TRACE(trace::e_Info, trace::CTX_Default,  "\'lloo woorld froom foo().");
+	TRACE(trace::e_Info, trace::CTX_Default,  "%s", "\'lloo woorld froom foo().");
 }
 
 struct Bar
@@ -90,9 +90,9 @@ int main ()
 	TRACE(trace::e_Fatal, trace::CTX_Default,  "First fatal error, errno=%08x", 0xDEAFDAD);
 	TRACE(trace::e_Error, trace::CTX_Default,  "First error, errno=%08x", 0xBADBEEF);
 	TRACE(trace::e_Warning, trace::CTX_Default,  "First warning, errno=%x", 0xFEEDDEAD);
-	TRACE(trace::e_Detail, trace::CTX_Default,	"This message should not appear.");
-	TRACE(trace::e_Info, trace::CTX_Default,  "This message should appear.");
-	TRACE(trace::e_Info, trace::CTX_Default,  "This message should partially appear too, but it's much longer in time and space so that it's very annoying and everyone will hate it as i do hate it now during typing as approaching to some 256 bytes boundary on which this message will be clipped and therefore it does not make any sense at all as all it does do is to show you in a rather graphomaniac light like Robert Smith or this Rowling bitch");
+	TRACE(trace::e_Detail, trace::CTX_Default,	"%s", "This message should not appear.");
+	TRACE(trace::e_Info, trace::CTX_Default,  "%s", "This message should appear.");
+	TRACE(trace::e_Info, trace::CTX_Default,  "%s", "This message should partially appear too, but it's much longer in time and space so that it's very annoying and everyone will hate it as i do hate it now during typing as approaching to some 256 bytes boundary on which this message will be clipped and therefore it does not make any sense at all as all it does do is to show you in a rather graphomaniac light like Robert Smith or this Rowling bitch");
 	my_custom_vaarg_fn("using va_arg macro %s and %s", "with some argument", "another one");
 
 	foo();	

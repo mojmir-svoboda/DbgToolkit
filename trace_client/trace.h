@@ -25,6 +25,18 @@
 
 #if defined TRACE_ENABLED
 
+#	if defined (__GNUC__) && defined(__unix__)
+#		define TRACE_API __attribute__ ((__visibility__("default")))
+#	elif defined (WIN32)
+#		if defined TRACE_STATIC
+#			define TRACE_API 
+#		elif defined TRACE_DLL
+#			define TRACE_API __declspec(dllexport)
+#		else
+#			define TRACE_API __declspec(dllimport)
+#		endif
+#	endif
+
 /**	@macro		TRACE_CONFIG_INCLUDE
  *	@brief		overrides default config with user-specified one
  **/
@@ -93,23 +105,23 @@
 
 	namespace trace {
 
-		void SetAppName (char const *);
-		char const * GetAppName ();
+		TRACE_API void SetAppName (char const *);
+		TRACE_API char const * GetAppName ();
 
-		void Connect ();
-		void Disconnect ();
+		TRACE_API void Connect ();
+		TRACE_API void Disconnect ();
 
 		/**@fn		SetRuntimeLevel
 		 * @brief	adjusts run-time level of log message filtering
 		 **/
-		void SetRuntimeLevel (level_t level);
-		level_t GetRuntimeLevel ();
+		TRACE_API void SetRuntimeLevel (level_t level);
+		TRACE_API level_t GetRuntimeLevel ();
 
 		/**@fn		SetRuntimeContextMask
 		 * @brief	adjusts run-time context of log message filtering
 		 **/
-		void SetRuntimeContextMask (context_t mask);
-		context_t GetRuntimeContextMask ();
+		TRACE_API void SetRuntimeContextMask (context_t mask);
+		TRACE_API context_t GetRuntimeContextMask ();
 
 		/**@fn		RuntimeFilterPredicate
 		 * @brief	decides if message will be logged or not
@@ -122,23 +134,22 @@
 		/**@fn		Write to log
 		 * @brief	write to log of the form (fmt, va_list)
 		 **/
-		void Write (level_t level, context_t context, char const * file, int line, char const * fn, char const * fmt, va_list);
+		TRACE_API void Write (level_t level, context_t context, char const * file, int line, char const * fn, char const * fmt, va_list);
 
 		/**@fn		Write to log
 		 * @brief	write to log of the form (fmt, ...)
 		 **/
-		inline void Write (level_t level, context_t context, char const * file, int line, char const * fn, char const * fmt, ...)
-		{
-			va_list args;
-			va_start(args, fmt);
-			Write(level, context, file, line, fn, fmt, args);
-			va_end(args);
-		}
+#if defined __GCC__ || defined __MINGW32__
+		TRACE_API void Write (level_t level, context_t context, char const * file, int line, char const * fn, char const * fmt, ...) __attribute__ ((format(printf, 6, 7) ));
+#elif defined _MSC_VER
+		TRACE_API void Write (level_t level, context_t context, char const * file, int line, char const * fn, char const * fmt, ...);
+
+#endif
 
 		/**@class	ScopedLog
 		 * @brief	RAII class for logging entry on construction and exit on destruction
 		 **/
-		struct ScopedLog
+		struct TRACE_API ScopedLog
 		{
 			enum E_Type { e_Entry = 0, e_Exit = 1 };
 			level_t m_level;

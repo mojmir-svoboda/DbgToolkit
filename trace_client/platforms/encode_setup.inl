@@ -1,8 +1,7 @@
 #pragma once
 #include <ws2tcpip.h>
-#include "../tlv_parser/tlv_parser.h"
-#include "../tlv_parser/tlv_encoder.h"
-#include "../tlv_parser/tlv_decoder.h"
+#include "../../tlv_parser/tlv_parser.h"
+#include "../../tlv_parser/tlv_encoder.h"
 #pragma comment (lib, "Ws2_32.lib") // only for ntohs
 
 namespace trace {

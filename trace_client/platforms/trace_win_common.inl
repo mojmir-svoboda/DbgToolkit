@@ -1,8 +1,11 @@
-//#define WIN32_LEAN_AND_MEAN
-//#include <windows.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include "../tlv_parser/tlv_parser.h"
+#define WIN32_LEAN_AND_MEAN
+#if defined __MINGW32__
+#	undef _WIN32_WINNT
+#	define _WIN32_WINNT 0x0600 
+#	include <windows.h>
+#endif
+#include <cstdio>
+#include "../../tlv_parser/tlv_parser.h"
 
 #define CACHE_LINE  32
 #define CACHE_ALIGN __declspec(align(CACHE_LINE))
@@ -11,28 +14,44 @@ namespace trace {
 	namespace sys {
 
 		ULONGLONG g_TickStart = 0;
-		void SetTickStart () { g_TickStart = ::GetTickCount64(); }
 		inline ULONGLONG GetTickStart () { return g_TickStart; }
+#if defined __MINGW32__
+		void SetTickStart () { g_TickStart = ::GetTickCount(); }
+		inline unsigned long long GetTime () { return ::GetTickCount() - GetTickStart(); }
+#else
+		void SetTickStart () { g_TickStart = ::GetTickCount64(); }
 		inline unsigned long long GetTime () { return ::GetTickCount64() - GetTickStart(); }
+#endif
 
 		inline tlv::len_t trc_vsnprintf (char * buff, size_t ln, char const * fmt, ...)
 		{
 			va_list args;
 			va_start(args, fmt);
+#if defined __MINGW32__
+			int const n = vsnprintf(buff, ln, fmt, args);
+#else
 			int const n = vsnprintf_s(buff, ln, _TRUNCATE, fmt, args);
+#endif
 			va_end(args);
 			return static_cast<tlv::len_t>(n < 0 ? ln : n);
 		}
 
 		inline tlv::len_t va_trc_vsnprintf (char * buff, size_t ln, char const * fmt, va_list args)
 		{
+#if defined __MINGW32__
+			int const n = vsnprintf(buff, ln, fmt, args);
+#else
 			int const n = vsnprintf_s(buff, ln, _TRUNCATE, fmt, args);
+#endif
 			return static_cast<tlv::len_t>(n < 0 ? ln : n);
 		}
 
 		inline LONG atomic_get (LONG volatile * val)
 		{
+#if defined __MINGW32__
+#else
 			MemoryBarrier();
+#endif
 			return *val;
 		}
 

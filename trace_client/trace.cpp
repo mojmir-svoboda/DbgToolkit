@@ -25,6 +25,13 @@
 			if (RuntimeFilterPredicate(level, context))
 				WriteLog(level, context, file, line, fn, fmt, args);
 		}
+		void Write (level_t level, context_t context, char const * file, int line, char const * fn, char const * fmt, ...)
+		{
+			va_list args;
+			va_start(args, fmt);
+			Write(level, context, file, line, fn, fmt, args);
+			va_end(args);
+		}
 
 		// scope logging
 		inline void WriteScope (ScopedLog::E_Type type, level_t level, context_t context, char const * file, int line, char const * fn);

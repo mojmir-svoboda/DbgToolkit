@@ -1,14 +1,19 @@
+#if defined __MINGW32__
+#	undef _WIN32_WINNT
+#	define _WIN32_WINNT 0x0600 
+#endif
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <winsock2.h>
 #include <ws2tcpip.h>
-#include <stdlib.h>
-#include <stdio.h>
+#include <cstdlib>	// for atoi
+#include <cstdio>	// for vsnprintf etc
 // Need to link with Ws2_32.lib, Mswsock.lib, and Advapi32.lib
 #pragma comment (lib, "Ws2_32.lib")
 #pragma comment (lib, "Mswsock.lib")
 #pragma comment (lib, "AdvApi32.lib")
-#include "../tlv_parser/tlv_parser.h"
+#include "../../tlv_parser/tlv_parser.h"
+#include "../../tlv_parser/tlv_decoder.h"
 #include "trace_win_common.inl"
 #include "encode_log.inl"
 #include "encode_scope.inl"

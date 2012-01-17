@@ -1,0 +1,5 @@
+include_directories (${TRACE_CLIENT_SOURCE_DIR}/trace_client)
+link_directories (${TRACE_CLIENT_BINARY_DIR}/trace_client)
+#link_directories (${ARCHIVE_OUTPUT_DIRECTORY}/trace_client)
+add_executable (trace_client_wh trace_wh.cpp)
+target_link_libraries (trace_client_wh trace_client "c:/devel/QtSDK/mingw/lib/libws2_32.a")

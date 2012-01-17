@@ -1,8 +1,7 @@
 #pragma once
 #include <ws2tcpip.h>
-#include "../tlv_parser/tlv_parser.h"
-#include "../tlv_parser/tlv_encoder.h"
-#include "../tlv_parser/tlv_decoder.h"
+#include "../../tlv_parser/tlv_parser.h"
+#include "../../tlv_parser/tlv_encoder.h"
 #pragma comment (lib, "Ws2_32.lib") // only for ntohs
 
 namespace trace {
@@ -23,7 +22,12 @@ namespace trace {
 		// this block is different due to weird bug in passing va_list from fn to fn (probably bad overload is chosen)
 		// happens when calling stuff like:
 		//		//TRACE(trace::e_Info, trace::CTX_Default,	"this is %s", "first message");
+		//
+#if defined __MINGW32__
+		int const n = vsnprintf(tlv_buff, tlv_buff_sz, fmt, args);
+#else
 		int const n = vsnprintf_s(tlv_buff, tlv_buff_sz, _TRUNCATE, fmt, args);
+#endif
 		int const wrt_n = n < 0 ? tlv_buff_sz : n;
 		e.Encode(TLV(tag_msg,  static_cast<tlv::len_t>(wrt_n), tlv_buff));
 		if (e.Commit())

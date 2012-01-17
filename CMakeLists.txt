@@ -1,0 +1,6 @@
+cmake_minimum_required (VERSION 2.6)
+project (flogging)
+add_definitions("-DTRACE_ENABLED")
+add_definitions("-DTRACE_STATIC")
+add_subdirectory (trace_client)
+add_subdirectory (trace_client_wh)

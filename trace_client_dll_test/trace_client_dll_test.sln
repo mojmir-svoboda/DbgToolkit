@@ -1,0 +1,29 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "trace_client_dll_test", "trace_client_dll_test.vcxproj", "{35FDF95B-9820-436A-A1C8-71507D218304}"
+	ProjectSection(ProjectDependencies) = postProject
+		{E0B28C6B-7CA6-4E54-88C3-4AECD52BEB58} = {E0B28C6B-7CA6-4E54-88C3-4AECD52BEB58}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "trace_client_DLL", "..\trace_client\trace_client_DLL.vcxproj", "{E0B28C6B-7CA6-4E54-88C3-4AECD52BEB58}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{35FDF95B-9820-436A-A1C8-71507D218304}.Debug|Win32.ActiveCfg = Debug|Win32
+		{35FDF95B-9820-436A-A1C8-71507D218304}.Debug|Win32.Build.0 = Debug|Win32
+		{35FDF95B-9820-436A-A1C8-71507D218304}.Release|Win32.ActiveCfg = Release|Win32
+		{35FDF95B-9820-436A-A1C8-71507D218304}.Release|Win32.Build.0 = Release|Win32
+		{E0B28C6B-7CA6-4E54-88C3-4AECD52BEB58}.Debug|Win32.ActiveCfg = Debug|Win32
+		{E0B28C6B-7CA6-4E54-88C3-4AECD52BEB58}.Debug|Win32.Build.0 = Debug|Win32
+		{E0B28C6B-7CA6-4E54-88C3-4AECD52BEB58}.Release|Win32.ActiveCfg = Release|Win32
+		{E0B28C6B-7CA6-4E54-88C3-4AECD52BEB58}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
