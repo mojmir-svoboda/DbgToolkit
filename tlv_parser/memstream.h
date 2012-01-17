@@ -31,7 +31,7 @@ struct memstream
 
 	size_t write (char const * src, size_t ln)
 	{
-		int const free_size = m_buff_sz - m_wr_idx;
+		size_t const free_size = m_buff_sz - m_wr_idx;
 		size_t to_write = ln;
 		if (m_wr_idx + ln > m_buff_sz)
 		{
@@ -52,7 +52,7 @@ struct memstream
 
 	size_t read (char * dst, size_t ln)
 	{
-		int const remaining = m_buff_sz - m_rd_idx;
+		size_t const remaining = m_buff_sz - m_rd_idx;
 		size_t to_read = ln;
 		if (m_rd_idx + ln > m_buff_sz)
 		{

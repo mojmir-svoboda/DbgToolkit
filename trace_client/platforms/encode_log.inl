@@ -2,7 +2,6 @@
 #include <ws2tcpip.h>
 #include "../../tlv_parser/tlv_parser.h"
 #include "../../tlv_parser/tlv_encoder.h"
-#pragma comment (lib, "Ws2_32.lib") // only for ntohs
 
 namespace trace {
 
@@ -26,7 +25,7 @@ namespace trace {
 #if defined __MINGW32__
 		int const n = vsnprintf(tlv_buff, tlv_buff_sz, fmt, args);
 #else
-		int const n = vsnprintf_s(tlv_buff, tlv_buff_sz, _TRUNCATE, fmt, args);
+		int const n = _vsnprintf_s(tlv_buff, tlv_buff_sz, tlv_buff_sz - 1, fmt, args);
 #endif
 		int const wrt_n = n < 0 ? tlv_buff_sz : n;
 		e.Encode(TLV(tag_msg,  static_cast<tlv::len_t>(wrt_n), tlv_buff));

@@ -20,8 +20,6 @@
  * SOFTWARE.
  **/
 #pragma once
-#include <cstring>
-#include <vector>
 #include "memstream.h"
 
 namespace tlv {

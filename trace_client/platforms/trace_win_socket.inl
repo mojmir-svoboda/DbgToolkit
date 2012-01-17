@@ -9,9 +9,14 @@
 #include <cstdlib>	// for atoi
 #include <cstdio>	// for vsnprintf etc
 // Need to link with Ws2_32.lib, Mswsock.lib, and Advapi32.lib
-#pragma comment (lib, "Ws2_32.lib")
-#pragma comment (lib, "Mswsock.lib")
-#pragma comment (lib, "AdvApi32.lib")
+#if defined WIN32
+#	pragma comment (lib, "Ws2_32.lib")
+#	pragma comment (lib, "Mswsock.lib")
+#	pragma comment (lib, "AdvApi32.lib")
+#elif defined WIN64
+#	pragma comment (lib, "Ws2.lib")
+#	pragma comment (lib, "Mswsock.lib")
+#endif
 #include "../../tlv_parser/tlv_parser.h"
 #include "../../tlv_parser/tlv_decoder.h"
 #include "trace_win_common.inl"

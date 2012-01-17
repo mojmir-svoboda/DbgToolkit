@@ -12,8 +12,25 @@ Usage scenario is trivial:
 	...
 	4. user terminated program
 
-2. setup client part
-====================
+2. setup client part (easy way)
+===============================
+
+use CMake.
+there are pre-cooked CMakeList.txt files that are templates for project
+generator.
+
+for example:
+	cmake -G "Visual Studio 10 Win64"
+or
+	cmake -G "Visual Studio 9 2008 Win64"
+or
+	cmake -G "MinGW Makefiles"
+
+Then simply call mingw32-make or open .sln in visual studio
+
+
+2. setup client part (custom projects)
+======================================
 
 To enable logging you must define
 	TRACE_ENABLED

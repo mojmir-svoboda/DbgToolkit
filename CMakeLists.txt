@@ -1,6 +1,11 @@
 cmake_minimum_required (VERSION 2.6)
 project (flogging)
+set (CMAKE_VERBOSE_MAKEFILE on)
 add_definitions("-DTRACE_ENABLED")
 add_definitions("-DTRACE_STATIC")
+add_definitions("-DTRACE_CONFIG_INCLUDE=\"../trace_client_wh/wh_config.h\"")
+add_definitions("-DTRACE_LEVELS_INCLUDE=\"../trace_client_wh/wh_levels.h\"")
+add_definitions("-DTRACE_CONTEXTS_INCLUDE=\"../trace_client_wh/wh_contexts.h\"")
+
 add_subdirectory (trace_client)
 add_subdirectory (trace_client_wh)

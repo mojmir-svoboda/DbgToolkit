@@ -80,7 +80,8 @@ struct Bar
 	}
 };
 
-int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
+//int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
+int main ()
 {
 	TRACE_APPNAME("WarHorse_App");
 	TRACE_SETLEVEL(trace::e_Debug);
