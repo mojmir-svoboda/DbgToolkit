@@ -4,7 +4,7 @@
 #include "../../tlv_parser/tlv_parser.h"
 #include <stdarg.h>	// for va_args
 
-#	define TRACE(fmt, ... )	trace::Write(fmt, __VA_ARGS__);
+#	define TRACE_MSG(fmt, ... )	trace::Write(fmt, __VA_ARGS__);
 #	define TRACE_VA(fmt, vaargs) trace::Write(fmt, vaargs);
 
 namespace trace {
@@ -73,7 +73,7 @@ namespace trace {
 int main ()
 {
 	printf("%s\n", __FUNCTION__);
-	TRACE("args: %s and %s\n\n", "first arg", "second arg");
-	TRACE("args: %s\n\n", "first arg");
-	TRACE("args: %u\n\n", 1);
+	TRACE_MSG("args: %s and %s\n\n", "first arg", "second arg");
+	TRACE_MSG("args: %s\n\n", "first arg");
+	TRACE_MSG("args: %u\n\n", 1);
 }

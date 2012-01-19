@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  *
- * Thanks to WarHorse Studios who funded initial development.
+ * Thanks to WarHorse Studios http://warhorsestudios.cz/ who funded initial ver
  **/
 #pragma once
 
@@ -91,16 +91,16 @@
  **/
 #	define TRACE_SETLEVEL(n) trace::SetRuntimeLevel(n)
 
-/**	@macro		TRACE
- *	@brief		logging of the form TRACE(lvl, ctx, fmt, ...)
+/**	@macro		TRACE_MSG
+ *	@brief		logging of the form TRACE_MSG(lvl, ctx, fmt, ...)
  **/
-#	define TRACE(level, context, fmt, ... )	\
+#	define TRACE_MSG(level, context, fmt, ... )	\
 		trace::Write(static_cast<trace::level_t>(level), context, __FILE__, __LINE__, __FUNCTION__, fmt, __VA_ARGS__);
-/**	@macro		TRACE_VA
- *	@brief		logging of the form TRACE_VA(lvl, ctx, fmt, va_list)
+/**	@macro		TRACE_MSG_VA
+ *	@brief		logging of the form TRACE_MSG_VA(lvl, ctx, fmt, va_list)
  **/
-#	define TRACE_VA(level, context, fmt, vaargs)	\
-		trace::Write(static_cast<trace::level_t>(level), context, __FILE__, __LINE__, __FUNCTION__, fmt, vaargs);
+#	define TRACE_MSG_VA(level, context, fmt, vaargs)	\
+		trace::WriteVA(static_cast<trace::level_t>(level), context, __FILE__, __LINE__, __FUNCTION__, fmt, vaargs);
 
 /**	@macro		TRACE_ENTRY
  *	@brief		logs entry to scope and logs exit on scope end
@@ -139,12 +139,7 @@
 		/**@fn		Write to log
 		 * @brief	write to log of the form (fmt, va_list)
 		 **/
-		TRACE_API void Write (level_t level, context_t context, char const * file, int line, char const * fn, char const * fmt, va_list);
-
-		/**@fn		Write to log
-		 * @brief	write to log of the form ("%s", "string")
-		 **/
-		TRACE_API void Write (level_t level, context_t context, char const * file, int line, char const * fn, char const * fmt, char const * str);
+		TRACE_API void WriteVA (level_t level, context_t context, char const * file, int line, char const * fn, char const * fmt, va_list);
 
 		/**@fn		Write to log
 		 * @brief	write to log of the form (fmt, ...)
@@ -178,7 +173,7 @@
 #	define TRACE_SETLEVEL(n)                        ((void)0)
 #	define TRACE_CONNECT()                          ((void)0)
 #	define TRACE_DISCONNECT()                       ((void)0)
-#	define TRACE(level, context, fmt, ... )         ((void)0)
-#	define TRACE_VA(level, context, fmt, vaargs)    ((void)0)
+#	define TRACE_MSG(level, context, fmt, ... )     ((void)0)
+#	define TRACE_MSG_VA(level, context, fmt, va)    ((void)0)
 #	define TRACE_ENTRY(level, context)              ((void)0)
 #endif // TRACE_ENABLED

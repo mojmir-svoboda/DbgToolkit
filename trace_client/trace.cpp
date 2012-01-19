@@ -20,7 +20,7 @@
 
 		// message logging
 		void WriteLog (level_t level, context_t context, char const * file, int, char const *, char const *, va_list);
-		void Write (level_t level, context_t context, char const * file, int line, char const * fn, char const * fmt, va_list args)
+		void WriteVA (level_t level, context_t context, char const * file, int line, char const * fn, char const * fmt, va_list args)
 		{
 			if (RuntimeFilterPredicate(level, context))
 				WriteLog(level, context, file, line, fn, fmt, args);
@@ -29,13 +29,8 @@
 		{
 			va_list args;
 			va_start(args, fmt);
-			Write(level, context, file, line, fn, fmt, args);
+			WriteVA(level, context, file, line, fn, fmt, args);
 			va_end(args);
-		}
-		void WriteStr (level_t level, context_t context, char const * file, int, char const *, char const *, char const *);
-		void Write (level_t level, context_t context, char const * file, int line, char const * fn, char const * fmt, char const * msg)
-		{
-			WriteStr(level, context, file, line, fn, fmt, msg);
 		}
 
 		// scope logging

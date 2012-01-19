@@ -251,12 +251,12 @@ namespace trace {
 		msg.WriteUnlockAndDirty();
 	}
 
-	inline void WriteStr (level_t level, context_t context, char const * file, int line, char const * fn, char const * fmt, char const * str)
+	inline void WriteStr (level_t level, context_t context, char const * file, int line, char const * fn, char const * str)
 	{
 		sys::Message & msg = socks::acquire_msg_buffer();
 		msg.WriteLock();
 		{
-			encode_str(msg, level, context, file, line, fn, fmt, str);
+			encode_str(msg, level, context, file, line, fn, str);
 		}
 		msg.WriteUnlockAndDirty();
 	}

@@ -17,9 +17,9 @@ SettingsModelView::SettingsModelView (QList<QString> const & app_names, QList<Ma
 
 SettingsModelView::~SettingsModelView () { }
 
-int SettingsModelView::rowCount (const QModelIndex & parent) const { return m_app_names.size(); }
+int SettingsModelView::rowCount (const QModelIndex &) const { return m_app_names.size(); }
 
-int SettingsModelView::columnCount (const QModelIndex & parent) const { return 2; }
+int SettingsModelView::columnCount (const QModelIndex &) const { return 2; }
 
 QVariant SettingsModelView::data (const QModelIndex & index, int role) const
 {

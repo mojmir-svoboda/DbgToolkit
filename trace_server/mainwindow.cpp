@@ -117,7 +117,9 @@ bool MainWindow::autoScollEnabled () const { return ui->autoScrollCheckBox->isCh
 
 void MainWindow::setLevel (int i)
 {
+	bool const old = ui->levelSpinBox->blockSignals(true);
     ui->levelSpinBox->setValue(i);
+	ui->levelSpinBox->blockSignals(old);
 }
 
 void MainWindow::onEditFind ()
