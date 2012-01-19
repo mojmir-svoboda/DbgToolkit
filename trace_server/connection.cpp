@@ -298,7 +298,7 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 		{
 			QString app_name = QString::fromStdString(cmd.tvs[i].m_val);
 			sessionState().m_name = app_name;
-			m_main_window->getTabTrace()->setTabText(sessionState().m_tab_idx, app_name + QString::number(sessionState().m_tab_idx));
+			m_main_window->getTabTrace()->setTabText(sessionState().m_tab_idx, app_name);
 			QString storage_name = createStorageName();
 			setupStorage(storage_name);
 
@@ -317,6 +317,7 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 			}
 
 			MainWindow::columns_sizes_t const & sizes = *sessionState().m_columns_sizes;
+			sessionState().m_columns_sizes = &m_main_window->getColumnSizes(sessionState().m_app_idx);
 			for (size_t c = 0, ce = sizes.size(); c < ce; ++c)
 			{
 				m_table_view_widget->horizontalHeader()->resizeSection(c, sizes.at(c));

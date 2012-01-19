@@ -56,10 +56,10 @@ public:
 				return i;
 		
 		m_app_names.push_back(appname);
-		m_columns_setup.push_back(columns_setup_t());
 		m_columns_setup.reserve(16);
-		m_columns_sizes.push_back(columns_sizes_t());
+		m_columns_setup.push_back(columns_setup_t());
 		m_columns_sizes.reserve(16);
+		m_columns_sizes.push_back(columns_sizes_t());
 		return m_app_names.size() - 1;
 	}
 	QList<QColor> const & getThreadColors () const { return m_thread_colors; }

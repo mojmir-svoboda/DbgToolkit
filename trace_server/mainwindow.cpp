@@ -279,9 +279,9 @@ void MainWindow::setupMenuBar ()
 	editMenu->addAction(tr("Find Prev"), this, SLOT(onEditFindPrev()), QKeySequence::FindPrevious);
 	new QShortcut(QKeySequence(Qt::Key_Slash), this, SLOT(onEditFind()));
 	editMenu->addSeparator();
-    //editMenu->addAction(tr("Kopy"), m_server, SLOT(onCopyToClipboard()), QKeySequence(Qt::ControlModifier + Qt::Key_K));
     editMenu->addAction(tr("Copy"), m_server, SLOT(onCopyToClipboard()), QKeySequence::Copy);
 
+	// Tools
 	QMenu * tools = menuBar()->addMenu(tr("&Tools"));
 	tools->addAction(tr("Settings"), this, SLOT(onSettings()));
 	new QShortcut(QKeySequence(Qt::Key_ScrollLock), this, SLOT(onHotkeyShowOrHide()));

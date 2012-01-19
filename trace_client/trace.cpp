@@ -4,7 +4,7 @@
 
 	namespace trace {
 
-		level_t g_RuntimeLevel = static_cast<level_t>(0);
+		level_t g_RuntimeLevel = static_cast<level_t>(e_max_trace_level);
 		context_t g_RuntimeContextMask = ~(0U);
 		char const * g_AppName = "trace_client";
 
@@ -31,6 +31,11 @@
 			va_start(args, fmt);
 			Write(level, context, file, line, fn, fmt, args);
 			va_end(args);
+		}
+		void WriteStr (level_t level, context_t context, char const * file, int, char const *, char const *, char const *);
+		void Write (level_t level, context_t context, char const * file, int line, char const * fn, char const * fmt, char const * msg)
+		{
+			WriteStr(level, context, file, line, fn, fmt, msg);
 		}
 
 		// scope logging

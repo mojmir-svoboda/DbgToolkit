@@ -64,7 +64,7 @@ DWORD WINAPI do_something ( LPVOID )
 void foo ()
 {
 	TRACE_ENTRY(trace::e_Info, trace::CTX_Default);
-	TRACE(trace::e_Info, trace::CTX_Default,  "%s", "\'lloo woorld froom foo().");
+	TRACE(trace::e_Info, trace::CTX_Default,  "%s %s", "\'lloo woorld froom foo().", "and from bar!");
 }
 
 struct Bar
@@ -84,15 +84,14 @@ struct Bar
 int main ()
 {
 	TRACE_APPNAME("WarHorse_App");
-	TRACE_SETLEVEL(trace::e_Debug);
 	TRACE_CONNECT();
-	// @TODO: following line crashes!
-	//TRACE(trace::e_Info, trace::CTX_Default,	"this is %s", "first message");
+	//TRACE(trace::e_Info, trace::CTX_Default,	"first message"); // not sure if this is a valid case!
+	TRACE(trace::e_Info, trace::CTX_Default,	"this is %s", "first message");
 	TRACE(trace::e_Info, trace::CTX_Default,  "args: %s and %s", "first arg", "second arg");
 	TRACE(trace::e_Fatal, trace::CTX_Default,  "First fatal error, errno=%08x", 0xDEAFDAD);
 	TRACE(trace::e_Error, trace::CTX_Default,  "First error, errno=%08x", 0xBADBEEF);
 	TRACE(trace::e_Warning, trace::CTX_Default,  "First warning, errno=%x", 0xFEEDDEAD);
-	TRACE(trace::e_Detail, trace::CTX_Default,	"%s", "This message should not appear.");
+	TRACE(trace::e_Detail, trace::CTX_Default,	"%s%s", "This message should not appear", ".");
 	TRACE(trace::e_Info, trace::CTX_Default,  "%s", "This message should appear.");
 	TRACE(trace::e_Info, trace::CTX_Default,  "%s", "This message should partially appear too, but it's much longer in time and space so that it's very annoying and everyone will hate it as i do hate it now during typing as approaching to some 256 bytes boundary on which this message will be clipped and therefore it does not make any sense at all as all it does do is to show you in a rather graphomaniac light like Robert Smith or this Rowling bitch");
 	my_custom_vaarg_fn("using va_arg macro %s and %s", "with some argument", "another one");
@@ -106,7 +105,7 @@ int main ()
 	for (;;)
 	{
 		Sleep(2000);
-		//TRACE(trace::e_Info, trace::CTX_Default,	"This message should periodicaly appear too.");
+		TRACE(trace::e_Info, trace::CTX_Default,	"%s", "This message should periodicaly appear too.");
 		
 		//for(size_t i = 0; i < 4; ++i)
 		static size_t i = 0;

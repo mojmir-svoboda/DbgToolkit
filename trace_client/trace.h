@@ -37,6 +37,13 @@
 #		endif
 #	endif
 
+#	if  _MSC_VER == 1500
+#		include <vadefs.h>
+#	else
+#		include <stdarg.h>	// for va_args
+#	endif
+
+
 /**	@macro		TRACE_CONFIG_INCLUDE
  *	@brief		overrides default config with user-specified one
  **/
@@ -63,8 +70,6 @@
 #	else
 #	include TRACE_CONTEXTS_INCLUDE
 #	endif
-
-#	include <stdarg.h>	// for va_args
 
 /**	@macro		TRACE_APPNAME
  *	@brief		sets application name that will be sent to server to identify
@@ -135,6 +140,11 @@
 		 * @brief	write to log of the form (fmt, va_list)
 		 **/
 		TRACE_API void Write (level_t level, context_t context, char const * file, int line, char const * fn, char const * fmt, va_list);
+
+		/**@fn		Write to log
+		 * @brief	write to log of the form ("%s", "string")
+		 **/
+		TRACE_API void Write (level_t level, context_t context, char const * file, int line, char const * fn, char const * fmt, char const * str);
 
 		/**@fn		Write to log
 		 * @brief	write to log of the form (fmt, ...)
