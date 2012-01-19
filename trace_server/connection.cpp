@@ -316,8 +316,8 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 				m_table_view_widget->model()->insertColumn(i);
 			}
 
-			MainWindow::columns_sizes_t const & sizes = *sessionState().m_columns_sizes;
 			sessionState().m_columns_sizes = &m_main_window->getColumnSizes(sessionState().m_app_idx);
+			MainWindow::columns_sizes_t const & sizes = *sessionState().m_columns_sizes;
 			for (size_t c = 0, ce = sizes.size(); c < ce; ++c)
 			{
 				m_table_view_widget->horizontalHeader()->resizeSection(c, sizes.at(c));
