@@ -21,7 +21,6 @@
  **/
 #pragma once
 #include <cstring>
-#include <vector>
 #include "memstream.h"
 #ifdef __CYGWIN__
 #	include <netinet/in.h>	// for ntohs
@@ -105,18 +104,18 @@ namespace tlv {
 	{
 		TLVDecoder () { }
 
-		template<size_t N>
-		bool decode_header (char const * buff, size_t ln, Command<N> & cmd)
+		template<unsigned N, unsigned M>
+		bool decode_header (char const * buff, size_t ln, Command<N, M> & cmd)
 		{
 			memstream input(buff, ln);
 			return decode_hdr(input, cmd.hdr);
 		}
 
-		template<size_t N>
-		bool decode_payload (char const * buff, size_t ln, Command<N> & cmd)
+		template<unsigned N, unsigned M>
+		bool decode_payload (char const * buff, size_t ln, Command<N, M> & cmd)
 		{
 			memstream input(buff, ln);
-			return decode(input, cmd.tlvs, cmd.concat_values);
+			return decode(input, cmd, cmd.concat_values);
 		}
 
 		bool decode (memstream & s, TLV & tlv, char * value_buffer)
@@ -138,16 +137,22 @@ namespace tlv {
 			return true;
 		}
 
-		bool decode (memstream & s, tlvs_t & tlvs, char * value_buffer)
+		template<unsigned N, unsigned M>
+		bool decode (memstream & s, Command<N,M> & cmd, char * value_buffer)
 		{
 			bool result = true;
 			while (s.read_peek())
 			{
-				TLV tlv(0, 0, 0);
-				result &= decode(s, tlv, value_buffer);
-				value_buffer += tlv.m_len + 1; // +1 for the terminating zero
-				if (result)
-					tlvs.push_back(tlv);
+				if (cmd.tlvs_count < M)
+				{
+					TLV & tlv = cmd.tlvs[cmd.tlvs_count];
+					result &= decode(s, tlv, value_buffer);
+					value_buffer += tlv.m_len + 1; // +1 for the terminating zero
+					if (result)
+						++cmd.tlvs_count;
+				}
+				else
+					break;
 			}
 			return result;
 		}

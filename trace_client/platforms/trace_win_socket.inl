@@ -71,9 +71,9 @@ namespace trace {
 		/**@brief	function receiving commands from server **/
 		DWORD WINAPI receive_thread ( LPVOID )
 		{
-			enum { e_buff_sz = 128 };
+			enum { e_buff_sz = 256 };
 			char buff[e_buff_sz];
-			tlv::Command<128> cmd(4); // reserve 4 tlvs with maximum of 128 bytes of concatenated data
+			tlv::Command<256, 8> cmd; // reserve 4 tlvs with maximum of 128 bytes of concatenated data
 			while (!g_Quit)
 			{
 				int const result = recv(g_Socket, buff, e_buff_sz, 0); //@TODO: better recv logic (this is sufficent for now)
@@ -86,7 +86,7 @@ namespace trace {
 					{
 						if (d.decode_payload(buff + tlv::Header::e_Size, cmd.hdr.len, cmd))
 						{
-							if (cmd.hdr.cmd == tlv::cmd_set_level && cmd.tlvs.size() > 0)
+							if (cmd.hdr.cmd == tlv::cmd_set_level && cmd.tlvs_count > 0)
 							{
 								SetRuntimeLevel(static_cast<trace::level_t>(atoi(cmd.tlvs[0].m_val)));
 							}

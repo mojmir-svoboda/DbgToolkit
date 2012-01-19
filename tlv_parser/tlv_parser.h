@@ -118,32 +118,31 @@ namespace tlv {
 		len_t        m_len;	// 2 Byte length of payload
 		char const * m_val;	// payload
 
+		TLV () : m_tag(tag_invalid), m_len(0), m_val(0) { }
 		TLV (tag_t t, char const * v) : m_tag(t) , m_len(static_cast<len_t>(strlen(v))) , m_val(v) { } // constructor requires 0 terminated string
 		TLV (tag_t t, len_t l, char const * v) : m_tag(t) , m_len(l) , m_val(v) { }
 
 		len_t len () const { return m_len; }
 	};
-	typedef std::vector<TLV> tlvs_t;
 
-	template<size_t N>
+	template<size_t N, size_t M>
 	struct Command
 	{
-		Header hdr;		/// header
-		tlvs_t tlvs;	/// array of TLV
+		static unsigned const max_buff_size = N;
+		static unsigned const max_tlvs = M;
 
-		Command (size_t n)
-			: hdr(0, 0)
-		{
-			tlvs.reserve(n);
-		}
+		typedef TLV tlvs_t[max_tlvs];		/// array of TLVs
+		Header hdr;							/// header
+		unsigned tlvs_count;				/// count of TLVs
+		tlvs_t tlvs;						/// array of TLV
+		char concat_values[max_buff_size];	/// internal concantenated values from list of TLV
+	
+		Command () : hdr(0, 0), tlvs_count(0) { }
 		void Reset ()
 		{
 			hdr.Reset();
-			tlvs.clear();
+			tlvs_count = 0;
 		}
-
-		static unsigned const max_buff_size = N;
-		char concat_values[max_buff_size];	/// internal concantenated values from list of TLV
 	};
 
 	//////////////////// std::string oriented command /////////////////////
