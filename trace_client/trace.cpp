@@ -1,4 +1,5 @@
 #include "trace.h"
+#include <stdarg.h>
 
 #if defined TRACE_ENABLED
 

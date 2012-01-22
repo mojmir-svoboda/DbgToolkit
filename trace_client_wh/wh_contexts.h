@@ -1,6 +1,8 @@
 #pragma once
-#ifdef _MSC_VER
+#if _MSC_VER == 1600
 #	include <cstdint>
+#elif _MSC_VER == 1500
+	typedef unsigned long long uint64_t;
 #else
 #	include <inttypes.h>
 #endif
