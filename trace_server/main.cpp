@@ -1,5 +1,7 @@
 #include <QtGui/QApplication>
 #include <QtGui/QTableWidget.h>
+#include <QSystemTrayIcon>
+#include <QMessageBox>
 #include "mainwindow.h"
 #ifdef WIN32
 #	define WIN32_LEAN_AND_MEAN
@@ -23,9 +25,9 @@ struct Application : QApplication
 		DWORD const hotkey = VK_SCROLL;
 		if (msg->message == WM_HOTKEY)
 		{
-			if (GetKeyState(hotkey) & 1)
-				if (m_main_window)
-					m_main_window->onHotkeyShowOrHide();
+			qDebug("wineventfilter hotkey");
+			if (m_main_window)
+				m_main_window->onHotkeyShowOrHide();
 		}
 		return QApplication::winEventFilter(msg, result);
 	}
@@ -35,6 +37,12 @@ struct Application : QApplication
 int main(int argc, char *argv[])
 {
 	Application a(argc, argv);
+
+	if (!QSystemTrayIcon::isSystemTrayAvailable()) {
+		QMessageBox::critical(0, QObject::tr("Systray"), QObject::tr("I couldn't detect any system tray on this system."));
+		return 1;
+	}
+
 	MainWindow w;
 	w.show();
 	a.setMainWindow(&w);

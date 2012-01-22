@@ -8,6 +8,7 @@
 SessionState::SessionState (QObject * parent)
 	: m_app_idx(-1)
 	, m_tab_idx(-2)
+	, m_tab_widget(0)
 	, m_columns_setup(0)
 	, m_columns_sizes(0)
 	, m_name()

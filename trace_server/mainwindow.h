@@ -25,12 +25,17 @@
 #include <QMainWindow>
 #include <QTimer>
 #include <QTreeView>
+#include <QSystemTrayIcon>
 #include "server.h"
 
 namespace Ui {
 	class MainWindow;
 	class SettingsDialog;
 }
+
+class QSystemTrayIcon;
+class QAction;
+class QMenu;
 
 class MainWindow : public QMainWindow
 {
@@ -69,7 +74,8 @@ public:
 	QTreeView const * getTreeViewFunc () const;
 	void setLevel (int i);
 	bool scopesEnabled () const;
-	bool autoScollEnabled () const;
+	bool autoScrollEnabled () const;
+	bool reuseTabEnabled () const;
 	void changeEvent (QEvent* e);
 	void dropEvent (QDropEvent * event);
 	void dragEnterEvent (QDragEnterEvent *event);
@@ -91,10 +97,13 @@ private slots:
 	void onFileExportToCSV ();
 	void onSettings ();
 	void closeEvent (QCloseEvent *event);
+	void iconActivated (QSystemTrayIcon::ActivationReason reason);
 
 private:
 	void showServerStatus ();
 	void setupMenuBar ();
+	void createActions ();
+	void createTrayIcon ();
 
 	Ui::MainWindow * ui;
 	Ui::SettingsDialog * m_settings;
@@ -106,6 +115,12 @@ private:
 	QString m_last_search;
 	QTimer * m_timer;
 	Server * m_server;
+	QAction * m_minimize_action;
+	QAction * m_maximize_action;
+	QAction * m_restore_action;
+	QAction * m_quit_action;
+	QMenu * m_tray_menu;
+	QSystemTrayIcon * m_tray_icon;
 };
 
 #endif // MAINWINDOW_H

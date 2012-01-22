@@ -21,34 +21,60 @@ Server::Server(QObject *parent)
 	QHostAddress addr(QHostAddress::LocalHost);
 	if (!listen(addr, default_port)) {
 		status = tr("Unable to start server! Reason: %1").arg(errorString());
-		QTimer::singleShot(3000, qApp, SLOT(quit()));
+		QTimer::singleShot(5000, qApp, SLOT(quit()));
 		return;
 	}
 
 	status = tr("Server running at IP: %1 port: %2").arg(serverAddress().toString()).arg(serverPort());
 }
 
-Connection * Server::findCurrentConnection ()
+/*Connection * Server::findCurrentConnection ()
 {
 	Q_ASSERT(parent());
 	int const n = static_cast<MainWindow *>(parent())->getTabTrace()->currentIndex();
-	return n >= 0 ? connections[n] : 0;
+	connections_t::iterator it = connections.find(n);
+	Q_ASSERT(it != connections.end());
+	return (it != connections.end()) ? it->second : 0;
+}*/
+
+Connection * Server::findCurrentConnection ()
+{
+	Q_ASSERT(parent());
+	QWidget * w = static_cast<MainWindow *>(parent())->getTabTrace()->currentWidget();
+	int const n = static_cast<MainWindow *>(parent())->getTabTrace()->currentIndex();
+	connections_t::iterator it = connections.find(w);
+	Q_ASSERT(it != connections.end());
+	return (it != connections.end()) ? it->second : 0;
 }
+
+Connection * Server::findConnectionByName (QString const & app_name)
+{
+	Q_ASSERT(parent());
+
+	for (connections_t::const_iterator it = connections.begin(), ite = connections.end(); it != ite; ++it)
+		if (it->second->sessionState().m_name == app_name)
+			return it->second;
+	return 0;
+}
+
 
 void Server::copyStorageTo (QString const & filename)
 {
+	Q_ASSERT(findCurrentConnection());
 	if (Connection * conn = findCurrentConnection())
 		conn->copyStorageTo(filename);
 }
 
 void Server::exportStorageToCSV (QString const & filename)
 {
+	Q_ASSERT(findCurrentConnection());
 	if (Connection * conn = findCurrentConnection())
 		conn->exportStorageToCSV(filename);
 }
 
 void Server::onSectionResized (int idx, int /*old_size*/, int new_size)
 {
+	Q_ASSERT(findCurrentConnection());
 	if (Connection * conn = findCurrentConnection())
 		if (conn->sessionState().getColumnSizes() && idx < conn->sessionState().getColumnSizes()->size())
 			conn->sessionState().getColumnSizes()->operator[](idx) = new_size;
@@ -56,6 +82,7 @@ void Server::onSectionResized (int idx, int /*old_size*/, int new_size)
 
 void Server::onApplyFilterClicked ()
 {
+	Q_ASSERT(findCurrentConnection());
 	if (Connection * conn = findCurrentConnection())
 		conn->onApplyFilterClicked();
 }
@@ -154,9 +181,12 @@ Connection * Server::createNewTableView ()
 	connection->setTableViewWidget(tableView);
 	connection->sessionState().setupThreadColors(main_window->getThreadColors());
 	int const n = main_window->getTabTrace()->addTab(tab, QString::fromUtf8("???"));
+	qDebug("created new tab at %u", n);
+
 	connection->sessionState().setTabWidget(n);
+	connection->sessionState().setTabWidget(tab);
 	main_window->getTabTrace()->setCurrentIndex(n);
-	connections.insert(std::make_pair(n, connection));
+	connections.insert(std::make_pair(tab, connection));
 	QObject::connect(main_window->getTabTrace(), SIGNAL(currentChanged(int)), connection, SLOT(onTabTraceFocus(int)));
 	QObject::connect(tableView->horizontalHeader(), SIGNAL(sectionResized(int, int, int)), this, SLOT(onSectionResized(int, int, int)));
 	return connection;
@@ -187,3 +217,34 @@ void Server::incomingConnection (int socketDescriptor)
 	connection->start();*/
 }
 
+void Server::onCloseTab (QWidget * w)
+{
+	if (w)
+	{
+		MainWindow * main_window = static_cast<MainWindow *>(parent());
+		int const idx = main_window->getTabTrace()->indexOf(w);
+		if (idx != -1)
+		{
+			main_window->getTabTrace()->removeTab(idx);
+			connections_t::iterator it = connections.find(w);
+			if (it != connections.end())
+			{
+				Connection * connection = it->second;
+
+				QObject::disconnect(connection->m_table_view_widget->horizontalHeader(), SIGNAL(sectionResized(int, int, int)), this, SLOT(onSectionResized(int, int, int)));
+				QObject::disconnect(main_window->getTabTrace(), SIGNAL(currentChanged(int)), connection, SLOT(onTabTraceFocus(int)));
+
+				connection->onCloseTab();
+				connections.erase(it);
+				delete connection;
+			}
+		}
+	}
+}
+
+void Server::onCloseCurrentTab ()
+{
+	MainWindow * main_window = static_cast<MainWindow *>(parent());
+	QWidget * w = main_window->getTabTrace()->currentWidget();
+	onCloseTab(w);
+}

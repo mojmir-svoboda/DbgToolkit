@@ -105,6 +105,7 @@ public slots:
 	QString onCopyToClipboard ();
 	void onFilterFile (int state);
 	void onHandleCommands ();
+	void onCloseTab ();
 
 private slots:
 	void processReadyRead ();

@@ -43,6 +43,7 @@ public:
 	void incomingDataStream (QDataStream & stream);
 	void copyStorageTo (QString const & filename);
 	void exportStorageToCSV (QString const & filename);
+	Connection * findConnectionByName (QString const & app_name);
 	
 signals:
 	void newConnection (Connection * connection);
@@ -54,6 +55,8 @@ public slots:
 	void onApplyFilterClicked ();
 	void onLevelValueChanged (int val);
 	void onCopyToClipboard ();
+	void onCloseCurrentTab ();
+	void onCloseTab (QWidget * w);
 	void onFilterFile (int state);
 
 protected:
@@ -63,7 +66,8 @@ protected:
 	
 private:
 	QString status;
-	std::map<int, Connection *> connections;
+	typedef std::map<QWidget *, Connection *> connections_t;
+	connections_t connections;
 };
 
 #endif // SERVER_H

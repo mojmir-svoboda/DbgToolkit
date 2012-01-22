@@ -1,3 +1,4 @@
+#pragma once
 #define WIN32_LEAN_AND_MEAN
 #if defined __MINGW32__
 #	undef _WIN32_WINNT
@@ -22,6 +23,13 @@ namespace trace {
 		void SetTickStart () { g_TickStart = ::GetTickCount64(); }
 		inline unsigned long long GetTime () { return ::GetTickCount64() - GetTickStart(); }
 #endif
+
+		unsigned get_pid () { return ::GetCurrentProcessId(); }
+		void create_log_filename (char * filename, size_t buff_sz)
+		{
+			char const * app_name = GetAppName() ? GetAppName() : "unknown";
+			_snprintf_s(filename, buff_sz, buff_sz - 1, "%s_%u.tlv_trace", app_name, ::GetCurrentProcessId());
+		}
 
 		inline tlv::len_t trc_vsnprintf (char * buff, size_t ln, char const * fmt, ...)
 		{

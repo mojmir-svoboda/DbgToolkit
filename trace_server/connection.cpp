@@ -46,6 +46,21 @@ void Connection::onTabTraceFocus (int i)
 	m_main_window->getTreeViewFile()->setModel(m_tree_view_file_model);
 }
 
+void Connection::onCloseTab ()
+{
+	qDebug("onCloseTab: this=%08x", this);
+	if (m_tcpstream)
+	{
+		QObject::disconnect(m_tcpstream, SIGNAL(readyRead()), this, SLOT(processReadyRead()));
+		QObject::disconnect(m_tcpstream, SIGNAL(disconnected()), this, SLOT(onDisconnected()));
+	}
+	if (m_tcpstream)
+		m_tcpstream->close();
+	closeStorage();
+	delete m_table_view_widget->model();
+	delete m_table_view_widget;
+}
+
 void Connection::onLevelValueChanged (int val)
 {
 	char tlv_buff[16];
@@ -120,14 +135,16 @@ void Connection::onHandleCommands ()
 		MainWindow::columns_sizes_t const & sizes = m_main_window->getColumnSizes(sessionState().m_app_idx);
 		for (size_t c = 0, ce = sizes.size(); c < ce; ++c)
 		{
+			bool const old = m_table_view_widget->blockSignals(true);
 			m_table_view_widget->horizontalHeader()->resizeSection(c, sizes.at(c));
+			m_table_view_widget->blockSignals(old);
 		}
 		m_first_line = false;
 	}
 
 	model->transactionCommit();
 
-	if (m_main_window->autoScollEnabled())
+	if (m_main_window->autoScrollEnabled())
 		m_table_view_widget->scrollToBottom();
 }
 
@@ -256,6 +273,8 @@ void Connection::run ()
 void Connection::processDataStream (QDataStream & stream)
 {
 	m_from_file = true;
+
+	connect(this, SIGNAL(handleCommands()), this, SLOT(onHandleCommands()));
 	processStream(&stream, &QDataStream::readRawData);
 }
 
@@ -297,7 +316,21 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 		if (cmd.tvs[i].m_tag == tlv::tag_app)
 		{
 			QString app_name = QString::fromStdString(cmd.tvs[i].m_val);
+			if (m_main_window->reuseTabEnabled())
+			{
+				Server * server = static_cast<Server *>(parent());
+				Connection * conn = server->findConnectionByName(app_name);
+				if (conn)
+				{
+					QWidget * w = conn->sessionState().m_tab_widget;
+					server->onCloseTab(w);	// close old one
+					// @TODO: delete persistent storage for the tab
+					sessionState().m_tab_idx = m_main_window->getTabTrace()->indexOf(sessionState().m_tab_widget);
+				}
+			}
+
 			sessionState().m_name = app_name;
+
 			m_main_window->getTabTrace()->setTabText(sessionState().m_tab_idx, app_name);
 			QString storage_name = createStorageName();
 			setupStorage(storage_name);

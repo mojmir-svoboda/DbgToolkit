@@ -33,8 +33,26 @@ MainWindow::MainWindow(QWidget *parent)
 	, m_hidden(false)
 	, m_timer(new QTimer(this))
 	, m_server(0)
+	, m_minimize_action(0)
+	, m_maximize_action(0)
+	, m_restore_action(0)
+	, m_quit_action(0)
+	, m_tray_menu(0)
+	, m_tray_icon(0)
+
 {
 	ui->setupUi(this);
+	createActions();
+	createTrayIcon();
+	QPixmap pixmap("Icon1.ico");
+	QIcon icon(pixmap);
+	//m_tray_icon->setIcon(icon);
+	setWindowIcon(icon);
+
+	m_tray_icon->setVisible(true);
+	m_tray_icon->show();
+
+
 	setAcceptDrops(true);
 	//qApp->installEventFilter(this);
 
@@ -42,7 +60,7 @@ MainWindow::MainWindow(QWidget *parent)
 	showServerStatus();
 	connect(ui->lineEdit, SIGNAL(editingFinished()), m_server, SLOT(onEditingFinished()));
 
-	m_timer->setInterval(3000);
+	m_timer->setInterval(5000);
 	connect(m_timer, SIGNAL(timeout()) , this, SLOT(timerHit()));
 	m_timer->start();
 	setupMenuBar();
@@ -54,6 +72,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->filterFileCheckBox, SIGNAL(stateChanged(int)), m_server, SLOT(onFilterFile(int)));
 
 	QTimer::singleShot(0, this, SLOT(loadState()));	// trigger lazy load of settings
+
+	setWindowTitle("flog server");
 
 #ifdef WIN32
 	DWORD hotkey = VK_SCROLL;
@@ -71,6 +91,39 @@ MainWindow::~MainWindow()
 	delete m_settings;
 	delete ui;
 
+}
+
+void MainWindow::createActions ()
+{
+	m_minimize_action = new QAction(tr("Mi&nimize"), this);
+	connect(m_minimize_action, SIGNAL(triggered()), this, SLOT(hide()));
+
+	m_maximize_action = new QAction(tr("Ma&ximize"), this);
+	connect(m_maximize_action, SIGNAL(triggered()), this, SLOT(showMaximized()));
+
+	m_restore_action = new QAction(tr("&Restore"), this);
+	connect(m_restore_action, SIGNAL(triggered()), this, SLOT(showNormal()));
+
+	m_quit_action = new QAction(tr("&Quit"), this);
+	connect(m_quit_action, SIGNAL(triggered()), qApp, SLOT(quit()));
+}
+
+void MainWindow::createTrayIcon ()
+{
+	m_tray_menu = new QMenu(this);
+	m_tray_menu->addAction(m_minimize_action);
+	m_tray_menu->addAction(m_maximize_action);
+	m_tray_menu->addAction(m_restore_action);
+	m_tray_menu->addSeparator();
+	m_tray_menu->addAction(m_quit_action);
+
+	QPixmap pixmap("Icon1.ico");
+	QIcon icon(pixmap);
+	m_tray_icon = new QSystemTrayIcon(icon, this);
+	m_tray_icon->setContextMenu(m_tray_menu);
+
+	connect(m_tray_icon, SIGNAL(messageClicked()), this, SLOT(messageClicked()));
+	connect(m_tray_icon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)), this, SLOT(iconActivated(QSystemTrayIcon::ActivationReason)));
 }
 
 void MainWindow::dropEvent (QDropEvent * event)
@@ -113,7 +166,8 @@ QTreeView * MainWindow::getTreeViewFunc () { return ui->treeViewFunc; }
 QTreeView const * MainWindow::getTreeViewFunc () const { return ui->treeViewFunc; }
 
 bool MainWindow::scopesEnabled () const { return ui->scopesCheckBox->isChecked(); }
-bool MainWindow::autoScollEnabled () const { return ui->autoScrollCheckBox->isChecked(); }
+bool MainWindow::reuseTabEnabled () const { return ui->reuseTabCheckBox->isChecked(); }
+bool MainWindow::autoScrollEnabled () const { return ui->autoScrollCheckBox->isChecked(); }
 
 void MainWindow::setLevel (int i)
 {
@@ -210,7 +264,7 @@ void MainWindow::onHotkeyShowOrHide ()
 	else
 	{
 		qDebug("MainWindow::show()");
-		show();
+		showNormal();
 	}
 }
 
@@ -282,11 +336,13 @@ void MainWindow::setupMenuBar ()
 	new QShortcut(QKeySequence(Qt::Key_Slash), this, SLOT(onEditFind()));
 	editMenu->addSeparator();
     editMenu->addAction(tr("Copy"), m_server, SLOT(onCopyToClipboard()), QKeySequence::Copy);
+	editMenu->addSeparator();
+	editMenu->addAction(tr("Close Tab"), m_server, SLOT(onCloseCurrentTab()), QKeySequence(Qt::ControlModifier + Qt::Key_W));
 
 	// Tools
 	QMenu * tools = menuBar()->addMenu(tr("&Tools"));
 	tools->addAction(tr("Settings"), this, SLOT(onSettings()));
-	new QShortcut(QKeySequence(Qt::Key_ScrollLock), this, SLOT(onHotkeyShowOrHide()));
+	//new QShortcut(QKeySequence(Qt::Key_ScrollLock), this, SLOT(onHotkeyShowOrHide()));
 }
 
 void MainWindow::storeState ()
@@ -394,15 +450,35 @@ void MainWindow::loadState ()
 	}
 }
 
+void MainWindow::iconActivated (QSystemTrayIcon::ActivationReason reason)
+{
+	switch (reason) {
+		case QSystemTrayIcon::Trigger:
+		case QSystemTrayIcon::DoubleClick:
+			break;
+		case QSystemTrayIcon::MiddleClick:
+			//showMessage();
+		break;
+			default:
+		;
+	}
+}
+
 void MainWindow::closeEvent (QCloseEvent * event)
 {
 	storeState();
-	QMainWindow::closeEvent(event);
+	//QMainWindow::closeEvent(event);
+
+	if (m_tray_icon->isVisible())
+	{
+		hide();
+		event->ignore();
+	}
 }
 
 void MainWindow::changeEvent (QEvent * e)
 {
-	switch (e->type())
+/*	switch (e->type())
 	{
 		case QEvent::LanguageChange:
 			this->ui->retranslateUi(this);
@@ -413,7 +489,7 @@ void MainWindow::changeEvent (QEvent * e)
 				{
 					//if (Preferences::instance().minimizeToTray())
 					{
-						QTimer::singleShot(250, this, SLOT(hide()));
+						QTimer::singleShot(2500, this, SLOT(hide()));
 					}
 				}
 
@@ -421,7 +497,7 @@ void MainWindow::changeEvent (QEvent * e)
 			}
 		default:
 			break;
-	}
+	}*/
 	QMainWindow::changeEvent(e);
 }
 

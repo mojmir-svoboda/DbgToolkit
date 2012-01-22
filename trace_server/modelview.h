@@ -37,6 +37,7 @@ class ModelView : public QAbstractTableModel
 	Q_OBJECT
 public:
 	explicit ModelView (QObject * parent = 0, Connection * c = 0);
+	~ModelView ();
 	int rowCount (const QModelIndex & parent = QModelIndex()) const;
 	int columnCount (const QModelIndex & parent = QModelIndex()) const;
 	QVariant data (const QModelIndex & index, int role = Qt::DisplayRole) const;

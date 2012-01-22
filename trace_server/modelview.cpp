@@ -14,6 +14,11 @@ ModelView::ModelView (QObject * parent, Connection * c)
 	m_rows.reserve(prealloc_size); // @TODO: magic const!
 }
 
+ModelView::~ModelView ()
+{
+	qDebug("%s", __FUNCTION__);
+}
+
 int ModelView::rowCount (const QModelIndex & /*parent*/) const { return m_rows.size(); }
 
 int ModelView::columnCount (const QModelIndex & /*parent*/) const

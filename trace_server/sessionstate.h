@@ -41,6 +41,7 @@ public:
 	~SessionState ();
 
 	void setTabWidget (int n) { m_tab_idx = n; }
+	void setTabWidget (QWidget * w) { m_tab_widget = w; }
 	void setupColumns (QList<QString> * cs, MainWindow::columns_sizes_t * csz);
 	void setupThreadColors (QList<QColor> const & tc);
 	void setupModelFile ();
@@ -68,11 +69,13 @@ signals:
 	
 private:
 	friend class Connection;
+	friend class Server;
 
 private:
 	//MainWindow * m_main_window;
 	int m_app_idx;
 	int m_tab_idx;
+	QWidget * m_tab_widget;
 	int m_from_file;
 	file_filters_t m_file_filters;
 

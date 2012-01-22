@@ -30,6 +30,18 @@
        </widget>
       </item>
       <item>
+       <widget class="QCheckBox" name="reuseTabCheckBox">
+        <property name="font">
+         <font>
+          <pointsize>7</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>reuseTab</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QCheckBox" name="scopesCheckBox">
         <property name="font">
          <font>

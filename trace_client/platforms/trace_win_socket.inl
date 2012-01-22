@@ -26,10 +26,9 @@
 
 namespace trace {
 
-	LONG volatile g_Quit = 0;			/// request to quit
-
 	namespace socks {
 
+		LONG volatile g_Quit = 0;			/// request to quit
 		CACHE_ALIGN LONG volatile m_wr_idx = 0;		// write index
 		sys::MessagePool g_MessagePool;					// pool of messages
 		CACHE_ALIGN LONG volatile m_rd_idx = 0;		// read index
@@ -37,6 +36,7 @@ namespace trace {
 		sys::Thread g_ThreadSend(THREAD_PRIORITY_HIGHEST);		/// consumer-sender thread (high priority)
 		sys::Thread g_ThreadRecv(THREAD_PRIORITY_LOWEST);		/// receiving thread (low priority)
 		SOCKET g_Socket = INVALID_SOCKET;
+		HANDLE g_LogFile = INVALID_HANDLE_VALUE;
 
 		inline sys::Message & msg_buffer_at (size_t i)
 		{
@@ -49,22 +49,41 @@ namespace trace {
 			return msg_buffer_at((wr_idx - 1) % sys::MessagePool::e_size);
 		}
 
-		bool is_connected () { return g_Socket != INVALID_SOCKET; }
+		inline bool is_connected () { return g_Socket != INVALID_SOCKET; }
+		inline bool is_file_connected () { return g_LogFile != INVALID_HANDLE_VALUE; }
+
+		inline bool WriteToFile (char const * buff, size_t ln)
+		{
+			if (is_file_connected())
+			{
+				DWORD written;
+				WriteFile(g_LogFile, buff, static_cast<DWORD>(ln), &written, 0);
+				return true;
+			}
+			return false;
+		}
 
 		inline bool WriteToSocket (char const * buff, size_t ln)
 		{
-			if (g_Socket == INVALID_SOCKET)
-				return false;
-
-			int const result = send(g_Socket, buff, (int)ln, 0);
-			if (result == SOCKET_ERROR)
+			if (is_connected())
 			{
-				printf("send failed with error: %d\n", WSAGetLastError());
-				closesocket(g_Socket);
-				WSACleanup();
-				return false;
+				int const result = send(g_Socket, buff, (int)ln, 0);
+				if (result == SOCKET_ERROR)
+				{
+					printf("send failed with error: %d\n", WSAGetLastError());
+					closesocket(g_Socket);
+					WSACleanup();
+					g_Socket = INVALID_SOCKET;
+
+					WriteToFile(buff, ln);
+					//return false;
+				}
 			}
-			//printf(".");
+#ifdef TRACE_WINDOWS_SOCKET_FAILOVER_TO_FILE
+			else
+				WriteToFile(buff, ln);
+#endif
+			printf(".");
 			return true;
 		}
 
@@ -79,8 +98,6 @@ namespace trace {
 				int const result = recv(g_Socket, buff, e_buff_sz, 0); //@TODO: better recv logic (this is sufficent for now)
 				if (result > 0)
 				{
-					printf("Bytes received: %d\n", result);
-
 					tlv::TLVDecoder d;
 					if (d.decode_header(buff, result, cmd))
 					{
@@ -123,7 +140,6 @@ namespace trace {
 
 					bool const write_ok = socks::WriteToSocket(msg.m_data, msg.m_length);
 					msg.m_length = 0;
-
 					msg.ReadUnlockAndClean();
 					++m_rd_idx;
 
@@ -191,41 +207,41 @@ namespace trace {
 			}
 
 			int send_buff_sz = 64 * 1024;
-			if (setsockopt(g_Socket, SOL_SOCKET, SO_SNDBUF, reinterpret_cast<char *>(&send_buff_sz), sizeof(int)) != SOCKET_ERROR)
-				printf("set SO_SNDBUF value=%i\n", send_buff_sz);
-
-			send_buff_sz = 0;
-			int sz = sizeof(int);
-			if (getsockopt(g_Socket, SOL_SOCKET, SO_SNDBUF, reinterpret_cast<char *>(&send_buff_sz), &sz) != SOCKET_ERROR)
-				printf("get SO_SNDBUF value=%i\n", send_buff_sz);
+			setsockopt(g_Socket, SOL_SOCKET, SO_SNDBUF, reinterpret_cast<char *>(&send_buff_sz), sizeof(int));
 		}
 	}
 
 	void Connect ()
 	{
+		sys::Message msg;
+		// send cmd_setup message
+		encode_setup(msg, GetRuntimeLevel(), GetRuntimeContextMask());
+
 		socks::connect("localhost", "13127");
+
+		socks::g_ThreadSend.Create(socks::consumer_thread, 0);
+		sys::SetTickStart();
+
 		if (socks::is_connected())
 		{
-			socks::g_ThreadSend.Create(socks::consumer_thread, 0);
-			sys::SetTickStart();
-
-			sys::Message msg;
-			// send cmd_setup message
-			encode_setup(msg, GetRuntimeLevel(), GetRuntimeContextMask());
-			if (msg.m_length)
-			{
-				socks::WriteToSocket(msg.m_data, msg.m_length);
-			}
-			socks::g_ThreadSend.Resume();
+			socks::WriteToSocket(msg.m_data, msg.m_length);
 
 			socks::g_ThreadRecv.Create(socks::receive_thread, 0);
 			socks::g_ThreadRecv.Resume();
 		}
+#	if defined TRACE_WINDOWS_SOCKET_FAILOVER_TO_FILE
+		char filename[128];
+		sys::create_log_filename(filename, sizeof(filename) / sizeof(*filename));
+		socks::g_LogFile = CreateFileA(filename, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+		socks::WriteToFile(msg.m_data, msg.m_length);
+#	endif
+
+		socks::g_ThreadSend.Resume();
 	}
 
 	void Disconnect ()
 	{
-		g_Quit = 1; // @TODO: atomic_store?
+		socks::g_Quit = 1; // @TODO: atomic_store?
 		if (socks::is_connected())
 		{
 			int const result = shutdown(socks::g_Socket, SD_SEND);
@@ -239,6 +255,10 @@ namespace trace {
 		socks::g_ThreadSend.Close();
 		socks::g_ThreadRecv.WaitForTerminate();
 		socks::g_ThreadRecv.Close();
+
+#	if defined TRACE_WINDOWS_SOCKET_FAILOVER_TO_FILE
+		CloseHandle(socks::g_LogFile);
+#	endif
 	}
 
 	inline void WriteLog (level_t level, context_t context, char const * file, int line, char const * fn, char const * fmt, va_list args)
@@ -260,7 +280,6 @@ namespace trace {
 		}
 		msg.WriteUnlockAndDirty();
 	}
-
 
 	inline void WriteScope (ScopedLog::E_Type type, level_t level, context_t context, char const * file, int line, char const * fn)
 	{

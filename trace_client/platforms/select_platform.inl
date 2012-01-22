@@ -3,9 +3,7 @@
 #if defined WIN32
 #	if defined TRACE_WINDOWS_USES_SOCKET
 #		include "trace_win_socket.inl"
-#	elif defined TRACE_WINDOWS_USES_MEMMAP
-#		include "trace_win_file.inl"
-#	elif defined TRACE_WINDOWS_USES_FILE
+#	elif defined TRACE_WINDOWS_USES_MEMMAP || defined TRACE_WINDOWS_USES_FILE
 #		include "trace_win_file.inl"
 #	endif
 

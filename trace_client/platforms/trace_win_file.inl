@@ -10,10 +10,9 @@
 
 namespace trace {
 
-	LONG volatile g_Quit = 0;			/// request to quit
-
 	namespace file {
 
+		LONG volatile g_Quit = 0;			/// request to quit
 		HANDLE g_LogFile = INVALID_HANDLE_VALUE;
 #if defined TRACE_WINDOWS_USES_MEMMAP
 		HANDLE g_MemMap = INVALID_HANDLE_VALUE;
@@ -89,10 +88,9 @@ namespace trace {
 
 	void Connect ()
 	{
-		char const * app_name = GetAppName() ? GetAppName() : "unknown";
 		char filename[128];
-		sys::trc_vsnprintf(filename, 128, "%s_%u.tlv_trace", app_name, ::GetCurrentProcessId());
-		
+		sys::create_log_filename(filename, sizeof(filename) / sizeof(*filename));
+
 		file::g_LogFile = CreateFileA(filename, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 		if (file::g_LogFile == INVALID_HANDLE_VALUE)
 		{
@@ -135,7 +133,7 @@ namespace trace {
 #endif
 		CloseHandle(file::g_LogFile);
 
-		g_Quit = 1; // @TODO: atomic_store
+		file::g_Quit = 1; // @TODO: atomic_store
 		file::g_ThreadSend.WaitForTerminate();
 		file::g_ThreadSend.Close();
 	}

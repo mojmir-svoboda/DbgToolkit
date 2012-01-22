@@ -62,12 +62,6 @@ namespace tlv {
 			output.write(reinterpret_cast<char const * >(&h.len), sizeof(len_t));
 		}
 
-		/*void Encode (tlvs_t const & tlvs)
-		{
-			for (tlvs_t::const_iterator it = tlvs.begin(), ite = tlvs.end(); it != ite; ++it)
-				Encode(*it);
-		}*/
-
 		void Encode (TLV const & tlv)
 		{
 			output.write(reinterpret_cast<char const * >(&tlv.m_tag), sizeof(tag_t));
