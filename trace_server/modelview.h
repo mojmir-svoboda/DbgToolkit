@@ -41,6 +41,7 @@ public:
 	int rowCount (const QModelIndex & parent = QModelIndex()) const;
 	int columnCount (const QModelIndex & parent = QModelIndex()) const;
 	QVariant data (const QModelIndex & index, int role = Qt::DisplayRole) const;
+	bool setData (QModelIndex const & index, QVariant const & value, int role = Qt::EditRole);
 	QVariant headerData (int section, Qt::Orientation orientation, int role) const;
 
 	void transactionStart (size_t n);

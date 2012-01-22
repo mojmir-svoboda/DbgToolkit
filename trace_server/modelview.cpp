@@ -86,6 +86,12 @@ QVariant ModelView::data (const QModelIndex &index, int role) const
 	return QVariant();
 }
 
+
+bool ModelView::setData (QModelIndex const & index, QVariant const & value, int role)
+{
+	return true;	
+}
+
 QVariant ModelView::headerData (int section, Qt::Orientation orientation, int role) const
 {
 	if (role == Qt::DisplayRole) {
@@ -119,6 +125,7 @@ void ModelView::emitLayoutChanged ()
 
 void ModelView::appendCommand (QSortFilterProxyModel * filter, tlv::StringCommand const & cmd)
 {
+	int column_index = -1;
 	int idx = -1;
 	for (size_t i=0, ie=cmd.tvs.size(); i < ie; ++i)
 		if (cmd.tvs[i].m_tag == tlv::tag_tid)
@@ -163,7 +170,7 @@ void ModelView::appendCommand (QSortFilterProxyModel * filter, tlv::StringComman
 		}
 
 		qval.append(QString::fromStdString(val));
-		int column_index = m_session_state.findColumn4Tag(tag);
+		column_index = m_session_state.findColumn4Tag(tag);
 		if (column_index < 0)
 		{
 			m_session_state.insertColumn();	// lines together
@@ -209,10 +216,15 @@ void ModelView::appendCommand (QSortFilterProxyModel * filter, tlv::StringComman
 	{
 		int const row = filter->rowCount();
 		filter->insertRow(row);
+		QModelIndex data_idx = filter->index(row-1, 0, QModelIndex());
+		emit dataChanged(data_idx, index(row, filter->columnCount(), QModelIndex()));
 	}
 	else
 	{
 		int const row = rowCount();
 		insertRow(row);
+		QModelIndex data_idx = index(row -1, 0, QModelIndex());
+		emit dataChanged(data_idx, index(row, columnCount(), QModelIndex()));
 	}
+
 }

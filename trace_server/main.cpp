@@ -26,8 +26,9 @@ struct Application : QApplication
 		if (msg->message == WM_HOTKEY)
 		{
 			qDebug("wineventfilter hotkey");
-			if (m_main_window)
-				m_main_window->onHotkeyShowOrHide();
+			//if (GetKeyState(hotkey))
+				if (m_main_window)
+					m_main_window->onHotkeyShowOrHide();
 		}
 		return QApplication::winEventFilter(msg, result);
 	}

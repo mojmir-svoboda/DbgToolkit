@@ -389,7 +389,7 @@ void FilterProxyModel::force_update()
 	invalidate();
 }
 
-bool FilterProxyModel::filterAcceptsRow (int sourceRow, QModelIndex const & sourceParent) const
+bool FilterProxyModel::filterAcceptsRow (int sourceRow, QModelIndex const & /*sourceParent*/) const
 {
 	QString file, line;
 	int const col_idx = m_session_state.findColumn4Tag(tlv::tag_file);

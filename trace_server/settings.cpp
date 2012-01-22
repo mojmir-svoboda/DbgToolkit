@@ -37,6 +37,19 @@ QVariant SettingsModelView::data (const QModelIndex & index, int role) const
 	return QVariant();
 }
 
+bool SettingsModelView::setData (QModelIndex const & index, QVariant const & value, int role)
+{
+	if (role == Qt::EditRole)
+	{
+		if (index.column() == 1)
+		{
+			m_rows[index.row()] = value.toString();
+			return true;
+		}
+	}
+	return false;
+}
+
 QVariant SettingsModelView::headerData (int section, Qt::Orientation orientation, int role) const
 {
 	if (role == Qt::DisplayRole && orientation == Qt::Horizontal)
@@ -54,54 +67,36 @@ Qt::ItemFlags SettingsModelView::flags (QModelIndex const & index) const
 	 return QAbstractItemModel::flags(index) | Qt::ItemIsEditable;
 }
 
-SettingsEditDelegate::SettingsEditDelegate(QObject *parent)
-        : QItemDelegate(parent) {}
+SettingsEditDelegate::SettingsEditDelegate(QObject *parent) : QItemDelegate(parent) {}
 
 QWidget *SettingsEditDelegate::createEditor(QWidget *parent,
                                           const QStyleOptionViewItem &,
                                           const QModelIndex &index) const
 {
-    QLineEdit *editor = new QLineEdit(parent);
+    QLineEdit * editor = new QLineEdit(parent);
     connect(editor, SIGNAL(editingFinished()), this, SLOT(commitAndCloseEditor()));
     return editor;
 }
 
 void SettingsEditDelegate::commitAndCloseEditor()
 {
-    QLineEdit *editor = qobject_cast<QLineEdit *>(sender());
+    QLineEdit * editor = qobject_cast<QLineEdit *>(sender());
     emit commitData(editor);
     emit closeEditor(editor);
 }
 
 void SettingsEditDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
 {
-    QLineEdit *edit = qobject_cast<QLineEdit*>(editor);
-    if (edit) {
+    QLineEdit * edit = qobject_cast<QLineEdit*>(editor);
+    if (edit)
         edit->setText(index.model()->data(index, Qt::EditRole).toString());
-    } else {
-/*        QDateTimeEdit *dateEditor = qobject_cast<QDateTimeEdit *>(editor);
-        if (dateEditor) {
-            dateEditor->setDate(QDate::fromString(
-            index.model()->data(index, Qt::EditRole).toString(),
-            "d/M/yyyy"));
-        }*/
-    }
 }
 
 void SettingsEditDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const
 {
-    QLineEdit *edit = qobject_cast<QLineEdit *>(editor);
-    if (edit) {
+    QLineEdit * edit = qobject_cast<QLineEdit *>(editor);
+    if (edit)
         model->setData(index, edit->text());
-    } else {
-/*        QDateTimeEdit *dateEditor = qobject_cast<QDateTimeEdit *>(editor);
-        if (dateEditor) {
-            model->setData(index, dateEditor->date().toString("dd/M/yyyy"));
-        }*/
-    }
 }
-
-
-
 
 

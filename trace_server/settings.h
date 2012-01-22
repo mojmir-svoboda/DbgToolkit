@@ -15,6 +15,7 @@ public:
 	QVariant data (const QModelIndex & index, int role = Qt::DisplayRole) const;
 	QVariant headerData (int section, Qt::Orientation orientation, int role) const;
 	Qt::ItemFlags flags (QModelIndex const & index) const;
+	bool setData (QModelIndex const & index, QVariant const & value, int role = Qt::EditRole);
 
 signals:
 	

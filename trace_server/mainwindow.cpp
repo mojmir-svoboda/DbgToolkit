@@ -290,15 +290,7 @@ void MainWindow::onSettings ()
 	sett_dialog.tagsTableView->horizontalHeader()->resizeSection(0, 100);
 	sett_dialog.tagsTableView->horizontalHeader()->resizeSection(1, 400);
 
-   // sett_dialog.tagsTableView->setEditTriggers(QAbstractItemView::AllEditTriggers);
 	sett_dialog.tagsTableView->setItemDelegate(new SettingsEditDelegate());
-	//sett_dialog.iconLabel->setText(QString());
-   // sett_dialog.iconLabel->setPixmap(mainWindow->style()->standardIcon(QStyle::SP_MessageBoxQuestion, 0, mainWindow).pixmap(32,
-
-	//QString introMessage = tr("<qt>Connect to proxy \"%1\" using:</qt>");
-	//introMessage = introMessage.arg(Qt::escape(proxy.hostName()));
-	//proxyDialog.introLabel->setText(introMessage);
-	//proxyDialog.introLabel->setWordWrap(true);
 
 	if (dialog.exec() == QDialog::Accepted)
 	{
@@ -306,14 +298,17 @@ void MainWindow::onSettings ()
 		{
 			boost::char_separator<char> sep(", ");
 			typedef boost::tokenizer<boost::char_separator<char> > tokenizer_t;
-			tokenizer_t tok(model.m_rows[i].toStdString(), sep);
-
-			for (tokenizer_t::const_iterator it = tok.begin(), ite = tok.end(); it != ite; ++it)
+			std::string s(model.m_rows[i].toStdString());
+			tokenizer_t tok(s, sep);
+			int const idx = findAppName(m_app_names[i]);
+			qDebug("app=%s", m_app_names.at(i).toStdString().c_str());
+			if (idx >= 0)
 			{
-				int const idx = findAppName(m_app_names[i]);
-				if (idx >= 0)
+				size_t j = 0;
+				for (tokenizer_t::const_iterator it = tok.begin(), ite = tok.end(); it != ite; ++it, ++j)
 				{
-					m_columns_setup[idx][i] = QString::fromStdString(*it);
+					qDebug("  token=%s", it->c_str());
+					m_columns_setup[idx][j] = QString::fromStdString(*it);
 				}
 			}
 		}
@@ -327,6 +322,8 @@ void MainWindow::setupMenuBar ()
 	fileMenu->addAction(tr("File &Load..."), this, SLOT(onFileLoad()), QKeySequence(Qt::ControlModifier + Qt::Key_L));
 	fileMenu->addAction(tr("File &Save..."), this, SLOT(onFileSave()), QKeySequence(Qt::ControlModifier + Qt::Key_S));
 	fileMenu->addAction(tr("File &Export (CSV)"), this, SLOT(onFileExportToCSV()), QKeySequence(Qt::ControlModifier + Qt::Key_E));
+	fileMenu->addSeparator();
+    fileMenu->addAction(tr("Quit"), qApp, SLOT(quit()), QKeySequence::Quit);
 
 	// Edit
 	QMenu * editMenu = menuBar()->addMenu(tr("&Edit"));
@@ -454,68 +451,23 @@ void MainWindow::iconActivated (QSystemTrayIcon::ActivationReason reason)
 {
 	switch (reason) {
 		case QSystemTrayIcon::Trigger:
-		case QSystemTrayIcon::DoubleClick:
-			break;
-		case QSystemTrayIcon::MiddleClick:
-			//showMessage();
-		break;
-			default:
-		;
+		case QSystemTrayIcon::DoubleClick: break;
+		case QSystemTrayIcon::MiddleClick: break;
+		default: break;
 	}
 }
 
 void MainWindow::closeEvent (QCloseEvent * event)
 {
 	storeState();
-	//QMainWindow::closeEvent(event);
 
-	if (m_tray_icon->isVisible())
-	{
-		hide();
-		event->ignore();
-	}
+	hide();
+	event->ignore();
 }
 
 void MainWindow::changeEvent (QEvent * e)
 {
-/*	switch (e->type())
-	{
-		case QEvent::LanguageChange:
-			this->ui->retranslateUi(this);
-			break;
-		case QEvent::WindowStateChange:
-			{
-				if (this->windowState() & Qt::WindowMinimized)
-				{
-					//if (Preferences::instance().minimizeToTray())
-					{
-						QTimer::singleShot(2500, this, SLOT(hide()));
-					}
-				}
-
-				break;
-			}
-		default:
-			break;
-	}*/
 	QMainWindow::changeEvent(e);
 }
 
-/*bool MainWindow::eventFilter (QObject * o, QEvent * e)
-{
-	//	qDebug() << e->type() << o;
-	if (e->type() == QEvent::DragEnter)
-	{
-		qDebug("QEvent::DragEnter");
-		dynamic_cast<QDragEnterEvent *>(e)->acceptProposedAction();
-	}
-	
-	if (e->type() == QEvent::Drop)
-	{
-		qDebug("QEvent::Drop");
-	}
-	return false;
-}*/
-
 /*he QSocketNotifier class provides support for monitoring activity on a file descriptor.  */
-/* The Qt Resource System ... for storing icons etc */
