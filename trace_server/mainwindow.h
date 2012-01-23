@@ -95,7 +95,8 @@ private slots:
 	void openFiles (QStringList const & list);
 	void onFileSave ();
 	void onFileExportToCSV ();
-	void onSettings ();
+	void onColumnSetup ();
+	void onFileFilterSetup ();
 	void closeEvent (QCloseEvent *event);
 	void iconActivated (QSystemTrayIcon::ActivationReason reason);
 

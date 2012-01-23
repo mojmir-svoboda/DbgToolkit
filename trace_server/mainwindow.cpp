@@ -268,7 +268,7 @@ void MainWindow::onHotkeyShowOrHide ()
 	}
 }
 
-void MainWindow::onSettings ()
+void MainWindow::onColumnSetup ()
 {
 	QDialog dialog(this);
 	dialog.setWindowFlags(Qt::Sheet);
@@ -315,6 +315,10 @@ void MainWindow::onSettings ()
 	}
 }
 
+void MainWindow::onFileFilterSetup ()
+{
+}
+
 void MainWindow::setupMenuBar ()
 {
 	// File
@@ -337,8 +341,9 @@ void MainWindow::setupMenuBar ()
 	editMenu->addAction(tr("Close Tab"), m_server, SLOT(onCloseCurrentTab()), QKeySequence(Qt::ControlModifier + Qt::Key_W));
 
 	// Tools
-	QMenu * tools = menuBar()->addMenu(tr("&Tools"));
-	tools->addAction(tr("Settings"), this, SLOT(onSettings()));
+	QMenu * tools = menuBar()->addMenu(tr("&Settings"));
+	tools->addAction(tr("Column Setup"), this, SLOT(onColumnSetup()));
+	tools->addAction(tr("File Filter Setup"), this, SLOT(onFileFilterSetup()));
 	//new QShortcut(QKeySequence(Qt::Key_ScrollLock), this, SLOT(onHotkeyShowOrHide()));
 }
 

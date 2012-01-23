@@ -56,7 +56,7 @@ DWORD WINAPI do_something ( LPVOID )
 		++i;
 		TRACE_MSG(trace::e_Info, trace::CTX_Default,  "Thread tick i=%u", i);
 		something_useful();
-		Sleep(100);
+		Sleep(1000);
 	}
 	return 0;
 }
@@ -99,7 +99,7 @@ int main ()
 	foo();	
 	Bar bar;
 
-	ThreadPool<6> thr_pool;
+	ThreadPool<2> thr_pool;
 	thr_pool.Create(do_something, 0);
 
 	for (;;)

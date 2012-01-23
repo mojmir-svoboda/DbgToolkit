@@ -302,6 +302,58 @@ bool Connection::tryHandleCommand (DecodedCommand const & cmd)
 	return true;
 }
 
+inline QStandardItem * findChildByText (QStandardItem * parent, QString const & txt)
+{
+	for (size_t i = 0, ie = parent->rowCount(); i < ie; ++i)
+	{
+		if (parent->child(i)->text() == txt)
+			return parent->child(i);
+	}
+	return 0;
+}
+
+void Connection::onTableClicked (QModelIndex const & index)
+{
+	int const f_idx = sessionState().m_tags2columns[tlv::tag_file];
+	int const l_idx = sessionState().m_tags2columns[tlv::tag_line];
+	QModelIndex f_model_idx = m_table_view_widget->model()->index(index.row(), f_idx, QModelIndex());
+	QModelIndex l_model_idx = m_table_view_widget->model()->index(index.row(), l_idx, QModelIndex());
+	QVariant f_val = m_table_view_widget->model()->data(f_model_idx);
+	QVariant l_val = m_table_view_widget->model()->data(l_model_idx);
+	QString file = f_val.toString();
+	QString line = l_val.toString();
+
+	boost::char_separator<char> sep(":/\\");
+	typedef boost::tokenizer<boost::char_separator<char> > tokenizer_t;
+	std::string fstr = file.toStdString();
+	tokenizer_t tok(fstr, sep);
+
+	QStandardItem * item = m_tree_view_file_model->invisibleRootItem();
+	for (tokenizer_t::const_iterator it = tok.begin(), ite = tok.end(); it != ite; ++it)
+	{
+		QString qfile = QString::fromStdString(*it);
+		QStandardItem * child = findChildByText(item, qfile);
+		if (child != 0)
+		{
+			item = child;
+			QModelIndex idx = item->index();
+			m_main_window->getTreeViewFile()->setExpanded(idx, true);
+			m_main_window->getTreeViewFile()->setCurrentIndex(idx);
+		}
+	}
+
+	if (item != 0)
+	{
+		QStandardItem * last_level = findChildByText(item, line);
+		if (last_level != 0)
+		{
+			QModelIndex idx = last_level->index();
+			m_main_window->getTreeViewFile()->setExpanded(idx, true);
+			m_main_window->getTreeViewFile()->setCurrentIndex(idx);
+		}
+	}
+}
+
 bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 {
 	qDebug("handle setup command");
@@ -355,6 +407,8 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 			{
 				m_table_view_widget->horizontalHeader()->resizeSection(c, sizes.at(c));
 			}
+			connect(m_table_view_widget, SIGNAL(clicked(QModelIndex const &)), this, SLOT(onTableClicked(QModelIndex const &)));
+
 			static_cast<ModelView *>(m_table_view_widget->model())->emitLayoutChanged();
 		}
 	}
@@ -386,7 +440,8 @@ FilterProxyModel::FilterProxyModel (QObject * parent, SessionState & ss) : QSort
 
 void FilterProxyModel::force_update()
 {
-	invalidate();
+	//invalidate();
+	reset();
 }
 
 bool FilterProxyModel::filterAcceptsRow (int sourceRow, QModelIndex const & /*sourceParent*/) const
@@ -424,8 +479,6 @@ void Connection::onFilterFile (int state)
 			m_table_view_proxy->setSourceModel(m_table_view_widget->model());
 			m_table_view_widget->setModel(m_table_view_proxy);
 			m_table_view_proxy->setDynamicSortFilter(true);
-
-			connect(m_table_view_proxy->sourceModel(), SIGNAL(dataChanged(QModelIndex, QModelIndex)), m_table_view_proxy, SLOT(dataChanged(QModelIndex, QModelIndex)));
 		}
 		else
 		{
@@ -453,16 +506,6 @@ inline QList<QStandardItem *> addRow (QString const & str)
 	QStandardItem * name_item = new QStandardItem(str);
 	row_items << name_item;
 	return row_items;
-}
-
-inline QStandardItem * findChildByText (QStandardItem * parent, QString const & txt)
-{
-	for (size_t i = 0, ie = parent->rowCount(); i < ie; ++i)
-	{
-		if (parent->child(i)->text() == txt)
-			return parent->child(i);
-	}
-	return 0;
 }
 
 bool Connection::appendToFilters (DecodedCommand const & cmd)
