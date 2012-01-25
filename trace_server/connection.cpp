@@ -438,7 +438,7 @@ bool Connection::handleLogCommand (DecodedCommand const & cmd)
 //////////////////// filtering stuff //////////////////////////////
 FilterProxyModel::FilterProxyModel (QObject * parent, SessionState & ss) : QSortFilterProxyModel(parent), m_session_state(ss) { }
 
-void FilterProxyModel::force_update()
+void FilterProxyModel::force_update ()
 {
 	//invalidate();
 	reset();
@@ -462,6 +462,12 @@ bool FilterProxyModel::filterAcceptsRow (int sourceRow, QModelIndex const & /*so
 
 	bool const excluded = m_session_state.isFileLineExcluded(std::make_pair(file.toStdString(), line.toStdString()));
 	return !excluded;
+}
+
+void Connection::onInvalidateFilter ()
+{
+	if (m_table_view_proxy)
+		static_cast<FilterProxyModel *>(m_table_view_proxy)->force_update();
 }
 
 void Connection::onFilterFile (int state)
@@ -494,16 +500,11 @@ void Connection::setupModelFile ()
 	//main_window->getTreeViewFile()->expandAll();
 }
 
-void Connection::onApplyFilterClicked ()
-{
-	if (m_table_view_proxy)
-		static_cast<FilterProxyModel *>(m_table_view_proxy)->force_update();
-}
-
 inline QList<QStandardItem *> addRow (QString const & str)
 {
 	QList<QStandardItem *> row_items;
 	QStandardItem * name_item = new QStandardItem(str);
+	name_item->setCheckable(true);
 	row_items << name_item;
 	return row_items;
 }

@@ -49,10 +49,10 @@ signals:
 	void newConnection (Connection * connection);
 
 public slots:
+	void onClickedAtFileTree (QModelIndex idx);
 	void onDoubleClickedAtFileTree (QModelIndex idx);
 	void onSectionResized (int logicalIndex, int oldSize, int newSize);
 	void onEditingFinished ();
-	void onApplyFilterClicked ();
 	void onLevelValueChanged (int val);
 	void onCopyToClipboard ();
 	void onCloseCurrentTab ();

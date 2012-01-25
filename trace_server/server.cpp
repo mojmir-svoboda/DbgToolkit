@@ -80,13 +80,6 @@ void Server::onSectionResized (int idx, int /*old_size*/, int new_size)
 			conn->sessionState().getColumnSizes()->operator[](idx) = new_size;
 }
 
-void Server::onApplyFilterClicked ()
-{
-	Q_ASSERT(findCurrentConnection());
-	if (Connection * conn = findCurrentConnection())
-		conn->onApplyFilterClicked();
-}
-
 void Server::onLevelValueChanged (int val)
 {
 	qDebug("level changed: %u", val);
@@ -113,7 +106,7 @@ void Server::onFilterFile (int state)
 		conn->onFilterFile(state);
 }
 
-void Server::onDoubleClickedAtFileTree (QModelIndex idx)
+void Server::onClickedAtFileTree (QModelIndex idx)
 {
 	MainWindow * main_window = static_cast<MainWindow *>(parent());
 	std::vector<QString> s;
@@ -138,7 +131,6 @@ void Server::onDoubleClickedAtFileTree (QModelIndex idx)
 
 	for (std::vector<QString>::const_reverse_iterator it=s.rbegin(), ite=s.rend(); it != ite; ++it)
 		file += std::string("/") + (*it).toStdString();
-
 	//qDebug("file=%s", file.c_str());
 
 	bool const checked = (item->checkState() == Qt::Checked);
@@ -149,16 +141,26 @@ void Server::onDoubleClickedAtFileTree (QModelIndex idx)
 		filter_item.second = val.toStdString();
 	}
 
-	qDebug("dbl click! (checked=%u) %s : %s", checked, filter_item.first.c_str(), filter_item.second.c_str());
+	qDebug("click! (checked=%u) %s : %s", checked, filter_item.first.c_str(), filter_item.second.c_str());
 
 	if (Connection * conn = findCurrentConnection())
 	{
-		if (!checked)
+		if (checked)
 			conn->sessionState().appendFileFilter(filter_item);
 		else
 			conn->sessionState().removeFileFilter(filter_item);
+		conn->onInvalidateFilter();
 	}
+}
+
+void Server::onDoubleClickedAtFileTree (QModelIndex idx)
+{
+	MainWindow * main_window = static_cast<MainWindow *>(parent());
+	QStandardItemModel * model = static_cast<QStandardItemModel *>(main_window->getTreeViewFile()->model());
+	QStandardItem * item = model->itemFromIndex(idx);
+	bool const checked = (item->checkState() == Qt::Checked);
 	item->setCheckState(checked ? Qt::Unchecked : Qt::Checked);
+	onClickedAtFileTree(idx);
 }
 
 Connection * Server::createNewTableView ()

@@ -101,11 +101,11 @@ signals:
 public slots:
 	void onTabTraceFocus (int i);
 	void onLevelValueChanged (int i);
-	void onApplyFilterClicked ();
 	QString onCopyToClipboard ();
 	void onFilterFile (int state);
 	void onHandleCommands ();
 	void onCloseTab ();
+	void onInvalidateFilter ();
 
 private slots:
 	void processReadyRead ();

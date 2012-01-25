@@ -66,19 +66,26 @@
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="applyButton">
+       <widget class="QSpinBox" name="levelSpinBox">
         <property name="font">
          <font>
-          <pointsize>7</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
          </font>
         </property>
-        <property name="text">
-         <string>ApplyFlt!</string>
+        <property name="toolTip">
+         <string extracomment="controls debug level of connected "/>
+        </property>
+        <property name="whatsThis">
+         <string extracomment="controls debug level of connected "/>
+        </property>
+        <property name="readOnly">
+         <bool>false</bool>
+        </property>
+        <property name="buttonSymbols">
+         <enum>QAbstractSpinBox::PlusMinus</enum>
         </property>
        </widget>
-      </item>
-      <item>
-       <widget class="QSpinBox" name="levelSpinBox"/>
       </item>
       <item>
        <spacer name="horizontalSpacer">
@@ -164,6 +171,11 @@
           <widget class="QTreeView" name="treeViewFunc"/>
          </item>
         </layout>
+       </widget>
+       <widget class="QWidget" name="filterTID">
+        <attribute name="title">
+         <string>filterTID</string>
+        </attribute>
        </widget>
       </widget>
      </widget>

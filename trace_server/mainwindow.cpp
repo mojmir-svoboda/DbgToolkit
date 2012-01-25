@@ -66,8 +66,8 @@ MainWindow::MainWindow(QWidget *parent)
 	setupMenuBar();
 
 	getTreeViewFile()->setEditTriggers(QAbstractItemView::NoEditTriggers);
+	connect(getTreeViewFile(), SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtFileTree(QModelIndex)));
 	connect(getTreeViewFile(), SIGNAL(doubleClicked(QModelIndex)), m_server, SLOT(onDoubleClickedAtFileTree(QModelIndex)));
-	connect(ui->applyButton, SIGNAL(clicked()), m_server, SLOT(onApplyFilterClicked()));
 	connect(ui->levelSpinBox, SIGNAL(valueChanged(int)), m_server, SLOT(onLevelValueChanged(int)));
     connect(ui->filterFileCheckBox, SIGNAL(stateChanged(int)), m_server, SLOT(onFilterFile(int)));
 
@@ -327,7 +327,7 @@ void MainWindow::setupMenuBar ()
 	fileMenu->addAction(tr("File &Save..."), this, SLOT(onFileSave()), QKeySequence(Qt::ControlModifier + Qt::Key_S));
 	fileMenu->addAction(tr("File &Export (CSV)"), this, SLOT(onFileExportToCSV()), QKeySequence(Qt::ControlModifier + Qt::Key_E));
 	fileMenu->addSeparator();
-    fileMenu->addAction(tr("Quit"), qApp, SLOT(quit()), QKeySequence::Quit);
+    fileMenu->addAction(tr("Quit process"), qApp, SLOT(quit()), QKeySequence::Quit);
 
 	// Edit
 	QMenu * editMenu = menuBar()->addMenu(tr("&Edit"));
@@ -466,6 +466,7 @@ void MainWindow::closeEvent (QCloseEvent * event)
 {
 	storeState();
 
+	m_hidden = true;
 	hide();
 	event->ignore();
 }
