@@ -64,7 +64,12 @@ public:
 	void appendFileFilter(fileline_t const & item);		/// add file + line pair
 	void appendFileFilter(std::string const & item);	/// add concantenated item
 	void removeFileFilter(fileline_t const & item);
-	bool isFileLineExcluded (fileline_t const & p);
+	bool isFileLineExcluded (fileline_t const & p) const;
+
+	typedef std::vector<std::string> tid_filters_t;
+	void appendTIDFilter (std::string const & item);
+	void removeTIDFilter (std::string const & item);
+	bool isTIDExcluded (std::string const & item) const;
 	
 signals:
 	
@@ -80,6 +85,7 @@ private:
 	QWidget * m_tab_widget;
 	int m_from_file;
 	file_filters_t m_file_filters;
+	tid_filters_t m_tid_filters;
 
 	QList<QColor> m_thread_colors;
 	QList<QString> * m_columns_setup;

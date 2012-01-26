@@ -88,7 +88,7 @@ public:
 	
 	SessionState & sessionState () { return m_session_state; }
 	SessionState const & sessionState () const { return m_session_state; }
-	void appendToFilters (std::string const & item, bool checked = false);
+	void appendToFileFilters (std::string const & item, bool checked = false);
 	void clearFilters ();
 
 	void run ();
@@ -120,8 +120,9 @@ private:
 	bool handleLogCommand (DecodedCommand const & cmd);
 	bool handleSetupCommand (DecodedCommand const & cmd);
 	bool appendToFilters (DecodedCommand const & cmd);
-	void appendToFilters (boost::char_separator<char> const & sep, std::string const & item, bool checked = false);
-	void appendToFilters (boost::char_separator<char> const & sep, std::string const & file, std::string const & line);
+	void appendToFileFilters (boost::char_separator<char> const & sep, std::string const & item, bool checked = false);
+	void appendToFileFilters (boost::char_separator<char> const & sep, std::string const & file, std::string const & line);
+	void appendToTIDFilters (std::string const & item);
 
 	bool setupStorage (QString const & name);
 	QString createStorageName () const;
@@ -131,6 +132,7 @@ private:
 	void closeStorage ();
 	void setSocketDescriptor (int sd);
 	void setupModelFile ();
+	void setupModelTID ();
 	void clearFilters (QStandardItem * node);
 
 private:
@@ -141,6 +143,7 @@ private:
 	QTableView * m_table_view_widget;
 	QStandardItemModel * m_tree_view_file_model;
 	QStandardItemModel * m_tree_view_func_model;
+	QStandardItemModel * m_list_view_tid_model;
 	QSortFilterProxyModel * m_table_view_proxy;
 
 	enum { e_ringbuff_size = 16 * 1024 };

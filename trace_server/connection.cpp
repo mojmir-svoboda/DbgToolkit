@@ -9,6 +9,7 @@
 #include <QTimer>
 #include <QSortFilterProxyModel>
 #include <QStandardItemModel>
+#include <QListView>
 #include "modelview.h"
 #include <boost/tokenizer.hpp>
 #include "../tlv_parser/tlv_encoder.h"
@@ -22,6 +23,7 @@ Connection::Connection (QObject * parent)
 	, m_table_view_widget(0)
 	, m_tree_view_file_model(0)
 	, m_tree_view_func_model(0)
+	, m_list_view_tid_model(0)
 	, m_table_view_proxy(0)
 	, m_buffer(e_ringbuff_size)
 	, m_current_cmd()
@@ -44,6 +46,7 @@ void Connection::onTabTraceFocus (int i)
 	if (i != sessionState().m_tab_idx)
 		return;
 	m_main_window->getTreeViewFile()->setModel(m_tree_view_file_model);
+	m_main_window->getListViewTID()->setModel(m_list_view_tid_model);
 }
 
 void Connection::onCloseTab ()
@@ -57,8 +60,16 @@ void Connection::onCloseTab ()
 	if (m_tcpstream)
 		m_tcpstream->close();
 	closeStorage();
-	delete m_table_view_widget->model();
-	delete m_table_view_widget;
+	if (m_main_window->getTreeViewFile()->model() == m_tree_view_file_model)
+		m_main_window->getTreeViewFile()->setModel(0);
+
+	if (m_main_window->getListViewTID()->model() == m_list_view_tid_model)
+		m_main_window->getListViewTID()->setModel(0);
+
+	delete m_tree_view_file_model;
+	m_table_view_widget = 0;
+	delete m_list_view_tid_model;
+	m_list_view_tid_model = 0;
 }
 
 void Connection::onLevelValueChanged (int val)
@@ -378,6 +389,9 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 					server->onCloseTab(w);	// close old one
 					// @TODO: delete persistent storage for the tab
 					sessionState().m_tab_idx = m_main_window->getTabTrace()->indexOf(sessionState().m_tab_widget);
+					
+					this->setupModelFile();
+					this->setupModelTID();
 				}
 			}
 
@@ -460,7 +474,18 @@ bool FilterProxyModel::filterAcceptsRow (int sourceRow, QModelIndex const & /*so
 		line = sourceModel()->data(data_idx2).toString();
 	}
 
-	bool const excluded = m_session_state.isFileLineExcluded(std::make_pair(file.toStdString(), line.toStdString()));
+	bool excluded = false;
+	excluded |= m_session_state.isFileLineExcluded(std::make_pair(file.toStdString(), line.toStdString()));
+
+	QString tid;
+	int const tid_idx = m_session_state.findColumn4Tag(tlv::tag_tid);
+	if (tid_idx >= 0)
+	{
+		QModelIndex data_idx = sourceModel()->index(sourceRow, tid_idx, QModelIndex());
+		tid = sourceModel()->data(data_idx).toString();
+	}
+
+	excluded |= m_session_state.isTIDExcluded(tid.toStdString());
 	return !excluded;
 }
 
@@ -495,9 +520,17 @@ void Connection::setFilterFile (int state)
 
 void Connection::setupModelFile ()
 {
-	m_tree_view_file_model = new QStandardItemModel;
+	if (!m_tree_view_file_model)
+		m_tree_view_file_model = new QStandardItemModel;
 	m_main_window->getTreeViewFile()->setModel(m_tree_view_file_model);
 	//main_window->getTreeViewFile()->expandAll();
+}
+
+void Connection::setupModelTID ()
+{
+	if (!m_list_view_tid_model)
+		m_list_view_tid_model = new QStandardItemModel;
+	m_main_window->getListViewTID()->setModel(m_list_view_tid_model);
 }
 
 inline QList<QStandardItem *> addRow (QString const & str, bool checked = false)
@@ -530,13 +563,13 @@ void Connection::clearFilters ()
 	sessionState().m_file_filters.clear();
 }
 
-void Connection::appendToFilters (std::string const & item, bool checked)
+void Connection::appendToFileFilters (std::string const & item, bool checked)
 {
 	boost::char_separator<char> sep(":/\\");
-	appendToFilters(sep, item, checked);
+	appendToFileFilters(sep, item, checked);
 }
 
-void Connection::appendToFilters (boost::char_separator<char> const & sep, std::string const & item, bool checked)
+void Connection::appendToFileFilters (boost::char_separator<char> const & sep, std::string const & item, bool checked)
 {
 	typedef boost::tokenizer<boost::char_separator<char> > tokenizer_t;
 	tokenizer_t tok(item, sep);
@@ -563,9 +596,21 @@ void Connection::appendToFilters (boost::char_separator<char> const & sep, std::
 	}
 }
 
-void Connection::appendToFilters (boost::char_separator<char> const & sep, std::string const & file, std::string const & line)
+void Connection::appendToFileFilters (boost::char_separator<char> const & sep, std::string const & file, std::string const & line)
 {
-	appendToFilters(sep, file + "/" + line);
+	appendToFileFilters(sep, file + "/" + line);
+}
+
+void Connection::appendToTIDFilters (std::string const & item)
+{
+	QString qItem = QString::fromStdString(item);
+	QStandardItem * root = m_list_view_tid_model->invisibleRootItem();
+	QStandardItem * child = findChildByText(root, qItem);
+	if (child == 0)
+	{
+		QList<QStandardItem *> row_items = addRow(qItem, false);
+		root->appendRow(row_items);
+	}
 }
 
 bool Connection::appendToFilters (DecodedCommand const & cmd)
@@ -586,6 +631,7 @@ bool Connection::appendToFilters (DecodedCommand const & cmd)
 				sessionState().m_tls.incrIndent(idx);
 			if (cmd.hdr.cmd == tlv::cmd_scope_exit)
 				sessionState().m_tls.decrIndent(idx);
+			appendToTIDFilters(cmd.tvs[i].m_val);
 		}
 	}
 
@@ -596,7 +642,7 @@ bool Connection::appendToFilters (DecodedCommand const & cmd)
 		if (cmd.tvs[i].m_tag == tlv::tag_file)
 		{
 			std::string file(cmd.tvs[i].m_val);
-			appendToFilters(sep, file, line);
+			appendToFileFilters(sep, file, line);
 		}
 	}
 	return true;

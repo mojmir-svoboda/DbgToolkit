@@ -163,6 +163,36 @@ void Server::onDoubleClickedAtFileTree (QModelIndex idx)
 	bool const checked = (item->checkState() == Qt::Checked);
 	item->setCheckState(checked ? Qt::Unchecked : Qt::Checked);
 	onClickedAtFileTree(idx);
+
+}
+
+
+
+void Server::onClickedAtTIDList (QModelIndex idx)
+{
+	MainWindow * main_window = static_cast<MainWindow *>(parent());
+	QStandardItemModel * model = static_cast<QStandardItemModel *>(main_window->getListViewTID()->model());
+	QStandardItem * item = model->itemFromIndex(idx);
+	QString const & val = model->data(idx, Qt::DisplayRole).toString();
+	std::string filter_item(val.toStdString());
+
+	bool const checked = (item->checkState() == Qt::Checked);
+
+	qDebug("click! (checked=%u) %s ", checked, filter_item.c_str());
+
+	if (Connection * conn = findCurrentConnection())
+	{
+		if (checked)
+			conn->sessionState().appendTIDFilter(filter_item);
+		else
+			conn->sessionState().removeTIDFilter(filter_item);
+		conn->onInvalidateFilter();
+	}
+}
+
+void Server::onDoubleClickedAtTIDList (QModelIndex idx)
+{
+
 }
 
 Connection * Server::createNewTableView ()
@@ -171,6 +201,7 @@ Connection * Server::createNewTableView ()
 	Connection * connection = new Connection(this);
 	connection->setMainWindow(main_window);
 	connection->setupModelFile();
+	connection->setupModelTID();
 	QWidget * tab = new QWidget();
 	QHBoxLayout * horizontalLayout = new QHBoxLayout(tab);
 	horizontalLayout->setSpacing(6);

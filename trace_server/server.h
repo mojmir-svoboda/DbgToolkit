@@ -52,6 +52,8 @@ signals:
 public slots:
 	void onClickedAtFileTree (QModelIndex idx);
 	void onDoubleClickedAtFileTree (QModelIndex idx);
+	void onClickedAtTIDList (QModelIndex idx);
+	void onDoubleClickedAtTIDList (QModelIndex idx);
 	void onSectionResized (int logicalIndex, int oldSize, int newSize);
 	void onEditingFinished ();
 	void onLevelValueChanged (int val);

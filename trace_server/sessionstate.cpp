@@ -56,7 +56,7 @@ void SessionState::insertColumn ()
 }
 
 
-bool SessionState::isFileLineExcluded (fileline_t const & item)
+bool SessionState::isFileLineExcluded (fileline_t const & item) const
 {
 	return m_file_filters.is_excluded(item.first + "/" + item.second);
 }
@@ -73,3 +73,17 @@ void SessionState::removeFileFilter (fileline_t const & item)
 	m_file_filters.exclude_off(item.first + "/" + item.second);
 }
 
+void SessionState::appendTIDFilter (std::string const & item)
+{
+	m_tid_filters.push_back(item);
+}
+
+void SessionState::removeTIDFilter (std::string const & item)
+{
+	m_tid_filters.erase(std::remove(m_tid_filters.begin(), m_tid_filters.end(), item), m_tid_filters.end());
+}
+
+bool SessionState::isTIDExcluded (std::string const & item) const
+{
+	return std::find(m_tid_filters.begin(), m_tid_filters.end(), item) != m_tid_filters.end();
+}

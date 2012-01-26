@@ -6,6 +6,7 @@
 #include "connection.h"
 #include <QTime>
 #include <QTableView>
+#include <QListView>
 #include <QShortcut>
 #include <QInputDialog>
 #include <QFileDialog>
@@ -65,8 +66,11 @@ MainWindow::MainWindow(QWidget *parent)
 	setupMenuBar();
 
 	getTreeViewFile()->setEditTriggers(QAbstractItemView::NoEditTriggers);
-	connect(getTreeViewFile(), SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtFileTree(QModelIndex)));
-	connect(getTreeViewFile(), SIGNAL(doubleClicked(QModelIndex)), m_server, SLOT(onDoubleClickedAtFileTree(QModelIndex)));
+	connect(getTreeViewFile(), SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtTIDList(QModelIndex)));
+	connect(getTreeViewFile(), SIGNAL(doubleClicked(QModelIndex)), m_server, SLOT(onDoubleClickedAtTIDList(QModelIndex)));
+
+	connect(getListViewTID(), SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtTIDList(QModelIndex)));
+	connect(getListViewTID(), SIGNAL(doubleClicked(QModelIndex)), m_server, SLOT(onDoubleClickedAtTIDList(QModelIndex)));
 	connect(ui->levelSpinBox, SIGNAL(valueChanged(int)), m_server, SLOT(onLevelValueChanged(int)));
     connect(ui->filterFileCheckBox, SIGNAL(stateChanged(int)), m_server, SLOT(onFilterFile(int)));
 	connect(ui->presetComboBox, SIGNAL(activated(int)), this, SLOT(onPresetActivate(int)));
@@ -164,6 +168,8 @@ QTreeView * MainWindow::getTreeViewFile () { return ui->treeViewFile; }
 QTreeView const * MainWindow::getTreeViewFile () const { return ui->treeViewFile; }
 QTreeView * MainWindow::getTreeViewFunc () { return ui->treeViewFunc; }
 QTreeView const * MainWindow::getTreeViewFunc () const { return ui->treeViewFunc; }
+QListView * MainWindow::getListViewTID () { return ui->listViewTID; }
+QListView const * MainWindow::getListViewTID () const { return ui->listViewTID; }
 
 bool MainWindow::scopesEnabled () const { return ui->scopesCheckBox->isChecked(); }
 bool MainWindow::filterEnabled () const { return ui->filterFileCheckBox->isChecked(); }
@@ -333,7 +339,7 @@ void MainWindow::onPresetActivate (int idx)
 	for (size_t i = 0, ie = m_filter_presets.at(idx).size(); i < ie; ++i)
 	{
 		std::string filter_item(m_filter_presets.at(idx).at(i).toStdString());
-		conn->appendToFilters(filter_item, true);
+		conn->appendToFileFilters(filter_item, true);
 		conn->sessionState().appendFileFilter(filter_item);
 		conn->onInvalidateFilter();
 	}
@@ -380,7 +386,7 @@ void MainWindow::onSaveCurrentFileFilter ()
 
 		ui->presetComboBox->clear();
 		for (size_t i = 0, ie = m_preset_names.size(); i < ie; ++i)
-			ui->presetComboBox->addItem(idx, m_preset_names.at(idx));
+			ui->presetComboBox->addItem(m_preset_names.at(i));
 	}
 }
 

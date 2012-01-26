@@ -169,6 +169,16 @@
          </item>
         </layout>
        </widget>
+       <widget class="QWidget" name="filterTID">
+        <attribute name="title">
+         <string>filterTID</string>
+        </attribute>
+        <layout class="QHBoxLayout" name="horizontalLayout_5">
+         <item>
+          <widget class="QListView" name="listViewTID"/>
+         </item>
+        </layout>
+       </widget>
        <widget class="QWidget" name="filterFunc">
         <property name="minimumSize">
          <size>
@@ -184,11 +194,6 @@
           <widget class="QTreeView" name="treeViewFunc"/>
          </item>
         </layout>
-       </widget>
-       <widget class="QWidget" name="filterTID">
-        <attribute name="title">
-         <string>filterTID</string>
-        </attribute>
        </widget>
       </widget>
      </widget>

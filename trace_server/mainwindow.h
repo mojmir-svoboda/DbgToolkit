@@ -36,6 +36,7 @@ namespace Ui {
 class QSystemTrayIcon;
 class QAction;
 class QMenu;
+class QListView;
 
 class MainWindow : public QMainWindow
 {
@@ -92,6 +93,8 @@ public:
 	QTreeView const * getTreeViewFile () const;
 	QTreeView * getTreeViewFunc ();
 	QTreeView const * getTreeViewFunc () const;
+	QListView * getListViewTID ();
+	QListView const * getListViewTID () const;
 	void setLevel (int i);
 	bool scopesEnabled () const;
 	bool autoScrollEnabled () const;
