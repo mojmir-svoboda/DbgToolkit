@@ -378,7 +378,9 @@ void MainWindow::onSaveCurrentFileFilter ()
 
 		storePresets();
 
-		ui->presetComboBox->addItem(m_preset_names.at(idx));
+		ui->presetComboBox->clear();
+		for (size_t i = 0, ie = m_preset_names.size(); i < ie; ++i)
+			ui->presetComboBox->addItem(idx, m_preset_names.at(idx));
 	}
 }
 
@@ -415,10 +417,11 @@ void MainWindow::setupMenuBar ()
 void write_list_of_strings (QSettings & settings, char const * groupname, char const * groupvaluename, QList<QString> const & lst)
 {
 	settings.beginWriteArray(groupname);
-	for (int i = 0, ie = lst.size() ; i < ie; ++i)
+	for (int i = 0, ie = lst.size(); i < ie; ++i)
 	{
 		settings.setArrayIndex(i);
 		settings.setValue(groupvaluename, lst.at(i));
+		qDebug("store to registry %i/%i: %s", i,ie, lst.at(i).toStdString().c_str());
 	}
 	settings.endArray();
 }
@@ -430,6 +433,7 @@ void read_list_of_strings (QSettings & settings, char const * groupname, char co
 	{
 		settings.setArrayIndex(i);
 		QString val = settings.value(groupvaluename).toString();
+		qDebug("read from registry: %s", val.toStdString().c_str());
 		lst.push_back(val);
 	}
 	settings.endArray();
@@ -437,15 +441,16 @@ void read_list_of_strings (QSettings & settings, char const * groupname, char co
 
 void MainWindow::storePresets ()
 {
+	qDebug("storePresets()");
 	QSettings settings("MojoMir", "TraceServer");
 	write_list_of_strings(settings, "known-presets", "preset", m_preset_names);
 
 	for (size_t i = 0, ie = m_preset_names.size(); i < ie; ++i)
 	{
-		settings.beginGroup(tr("preset_%1").arg(m_preset_names[i]));
+		qDebug("store group=%s", m_preset_names.at(i).toStdString().c_str());
+		settings.beginGroup(tr("preset_%1").arg(m_preset_names.at(i)));
 		{
-			for (filter_presets_t::const_iterator oi = m_filter_presets.constBegin(), oie = m_filter_presets.constEnd(); oi != oie; ++oi)
-				write_list_of_strings(settings, "items", "item", *oi);
+			write_list_of_strings(settings, "items", "item", m_filter_presets.at(i));
 		}
 		settings.endGroup();
 	}
@@ -464,6 +469,7 @@ void MainWindow::loadPresets ()
 
 	for (size_t i = 0, ie = m_preset_names.size(); i < ie; ++i)
 	{
+		qDebug("reading preset: %s", m_preset_names.at(i).toStdString().c_str());
 		m_filter_presets.push_back(filter_preset_t());
 		settings.beginGroup(tr("preset_%1").arg(m_preset_names[i]));
 		{
@@ -489,8 +495,7 @@ void MainWindow::storeState ()
 	{
 		settings.beginGroup(tr("column_order_%1").arg(m_app_names[i]));
 		{
-			for (QList<columns_setup_t>::const_iterator oi = m_columns_setup.constBegin(), oie = m_columns_setup.constEnd(); oi != oie; ++oi)
-				write_list_of_strings(settings, "orders", "column", *oi);
+			write_list_of_strings(settings, "orders", "column", m_columns_setup.at(i));
 		}
 		settings.endGroup();
 
