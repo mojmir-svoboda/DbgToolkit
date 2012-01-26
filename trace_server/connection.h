@@ -39,6 +39,7 @@ class Server;
 class QFile;
 class QDataStream;
 class QStandardItemModel;
+class QStandardItem;
 
 struct DecodedCommand : tlv::StringCommand
 {
@@ -87,10 +88,9 @@ public:
 	
 	SessionState & sessionState () { return m_session_state; }
 	SessionState const & sessionState () const { return m_session_state; }
+	void appendToFilters (std::string const & item, bool checked = false);
+	void clearFilters ();
 
-	void setSocketDescriptor (int sd);
-
-	void setupModelFile ();
 	void run ();
 
 signals:
@@ -102,7 +102,7 @@ public slots:
 	void onTabTraceFocus (int i);
 	void onLevelValueChanged (int i);
 	QString onCopyToClipboard ();
-	void onFilterFile (int state);
+	void setFilterFile (int state);
 	void onHandleCommands ();
 	void onCloseTab ();
 	void onInvalidateFilter ();
@@ -120,6 +120,8 @@ private:
 	bool handleLogCommand (DecodedCommand const & cmd);
 	bool handleSetupCommand (DecodedCommand const & cmd);
 	bool appendToFilters (DecodedCommand const & cmd);
+	void appendToFilters (boost::char_separator<char> const & sep, std::string const & item, bool checked = false);
+	void appendToFilters (boost::char_separator<char> const & sep, std::string const & file, std::string const & line);
 
 	bool setupStorage (QString const & name);
 	QString createStorageName () const;
@@ -127,6 +129,9 @@ private:
 	void copyStorageTo (QString const & filename);
 	void exportStorageToCSV (QString const & filename);
 	void closeStorage ();
+	void setSocketDescriptor (int sd);
+	void setupModelFile ();
+	void clearFilters (QStandardItem * node);
 
 private:
 	MainWindow * m_main_window;

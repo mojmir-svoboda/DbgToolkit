@@ -41,7 +41,6 @@ Connection * Server::findCurrentConnection ()
 {
 	Q_ASSERT(parent());
 	QWidget * w = static_cast<MainWindow *>(parent())->getTabTrace()->currentWidget();
-	int const n = static_cast<MainWindow *>(parent())->getTabTrace()->currentIndex();
 	connections_t::iterator it = connections.find(w);
 	Q_ASSERT(it != connections.end());
 	return (it != connections.end()) ? it->second : 0;
@@ -102,8 +101,11 @@ void Server::onCopyToClipboard ()
 
 void Server::onFilterFile (int state)
 {
+	if (!static_cast<MainWindow *>(parent())->getTabTrace()->currentWidget())
+		return;
+
 	if (Connection * conn = findCurrentConnection())
-		conn->onFilterFile(state);
+		conn->setFilterFile(state);
 }
 
 void Server::onClickedAtFileTree (QModelIndex idx)
@@ -187,6 +189,11 @@ Connection * Server::createNewTableView ()
 
 	connection->sessionState().setTabWidget(n);
 	connection->sessionState().setTabWidget(tab);
+
+	if (main_window->filterEnabled())
+	{
+		connection->setFilterFile(Qt::Checked);
+	}
 	main_window->getTabTrace()->setCurrentIndex(n);
 	connections.insert(std::make_pair(tab, connection));
 	QObject::connect(main_window->getTabTrace(), SIGNAL(currentChanged(int)), connection, SLOT(onTabTraceFocus(int)));

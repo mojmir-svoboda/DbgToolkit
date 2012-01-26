@@ -49,7 +49,7 @@
          </font>
         </property>
         <property name="text">
-         <string>Scopes</string>
+         <string>noScope</string>
         </property>
        </widget>
       </item>
@@ -66,9 +66,22 @@
        </widget>
       </item>
       <item>
+       <widget class="QComboBox" name="presetComboBox">
+        <property name="font">
+         <font>
+          <pointsize>7</pointsize>
+         </font>
+        </property>
+        <property name="sizeAdjustPolicy">
+         <enum>QComboBox::AdjustToContents</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QSpinBox" name="levelSpinBox">
         <property name="font">
          <font>
+          <pointsize>8</pointsize>
           <weight>75</weight>
           <bold>true</bold>
          </font>

@@ -31,6 +31,7 @@
 #include <boost/circular_buffer.hpp>
 
 class Server;
+class MainWindow;
 
 typedef std::pair<std::string, std::string> fileline_t;
 
@@ -44,7 +45,6 @@ public:
 	void setTabWidget (QWidget * w) { m_tab_widget = w; }
 	void setupColumns (QList<QString> * cs, MainWindow::columns_sizes_t * csz);
 	void setupThreadColors (QList<QColor> const & tc);
-	void setupModelFile ();
 	QList<QString> const * getColumnsSetup() const { return m_columns_setup; }
 	QList<QString> * getColumnsSetup() { return m_columns_setup; }
 	MainWindow::columns_sizes_t const * getColumnSizes () const { return m_columns_sizes; }
@@ -61,7 +61,8 @@ public:
 
 	typedef file_filter file_filters_t;
 	file_filters_t const & getFileFilters () const { return m_file_filters; }
-	void appendFileFilter(fileline_t const & item);
+	void appendFileFilter(fileline_t const & item);		/// add file + line pair
+	void appendFileFilter(std::string const & item);	/// add concantenated item
 	void removeFileFilter(fileline_t const & item);
 	bool isFileLineExcluded (fileline_t const & p);
 	
@@ -70,6 +71,7 @@ signals:
 private:
 	friend class Connection;
 	friend class Server;
+	friend class MainWindow;
 
 private:
 	//MainWindow * m_main_window;

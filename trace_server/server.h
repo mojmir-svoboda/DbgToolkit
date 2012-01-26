@@ -31,6 +31,7 @@ class Connection;
 class QTcpServer;
 class QNetworkSession;
 class QFile;
+class MainWindow;
 
 class Server : public QTcpServer
 {
@@ -60,6 +61,7 @@ public slots:
 	void onFilterFile (int state);
 
 protected:
+	friend class MainWindow;
 	void incomingConnection (int socketDescriptor);
 	Connection * createNewTableView ();
 	Connection * findCurrentConnection ();

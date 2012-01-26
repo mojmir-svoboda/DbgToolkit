@@ -470,7 +470,7 @@ void Connection::onInvalidateFilter ()
 		static_cast<FilterProxyModel *>(m_table_view_proxy)->force_update();
 }
 
-void Connection::onFilterFile (int state)
+void Connection::setFilterFile (int state)
 {
 	if (state == Qt::Unchecked)
 	{
@@ -500,13 +500,72 @@ void Connection::setupModelFile ()
 	//main_window->getTreeViewFile()->expandAll();
 }
 
-inline QList<QStandardItem *> addRow (QString const & str)
+inline QList<QStandardItem *> addRow (QString const & str, bool checked = false)
 {
 	QList<QStandardItem *> row_items;
 	QStandardItem * name_item = new QStandardItem(str);
 	name_item->setCheckable(true);
+	name_item->setCheckState(checked ? Qt::Checked : Qt::Unchecked);
 	row_items << name_item;
 	return row_items;
+}
+
+void Connection::clearFilters (QStandardItem * node)
+{
+	if (node)
+	{
+		if (node->checkState() == Qt::Checked)
+		{
+			node->setCheckState(Qt::Unchecked);
+		}
+		for (int i = 0, ie = node->rowCount(); i < ie; ++i)
+			clearFilters(node->child(i));
+	}
+}
+
+void Connection::clearFilters ()
+{
+	QStandardItem * node = m_tree_view_file_model->invisibleRootItem();
+	clearFilters(node);
+	sessionState().m_file_filters.clear();
+}
+
+void Connection::appendToFilters (std::string const & item, bool checked)
+{
+	boost::char_separator<char> sep(":/\\");
+	appendToFilters(sep, item, checked);
+}
+
+void Connection::appendToFilters (boost::char_separator<char> const & sep, std::string const & item, bool checked)
+{
+	typedef boost::tokenizer<boost::char_separator<char> > tokenizer_t;
+	tokenizer_t tok(item, sep);
+
+	QStandardItem * node = m_tree_view_file_model->invisibleRootItem();
+	bool append = false;
+	for (tokenizer_t::const_iterator it = tok.begin(), ite = tok.end(); it != ite; ++it)
+	{
+		QString qItem = QString::fromStdString(*it);
+		QStandardItem * child = findChildByText(node, qItem);
+		if (child != 0)
+			node = child;
+		else
+		{
+			append = true;
+			QList<QStandardItem *> row_items = addRow(qItem, checked);
+			node->appendRow(row_items);
+			node = row_items.at(0);
+		}
+	}
+	if (!append && checked)
+	{
+		node->setCheckState(checked ? Qt::Checked : Qt::Unchecked);
+	}
+}
+
+void Connection::appendToFilters (boost::char_separator<char> const & sep, std::string const & file, std::string const & line)
+{
+	appendToFilters(sep, file + "/" + line);
 }
 
 bool Connection::appendToFilters (DecodedCommand const & cmd)
@@ -536,36 +595,8 @@ bool Connection::appendToFilters (DecodedCommand const & cmd)
 	{
 		if (cmd.tvs[i].m_tag == tlv::tag_file)
 		{
-			typedef boost::tokenizer<boost::char_separator<char> > tokenizer_t;
 			std::string file(cmd.tvs[i].m_val);
-			tokenizer_t tok(file, sep);
-
-			QStandardItem * item = m_tree_view_file_model->invisibleRootItem();
-			for (tokenizer_t::const_iterator it = tok.begin(), ite = tok.end(); it != ite; ++it)
-			{
-				QString qfile = QString::fromStdString(*it);
-				QStandardItem * child = findChildByText(item, qfile);
-				if (child != 0)
-					item = child;
-				else
-				{
-					QList<QStandardItem *> row_items = addRow(qfile);
-					item->appendRow(row_items);
-					item = row_items.at(0);
-				}
-			}
-
-			if (!line.empty())
-			{
-				QString qline = QString::fromStdString(line);
-				QStandardItem * last_level = findChildByText(item, qline);
-				if (last_level == 0)
-				{
-					QList<QStandardItem *> row_items = addRow(qline);
-					item->appendRow(row_items);
-					item = row_items.at(0);
-				}
-			}
+			appendToFilters(sep, file, line);
 		}
 	}
 	return true;

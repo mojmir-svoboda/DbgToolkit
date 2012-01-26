@@ -38,12 +38,23 @@ struct file_filter
 
 	~file_filter ()
 	{
-		node_t::node_destroy(root);
-		root = 0;
+		clear();
+	}
+
+	void clear ()
+	{
+		if (root)
+		{
+			node_t::node_destroy(root);
+			root = 0;
+		}
 	}
 
 	void append (std::string const & path)
 	{
+		if (!root)
+			root = new node_t(std::string("/"), false);
+
 		tokenizer_t tok(path, separator);
 		node_t * level = root;
 	   	tokenizer_t::const_iterator it = tok.begin(), ite = tok.end();
@@ -59,7 +70,6 @@ struct file_filter
 			++it;
 			if (it == ite)
 			{
-				//qDebug("\t tag:    node_ptr=%08x (key=\'%s\')\n", level, level->key.c_str());
 				level->data = true;
 			}
    		}
@@ -94,10 +104,53 @@ struct file_filter
 			++it;
 			if (it == ite && level->data == true)
 			{
-				//qDebug("\t unTAG!:    node_ptr=%08x (key=\'%s\')\n", level, level->key.c_str());
 				level->data = false;
 			}
 		}
+	}
+
+	void reassemble_path (std::vector<node_t *> const & nodes, std::string & path)
+	{
+		for (size_t i = 0, ie = nodes.size(); i < ie; ++i)
+		{
+			path.append(nodes[i]->key);
+			if (i + 1 < ie)
+				path.append("/");
+		}
+	}
+
+	void export_filter_impl (node_t const * node, std::vector<node_t *> & nodes, std::string & output)
+	{
+		if (node && node->children)
+		{
+			node_t * child = node->children;
+
+			while (child)
+			{
+				node_t * current = child;
+				nodes.push_back(current);
+				if (current->data == true)
+				{
+					std::string path;
+					path.reserve(128);
+					reassemble_path(nodes, path);
+					output.append("\n");
+					output.append(path);
+					path.clear();
+				}
+				export_filter_impl(current, nodes, output);
+				nodes.pop_back();
+				child = current->next;
+			}
+		}
+	}
+
+	void export_filter (std::string & output)
+	{
+		output.reserve(128);
+		std::vector<node_t *> path;
+		path.reserve(32);
+		export_filter_impl(root, path, output);
 	}
 };
 

@@ -48,12 +48,32 @@ public:
 	QTabWidget * getTabTrace ();
 	QTabWidget const * getTabTrace () const;
 
+	typedef QList<QString> filter_preset_t;
+	typedef QList<filter_preset_t> filter_presets_t;
 	typedef QList<QString> columns_setup_t;
 	typedef QList<int> columns_sizes_t;
 	columns_setup_t const & getColumnSetup (size_t i) const { return m_columns_setup.at(i); }
 	columns_setup_t & getColumnSetup (size_t i) { return m_columns_setup[i]; }
 	columns_sizes_t const & getColumnSizes (size_t i) const { return m_columns_sizes.at(i); }
 	columns_sizes_t & getColumnSizes (size_t i) { return m_columns_sizes[i]; }
+	filter_preset_t const & getFilterPresets (size_t i) const { return m_filter_presets.at(i); }
+	filter_preset_t & getFilterPresets (size_t i) { return m_filter_presets[i]; }
+	int findPresetName (QString const & name)
+	{
+		for (size_t i = 0, ie = m_preset_names.size(); i < ie; ++i)
+			if (m_preset_names[i] == name)
+				return i;
+		return -1;
+	}
+	
+	size_t addPresetName (QString const & name)
+	{
+		m_preset_names.push_back(name);
+		m_filter_presets.push_back(filter_preset_t());
+		m_filter_presets.back().reserve(32);
+		return m_preset_names.size() - 1;
+	}
+
 	size_t findAppName (QString const & appname)
 	{
 		for (size_t i = 0, ie = m_app_names.size(); i < ie; ++i)
@@ -76,6 +96,7 @@ public:
 	bool scopesEnabled () const;
 	bool autoScrollEnabled () const;
 	bool reuseTabEnabled () const;
+	bool filterEnabled () const;
 	void changeEvent (QEvent* e);
 	void dropEvent (QDropEvent * event);
 	void dragEnterEvent (QDragEnterEvent *event);
@@ -86,7 +107,9 @@ public slots:
 
 private slots:
 	void loadState ();
+	void loadPresets ();
 	void storeState ();
+	void storePresets ();
 	void timerHit ();
 	void onEditFind ();
 	void onEditFindNext ();
@@ -99,6 +122,8 @@ private slots:
 	void onFileFilterSetup ();
 	void closeEvent (QCloseEvent *event);
 	void iconActivated (QSystemTrayIcon::ActivationReason reason);
+	void onSaveCurrentFileFilter ();
+	void onPresetActivate (int idx);
 
 private:
 	void showServerStatus ();
@@ -109,10 +134,12 @@ private:
 	Ui::MainWindow * ui;
 	Ui::SettingsDialog * m_settings;
 	bool m_hidden;
-	QList<QString> m_app_names;
-	QList<columns_setup_t> m_columns_setup;
-	QList<columns_sizes_t> m_columns_sizes;
-	QList<QColor> m_thread_colors;
+	QList<QString> m_app_names;					/// registered applications
+	QList<columns_setup_t> m_columns_setup;		/// column setup for each registered application
+	QList<columns_sizes_t> m_columns_sizes;		/// column sizes for each registered application
+	QList<QColor> m_thread_colors;				/// predefined coloring of threads
+	QList<QString> m_preset_names;				/// registered presets
+	filter_presets_t m_filter_presets;			/// list of strings for each preset
 	QString m_last_search;
 	QTimer * m_timer;
 	Server * m_server;

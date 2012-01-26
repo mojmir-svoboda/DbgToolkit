@@ -3,6 +3,7 @@
 #include "ui_settings.h"
 #include "modelview.h"
 #include "server.h"
+#include "connection.h"
 #include <QTime>
 #include <QTableView>
 #include <QShortcut>
@@ -23,8 +24,6 @@
 #	define WIN32_LEAN_AND_MEAN
 #	include <windows.h>
 #endif
-
-Q_DECLARE_METATYPE(QList<int>)
 
 MainWindow::MainWindow(QWidget *parent)
 	: QMainWindow(parent)
@@ -70,6 +69,7 @@ MainWindow::MainWindow(QWidget *parent)
 	connect(getTreeViewFile(), SIGNAL(doubleClicked(QModelIndex)), m_server, SLOT(onDoubleClickedAtFileTree(QModelIndex)));
 	connect(ui->levelSpinBox, SIGNAL(valueChanged(int)), m_server, SLOT(onLevelValueChanged(int)));
     connect(ui->filterFileCheckBox, SIGNAL(stateChanged(int)), m_server, SLOT(onFilterFile(int)));
+	connect(ui->presetComboBox, SIGNAL(activated(int)), this, SLOT(onPresetActivate(int)));
 
 	QTimer::singleShot(0, this, SLOT(loadState()));	// trigger lazy load of settings
 
@@ -166,6 +166,7 @@ QTreeView * MainWindow::getTreeViewFunc () { return ui->treeViewFunc; }
 QTreeView const * MainWindow::getTreeViewFunc () const { return ui->treeViewFunc; }
 
 bool MainWindow::scopesEnabled () const { return ui->scopesCheckBox->isChecked(); }
+bool MainWindow::filterEnabled () const { return ui->filterFileCheckBox->isChecked(); }
 bool MainWindow::reuseTabEnabled () const { return ui->reuseTabCheckBox->isChecked(); }
 bool MainWindow::autoScrollEnabled () const { return ui->autoScrollCheckBox->isChecked(); }
 
@@ -319,6 +320,68 @@ void MainWindow::onFileFilterSetup ()
 {
 }
 
+void MainWindow::onPresetActivate (int idx)
+{
+	if (idx == -1) return;
+	if (!getTabTrace()->currentWidget()) return;
+
+	Connection * conn = m_server->findCurrentConnection();
+	if (!conn) return;
+
+	conn->clearFilters();
+
+	for (size_t i = 0, ie = m_filter_presets.at(idx).size(); i < ie; ++i)
+	{
+		std::string filter_item(m_filter_presets.at(idx).at(i).toStdString());
+		conn->appendToFilters(filter_item, true);
+		conn->sessionState().appendFileFilter(filter_item);
+		conn->onInvalidateFilter();
+	}
+}
+
+void MainWindow::onSaveCurrentFileFilter ()
+{
+	if (!getTabTrace()->currentWidget()) return;
+	Connection * conn = m_server->findCurrentConnection();
+	if (!conn) return;
+
+	QString filled_text;
+	filled_text.append(conn->sessionState().m_name);
+	filled_text.append("/new_preset");
+
+	QStringList items(m_preset_names);
+	items.push_front(filled_text);
+
+	bool ok = false;
+	QString text = QInputDialog::getItem(this, tr("Save current preset"), tr("Preset name:"), items, 0, true, &ok);
+	if (ok && !text.isEmpty())
+	{
+		int idx = findPresetName(text);
+		if (idx == -1)
+		{
+			idx = addPresetName(text);
+		}
+		qDebug("new preset_name[%i]=%s", idx, text.toStdString().c_str());
+
+		std::string current_filter;
+		conn->sessionState().m_file_filters.export_filter(current_filter);
+
+		boost::char_separator<char> sep("\n");
+		typedef boost::tokenizer<boost::char_separator<char> > tokenizer_t;
+		tokenizer_t tok(current_filter, sep);
+		m_filter_presets[idx].clear();
+		for (tokenizer_t::const_iterator it = tok.begin(), ite = tok.end(); it != ite; ++it)
+		{
+			qDebug("appending to preset: %s", it->c_str());
+			m_filter_presets[idx] << QString::fromStdString(*it);
+		}
+
+		storePresets();
+
+		ui->presetComboBox->addItem(m_preset_names.at(idx));
+	}
+}
+
 void MainWindow::setupMenuBar ()
 {
 	// File
@@ -344,7 +407,70 @@ void MainWindow::setupMenuBar ()
 	QMenu * tools = menuBar()->addMenu(tr("&Settings"));
 	tools->addAction(tr("Column Setup"), this, SLOT(onColumnSetup()));
 	tools->addAction(tr("File Filter Setup"), this, SLOT(onFileFilterSetup()));
-	//new QShortcut(QKeySequence(Qt::Key_ScrollLock), this, SLOT(onHotkeyShowOrHide()));
+	tools->addAction(tr("Save Current File Filter As..."), this, SLOT(onSaveCurrentFileFilter()));
+	tools->addSeparator();
+	tools->addAction(tr("Save setup now"), this, SLOT(storeState()));
+}
+
+void write_list_of_strings (QSettings & settings, char const * groupname, char const * groupvaluename, QList<QString> const & lst)
+{
+	settings.beginWriteArray(groupname);
+	for (int i = 0, ie = lst.size() ; i < ie; ++i)
+	{
+		settings.setArrayIndex(i);
+		settings.setValue(groupvaluename, lst.at(i));
+	}
+	settings.endArray();
+}
+
+void read_list_of_strings (QSettings & settings, char const * groupname, char const * groupvaluename, QList<QString> & lst)
+{
+	int const size = settings.beginReadArray(groupname);
+	for (int i = 0; i < size; ++i)
+	{
+		settings.setArrayIndex(i);
+		QString val = settings.value(groupvaluename).toString();
+		lst.push_back(val);
+	}
+	settings.endArray();
+}
+
+void MainWindow::storePresets ()
+{
+	QSettings settings("MojoMir", "TraceServer");
+	write_list_of_strings(settings, "known-presets", "preset", m_preset_names);
+
+	for (size_t i = 0, ie = m_preset_names.size(); i < ie; ++i)
+	{
+		settings.beginGroup(tr("preset_%1").arg(m_preset_names[i]));
+		{
+			for (filter_presets_t::const_iterator oi = m_filter_presets.constBegin(), oie = m_filter_presets.constEnd(); oi != oie; ++oi)
+				write_list_of_strings(settings, "items", "item", *oi);
+		}
+		settings.endGroup();
+	}
+}
+
+void MainWindow::loadPresets ()
+{
+	m_preset_names.clear();
+	m_filter_presets.clear();
+	QSettings settings("MojoMir", "TraceServer");
+	read_list_of_strings(settings, "known-presets", "preset", m_preset_names);
+	for (size_t i = 0, ie = m_preset_names.size(); i < ie; ++i)
+	{
+		ui->presetComboBox->addItem(m_preset_names.at(i));
+	}
+
+	for (size_t i = 0, ie = m_preset_names.size(); i < ie; ++i)
+	{
+		m_filter_presets.push_back(filter_preset_t());
+		settings.beginGroup(tr("preset_%1").arg(m_preset_names[i]));
+		{
+			read_list_of_strings(settings, "items", "item", m_filter_presets.back());
+		}
+		settings.endGroup();
+	}
 }
 
 void MainWindow::storeState ()
@@ -353,31 +479,18 @@ void MainWindow::storeState ()
 	settings.setValue("geometry", saveGeometry());
 	settings.setValue("windowState", saveState());
 	settings.setValue("splitter", ui->splitter->saveState());
+	settings.setValue("autoScrollCheckBox", ui->autoScrollCheckBox->isChecked());
+	settings.setValue("reuseTabCheckBox", ui->reuseTabCheckBox->isChecked());
+	settings.setValue("scopesCheckBox", ui->scopesCheckBox->isChecked());
+	settings.setValue("filterFileCheckBox", ui->filterFileCheckBox->isChecked());
 
-	settings.beginWriteArray("known-applications");
-	int const size = m_app_names.size();
-	for (int i = 0; i < size; ++i) {
-		settings.setArrayIndex(i);
-		settings.setValue("application", m_app_names.at(i));
-	}
-	settings.endArray();
-
+	write_list_of_strings(settings, "known-applications", "application", m_app_names);
 	for (size_t i = 0, ie = m_app_names.size(); i < ie; ++i)
 	{
 		settings.beginGroup(tr("column_order_%1").arg(m_app_names[i]));
 		{
-			QList<columns_setup_t>::const_iterator oi = m_columns_setup.constBegin();
-			while (oi != m_columns_setup.constEnd())
-			{
-				settings.beginWriteArray("orders");
-				int const size = (*oi).size();
-				for (int i = 0; i < size; ++i) {
-					settings.setArrayIndex(i);
-					settings.setValue("column", (*oi).at(i));
-				}
-				settings.endArray();
-				++oi;
-			}
+			for (QList<columns_setup_t>::const_iterator oi = m_columns_setup.constBegin(), oie = m_columns_setup.constEnd(); oi != oie; ++oi)
+				write_list_of_strings(settings, "orders", "column", *oi);
 		}
 		settings.endGroup();
 
@@ -388,9 +501,9 @@ void MainWindow::storeState ()
 			{
 				settings.beginWriteArray("sizes");
 				int const size = (*oi).size();
-				for (int i = 0; i < size; ++i) {
-					settings.setArrayIndex(i);
-					settings.setValue("column", QString::number((*oi).at(i)));
+				for (int ai = 0; ai < size; ++ai) {
+					settings.setArrayIndex(ai);
+					settings.setValue("column", QString::number((*oi).at(ai)));
 				}
 				settings.endArray();
 				++oi;
@@ -402,33 +515,28 @@ void MainWindow::storeState ()
 
 void MainWindow::loadState ()
 {
+	m_app_names.clear();
+	m_columns_setup.clear();
+	m_columns_sizes.clear();
+
 	QSettings settings("MojoMir", "TraceServer");
 	restoreGeometry(settings.value("geometry").toByteArray());
 	restoreState(settings.value("windowState").toByteArray());
 	if (settings.contains("splitter"))
 		ui->splitter->restoreState(settings.value("splitter").toByteArray());
 
-	m_app_names.clear();
-	int const size = settings.beginReadArray("known-applications");
-	for (int i = 0; i < size; ++i) {
-		settings.setArrayIndex(i);
-		m_app_names.append(settings.value("application").toString());
-	}
-	settings.endArray();
+	ui->autoScrollCheckBox->setChecked(settings.value("autoScrollCheckBox", false).toBool());
+	ui->reuseTabCheckBox->setChecked(settings.value("reuseTabCheckBox", false).toBool());
+	ui->scopesCheckBox->setChecked(settings.value("scopesCheckBox", false).toBool());
+	ui->filterFileCheckBox->setChecked(settings.value("filterFileCheckBox", false).toBool());
 
-	m_columns_setup.clear();
+	read_list_of_strings(settings, "known-applications", "application", m_app_names);
 	for (size_t i = 0, ie = m_app_names.size(); i < ie; ++i)
 	{
 		m_columns_setup.push_back(columns_setup_t());
 		settings.beginGroup(tr("column_order_%1").arg(m_app_names[i]));
 		{
-			int const size = settings.beginReadArray("orders");
-			for (int i = 0; i < size; ++i) {
-				settings.setArrayIndex(i);
-				QString val = settings.value("column").toString();
-				m_columns_setup.back().push_back(val);
-			}
-			settings.endArray();
+			read_list_of_strings(settings, "orders", "column", m_columns_setup.back());
 		}
 		settings.endGroup();
 		
@@ -450,6 +558,8 @@ void MainWindow::loadState ()
 		for (size_t i = Qt::white; i < Qt::transparent; ++i)
 			m_thread_colors.push_back(QColor(static_cast<Qt::GlobalColor>(i)));
 	}
+
+	loadPresets();
 }
 
 void MainWindow::iconActivated (QSystemTrayIcon::ActivationReason reason)

@@ -66,6 +66,8 @@ void SessionState::appendFileFilter (fileline_t const & item)
 	m_file_filters.append(item.first + "/" + item.second);
 }
 
+void SessionState::appendFileFilter (std::string const & item) { m_file_filters.append(item); }
+
 void SessionState::removeFileFilter (fileline_t const & item)
 {
 	m_file_filters.exclude_off(item.first + "/" + item.second);
