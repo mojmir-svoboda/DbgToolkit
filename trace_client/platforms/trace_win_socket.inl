@@ -72,16 +72,47 @@ namespace trace {
 		{
 			if (is_connected())
 			{
-				int const result = send(g_Socket, buff, (int)ln, 0);
-				if (result == SOCKET_ERROR)
+				int result = SOCKET_ERROR;
+				if (!g_ClottedTimer.enabled())
+					result = send(g_Socket, buff, (int)ln, 0);
+				else
+				{
+					if (g_ClottedTimer.expired())
+					{
+						result = send(g_Socket, buff, (int)ln, 0);
+						if (result != SOCKET_ERROR && result > 0)
+						{
+							DBG_OUT("declotted\n");
+							g_ClottedTimer.reset();
+						}
+					}
+					else
+					{
+#ifdef TRACE_WINDOWS_SOCKET_FAILOVER_TO_FILE
+						WriteToFile(buff, ln);
+#endif
+						return true;
+					}
+				}
+
+				bool const timeouted = ( result == SOCKET_ERROR && WSAGetLastError() == WSAETIMEDOUT );
+				if (result == SOCKET_ERROR && !timeouted)
 				{
 					DBG_OUT("send failed with error: %d\n", WSAGetLastError());
 					closesocket(g_Socket);
 					WSACleanup();
 					g_Socket = INVALID_SOCKET;
 
+#ifdef TRACE_WINDOWS_SOCKET_FAILOVER_TO_FILE
 					WriteToFile(buff, ln);
+#endif
 					return false;
+				}
+				else if (timeouted || result == 0)
+				{
+					DBG_OUT("socked clotted\n");
+					g_ClottedTimer.set_delay_ms(128);
+					return true;
 				}
 			}
 #ifdef TRACE_WINDOWS_SOCKET_FAILOVER_TO_FILE
@@ -232,6 +263,8 @@ namespace trace {
 
 		bool try_connect ()
 		{
+			g_ReconnectTimer.reset();
+			g_ClottedTimer.reset();
 			sys::Message msg;
 			// send cmd_setup message
 			encode_setup(msg, GetRuntimeLevel(), GetRuntimeContextMask());
