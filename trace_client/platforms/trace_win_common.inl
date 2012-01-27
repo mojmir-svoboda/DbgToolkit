@@ -23,6 +23,15 @@ namespace trace {
 		void SetTickStart () { g_TickStart = ::GetTickCount64(); }
 		inline unsigned long long GetTime () { return ::GetTickCount64() - GetTickStart(); }
 #endif
+		struct Timer {
+			unsigned long long m_expire_at;
+
+			Timer () : m_expire_at(0) { }
+			void set_delay_ms (unsigned delay_ms) { m_expire_at = GetTime() + delay_ms; }
+			void reset () { m_expire_at = 0; }
+			bool enabled () const { return m_expire_at != 0; }
+			bool expired () const { return GetTime() > m_expire_at; }
+		};
 
 		unsigned get_pid () { return ::GetCurrentProcessId(); }
 		void create_log_filename (char * filename, size_t buff_sz)

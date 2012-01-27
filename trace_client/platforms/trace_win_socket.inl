@@ -24,6 +24,9 @@
 #include "encode_scope.inl"
 #include "encode_setup.inl"
 
+//#define DBG_OUT printf
+#define DBG_OUT(fmt, ...) ((void)0)
+
 namespace trace {
 
 	namespace socks {
@@ -37,6 +40,8 @@ namespace trace {
 		sys::Thread g_ThreadRecv(THREAD_PRIORITY_LOWEST);		/// receiving thread (low priority)
 		SOCKET g_Socket = INVALID_SOCKET;
 		HANDLE g_LogFile = INVALID_HANDLE_VALUE;
+		sys::Timer g_ReconnectTimer;
+		sys::Timer g_ClottedTimer;
 
 		inline sys::Message & msg_buffer_at (size_t i)
 		{
@@ -70,20 +75,20 @@ namespace trace {
 				int const result = send(g_Socket, buff, (int)ln, 0);
 				if (result == SOCKET_ERROR)
 				{
-					printf("send failed with error: %d\n", WSAGetLastError());
+					DBG_OUT("send failed with error: %d\n", WSAGetLastError());
 					closesocket(g_Socket);
 					WSACleanup();
 					g_Socket = INVALID_SOCKET;
 
 					WriteToFile(buff, ln);
-					//return false;
+					return false;
 				}
 			}
 #ifdef TRACE_WINDOWS_SOCKET_FAILOVER_TO_FILE
 			else
 				WriteToFile(buff, ln);
 #endif
-			printf(".");
+			DBG_OUT(".");
 			return true;
 		}
 
@@ -112,29 +117,38 @@ namespace trace {
 				}
 				else if (result == 0)
 				{
-					printf("Connection closed\n");
+					DBG_OUT("Connection closed\n");
 					break;
 				}
 				else
 				{
-					printf("recv failed: %d\n", WSAGetLastError());
+					DBG_OUT("recv failed: %d\n", WSAGetLastError());
 					break;
 				}
 			}
 			return 0;
 		}
 
+		bool try_connect ();
+
 		/**@brief	function consuming and sending items from MessagePool **/
 		DWORD WINAPI consumer_thread ( LPVOID )
 		{
 			while (!g_Quit)
 			{
+				if (g_ReconnectTimer.enabled() && g_ReconnectTimer.expired())
+				{
+					if (try_connect())
+						g_ReconnectTimer.reset();
+					else
+						g_ReconnectTimer.set_delay_ms(1000);
+				}
 				LONG wr_idx = sys::atomic_get(&m_wr_idx);
 				LONG rd_idx = m_rd_idx;
 				// @TODO: wraparound
 				if (rd_idx < wr_idx)
 				{
-					//printf("rd_idx=%10i, wr_idx=%10i, diff=%10i \n", rd_idx, wr_idx, wr_idx - rd_idx);
+					//DBG_OUT("rd_idx=%10i, wr_idx=%10i, diff=%10i \n", rd_idx, wr_idx, wr_idx - rd_idx);
 					sys::Message & msg = socks::msg_buffer_at(rd_idx % sys::MessagePool::e_size);
 					msg.ReadLock();
 
@@ -144,7 +158,10 @@ namespace trace {
 					++m_rd_idx;
 
 					if (!write_ok)
-						break;
+					{
+						g_ReconnectTimer.set_delay_ms(1000);
+						//break;
+					}
 				}
 				else
 					sys::thread_yield();
@@ -159,7 +176,7 @@ namespace trace {
 			WSADATA wsaData;
 			int const init_result = WSAStartup(MAKEWORD(2,2), &wsaData);
 			if (init_result != 0) {
-				printf("WSAStartup failed with error: %d\n", init_result);
+				DBG_OUT("WSAStartup failed with error: %d\n", init_result);
 				return;
 			}
 
@@ -172,7 +189,7 @@ namespace trace {
 			addrinfo * result = NULL;
 			int const resolve_result = getaddrinfo(host, port, &hints, &result); // resolve the server address and port
 			if (resolve_result != 0) {
-				printf("getaddrinfo failed with error: %d\n", resolve_result);
+				DBG_OUT("getaddrinfo failed with error: %d\n", resolve_result);
 				WSACleanup();
 				return;
 			}
@@ -182,7 +199,7 @@ namespace trace {
 				// create a SOCKET for connecting to server
 				g_Socket = socket(ptr->ai_family, ptr->ai_socktype, ptr->ai_protocol);
 				if (g_Socket == INVALID_SOCKET) {
-					printf("socket failed with error: %ld\n", WSAGetLastError());
+					DBG_OUT("socket failed with error: %ld\n", WSAGetLastError());
 					WSACleanup();
 					return;
 				}
@@ -201,7 +218,7 @@ namespace trace {
 
 			if (g_Socket == INVALID_SOCKET)
 			{
-				printf("Unable to connect to server!\n");
+				DBG_OUT("Unable to connect to server!\n");
 				WSACleanup();
 				return;
 			}
@@ -212,30 +229,45 @@ namespace trace {
 			DWORD send_timeout_ms = 1;
 			setsockopt(g_Socket, SOL_SOCKET, SO_SNDTIMEO, reinterpret_cast<char *>(&send_timeout_ms), sizeof(DWORD));
 		}
+
+		bool try_connect ()
+		{
+			sys::Message msg;
+			// send cmd_setup message
+			encode_setup(msg, GetRuntimeLevel(), GetRuntimeContextMask());
+
+			socks::connect("localhost", "13127");
+
+			if (socks::is_connected())
+			{
+				socks::WriteToSocket(msg.m_data, msg.m_length);
+
+				socks::g_ThreadRecv.Create(socks::receive_thread, 0);
+				socks::g_ThreadRecv.Resume();
+				return true;
+			}
+			return false;
+		}
 	}
 
 	void Connect ()
 	{
-		sys::Message msg;
-		// send cmd_setup message
-		encode_setup(msg, GetRuntimeLevel(), GetRuntimeContextMask());
-
-		socks::connect("localhost", "13127");
-
-		socks::g_ThreadSend.Create(socks::consumer_thread, 0);
 		sys::SetTickStart();
 
-		if (socks::is_connected())
-		{
-			socks::WriteToSocket(msg.m_data, msg.m_length);
+		socks::g_ThreadSend.Create(socks::consumer_thread, 0);
 
-			socks::g_ThreadRecv.Create(socks::receive_thread, 0);
-			socks::g_ThreadRecv.Resume();
-		}
+		bool const connected = socks::try_connect();
+		if (!connected)
+			socks::g_ReconnectTimer.set_delay_ms(1000);
+
 #	if defined TRACE_WINDOWS_SOCKET_FAILOVER_TO_FILE
 		char filename[128];
 		sys::create_log_filename(filename, sizeof(filename) / sizeof(*filename));
 		socks::g_LogFile = CreateFileA(filename, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+
+		sys::Message msg;
+		// send cmd_setup message
+		encode_setup(msg, GetRuntimeLevel(), GetRuntimeContextMask());
 		socks::WriteToFile(msg.m_data, msg.m_length);
 #	endif
 
@@ -249,7 +281,7 @@ namespace trace {
 		{
 			int const result = shutdown(socks::g_Socket, SD_SEND);
 			if (result == SOCKET_ERROR)
-				printf("shutdown failed with error: %d\n", WSAGetLastError());
+				DBG_OUT("shutdown failed with error: %d\n", WSAGetLastError());
 			closesocket(socks::g_Socket);
 			socks::g_Socket = INVALID_SOCKET;
 			WSACleanup();
