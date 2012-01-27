@@ -59,7 +59,7 @@ public slots:
 
 private:
 
-	//Connection * m_connection;
+	Connection * m_connection;
 	SessionState & m_session_state;
 	typedef std::vector<QString> columns_t;
 	typedef std::vector<columns_t> rows_t;

@@ -119,10 +119,12 @@ private:
 	bool tryHandleCommand (DecodedCommand const & cmd);
 	bool handleLogCommand (DecodedCommand const & cmd);
 	bool handleSetupCommand (DecodedCommand const & cmd);
+
 	bool appendToFilters (DecodedCommand const & cmd);
 	void appendToFileFilters (boost::char_separator<char> const & sep, std::string const & item, bool checked = false);
 	void appendToFileFilters (boost::char_separator<char> const & sep, std::string const & file, std::string const & line);
 	void appendToTIDFilters (std::string const & item);
+	void clearFilters (QStandardItem * node);
 
 	bool setupStorage (QString const & name);
 	QString createStorageName () const;
@@ -133,7 +135,6 @@ private:
 	void setSocketDescriptor (int sd);
 	void setupModelFile ();
 	void setupModelTID ();
-	void clearFilters (QStandardItem * node);
 
 private:
 	MainWindow * m_main_window;

@@ -43,16 +43,19 @@ public:
 
 	void setTabWidget (int n) { m_tab_idx = n; }
 	void setTabWidget (QWidget * w) { m_tab_widget = w; }
-	void setupColumns (QList<QString> * cs, MainWindow::columns_sizes_t * csz);
+	void setupColumns (QList<QString> const * column_setup_template, MainWindow::columns_sizes_t * sizes);
 	void setupThreadColors (QList<QColor> const & tc);
-	QList<QString> const * getColumnsSetup() const { return m_columns_setup; }
-	QList<QString> * getColumnsSetup() { return m_columns_setup; }
+	QList<QString> const * getColumnsSetupCurrent () const { return m_columns_setup_current; }
+	QList<QString> * getColumnsSetupCurrent () { return m_columns_setup_current; }
+	QList<QString> const * getColumnsSetupTemplate () const { return m_columns_setup_template; }
 	MainWindow::columns_sizes_t const * getColumnSizes () const { return m_columns_sizes; }
 	MainWindow::columns_sizes_t * getColumnSizes () { return m_columns_sizes; }
 
+	int findColumn4TagInTemplate (tlv::tag_t tag) const;
 	int findColumn4Tag (tlv::tag_t tag) const;
 	void insertColumn4Tag (tlv::tag_t tag, int column_idx);
 	void insertColumn ();
+	int insertColumn (tlv::tag_t tag);
 
 	QList<QColor> const & getThreadColors () const { return m_thread_colors; }
 
@@ -88,7 +91,8 @@ private:
 	tid_filters_t m_tid_filters;
 
 	QList<QColor> m_thread_colors;
-	QList<QString> * m_columns_setup;
+	QList<QString> * m_columns_setup_current;
+	QList<QString> const * m_columns_setup_template;
 	MainWindow::columns_sizes_t * m_columns_sizes;
 	QMap<tlv::tag_t, int> m_tags2columns;
 	ThreadSpecific m_tls;

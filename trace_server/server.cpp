@@ -170,9 +170,13 @@ void Server::onDoubleClickedAtFileTree (QModelIndex idx)
 
 void Server::onClickedAtTIDList (QModelIndex idx)
 {
+	if (!idx.isValid())
+		return;
 	MainWindow * main_window = static_cast<MainWindow *>(parent());
 	QStandardItemModel * model = static_cast<QStandardItemModel *>(main_window->getListViewTID()->model());
 	QStandardItem * item = model->itemFromIndex(idx);
+	Q_ASSERT(item);
+
 	QString const & val = model->data(idx, Qt::DisplayRole).toString();
 	std::string filter_item(val.toStdString());
 

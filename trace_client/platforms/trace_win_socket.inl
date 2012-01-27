@@ -208,6 +208,9 @@ namespace trace {
 
 			int send_buff_sz = 64 * 1024;
 			setsockopt(g_Socket, SOL_SOCKET, SO_SNDBUF, reinterpret_cast<char *>(&send_buff_sz), sizeof(int));
+
+			DWORD send_timeout_ms = 1;
+			setsockopt(g_Socket, SOL_SOCKET, SO_SNDTIMEO, reinterpret_cast<char *>(&send_timeout_ms), sizeof(DWORD));
 		}
 	}
 

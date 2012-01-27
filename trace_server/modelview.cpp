@@ -7,7 +7,7 @@
 
 ModelView::ModelView (QObject * parent, Connection * c)
 	: QAbstractTableModel(parent)
-	//, m_connection(c)
+	, m_connection(c)
 	, m_session_state(c->sessionState())
 {
 	size_t const prealloc_size = 128 * 1024;
@@ -23,8 +23,8 @@ int ModelView::rowCount (const QModelIndex & /*parent*/) const { return m_rows.s
 
 int ModelView::columnCount (const QModelIndex & /*parent*/) const
 {
-	if (m_session_state.getColumnsSetup())
-		return m_session_state.getColumnsSetup()->size();
+	if (m_session_state.getColumnsSetupCurrent())
+		return m_session_state.getColumnsSetupCurrent()->size();
 	return 0;
 }
 
@@ -96,9 +96,9 @@ QVariant ModelView::headerData (int section, Qt::Orientation orientation, int ro
 {
 	if (role == Qt::DisplayRole) {
 		if (orientation == Qt::Horizontal) {
-			if (m_session_state.getColumnsSetup() && 
-					0 <= section && section < (int)m_session_state.getColumnsSetup()->size())
-				return m_session_state.getColumnsSetup()->operator[](section);
+			if (m_session_state.getColumnsSetupCurrent() && 
+					0 <= section && section < (int)m_session_state.getColumnsSetupCurrent()->size())
+				return m_session_state.getColumnsSetupCurrent()->operator[](section);
 		}
 	}
 	return QVariant();
@@ -173,19 +173,8 @@ void ModelView::appendCommand (QSortFilterProxyModel * filter, tlv::StringComman
 		column_index = m_session_state.findColumn4Tag(tag);
 		if (column_index < 0)
 		{
-			m_session_state.insertColumn();	// lines together
-			column_index = m_session_state.getColumnsSetup()->size() - 1;
-			columns.push_back(qval);		// keep these two
-			char const * name = tlv::get_tag_name(tag);
-			m_session_state.insertColumn4Tag(tag, column_index);
-			if (name)
-			{
-				m_session_state.getColumnsSetup()->operator[](column_index) = QString::fromStdString(name);
-			}
-			else
-			{
-				m_session_state.getColumnsSetup()->operator[](column_index) = QString("???");
-			}
+			column_index = m_session_state.insertColumn(tag);
+			//columns.push_back(qval);		// keep these two
 		}
 		columns[column_index] = qval;
 	}

@@ -66,8 +66,8 @@ MainWindow::MainWindow(QWidget *parent)
 	setupMenuBar();
 
 	getTreeViewFile()->setEditTriggers(QAbstractItemView::NoEditTriggers);
-	connect(getTreeViewFile(), SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtTIDList(QModelIndex)));
-	connect(getTreeViewFile(), SIGNAL(doubleClicked(QModelIndex)), m_server, SLOT(onDoubleClickedAtTIDList(QModelIndex)));
+	connect(getTreeViewFile(), SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtFileTree(QModelIndex)));
+	connect(getTreeViewFile(), SIGNAL(doubleClicked(QModelIndex)), m_server, SLOT(onDoubleClickedAtFileTree(QModelIndex)));
 
 	connect(getListViewTID(), SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtTIDList(QModelIndex)));
 	connect(getListViewTID(), SIGNAL(doubleClicked(QModelIndex)), m_server, SLOT(onDoubleClickedAtTIDList(QModelIndex)));
@@ -309,13 +309,14 @@ void MainWindow::onColumnSetup ()
 			tokenizer_t tok(s, sep);
 			int const idx = findAppName(m_app_names[i]);
 			qDebug("app=%s", m_app_names.at(i).toStdString().c_str());
+			m_columns_setup[idx].clear();
 			if (idx >= 0)
 			{
 				size_t j = 0;
 				for (tokenizer_t::const_iterator it = tok.begin(), ite = tok.end(); it != ite; ++it, ++j)
 				{
 					qDebug("  token=%s", it->c_str());
-					m_columns_setup[idx][j] = QString::fromStdString(*it);
+					m_columns_setup[idx].append(QString::fromStdString(*it));
 				}
 			}
 		}

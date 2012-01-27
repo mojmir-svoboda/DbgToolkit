@@ -144,13 +144,34 @@ void Connection::onHandleCommands ()
 	if (m_first_line)	// resize columns according to saved template
 	{
 		MainWindow::columns_sizes_t const & sizes = m_main_window->getColumnSizes(sessionState().m_app_idx);
+		MainWindow::columns_setup_t const & global_template = m_main_window->getColumnSetup(sessionState().m_app_idx);
+
+		if (global_template.empty())
+		{
+			Q_ASSERT(sessionState().getColumnsSetupCurrent());
+			m_main_window->getColumnSetup(sessionState().m_app_idx) = *sessionState().getColumnsSetupCurrent();
+		}
+		
+		bool const old = m_table_view_widget->blockSignals(true);
+		for (size_t c = 0, ce = sizes.size(); c < ce; ++c)
+			m_table_view_widget->horizontalHeader()->resizeSection(c, sizes.at(c));
+		m_table_view_widget->blockSignals(old);
+		m_first_line = false;
+	}
+
+	{
+		// hotfix for disobedient column hiding @TODO: resolve in future
+		MainWindow::columns_sizes_t const & sizes = m_main_window->getColumnSizes(sessionState().m_app_idx);
+		MainWindow::columns_setup_t const & global_template = m_main_window->getColumnSetup(sessionState().m_app_idx);
 		for (size_t c = 0, ce = sizes.size(); c < ce; ++c)
 		{
-			bool const old = m_table_view_widget->blockSignals(true);
-			m_table_view_widget->horizontalHeader()->resizeSection(c, sizes.at(c));
-			m_table_view_widget->blockSignals(old);
+			if (c >= global_template.size())
+			{
+				m_table_view_widget->horizontalHeader()->hideSection(c);
+				//m_table_view_widget->hideColumn(c);
+			}
 		}
-		m_first_line = false;
+		//static_cast<ModelView *>(m_table_view_widget->model())->emitLayoutChanged();
 	}
 
 	model->transactionCommit();
@@ -402,25 +423,20 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 			setupStorage(storage_name);
 
 			sessionState().m_app_idx = m_main_window->findAppName(app_name);
-			sessionState().m_columns_setup = &m_main_window->getColumnSetup(sessionState().m_app_idx);
-			if (m_main_window->getColumnSetup(sessionState().m_app_idx).size())	// load if config already exists
-			{
-				sessionState().setupColumns(&m_main_window->getColumnSetup(sessionState().m_app_idx), &m_main_window->getColumnSizes(sessionState().m_app_idx));
-			}
+			sessionState().setupColumns(&m_main_window->getColumnSetup(sessionState().m_app_idx), &m_main_window->getColumnSizes(sessionState().m_app_idx));
 
-			m_current_cmd.tvs.reserve(sessionState().m_columns_setup->size());
+			m_current_cmd.tvs.reserve(sessionState().getColumnsSetupCurrent()->size());
 
-			for (size_t i = 0, ie = sessionState().m_columns_setup->size(); i < ie; ++i)
+			for (size_t i = 0, ie = sessionState().getColumnsSetupCurrent()->size(); i < ie; ++i)
 			{
 				m_table_view_widget->model()->insertColumn(i);
 			}
 
-			sessionState().m_columns_sizes = &m_main_window->getColumnSizes(sessionState().m_app_idx);
-			MainWindow::columns_sizes_t const & sizes = *sessionState().m_columns_sizes;
+			/*MainWindow::columns_sizes_t const & sizes = *sessionState().m_columns_sizes;
 			for (size_t c = 0, ce = sizes.size(); c < ce; ++c)
 			{
 				m_table_view_widget->horizontalHeader()->resizeSection(c, sizes.at(c));
-			}
+			}*/
 			connect(m_table_view_widget, SIGNAL(clicked(QModelIndex const &)), this, SLOT(onTableClicked(QModelIndex const &)));
 
 			static_cast<ModelView *>(m_table_view_widget->model())->emitLayoutChanged();
@@ -561,6 +577,7 @@ void Connection::clearFilters ()
 	QStandardItem * node = m_tree_view_file_model->invisibleRootItem();
 	clearFilters(node);
 	sessionState().m_file_filters.clear();
+	//@TODO: clear TID Filter
 }
 
 void Connection::appendToFileFilters (std::string const & item, bool checked)
