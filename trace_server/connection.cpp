@@ -172,6 +172,8 @@ void Connection::onHandleCommands ()
 			}
 		}
 		//static_cast<ModelView *>(m_table_view_widget->model())->emitLayoutChanged();
+		//m_main_window->getTreeViewFile()->setResizeMode(relevantColumn, QHeaderView::ResizeToContents);
+		m_main_window->getTreeViewFile()->resizeColumnToContents(0);
 	}
 
 	model->transactionCommit();
