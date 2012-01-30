@@ -135,6 +135,8 @@ private:
 	void setSocketDescriptor (int sd);
 	void setupModelFile ();
 	void setupModelTID ();
+	QString findString4Tag (tlv::tag_t tag, QModelIndex const & row_index) const;
+	QVariant findVariant4Tag (tlv::tag_t tag, QModelIndex const & row_index) const;
 
 private:
 	MainWindow * m_main_window;

@@ -141,7 +141,8 @@ void Connection::onHandleCommands ()
 		m_decoded_cmds.pop_front();
 	}
 
-	if (m_first_line)	// resize columns according to saved template
+		// sigh. hotfix for disobedient column resizing @TODO: resolve in future
+	//if (m_first_line)	// resize columns according to saved template
 	{
 		MainWindow::columns_sizes_t const & sizes = m_main_window->getColumnSizes(sessionState().m_app_idx);
 		MainWindow::columns_setup_t const & global_template = m_main_window->getColumnSetup(sessionState().m_app_idx);
@@ -346,16 +347,30 @@ inline QStandardItem * findChildByText (QStandardItem * parent, QString const & 
 	return 0;
 }
 
-void Connection::onTableClicked (QModelIndex const & index)
+inline QString Connection::findString4Tag (tlv::tag_t tag, QModelIndex const & row_index) const
 {
-	int const f_idx = sessionState().m_tags2columns[tlv::tag_file];
-	int const l_idx = sessionState().m_tags2columns[tlv::tag_line];
-	QModelIndex f_model_idx = m_table_view_widget->model()->index(index.row(), f_idx, QModelIndex());
-	QModelIndex l_model_idx = m_table_view_widget->model()->index(index.row(), l_idx, QModelIndex());
-	QVariant f_val = m_table_view_widget->model()->data(f_model_idx);
-	QVariant l_val = m_table_view_widget->model()->data(l_model_idx);
-	QString file = f_val.toString();
-	QString line = l_val.toString();
+	return findVariant4Tag(tag, row_index).toString();
+}
+
+QVariant Connection::findVariant4Tag (tlv::tag_t tag, QModelIndex const & row_index) const
+{
+	int const idx = sessionState().m_tags2columns[tag];
+	if (idx == -1)
+		return QVariant();
+
+	QModelIndex model_idx = m_table_view_widget->model()->index(row_index.row(), idx, QModelIndex());
+	if (model_idx.isValid())
+	{
+		QVariant value = m_table_view_widget->model()->data(model_idx);
+		return value;
+	}
+	return QVariant();
+}
+
+void Connection::onTableClicked (QModelIndex const & row_index)
+{
+	QString file = findString4Tag(tlv::tag_file, row_index);
+	QString line = findString4Tag(tlv::tag_line, row_index);
 
 	boost::char_separator<char> sep(":/\\");
 	typedef boost::tokenizer<boost::char_separator<char> > tokenizer_t;
@@ -386,6 +401,11 @@ void Connection::onTableClicked (QModelIndex const & index)
 			m_main_window->getTreeViewFile()->setCurrentIndex(idx);
 		}
 	}
+
+	QString tid = findString4Tag(tlv::tag_tid, row_index);
+	QModelIndexList indexList = m_list_view_tid_model->match(m_list_view_tid_model->index(0, 0), Qt::DisplayRole, tid);
+	QModelIndex selectedIndex(indexList.first());
+	m_main_window->getListViewTID()->setCurrentIndex(selectedIndex);
 }
 
 bool Connection::handleSetupCommand (DecodedCommand const & cmd)
@@ -594,10 +614,19 @@ void Connection::appendToFileFilters (boost::char_separator<char> const & sep, s
 	tokenizer_t tok(item, sep);
 
 	QStandardItem * node = m_tree_view_file_model->invisibleRootItem();
+	QStandardItem * last_hidden_node = 0;
 	bool append = false;
+	bool hidden = true;
+	int i = 0;
 	for (tokenizer_t::const_iterator it = tok.begin(), ite = tok.end(); it != ite; ++it)
 	{
 		QString qItem = QString::fromStdString(*it);
+
+		if (node->rowCount() > 1)
+		{
+			last_hidden_node = node->parent() ? node->parent() : node;
+			hidden = false;
+		}
 		QStandardItem * child = findChildByText(node, qItem);
 		if (child != 0)
 			node = child;
@@ -608,6 +637,10 @@ void Connection::appendToFileFilters (boost::char_separator<char> const & sep, s
 			node->appendRow(row_items);
 			node = row_items.at(0);
 		}
+	}
+	if (last_hidden_node)
+	{
+		m_main_window->getTreeViewFile()->setRootIndex(last_hidden_node->index());
 	}
 	if (!append && checked)
 	{
