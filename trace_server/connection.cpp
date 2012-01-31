@@ -20,6 +20,8 @@ Connection::Connection (QObject * parent)
 	, m_main_window(0)
 	, m_from_file(false)
 	, m_first_line(true)
+	, m_last_search_row(0)
+	, m_last_search_col(0)
 	, m_table_view_widget(0)
 	, m_tree_view_file_model(0)
 	, m_tree_view_func_model(0)
@@ -114,6 +116,101 @@ QString Connection::onCopyToClipboard ()
 	return selected_text;
 }
 
+
+void Connection::findTextInAllColumns (QString const & text, int from_row, int to_row)
+{
+	ModelView * model = static_cast<ModelView *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
+	for (int i = from_row, ie = to_row; i < ie; ++i)
+	{
+		for (int j = 0, je = model->columnCount(); j < je; ++j)
+		{
+			QModelIndex const idx = model->index(i, j, QModelIndex());
+			if (idx.isValid() && model->data(idx).toString().contains(text))
+			{
+				m_table_view_widget->selectionModel()->setCurrentIndex(idx, QItemSelectionModel::Select);
+				m_last_search_row = idx.row();
+				m_last_search_col = idx.column();
+				return;
+			}
+		}
+	}
+}
+
+void Connection::findTextInColumn (QString const & text, int col, int from_row, int to_row)
+{
+	ModelView * model = static_cast<ModelView *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
+	for (int i = from_row, ie = to_row; i < ie; ++i)
+	{
+		QModelIndex const idx = model->index(i, col, QModelIndex());
+		if (idx.isValid() && model->data(idx).toString().contains(text))
+		{
+			m_table_view_widget->selectionModel()->setCurrentIndex(idx, QItemSelectionModel::Select);
+			m_last_search_row = idx.row();
+			return;
+		}
+	}
+}
+
+void Connection::selectionFromTo (int & from, int & to) const
+{
+	from = 0;
+	ModelView const * model = static_cast<ModelView *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
+	to = model->rowCount();
+	QItemSelectionModel const * selection = m_table_view_widget->selectionModel();
+	QModelIndexList indexes = selection->selectedIndexes();
+	if (indexes.size() < 1)
+		return;
+
+	std::sort(indexes.begin(), indexes.end());
+
+	from = indexes.first().row();
+}
+
+void Connection::findText (QString const & text, tlv::tag_t tag)
+{
+	m_last_search = text;
+	m_last_search_row = 0;
+	int const col_idx = sessionState().findColumn4Tag(tag);
+	m_last_search_col = col_idx;
+
+	if (m_last_search.isEmpty())
+	{
+		m_last_search_row = m_last_search_col = 0;
+		return;
+	}
+
+	int from, to;
+	selectionFromTo(from, to);
+	findTextInColumn(m_last_search, col_idx, from, to);
+}
+
+void Connection::findText (QString const & text)
+{
+	m_last_search = text;
+	m_last_search_row = 0;
+	m_last_search_col = -1;
+
+	if (m_last_search.isEmpty())
+	{
+		m_last_search_row = m_last_search_col = 0;
+		return;
+	}
+
+	int from, to;
+	selectionFromTo(from, to);
+	findTextInAllColumns(m_last_search, from, to);
+}
+
+void Connection::findNext ()
+{
+	int from, to;
+	selectionFromTo(from, to);
+	findTextInColumn(m_last_search, m_last_search_col, m_last_search_row + 1, to);
+}
+
+void Connection::findPrev ()
+{
+}
 
 //////////////////// data reading stuff //////////////////////////////
 inline size_t read_min (boost::circular_buffer<char> & ring, char * dst, size_t min)
@@ -617,7 +714,6 @@ void Connection::appendToFileFilters (boost::char_separator<char> const & sep, s
 	QStandardItem * last_hidden_node = 0;
 	bool append = false;
 	bool hidden = true;
-	int i = 0;
 	for (tokenizer_t::const_iterator it = tok.begin(), ite = tok.end(); it != ite; ++it)
 	{
 		QString qItem = QString::fromStdString(*it);

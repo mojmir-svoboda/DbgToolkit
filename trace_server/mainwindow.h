@@ -127,6 +127,7 @@ private slots:
 	void iconActivated (QSystemTrayIcon::ActivationReason reason);
 	void onSaveCurrentFileFilter ();
 	void onPresetActivate (int idx);
+	void onQSearchEditingFinished ();
 
 private:
 	void showServerStatus ();

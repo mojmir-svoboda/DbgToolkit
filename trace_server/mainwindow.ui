@@ -114,7 +114,24 @@
        </spacer>
       </item>
       <item>
-       <widget class="QLineEdit" name="lineEdit"/>
+       <widget class="QLineEdit" name="qSearchLineEdit">
+        <property name="whatsThis">
+         <string extracomment="quick search"/>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QComboBox" name="qSearchComboBox">
+        <property name="toolTip">
+         <string extracomment="hello3"/>
+        </property>
+        <property name="statusTip">
+         <string extracomment="hello2"/>
+        </property>
+        <property name="whatsThis">
+         <string extracomment="hello1"/>
+        </property>
+       </widget>
       </item>
      </layout>
     </item>

@@ -58,7 +58,24 @@ MainWindow::MainWindow(QWidget *parent)
 
 	m_server = new Server(this);
 	showServerStatus();
-	connect(ui->lineEdit, SIGNAL(editingFinished()), m_server, SLOT(onEditingFinished()));
+	connect(ui->qSearchLineEdit, SIGNAL(editingFinished()), this, SLOT(onQSearchEditingFinished()));
+
+	size_t const n = tlv::get_tag_count();
+	QString msg_tag;
+	for (size_t i = tlv::tag_time; i < n; ++i)
+	{
+		char const * name = tlv::get_tag_name(i);
+		if (name)
+		{
+			QString qname = QString::fromStdString(name);
+			if (i == tlv::tag_msg)
+				msg_tag = qname;
+			ui->qSearchComboBox->addItem(qname);
+		}
+	}
+	ui->qSearchComboBox->addItem(".*");
+	ui->qSearchComboBox->setCurrentIndex(ui->qSearchComboBox->findData(msg_tag)); // weird
+
 
 	m_timer->setInterval(5000);
 	connect(m_timer, SIGNAL(timeout()) , this, SLOT(timerHit()));
@@ -183,6 +200,31 @@ void MainWindow::setLevel (int i)
 	ui->levelSpinBox->blockSignals(old);
 }
 
+void MainWindow::onQSearchEditingFinished ()
+{
+	if (!getTabTrace()->currentWidget()) return;
+
+	Connection * conn = m_server->findCurrentConnection();
+	if (!conn) return;
+
+	QString text = ui->qSearchLineEdit->text();
+	QString qcolumn = ui->qSearchComboBox->currentText();
+	bool const search_all = (qcolumn == ".*");
+	
+	if (search_all)
+	{
+		conn->findText(text);
+	}
+	else
+	{
+		size_t const tag_idx = tlv::tag_for_name(qcolumn.toStdString().c_str());
+		if (tag_idx != tlv::tag_invalid)
+		{
+			conn->findText(text, tag_idx);
+		}
+	}
+}
+
 void MainWindow::onEditFind ()
 {
 	int const tab_idx = getTabTrace()->currentIndex();
@@ -201,10 +243,9 @@ void MainWindow::onEditFind ()
 
 void MainWindow::onEditFindNext ()
 {
-/*
-	if (!currentTab() && !m_lastSearch.isEmpty())
-		return;
-	currentTab()->findText(m_lastSearch);*/
+	if (!getTabTrace()->currentWidget()) return;
+	if (Connection * conn = m_server->findCurrentConnection())
+		conn->findNext();
 }
 
 void MainWindow::onEditFindPrev ()

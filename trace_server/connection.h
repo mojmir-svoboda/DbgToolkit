@@ -90,6 +90,10 @@ public:
 	SessionState const & sessionState () const { return m_session_state; }
 	void appendToFileFilters (std::string const & item, bool checked = false);
 	void clearFilters ();
+	void findText (QString const & text, tlv::tag_t tag);
+	void findText (QString const & text);
+	void findNext ();
+	void findPrev ();
 
 	void run ();
 
@@ -137,12 +141,18 @@ private:
 	void setupModelTID ();
 	QString findString4Tag (tlv::tag_t tag, QModelIndex const & row_index) const;
 	QVariant findVariant4Tag (tlv::tag_t tag, QModelIndex const & row_index) const;
+	void selectionFromTo (int & from, int & to) const;
+	void findTextInAllColumns (QString const & text, int from_row, int to_row);
+	void findTextInColumn (QString const & text, int col, int from_row, int to_row);
 
 private:
 	MainWindow * m_main_window;
 	SessionState m_session_state;
 	int m_from_file;
 	bool m_first_line;
+	int m_last_search_row;
+	int m_last_search_col;
+	QString m_last_search;
 	QTableView * m_table_view_widget;
 	QStandardItemModel * m_tree_view_file_model;
 	QStandardItemModel * m_tree_view_func_model;
