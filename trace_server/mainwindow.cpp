@@ -337,7 +337,6 @@ void MainWindow::onColumnSetup ()
 	sett_dialog.tagsTableView->setModel(&model);
 	sett_dialog.tagsTableView->horizontalHeader()->resizeSection(0, 100);
 	sett_dialog.tagsTableView->horizontalHeader()->resizeSection(1, 400);
-
 	sett_dialog.tagsTableView->setItemDelegate(new SettingsEditDelegate());
 
 	if (dialog.exec() == QDialog::Accepted)

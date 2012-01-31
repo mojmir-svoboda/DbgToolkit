@@ -23,7 +23,7 @@ int SettingsModelView::columnCount (const QModelIndex &) const { return 2; }
 
 QVariant SettingsModelView::data (const QModelIndex & index, int role) const
 {
-	if (role == Qt::DisplayRole)
+	if (role == Qt::DisplayRole || role == Qt::EditRole)
 	{
 		QString str("");
 		if (index.column() == 0)

@@ -33,6 +33,7 @@ Connection::Connection (QObject * parent)
 	, m_decoder()
 	, m_storage(0)
 	, m_datastream(0)
+	, m_tcpstream(0)
 { }
 
 Connection::~Connection () { qDebug("~Connection()"); }

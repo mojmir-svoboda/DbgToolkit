@@ -33,6 +33,12 @@ inline bool ModelView::checkExistence (QModelIndex const & index) const
 	return index.row() < (int)m_rows.size() && index.column() < (int)m_rows[index.row()].size();
 }
 
+inline bool ModelView::checkTagExistence (tlv::tag_t tag, QModelIndex const & index) const
+{
+	int const column_idx = m_session_state.findColumn4Tag(tag);
+	return column_idx != -1 && column_idx == index.column();
+}
+
 inline bool ModelView::checkColumnExistence (tlv::tag_t tag, QModelIndex const & index) const
 {
 	int const column_idx = m_session_state.findColumn4Tag(tag);
@@ -81,6 +87,20 @@ QVariant ModelView::data (const QModelIndex &index, int role) const
 			if (lvl.toInt() == trace::e_Fatal)
 				return QBrush(Qt::white);
 		}
+	}
+	
+	if (role == Qt::TextAlignmentRole)
+	{
+		if (checkTagExistence(tlv::tag_time, index))
+			return Qt::AlignRight;
+		if (checkTagExistence(tlv::tag_line, index))
+			return Qt::AlignRight;
+		if (checkTagExistence(tlv::tag_lvl, index))
+			return Qt::AlignRight;
+		if (checkTagExistence(tlv::tag_ctx, index))
+			return Qt::AlignRight;
+		if (checkTagExistence(tlv::tag_tid, index))
+			return Qt::AlignRight;
 	}
 
 	return QVariant();

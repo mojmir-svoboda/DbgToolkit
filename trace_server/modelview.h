@@ -52,6 +52,7 @@ public:
 
 	bool checkExistence (QModelIndex const & index) const;
 	bool checkColumnExistence (tlv::tag_t tag, QModelIndex const & index) const;
+	bool checkTagExistence (tlv::tag_t tag, QModelIndex const & index) const;
 
 signals:
 	
