@@ -50,6 +50,40 @@ void Connection::onTabTraceFocus (int i)
 		return;
 	m_main_window->getTreeViewFile()->setModel(m_tree_view_file_model);
 	m_main_window->getListViewTID()->setModel(m_list_view_tid_model);
+	hideLinearParents();
+}
+
+void Connection::hideLinearParents ()
+{
+	QStandardItem * node = m_tree_view_file_model->invisibleRootItem();
+	QStandardItem * last_hidden_node = 0;
+	bool stop = false;
+	while (node)
+	{
+		QStandardItem * child = node->child(0);
+		if (child != 0)
+		{
+			if (!stop)
+			{
+				if (child->rowCount() == 1)
+				{
+					last_hidden_node = child;
+				}
+				else if (child->rowCount() > 1)
+				{
+					stop = true;
+					last_hidden_node = child;
+				}
+			}
+		}
+		else
+			stop = true;
+		node = child;
+	}
+	if (last_hidden_node)
+	{
+		m_main_window->getTreeViewFile()->setRootIndex(last_hidden_node->index());
+	}
 }
 
 void Connection::onCloseTab ()
@@ -725,21 +759,30 @@ void Connection::appendToFileFilters (boost::char_separator<char> const & sep, s
 	QStandardItem * node = m_tree_view_file_model->invisibleRootItem();
 	QStandardItem * last_hidden_node = 0;
 	bool append = false;
-	bool hidden = true;
+	bool stop = false;
 	for (tokenizer_t::const_iterator it = tok.begin(), ite = tok.end(); it != ite; ++it)
 	{
 		QString qItem = QString::fromStdString(*it);
-
-		if (node->rowCount() > 1)
-		{
-			last_hidden_node = node->parent() ? node->parent() : node;
-			hidden = false;
-		}
 		QStandardItem * child = findChildByText(node, qItem);
 		if (child != 0)
+		{
 			node = child;
+			if (!stop)
+			{
+				if (child->rowCount() == 1)
+				{
+					last_hidden_node = node;
+				}
+				else if (child->rowCount() > 1)
+				{
+					stop = true;
+					last_hidden_node = node;
+				}
+			}
+		}
 		else
 		{
+			stop = true;
 			append = true;
 			QList<QStandardItem *> row_items = addRow(qItem, checked);
 			node->appendRow(row_items);

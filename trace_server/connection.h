@@ -129,6 +129,7 @@ private:
 	void appendToFileFilters (boost::char_separator<char> const & sep, std::string const & file, std::string const & line);
 	void appendToTIDFilters (std::string const & item);
 	void clearFilters (QStandardItem * node);
+	void hideLinearParents ();
 
 	bool setupStorage (QString const & name);
 	QString createStorageName () const;
