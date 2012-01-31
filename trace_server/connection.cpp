@@ -57,27 +57,22 @@ void Connection::hideLinearParents ()
 {
 	QStandardItem * node = m_tree_view_file_model->invisibleRootItem();
 	QStandardItem * last_hidden_node = 0;
-	bool stop = false;
 	while (node)
 	{
 		QStandardItem * child = node->child(0);
 		if (child != 0)
 		{
-			if (!stop)
+			if (child->rowCount() == 1)
+				last_hidden_node = child;
+			else if (child->rowCount() > 1)
 			{
-				if (child->rowCount() == 1)
-				{
-					last_hidden_node = child;
-				}
-				else if (child->rowCount() > 1)
-				{
-					stop = true;
-					last_hidden_node = child;
-				}
+				last_hidden_node = child;
+				break;
 			}
 		}
 		else
-			stop = true;
+			break;
+
 		node = child;
 	}
 	if (last_hidden_node)
