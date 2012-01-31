@@ -140,7 +140,7 @@ void MainWindow::createActions ()
 	connect(m_restore_action, SIGNAL(triggered()), this, SLOT(showNormal()));
 
 	m_quit_action = new QAction(tr("&Quit"), this);
-	connect(m_quit_action, SIGNAL(triggered()), qApp, SLOT(quit()));
+	connect(m_quit_action, SIGNAL(triggered()), this, SLOT(onQuit()));
 }
 
 void MainWindow::createTrayIcon ()
@@ -211,6 +211,12 @@ void MainWindow::setLevel (int i)
 	bool const old = ui->levelSpinBox->blockSignals(true);
     ui->levelSpinBox->setValue(i);
 	ui->levelSpinBox->blockSignals(old);
+}
+
+void MainWindow::onQuit ()
+{
+	storeState();
+	qApp->quit();
 }
 
 void MainWindow::onQSearchEditingFinished ()
@@ -452,7 +458,7 @@ void MainWindow::setupMenuBar ()
 	fileMenu->addAction(tr("File &Save..."), this, SLOT(onFileSave()), QKeySequence(Qt::ControlModifier + Qt::Key_S));
 	fileMenu->addAction(tr("File &Export (CSV)"), this, SLOT(onFileExportToCSV()), QKeySequence(Qt::ControlModifier + Qt::Key_E));
 	fileMenu->addSeparator();
-    fileMenu->addAction(tr("Quit program"), qApp, SLOT(quit()), QKeySequence::Quit);
+    fileMenu->addAction(tr("Quit program"), this, SLOT(onQuit()), QKeySequence::Quit);
 
 	// Edit
 	QMenu * editMenu = menuBar()->addMenu(tr("&Edit"));

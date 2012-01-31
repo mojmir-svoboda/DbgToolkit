@@ -114,6 +114,7 @@ private slots:
 	void storeState ();
 	void storePresets ();
 	void timerHit ();
+	void onQuit ();
 	void onEditFind ();
 	void onEditFindNext ();
 	void onEditFindPrev ();
