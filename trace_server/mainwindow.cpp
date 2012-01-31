@@ -233,11 +233,11 @@ void MainWindow::onEditFind ()
 
 	bool ok;
 	QString search = QInputDialog::getText(this, tr("Find"), tr("Text:"), QLineEdit::Normal, m_last_search, &ok);
-	if (ok && !search.isEmpty())
+	if (ok)
 	{
 		m_last_search = search;
-		//if (!getTabTrace()->currentWidget()->findText(m_last_search))
-		//	  slotUpdateStatusbar(tr("\"%1\" not found.").arg(m_last_search));
+		ui->qSearchLineEdit->setText(search);
+		onQSearchEditingFinished();
 	}
 }
 

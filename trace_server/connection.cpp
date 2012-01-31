@@ -168,20 +168,31 @@ void Connection::selectionFromTo (int & from, int & to) const
 
 void Connection::findText (QString const & text, tlv::tag_t tag)
 {
-	m_last_search = text;
-	m_last_search_row = 0;
-	int const col_idx = sessionState().findColumn4Tag(tag);
-	m_last_search_col = col_idx;
-
-	if (m_last_search.isEmpty())
+	if (m_last_search != text)
 	{
-		m_last_search_row = m_last_search_col = 0;
-		return;
-	}
+		m_last_search_row = 0;	// this is a new search
+		m_last_search = text;
+		int const col_idx = sessionState().findColumn4Tag(tag);
+		m_last_search_col = col_idx;
 
-	int from, to;
-	selectionFromTo(from, to);
-	findTextInColumn(m_last_search, col_idx, from, to);
+		if (m_last_search.isEmpty())
+		{
+			m_last_search_row = m_last_search_col = 0;
+			return;
+		}
+
+
+		//@TODO: clear selection?
+		int from, to;
+		selectionFromTo(from, to);
+		findTextInColumn(m_last_search, col_idx, from, to);
+	}
+	else
+	{
+		ModelView const * model = static_cast<ModelView *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
+		int const to = model->rowCount();
+		findTextInColumn(m_last_search, m_last_search_col, m_last_search_row + 1, to);
+	}
 }
 
 void Connection::findText (QString const & text)
