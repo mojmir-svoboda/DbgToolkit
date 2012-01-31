@@ -1,0 +1,6 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource prefix="/">
+   <file>images/Icon2.svg</file>
+   <file>images/Icon1.ico</file>
+</qresource>
+</RCC>

@@ -18,12 +18,18 @@
 #include <QDragEnterEvent>
 #include <QItemDelegate>
 #include <QUrl>
+#include <QtPlugin>
 #include "settings.h"
 #include "../tlv_parser/tlv_parser.h"
 
 #ifdef WIN32
 #	define WIN32_LEAN_AND_MEAN
 #	include <windows.h>
+#endif
+
+#if defined STATIC
+    Q_IMPORT_PLUGIN(qico);
+    Q_IMPORT_PLUGIN(qsvg);
 #endif
 
 MainWindow::MainWindow(QWidget *parent)
@@ -41,17 +47,16 @@ MainWindow::MainWindow(QWidget *parent)
 	, m_tray_icon(0)
 
 {
+    //QDir::setSearchPaths("icons", QStringList(QDir::currentPath()));
 	ui->setupUi(this);
+
+	// tray stuff
 	createActions();
 	createTrayIcon();
-	QPixmap pixmap("Icon1.ico");
-	QIcon icon(pixmap);
-	//m_tray_icon->setIcon(icon);
+    QIcon icon(":images/Icon1.ico");
 	setWindowIcon(icon);
-
 	m_tray_icon->setVisible(true);
 	m_tray_icon->show();
-
 
 	setAcceptDrops(true);
 	//qApp->installEventFilter(this);
@@ -96,6 +101,15 @@ MainWindow::MainWindow(QWidget *parent)
 
 	setWindowTitle("flog server");
 
+	ui->autoScrollCheckBox->setToolTip(tr("auto scrolls to bottom if checked"));
+	ui->reuseTabCheckBox->setToolTip(tr("reuses compatible tab instead of creating new one"));
+	ui->scopesCheckBox->setToolTip(tr("hides scopes if checked"));
+	ui->filterFileCheckBox->setToolTip(tr("enables filtering via fileFilter tab"));
+	ui->presetComboBox->setToolTip(tr("selects and applies saved preset file filter"));
+	ui->levelSpinBox->setToolTip(tr("adjusts debug level of client side"));
+	ui->qSearchLineEdit->setToolTip(tr("search text in logged text"));
+	ui->qSearchComboBox->setToolTip(tr("specifies column to search"));
+
 #ifdef WIN32
 	DWORD hotkey = VK_SCROLL;
 	int mod = 0;
@@ -138,8 +152,7 @@ void MainWindow::createTrayIcon ()
 	m_tray_menu->addSeparator();
 	m_tray_menu->addAction(m_quit_action);
 
-	QPixmap pixmap("Icon1.ico");
-	QIcon icon(pixmap);
+	QIcon icon(":/images/Icon2.svg");
 	m_tray_icon = new QSystemTrayIcon(icon, this);
 	m_tray_icon->setContextMenu(m_tray_menu);
 

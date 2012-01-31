@@ -9,7 +9,6 @@ TARGET = trace_server
 TEMPLATE = app
 DEFINES += TRACE_ENABLED
 INCLUDEPATH += ../../boost_1_47_0
-win32:RC_FILE = app.rc
 
 win32-msvc* {
 }
@@ -22,6 +21,17 @@ win32-g++ {
     #QMAKE_CXXFLAGS += -pg
     #QMAKE_LFLAGS += -pg
 }
+
+static { # everything below takes effect with CONFIG += static
+    CONFIG += static
+    CONFIG += staticlib # this is needed if you create a static library, not a static executable
+    DEFINES += STATIC
+    QTPLUGIN += qico qsvg
+    message("~~~ static build ~~~") # this is for information, that the static build is done
+    mac: TARGET = $$join(TARGET,,,_static) #this adds an _static in the end, so you can seperate static build from non static build
+    win32: TARGET = $$join(TARGET,,,s) #this adds an s in the end, so you can seperate static build from non static build
+}
+
 
 SOURCES += main.cpp\
         mainwindow.cpp \
@@ -46,3 +56,6 @@ HEADERS  += mainwindow.h \
 
 FORMS    += mainwindow.ui \
     settings.ui
+
+RESOURCES += \
+    resources.qrc
