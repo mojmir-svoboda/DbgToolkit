@@ -8,6 +8,7 @@ QT       += core gui network
 TARGET = trace_server
 TEMPLATE = app
 DEFINES += TRACE_ENABLED
+INCLUDEPATH += ..
 INCLUDEPATH += ../../boost_1_47_0
 
 win32-msvc* {
@@ -29,7 +30,7 @@ static { # everything below takes effect with CONFIG += static
     QTPLUGIN += qico qsvg
     message("~~~ static build ~~~") # this is for information, that the static build is done
     mac: TARGET = $$join(TARGET,,,_static) #this adds an _static in the end, so you can seperate static build from non static build
-    win32: TARGET = $$join(TARGET,,,s) #this adds an s in the end, so you can seperate static build from non static build
+    win32: TARGET = $$join(TARGET,,,_static) #this adds an s in the end, so you can seperate static build from non static build
 }
 
 

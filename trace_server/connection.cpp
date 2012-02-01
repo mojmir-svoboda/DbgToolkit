@@ -10,10 +10,10 @@
 #include <QSortFilterProxyModel>
 #include <QStandardItemModel>
 #include <QListView>
-#include "modelview.h"
 #include <boost/tokenizer.hpp>
-#include "../tlv_parser/tlv_encoder.h"
-#include "../trace_client/trace.h"
+#include <tlv_parser/tlv_encoder.h>
+#include <trace_client/trace.h>
+#include "modelview.h"
 
 Connection::Connection (QObject * parent)
 	: QThread(parent)
