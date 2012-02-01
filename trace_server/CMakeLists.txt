@@ -64,9 +64,30 @@ ADD_DEFINITIONS(${QT_DEFINITIONS})
 ADD_DEFINITIONS(-DQT_PLUGIN)
 ADD_DEFINITIONS(-DQT_NO_DEBUG)
 ADD_DEFINITIONS(-DQT_STATIC)
-#ADD_LIBRARY(qico STATIC)
+message("Plugin libs ${QT_PLUGINS_DIR}")
 
 
+macro(QT_ADD_IMG_PLUGINS target)
+
+  IF(QT_CONFIG MATCHES "static")
+    add_definitions(-DQT_STATICPLUGIN)
+   
+    # Links against the static plugins
+    find_library(QJPEG qjpeg qjpegd "${QT_PLUGINS_DIR}/imageformats")
+    find_library(QGIF qgif qgifd "${QT_PLUGINS_DIR}/imageformats")
+    find_library(QMNG qmng qmngd "${QT_PLUGINS_DIR}/imageformats")
+    find_library(QICO qico qicod "${QT_PLUGINS_DIR}/imageformats")
+    find_library(QSVG qsvg qsvgd "${QT_PLUGINS_DIR}/imageformats")
+    find_library(QTIFF qtiff qtiffd "${QT_PLUGINS_DIR}/imageformats")
+  
+    target_link_libraries(${target} ${QJPEG_LIBRARY} ${QGIF_LIBRARY}
+      ${QMNG_LIBRARY} ${QICO_LIBRARY} ${QTIFF_LIBRARY} )
+  
+  endif(QT_CONFIG MATCHES "static")
+
+endmacro(QT_ADD_IMG_PLUGINS)
+
+QT_ADD_IMG_PLUGINS(trace_server)
 message("Generated headers: ${trace_server_UI_HDRS}")
 message("Generated files ${CMAKE_BINARY_DIR}")
 message("Generated files trace_server_MOC ${trace_server_MOC}")
@@ -80,5 +101,5 @@ ADD_EXECUTABLE(trace_server
 		${trace_server_UI_SRCS}
 		${trace_server_RESOURCES_RCC}
 		${trace_server_SOURCES})
-TARGET_LINK_LIBRARIES(trace_server ${QT_LIBRARIES})
+TARGET_LINK_LIBRARIES(trace_server ${QT_LIBRARIES} ${QICO} ${QSVG})
 
