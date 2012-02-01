@@ -103,7 +103,7 @@ public:
 	void changeEvent (QEvent* e);
 	void dropEvent (QDropEvent * event);
 	void dragEnterEvent (QDragEnterEvent *event);
-	//bool eventFilter (QObject * o, QEvent * e);
+	bool eventFilter (QObject * o, QEvent * e);
 
 public slots:
 	void onHotkeyShowOrHide ();

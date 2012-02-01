@@ -59,7 +59,7 @@ MainWindow::MainWindow(QWidget *parent)
 	m_tray_icon->show();
 
 	setAcceptDrops(true);
-	//qApp->installEventFilter(this);
+	qApp->installEventFilter(this);
 
 	m_server = new Server(this);
 	showServerStatus();
@@ -468,6 +468,7 @@ void MainWindow::setupMenuBar ()
 	new QShortcut(QKeySequence(Qt::Key_Slash), this, SLOT(onEditFind()));
 	editMenu->addSeparator();
     editMenu->addAction(tr("Copy"), m_server, SLOT(onCopyToClipboard()), QKeySequence::Copy);
+	new QShortcut(QKeySequence(Qt::ControlModifier + Qt::Key_Insert), this, SLOT(onCopyToClipboard()));
 	editMenu->addSeparator();
 	editMenu->addAction(tr("Close Tab"), m_server, SLOT(onCloseCurrentTab()), QKeySequence(Qt::ControlModifier + Qt::Key_W));
 
@@ -631,6 +632,8 @@ void MainWindow::loadState ()
 	}
 
 	loadPresets();
+
+	getTreeViewFile()->setEnabled(filterEnabled());
 }
 
 void MainWindow::iconActivated (QSystemTrayIcon::ActivationReason reason)
@@ -655,6 +658,20 @@ void MainWindow::closeEvent (QCloseEvent * event)
 void MainWindow::changeEvent (QEvent * e)
 {
 	QMainWindow::changeEvent(e);
+}
+
+bool MainWindow::eventFilter (QObject *, QEvent * e)
+{
+	if (e->type() == QEvent::Shortcut)
+	{
+		QShortcutEvent * se = static_cast<QShortcutEvent *>(e);
+		if (se->key() == QKeySequence(Qt::ControlModifier + Qt::Key_Insert))
+		{
+			m_server->onCopyToClipboard();
+			return true;
+		}
+	}
+	return false;
 }
 
 /*he QSocketNotifier class provides support for monitoring activity on a file descriptor.  */
