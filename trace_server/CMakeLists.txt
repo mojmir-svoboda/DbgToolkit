@@ -1,6 +1,53 @@
 cmake_minimum_required(VERSION 2.8)
 PROJECT(trace_server)
 FIND_PACKAGE(Qt4 REQUIRED)
+
+# Small macro to find both relase and/or debug versions of the libraries
+# It will define the variable {LIBPREFIX}_LIBRARY with the proper debug and/or
+# release libraries. Be aware that mixing runtimes can be dangerous!
+macro(FIND_RELEASE_AND_DEBUG LIBPREFIX 
+      LIBNAME_RELEASE LIBNAME_DEBUG SEARCH_PATHS)
+
+  find_library(${LIBPREFIX}_OPTIMIZED_LIBRARY 
+    NAMES ${LIBNAME_RELEASE}
+    PATHS ${SEARCH_PATHS}
+    PATH_SUFFIXES lib
+  )
+  find_library(${LIBPREFIX}_DEBUG_LIBRARY 
+    NAMES ${LIBNAME_DEBUG}
+    PATHS ${SEARCH_PATHS}   
+    PATH_SUFFIXES lib
+  )
+  
+  # Sets up the found version: either release and or debug
+  if(${LIBPREFIX}_OPTIMIZED_LIBRARY AND ${LIBPREFIX}_DEBUG_LIBRARY)
+  # Use both debug and release versions if supported, otherwise default to release
+    if (CMAKE_CONFIGURATION_TYPES OR CMAKE_BUILD_TYPE)
+      set(${LIBPREFIX}_LIBRARY 
+        optimized "${${LIBPREFIX}_OPTIMIZED_LIBRARY}"
+        debug "${${LIBPREFIX}_DEBUG_LIBRARY}"
+      )
+    else(CMAKE_CONFIGURATION_TYPES OR CMAKE_BUILD_TYPE)
+      set(${LIBPREFIX}_LIBRARY "${${LIBPREFIX}_OPTIMIZED_LIBRARY}")
+    endif(CMAKE_CONFIGURATION_TYPES OR CMAKE_BUILD_TYPE)
+  elseif(${LIBPREFIX}_OPTIMIZED_LIBRARY)
+    set(${LIBPREFIX}_LIBRARY "${${LIBPREFIX}_OPTIMIZED_LIBRARY}")
+  elseif(${LIBPREFIX}_OPTIMIZED_LIBRARY)
+    set(${LIBPREFIX}_LIBRARY "${${LIBPREFIX}_DEBUG_LIBRARY}")
+  endif(${LIBPREFIX}_OPTIMIZED_LIBRARY AND ${LIBPREFIX}_DEBUG_LIBRARY)
+  
+  if(${LIBPREFIX}_LIBRARY)
+    set(${LIBPREFIX}_LIBRARY ${${LIBPREFIX}_LIBRARY} 
+      CACHE FILEPATH "The ${LIBPREFIX} library"
+      )
+  endif(${LIBPREFIX}_LIBRARY)
+
+  # We don't want to pollute the gui with non-user friendly entries
+  mark_as_advanced(${LIBPREFIX}_LIBRARY
+    ${LIBPREFIX}_OPTIMIZED_LIBRARY ${LIBPREFIX}_DEBUG_LIBRARY)
+  
+endmacro(FIND_RELEASE_AND_DEBUG)
+
 SET (LIBRARY_OUTPUT_PATH
    ${PROJECT_BINARY_DIR}/Bin
    CACHE PATH
@@ -64,6 +111,7 @@ ADD_DEFINITIONS(${QT_DEFINITIONS})
 ADD_DEFINITIONS(-DQT_PLUGIN)
 ADD_DEFINITIONS(-DQT_NO_DEBUG)
 ADD_DEFINITIONS(-DQT_STATIC)
+ADD_DEFINITIONS(-DSTATIC)
 message("Plugin libs ${QT_PLUGINS_DIR}")
 
 
@@ -73,21 +121,25 @@ macro(QT_ADD_IMG_PLUGINS target)
     add_definitions(-DQT_STATICPLUGIN)
    
     # Links against the static plugins
-    find_library(QJPEG qjpeg qjpegd "${QT_PLUGINS_DIR}/imageformats")
-    find_library(QGIF qgif qgifd "${QT_PLUGINS_DIR}/imageformats")
-    find_library(QMNG qmng qmngd "${QT_PLUGINS_DIR}/imageformats")
-    find_library(QICO qico qicod "${QT_PLUGINS_DIR}/imageformats")
-    find_library(QSVG qsvg qsvgd "${QT_PLUGINS_DIR}/imageformats")
-    find_library(QTIFF qtiff qtiffd "${QT_PLUGINS_DIR}/imageformats")
+    FIND_RELEASE_AND_DEBUG(QJPEG qjpeg qjpegd "${QT_PLUGINS_DIR}/imageformats")
+    FIND_RELEASE_AND_DEBUG(QGIF qgif qgifd "${QT_PLUGINS_DIR}/imageformats")
+    FIND_RELEASE_AND_DEBUG(QMNG qmng qmngd "${QT_PLUGINS_DIR}/imageformats")
+    FIND_RELEASE_AND_DEBUG(QICO qico qicod "${QT_PLUGINS_DIR}/imageformats")
+    FIND_RELEASE_AND_DEBUG(QSVG qsvg qsvgd "${QT_PLUGINS_DIR}/imageformats")
+    FIND_RELEASE_AND_DEBUG(QTIFF qtiff qtiffd "${QT_PLUGINS_DIR}/imageformats")
+    FIND_RELEASE_AND_DEBUG(QSVGR QtSvg QtSvgd "C:/devel/QtSDK/QtSources/4.7.4/lib")		# @TODO: fixed path
+
+	message("ico: ${QICO_LIBRARY}")
+	message("svg: ${QSVG_LIBRARY}")
+	message("svgr: ${QSVGR_LIBRARY}")
   
     target_link_libraries(${target} ${QJPEG_LIBRARY} ${QGIF_LIBRARY}
-      ${QMNG_LIBRARY} ${QICO_LIBRARY} ${QTIFF_LIBRARY} )
+      ${QMNG_LIBRARY} ${QICO_LIBRARY} ${QTIFF_LIBRARY} ${QSVG_LIBRARY} ${QSVGR_LIBRARY})
   
   endif(QT_CONFIG MATCHES "static")
 
 endmacro(QT_ADD_IMG_PLUGINS)
 
-QT_ADD_IMG_PLUGINS(trace_server)
 message("Generated headers: ${trace_server_UI_HDRS}")
 message("Generated files ${CMAKE_BINARY_DIR}")
 message("Generated files trace_server_MOC ${trace_server_MOC}")
@@ -101,5 +153,7 @@ ADD_EXECUTABLE(trace_server
 		${trace_server_UI_SRCS}
 		${trace_server_RESOURCES_RCC}
 		${trace_server_SOURCES})
+
+QT_ADD_IMG_PLUGINS(trace_server)
 TARGET_LINK_LIBRARIES(trace_server ${QT_LIBRARIES} ${QICO} ${QSVG})
 
