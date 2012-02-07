@@ -77,7 +77,9 @@ void SessionState::insertColumn4Tag (tlv::tag_t tag, int column_idx)
 void SessionState::insertColumn ()
 {
 	m_columns_setup_current->push_back(QString());
-	m_columns_sizes->push_back(127);
+	if (m_columns_sizes->size() < m_columns_setup_current->size())
+		m_columns_sizes->push_back(127);
+	qDebug("inserting column and size. tmpl_sz=%u curr_sz=%u sizes_sz=%u", m_columns_setup_template->size(), m_columns_setup_current->size(), m_columns_sizes->size());
 }
 
 int SessionState::insertColumn (tlv::tag_t tag)

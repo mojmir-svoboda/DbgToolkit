@@ -194,7 +194,6 @@ void ModelView::appendCommand (QSortFilterProxyModel * filter, tlv::StringComman
 		if (column_index < 0)
 		{
 			column_index = m_session_state.insertColumn(tag);
-			//columns.push_back(qval);		// keep these two
 		}
 		columns[column_index] = qval;
 	}

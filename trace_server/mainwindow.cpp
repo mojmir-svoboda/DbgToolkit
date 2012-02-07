@@ -152,7 +152,7 @@ void MainWindow::createTrayIcon ()
 	m_tray_menu->addSeparator();
 	m_tray_menu->addAction(m_quit_action);
 
-	QIcon icon(":/images/Icon2.svg");
+	QIcon icon(":/images/Icon1.ico");
 	m_tray_icon = new QSystemTrayIcon(icon, this);
 	m_tray_icon->setContextMenu(m_tray_menu);
 
@@ -369,6 +369,7 @@ void MainWindow::onColumnSetup ()
 			int const idx = findAppName(m_app_names[i]);
 			qDebug("app=%s", m_app_names.at(i).toStdString().c_str());
 			m_columns_setup[idx].clear();
+			m_columns_sizes[idx].clear();
 			if (idx >= 0)
 			{
 				size_t j = 0;
@@ -376,6 +377,7 @@ void MainWindow::onColumnSetup ()
 				{
 					qDebug("  token=%s", it->c_str());
 					m_columns_setup[idx].append(QString::fromStdString(*it));
+					m_columns_sizes[idx].append(127);
 				}
 			}
 		}
@@ -640,7 +642,9 @@ void MainWindow::iconActivated (QSystemTrayIcon::ActivationReason reason)
 {
 	switch (reason) {
 		case QSystemTrayIcon::Trigger:
-		case QSystemTrayIcon::DoubleClick: break;
+		case QSystemTrayIcon::DoubleClick:
+			onHotkeyShowOrHide();
+			break;
 		case QSystemTrayIcon::MiddleClick: break;
 		default: break;
 	}
