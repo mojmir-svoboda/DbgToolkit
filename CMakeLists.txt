@@ -30,9 +30,6 @@ include_directories (
   "${PROJECT_SOURCE_DIR}"   # to find trace_client/trace.h
   "${PROJECT_BINARY_DIR}")  # to find trace_client/config.h
 
-set (KURVAPRDEL "${PROJECT_SOURCE_DIR}")
-add_definitions ("-DTRACE_ENABLED")
-add_definitions ("-DTRACE_STATIC")
 add_subdirectory (trace_client)
 
 # Add all targets to the build-tree export set

@@ -1,7 +1,4 @@
 add_definitions ("-DTRACE_ENABLED")
-add_definitions ("-DTRACE_STATIC")
-set(FLOG_SRC "${CMAKE_CURRENT_SOURCE_DIR}/trace.cpp")
-message("flog src: ${FLOG_SRC}")
 add_library (trace_client STATIC trace.cpp)
 #set_target_properties(trace_client PROPERTIES PUBLIC_HEADER "trace.h;${CMAKE_CURRENT_BINARY_DIR}/config.h")
 set_target_properties (trace_client PROPERTIES PUBLIC_HEADER "trace.h")

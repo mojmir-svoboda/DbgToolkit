@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8)
 PROJECT(trace_server)
 FIND_PACKAGE(Qt4 REQUIRED)
 
-include(FindReleaseAndDebug)
+include("${CMAKE_CURRENT_SOURCE_DIR}/FindReleaseAndDebug.cmake")
 
 SET (LIBRARY_OUTPUT_PATH
    ${PROJECT_BINARY_DIR}/Bin

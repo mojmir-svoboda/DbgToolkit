@@ -31,13 +31,16 @@ void TutorialApplication::createScene(void)
     // create your scene here :)
 }
 
+#include <trace_client/trace.h>
 #include <OgreLogManager.h>
 
-class OgreLogRedirect : public Ogre::LogListener
+class LogRedir: public Ogre::LogListener
 {
 public:
     virtual void messageLogged (Ogre::String const & message, Ogre::LogMessageLevel lml, bool maskDebug, Ogre::String const & logName)
     {
+		// forwards message to server
+		TRACE_MSG(trace::e_Info, trace::CTX_Render, "log=%s lvl=%u msg=%s", logName.c_str(), lml, message.c_str());
     }
 };
 
@@ -57,7 +60,12 @@ extern "C" {
     int main(int argc, char *argv[])
 #endif
     {
-        OgreLogRedirect redir;
+		TRACE_APPNAME("Ogre_App");
+		TRACE_CONNECT();
+		TRACE_MSG(trace::e_Info, trace::CTX_Default, "Initialized main application");
+
+		// redirect Ogre log to our listener
+        LogRedir redir;
         Ogre::LogManager * mLogManager = OGRE_NEW Ogre::LogManager();
         Ogre::Log * log = Ogre::LogManager::getSingleton().createLog("", true, false, false);
         if (log)
