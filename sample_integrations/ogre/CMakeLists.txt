@@ -15,8 +15,17 @@
 #-----------------------------------------------------------------------------
 #*/
 cmake_minimum_required(VERSION 2.6)
- 
+set (CMAKE_VERBOSE_MAKEFILE on)
 project(OgreApp)
+
+#add_library(../../trace_client)
+add_definitions("-DTRACE_ENABLED")
+add_definitions("-DTRACE_STATIC")
+
+set(CMAKE_MODULE_PATH "c:/devel/flogging;${CMAKE_MODULE_PATH}")
+find_package(FLOGGING required)
+include_directories(${FLOGGING_INCLUDE_DIRS})
+ 
  
 if(WIN32)
 	set(CMAKE_MODULE_PATH "$ENV{OGRE_HOME}/CMake/;${CMAKE_MODULE_PATH}")
@@ -113,7 +122,7 @@ add_executable(OgreApp WIN32 ${HDRS} ${SRCS})
  
 set_target_properties(OgreApp PROPERTIES DEBUG_POSTFIX _d)
  
-target_link_libraries(OgreApp ${OGRE_LIBRARIES} ${OIS_LIBRARIES})
+target_link_libraries(OgreApp ${OGRE_LIBRARIES} ${OIS_LIBRARIES} ${FLOGGING_LIBRARIES})
  
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/dist/bin)
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/dist/media)

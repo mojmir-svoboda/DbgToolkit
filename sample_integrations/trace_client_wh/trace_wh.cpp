@@ -56,7 +56,7 @@ DWORD WINAPI do_something ( LPVOID )
 		++i;
 		TRACE_MSG(trace::e_Info, trace::CTX_Default,  "Thread tick i=%u", i);
 		something_useful();
-		Sleep(1000);
+		Sleep(100);
 	}
 	return 0;
 }

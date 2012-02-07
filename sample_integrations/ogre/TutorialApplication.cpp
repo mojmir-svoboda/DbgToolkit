@@ -31,6 +31,15 @@ void TutorialApplication::createScene(void)
     // create your scene here :)
 }
 
+#include <OgreLogManager.h>
+
+class OgreLogRedirect : public Ogre::LogListener
+{
+public:
+    virtual void messageLogged (Ogre::String const & message, Ogre::LogMessageLevel lml, bool maskDebug, Ogre::String const & logName)
+    {
+    }
+};
 
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
@@ -48,6 +57,12 @@ extern "C" {
     int main(int argc, char *argv[])
 #endif
     {
+        OgreLogRedirect redir;
+        Ogre::LogManager * mLogManager = OGRE_NEW Ogre::LogManager();
+        Ogre::Log * log = Ogre::LogManager::getSingleton().createLog("", true, false, false);
+        if (log)
+            log->addListener(&redir);
+
         // Create application object
         TutorialApplication app;
 
@@ -62,6 +77,8 @@ extern "C" {
 #endif
         }
 
+        if (log)
+            log->removeListener(&redir);
         return 0;
     }
 
