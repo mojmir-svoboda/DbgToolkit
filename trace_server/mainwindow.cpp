@@ -215,6 +215,7 @@ void MainWindow::setLevel (int i)
 
 void MainWindow::onQuit ()
 {
+	m_tray_icon->hide();
 	storeState();
 	qApp->quit();
 }
@@ -642,6 +643,7 @@ void MainWindow::iconActivated (QSystemTrayIcon::ActivationReason reason)
 {
 	switch (reason) {
 		case QSystemTrayIcon::Trigger:
+			break;
 		case QSystemTrayIcon::DoubleClick:
 			onHotkeyShowOrHide();
 			break;
