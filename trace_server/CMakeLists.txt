@@ -55,6 +55,9 @@ SET(trace_server_HEADERS
 SET(trace_server_UI mainwindow.ui settings.ui)
 SET(trace_server_RESOURCES resources.qrc)
 SET(QT_USE_QTNETWORK true)
+IF (WIN32)
+	SET (QT_USE_QTMAIN TRUE)
+ENDIF (WIN32) 
 
 QT4_WRAP_UI(trace_server_UI_HDRS ${trace_server_UI})
 QT4_WRAP_CPP(trace_server_MOC ${trace_server_HEADERS})
@@ -103,7 +106,9 @@ message("Generated files trace_server_UI_HDRS ${trace_server_UI_HDRS}")
 message("Generated files trace_server_UI_SRCS ${trace_server_UI_SRCS}")
 message("Generated files trace_server_RESOURCES_RCC ${trace_server_RESOURCES_RCC}")
 message("Generated files trace_server_SOURCES ${trace_server_SOURCES}")
-ADD_EXECUTABLE(trace_server
+
+
+ADD_EXECUTABLE(trace_server WIN32
 		${trace_server_MOC}
 		${trace_server_UI_HDRS}
 		${trace_server_UI_SRCS}
