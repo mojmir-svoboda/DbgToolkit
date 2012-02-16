@@ -12,12 +12,18 @@ Usage scenario is trivial:
 	...
 	4. user terminated program
 
-2. setup client part (easy way)
-===============================
+2. setup (easy way)
+===================
 
-use CMake.
-there are pre-cooked CMakeList.txt files that are templates for project
+Use CMake.
+There are pre-cooked CMakeList.txt files that are templates for project
 generator.
+
+First look at sample integrations in sample_integrations/ directory.
+Look at following file, please:
+	.../flogging/sample_integrations/trace_client_wh/CMakeList.txt
+
+This is the input file for cmake generator.
 
 for example:
 	cmake -G "Visual Studio 10 Win64"
@@ -25,8 +31,15 @@ or
 	cmake -G "Visual Studio 9 2008 Win64"
 or
 	cmake -G "MinGW Makefiles"
+or
+	cmake -G "Unix Makefiles"
 
-Then simply call mingw32-make or open .sln in visual studio
+Then simply call make, mingw32-make or open .sln in visual studio
+
+NOTE:
+
+To build debug version use
+	cmake -DCMAKE_BUILD_TYPE:STRING=Debug -G "Unix Makefiles"
 
 
 2. setup client part (custom projects)
@@ -55,5 +68,10 @@ user's files:
 	TRACE_CONFIG_INCLUDE="../trace_client_wh/wh_config.h"
 	TRACE_LEVELS_INCLUDE="../trace_client_wh/wh_levels.h"
 	TRACE_CONTEXTS_INCLUDE="../trace_client_wh/wh_contexts.h"
+
+
+Look into 
+	flogging/sample_integrations/trace_client_wh/CMakeList.txt
+to get a feel how to integrate tracing facility.
 
 
