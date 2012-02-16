@@ -2,7 +2,7 @@
 #include <QBrush>
 #include <QColor>
 #include <QSortFilterProxyModel>
-#include "Connection.h"
+#include "connection.h"
 #include <trace_client/trace.h>
 
 ModelView::ModelView (QObject * parent, Connection * c)

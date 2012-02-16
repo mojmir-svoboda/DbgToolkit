@@ -27,7 +27,7 @@
 #	include <windows.h>
 #endif
 
-#if defined STATIC
+#if (defined WIN32) && (defined STATIC)
     Q_IMPORT_PLUGIN(qico);
     Q_IMPORT_PLUGIN(qsvg);
 #endif

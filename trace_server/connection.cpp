@@ -107,7 +107,11 @@ void Connection::onCloseTab ()
 void Connection::onLevelValueChanged (int val)
 {
 	char tlv_buff[16];
+#ifdef __linux__
+	int const result = snprintf(tlv_buff, 16, "%u", val);
+#else
 	int const result = _snprintf(tlv_buff, 16, "%u", val);
+#endif
 
 	if (result > 0)
 	{

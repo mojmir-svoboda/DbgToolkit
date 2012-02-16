@@ -1,5 +1,5 @@
 #include <QtGui/QApplication>
-#include <QtGui/QTableWidget.h>
+//#include <QtGui/QTableWidget.h>
 #include <QSystemTrayIcon>
 #include <QMessageBox>
 #include "mainwindow.h"
@@ -12,7 +12,7 @@
 struct Application : QApplication
 {
 	MainWindow * m_main_window;
-	Application (int argc, char *argv[])
+	Application (int & argc, char *argv[])
 		: QApplication(argc, argv)
 		, m_main_window(0)
 	{}
@@ -39,12 +39,15 @@ int main(int argc, char *argv[])
 {
 	Application a(argc, argv);
 
+#ifdef WIN32
 	if (!QSystemTrayIcon::isSystemTrayAvailable()) {
 		QMessageBox::critical(0, QObject::tr("Systray"), QObject::tr("I couldn't detect any system tray on this system."));
 		return 1;
 	}
+#endif
 
 	MainWindow w;
+	w.setVisible(true);
 	w.show();
 	a.setMainWindow(&w);
 	return a.exec();

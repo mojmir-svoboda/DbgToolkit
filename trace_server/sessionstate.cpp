@@ -1,4 +1,4 @@
-#include "SessionState.h"
+#include "sessionstate.h"
 #include <QSortFilterProxyModel>
 #include <QStandardItemModel>
 #include "modelview.h"
