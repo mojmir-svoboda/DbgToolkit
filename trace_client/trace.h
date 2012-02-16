@@ -144,11 +144,10 @@
 		/**@fn		Write to log
 		 * @brief	write to log of the form (fmt, ...)
 		 **/
-#if defined __GCC__ || defined __MINGW32__
+#if defined __GCC__ || defined __MINGW32__ || defined __linux__
 		TRACE_API void Write (level_t level, context_t context, char const * file, int line, char const * fn, char const * fmt, ...) __attribute__ ((format(printf, 6, 7) ));
 #elif defined _MSC_VER
 		TRACE_API void Write (level_t level, context_t context, char const * file, int line, char const * fn, char const * fmt, ...);
-
 #endif
 
 		/**@class	ScopedLog

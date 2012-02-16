@@ -3,6 +3,7 @@ project (wh_client)
 set (CMAKE_MODULE_PATH "c:/devel/flogging;${CMAKE_MODULE_PATH}")
 
 find_package (Flogging REQUIRED)
+find_package (Threads)
 
 message ("Current dir: ${CMAKE_CURRENT_SOURCE_DIR}")
 message ("Flog includes: ${FLOGGING_INCLUDE_DIRS}")
@@ -21,5 +22,4 @@ add_executable (trace_client_wh trace_wh.cpp)
 if (MINGW)
 	target_link_libraries (trace_client_wh trace_client "c:/devel/QtSDK/mingw/lib/libws2_32.a")
 endif()
-target_link_libraries (trace_client_wh flog_client_lib)
-
+target_link_libraries (trace_client_wh flog_client_lib ${CMAKE_THREAD_LIBS_INIT}) 

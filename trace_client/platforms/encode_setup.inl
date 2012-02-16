@@ -1,5 +1,5 @@
 #pragma once
-#include <ws2tcpip.h>
+#include "include_ntohs.h"
 #include "../../tlv_parser/tlv_parser.h"
 #include "../../tlv_parser/tlv_encoder.h"
 

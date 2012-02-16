@@ -7,6 +7,9 @@
 #		include "trace_win_file.inl"
 #	endif
 
+#elif defined __linux__
+#	include "trace_linux_socket.inl"
+
 #elif defined _XBOX
 #	if defined TRACE_XBOX360_USES_SOCKET
 #		include "trace_xbox360_socket.inl"

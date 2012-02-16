@@ -34,6 +34,7 @@ namespace trace {
 		};
 
 		unsigned get_pid () { return ::GetCurrentProcessId(); }
+		unsigned get_tid () { return ::GetCurrentThreadId(); }
 		void create_log_filename (char * filename, size_t buff_sz)
 		{
 			char const * app_name = GetAppName() ? GetAppName() : "unknown";

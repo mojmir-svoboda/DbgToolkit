@@ -22,9 +22,11 @@
 #pragma once
 #include <cstring>
 #include "memstream.h"
-#ifdef __CYGWIN__
+#if defined __CYGWIN__
 #	include <netinet/in.h>	// for ntohs
-#else
+#elif defined __linux__
+#	include <arpa/inet.h>
+#elif defined WIN32 || defined WIN64
 #	include <winsock2.h> // for ntohs
 #endif
 
@@ -104,20 +106,6 @@ namespace tlv {
 	{
 		TLVDecoder () { }
 
-		template<unsigned N, unsigned M>
-		bool decode_header (char const * buff, size_t ln, Command<N, M> & cmd)
-		{
-			memstream input(buff, ln);
-			return decode_hdr(input, cmd.hdr);
-		}
-
-		template<unsigned N, unsigned M>
-		bool decode_payload (char const * buff, size_t ln, Command<N, M> & cmd)
-		{
-			memstream input(buff, ln);
-			return decode(input, cmd, cmd.concat_values);
-		}
-
 		bool decode (memstream & s, TLV & tlv, char * value_buffer)
 		{
 			tag_t tag = 0;
@@ -135,6 +123,20 @@ namespace tlv {
 				return false;
 			value_buffer[len + 1] = '\0';		//qDebug("DEC: val=%s ", value_buffer);
 			return true;
+		}
+
+		template<unsigned N, unsigned M>
+		bool decode_header (char const * buff, size_t ln, Command<N, M> & cmd)
+		{
+			memstream input(buff, ln);
+			return decode_hdr(input, cmd.hdr);
+		}
+
+		template<unsigned N, unsigned M>
+		bool decode_payload (char const * buff, size_t ln, Command<N, M> & cmd)
+		{
+			memstream input(buff, ln);
+			return decode<N, M>(input, cmd, cmd.concat_values);
 		}
 
 		template<unsigned N, unsigned M>
