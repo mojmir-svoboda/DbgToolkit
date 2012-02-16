@@ -68,6 +68,9 @@ namespace trace {
 			return false;
 		}
 
+		int get_errno () { return WSAGetLastError(); }
+		bool is_timeouted () { return get_errno() == WSAETIMEDOUT; }
+
 		inline bool WriteToSocket (char const * buff, size_t ln)
 		{
 			if (is_connected())
@@ -95,10 +98,10 @@ namespace trace {
 					}
 				}
 
-				bool const timeouted = ( result == SOCKET_ERROR && WSAGetLastError() == WSAETIMEDOUT );
+				bool const timeouted = ( result == SOCKET_ERROR && is_timeouted());
 				if (result == SOCKET_ERROR && !timeouted)
 				{
-					DBG_OUT("send failed with error: %d\n", WSAGetLastError());
+					DBG_OUT("send failed with error: %d\n", get_errno());
 					closesocket(g_Socket);
 					WSACleanup();
 					g_Socket = INVALID_SOCKET;
@@ -153,7 +156,7 @@ namespace trace {
 				}
 				else
 				{
-					DBG_OUT("recv failed: %d\n", WSAGetLastError());
+					DBG_OUT("recv failed: %d\n", get_errno());
 					break;
 				}
 			}
@@ -230,7 +233,7 @@ namespace trace {
 				// create a SOCKET for connecting to server
 				g_Socket = socket(ptr->ai_family, ptr->ai_socktype, ptr->ai_protocol);
 				if (g_Socket == INVALID_SOCKET) {
-					DBG_OUT("socket failed with error: %ld\n", WSAGetLastError());
+					DBG_OUT("socket failed with error: %ld\n", get_errno());
 					WSACleanup();
 					return;
 				}
@@ -314,7 +317,7 @@ namespace trace {
 		{
 			int const result = shutdown(socks::g_Socket, SD_SEND);
 			if (result == SOCKET_ERROR)
-				DBG_OUT("shutdown failed with error: %d\n", WSAGetLastError());
+				DBG_OUT("shutdown failed with error: %d\n", get_errno());
 			closesocket(socks::g_Socket);
 			socks::g_Socket = INVALID_SOCKET;
 			WSACleanup();

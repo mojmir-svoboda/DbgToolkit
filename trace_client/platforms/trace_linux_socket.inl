@@ -49,8 +49,6 @@ namespace trace {
 			return false;
 		}
 
-		//int get_errno () { return WSAGetLastError(); }
-		//bool is_timeouted () { return get_errno() == WSAETIMEDOUT; }
 		int get_errno () { return errno; }
 		bool is_timeouted () { return errno == ETIMEDOUT; }
 

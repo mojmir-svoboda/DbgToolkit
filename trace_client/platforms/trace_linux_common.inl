@@ -15,12 +15,15 @@
 #include <netinet/in.h>
 #include <netdb.h>
 
+//@TODO: align
+//@TODO: thread suspend/resume
+
 #define CACHE_LINE  
 #define CACHE_ALIGN 
 //#define CACHE_LINE  32
 //#define CACHE_ALIGN __declspec(align(CACHE_LINE))
 
-	namespace trace {
+namespace trace {
 	namespace sys {
 
 		struct timeval g_TickStart;
@@ -235,41 +238,6 @@
 		};
 #		undef handle_error_en
 #		undef handle_error
-
-
-
-/*
-		struct Thread
-		{
-			Thread (int prio) : m_handle(NULL), m_tid(), m_prio(prio) { }
-
-			bool Create ( void * (* fn) (void *), void * arg)
-			{
-				m_handle = CreateThread (
-					0, // Security attributes
-					0, // Stack size
-					fn, arg,
-					CREATE_SUSPENDED,
-					&m_tid);
-				if (m_handle)
-					SetThreadPriority(m_handle, m_prio);
-
-				return (m_handle != NULL);
-			}
-
-			~Thread () { }
-			void Close () { if (m_handle) CloseHandle (m_handle); m_handle = 0; } 
-			void Resume () { if (m_handle) ResumeThread (m_handle); }
-			void WaitForTerminate ()
-			{
-				if (m_handle)
-					WaitForSingleObject(m_handle, 2000);
-			}
-		private:
-			HANDLE m_handle;
-			DWORD  m_tid;
-			int    m_prio;
-		};*/
 
 	}
 }
