@@ -31,16 +31,21 @@ namespace tlv {
 	typedef unsigned short len_t;					/// length type (2 bytes)
 
 	/** available commands */
-	static cmd_t const cmd_setup         = 0xFF;	/// trace setup message
-	static cmd_t const cmd_log           = 0xFE;	/// trace log message
-	static cmd_t const cmd_scope_entry   = 0xFD;	/// trace scope
-	static cmd_t const cmd_scope_exit    = 0xFC;	/// trace scope
-	static cmd_t const cmd_restart_req   = 0xFB;	/// tcp stream restart request
-	static cmd_t const cmd_restart_ack   = 0xFA;	/// tcp stream restart ack
-	static cmd_t const cmd_set_level     = 0xF9;	/// set debug level
-	static cmd_t const cmd_set_level_ack = 0xF8;	/// set debug level ack
-	static cmd_t const cmd_set_ctx       = 0xF7;	/// adjust runtime context filtering
-	static cmd_t const cmd_set_ctx_ack   = 0xF6;	/// request context from other party
+	static cmd_t const cmd_setup             = 0xFF;	/// trace setup message
+	static cmd_t const cmd_log               = 0xFE;	/// trace log message
+	static cmd_t const cmd_scope_entry       = 0xFD;	/// trace scope
+	static cmd_t const cmd_scope_exit        = 0xFC;	/// trace scope
+	static cmd_t const cmd_restart_req       = 0xFB;	/// tcp stream restart request
+	static cmd_t const cmd_restart_ack       = 0xFA;	/// tcp stream restart ack
+	static cmd_t const cmd_set_level         = 0xF9;	/// set debug level
+	static cmd_t const cmd_set_level_ack     = 0xF8;	/// set debug level ack
+	static cmd_t const cmd_set_ctx           = 0xF7;	/// adjust runtime context filtering
+	static cmd_t const cmd_set_ctx_ack       = 0xF6;	/// request context from other party
+                                             
+	static cmd_t const cmd_profile_bgn       = 0xEF;	/// send profiling begin
+	static cmd_t const cmd_profile_end       = 0xEE;	/// send profiling end
+	static cmd_t const cmd_profile_frame_bgn = 0xED;	/// send profiling frame begin
+	static cmd_t const cmd_profile_frame_end = 0xEC;	/// send profiling frame end
 
 	enum e_Tags
 	{

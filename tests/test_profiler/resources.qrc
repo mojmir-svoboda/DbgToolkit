@@ -1,0 +1,6 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource>
+    <file>img/zoomin.png</file>
+    <file>img/zoomout.png</file>
+</qresource>
+</RCC>
