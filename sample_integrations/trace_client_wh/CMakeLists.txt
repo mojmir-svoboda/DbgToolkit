@@ -1,6 +1,6 @@
 cmake_minimum_required (VERSION 2.8)
 project (wh_client)
-set (CMAKE_MODULE_PATH "c:/devel/flogging;${CMAKE_MODULE_PATH}")
+set (CMAKE_MODULE_PATH "~/devel/flogging;${CMAKE_MODULE_PATH}")
 
 find_package (Flogging REQUIRED)
 find_package (Threads)
