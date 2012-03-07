@@ -33,7 +33,7 @@ namespace trace {
 		inline sys::Message & acquire_msg_buffer ()
 		{
 			sys::atomic32_t wr_idx = sys::atomic_inc32(&m_wr_idx);
-			return msg_buffer_at((wr_idx - 1) % sys::MessagePool::e_size);
+			return msg_buffer_at(wr_idx % sys::MessagePool::e_size);
 		}
 
 		inline bool is_connected () { return g_Socket >= 0; }

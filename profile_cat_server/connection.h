@@ -88,7 +88,7 @@ struct Connection : public boost::enable_shared_from_this<Connection>
 	}
 
 	bool tryHandleCommand (DecodedCommand const & cmd);
-	bool handleLogCommand (DecodedCommand const & cmd);
+	bool handleProfileCommand (DecodedCommand const & cmd);
 	bool handleSetupCommand (DecodedCommand const & cmd);
 };
 

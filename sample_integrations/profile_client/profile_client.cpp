@@ -1,4 +1,4 @@
-#include "wh_trace.h"
+#include <trace_client/profile.h>
 
 #if defined WIN32 || defined WIN64
 #	define WIN32_LEAN_AND_MEAN
@@ -120,26 +120,6 @@ namespace {
 #endif
 
 
-void my_custom_vaarg_fn (char const * fmt, ...)
-{
-	va_list args;
-	va_start(args, fmt);
-	TRACE_MSG_VA(trace::e_Info, trace::CTX_Default, fmt, args);
-	va_end(args);
-}
-
-void something_useful_too ()
-{
-	TRACE_ENTRY(trace::e_Info, trace::CTX_Default);
-	TRACE_MSG(trace::e_Info, trace::CTX_Default,  "%s", "Worker thread issues some another annoying message");
-}
-
-void something_useful ()
-{
-	TRACE_ENTRY(trace::e_Info, trace::CTX_Default);
-	something_useful_too();
-}
-
 unsigned g_Quit = 0;
 
 #if defined WIN32 || defined WIN64
@@ -148,40 +128,25 @@ DWORD WINAPI do_something ( LPVOID )
 void * do_something ( void * )
 #endif
 {
-	TRACE_ENTRY(trace::e_Info, trace::CTX_Default);
+	static unsigned n = 0;
+	++n;
+	PROFILE_BGN("thread worker %u", n);
+	unsigned i = 0;
 	while (!g_Quit)
 	{
-		static size_t i = 0;
 		++i;
-		TRACE_MSG(trace::e_Info, trace::CTX_Default,  "Thread tick i=%u", i);
-		something_useful();
+		PROFILE_BGN("thread %u worker loop %u", n, i);
 #if defined WIN32 || defined WIN64
-		Sleep(100);
+		Sleep(250);
 #elif defined __linux__
-		usleep(100 * 1000);
+		usleep(250 * 1000);
 #endif
+		PROFILE_END();
+		
 	}
+	PROFILE_END();
 	return 0;
 }
-
-void foo ()
-{
-	TRACE_ENTRY(trace::e_Info, trace::CTX_Default);
-	TRACE_MSG(trace::e_Info, trace::CTX_Default,  "%s %s", "\'lloo woorld froom foo().", "and from bar!");
-}
-
-struct Bar
-{
-	Bar ()
-	{
-		TRACE_ENTRY(trace::e_Info, trace::CTX_Default);
-	}
-
-	~Bar ()
-	{
-		TRACE_ENTRY(trace::e_Info, trace::CTX_Default);
-	}
-};
 
 #if defined WIN32 || defined WIN64
 //int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
@@ -190,45 +155,34 @@ int main ()
 int main ()
 #endif
 {
-	TRACE_APPNAME("WarHorse_App");
-	TRACE_CONNECT();
-	//TRACE_MSG(trace::e_Info, trace::CTX_Default,	"first message"); // not sure if this is a valid case!
-	TRACE_MSG(trace::e_Info, trace::CTX_Default,	"this is %s", "first message");
-	TRACE_MSG(trace::e_Info, trace::CTX_Default,  "args: %s and %s", "first arg", "second arg");
-	TRACE_MSG(trace::e_Fatal, trace::CTX_Default,  "First fatal error, errno=%08x", 0xDEAFDAD);
-	TRACE_MSG(trace::e_Error, trace::CTX_Default,  "First error, errno=%08x", 0xBADBEEF);
-	TRACE_MSG(trace::e_Warning, trace::CTX_Default,  "First warning, errno=%x", 0xFEEDDEAD);
-	TRACE_MSG(trace::e_Detail, trace::CTX_Default,	"%s%s", "This message should not appear", ".");
-	TRACE_MSG(trace::e_Info, trace::CTX_Default,  "%s", "This message should appear.");
-	TRACE_MSG(trace::e_Info, trace::CTX_Default,  "%s", "This message should partially appear too, but it's much longer in time and space so that it's very annoying and everyone will hate it as i do hate it now during typing as approaching to some 256 bytes boundary on which this message will be clipped and therefore it does not make any sense at all as all it does do is to show you in a rather graphomaniac light like Robert Smith or this Rowling bitch");
-	my_custom_vaarg_fn("using va_arg macro %s and %s", "with some argument", "another one");
+	PROFILE_APPNAME("Profiled_App");
+	PROFILE_CONNECT();
+	PROFILE_BGN("%s%u","main", 0);
 
-	foo();	
-	Bar bar;
-
-	ThreadPool<2> thr_pool;
+	ThreadPool<3> thr_pool;
 	thr_pool.Create(do_something, 0);
+
 
 	for (;;)
 	{
-#if defined WIN32 || defined WIN64
-		Sleep(2000);
-#elif defined __linux__
-		usleep(2000 * 1000);
-#endif
-
-		TRACE_MSG(trace::e_Info, trace::CTX_Default,	"%s", "This message should periodicaly appear too.");
-		
-		//for(size_t i = 0; i < 4; ++i)
 		static size_t i = 0;
+		PROFILE_FRAME_BGN("frame %u", i);
 		++i;
-		TRACE_MSG(trace::e_Info, trace::CTX_Default,  "Some another annoying message i=%u from main thread", i);
 
-		//if (i == 4)
-		//	break;
+#if defined WIN32 || defined WIN64
+		Sleep(1000);
+#elif defined __linux__
+		usleep(1000 * 1000);
+#endif
+	
+		PROFILE_FRAME_END();
+		if (i == 6)
+			break;
 	}
 
 	g_Quit = 1;
 	thr_pool.WaitForTerminate();
-	TRACE_DISCONNECT();
+
+	PROFILE_END();
+	PROFILE_DISCONNECT();
 }

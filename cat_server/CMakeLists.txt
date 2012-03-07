@@ -15,11 +15,11 @@ add_definitions ("-DTRACE_CONTEXTS_INCLUDE=\"${CMAKE_CURRENT_SOURCE_DIR}/wh_cont
 add_definitions ("-DTRACE_ENABLED")
 add_definitions ("-DTRACE_STATIC")
 include_directories (${FLOGGING_INCLUDE_DIRS})
-add_library (flog_client_lib STATIC "${FLOGGING_SOURCE_DIRS}/trace_client/trace.cpp")
+add_library (fprof_client_lib STATIC "${FLOGGING_SOURCE_DIRS}/trace_client/profile.cpp")
 
-add_executable (trace_client_wh trace_wh.cpp)
+add_executable (profile_cat_server connection.cpp main.cpp)
 
 if (MINGW)
-	target_link_libraries (trace_client_wh trace_client "c:/devel/QtSDK/mingw/lib/libws2_32.a")
+	target_link_libraries (profile_cat_server fprof_client_lib "c:/devel/QtSDK/mingw/lib/libws2_32.a")
 endif()
-target_link_libraries (trace_client_wh flog_client_lib ${CMAKE_THREAD_LIBS_INIT}) 
+target_link_libraries (profile_cat_server fprof_client_lib ${CMAKE_THREAD_LIBS_INIT}) 
