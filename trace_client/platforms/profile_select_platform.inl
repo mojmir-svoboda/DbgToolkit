@@ -1,11 +1,7 @@
 #pragma once
 
 #if defined WIN32
-#	if defined PROFILE_WINDOWS_USES_SOCKET
-#		include "profile_win_socket.inl"
-#	elif defined PROFILE_WINDOWS_USES_MEMMAP || defined PROFILE_WINDOWS_USES_FILE
-#		include "profile_win_file.inl"
-#	endif
+#	include "profile_win_socket.inl"
 
 #elif defined __linux__
 #	include "profile_linux_socket.inl"

@@ -61,8 +61,12 @@ bool Connection::handleProfileCommand (DecodedCommand const & cmd)
 		std::string const & val = cmd.tvs[i].m_val;
 
 		if (cmd.tvs[i].m_tag == tlv::tag_tid)
-		{	
-			tid = atoll(val.c_str());
+		{
+#ifdef WIN32
+			tid  = _atol_l(val.c_str(), 0);
+#else
+			tid  = atoll(val.c_str());
+#endif
 			std::vector<unsigned long long>::iterator it = std::find(m_profileInfo.m_tids.begin(), m_profileInfo.m_tids.end(), tid);
 			if (it == m_profileInfo.m_tids.end())
 			{
@@ -80,7 +84,11 @@ bool Connection::handleProfileCommand (DecodedCommand const & cmd)
 		}
 
 		if (cmd.tvs[i].m_tag == tlv::tag_time)
+#ifdef WIN32
+			time = _atol_l(val.c_str(), 0);
+#else
 			time = atoll(val.c_str());
+#endif
 
 		if (cmd.tvs[i].m_tag == tlv::tag_msg)
 			text = val;

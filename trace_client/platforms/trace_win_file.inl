@@ -32,7 +32,7 @@ namespace trace {
 		inline sys::Message & acquire_msg_buffer ()
 		{
 			LONG wr_idx = InterlockedIncrement(&m_wr_idx);
-			return msg_buffer_at(wr_idx % sys::MessagePool::e_size);
+			return msg_buffer_at((wr_idx - 1) % sys::MessagePool::e_size);
 		}
 
 		bool is_connected () { return g_LogFile != INVALID_HANDLE_VALUE; }
