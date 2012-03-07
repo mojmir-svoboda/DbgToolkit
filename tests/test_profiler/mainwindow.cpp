@@ -29,13 +29,52 @@ MainWindow::MainWindow(std::vector<ProfileInfo> & pis, QWidget * parent)
 	setWindowTitle(tr("Profiler Demo"));
 }
 
+	struct HSV { float h; float s; float v; };
+	inline float tmp_randf () { return (float)rand()/(float)RAND_MAX; }
+
 void MainWindow::populateScene()
 {
+	printf("%s\n", __FUNCTION__);
 	m_scene = new QGraphicsScene;
 
 	for (size_t p = 0, pe = m_profileInfos.size(); p < pe; ++p)
 	{
 		ProfileInfo & pi = m_profileInfos[p];
+
+		//printf("p=%u\n", p); fflush(stdout);
+
+		typedef std::map<std::string, QColor> colormap_t;
+		colormap_t colors;
+
+		for (size_t f = 0, fe = pi.m_completed_frame_infos.size(); f < fe; ++f)
+		{
+			threadinfos_t & tis = pi.m_completed_frame_infos[f];
+			for (size_t t = 0, te = tis.size(); t < te; ++t)
+			{
+				blockinfos_t & bis = tis[t];
+				for (size_t b = 0, be = bis.size(); b < be; ++b)
+				{
+					BlockInfo & block = bis[b];
+					colors[block.m_msg] = Qt::gray;
+				}
+			}
+		}
+
+		//printf("color size: %u\n", colors.size()); fflush(stdout);
+		if (colors.size() == 0)
+			break;
+
+		// pick colors for unique clusters
+		std::vector<HSV> ucolors;
+		ucolors.reserve(colors.size());
+		for (size_t hi = 0; hi < 360; hi += 360 / colors.size())
+		{
+			HSV hsv;
+			hsv.h = hi / 360.0f;
+			hsv.s = 0.30f + tmp_randf() * 0.2f - 0.05f;
+			hsv.v = 0.85f + tmp_randf() * 0.2f - 0.05f;
+			ucolors.push_back(hsv);
+		}
 
 		for (size_t f = 0, fe = pi.m_completed_frame_infos.size(); f < fe; ++f)
 		{
@@ -55,7 +94,14 @@ void MainWindow::populateScene()
 					qreal y = (t + 2) * block.m_layer * 40;
 					//printf("f=%2u t=%2u b=%2u    x=%6.1f y=%6.1f w=%4i h=%4i\n", f, t, b, x, y, w, h); fflush(stdout);
 
-					QColor color((t + 1) * 50, f * 30 + 60, b * 40 + 50);
+					QColor color = Qt::white;
+					colormap_t::iterator it = colors.find(block.m_msg);
+					if (it != colors.end())
+					{
+						HSV hsv = ucolors[std::distance(colors.begin(), it)];
+						color.setHsvF(hsv.h, hsv.s, hsv.v);
+					}
+
 					QGraphicsItem * item = new Bar(block, color, 0, 0, w, h);
 					item->setPos(QPointF(x, y));
 					m_scene->addItem(item);
@@ -66,10 +112,14 @@ void MainWindow::populateScene()
 
 		for (size_t f = 0, fe = pi.m_frames.size(); f < fe; ++f)
 		{
-			QGraphicsLineItem * line1 = new QGraphicsLineItem(pi.m_frames[f].first, 0, pi.m_frames[f].first, 500);
+			QGraphicsTextItem * txt = new QGraphicsTextItem(QString("frame=%1").arg(f));
+			txt->setPos(pi.m_frames[f].first, 10);
+			m_scene->addItem(txt);
+
+			QGraphicsLineItem * line1 = new QGraphicsLineItem(pi.m_frames[f].first, 0, pi.m_frames[f].first, 400);
 			m_scene->addItem(line1);
 
-			QGraphicsLineItem * line2 = new QGraphicsLineItem(pi.m_frames[f].second, 0, pi.m_frames[f].second, 500);
+			QGraphicsLineItem * line2 = new QGraphicsLineItem(pi.m_frames[f].second, 0, pi.m_frames[f].second, 400);
 			m_scene->addItem(line2);
 		}
 	}
