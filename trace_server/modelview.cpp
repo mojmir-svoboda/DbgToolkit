@@ -95,6 +95,10 @@ QVariant ModelView::data (const QModelIndex &index, int role) const
 			return Qt::AlignRight;
 		if (checkTagExistence(tlv::tag_line, index))
 			return Qt::AlignRight;
+		if (checkTagExistence(tlv::tag_file, index))
+			return Qt::AlignRight;
+		if (checkTagExistence(tlv::tag_func, index))
+			return Qt::AlignRight;
 		if (checkTagExistence(tlv::tag_lvl, index))
 			return Qt::AlignRight;
 		if (checkTagExistence(tlv::tag_ctx, index))

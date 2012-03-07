@@ -5,9 +5,10 @@
 
 	namespace trace {
 
-		level_t g_RuntimeLevel = static_cast<level_t>(e_max_trace_level);
-		context_t g_RuntimeContextMask = ~(0U);
-		char const * g_AppName = "trace_client";
+		level_t      g_RuntimeLevel       = static_cast<level_t>(e_max_trace_level);
+		context_t    g_RuntimeContextMask = ~(0U);
+		char const * g_AppName            = "trace_client";
+		bool         g_RuntimeBuffering   = true;
 
 		// setup
 		void SetAppName (char const * name) { g_AppName = name; }
@@ -15,6 +16,9 @@
 
 		void SetRuntimeLevel (level_t level) { g_RuntimeLevel = level; }
 		level_t GetRuntimeLevel () { return g_RuntimeLevel; }
+
+		void SetRuntimeBuffering (bool buffered) { g_RuntimeBuffering = buffered; }
+		bool GetRuntimeBuffering () { return g_RuntimeBuffering; }
 
 		void SetRuntimeContextMask (context_t mask) { g_RuntimeContextMask = mask; }
 		context_t GetRuntimeContextMask () { return g_RuntimeContextMask; }

@@ -37,7 +37,7 @@
 #		endif
 #	endif
 
-#	if  _MSC_VER == 1500
+#	if  defined _MSC_VER
 #		include <vadefs.h>
 #	else
 #		include <stdarg.h>	// for va_args
@@ -91,6 +91,11 @@
  **/
 #	define TRACE_SETLEVEL(n) trace::SetRuntimeLevel(n)
 
+/**	@macro		TRACE_SETBUFFERED
+ *	@brief		switch between buffered/unbuffered
+ **/
+#	define TRACE_SETBUFFERED(n) trace::SetRuntimeBuffering(n)
+
 /**	@macro		TRACE_MSG
  *	@brief		logging of the form TRACE_MSG(lvl, ctx, fmt, ...)
  **/
@@ -121,6 +126,13 @@
 		 **/
 		TRACE_API void SetRuntimeLevel (level_t level);
 		TRACE_API level_t GetRuntimeLevel ();
+
+		/**@fn		SetRuntimeBuffering
+		 * @brief	adjusts run-time buffering of log message filtering
+		 **/
+		TRACE_API void SetRuntimeBuffering (bool level);
+		TRACE_API bool GetRuntimeBuffering ();
+
 
 		/**@fn		SetRuntimeContextMask
 		 * @brief	adjusts run-time context of log message filtering
@@ -175,4 +187,5 @@
 #	define TRACE_MSG(level, context, fmt, ... )     ((void)0)
 #	define TRACE_MSG_VA(level, context, fmt, va)    ((void)0)
 #	define TRACE_ENTRY(level, context)              ((void)0)
+#	define TRACE_SETBUFFERED(on)                     ((void)0)
 #endif // TRACE_ENABLED
