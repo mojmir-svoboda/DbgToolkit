@@ -50,15 +50,16 @@ void MainWindow::populateScene()
 					BlockInfo & block = bis[b];
 
 					int w = block.m_delta_t;
-					int h = 25;
+					int h = 28;
 					qreal x = block.m_time_bgn;
-					qreal y = (t + 2) * block.m_layer * 30;
+					qreal y = (t + 2) * block.m_layer * 40;
 					//printf("f=%2u t=%2u b=%2u    x=%6.1f y=%6.1f w=%4i h=%4i\n", f, t, b, x, y, w, h); fflush(stdout);
 
 					QColor color((t + 1) * 50, f * 30 + 60, b * 40 + 50);
 					QGraphicsItem * item = new Bar(block, color, 0, 0, w, h);
 					item->setPos(QPointF(x, y));
 					m_scene->addItem(item);
+					item->setToolTip(QString("frame=%1 thread=%2 %3 [%4 ms]").arg(f).arg(t).arg(block.m_msg.c_str()).arg(block.m_delta_t));
 				}
 			}
 		}

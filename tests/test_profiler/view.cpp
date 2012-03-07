@@ -1,17 +1,16 @@
 #include "view.h"
-
 #include <QtGui>
 #ifndef QT_NO_OPENGL
 #	include <QtOpenGL>
 #endif
-
 #include <qmath.h>
+#include "mygraphicsview.h"
 
 View::View (const QString & name, QWidget * parent)
 	: QFrame(parent)
 {
 	setFrameStyle(Sunken | StyledPanel);
-	m_graphicsView = new QGraphicsView;
+	m_graphicsView = new MyGraphicsView;
 	m_graphicsView->setRenderHint(QPainter::Antialiasing, false);
 	m_graphicsView->setDragMode(QGraphicsView::RubberBandDrag);
 	m_graphicsView->setOptimizationFlags(QGraphicsView::DontSavePainterState);

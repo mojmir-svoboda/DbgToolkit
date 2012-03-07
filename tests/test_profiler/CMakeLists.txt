@@ -47,6 +47,7 @@ SET(profile_server_SOURCES
 	mainwindow.cpp
     connection.cpp
 	view.cpp
+	mygraphicsview.cpp
 	bar.cpp)
 
 SET(profile_server_HEADERS
@@ -54,6 +55,7 @@ SET(profile_server_HEADERS
     server.h
     connection.h
 	view.h
+	mygraphicsview.h
 	bar.h)
 
 #SET(profile_server_UI mainwindow.ui settings.ui)

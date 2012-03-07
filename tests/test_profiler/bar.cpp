@@ -34,14 +34,14 @@ void Bar::paint (QPainter * painter, QStyleOptionGraphicsItem const * option, QW
 
 	qreal const lod = option->levelOfDetailFromTransform(painter->worldTransform());
 
-	if (lod >= 0.3f)
+	if (lod >= 0.4f)
 	{
-		QFont font("Times", 10);
+		QFont font("Times", 9);
 		font.setStyleStrategy(QFont::ForceOutline);
 		painter->setFont(font);
 		painter->save();
-		painter->drawText(10, m_h/2, QString("%1 [%2 ms]").arg(m_block.m_msg.c_str()).arg(m_block.m_delta_t));
-		//painter->drawText(10, m_h/2, QString("text"));
+		painter->drawText(4, m_h/2, QString("%1").arg(m_block.m_msg.c_str()));
+		painter->drawText(4, 7 * m_h/8, QString("%2 ms").arg(m_block.m_delta_t));
 		painter->restore();
 	}
 }

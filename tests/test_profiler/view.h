@@ -1,6 +1,9 @@
 #pragma once
 #include <QFrame>
+#include <QGraphicsView>
+#include <cstdio>
 
+QT_FORWARD_DECLARE_CLASS(MyGraphicsView)
 QT_FORWARD_DECLARE_CLASS(QGraphicsView)
 QT_FORWARD_DECLARE_CLASS(QLabel)
 QT_FORWARD_DECLARE_CLASS(QSlider)
@@ -25,7 +28,7 @@ private slots:
     void zoomOut ();
     
 private:
-    QGraphicsView * m_graphicsView;
+    MyGraphicsView * m_graphicsView;
     QLabel * m_label;
     QToolButton * m_openGlButton;
     QToolButton * m_antialiasButton;
