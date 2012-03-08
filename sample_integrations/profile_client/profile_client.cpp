@@ -128,13 +128,13 @@ void * do_something ( void * )
 #endif
 {
 	static unsigned n = 0;
-	++n;
-	PROFILE_BGN("thread worker %u", n);
+	int thr_n = n++;
+	PROFILE_BGN("thread worker %u", thr_n);
 	unsigned i = 0;
 	while (!g_Quit)
 	{
 		++i;
-		PROFILE_BGN("thread %u worker loop %u", n, i);
+		PROFILE_BGN("thread %u worker loop %u", thr_n, i);
 #if defined WIN32 || defined WIN64
 		Sleep(250);
 #elif defined __linux__
