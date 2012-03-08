@@ -1,38 +1,42 @@
 cmake_minimum_required(VERSION 2.8)
-PROJECT(profile_server)
-FIND_PACKAGE(Qt4 REQUIRED)
+project(profile_server)
+
+find_package(Qt4 REQUIRED)
 
 include("${CMAKE_CURRENT_SOURCE_DIR}/FindReleaseAndDebug.cmake")
 
-SET (LIBRARY_OUTPUT_PATH
+set (LIBRARY_OUTPUT_PATH
    ${PROJECT_BINARY_DIR}/Bin
    CACHE PATH
    "Single Directory for all Libraries"
    )
 
-SET (EXECUTABLE_OUTPUT_PATH
+set (EXECUTABLE_OUTPUT_PATH
    ${PROJECT_BINARY_DIR}/Bin
    CACHE PATH
    "Single Directory for all Executables."
    )
 
-SET(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH} "~/devel/boost_1_48_0")
-SET(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} "~/devel/boost_1_48_0")
 
 add_definitions("-DPROFILE_ENABLED")
 add_definitions("-DPROFILE_STATIC")
 
-INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/..)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/..)
 
 find_package (Threads)
 
-FIND_PACKAGE(Boost)
-IF (Boost_FOUND)
-    INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIR})
-    ADD_DEFINITIONS( "-DHAS_BOOST" )
-ENDIF()
+set(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH} "c:/devel/boost_1_48_0")
+set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} "c:/devel/boost_1_48_0")
 
-set(BOOST_LIBS thread date_time system)
+set(Boost_DEBUG 1)
+set(Boost_USE_STATIC_LIBS 1)
+find_package(Boost)
+if (Boost_FOUND)
+    include_directories(${Boost_INCLUDE_DIR})
+    add_definitions( "-DHAS_BOOST" )
+endif()
+
+set(BOOST_LIBS thread date_time system regex)
 find_package(Boost COMPONENTS ${BOOST_LIBS} REQUIRED)
 
 find_package (Flogging REQUIRED)
@@ -42,7 +46,7 @@ message ("Flog srcs: ${FLOGGING_SOURCE_DIRS}")
 
 include_directories (${FLOGGING_INCLUDE_DIRS})
 
-SET(profile_server_SOURCES
+set(profile_server_SOURCES
 	main.cpp
 	mainwindow.cpp
     connection.cpp
@@ -50,7 +54,7 @@ SET(profile_server_SOURCES
 	mygraphicsview.cpp
 	bar.cpp)
 
-SET(profile_server_HEADERS
+set(profile_server_HEADERS
 	mainwindow.h 
     server.h
     connection.h
@@ -58,26 +62,26 @@ SET(profile_server_HEADERS
 	mygraphicsview.h
 	bar.h)
 
-#SET(profile_server_UI mainwindow.ui settings.ui)
-SET(profile_server_RESOURCES resources.qrc)
-SET(QT_USE_QTNETWORK true)
-SET(QT_USE_QTOPENGL true)
-IF (WIN32)
-	SET (QT_USE_QTMAIN TRUE)
-ENDIF (WIN32) 
+#set(profile_server_UI mainwindow.ui settings.ui)
+set(profile_server_RESOURCES resources.qrc)
+set(QT_USE_QTNETWORK true)
+set(QT_USE_QTOPENGL true)
+if (WIN32)
+	set (QT_USE_QTMAIN TRUE)
+endif (WIN32) 
 
-#QT4_WRAP_UI(profile_server_UI_HDRS ${profile_server_UI})
-QT4_WRAP_CPP(profile_server_MOC ${profile_server_HEADERS})
-QT4_ADD_RESOURCES(profile_server_RESOURCES_RCC ${profile_server_RESOURCES})
-INCLUDE(${QT_USE_FILE})
-ADD_DEFINITIONS(${QT_DEFINITIONS})
-INCLUDE_DIRECTORIES(${CMAKE_BINARY_DIR})
+#qt4_wrap_ui(profile_server_UI_HDRS ${profile_server_UI})
+qt4_wrap_cpp(profile_server_MOC ${profile_server_HEADERS})
+qt4_add_resources(profile_server_RESOURCES_RCC ${profile_server_RESOURCES})
+include(${QT_USE_FILE})
+add_definitions(${QT_DEFINITIONS})
+include_directories(${CMAKE_BINARY_DIR})
 
-ADD_DEFINITIONS(${QT_DEFINITIONS})
-ADD_DEFINITIONS(-DQT_PLUGIN)
-ADD_DEFINITIONS(-DQT_NO_DEBUG)
-ADD_DEFINITIONS(-DQT_STATIC)
-ADD_DEFINITIONS(-DSTATIC)
+add_definitions(${QT_DEFINITIONS})
+add_definitions(-DQT_PLUGIN)
+add_definitions(-DQT_NO_DEBUG)
+add_definitions(-DQT_STATIC)
+add_definitions(-DSTATIC)
 message("Plugin libs ${QT_PLUGINS_DIR}")
 
 
@@ -93,7 +97,7 @@ macro(QT_ADD_IMG_PLUGINS target)
     FIND_RELEASE_AND_DEBUG(QICO qico qicod "${QT_PLUGINS_DIR}/imageformats")
     FIND_RELEASE_AND_DEBUG(QSVG qsvg qsvgd "${QT_PLUGINS_DIR}/imageformats")
     FIND_RELEASE_AND_DEBUG(QTIFF qtiff qtiffd "${QT_PLUGINS_DIR}/imageformats")
-    FIND_RELEASE_AND_DEBUG(QSVGR QtSvg QtSvgd "C:/devel/QtSDK/QtSources/4.7.4/lib")		# @TODO: fixed path
+	 #FIND_RELEASE_AND_DEBUG(QSVGR QtSvg QtSvgd "C:/devel/QtSDK/QtSources/4.7.4/lib")		# @TODO: fixed path
 
 	message("ico: ${QICO_LIBRARY}")
 	message("svg: ${QSVG_LIBRARY}")
@@ -116,15 +120,15 @@ message("Generated files profile_server_SOURCES ${profile_server_SOURCES}")
 
 #add_library (fprof_client_lib STATIC "${FLOGGING_SOURCE_DIRS}/trace_client/profile.cpp")
 
-ADD_EXECUTABLE(profile_server WIN32
+add_executable(profile_server WIN32
 		${profile_server_MOC}
 		#		${profile_server_UI_HDRS}
 		#${profile_server_UI_SRCS}
 		${profile_server_RESOURCES_RCC}
 		${profile_server_SOURCES})
 
-QT_ADD_IMG_PLUGINS(profile_server)
-TARGET_LINK_LIBRARIES(profile_server ${QT_LIBRARIES} ${QICO} ${QSVG} ${CMAKE_THREAD_LIBS_INIT} ${Boost_LIBRARIES})
+qt_add_img_plugins(profile_server)
+target_link_libraries(profile_server ${QT_LIBRARIES} ${QICO} ${QSVG} ${CMAKE_THREAD_LIBS_INIT} ${Boost_LIBRARIES})
 
 
 
