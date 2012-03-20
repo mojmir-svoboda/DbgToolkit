@@ -107,6 +107,7 @@ public slots:
 	void onLevelValueChanged (int i);
 	QString onCopyToClipboard ();
 	void setFilterFile (int state);
+	void onBufferingStateChanged (int state);
 	void onHandleCommands ();
 	void onCloseTab ();
 	void onInvalidateFilter ();

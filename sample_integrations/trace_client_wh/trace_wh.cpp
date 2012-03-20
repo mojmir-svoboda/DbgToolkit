@@ -3,6 +3,7 @@
 #if defined WIN32 || defined WIN64
 #	define WIN32_LEAN_AND_MEAN
 #	include <windows.h>
+#	include <cstdio>
 
 namespace {
 	template<size_t N>
@@ -190,6 +191,9 @@ int main ()
 int main ()
 #endif
 {
+#if defined WIN32
+	setvbuf(stdout, 0, _IONBF, 0);
+#endif
 	TRACE_APPNAME("WarHorse_App");
 	TRACE_CONNECT();
 	//TRACE_MSG(trace::e_Info, trace::CTX_Default,	"first message"); // not sure if this is a valid case!

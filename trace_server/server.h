@@ -61,6 +61,7 @@ public slots:
 	void onCloseCurrentTab ();
 	void onCloseTab (QWidget * w);
 	void onFilterFile (int state);
+	void onBufferingStateChanged (int state);
 
 protected:
 	friend class MainWindow;

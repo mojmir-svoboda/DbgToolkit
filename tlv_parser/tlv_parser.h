@@ -41,6 +41,7 @@ namespace tlv {
 	static cmd_t const cmd_set_level_ack     = 0xF8;	/// set debug level ack
 	static cmd_t const cmd_set_ctx           = 0xF7;	/// adjust runtime context filtering
 	static cmd_t const cmd_set_ctx_ack       = 0xF6;	/// request context from other party
+	static cmd_t const cmd_set_buffering     = 0xF5;	/// set buffering on/off
                                              
 	static cmd_t const cmd_profile_bgn       = 0xEF;	/// send profiling begin
 	static cmd_t const cmd_profile_end       = 0xEE;	/// send profiling end
@@ -60,6 +61,7 @@ namespace tlv {
 		tag_msg,          /// logged message
 		tag_lvl,          /// logging level
 		tag_ctx,          /// logging context
+		tag_bool,         /// boolean state
 		/** @NOTE: add new tags here **/
 		tag_max_value     /** this should be last line of enum **/
 	};
@@ -78,6 +80,7 @@ namespace tlv {
 		"Msg",
 		"Lvl",
 		"Ctx",
+		"Bool",
 		/** @NOTE: add new tags here **/
 	};
 

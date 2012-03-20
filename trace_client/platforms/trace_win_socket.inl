@@ -144,7 +144,14 @@ namespace trace {
 						{
 							if (cmd.hdr.cmd == tlv::cmd_set_level && cmd.tlvs_count > 0)
 							{
+								printf("level changed!\n");
 								SetRuntimeLevel(static_cast<trace::level_t>(atoi(cmd.tlvs[0].m_val)));
+							}
+
+							if (cmd.hdr.cmd == tlv::cmd_set_buffering && cmd.tlvs_count > 0)
+							{
+								printf("buffering changed! val=%u\n", atoi(cmd.tlvs[0].m_val));
+								SetRuntimeBuffering(static_cast<bool>(atoi(cmd.tlvs[0].m_val)));
 							}
 						}
 					}

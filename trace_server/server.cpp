@@ -108,6 +108,15 @@ void Server::onFilterFile (int state)
 		conn->setFilterFile(state);
 }
 
+void Server::onBufferingStateChanged (int state)
+{
+	if (!static_cast<MainWindow *>(parent())->getTabTrace()->currentWidget())
+		return;
+
+	if (Connection * conn = findCurrentConnection())
+		conn->onBufferingStateChanged(state);
+}
+
 void Server::onClickedAtFileTree (QModelIndex idx)
 {
 	MainWindow * main_window = static_cast<MainWindow *>(parent());
@@ -252,7 +261,13 @@ void Server::incomingConnection (int socketDescriptor)
 	QObject::connect(connection->m_tcpstream, SIGNAL(readyRead()), connection, SLOT(processReadyRead()));
 	QObject::connect(connection->m_tcpstream, SIGNAL(disconnected()), connection, SLOT(onDisconnected()));
 	main_window->statusBar()->showMessage(tr("Incomming connection!"));
+	if (!main_window->buffEnabled())
+	{
+		qDebug("buffering not enabled, notifying client\n");
+		connection->onBufferingStateChanged(0);
+	}
 	emit newConnection(connection);
+	
 
 	// this is supposed to use blocking reads in own thread
 	/*Connection * connection = createNewTableView ();

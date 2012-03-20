@@ -95,6 +95,7 @@ MainWindow::MainWindow(QWidget *parent)
 	connect(getListViewTID(), SIGNAL(doubleClicked(QModelIndex)), m_server, SLOT(onDoubleClickedAtTIDList(QModelIndex)));
 	connect(ui->levelSpinBox, SIGNAL(valueChanged(int)), m_server, SLOT(onLevelValueChanged(int)));
     connect(ui->filterFileCheckBox, SIGNAL(stateChanged(int)), m_server, SLOT(onFilterFile(int)));
+    connect(ui->buffCheckBox, SIGNAL(stateChanged(int)), m_server, SLOT(onBufferingStateChanged(int)));
 	connect(ui->presetComboBox, SIGNAL(activated(int)), this, SLOT(onPresetActivate(int)));
 
 	QTimer::singleShot(0, this, SLOT(loadState()));	// trigger lazy load of settings
@@ -105,6 +106,7 @@ MainWindow::MainWindow(QWidget *parent)
 	ui->reuseTabCheckBox->setToolTip(tr("reuses compatible tab instead of creating new one"));
 	ui->scopesCheckBox->setToolTip(tr("hides scopes if checked"));
 	ui->filterFileCheckBox->setToolTip(tr("enables filtering via fileFilter tab"));
+	ui->buffCheckBox->setToolTip(tr("turns on/off buffering of messages on client side."));
 	ui->presetComboBox->setToolTip(tr("selects and applies saved preset file filter"));
 	ui->levelSpinBox->setToolTip(tr("adjusts debug level of client side"));
 	ui->qSearchLineEdit->setToolTip(tr("search text in logged text"));
@@ -205,6 +207,7 @@ bool MainWindow::scopesEnabled () const { return ui->scopesCheckBox->isChecked()
 bool MainWindow::filterEnabled () const { return ui->filterFileCheckBox->isChecked(); }
 bool MainWindow::reuseTabEnabled () const { return ui->reuseTabCheckBox->isChecked(); }
 bool MainWindow::autoScrollEnabled () const { return ui->autoScrollCheckBox->isChecked(); }
+bool MainWindow::buffEnabled () const { return ui->buffCheckBox->isChecked(); }
 
 void MainWindow::setLevel (int i)
 {
@@ -559,6 +562,7 @@ void MainWindow::storeState ()
 	settings.setValue("reuseTabCheckBox", ui->reuseTabCheckBox->isChecked());
 	settings.setValue("scopesCheckBox", ui->scopesCheckBox->isChecked());
 	settings.setValue("filterFileCheckBox", ui->filterFileCheckBox->isChecked());
+	settings.setValue("buffCheckBox", ui->buffCheckBox->isChecked());
 
 	write_list_of_strings(settings, "known-applications", "application", m_app_names);
 	for (size_t i = 0, ie = m_app_names.size(); i < ie; ++i)
@@ -604,6 +608,7 @@ void MainWindow::loadState ()
 	ui->reuseTabCheckBox->setChecked(settings.value("reuseTabCheckBox", false).toBool());
 	ui->scopesCheckBox->setChecked(settings.value("scopesCheckBox", false).toBool());
 	ui->filterFileCheckBox->setChecked(settings.value("filterFileCheckBox", false).toBool());
+	ui->buffCheckBox->setChecked(settings.value("buffCheckBox", false).toBool());
 
 	read_list_of_strings(settings, "known-applications", "application", m_app_names);
 	for (size_t i = 0, ie = m_app_names.size(); i < ie; ++i)

@@ -100,6 +100,7 @@ public:
 	bool autoScrollEnabled () const;
 	bool reuseTabEnabled () const;
 	bool filterEnabled () const;
+	bool buffEnabled () const;
 	void changeEvent (QEvent* e);
 	void dropEvent (QDropEvent * event);
 	void dragEnterEvent (QDragEnterEvent *event);

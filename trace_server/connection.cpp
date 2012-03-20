@@ -124,6 +124,26 @@ void Connection::onLevelValueChanged (int val)
 	}
 }
 
+void Connection::onBufferingStateChanged (int val)
+{
+	char tlv_buff[16];
+#ifdef __linux__
+	int const result = snprintf(tlv_buff, 16, "%u", val);
+#else
+	int const result = _snprintf(tlv_buff, 16, "%u", val);
+#endif
+
+	if (result > 0)
+	{
+		char buff[256];
+		using namespace tlv;
+		Encoder e(cmd_set_buffering, buff, 256);
+		e.Encode(TLV(tag_bool, tlv_buff));
+		if (m_tcpstream && e.Commit())
+			m_tcpstream->write(e.buffer, e.total_len); /// @TODO: async write
+	}
+}
+
 QString Connection::onCopyToClipboard ()
 {
 	QAbstractItemModel * model = m_table_view_widget->model();
