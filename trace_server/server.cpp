@@ -223,7 +223,8 @@ Connection * Server::createNewTableView ()
 	QTableView * tableView = new QTableView(tab);
 	tableView->setObjectName(QString::fromUtf8("tableView"));
 	ModelView * model = new ModelView(tableView, connection);
-	tableView->verticalHeader()->setDefaultSectionSize(13);
+    //tableView->verticalHeader()->setFont(QFont(""));
+	tableView->verticalHeader()->setDefaultSectionSize(14);
 	tableView->setModel(model);
 	horizontalLayout->addWidget(tableView);
 	connection->setTableViewWidget(tableView);

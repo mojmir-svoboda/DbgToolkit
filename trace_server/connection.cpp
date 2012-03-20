@@ -200,8 +200,15 @@ void Connection::findTextInColumn (QString const & text, int col, int from_row, 
 		{
 			m_table_view_widget->selectionModel()->setCurrentIndex(idx, QItemSelectionModel::Select);
 			m_last_search_row = idx.row();
+
+            m_table_view_widget->scrollTo(m_table_view_proxy ? m_table_view_proxy->mapFromSource(idx) : idx, QTableView::PositionAtCenter);
 			return;
 		}
+	}
+	{
+		qDebug("end of search");
+		// flash icon
+		m_last_search_row = 0;
 	}
 }
 
@@ -568,6 +575,11 @@ void Connection::onTableClicked (QModelIndex const & row_index)
 	QModelIndexList indexList = m_list_view_tid_model->match(m_list_view_tid_model->index(0, 0), Qt::DisplayRole, tid);
 	QModelIndex selectedIndex(indexList.first());
 	m_main_window->getListViewTID()->setCurrentIndex(selectedIndex);
+
+
+	// set search from this line
+	m_last_search_row = row_index.row();
+	//m_table_view_widget->scrollTo(m_table_view_proxy ? m_table_view_proxy->mapFromSource(idx) : idx, QTableView::PositionAtCenter);
 }
 
 bool Connection::handleSetupCommand (DecodedCommand const & cmd)

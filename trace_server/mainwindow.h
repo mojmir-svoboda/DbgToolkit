@@ -24,6 +24,7 @@
 
 #include <QMainWindow>
 #include <QTimer>
+#include <QComboBox>
 #include <QTreeView>
 #include <QSystemTrayIcon>
 #include "server.h"
@@ -91,8 +92,8 @@ public:
 	QList<QColor> const & getThreadColors () const { return m_thread_colors; }
 	QTreeView * getTreeViewFile ();
 	QTreeView const * getTreeViewFile () const;
-	QTreeView * getTreeViewFunc ();
-	QTreeView const * getTreeViewFunc () const;
+    QComboBox * getFilterRegex ();
+    QComboBox const * getFilterRegex () const;
 	QListView * getListViewTID ();
 	QListView const * getListViewTID () const;
 	void setLevel (int i);

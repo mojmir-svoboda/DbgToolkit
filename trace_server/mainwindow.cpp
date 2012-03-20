@@ -79,7 +79,7 @@ MainWindow::MainWindow(QWidget *parent)
 		}
 	}
 	ui->qSearchComboBox->addItem(".*");
-	ui->qSearchComboBox->setCurrentIndex(ui->qSearchComboBox->findData(msg_tag)); // weird
+	ui->qSearchComboBox->setCurrentIndex(ui->qSearchComboBox->findText(msg_tag));
 
 
 	m_timer->setInterval(5000);
@@ -198,8 +198,8 @@ QTabWidget * MainWindow::getTabTrace () { return ui->tabTrace; }
 QTabWidget const * MainWindow::getTabTrace () const { return ui->tabTrace; }
 QTreeView * MainWindow::getTreeViewFile () { return ui->treeViewFile; }
 QTreeView const * MainWindow::getTreeViewFile () const { return ui->treeViewFile; }
-QTreeView * MainWindow::getTreeViewFunc () { return ui->treeViewFunc; }
-QTreeView const * MainWindow::getTreeViewFunc () const { return ui->treeViewFunc; }
+QComboBox * MainWindow::getFilterRegex () { return ui->comboBoxRegex; }
+QComboBox const * MainWindow::getFilterRegex () const { return ui->comboBoxRegex; }
 QListView * MainWindow::getListViewTID () { return ui->listViewTID; }
 QListView const * MainWindow::getListViewTID () const { return ui->listViewTID; }
 
@@ -233,6 +233,7 @@ void MainWindow::onQSearchEditingFinished ()
 	QString text = ui->qSearchLineEdit->text();
 	QString qcolumn = ui->qSearchComboBox->currentText();
 	bool const search_all = (qcolumn == ".*");
+	qDebug("onQSearchEditingFinished: col=%s text=%s", qcolumn.toStdString().c_str(), text.toStdString().c_str());
 	
 	if (search_all)
 	{
