@@ -32,7 +32,7 @@
     Q_IMPORT_PLUGIN(qsvg);
 #endif
 
-MainWindow::MainWindow(QWidget *parent)
+MainWindow::MainWindow (QWidget * parent, bool quit_delay)
 	: QMainWindow(parent)
 	, ui(new Ui::MainWindow)
 	, m_settings(new Ui::SettingsDialog)
@@ -61,7 +61,7 @@ MainWindow::MainWindow(QWidget *parent)
 	setAcceptDrops(true);
 	qApp->installEventFilter(this);
 
-	m_server = new Server(this);
+	m_server = new Server(this, quit_delay);
 	showServerStatus();
 	connect(ui->qSearchLineEdit, SIGNAL(editingFinished()), this, SLOT(onQSearchEditingFinished()));
 

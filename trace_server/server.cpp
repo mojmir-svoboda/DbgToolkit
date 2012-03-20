@@ -15,13 +15,20 @@ void SaveTableViewSettings (QTableView * tb)
 	settings.setValue("column_width", state);
 }
 
-Server::Server(QObject *parent)
+Server::Server (QObject * parent, bool quit_delay)
 	: QTcpServer(parent)
 {
 	QHostAddress addr(QHostAddress::LocalHost);
 	if (!listen(addr, default_port)) {
 		status = tr("Unable to start server! Reason: %1").arg(errorString());
-		QTimer::singleShot(5000, qApp, SLOT(quit()));
+		if (quit_delay)
+			QTimer::singleShot(5000, qApp, SLOT(quit()));
+		else
+		{
+			printf("Another instance already running!\n");
+			exit(0);
+			//QTimer::singleShot(0, qApp, SLOT(quit()));
+		}
 		return;
 	}
 

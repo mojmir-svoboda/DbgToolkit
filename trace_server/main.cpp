@@ -35,8 +35,48 @@ struct Application : QApplication
 #endif
 };
 
+void usage ()
+{
+	printf("\n(f)Logging server, Copyright (C) 2011 Mojmir Svoboda\n");
+	printf("http://developer.berlios.de/projects/flogging\n\n");
+	printf("Available options:\n");
+	printf("    -q    quit immeadiately if another instance running\n");
+	printf("    -n    no visible window at start (can be activated by ScrollLock hotkey)\n");
+}
+
 int main(int argc, char *argv[])
 {
+	bool quit_delay = true;
+	bool start_hidden = false;
+    for (int i = 1; i < argc; ++i)
+    {
+        if (argv[i][0] != '-')
+        {
+            //foo.push_back(argv[i]);
+            continue;
+        }
+
+        // if there's a flag but no argument following, ignore it
+        if (argc == i) continue;
+        char const * arg = argv[i+1];
+        switch (argv[i][1])
+        {
+            case 'q':
+				quit_delay = false;
+				break;
+            case 'n':
+				start_hidden = true;
+				break;
+			case 'h':
+				usage();
+				return 0;
+			default:
+				printf("Invalid option, use -h for Help\n");
+				return 0;
+		}
+        ++i; // skip the argument
+    }
+
 	Application a(argc, argv);
 
 #ifdef WIN32
@@ -46,9 +86,15 @@ int main(int argc, char *argv[])
 	}
 #endif
 
-	MainWindow w;
-	w.setVisible(true);
-	w.show();
+	MainWindow w(0, quit_delay);
+
+	if (!start_hidden)
+	{
+		w.setVisible(true);
+		w.show();
+	}
 	a.setMainWindow(&w);
+	if (start_hidden)
+		w.onHotkeyShowOrHide();
 	return a.exec();
 }
