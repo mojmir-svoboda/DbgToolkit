@@ -17,6 +17,7 @@
 #include <QDropEvent>
 #include <QDragEnterEvent>
 #include <QItemDelegate>
+#include <QStandardItemModel>
 #include <QUrl>
 #include <QtPlugin>
 #include "settings.h"
@@ -45,7 +46,7 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay)
 	, m_quit_action(0)
 	, m_tray_menu(0)
 	, m_tray_icon(0)
-
+	, m_list_view_regex_model(0)
 {
     //QDir::setSearchPaths("icons", QStringList(QDir::currentPath()));
 	ui->setupUi(this);
@@ -97,6 +98,13 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay)
     connect(ui->filterFileCheckBox, SIGNAL(stateChanged(int)), m_server, SLOT(onFilterFile(int)));
     connect(ui->buffCheckBox, SIGNAL(stateChanged(int)), m_server, SLOT(onBufferingStateChanged(int)));
 	connect(ui->presetComboBox, SIGNAL(activated(int)), this, SLOT(onPresetActivate(int)));
+
+	connect(ui->comboBoxRegex, SIGNAL(activated(int)), this, SLOT(onRegexActivate(int)));
+	connect(ui->buttonAddRegex, SIGNAL(clicked()), this, SLOT(onRegexAdd()));
+	connect(ui->buttonRmRegex, SIGNAL(clicked()), this, SLOT(onRegexRm()));
+	if (!m_list_view_regex_model)
+		m_list_view_regex_model = new QStandardItemModel;
+	getListViewRegex()->setModel(m_list_view_regex_model);
 
 	QTimer::singleShot(0, this, SLOT(loadState()));	// trigger lazy load of settings
 
@@ -200,6 +208,8 @@ QTreeView * MainWindow::getTreeViewFile () { return ui->treeViewFile; }
 QTreeView const * MainWindow::getTreeViewFile () const { return ui->treeViewFile; }
 QComboBox * MainWindow::getFilterRegex () { return ui->comboBoxRegex; }
 QComboBox const * MainWindow::getFilterRegex () const { return ui->comboBoxRegex; }
+QListView * MainWindow::getListViewRegex () { return ui->listViewRegex; }
+QListView const * MainWindow::getListViewRegex () const { return ui->listViewRegex; }
 QListView * MainWindow::getListViewTID () { return ui->listViewTID; }
 QListView const * MainWindow::getListViewTID () const { return ui->listViewTID; }
 
@@ -410,6 +420,99 @@ void MainWindow::onPresetActivate (int idx)
 		conn->sessionState().appendFileFilter(filter_item);
 		conn->onInvalidateFilter();
 	}
+}
+
+void MainWindow::onRegexActivate (int idx)
+{
+	if (idx == -1) return;
+	if (!getTabTrace()->currentWidget()) return;
+
+	Connection * conn = m_server->findCurrentConnection();
+	if (!conn) return;
+
+	onRegexAdd();
+}
+
+	// @TODO: these two functions are exact duplicates from connection.cpp! remove dup
+	inline QList<QStandardItem *> addRow (QString const & str, bool checked = false)
+	{
+		QList<QStandardItem *> row_items;
+		QStandardItem * name_item = new QStandardItem(str);
+		name_item->setCheckable(true);
+		name_item->setCheckState(checked ? Qt::Checked : Qt::Unchecked);
+		row_items << name_item;
+		return row_items;
+	}
+	inline QStandardItem * findChildByText (QStandardItem * parent, QString const & txt)
+	{
+		for (size_t i = 0, ie = parent->rowCount(); i < ie; ++i)
+		{
+			if (parent->child(i)->text() == txt)
+				return parent->child(i);
+		}
+		return 0;
+	}
+
+void MainWindow::onRegexAdd ()
+{
+	QString qItem = ui->comboBoxRegex->currentText();
+	QStandardItem * root = m_list_view_regex_model->invisibleRootItem();
+	QStandardItem * child = findChildByText(root, qItem);
+	if (child == 0)
+	{
+		QList<QStandardItem *> row_items = addRow(qItem, false);
+		root->appendRow(row_items);
+		m_filter_regexs.append(qItem);
+	}
+
+	recompileRegexps();
+}
+
+void MainWindow::onRegexRm ()
+{
+	QStandardItemModel * model = static_cast<QStandardItemModel *>(getListViewRegex()->model());
+	QModelIndex const idx = getListViewRegex()->currentIndex();
+	QStandardItem * item = model->itemFromIndex(idx);
+	if (!item)
+		return;
+	QString const & val = model->data(idx, Qt::DisplayRole).toString();
+	model->removeRow(idx.row());
+	m_filter_regexs.removeOne(val);
+
+	recompileRegexps();
+}
+
+void MainWindow::recompileRegexps ()
+{
+	m_regexps.clear();
+
+	for (int i = 0, ie = m_filter_regexs.size(); i < ie; ++i)
+	{
+		QStandardItem * root = m_list_view_regex_model->invisibleRootItem();
+		QStandardItem * child = findChildByText(root, m_filter_regexs.at(i));
+		QRegExp regex(QRegExp(m_filter_regexs.at(i)));
+		if (regex.isValid())
+		{
+			m_regexps.append(regex);
+			if (child)
+			{
+				child->setData(QBrush(Qt::green), Qt::BackgroundRole);
+				child->setToolTip(tr("ok"));
+			}
+		}
+		else
+		{
+			if (child)
+			{
+				child->setData(QBrush(Qt::red), Qt::BackgroundRole);
+				child->setToolTip(regex.errorString());
+			}
+		}
+	}
+
+	Connection * conn = m_server->findCurrentConnection();
+	if (conn)
+		conn->onInvalidateFilter();
 }
 
 void MainWindow::onSaveCurrentFileFilter ()

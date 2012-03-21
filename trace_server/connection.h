@@ -63,7 +63,7 @@ class FilterProxyModel : public QSortFilterProxyModel
 	Q_OBJECT
 
 public:
-	FilterProxyModel (QObject * parent, SessionState & ss);
+	FilterProxyModel (QObject * parent, QList<QRegExp> const & r, SessionState & ss);
 
 public slots:
 	void force_update();
@@ -71,6 +71,7 @@ public slots:
 protected:
 	bool filterAcceptsRow (int sourceRow, QModelIndex const & sourceParent) const;
 	SessionState & m_session_state;
+	QList<QRegExp> const & m_regexps;
 };
 
 
@@ -94,6 +95,7 @@ public:
 	void findText (QString const & text);
 	void findNext ();
 	void findPrev ();
+	void appendToRegexFilters (std::string const & item);
 
 	void run ();
 

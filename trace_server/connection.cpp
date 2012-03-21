@@ -662,7 +662,8 @@ bool Connection::handleLogCommand (DecodedCommand const & cmd)
 }
 
 //////////////////// filtering stuff //////////////////////////////
-FilterProxyModel::FilterProxyModel (QObject * parent, SessionState & ss) : QSortFilterProxyModel(parent), m_session_state(ss) { }
+FilterProxyModel::FilterProxyModel (QObject * parent, QList<QRegExp> const & r, SessionState & ss)
+	: QSortFilterProxyModel(parent), m_session_state(ss), m_regexps(r) { }
 
 void FilterProxyModel::force_update ()
 {
@@ -697,8 +698,26 @@ bool FilterProxyModel::filterAcceptsRow (int sourceRow, QModelIndex const & /*so
 		tid = sourceModel()->data(data_idx).toString();
 	}
 
+	bool regex_accept = true;
+	if (m_regexps.size() > 0)
+	{
+		regex_accept = false;
+		QString msg;
+		int const msg_idx = m_session_state.findColumn4Tag(tlv::tag_msg);
+		if (msg_idx >= 0)
+		{
+			QModelIndex data_idx = sourceModel()->index(sourceRow, msg_idx, QModelIndex());
+			msg = sourceModel()->data(data_idx).toString();
+		}
+
+		for (int i = 0, ie = m_regexps.size(); i < ie; ++i)
+		{
+			regex_accept |= m_regexps[i].exactMatch(msg);
+		}
+	}
+
 	excluded |= m_session_state.isTIDExcluded(tid.toStdString());
-	return !excluded;
+	return !excluded && regex_accept;
 }
 
 void Connection::onInvalidateFilter ()
@@ -717,7 +736,7 @@ void Connection::setFilterFile (int state)
 	{
 		if (!m_table_view_proxy)
 		{
-			m_table_view_proxy = new FilterProxyModel(this, m_session_state);
+			m_table_view_proxy = new FilterProxyModel(this, m_main_window->getRegexps(), m_session_state);
 
 			m_table_view_proxy->setSourceModel(m_table_view_widget->model());
 			m_table_view_widget->setModel(m_table_view_proxy);

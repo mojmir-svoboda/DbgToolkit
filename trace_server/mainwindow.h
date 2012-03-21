@@ -38,6 +38,7 @@ class QSystemTrayIcon;
 class QAction;
 class QMenu;
 class QListView;
+class QStandardItemModel;
 
 class MainWindow : public QMainWindow
 {
@@ -50,6 +51,7 @@ public:
 	QTabWidget * getTabTrace ();
 	QTabWidget const * getTabTrace () const;
 
+	typedef QList<QString> filter_regexs_t;
 	typedef QList<QString> filter_preset_t;
 	typedef QList<filter_preset_t> filter_presets_t;
 	typedef QList<QString> columns_setup_t;
@@ -58,6 +60,9 @@ public:
 	columns_setup_t & getColumnSetup (size_t i) { return m_columns_setup[i]; }
 	columns_sizes_t const & getColumnSizes (size_t i) const { return m_columns_sizes.at(i); }
 	columns_sizes_t & getColumnSizes (size_t i) { return m_columns_sizes[i]; }
+	QList<QRegExp> const & getRegexps () const { return m_regexps; }
+	filter_regexs_t const & getFilterRegexs () const { return m_filter_regexs; }
+	filter_regexs_t & getFilterRegexs () { return m_filter_regexs; }
 	filter_preset_t const & getFilterPresets (size_t i) const { return m_filter_presets.at(i); }
 	filter_preset_t & getFilterPresets (size_t i) { return m_filter_presets[i]; }
 	int findPresetName (QString const & name)
@@ -94,6 +99,8 @@ public:
 	QTreeView const * getTreeViewFile () const;
     QComboBox * getFilterRegex ();
     QComboBox const * getFilterRegex () const;
+	QListView * getListViewRegex ();
+	QListView const * getListViewRegex () const;
 	QListView * getListViewTID ();
 	QListView const * getListViewTID () const;
 	void setLevel (int i);
@@ -130,7 +137,11 @@ private slots:
 	void iconActivated (QSystemTrayIcon::ActivationReason reason);
 	void onSaveCurrentFileFilter ();
 	void onPresetActivate (int idx);
+	void onRegexActivate (int idx);
 	void onQSearchEditingFinished ();
+	void onRegexAdd ();
+	void onRegexRm ();
+	void recompileRegexps ();
 
 private:
 	void showServerStatus ();
@@ -147,6 +158,8 @@ private:
 	QList<QColor> m_thread_colors;				/// predefined coloring of threads
 	QList<QString> m_preset_names;				/// registered presets
 	filter_presets_t m_filter_presets;			/// list of strings for each preset
+	filter_regexs_t m_filter_regexs;
+	QList<QRegExp> m_regexps;
 	QString m_last_search;
 	QTimer * m_timer;
 	Server * m_server;
@@ -156,6 +169,7 @@ private:
 	QAction * m_quit_action;
 	QMenu * m_tray_menu;
 	QSystemTrayIcon * m_tray_icon;
+	QStandardItemModel * m_list_view_regex_model;
 };
 
 #endif // MAINWINDOW_H
