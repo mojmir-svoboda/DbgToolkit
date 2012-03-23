@@ -27,4 +27,28 @@ namespace profile {
 			msg.m_length = e.total_len;
 		}
 	}
+
+	inline void encode_end (sys::msg_t & msg, char const * fmt, va_list args)
+	{
+		using namespace tlv;
+		tlv::Encoder e(tlv::cmd_profile_end, msg.m_data, sys::msg_t::e_data_sz);
+		encode_common_fields(e);
+		encode_va_fields(e, fmt, args);
+		if (e.Commit())
+		{
+			msg.m_length = e.total_len;
+		}
+	}
+
+	inline void encode_frame_end (sys::msg_t & msg, char const * fmt, va_list args)
+	{
+		using namespace tlv;
+		tlv::Encoder e(tlv::cmd_profile_frame_end, msg.m_data, sys::msg_t::e_data_sz);
+		encode_common_fields(e);
+		encode_va_fields(e, fmt, args);
+		if (e.Commit())
+		{
+			msg.m_length = e.total_len;
+		}
+	}
 }

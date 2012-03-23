@@ -204,6 +204,15 @@ namespace profile {
 		socks::g_ThreadSend.Close();
 	}
 
+	inline void WriteBgn_Impl ()
+	{
+		sys::msg_t & msg = socks::acquire_msg_buffer();
+		msg.WriteLock();
+		{
+			encode_bgn(msg);
+		}
+		msg.WriteUnlockAndDirty();
+	}
 	inline void WriteBgnVA (char const * fmt, va_list args)
 	{
 		sys::msg_t & msg = socks::acquire_msg_buffer();
@@ -214,7 +223,7 @@ namespace profile {
 		msg.WriteUnlockAndDirty();
 	}
 
-	inline void WriteEnd ()
+	inline void WriteEnd_Impl ()
 	{
 		sys::msg_t & msg = socks::acquire_msg_buffer();
 		msg.WriteLock();
@@ -223,7 +232,25 @@ namespace profile {
 		}
 		msg.WriteUnlockAndDirty();
 	}
+	inline void WriteEndVA (char const * fmt, va_list args)
+	{
+		sys::msg_t & msg = socks::acquire_msg_buffer();
+		msg.WriteLock();
+		{
+			encode_end(msg, fmt, args);
+		}
+		msg.WriteUnlockAndDirty();
+	}
 
+	inline void WriteFrameBgn_Impl ()
+	{
+		sys::msg_t & msg = socks::acquire_msg_buffer();
+		msg.WriteLock();
+		{
+			encode_frame_bgn(msg);
+		}
+		msg.WriteUnlockAndDirty();
+	}
 	inline void WriteFrameBgnVA (char const * fmt, va_list args)
 	{
 		sys::msg_t & msg = socks::acquire_msg_buffer();
@@ -234,12 +261,21 @@ namespace profile {
 		msg.WriteUnlockAndDirty();
 	}
 
-	inline void WriteFrameEnd ()
+	inline void WriteFrameEnd_Impl ()
 	{
 		sys::msg_t & msg = socks::acquire_msg_buffer();
 		msg.WriteLock();
 		{
 			encode_frame_end(msg);
+		}
+		msg.WriteUnlockAndDirty();
+	}
+	inline void WriteFrameEndVA (char const * fmt, va_list args)
+	{
+		sys::msg_t & msg = socks::acquire_msg_buffer();
+		msg.WriteLock();
+		{
+			encode_frame_end(msg, fmt, args);
 		}
 		msg.WriteUnlockAndDirty();
 	}

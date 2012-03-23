@@ -67,11 +67,11 @@
 /**	@macro		PROFILE_MSG
  *	@brief		logging of the form PROFILE_MSG(lvl, ctx, fmt, ...)
  **/
-#	define PROFILE_BGN(fmt, ... )	profile::WriteBgn(fmt, __VA_ARGS__)
-#	define PROFILE_END()            profile::WriteEnd()
+#	define PROFILE_BGN	profile::WriteBgn
+#	define PROFILE_END   profile::WriteEnd
 
-#	define PROFILE_FRAME_BGN(fmt, ... )	profile::WriteFrameBgn(fmt, __VA_ARGS__)
-#	define PROFILE_FRAME_END()          profile::WriteFrameEnd()
+#	define PROFILE_FRAME_BGN   profile::WriteFrameBgn
+#	define PROFILE_FRAME_END   profile::WriteFrameEnd
 
 
 /**	@macro		PROFILE_MSG_VA
@@ -107,14 +107,18 @@
 #elif defined _MSC_VER
 		PROFILE_API void WriteBgn (char const * fmt, ...);
 #endif
+		PROFILE_API void WriteBgn ();
 		PROFILE_API void WriteEnd ();
+		PROFILE_API void WriteEnd (char const * fmt, ...);
 
 #if defined __GCC__ || defined __MINGW32__ || defined __linux__
 		PROFILE_API void WriteFrameBgn (char const * fmt, ...) __attribute__ ((format(printf, 1, 2) ));
 #elif defined _MSC_VER
 		PROFILE_API void WriteFrameBgn (char const * fmt, ...);
 #endif
+		PROFILE_API void WriteFrameBgn ();
 		PROFILE_API void WriteFrameEnd ();
+		PROFILE_API void WriteFrameEnd (char const * fmt, ...);
 
 
 		/**@class	ScopedProfile

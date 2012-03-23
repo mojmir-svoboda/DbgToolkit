@@ -121,6 +121,7 @@ bool Connection::handleProfileCommand (DecodedCommand const & cmd)
 		bi.m_time_bgn = time;
 		bi.m_tid = tid;
 		bi.m_msg = text;
+		printf("layer=%u ");
 		bi.m_layer = m_profileInfo.m_pending_infos[tid_idx].size();
 		bi.m_frame = m_profileInfo.m_frame;
 	}
@@ -132,6 +133,7 @@ bool Connection::handleProfileCommand (DecodedCommand const & cmd)
 		m_profileInfo.m_pending_infos[tid_idx].pop_back();
 
 		bi.m_time_end = time;
+		bi.m_msg.append(text);
 		bi.complete();
 		m_profileInfo.m_completed_frame_infos[bi.m_frame][tid_idx].push_back(bi);
 	}

@@ -19,6 +19,19 @@
 			WriteBgnVA(fmt, args);
 			va_end(args);
 		}
+		void WriteBgn_Impl ();
+		void WriteBgn () { WriteBgn_Impl(); }
+
+		void WriteEndVA (char const * fmt, va_list args);
+		void WriteEnd (char const * fmt, ...)
+		{
+			va_list args;
+			va_start(args, fmt);
+			WriteEndVA(fmt, args);
+			va_end(args);
+		}
+		void WriteEnd_Impl ();
+		void WriteEnd () { WriteEnd_Impl(); }
 
 		void WriteFrameBgnVA (char const * fmt, va_list args);
 		void WriteFrameBgn (char const * fmt, ...)
@@ -28,6 +41,19 @@
 			WriteFrameBgnVA(fmt, args);
 			va_end(args);
 		}
+		void WriteFrameBgn_Impl();
+		void WriteFrameBgn () { WriteFrameBgn_Impl(); }
+
+		void WriteFrameEndVA (char const * fmt, va_list args);
+		void WriteFrameEnd (char const * fmt, ...)
+		{
+			va_list args;
+			va_start(args, fmt);
+			WriteFrameEndVA(fmt, args);
+			va_end(args);
+		}
+		void WriteFrameEnd_Impl ();
+		void WriteFrameEnd () { WriteFrameEnd_Impl(); }
 
 		ScopedProfile::ScopedProfile (char const * fmt, ...)
 		{
@@ -41,12 +67,6 @@
 		{
 			WriteEnd();
 		}
-
-		void link_foo () // @TODO: grr, just to force link - it's late and i'm lazy
-		{
-			WriteFrameEnd ();
-		}
-
 	}
 #	include "platforms/profile_select_platform.inl"
 

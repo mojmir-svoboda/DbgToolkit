@@ -712,7 +712,11 @@ bool FilterProxyModel::filterAcceptsRow (int sourceRow, QModelIndex const & /*so
 
 		for (int i = 0, ie = m_regexps.size(); i < ie; ++i)
 		{
-			regex_accept |= m_regexps[i].exactMatch(msg);
+			QStandardItemModel * model = static_cast<QStandardItemModel *>(getListViewRegex()->model());
+			QStandardItem * root = m_list_view_regex_model->invisibleRootItem();
+			QStandardItem * child = findChildByText(root, m_filter_regexs.at(i));
+			if (child->isChecked())
+				regex_accept |= getListViewRegex()-> m_regexps[i].exactMatch(msg);
 		}
 	}
 

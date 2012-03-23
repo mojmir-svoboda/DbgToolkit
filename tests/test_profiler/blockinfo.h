@@ -12,8 +12,10 @@ struct BlockInfo
 	unsigned long long m_tid;
 	unsigned long long m_layer;
 	std::string m_msg;
+	std::string m_tag
+	BlockInfo * m_Parent;
 
-	BlockInfo () : m_frame(0), m_time_bgn(0), m_time_end(0), m_delta_t(0), m_tid(0), m_layer(0) { }
+	BlockInfo () : m_frame(0), m_time_bgn(0), m_time_end(0), m_delta_t(0), m_tid(0), m_layer(0), m_Parent(0) { }
 
 	void complete ()
 	{

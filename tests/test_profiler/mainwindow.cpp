@@ -55,7 +55,12 @@ void MainWindow::populateScene()
 				for (size_t b = 0, be = bis.size(); b < be; ++b)
 				{
 					BlockInfo & block = bis[b];
-					colors[block.m_msg] = Qt::gray;
+					block.m_tag = block.m_msg;
+					size_t const l = block.m_tag.find('[');
+					size_t const r = block.m_tag.find(']');
+					if (l != std::string::npos && r != std::string::npos)
+						block.m_tag.erase(l, r - l);
+					colors[block.m_tag] = Qt::gray;
 				}
 			}
 		}
@@ -95,7 +100,7 @@ void MainWindow::populateScene()
 					//printf("f=%2u t=%2u b=%2u    x=%6.1f y=%6.1f w=%4i h=%4i\n", f, t, b, x, y, w, h); fflush(stdout);
 
 					QColor color = Qt::white;
-					colormap_t::iterator it = colors.find(block.m_msg);
+					colormap_t::iterator it = colors.find(block.m_tag);
 					if (it != colors.end())
 					{
 						HSV hsv = ucolors[std::distance(colors.begin(), it)];
