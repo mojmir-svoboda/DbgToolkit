@@ -116,26 +116,40 @@ bool Connection::handleProfileCommand (DecodedCommand const & cmd)
 
 	if (cmd.hdr.cmd == tlv::cmd_profile_bgn)
 	{
-		m_profileInfo.m_pending_infos[tid_idx].push_back(BlockInfo());
-		BlockInfo & bi = m_profileInfo.m_pending_infos[tid_idx].back();
+		BlockInfo * prev = 0;
+		if (m_profileInfo.m_pending_infos[tid_idx].size())
+			prev = m_profileInfo.m_pending_infos[tid_idx].back();
+		m_profileInfo.m_bi_ptrs.push_back(new BlockInfo());
+		m_profileInfo.m_pending_infos[tid_idx].push_back(m_profileInfo.m_bi_ptrs.back());
+		BlockInfo & bi = *m_profileInfo.m_pending_infos[tid_idx].back();
 		bi.m_time_bgn = time;
 		bi.m_tid = tid;
 		bi.m_msg = text;
-		printf("layer=%u ");
-		bi.m_layer = m_profileInfo.m_pending_infos[tid_idx].size();
+		bi.m_layer = m_profileInfo.m_pending_infos[tid_idx].size() - 1;
 		bi.m_frame = m_profileInfo.m_frame;
+		bi.m_parent = prev;
 	}
 	else if (cmd.hdr.cmd == tlv::cmd_profile_end)
 	{
 		unsigned const frame_idx = m_profileInfo.m_frame;
 
-		BlockInfo bi = m_profileInfo.m_pending_infos[tid_idx].back();
+		BlockInfo * bi = m_profileInfo.m_pending_infos[tid_idx].back();
 		m_profileInfo.m_pending_infos[tid_idx].pop_back();
 
-		bi.m_time_end = time;
-		bi.m_msg.append(text);
-		bi.complete();
-		m_profileInfo.m_completed_frame_infos[bi.m_frame][tid_idx].push_back(bi);
+		bi->m_time_end = time;
+		bi->m_msg.append(text);
+		bi->complete();
+
+		/*unsigned layer = 0;
+		printf("dump: %s\n", bi->m_msg.c_str());
+		BlockInfo * parent = bi;
+		while (parent)
+		{
+			++layer;
+			printf("\tblock: %s,		layer=%u this=%x parent=%u\n", parent->m_msg.c_str(), layer, parent, parent->m_parent);
+			parent = parent->m_parent;
+		}*/
+		m_profileInfo.m_completed_frame_infos[bi->m_frame][tid_idx].push_back(bi);
 	}
 
 	return true;

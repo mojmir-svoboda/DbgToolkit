@@ -11,11 +11,13 @@ struct BlockInfo
 	unsigned long long m_delta_t;
 	unsigned long long m_tid;
 	unsigned long long m_layer;
+	float m_x;
+	float m_y;
 	std::string m_msg;
-	std::string m_tag
-	BlockInfo * m_Parent;
+	std::string m_tag;
+	BlockInfo * m_parent;
 
-	BlockInfo () : m_frame(0), m_time_bgn(0), m_time_end(0), m_delta_t(0), m_tid(0), m_layer(0), m_Parent(0) { }
+	BlockInfo () : m_frame(0), m_time_bgn(0), m_time_end(0), m_delta_t(0), m_tid(0), m_layer(0), m_parent(0) { }
 
 	void complete ()
 	{
@@ -24,7 +26,7 @@ struct BlockInfo
 	}
 };
 
-typedef std::vector<BlockInfo> blockinfos_t;
+typedef std::vector<BlockInfo *> blockinfos_t;
 typedef std::vector<blockinfos_t> pendinginfos_t;
 
 typedef std::vector<blockinfos_t> threadinfos_t;
@@ -33,6 +35,8 @@ typedef std::vector<threadinfos_t> frameinfos_t;
 struct ProfileInfo
 {
 	ProfileInfo () : m_frame(0), m_frame_begin(0) { }
+
+	blockinfos_t m_bi_ptrs;
 
 	pendinginfos_t m_pending_infos;
 	std::vector<unsigned long long> m_tids;

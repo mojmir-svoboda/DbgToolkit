@@ -46,21 +46,26 @@ void MainWindow::populateScene()
 		typedef std::map<std::string, QColor> colormap_t;
 		colormap_t colors;
 
+		std::vector<unsigned> max_layers;
+
 		for (size_t f = 0, fe = pi.m_completed_frame_infos.size(); f < fe; ++f)
 		{
 			threadinfos_t & tis = pi.m_completed_frame_infos[f];
 			for (size_t t = 0, te = tis.size(); t < te; ++t)
 			{
+				max_layers.push_back(0);
 				blockinfos_t & bis = tis[t];
 				for (size_t b = 0, be = bis.size(); b < be; ++b)
 				{
-					BlockInfo & block = bis[b];
+					BlockInfo & block = *bis[b];
 					block.m_tag = block.m_msg;
 					size_t const l = block.m_tag.find('[');
 					size_t const r = block.m_tag.find(']');
 					if (l != std::string::npos && r != std::string::npos)
 						block.m_tag.erase(l, r - l);
 					colors[block.m_tag] = Qt::gray;
+					if (block.m_layer >= max_layers[t])
+						max_layers[t] = block.m_layer;
 				}
 			}
 		}
@@ -85,18 +90,22 @@ void MainWindow::populateScene()
 		{
 			threadinfos_t & tis = pi.m_completed_frame_infos[f];
 
+			int const h = 28;
+			int const space = 5;
+			unsigned offs = 0;
 			for (size_t t = 0, te = tis.size(); t < te; ++t)
 			{
 				blockinfos_t & bis = tis[t];
 
 				for (size_t b = 0, be = bis.size(); b < be; ++b)
 				{
-					BlockInfo & block = bis[b];
+					BlockInfo & block = *bis[b];
 
 					int w = block.m_delta_t;
-					int h = 28;
 					qreal x = block.m_time_bgn;
-					qreal y = (t + 2) * block.m_layer * 40;
+					qreal y = (offs) * (h + space)  + block.m_layer * (h + space);
+					block.m_x = x;
+					block.m_y = y;
 					//printf("f=%2u t=%2u b=%2u    x=%6.1f y=%6.1f w=%4i h=%4i\n", f, t, b, x, y, w, h); fflush(stdout);
 
 					QColor color = Qt::white;
@@ -111,9 +120,41 @@ void MainWindow::populateScene()
 					item->setPos(QPointF(x, y));
 					m_scene->addItem(item);
 					item->setToolTip(QString("frame=%1 thread=%2 %3 [%4 ms]").arg(f).arg(t).arg(block.m_msg.c_str()).arg(block.m_delta_t));
+
+				}
+
+			
+				offs += max_layers[t] + 2;
+			}
+		}
+
+
+		for (size_t f = 0, fe = pi.m_completed_frame_infos.size(); f < fe; ++f)
+		{
+			threadinfos_t & tis = pi.m_completed_frame_infos[f];
+
+			int const h = 28;
+			int const space = 5;
+			unsigned offs = 0;
+			for (size_t t = 0, te = tis.size(); t < te; ++t)
+			{
+				blockinfos_t & bis = tis[t];
+
+				for (size_t b = 0, be = bis.size(); b < be; ++b)
+				{
+					BlockInfo & block = *bis[b];
+					if (block.m_parent)
+					{
+						QGraphicsLineItem * ln_bg = new QGraphicsLineItem(block.m_x, block.m_y, block.m_parent->m_x, block.m_parent->m_y + h);
+						m_scene->addItem(ln_bg);
+
+						//QGraphicsLineItem * ln_nd = new QGraphicsLineItem(block.m_x + block.m_time_bgn, block.m_y, block.m_parent->m_x + block.m_parent->m_time_bgn, block.m_parent->m_y + h);
+						//m_scene->addItem(ln_nd);
+					}
 				}
 			}
 		}
+
 
 		for (size_t f = 0, fe = pi.m_frames.size(); f < fe; ++f)
 		{

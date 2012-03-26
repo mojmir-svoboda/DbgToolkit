@@ -17,6 +17,10 @@ using boost::asio::ip::tcp;
 
 int main (int argc, char * argv[])
 {
+#if defined WIN32
+	setvbuf(stdout, 0, _IONBF, 0);
+#endif
+
 	std::vector<ProfileInfo> profileinfos;
 	profileinfos.reserve(8);
 	try
