@@ -47,44 +47,42 @@
 /**	@macro		PROFILE_APPNAME
  *	@brief		sets application name that will be sent to server to identify
  **/
-#	define PROFILE_APPNAME(name) profile::SetAppName(name)
+#	define PROFILE_APPNAME(name)        profile::SetAppName(name)
 
 /**	@macro		PROFILE_CONNECT
  *	@brief		connects to server and sends application name to server
  **/
-#	define PROFILE_CONNECT() profile::Connect()
+#	define PROFILE_CONNECT()            profile::Connect()
 
 /**	@macro		PROFILE_DISCONNECT
  *	@brief		disconnects from server
  **/
-#	define PROFILE_DISCONNECT() profile::Disconnect()
+#	define PROFILE_DISCONNECT()         profile::Disconnect()
 
 /**	@macro		PROFILE_SETLEVEL
  *	@brief		switch level to another value
  **/
-#	define PROFILE_SETLEVEL(n) profile::SetRuntimeLevel(n)
+#	define PROFILE_SETLEVEL(n)          profile::SetRuntimeLevel(n)
 
 /**	@macro		PROFILE_MSG
  *	@brief		logging of the form PROFILE_MSG(lvl, ctx, fmt, ...)
  **/
-#	define PROFILE_BGN	profile::WriteBgn
-#	define PROFILE_END   profile::WriteEnd
+#	define PROFILE_BGN                  profile::WriteBgn
+#	define PROFILE_END                  profile::WriteEnd
 
-#	define PROFILE_FRAME_BGN   profile::WriteFrameBgn
-#	define PROFILE_FRAME_END   profile::WriteFrameEnd
+#	define PROFILE_FRAME_BGN            profile::WriteFrameBgn
+#	define PROFILE_FRAME_END            profile::WriteFrameEnd
 
 
 /**	@macro		PROFILE_MSG_VA
  *	@brief		profiling of the form PROFILE_MSG_VA(lvl, ctx, fmt, va_list)
  **/
-#	define PROFILE_MSG_VA(fmt, vaargs)	\
-		profile::WriteVA(fmt, vaargs);
+#	define PROFILE_MSG_VA(fmt, vaargs)	profile::WriteVA(fmt, vaargs);
 
 /**	@macro		PROFILE_ENTRY
  *	@brief		profiles scope
  **/
-#	define PROFILE_SCOPE(fmt, ... )	\
-		profile::ScopedProfile entry_guard___(fmt, __VA_ARGS__)
+#	define PROFILE_SCOPE                profile::ScopedProfile entry_guard___
 
 	namespace profile {
 
@@ -124,7 +122,7 @@
 		/**@class	ScopedProfile
 		 * @brief	RAII class for profiling begin on construction and profiling end on destruction
 		 **/
-		struct PROFILE_API ScopedProfile
+		struct ScopedProfile
 		{
 			ScopedProfile (char const * fmt, ...);
 			~ScopedProfile ();

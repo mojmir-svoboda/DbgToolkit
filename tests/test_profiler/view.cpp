@@ -6,6 +6,8 @@
 #include <qmath.h>
 #include "mygraphicsview.h"
 
+int g_heightValue = 28;
+
 View::View (const QString & name, QWidget * parent)
 	: QFrame(parent)
 {
@@ -72,6 +74,14 @@ View::View (const QString & name, QWidget * parent)
 	topLayout->addLayout(labelLayout, 0, 0);
 	topLayout->addWidget(m_graphicsView, 1, 0);
 	topLayout->addLayout(zoomSliderLayout, 1, 1);
+
+	QSlider * m_heightSlider = new QSlider;
+	m_heightSlider->setMinimum(0);
+	m_heightSlider->setMaximum(200);
+	m_heightSlider->setValue(28);
+	topLayout->addWidget(m_heightSlider, 1, 2);
+	//m_heightSlider->setTickPosition(QSlider::TicksRight);
+
 	topLayout->addWidget(m_resetButton, 2, 1);
 	setLayout(topLayout);
 
@@ -83,6 +93,8 @@ View::View (const QString & name, QWidget * parent)
 	connect(m_openGlButton, SIGNAL(toggled(bool)), this, SLOT(toggleOpenGL()));
 	connect(zoomInIcon, SIGNAL(clicked()), this, SLOT(zoomIn()));
 	connect(zoomOutIcon, SIGNAL(clicked()), this, SLOT(zoomOut()));
+
+	connect(m_heightSlider, SIGNAL(valueChanged(int)), this, SLOT(changeHeight(int)));
 
 	setupMatrix();
 }
@@ -96,6 +108,12 @@ void View::resetView()
 	m_graphicsView->ensureVisible(QRectF(0, 0, 0, 0));
 
 	m_resetButton->setEnabled(false);
+}
+
+void View::changeHeight (int n)
+{
+	//g_heightValue = n;
+	//m_graphicsView->update();
 }
 
 void View::setResetButtonEnabled()

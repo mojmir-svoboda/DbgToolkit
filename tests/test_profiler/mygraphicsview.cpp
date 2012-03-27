@@ -19,59 +19,64 @@ MyGraphicsView::MyGraphicsView (QWidget* parent)
   * sidebar case.  This function will claim the centerPoint to sceneRec ie.
   * the centerPoint must be within the sceneRec.
   */
-//Set the current centerpoint in the
-void MyGraphicsView::SetCenter(const QPointF& centerPoint) {
-    //Get the rectangle of the visible area in scene coords
+void MyGraphicsView::SetCenter(const QPointF& centerPoint)
+{
+    // Get the rectangle of the visible area in scene coords
     QRectF visibleArea = mapToScene(rect()).boundingRect();
  
-    //Get the scene area
+    // Get the scene area
     QRectF sceneBounds = sceneRect();
  
-    double boundX = visibleArea.width() / 2.0;
-    double boundY = visibleArea.height() / 2.0;
-    double boundWidth = sceneBounds.width() - 2.0 * boundX;
-    double boundHeight = sceneBounds.height() - 2.0 * boundY;
+    double const boundX = visibleArea.width() / 2.0;
+    double const boundY = visibleArea.height() / 2.0;
+    double const boundWidth = sceneBounds.width() - 2.0 * boundX;
+    double const boundHeight = sceneBounds.height() - 2.0 * boundY;
  
-    //The max boundary that the centerPoint can be to
+    // The max boundary that the centerPoint can be to
     QRectF bounds(boundX, boundY, boundWidth, boundHeight);
  
-    if(bounds.contains(centerPoint)) {
-        //We are within the bounds
+    if (bounds.contains(centerPoint))
+	{
+        // We are within the bounds
         CurrentCenterPoint = centerPoint;
-    } else {
-        //We need to clamp or use the center of the screen
-        if(visibleArea.contains(sceneBounds)) {
-            //Use the center of scene ie. we can see the whole scene
+    }
+	else
+	{
+        // We need to clamp or use the center of the screen
+        if (visibleArea.contains(sceneBounds))
+		{
+            // Use the center of scene ie. we can see the whole scene
             CurrentCenterPoint = sceneBounds.center();
-        } else {
- 
+        }
+		else
+		{
             CurrentCenterPoint = centerPoint;
  
             //We need to clamp the center. The centerPoint is too large
-            if(centerPoint.x() > bounds.x() + bounds.width()) {
+            if (centerPoint.x() > bounds.x() + bounds.width()) {
                 CurrentCenterPoint.setX(bounds.x() + bounds.width());
-            } else if(centerPoint.x() < bounds.x()) {
+            } else if (centerPoint.x() < bounds.x()) {
                 CurrentCenterPoint.setX(bounds.x());
             }
  
-            if(centerPoint.y() > bounds.y() + bounds.height()) {
+            if (centerPoint.y() > bounds.y() + bounds.height()) {
                 CurrentCenterPoint.setY(bounds.y() + bounds.height());
-            } else if(centerPoint.y() < bounds.y()) {
+            } else if (centerPoint.y() < bounds.y()) {
                 CurrentCenterPoint.setY(bounds.y());
             }
- 
         }
     }
  
-    //Update the scrollbars
+    // Update the scrollbars
     centerOn(CurrentCenterPoint);
 }
  
 /**
   * Handles when the mouse button is pressed
   */
-void MyGraphicsView::mousePressEvent(QMouseEvent* event) {
-    //For panning the view
+void MyGraphicsView::mousePressEvent(QMouseEvent* event)
+{
+    // For panning the view
     LastPanPoint = event->pos();
     setCursor(Qt::ClosedHandCursor);
 }
@@ -79,7 +84,8 @@ void MyGraphicsView::mousePressEvent(QMouseEvent* event) {
 /**
   * Handles when the mouse button is released
   */
-void MyGraphicsView::mouseReleaseEvent(QMouseEvent* event) {
+void MyGraphicsView::mouseReleaseEvent(QMouseEvent* event)
+{
     setCursor(Qt::OpenHandCursor);
     LastPanPoint = QPoint();
 }
@@ -87,8 +93,10 @@ void MyGraphicsView::mouseReleaseEvent(QMouseEvent* event) {
 /**
 *Handles the mouse move event
 */
-void MyGraphicsView::mouseMoveEvent(QMouseEvent* event) {
-    if(!LastPanPoint.isNull()) {
+void MyGraphicsView::mouseMoveEvent(QMouseEvent* event)
+{
+    if (!LastPanPoint.isNull())
+	{
         //Get how much we panned
         QPointF delta = mapToScene(LastPanPoint) - mapToScene(event->pos());
         LastPanPoint = event->pos();
@@ -96,6 +104,10 @@ void MyGraphicsView::mouseMoveEvent(QMouseEvent* event) {
         //Update the center ie. do the pan
         SetCenter(GetCenter() + delta);
     }
+	else
+	{
+		QGraphicsView::mouseMoveEvent(event);
+	}
 }
  
 /**

@@ -140,15 +140,6 @@ bool Connection::handleProfileCommand (DecodedCommand const & cmd)
 		bi->m_msg.append(text);
 		bi->complete();
 
-		/*unsigned layer = 0;
-		printf("dump: %s\n", bi->m_msg.c_str());
-		BlockInfo * parent = bi;
-		while (parent)
-		{
-			++layer;
-			printf("\tblock: %s,		layer=%u this=%x parent=%u\n", parent->m_msg.c_str(), layer, parent, parent->m_parent);
-			parent = parent->m_parent;
-		}*/
 		m_profileInfo.m_completed_frame_infos[bi->m_frame][tid_idx].push_back(bi);
 	}
 

@@ -92,7 +92,7 @@ void MainWindow::populateScene()
 
 			int const h = 28;
 			int const space = 5;
-			unsigned offs = 0;
+			unsigned offs = 1;
 			for (size_t t = 0, te = tis.size(); t < te; ++t)
 			{
 				blockinfos_t & bis = tis[t];
@@ -123,7 +123,6 @@ void MainWindow::populateScene()
 
 				}
 
-			
 				offs += max_layers[t] + 2;
 			}
 		}
@@ -135,7 +134,6 @@ void MainWindow::populateScene()
 
 			int const h = 28;
 			int const space = 5;
-			unsigned offs = 0;
 			for (size_t t = 0, te = tis.size(); t < te; ++t)
 			{
 				blockinfos_t & bis = tis[t];

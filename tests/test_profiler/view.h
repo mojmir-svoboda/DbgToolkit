@@ -9,6 +9,8 @@ QT_FORWARD_DECLARE_CLASS(QLabel)
 QT_FORWARD_DECLARE_CLASS(QSlider)
 QT_FORWARD_DECLARE_CLASS(QToolButton)
 
+extern int g_heightValue;
+
 class View : public QFrame
 {
     Q_OBJECT
@@ -26,6 +28,7 @@ private slots:
 
     void zoomIn ();
     void zoomOut ();
+	void changeHeight (int n);
     
 private:
     MyGraphicsView * m_graphicsView;
