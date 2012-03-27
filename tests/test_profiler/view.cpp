@@ -6,7 +6,8 @@
 #include <qmath.h>
 #include "mygraphicsview.h"
 
-int g_heightValue = 28;
+int g_heightValue = 38;
+int g_spaceValue = 15;
 
 View::View (const QString & name, QWidget * parent)
 	: QFrame(parent)
@@ -78,7 +79,7 @@ View::View (const QString & name, QWidget * parent)
 	QSlider * m_heightSlider = new QSlider;
 	m_heightSlider->setMinimum(0);
 	m_heightSlider->setMaximum(200);
-	m_heightSlider->setValue(28);
+	m_heightSlider->setValue(g_heightValue);
 	topLayout->addWidget(m_heightSlider, 1, 2);
 	//m_heightSlider->setTickPosition(QSlider::TicksRight);
 

@@ -39,7 +39,7 @@ void Bar::paint (QPainter * painter, QStyleOptionGraphicsItem const * option, QW
 	qreal const lod = option->levelOfDetailFromTransform(painter->worldTransform());
 	if (lod >= 0.7f)
 	{
-		QFont font("Times", 10);
+		QFont font("Times", 12);
 		font.setStyleStrategy(QFont::ForceOutline);
 		painter->setFont(font);
 		painter->save();
@@ -49,12 +49,15 @@ void Bar::paint (QPainter * painter, QStyleOptionGraphicsItem const * option, QW
 	}
 	else if (0.4f < lod && lod < 0.7f)
 	{
-		QFont font("Times", 16);
-		font.setStyleStrategy(QFont::ForceOutline);
-		painter->setFont(font);
-		painter->save();
-		painter->drawText(4, g_heightValue/2, QString("%1 %2").arg(m_block.m_msg.c_str()).arg(m_block.m_delta_t));
-		painter->restore();
+		if (m_w > 10)
+		{
+			QFont font("Times", 16);
+			font.setStyleStrategy(QFont::ForceOutline);
+			painter->setFont(font);
+			painter->save();
+			painter->drawText(4, g_heightValue/2, QString("%1 %2").arg(m_block.m_msg.c_str()).arg(m_block.m_delta_t));
+			painter->restore();
+		}
 	}
 }
 

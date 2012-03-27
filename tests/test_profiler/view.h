@@ -10,6 +10,7 @@ QT_FORWARD_DECLARE_CLASS(QSlider)
 QT_FORWARD_DECLARE_CLASS(QToolButton)
 
 extern int g_heightValue;
+extern int g_spaceValue;
 
 class View : public QFrame
 {

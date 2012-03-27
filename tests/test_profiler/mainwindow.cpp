@@ -90,8 +90,8 @@ void MainWindow::populateScene()
 		{
 			threadinfos_t & tis = pi.m_completed_frame_infos[f];
 
-			int const h = 28;
-			int const space = 5;
+			int const h = g_heightValue;
+			int const space = g_spaceValue;
 			unsigned offs = 1;
 			for (size_t t = 0, te = tis.size(); t < te; ++t)
 			{
@@ -132,8 +132,8 @@ void MainWindow::populateScene()
 		{
 			threadinfos_t & tis = pi.m_completed_frame_infos[f];
 
-			int const h = 28;
-			int const space = 5;
+			int const h = g_heightValue;
+			int const space = g_spaceValue;
 			for (size_t t = 0, te = tis.size(); t < te; ++t)
 			{
 				blockinfos_t & bis = tis[t];
@@ -143,12 +143,21 @@ void MainWindow::populateScene()
 					BlockInfo & block = *bis[b];
 					if (block.m_parent)
 					{
-						QGraphicsLineItem * ln_bg = new QGraphicsLineItem(block.m_x, block.m_y, block.m_parent->m_x, block.m_parent->m_y + h);
-						m_scene->addItem(ln_bg);
-
-						//QGraphicsLineItem * ln_nd = new QGraphicsLineItem(block.m_x + block.m_time_bgn, block.m_y, block.m_parent->m_x + block.m_parent->m_time_bgn, block.m_parent->m_y + h);
-						//m_scene->addItem(ln_nd);
+						if (block.m_parent->m_x < 100.0f || block.m_parent->m_y < 100.0f)
+						{
+							// incomplete parent!
+						}
+						else
+						{
+							QGraphicsLineItem * ln_bg = new QGraphicsLineItem(block.m_x, block.m_y, block.m_parent->m_x, block.m_parent->m_y + g_heightValue);
+							m_scene->addItem(ln_bg);
+							QGraphicsLineItem * ln_nd = new QGraphicsLineItem(block.m_x + block.m_delta_t, block.m_y, block.m_parent->m_x + block.m_parent->m_delta_t, block.m_parent->m_y + g_heightValue);
+							m_scene->addItem(ln_nd);
+						}
 					}
+
+					QGraphicsLineItem * ln_end = new QGraphicsLineItem(block.m_x + block.m_delta_t, block.m_y, block.m_x + block.m_delta_t, block.m_y + g_heightValue);
+					m_scene->addItem(ln_end);
 				}
 			}
 		}
