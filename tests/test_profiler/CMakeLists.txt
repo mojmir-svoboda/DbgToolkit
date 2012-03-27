@@ -95,6 +95,7 @@ macro(QT_ADD_IMG_PLUGINS target)
     FIND_RELEASE_AND_DEBUG(QGIF qgif qgifd "${QT_PLUGINS_DIR}/imageformats")
     FIND_RELEASE_AND_DEBUG(QMNG qmng qmngd "${QT_PLUGINS_DIR}/imageformats")
     FIND_RELEASE_AND_DEBUG(QICO qico qicod "${QT_PLUGINS_DIR}/imageformats")
+	FIND_RELEASE_AND_DEBUG(QPNG qpng qpndd "${QT_PLUGINS_DIR}/imageformats")
     FIND_RELEASE_AND_DEBUG(QSVG qsvg qsvgd "${QT_PLUGINS_DIR}/imageformats")
     FIND_RELEASE_AND_DEBUG(QTIFF qtiff qtiffd "${QT_PLUGINS_DIR}/imageformats")
 	 #FIND_RELEASE_AND_DEBUG(QSVGR QtSvg QtSvgd "C:/devel/QtSDK/QtSources/4.7.4/lib")		# @TODO: fixed path
@@ -104,7 +105,7 @@ macro(QT_ADD_IMG_PLUGINS target)
 	message("svgr: ${QSVGR_LIBRARY}")
   
     target_link_libraries(${target} ${QJPEG_LIBRARY} ${QGIF_LIBRARY}
-      ${QMNG_LIBRARY} ${QICO_LIBRARY} ${QTIFF_LIBRARY} ${QSVG_LIBRARY} ${QSVGR_LIBRARY})
+		${QMNG_LIBRARY} ${QICO_LIBRARY} ${QTIFF_LIBRARY} ${QSVG_LIBRARY} ${QSVGR_LIBRARY} ${QPNG_LIBRARY})
   
   endif(QT_CONFIG MATCHES "static")
 
@@ -128,7 +129,7 @@ add_executable(profile_server WIN32
 		${profile_server_SOURCES})
 
 qt_add_img_plugins(profile_server)
-target_link_libraries(profile_server ${QT_LIBRARIES} ${QICO} ${QSVG} ${CMAKE_THREAD_LIBS_INIT} ${Boost_LIBRARIES})
+target_link_libraries(profile_server ${QT_LIBRARIES} ${QICO} ${QSVG} ${QPNG} ${CMAKE_THREAD_LIBS_INIT} ${Boost_LIBRARIES})
 
 
 
