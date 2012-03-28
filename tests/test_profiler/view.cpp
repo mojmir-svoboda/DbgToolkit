@@ -1,5 +1,6 @@
 #include "view.h"
 #include <QtGui>
+#include <QSpinBox>
 #ifndef QT_NO_OPENGL
 #	include <QtOpenGL>
 #endif
@@ -15,7 +16,8 @@ View::View (MainWindow * mw, const QString & name, QWidget * parent)
 	, QFrame(parent)
 {
 	setFrameStyle(Sunken | StyledPanel);
-	m_graphicsView = new MyGraphicsView;
+	m_frameSpinBox = new QSpinBox;
+	m_graphicsView = new MyGraphicsView(*m_frameSpinBox);
 	m_graphicsView->setRenderHint(QPainter::Antialiasing, false);
 	m_graphicsView->setDragMode(QGraphicsView::RubberBandDrag);
 	m_graphicsView->setOptimizationFlags(QGraphicsView::DontSavePainterState);
@@ -80,18 +82,25 @@ View::View (MainWindow * mw, const QString & name, QWidget * parent)
 
 	QSlider * m_heightSlider = new QSlider;
 	m_heightSlider->setMinimum(0);
-	m_heightSlider->setMaximum(200);
+	m_heightSlider->setMaximum(400);
 	m_heightSlider->setValue(g_heightValue);
 	topLayout->addWidget(m_heightSlider, 1, 2);
 	//m_heightSlider->setTickPosition(QSlider::TicksRight);
+	//
+	m_frameSpinBox->setMinimum(0);
+	m_frameSpinBox->setValue(0);
+
+	int const max = m_mainWindow->getProfileInfo(0).m_frames.size();
+	m_frameSpinBox->setMaximum(max);
+	topLayout->addWidget(m_frameSpinBox, 0, 1);
 
 	topLayout->addWidget(m_resetButton, 2, 1);
 	setLayout(topLayout);
 
 	connect(m_resetButton, SIGNAL(clicked()), this, SLOT(resetView()));
 	connect(m_zoomSlider, SIGNAL(valueChanged(int)), this, SLOT(setupMatrix()));
-	connect(m_graphicsView->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(setResetButtonEnabled()));
-	connect(m_graphicsView->horizontalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(setResetButtonEnabled()));
+	//connect(m_graphicsView->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(setResetButtonEnabled()));
+	//connect(m_graphicsView->horizontalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(setResetButtonEnabled()));
 	connect(m_antialiasButton, SIGNAL(toggled(bool)), this, SLOT(toggleAntialiasing()));
 	connect(m_openGlButton, SIGNAL(toggled(bool)), this, SLOT(toggleOpenGL()));
 	connect(zoomInIcon, SIGNAL(clicked()), this, SLOT(zoomIn()));

@@ -101,10 +101,10 @@ void MainWindow::populateScene()
 				{
 					BlockInfo & block = *bis[b];
 
-					int w = block.m_delta_t;
+					int w = block.m_dt;
 					qreal x = block.m_time_bgn;
 					qreal y = (offs) * (h + space)  + block.m_layer * (h + space);
-					block.m_x = x;
+					block.m_x = x / 1000.0f;
 					block.m_y = y;
 					//printf("f=%2u t=%2u b=%2u    x=%6.1f y=%6.1f w=%4i h=%4i\n", f, t, b, x, y, w, h); fflush(stdout);
 
@@ -117,9 +117,9 @@ void MainWindow::populateScene()
 					}
 
 					QGraphicsItem * item = new Bar(block, color, 0, 0, w, h, t, offs);
-					item->setPos(QPointF(x, y));
+					item->setPos(QPointF(block.m_x, y));
 					m_scene->addItem(item);
-					item->setToolTip(QString("frame=%1 thread=%2 %3 [%4 ms]").arg(f).arg(t).arg(block.m_msg.c_str()).arg(block.m_delta_t));
+					item->setToolTip(QString("frame=%1 thread=%2 %3 [%4 ms]").arg(f).arg(t).arg(block.m_msg.c_str()).arg(block.m_dt));
 
 				}
 
@@ -151,12 +151,12 @@ void MainWindow::populateScene()
 						{
 							QGraphicsLineItem * ln_bg = new QGraphicsLineItem(block.m_x, block.m_y, block.m_parent->m_x, block.m_parent->m_y + g_heightValue);
 							m_scene->addItem(ln_bg);
-							QGraphicsLineItem * ln_nd = new QGraphicsLineItem(block.m_x + block.m_delta_t, block.m_y, block.m_parent->m_x + block.m_parent->m_delta_t, block.m_parent->m_y + g_heightValue);
+							QGraphicsLineItem * ln_nd = new QGraphicsLineItem(block.m_x + block.m_dt, block.m_y, block.m_parent->m_x + block.m_parent->m_dt, block.m_parent->m_y + g_heightValue);
 							m_scene->addItem(ln_nd);
 						}
 					}
 
-					QGraphicsLineItem * ln_end = new QGraphicsLineItem(block.m_x + block.m_delta_t, block.m_y, block.m_x + block.m_delta_t, block.m_y + g_heightValue);
+					QGraphicsLineItem * ln_end = new QGraphicsLineItem(block.m_x + block.m_dt, block.m_y, block.m_x + block.m_dt, block.m_y + g_heightValue);
 					m_scene->addItem(ln_end);
 				}
 			}

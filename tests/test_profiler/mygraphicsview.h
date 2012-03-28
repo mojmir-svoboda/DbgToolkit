@@ -6,6 +6,7 @@ QT_FORWARD_DECLARE_CLASS(QGraphicsView)
 QT_FORWARD_DECLARE_CLASS(QLabel)
 QT_FORWARD_DECLARE_CLASS(QSlider)
 QT_FORWARD_DECLARE_CLASS(QToolButton)
+QT_FORWARD_DECLARE_CLASS(QSpinBox)
 
 // taken from
 // http://www.qtcentre.org/wiki/index.php?title=QGraphicsView:_Smooth_Panning_and_Zooming#MyGraphicsView.h
@@ -13,7 +14,7 @@ class MyGraphicsView : public QGraphicsView
 {
     Q_OBJECT;
 public:
-    MyGraphicsView(QWidget* parent = NULL);
+    MyGraphicsView(QSpinBox & fs, QWidget* parent = NULL);
  
 protected:
     //Holds the current centerpoint for the view, used for panning and zooming
@@ -32,6 +33,8 @@ protected:
     virtual void mouseMoveEvent(QMouseEvent* event);
     virtual void wheelEvent(QWheelEvent* event);
     virtual void resizeEvent(QResizeEvent* event);
+
+	QSpinBox & m_frameSpinBox;
 };
 
 

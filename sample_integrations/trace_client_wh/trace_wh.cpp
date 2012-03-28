@@ -157,9 +157,9 @@ void * do_something ( void * )
 		TRACE_MSG(trace::e_Info, trace::CTX_Default,  "Thread tick i=%u", i);
 		something_useful();
 #if defined WIN32 || defined WIN64
-		Sleep(100);
+		Sleep(300);
 #elif defined __linux__
-		usleep(100 * 1000);
+		usleep(300 * 1000);
 #endif
 	}
 	return 0;

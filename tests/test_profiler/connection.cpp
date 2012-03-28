@@ -110,7 +110,7 @@ bool Connection::handleProfileCommand (DecodedCommand const & cmd)
 
 	if (cmd.hdr.cmd == tlv::cmd_profile_frame_end)
 	{
-		m_profileInfo.m_frames.push_back(std::make_pair(m_profileInfo.m_frame_begin, time));
+		m_profileInfo.m_frames.push_back(std::make_pair(m_profileInfo.m_frame_begin / 1000.0f, time / 1000.0f));
 		return true;
 	}
 

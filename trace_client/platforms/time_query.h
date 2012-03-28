@@ -33,6 +33,8 @@
 			g_Start = queryPerformanceCounter();
 		}
 		inline hptimer_t queryTime () { return queryPerformanceCounter() - g_Start; }
+		inline hptimer_t queryTime_ms () { return 1000 * (queryPerformanceCounter() - g_Start) / g_Freq; } // @TODO: get rid of div
+		inline hptimer_t queryTime_us () { return 1000000 * (queryPerformanceCounter() - g_Start) / g_Freq; }
 		inline double toSeconds (hptimer_t t) { return static_cast<double>(t) / g_Freq; }
 	}
 #else
@@ -65,6 +67,8 @@
 
 		void setTimeStart ();
 		inline hptimer_t queryTime () { return queryPerformanceCounter() - g_Start; }
+		inline hptimer_t queryTime_ms () { return queryTime_us() / 1000; }
+		inline hptimer_t queryTime_us () { return queryTime(); }
 		inline double toSeconds (hptimer_t t) { return static_cast<double>(t) / g_Freq; }
 	}
 
@@ -77,10 +81,10 @@ namespace sys {
 		hptimer_t m_expire_at;
 
 		Timer () : m_expire_at(0) { }
-		void set_delay_ms (unsigned delay_ms) { m_expire_at = queryTime() + delay_ms; }
+		void set_delay_ms (unsigned delay_ms) { m_expire_at = queryTime_ms() + delay_ms; }
 		void reset () { m_expire_at = 0; }
 		bool enabled () const { return m_expire_at != 0; }
-		bool expired () const { return queryTime() > m_expire_at; }
+		bool expired () const { return queryTime_ms() > m_expire_at; }
 	};
 }
 

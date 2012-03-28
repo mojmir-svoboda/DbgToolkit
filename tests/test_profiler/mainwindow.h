@@ -14,6 +14,8 @@ class MainWindow : public QWidget
 public:
 	MainWindow (std::vector<ProfileInfo> & pis, QWidget * parent = 0);
 	void populateScene ();
+
+	ProfileInfo const & getProfileInfo (size_t idx = 0) const { return m_profileInfos[idx]; }
 	
 private:
 	void setupMatrix ();

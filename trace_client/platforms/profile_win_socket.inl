@@ -95,6 +95,23 @@ namespace profile {
 				else
 					sys::thread_yield();
 			}
+
+			// flush remaining messages
+
+			sys::atomic32_t wr_idx = sys::atomic_get32(&m_wr_idx);
+			sys::atomic32_t rd_idx = m_rd_idx;
+			while (rd_idx < wr_idx)
+			{
+				//DBG_OUT("rd_idx=%10i, wr_idx=%10i, diff=%10i \n", rd_idx, wr_idx, wr_idx - rd_idx);
+				msg_t & msg = socks::msg_buffer_at(rd_idx % pool_t::e_size);
+				msg.ReadLock();
+
+				socks::WriteToSocket(msg.m_data, msg.m_length);
+				msg.m_length = 0;
+				msg.ReadUnlockAndClean();
+				++m_rd_idx;
+			}
+
 			return 0;
 		}
 	}

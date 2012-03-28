@@ -13,6 +13,7 @@ struct BlockInfo
 	unsigned long long m_layer;
 	float m_x;
 	float m_y;
+	float m_dt;
 	std::string m_msg;
 	std::string m_tag;
 	BlockInfo * m_parent;
@@ -22,6 +23,7 @@ struct BlockInfo
 	void complete ()
 	{
 		m_delta_t = m_time_end - m_time_bgn;
+		m_dt = static_cast<float>(m_delta_t) / 1000.0f;
 		//printf("completed: tid=%10llu delta_t=%10llu msg=%s\n", m_tid, m_delta_t, m_msg.c_str());
 	}
 };
@@ -40,7 +42,7 @@ struct ProfileInfo
 
 	pendinginfos_t m_pending_infos;
 	std::vector<unsigned long long> m_tids;
-	std::vector<std::pair<unsigned long, unsigned long> > m_frames;
+	std::vector<std::pair<float, float> > m_frames;
 	std::vector<unsigned> m_critical_paths;
 	unsigned m_frame;
 	unsigned m_frame_begin;

@@ -8,6 +8,7 @@ QT_FORWARD_DECLARE_CLASS(QGraphicsView)
 QT_FORWARD_DECLARE_CLASS(QLabel)
 QT_FORWARD_DECLARE_CLASS(QSlider)
 QT_FORWARD_DECLARE_CLASS(QToolButton)
+QT_FORWARD_DECLARE_CLASS(QSpinBox)
 
 extern int g_heightValue;
 extern int g_spaceValue;
@@ -41,5 +42,6 @@ private:
     QToolButton * m_antialiasButton;
     QToolButton * m_resetButton;
     QSlider * m_zoomSlider;
+	QSpinBox * m_frameSpinBox;
 };
 

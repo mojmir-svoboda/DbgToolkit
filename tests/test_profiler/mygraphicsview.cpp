@@ -8,8 +8,9 @@
 #include <qmath.h>
 
 
-MyGraphicsView::MyGraphicsView (QWidget* parent)
+MyGraphicsView::MyGraphicsView (QSpinBox & fs, QWidget* parent)
 	: QGraphicsView(parent)
+	, m_frameSpinBox(fs)
 { }
  
 /**
@@ -32,6 +33,8 @@ void MyGraphicsView::SetCenter(const QPointF& centerPoint)
     double const boundWidth = sceneBounds.width() - 2.0 * boundX;
     double const boundHeight = sceneBounds.height() - 2.0 * boundY;
  
+
+	qDebug("setcenter: x=%f y=%f w=%f h=%f", boundX, boundY, boundWidth, boundHeight);
     // The max boundary that the centerPoint can be to
     QRectF bounds(boundX, boundY, boundWidth, boundHeight);
  
@@ -103,6 +106,7 @@ void MyGraphicsView::mouseMoveEvent(QMouseEvent* event)
  
         //Update the center ie. do the pan
         SetCenter(GetCenter() + delta);
+		qDebug("new center: %f %f", GetCenter().x(), GetCenter().y()); 
     }
 	else
 	{
@@ -113,33 +117,42 @@ void MyGraphicsView::mouseMoveEvent(QMouseEvent* event)
 /**
   * Zoom the view in and out.
   */
-void MyGraphicsView::wheelEvent(QWheelEvent* event) {
- 
-    //Get the position of the mouse before scaling, in scene coords
-    QPointF pointBeforeScale(mapToScene(event->pos()));
- 
-    //Get the original screen centerpoint
-    QPointF screenCenter = GetCenter(); //CurrentCenterPoint; //(visRect.center());
- 
-    //Scale the view ie. do the zoom
-    double scaleFactor = 1.15; //How fast we zoom
-    if(event->delta() > 0) {
-        //Zoom in
-        scale(scaleFactor, scaleFactor);
-    } else {
-        //Zooming out
-        scale(1.0 / scaleFactor, 1.0 / scaleFactor);
-    }
- 
-    //Get the position after scaling, in scene coords
-    QPointF pointAfterScale(mapToScene(event->pos()));
- 
-    //Get the offset of how the screen moved
-    QPointF offset = pointBeforeScale - pointAfterScale;
- 
-    //Adjust to the new center for correct zooming
-    QPointF newCenter = screenCenter + offset;
-    SetCenter(newCenter);
+void MyGraphicsView::wheelEvent(QWheelEvent* event)
+{
+	bool const shift = event->modifiers() & Qt::SHIFT;
+
+	if (shift)
+	{
+		m_frameSpinBox.setValue(m_frameSpinBox.value() + event->delta());
+	}
+	else
+	{
+		//Get the position of the mouse before scaling, in scene coords
+		QPointF pointBeforeScale(mapToScene(event->pos()));
+	 
+		//Get the original screen centerpoint
+		QPointF screenCenter = GetCenter(); //CurrentCenterPoint; //(visRect.center());
+	 
+		//Scale the view ie. do the zoom
+		double scaleFactor = 1.15; //How fast we zoom
+		if (event->delta() > 0) {
+			//Zoom in
+			scale(scaleFactor, scaleFactor);
+		} else {
+			//Zooming out
+			scale(1.0 / scaleFactor, 1.0 / scaleFactor);
+		}
+	 
+		//Get the position after scaling, in scene coords
+		QPointF pointAfterScale(mapToScene(event->pos()));
+	 
+		//Get the offset of how the screen moved
+		QPointF offset = pointBeforeScale - pointAfterScale;
+	 
+		//Adjust to the new center for correct zooming
+		QPointF newCenter = screenCenter + offset;
+		SetCenter(newCenter);
+	}
 }
  
 /**
