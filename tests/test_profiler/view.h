@@ -12,11 +12,13 @@ QT_FORWARD_DECLARE_CLASS(QToolButton)
 extern int g_heightValue;
 extern int g_spaceValue;
 
+class MainWindow;
+
 class View : public QFrame
 {
     Q_OBJECT
 public:
-    View (const QString & name, QWidget * parent = 0);
+    View (MainWindow * mw, const QString & name, QWidget * parent = 0);
 
     QGraphicsView * view () const;
 
@@ -32,6 +34,7 @@ private slots:
 	void changeHeight (int n);
     
 private:
+	MainWindow * m_mainWindow;
     MyGraphicsView * m_graphicsView;
     QLabel * m_label;
     QToolButton * m_openGlButton;

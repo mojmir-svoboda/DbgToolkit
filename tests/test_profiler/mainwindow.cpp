@@ -9,16 +9,17 @@ MainWindow::MainWindow(std::vector<ProfileInfo> & pis, QWidget * parent)
 	: m_profileInfos(pis)
 	, QWidget(parent)
 {
+	m_scene = new QGraphicsScene;
 	populateScene();
 
 	QSplitter * vSplitter = new QSplitter;
 	vSplitter->setOrientation(Qt::Vertical);
 
-	View * view = new View("View 0");
+	View * view = new View(this, "View 0");
 	view->view()->setScene(m_scene);
 	vSplitter->addWidget(view);
 
-	view = new View("View 1");
+	view = new View(this, "View 1");
 	view->view()->setScene(m_scene);
 	vSplitter->addWidget(view);
 
@@ -32,19 +33,18 @@ MainWindow::MainWindow(std::vector<ProfileInfo> & pis, QWidget * parent)
 	struct HSV { float h; float s; float v; };
 	inline float tmp_randf () { return (float)rand()/(float)RAND_MAX; }
 
+	typedef std::map<std::string, QColor> colormap_t;
+	colormap_t colors;
+
 void MainWindow::populateScene()
 {
 	printf("%s\n", __FUNCTION__);
-	m_scene = new QGraphicsScene;
 
 	for (size_t p = 0, pe = m_profileInfos.size(); p < pe; ++p)
 	{
 		ProfileInfo & pi = m_profileInfos[p];
 
 		//printf("p=%u\n", p); fflush(stdout);
-
-		typedef std::map<std::string, QColor> colormap_t;
-		colormap_t colors;
 
 		std::vector<unsigned> max_layers;
 
@@ -81,7 +81,7 @@ void MainWindow::populateScene()
 		{
 			HSV hsv;
 			hsv.h = hi / 360.0f;
-			hsv.s = 0.30f + tmp_randf() * 0.2f - 0.05f;
+			hsv.s = 0.70f + tmp_randf() * 0.2f - 0.05f;
 			hsv.v = 0.85f + tmp_randf() * 0.2f - 0.05f;
 			ucolors.push_back(hsv);
 		}
@@ -116,7 +116,7 @@ void MainWindow::populateScene()
 						color.setHsvF(hsv.h, hsv.s, hsv.v);
 					}
 
-					QGraphicsItem * item = new Bar(block, color, 0, 0, w, h);
+					QGraphicsItem * item = new Bar(block, color, 0, 0, w, h, t, offs);
 					item->setPos(QPointF(x, y));
 					m_scene->addItem(item);
 					item->setToolTip(QString("frame=%1 thread=%2 %3 [%4 ms]").arg(f).arg(t).arg(block.m_msg.c_str()).arg(block.m_delta_t));

@@ -5,12 +5,14 @@
 #endif
 #include <qmath.h>
 #include "mygraphicsview.h"
+#include "mainwindow.h"
 
 int g_heightValue = 38;
 int g_spaceValue = 15;
 
-View::View (const QString & name, QWidget * parent)
-	: QFrame(parent)
+View::View (MainWindow * mw, const QString & name, QWidget * parent)
+	: m_mainWindow(mw)
+	, QFrame(parent)
 {
 	setFrameStyle(Sunken | StyledPanel);
 	m_graphicsView = new MyGraphicsView;
@@ -113,8 +115,14 @@ void View::resetView()
 
 void View::changeHeight (int n)
 {
-	//g_heightValue = n;
-	//m_graphicsView->update();
+	g_heightValue = n;
+	QGraphicsScene * scene = view()->scene();
+	view()->setScene(0);
+
+	scene->clear();
+	m_mainWindow->populateScene();
+	view()->setScene(scene);
+	m_graphicsView->viewport()->update();
 }
 
 void View::setResetButtonEnabled()

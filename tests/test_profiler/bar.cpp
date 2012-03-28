@@ -2,9 +2,10 @@
 #include "view.h"
 #include <QtGui>
 
-Bar::Bar (BlockInfo & bi, QColor const & color, int x, int y, int w, int h)
+Bar::Bar (BlockInfo & bi, QColor const & color, int x, int y, int w, int h, int tid, int tid_offs)
 	: m_block(bi) 
 	, m_x(x), m_y(y), m_w(w), m_h(h), m_color(color)
+	, m_tid(tid), m_tid_offs(tid_offs)
 {
 	setZValue((x + y) % 2);
 	//setFlags(ItemIsSelectable | ItemIsMovable);

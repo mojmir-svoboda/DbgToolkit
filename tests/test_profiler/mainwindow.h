@@ -13,10 +13,10 @@ class MainWindow : public QWidget
 	Q_OBJECT
 public:
 	MainWindow (std::vector<ProfileInfo> & pis, QWidget * parent = 0);
+	void populateScene ();
 	
 private:
 	void setupMatrix ();
-	void populateScene ();
 	
 	QGraphicsScene * m_scene;
 	std::vector<ProfileInfo> & m_profileInfos;
