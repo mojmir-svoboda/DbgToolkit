@@ -52,15 +52,22 @@ signals:
 public slots:
 	void onClickedAtFileTree (QModelIndex idx);
 	void onDoubleClickedAtFileTree (QModelIndex idx);
+
 	void onClickedAtTIDList (QModelIndex idx);
 	void onDoubleClickedAtTIDList (QModelIndex idx);
+
+	void onClickedAtRegexList (QModelIndex idx);
+	void onDoubleClickedAtRegexList (QModelIndex idx);
+
 	void onSectionResized (int logicalIndex, int oldSize, int newSize);
 	void onEditingFinished ();
-	void onLevelValueChanged (int val);
 	void onCopyToClipboard ();
+
 	void onCloseCurrentTab ();
 	void onCloseTab (QWidget * w);
+
 	void onFilterFile (int state);
+	void onLevelValueChanged (int val);
 	void onBufferingStateChanged (int state);
 
 protected:

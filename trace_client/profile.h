@@ -124,8 +124,8 @@
 		 **/
 		struct ScopedProfile
 		{
-			ScopedProfile (char const * fmt, ...);
-			~ScopedProfile ();
+			PROFILE_API ScopedProfile (char const * fmt, ...);
+			PROFILE_API ~ScopedProfile ();
 		};
 	}
 

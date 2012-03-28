@@ -159,7 +159,7 @@ void Server::onClickedAtFileTree (QModelIndex idx)
 		filter_item.second = val.toStdString();
 	}
 
-	qDebug("click! (checked=%u) %s : %s", checked, filter_item.first.c_str(), filter_item.second.c_str());
+	qDebug("file click! (checked=%u) %s : %s", checked, filter_item.first.c_str(), filter_item.second.c_str());
 
 	if (Connection * conn = findCurrentConnection())
 	{
@@ -183,7 +183,6 @@ void Server::onDoubleClickedAtFileTree (QModelIndex idx)
 }
 
 
-
 void Server::onClickedAtTIDList (QModelIndex idx)
 {
 	if (!idx.isValid())
@@ -198,7 +197,7 @@ void Server::onClickedAtTIDList (QModelIndex idx)
 
 	bool const checked = (item->checkState() == Qt::Checked);
 
-	qDebug("click! (checked=%u) %s ", checked, filter_item.c_str());
+	qDebug("tid click! (checked=%u) %s ", checked, filter_item.c_str());
 
 	if (Connection * conn = findCurrentConnection())
 	{
@@ -212,8 +211,37 @@ void Server::onClickedAtTIDList (QModelIndex idx)
 
 void Server::onDoubleClickedAtTIDList (QModelIndex idx)
 {
-
 }
+
+
+void Server::onClickedAtRegexList (QModelIndex idx)
+{
+	if (!idx.isValid())
+		return;
+	MainWindow * main_window = static_cast<MainWindow *>(parent());
+	QStandardItemModel * model = static_cast<QStandardItemModel *>(main_window->getListViewRegex()->model());
+	QStandardItem * item = model->itemFromIndex(idx);
+	Q_ASSERT(item);
+
+	QString const & val = model->data(idx, Qt::DisplayRole).toString();
+	std::string filter_item(val.toStdString());
+
+	bool const checked = (item->checkState() == Qt::Checked);
+
+	qDebug("regex click! (checked=%u) %s ", checked, filter_item.c_str());
+
+	if (Connection * conn = findCurrentConnection())
+	{
+		// @TODO: if state really changed
+		main_window->recompileRegexps();
+		conn->onInvalidateFilter();
+	}
+}
+
+void Server::onDoubleClickedAtRegexList (QModelIndex idx)
+{
+}
+
 
 Connection * Server::createNewTableView ()
 {
@@ -269,11 +297,6 @@ void Server::incomingConnection (int socketDescriptor)
 	QObject::connect(connection->m_tcpstream, SIGNAL(readyRead()), connection, SLOT(processReadyRead()));
 	QObject::connect(connection->m_tcpstream, SIGNAL(disconnected()), connection, SLOT(onDisconnected()));
 	main_window->statusBar()->showMessage(tr("Incomming connection!"));
-	if (!main_window->buffEnabled())
-	{
-		qDebug("buffering not enabled, notifying client\n");
-		connection->onBufferingStateChanged(0);
-	}
 	emit newConnection(connection);
 	
 

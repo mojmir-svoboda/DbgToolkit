@@ -94,6 +94,9 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay)
 
 	connect(getListViewTID(), SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtTIDList(QModelIndex)));
 	connect(getListViewTID(), SIGNAL(doubleClicked(QModelIndex)), m_server, SLOT(onDoubleClickedAtTIDList(QModelIndex)));
+
+	connect(getListViewRegex(), SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtRegexList(QModelIndex)));
+	connect(getListViewRegex(), SIGNAL(doubleClicked(QModelIndex)), m_server, SLOT(onDoubleClickedAtRegexList(QModelIndex)));
 	connect(ui->levelSpinBox, SIGNAL(valueChanged(int)), m_server, SLOT(onLevelValueChanged(int)));
     connect(ui->filterFileCheckBox, SIGNAL(stateChanged(int)), m_server, SLOT(onFilterFile(int)));
     connect(ui->buffCheckBox, SIGNAL(stateChanged(int)), m_server, SLOT(onBufferingStateChanged(int)));
@@ -485,6 +488,7 @@ void MainWindow::onRegexRm ()
 void MainWindow::recompileRegexps ()
 {
 	m_regexps.clear();
+	m_regex_user_states.clear();
 
 	for (int i = 0, ie = m_filter_regexs.size(); i < ie; ++i)
 	{
@@ -494,10 +498,19 @@ void MainWindow::recompileRegexps ()
 		if (regex.isValid())
 		{
 			m_regexps.append(regex);
-			if (child)
+			m_regex_user_states.push_back(false);
+
+			bool const checked = (child->checkState() == Qt::Checked);
+			if (child && checked)
 			{
 				child->setData(QBrush(Qt::green), Qt::BackgroundRole);
 				child->setToolTip(tr("ok"));
+				m_regex_user_states.back() = true;
+			}
+			else if (child && !checked)
+			{
+				child->setData(QBrush(Qt::yellow), Qt::BackgroundRole);
+				child->setToolTip(tr("not checked"));
 			}
 		}
 		else

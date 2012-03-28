@@ -61,6 +61,7 @@ public:
 	columns_sizes_t const & getColumnSizes (size_t i) const { return m_columns_sizes.at(i); }
 	columns_sizes_t & getColumnSizes (size_t i) { return m_columns_sizes[i]; }
 	QList<QRegExp> const & getRegexps () const { return m_regexps; }
+	std::vector<bool> const & getRegexUserStates () const { return m_regex_user_states; }
 	filter_regexs_t const & getFilterRegexs () const { return m_filter_regexs; }
 	filter_regexs_t & getFilterRegexs () { return m_filter_regexs; }
 	filter_preset_t const & getFilterPresets (size_t i) const { return m_filter_presets.at(i); }
@@ -113,6 +114,7 @@ public:
 	void dropEvent (QDropEvent * event);
 	void dragEnterEvent (QDragEnterEvent *event);
 	bool eventFilter (QObject * o, QEvent * e);
+	void recompileRegexps ();
 
 public slots:
 	void onHotkeyShowOrHide ();
@@ -141,7 +143,6 @@ private slots:
 	void onQSearchEditingFinished ();
 	void onRegexAdd ();
 	void onRegexRm ();
-	void recompileRegexps ();
 
 private:
 	void showServerStatus ();
@@ -160,6 +161,7 @@ private:
 	filter_presets_t m_filter_presets;			/// list of strings for each preset
 	filter_regexs_t m_filter_regexs;
 	QList<QRegExp> m_regexps;
+	std::vector<bool> m_regex_user_states;
 	QString m_last_search;
 	QTimer * m_timer;
 	Server * m_server;

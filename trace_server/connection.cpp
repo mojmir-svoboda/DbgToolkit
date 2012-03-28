@@ -135,6 +135,7 @@ void Connection::onBufferingStateChanged (int val)
 
 	if (result > 0)
 	{
+		qDebug("Connection::onBufferingStateChanged to_state=%i", val);
 		char buff[256];
 		using namespace tlv;
 		Encoder e(cmd_set_buffering, buff, 256);
@@ -638,6 +639,12 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 			static_cast<ModelView *>(m_table_view_widget->model())->emitLayoutChanged();
 		}
 	}
+
+	if (!m_main_window->buffEnabled())
+	{
+		qDebug("Server::incomingConnection buffering not enabled, notifying client\n");
+		onBufferingStateChanged(m_main_window->buffEnabled());
+	}
 	return true;
 }
 
@@ -662,8 +669,8 @@ bool Connection::handleLogCommand (DecodedCommand const & cmd)
 }
 
 //////////////////// filtering stuff //////////////////////////////
-FilterProxyModel::FilterProxyModel (QObject * parent, QList<QRegExp> const & r, SessionState & ss)
-	: QSortFilterProxyModel(parent), m_session_state(ss), m_regexps(r) { }
+FilterProxyModel::FilterProxyModel (QObject * parent, QList<QRegExp> const & r, std::vector<bool> const & rs, SessionState & ss)
+	: QSortFilterProxyModel(parent), m_session_state(ss), m_regexps(r), m_regex_user_states(rs) { }
 
 void FilterProxyModel::force_update ()
 {
@@ -712,11 +719,8 @@ bool FilterProxyModel::filterAcceptsRow (int sourceRow, QModelIndex const & /*so
 
 		for (int i = 0, ie = m_regexps.size(); i < ie; ++i)
 		{
-			QStandardItemModel * model = static_cast<QStandardItemModel *>(getListViewRegex()->model());
-			QStandardItem * root = m_list_view_regex_model->invisibleRootItem();
-			QStandardItem * child = findChildByText(root, m_filter_regexs.at(i));
-			if (child->isChecked())
-				regex_accept |= getListViewRegex()-> m_regexps[i].exactMatch(msg);
+			if (m_regex_user_states[i])
+				regex_accept |= m_regexps[i].exactMatch(msg);
 		}
 	}
 
@@ -740,7 +744,7 @@ void Connection::setFilterFile (int state)
 	{
 		if (!m_table_view_proxy)
 		{
-			m_table_view_proxy = new FilterProxyModel(this, m_main_window->getRegexps(), m_session_state);
+			m_table_view_proxy = new FilterProxyModel(this, m_main_window->getRegexps(), m_main_window->getRegexUserStates(), m_session_state);
 
 			m_table_view_proxy->setSourceModel(m_table_view_widget->model());
 			m_table_view_widget->setModel(m_table_view_proxy);
