@@ -31,10 +31,10 @@ namespace trace {
 
 	namespace socks {
 
-		LONG volatile g_Quit = 0;			/// request to quit
-		CACHE_ALIGN LONG volatile m_wr_idx = 0;		// write index
-		sys::MessagePool g_MessagePool;					// pool of messages
-		CACHE_ALIGN LONG volatile m_rd_idx = 0;		// read index
+		sys::atomic32_t volatile g_Quit = 0;			/// request to quit
+		CACHE_ALIGN sys::atomic32_t volatile m_wr_idx = 0;		// write index
+		MessagePool<msg_t, 1024> g_MessagePool;					// pool of messages
+		CACHE_ALIGN sys::atomic32_t volatile m_rd_idx = 0;		// read index
 
 		sys::Thread g_ThreadSend(THREAD_PRIORITY_HIGHEST);		/// consumer-sender thread (high priority)
 		sys::Thread g_ThreadRecv(THREAD_PRIORITY_LOWEST);		/// receiving thread (low priority)
@@ -43,15 +43,15 @@ namespace trace {
 		sys::Timer g_ReconnectTimer;
 		sys::Timer g_ClottedTimer;
 
-		inline sys::Message & msg_buffer_at (size_t i)
+		inline msg_t & msg_buffer_at (size_t i)
 		{
 			return g_MessagePool[i];
 		}
 
-		inline sys::Message & acquire_msg_buffer ()
+		inline msg_t & acquire_msg_buffer ()
 		{
-			LONG wr_idx = InterlockedIncrement(&m_wr_idx);
-			return msg_buffer_at((wr_idx - 1) % sys::MessagePool::e_size);
+			sys::atomic32_t wr_idx = InterlockedIncrement(&m_wr_idx);
+			return msg_buffer_at((wr_idx - 1) % MessagePool<msg_t, 1024>::e_size);
 		}
 
 		inline bool is_connected () { return g_Socket != INVALID_SOCKET; }
@@ -187,13 +187,13 @@ namespace trace {
 					else
 						g_ReconnectTimer.set_delay_ms(1000);
 				}
-				LONG wr_idx = sys::atomic_get(&m_wr_idx);
-				LONG rd_idx = m_rd_idx;
+				sys::atomic32_t wr_idx = sys::atomic_get32(&m_wr_idx);
+				sys::atomic32_t rd_idx = m_rd_idx;
 				// @TODO: wraparound
 				if (rd_idx < wr_idx)
 				{
 					//DBG_OUT("rd_idx=%10i, wr_idx=%10i, diff=%10i \n", rd_idx, wr_idx, wr_idx - rd_idx);
-					sys::Message & msg = socks::msg_buffer_at(rd_idx % sys::MessagePool::e_size);
+					msg_t & msg = socks::msg_buffer_at(rd_idx % MessagePool<msg_t, 1024>::e_size);
 					msg.ReadLock();
 
 					bool const write_ok = socks::WriteToSocket(msg.m_data, msg.m_length);
@@ -278,7 +278,7 @@ namespace trace {
 		{
 			g_ReconnectTimer.reset();
 			g_ClottedTimer.reset();
-			sys::Message msg;
+			msg_t msg;
 			// send cmd_setup message
 			encode_setup(msg, GetRuntimeLevel(), GetRuntimeContextMask());
 
@@ -298,7 +298,7 @@ namespace trace {
 
 	void Connect ()
 	{
-		sys::SetTickStart();
+		sys::setTimeStart();
 
 		socks::g_ThreadSend.Create(socks::consumer_thread, 0);
 
@@ -308,10 +308,10 @@ namespace trace {
 
 #	if defined TRACE_WINDOWS_SOCKET_FAILOVER_TO_FILE
 		char filename[128];
-		sys::create_log_filename(filename, sizeof(filename) / sizeof(*filename));
+		create_log_filename(filename, sizeof(filename) / sizeof(*filename));
 		socks::g_LogFile = CreateFileA(filename, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 
-		sys::Message msg;
+		msg_t msg;
 		// send cmd_setup message
 		encode_setup(msg, GetRuntimeLevel(), GetRuntimeContextMask());
 		socks::WriteToFile(msg.m_data, msg.m_length);
@@ -346,7 +346,7 @@ namespace trace {
 	{
 		if (GetRuntimeBuffering())
 		{
-			sys::Message & msg = socks::acquire_msg_buffer();
+			msg_t & msg = socks::acquire_msg_buffer();
 			msg.WriteLock();
 			{
 				encode_log(msg, level, context, file, line, fn, fmt, args);
@@ -355,7 +355,7 @@ namespace trace {
 		}
 		else
 		{
-			sys::Message msg;
+			msg_t msg;
 			encode_log(msg, level, context, file, line, fn, fmt, args);
 			socks::WriteToSocket(msg.m_data, msg.m_length);
 		}
@@ -365,7 +365,7 @@ namespace trace {
 	{
 		if (GetRuntimeBuffering())
 		{
-			sys::Message & msg = socks::acquire_msg_buffer();
+			msg_t & msg = socks::acquire_msg_buffer();
 			msg.WriteLock();
 			{
 				encode_str(msg, level, context, file, line, fn, str);
@@ -374,7 +374,7 @@ namespace trace {
 		}
 		else
 		{
-			sys::Message msg;
+			msg_t msg;
 			encode_str(msg, level, context, file, line, fn, str);
 			socks::WriteToSocket(msg.m_data, msg.m_length);
 		}
@@ -384,7 +384,7 @@ namespace trace {
 	{
 		if (GetRuntimeBuffering())
 		{
-			sys::Message & msg = socks::acquire_msg_buffer();
+			msg_t & msg = socks::acquire_msg_buffer();
 			msg.WriteLock();
 			{
 				encode_scope(msg, type == ScopedLog::e_Entry ? tlv::cmd_scope_entry : tlv::cmd_scope_exit , level, context, file, line, fn);
@@ -393,7 +393,7 @@ namespace trace {
 		}
 		else
 		{
-			sys::Message msg;
+			msg_t msg;
 			encode_scope(msg, type == ScopedLog::e_Entry ? tlv::cmd_scope_entry : tlv::cmd_scope_exit , level, context, file, line, fn);
 			socks::WriteToSocket(msg.m_data, msg.m_length);
 		}

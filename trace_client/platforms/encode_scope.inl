@@ -5,13 +5,13 @@
 
 namespace trace {
 
-	inline void encode_scope (sys::Message & msg, tlv::cmd_t cmd, level_t level, context_t context, char const * file, int line, char const * fn)
+	inline void encode_scope (msg_t & msg, tlv::cmd_t cmd, level_t level, context_t context, char const * file, int line, char const * fn)
 	{
-		tlv::Encoder e(cmd, msg.m_data, sys::Message::e_data_sz);
+		tlv::Encoder e(cmd, msg.m_data, msg_t::e_data_sz);
 		size_t const tlv_buff_sz = 256;
 		char tlv_buff[tlv_buff_sz];
 		using namespace tlv;
-		e.Encode(TLV(tag_time, sys::trc_vsnprintf(tlv_buff, tlv_buff_sz, "%llu", sys::GetTime()), tlv_buff));
+		e.Encode(TLV(tag_time, sys::trc_vsnprintf(tlv_buff, tlv_buff_sz, "%llu", sys::queryTime()), tlv_buff));
 		e.Encode(TLV(tag_lvl,  sys::trc_vsnprintf(tlv_buff, tlv_buff_sz, "%u", level), tlv_buff));
 		e.Encode(TLV(tag_ctx,  sys::trc_vsnprintf(tlv_buff, tlv_buff_sz, "%x", context), tlv_buff));
 		e.Encode(TLV(tag_tid,  sys::trc_vsnprintf(tlv_buff, tlv_buff_sz, "%u", sys::get_tid()), tlv_buff));
@@ -24,3 +24,4 @@ namespace trace {
 		}
 	}
 }
+

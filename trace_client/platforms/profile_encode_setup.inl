@@ -5,9 +5,9 @@
 
 namespace profile {
 
-	inline void encode_setup (sys::msg_t & msg)
+	inline void encode_setup (msg_t & msg)
 	{
-		tlv::Encoder e(tlv::cmd_setup, msg.m_data, sys::msg_t::e_data_sz);
+		tlv::Encoder e(tlv::cmd_setup, msg.m_data, msg_t::e_data_sz);
 		size_t const tlv_buff_sz = 128;
 		char tlv_buff[tlv_buff_sz];
 		using namespace tlv;

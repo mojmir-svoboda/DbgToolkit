@@ -34,7 +34,7 @@ namespace profile {
 		sys::atomic32_t volatile g_Quit = 0;			/// request to quit
 		CACHE_ALIGN sys::atomic32_t volatile m_wr_idx = 0;		// write index
 
-		typedef sys::MessagePool<sys::msg_t, 1024> pool_t;
+		typedef MessagePool<msg_t, 1024> pool_t;
 		pool_t g_MessagePool;			                        /// pool of messages
 		CACHE_ALIGN sys::atomic32_t volatile m_rd_idx = 0;		// read index
 
@@ -42,8 +42,8 @@ namespace profile {
 		SOCKET g_Socket = INVALID_SOCKET;
 		sys::Timer g_ReconnectTimer;
 
-		inline sys::msg_t & msg_buffer_at (size_t i) { return g_MessagePool[i]; }
-		inline sys::msg_t & acquire_msg_buffer ()
+		inline msg_t & msg_buffer_at (size_t i) { return g_MessagePool[i]; }
+		inline msg_t & acquire_msg_buffer ()
 		{
 			sys::atomic32_t wr_idx = InterlockedIncrement(&m_wr_idx);
 			return msg_buffer_at((wr_idx - 1) % pool_t::e_size);
@@ -78,13 +78,13 @@ namespace profile {
 		{
 			while (!g_Quit)
 			{
-				sys::atomic32_t wr_idx = sys::atomic_get(&m_wr_idx);
+				sys::atomic32_t wr_idx = sys::atomic_get32(&m_wr_idx);
 				sys::atomic32_t rd_idx = m_rd_idx;
 				// @TODO: wraparound
 				if (rd_idx < wr_idx)
 				{
 					//DBG_OUT("rd_idx=%10i, wr_idx=%10i, diff=%10i \n", rd_idx, wr_idx, wr_idx - rd_idx);
-					sys::msg_t & msg = socks::msg_buffer_at(rd_idx % pool_t::e_size);
+					msg_t & msg = socks::msg_buffer_at(rd_idx % pool_t::e_size);
 					msg.ReadLock();
 
 					socks::WriteToSocket(msg.m_data, msg.m_length);
@@ -162,7 +162,7 @@ namespace profile {
 		bool try_connect ()
 		{
 			g_ReconnectTimer.reset();
-			sys::msg_t msg;
+			msg_t msg;
 			// send cmd_setup message
 			encode_setup(msg);
 
@@ -178,7 +178,7 @@ namespace profile {
 
 	void Connect ()
 	{
-		sys::SetTickStart();
+		sys::setTimeStart();
 		socks::g_ThreadSend.Create(socks::consumer_thread, 0);
 
 		bool const connected = socks::try_connect();
@@ -206,7 +206,7 @@ namespace profile {
 
 	inline void WriteBgn_Impl ()
 	{
-		sys::msg_t & msg = socks::acquire_msg_buffer();
+		msg_t & msg = socks::acquire_msg_buffer();
 		msg.WriteLock();
 		{
 			encode_bgn(msg);
@@ -215,7 +215,7 @@ namespace profile {
 	}
 	inline void WriteBgnVA (char const * fmt, va_list args)
 	{
-		sys::msg_t & msg = socks::acquire_msg_buffer();
+		msg_t & msg = socks::acquire_msg_buffer();
 		msg.WriteLock();
 		{
 			encode_bgn(msg, fmt, args);
@@ -225,7 +225,7 @@ namespace profile {
 
 	inline void WriteEnd_Impl ()
 	{
-		sys::msg_t & msg = socks::acquire_msg_buffer();
+		msg_t & msg = socks::acquire_msg_buffer();
 		msg.WriteLock();
 		{
 			encode_end(msg);
@@ -234,7 +234,7 @@ namespace profile {
 	}
 	inline void WriteEndVA (char const * fmt, va_list args)
 	{
-		sys::msg_t & msg = socks::acquire_msg_buffer();
+		msg_t & msg = socks::acquire_msg_buffer();
 		msg.WriteLock();
 		{
 			encode_end(msg, fmt, args);
@@ -244,7 +244,7 @@ namespace profile {
 
 	inline void WriteFrameBgn_Impl ()
 	{
-		sys::msg_t & msg = socks::acquire_msg_buffer();
+		msg_t & msg = socks::acquire_msg_buffer();
 		msg.WriteLock();
 		{
 			encode_frame_bgn(msg);
@@ -253,7 +253,7 @@ namespace profile {
 	}
 	inline void WriteFrameBgnVA (char const * fmt, va_list args)
 	{
-		sys::msg_t & msg = socks::acquire_msg_buffer();
+		msg_t & msg = socks::acquire_msg_buffer();
 		msg.WriteLock();
 		{
 			encode_frame_bgn(msg, fmt, args);
@@ -263,7 +263,7 @@ namespace profile {
 
 	inline void WriteFrameEnd_Impl ()
 	{
-		sys::msg_t & msg = socks::acquire_msg_buffer();
+		msg_t & msg = socks::acquire_msg_buffer();
 		msg.WriteLock();
 		{
 			encode_frame_end(msg);
@@ -272,7 +272,7 @@ namespace profile {
 	}
 	inline void WriteFrameEndVA (char const * fmt, va_list args)
 	{
-		sys::msg_t & msg = socks::acquire_msg_buffer();
+		msg_t & msg = socks::acquire_msg_buffer();
 		msg.WriteLock();
 		{
 			encode_frame_end(msg, fmt, args);

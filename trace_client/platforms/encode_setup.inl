@@ -5,9 +5,9 @@
 
 namespace trace {
 
-	inline void encode_setup (sys::Message & msg, level_t level, context_t context)
+	inline void encode_setup (msg_t & msg, level_t level, context_t context)
 	{
-		tlv::Encoder e(tlv::cmd_setup, msg.m_data, sys::Message::e_data_sz);
+		tlv::Encoder e(tlv::cmd_setup, msg.m_data, msg_t::e_data_sz);
 		size_t const tlv_buff_sz = 256;
 		char tlv_buff[tlv_buff_sz];
 		using namespace tlv;
@@ -21,3 +21,4 @@ namespace trace {
 		}
 	}
 }
+

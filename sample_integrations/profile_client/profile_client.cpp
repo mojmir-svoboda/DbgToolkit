@@ -134,7 +134,7 @@ void * do_something ( void * )
 	while (!g_Quit)
 	{
 		++i;
-		PROFILE_BGN("thread %u worker loop %u", thr_n, i);
+		PROFILE_BGN("thread %u worker [loop %u]", thr_n, i);
 #if defined WIN32 || defined WIN64
 		Sleep(250);
 #elif defined __linux__
