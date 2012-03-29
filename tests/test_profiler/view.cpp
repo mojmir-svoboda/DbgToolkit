@@ -10,6 +10,7 @@
 
 int g_heightValue = 38;
 int g_spaceValue = 15;
+float g_scaleValue = 1.0f;
 
 View::View (MainWindow * mw, const QString & name, QWidget * parent)
 	: m_mainWindow(mw)

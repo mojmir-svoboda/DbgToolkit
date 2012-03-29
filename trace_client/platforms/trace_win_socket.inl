@@ -152,7 +152,7 @@ namespace trace {
 							{
 								unsigned const buff_state = atoi(cmd.tlvs[0].m_val);
 								char grr[256];
-								_snprintf(grr, 256, "buffering changed! val=%u\n", buff_state);
+								_snprintf_s(grr, 256, "buffering changed! val=%u\n", buff_state);
 								OutputDebugString(grr);
 								SetRuntimeBuffering(static_cast<bool>(buff_state));
 							}

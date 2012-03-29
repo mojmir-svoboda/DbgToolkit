@@ -8,8 +8,8 @@
 	{
 		typedef LONGLONG hptimer_t;
 
-		//extern hptimer_t g_Start, g_Freq;
-		hptimer_t g_Start, g_Freq;
+		extern hptimer_t g_Start, g_Freq;
+		//hptimer_t g_Start, g_Freq;
 
 		inline hptimer_t queryPerformanceFrequency ()
 		{

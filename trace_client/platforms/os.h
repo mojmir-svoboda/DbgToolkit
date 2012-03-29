@@ -6,8 +6,8 @@
 #	include <windows.h>
 	namespace sys
 	{
-		unsigned get_pid () { return ::GetCurrentProcessId(); }
-		unsigned get_tid () { return ::GetCurrentThreadId(); }
+		inline unsigned get_pid () { return ::GetCurrentProcessId(); }
+		inline unsigned get_tid () { return ::GetCurrentThreadId(); }
 
 		/**@brief	yields core to other thread **/
 		inline void thread_yield () { Sleep(1); }

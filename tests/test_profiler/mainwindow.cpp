@@ -104,9 +104,9 @@ void MainWindow::populateScene()
 					int w = block.m_dt;
 					qreal x = block.m_time_bgn;
 					qreal y = (offs) * (h + space)  + block.m_layer * (h + space);
-					block.m_x = x / 1000.0f;
+					block.m_x = x / g_scaleValue;
 					block.m_y = y;
-					//printf("f=%2u t=%2u b=%2u    x=%6.1f y=%6.1f w=%4i h=%4i\n", f, t, b, x, y, w, h); fflush(stdout);
+					printf("f=%2u t=%2u b=%2u    (%3.2f, %3.2f) (x=%6.1f y=%6.1f w=%4i h=%4i dt=%3.3f)\n", f, t, b, block.m_x, block.m_y, x, y, w, h, block.m_dt); fflush(stdout);
 
 					QColor color = Qt::white;
 					colormap_t::iterator it = colors.find(block.m_tag);

@@ -20,6 +20,9 @@ add_definitions ("-DTRACE_ENABLED")
 add_definitions ("-DTRACE_DLL")
 add_definitions ("-DTRACE_WINDOWS_SOCKET_FAILOVER_TO_FILE")
 
+add_definitions ("-DPROFILE_ENABLED")
+add_definitions ("-DPROFILE_DLL")
+
 include_directories (${FLOGGING_INCLUDE_DIRS})
 add_library (trace_client_x64 SHARED "${FLOGGING_SOURCE_DIRS}/trace_client/trace.cpp" "${FLOGGING_SOURCE_DIRS}/trace_client/profile.cpp")
 

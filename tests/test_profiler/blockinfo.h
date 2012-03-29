@@ -3,6 +3,8 @@
 #include <string>
 #include <cstdio>
 
+extern float g_scaleValue;
+
 struct BlockInfo
 {
 	unsigned m_frame;
@@ -23,7 +25,7 @@ struct BlockInfo
 	void complete ()
 	{
 		m_delta_t = m_time_end - m_time_bgn;
-		m_dt = static_cast<float>(m_delta_t) / 1000.0f;
+		m_dt = static_cast<float>(m_delta_t) / g_scaleValue;
 		//printf("completed: tid=%10llu delta_t=%10llu msg=%s\n", m_tid, m_delta_t, m_msg.c_str());
 	}
 };

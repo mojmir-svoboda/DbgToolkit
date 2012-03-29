@@ -1,7 +1,12 @@
 #include "trace.h"
 #include <stdarg.h>
+#include "platforms/time_query.h"
 
 #if defined TRACE_ENABLED
+
+	namespace sys {
+		hptimer_t g_Start = 0, g_Freq = 1000000;
+	}
 
 	namespace trace {
 

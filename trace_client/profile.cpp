@@ -67,6 +67,11 @@
 		{
 			WriteEnd();
 		}
+
+		void PROFILE_API foo ()
+		{
+			WriteFrameBgn();
+		}
 	}
 #	include "platforms/profile_select_platform.inl"
 

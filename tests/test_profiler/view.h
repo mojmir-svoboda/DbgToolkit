@@ -12,6 +12,7 @@ QT_FORWARD_DECLARE_CLASS(QSpinBox)
 
 extern int g_heightValue;
 extern int g_spaceValue;
+extern float g_scaleValue;
 
 class MainWindow;
 
