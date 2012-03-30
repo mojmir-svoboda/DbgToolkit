@@ -100,8 +100,8 @@ View::View (MainWindow * mw, const QString & name, QWidget * parent)
 
 	connect(m_resetButton, SIGNAL(clicked()), this, SLOT(resetView()));
 	connect(m_zoomSlider, SIGNAL(valueChanged(int)), this, SLOT(setupMatrix()));
-	//connect(m_graphicsView->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(setResetButtonEnabled()));
-	//connect(m_graphicsView->horizontalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(setResetButtonEnabled()));
+	connect(m_graphicsView->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(setResetButtonEnabled()));
+	connect(m_graphicsView->horizontalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(setResetButtonEnabled()));
 	connect(m_antialiasButton, SIGNAL(toggled(bool)), this, SLOT(toggleAntialiasing()));
 	connect(m_openGlButton, SIGNAL(toggled(bool)), this, SLOT(toggleOpenGL()));
 	connect(zoomInIcon, SIGNAL(clicked()), this, SLOT(zoomIn()));
@@ -137,6 +137,7 @@ void View::changeHeight (int n)
 
 void View::setResetButtonEnabled()
 {
+	//m_graphicsView->SetCenter(this->get);
 	m_resetButton->setEnabled(true);
 }
 

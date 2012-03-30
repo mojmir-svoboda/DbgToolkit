@@ -3,6 +3,20 @@
 #include <QtGui/QGraphicsItem>
 #include "blockinfo.h"
 
+class BarText : public QGraphicsItem
+{
+public:
+	BarText (int x, int y, int w, int h);
+
+	QRectF boundingRect () const;
+	QPainterPath shape () const;
+	void paint (QPainter * painter, QStyleOptionGraphicsItem const * item, QWidget * widget);
+
+protected:
+	int m_x, m_y, m_w, m_h;
+private:
+};
+
 class Bar : public QGraphicsItem
 {
 public:

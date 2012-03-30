@@ -2,6 +2,43 @@
 #include "view.h"
 #include <QtGui>
 
+BarText::BarText (int x, int y, int w, int h)
+	: m_x(x), m_y(y), m_w(w), m_h(h)
+{
+}
+
+QRectF BarText::boundingRect () const
+{
+	return QRectF(0, 0, m_w, g_heightValue);
+}
+
+QPainterPath BarText::shape () const
+{
+	QPainterPath path;
+	path.addRect(0, 0, m_w, g_heightValue);
+	return path;
+}
+
+void BarText::paint (QPainter * painter, QStyleOptionGraphicsItem const * option, QWidget * widget)
+{
+	Q_UNUSED(widget);
+
+	setFlag(QGraphicsItem::ItemIgnoresTransformations);
+	QFont font("Times", 12);
+	QTransform identity;
+	font.setStyleStrategy(QFont::ForceOutline);
+	//t.prepare(identity, font);
+	//t.setText(QString("%1 %2").arg(m_block.m_msg.c_str()).arg(m_block.m_delta_t));
+	painter->save();
+	painter->drawText(4, g_heightValue/2, QString("%1 %2").arg("aaa").arg(m_w));
+	painter->restore();
+}
+
+
+
+
+
+
 Bar::Bar (BlockInfo & bi, QColor const & color, int x, int y, int w, int h, int tid, int tid_offs)
 	: m_block(bi) 
 	, m_x(x), m_y(y), m_w(w), m_h(h), m_color(color)
@@ -38,28 +75,54 @@ void Bar::paint (QPainter * painter, QStyleOptionGraphicsItem const * option, QW
 	painter->fillRect(QRectF(0, 0, m_w, g_heightValue), fillColor);
 
 	qreal const lod = option->levelOfDetailFromTransform(painter->worldTransform());
-	if (lod >= 0.7f)
+
+	if (lod > 0.4f)
 	{
-		QFont font("Times", 12);
+		QFont font("Times", 8);
 		font.setStyleStrategy(QFont::ForceOutline);
 		painter->setFont(font);
 		painter->save();
-		painter->drawText(4, g_heightValue/2, QString("%1").arg(m_block.m_msg.c_str()));
-		painter->drawText(4, 7 * g_heightValue/8, QString("%2 ms").arg(m_block.m_delta_t));
+		painter->drawStaticText(4, g_heightValue/2, QString("%1").arg(m_block.m_msg.c_str()));
+		painter->drawStaticText(4, 7 * g_heightValue/8, QString("%2 ms").arg(m_block.m_delta_t));
+		painter->restore();
+	}
+
+/*
+	if (lod >= 0.7f)
+	{
+		QFont font("Times", 8);
+		font.setStyleStrategy(QFont::ForceOutline);
+		painter->setFont(font);
+		painter->save();
+		painter->drawStaticText(4, g_heightValue/2, QString("%1").arg(m_block.m_msg.c_str()));
+		painter->drawStaticText(4, 7 * g_heightValue/8, QString("%2 ms").arg(m_block.m_delta_t));
 		painter->restore();
 	}
 	else if (0.4f < lod && lod < 0.7f)
 	{
 		if (m_w > 10)
 		{
-			QFont font("Times", 16);
+			QFont font("Times", 8);
 			font.setStyleStrategy(QFont::ForceOutline);
 			painter->setFont(font);
 			painter->save();
-			painter->drawText(4, g_heightValue/2, QString("%1 %2").arg(m_block.m_msg.c_str()).arg(m_block.m_delta_t));
+			painter->drawStaticText(4, g_heightValue/2, QString("%1 %2").arg(m_block.m_msg.c_str()).arg(m_block.m_delta_t));
 			painter->restore();
 		}
 	}
+	else if (0.1f < lod && lod <= 0.4f)
+	{
+		if (m_w > 10)
+		{
+			QFont font("Times", 8);
+			font.setStyleStrategy(QFont::ForceOutline);
+			painter->setFont(font);
+			painter->save();
+			painter->drawStaticText(4, g_heightValue/2, QString("%1 %2").arg(m_block.m_msg.c_str()).arg(m_block.m_delta_t));
+			painter->restore();
+		}
+	}*/
+
 }
 
 void Bar::mousePressEvent (QGraphicsSceneMouseEvent * event)
