@@ -119,6 +119,7 @@ private slots:
 	void processReadyRead ();
 	void onDisconnected ();
 	void onTableClicked (QModelIndex const & index);
+	void onTableDoubleClicked (QModelIndex const & index);
 
 private:
 	friend class Server;

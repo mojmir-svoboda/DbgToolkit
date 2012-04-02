@@ -35,6 +35,14 @@ class MainWindow;
 
 typedef std::pair<std::string, std::string> fileline_t;
 
+struct CollapsedBlock {
+	QString m_tid;
+	int m_from;
+	int m_to;
+
+	CollapsedBlock (QString tid, int from, int to) : m_tid(tid), m_from(from), m_to(to) { }
+};
+
 class SessionState
 {
 public:
@@ -73,6 +81,9 @@ public:
 	void appendTIDFilter (std::string const & item);
 	void removeTIDFilter (std::string const & item);
 	bool isTIDExcluded (std::string const & item) const;
+
+	void appendCollapsedBlock (QString tid, int from, int to);
+	bool isBlockCollapsed (QString tid, int row);
 	
 signals:
 	
@@ -97,5 +108,6 @@ private:
 	QMap<tlv::tag_t, int> m_tags2columns;
 	ThreadSpecific m_tls;
 	QString m_name;
+	QList<CollapsedBlock> m_collapse_blocks;
 };
 

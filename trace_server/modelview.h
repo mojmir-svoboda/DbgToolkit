@@ -54,6 +54,13 @@ public:
 	bool checkColumnExistence (tlv::tag_t tag, QModelIndex const & index) const;
 	bool checkTagExistence (tlv::tag_t tag, QModelIndex const & index) const;
 
+	typedef std::vector<unsigned> layers_t;
+	layers_t const & layers () const { return m_layers; }
+
+	typedef std::vector<unsigned> row_types_t;
+	row_types_t const & rowTypes () const { return m_rowTypes; }
+
+
 signals:
 	
 public slots:
@@ -65,6 +72,8 @@ private:
 	typedef std::vector<QString> columns_t;
 	typedef std::vector<columns_t> rows_t;
 	rows_t m_rows;
+	layers_t m_layers;
+	row_types_t m_rowTypes;
 };
 
 #endif // MODELVIEW_H

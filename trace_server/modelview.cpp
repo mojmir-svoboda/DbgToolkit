@@ -165,6 +165,8 @@ void ModelView::appendCommand (QSortFilterProxyModel * filter, tlv::StringComman
 			qindent.append("  ");	// @TODO: ugh
 
 	m_rows.push_back(columns_t(cmd.tvs.size()));
+	m_layers.push_back(indent);
+	m_rowTypes.push_back(cmd.hdr.cmd);
 	columns_t & columns = m_rows.back();
 	columns.reserve(cmd.tvs.size());
 

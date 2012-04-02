@@ -127,3 +127,22 @@ bool SessionState::isTIDExcluded (std::string const & item) const
 {
 	return std::find(m_tid_filters.begin(), m_tid_filters.end(), item) != m_tid_filters.end();
 }
+
+void SessionState::appendCollapsedBlock (QString tid, int from, int to)
+{
+	m_collapse_blocks.push_back(CollapsedBlock(tid, from, to));
+}
+
+bool SessionState::isBlockCollapsed (QString tid, int row)
+{
+	for (int i = 0, ie = m_collapse_blocks.size(); i < ie; ++i)
+	{
+		CollapsedBlock const & b = m_collapse_blocks.at(i);
+		if (b.m_tid == tid)
+		{
+			if (b.m_from < row && row < b.m_to)
+				return true;
+		}
+	}
+	return false;
+}

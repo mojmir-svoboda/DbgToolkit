@@ -583,6 +583,91 @@ void Connection::onTableClicked (QModelIndex const & row_index)
 	//m_table_view_widget->scrollTo(m_table_view_proxy ? m_table_view_proxy->mapFromSource(idx) : idx, QTableView::PositionAtCenter);
 }
 
+void Connection::onTableDoubleClicked (QModelIndex const & row_index)
+{
+	ModelView * model = static_cast<ModelView *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
+
+	int row_bgn = row_index.row();
+	int row_end = row_index.row();
+	int layer = model->layers()[row_bgn];
+
+	if (model->rowTypes()[row_bgn] == tlv::cmd_scope_exit)
+	{
+		layer += 1;
+		// test na range
+		--row_bgn;
+	}
+
+	QString tid = findString4Tag(tlv::tag_tid, row_index);
+	int from = row_bgn;
+
+	if (model->rowTypes()[from] != tlv::cmd_scope_entry)
+	{
+		while (row_bgn > 0)
+		{
+			{
+				//QModelIndex const curr_idx = model->index(row_bgn, row_index.column(), QModelIndex());
+				//QModelIndex const src = m_table_view_proxy->mapFromSource(curr_idx);
+				//qDebug("BGN: (%i,col) -> (%i,col)", row_bgn, src.row());
+			}
+
+			QModelIndex curr_idx = model->index(row_bgn, row_index.column(), QModelIndex());
+			if (m_table_view_proxy)
+			{
+				curr_idx = m_table_view_proxy->mapFromSource(curr_idx);
+			}
+
+			QString curr_tid = findString4Tag(tlv::tag_tid, curr_idx);
+			if (curr_tid == tid)
+			{
+				if (model->layers()[row_bgn] >= layer)
+				{
+					from = row_bgn;
+				}
+				else
+				{
+					break;
+				}
+			}
+			--row_bgn;
+		}
+	}
+
+	int to = row_end;
+	if (model->rowTypes()[to] != tlv::cmd_scope_exit)
+	{
+		while (row_end < model->layers().size())
+		{
+			//QModelIndex const curr_idx = model->index(row_end, row_index.column(), QModelIndex());
+			//QModelIndex const src = m_table_view_proxy->mapFromSource(curr_idx);
+			//qDebug("END: (%i,col) -> (%i,col)", row_end, src.row());
+			QModelIndex curr_idx = model->index(row_end, row_index.column(), QModelIndex());
+			if (m_table_view_proxy)
+			{
+				curr_idx = m_table_view_proxy->mapFromSource(curr_idx);
+			}
+			QString next_tid = findString4Tag(tlv::tag_tid, curr_idx);
+			if (next_tid == tid)
+			{
+				if (model->layers()[row_end] >= layer)
+					to = row_end;
+				else if ((model->layers()[row_end] == layer - 1) && (model->rowTypes()[row_end] == tlv::cmd_scope_exit))
+				{
+					to = row_end;
+					break;
+				}
+				else
+					break;
+			}
+			++row_end;
+		}
+	}
+
+	qDebug("curr_row=%u, layer=%u, from,to=(%u, %u)", row_index.row(), layer, from, to);
+	m_session_state.appendCollapsedBlock(tid, from, to);
+	onInvalidateFilter();
+}
+
 bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 {
 	qDebug("handle setup command");
@@ -635,6 +720,7 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 				m_table_view_widget->horizontalHeader()->resizeSection(c, sizes.at(c));
 			}*/
 			connect(m_table_view_widget, SIGNAL(clicked(QModelIndex const &)), this, SLOT(onTableClicked(QModelIndex const &)));
+			connect(m_table_view_widget, SIGNAL(doubleClicked(QModelIndex const &)), this, SLOT(onTableDoubleClicked(QModelIndex const &)));
 
 			static_cast<ModelView *>(m_table_view_widget->model())->emitLayoutChanged();
 		}
@@ -725,6 +811,9 @@ bool FilterProxyModel::filterAcceptsRow (int sourceRow, QModelIndex const & /*so
 	}
 
 	excluded |= m_session_state.isTIDExcluded(tid.toStdString());
+
+	QModelIndex data_idx = sourceModel()->index(sourceRow, 0, QModelIndex());
+	excluded |= m_session_state.isBlockCollapsed(tid, data_idx.row());
 	return !excluded && regex_accept;
 }
 
