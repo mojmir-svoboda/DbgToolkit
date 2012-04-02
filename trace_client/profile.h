@@ -42,7 +42,7 @@
 #	else
 #		include <stdarg.h>	// for va_args
 #	endif
-
+#	include "common.h"
 
 /**	@macro		PROFILE_APPNAME
  *	@brief		sets application name that will be sent to server to identify
@@ -82,7 +82,7 @@
 /**	@macro		PROFILE_ENTRY
  *	@brief		profiles scope
  **/
-#	define PROFILE_SCOPE                profile::ScopedProfile entry_guard___
+#	define PROFILE_SCOPE                profile::ScopedProfile UNIQUE(profile_entry_guard_)
 
 	namespace profile {
 

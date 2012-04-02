@@ -43,6 +43,7 @@
 #		include <stdarg.h>	// for va_args
 #	endif
 
+#include "common.h"
 
 /**	@macro		TRACE_CONFIG_INCLUDE
  *	@brief		overrides default config with user-specified one
@@ -110,8 +111,8 @@
 /**	@macro		TRACE_ENTRY
  *	@brief		logs entry to scope and logs exit on scope end
  **/
-#	define TRACE_ENTRY(level, context)	\
-		trace::ScopedLog entry_guard___(static_cast<trace::level_t>(level), context, __FILE__, __LINE__, __FUNCTION__);
+#	define TRACE_SCOPE(level, context)	\
+		trace::ScopedLog UNIQUE(entry_guard_)(static_cast<trace::level_t>(level), context, __FILE__, __LINE__, __FUNCTION__);
 
 	namespace trace {
 
@@ -186,6 +187,6 @@
 #	define TRACE_DISCONNECT()                       ((void)0)
 #	define TRACE_MSG(level, context, fmt, ... )     ((void)0)
 #	define TRACE_MSG_VA(level, context, fmt, va)    ((void)0)
-#	define TRACE_ENTRY(level, context)              ((void)0)
+#	define TRACE_SCOPE(level, context)              ((void)0)
 #	define TRACE_SETBUFFERED(on)                     ((void)0)
 #endif // TRACE_ENABLED
