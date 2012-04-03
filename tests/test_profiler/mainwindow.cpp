@@ -121,6 +121,9 @@ void MainWindow::populateScene()
 					m_scene->addItem(item);
 					item->setToolTip(QString("frame=%1 thread=%2 %3 [%4 ms]").arg(f).arg(t).arg(block.m_msg.c_str()).arg(block.m_dt));
 
+					QGraphicsItem * titem = new BarText(block, color, 0, 0, w, h, t, offs);
+					titem->setPos(QPointF(block.m_x, y));
+					m_scene->addItem(titem);
 				}
 
 				offs += max_layers[t] + 2;

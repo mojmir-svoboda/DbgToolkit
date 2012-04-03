@@ -6,14 +6,18 @@
 class BarText : public QGraphicsItem
 {
 public:
-	BarText (int x, int y, int w, int h);
+    BarText (BlockInfo & bi, QColor const & color, int x, int y, int w, int h, int tid, int tid_offs);
 
 	QRectF boundingRect () const;
 	QPainterPath shape () const;
 	void paint (QPainter * painter, QStyleOptionGraphicsItem const * item, QWidget * widget);
 
 protected:
-	int m_x, m_y, m_w, m_h;
+	BlockInfo & m_block;
+	int m_tid;
+	int m_tid_offs;
+    int m_x, m_y, m_w, m_h;
+    QColor m_color;
 private:
 };
 

@@ -2,9 +2,13 @@
 #include "view.h"
 #include <QtGui>
 
-BarText::BarText (int x, int y, int w, int h)
-	: m_x(x), m_y(y), m_w(w), m_h(h)
+BarText::BarText (BlockInfo & bi, QColor const & color, int x, int y, int w, int h, int tid, int tid_offs)
+	: m_block(bi) 
+	, m_x(x), m_y(y), m_w(w), m_h(h), m_color(color)
+	, m_tid(tid), m_tid_offs(tid_offs)
 {
+	setZValue((x + y) % 2);
+	setAcceptsHoverEvents(true);
 }
 
 QRectF BarText::boundingRect () const
@@ -23,15 +27,18 @@ void BarText::paint (QPainter * painter, QStyleOptionGraphicsItem const * option
 {
 	Q_UNUSED(widget);
 
-	setFlag(QGraphicsItem::ItemIgnoresTransformations);
-	QFont font("Times", 12);
-	QTransform identity;
-	font.setStyleStrategy(QFont::ForceOutline);
-	//t.prepare(identity, font);
-	//t.setText(QString("%1 %2").arg(m_block.m_msg.c_str()).arg(m_block.m_delta_t));
-	painter->save();
-	painter->drawText(4, g_heightValue/2, QString("%1 %2").arg("aaa").arg(m_w));
-	painter->restore();
+	qreal const lod = option->levelOfDetailFromTransform(painter->worldTransform());
+
+	if (lod > 0.7f)
+	{
+		setFlag(QGraphicsItem::ItemIgnoresTransformations);
+		QFont font("Times", 12);
+		//QTransform identity;
+		font.setStyleStrategy(QFont::ForceOutline);
+		//painter->save();
+		painter->drawText(4, 12, QString("%1 %2").arg(m_block.m_msg.c_str()).arg(m_block.m_delta_t));
+		//painter->restore();
+	}
 }
 
 
@@ -76,7 +83,7 @@ void Bar::paint (QPainter * painter, QStyleOptionGraphicsItem const * option, QW
 
 	qreal const lod = option->levelOfDetailFromTransform(painter->worldTransform());
 
-	if (lod > 0.4f)
+/*	if (lod > 0.4f)
 	{
 		QFont font("Times", 8);
 		font.setStyleStrategy(QFont::ForceOutline);
@@ -85,7 +92,7 @@ void Bar::paint (QPainter * painter, QStyleOptionGraphicsItem const * option, QW
 		painter->drawStaticText(4, g_heightValue/2, QString("%1").arg(m_block.m_msg.c_str()));
 		painter->drawStaticText(4, 7 * g_heightValue/8, QString("%2 ms").arg(m_block.m_delta_t));
 		painter->restore();
-	}
+	}*/
 
 /*
 	if (lod >= 0.7f)

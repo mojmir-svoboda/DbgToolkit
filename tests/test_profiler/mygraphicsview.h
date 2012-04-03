@@ -15,6 +15,11 @@ class MyGraphicsView : public QGraphicsView
     Q_OBJECT;
 public:
     MyGraphicsView(QSpinBox & fs, QWidget* parent = NULL);
+
+    //Set the current centerpoint in the
+    void SetCenter(const QPointF& centerPoint);
+
+	void ForceCenter (QPointF const & center) { CurrentCenterPoint = center; }
  
 protected:
     //Holds the current centerpoint for the view, used for panning and zooming
@@ -23,8 +28,6 @@ protected:
     //From panning the view
     QPoint LastPanPoint;
  
-    //Set the current centerpoint in the
-    void SetCenter(const QPointF& centerPoint);
     QPointF GetCenter() { return CurrentCenterPoint; }
  
     //Take over the interaction

@@ -137,7 +137,6 @@ void View::changeHeight (int n)
 
 void View::setResetButtonEnabled()
 {
-	//m_graphicsView->SetCenter(this->get);
 	m_resetButton->setEnabled(true);
 }
 

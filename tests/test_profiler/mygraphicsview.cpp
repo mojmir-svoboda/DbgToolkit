@@ -31,7 +31,7 @@ void MyGraphicsView::SetCenter(const QPointF& centerPoint)
 	double const boundWidth = sceneBounds.width() - 2.0 * boundX;
 	double const boundHeight = sceneBounds.height() - 2.0 * boundY;
 
-	qDebug("setcenter: x=%f y=%f w=%f h=%f", boundX, boundY, boundWidth, boundHeight);
+	//qDebug("setcenter: x=%f y=%f w=%f h=%f", boundX, boundY, boundWidth, boundHeight);
 	// The max boundary that the centerPoint can be to
 	QRectF bounds(boundX, boundY, boundWidth, boundHeight);
 	if (bounds.contains(centerPoint))
@@ -45,14 +45,15 @@ void MyGraphicsView::SetCenter(const QPointF& centerPoint)
 		if (visibleArea.contains(sceneBounds))
 		{
 			// Use the center of scene ie. we can see the whole scene
-			CurrentCenterPoint = sceneBounds.center();
+			CurrentCenterPoint = centerPoint;
+			//CurrentCenterPoint = sceneBounds.center();
 		}
 		else
 		{
 			CurrentCenterPoint = centerPoint;
  
 			//We need to clamp the center. The centerPoint is too large
-			if (centerPoint.x() > bounds.x() + bounds.width()) {
+			/*if (centerPoint.x() > bounds.x() + bounds.width()) {
 				CurrentCenterPoint.setX(bounds.x() + bounds.width());
 			} else if (centerPoint.x() < bounds.x()) {
 				CurrentCenterPoint.setX(bounds.x());
@@ -62,7 +63,7 @@ void MyGraphicsView::SetCenter(const QPointF& centerPoint)
 				CurrentCenterPoint.setY(bounds.y() + bounds.height());
 			} else if (centerPoint.y() < bounds.y()) {
 				CurrentCenterPoint.setY(bounds.y());
-			}
+			}*/
 		}
 	}
  
@@ -90,10 +91,13 @@ void MyGraphicsView::mouseMoveEvent(QMouseEvent* event)
 		//Get how much we panned
 		QPointF delta = mapToScene(LastPanPoint) - mapToScene(event->pos());
 		LastPanPoint = event->pos();
+
+		QPointF cen = mapToScene(viewport()->rect()).boundingRect().center();
+		SetCenter(cen + delta);
  
 		//Update the center ie. do the pan
-		SetCenter(GetCenter() + delta);
-		qDebug("new center: %f %f", GetCenter().x(), GetCenter().y()); 
+		//SetCenter(GetCenter() + delta);
+		//qDebug("new center: %f %f", GetCenter().x(), GetCenter().y()); 
 	}
 	else
 	{
