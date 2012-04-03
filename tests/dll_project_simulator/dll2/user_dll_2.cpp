@@ -10,14 +10,14 @@ namespace bar
 {
     double MathFuncs_2::Add(double a, double b)
     {
-		TRACE_ENTRY(trace::e_Info, trace::CTX_Default);
+		TRACE_SCOPE(trace::e_Info, trace::CTX_Default);
 		TRACE_MSG(trace::e_Info, trace::CTX_Default,  "Adding: %f +  %f = ", a, b, a + b);
         return a + b;
     }
 
     double MathFuncs_2::Subtract(double a, double b)
     {
-		TRACE_ENTRY(trace::e_Info, trace::CTX_Default);
+		TRACE_SCOPE(trace::e_Info, trace::CTX_Default);
 		TRACE_MSG(trace::e_Info, trace::CTX_Default,  "Adding: %f + -%f = ", a, b, a - b);
         return a - b;
     }

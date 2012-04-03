@@ -17,7 +17,7 @@ namespace {
 		ThreadPool () { memset(this, 0, sizeof(*this)); }
 		~ThreadPool () { Close(); }
 		void Create (DWORD (WINAPI * fn) (void *), void * ) {
-			TRACE_ENTRY(trace::e_Info, trace::CTX_Default);
+			TRACE_SCOPE(trace::e_Info, trace::CTX_Default);
 			for (size_t i = 0; i < e_thread_count; i++ )
 				m_handles[i] = CreateThread( NULL, 0, fn, 0, 0, &m_tids[i]); 
 		}
@@ -39,13 +39,13 @@ void my_custom_vaarg_fn (char const * fmt, ...)
 
 void something_useful_too ()
 {
-	TRACE_ENTRY(trace::e_Info, trace::CTX_Default);
+	TRACE_SCOPE(trace::e_Info, trace::CTX_Default);
 	TRACE_MSG(trace::e_Info, trace::CTX_Default,  "%s", "Worker thread issues some another annoying message");
 }
 
 void something_useful ()
 {
-	TRACE_ENTRY(trace::e_Info, trace::CTX_Default);
+	TRACE_SCOPE(trace::e_Info, trace::CTX_Default);
 	something_useful_too();
 }
 
@@ -53,7 +53,7 @@ unsigned g_Quit = 0;
 
 DWORD WINAPI do_something ( LPVOID )
 {
-	TRACE_ENTRY(trace::e_Info, trace::CTX_Default);
+	TRACE_SCOPE(trace::e_Info, trace::CTX_Default);
 	while (!g_Quit)
 	{
 		static size_t i = 0;
@@ -68,7 +68,7 @@ DWORD WINAPI do_something ( LPVOID )
 
 DWORD WINAPI do_something_2 ( LPVOID )
 {
-	TRACE_ENTRY(trace::e_Info, trace::CTX_Default);
+	TRACE_SCOPE(trace::e_Info, trace::CTX_Default);
 	while (!g_Quit)
 	{
 		static size_t i = 0;
@@ -83,8 +83,8 @@ DWORD WINAPI do_something_2 ( LPVOID )
 
 struct Bar
 {
-	Bar () { TRACE_ENTRY(trace::e_Info, trace::CTX_Default); }
-	~Bar () { TRACE_ENTRY(trace::e_Info, trace::CTX_Default); }
+	Bar () { TRACE_SCOPE(trace::e_Info, trace::CTX_Default); }
+	~Bar () { TRACE_SCOPE(trace::e_Info, trace::CTX_Default); }
 };
 
 //int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)

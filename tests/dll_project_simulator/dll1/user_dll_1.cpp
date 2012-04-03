@@ -10,14 +10,14 @@ namespace foo
 {
     double MathFuncs_1::Add(double a, double b)
     {
-		TRACE_ENTRY(trace::e_Info, trace::CTX_Default);
+		TRACE_SCOPE(trace::e_Info, trace::CTX_Default);
 		TRACE_MSG(trace::e_Info, trace::CTX_Default,  "Adding: %f +  %f = ", a, b, a + b);
         return a + b;
     }
 
     double MathFuncs_1::Subtract(double a, double b)
     {
-		TRACE_ENTRY(trace::e_Info, trace::CTX_Default);
+		TRACE_SCOPE(trace::e_Info, trace::CTX_Default);
 		TRACE_MSG(trace::e_Info, trace::CTX_Default,  "Adding: %f + -%f = ", a, b, a - b);
         return a - b;
     }

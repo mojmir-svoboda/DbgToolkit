@@ -116,8 +116,8 @@
 #	define TRACE_MSG_VA(level, context, fmt, vaargs)	\
 		trace::WriteVA(static_cast<trace::level_t>(level), context, __FILE__, __LINE__, __FUNCTION__, fmt, vaargs);
 
-/**	@macro		TRACE_ENTRY
- *	@brief		logs entry to scope and logs exit on scope end
+/**	@macro		TRACE_SCOPE
+ *	@brief		logs "entry to" and "exit from" scope
  **/
 #	define TRACE_SCOPE(level, context)	\
 		trace::ScopedLog UNIQUE(entry_guard_)(static_cast<trace::level_t>(level), context, __FILE__, __LINE__, __FUNCTION__);
