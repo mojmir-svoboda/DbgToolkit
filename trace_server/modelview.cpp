@@ -59,6 +59,29 @@ QVariant ModelView::data (const QModelIndex &index, int role) const
 		}
 		return str;
 	}
+
+	bool const color_set = (role == Qt::BackgroundRole || role == Qt::ForegroundRole);
+	if (color_set)
+	{
+		if (checkColumnExistence(tlv::tag_msg, index))
+		{
+			QString const & msg = m_rows[index.row()][index.column()];
+
+			int color = -1;
+			E_ColorRole color_role = e_Bg;
+			bool const is_match = m_session_state.isMatchedText(msg, color, color_role);
+
+			if (is_match && role == Qt::BackgroundRole && color_role == e_Bg)
+			{
+				return QBrush(Qt::yellow);
+			}
+			if (is_match && role == Qt::ForegroundRole && color_role == e_Fg)
+			{
+				return QBrush(Qt::red);
+			}
+		}
+	}
+
 	if (role == Qt::BackgroundRole)
 	{
 		if (checkColumnExistence(tlv::tag_tid, index))
@@ -78,6 +101,7 @@ QVariant ModelView::data (const QModelIndex &index, int role) const
 			if (lvl.toInt() == trace::e_Warning)
 				return QBrush(Qt::yellow);
 		}
+
 	}
 	if (role == Qt::ForegroundRole)
 	{

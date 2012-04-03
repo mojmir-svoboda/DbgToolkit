@@ -43,6 +43,19 @@ struct CollapsedBlock {
 	CollapsedBlock (QString tid, int from, int to) : m_tid(tid), m_from(from), m_to(to) { }
 };
 
+enum E_ColorRole { e_Bg, e_Fg };
+
+struct ColorizedText {
+	E_ColorRole m_role;
+	Qt::GlobalColor m_color;
+	QRegExp m_regex;
+
+	bool isValid () const { return m_regex.isValid(); }
+	bool exactMatch (QString str) const { return m_regex.exactMatch(str); }
+
+	ColorizedText (QString regex, Qt::GlobalColor col, E_ColorRole r) : m_color(col), m_role(r), m_regex(regex) { }
+};
+
 class SessionState
 {
 public:
@@ -84,6 +97,8 @@ public:
 
 	void appendCollapsedBlock (QString tid, int from, int to);
 	bool isBlockCollapsed (QString tid, int row);
+
+	bool isMatchedText (QString str, int & color, E_ColorRole & role) const;
 	
 signals:
 	
@@ -102,6 +117,7 @@ private:
 	tid_filters_t m_tid_filters;
 
 	QList<QColor> m_thread_colors;
+	QList<ColorizedText> m_colorized_texts;
 	QList<QString> * m_columns_setup_current;
 	QList<QString> const * m_columns_setup_template;
 	MainWindow::columns_sizes_t * m_columns_sizes;

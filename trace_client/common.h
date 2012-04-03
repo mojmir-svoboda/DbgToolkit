@@ -1,5 +1,5 @@
 #pragma once
 
-#define TOKENCONCAT(x, y) x ## y
-#define TOKENCONCAT2(x, y) TOKENCONCAT(x, y)
-#define UNIQUE(name) TOKENCONCAT2(name, __LINE__)
+#define TOKEN_CONCAT(x, y) x ## y
+#define TOKEN_CONCAT2(x, y) TOKEN_CONCAT(x, y)
+#define UNIQUE(name) TOKEN_CONCAT2(name, __LINE__)

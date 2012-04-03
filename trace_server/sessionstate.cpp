@@ -13,7 +13,11 @@ SessionState::SessionState (QObject * parent)
 	, m_columns_setup_template(0)
 	, m_columns_sizes(0)
 	, m_name()
-{ }
+{
+	//@TODO: temporary location.. to be fed from some kind of widget
+	m_colorized_texts.push_back(ColorizedText(".*Warning.*", Qt::yellow, e_Bg));
+	m_colorized_texts.push_back(ColorizedText(".*Error.*", Qt::red, e_Fg));
+}
 
 SessionState::~SessionState ()
 {
@@ -146,3 +150,19 @@ bool SessionState::isBlockCollapsed (QString tid, int row)
 	}
 	return false;
 }
+
+bool SessionState::isMatchedText (QString str, int & color, E_ColorRole & role) const
+{
+	for (int i = 0, ie = m_colorized_texts.size(); i < ie; ++i)
+	{
+		ColorizedText const & ct = m_colorized_texts.at(i);
+		if (ct.exactMatch(str))
+		{
+			color = ct.m_color;
+			role = ct.m_role;
+			return true;
+		}
+	}
+	return false;
+}
+

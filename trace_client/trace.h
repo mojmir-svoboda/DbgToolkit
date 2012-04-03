@@ -35,6 +35,14 @@
 #		else
 #			define TRACE_API __declspec(dllimport)
 #		endif
+#	elif defined (_XBOX)
+#		if defined TRACE_STATIC
+#			define TRACE_API 
+#		elif defined TRACE_DLL
+#			define TRACE_API __declspec(dllexport)
+#		else
+#			define TRACE_API __declspec(dllimport)
+#		endif
 #	endif
 
 #	if  defined _MSC_VER
