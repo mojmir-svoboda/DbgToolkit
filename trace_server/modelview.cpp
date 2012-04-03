@@ -84,6 +84,19 @@ QVariant ModelView::data (const QModelIndex &index, int role) const
 
 	if (role == Qt::BackgroundRole)
 	{
+		if (checkColumnExistence(tlv::tag_msg, index))
+		{
+			int const column_idx = m_session_state.findColumn4Tag(tlv::tag_tid);
+			if (column_idx != -1)
+			{
+				QString const & tid = m_rows[index.row()][column_idx];
+
+				bool const is_collapsed = m_session_state.isBlockCollapsedIncl(tid, index.row());
+				if (is_collapsed)
+					return QBrush(Qt::lightGray);
+			}
+		}
+
 		if (checkColumnExistence(tlv::tag_tid, index))
 		{
 			QString const & tid = m_rows[index.row()][index.column()];

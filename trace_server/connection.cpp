@@ -528,10 +528,12 @@ QVariant Connection::findVariant4Tag (tlv::tag_t tag, QModelIndex const & row_in
 	if (idx == -1)
 		return QVariant();
 
-	QModelIndex model_idx = m_table_view_widget->model()->index(row_index.row(), idx, QModelIndex());
+	ModelView * model = static_cast<ModelView *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
+
+	QModelIndex model_idx = model->index(row_index.row(), idx, QModelIndex());
 	if (model_idx.isValid())
 	{
-		QVariant value = m_table_view_widget->model()->data(model_idx);
+		QVariant value = model->data(model_idx);
 		return value;
 	}
 	return QVariant();
@@ -587,8 +589,11 @@ void Connection::onTableDoubleClicked (QModelIndex const & row_index)
 {
 	ModelView * model = static_cast<ModelView *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
 
-	int row_bgn = row_index.row();
-	int row_end = row_index.row();
+	QModelIndex const curr = m_table_view_proxy->mapToSource(row_index);
+	//qDebug("curr: (%i,col) -> (%i,col)", row_index.row(), curr.row());
+
+	int row_bgn = curr.row();
+	int row_end = curr.row();
 	int layer = model->layers()[row_bgn];
 
 	if (model->rowTypes()[row_bgn] == tlv::cmd_scope_exit)
@@ -598,25 +603,14 @@ void Connection::onTableDoubleClicked (QModelIndex const & row_index)
 		--row_bgn;
 	}
 
-	QString tid = findString4Tag(tlv::tag_tid, row_index);
+	QString tid = findString4Tag(tlv::tag_tid, curr);
 	int from = row_bgn;
 
 	if (model->rowTypes()[from] != tlv::cmd_scope_entry)
 	{
 		while (row_bgn > 0)
 		{
-			{
-				//QModelIndex const curr_idx = model->index(row_bgn, row_index.column(), QModelIndex());
-				//QModelIndex const src = m_table_view_proxy->mapFromSource(curr_idx);
-				//qDebug("BGN: (%i,col) -> (%i,col)", row_bgn, src.row());
-			}
-
 			QModelIndex curr_idx = model->index(row_bgn, row_index.column(), QModelIndex());
-			if (m_table_view_proxy)
-			{
-				curr_idx = m_table_view_proxy->mapFromSource(curr_idx);
-			}
-
 			QString curr_tid = findString4Tag(tlv::tag_tid, curr_idx);
 			if (curr_tid == tid)
 			{
@@ -638,14 +632,7 @@ void Connection::onTableDoubleClicked (QModelIndex const & row_index)
 	{
 		while (row_end < model->layers().size())
 		{
-			//QModelIndex const curr_idx = model->index(row_end, row_index.column(), QModelIndex());
-			//QModelIndex const src = m_table_view_proxy->mapFromSource(curr_idx);
-			//qDebug("END: (%i,col) -> (%i,col)", row_end, src.row());
 			QModelIndex curr_idx = model->index(row_end, row_index.column(), QModelIndex());
-			if (m_table_view_proxy)
-			{
-				curr_idx = m_table_view_proxy->mapFromSource(curr_idx);
-			}
 			QString next_tid = findString4Tag(tlv::tag_tid, curr_idx);
 			if (next_tid == tid)
 			{
@@ -663,8 +650,11 @@ void Connection::onTableDoubleClicked (QModelIndex const & row_index)
 		}
 	}
 
-	qDebug("curr_row=%u, layer=%u, from,to=(%u, %u)", row_index.row(), layer, from, to);
-	m_session_state.appendCollapsedBlock(tid, from, to);
+	qDebug("row=%u / curr=%u layer=%u, from,to=(%u, %u)", row_index.row(), curr.row(), layer, from, to);
+	if (m_session_state.findCollapsedBlock(tid, from, to))
+		m_session_state.eraseCollapsedBlock(tid, from, to);
+	else
+		m_session_state.appendCollapsedBlock(tid, from, to);
 	onInvalidateFilter();
 }
 

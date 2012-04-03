@@ -96,7 +96,10 @@ public:
 	bool isTIDExcluded (std::string const & item) const;
 
 	void appendCollapsedBlock (QString tid, int from, int to);
+	bool findCollapsedBlock (QString tid, int from, int to) const;
+	bool eraseCollapsedBlock (QString tid, int from, int to);
 	bool isBlockCollapsed (QString tid, int row);
+	bool isBlockCollapsedIncl (QString tid, int row);
 
 	bool isMatchedText (QString str, int & color, E_ColorRole & role) const;
 	

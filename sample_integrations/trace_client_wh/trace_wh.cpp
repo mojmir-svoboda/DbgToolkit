@@ -16,7 +16,7 @@ namespace {
 		ThreadPool () { memset(this, 0, sizeof(*this)); }
 		~ThreadPool () { Close(); }
 		void Create (DWORD (WINAPI * fn) (void *), void * ) {
-			TRACE_ENTRY(trace::e_Info, trace::CTX_Default);
+			TRACE_SCOPE(trace::e_Info, trace::CTX_Default);
 			for (size_t i = 0; i < e_thread_count; i++ )
 				m_handles[i] = CreateThread( NULL, 0, fn, 0, 0, &m_tids[i]); 
 		}
@@ -131,13 +131,16 @@ void my_custom_vaarg_fn (char const * fmt, ...)
 
 void something_useful_too ()
 {
-	TRACE_ENTRY(trace::e_Info, trace::CTX_Default);
+	TRACE_SCOPE(trace::e_Info, trace::CTX_Default);
 	TRACE_MSG(trace::e_Info, trace::CTX_Default,  "%s", "Worker thread issues some another annoying message");
+	for (int i = 0; i < 12; ++i)
+		TRACE_MSG(trace::e_Info, trace::CTX_Default,  "%s %i", "ble :)", i);
+
 }
 
 void something_useful ()
 {
-	TRACE_ENTRY(trace::e_Info, trace::CTX_Default);
+	TRACE_SCOPE(trace::e_Info, trace::CTX_Default);
 	something_useful_too();
 }
 
@@ -149,7 +152,7 @@ DWORD WINAPI do_something ( LPVOID )
 void * do_something ( void * )
 #endif
 {
-	TRACE_ENTRY(trace::e_Info, trace::CTX_Default);
+	TRACE_SCOPE(trace::e_Info, trace::CTX_Default);
 	while (!g_Quit)
 	{
 		static size_t i = 0;
@@ -167,7 +170,7 @@ void * do_something ( void * )
 
 void foo ()
 {
-	TRACE_ENTRY(trace::e_Info, trace::CTX_Default);
+	TRACE_SCOPE(trace::e_Info, trace::CTX_Default);
 	TRACE_MSG(trace::e_Info, trace::CTX_Default,  "%s %s", "\'lloo woorld froom foo().", "and from bar!");
 }
 
@@ -175,12 +178,12 @@ struct Bar
 {
 	Bar ()
 	{
-		TRACE_ENTRY(trace::e_Info, trace::CTX_Default);
+		TRACE_SCOPE(trace::e_Info, trace::CTX_Default);
 	}
 
 	~Bar ()
 	{
-		TRACE_ENTRY(trace::e_Info, trace::CTX_Default);
+		TRACE_SCOPE(trace::e_Info, trace::CTX_Default);
 	}
 };
 
@@ -228,11 +231,18 @@ int main ()
 		++i;
 		TRACE_MSG(trace::e_Info, trace::CTX_Default,  "Some another annoying message i=%u from main thread", i);
 
-		//if (i == 4)
-		//	break;
+		if (i == 4)
+			break;
 	}
 
 	g_Quit = 1;
 	thr_pool.WaitForTerminate();
 	TRACE_DISCONNECT();
+#if defined WIN32 || defined WIN64
+		Sleep(2000);
+#elif defined __linux__
+		usleep(2000 * 1000);
+#endif
+
+
 }

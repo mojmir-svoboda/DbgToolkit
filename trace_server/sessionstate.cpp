@@ -137,6 +137,31 @@ void SessionState::appendCollapsedBlock (QString tid, int from, int to)
 	m_collapse_blocks.push_back(CollapsedBlock(tid, from, to));
 }
 
+bool SessionState::findCollapsedBlock (QString tid, int from, int to) const
+{
+	for (int i = 0, ie = m_collapse_blocks.size(); i < ie; ++i)
+	{
+		CollapsedBlock const & b = m_collapse_blocks.at(i);
+		if (b.m_tid == tid && b.m_from == from && to == b.m_to)
+			return true;
+	}
+	return false;
+}
+
+bool SessionState::eraseCollapsedBlock (QString tid, int from, int to)
+{
+	for (int i = 0, ie = m_collapse_blocks.size(); i < ie; ++i)
+	{
+		CollapsedBlock const & b = m_collapse_blocks.at(i);
+		if (b.m_tid == tid && b.m_from == from && to == b.m_to)
+		{
+			m_collapse_blocks.removeAt(i);
+			return true;
+		}
+	}
+	return false;
+}
+
 bool SessionState::isBlockCollapsed (QString tid, int row)
 {
 	for (int i = 0, ie = m_collapse_blocks.size(); i < ie; ++i)
@@ -145,6 +170,19 @@ bool SessionState::isBlockCollapsed (QString tid, int row)
 		if (b.m_tid == tid)
 		{
 			if (b.m_from < row && row < b.m_to)
+				return true;
+		}
+	}
+	return false;
+}
+bool SessionState::isBlockCollapsedIncl (QString tid, int row)
+{
+	for (int i = 0, ie = m_collapse_blocks.size(); i < ie; ++i)
+	{
+		CollapsedBlock const & b = m_collapse_blocks.at(i);
+		if (b.m_tid == tid)
+		{
+			if (b.m_from <= row && row <= b.m_to)
 				return true;
 		}
 	}
