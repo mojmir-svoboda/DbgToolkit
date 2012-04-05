@@ -60,7 +60,6 @@ public:
 	typedef std::vector<unsigned> row_types_t;
 	row_types_t const & rowTypes () const { return m_rowTypes; }
 
-
 signals:
 	
 public slots:

@@ -1,14 +1,11 @@
 #include "sessionstate.h"
-#include <QSortFilterProxyModel>
-#include <QStandardItemModel>
-#include "modelview.h"
-#include <boost/tokenizer.hpp>
-#include "../tlv_parser/tlv_encoder.h"
+#include <tlv_parser/tlv_encoder.h>
 
 SessionState::SessionState (QObject * parent)
 	: m_app_idx(-1)
 	, m_tab_idx(-2)
 	, m_tab_widget(0)
+	, m_exclude_content_to_row(0)
 	, m_columns_setup_current(0)
 	, m_columns_setup_template(0)
 	, m_columns_sizes(0)

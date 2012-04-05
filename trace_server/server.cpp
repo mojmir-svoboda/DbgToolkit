@@ -35,15 +35,6 @@ Server::Server (QObject * parent, bool quit_delay)
 	status = tr("Server running at IP: %1 port: %2").arg(serverAddress().toString()).arg(serverPort());
 }
 
-/*Connection * Server::findCurrentConnection ()
-{
-	Q_ASSERT(parent());
-	int const n = static_cast<MainWindow *>(parent())->getTabTrace()->currentIndex();
-	connections_t::iterator it = connections.find(n);
-	Q_ASSERT(it != connections.end());
-	return (it != connections.end()) ? it->second : 0;
-}*/
-
 Connection * Server::findCurrentConnection ()
 {
 	Q_ASSERT(parent());
@@ -62,7 +53,6 @@ Connection * Server::findConnectionByName (QString const & app_name)
 			return it->second;
 	return 0;
 }
-
 
 void Server::copyStorageTo (QString const & filename)
 {
@@ -124,6 +114,15 @@ void Server::onBufferingStateChanged (int state)
 		conn->onBufferingStateChanged(state);
 }
 
+void Server::onDeleteCurrentText ()
+{
+	if (!static_cast<MainWindow *>(parent())->getTabTrace()->currentWidget())
+		return;
+
+	if (Connection * conn = findCurrentConnection())
+		conn->onDeleteCurrentText();
+}
+
 void Server::onClickedAtFileTree (QModelIndex idx)
 {
 	MainWindow * main_window = static_cast<MainWindow *>(parent());
@@ -182,7 +181,6 @@ void Server::onDoubleClickedAtFileTree (QModelIndex idx)
 
 }
 
-
 void Server::onClickedAtTIDList (QModelIndex idx)
 {
 	if (!idx.isValid())
@@ -210,9 +208,7 @@ void Server::onClickedAtTIDList (QModelIndex idx)
 }
 
 void Server::onDoubleClickedAtTIDList (QModelIndex idx)
-{
-}
-
+{ }
 
 void Server::onClickedAtRegexList (QModelIndex idx)
 {
@@ -239,9 +235,7 @@ void Server::onClickedAtRegexList (QModelIndex idx)
 }
 
 void Server::onDoubleClickedAtRegexList (QModelIndex idx)
-{
-}
-
+{ }
 
 Connection * Server::createNewTableView ()
 {
@@ -299,7 +293,6 @@ void Server::incomingConnection (int socketDescriptor)
 	main_window->statusBar()->showMessage(tr("Incomming connection!"));
 	emit newConnection(connection);
 	
-
 	// this is supposed to use blocking reads in own thread
 	/*Connection * connection = createNewTableView ();
 	connection->setSocketDescriptor(socketDescriptor);
@@ -338,3 +331,4 @@ void Server::onCloseCurrentTab ()
 	QWidget * w = main_window->getTabTrace()->currentWidget();
 	onCloseTab(w);
 }
+

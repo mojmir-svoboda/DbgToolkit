@@ -86,6 +86,8 @@ void MainWindow::populateScene()
 			ucolors.push_back(hsv);
 		}
 
+		int max_y = 0;
+
 		for (size_t f = 0, fe = pi.m_completed_frame_infos.size(); f < fe; ++f)
 		{
 			threadinfos_t & tis = pi.m_completed_frame_infos[f];
@@ -107,6 +109,9 @@ void MainWindow::populateScene()
 					block.m_x = x / g_scaleValue;
 					block.m_y = y;
 					printf("f=%2u t=%2u b=%2u    (%3.2f, %3.2f) (x=%6.1f y=%6.1f w=%4i h=%4i dt=%3.3f)\n", f, t, b, block.m_x, block.m_y, x, y, w, h, block.m_dt); fflush(stdout);
+
+					if (y > max_y)
+						max_y = y;
 
 					QColor color = Qt::white;
 					colormap_t::iterator it = colors.find(block.m_tag);
@@ -168,14 +173,15 @@ void MainWindow::populateScene()
 
 		for (size_t f = 0, fe = pi.m_frames.size(); f < fe; ++f)
 		{
-			QGraphicsTextItem * txt = new QGraphicsTextItem(QString("frame=%1").arg(f));
-			txt->setPos(pi.m_frames[f].first, 10);
+			QGraphicsTextItem * txt = new QGraphicsTextItem(QString("%1").arg(f));
+			txt->setFlag(QGraphicsItem::ItemIgnoresTransformations);
+			txt->setPos(pi.m_frames[f].first, 7);
 			m_scene->addItem(txt);
 
-			QGraphicsLineItem * line1 = new QGraphicsLineItem(pi.m_frames[f].first, 0, pi.m_frames[f].first, 400);
+			QGraphicsLineItem * line1 = new QGraphicsLineItem(pi.m_frames[f].first, 0, pi.m_frames[f].first, max_y);
 			m_scene->addItem(line1);
 
-			QGraphicsLineItem * line2 = new QGraphicsLineItem(pi.m_frames[f].second, 0, pi.m_frames[f].second, 400);
+			QGraphicsLineItem * line2 = new QGraphicsLineItem(pi.m_frames[f].second, 0, pi.m_frames[f].second, max_y);
 			m_scene->addItem(line2);
 		}
 	}

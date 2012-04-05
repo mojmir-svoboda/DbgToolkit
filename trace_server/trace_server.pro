@@ -9,7 +9,7 @@ TARGET = trace_server
 TEMPLATE = app
 DEFINES += TRACE_ENABLED
 INCLUDEPATH += ..
-INCLUDEPATH += c:/devel/boost_1_48_0
+INCLUDEPATH += c:/devel/boost_1_47_0
 
 win32-msvc* {
 }
@@ -38,6 +38,12 @@ SOURCES += main.cpp\
         mainwindow.cpp \
     modelview.cpp \
     server.cpp \
+    filterproxy.cpp \
+    connection.cpp \
+    connection_find.cpp \
+    connection_stream.cpp \
+    connection_setup.cpp \
+    connection_filtering.cpp \
     connection.cpp \
     sessionstate.cpp \
     settings.cpp
@@ -46,6 +52,7 @@ HEADERS  += mainwindow.h \
     modelview.h \
     server.h \
     connection.h \
+    filterproxy.h \
     ../tlv_parser/tlv_parser.h \
     ../tlv_parser/tlv_encoder.h \
     ../tlv_parser/tlv_decoder.h \

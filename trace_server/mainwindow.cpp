@@ -21,6 +21,7 @@
 #include <QUrl>
 #include <QtPlugin>
 #include "settings.h"
+#include "utils.h"
 #include "../tlv_parser/tlv_parser.h"
 
 #ifdef WIN32
@@ -286,8 +287,7 @@ void MainWindow::onEditFindNext ()
 }
 
 void MainWindow::onEditFindPrev ()
-{
-}
+{ }
 
 void MainWindow::openFiles (QStringList const & files)
 {
@@ -403,8 +403,7 @@ void MainWindow::onColumnSetup ()
 }
 
 void MainWindow::onFileFilterSetup ()
-{
-}
+{ }
 
 void MainWindow::onPresetActivate (int idx)
 {
@@ -435,26 +434,6 @@ void MainWindow::onRegexActivate (int idx)
 
 	onRegexAdd();
 }
-
-	// @TODO: these two functions are exact duplicates from connection.cpp! remove dup
-	inline QList<QStandardItem *> addRow (QString const & str, bool checked = false)
-	{
-		QList<QStandardItem *> row_items;
-		QStandardItem * name_item = new QStandardItem(str);
-		name_item->setCheckable(true);
-		name_item->setCheckState(checked ? Qt::Checked : Qt::Unchecked);
-		row_items << name_item;
-		return row_items;
-	}
-	inline QStandardItem * findChildByText (QStandardItem * parent, QString const & txt)
-	{
-		for (size_t i = 0, ie = parent->rowCount(); i < ie; ++i)
-		{
-			if (parent->child(i)->text() == txt)
-				return parent->child(i);
-		}
-		return 0;
-	}
 
 void MainWindow::onRegexAdd ()
 {

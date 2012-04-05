@@ -36,6 +36,10 @@ SET(trace_server_SOURCES
     modelview.cpp
     server.cpp
     connection.cpp
+    connection_find.cpp
+    connection_stream.cpp
+    connection_setup.cpp
+    connection_filtering.cpp
     sessionstate.cpp
     settings.cpp )
 

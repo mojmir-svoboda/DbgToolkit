@@ -24,11 +24,10 @@
 #include <QList>
 #include <QMap>
 #include "mainwindow.h"
-#include "../tlv_parser/tlv_parser.h"
-#include "../tlv_parser/tlv_decoder.h"
-#include "../filters/file_filter.hpp"
+#include <tlv_parser/tlv_parser.h>
+#include <tlv_parser/tlv_decoder.h> // htons!
+#include <filters/file_filter.hpp>
 #include "tls.h"
-#include <boost/circular_buffer.hpp>
 
 class Server;
 class MainWindow;
@@ -102,6 +101,9 @@ public:
 	bool isBlockCollapsedIncl (QString tid, int row);
 
 	bool isMatchedText (QString str, int & color, E_ColorRole & role) const;
+
+	void exclude_content_to_row (int row) { m_exclude_content_to_row = row; }
+	int exclude_content_to_row () const { return m_exclude_content_to_row; }
 	
 signals:
 	
@@ -116,6 +118,7 @@ private:
 	int m_tab_idx;
 	QWidget * m_tab_widget;
 	int m_from_file;
+	int m_exclude_content_to_row;
 	file_filters_t m_file_filters;
 	tid_filters_t m_tid_filters;
 

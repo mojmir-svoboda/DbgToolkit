@@ -19,8 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  **/
-#ifndef CONNECTION_H
-#define CONNECTION_H
+#pragma once
 
 #include <QHostAddress>
 #include <QString>
@@ -28,12 +27,14 @@
 #include <QTableView>
 #include <QSortFilterProxyModel>
 #include <QThread>
+#include <QMenu>
 #include "mainwindow.h"
 #include "../tlv_parser/tlv_parser.h"
 #include "../tlv_parser/tlv_decoder.h"
 #include "../filters/file_filter.hpp"
 #include <boost/circular_buffer.hpp>
 #include "sessionstate.h"
+#include "filterproxy.h"
 
 class Server;
 class QFile;
@@ -57,24 +58,6 @@ struct DecodedCommand : tlv::StringCommand
 		tvs.clear();
 	}
 };
-
-class FilterProxyModel : public QSortFilterProxyModel
-{
-	Q_OBJECT
-
-public:
-	FilterProxyModel (QObject * parent, QList<QRegExp> const & r, std::vector<bool> const & rs, SessionState & ss);
-
-public slots:
-	void force_update();
-
-protected:
-	bool filterAcceptsRow (int sourceRow, QModelIndex const & sourceParent) const;
-	SessionState & m_session_state;
-	QList<QRegExp> const & m_regexps;
-	std::vector<bool> const & m_regex_user_states;
-};
-
 
 /**@class		Connection
  * @brief		represents incoming connection (or file stream)
@@ -114,6 +97,9 @@ public slots:
 	void onHandleCommands ();
 	void onCloseTab ();
 	void onInvalidateFilter ();
+	void onDeleteCurrentText ();
+	void onShowContextMenu (QPoint const & pos);
+	void onExcludeFileLine (QModelIndex const & row_index);
 
 private slots:
 	void processReadyRead ();
@@ -164,7 +150,12 @@ private:
 	QStandardItemModel * m_tree_view_func_model;
 	QStandardItemModel * m_list_view_tid_model;
 	QSortFilterProxyModel * m_table_view_proxy;
+	QMenu m_ctx_menu;
+	QAction * m_toggle_ref;
+	QAction * m_exclude_fileline;
+	QModelIndex m_last_clicked;
 
+	// data receiving stuff
 	enum { e_ringbuff_size = 16 * 1024 };
 	boost::circular_buffer<char> m_buffer;
 	DecodedCommand m_current_cmd;
@@ -176,4 +167,3 @@ private:
 	QTcpSocket * m_tcpstream;
 };
 
-#endif // CONNECTION_H
