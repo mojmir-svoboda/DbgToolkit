@@ -31,14 +31,30 @@ void BarText::paint (QPainter * painter, QStyleOptionGraphicsItem const * option
 
 	if (lod > 0.7f)
 	{
-		setFlag(QGraphicsItem::ItemIgnoresTransformations);
-		QFont font("Times", 12);
-		//QTransform identity;
-		font.setStyleStrategy(QFont::ForceOutline);
-		//painter->save();
-		painter->drawText(4, 12, QString("%1 %2").arg(m_block.m_msg.c_str()).arg(m_block.m_delta_t));
-		//painter->restore();
+		if (m_w > 10)
+		{
+			setFlag(QGraphicsItem::ItemIgnoresTransformations);
+			QFont font("Times", 10);
+			//QTransform identity;
+			font.setStyleStrategy(QFont::ForceOutline);
+			painter->save();
+			painter->drawText(4, 10, QString("%1 [ %2 ms]").arg(m_block.m_msg.c_str()).arg(m_block.m_delta_t));
+			painter->restore();
+		}
 	}
+	else if (0.4f < lod && lod < 0.7f)
+	{
+		if (m_w > 20)
+		{
+			QFont font("Times", 8);
+			font.setStyleStrategy(QFont::ForceOutline);
+			painter->setFont(font);
+			painter->save();
+			painter->drawStaticText(4, g_heightValue/2, QString("%1").arg(m_block.m_msg.c_str()).arg(m_block.m_delta_t));
+			painter->restore();
+		}
+	}
+
 }
 
 
