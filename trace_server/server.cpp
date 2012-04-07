@@ -263,9 +263,9 @@ void Server::onClickedAtColorRegexList (QModelIndex idx)
 
 void Server::onDoubleClickedAtColorRegexList (QModelIndex idx)
 {
-    QColor color = QColorDialog::getColor(displayWidget->color());
-	if (color.isValid())
-		displayWidget->setColor(color);
+    QColor color = QColorDialog::getColor(Qt::black);
+	//if (color.isValid())
+//		displayWidget->setColor(color);
 }
 
 Connection * Server::createNewTableView ()
