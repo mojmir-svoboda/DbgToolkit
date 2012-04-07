@@ -192,122 +192,128 @@ void Connection::onExcludeFileLine (QModelIndex const & row_index)
 
 void Connection::onTableClicked (QModelIndex const & row_index)
 {
-	m_last_clicked = row_index;
-	QString file = findString4Tag(tlv::tag_file, row_index);
-	QString line = findString4Tag(tlv::tag_line, row_index);
-
-	boost::char_separator<char> sep(":/\\");
-	typedef boost::tokenizer<boost::char_separator<char> > tokenizer_t;
-	std::string fstr = file.toStdString();
-	tokenizer_t tok(fstr, sep);
-
-	QStandardItem * item = m_tree_view_file_model->invisibleRootItem();
-	for (tokenizer_t::const_iterator it = tok.begin(), ite = tok.end(); it != ite; ++it)
+	if (m_table_view_proxy)
 	{
-		QString qfile = QString::fromStdString(*it);
-		QStandardItem * child = findChildByText(item, qfile);
-		if (child != 0)
+		QModelIndex const curr = m_table_view_proxy->mapToSource(row_index);
+		//qDebug("1c curr: (%i,col) -> (%i,col)", row_index.row(), curr.row());
+
+		m_last_clicked = curr;
+		QString file = findString4Tag(tlv::tag_file, curr);
+		QString line = findString4Tag(tlv::tag_line, curr);
+
+		boost::char_separator<char> sep(":/\\");
+		typedef boost::tokenizer<boost::char_separator<char> > tokenizer_t;
+		std::string fstr = file.toStdString();
+		tokenizer_t tok(fstr, sep);
+
+		QStandardItem * item = m_tree_view_file_model->invisibleRootItem();
+		for (tokenizer_t::const_iterator it = tok.begin(), ite = tok.end(); it != ite; ++it)
 		{
-			item = child;
-			QModelIndex idx = item->index();
-			m_main_window->getTreeViewFile()->setExpanded(idx, true);
-			m_main_window->getTreeViewFile()->setCurrentIndex(idx);
+			QString qfile = QString::fromStdString(*it);
+			QStandardItem * child = findChildByText(item, qfile);
+			if (child != 0)
+			{
+				item = child;
+				QModelIndex idx = item->index();
+				m_main_window->getTreeViewFile()->setExpanded(idx, true);
+				m_main_window->getTreeViewFile()->setCurrentIndex(idx);
+			}
 		}
-	}
 
-	if (item != 0)
-	{
-		QStandardItem * last_level = findChildByText(item, line);
-		if (last_level != 0)
+		if (item != 0)
 		{
-			QModelIndex idx = last_level->index();
-			m_main_window->getTreeViewFile()->setExpanded(idx, true);
-			m_main_window->getTreeViewFile()->setCurrentIndex(idx);
+			QStandardItem * last_level = findChildByText(item, line);
+			if (last_level != 0)
+			{
+				QModelIndex idx = last_level->index();
+				m_main_window->getTreeViewFile()->setExpanded(idx, true);
+				m_main_window->getTreeViewFile()->setCurrentIndex(idx);
+			}
 		}
+
+		QString tid = findString4Tag(tlv::tag_tid, curr);
+		QModelIndexList indexList = m_list_view_tid_model->match(m_list_view_tid_model->index(0, 0), Qt::DisplayRole, tid);
+		QModelIndex const selectedIndex(indexList.first());
+		m_main_window->getListViewTID()->setCurrentIndex(selectedIndex);
+		m_last_search_row = curr.row(); // set search from this line
 	}
-
-	QString tid = findString4Tag(tlv::tag_tid, row_index);
-	QModelIndexList indexList = m_list_view_tid_model->match(m_list_view_tid_model->index(0, 0), Qt::DisplayRole, tid);
-	QModelIndex selectedIndex(indexList.first());
-	m_main_window->getListViewTID()->setCurrentIndex(selectedIndex);
-
-
-	// set search from this line
-	m_last_search_row = row_index.row();
-	//m_table_view_widget->scrollTo(m_table_view_proxy ? m_table_view_proxy->mapFromSource(idx) : idx, QTableView::PositionAtCenter);
+	else
+		m_last_search_row = row_index.row(); // set search from this line
 }
 
 void Connection::onTableDoubleClicked (QModelIndex const & row_index)
 {
-	ModelView * model = static_cast<ModelView *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
-
-	QModelIndex const curr = m_table_view_proxy->mapToSource(row_index);
-	//qDebug("curr: (%i,col) -> (%i,col)", row_index.row(), curr.row());
-
-	int row_bgn = curr.row();
-	int row_end = curr.row();
-	int layer = model->layers()[row_bgn];
-
-	if (model->rowTypes()[row_bgn] == tlv::cmd_scope_exit)
+	if (m_table_view_proxy)
 	{
-		layer += 1;
-		// test na range
-		--row_bgn;
-	}
+		QModelIndex const curr = m_table_view_proxy->mapToSource(row_index);
+		ModelView * model = static_cast<ModelView *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
+		qDebug("2c curr: (%i,col) -> (%i,col)", row_index.row(), curr.row());
 
-	QString tid = findString4Tag(tlv::tag_tid, curr);
-	int from = row_bgn;
+		int row_bgn = curr.row();
+		int row_end = curr.row();
+		int layer = model->layers()[row_bgn];
 
-	if (model->rowTypes()[from] != tlv::cmd_scope_entry)
-	{
-		while (row_bgn > 0)
+		if (model->rowTypes()[row_bgn] == tlv::cmd_scope_exit)
 		{
-			QModelIndex curr_idx = model->index(row_bgn, row_index.column(), QModelIndex());
-			QString curr_tid = findString4Tag(tlv::tag_tid, curr_idx);
-			if (curr_tid == tid)
-			{
-				if (model->layers()[row_bgn] >= layer)
-				{
-					from = row_bgn;
-				}
-				else
-				{
-					break;
-				}
-			}
+			layer += 1;
+			// test na range
 			--row_bgn;
 		}
-	}
 
-	int to = row_end;
-	if (model->rowTypes()[to] != tlv::cmd_scope_exit)
-	{
-		while (row_end < model->layers().size())
+		QString tid = findString4Tag(tlv::tag_tid, curr);
+		int from = row_bgn;
+
+		if (model->rowTypes()[from] != tlv::cmd_scope_entry)
 		{
-			QModelIndex curr_idx = model->index(row_end, row_index.column(), QModelIndex());
-			QString next_tid = findString4Tag(tlv::tag_tid, curr_idx);
-			if (next_tid == tid)
+			while (row_bgn > 0)
 			{
-				if (model->layers()[row_end] >= layer)
-					to = row_end;
-				else if ((model->layers()[row_end] == layer - 1) && (model->rowTypes()[row_end] == tlv::cmd_scope_exit))
+				QModelIndex const curr_idx = model->index(row_bgn, row_index.column(), QModelIndex());
+				QString curr_tid = findString4Tag(tlv::tag_tid, curr_idx);
+				if (curr_tid == tid)
 				{
-					to = row_end;
-					break;
+					if (model->layers()[row_bgn] >= layer)
+					{
+						from = row_bgn;
+					}
+					else
+					{
+						break;
+					}
 				}
-				else
-					break;
+				--row_bgn;
 			}
-			++row_end;
 		}
-	}
 
-	qDebug("row=%u / curr=%u layer=%u, from,to=(%u, %u)", row_index.row(), curr.row(), layer, from, to);
-	if (m_session_state.findCollapsedBlock(tid, from, to))
-		m_session_state.eraseCollapsedBlock(tid, from, to);
-	else
-		m_session_state.appendCollapsedBlock(tid, from, to);
-	onInvalidateFilter();
+		int to = row_end;
+		if (model->rowTypes()[to] != tlv::cmd_scope_exit)
+		{
+			while (row_end < model->layers().size())
+			{
+				QModelIndex const curr_idx = model->index(row_end, row_index.column(), QModelIndex());
+				QString next_tid = findString4Tag(tlv::tag_tid, curr_idx);
+				if (next_tid == tid)
+				{
+					if (model->layers()[row_end] >= layer)
+						to = row_end;
+					else if ((model->layers()[row_end] == layer - 1) && (model->rowTypes()[row_end] == tlv::cmd_scope_exit))
+					{
+						to = row_end;
+						break;
+					}
+					else
+						break;
+				}
+				++row_end;
+			}
+		}
+
+		qDebug("row=%u / curr=%u layer=%u, from,to=(%u, %u)", row_index.row(), curr.row(), layer, from, to);
+		if (m_session_state.findCollapsedBlock(tid, from, to))
+			m_session_state.eraseCollapsedBlock(tid, from, to);
+		else
+			m_session_state.appendCollapsedBlock(tid, from, to);
+		onInvalidateFilter();
+	}
 }
 
 void Connection::onDeleteCurrentText ()

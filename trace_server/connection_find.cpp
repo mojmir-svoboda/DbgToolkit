@@ -10,6 +10,7 @@ void Connection::findTextInAllColumns (QString const & text, int from_row, int t
 	{
 		for (int j = 0, je = model->columnCount(); j < je; ++j)
 		{
+			// TODO: proxymodel 
 			QModelIndex const idx = model->index(i, j, QModelIndex());
 			if (idx.isValid() && model->data(idx).toString().contains(text))
 			{
@@ -30,10 +31,20 @@ void Connection::findTextInColumn (QString const & text, int col, int from_row, 
 		QModelIndex const idx = model->index(i, col, QModelIndex());
 		if (idx.isValid() && model->data(idx).toString().contains(text))
 		{
-			m_table_view_widget->selectionModel()->setCurrentIndex(idx, QItemSelectionModel::Select);
+
+			if (m_table_view_proxy)
+			{
+				QModelIndex const curr = m_table_view_proxy->mapFromSource(idx);
+				m_table_view_widget->selectionModel()->setCurrentIndex(curr, QItemSelectionModel::Select);
+				m_table_view_widget->scrollTo(m_table_view_proxy->mapFromSource(idx), QTableView::PositionAtCenter);
+			}
+			else
+			{
+				m_table_view_widget->selectionModel()->setCurrentIndex(idx, QItemSelectionModel::Select);
+				m_table_view_widget->scrollTo(idx, QTableView::PositionAtCenter);
+			}
 			m_last_search_row = idx.row();
 
-            m_table_view_widget->scrollTo(m_table_view_proxy ? m_table_view_proxy->mapFromSource(idx) : idx, QTableView::PositionAtCenter);
 			return;
 		}
 	}
@@ -56,7 +67,6 @@ void Connection::selectionFromTo (int & from, int & to) const
 		return;
 
 	std::sort(indexes.begin(), indexes.end());
-
 	from = indexes.first().row();
 }
 
@@ -130,7 +140,7 @@ QVariant Connection::findVariant4Tag (tlv::tag_t tag, QModelIndex const & row_in
 
 	ModelView * model = static_cast<ModelView *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
 
-	QModelIndex model_idx = model->index(row_index.row(), idx, QModelIndex());
+	QModelIndex const model_idx = model->index(row_index.row(), idx, QModelIndex());
 	if (model_idx.isValid())
 	{
 		QVariant value = model->data(model_idx);
