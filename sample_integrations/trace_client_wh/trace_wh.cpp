@@ -233,6 +233,8 @@ int main ()
 
 		if (i == 4)
 			break;
+
+		TRACE_MSG(trace::e_Info, trace::CTX_Default,  "Some warning message i=%u from main thread", i);
 	}
 
 	g_Quit = 1;

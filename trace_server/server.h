@@ -59,6 +59,9 @@ public slots:
 	void onClickedAtRegexList (QModelIndex idx);
 	void onDoubleClickedAtRegexList (QModelIndex idx);
 
+	void onClickedAtColorRegexList (QModelIndex idx);
+	void onDoubleClickedAtColorRegexList (QModelIndex idx);
+
 	void onSectionResized (int logicalIndex, int oldSize, int newSize);
 	void onEditingFinished ();
 	void onCopyToClipboard ();

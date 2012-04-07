@@ -12,8 +12,8 @@ SessionState::SessionState (QObject * parent)
 	, m_name()
 {
 	//@TODO: temporary location.. to be fed from some kind of widget
-	m_colorized_texts.push_back(ColorizedText(".*Warning.*", Qt::yellow, e_Bg));
-	m_colorized_texts.push_back(ColorizedText(".*Error.*", Qt::red, e_Fg));
+	m_colorized_texts.push_back(ColorizedText(".*[Ww]arning.*", Qt::yellow, e_Bg));
+	m_colorized_texts.push_back(ColorizedText(".*[Ee]rror.*", Qt::red, e_Fg));
 }
 
 SessionState::~SessionState ()

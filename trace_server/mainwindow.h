@@ -52,6 +52,7 @@ public:
 	QTabWidget const * getTabTrace () const;
 
 	typedef QList<QString> filter_regexs_t;
+	typedef QList<QString> filter_color_regexs_t;
 	typedef QList<QString> filter_preset_t;
 	typedef QList<filter_preset_t> filter_presets_t;
 	typedef QList<QString> columns_setup_t;
@@ -64,6 +65,11 @@ public:
 	std::vector<bool> const & getRegexUserStates () const { return m_regex_user_states; }
 	filter_regexs_t const & getFilterRegexs () const { return m_filter_regexs; }
 	filter_regexs_t & getFilterRegexs () { return m_filter_regexs; }
+	QList<QRegExp> const & getColorRegexps () const { return m_color_regexps; }
+	std::vector<bool> const & getColorRegexUserStates () const { return m_color_regex_user_states; }
+	filter_color_regexs_t const & getFilterColorRegexs () const { return m_filter_color_regexs; }
+	filter_color_regexs_t & getFilterColorRegexs () { return m_filter_color_regexs; }
+
 	filter_preset_t const & getFilterPresets (size_t i) const { return m_filter_presets.at(i); }
 	filter_preset_t & getFilterPresets (size_t i) { return m_filter_presets[i]; }
 	int findPresetName (QString const & name)
@@ -102,6 +108,10 @@ public:
     QComboBox const * getFilterRegex () const;
 	QListView * getListViewRegex ();
 	QListView const * getListViewRegex () const;
+    QComboBox * getFilterColorRegex ();
+    QComboBox const * getFilterColorRegex () const;
+	QListView * getListViewColorRegex ();
+	QListView const * getListViewColorRegex () const;
 	QListView * getListViewTID ();
 	QListView const * getListViewTID () const;
 	void setLevel (int i);
@@ -115,6 +125,7 @@ public:
 	void dragEnterEvent (QDragEnterEvent *event);
 	bool eventFilter (QObject * o, QEvent * e);
 	void recompileRegexps ();
+	void recompileColorRegexps ();
 
 public slots:
 	void onHotkeyShowOrHide ();
@@ -137,12 +148,15 @@ private slots:
 	void onFileFilterSetup ();
 	void closeEvent (QCloseEvent *event);
 	void iconActivated (QSystemTrayIcon::ActivationReason reason);
+	void onQSearchEditingFinished ();
 	void onSaveCurrentFileFilter ();
 	void onPresetActivate (int idx);
 	void onRegexActivate (int idx);
-	void onQSearchEditingFinished ();
 	void onRegexAdd ();
 	void onRegexRm ();
+	void onColorRegexActivate (int idx);
+	void onColorRegexAdd ();
+	void onColorRegexRm ();
 
 private:
 	void showServerStatus ();
@@ -159,9 +173,12 @@ private:
 	QList<QColor> m_thread_colors;				/// predefined coloring of threads
 	QList<QString> m_preset_names;				/// registered presets
 	filter_presets_t m_filter_presets;			/// list of strings for each preset
-	filter_regexs_t m_filter_regexs;
+	filter_regexs_t m_filter_regexs;			/// filtering regexps
 	QList<QRegExp> m_regexps;
 	std::vector<bool> m_regex_user_states;
+	filter_color_regexs_t m_filter_color_regexs; /// coloring regexps
+	QList<QRegExp> m_color_regexps;
+	std::vector<bool> m_color_regex_user_states;
 	QString m_last_search;
 	QTimer * m_timer;
 	Server * m_server;
@@ -172,6 +189,7 @@ private:
 	QMenu * m_tray_menu;
 	QSystemTrayIcon * m_tray_icon;
 	QStandardItemModel * m_list_view_regex_model;
+	QStandardItemModel * m_list_view_color_regex_model;
 };
 
 #endif // MAINWINDOW_H

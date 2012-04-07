@@ -47,6 +47,7 @@ enum E_ColorRole { e_Bg, e_Fg };
 struct ColorizedText {
 	E_ColorRole m_role;
 	Qt::GlobalColor m_color;
+	QColor m_qcolor;
 	QRegExp m_regex;
 
 	bool isValid () const { return m_regex.isValid(); }

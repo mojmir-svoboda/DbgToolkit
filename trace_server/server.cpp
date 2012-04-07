@@ -237,6 +237,37 @@ void Server::onClickedAtRegexList (QModelIndex idx)
 void Server::onDoubleClickedAtRegexList (QModelIndex idx)
 { }
 
+void Server::onClickedAtColorRegexList (QModelIndex idx)
+{
+	if (!idx.isValid())
+		return;
+	MainWindow * main_window = static_cast<MainWindow *>(parent());
+	QStandardItemModel * model = static_cast<QStandardItemModel *>(main_window->getListViewColorRegex()->model());
+	QStandardItem * item = model->itemFromIndex(idx);
+	Q_ASSERT(item);
+
+	QString const & val = model->data(idx, Qt::DisplayRole).toString();
+	std::string filter_item(val.toStdString());
+
+	bool const checked = (item->checkState() == Qt::Checked);
+
+	qDebug("color regex click! (checked=%u) %s ", checked, filter_item.c_str());
+
+	if (Connection * conn = findCurrentConnection())
+	{
+		// @TODO: if state really changed
+		main_window->recompileColorRegexps();
+		conn->onInvalidateFilter();
+	}
+}
+
+void Server::onDoubleClickedAtColorRegexList (QModelIndex idx)
+{
+    QColor color = QColorDialog::getColor(displayWidget->color());
+	if (color.isValid())
+		displayWidget->setColor(color);
+}
+
 Connection * Server::createNewTableView ()
 {
 	MainWindow * main_window = static_cast<MainWindow *>(parent());
