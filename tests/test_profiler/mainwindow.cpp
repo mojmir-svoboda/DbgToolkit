@@ -87,6 +87,7 @@ void MainWindow::populateScene()
 		}
 
 		int max_y = 0;
+		int max_x = 0;
 
 		for (size_t f = 0, fe = pi.m_completed_frame_infos.size(); f < fe; ++f)
 		{
@@ -113,6 +114,9 @@ void MainWindow::populateScene()
 					if (y > max_y)
 						max_y = y;
 
+					if (x > max_x)
+						max_x = x;
+
 					QColor color = Qt::white;
 					colormap_t::iterator it = colors.find(block.m_tag);
 					if (it != colors.end())
@@ -131,10 +135,19 @@ void MainWindow::populateScene()
 					m_scene->addItem(titem);
 				}
 
-				offs += max_layers[t] + 2;
+				offs += max_layers[t] + 1;
+
+				QPen p1;
+				p1.setColor(Qt::gray);
+				p1.setWidth(0);
+				int y = (offs) * (h + space);
+				QGraphicsLineItem * ln = new QGraphicsLineItem(0, y, max_x, y);
+				ln->setPen(p1);
+				m_scene->addItem(ln);
+
+				offs += 1;
 			}
 		}
-
 
 		for (size_t f = 0, fe = pi.m_completed_frame_infos.size(); f < fe; ++f)
 		{
@@ -157,14 +170,24 @@ void MainWindow::populateScene()
 						}
 						else
 						{
+							QPen p1;
+							p1.setColor(Qt::blue);
+							p1.setWidth(0);
 							QGraphicsLineItem * ln_bg = new QGraphicsLineItem(block.m_x, block.m_y, block.m_parent->m_x, block.m_parent->m_y + g_heightValue);
+							ln_bg->setPen(p1);
 							m_scene->addItem(ln_bg);
 							QGraphicsLineItem * ln_nd = new QGraphicsLineItem(block.m_x + block.m_dt, block.m_y, block.m_parent->m_x + block.m_parent->m_dt, block.m_parent->m_y + g_heightValue);
+							p1.setColor(Qt::cyan);
+							ln_nd->setPen(p1);
 							m_scene->addItem(ln_nd);
 						}
 					}
 
+					QPen p1;
+					p1.setColor(Qt::gray);
 					QGraphicsLineItem * ln_end = new QGraphicsLineItem(block.m_x + block.m_dt, block.m_y, block.m_x + block.m_dt, block.m_y + g_heightValue);
+					ln_end->setPen(p1);
+					p1.setWidth(4);
 					m_scene->addItem(ln_end);
 				}
 			}
@@ -178,10 +201,16 @@ void MainWindow::populateScene()
 			txt->setPos(pi.m_frames[f].first, 7);
 			m_scene->addItem(txt);
 
+			QPen p1;
+			p1.setColor(Qt::red);
 			QGraphicsLineItem * line1 = new QGraphicsLineItem(pi.m_frames[f].first, 0, pi.m_frames[f].first, max_y);
+			line1->setPen(p1);
 			m_scene->addItem(line1);
 
+			QPen p2;
+			p2.setColor(Qt::yellow);
 			QGraphicsLineItem * line2 = new QGraphicsLineItem(pi.m_frames[f].second, 0, pi.m_frames[f].second, max_y);
+			line2->setPen(p2);
 			m_scene->addItem(line2);
 		}
 	}
