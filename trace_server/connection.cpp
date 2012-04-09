@@ -29,6 +29,10 @@ Connection::Connection (QObject * parent)
 	, m_tree_view_func_model(0)
 	, m_list_view_tid_model(0)
 	, m_table_view_proxy(0)
+	, m_toggle_ref(0)
+	, m_exclude_fileline(0)
+	, m_last_clicked()
+	, m_list_view_color_regex_model(0)
 	, m_buffer(e_ringbuff_size)
 	, m_current_cmd()
 	, m_decoded_cmds(e_ringcmd_size)
@@ -57,6 +61,7 @@ void Connection::onTabTraceFocus (int i)
 		return;
 	m_main_window->getTreeViewFile()->setModel(m_tree_view_file_model);
 	m_main_window->getListViewTID()->setModel(m_list_view_tid_model);
+	m_main_window->getListViewColorRegex()->setModel(m_list_view_color_regex_model);
 	hideLinearParents();
 }
 
@@ -105,10 +110,15 @@ void Connection::onCloseTab ()
 	if (m_main_window->getListViewTID()->model() == m_list_view_tid_model)
 		m_main_window->getListViewTID()->setModel(0);
 
+	if (m_main_window->getListViewColorRegex()->model() == m_list_view_color_regex_model)
+		m_main_window->getListViewColorRegex()->setModel(0);
+
 	delete m_tree_view_file_model;
 	m_table_view_widget = 0;
 	delete m_list_view_tid_model;
 	m_list_view_tid_model = 0;
+	delete m_list_view_color_regex_model;
+	m_list_view_color_regex_model = 0;
 }
 
 void Connection::onLevelValueChanged (int val)
@@ -339,5 +349,4 @@ void Connection::onShowContextMenu (const QPoint& pos) // this is a slot
     else
     { }
 }
-
 

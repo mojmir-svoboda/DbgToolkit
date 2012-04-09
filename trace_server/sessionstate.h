@@ -46,14 +46,24 @@ enum E_ColorRole { e_Bg, e_Fg };
 
 struct ColorizedText {
 	E_ColorRole m_role;
-	Qt::GlobalColor m_color;
 	QColor m_qcolor;
+	std::string m_regex_str;
 	QRegExp m_regex;
+	bool m_isEnabled;
 
 	bool isValid () const { return m_regex.isValid(); }
 	bool exactMatch (QString str) const { return m_regex.exactMatch(str); }
 
-	ColorizedText (QString regex, Qt::GlobalColor col, E_ColorRole r) : m_color(col), m_role(r), m_regex(regex) { }
+	ColorizedText (std::string const & rs, E_ColorRole r)
+		: m_qcolor(Qt::magenta)
+		, m_role(r), m_regex_str(rs), m_regex(QString::fromStdString(rs)), m_isEnabled(0)
+	{ }
+
+	ColorizedText (std::string const & rs, QColor const & col, E_ColorRole r)
+		: m_qcolor(col)
+		, m_role(r), m_regex_str(rs), m_regex(QString::fromStdString(rs)), m_isEnabled(0)
+	{ }
+
 };
 
 class SessionState
@@ -98,10 +108,14 @@ public:
 	void appendCollapsedBlock (QString tid, int from, int to);
 	bool findCollapsedBlock (QString tid, int from, int to) const;
 	bool eraseCollapsedBlock (QString tid, int from, int to);
-	bool isBlockCollapsed (QString tid, int row);
-	bool isBlockCollapsedIncl (QString tid, int row);
+	bool isBlockCollapsed (QString tid, int row) const;
+	bool isBlockCollapsedIncl (QString tid, int row) const;
 
-	bool isMatchedText (QString str, int & color, E_ColorRole & role) const;
+	void appendToColorRegexFilters (std::string const & str);
+	void removeFromColorRegexFilters (std::string const & str);
+	bool isMatchedColorizedText (QString str, QColor & color, E_ColorRole & role) const;
+	void setRegexColor (std::string const & s, QColor col);
+	void setRegexChecked (std::string const & s, bool checked);
 
 	void exclude_content_to_row (int row) { m_exclude_content_to_row = row; }
 	int exclude_content_to_row () const { return m_exclude_content_to_row; }

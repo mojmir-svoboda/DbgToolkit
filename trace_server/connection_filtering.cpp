@@ -33,6 +33,7 @@ void Connection::setFilterFile (int state)
 		}
 	}
 	m_main_window->getTreeViewFile()->setEnabled(m_main_window->filterEnabled());
+	m_main_window->getListViewTID()->setEnabled(m_main_window->filterEnabled());
 }
 
 void Connection::clearFilters (QStandardItem * node)
@@ -161,5 +162,57 @@ bool Connection::appendToFilters (DecodedCommand const & cmd)
 	}
 	return true;
 }
+
+void Connection::appendToColorRegexFilters (std::string const & val)
+{
+	m_session_state.appendToColorRegexFilters(val);
+}
+
+void Connection::removeFromColorRegexFilters (std::string const & val)
+{
+	m_session_state.removeFromColorRegexFilters(val);
+}
+
+void Connection::recompileColorRegexps ()
+{
+	m_color_regexps.clear();
+	m_color_regex_user_states.clear();
+
+	for (int i = 0, ie = m_filter_color_regexs.size(); i < ie; ++i)
+	{
+		QStandardItem * root = m_list_view_color_regex_model->invisibleRootItem();
+		QStandardItem * child = findChildByText(root, m_filter_color_regexs.at(i));
+		QRegExp regex(QRegExp(m_filter_color_regexs.at(i)));
+		if (regex.isValid())
+		{
+			m_color_regexps.append(regex);
+			m_color_regex_user_states.push_back(false);
+
+			bool const checked = (child->checkState() == Qt::Checked);
+			if (child && checked)
+			{
+				child->setData(QBrush(Qt::green), Qt::BackgroundRole);
+				child->setToolTip(tr("ok"));
+				m_color_regex_user_states.back() = true;
+			}
+			else if (child && !checked)
+			{
+				child->setData(QBrush(Qt::yellow), Qt::BackgroundRole);
+				child->setToolTip(tr("not checked"));
+			}
+		}
+		else
+		{
+			if (child)
+			{
+				child->setData(QBrush(Qt::red), Qt::BackgroundRole);
+				child->setToolTip(regex.errorString());
+			}
+		}
+	}
+
+	onInvalidateFilter();
+}
+
 
 

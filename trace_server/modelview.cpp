@@ -67,17 +67,17 @@ QVariant ModelView::data (const QModelIndex &index, int role) const
 		{
 			QString const & msg = m_rows[index.row()][index.column()];
 
-			int color = -1;
+			QColor color;
 			E_ColorRole color_role = e_Bg;
-			bool const is_match = m_session_state.isMatchedText(msg, color, color_role);
+			bool const is_match = m_session_state.isMatchedColorizedText(msg, color, color_role);
 
 			if (is_match && role == Qt::BackgroundRole && color_role == e_Bg)
 			{
-				return QBrush(Qt::yellow);
+				return QBrush(color);
 			}
 			if (is_match && role == Qt::ForegroundRole && color_role == e_Fg)
 			{
-				return QBrush(Qt::red);
+				return QBrush(color);
 			}
 		}
 	}

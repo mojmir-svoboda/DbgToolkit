@@ -88,4 +88,10 @@ void Connection::setupModelTID ()
 	m_main_window->getListViewTID()->setModel(m_list_view_tid_model);
 }
 
+void Connection::setupModelColorRegex ()
+{
+	if (!m_list_view_color_regex_model)
+		m_list_view_color_regex_model = new QStandardItemModel;
+	m_main_window->getListViewColorRegex()->setModel(m_list_view_color_regex_model);
+}
 

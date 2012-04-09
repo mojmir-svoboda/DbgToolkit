@@ -239,8 +239,7 @@ void Server::onDoubleClickedAtRegexList (QModelIndex idx)
 
 void Server::onClickedAtColorRegexList (QModelIndex idx)
 {
-	if (!idx.isValid())
-		return;
+	if (!idx.isValid()) return;
 	MainWindow * main_window = static_cast<MainWindow *>(parent());
 	QStandardItemModel * model = static_cast<QStandardItemModel *>(main_window->getListViewColorRegex()->model());
 	QStandardItem * item = model->itemFromIndex(idx);
@@ -250,22 +249,35 @@ void Server::onClickedAtColorRegexList (QModelIndex idx)
 	std::string filter_item(val.toStdString());
 
 	bool const checked = (item->checkState() == Qt::Checked);
-
 	qDebug("color regex click! (checked=%u) %s ", checked, filter_item.c_str());
 
 	if (Connection * conn = findCurrentConnection())
 	{
 		// @TODO: if state really changed
-		main_window->recompileColorRegexps();
+		conn->recompileColorRegexps();
 		conn->onInvalidateFilter();
+		conn->m_session_state.setRegexChecked(filter_item, checked);
 	}
 }
 
 void Server::onDoubleClickedAtColorRegexList (QModelIndex idx)
 {
+	if (!idx.isValid())
+		return;
+	MainWindow * main_window = static_cast<MainWindow *>(parent());
+	QStandardItemModel * model = static_cast<QStandardItemModel *>(main_window->getListViewColorRegex()->model());
+	QStandardItem * item = model->itemFromIndex(idx);
+	Q_ASSERT(item);
+	QString const & val = model->data(idx, Qt::DisplayRole).toString();
+
     QColor color = QColorDialog::getColor(Qt::black);
-	//if (color.isValid())
-//		displayWidget->setColor(color);
+	if (!color.isValid())
+		return;
+
+	if (Connection * conn = findCurrentConnection())
+	{
+		conn->m_session_state.setRegexColor(val.toStdString(), color);
+	}
 }
 
 Connection * Server::createNewTableView ()
@@ -275,6 +287,7 @@ Connection * Server::createNewTableView ()
 	connection->setMainWindow(main_window);
 	connection->setupModelFile();
 	connection->setupModelTID();
+	connection->setupModelColorRegex();
 	QWidget * tab = new QWidget();
 	QHBoxLayout * horizontalLayout = new QHBoxLayout(tab);
 	horizontalLayout->setSpacing(6);

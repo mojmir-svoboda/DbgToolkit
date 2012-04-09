@@ -11,9 +11,8 @@ SessionState::SessionState (QObject * parent)
 	, m_columns_sizes(0)
 	, m_name()
 {
-	//@TODO: temporary location.. to be fed from some kind of widget
-	m_colorized_texts.push_back(ColorizedText(".*[Ww]arning.*", Qt::yellow, e_Bg));
-	m_colorized_texts.push_back(ColorizedText(".*[Ee]rror.*", Qt::red, e_Fg));
+	m_colorized_texts.push_back(ColorizedText(".*[Ww]arning.*", QColor(Qt::yellow), e_Bg));
+	m_colorized_texts.push_back(ColorizedText(".*[Ee]rror.*", QColor(Qt::red), e_Fg));
 }
 
 SessionState::~SessionState ()
@@ -159,7 +158,7 @@ bool SessionState::eraseCollapsedBlock (QString tid, int from, int to)
 	return false;
 }
 
-bool SessionState::isBlockCollapsed (QString tid, int row)
+bool SessionState::isBlockCollapsed (QString tid, int row) const
 {
 	for (int i = 0, ie = m_collapse_blocks.size(); i < ie; ++i)
 	{
@@ -172,7 +171,7 @@ bool SessionState::isBlockCollapsed (QString tid, int row)
 	}
 	return false;
 }
-bool SessionState::isBlockCollapsedIncl (QString tid, int row)
+bool SessionState::isBlockCollapsedIncl (QString tid, int row) const
 {
 	for (int i = 0, ie = m_collapse_blocks.size(); i < ie; ++i)
 	{
@@ -186,18 +185,60 @@ bool SessionState::isBlockCollapsedIncl (QString tid, int row)
 	return false;
 }
 
-bool SessionState::isMatchedText (QString str, int & color, E_ColorRole & role) const
+bool SessionState::isMatchedColorizedText (QString str, QColor & color, E_ColorRole & role) const
 {
 	for (int i = 0, ie = m_colorized_texts.size(); i < ie; ++i)
 	{
 		ColorizedText const & ct = m_colorized_texts.at(i);
 		if (ct.exactMatch(str))
 		{
-			color = ct.m_color;
+			color = ct.m_qcolor;
 			role = ct.m_role;
-			return true;
+			return ct.m_isEnabled;
 		}
 	}
 	return false;
+}
+
+void SessionState::setRegexColor (std::string const & s, QColor col)
+{
+	for (int i = 0, ie = m_colorized_texts.size(); i < ie; ++i)
+	{
+		ColorizedText & ct = m_colorized_texts[i];
+		if (ct.m_regex_str == s)
+		{
+			ct.m_qcolor = col;
+		}
+	}
+}
+
+void SessionState::setRegexChecked (std::string const & s, bool checked)
+{
+	for (int i = 0, ie = m_colorized_texts.size(); i < ie; ++i)
+	{
+		ColorizedText & ct = m_colorized_texts[i];
+		if (ct.m_regex_str == s)
+		{
+			ct.m_isEnabled = checked;
+		}
+	}
+}
+
+void SessionState::removeFromColorRegexFilters (std::string const & s)
+{
+	for (int i = 0, ie = m_colorized_texts.size(); i < ie; ++i)
+	{
+		ColorizedText & ct = m_colorized_texts[i];
+		if (ct.m_regex_str == s)
+		{
+			m_colorized_texts.removeAt(i);
+			return;
+		}
+	}
+}
+
+void SessionState::appendToColorRegexFilters (std::string const & s)
+{
+	m_colorized_texts.push_back(ColorizedText(s, e_Fg));
 }
 
