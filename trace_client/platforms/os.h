@@ -1,13 +1,18 @@
 #pragma once
 
-#if defined WIN32 || defined WIN64
+#if defined WIN32 || defined WIN64 || defined _XBOX
 
-#	define WIN32_LEAN_AND_MEAN
-#	include <windows.h>
+#	if defined WIN32 || defined WIN64
+#		define WIN32_LEAN_AND_MEAN
+#		include <windows.h>
+#	elif defined _XBOX
+#		include <xtl.h>
+#		include <winbase.h>
+#	endif
 	namespace sys
 	{
-		inline unsigned get_pid () { return ::GetCurrentProcessId(); }
-		inline unsigned get_tid () { return ::GetCurrentThreadId(); }
+		inline unsigned get_pid () { return GetCurrentProcessId(); }
+		inline unsigned get_tid () { return GetCurrentThreadId(); }
 
 		/**@brief	yields core to other thread **/
 		inline void thread_yield () { Sleep(1); }

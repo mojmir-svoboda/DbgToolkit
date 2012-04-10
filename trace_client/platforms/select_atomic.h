@@ -6,6 +6,8 @@
 #else
 #	if defined WIN32 || defined WIN64
 #		include "platforms/atomic_win.h"
+#	elif defined _XBOX
+#		include "platforms/atomic_x360.h"
 #	else
 #		include "platforms/atomic_gcc.h"
 #	endif

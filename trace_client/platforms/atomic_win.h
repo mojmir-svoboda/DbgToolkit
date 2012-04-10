@@ -28,5 +28,7 @@ namespace sys {
 	{
 		return InterlockedExchangeAdd(mem, val);
 	}
+
+	inline void lwsync () { }
 }
 

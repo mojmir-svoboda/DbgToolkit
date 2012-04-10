@@ -7,11 +7,11 @@
 #	include "profile_linux_socket.inl"
 
 #elif defined _XBOX
-#	if defined PROFILE_XBOX360_USES_SOCKET
-#		include "profile_xbox360_socket.inl"
-#	elif defined PROFILE_XBOX360/USES_FILE
-#		include "profile_xbox360_file.inl"
-#	endif
+//#	if defined PROFILE_XBOX360_USES_SOCKET
+//#		include "profile_xbox360_socket.inl"
+//#	elif defined PROFILE_XBOX360_USES_FILE
+//#		include "profile_xbox360_file.inl"
+//#	endif
 
 #elif defined _PS3
 #	if defined PROFILE_PS3_USES_SOCKET

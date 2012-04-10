@@ -27,7 +27,7 @@
 
 #	if defined (__GNUC__) && defined(__unix__)
 #		define PROFILE_API __attribute__ ((__visibility__("default")))
-#	elif defined (WIN32)
+#	elif defined (WIN32) || defined (_XBOX)
 #		if defined PROFILE_STATIC
 #			define PROFILE_API 
 #		elif defined PROFILE_DLL
