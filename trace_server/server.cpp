@@ -40,7 +40,6 @@ Connection * Server::findCurrentConnection ()
 	Q_ASSERT(parent());
 	QWidget * w = static_cast<MainWindow *>(parent())->getTabTrace()->currentWidget();
 	connections_t::iterator it = connections.find(w);
-	Q_ASSERT(it != connections.end());
 	return (it != connections.end()) ? it->second : 0;
 }
 
@@ -56,21 +55,18 @@ Connection * Server::findConnectionByName (QString const & app_name)
 
 void Server::copyStorageTo (QString const & filename)
 {
-	Q_ASSERT(findCurrentConnection());
 	if (Connection * conn = findCurrentConnection())
 		conn->copyStorageTo(filename);
 }
 
 void Server::exportStorageToCSV (QString const & filename)
 {
-	Q_ASSERT(findCurrentConnection());
 	if (Connection * conn = findCurrentConnection())
 		conn->exportStorageToCSV(filename);
 }
 
 void Server::onSectionResized (int idx, int /*old_size*/, int new_size)
 {
-	Q_ASSERT(findCurrentConnection());
 	if (Connection * conn = findCurrentConnection())
 		if (conn->sessionState().getColumnSizes() && idx < conn->sessionState().getColumnSizes()->size())
 			conn->sessionState().getColumnSizes()->operator[](idx) = new_size;
@@ -98,29 +94,38 @@ void Server::onCopyToClipboard ()
 
 void Server::onFilterFile (int state)
 {
-	if (!static_cast<MainWindow *>(parent())->getTabTrace()->currentWidget())
-		return;
-
 	if (Connection * conn = findCurrentConnection())
 		conn->setFilterFile(state);
 }
 
 void Server::onBufferingStateChanged (int state)
 {
-	if (!static_cast<MainWindow *>(parent())->getTabTrace()->currentWidget())
-		return;
-
 	if (Connection * conn = findCurrentConnection())
 		conn->onBufferingStateChanged(state);
 }
 
-void Server::onDeleteCurrentText ()
+void Server::onClearCurrentView ()
 {
-	if (!static_cast<MainWindow *>(parent())->getTabTrace()->currentWidget())
-		return;
-
 	if (Connection * conn = findCurrentConnection())
-		conn->onDeleteCurrentText();
+		conn->onClearCurrentView();
+}
+
+void Server::onHidePrevFromRow ()
+{
+	if (Connection * conn = findCurrentConnection())
+		conn->onHidePrevFromRow();
+}
+
+void Server::onExcludeFileLine ()
+{
+	if (Connection * conn = findCurrentConnection())
+		conn->onExcludeFileLine();
+}
+
+void Server::onToggleRefFromRow ()
+{
+	if (Connection * conn = findCurrentConnection())
+		conn->onToggleRefFromRow();
 }
 
 void Server::onClickedAtFileTree (QModelIndex idx)

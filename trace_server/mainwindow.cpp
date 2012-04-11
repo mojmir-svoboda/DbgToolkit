@@ -629,6 +629,12 @@ void MainWindow::setupMenuBar ()
 	editMenu->addSeparator();
 	editMenu->addAction(tr("Close Tab"), m_server, SLOT(onCloseCurrentTab()), QKeySequence(Qt::ControlModifier + Qt::Key_W));
 
+	QMenu * filterMenu = menuBar()->addMenu(tr("Fi&lter"));
+	filterMenu->addAction(tr("Clear current view"), m_server, SLOT(onClearCurrentView()), QKeySequence(Qt::Key_C));
+	filterMenu->addAction(tr("Hide previous rows"), m_server, SLOT(onHidePrevFromRow()), QKeySequence(Qt::Key_Delete));
+	filterMenu->addAction(tr("Toggle reference row"), m_server, SLOT(onToggleRefFromRow()), QKeySequence(Qt::Key_Space));
+	filterMenu->addAction(tr("Exclude file:line row"), m_server, SLOT(onExcludeFileLine()), QKeySequence(Qt::Key_X));
+
 	// Tools
 	QMenu * tools = menuBar()->addMenu(tr("&Settings"));
 	tools->addAction(tr("Column Setup"), this, SLOT(onColumnSetup()));

@@ -117,8 +117,11 @@ public:
 	void setRegexColor (std::string const & s, QColor col);
 	void setRegexChecked (std::string const & s, bool checked);
 
-	void exclude_content_to_row (int row) { m_exclude_content_to_row = row; }
-	int exclude_content_to_row () const { return m_exclude_content_to_row; }
+	void excludeContentToRow (int row) { m_exclude_content_to_row = row; }
+	int excludeContentToRow () const { return m_exclude_content_to_row; }
+
+	void toggleRefFromRow (int row) { m_toggle_ref_row = row; }
+	int toggleRefFromRow () const { return m_toggle_ref_row; }
 	
 signals:
 	
@@ -134,6 +137,7 @@ private:
 	QWidget * m_tab_widget;
 	int m_from_file;
 	int m_exclude_content_to_row;
+	int m_toggle_ref_row;
 	file_filters_t m_file_filters;
 	tid_filters_t m_tid_filters;
 
