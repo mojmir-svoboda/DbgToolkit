@@ -21,7 +21,8 @@
        <widget class="QCheckBox" name="autoScrollCheckBox">
         <property name="font">
          <font>
-          <pointsize>7</pointsize>
+          <family>Verdana</family>
+          <pointsize>6</pointsize>
          </font>
         </property>
         <property name="text">
@@ -33,7 +34,8 @@
        <widget class="QCheckBox" name="reuseTabCheckBox">
         <property name="font">
          <font>
-          <pointsize>7</pointsize>
+          <family>Verdana</family>
+          <pointsize>6</pointsize>
          </font>
         </property>
         <property name="text">
@@ -42,10 +44,24 @@
        </widget>
       </item>
       <item>
+       <widget class="QCheckBox" name="clrFiltersCheckBox">
+        <property name="font">
+         <font>
+          <family>Verdana</family>
+          <pointsize>6</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>clrFilters</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QCheckBox" name="buffCheckBox">
         <property name="font">
          <font>
-          <pointsize>7</pointsize>
+          <family>Verdana</family>
+          <pointsize>6</pointsize>
          </font>
         </property>
         <property name="text">
@@ -60,7 +76,8 @@
        <widget class="QCheckBox" name="scopesCheckBox">
         <property name="font">
          <font>
-          <pointsize>7</pointsize>
+          <family>Verdana</family>
+          <pointsize>6</pointsize>
          </font>
         </property>
         <property name="text">
@@ -72,7 +89,8 @@
        <widget class="QCheckBox" name="filterFileCheckBox">
         <property name="font">
          <font>
-          <pointsize>7</pointsize>
+          <family>Verdana</family>
+          <pointsize>6</pointsize>
          </font>
         </property>
         <property name="text">
@@ -84,6 +102,7 @@
        <widget class="QComboBox" name="presetComboBox">
         <property name="font">
          <font>
+          <family>Verdana</family>
           <pointsize>7</pointsize>
          </font>
         </property>
@@ -96,7 +115,8 @@
        <widget class="QSpinBox" name="levelSpinBox">
         <property name="font">
          <font>
-          <pointsize>8</pointsize>
+          <family>Verdana</family>
+          <pointsize>7</pointsize>
           <weight>75</weight>
           <bold>true</bold>
          </font>
@@ -130,6 +150,12 @@
       </item>
       <item>
        <widget class="QLineEdit" name="qSearchLineEdit">
+        <property name="font">
+         <font>
+          <family>Verdana</family>
+          <pointsize>7</pointsize>
+         </font>
+        </property>
         <property name="whatsThis">
          <string extracomment="quick search"/>
         </property>
@@ -137,6 +163,12 @@
       </item>
       <item>
        <widget class="QComboBox" name="qSearchComboBox">
+        <property name="font">
+         <font>
+          <family>Verdana</family>
+          <pointsize>7</pointsize>
+         </font>
+        </property>
         <property name="toolTip">
          <string extracomment="hello3"/>
         </property>
@@ -181,6 +213,7 @@
        </property>
        <property name="font">
         <font>
+         <family>Verdana</family>
          <pointsize>6</pointsize>
         </font>
        </property>
@@ -188,7 +221,7 @@
         <enum>QTabWidget::Triangular</enum>
        </property>
        <property name="currentIndex">
-        <number>3</number>
+        <number>0</number>
        </property>
        <widget class="QWidget" name="filterFile">
         <attribute name="title">

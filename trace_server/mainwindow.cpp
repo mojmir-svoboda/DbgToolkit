@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "ui_settings.h"
+#include "ui_help.h"
 #include "modelview.h"
 #include "server.h"
 #include "connection.h"
@@ -38,6 +39,7 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay)
 	: QMainWindow(parent)
 	, ui(new Ui::MainWindow)
 	, m_settings(new Ui::SettingsDialog)
+	, m_help(new Ui::HelpDialog)
 	, m_hidden(false)
 	, m_timer(new QTimer(this))
 	, m_server(0)
@@ -99,6 +101,7 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay)
 	connect(ui->levelSpinBox, SIGNAL(valueChanged(int)), m_server, SLOT(onLevelValueChanged(int)));
     connect(ui->filterFileCheckBox, SIGNAL(stateChanged(int)), m_server, SLOT(onFilterFile(int)));
     connect(ui->buffCheckBox, SIGNAL(stateChanged(int)), m_server, SLOT(onBufferingStateChanged(int)));
+    //connect(ui->clrFiltersCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onClrFiltersStateChanged(int)));
 	connect(ui->presetComboBox, SIGNAL(activated(int)), this, SLOT(onPresetActivate(int)));
 
 	connect(getListViewRegex(), SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtRegexList(QModelIndex)));
@@ -142,9 +145,9 @@ MainWindow::~MainWindow()
 #ifdef WIN32
 	UnregisterHotKey(winId(), 0);
 #endif
+	delete m_help;
 	delete m_settings;
 	delete ui;
-
 }
 
 void MainWindow::createActions ()
@@ -232,6 +235,7 @@ bool MainWindow::filterEnabled () const { return ui->filterFileCheckBox->isCheck
 bool MainWindow::reuseTabEnabled () const { return ui->reuseTabCheckBox->isChecked(); }
 bool MainWindow::autoScrollEnabled () const { return ui->autoScrollCheckBox->isChecked(); }
 bool MainWindow::buffEnabled () const { return ui->buffCheckBox->isChecked(); }
+bool MainWindow::clrFltEnabled () const { return ui->clrFiltersCheckBox->isChecked(); }
 
 void MainWindow::setLevel (int i)
 {
@@ -361,6 +365,11 @@ void MainWindow::onHotkeyShowOrHide ()
 		qDebug("MainWindow::show()");
 		showNormal();
 	}
+}
+
+void MainWindow::onShowHelp ()
+{
+	//m_help->setupUi();
 }
 
 void MainWindow::onColumnSetup ()
@@ -642,6 +651,9 @@ void MainWindow::setupMenuBar ()
 	tools->addAction(tr("Save Current File Filter As..."), this, SLOT(onSaveCurrentFileFilter()));
 	tools->addSeparator();
 	tools->addAction(tr("Save setup now"), this, SLOT(storeState()));
+
+	QMenu * helpMenu = menuBar()->addMenu(tr("&Help"));
+	helpMenu->addAction(tr("Help"), this, SLOT(onShowHelp()), QKeySequence(Qt::Key_F1));
 }
 
 void write_list_of_strings (QSettings & settings, char const * groupname, char const * groupvaluename, QList<QString> const & lst)
@@ -720,6 +732,7 @@ void MainWindow::storeState ()
 	settings.setValue("scopesCheckBox", ui->scopesCheckBox->isChecked());
 	settings.setValue("filterFileCheckBox", ui->filterFileCheckBox->isChecked());
 	settings.setValue("buffCheckBox", ui->buffCheckBox->isChecked());
+	settings.setValue("clrFiltersCheckBox", ui->clrFiltersCheckBox->isChecked());
 
 	write_list_of_strings(settings, "known-applications", "application", m_app_names);
 	for (size_t i = 0, ie = m_app_names.size(); i < ie; ++i)
@@ -766,6 +779,7 @@ void MainWindow::loadState ()
 	ui->scopesCheckBox->setChecked(settings.value("scopesCheckBox", false).toBool());
 	ui->filterFileCheckBox->setChecked(settings.value("filterFileCheckBox", false).toBool());
 	ui->buffCheckBox->setChecked(settings.value("buffCheckBox", false).toBool());
+	ui->clrFiltersCheckBox->setChecked(settings.value("clrFiltersCheckBox", false).toBool());
 
 	read_list_of_strings(settings, "known-applications", "application", m_app_names);
 	for (size_t i = 0, ie = m_app_names.size(); i < ie; ++i)

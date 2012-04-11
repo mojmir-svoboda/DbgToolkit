@@ -32,6 +32,7 @@
 namespace Ui {
 	class MainWindow;
 	class SettingsDialog;
+	class HelpDialog;
 }
 
 class QSystemTrayIcon;
@@ -115,6 +116,7 @@ public:
 	bool reuseTabEnabled () const;
 	bool filterEnabled () const;
 	bool buffEnabled () const;
+	bool clrFltEnabled () const;
 	void changeEvent (QEvent* e);
 	void dropEvent (QDropEvent * event);
 	void dragEnterEvent (QDragEnterEvent *event);
@@ -152,6 +154,7 @@ private slots:
 	void onColorRegexActivate (int idx);
 	void onColorRegexAdd ();
 	void onColorRegexRm ();
+	void onShowHelp ();
 
 private:
 	void showServerStatus ();
@@ -161,6 +164,7 @@ private:
 
 	Ui::MainWindow * ui;
 	Ui::SettingsDialog * m_settings;
+	Ui::HelpDialog * m_help;
 	bool m_hidden;
 	QList<QString> m_app_names;					/// registered applications
 	QList<columns_setup_t> m_columns_setup;		/// column setup for each registered application

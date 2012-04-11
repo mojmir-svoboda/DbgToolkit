@@ -63,7 +63,8 @@ HEADERS  += mainwindow.h \
     settings.h
 
 FORMS    += mainwindow.ui \
-    settings.ui
+    settings.ui \
+    help.ui
 
 RESOURCES += \
     resources.qrc

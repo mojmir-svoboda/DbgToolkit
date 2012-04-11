@@ -56,7 +56,7 @@ SET(trace_server_HEADERS
     sessionstate.h
     settings.h)
 
-SET(trace_server_UI mainwindow.ui settings.ui)
+SET(trace_server_UI mainwindow.ui settings.ui help.ui)
 SET(trace_server_RESOURCES resources.qrc)
 SET(QT_USE_QTNETWORK true)
 IF (WIN32)
