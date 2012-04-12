@@ -54,7 +54,6 @@ Connection::~Connection () { qDebug("~Connection()"); }
 void Connection::onDisconnected ()
 {
 	qDebug("onDisconnected()");
-	closeStorage();
 }
 
 void Connection::onTabTraceFocus (int i)
@@ -368,6 +367,12 @@ void Connection::onHidePrevFromRow ()
 		m_session_state.excludeContentToRow(current.row());
 		onInvalidateFilter();
 	}
+}
+
+void Connection::onUnhidePrevFromRow ()
+{
+	m_session_state.excludeContentToRow(0);
+	onInvalidateFilter();
 }
 
 void Connection::onShowContextMenu (const QPoint& pos) // this is a slot

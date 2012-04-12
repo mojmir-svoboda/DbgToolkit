@@ -369,7 +369,117 @@ void MainWindow::onHotkeyShowOrHide ()
 
 void MainWindow::onShowHelp ()
 {
-	//m_help->setupUi();
+	QDialog dialog(this);
+	dialog.setWindowFlags(Qt::Sheet);
+	m_help->setupUi(&dialog);
+	m_help->helpTextEdit->clear();
+
+	QString text(tr("\
+		<h1>Quick help</h1>\
+		<h2>General shortcuts</h2>\
+		<table>\
+			<tr>\
+				<td> Shortcut </td> <td> Description </td>\
+			</tr>\
+			<tr>\
+				<td> F1 </td>\
+				<td> this screen. </td>\
+			</tr>\
+			<tr>\
+				<td> Ctrl + L </td>\
+				<td> Load file </td>\
+			</tr>\
+			<tr>\
+				<td> Ctrl + S </td>\
+				<td> Save file </td>\
+			</tr>\
+			<tr>\
+				<td> Ctrl + Shift + S </td>\
+				<td> Export to CSV formatted file</td>\
+			</tr>\
+			<tr>\
+				<td> Ctrl + W </td>\
+				<td> Close current tab </td>\
+			</tr>\
+		</table>\
+		<h2>Text search shortcuts</h2>\
+		<table>\
+			<tr>\
+				<td> Shortcut </td> <td> Description </td>\
+			</tr>\
+			<tr>\
+				<td> Ctrl + F </td>\
+				<td> Find text in column. Specific column can be selected in the combobox on the right.</td>\
+			</tr>\
+			<tr>\
+				<td> / </td>\
+				<td> Find text in column. Specific column can be selected in the combobox on the right.</td>\
+			</tr>\
+			<tr>\
+				<td> ? </td>\
+				<td> Find next occurence </td>\
+			</tr>\
+			<tr>\
+				<td> ? </td>\
+				<td> Find prev occurence </td>\
+			</tr>\
+			<tr>\
+				<td> Ctrl + C </td>\
+				<td> Copy selection to clipboard </td>\
+			</tr>\
+			<tr>\
+				<td> Ctrl + Ins </td>\
+				<td> Copy selection to clipboard </td>\
+			</tr>\
+		</table>\
+		<h2>Filtering shortcuts</h2>\
+		<table>\
+			<tr>\
+				<td> Shortcut </td> <td> Description </td>\
+			</tr>\
+			<tr>\
+				<td> c </td>\
+				<td> clear current view (same as clicking on last row and pressing X) </td>\
+			</tr>\
+			<tr>\
+				<td> space </td>\
+				<td> toggle reference row </td>\
+			</tr>\
+			<tr>\
+				<td> x </td>\
+				<td> exclude currently selected row from view </td>\
+			</tr>\
+			<tr>\
+				<td> Del </td>\
+				<td> Hide previous rows </td>\
+			</tr>\
+			<tr>\
+				<td> Ctrl + Del </td>\
+				<td> Shows again hidden rows by Del</td>\
+			</tr>\
+			<tr>\
+				<td> </td>\
+				<td> </td>\
+			</tr>\
+		</table>\
+		<h2>Mouse operations:</h2>\
+		<table>\
+			<tr>\
+				<td> Shortcut </td> <td> Description </td>\
+			</tr>\
+			<tr>\
+				<td> click on table </td>\
+				<td> sets current cell for search and for operations using current cell, like pressing Del or X</td>\
+			</tr>\
+			<tr>\
+				<td> double click on table </td>\
+				<td> if double click occurs within { } scope, the scope will be collapsed (and grayed) </td>\
+			</tr>\
+		</table>"));
+	
+	m_help->helpTextEdit->setHtml(text);
+	m_help->helpTextEdit->setReadOnly(true);
+	dialog.exec();
 }
 
 void MainWindow::onColumnSetup ()
@@ -622,7 +732,7 @@ void MainWindow::setupMenuBar ()
 	QMenu * fileMenu = menuBar()->addMenu(tr("&File"));
 	fileMenu->addAction(tr("File &Load..."), this, SLOT(onFileLoad()), QKeySequence(Qt::ControlModifier + Qt::Key_L));
 	fileMenu->addAction(tr("File &Save..."), this, SLOT(onFileSave()), QKeySequence(Qt::ControlModifier + Qt::Key_S));
-	fileMenu->addAction(tr("File &Export (CSV)"), this, SLOT(onFileExportToCSV()), QKeySequence(Qt::ControlModifier + Qt::Key_E));
+	fileMenu->addAction(tr("File &Export (CSV)"), this, SLOT(onFileExportToCSV()), QKeySequence(Qt::ControlModifier + Qt::ShiftModifier + Qt::Key_E));
 	fileMenu->addSeparator();
     fileMenu->addAction(tr("Quit program"), this, SLOT(onQuit()), QKeySequence::Quit);
 
@@ -641,6 +751,7 @@ void MainWindow::setupMenuBar ()
 	QMenu * filterMenu = menuBar()->addMenu(tr("Fi&lter"));
 	filterMenu->addAction(tr("Clear current view"), m_server, SLOT(onClearCurrentView()), QKeySequence(Qt::Key_C));
 	filterMenu->addAction(tr("Hide previous rows"), m_server, SLOT(onHidePrevFromRow()), QKeySequence(Qt::Key_Delete));
+	filterMenu->addAction(tr("Unhide previous rows"), m_server, SLOT(onUnhidePrevFromRow()), QKeySequence(Qt::ControlModifier + Qt::Key_Delete));
 	filterMenu->addAction(tr("Toggle reference row"), m_server, SLOT(onToggleRefFromRow()), QKeySequence(Qt::Key_Space));
 	filterMenu->addAction(tr("Exclude file:line row"), m_server, SLOT(onExcludeFileLine()), QKeySequence(Qt::Key_X));
 

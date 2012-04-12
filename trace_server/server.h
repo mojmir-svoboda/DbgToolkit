@@ -67,6 +67,7 @@ public slots:
 	void onCopyToClipboard ();
 
 	void onHidePrevFromRow ();
+	void onUnhidePrevFromRow ();
 	void onExcludeFileLine ();
 	void onToggleRefFromRow ();
 	void onClearCurrentView ();

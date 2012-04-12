@@ -54,7 +54,9 @@ void Connection::clearFilters ()
 	QStandardItem * node = m_tree_view_file_model->invisibleRootItem();
 	clearFilters(node);
 	sessionState().m_file_filters.clear();
-	//@TODO: clear TID Filter
+	sessionState().m_tid_filters.clear();
+	//sessionState().m_regex_filters.clear();
+	//sessionState().m_color_regexps.clear();
 }
 
 void Connection::appendToFileFilters (std::string const & item, bool checked)

@@ -108,6 +108,7 @@ public slots:
 	void onCloseTab ();
 	void onInvalidateFilter ();
 	void onHidePrevFromRow ();
+	void onUnhidePrevFromRow ();
 	void onClearCurrentView ();
 	void onShowContextMenu (QPoint const & pos);
 	void onExcludeFileLine ();

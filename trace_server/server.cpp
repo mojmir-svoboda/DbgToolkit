@@ -116,6 +116,12 @@ void Server::onHidePrevFromRow ()
 		conn->onHidePrevFromRow();
 }
 
+void Server::onUnhidePrevFromRow ()
+{
+	if (Connection * conn = findCurrentConnection())
+		conn->onUnhidePrevFromRow();
+}
+
 void Server::onExcludeFileLine ()
 {
 	if (Connection * conn = findCurrentConnection())
