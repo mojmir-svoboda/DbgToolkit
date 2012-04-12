@@ -375,11 +375,15 @@ void MainWindow::onShowHelp ()
 	m_help->helpTextEdit->clear();
 
 	QString text(tr("\
-		<h1>Quick help</h1>\
+		<center><h1>Quick help</h1></center>\
 		<h2>General shortcuts</h2>\
 		<table>\
 			<tr>\
 				<td> Shortcut </td> <td> Description </td>\
+			</tr>\
+			<tr>\
+				<td> Scroll Lock </td>\
+				<td> show / hide the logging server window </td>\
 			</tr>\
 			<tr>\
 				<td> F1 </td>\
@@ -474,6 +478,10 @@ void MainWindow::onShowHelp ()
 			<tr>\
 				<td> double click on table </td>\
 				<td> if double click occurs within { } scope, the scope will be collapsed (and grayed) </td>\
+			</tr>\
+			<tr>\
+				<td> double click on coloring regexp </td>\
+				<td> color selection </td>\
 			</tr>\
 		</table>"));
 	
