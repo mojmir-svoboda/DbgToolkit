@@ -9,7 +9,7 @@ TARGET = trace_server
 TEMPLATE = app
 DEFINES += TRACE_ENABLED
 INCLUDEPATH += ..
-INCLUDEPATH += c:/devel/boost_1_47_0
+INCLUDEPATH += c:/devel/boost_1_48_0
 
 win32-msvc* {
 }

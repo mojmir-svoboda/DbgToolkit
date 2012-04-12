@@ -1,21 +1,8 @@
-#if defined __MINGW32__
-#	undef _WIN32_WINNT
-#	define _WIN32_WINNT 0x0600 
-#endif
-#define WIN32_LEAN_AND_MEAN
+#pragma once
 #include <cstdlib>	// for atoi
 #include <cstdio>	// for vsnprintf etc
-// Need to link with Ws2_32.lib, Mswsock.lib, and Advapi32.lib
-#if defined WIN32
-#	pragma comment (lib, "Ws2_32.lib")
-#	pragma comment (lib, "Mswsock.lib")
-#	pragma comment (lib, "AdvApi32.lib")
-#elif defined WIN64
-#	pragma comment (lib, "Ws2.lib")
-#	pragma comment (lib, "Mswsock.lib")
-#endif
-#include "../../tlv_parser/tlv_parser.h"
-#include "../../tlv_parser/tlv_decoder.h"
+#include <tlv_parser/tlv_parser.h>
+#include <tlv_parser/tlv_decoder.h>
 #include "trace_x360_common.inl"
 #include "encode_log.inl"
 #include "encode_scope.inl"
@@ -221,52 +208,29 @@ namespace trace {
 				return;
 			}
 
-			addrinfo hints;
-			ZeroMemory(&hints, sizeof(hints));
-			hints.ai_family = AF_UNSPEC;
-			hints.ai_socktype = SOCK_STREAM;
-			hints.ai_protocol = IPPROTO_TCP;
-
-			addrinfo * result = NULL;
-			int const resolve_result = getaddrinfo(host, port, &hints, &result); // resolve the server address and port
-			if (resolve_result != 0) {
-				DBG_OUT("getaddrinfo failed with error: %d\n", resolve_result);
-				WSACleanup();
-				return;
-			}
-
-			// attempt to connect to an address until one succeeded
-			for (addrinfo * ptr = result; ptr != NULL ; ptr = ptr->ai_next) {
-				// create a SOCKET for connecting to server
-				g_Socket = socket(ptr->ai_family, ptr->ai_socktype, ptr->ai_protocol);
-				if (g_Socket == INVALID_SOCKET) {
-					DBG_OUT("socket failed with error: %ld\n", get_errno());
-					WSACleanup();
-					return;
-				}
-
-				// Connect to server.
-				int const connect_result = connect(g_Socket, ptr->ai_addr, (int)ptr->ai_addrlen);
-				if (connect_result == SOCKET_ERROR) {
-					closesocket(g_Socket);
-					g_Socket = INVALID_SOCKET;
-					continue;
-				}
-				break;
-			}
-
-			freeaddrinfo(result);
-
-			if (g_Socket == INVALID_SOCKET)
+			g_Socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+			if ((g_Socket == SOCKET_ERROR) || (g_Socket == INVALID_SOCKET))
 			{
-				DBG_OUT("Unable to connect to server!\n");
-				WSACleanup();
+				printf("Trace ERR: socket error %ld\n", WSAGetLastError());
+			}
+
+			sockaddr_in addr;
+			addr.sin_family = AF_INET;
+			addr.sin_port = htons(port);
+			addr.sin_addr.s_addr = inet_addr(host);
+			//if (addr.sin_addr.s_addr == INADDR_NONE)
+			//	return NO_ERROR == connectViaDNS(g_Socket, host, port);
+
+			if (connect(g_Socket, (struct sockaddr*) &addr, sizeof(addr)) != 0)
+			{
+				printf("Trace ERR: connect error: %ld\n", WSAGetLastError());
+				g_Socket = INVALID_SOCKET;
 				return;
 			}
+			printf("Trace OK: connected to TraceServer\n");
 
 			int send_buff_sz = 64 * 1024;
 			setsockopt(g_Socket, SOL_SOCKET, SO_SNDBUF, reinterpret_cast<char *>(&send_buff_sz), sizeof(int));
-
 			DWORD send_timeout_ms = 1;
 			setsockopt(g_Socket, SOL_SOCKET, SO_SNDTIMEO, reinterpret_cast<char *>(&send_timeout_ms), sizeof(DWORD));
 		}
@@ -279,7 +243,7 @@ namespace trace {
 			// send cmd_setup message
 			encode_setup(msg, GetRuntimeLevel(), GetRuntimeContextMask());
 
-			socks::connect("localhost", "13127");
+			socks::connect("192.168.1.81", "13127");
 
 			if (socks::is_connected())
 			{
@@ -322,7 +286,7 @@ namespace trace {
 		socks::g_Quit = 1; // @TODO: atomic_store?
 		if (socks::is_connected())
 		{
-			int const result = shutdown(socks::g_Socket, SD_SEND);
+			int const result = shutdown(socks::g_Socket, SD_BOTH);
 			if (result == SOCKET_ERROR)
 				DBG_OUT("shutdown failed with error: %d\n", get_errno());
 			closesocket(socks::g_Socket);

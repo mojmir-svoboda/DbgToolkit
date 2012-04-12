@@ -11,7 +11,11 @@
 #	endif
 	namespace sys
 	{
+#	if defined WIN32 || defined WIN64
 		inline unsigned get_pid () { return GetCurrentProcessId(); }
+#	elif defined _XBOX
+		inline unsigned get_pid () { return 0; }
+#	endif
 		inline unsigned get_tid () { return GetCurrentThreadId(); }
 
 		/**@brief	yields core to other thread **/

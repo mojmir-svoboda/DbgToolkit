@@ -1,6 +1,6 @@
 #pragma once
 #include <cstdio>
-#include "../../tlv_parser/tlv_parser.h"
+#include <tlv_parser/tlv_parser.h>
 #include "select_atomic.h"
 #include "time_query.h"
 #include "os.h"
@@ -11,7 +11,7 @@ namespace trace {
 	void create_log_filename (char * filename, size_t buff_sz)
 	{
 		char const * app_name = GetAppName() ? GetAppName() : "unknown";
-		_snprintf_s(filename, buff_sz, buff_sz - 1, "%s_%u.tlv_trace", app_name, ::GetCurrentProcessId());
+		_snprintf_s(filename, buff_sz, buff_sz - 1, "%s.tlv_trace", app_name);
 	}
 
 	typedef sys::Message<1024> msg_t;

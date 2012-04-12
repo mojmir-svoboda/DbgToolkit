@@ -1,11 +1,6 @@
 #pragma once
-#define WIN32_LEAN_AND_MEAN
-#if defined __MINGW32__
-#	include <xtl.h>
-#endif
 #include <cstdio>
-#include "../../tlv_parser/tlv_parser.h"
-#include "atomic_win.h"
+#include <tlv_parser/tlv_parser.h>
 #include "select_atomic.h"
 #include "time_query.h"
 #include "os.h"
@@ -16,7 +11,7 @@ namespace profile {
 	void create_log_filename (char * filename, size_t buff_sz)
 	{
 		char const * app_name = GetAppName() ? GetAppName() : "unknown";
-		_snprintf_s(filename, buff_sz, buff_sz - 1, "%s_%u.tlv_trace", app_name, ::GetCurrentProcessId());
+		_snprintf_s(filename, buff_sz, buff_sz - 1, "%s.tlv_trace", app_name);
 	}
 
 	typedef sys::Message<192> msg_t;
