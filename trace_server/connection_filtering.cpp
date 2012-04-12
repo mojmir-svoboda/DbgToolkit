@@ -51,13 +51,10 @@ void Connection::clearFilters (QStandardItem * node)
 
 void Connection::clearFilters ()
 {
-	if (m_main_window->clrFltEnabled())
-	{
-		QStandardItem * node = m_tree_view_file_model->invisibleRootItem();
-		clearFilters(node);
-		sessionState().m_file_filters.clear();
-		//@TODO: clear TID Filter
-	}
+	QStandardItem * node = m_tree_view_file_model->invisibleRootItem();
+	clearFilters(node);
+	sessionState().m_file_filters.clear();
+	//@TODO: clear TID Filter
 }
 
 void Connection::appendToFileFilters (std::string const & item, bool checked)

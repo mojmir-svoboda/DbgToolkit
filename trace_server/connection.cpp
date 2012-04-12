@@ -273,6 +273,8 @@ void Connection::onTableDoubleClicked (QModelIndex const & row_index)
 		}
 
 		QString tid = findString4Tag(tlv::tag_tid, curr);
+		QString file = findString4Tag(tlv::tag_file, curr);
+		QString line = findString4Tag(tlv::tag_line, curr);
 		int from = row_bgn;
 
 		if (model->rowTypes()[from] != tlv::cmd_scope_entry)
@@ -323,7 +325,7 @@ void Connection::onTableDoubleClicked (QModelIndex const & row_index)
 		if (m_session_state.findCollapsedBlock(tid, from, to))
 			m_session_state.eraseCollapsedBlock(tid, from, to);
 		else
-			m_session_state.appendCollapsedBlock(tid, from, to);
+			m_session_state.appendCollapsedBlock(tid, from, to, file, line);
 		onInvalidateFilter();
 	}
 }

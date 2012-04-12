@@ -38,8 +38,12 @@ struct CollapsedBlock {
 	QString m_tid;
 	int m_from;
 	int m_to;
+	QString m_file;
+	QString m_line;
 
-	CollapsedBlock (QString tid, int from, int to) : m_tid(tid), m_from(from), m_to(to) { }
+	CollapsedBlock (QString tid, int from, int to, QString file, QString line)
+		: m_tid(tid), m_from(from), m_to(to), m_file(file), m_line(line)
+	{ }
 };
 
 enum E_ColorRole { e_Bg, e_Fg };
@@ -64,6 +68,14 @@ struct ColorizedText {
 		, m_role(r), m_regex_str(rs), m_regex(QString::fromStdString(rs)), m_isEnabled(0)
 	{ }
 
+};
+
+struct SessionExport {
+	std::string m_name;
+	std::string m_file_filters;
+	std::string m_regex_filters;
+	std::string m_color_regex_filters;
+	std::string m_collapsed_blocks;
 };
 
 class SessionState
@@ -105,7 +117,7 @@ public:
 	void removeTIDFilter (std::string const & item);
 	bool isTIDExcluded (std::string const & item) const;
 
-	void appendCollapsedBlock (QString tid, int from, int to);
+	void appendCollapsedBlock (QString tid, int from, int to, QString file, QString line);
 	bool findCollapsedBlock (QString tid, int from, int to) const;
 	bool eraseCollapsedBlock (QString tid, int from, int to);
 	bool isBlockCollapsed (QString tid, int row) const;
@@ -122,6 +134,11 @@ public:
 
 	void toggleRefFromRow (int row) { m_toggle_ref_row = row; }
 	int toggleRefFromRow () const { return m_toggle_ref_row; }
+
+	void makeInexactCopy (SessionState const & rhs);
+   
+	void sessionExport (SessionExport & e) const;
+	void sessionImport (SessionExport const & e);
 	
 signals:
 	

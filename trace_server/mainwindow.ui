@@ -214,7 +214,7 @@
        <property name="font">
         <font>
          <family>Verdana</family>
-         <pointsize>6</pointsize>
+         <pointsize>7</pointsize>
         </font>
        </property>
        <property name="tabShape">
