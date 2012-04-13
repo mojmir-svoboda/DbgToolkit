@@ -6,6 +6,7 @@ SessionState::SessionState (QObject * parent)
 	, m_tab_idx(-2)
 	, m_tab_widget(0)
 	, m_exclude_content_to_row(0)
+	, m_toggle_ref_row(0)
 	, m_columns_setup_current(0)
 	, m_columns_setup_template(0)
 	, m_columns_sizes(0)
@@ -128,9 +129,9 @@ bool SessionState::isTIDExcluded (std::string const & item) const
 	return std::find(m_tid_filters.begin(), m_tid_filters.end(), item) != m_tid_filters.end();
 }
 
-void SessionState::appendCollapsedBlock (QString tid, int from, int to)
+void SessionState::appendCollapsedBlock (QString tid, int from, int to, QString file, QString line)
 {
-	m_collapse_blocks.push_back(CollapsedBlock(tid, from, to));
+	m_collapse_blocks.push_back(CollapsedBlock(tid, from, to, file, line));
 }
 
 bool SessionState::findCollapsedBlock (QString tid, int from, int to) const
@@ -242,3 +243,26 @@ void SessionState::appendToColorRegexFilters (std::string const & s)
 	m_colorized_texts.push_back(ColorizedText(s, e_Fg));
 }
 
+void SessionState::sessionExport (SessionExport & e) const
+{
+	e.m_file_filters.reserve(32 * 1024);
+	m_file_filters.export_filter(e.m_file_filters);
+}
+
+void SessionState::sessionImport (SessionExport const & e)
+{
+	boost::char_separator<char> sep("\n");
+	typedef boost::tokenizer<boost::char_separator<char> > tokenizer_t;
+	tokenizer_t tok(e.m_file_filters, sep);
+	for (tokenizer_t::const_iterator it = tok.begin(), ite = tok.end(); it != ite; ++it)
+	{
+		m_file_filters.append(*it);
+	}
+}
+
+void SessionState::makeInexactCopy (SessionState const & rhs)
+{
+	SessionExport e;
+	rhs.sessionExport(e);
+	sessionImport(e);
+}

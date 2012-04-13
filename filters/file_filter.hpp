@@ -50,6 +50,8 @@ struct file_filter
 		}
 	}
 
+	bool empty () const { return !(root && root->children); }
+
 	void append (std::string const & path)
 	{
 		if (!root)
@@ -109,7 +111,7 @@ struct file_filter
 		}
 	}
 
-	void reassemble_path (std::vector<node_t *> const & nodes, std::string & path)
+	void reassemble_path (std::vector<node_t *> const & nodes, std::string & path) const
 	{
 		for (size_t i = 0, ie = nodes.size(); i < ie; ++i)
 		{
@@ -119,7 +121,7 @@ struct file_filter
 		}
 	}
 
-	void export_filter_impl (node_t const * node, std::vector<node_t *> & nodes, std::string & output)
+	void export_filter_impl (node_t const * node, std::vector<node_t *> & nodes, std::string & output) const
 	{
 		if (node && node->children)
 		{
@@ -145,7 +147,7 @@ struct file_filter
 		}
 	}
 
-	void export_filter (std::string & output)
+	void export_filter (std::string & output) const
 	{
 		output.reserve(128);
 		std::vector<node_t *> path;

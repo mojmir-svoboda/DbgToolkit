@@ -321,6 +321,7 @@ void Connection::closeStorage ()
 	{
 		delete m_datastream;
 		m_storage->close();
+		m_storage->remove();
 		delete m_storage;
 		m_storage = 0;
 	}

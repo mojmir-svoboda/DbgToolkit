@@ -68,7 +68,7 @@ bool FilterProxyModel::filterAcceptsRow (int sourceRow, QModelIndex const & /*so
 
 	QModelIndex data_idx = sourceModel()->index(sourceRow, 0, QModelIndex());
 	excluded |= m_session_state.isBlockCollapsed(tid, data_idx.row());
-	excluded |= data_idx.row() < m_session_state.exclude_content_to_row();
+	excluded |= data_idx.row() < m_session_state.excludeContentToRow();
 	return !excluded && regex_accept;
 }
 

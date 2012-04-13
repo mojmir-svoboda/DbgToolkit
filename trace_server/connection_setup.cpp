@@ -24,13 +24,32 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 				Connection * conn = server->findConnectionByName(app_name);
 				if (conn)
 				{
+					this->setupModelFile();
+					this->setupModelTID();
+					if (!m_main_window->clrFltEnabled())
+					{
+						boost::char_separator<char> sep(":/\\");
+						SessionExport e;
+						conn->sessionState().sessionExport(e);
+						sessionState().sessionImport(e);
+
+						boost::char_separator<char> sep2("\n");
+						typedef boost::tokenizer<boost::char_separator<char> > tokenizer_t;
+						tokenizer_t tok(e.m_file_filters, sep2);
+						for (tokenizer_t::const_iterator it = tok.begin(), ite = tok.end(); it != ite; ++it)
+						{
+							appendToFileFilters(sep, *it, true);
+						}
+					}
+
+					m_main_window->getTreeViewFile()->expandAll();
+					m_main_window->getTreeViewFile()->setEnabled(m_main_window->filterEnabled());
+	
 					QWidget * w = conn->sessionState().m_tab_widget;
 					server->onCloseTab(w);	// close old one
 					// @TODO: delete persistent storage for the tab
 					sessionState().m_tab_idx = m_main_window->getTabTrace()->indexOf(sessionState().m_tab_widget);
-					
-					this->setupModelFile();
-					this->setupModelTID();
+					onTabTraceFocus(sessionState().m_tab_idx);
 				}
 			}
 
@@ -75,7 +94,10 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 void Connection::setupModelFile ()
 {
 	if (!m_tree_view_file_model)
+	{
+		qDebug("new tree view file model");
 		m_tree_view_file_model = new QStandardItemModel;
+	}
 	m_main_window->getTreeViewFile()->setModel(m_tree_view_file_model);
 	//main_window->getTreeViewFile()->expandAll();
 	m_main_window->getTreeViewFile()->setEnabled(m_main_window->filterEnabled());

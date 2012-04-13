@@ -66,7 +66,11 @@ public slots:
 	void onEditingFinished ();
 	void onCopyToClipboard ();
 
-	void onDeleteCurrentText ();
+	void onHidePrevFromRow ();
+	void onUnhidePrevFromRow ();
+	void onExcludeFileLine ();
+	void onToggleRefFromRow ();
+	void onClearCurrentView ();
 
 	void onCloseCurrentTab ();
 	void onCloseTab (QWidget * w);

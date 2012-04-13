@@ -107,8 +107,12 @@ public slots:
 	void onHandleCommands ();
 	void onCloseTab ();
 	void onInvalidateFilter ();
-	void onDeleteCurrentText ();
+	void onHidePrevFromRow ();
+	void onUnhidePrevFromRow ();
+	void onClearCurrentView ();
 	void onShowContextMenu (QPoint const & pos);
+	void onExcludeFileLine ();
+	void onToggleRefFromRow ();
 	void onExcludeFileLine (QModelIndex const & row_index);
 
 private slots:
@@ -164,6 +168,7 @@ private:
 	QSortFilterProxyModel * m_table_view_proxy;
 	QMenu m_ctx_menu;
 	QAction * m_toggle_ref;
+	QAction * m_hide_prev;
 	QAction * m_exclude_fileline;
 	QModelIndex m_last_clicked;
 	QList<QRegExp> m_color_regexps;

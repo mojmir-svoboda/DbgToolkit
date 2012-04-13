@@ -30,6 +30,7 @@ Connection::Connection (QObject * parent)
 	, m_list_view_tid_model(0)
 	, m_table_view_proxy(0)
 	, m_toggle_ref(0)
+	, m_hide_prev(0)
 	, m_exclude_fileline(0)
 	, m_last_clicked()
 	, m_list_view_color_regex_model(0)
@@ -41,8 +42,9 @@ Connection::Connection (QObject * parent)
 	, m_datastream(0)
 	, m_tcpstream(0)
 { 
-	m_exclude_fileline = new QAction("Exclude File:Line", this);
 	m_toggle_ref = new QAction("Toggle Ref", this);
+	m_hide_prev = new QAction("Hide prev rows", this);
+	m_exclude_fileline = new QAction("Exclude File:Line", this);
     m_ctx_menu.addAction(m_toggle_ref);
     m_ctx_menu.addAction(m_exclude_fileline);
 }
@@ -52,7 +54,6 @@ Connection::~Connection () { qDebug("~Connection()"); }
 void Connection::onDisconnected ()
 {
 	qDebug("onDisconnected()");
-	closeStorage();
 }
 
 void Connection::onTabTraceFocus (int i)
@@ -271,6 +272,8 @@ void Connection::onTableDoubleClicked (QModelIndex const & row_index)
 		}
 
 		QString tid = findString4Tag(tlv::tag_tid, curr);
+		QString file = findString4Tag(tlv::tag_file, curr);
+		QString line = findString4Tag(tlv::tag_line, curr);
 		int from = row_bgn;
 
 		if (model->rowTypes()[from] != tlv::cmd_scope_entry)
@@ -321,30 +324,73 @@ void Connection::onTableDoubleClicked (QModelIndex const & row_index)
 		if (m_session_state.findCollapsedBlock(tid, from, to))
 			m_session_state.eraseCollapsedBlock(tid, from, to);
 		else
-			m_session_state.appendCollapsedBlock(tid, from, to);
+			m_session_state.appendCollapsedBlock(tid, from, to, file, line);
 		onInvalidateFilter();
 	}
 }
 
-void Connection::onDeleteCurrentText ()
-{ }
+void Connection::onExcludeFileLine ()
+{
+	QModelIndex const current = m_last_clicked;
+	if (current.isValid())
+	{
+		onExcludeFileLine(current);
+		onInvalidateFilter();
+	}
+}
+
+void Connection::onToggleRefFromRow ()
+{
+	QModelIndex const current = m_last_clicked;
+	if (current.isValid())
+	{
+		qDebug("Toggle Ref from row=%i", current.row());
+		m_session_state.toggleRefFromRow(current.row());
+		onInvalidateFilter();
+	}
+}
+
+void Connection::onClearCurrentView ()
+{
+	//QModelIndex const curr = m_table_view_proxy->mapToSource(row_index);
+	ModelView * model = static_cast<ModelView *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
+	m_session_state.excludeContentToRow(model->rowCount());
+	onInvalidateFilter();
+}
+
+void Connection::onHidePrevFromRow ()
+{
+	QModelIndex const current = m_last_clicked;
+	if (current.isValid())
+	{
+		qDebug("Hide prev from row=%i", current.row());
+		m_session_state.excludeContentToRow(current.row());
+		onInvalidateFilter();
+	}
+}
+
+void Connection::onUnhidePrevFromRow ()
+{
+	m_session_state.excludeContentToRow(0);
+	onInvalidateFilter();
+}
 
 void Connection::onShowContextMenu (const QPoint& pos) // this is a slot
 {
     QPoint globalPos = m_table_view_widget->mapToGlobal(pos);
 
-    QAction * selectedItem = m_ctx_menu.exec(globalPos);
+    QAction * selectedItem = m_ctx_menu.exec(globalPos); // @TODO: rather async
+    if (selectedItem == m_hide_prev)
+    {
+		onHidePrevFromRow();
+    }
     if (selectedItem == m_toggle_ref)
     {
-		QModelIndex const current = m_last_clicked;
-		qDebug("Toggle ref from row=%i", current.row());
-		m_session_state.exclude_content_to_row(current.row());
-		onInvalidateFilter();
+		onToggleRefFromRow();
     }
     else if (selectedItem == m_exclude_fileline)
 	{
-		if (m_last_clicked.isValid())
-			onExcludeFileLine(m_last_clicked);
+		onExcludeFileLine(m_last_clicked);
 	}
     else
     { }
