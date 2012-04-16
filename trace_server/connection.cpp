@@ -197,6 +197,7 @@ void Connection::onExcludeFileLine (QModelIndex const & row_index)
 	fileline_t filter_item(file.toStdString(), line.toStdString());
 	qDebug("appending: %s:%s", file.toStdString().c_str(), line.toStdString().c_str());
 	m_session_state.appendFileFilter(filter_item);
+	appendToFileFilters(file.toStdString() + "/" + line.toStdString(), true);
 
 	onInvalidateFilter();
 }

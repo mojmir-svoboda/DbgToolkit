@@ -19,9 +19,9 @@ MainWindow::MainWindow(std::vector<ProfileInfo> & pis, QWidget * parent)
 	view->view()->setScene(m_scene);
 	vSplitter->addWidget(view);
 
-	view = new View(this, "View 1");
-	view->view()->setScene(m_scene);
-	vSplitter->addWidget(view);
+	//view = new View(this, "View 1");
+	//view->view()->setScene(m_scene);
+	//vSplitter->addWidget(view);
 
 	QVBoxLayout * layout = new QVBoxLayout;
 	layout->addWidget(vSplitter);
@@ -128,7 +128,7 @@ void MainWindow::populateScene()
 					QGraphicsItem * item = new Bar(block, color, 0, 0, w, h, t, offs);
 					item->setPos(QPointF(block.m_x, y));
 					m_scene->addItem(item);
-					item->setToolTip(QString("frame=%1 thread=%2 %3 [%4 ms]").arg(f).arg(t).arg(block.m_msg.c_str()).arg(block.m_dt));
+					item->setToolTip(QString("frame=%1 thread=%2 %3 [%4 ms]").arg(f).arg(t).arg(block.m_msg.c_str()).arg(block.m_dt / 1000.0f));
 
 					QGraphicsItem * titem = new BarText(block, color, 0, 0, w, h, t, offs);
 					titem->setPos(QPointF(block.m_x, y));

@@ -420,11 +420,11 @@ void MainWindow::onShowHelp ()
 				<td> Find text in column. Specific column can be selected in the combobox on the right.</td>\
 			</tr>\
 			<tr>\
-				<td> ? </td>\
+				<td> some windows key </td>\
 				<td> Find next occurence </td>\
 			</tr>\
 			<tr>\
-				<td> ? </td>\
+				<td> some windows key2 </td>\
 				<td> Find prev occurence </td>\
 			</tr>\
 			<tr>\
@@ -740,7 +740,7 @@ void MainWindow::setupMenuBar ()
 	QMenu * fileMenu = menuBar()->addMenu(tr("&File"));
 	fileMenu->addAction(tr("File &Load..."), this, SLOT(onFileLoad()), QKeySequence(Qt::ControlModifier + Qt::Key_L));
 	fileMenu->addAction(tr("File &Save..."), this, SLOT(onFileSave()), QKeySequence(Qt::ControlModifier + Qt::Key_S));
-	fileMenu->addAction(tr("File &Export (CSV)"), this, SLOT(onFileExportToCSV()), QKeySequence(Qt::ControlModifier + Qt::ShiftModifier + Qt::Key_E));
+	fileMenu->addAction(tr("File &Save As CSV format"), this, SLOT(onFileExportToCSV()), QKeySequence(Qt::ControlModifier + Qt::ShiftModifier + Qt::Key_S));
 	fileMenu->addSeparator();
     fileMenu->addAction(tr("Quit program"), this, SLOT(onQuit()), QKeySequence::Quit);
 
