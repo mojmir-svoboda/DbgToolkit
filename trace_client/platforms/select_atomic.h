@@ -1,7 +1,6 @@
 #pragma once
 
-#if defined WH_TARGET_WINDOWS
-#	define USE_CRY_ENGINE	1
+#if defined USE_CRY_ENGINE
 #	include <FrameWork/include/Threading/platforms/threadpool_cryengine.h>
 #else
 #	if defined WIN32 || defined WIN64

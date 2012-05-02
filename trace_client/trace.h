@@ -122,6 +122,11 @@
 #	define TRACE_SCOPE(level, context)	\
 		trace::ScopedLog UNIQUE(entry_guard_)(static_cast<trace::level_t>(level), context, __FILE__, __LINE__, __FUNCTION__);
 
+/**	@macro		TRACE_CODE
+ *	@brief		code that is executed only when trace is enabled
+ **/
+#	define TRACE_CODE(code) code
+
 	namespace trace {
 
 		TRACE_API void SetAppName (char const *);
@@ -197,4 +202,5 @@
 #	define TRACE_MSG_VA(level, context, fmt, va)    ((void)0)
 #	define TRACE_SCOPE(level, context)              ((void)0)
 #	define TRACE_SETBUFFERED(on)                     ((void)0)
+#	define TRACE_CODE(code)							((void)0)
 #endif // TRACE_ENABLED
