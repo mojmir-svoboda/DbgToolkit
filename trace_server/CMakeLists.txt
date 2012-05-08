@@ -34,6 +34,7 @@ SET(trace_server_SOURCES
 	main.cpp
 	mainwindow.cpp
     modelview.cpp
+	#	filterproxy.cpp
     server.cpp
     connection.cpp
     connection_find.cpp

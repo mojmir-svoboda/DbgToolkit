@@ -15,7 +15,7 @@ namespace trace {
 
 		sys::atomic32_t volatile g_Quit = 0;			/// request to quit
 		CACHE_ALIGN sys::atomic32_t volatile m_wr_idx = 0;		// write index
-		sys::MessagePool g_MessagePool;					// pool of messages
+		MessagePool<msg_t, 1024> g_MessagePool;					// pool of messages
 		CACHE_ALIGN sys::atomic32_t volatile m_rd_idx = 0;		// read index
 
 		sys::Thread g_ThreadSend;		/// consumer-sender thread (high priority)
@@ -25,15 +25,15 @@ namespace trace {
 		sys::Timer g_ReconnectTimer;
 		sys::Timer g_ClottedTimer;
 
-		inline sys::Message & msg_buffer_at (size_t i)
+		inline msg_t & msg_buffer_at (size_t i)
 		{
 			return g_MessagePool[i];
 		}
 
-		inline sys::Message & acquire_msg_buffer ()
+		inline msg_t & acquire_msg_buffer ()
 		{
-			sys::atomic32_t wr_idx = sys::atomic_inc32(&m_wr_idx);
-			return msg_buffer_at(wr_idx % sys::MessagePool::e_size);
+			sys::atomic32_t wr_idx = sys::atomic_faa32(&m_wr_idx, 1);
+			return msg_buffer_at(wr_idx % MessagePool<msg_t, 1024>::e_size);
 		}
 
 		inline bool is_connected () { return g_Socket >= 0; }
@@ -158,13 +158,13 @@ namespace trace {
 					else
 						g_ReconnectTimer.set_delay_ms(1000);
 				}
-				sys::atomic32_t wr_idx = sys::atomic_get(&m_wr_idx);
+				sys::atomic32_t wr_idx = sys::atomic_get32(&m_wr_idx);
 				sys::atomic32_t rd_idx = m_rd_idx;
 				// @TODO: wraparound
 				if (rd_idx < wr_idx)
 				{
 					//DBG_OUT("rd_idx=%10i, wr_idx=%10i, diff=%10i \n", rd_idx, wr_idx, wr_idx - rd_idx);
-					sys::Message & msg = socks::msg_buffer_at(rd_idx % sys::MessagePool::e_size);
+					msg_t & msg = socks::msg_buffer_at(rd_idx % MessagePool<msg_t, 1024>::e_size);
 					msg.ReadLock();
 
 					bool const write_ok = socks::WriteToSocket(msg.m_data, msg.m_length);
@@ -227,7 +227,7 @@ namespace trace {
 		{
 			g_ReconnectTimer.reset();
 			g_ClottedTimer.reset();
-			sys::Message msg;
+			msg_t msg;
 			// send cmd_setup message
 			encode_setup(msg, GetRuntimeLevel(), GetRuntimeContextMask());
 
@@ -247,7 +247,7 @@ namespace trace {
 
 	void Connect ()
 	{
-		sys::SetTickStart();
+		sys::setTimeStart();
 
 		socks::g_ThreadSend.Create(socks::consumer_thread, 0);
 
@@ -261,7 +261,7 @@ namespace trace {
 		//socks::g_LogFile = fopen(filename, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 		socks::g_LogFile = fopen(filename, "w");
 
-		sys::Message msg;
+		msg_t msg;
 		// send cmd_setup message
 		encode_setup(msg, GetRuntimeLevel(), GetRuntimeContextMask());
 		socks::WriteToFile(msg.m_data, msg.m_length);
@@ -290,7 +290,7 @@ namespace trace {
 
 	inline void WriteLog (level_t level, context_t context, char const * file, int line, char const * fn, char const * fmt, va_list args)
 	{
-		sys::Message & msg = socks::acquire_msg_buffer();
+		msg_t & msg = socks::acquire_msg_buffer();
 		msg.WriteLock();
 		{
 			encode_log(msg, level, context, file, line, fn, fmt, args);
@@ -300,7 +300,7 @@ namespace trace {
 
 	inline void WriteStr (level_t level, context_t context, char const * file, int line, char const * fn, char const * str)
 	{
-		sys::Message & msg = socks::acquire_msg_buffer();
+		msg_t & msg = socks::acquire_msg_buffer();
 		msg.WriteLock();
 		{
 			encode_str(msg, level, context, file, line, fn, str);
@@ -310,7 +310,7 @@ namespace trace {
 
 	inline void WriteScope (ScopedLog::E_Type type, level_t level, context_t context, char const * file, int line, char const * fn)
 	{
-		sys::Message & msg = socks::acquire_msg_buffer();
+		msg_t & msg = socks::acquire_msg_buffer();
 		msg.WriteLock();
 		{
 			encode_scope(msg, type == ScopedLog::e_Entry ? tlv::cmd_scope_entry : tlv::cmd_scope_exit , level, context, file, line, fn);

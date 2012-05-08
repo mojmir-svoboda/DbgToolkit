@@ -41,7 +41,7 @@ namespace sys {
 		{
 			for (;;)
 			{
-				LONG prev_lock = atomic_cas32(&m_lock, e_writing, e_clean);
+				atomic32_t prev_lock = atomic_cas32(&m_lock, e_writing, e_clean);
 				if (m_lock == e_writing && prev_lock == e_clean)
 					break;
 				else
@@ -53,7 +53,7 @@ namespace sys {
 		{
 			for (;;)
 			{
-				LONG prev_lock = atomic_cas32(&m_lock, e_flushing, e_dirty);
+				atomic32_t prev_lock = atomic_cas32(&m_lock, e_flushing, e_dirty);
 				if (m_lock == e_flushing && prev_lock == e_dirty)
 					break;
 				else

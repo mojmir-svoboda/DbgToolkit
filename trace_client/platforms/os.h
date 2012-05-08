@@ -85,6 +85,88 @@
 #	include <stddef.h>
 
 	namespace sys {
+
+		unsigned get_pid () { return getpid(); }
+		unsigned get_tid () { return pthread_self(); } /// "hey piggy," i know
+
+		inline tlv::len_t trc_vsnprintf (char * buff, size_t ln, char const * fmt, ...)
+		{
+			va_list args;
+			va_start(args, fmt);
+			int const n = vsnprintf(buff, ln, fmt, args);
+			va_end(args);
+			return static_cast<tlv::len_t>(n < 0 ? ln : n);
+		}
+
+		inline tlv::len_t va_trc_vsnprintf (char * buff, size_t ln, char const * fmt, va_list args)
+		{
+			int const n = vsnprintf(buff, ln, fmt, args);
+			return static_cast<tlv::len_t>(n < 0 ? ln : n);
+		}
+
+
+		/**@brief	yields core to other thread **/
+		inline void thread_yield () { pthread_yield(); }
+
+		struct thread_info {    /* Used as argument to thread_start() */
+			pthread_t thread_id;        /* ID returned by pthread_create() */
+			int       thread_num;       /* Application-defined thread # */
+			char     *argv_string;      /* From command-line argument */
+		};
+
+		/**@brief	simple encapsulation of CreateThread **/
+#		define handle_error_en(en, msg) do { errno = en; perror(msg); exit(EXIT_FAILURE); } while (0)
+#		define handle_error(msg) do { perror(msg); exit(EXIT_FAILURE); } while (0)
+		struct Thread
+		{
+			pthread_attr_t m_attr;
+			thread_info m_tinfo;
+
+			Thread () { memset(this, 0, sizeof(*this)); }
+			~Thread () { Close(); }
+
+			void Resume () { }
+			void Create (void * (* fn) (void *), void * )
+			{
+				/* Initialize thread creation attributes */
+				int s = pthread_attr_init(&m_attr);
+				if (s != 0)
+					handle_error_en(s, "pthread_attr_init");
+				/*if (stack_size > 0)
+				{
+					s = pthread_attr_setstacksize(&m_attr, stack_size);
+					if (s != 0)
+						handle_error_en(s, "pthread_attr_setstacksize");
+				}*/
+
+				m_tinfo.thread_num = 0;
+				//m_tinfo.argv_string = argv[optind + t];
+
+				/* The pthread_create() call stores the thread ID into corresponding element of m_tinfo */
+				s = pthread_create(&m_tinfo.thread_id, &m_attr, fn, &m_tinfo);
+				if (s != 0)
+					handle_error_en(s, "pthread_create");
+			}
+			void WaitForTerminate ()
+			{
+				/* Destroy the thread attributes object, since it is no longer needed */
+				int s = pthread_attr_destroy(&m_attr);
+				if (s != 0)
+					handle_error_en(s, "pthread_attr_destroy");
+
+				void * res = 0;
+				s = pthread_join(m_tinfo.thread_id, &res);
+				if (s != 0)
+				   handle_error_en(s, "pthread_join");
+
+				printf("Joined with thread %d; returned value was %s\n", m_tinfo.thread_num, (char *) res);
+				free(res);      /* Free memory allocated by thread */
+			}
+			void Close () { }
+		};
+#		undef handle_error_en
+#		undef handle_error
+
 	}
 
 #endif

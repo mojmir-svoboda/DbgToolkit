@@ -34,8 +34,11 @@
 
 		inline void setTimeStart ()
 		{
-			g_Freq = queryPerformanceFrequency();
-			g_Start = queryPerformanceCounter();
+			if (g_Start == 0)
+			{
+				g_Freq = queryPerformanceFrequency();
+				g_Start = queryPerformanceCounter();
+			}
 		}
 		inline hptimer_t queryTime () { return queryPerformanceCounter() - g_Start; }
 		inline hptimer_t queryTime_ms () { return 1000 * (queryPerformanceCounter() - g_Start) / g_Freq; } // @TODO: get rid of div
@@ -70,10 +73,18 @@
 			 return performance_count;
 		}
 
-		void setTimeStart ();
+		inline void setTimeStart ()
+		{
+			if (g_Start == 0)
+			{
+				g_Freq = queryPerformanceFrequency();
+				g_Start = queryPerformanceCounter();
+			}
+		}
+
 		inline hptimer_t queryTime () { return queryPerformanceCounter() - g_Start; }
-		inline hptimer_t queryTime_ms () { return queryTime_us() / 1000; }
 		inline hptimer_t queryTime_us () { return queryTime(); }
+		inline hptimer_t queryTime_ms () { return queryTime_us() / 1000; }
 		inline double toSeconds (hptimer_t t) { return static_cast<double>(t) / g_Freq; }
 	}
 

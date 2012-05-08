@@ -148,7 +148,7 @@ QVariant ModelView::data (const QModelIndex &index, int role) const
 }
 
 
-bool ModelView::setData (QModelIndex const & index, QVariant const & value, int role)
+bool ModelView::setData (QModelIndex const & /*index*/, QVariant const & /*value*/, int /*role*/)
 {
 	return true;	
 }

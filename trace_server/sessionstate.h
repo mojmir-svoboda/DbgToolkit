@@ -59,13 +59,13 @@ struct ColorizedText {
 	bool exactMatch (QString str) const { return m_regex.exactMatch(str); }
 
 	ColorizedText (std::string const & rs, E_ColorRole r)
-		: m_qcolor(Qt::magenta)
-		, m_role(r), m_regex_str(rs), m_regex(QString::fromStdString(rs)), m_isEnabled(0)
+        : m_role(r)
+        , m_qcolor(Qt::magenta), m_regex_str(rs), m_regex(QString::fromStdString(rs)), m_isEnabled(0)
 	{ }
 
 	ColorizedText (std::string const & rs, QColor const & col, E_ColorRole r)
-		: m_qcolor(col)
-		, m_role(r), m_regex_str(rs), m_regex(QString::fromStdString(rs)), m_isEnabled(0)
+        : m_role(r)
+        , m_qcolor(col), m_regex_str(rs), m_regex(QString::fromStdString(rs)), m_isEnabled(0)
 	{ }
 
 };
