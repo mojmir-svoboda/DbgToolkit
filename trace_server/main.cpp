@@ -62,9 +62,11 @@ int main(int argc, char *argv[])
         switch (argv[i][1])
         {
             case 'q':
+				printf("cmd arg: -q, quit immeadiately\n");
 				quit_delay = false;
 				break;
             case 'n':
+				printf("cmd arg: -n, no visible window\n");
 				start_hidden = true;
 				break;
 			case 'h':
@@ -74,7 +76,6 @@ int main(int argc, char *argv[])
 				printf("Invalid option, use -h for Help\n");
 				return 0;
 		}
-        ++i; // skip the argument
     }
 
 	Application a(argc, argv);
