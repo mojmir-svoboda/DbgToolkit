@@ -99,6 +99,25 @@
        </widget>
       </item>
       <item>
+       <widget class="QComboBox" name="filterModeComboBox">
+        <property name="font">
+         <font>
+          <pointsize>7</pointsize>
+         </font>
+        </property>
+        <item>
+         <property name="text">
+          <string>Exclusive</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Inclusive</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item>
        <widget class="QComboBox" name="presetComboBox">
         <property name="font">
          <font>
@@ -230,6 +249,16 @@
         <layout class="QHBoxLayout" name="horizontalLayout_3">
          <item>
           <widget class="QTreeView" name="treeViewFile"/>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="filterCtx">
+        <attribute name="title">
+         <string>filterCtx</string>
+        </attribute>
+        <layout class="QHBoxLayout" name="horizontalLayout_6">
+         <item>
+          <widget class="QTreeView" name="treeViewCtx"/>
          </item>
         </layout>
        </widget>
@@ -413,7 +442,7 @@
      <x>0</x>
      <y>0</y>
      <width>857</width>
-     <height>16</height>
+     <height>22</height>
     </rect>
    </property>
   </widget>

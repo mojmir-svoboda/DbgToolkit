@@ -1,7 +1,8 @@
 #include "settings.h"
 #include <QLineEdit>
+#include "types.h"
 
-SettingsModelView::SettingsModelView (QList<QString> const & app_names, QList<MainWindow::columns_setup_t> const & col_setup)
+SettingsModelView::SettingsModelView (QList<QString> const & app_names, QList<columns_setup_t> const & col_setup)
 	: QAbstractTableModel(0)
 	, m_app_names(app_names)
 	, m_rows()

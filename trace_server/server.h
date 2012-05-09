@@ -53,6 +53,9 @@ public slots:
 	void onClickedAtFileTree (QModelIndex idx);
 	void onDoubleClickedAtFileTree (QModelIndex idx);
 
+	void onClickedAtCtxTree (QModelIndex idx);
+	void onDoubleClickedAtCtxTree (QModelIndex idx);
+
 	void onClickedAtTIDList (QModelIndex idx);
 	void onDoubleClickedAtTIDList (QModelIndex idx);
 

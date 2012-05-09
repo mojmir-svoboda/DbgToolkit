@@ -28,6 +28,7 @@
 #include <QTreeView>
 #include <QSystemTrayIcon>
 #include "server.h"
+#include "types.h"
 
 namespace Ui {
 	class MainWindow;
@@ -52,11 +53,6 @@ public:
 	QTabWidget * getTabTrace ();
 	QTabWidget const * getTabTrace () const;
 
-	typedef QList<QString> filter_regexs_t;
-	typedef QList<QString> filter_preset_t;
-	typedef QList<filter_preset_t> filter_presets_t;
-	typedef QList<QString> columns_setup_t;
-	typedef QList<int> columns_sizes_t;
 	columns_setup_t const & getColumnSetup (size_t i) const { return m_columns_setup.at(i); }
 	columns_setup_t & getColumnSetup (size_t i) { return m_columns_setup[i]; }
 	columns_sizes_t const & getColumnSizes (size_t i) const { return m_columns_sizes.at(i); }
@@ -100,6 +96,8 @@ public:
 	QList<QColor> const & getThreadColors () const { return m_thread_colors; }
 	QTreeView * getTreeViewFile ();
 	QTreeView const * getTreeViewFile () const;
+	QTreeView * getTreeViewCtx ();
+	QTreeView const * getTreeViewCtx () const;
     QComboBox * getFilterRegex ();
     QComboBox const * getFilterRegex () const;
 	QListView * getListViewRegex ();
@@ -117,6 +115,7 @@ public:
 	bool filterEnabled () const;
 	bool buffEnabled () const;
 	bool clrFltEnabled () const;
+	E_FilterMode fltMode () const;
 	void changeEvent (QEvent* e);
 	void dropEvent (QDropEvent * event);
 	void dragEnterEvent (QDragEnterEvent *event);
@@ -155,6 +154,7 @@ private slots:
 	void onColorRegexAdd ();
 	void onColorRegexRm ();
 	void onShowHelp ();
+	void onFilterModeActivate (int idx);
 
 private:
 	void showServerStatus ();

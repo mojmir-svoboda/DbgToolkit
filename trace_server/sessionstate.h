@@ -23,11 +23,13 @@
 #include <QString>
 #include <QList>
 #include <QMap>
-#include "mainwindow.h"
+#include <QColor>
+//#include "mainwindow.h"
 #include <tlv_parser/tlv_parser.h>
 #include <tlv_parser/tlv_decoder.h> // htons!
 #include <filters/file_filter.hpp>
 #include "tls.h"
+#include "types.h"
 
 class Server;
 class MainWindow;
@@ -45,8 +47,6 @@ struct CollapsedBlock {
 		: m_tid(tid), m_from(from), m_to(to), m_file(file), m_line(line)
 	{ }
 };
-
-enum E_ColorRole { e_Bg, e_Fg };
 
 struct ColorizedText {
 	E_ColorRole m_role;
@@ -78,6 +78,16 @@ struct SessionExport {
 	std::string m_collapsed_blocks;
 };
 
+typedef unsigned long long context_t;
+struct ContextFilter {
+	context_t m_context;
+	std::string m_text;
+	E_FilterMode m_filterMode;
+	bool m_isEnabled;
+
+	ContextFilter (context_t ctx) : m_context(ctx), m_text(), m_filterMode(e_Include), m_isEnabled(false) { }
+};
+
 class SessionState
 {
 public:
@@ -86,13 +96,13 @@ public:
 
 	void setTabWidget (int n) { m_tab_idx = n; }
 	void setTabWidget (QWidget * w) { m_tab_widget = w; }
-	void setupColumns (QList<QString> const * column_setup_template, MainWindow::columns_sizes_t * sizes);
+	void setupColumns (QList<QString> const * column_setup_template, columns_sizes_t * sizes);
 	void setupThreadColors (QList<QColor> const & tc);
 	QList<QString> const * getColumnsSetupCurrent () const { return m_columns_setup_current; }
 	QList<QString> * getColumnsSetupCurrent () { return m_columns_setup_current; }
 	QList<QString> const * getColumnsSetupTemplate () const { return m_columns_setup_template; }
-	MainWindow::columns_sizes_t const * getColumnSizes () const { return m_columns_sizes; }
-	MainWindow::columns_sizes_t * getColumnSizes () { return m_columns_sizes; }
+	columns_sizes_t const * getColumnSizes () const { return m_columns_sizes; }
+	columns_sizes_t * getColumnSizes () { return m_columns_sizes; }
 
 	int findColumn4TagInTemplate (tlv::tag_t tag) const;
 	int findColumn4Tag (tlv::tag_t tag) const;
@@ -107,10 +117,18 @@ public:
 
 	typedef file_filter file_filters_t;
 	file_filters_t const & getFileFilters () const { return m_file_filters; }
-	void appendFileFilter(fileline_t const & item);		/// add file + line pair
-	void appendFileFilter(std::string const & item);	/// add concantenated item
-	void removeFileFilter(fileline_t const & item);
-	bool isFileLineExcluded (fileline_t const & p) const;
+	void appendFileFilter (fileline_t const & item, E_FilterMode);		/// add file + line pair
+	void appendFileFilter (std::string const & item, E_FilterMode);	/// add concantenated item
+	void removeFileFilter (fileline_t const & item, E_FilterMode);
+	bool isFileLineExcluded (fileline_t const & p, E_FilterMode) const;
+
+	typedef QList<ContextFilter> ctx_filters_t;
+	ctx_filters_t const & getCtxFilters () const { return m_ctx_filters; }
+	void appendCtxFilter (context_t item);
+	void flipCtxFilterMode (context_t item, E_FilterMode mode);
+	void removeCtxFilter (context_t item);
+	bool isCtxExcluded (context_t item) const;
+
 
 	typedef std::vector<std::string> tid_filters_t;
 	void appendTIDFilter (std::string const & item);
@@ -127,7 +145,7 @@ public:
 	void removeFromColorRegexFilters (std::string const & str);
 	bool isMatchedColorizedText (QString str, QColor & color, E_ColorRole & role) const;
 	void setRegexColor (std::string const & s, QColor col);
-	void setRegexChecked (std::string const & s, bool checked);
+	void setColorRegexChecked (std::string const & s, bool checked);
 
 	void excludeContentToRow (int row) { m_exclude_content_to_row = row; }
 	int excludeContentToRow () const { return m_exclude_content_to_row; }
@@ -156,13 +174,14 @@ private:
 	int m_exclude_content_to_row;
 	int m_toggle_ref_row;
 	file_filters_t m_file_filters;
+	ctx_filters_t m_ctx_filters;
 	tid_filters_t m_tid_filters;
 
 	QList<QColor> m_thread_colors;
 	QList<ColorizedText> m_colorized_texts;
 	QList<QString> * m_columns_setup_current;
 	QList<QString> const * m_columns_setup_template;
-	MainWindow::columns_sizes_t * m_columns_sizes;
+	columns_sizes_t * m_columns_sizes;
 	QMap<tlv::tag_t, int> m_tags2columns;
 	ThreadSpecific m_tls;
 	QString m_name;

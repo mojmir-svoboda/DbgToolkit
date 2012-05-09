@@ -17,6 +17,7 @@
 #include "modelview.h"
 #include "utils.h"
 
+
 Connection::Connection (QObject * parent)
 	: QThread(parent)
 	, m_main_window(0)
@@ -26,6 +27,7 @@ Connection::Connection (QObject * parent)
 	, m_last_search_col(0)
 	, m_table_view_widget(0)
 	, m_tree_view_file_model(0)
+	, m_tree_view_ctx_model(0)
 	, m_tree_view_func_model(0)
 	, m_list_view_tid_model(0)
 	, m_table_view_proxy(0)
@@ -61,6 +63,7 @@ void Connection::onTabTraceFocus (int i)
 	if (i != sessionState().m_tab_idx)
 		return;
 	m_main_window->getTreeViewFile()->setModel(m_tree_view_file_model);
+	m_main_window->getTreeViewCtx()->setModel(m_tree_view_ctx_model);
 	m_main_window->getListViewTID()->setModel(m_list_view_tid_model);
 	m_main_window->getListViewColorRegex()->setModel(m_list_view_color_regex_model);
 	hideLinearParents();
@@ -108,6 +111,9 @@ void Connection::onCloseTab ()
 	if (m_main_window->getTreeViewFile()->model() == m_tree_view_file_model)
 		m_main_window->getTreeViewFile()->setModel(0);
 
+	if (m_main_window->getTreeViewCtx()->model() == m_tree_view_ctx_model)
+		m_main_window->getTreeViewCtx()->setModel(0);
+
 	if (m_main_window->getListViewTID()->model() == m_list_view_tid_model)
 		m_main_window->getListViewTID()->setModel(0);
 
@@ -115,11 +121,14 @@ void Connection::onCloseTab ()
 		m_main_window->getListViewColorRegex()->setModel(0);
 
 	delete m_tree_view_file_model;
-	m_table_view_widget = 0;
+	m_tree_view_file_model = 0;
+	delete m_tree_view_ctx_model;
+	m_tree_view_ctx_model = 0;
 	delete m_list_view_tid_model;
 	m_list_view_tid_model = 0;
 	delete m_list_view_color_regex_model;
 	m_list_view_color_regex_model = 0;
+	m_table_view_widget = 0;
 }
 
 void Connection::onLevelValueChanged (int val)
@@ -196,7 +205,7 @@ void Connection::onExcludeFileLine (QModelIndex const & row_index)
 
 	fileline_t filter_item(file.toStdString(), line.toStdString());
 	qDebug("appending: %s:%s", file.toStdString().c_str(), line.toStdString().c_str());
-	m_session_state.appendFileFilter(filter_item);
+	m_session_state.appendFileFilter(filter_item, m_main_window->fltMode());
 	appendToFileFilters(file.toStdString() + "/" + line.toStdString(), true);
 
 	onInvalidateFilter();

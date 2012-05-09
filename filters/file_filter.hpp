@@ -24,15 +24,23 @@
 #include <boost/tokenizer.hpp>
 #include "nnode.hpp"
 
+struct file_info
+{
+	bool is_enabled;
+	bool is_excluding;
+
+	file_info (bool enabled, bool excluding) : is_enabled(enabled), is_excluding(excluding) { }
+};
+
 struct file_filter
 {
 	typedef boost::tokenizer<boost::char_separator<char> > tokenizer_t;
-	typedef NNode<std::string, bool> node_t;
+	typedef NNode<std::string, file_info> node_t;
 	node_t * root;
 	boost::char_separator<char> separator;
 
 	file_filter ()
-		: root(new node_t(std::string("/"), false))
+		: root(new node_t(std::string("/"), file_info(false, true)))
 		, separator(":/\\")
 	{ }
 
@@ -52,10 +60,10 @@ struct file_filter
 
 	bool empty () const { return !(root && root->children); }
 
-	void append (std::string const & path)
+	void append (std::string const & path, bool is_excluding)
 	{
 		if (!root)
-			root = new node_t(std::string("/"), false);
+			root = new node_t(std::string("/"), file_info(false, is_excluding));
 
 		tokenizer_t tok(path, separator);
 		node_t * level = root;
@@ -65,14 +73,15 @@ struct file_filter
 			node_t * n = node_t::node_child(level, *it);
 			if (n == 0)
 			{
-				n = new node_t(*it, false);
+				n = new node_t(*it, file_info(false, is_excluding));
 				node_t::node_append(level, n);
 			}
 			level = n;
 			++it;
 			if (it == ite)
 			{
-				level->data = true;
+				level->data.is_enabled = true;
+				level->data.is_excluding = is_excluding;
 			}
    		}
 	}
@@ -86,7 +95,7 @@ struct file_filter
 			level = node_t::node_child(level, *it);
 			if (level == 0)
 				return false; // node not in tree
-			else if (level->data == true) // node is tagged for exclusion
+			else if (level->data.is_enabled == true && level->data.is_excluding) // node is tagged for exclusion
 				return true;  // node is tagged for exclusion
 		}
 		return false; // node is not tagged
@@ -104,9 +113,9 @@ struct file_filter
 				return;
 
 			++it;
-			if (it == ite && level->data == true)
+			if (it == ite && level->data.is_enabled == true)
 			{
-				level->data = false;
+				level->data.is_enabled = false;
 			}
 		}
 	}
@@ -131,7 +140,7 @@ struct file_filter
 			{
 				node_t * current = child;
 				nodes.push_back(current);
-				if (current->data == true)
+				if (current->data.is_enabled == true)
 				{
 					std::string path;
 					path.reserve(128);

@@ -95,6 +95,10 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay)
 	connect(getTreeViewFile(), SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtFileTree(QModelIndex)));
 	connect(getTreeViewFile(), SIGNAL(doubleClicked(QModelIndex)), m_server, SLOT(onDoubleClickedAtFileTree(QModelIndex)));
 
+	getTreeViewCtx()->setEditTriggers(QAbstractItemView::NoEditTriggers);
+	connect(getTreeViewCtx(), SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtCtxTree(QModelIndex)));
+	connect(getTreeViewCtx(), SIGNAL(doubleClicked(QModelIndex)), m_server, SLOT(onDoubleClickedAtCtxTree(QModelIndex)));
+
 	connect(getListViewTID(), SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtTIDList(QModelIndex)));
 	connect(getListViewTID(), SIGNAL(doubleClicked(QModelIndex)), m_server, SLOT(onDoubleClickedAtTIDList(QModelIndex)));
 
@@ -128,6 +132,8 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay)
 	ui->levelSpinBox->setToolTip(tr("adjusts debug level of client side"));
 	ui->qSearchLineEdit->setToolTip(tr("search text in logged text"));
 	ui->qSearchComboBox->setToolTip(tr("specifies column to search"));
+
+	connect(ui->filterModeComboBox, SIGNAL(activated(int)), this, SLOT(onFilterModeActivate(int)));
 
 	QTimer::singleShot(0, this, SLOT(loadState()));	// trigger lazy load of settings
 	setWindowTitle("flog server");
@@ -218,6 +224,8 @@ QTabWidget * MainWindow::getTabTrace () { return ui->tabTrace; }
 QTabWidget const * MainWindow::getTabTrace () const { return ui->tabTrace; }
 QTreeView * MainWindow::getTreeViewFile () { return ui->treeViewFile; }
 QTreeView const * MainWindow::getTreeViewFile () const { return ui->treeViewFile; }
+QTreeView * MainWindow::getTreeViewCtx () { return ui->treeViewCtx; }
+QTreeView const * MainWindow::getTreeViewCtx () const { return ui->treeViewCtx; }
 QComboBox * MainWindow::getFilterRegex () { return ui->comboBoxRegex; }
 QComboBox const * MainWindow::getFilterRegex () const { return ui->comboBoxRegex; }
 QListView * MainWindow::getListViewRegex () { return ui->listViewRegex; }
@@ -236,6 +244,10 @@ bool MainWindow::reuseTabEnabled () const { return ui->reuseTabCheckBox->isCheck
 bool MainWindow::autoScrollEnabled () const { return ui->autoScrollCheckBox->isChecked(); }
 bool MainWindow::buffEnabled () const { return ui->buffCheckBox->isChecked(); }
 bool MainWindow::clrFltEnabled () const { return ui->clrFiltersCheckBox->isChecked(); }
+E_FilterMode MainWindow::fltMode () const
+{
+	return ui->filterModeComboBox->currentText() == QString("Inclusive") ? e_Include : e_Exclude;
+}
 
 void MainWindow::setLevel (int i)
 {
@@ -556,10 +568,21 @@ void MainWindow::onPresetActivate (int idx)
 	{
 		std::string filter_item(m_filter_presets.at(idx).at(i).toStdString());
 		conn->appendToFileFilters(filter_item, true);
-		conn->sessionState().appendFileFilter(filter_item);
+		conn->sessionState().appendFileFilter(filter_item, fltMode());
 		conn->onInvalidateFilter();
 	}
 }
+
+void MainWindow::onFilterModeActivate (int idx)
+{
+	if (idx == -1) return;
+	if (!getTabTrace()->currentWidget()) return;
+
+	Connection * conn = m_server->findCurrentConnection();
+	if (!conn) return;
+	QString qItem = ui->filterModeComboBox->currentText();
+}
+
 
 void MainWindow::onRegexActivate (int idx)
 {
@@ -687,6 +710,48 @@ void MainWindow::onColorRegexRm ()
 		conn->removeFromColorRegexFilters(val.toStdString());
 		conn->recompileColorRegexps();
 	}
+}
+void MainWindow::recompileColorRegexps ()
+{
+	//m_color_regexps.clear();
+	//m_color_regex_user_states.clear();
+
+/*	for (int i = 0, ie = m_filter_color_regexs.size(); i < ie; ++i)
+	{
+		QStandardItem * root = static_cast<QStandardItemModel *>(getListViewColorRegex()->model())->invisibleRootItem();
+		QStandardItem * child = findChildByText(root, m_filter_color_regexs.at(i));
+		QRegExp regex(QRegExp(m_filter_color_regexs.at(i)));
+		if (regex.isValid())
+		{
+			m_color_regexps.append(regex);
+			//m_color_regex_user_states.push_back(false);
+
+			bool const checked = (child->checkState() == Qt::Checked);
+			if (child && checked)
+			{
+				child->setData(QBrush(Qt::green), Qt::BackgroundRole);
+				child->setToolTip(tr("ok"));
+				//m_color_regex_user_states.back() = true;
+			}
+			else if (child && !checked)
+			{
+				child->setData(QBrush(Qt::yellow), Qt::BackgroundRole);
+				child->setToolTip(tr("not checked"));
+			}
+		}
+		else
+		{
+			if (child)
+			{
+				child->setData(QBrush(Qt::red), Qt::BackgroundRole);
+				child->setToolTip(regex.errorString());
+			}
+		}
+	}*/
+
+	Connection * conn = m_server->findCurrentConnection();
+	if (conn)
+		conn->onInvalidateFilter();
 }
 
 void MainWindow::onSaveCurrentFileFilter ()

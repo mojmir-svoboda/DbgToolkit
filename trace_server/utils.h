@@ -22,6 +22,7 @@
 #pragma once
 #include <QStandardItem>
 #include <QString>
+#include "sessionstate.h"
 
 inline QStandardItem * findChildByText (QStandardItem * parent, QString const & txt)
 {
@@ -33,13 +34,27 @@ inline QStandardItem * findChildByText (QStandardItem * parent, QString const & 
 	return 0;
 }
 
-inline QList<QStandardItem *> addRow (QString const & str, bool checked = false)
+inline QList<QStandardItem *> addRow (QString const & str, bool checked )
 {
 	QList<QStandardItem *> row_items;
 	QStandardItem * name_item = new QStandardItem(str);
 	name_item->setCheckable(true);
 	name_item->setCheckState(checked ? Qt::Checked : Qt::Unchecked);
 	row_items << name_item;
+	return row_items;
+}
+
+inline QList<QStandardItem *> addRow (QString const & str, bool checked, E_FilterMode filt_mode)
+{
+	QList<QStandardItem *> row_items;
+	QStandardItem * name_item = new QStandardItem(str);
+	name_item->setCheckable(true);
+	name_item->setCheckState(checked ? Qt::Checked : Qt::Unchecked);
+
+	QString mode_str = filt_mode == e_Include ? QString("Include") : QString("Exclude");
+	QStandardItem * flt_item = new QStandardItem(mode_str);
+	row_items << name_item;
+	row_items << flt_item;
 	return row_items;
 }
 

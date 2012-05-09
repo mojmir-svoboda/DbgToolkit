@@ -141,11 +141,41 @@ void Server::onClickedAtFileTree (QModelIndex idx)
 	s.reserve(16);
 	QStandardItemModel * model = static_cast<QStandardItemModel *>(main_window->getTreeViewFile()->model());
 	QStandardItem * item = model->itemFromIndex(idx);
+
+	E_FilterMode new_mode = e_Include;
+	if (idx.column() == 1)
+	{
+		QModelIndex file_idx = model->index(idx.row(), 0, idx.parent());
+		if (file_idx.isValid())
+		{
+			if (item->text() == "Include")
+			{
+				item->setText("Exclude");
+				new_mode = e_Exclude;
+			}
+			else
+				item->setText("Include");
+		}
+	}
+	else
+	{
+		QModelIndex file_idx = model->index(idx.row(), 1, idx.parent());
+		if (file_idx.isValid())
+		{
+			if (item->text() == "Exclude")
+			{
+				new_mode = e_Exclude;
+			}
+		}
+	}
+
 	QStandardItem * line_item = 0;
 	if (!item->hasChildren())
 		line_item = item;
 	else
 		s.push_back(model->data(idx, Qt::DisplayRole).toString());
+
+
 	QStandardItem * parent = item->parent();
 	std::string file;
 	QModelIndex parent_idx = model->indexFromItem(parent);
@@ -174,9 +204,9 @@ void Server::onClickedAtFileTree (QModelIndex idx)
 	if (Connection * conn = findCurrentConnection())
 	{
 		if (checked)
-			conn->sessionState().appendFileFilter(filter_item);
+			conn->sessionState().appendFileFilter(filter_item, main_window->fltMode());
 		else
-			conn->sessionState().removeFileFilter(filter_item);
+			conn->sessionState().removeFileFilter(filter_item, main_window->fltMode());
 		conn->onInvalidateFilter();
 	}
 }
@@ -190,6 +220,71 @@ void Server::onDoubleClickedAtFileTree (QModelIndex idx)
 	item->setCheckState(checked ? Qt::Unchecked : Qt::Checked);
 	onClickedAtFileTree(idx);
 
+}
+
+void Server::onClickedAtCtxTree (QModelIndex idx)
+{
+	MainWindow * main_window = static_cast<MainWindow *>(parent());
+	QStandardItemModel * model = static_cast<QStandardItemModel *>(main_window->getTreeViewCtx()->model());
+	QStandardItem * item = model->itemFromIndex(idx);
+	Q_ASSERT(item);
+
+	qDebug("ctx click! r=%i c=%i", idx.row(), idx.column());
+
+	QString const & val = model->data(idx, Qt::DisplayRole).toString();
+	std::string const ctx_item(val.toStdString());
+	context_t const ctx = val.toULongLong();
+
+	bool const checked = (item->checkState() == Qt::Checked);
+	qDebug("ctx click! r=%i c=%i (checked=%u) %08x, %s", idx.row(), idx.column(), checked, ctx, ctx_item.c_str());
+
+	if (Connection * conn = findCurrentConnection())
+	{
+		if (checked)
+			conn->sessionState().appendCtxFilter(ctx);
+		else
+			conn->sessionState().removeCtxFilter(ctx);
+		conn->onInvalidateFilter();
+	}
+}
+
+void Server::onDoubleClickedAtCtxTree (QModelIndex idx)
+{
+	MainWindow * main_window = static_cast<MainWindow *>(parent());
+	QStandardItemModel * model = static_cast<QStandardItemModel *>(main_window->getTreeViewCtx()->model());
+	QStandardItem * item = model->itemFromIndex(idx);
+
+	if (idx.column() == 1)
+	{
+		QModelIndex ctx_idx = model->index(idx.row(), 0, idx.parent());
+		if (ctx_idx.isValid())
+		{
+			QString const & ctx_val = model->data(ctx_idx, Qt::DisplayRole).toString();
+			context_t const ctx = ctx_val.toULongLong();
+			printf("item=%p, val=%s\n", item, ctx_val.toStdString().c_str());
+
+			E_FilterMode new_mode = e_Include;
+			if (item->text() == "Include")
+			{
+				item->setText("Exclude");
+				new_mode = e_Exclude;
+			}
+			else
+				item->setText("Include");
+
+			if (Connection * conn = findCurrentConnection())
+			{
+				conn->sessionState().flipCtxFilterMode(ctx, new_mode);
+				conn->onInvalidateFilter();
+			}
+		}
+	}
+	else
+	{
+		bool const checked = (item->checkState() == Qt::Checked);
+		item->setCheckState(checked ? Qt::Unchecked : Qt::Checked);
+		onClickedAtCtxTree(idx);
+	}
 }
 
 void Server::onClickedAtTIDList (QModelIndex idx)
@@ -265,9 +360,9 @@ void Server::onClickedAtColorRegexList (QModelIndex idx)
 	if (Connection * conn = findCurrentConnection())
 	{
 		// @TODO: if state really changed
-		conn->recompileColorRegexps();
+		main_window->recompileColorRegexps();
 		conn->onInvalidateFilter();
-		conn->m_session_state.setRegexChecked(filter_item, checked);
+		conn->m_session_state.setColorRegexChecked(filter_item, checked);
 	}
 }
 
@@ -288,6 +383,7 @@ void Server::onDoubleClickedAtColorRegexList (QModelIndex idx)
 	if (Connection * conn = findCurrentConnection())
 	{
 		conn->m_session_state.setRegexColor(val.toStdString(), color);
+		main_window->recompileRegexps();
 	}
 }
 
@@ -297,6 +393,7 @@ Connection * Server::createNewTableView ()
 	Connection * connection = new Connection(this);
 	connection->setMainWindow(main_window);
 	connection->setupModelFile();
+	connection->setupModelCtx();
 	connection->setupModelTID();
 	connection->setupModelColorRegex();
 	QWidget * tab = new QWidget();

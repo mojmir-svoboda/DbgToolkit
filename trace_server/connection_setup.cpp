@@ -25,6 +25,7 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 				if (conn)
 				{
 					this->setupModelFile();
+					this->setupModelCtx();
 					this->setupModelTID();
 					if (!m_main_window->clrFltEnabled())
 					{
@@ -101,6 +102,18 @@ void Connection::setupModelFile ()
 	m_main_window->getTreeViewFile()->setModel(m_tree_view_file_model);
 	//main_window->getTreeViewFile()->expandAll();
 	m_main_window->getTreeViewFile()->setEnabled(m_main_window->filterEnabled());
+}
+
+void Connection::setupModelCtx ()
+{
+	if (!m_tree_view_ctx_model)
+	{
+		qDebug("new tree view ctx model");
+		m_tree_view_ctx_model = new QStandardItemModel;
+	}
+	m_main_window->getTreeViewCtx()->setModel(m_tree_view_ctx_model);
+	m_main_window->getTreeViewCtx()->expandAll();
+	m_main_window->getTreeViewCtx()->setEnabled(m_main_window->filterEnabled());
 }
 
 void Connection::setupModelTID ()

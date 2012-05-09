@@ -81,6 +81,8 @@ protected:
 };
 /////////////// TODO: this belongs to filterproxy.cpp /////////////////////////
 
+
+
 /**@class		Connection
  * @brief		represents incoming connection (or file stream)
  */
@@ -91,11 +93,13 @@ public:
 	explicit Connection(QObject *parent = 0);
 	~Connection ();
 	void setMainWindow (MainWindow * w) { m_main_window = w; }
+	MainWindow const * getMainWindow () const { return m_main_window; }
 	void setTableViewWidget (QTableView * w) { m_table_view_widget = w; }
 	
 	SessionState & sessionState () { return m_session_state; }
 	SessionState const & sessionState () const { return m_session_state; }
 	void appendToFileFilters (std::string const & item, bool checked = false);
+	void appendToCtxFilters (std::string const & item, bool checked);
 	void clearFilters ();
 	void findText (QString const & text, tlv::tag_t tag);
 	void findText (QString const & text);
@@ -166,6 +170,7 @@ private:
 	void closeStorage ();
 	void setSocketDescriptor (int sd);
 	void setupModelFile ();
+	void setupModelCtx ();
 	void setupModelTID ();
 	void setupModelColorRegex ();
 	QString findString4Tag (tlv::tag_t tag, QModelIndex const & row_index) const;
@@ -184,6 +189,7 @@ private:
 	QString m_last_search;
 	QTableView * m_table_view_widget;
 	QStandardItemModel * m_tree_view_file_model;
+	QStandardItemModel * m_tree_view_ctx_model;
 	QStandardItemModel * m_tree_view_func_model;
 	QStandardItemModel * m_list_view_tid_model;
 	QStandardItemModel * m_list_view_color_regex_model;

@@ -29,8 +29,9 @@ bool FilterProxyModel::filterAcceptsRow (int sourceRow, QModelIndex const & /*so
 		line = sourceModel()->data(data_idx2).toString();
 	}
 
+	MainWindow const * mw = static_cast<Connection const *>(parent())->getMainWindow();
 	bool excluded = false;
-	excluded |= m_session_state.isFileLineExcluded(std::make_pair(file.toStdString(), line.toStdString()));
+	excluded |= m_session_state.isFileLineExcluded(std::make_pair(file.toStdString(), line.toStdString()), mw->fltMode());
 
 	QString tid;
 	int const tid_idx = m_session_state.findColumn4Tag(tlv::tag_tid);
@@ -97,6 +98,7 @@ void Connection::setFilterFile (int state)
 		}
 	}
 	m_main_window->getTreeViewFile()->setEnabled(m_main_window->filterEnabled());
+	m_main_window->getTreeViewCtx()->setEnabled(m_main_window->filterEnabled());
 	m_main_window->getListViewTID()->setEnabled(m_main_window->filterEnabled());
 }
 
@@ -194,6 +196,20 @@ void Connection::appendToTIDFilters (std::string const & item)
 	}
 }
 
+void Connection::appendToCtxFilters (std::string const & item, bool checked)
+{
+	QString qItem = QString::fromStdString(item);
+	QStandardItemModel * model = static_cast<QStandardItemModel *>(m_main_window->getTreeViewCtx()->model());
+	QStandardItem * root = model->invisibleRootItem();
+	QStandardItem * child = findChildByText(root, qItem);
+	if (child == 0)
+	{
+		QList<QStandardItem *> row_items = addRow(qItem, false);
+		root->appendRow(row_items);
+	}
+}
+
+
 bool Connection::appendToFilters (DecodedCommand const & cmd)
 {
 	std::string line;
@@ -213,6 +229,11 @@ bool Connection::appendToFilters (DecodedCommand const & cmd)
 			if (cmd.hdr.cmd == tlv::cmd_scope_exit)
 				sessionState().m_tls.decrIndent(idx);
 			appendToTIDFilters(cmd.tvs[i].m_val);
+		}
+
+		if (cmd.tvs[i].m_tag == tlv::tag_ctx)
+		{
+			appendToCtxFilters(cmd.tvs[i].m_val, false);
 		}
 	}
 
