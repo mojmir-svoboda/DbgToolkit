@@ -15,6 +15,8 @@ void FilterProxyModel::force_update ()
 
 bool FilterProxyModel::filterAcceptsRow (int sourceRow, QModelIndex const & /*sourceParent*/) const
 {
+	MainWindow const * mw = static_cast<Connection const *>(parent())->getMainWindow();
+
 	QString file, line;
 	int const col_idx = m_session_state.findColumn4Tag(tlv::tag_file);
 	if (col_idx >= 0)
@@ -29,9 +31,8 @@ bool FilterProxyModel::filterAcceptsRow (int sourceRow, QModelIndex const & /*so
 		line = sourceModel()->data(data_idx2).toString();
 	}
 
-	MainWindow const * mw = static_cast<Connection const *>(parent())->getMainWindow();
 	bool excluded = false;
-	excluded |= m_session_state.isFileLineExcluded(std::make_pair(file.toStdString(), line.toStdString()), mw->fltMode());
+	excluded |= m_session_state.isFileLineExcluded(std::make_pair(file.toStdString(), line.toStdString()));
 
 	QString tid;
 	int const tid_idx = m_session_state.findColumn4Tag(tlv::tag_tid);
@@ -39,6 +40,14 @@ bool FilterProxyModel::filterAcceptsRow (int sourceRow, QModelIndex const & /*so
 	{
 		QModelIndex data_idx = sourceModel()->index(sourceRow, tid_idx, QModelIndex());
 		tid = sourceModel()->data(data_idx).toString();
+	}
+
+	QString ctx;
+	int const ctx_idx = m_session_state.findColumn4Tag(tlv::tag_ctx);
+	if (ctx_idx >= 0)
+	{
+		QModelIndex data_idx = sourceModel()->index(sourceRow, ctx_idx, QModelIndex());
+		ctx = sourceModel()->data(data_idx).toString();
 	}
 
 	bool regex_accept = true;
@@ -61,6 +70,7 @@ bool FilterProxyModel::filterAcceptsRow (int sourceRow, QModelIndex const & /*so
 	}
 
 	excluded |= m_session_state.isTIDExcluded(tid.toStdString());
+	excluded |= m_session_state.isCtxExcluded(ctx.toULongLong());
 
 	QModelIndex data_idx = sourceModel()->index(sourceRow, 0, QModelIndex());
 	excluded |= m_session_state.isBlockCollapsed(tid, data_idx.row());
@@ -164,7 +174,7 @@ void Connection::appendToFileFilters (boost::char_separator<char> const & sep, s
 		{
 			stop = true;
 			append = true;
-			QList<QStandardItem *> row_items = addRow(qItem, checked);
+			QList<QStandardItem *> row_items = addRowTriState(qItem, checked, m_main_window->fltMode());
 			node->appendRow(row_items);
 			node = row_items.at(0);
 		}
@@ -179,9 +189,9 @@ void Connection::appendToFileFilters (boost::char_separator<char> const & sep, s
 	}
 }
 
-void Connection::appendToFileFilters (boost::char_separator<char> const & sep, std::string const & file, std::string const & line)
+void Connection::appendToFileFilters (boost::char_separator<char> const & sep, std::string const & file, std::string const & line, bool checked)
 {
-	appendToFileFilters(sep, file + "/" + line);
+	appendToFileFilters(sep, file + "/" + line, checked);
 }
 
 void Connection::appendToTIDFilters (std::string const & item)
@@ -191,7 +201,7 @@ void Connection::appendToTIDFilters (std::string const & item)
 	QStandardItem * child = findChildByText(root, qItem);
 	if (child == 0)
 	{
-		QList<QStandardItem *> row_items = addRow(qItem, false);
+		QList<QStandardItem *> row_items = addRow(qItem, false, m_main_window->fltMode());
 		root->appendRow(row_items);
 	}
 }
@@ -204,7 +214,7 @@ void Connection::appendToCtxFilters (std::string const & item, bool checked)
 	QStandardItem * child = findChildByText(root, qItem);
 	if (child == 0)
 	{
-		QList<QStandardItem *> row_items = addRow(qItem, false);
+		QList<QStandardItem *> row_items = addRow(qItem, false, m_main_window->fltMode());
 		root->appendRow(row_items);
 	}
 }
@@ -244,7 +254,8 @@ bool Connection::appendToFilters (DecodedCommand const & cmd)
 		if (cmd.tvs[i].m_tag == tlv::tag_file)
 		{
 			std::string file(cmd.tvs[i].m_val);
-			appendToFileFilters(sep, file, line);
+			bool const checked = m_main_window->fltMode() == e_Exclude ? false : true;
+			appendToFileFilters(sep, file, line, checked);
 		}
 	}
 	return true;
@@ -301,5 +312,10 @@ void Connection::recompileColorRegexps ()
 	onInvalidateFilter();
 }
 
-
+void Connection::flipFilterMode (E_FilterMode mode)
+{
+	QStandardItem * node = m_tree_view_file_model->invisibleRootItem();
+	flipCheckState(node);
+	flipCheckStateRecursive(node);
+}
 

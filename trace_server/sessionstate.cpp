@@ -7,6 +7,7 @@ SessionState::SessionState (QObject * parent)
 	, m_tab_widget(0)
 	, m_exclude_content_to_row(0)
 	, m_toggle_ref_row(0)
+	, m_filter_mode(e_Exclude)
 	, m_columns_setup_current(0)
 	, m_columns_setup_template(0)
 	, m_columns_sizes(0)
@@ -97,62 +98,75 @@ int SessionState::insertColumn (tlv::tag_t tag)
 	return column_index;
 }
 
+void SessionState::flipFilterMode (E_FilterMode mode)
+{
+	if (m_filter_mode != mode)
+	{
+		// for m_file_filters invert check
+		// for m_tid_filters
+		// for ...
+		for (ctx_filters_t::iterator it = m_ctx_filters.begin(), ite = m_ctx_filters.end(); it != ite; ++it)
+		{
+			//it->m_filterMode = invert(mode);
+		}
 
-bool SessionState::isFileLineExcluded (fileline_t const & item, E_FilterMode mode) const
+		m_filter_mode = mode;
+	}
+}
+
+void SessionState::sessionExport (SessionExport & e) const
+{
+	e.m_file_filters.reserve(32 * 1024);
+	m_file_filters.export_filter(e.m_file_filters);
+}
+void SessionState::sessionImport (SessionExport const & e)
+{
+	boost::char_separator<char> sep("\n");
+	typedef boost::tokenizer<boost::char_separator<char> > tokenizer_t;
+	tokenizer_t tok(e.m_file_filters, sep);
+	for (tokenizer_t::const_iterator it = tok.begin(), ite = tok.end(); it != ite; ++it)
+	{
+		m_file_filters.append(*it, true);
+	}
+}
+void SessionState::makeInexactCopy (SessionState const & rhs)
+{
+	SessionExport e;
+	rhs.sessionExport(e);
+	sessionImport(e);
+}
+
+
+///////// file filters
+bool SessionState::isFileLineExcluded (fileline_t const & item) const
 {
 	return m_file_filters.is_excluded(item.first + "/" + item.second);
 }
-void SessionState::appendFileFilter (fileline_t const & item, E_FilterMode mode)
+void SessionState::appendFileFilter (fileline_t const & item)
 {
-	m_file_filters.append(item.first + "/" + item.second, mode == e_Exclude ? true : false);
+	m_file_filters.append(item.first + "/" + item.second, true);
 }
-void SessionState::appendFileFilter (std::string const & item, E_FilterMode mode) { m_file_filters.append(item, mode); }
-void SessionState::removeFileFilter (fileline_t const & item, E_FilterMode mode)
+void SessionState::appendFileFilter (std::string const & item) { m_file_filters.append(item, true); }
+void SessionState::removeFileFilter (fileline_t const & item)
 {
 	m_file_filters.exclude_off(item.first + "/" + item.second);
 }
 
-
+///////// ctx filters
 bool SessionState::isCtxExcluded (context_t item) const
 {
-	for (ctx_filters_t::const_iterator it = m_ctx_filters.begin(), ite = m_ctx_filters.end(); it != ite; ++it)
-	{
-		if (it->m_context == item && it->m_isEnabled && it->m_filterMode == e_Exclude)
-		{
-			return true;
-		}
-	}
-	return false; //m_file_filters.is_excluded(item.first + "/" + item.second);
+	return std::find(m_ctx_filters.begin(), m_ctx_filters.end(), item) != m_ctx_filters.end();
 }
 void SessionState::appendCtxFilter (context_t item)
 {
-	m_ctx_filters.append(ContextFilter(item));
-	m_ctx_filters.back().m_context = item;
+	m_ctx_filters.push_back(item);
 }
 void SessionState::removeCtxFilter (context_t item)
 {
-	for (ctx_filters_t::iterator it = m_ctx_filters.begin(), ite = m_ctx_filters.end(); it != ite; ++it)
-	{
-		if (it->m_context == item)
-		{
-			m_ctx_filters.erase(it);
-			return;
-		}
-	}
-}
-void SessionState::flipCtxFilterMode (context_t item, E_FilterMode mode)
-{
-	for (ctx_filters_t::iterator it = m_ctx_filters.begin(), ite = m_ctx_filters.end(); it != ite; ++it)
-	{
-		if (it->m_context == item)
-		{
-			it->m_filterMode = mode;
-			return;
-		}
-	}
+	m_ctx_filters.erase(std::remove(m_ctx_filters.begin(), m_ctx_filters.end(), item), m_ctx_filters.end());
 }
 
-
+///////// tid filters
 void SessionState::appendTIDFilter (std::string const & item)
 {
 	m_tid_filters.push_back(item);
@@ -166,7 +180,7 @@ bool SessionState::isTIDExcluded (std::string const & item) const
 	return std::find(m_tid_filters.begin(), m_tid_filters.end(), item) != m_tid_filters.end();
 }
 
-
+///////// collapsed scopes
 void SessionState::appendCollapsedBlock (QString tid, int from, int to, QString file, QString line)
 {
 	m_collapse_blocks.push_back(CollapsedBlock(tid, from, to, file, line));
@@ -221,7 +235,7 @@ bool SessionState::isBlockCollapsedIncl (QString tid, int row) const
 	return false;
 }
 
-
+///////// color filters
 bool SessionState::isMatchedColorizedText (QString str, QColor & color, E_ColorRole & role) const
 {
 	for (int i = 0, ie = m_colorized_texts.size(); i < ie; ++i)
@@ -276,25 +290,4 @@ void SessionState::appendToColorRegexFilters (std::string const & s)
 }
 
 
-void SessionState::sessionExport (SessionExport & e) const
-{
-	e.m_file_filters.reserve(32 * 1024);
-	m_file_filters.export_filter(e.m_file_filters);
-}
-void SessionState::sessionImport (SessionExport const & e)
-{
-	boost::char_separator<char> sep("\n");
-	typedef boost::tokenizer<boost::char_separator<char> > tokenizer_t;
-	tokenizer_t tok(e.m_file_filters, sep);
-	for (tokenizer_t::const_iterator it = tok.begin(), ite = tok.end(); it != ite; ++it)
-	{
-		m_file_filters.append(*it, e_Exclude); // @TODO: this is only DUMMY!!!
-	}
-}
-void SessionState::makeInexactCopy (SessionState const & rhs)
-{
-	SessionExport e;
-	rhs.sessionExport(e);
-	sessionImport(e);
-}
 

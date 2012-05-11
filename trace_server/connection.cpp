@@ -66,7 +66,7 @@ void Connection::onTabTraceFocus (int i)
 	m_main_window->getTreeViewCtx()->setModel(m_tree_view_ctx_model);
 	m_main_window->getListViewTID()->setModel(m_list_view_tid_model);
 	m_main_window->getListViewColorRegex()->setModel(m_list_view_color_regex_model);
-	hideLinearParents();
+	//hideLinearParents();
 }
 
 void Connection::hideLinearParents ()
@@ -205,7 +205,7 @@ void Connection::onExcludeFileLine (QModelIndex const & row_index)
 
 	fileline_t filter_item(file.toStdString(), line.toStdString());
 	qDebug("appending: %s:%s", file.toStdString().c_str(), line.toStdString().c_str());
-	m_session_state.appendFileFilter(filter_item, m_main_window->fltMode());
+	m_session_state.appendFileFilter(filter_item);
 	appendToFileFilters(file.toStdString() + "/" + line.toStdString(), true);
 
 	onInvalidateFilter();

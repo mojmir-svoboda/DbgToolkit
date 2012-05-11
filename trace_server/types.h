@@ -3,6 +3,8 @@
 #include <QString>
 
 enum E_FilterMode { e_Include, e_Exclude };
+
+inline E_FilterMode invert (E_FilterMode m) { return m == e_Include ? e_Include : e_Exclude; }
 enum E_ColorRole { e_Bg, e_Fg };
 
 typedef QList<QString>			filter_regexs_t;

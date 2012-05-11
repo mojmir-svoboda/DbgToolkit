@@ -72,6 +72,7 @@ struct ColorizedText {
 
 struct SessionExport {
 	std::string m_name;
+	std::string m_filter_mode; /// include or exclude
 	std::string m_file_filters;
 	std::string m_regex_filters;
 	std::string m_color_regex_filters;
@@ -79,14 +80,6 @@ struct SessionExport {
 };
 
 typedef unsigned long long context_t;
-struct ContextFilter {
-	context_t m_context;
-	std::string m_text;
-	E_FilterMode m_filterMode;
-	bool m_isEnabled;
-
-	ContextFilter (context_t ctx) : m_context(ctx), m_text(), m_filterMode(e_Include), m_isEnabled(false) { }
-};
 
 class SessionState
 {
@@ -117,15 +110,15 @@ public:
 
 	typedef file_filter file_filters_t;
 	file_filters_t const & getFileFilters () const { return m_file_filters; }
-	void appendFileFilter (fileline_t const & item, E_FilterMode);		/// add file + line pair
-	void appendFileFilter (std::string const & item, E_FilterMode);	/// add concantenated item
-	void removeFileFilter (fileline_t const & item, E_FilterMode);
-	bool isFileLineExcluded (fileline_t const & p, E_FilterMode) const;
+	void appendFileFilter (fileline_t const & item);		/// add file + line pair
+	void appendFileFilter (std::string const & item);	/// add concantenated item
+	void removeFileFilter (fileline_t const & item);
+	bool isFileLineExcluded (fileline_t const & p) const;
 
-	typedef QList<ContextFilter> ctx_filters_t;
+	typedef QList<context_t> ctx_filters_t;
 	ctx_filters_t const & getCtxFilters () const { return m_ctx_filters; }
 	void appendCtxFilter (context_t item);
-	void flipCtxFilterMode (context_t item, E_FilterMode mode);
+	void flipFilterMode (E_FilterMode mode);
 	void removeCtxFilter (context_t item);
 	bool isCtxExcluded (context_t item) const;
 
@@ -153,6 +146,9 @@ public:
 	void toggleRefFromRow (int row) { m_toggle_ref_row = row; }
 	int toggleRefFromRow () const { return m_toggle_ref_row; }
 
+	void setFilterMode (E_FilterMode m) { m_filter_mode = m; }
+	E_FilterMode getFilterMode () const { return m_filter_mode; }
+
 	void makeInexactCopy (SessionState const & rhs);
    
 	void sessionExport (SessionExport & e) const;
@@ -173,6 +169,7 @@ private:
 	int m_from_file;
 	int m_exclude_content_to_row;
 	int m_toggle_ref_row;
+	E_FilterMode m_filter_mode;
 	file_filters_t m_file_filters;
 	ctx_filters_t m_ctx_filters;
 	tid_filters_t m_tid_filters;

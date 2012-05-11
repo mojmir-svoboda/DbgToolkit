@@ -44,6 +44,17 @@ inline QList<QStandardItem *> addRow (QString const & str, bool checked )
 	return row_items;
 }
 
+inline QList<QStandardItem *> addRowTriState (QString const & str, bool checked, E_FilterMode filt_mode)
+{
+	QList<QStandardItem *> row_items;
+	QStandardItem * name_item = new QStandardItem(str);
+	name_item->setCheckable(true);
+	name_item->setCheckState(checked ? Qt::Checked : Qt::Unchecked);
+	name_item->setTristate(true);
+	row_items << name_item;
+	return row_items;
+}
+
 inline QList<QStandardItem *> addRow (QString const & str, bool checked, E_FilterMode filt_mode)
 {
 	QList<QStandardItem *> row_items;
@@ -54,7 +65,40 @@ inline QList<QStandardItem *> addRow (QString const & str, bool checked, E_Filte
 	QString mode_str = filt_mode == e_Include ? QString("Include") : QString("Exclude");
 	QStandardItem * flt_item = new QStandardItem(mode_str);
 	row_items << name_item;
-	row_items << flt_item;
 	return row_items;
 }
+
+inline void flipCheckState (QStandardItem * item)
+{
+	bool const checked = (item->checkState() == Qt::Checked);
+	item->setCheckState(checked ? Qt::Unchecked : Qt::Checked);
+}
+
+inline void flipCheckStateRecursive (QStandardItem * node)
+{
+	flipCheckState(node);
+	int const rc = node->rowCount();
+	for (int r = 0; r < rc; ++r)
+	{
+		QStandardItem * child = node->child(r, 0);
+		flipCheckStateRecursive(child);
+	}
+}
+
+inline void setCheckState (QStandardItem * item, bool checked)
+{
+	item->setCheckState(checked ? Qt::Unchecked : Qt::Checked);
+}
+
+inline void setCheckStateRecursive (QStandardItem * node, bool checked)
+{
+	setCheckState(node, checked);
+	int const rc = node->rowCount();
+	for (int r = 0; r < rc; ++r)
+	{
+		QStandardItem * child = node->child(r, 0);
+		setCheckStateRecursive(child, checked);
+	}
+}
+
 

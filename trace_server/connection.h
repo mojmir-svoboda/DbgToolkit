@@ -98,7 +98,7 @@ public:
 	
 	SessionState & sessionState () { return m_session_state; }
 	SessionState const & sessionState () const { return m_session_state; }
-	void appendToFileFilters (std::string const & item, bool checked = false);
+	void appendToFileFilters (std::string const & item, bool checked);
 	void appendToCtxFilters (std::string const & item, bool checked);
 	void clearFilters ();
 	void findText (QString const & text, tlv::tag_t tag);
@@ -109,6 +109,7 @@ public:
 	void appendToColorRegexFilters (std::string const & item);
 	void removeFromColorRegexFilters (std::string const & item);
 	void recompileColorRegexps ();
+	void flipFilterMode (E_FilterMode mode);
 
 	//filter_color_regexs_t m_filter_color_regexs; /// coloring regexps
 	//QList<QRegExp> const & getColorRegexps () const { return m_color_regexps; }
@@ -156,8 +157,8 @@ private:
 	bool handleSetupCommand (DecodedCommand const & cmd);
 
 	bool appendToFilters (DecodedCommand const & cmd);
-	void appendToFileFilters (boost::char_separator<char> const & sep, std::string const & item, bool checked = false);
-	void appendToFileFilters (boost::char_separator<char> const & sep, std::string const & file, std::string const & line);
+	void appendToFileFilters (boost::char_separator<char> const & sep, std::string const & item, bool checked);
+	void appendToFileFilters (boost::char_separator<char> const & sep, std::string const & file, std::string const & line, bool checked);
 	void appendToTIDFilters (std::string const & item);
 	void clearFilters (QStandardItem * node);
 	void hideLinearParents ();

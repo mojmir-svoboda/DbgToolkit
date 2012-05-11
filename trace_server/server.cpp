@@ -7,6 +7,7 @@
 #include "connection.h"
 #include "mainwindow.h"
 #include "modelview.h"
+#include "utils.h"
 
 void SaveTableViewSettings (QTableView * tb)
 {
@@ -134,7 +135,7 @@ void Server::onToggleRefFromRow ()
 		conn->onToggleRefFromRow();
 }
 
-void Server::onClickedAtFileTree (QModelIndex idx)
+void Server::onClickedAtFileTree_Impl (QModelIndex idx, bool recursive)
 {
 	MainWindow * main_window = static_cast<MainWindow *>(parent());
 	std::vector<QString> s;
@@ -142,39 +143,20 @@ void Server::onClickedAtFileTree (QModelIndex idx)
 	QStandardItemModel * model = static_cast<QStandardItemModel *>(main_window->getTreeViewFile()->model());
 	QStandardItem * item = model->itemFromIndex(idx);
 
-	E_FilterMode new_mode = e_Include;
-	if (idx.column() == 1)
-	{
-		QModelIndex file_idx = model->index(idx.row(), 0, idx.parent());
-		if (file_idx.isValid())
-		{
-			if (item->text() == "Include")
-			{
-				item->setText("Exclude");
-				new_mode = e_Exclude;
-			}
-			else
-				item->setText("Include");
-		}
-	}
-	else
-	{
-		QModelIndex file_idx = model->index(idx.row(), 1, idx.parent());
-		if (file_idx.isValid())
-		{
-			if (item->text() == "Exclude")
-			{
-				new_mode = e_Exclude;
-			}
-		}
-	}
+	//flipCheckState(item);
+	//flipCheckStateRecursive(item);
+
+	E_FilterMode const fmode = main_window->fltMode();
+	bool const orig_checked = (item->checkState() == Qt::Checked);
+
+	setCheckState(item, !orig_checked);
+	setCheckStateRecursive(item, !orig_checked);
 
 	QStandardItem * line_item = 0;
 	if (!item->hasChildren())
 		line_item = item;
 	else
 		s.push_back(model->data(idx, Qt::DisplayRole).toString());
-
 
 	QStandardItem * parent = item->parent();
 	std::string file;
@@ -191,7 +173,8 @@ void Server::onClickedAtFileTree (QModelIndex idx)
 		file += std::string("/") + (*it).toStdString();
 	//qDebug("file=%s", file.c_str());
 
-	bool const checked = (item->checkState() == Qt::Checked);
+	bool checked = (item->checkState() == Qt::Checked);
+
 	fileline_t filter_item(file, std::string());
 	if (line_item)
 	{
@@ -199,27 +182,29 @@ void Server::onClickedAtFileTree (QModelIndex idx)
 		filter_item.second = val.toStdString();
 	}
 
-	qDebug("file click! (checked=%u) %s : %s", checked, filter_item.first.c_str(), filter_item.second.c_str());
-
 	if (Connection * conn = findCurrentConnection())
 	{
+		if (fmode == e_Include)
+			checked = !checked;
+		qDebug("file click! (checked=%u) %s: %s/%s", checked, (checked ? "append" : "remove"), filter_item.first.c_str(), filter_item.second.c_str());
 		if (checked)
-			conn->sessionState().appendFileFilter(filter_item, main_window->fltMode());
+			conn->sessionState().appendFileFilter(filter_item);
 		else
-			conn->sessionState().removeFileFilter(filter_item, main_window->fltMode());
+			conn->sessionState().removeFileFilter(filter_item);
 		conn->onInvalidateFilter();
 	}
+}
+void Server::onClickedAtFileTree (QModelIndex idx)
+{
+	onClickedAtFileTree_Impl(idx, false);
 }
 
 void Server::onDoubleClickedAtFileTree (QModelIndex idx)
 {
-	MainWindow * main_window = static_cast<MainWindow *>(parent());
-	QStandardItemModel * model = static_cast<QStandardItemModel *>(main_window->getTreeViewFile()->model());
-	QStandardItem * item = model->itemFromIndex(idx);
-	bool const checked = (item->checkState() == Qt::Checked);
-	item->setCheckState(checked ? Qt::Unchecked : Qt::Checked);
-	onClickedAtFileTree(idx);
-
+	//MainWindow * main_window = static_cast<MainWindow *>(parent());
+	//QStandardItemModel * model = static_cast<QStandardItemModel *>(main_window->getTreeViewFile()->model());
+	//QStandardItem * item = model->itemFromIndex(idx);
+	//onClickedAtFileTree_Impl(idx, true);
 }
 
 void Server::onClickedAtCtxTree (QModelIndex idx)
@@ -229,14 +214,11 @@ void Server::onClickedAtCtxTree (QModelIndex idx)
 	QStandardItem * item = model->itemFromIndex(idx);
 	Q_ASSERT(item);
 
-	qDebug("ctx click! r=%i c=%i", idx.row(), idx.column());
-
 	QString const & val = model->data(idx, Qt::DisplayRole).toString();
 	std::string const ctx_item(val.toStdString());
 	context_t const ctx = val.toULongLong();
 
 	bool const checked = (item->checkState() == Qt::Checked);
-	qDebug("ctx click! r=%i c=%i (checked=%u) %08x, %s", idx.row(), idx.column(), checked, ctx, ctx_item.c_str());
 
 	if (Connection * conn = findCurrentConnection())
 	{
@@ -254,37 +236,9 @@ void Server::onDoubleClickedAtCtxTree (QModelIndex idx)
 	QStandardItemModel * model = static_cast<QStandardItemModel *>(main_window->getTreeViewCtx()->model());
 	QStandardItem * item = model->itemFromIndex(idx);
 
-	if (idx.column() == 1)
-	{
-		QModelIndex ctx_idx = model->index(idx.row(), 0, idx.parent());
-		if (ctx_idx.isValid())
-		{
-			QString const & ctx_val = model->data(ctx_idx, Qt::DisplayRole).toString();
-			context_t const ctx = ctx_val.toULongLong();
-			printf("item=%p, val=%s\n", item, ctx_val.toStdString().c_str());
-
-			E_FilterMode new_mode = e_Include;
-			if (item->text() == "Include")
-			{
-				item->setText("Exclude");
-				new_mode = e_Exclude;
-			}
-			else
-				item->setText("Include");
-
-			if (Connection * conn = findCurrentConnection())
-			{
-				conn->sessionState().flipCtxFilterMode(ctx, new_mode);
-				conn->onInvalidateFilter();
-			}
-		}
-	}
-	else
-	{
-		bool const checked = (item->checkState() == Qt::Checked);
-		item->setCheckState(checked ? Qt::Unchecked : Qt::Checked);
-		onClickedAtCtxTree(idx);
-	}
+	bool const checked = (item->checkState() == Qt::Checked);
+	item->setCheckState(checked ? Qt::Unchecked : Qt::Checked);
+	onClickedAtCtxTree(idx);
 }
 
 void Server::onClickedAtTIDList (QModelIndex idx)
@@ -300,8 +254,6 @@ void Server::onClickedAtTIDList (QModelIndex idx)
 	std::string filter_item(val.toStdString());
 
 	bool const checked = (item->checkState() == Qt::Checked);
-
-	qDebug("tid click! (checked=%u) %s ", checked, filter_item.c_str());
 
 	if (Connection * conn = findCurrentConnection())
 	{
@@ -415,6 +367,7 @@ Connection * Server::createNewTableView ()
 
 	connection->sessionState().setTabWidget(n);
 	connection->sessionState().setTabWidget(tab);
+	connection->sessionState().setFilterMode(main_window->fltMode());
 
 	if (main_window->filterEnabled())
 	{

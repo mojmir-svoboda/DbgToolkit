@@ -568,7 +568,7 @@ void MainWindow::onPresetActivate (int idx)
 	{
 		std::string filter_item(m_filter_presets.at(idx).at(i).toStdString());
 		conn->appendToFileFilters(filter_item, true);
-		conn->sessionState().appendFileFilter(filter_item, fltMode());
+		conn->sessionState().appendFileFilter(filter_item);
 		conn->onInvalidateFilter();
 	}
 }
@@ -580,7 +580,12 @@ void MainWindow::onFilterModeActivate (int idx)
 
 	Connection * conn = m_server->findCurrentConnection();
 	if (!conn) return;
-	QString qItem = ui->filterModeComboBox->currentText();
+	QString const qItem = ui->filterModeComboBox->currentText();
+
+	E_FilterMode const mode = qItem == "Include" ? e_Include : e_Exclude;
+	//@TODO: do following for each connection?
+	conn->flipFilterMode(mode);
+	conn->sessionState().flipFilterMode(mode);
 }
 
 
