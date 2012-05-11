@@ -138,7 +138,7 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay)
 	ui->qSearchComboBox->setToolTip(tr("specifies column to search"));
 
 	connect(ui->filterModeComboBox, SIGNAL(activated(int)), this, SLOT(onFilterModeActivate(int)));
-
+	connect(ui->tabTrace, SIGNAL(tabCloseRequested(int)), m_server, SLOT(onCloseTab(int)));
 	QTimer::singleShot(0, this, SLOT(loadState()));	// trigger lazy load of settings
 	setWindowTitle("flog server");
 

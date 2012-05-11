@@ -405,28 +405,34 @@ void Server::incomingConnection (int socketDescriptor)
 	connection->start();*/
 }
 
+void Server::onCloseTab (int idx)
+{
+	if (idx != -1)
+	{
+		MainWindow * main_window = static_cast<MainWindow *>(parent());
+		main_window->getTabTrace()->removeTab(idx);
+		connections_t::iterator it = connections.find(main_window->getTabTrace()->widget(idx));
+		if (it != connections.end())
+		{
+			Connection * connection = it->second;
+
+			QObject::disconnect(connection->m_table_view_widget->horizontalHeader(), SIGNAL(sectionResized(int, int, int)), this, SLOT(onSectionResized(int, int, int)));
+			QObject::disconnect(main_window->getTabTrace(), SIGNAL(currentChanged(int)), connection, SLOT(onTabTraceFocus(int)));
+
+			connection->onCloseTab();
+			connections.erase(it);
+			delete connection;
+		}
+	}
+}
+
 void Server::onCloseTab (QWidget * w)
 {
 	if (w)
 	{
 		MainWindow * main_window = static_cast<MainWindow *>(parent());
 		int const idx = main_window->getTabTrace()->indexOf(w);
-		if (idx != -1)
-		{
-			main_window->getTabTrace()->removeTab(idx);
-			connections_t::iterator it = connections.find(w);
-			if (it != connections.end())
-			{
-				Connection * connection = it->second;
-
-				QObject::disconnect(connection->m_table_view_widget->horizontalHeader(), SIGNAL(sectionResized(int, int, int)), this, SLOT(onSectionResized(int, int, int)));
-				QObject::disconnect(main_window->getTabTrace(), SIGNAL(currentChanged(int)), connection, SLOT(onTabTraceFocus(int)));
-
-				connection->onCloseTab();
-				connections.erase(it);
-				delete connection;
-			}
-		}
+		onCloseTab(idx);
 	}
 }
 
