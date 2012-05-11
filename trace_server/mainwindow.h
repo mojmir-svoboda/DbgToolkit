@@ -109,6 +109,7 @@ public:
 	QListView * getListViewTID ();
 	QListView const * getListViewTID () const;
 	void setLevel (int i);
+	int getLevel () const;
 	bool scopesEnabled () const;
 	bool autoScrollEnabled () const;
 	bool reuseTabEnabled () const;

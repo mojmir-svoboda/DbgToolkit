@@ -11,8 +11,13 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 	{
 		if (cmd.tvs[i].m_tag == tlv::tag_lvl)
 		{
-			int const level = QString::fromStdString(cmd.tvs[i].m_val).toInt();
-            m_main_window->setLevel(level);
+			int const client_level = QString::fromStdString(cmd.tvs[i].m_val).toInt();
+			int const server_level = m_main_window->getLevel();
+			if (client_level != server_level)
+			{
+				qDebug("notifying client about new level");
+				onLevelValueChanged(server_level);
+			}
 		}
 
 		if (cmd.tvs[i].m_tag == tlv::tag_app)
@@ -121,6 +126,7 @@ void Connection::setupModelTID ()
 	if (!m_list_view_tid_model)
 		m_list_view_tid_model = new QStandardItemModel;
 	m_main_window->getListViewTID()->setModel(m_list_view_tid_model);
+	m_main_window->getListViewTID()->setEnabled(m_main_window->filterEnabled());
 }
 
 void Connection::setupModelColorRegex ()
@@ -128,5 +134,6 @@ void Connection::setupModelColorRegex ()
 	if (!m_list_view_color_regex_model)
 		m_list_view_color_regex_model = new QStandardItemModel;
 	m_main_window->getListViewColorRegex()->setModel(m_list_view_color_regex_model);
+	m_main_window->getListViewColorRegex()->setEnabled(m_main_window->filterEnabled());
 }
 

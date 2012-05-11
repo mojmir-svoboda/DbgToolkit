@@ -54,6 +54,7 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay)
 {
     //QDir::setSearchPaths("icons", QStringList(QDir::currentPath()));
 	ui->setupUi(this);
+	ui->tabTrace->setTabsClosable(true);
 
 	// tray stuff
 	createActions();
@@ -257,6 +258,12 @@ void MainWindow::setLevel (int i)
 	bool const old = ui->levelSpinBox->blockSignals(true);
     ui->levelSpinBox->setValue(i);
 	ui->levelSpinBox->blockSignals(old);
+}
+
+int MainWindow::getLevel () const
+{
+    int const current = ui->levelSpinBox->value();
+	return current;
 }
 
 void MainWindow::onQuit ()
@@ -930,6 +937,7 @@ void MainWindow::storeState ()
 	settings.setValue("buffCheckBox", ui->buffCheckBox->isChecked());
 	settings.setValue("clrFiltersCheckBox", ui->clrFiltersCheckBox->isChecked());
 	settings.setValue("filterModeComboBox", ui->filterModeComboBox->currentIndex());
+	settings.setValue("levelSpinBox", ui->levelSpinBox->value());
 
 	write_list_of_strings(settings, "known-applications", "application", m_app_names);
 	for (size_t i = 0, ie = m_app_names.size(); i < ie; ++i)
@@ -978,6 +986,7 @@ void MainWindow::loadState ()
 	ui->buffCheckBox->setChecked(settings.value("buffCheckBox", false).toBool());
 	ui->clrFiltersCheckBox->setChecked(settings.value("clrFiltersCheckBox", false).toBool());
 	ui->filterModeComboBox->setCurrentIndex(settings.value("filterModeComboBox").toInt());
+	ui->levelSpinBox->setValue(settings.value("levelSpinBox").toInt());
 
 	read_list_of_strings(settings, "known-applications", "application", m_app_names);
 	for (size_t i = 0, ie = m_app_names.size(); i < ie; ++i)

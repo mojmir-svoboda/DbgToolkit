@@ -125,7 +125,9 @@ namespace trace {
 						{
 							if (cmd.hdr.cmd == tlv::cmd_set_level && cmd.tlvs_count > 0)
 							{
-								SetRuntimeLevel(static_cast<trace::level_t>(atoi(cmd.tlvs[0].m_val)));
+								int const level = atoi(cmd.tlvs[0].m_val);
+								printf("cmd_set_level, old=%i -> level=%i\n", GetRuntimeLevel(), level);
+								SetRuntimeLevel(static_cast<trace::level_t>(level));
 							}
 						}
 					}
