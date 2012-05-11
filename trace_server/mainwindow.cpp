@@ -376,6 +376,8 @@ void MainWindow::onHotkeyShowOrHide ()
 	{
 		qDebug("MainWindow::show()");
 		showNormal();
+		raise();
+		activateWindow();
 	}
 }
 
