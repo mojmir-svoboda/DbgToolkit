@@ -41,6 +41,7 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay)
 	, m_settings(new Ui::SettingsDialog)
 	, m_help(new Ui::HelpDialog)
 	, m_hidden(false)
+	, m_was_maximized(false)
 	, m_timer(new QTimer(this))
 	, m_server(0)
 	, m_minimize_action(0)
@@ -125,10 +126,12 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay)
 
 	ui->autoScrollCheckBox->setToolTip(tr("auto scrolls to bottom if checked"));
 	ui->reuseTabCheckBox->setToolTip(tr("reuses compatible tab instead of creating new one"));
+	ui->clrFiltersCheckBox->setToolTip(tr("force clearing of filters when reuseTab is checked"));
 	ui->scopesCheckBox->setToolTip(tr("hides scopes if checked"));
 	ui->filterFileCheckBox->setToolTip(tr("enables filtering via fileFilter tab"));
 	ui->buffCheckBox->setToolTip(tr("turns on/off buffering of messages on client side."));
 	ui->presetComboBox->setToolTip(tr("selects and applies saved preset file filter"));
+	ui->filterModeComboBox->setToolTip(tr("selects filtering mode: inclusive (check what you want, unchecked are not displayed) or exclusive (checked items are filtered out)."));
 	ui->levelSpinBox->setToolTip(tr("adjusts debug level of client side"));
 	ui->qSearchLineEdit->setToolTip(tr("search text in logged text"));
 	ui->qSearchComboBox->setToolTip(tr("specifies column to search"));
@@ -273,7 +276,7 @@ void MainWindow::onQSearchEditingFinished ()
 	QString text = ui->qSearchLineEdit->text();
 	QString qcolumn = ui->qSearchComboBox->currentText();
 	bool const search_all = (qcolumn == ".*");
-	qDebug("onQSearchEditingFinished: col=%s text=%s", qcolumn.toStdString().c_str(), text.toStdString().c_str());
+	//qDebug("onQSearchEditingFinished: col=%s text=%s", qcolumn.toStdString().c_str(), text.toStdString().c_str());
 	
 	if (search_all)
 	{
@@ -369,13 +372,15 @@ void MainWindow::onHotkeyShowOrHide ()
 	m_hidden = !m_hidden;
 	if (m_hidden)
 	{
-		qDebug("MainWindow::hide()");
+		m_was_maximized = isMaximized();
 		hide();
 	}
 	else
 	{
-		qDebug("MainWindow::show()");
-		showNormal();
+		if (m_was_maximized)
+			showMaximized();
+		else
+			showNormal();
 		raise();
 		activateWindow();
 	}
@@ -924,6 +929,7 @@ void MainWindow::storeState ()
 	settings.setValue("filterFileCheckBox", ui->filterFileCheckBox->isChecked());
 	settings.setValue("buffCheckBox", ui->buffCheckBox->isChecked());
 	settings.setValue("clrFiltersCheckBox", ui->clrFiltersCheckBox->isChecked());
+	settings.setValue("filterModeComboBox", ui->filterModeComboBox->currentIndex());
 
 	write_list_of_strings(settings, "known-applications", "application", m_app_names);
 	for (size_t i = 0, ie = m_app_names.size(); i < ie; ++i)
@@ -971,6 +977,7 @@ void MainWindow::loadState ()
 	ui->filterFileCheckBox->setChecked(settings.value("filterFileCheckBox", false).toBool());
 	ui->buffCheckBox->setChecked(settings.value("buffCheckBox", false).toBool());
 	ui->clrFiltersCheckBox->setChecked(settings.value("clrFiltersCheckBox", false).toBool());
+	ui->filterModeComboBox->setCurrentIndex(settings.value("filterModeComboBox").toInt());
 
 	read_list_of_strings(settings, "known-applications", "application", m_app_names);
 	for (size_t i = 0, ie = m_app_names.size(); i < ie; ++i)

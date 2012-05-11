@@ -166,6 +166,7 @@ private:
 	Ui::SettingsDialog * m_settings;
 	Ui::HelpDialog * m_help;
 	bool m_hidden;
+	bool m_was_maximized;
 	QList<QString> m_app_names;					/// registered applications
 	QList<columns_setup_t> m_columns_setup;		/// column setup for each registered application
 	QList<columns_sizes_t> m_columns_sizes;		/// column sizes for each registered application
