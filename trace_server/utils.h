@@ -101,4 +101,13 @@ inline void setCheckStateRecursive (QStandardItem * node, bool checked)
 	}
 }
 
+inline void setCheckStateReverse (QStandardItem * n, Qt::CheckState state)
+{
+	while (n)
+	{
+		n->setCheckState(state);
+		n = n->parent();
+	}
+}
+
 

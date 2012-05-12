@@ -172,8 +172,25 @@ void Server::onClickedAtFileTree_Impl (QModelIndex idx, bool recursive)
 	E_FilterMode const fmode = main_window->fltMode();
 	bool const orig_checked = (item->checkState() == Qt::Checked);
 
+
 	setCheckState(item, !orig_checked);
 	setCheckStateRecursive(item, !orig_checked);
+/*	if (fmode == e_Include)
+	{
+		if (!orig_checked)
+		{
+			setCheckState(item, !orig_checked);
+			setCheckStateRecursive(item, !orig_checked);
+		}
+		else
+		{
+			setCheckState(item, !orig_checked);
+		}
+	}
+	else
+	{
+		setCheckState(item, !orig_checked);
+	}*/
 
 	QStandardItem const * line_item = 0;
 	if (!item->hasChildren())
@@ -215,12 +232,25 @@ void Server::onClickedAtFileTree_Impl (QModelIndex idx, bool recursive)
 		else
 			conn->sessionState().removeFileFilter(filter_item);
 
-		QStandardItem * n = item->parent();
-		while (n)
+		if (fmode == e_Include)
 		{
-			n->setCheckState(checked ? Qt::Unchecked : Qt::Checked);
-			n = n->parent();
+			if (!orig_checked)
+			{
+				//setCheckStateReverse(item->parent(), checked ? Qt::Unchecked : Qt::Checked);
+				setCheckStateReverse(item->parent(), Qt::Checked);
+				//setCheckState(item, !orig_checked);
+				//setCheckStateRecursive(item, !orig_checked);
+			}
+			else
+			{
+				//setCheckState(item, !orig_checked);
+			}
 		}
+		else
+		{
+			setCheckState(item, !orig_checked);
+		}
+
 		conn->onInvalidateFilter();
 	}
 }

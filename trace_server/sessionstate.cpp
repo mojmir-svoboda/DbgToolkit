@@ -149,11 +149,19 @@ void SessionState::clearFilters ()
 ///////// file filters
 bool SessionState::isFileLineExcluded (fileline_t const & item) const
 {
-	return m_file_filters.is_excluded(item.first + "/" + item.second);
+	return isFileLineExcluded(item.first + "/" + item.second);
+}
+bool SessionState::isFileLineExcluded (std::string const & fileline) const
+{
+	return m_file_filters.is_excluded(fileline);
 }
 bool SessionState::isFileLinePresent (fileline_t const & item, bool & state) const
 {
 	return m_file_filters.is_present(item.first + "/" + item.second, state);
+}
+bool SessionState::isFileLinePresent (std::string const & fileline, bool & state) const
+{
+	return m_file_filters.is_present(fileline, state);
 }
 void SessionState::appendFileFilter (fileline_t const & item)
 {
