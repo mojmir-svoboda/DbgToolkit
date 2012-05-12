@@ -105,13 +105,14 @@ void SessionState::flipFilterMode (E_FilterMode mode)
 		// for m_file_filters invert check
 		// for m_tid_filters
 		// for ...
-		for (ctx_filters_t::iterator it = m_ctx_filters.begin(), ite = m_ctx_filters.end(); it != ite; ++it)
-		{
+		//for (ctx_filters_t::iterator it = m_ctx_filters.begin(), ite = m_ctx_filters.end(); it != ite; ++it)
+		//{
 			//it->m_filterMode = invert(mode);
-		}
+		//}
 
-		m_filter_mode = mode;
 	}
+
+	m_filter_mode = mode;
 }
 
 void SessionState::sessionExport (SessionExport & e) const

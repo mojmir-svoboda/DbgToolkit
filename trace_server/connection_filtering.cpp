@@ -338,8 +338,23 @@ void Connection::recompileColorRegexps ()
 
 void Connection::flipFilterMode (E_FilterMode mode)
 {
-	QStandardItem * node = m_tree_view_file_model->invisibleRootItem();
-	flipCheckState(node);
-	flipCheckStateRecursive(node);
+	qDebug("filterMode changed: old=%u -> new=%u", sessionState().m_filter_mode, mode);
+	if (sessionState().m_filter_mode != mode)
+	{
+		QStandardItem * node = m_tree_view_file_model->invisibleRootItem();
+		flipCheckState(node);
+		flipCheckStateRecursive(node);
+		sessionState().flipFilterMode(mode);
+	}
 }
 
+/*void Connection::syncFileTreeWithFilter (E_FilterMode mode, QStandardItem * node)
+{
+	setCheckState(node, checked);
+	int const rc = node->rowCount();
+	for (int r = 0; r < rc; ++r)
+	{
+		QStandardItem * child = node->child(r, 0);
+		syncFileTreeWithFilter(child, checked);
+	}
+}*/

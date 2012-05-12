@@ -106,7 +106,7 @@ void Connection::setupModelFile ()
 		m_tree_view_file_model = new QStandardItemModel;
 	}
 	m_main_window->getTreeViewFile()->setModel(m_tree_view_file_model);
-	//main_window->getTreeViewFile()->expandAll();
+	m_main_window->getTreeViewFile()->expandAll();
 	m_main_window->getTreeViewFile()->setEnabled(m_main_window->filterEnabled());
 }
 

@@ -518,10 +518,10 @@ void MainWindow::onFilterModeActivate (int idx)
 	if (!conn) return;
 	QString const qItem = ui->filterModeComboBox->currentText();
 
-	E_FilterMode const mode = qItem == "Include" ? e_Include : e_Exclude;
+	qDebug("item=%s", qItem.toStdString().c_str());
+	E_FilterMode const mode = qItem == "Inclusive" ? e_Include : e_Exclude;
 	//@TODO: do following for each connection?
 	conn->flipFilterMode(mode);
-	conn->sessionState().flipFilterMode(mode);
 }
 
 

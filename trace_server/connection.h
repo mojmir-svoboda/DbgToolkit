@@ -110,15 +110,9 @@ public:
 	void removeFromColorRegexFilters (std::string const & item);
 	void recompileColorRegexps ();
 	void flipFilterMode (E_FilterMode mode);
-
-	//filter_color_regexs_t m_filter_color_regexs; /// coloring regexps
-	//QList<QRegExp> const & getColorRegexps () const { return m_color_regexps; }
-	//std::vector<bool> const & getColorRegexUserStates () const { return m_color_regex_user_states; }
-	typedef QList<QString> filter_color_regexs_t;
-	//filter_color_regexs_t const & getFilterColorRegexs () const { return m_filter_color_regexs; }
-	//filter_color_regexs_t & getFilterColorRegexs () { return m_filter_color_regexs; }
-
 	void run ();
+
+	typedef QList<QString> filter_color_regexs_t;
 
 signals:
 	void readyForUse();
