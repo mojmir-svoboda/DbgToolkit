@@ -229,6 +229,13 @@ void Connection::processDataStream (QDataStream & stream)
 
 	connect(this, SIGNAL(handleCommands()), this, SLOT(onHandleCommands()));
 	processStream(&stream, &QDataStream::readRawData);
+
+	// update column sizes
+	columns_sizes_t const & sizes = *sessionState().m_columns_sizes;
+	bool const old = m_table_view_widget->blockSignals(true);
+	for (size_t c = 0, ce = sizes.size(); c < ce; ++c)
+		m_table_view_widget->horizontalHeader()->resizeSection(c, sizes.at(c));
+	m_table_view_widget->blockSignals(old);
 }
 
 bool Connection::tryHandleCommand (DecodedCommand const & cmd)
