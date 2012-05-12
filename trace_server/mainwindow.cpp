@@ -393,6 +393,28 @@ void MainWindow::onHotkeyShowOrHide ()
 	}
 }
 
+void MainWindow::onDumpFilters ()
+{
+	QDialog dialog(this);
+	dialog.setWindowFlags(Qt::Sheet);
+	m_help->setupUi(&dialog);
+	m_help->helpTextEdit->clear();
+
+	QString text(tr("Dumping current filters:\n"));
+	QString session_string;
+
+	if (Connection * conn = m_server->findCurrentConnection())
+	{
+		SessionExport se;
+		conn->sessionState().sessionExport(se);
+		session_string = QString("File filter:\n %1\nregex_filter:\n %2\ncolor_regexps:\n %3\n").arg(se.m_file_filters.c_str()).arg(se.m_regex_filters.c_str()).arg(se.m_color_regex_filters.c_str());
+	}
+
+	m_help->helpTextEdit->setPlainText(text + session_string);
+	m_help->helpTextEdit->setReadOnly(true);
+	dialog.exec();
+}
+
 void MainWindow::onShowHelp ()
 {
 	QDialog dialog(this);
@@ -864,6 +886,7 @@ void MainWindow::setupMenuBar ()
 
 	QMenu * helpMenu = menuBar()->addMenu(tr("&Help"));
 	helpMenu->addAction(tr("Help"), this, SLOT(onShowHelp()), QKeySequence(Qt::Key_F1));
+	helpMenu->addAction(tr("Dump filters"), this, SLOT(onDumpFilters()));
 }
 
 void write_list_of_strings (QSettings & settings, char const * groupname, char const * groupvaluename, QList<QString> const & lst)

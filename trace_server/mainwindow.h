@@ -155,6 +155,7 @@ private slots:
 	void onColorRegexAdd ();
 	void onColorRegexRm ();
 	void onShowHelp ();
+	void onDumpFilters ();
 	void onFilterModeActivate (int idx);
 
 private:

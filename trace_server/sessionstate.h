@@ -114,6 +114,7 @@ public:
 	void appendFileFilter (std::string const & item);	/// add concantenated item
 	void removeFileFilter (fileline_t const & item);
 	bool isFileLineExcluded (fileline_t const & p) const;
+	bool isFileLinePresent (fileline_t const & p, bool & state) const; /// checks for file:line existence in the tree
 
 	typedef QList<context_t> ctx_filters_t;
 	ctx_filters_t const & getCtxFilters () const { return m_ctx_filters; }
@@ -153,6 +154,8 @@ public:
    
 	void sessionExport (SessionExport & e) const;
 	void sessionImport (SessionExport const & e);
+
+	void clearFilters ();
 	
 signals:
 	

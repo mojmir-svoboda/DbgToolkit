@@ -129,10 +129,7 @@ void Connection::clearFilters ()
 {
 	QStandardItem * node = m_tree_view_file_model->invisibleRootItem();
 	clearFilters(node);
-	sessionState().m_file_filters.clear();
-	sessionState().m_tid_filters.clear();
-	//sessionState().m_regex_filters.clear();
-	//sessionState().m_color_regexps.clear();
+	sessionState().clearFilters();
 }
 
 void Connection::appendToFileFilters (std::string const & item, bool checked)
@@ -254,7 +251,11 @@ bool Connection::appendToFilters (DecodedCommand const & cmd)
 		if (cmd.tvs[i].m_tag == tlv::tag_file)
 		{
 			std::string file(cmd.tvs[i].m_val);
-			bool const checked = m_main_window->fltMode() == e_Exclude ? false : true;
+			E_FilterMode fmode = m_main_window->fltMode();
+			bool excluded = false;
+			bool const present = sessionState().isFileLinePresent(fileline_t(file, line), excluded);
+			bool const default_checked = fmode == e_Exclude ? false : true;
+			bool const checked = present ? (fmode == e_Exclude ? excluded : !excluded) : default_checked;
 			appendToFileFilters(sep, file, line, checked);
 		}
 	}

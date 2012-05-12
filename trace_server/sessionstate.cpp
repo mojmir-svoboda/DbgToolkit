@@ -136,17 +136,33 @@ void SessionState::makeInexactCopy (SessionState const & rhs)
 	sessionImport(e);
 }
 
+void SessionState::clearFilters ()
+{
+	m_file_filters.clear();
+	m_tid_filters.clear();
+	//m_regex_filters.clear();
+	m_colorized_texts.clear();
+	m_collapse_blocks.clear();
+}
+
 
 ///////// file filters
 bool SessionState::isFileLineExcluded (fileline_t const & item) const
 {
 	return m_file_filters.is_excluded(item.first + "/" + item.second);
 }
+bool SessionState::isFileLinePresent (fileline_t const & item, bool & state) const
+{
+	return m_file_filters.is_present(item.first + "/" + item.second, state);
+}
 void SessionState::appendFileFilter (fileline_t const & item)
 {
 	m_file_filters.append(item.first + "/" + item.second, true);
 }
-void SessionState::appendFileFilter (std::string const & item) { m_file_filters.append(item, true); }
+void SessionState::appendFileFilter (std::string const & item)
+{
+	m_file_filters.append(item, true);
+}
 void SessionState::removeFileFilter (fileline_t const & item)
 {
 	m_file_filters.exclude_off(item.first + "/" + item.second);

@@ -43,7 +43,8 @@ Connection::Connection (QObject * parent)
 	, m_storage(0)
 	, m_datastream(0)
 	, m_tcpstream(0)
-{ 
+{
+	qDebug("Connection::Connection() this=0x%08x", this);
 	m_toggle_ref = new QAction("Toggle Ref", this);
 	m_hide_prev = new QAction("Hide prev rows", this);
 	m_exclude_fileline = new QAction("Exclude File:Line", this);
@@ -51,7 +52,10 @@ Connection::Connection (QObject * parent)
     m_ctx_menu.addAction(m_exclude_fileline);
 }
 
-Connection::~Connection () { qDebug("~Connection()"); }
+Connection::~Connection ()
+{
+	qDebug("Connection::~Connection() this=0x%08x", this);
+}
 
 void Connection::onDisconnected ()
 {
@@ -66,7 +70,7 @@ void Connection::onTabTraceFocus (int i)
 	m_main_window->getTreeViewCtx()->setModel(m_tree_view_ctx_model);
 	m_main_window->getListViewTID()->setModel(m_list_view_tid_model);
 	m_main_window->getListViewColorRegex()->setModel(m_list_view_color_regex_model);
-	//hideLinearParents();
+	hideLinearParents();
 }
 
 void Connection::hideLinearParents ()
@@ -99,7 +103,7 @@ void Connection::hideLinearParents ()
 
 void Connection::onCloseTab ()
 {
-	qDebug("onCloseTab: this=%08x", this);
+	qDebug("Connection::onCloseTab this=0x%08x", this);
 	if (m_tcpstream)
 	{
 		QObject::disconnect(m_tcpstream, SIGNAL(readyRead()), this, SLOT(processReadyRead()));
@@ -206,7 +210,6 @@ void Connection::onExcludeFileLine (QModelIndex const & row_index)
 	fileline_t filter_item(file.toStdString(), line.toStdString());
 	qDebug("appending: %s:%s", file.toStdString().c_str(), line.toStdString().c_str());
 	m_session_state.appendFileFilter(filter_item);
-	// @TODO: update file tree view
 	bool const checked = m_main_window->fltMode() == e_Exclude ? true : false;
 	appendToFileFilters(file.toStdString() + "/" + line.toStdString(), checked);
 

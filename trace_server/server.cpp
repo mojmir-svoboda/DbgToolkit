@@ -137,14 +137,11 @@ void Server::onToggleRefFromRow ()
 
 void Server::onClickedAtFileTree_Impl (QModelIndex idx, bool recursive)
 {
-	MainWindow * main_window = static_cast<MainWindow *>(parent());
+	MainWindow * const main_window = static_cast<MainWindow *>(parent());
 	std::vector<QString> s;
 	s.reserve(16);
-	QStandardItemModel * model = static_cast<QStandardItemModel *>(main_window->getTreeViewFile()->model());
-	QStandardItem * item = model->itemFromIndex(idx);
-
-	//flipCheckState(item);
-	//flipCheckStateRecursive(item);
+	QStandardItemModel const * const model = static_cast<QStandardItemModel *>(main_window->getTreeViewFile()->model());
+	QStandardItem * const item = model->itemFromIndex(idx);
 
 	E_FilterMode const fmode = main_window->fltMode();
 	bool const orig_checked = (item->checkState() == Qt::Checked);
@@ -152,7 +149,7 @@ void Server::onClickedAtFileTree_Impl (QModelIndex idx, bool recursive)
 	setCheckState(item, !orig_checked);
 	setCheckStateRecursive(item, !orig_checked);
 
-	QStandardItem * line_item = 0;
+	QStandardItem const * line_item = 0;
 	if (!item->hasChildren())
 		line_item = item;
 	else
@@ -182,7 +179,7 @@ void Server::onClickedAtFileTree_Impl (QModelIndex idx, bool recursive)
 		filter_item.second = val.toStdString();
 	}
 
-	if (Connection * conn = findCurrentConnection())
+	if (Connection * const conn = findCurrentConnection())
 	{
 		if (fmode == e_Include)
 			checked = !checked;
@@ -191,6 +188,13 @@ void Server::onClickedAtFileTree_Impl (QModelIndex idx, bool recursive)
 			conn->sessionState().appendFileFilter(filter_item);
 		else
 			conn->sessionState().removeFileFilter(filter_item);
+
+		QStandardItem * n = item->parent();
+		while (n)
+		{
+			n->setCheckState(checked ? Qt::Unchecked : Qt::Checked);
+			n = n->parent();
+		}
 		conn->onInvalidateFilter();
 	}
 }
@@ -363,7 +367,7 @@ Connection * Server::createNewTableView ()
 	connection->setTableViewWidget(tableView);
 	connection->sessionState().setupThreadColors(main_window->getThreadColors());
 	int const n = main_window->getTabTrace()->addTab(tab, QString::fromUtf8("???"));
-	qDebug("created new tab at %u", n);
+	qDebug("created new tab at %u for connection @ 0x%08x", n, connection);
 
 	connection->sessionState().setTabWidget(n);
 	connection->sessionState().setTabWidget(tab);
@@ -405,39 +409,35 @@ void Server::incomingConnection (int socketDescriptor)
 	connection->start();*/
 }
 
-void Server::onCloseTab (int idx)
-{
-	if (idx != -1)
-	{
-		MainWindow * main_window = static_cast<MainWindow *>(parent());
-		main_window->getTabTrace()->removeTab(idx);
-		connections_t::iterator it = connections.find(main_window->getTabTrace()->widget(idx));
-		if (it != connections.end())
-		{
-			Connection * connection = it->second;
-
-			QObject::disconnect(connection->m_table_view_widget->horizontalHeader(), SIGNAL(sectionResized(int, int, int)), this, SLOT(onSectionResized(int, int, int)));
-			QObject::disconnect(main_window->getTabTrace(), SIGNAL(currentChanged(int)), connection, SLOT(onTabTraceFocus(int)));
-
-			connection->onCloseTab();
-			connections.erase(it);
-			delete connection;
-		}
-	}
-}
-
 void Server::onCloseTab (QWidget * w)
 {
 	if (w)
 	{
 		MainWindow * main_window = static_cast<MainWindow *>(parent());
 		int const idx = main_window->getTabTrace()->indexOf(w);
-		onCloseTab(idx);
+		if (idx != -1)
+		{
+			qDebug("Server::onCloseTab(QWidget *) idx=%i", idx);
+			main_window->getTabTrace()->removeTab(idx);
+			connections_t::iterator it = connections.find(w);
+			if (it != connections.end())
+			{
+				Connection * connection = it->second;
+
+				QObject::disconnect(connection->m_table_view_widget->horizontalHeader(), SIGNAL(sectionResized(int, int, int)), this, SLOT(onSectionResized(int, int, int)));
+				QObject::disconnect(main_window->getTabTrace(), SIGNAL(currentChanged(int)), connection, SLOT(onTabTraceFocus(int)));
+
+				connection->onCloseTab();
+				connections.erase(it);
+				delete connection;
+			}
+		}
 	}
 }
 
 void Server::onCloseCurrentTab ()
 {
+	qDebug("Server::onCloseCurrentTab");
 	MainWindow * main_window = static_cast<MainWindow *>(parent());
 	QWidget * w = main_window->getTabTrace()->currentWidget();
 	onCloseTab(w);

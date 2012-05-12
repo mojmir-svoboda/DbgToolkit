@@ -6,7 +6,8 @@
 
 bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 {
-	qDebug("handle setup command");
+	qDebug("Connection::handleSetupCommand() this=0x%08x", this);
+
 	for (size_t i=0, ie=cmd.tvs.size(); i < ie; ++i)
 	{
 		if (cmd.tvs[i].m_tag == tlv::tag_lvl)
