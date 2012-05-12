@@ -127,9 +127,32 @@ void Connection::clearFilters (QStandardItem * node)
 
 void Connection::clearFilters ()
 {
-	QStandardItem * node = m_tree_view_file_model->invisibleRootItem();
-	clearFilters(node);
-	sessionState().clearFilters();
+	//@TODO: call all functions below
+	//sessionState().clearFilters();
+}
+
+void Connection::onClearCurrentFileFilter ()
+{
+	//QStandardItem * node = m_tree_view_file_model->invisibleRootItem();
+	//clearFilters(node);
+	sessionState().onClearFileFilter();
+	onInvalidateFilter();
+}
+void Connection::onClearCurrentCtxFilter ()
+{
+	sessionState().onClearCtxFilter();
+}
+void Connection::onClearCurrentTIDFilter ()
+{
+	sessionState().onClearTIDFilter();
+}
+void Connection::onClearCurrentColorizedRegexFilter ()
+{
+	sessionState().onClearColorizedRegexFilter();
+}
+void Connection::onClearCurrentScopeFilter ()
+{
+	sessionState().onClearScopeFilter();
 }
 
 void Connection::appendToFileFilters (std::string const & item, bool checked)

@@ -75,6 +75,11 @@ public slots:
 	void onExcludeFileLine ();
 	void onToggleRefFromRow ();
 	void onClearCurrentView ();
+	void onClearCurrentFileFilter ();
+	void onClearCurrentCtxFilter ();
+	void onClearCurrentTIDFilter ();
+	void onClearCurrentColorizedRegexFilter ();
+	void onClearCurrentScopeFilter ();
 
 	void onCloseCurrentTab ();
 	void onCloseTab (QWidget * w);

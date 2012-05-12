@@ -24,6 +24,7 @@
 #include "settings.h"
 #include "utils.h"
 #include "../tlv_parser/tlv_parser.h"
+#include "help.h"
 
 #ifdef WIN32
 #	define WIN32_LEAN_AND_MEAN
@@ -421,119 +422,7 @@ void MainWindow::onShowHelp ()
 	dialog.setWindowFlags(Qt::Sheet);
 	m_help->setupUi(&dialog);
 	m_help->helpTextEdit->clear();
-
-	QString text(tr("\
-		<center><h1>Quick help</h1></center>\
-		<h2>General shortcuts</h2>\
-		<table>\
-			<tr>\
-				<td> Shortcut </td> <td> Description </td>\
-			</tr>\
-			<tr>\
-				<td> Scroll Lock </td>\
-				<td> show / hide the logging server window </td>\
-			</tr>\
-			<tr>\
-				<td> F1 </td>\
-				<td> this screen. </td>\
-			</tr>\
-			<tr>\
-				<td> Ctrl + L </td>\
-				<td> Load file </td>\
-			</tr>\
-			<tr>\
-				<td> Ctrl + S </td>\
-				<td> Save file </td>\
-			</tr>\
-			<tr>\
-				<td> Ctrl + Shift + S </td>\
-				<td> Export to CSV formatted file</td>\
-			</tr>\
-			<tr>\
-				<td> Ctrl + W </td>\
-				<td> Close current tab </td>\
-			</tr>\
-		</table>\
-		<h2>Text search shortcuts</h2>\
-		<table>\
-			<tr>\
-				<td> Shortcut </td> <td> Description </td>\
-			</tr>\
-			<tr>\
-				<td> Ctrl + F </td>\
-				<td> Find text in column. Specific column can be selected in the combobox on the right.</td>\
-			</tr>\
-			<tr>\
-				<td> / </td>\
-				<td> Find text in column. Specific column can be selected in the combobox on the right.</td>\
-			</tr>\
-			<tr>\
-				<td> some windows key </td>\
-				<td> Find next occurence </td>\
-			</tr>\
-			<tr>\
-				<td> some windows key2 </td>\
-				<td> Find prev occurence </td>\
-			</tr>\
-			<tr>\
-				<td> Ctrl + C </td>\
-				<td> Copy selection to clipboard </td>\
-			</tr>\
-			<tr>\
-				<td> Ctrl + Ins </td>\
-				<td> Copy selection to clipboard </td>\
-			</tr>\
-		</table>\
-		<h2>Filtering shortcuts</h2>\
-		<table>\
-			<tr>\
-				<td> Shortcut </td> <td> Description </td>\
-			</tr>\
-			<tr>\
-				<td> c </td>\
-				<td> clear current view (same as clicking on last row and pressing X) </td>\
-			</tr>\
-			<tr>\
-				<td> space </td>\
-				<td> toggle reference row </td>\
-			</tr>\
-			<tr>\
-				<td> x </td>\
-				<td> exclude currently selected row from view </td>\
-			</tr>\
-			<tr>\
-				<td> Del </td>\
-				<td> Hide previous rows </td>\
-			</tr>\
-			<tr>\
-				<td> Ctrl + Del </td>\
-				<td> Shows again hidden rows by Del</td>\
-			</tr>\
-			<tr>\
-				<td> </td>\
-				<td> </td>\
-			</tr>\
-		</table>\
-		<h2>Mouse operations:</h2>\
-		<table>\
-			<tr>\
-				<td> Shortcut </td> <td> Description </td>\
-			</tr>\
-			<tr>\
-				<td> click on table </td>\
-				<td> sets current cell for search and for operations using current cell, like pressing Del or X</td>\
-			</tr>\
-			<tr>\
-				<td> double click on table </td>\
-				<td> if double click occurs within { } scope, the scope will be collapsed (and grayed) </td>\
-			</tr>\
-			<tr>\
-				<td> double click on coloring regexp </td>\
-				<td> color selection </td>\
-			</tr>\
-		</table>"));
-	
-	m_help->helpTextEdit->setHtml(text);
+	m_help->helpTextEdit->setHtml(QString(html_help));
 	m_help->helpTextEdit->setReadOnly(true);
 	dialog.exec();
 }
@@ -869,12 +758,21 @@ void MainWindow::setupMenuBar ()
 	editMenu->addSeparator();
 	editMenu->addAction(tr("Close Tab"), m_server, SLOT(onCloseCurrentTab()), QKeySequence(Qt::ControlModifier + Qt::Key_W));
 
+	// Filter
 	QMenu * filterMenu = menuBar()->addMenu(tr("Fi&lter"));
-	filterMenu->addAction(tr("Clear current view"), m_server, SLOT(onClearCurrentView()), QKeySequence(Qt::Key_C));
 	filterMenu->addAction(tr("Hide previous rows"), m_server, SLOT(onHidePrevFromRow()), QKeySequence(Qt::Key_Delete));
 	filterMenu->addAction(tr("Unhide previous rows"), m_server, SLOT(onUnhidePrevFromRow()), QKeySequence(Qt::ControlModifier + Qt::Key_Delete));
 	filterMenu->addAction(tr("Toggle reference row"), m_server, SLOT(onToggleRefFromRow()), QKeySequence(Qt::Key_Space));
 	filterMenu->addAction(tr("Exclude file:line row"), m_server, SLOT(onExcludeFileLine()), QKeySequence(Qt::Key_X));
+
+	// Clear
+	QMenu * clearMenu = menuBar()->addMenu(tr("&Clear"));
+	clearMenu->addAction(tr("Clear current table view"), m_server, SLOT(onClearCurrentView()), QKeySequence(Qt::Key_C));
+	clearMenu->addAction(tr("Clear current file filter"), m_server, SLOT(onClearCurrentFileFilter()));
+	clearMenu->addAction(tr("Clear current context filter"), m_server, SLOT(onClearCurrentCtxFilter()));
+	clearMenu->addAction(tr("Clear current thread id filter"), m_server, SLOT(onClearCurrentCtxFilter()));
+	clearMenu->addAction(tr("Clear current colorized regexp filter"), m_server, SLOT(onClearCurrentColorizedRegexFilter()));
+	clearMenu->addAction(tr("Clear current collapsed scope filter"), m_server, SLOT(onClearCurrentScopeFilter()));
 
 	// Tools
 	QMenu * tools = menuBar()->addMenu(tr("&Settings"));
@@ -884,6 +782,7 @@ void MainWindow::setupMenuBar ()
 	tools->addSeparator();
 	tools->addAction(tr("Save setup now"), this, SLOT(storeState()));
 
+	// Help
 	QMenu * helpMenu = menuBar()->addMenu(tr("&Help"));
 	helpMenu->addAction(tr("Help"), this, SLOT(onShowHelp()), QKeySequence(Qt::Key_F1));
 	helpMenu->addAction(tr("Dump filters"), this, SLOT(onDumpFilters()));

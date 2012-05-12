@@ -111,6 +111,32 @@ void Server::onClearCurrentView ()
 		conn->onClearCurrentView();
 }
 
+void Server::onClearCurrentFileFilter ()
+{
+	if (Connection * conn = findCurrentConnection())
+		conn->sessionState().onClearFileFilter();
+}
+void Server::onClearCurrentCtxFilter ()
+{
+	if (Connection * conn = findCurrentConnection())
+		conn->sessionState().onClearCtxFilter();
+}
+void Server::onClearCurrentTIDFilter ()
+{
+	if (Connection * conn = findCurrentConnection())
+		conn->sessionState().onClearTIDFilter();
+}
+void Server::onClearCurrentColorizedRegexFilter ()
+{
+	if (Connection * conn = findCurrentConnection())
+		conn->sessionState().onClearColorizedRegexFilter();
+}
+void Server::onClearCurrentScopeFilter ()
+{
+	if (Connection * conn = findCurrentConnection())
+		conn->sessionState().onClearScopeFilter();
+}
+
 void Server::onHidePrevFromRow ()
 {
 	if (Connection * conn = findCurrentConnection())

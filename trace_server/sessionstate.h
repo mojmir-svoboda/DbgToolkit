@@ -156,6 +156,11 @@ public:
 	void sessionImport (SessionExport const & e);
 
 	void clearFilters ();
+	void onClearFileFilter () { m_file_filters.clear(); }
+	void onClearCtxFilter () { m_ctx_filters.clear(); }
+	void onClearTIDFilter () { m_tid_filters.clear(); }
+	void onClearScopeFilter () { m_collapse_blocks.clear(); }
+	void onClearColorizedRegexFilter () { m_colorized_texts.clear(); }
 	
 signals:
 	

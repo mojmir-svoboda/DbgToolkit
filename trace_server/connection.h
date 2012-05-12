@@ -137,6 +137,11 @@ public slots:
 	void onHidePrevFromRow ();
 	void onUnhidePrevFromRow ();
 	void onClearCurrentView ();
+	void onClearCurrentFileFilter ();
+	void onClearCurrentCtxFilter ();
+	void onClearCurrentTIDFilter ();
+	void onClearCurrentColorizedRegexFilter ();
+	void onClearCurrentScopeFilter ();
 	void onShowContextMenu (QPoint const & pos);
 	void onExcludeFileLine ();
 	void onToggleRefFromRow ();
