@@ -183,7 +183,7 @@ void Connection::appendToFileFilters (boost::char_separator<char> const & sep, s
 	{
 		m_main_window->getTreeViewFile()->setRootIndex(last_hidden_node->index());
 	}
-	if (!append && checked)
+	if (!append)
 	{
 		node->setCheckState(checked ? Qt::Checked : Qt::Unchecked);
 	}

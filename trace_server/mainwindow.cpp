@@ -582,8 +582,15 @@ void MainWindow::onPresetActivate (int idx)
 	{
 		std::string filter_item(m_filter_presets.at(idx).at(i).toStdString());
 		conn->appendToFileFilters(filter_item, true);
+
 		conn->sessionState().appendFileFilter(filter_item);
 		conn->onInvalidateFilter();
+	}
+
+	if (fltMode() == e_Include)
+	{
+		conn->flipFilterMode(e_Include);
+		//conn->sessionState().flipFilterMode(e_Include);
 	}
 }
 
