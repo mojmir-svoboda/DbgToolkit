@@ -97,7 +97,10 @@ void Connection::hideLinearParents ()
 	}
 	if (last_hidden_node)
 	{
-		m_main_window->getTreeViewFile()->setRootIndex(last_hidden_node->index());
+		if (last_hidden_node->parent())
+			m_main_window->getTreeViewFile()->setRootIndex(last_hidden_node->parent()->index());
+		else
+			m_main_window->getTreeViewFile()->setRootIndex(last_hidden_node->index());
 	}
 }
 
@@ -390,7 +393,7 @@ void Connection::onUnhidePrevFromRow ()
 	onInvalidateFilter();
 }
 
-void Connection::onShowContextMenu (const QPoint& pos) // this is a slot
+void Connection::onShowContextMenu (QPoint const & pos)
 {
     QPoint globalPos = m_table_view_widget->mapToGlobal(pos);
 

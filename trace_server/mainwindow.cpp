@@ -108,6 +108,7 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay)
 	connect(ui->levelSpinBox, SIGNAL(valueChanged(int)), m_server, SLOT(onLevelValueChanged(int)));
     connect(ui->filterFileCheckBox, SIGNAL(stateChanged(int)), m_server, SLOT(onFilterFile(int)));
     connect(ui->buffCheckBox, SIGNAL(stateChanged(int)), m_server, SLOT(onBufferingStateChanged(int)));
+    connect(ui->reuseTabCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onReuseTabChanged(int)));
     //connect(ui->clrFiltersCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onClrFiltersStateChanged(int)));
 	connect(ui->presetComboBox, SIGNAL(activated(int)), this, SLOT(onPresetActivate(int)));
 
@@ -272,6 +273,11 @@ void MainWindow::onQuit ()
 	m_tray_icon->hide();
 	storeState();
 	qApp->quit();
+}
+
+void MainWindow::onReuseTabChanged (int state)
+{
+	ui->clrFiltersCheckBox->setEnabled(state);
 }
 
 void MainWindow::onQSearchEditingFinished ()

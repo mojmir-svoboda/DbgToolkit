@@ -133,10 +133,11 @@ void Connection::clearFilters ()
 
 void Connection::onClearCurrentFileFilter ()
 {
-	//QStandardItem * node = m_tree_view_file_model->invisibleRootItem();
-	//clearFilters(node);
+	/*QStandardItem * node = m_tree_view_file_model->invisibleRootItem();
+
+	setCheckStateRecursive(node, m_main_window->fltMode() == e_Include ? Qt::Checked : Qt::Unchecked);
 	sessionState().onClearFileFilter();
-	onInvalidateFilter();
+	onInvalidateFilter();*/
 }
 void Connection::onClearCurrentCtxFilter ()
 {
@@ -201,7 +202,10 @@ void Connection::appendToFileFilters (boost::char_separator<char> const & sep, s
 	}
 	if (last_hidden_node)
 	{
-		m_main_window->getTreeViewFile()->setRootIndex(last_hidden_node->index());
+		if (last_hidden_node->parent())
+			m_main_window->getTreeViewFile()->setRootIndex(last_hidden_node->parent()->index());
+		else
+			m_main_window->getTreeViewFile()->setRootIndex(last_hidden_node->index());
 	}
 	if (!append)
 	{
@@ -221,7 +225,7 @@ void Connection::appendToTIDFilters (std::string const & item)
 	QStandardItem * child = findChildByText(root, qItem);
 	if (child == 0)
 	{
-		QList<QStandardItem *> row_items = addRow(qItem, false, m_main_window->fltMode());
+		QList<QStandardItem *> row_items = addRow(qItem, false);
 		root->appendRow(row_items);
 	}
 }
@@ -234,7 +238,7 @@ void Connection::appendToCtxFilters (std::string const & item, bool checked)
 	QStandardItem * child = findChildByText(root, qItem);
 	if (child == 0)
 	{
-		QList<QStandardItem *> row_items = addRow(qItem, false, m_main_window->fltMode());
+		QList<QStandardItem *> row_items = addRow(qItem, false);
 		root->appendRow(row_items);
 	}
 }

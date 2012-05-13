@@ -27,10 +27,10 @@
 struct file_info
 {
 	bool is_enabled;
-	bool is_excluding;
-
-	file_info (bool enabled, bool excluding) : is_enabled(enabled), is_excluding(excluding) { }
+	file_info (bool enabled) : is_enabled(enabled) { }
 };
+
+#include <cstdio>
 
 struct file_filter
 {
@@ -40,7 +40,7 @@ struct file_filter
 	boost::char_separator<char> separator;
 
 	file_filter ()
-		: root(new node_t(std::string("/"), file_info(false, true)))
+		: root(new node_t(std::string("/"), file_info(false)))
 		, separator(":/\\")
 	{ }
 
@@ -60,10 +60,10 @@ struct file_filter
 
 	bool empty () const { return !(root && root->children); }
 
-	void append (std::string const & path, bool is_excluding)
+	void exclude (std::string const & path)
 	{
 		if (!root)
-			root = new node_t(std::string("/"), file_info(false, is_excluding));
+			root = new node_t(std::string("/"), file_info(false));
 
 		tokenizer_t tok(path, separator);
 		node_t * level = root;
@@ -73,7 +73,7 @@ struct file_filter
 			node_t * n = node_t::node_child(level, *it);
 			if (n == 0)
 			{
-				n = new node_t(*it, file_info(false, is_excluding));
+				n = new node_t(*it, file_info(false));
 				node_t::node_append(level, n);
 			}
 			level = n;
@@ -81,49 +81,35 @@ struct file_filter
 			if (it == ite)
 			{
 				level->data.is_enabled = true;
-				level->data.is_excluding = is_excluding;
 			}
    		}
 	}
 
-	bool is_excluded (std::string const & file) const
+	void exclude_to_state (std::vector<std::string> const & tokens, bool state)
 	{
-		tokenizer_t tok(file, separator);
+		if (!root)
+			root = new node_t(std::string("/"), file_info(false));
+
 		node_t * level = root;
-	   	for (tokenizer_t::iterator it = tok.begin(), ite = tok.end(); it != ite; ++it)
+		std::vector<std::string>::const_iterator it = tokens.begin(), ite = tokens.end();
+		while (it != ite)
 		{
-			level = node_t::node_child(level, *it);
-			if (level == 0)
-				return false; // node not in tree
-			else if (level->data.is_enabled == true && level->data.is_excluding) // node is tagged for exclusion
-				return true;  // node is tagged for exclusion
-		}
-		return false; // node is not tagged
+			node_t * n = node_t::node_child(level, *it);
+			if (n == 0)
+			{
+				n = new node_t(*it, file_info(false));
+				node_t::node_append(level, n);
+			}
+			level = n;
+			++it;
+			if (it == ite)
+			{
+				level->data.is_enabled = state;
+			}
+   		}
 	}
 
-	bool is_present (std::string const & file, bool & state) const
-	{
-		tokenizer_t tok(file, separator);
-		node_t * level = root;
-	   	for (tokenizer_t::iterator it = tok.begin(), ite = tok.end(); it != ite; ++it)
-		{
-			level = node_t::node_child(level, *it);
-			if (level == 0)
-			{
-				return false; // node not in tree
-			}
-			else if (level->data.is_enabled == true && level->data.is_excluding) // node is tagged for exclusion
-			{
-				state = true;
-				return true;  // node is tagged for exclusion
-			}
-		}
-		state = false;
-		return true; // node is not tagged
-	}
-
-
-	void exclude_off (std::string const & file)
+	void exclude_to_state (std::string const & file, bool state)
 	{
 		tokenizer_t tok(file, separator);
 		node_t * level = root;
@@ -135,10 +121,77 @@ struct file_filter
 				return;
 
 			++it;
-			//if (it == ite && level->data.is_enabled == true)
-			if (level->data.is_enabled == true)
+			if (it == ite)
 			{
-				level->data.is_enabled = false;
+				level->data.is_enabled = state;
+			}
+		}
+	}
+	bool is_excluded (std::string const & file) const
+	{
+		tokenizer_t tok(file, separator);
+		node_t * level = root;
+	   	for (tokenizer_t::iterator it = tok.begin(), ite = tok.end(); it != ite; ++it)
+		{
+			level = node_t::node_child(level, *it);
+			if (level == 0)
+				return false; // node not in tree
+			else if (level->data.is_enabled) // node is tagged for exclusion
+				return true;  // node is tagged for exclusion
+		}
+		return false; // node is not tagged
+	}
+
+	bool is_present (std::string const & file, bool & state) const
+	{
+		tokenizer_t tok(file, separator);
+		node_t const * level = root;
+	   	for (tokenizer_t::iterator it = tok.begin(), ite = tok.end(); it != ite; ++it)
+		{
+			level = node_t::node_child(level, *it);
+			if (level == 0)
+			{
+				return false; // node not in tree
+			}
+			else if (level->data.is_enabled)
+			{
+				state = true;
+				return true;  // node is tagged for exclusion
+			}
+		}
+		state = false;
+		return true; // node is not tagged
+	}
+
+
+	void set_state_to_childs (node_t * node, bool is_enabled)
+	{
+		node = node->children;
+		while (node)
+		{
+			printf("file_filter: disabling child %s\n", node->key.c_str());
+			node->data.is_enabled = is_enabled;
+			set_state_to_childs(node, is_enabled);
+			node = node->next;
+		}
+	}
+
+	void exclude_enable_childs (std::string const & file, bool state)
+	{
+		tokenizer_t tok(file, separator);
+		node_t * level = root;
+	   	tokenizer_t::const_iterator it = tok.begin(), ite = tok.end();
+		while (it != ite)
+		{
+			level = node_t::node_child(level, *it);
+			if (level == 0)
+				return;
+
+			++it;
+			if (it == ite)
+			{
+				level->data.is_enabled = state;
+				set_state_to_childs(level, state);
 			}
 		}
 	}

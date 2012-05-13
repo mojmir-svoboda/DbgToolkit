@@ -24,7 +24,6 @@
 #include <QList>
 #include <QMap>
 #include <QColor>
-//#include "mainwindow.h"
 #include <tlv_parser/tlv_parser.h>
 #include <tlv_parser/tlv_decoder.h> // htons!
 #include <filters/file_filter.hpp>
@@ -33,8 +32,6 @@
 
 class Server;
 class MainWindow;
-
-typedef std::pair<std::string, std::string> fileline_t;
 
 struct CollapsedBlock {
 	QString m_tid;
@@ -72,14 +69,11 @@ struct ColorizedText {
 
 struct SessionExport {
 	std::string m_name;
-	std::string m_filter_mode; /// include or exclude
 	std::string m_file_filters;
 	std::string m_regex_filters;
 	std::string m_color_regex_filters;
 	std::string m_collapsed_blocks;
 };
-
-typedef unsigned long long context_t;
 
 class SessionState
 {
@@ -117,6 +111,7 @@ public:
 	bool isFileLineExcluded (std::string const & fileline) const;
 	bool isFileLinePresent (fileline_t const & p, bool & state) const; /// checks for file:line existence in the tree
 	bool isFileLinePresent (std::string const & fileline, bool & state) const; /// checks for file:line existence in the tree
+	void excludeOffChilds (fileline_t const & item);
 
 	typedef QList<context_t> ctx_filters_t;
 	ctx_filters_t const & getCtxFilters () const { return m_ctx_filters; }
@@ -172,7 +167,6 @@ private:
 	friend class MainWindow;
 
 private:
-	//MainWindow * m_main_window;
 	int m_app_idx;
 	int m_tab_idx;
 	QWidget * m_tab_widget;

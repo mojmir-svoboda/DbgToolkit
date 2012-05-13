@@ -13,4 +13,8 @@ typedef QList<filter_preset_t>	filter_presets_t;
 typedef QList<QString>			columns_setup_t;
 typedef QList<int>				columns_sizes_t;
 
+typedef std::pair<std::string, std::string> fileline_t;
+typedef unsigned long long context_t;
+
+typedef std::vector<std::string> strings_t;
 

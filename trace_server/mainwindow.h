@@ -157,6 +157,7 @@ private slots:
 	void onShowHelp ();
 	void onDumpFilters ();
 	void onFilterModeActivate (int idx);
+	void onReuseTabChanged (int state);
 
 private:
 	void showServerStatus ();

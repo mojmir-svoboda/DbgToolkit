@@ -28,7 +28,6 @@ Server::Server (QObject * parent, bool quit_delay)
 		{
 			printf("Another instance already running!\n");
 			exit(0);
-			//QTimer::singleShot(0, qApp, SLOT(quit()));
 		}
 		return;
 	}
@@ -164,16 +163,24 @@ void Server::onToggleRefFromRow ()
 void Server::onClickedAtFileTree_Impl (QModelIndex idx, bool recursive)
 {
 	MainWindow * const main_window = static_cast<MainWindow *>(parent());
-	std::vector<QString> s;
+	std::vector<QString> s;	// @TODO: reassemblePath
 	s.reserve(16);
 	QStandardItemModel const * const model = static_cast<QStandardItemModel *>(main_window->getTreeViewFile()->model());
 	QStandardItem * const item = model->itemFromIndex(idx);
 
 	E_FilterMode const fmode = main_window->fltMode();
-	bool const orig_checked = (item->checkState() == Qt::Checked);
+	bool const orig_checked = (item->checkState() == Qt::Checked ? false : true);
 
-	setCheckState(item, !orig_checked);
-	setCheckStateRecursive(item, !orig_checked);
+	if (fmode == e_Include)
+	{
+		setCheckState(item, orig_checked);
+		setCheckStateRecursive(item, orig_checked);
+	}
+	else
+	{
+		setCheckState(item, orig_checked);
+		setCheckStateRecursive(item, orig_checked);
+	}
 
 	QStandardItem const * line_item = 0;
 	if (!item->hasChildren())
@@ -194,7 +201,6 @@ void Server::onClickedAtFileTree_Impl (QModelIndex idx, bool recursive)
 
 	for (std::vector<QString>::const_reverse_iterator it=s.rbegin(), ite=s.rend(); it != ite; ++it)
 		file += std::string("/") + (*it).toStdString();
-	//qDebug("file=%s", file.c_str());
 
 	bool checked = (item->checkState() == Qt::Checked);
 
@@ -209,22 +215,23 @@ void Server::onClickedAtFileTree_Impl (QModelIndex idx, bool recursive)
 	{
 		if (fmode == e_Include)
 			checked = !checked;
+
 		qDebug("file click! (checked=%u) %s: %s/%s", checked, (checked ? "append" : "remove"), filter_item.first.c_str(), filter_item.second.c_str());
 		if (checked)
 			conn->sessionState().appendFileFilter(filter_item);
 		else
 			conn->sessionState().removeFileFilter(filter_item);
 
-		if (fmode == e_Include)
+		if (fmode == e_Include && !orig_checked)
 		{
-			if (orig_checked)
-			{
-				setCheckStateReverse(item->parent(), Qt::Checked);
-			}
+			//qDebug("inclusive && !orig_checked, disabling exclusion in subtree");
+			setCheckStateReverse(item->parent(), Qt::Checked); // iff parent unchecked and clicked on leaf
+			syncCheckBoxesWithFileFilters(model->invisibleRootItem()->child(0, 0), fmode, conn->sessionState().m_file_filters);
 		}
-		else
+		else if (fmode == e_Exclude && orig_checked)
 		{
-			setCheckState(item, !orig_checked);
+			//qDebug("exclusive && orig_checked, disabling exclusion in subtree");
+			conn->sessionState().excludeOffChilds(filter_item);
 		}
 
 		conn->onInvalidateFilter();
@@ -268,13 +275,12 @@ void Server::onClickedAtCtxTree (QModelIndex idx)
 
 void Server::onDoubleClickedAtCtxTree (QModelIndex idx)
 {
-	MainWindow * main_window = static_cast<MainWindow *>(parent());
-	QStandardItemModel * model = static_cast<QStandardItemModel *>(main_window->getTreeViewCtx()->model());
+	/*QStandardItemModel * model = static_cast<QStandardItemModel *>(main_window->getTreeViewCtx()->model());
 	QStandardItem * item = model->itemFromIndex(idx);
 
 	bool const checked = (item->checkState() == Qt::Checked);
 	item->setCheckState(checked ? Qt::Unchecked : Qt::Checked);
-	onClickedAtCtxTree(idx);
+	onClickedAtCtxTree(idx);*/
 }
 
 void Server::onClickedAtTIDList (QModelIndex idx)
@@ -392,8 +398,8 @@ Connection * Server::createNewTableView ()
 	QTableView * tableView = new QTableView(tab);
 	tableView->setObjectName(QString::fromUtf8("tableView"));
 	ModelView * model = new ModelView(tableView, connection);
-    //tableView->verticalHeader()->setFont(QFont(""));
-	tableView->verticalHeader()->setDefaultSectionSize(14);
+    //tableView->verticalHeader()->setFont(QFont(""));		// @TODO: into config
+	tableView->verticalHeader()->setDefaultSectionSize(14);	// @TODO: into config
 	tableView->setModel(model);
 	horizontalLayout->addWidget(tableView);
 	connection->setTableViewWidget(tableView);

@@ -267,15 +267,11 @@ void ModelView::appendCommand (QSortFilterProxyModel * filter, tlv::StringComman
 	{
 		int const row = filter->rowCount();
 		filter->insertRow(row);
-		//QModelIndex data_idx = filter->index(row-1, 0, QModelIndex());
-		//emit dataChanged(data_idx, index(row, filter->columnCount(), QModelIndex()));
 	}
 	else
 	{
 		int const row = rowCount();
 		insertRow(row);
-		//QModelIndex data_idx = index(row -1, 0, QModelIndex());
-		//emit dataChanged(data_idx, index(row, columnCount(), QModelIndex()));
 	}
 
 }

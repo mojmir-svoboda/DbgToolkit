@@ -37,7 +37,7 @@ inline QStandardItem * findChildByText (QStandardItem * parent, QString const & 
 inline QList<QStandardItem *> addRow (QString const & str, bool checked )
 {
 	QList<QStandardItem *> row_items;
-	QStandardItem * name_item = new QStandardItem(str);
+	QStandardItem * const name_item = new QStandardItem(str);
 	name_item->setCheckable(true);
 	name_item->setCheckState(checked ? Qt::Checked : Qt::Unchecked);
 	row_items << name_item;
@@ -47,23 +47,10 @@ inline QList<QStandardItem *> addRow (QString const & str, bool checked )
 inline QList<QStandardItem *> addRowTriState (QString const & str, bool checked, E_FilterMode filt_mode)
 {
 	QList<QStandardItem *> row_items;
-	QStandardItem * name_item = new QStandardItem(str);
+	QStandardItem * const name_item = new QStandardItem(str);
 	name_item->setCheckable(true);
 	name_item->setCheckState(checked ? Qt::Checked : Qt::Unchecked);
 	name_item->setTristate(true);
-	row_items << name_item;
-	return row_items;
-}
-
-inline QList<QStandardItem *> addRow (QString const & str, bool checked, E_FilterMode filt_mode)
-{
-	QList<QStandardItem *> row_items;
-	QStandardItem * name_item = new QStandardItem(str);
-	name_item->setCheckable(true);
-	name_item->setCheckState(checked ? Qt::Checked : Qt::Unchecked);
-
-	QString mode_str = filt_mode == e_Include ? QString("Include") : QString("Exclude");
-	QStandardItem * flt_item = new QStandardItem(mode_str);
 	row_items << name_item;
 	return row_items;
 }
@@ -80,7 +67,7 @@ inline void flipCheckStateRecursive (QStandardItem * node)
 	int const rc = node->rowCount();
 	for (int r = 0; r < rc; ++r)
 	{
-		QStandardItem * child = node->child(r, 0);
+		QStandardItem * const child = node->child(r, 0);
 		flipCheckStateRecursive(child);
 	}
 }
@@ -96,7 +83,7 @@ inline void setCheckStateRecursive (QStandardItem * node, bool checked)
 	int const rc = node->rowCount();
 	for (int r = 0; r < rc; ++r)
 	{
-		QStandardItem * child = node->child(r, 0);
+		QStandardItem * const child = node->child(r, 0);
 		setCheckStateRecursive(child, checked);
 	}
 }
@@ -108,6 +95,53 @@ inline void setCheckStateReverse (QStandardItem * n, Qt::CheckState state)
 		n->setCheckState(state);
 		n = n->parent();
 	}
+}
+
+inline void collectPath (QStandardItem * n, std::vector<QString> & tokens)
+{
+	while (n)
+	{
+		tokens.push_back(n->text());
+		n = n->parent();
+	}
+}
+
+inline void reassemblePath (std::vector<QString> const & tokens, QString & path)
+{
+	for (std::vector<QString>::const_reverse_iterator it = tokens.rbegin(), ite = tokens.rend(); it != ite; ++it)
+	{
+		path += *it;
+		path += '/';
+	}
+}
+
+inline void syncCheckBoxesWithFileFilters (QStandardItem const * node, E_FilterMode const fmode, file_filter & ff, strings_t & stack)
+{
+	stack.push_back(node->text().toStdString());
+	bool const checked = (node->checkState() == Qt::Checked);
+	if (fmode == e_Include)
+		ff.exclude_to_state(stack, !checked);
+	else
+		ff.exclude_to_state(stack, checked);
+
+	bool const descend = ((fmode == e_Include && checked) || (fmode == e_Exclude && !checked));
+	if (descend)
+	{
+		int const rc = node->rowCount();
+		for (int r = 0; r < rc; ++r)
+		{
+			QStandardItem const * const child = node->child(r, 0);
+			syncCheckBoxesWithFileFilters(child, fmode, ff, stack);
+		}
+	}
+	stack.pop_back();
+}
+
+inline void syncCheckBoxesWithFileFilters (QStandardItem const * node, E_FilterMode const fmode, file_filter & ff)
+{
+	strings_t stack;
+	stack.reserve(256);
+	syncCheckBoxesWithFileFilters(node, fmode, ff, stack);
 }
 
 

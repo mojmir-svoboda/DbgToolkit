@@ -90,6 +90,19 @@ struct NNode
 		return 0;
 	}
 
+	static NNode const * node_child (NNode const * node, key_param_t k)
+	{     
+		node = node->children;
+		while (node)
+		{
+			if (node->key == k)
+				return node;
+			node = node->next;
+		}
+		return 0;
+	}
+
+
 	static bool is_leaf (NNode * node) { return node->children == 0; }
 	static bool is_root (NNode * node) { return node->parent == 0 && node->prev == 0 && node->next == 0; }
 

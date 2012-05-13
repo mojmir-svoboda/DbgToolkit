@@ -102,16 +102,8 @@ void SessionState::flipFilterMode (E_FilterMode mode)
 {
 	if (m_filter_mode != mode)
 	{
-		// for m_file_filters invert check
-		// for m_tid_filters
-		// for ...
-		//for (ctx_filters_t::iterator it = m_ctx_filters.begin(), ite = m_ctx_filters.end(); it != ite; ++it)
-		//{
-			//it->m_filterMode = invert(mode);
-		//}
-
+		// @TODO: dead code
 	}
-
 	m_filter_mode = mode;
 }
 
@@ -127,7 +119,7 @@ void SessionState::sessionImport (SessionExport const & e)
 	tokenizer_t tok(e.m_file_filters, sep);
 	for (tokenizer_t::const_iterator it = tok.begin(), ite = tok.end(); it != ite; ++it)
 	{
-		m_file_filters.append(*it, true);
+		m_file_filters.exclude(*it);
 	}
 }
 void SessionState::makeInexactCopy (SessionState const & rhs)
@@ -166,15 +158,20 @@ bool SessionState::isFileLinePresent (std::string const & fileline, bool & state
 }
 void SessionState::appendFileFilter (fileline_t const & item)
 {
-	m_file_filters.append(item.first + "/" + item.second, true);
+	m_file_filters.exclude(item.first + "/" + item.second);
 }
 void SessionState::appendFileFilter (std::string const & item)
 {
-	m_file_filters.append(item, true);
+	m_file_filters.exclude(item);
 }
 void SessionState::removeFileFilter (fileline_t const & item)
 {
-	m_file_filters.exclude_off(item.first + "/" + item.second);
+	m_file_filters.exclude_to_state(item.first + "/" + item.second, false);
+}
+
+void SessionState::excludeOffChilds (fileline_t const & item)
+{
+	m_file_filters.exclude_enable_childs(item.first + "/" + item.second, false);
 }
 
 ///////// ctx filters
@@ -313,6 +310,5 @@ void SessionState::appendToColorRegexFilters (std::string const & s)
 {
 	m_colorized_texts.push_back(ColorizedText(s, e_Fg));
 }
-
 
 
