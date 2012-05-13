@@ -153,7 +153,7 @@ public:
 	void sessionImport (SessionExport const & e);
 
 	void clearFilters ();
-	void onClearFileFilter () { m_file_filters.clear(); }
+	void onClearFileFilter () { m_file_filters.set_state_to_childs(m_file_filters.root, false); }
 	void onClearCtxFilter () { m_ctx_filters.clear(); }
 	void onClearTIDFilter () { m_tid_filters.clear(); }
 	void onClearScopeFilter () { m_collapse_blocks.clear(); }

@@ -169,7 +169,7 @@ struct file_filter
 		node = node->children;
 		while (node)
 		{
-			printf("file_filter: disabling child %s\n", node->key.c_str());
+			//printf("file_filter: disabling child %s\n", node->key.c_str());
 			node->data.is_enabled = is_enabled;
 			set_state_to_childs(node, is_enabled);
 			node = node->next;

@@ -113,12 +113,16 @@ void Server::onClearCurrentView ()
 void Server::onClearCurrentFileFilter ()
 {
 	if (Connection * conn = findCurrentConnection())
-		conn->sessionState().onClearFileFilter();
+		conn->onClearCurrentFileFilter();
 }
 void Server::onClearCurrentCtxFilter ()
 {
 	if (Connection * conn = findCurrentConnection())
+	{
 		conn->sessionState().onClearCtxFilter();
+		// @TODO: checkboxes
+		conn->onInvalidateFilter();
+	}
 }
 void Server::onClearCurrentTIDFilter ()
 {
@@ -133,7 +137,10 @@ void Server::onClearCurrentColorizedRegexFilter ()
 void Server::onClearCurrentScopeFilter ()
 {
 	if (Connection * conn = findCurrentConnection())
+	{
 		conn->sessionState().onClearScopeFilter();
+		conn->onInvalidateFilter();
+	}
 }
 
 void Server::onHidePrevFromRow ()

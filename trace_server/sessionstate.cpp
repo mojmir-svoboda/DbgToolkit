@@ -131,7 +131,7 @@ void SessionState::makeInexactCopy (SessionState const & rhs)
 
 void SessionState::clearFilters ()
 {
-	m_file_filters.clear();
+	//m_file_filters.clear();
 	m_tid_filters.clear();
 	//m_regex_filters.clear();
 	m_colorized_texts.clear();

@@ -133,11 +133,12 @@ void Connection::clearFilters ()
 
 void Connection::onClearCurrentFileFilter ()
 {
-	/*QStandardItem * node = m_tree_view_file_model->invisibleRootItem();
-
-	setCheckStateRecursive(node, m_main_window->fltMode() == e_Include ? Qt::Checked : Qt::Unchecked);
+	QStandardItem * node = m_tree_view_file_model->invisibleRootItem();
+	E_FilterMode const fmode = m_main_window->fltMode();
+	qDebug("mode=%u", fmode);
+	setCheckStateRecursive(node->child(0,0), fmode ? true : false);
 	sessionState().onClearFileFilter();
-	onInvalidateFilter();*/
+	onInvalidateFilter();
 }
 void Connection::onClearCurrentCtxFilter ()
 {
