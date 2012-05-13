@@ -118,29 +118,22 @@ void Server::onClearCurrentFileFilter ()
 void Server::onClearCurrentCtxFilter ()
 {
 	if (Connection * conn = findCurrentConnection())
-	{
-		conn->sessionState().onClearCtxFilter();
-		// @TODO: checkboxes
-		conn->onInvalidateFilter();
-	}
+		conn->onClearCurrentCtxFilter();
 }
 void Server::onClearCurrentTIDFilter ()
 {
 	if (Connection * conn = findCurrentConnection())
-		conn->sessionState().onClearTIDFilter();
+		conn->onClearCurrentTIDFilter();
 }
 void Server::onClearCurrentColorizedRegexFilter ()
 {
 	if (Connection * conn = findCurrentConnection())
-		conn->sessionState().onClearColorizedRegexFilter();
+		conn->onClearCurrentColorizedRegexFilter();
 }
 void Server::onClearCurrentScopeFilter ()
 {
 	if (Connection * conn = findCurrentConnection())
-	{
-		conn->sessionState().onClearScopeFilter();
-		conn->onInvalidateFilter();
-	}
+		conn->onClearCurrentScopeFilter();
 }
 
 void Server::onHidePrevFromRow ()

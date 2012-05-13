@@ -135,7 +135,6 @@ void Connection::onClearCurrentFileFilter ()
 {
 	QStandardItem * node = m_tree_view_file_model->invisibleRootItem();
 	E_FilterMode const fmode = m_main_window->fltMode();
-	qDebug("mode=%u", fmode);
 	setCheckStateRecursive(node->child(0,0), fmode ? true : false);
 	sessionState().onClearFileFilter();
 	onInvalidateFilter();
@@ -143,18 +142,23 @@ void Connection::onClearCurrentFileFilter ()
 void Connection::onClearCurrentCtxFilter ()
 {
 	sessionState().onClearCtxFilter();
+	// @TODO: checkboxes
+	onInvalidateFilter();
 }
 void Connection::onClearCurrentTIDFilter ()
 {
 	sessionState().onClearTIDFilter();
+	onInvalidateFilter();
 }
 void Connection::onClearCurrentColorizedRegexFilter ()
 {
 	sessionState().onClearColorizedRegexFilter();
+	onInvalidateFilter();
 }
 void Connection::onClearCurrentScopeFilter ()
 {
 	sessionState().onClearScopeFilter();
+	onInvalidateFilter();
 }
 
 void Connection::appendToFileFilters (std::string const & item, bool checked)
