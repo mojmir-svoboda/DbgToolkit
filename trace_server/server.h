@@ -83,6 +83,8 @@ public slots:
 
 	void onCloseCurrentTab ();
 	void onCloseTab (QWidget * w);
+	void onCloseTab (int idx, QWidget * w);
+	void onCloseTabWithIndex (int);
 
 	void onFilterFile (int state);
 	void onLevelValueChanged (int val);

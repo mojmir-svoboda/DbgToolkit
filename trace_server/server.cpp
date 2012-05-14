@@ -447,6 +447,24 @@ void Server::incomingConnection (int socketDescriptor)
 	connection->start();*/
 }
 
+void Server::onCloseTab (int idx, QWidget * w)
+{
+	MainWindow * main_window = static_cast<MainWindow *>(parent());
+	qDebug("Server::onCloseTab(idx=%i, QWidget *=0x%08x) idx=%i", idx, w);
+	main_window->getTabTrace()->removeTab(idx);
+	connections_t::iterator it = connections.find(w);
+	if (it != connections.end())
+	{
+		Connection * connection = it->second;
+
+		QObject::disconnect(connection->m_table_view_widget->horizontalHeader(), SIGNAL(sectionResized(int, int, int)), this, SLOT(onSectionResized(int, int, int)));
+		QObject::disconnect(main_window->getTabTrace(), SIGNAL(currentChanged(int)), connection, SLOT(onTabTraceFocus(int)));
+
+		connection->onCloseTab();
+		connections.erase(it);
+		delete connection;
+	}
+}
 void Server::onCloseTab (QWidget * w)
 {
 	if (w)
@@ -456,23 +474,23 @@ void Server::onCloseTab (QWidget * w)
 		if (idx != -1)
 		{
 			qDebug("Server::onCloseTab(QWidget *) idx=%i", idx);
-			main_window->getTabTrace()->removeTab(idx);
-			connections_t::iterator it = connections.find(w);
-			if (it != connections.end())
-			{
-				Connection * connection = it->second;
-
-				QObject::disconnect(connection->m_table_view_widget->horizontalHeader(), SIGNAL(sectionResized(int, int, int)), this, SLOT(onSectionResized(int, int, int)));
-				QObject::disconnect(main_window->getTabTrace(), SIGNAL(currentChanged(int)), connection, SLOT(onTabTraceFocus(int)));
-
-				connection->onCloseTab();
-				connections.erase(it);
-				delete connection;
-			}
+			onCloseTab(idx, w);
 		}
 	}
 }
-
+void Server::onCloseTabWithIndex (int idx)
+{
+	MainWindow * main_window = static_cast<MainWindow *>(parent());
+	if (idx != -1)
+	{
+		QWidget * w = main_window->getTabTrace()->widget(idx);
+		if (w)
+		{
+			qDebug("Server::onCloseTabWithIndex(QWidget *) idx=%i widget=0x%08x", idx, w);
+			onCloseTab(idx, w);
+		}
+	}
+}
 void Server::onCloseCurrentTab ()
 {
 	qDebug("Server::onCloseCurrentTab");
@@ -480,4 +498,5 @@ void Server::onCloseCurrentTab ()
 	QWidget * w = main_window->getTabTrace()->currentWidget();
 	onCloseTab(w);
 }
+
 
