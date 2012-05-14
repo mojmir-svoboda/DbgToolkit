@@ -1,5 +1,5 @@
 #pragma once
-#include "blockinfo.h"
+#include "profilerblockinfo.h"
 #include <QtGui/qwidget.h>
 
 QT_FORWARD_DECLARE_CLASS(QGraphicsScene)

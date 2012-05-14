@@ -1,7 +1,7 @@
 #pragma once
 #include <QtGui/QColor>
 #include <QtGui/QGraphicsItem>
-#include "blockinfo.h"
+#include "profilerblockinfo.h"
 
 class BarText : public QGraphicsItem
 {

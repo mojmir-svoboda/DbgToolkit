@@ -1,6 +1,8 @@
-#include "bar.h"
-#include "view.h"
+#include "profilerbar.h"
+#include "profilerview.h"
 #include <QtGui>
+
+namespace profiler {
 
 BarText::BarText (BlockInfo & bi, QColor const & color, int x, int y, int w, int h, int tid, int tid_offs)
 	: m_block(bi) 
@@ -169,3 +171,6 @@ void Bar::hoverLeaveEvent (QGraphicsSceneHoverEvent *event)
 {
 	qDebug("-");
 }*/
+
+}
+

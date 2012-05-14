@@ -8,6 +8,8 @@ QT_FORWARD_DECLARE_CLASS(QSlider)
 QT_FORWARD_DECLARE_CLASS(QToolButton)
 QT_FORWARD_DECLARE_CLASS(QSpinBox)
 
+namespace profiler {
+
 // taken from
 // http://www.qtcentre.org/wiki/index.php?title=QGraphicsView:_Smooth_Panning_and_Zooming#MyGraphicsView.h
 class MyGraphicsView : public QGraphicsView
@@ -40,4 +42,5 @@ protected:
 	QSpinBox & m_frameSpinBox;
 };
 
+}
 

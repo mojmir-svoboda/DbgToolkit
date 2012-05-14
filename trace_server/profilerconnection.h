@@ -7,7 +7,7 @@
 #include <boost/bind.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/enable_shared_from_this.hpp>
-#include "blockinfo.h"
+#include "profilerblockinfo.h"
 
 namespace profiler {
 

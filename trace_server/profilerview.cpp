@@ -1,12 +1,14 @@
-#include "view.h"
+#include "profilerview.h"
 #include <QtGui>
 #include <QSpinBox>
 #ifndef QT_NO_OPENGL
 #	include <QtOpenGL>
 #endif
 #include <qmath.h>
-#include "mygraphicsview.h"
-#include "mainwindow.h"
+#include "profilergraphicsview.h"
+#include "profilerwindow.h"
+
+namespace profiler {
 
 int g_heightValue = 38;
 int g_spaceValue = 15;
@@ -173,4 +175,5 @@ void View::zoomOut()
 	m_zoomSlider->setValue(m_zoomSlider->value() - 1);
 }
 
+}
 

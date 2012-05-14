@@ -1,4 +1,4 @@
-#include "mygraphicsview.h"
+#include "profilergraphicsview.h"
 
 #include <QtGui>
 #ifndef QT_NO_OPENGL
@@ -7,7 +7,9 @@
 
 #include <qmath.h>
 
-MyGraphicsView::MyGraphicsView (QSpinBox & fs, QWidget * parent)
+namespace profiler {
+
+GraphicsView::GraphicsView (QSpinBox & fs, QWidget * parent)
 	: QGraphicsView(parent)
 	, m_frameSpinBox(fs)
 { }
@@ -19,7 +21,7 @@ MyGraphicsView::MyGraphicsView (QSpinBox & fs, QWidget * parent)
   * sidebar case.  This function will claim the centerPoint to sceneRec ie.
   * the centerPoint must be within the sceneRec.
   */
-void MyGraphicsView::SetCenter(const QPointF& centerPoint)
+void GraphicsView::SetCenter (const QPointF& centerPoint)
 {
 	// Get the rectangle of the visible area in scene coords
 	QRectF visibleArea = mapToScene(rect()).boundingRect();
@@ -71,20 +73,20 @@ void MyGraphicsView::SetCenter(const QPointF& centerPoint)
 	centerOn(CurrentCenterPoint);
 }
  
-void MyGraphicsView::mousePressEvent(QMouseEvent* event)
+void GraphicsView::mousePressEvent (QMouseEvent* event)
 {
 	// For panning the view
 	LastPanPoint = event->pos();
 	setCursor(Qt::ClosedHandCursor);
 }
  
-void MyGraphicsView::mouseReleaseEvent(QMouseEvent* event)
+void GraphicsView::mouseReleaseEvent (QMouseEvent* event)
 {
 	setCursor(Qt::OpenHandCursor);
 	LastPanPoint = QPoint();
 }
  
-void MyGraphicsView::mouseMoveEvent(QMouseEvent* event)
+void GraphicsView::mouseMoveEvent (QMouseEvent* event)
 {
 	if (!LastPanPoint.isNull())
 	{
@@ -108,7 +110,7 @@ void MyGraphicsView::mouseMoveEvent(QMouseEvent* event)
 /**
   * Zoom the view in and out.
   */
-void MyGraphicsView::wheelEvent(QWheelEvent* event)
+void GraphicsView::wheelEvent (QWheelEvent* event)
 {
 	bool const shift = event->modifiers() & Qt::SHIFT;
 
@@ -150,7 +152,7 @@ void MyGraphicsView::wheelEvent(QWheelEvent* event)
   * Need to update the center so there is no jolt in the
   * interaction after resizing the widget.
   */
-void MyGraphicsView::resizeEvent (QResizeEvent * event)
+void GraphicsView::resizeEvent (QResizeEvent * event)
 {
 	//Get the rectangle of the visible area in scene coords
 	QRectF visibleArea = mapToScene(rect()).boundingRect();
@@ -158,5 +160,7 @@ void MyGraphicsView::resizeEvent (QResizeEvent * event)
  
 	//Call the subclass resize so the scrollbars are updated correctly
 	QGraphicsView::resizeEvent(event);
+}
+
 }
 

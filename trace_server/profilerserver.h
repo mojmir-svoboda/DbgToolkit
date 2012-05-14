@@ -7,8 +7,8 @@
 #include <boost/bind.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/enable_shared_from_this.hpp>
-#include "connection.h"
-#include "blockinfo.h"
+#include "profilerconnection.h"
+#include "profilerblockinfo.h"
 
 namespace profiler {
 	struct Server

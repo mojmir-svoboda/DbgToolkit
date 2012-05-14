@@ -1,4 +1,4 @@
-#include "connection.h"
+#include "profilerconnection.h"
 #include <boost/tokenizer.hpp>
 #include <tlv_parser/tlv_encoder.h>
 
@@ -149,3 +149,4 @@ bool Connection::handleProfileCommand (DecodedCommand const & cmd)
 }
 
 } // namespace profiler
+
