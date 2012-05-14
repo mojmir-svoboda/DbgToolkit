@@ -106,7 +106,7 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay)
 	connect(getListViewTID(), SIGNAL(doubleClicked(QModelIndex)), m_server, SLOT(onDoubleClickedAtTIDList(QModelIndex)));
 
 	connect(ui->levelSpinBox, SIGNAL(valueChanged(int)), m_server, SLOT(onLevelValueChanged(int)));
-    connect(ui->filterFileCheckBox, SIGNAL(stateChanged(int)), m_server, SLOT(onFilterFile(int)));
+    connect(ui->filterFileCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onFilterFile(int)));
     connect(ui->buffCheckBox, SIGNAL(stateChanged(int)), m_server, SLOT(onBufferingStateChanged(int)));
     connect(ui->reuseTabCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onReuseTabChanged(int)));
     //connect(ui->clrFiltersCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onClrFiltersStateChanged(int)));
@@ -278,6 +278,13 @@ void MainWindow::onQuit ()
 void MainWindow::onReuseTabChanged (int state)
 {
 	ui->clrFiltersCheckBox->setEnabled(state);
+}
+
+void MainWindow::onFilterFile (int state)
+{
+	ui->filterModeComboBox->setEnabled(state);
+	ui->presetComboBox->setEnabled(state);
+	m_server->onFilterFile(state);
 }
 
 void MainWindow::onQSearchEditingFinished ()

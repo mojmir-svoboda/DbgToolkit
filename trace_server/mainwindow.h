@@ -158,6 +158,7 @@ private slots:
 	void onDumpFilters ();
 	void onFilterModeActivate (int idx);
 	void onReuseTabChanged (int state);
+	void onFilterFile (int state);
 
 private:
 	void showServerStatus ();

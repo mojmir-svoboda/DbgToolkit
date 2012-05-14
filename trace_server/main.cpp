@@ -2,6 +2,7 @@
 //#include <QtGui/QTableWidget.h>
 #include <QSystemTrayIcon>
 #include <QMessageBox>
+#include <QThread>
 #include "mainwindow.h"
 #ifdef WIN32
 #	define WIN32_LEAN_AND_MEAN
@@ -9,15 +10,39 @@
 #	include <windows.h>
 #endif
 
+#include "profiler/blockinfo.h"
+//#include "profiler/profilerserver.h"
+
+class ProfilerAcceptorThread : public QThread
+{ public:
+	void run ();
+};
+
+void ProfilerAcceptorThread::run ()
+{
+}
+
 struct Application : QApplication
 {
 	MainWindow * m_main_window;
+	ProfilerAcceptorThread m_prof_acceptor_thread;
+
 	Application (int & argc, char *argv[])
 		: QApplication(argc, argv)
 		, m_main_window(0)
 	{}
 
-	void setMainWindow (MainWindow * mw) { m_main_window = mw; }
+	~Application ()
+	{
+		m_prof_acceptor_thread.terminate();
+		m_prof_acceptor_thread.wait();
+	}
+
+	void setMainWindow (MainWindow * mw)
+	{
+		m_main_window = mw;
+		m_prof_acceptor_thread.start();
+	}
 
 #ifdef WIN32
 	bool winEventFilter ( MSG * msg, long * result )
@@ -44,7 +69,7 @@ void usage ()
 	printf("    -n    no visible window at start (can be activated by ScrollLock hotkey)\n");
 }
 
-int main(int argc, char *argv[])
+int main (int argc, char *argv[])
 {
 	bool quit_delay = true;
 	bool start_hidden = false;
