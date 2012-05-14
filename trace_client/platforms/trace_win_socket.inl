@@ -154,7 +154,7 @@ namespace trace {
 								char grr[256];
 								_snprintf_s(grr, 256, "buffering changed! val=%u\n", buff_state);
 								OutputDebugString(grr);
-								SetRuntimeBuffering(static_cast<bool>(buff_state));
+								SetRuntimeBuffering(buff_state == 1);
 							}
 						}
 					}

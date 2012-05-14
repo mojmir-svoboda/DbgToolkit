@@ -17,6 +17,7 @@
 #include "modelview.h"
 #include "utils.h"
 
+
 Connection::Connection (QObject * parent)
 	: QThread(parent)
 	, m_main_window(0)
@@ -26,6 +27,7 @@ Connection::Connection (QObject * parent)
 	, m_last_search_col(0)
 	, m_table_view_widget(0)
 	, m_tree_view_file_model(0)
+	, m_tree_view_ctx_model(0)
 	, m_tree_view_func_model(0)
 	, m_list_view_tid_model(0)
 	, m_table_view_proxy(0)
@@ -41,7 +43,8 @@ Connection::Connection (QObject * parent)
 	, m_storage(0)
 	, m_datastream(0)
 	, m_tcpstream(0)
-{ 
+{
+	qDebug("Connection::Connection() this=0x%08x", this);
 	m_toggle_ref = new QAction("Toggle Ref", this);
 	m_hide_prev = new QAction("Hide prev rows", this);
 	m_exclude_fileline = new QAction("Exclude File:Line", this);
@@ -49,7 +52,10 @@ Connection::Connection (QObject * parent)
     m_ctx_menu.addAction(m_exclude_fileline);
 }
 
-Connection::~Connection () { qDebug("~Connection()"); }
+Connection::~Connection ()
+{
+	qDebug("Connection::~Connection() this=0x%08x", this);
+}
 
 void Connection::onDisconnected ()
 {
@@ -61,6 +67,7 @@ void Connection::onTabTraceFocus (int i)
 	if (i != sessionState().m_tab_idx)
 		return;
 	m_main_window->getTreeViewFile()->setModel(m_tree_view_file_model);
+	m_main_window->getTreeViewCtx()->setModel(m_tree_view_ctx_model);
 	m_main_window->getListViewTID()->setModel(m_list_view_tid_model);
 	m_main_window->getListViewColorRegex()->setModel(m_list_view_color_regex_model);
 	hideLinearParents();
@@ -90,13 +97,16 @@ void Connection::hideLinearParents ()
 	}
 	if (last_hidden_node)
 	{
-		m_main_window->getTreeViewFile()->setRootIndex(last_hidden_node->index());
+		if (last_hidden_node->parent())
+			m_main_window->getTreeViewFile()->setRootIndex(last_hidden_node->parent()->index());
+		else
+			m_main_window->getTreeViewFile()->setRootIndex(last_hidden_node->index());
 	}
 }
 
 void Connection::onCloseTab ()
 {
-	qDebug("onCloseTab: this=%08x", this);
+	qDebug("Connection::onCloseTab this=0x%08x", this);
 	if (m_tcpstream)
 	{
 		QObject::disconnect(m_tcpstream, SIGNAL(readyRead()), this, SLOT(processReadyRead()));
@@ -108,6 +118,9 @@ void Connection::onCloseTab ()
 	if (m_main_window->getTreeViewFile()->model() == m_tree_view_file_model)
 		m_main_window->getTreeViewFile()->setModel(0);
 
+	if (m_main_window->getTreeViewCtx()->model() == m_tree_view_ctx_model)
+		m_main_window->getTreeViewCtx()->setModel(0);
+
 	if (m_main_window->getListViewTID()->model() == m_list_view_tid_model)
 		m_main_window->getListViewTID()->setModel(0);
 
@@ -115,11 +128,14 @@ void Connection::onCloseTab ()
 		m_main_window->getListViewColorRegex()->setModel(0);
 
 	delete m_tree_view_file_model;
-	m_table_view_widget = 0;
+	m_tree_view_file_model = 0;
+	delete m_tree_view_ctx_model;
+	m_tree_view_ctx_model = 0;
 	delete m_list_view_tid_model;
 	m_list_view_tid_model = 0;
 	delete m_list_view_color_regex_model;
 	m_list_view_color_regex_model = 0;
+	m_table_view_widget = 0;
 }
 
 void Connection::onLevelValueChanged (int val)
@@ -197,7 +213,8 @@ void Connection::onExcludeFileLine (QModelIndex const & row_index)
 	fileline_t filter_item(file.toStdString(), line.toStdString());
 	qDebug("appending: %s:%s", file.toStdString().c_str(), line.toStdString().c_str());
 	m_session_state.appendFileFilter(filter_item);
-	appendToFileFilters(file.toStdString() + "/" + line.toStdString(), true);
+	bool const checked = m_main_window->fltMode() == e_Exclude ? true : false;
+	appendToFileFilters(file.toStdString() + "/" + line.toStdString(), checked);
 
 	onInvalidateFilter();
 }
@@ -376,7 +393,7 @@ void Connection::onUnhidePrevFromRow ()
 	onInvalidateFilter();
 }
 
-void Connection::onShowContextMenu (const QPoint& pos) // this is a slot
+void Connection::onShowContextMenu (QPoint const & pos)
 {
     QPoint globalPos = m_table_view_widget->mapToGlobal(pos);
 

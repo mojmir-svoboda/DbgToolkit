@@ -51,7 +51,11 @@ signals:
 
 public slots:
 	void onClickedAtFileTree (QModelIndex idx);
+	void onClickedAtFileTree_Impl (QModelIndex idx, bool recursive);
 	void onDoubleClickedAtFileTree (QModelIndex idx);
+
+	void onClickedAtCtxTree (QModelIndex idx);
+	void onDoubleClickedAtCtxTree (QModelIndex idx);
 
 	void onClickedAtTIDList (QModelIndex idx);
 	void onDoubleClickedAtTIDList (QModelIndex idx);
@@ -71,6 +75,11 @@ public slots:
 	void onExcludeFileLine ();
 	void onToggleRefFromRow ();
 	void onClearCurrentView ();
+	void onClearCurrentFileFilter ();
+	void onClearCurrentCtxFilter ();
+	void onClearCurrentTIDFilter ();
+	void onClearCurrentColorizedRegexFilter ();
+	void onClearCurrentScopeFilter ();
 
 	void onCloseCurrentTab ();
 	void onCloseTab (QWidget * w);

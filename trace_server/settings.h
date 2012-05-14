@@ -2,13 +2,13 @@
 #include <QAbstractTableModel>
 #include <QItemDelegate>
 #include <QObject>
-#include "mainwindow.h"
+#include "types.h"
 
 struct SettingsModelView : QAbstractTableModel
 {
 	Q_OBJECT
 public:
-	explicit SettingsModelView (QList<QString> const & app_names, QList<MainWindow::columns_setup_t> const & col_setup);
+	explicit SettingsModelView (QList<QString> const & app_names, QList<columns_setup_t> const & col_setup);
 	virtual ~SettingsModelView ();
 	int rowCount (const QModelIndex & parent = QModelIndex()) const;
 	int columnCount (const QModelIndex & parent = QModelIndex()) const;

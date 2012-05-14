@@ -64,7 +64,7 @@ namespace profile {
 					DBG_OUT("send failed with error: %d\n", get_errno());
 					closesocket(g_Socket);
 					WSACleanup();
-					g_Socket = -1;
+					g_Socket = INVALID_SOCKET;
 					return false;
 				}
 			}

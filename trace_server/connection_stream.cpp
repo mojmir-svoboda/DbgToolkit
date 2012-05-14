@@ -62,8 +62,8 @@ void Connection::onHandleCommands ()
 		// sigh. hotfix for disobedient column resizing @TODO: resolve in future
 	//if (m_first_line)	// resize columns according to saved template
 	{
-		MainWindow::columns_sizes_t const & sizes = m_main_window->getColumnSizes(sessionState().m_app_idx);
-		MainWindow::columns_setup_t const & global_template = m_main_window->getColumnSetup(sessionState().m_app_idx);
+		columns_sizes_t const & sizes = m_main_window->getColumnSizes(sessionState().m_app_idx);
+		columns_setup_t const & global_template = m_main_window->getColumnSetup(sessionState().m_app_idx);
 
 		if (global_template.empty())
 		{
@@ -80,8 +80,8 @@ void Connection::onHandleCommands ()
 
 	{
 		// hotfix for disobedient column hiding @TODO: resolve in future
-		MainWindow::columns_sizes_t const & sizes = m_main_window->getColumnSizes(sessionState().m_app_idx);
-		MainWindow::columns_setup_t const & global_template = m_main_window->getColumnSetup(sessionState().m_app_idx);
+		columns_sizes_t const & sizes = m_main_window->getColumnSizes(sessionState().m_app_idx);
+		columns_setup_t const & global_template = m_main_window->getColumnSetup(sessionState().m_app_idx);
 		for (size_t c = 0, ce = sizes.size(); c < ce; ++c)
 		{
 			if (c >= global_template.size())
@@ -229,6 +229,13 @@ void Connection::processDataStream (QDataStream & stream)
 
 	connect(this, SIGNAL(handleCommands()), this, SLOT(onHandleCommands()));
 	processStream(&stream, &QDataStream::readRawData);
+
+	// update column sizes
+	columns_sizes_t const & sizes = *sessionState().m_columns_sizes;
+	bool const old = m_table_view_widget->blockSignals(true);
+	for (size_t c = 0, ce = sizes.size(); c < ce; ++c)
+		m_table_view_widget->horizontalHeader()->resizeSection(c, sizes.at(c));
+	m_table_view_widget->blockSignals(old);
 }
 
 bool Connection::tryHandleCommand (DecodedCommand const & cmd)

@@ -7,6 +7,7 @@
 #include "connection.h"
 #include "mainwindow.h"
 #include "modelview.h"
+#include "utils.h"
 
 void SaveTableViewSettings (QTableView * tb)
 {
@@ -27,7 +28,6 @@ Server::Server (QObject * parent, bool quit_delay)
 		{
 			printf("Another instance already running!\n");
 			exit(0);
-			//QTimer::singleShot(0, qApp, SLOT(quit()));
 		}
 		return;
 	}
@@ -110,6 +110,32 @@ void Server::onClearCurrentView ()
 		conn->onClearCurrentView();
 }
 
+void Server::onClearCurrentFileFilter ()
+{
+	if (Connection * conn = findCurrentConnection())
+		conn->onClearCurrentFileFilter();
+}
+void Server::onClearCurrentCtxFilter ()
+{
+	if (Connection * conn = findCurrentConnection())
+		conn->onClearCurrentCtxFilter();
+}
+void Server::onClearCurrentTIDFilter ()
+{
+	if (Connection * conn = findCurrentConnection())
+		conn->onClearCurrentTIDFilter();
+}
+void Server::onClearCurrentColorizedRegexFilter ()
+{
+	if (Connection * conn = findCurrentConnection())
+		conn->onClearCurrentColorizedRegexFilter();
+}
+void Server::onClearCurrentScopeFilter ()
+{
+	if (Connection * conn = findCurrentConnection())
+		conn->onClearCurrentScopeFilter();
+}
+
 void Server::onHidePrevFromRow ()
 {
 	if (Connection * conn = findCurrentConnection())
@@ -134,18 +160,34 @@ void Server::onToggleRefFromRow ()
 		conn->onToggleRefFromRow();
 }
 
-void Server::onClickedAtFileTree (QModelIndex idx)
+void Server::onClickedAtFileTree_Impl (QModelIndex idx, bool recursive)
 {
-	MainWindow * main_window = static_cast<MainWindow *>(parent());
-	std::vector<QString> s;
+	MainWindow * const main_window = static_cast<MainWindow *>(parent());
+	std::vector<QString> s;	// @TODO: reassemblePath
 	s.reserve(16);
-	QStandardItemModel * model = static_cast<QStandardItemModel *>(main_window->getTreeViewFile()->model());
-	QStandardItem * item = model->itemFromIndex(idx);
-	QStandardItem * line_item = 0;
+	QStandardItemModel const * const model = static_cast<QStandardItemModel *>(main_window->getTreeViewFile()->model());
+	QStandardItem * const item = model->itemFromIndex(idx);
+
+	E_FilterMode const fmode = main_window->fltMode();
+	bool const orig_checked = (item->checkState() == Qt::Checked ? false : true);
+
+	if (fmode == e_Include)
+	{
+		setCheckState(item, orig_checked);
+		setCheckStateRecursive(item, orig_checked);
+	}
+	else
+	{
+		setCheckState(item, orig_checked);
+		setCheckStateRecursive(item, orig_checked);
+	}
+
+	QStandardItem const * line_item = 0;
 	if (!item->hasChildren())
 		line_item = item;
 	else
 		s.push_back(model->data(idx, Qt::DisplayRole).toString());
+
 	QStandardItem * parent = item->parent();
 	std::string file;
 	QModelIndex parent_idx = model->indexFromItem(parent);
@@ -159,9 +201,9 @@ void Server::onClickedAtFileTree (QModelIndex idx)
 
 	for (std::vector<QString>::const_reverse_iterator it=s.rbegin(), ite=s.rend(); it != ite; ++it)
 		file += std::string("/") + (*it).toStdString();
-	//qDebug("file=%s", file.c_str());
 
-	bool const checked = (item->checkState() == Qt::Checked);
+	bool checked = (item->checkState() == Qt::Checked);
+
 	fileline_t filter_item(file, std::string());
 	if (line_item)
 	{
@@ -169,27 +211,76 @@ void Server::onClickedAtFileTree (QModelIndex idx)
 		filter_item.second = val.toStdString();
 	}
 
-	qDebug("file click! (checked=%u) %s : %s", checked, filter_item.first.c_str(), filter_item.second.c_str());
-
-	if (Connection * conn = findCurrentConnection())
+	if (Connection * const conn = findCurrentConnection())
 	{
+		if (fmode == e_Include)
+			checked = !checked;
+
+		qDebug("file click! (checked=%u) %s: %s/%s", checked, (checked ? "append" : "remove"), filter_item.first.c_str(), filter_item.second.c_str());
 		if (checked)
 			conn->sessionState().appendFileFilter(filter_item);
 		else
 			conn->sessionState().removeFileFilter(filter_item);
+
+		if (fmode == e_Include && !orig_checked)
+		{
+			//qDebug("inclusive && !orig_checked, disabling exclusion in subtree");
+			setCheckStateReverse(item->parent(), Qt::Checked); // iff parent unchecked and clicked on leaf
+			syncCheckBoxesWithFileFilters(model->invisibleRootItem()->child(0, 0), fmode, conn->sessionState().m_file_filters);
+		}
+		else if (fmode == e_Exclude && orig_checked)
+		{
+			//qDebug("exclusive && orig_checked, disabling exclusion in subtree");
+			conn->sessionState().excludeOffChilds(filter_item);
+		}
+
 		conn->onInvalidateFilter();
 	}
+}
+void Server::onClickedAtFileTree (QModelIndex idx)
+{
+	onClickedAtFileTree_Impl(idx, false);
 }
 
 void Server::onDoubleClickedAtFileTree (QModelIndex idx)
 {
+	//MainWindow * main_window = static_cast<MainWindow *>(parent());
+	//QStandardItemModel * model = static_cast<QStandardItemModel *>(main_window->getTreeViewFile()->model());
+	//QStandardItem * item = model->itemFromIndex(idx);
+	//onClickedAtFileTree_Impl(idx, true);
+}
+
+void Server::onClickedAtCtxTree (QModelIndex idx)
+{
 	MainWindow * main_window = static_cast<MainWindow *>(parent());
-	QStandardItemModel * model = static_cast<QStandardItemModel *>(main_window->getTreeViewFile()->model());
+	QStandardItemModel * model = static_cast<QStandardItemModel *>(main_window->getTreeViewCtx()->model());
 	QStandardItem * item = model->itemFromIndex(idx);
+	Q_ASSERT(item);
+
+	QString const & val = model->data(idx, Qt::DisplayRole).toString();
+	std::string const ctx_item(val.toStdString());
+	context_t const ctx = val.toULongLong();
+
+	bool const checked = (item->checkState() == Qt::Checked);
+
+	if (Connection * conn = findCurrentConnection())
+	{
+		if (checked)
+			conn->sessionState().appendCtxFilter(ctx);
+		else
+			conn->sessionState().removeCtxFilter(ctx);
+		conn->onInvalidateFilter();
+	}
+}
+
+void Server::onDoubleClickedAtCtxTree (QModelIndex idx)
+{
+	/*QStandardItemModel * model = static_cast<QStandardItemModel *>(main_window->getTreeViewCtx()->model());
+	QStandardItem * item = model->itemFromIndex(idx);
+
 	bool const checked = (item->checkState() == Qt::Checked);
 	item->setCheckState(checked ? Qt::Unchecked : Qt::Checked);
-	onClickedAtFileTree(idx);
-
+	onClickedAtCtxTree(idx);*/
 }
 
 void Server::onClickedAtTIDList (QModelIndex idx)
@@ -205,8 +296,6 @@ void Server::onClickedAtTIDList (QModelIndex idx)
 	std::string filter_item(val.toStdString());
 
 	bool const checked = (item->checkState() == Qt::Checked);
-
-	qDebug("tid click! (checked=%u) %s ", checked, filter_item.c_str());
 
 	if (Connection * conn = findCurrentConnection())
 	{
@@ -265,9 +354,9 @@ void Server::onClickedAtColorRegexList (QModelIndex idx)
 	if (Connection * conn = findCurrentConnection())
 	{
 		// @TODO: if state really changed
-		conn->recompileColorRegexps();
+		main_window->recompileColorRegexps();
 		conn->onInvalidateFilter();
-		conn->m_session_state.setRegexChecked(filter_item, checked);
+		conn->m_session_state.setColorRegexChecked(filter_item, checked);
 	}
 }
 
@@ -288,6 +377,7 @@ void Server::onDoubleClickedAtColorRegexList (QModelIndex idx)
 	if (Connection * conn = findCurrentConnection())
 	{
 		conn->m_session_state.setRegexColor(val.toStdString(), color);
+		main_window->recompileRegexps();
 	}
 }
 
@@ -297,6 +387,7 @@ Connection * Server::createNewTableView ()
 	Connection * connection = new Connection(this);
 	connection->setMainWindow(main_window);
 	connection->setupModelFile();
+	connection->setupModelCtx();
 	connection->setupModelTID();
 	connection->setupModelColorRegex();
 	QWidget * tab = new QWidget();
@@ -307,17 +398,18 @@ Connection * Server::createNewTableView ()
 	QTableView * tableView = new QTableView(tab);
 	tableView->setObjectName(QString::fromUtf8("tableView"));
 	ModelView * model = new ModelView(tableView, connection);
-    //tableView->verticalHeader()->setFont(QFont(""));
-	tableView->verticalHeader()->setDefaultSectionSize(14);
+    //tableView->verticalHeader()->setFont(QFont(""));		// @TODO: into config
+	tableView->verticalHeader()->setDefaultSectionSize(14);	// @TODO: into config
 	tableView->setModel(model);
 	horizontalLayout->addWidget(tableView);
 	connection->setTableViewWidget(tableView);
 	connection->sessionState().setupThreadColors(main_window->getThreadColors());
 	int const n = main_window->getTabTrace()->addTab(tab, QString::fromUtf8("???"));
-	qDebug("created new tab at %u", n);
+	qDebug("created new tab at %u for connection @ 0x%08x", n, connection);
 
 	connection->sessionState().setTabWidget(n);
 	connection->sessionState().setTabWidget(tab);
+	connection->sessionState().setFilterMode(main_window->fltMode());
 
 	if (main_window->filterEnabled())
 	{
@@ -363,6 +455,7 @@ void Server::onCloseTab (QWidget * w)
 		int const idx = main_window->getTabTrace()->indexOf(w);
 		if (idx != -1)
 		{
+			qDebug("Server::onCloseTab(QWidget *) idx=%i", idx);
 			main_window->getTabTrace()->removeTab(idx);
 			connections_t::iterator it = connections.find(w);
 			if (it != connections.end())
@@ -382,6 +475,7 @@ void Server::onCloseTab (QWidget * w)
 
 void Server::onCloseCurrentTab ()
 {
+	qDebug("Server::onCloseCurrentTab");
 	MainWindow * main_window = static_cast<MainWindow *>(parent());
 	QWidget * w = main_window->getTabTrace()->currentWidget();
 	onCloseTab(w);

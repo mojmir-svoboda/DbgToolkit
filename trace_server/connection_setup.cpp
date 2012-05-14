@@ -6,13 +6,19 @@
 
 bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 {
-	qDebug("handle setup command");
+	qDebug("Connection::handleSetupCommand() this=0x%08x", this);
+
 	for (size_t i=0, ie=cmd.tvs.size(); i < ie; ++i)
 	{
 		if (cmd.tvs[i].m_tag == tlv::tag_lvl)
 		{
-			int const level = QString::fromStdString(cmd.tvs[i].m_val).toInt();
-            m_main_window->setLevel(level);
+			int const client_level = QString::fromStdString(cmd.tvs[i].m_val).toInt();
+			int const server_level = m_main_window->getLevel();
+			if (client_level != server_level)
+			{
+				qDebug("notifying client about new level");
+				onLevelValueChanged(server_level);
+			}
 		}
 
 		if (cmd.tvs[i].m_tag == tlv::tag_app)
@@ -25,6 +31,7 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 				if (conn)
 				{
 					this->setupModelFile();
+					this->setupModelCtx();
 					this->setupModelTID();
 					if (!m_main_window->clrFltEnabled())
 					{
@@ -99,8 +106,20 @@ void Connection::setupModelFile ()
 		m_tree_view_file_model = new QStandardItemModel;
 	}
 	m_main_window->getTreeViewFile()->setModel(m_tree_view_file_model);
-	//main_window->getTreeViewFile()->expandAll();
+	m_main_window->getTreeViewFile()->expandAll();
 	m_main_window->getTreeViewFile()->setEnabled(m_main_window->filterEnabled());
+}
+
+void Connection::setupModelCtx ()
+{
+	if (!m_tree_view_ctx_model)
+	{
+		qDebug("new tree view ctx model");
+		m_tree_view_ctx_model = new QStandardItemModel;
+	}
+	m_main_window->getTreeViewCtx()->setModel(m_tree_view_ctx_model);
+	m_main_window->getTreeViewCtx()->expandAll();
+	m_main_window->getTreeViewCtx()->setEnabled(m_main_window->filterEnabled());
 }
 
 void Connection::setupModelTID ()
@@ -108,6 +127,7 @@ void Connection::setupModelTID ()
 	if (!m_list_view_tid_model)
 		m_list_view_tid_model = new QStandardItemModel;
 	m_main_window->getListViewTID()->setModel(m_list_view_tid_model);
+	m_main_window->getListViewTID()->setEnabled(m_main_window->filterEnabled());
 }
 
 void Connection::setupModelColorRegex ()
@@ -115,5 +135,6 @@ void Connection::setupModelColorRegex ()
 	if (!m_list_view_color_regex_model)
 		m_list_view_color_regex_model = new QStandardItemModel;
 	m_main_window->getListViewColorRegex()->setModel(m_list_view_color_regex_model);
+	m_main_window->getListViewColorRegex()->setEnabled(m_main_window->filterEnabled());
 }
 

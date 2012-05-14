@@ -24,6 +24,7 @@
 #include "settings.h"
 #include "utils.h"
 #include "../tlv_parser/tlv_parser.h"
+#include "help.h"
 
 #ifdef WIN32
 #	define WIN32_LEAN_AND_MEAN
@@ -41,6 +42,7 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay)
 	, m_settings(new Ui::SettingsDialog)
 	, m_help(new Ui::HelpDialog)
 	, m_hidden(false)
+	, m_was_maximized(false)
 	, m_timer(new QTimer(this))
 	, m_server(0)
 	, m_minimize_action(0)
@@ -53,6 +55,7 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay)
 {
     //QDir::setSearchPaths("icons", QStringList(QDir::currentPath()));
 	ui->setupUi(this);
+	ui->tabTrace->setTabsClosable(true);
 
 	// tray stuff
 	createActions();
@@ -95,12 +98,17 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay)
 	connect(getTreeViewFile(), SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtFileTree(QModelIndex)));
 	connect(getTreeViewFile(), SIGNAL(doubleClicked(QModelIndex)), m_server, SLOT(onDoubleClickedAtFileTree(QModelIndex)));
 
+	getTreeViewCtx()->setEditTriggers(QAbstractItemView::NoEditTriggers);
+	connect(getTreeViewCtx(), SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtCtxTree(QModelIndex)));
+	connect(getTreeViewCtx(), SIGNAL(doubleClicked(QModelIndex)), m_server, SLOT(onDoubleClickedAtCtxTree(QModelIndex)));
+
 	connect(getListViewTID(), SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtTIDList(QModelIndex)));
 	connect(getListViewTID(), SIGNAL(doubleClicked(QModelIndex)), m_server, SLOT(onDoubleClickedAtTIDList(QModelIndex)));
 
 	connect(ui->levelSpinBox, SIGNAL(valueChanged(int)), m_server, SLOT(onLevelValueChanged(int)));
-    connect(ui->filterFileCheckBox, SIGNAL(stateChanged(int)), m_server, SLOT(onFilterFile(int)));
+    connect(ui->filterFileCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onFilterFile(int)));
     connect(ui->buffCheckBox, SIGNAL(stateChanged(int)), m_server, SLOT(onBufferingStateChanged(int)));
+    connect(ui->reuseTabCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onReuseTabChanged(int)));
     //connect(ui->clrFiltersCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onClrFiltersStateChanged(int)));
 	connect(ui->presetComboBox, SIGNAL(activated(int)), this, SLOT(onPresetActivate(int)));
 
@@ -121,14 +129,18 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay)
 
 	ui->autoScrollCheckBox->setToolTip(tr("auto scrolls to bottom if checked"));
 	ui->reuseTabCheckBox->setToolTip(tr("reuses compatible tab instead of creating new one"));
+	ui->clrFiltersCheckBox->setToolTip(tr("force clearing of filters when reuseTab is checked"));
 	ui->scopesCheckBox->setToolTip(tr("hides scopes if checked"));
 	ui->filterFileCheckBox->setToolTip(tr("enables filtering via fileFilter tab"));
 	ui->buffCheckBox->setToolTip(tr("turns on/off buffering of messages on client side."));
 	ui->presetComboBox->setToolTip(tr("selects and applies saved preset file filter"));
+	ui->filterModeComboBox->setToolTip(tr("selects filtering mode: inclusive (check what you want, unchecked are not displayed) or exclusive (checked items are filtered out)."));
 	ui->levelSpinBox->setToolTip(tr("adjusts debug level of client side"));
 	ui->qSearchLineEdit->setToolTip(tr("search text in logged text"));
 	ui->qSearchComboBox->setToolTip(tr("specifies column to search"));
 
+	connect(ui->filterModeComboBox, SIGNAL(activated(int)), this, SLOT(onFilterModeActivate(int)));
+	connect(ui->tabTrace, SIGNAL(tabCloseRequested(int)), m_server, SLOT(onCloseTab(int)));
 	QTimer::singleShot(0, this, SLOT(loadState()));	// trigger lazy load of settings
 	setWindowTitle("flog server");
 
@@ -218,6 +230,8 @@ QTabWidget * MainWindow::getTabTrace () { return ui->tabTrace; }
 QTabWidget const * MainWindow::getTabTrace () const { return ui->tabTrace; }
 QTreeView * MainWindow::getTreeViewFile () { return ui->treeViewFile; }
 QTreeView const * MainWindow::getTreeViewFile () const { return ui->treeViewFile; }
+QTreeView * MainWindow::getTreeViewCtx () { return ui->treeViewCtx; }
+QTreeView const * MainWindow::getTreeViewCtx () const { return ui->treeViewCtx; }
 QComboBox * MainWindow::getFilterRegex () { return ui->comboBoxRegex; }
 QComboBox const * MainWindow::getFilterRegex () const { return ui->comboBoxRegex; }
 QListView * MainWindow::getListViewRegex () { return ui->listViewRegex; }
@@ -236,6 +250,10 @@ bool MainWindow::reuseTabEnabled () const { return ui->reuseTabCheckBox->isCheck
 bool MainWindow::autoScrollEnabled () const { return ui->autoScrollCheckBox->isChecked(); }
 bool MainWindow::buffEnabled () const { return ui->buffCheckBox->isChecked(); }
 bool MainWindow::clrFltEnabled () const { return ui->clrFiltersCheckBox->isChecked(); }
+E_FilterMode MainWindow::fltMode () const
+{
+	return ui->filterModeComboBox->currentText() == QString("Inclusive") ? e_Include : e_Exclude;
+}
 
 void MainWindow::setLevel (int i)
 {
@@ -244,11 +262,29 @@ void MainWindow::setLevel (int i)
 	ui->levelSpinBox->blockSignals(old);
 }
 
+int MainWindow::getLevel () const
+{
+    int const current = ui->levelSpinBox->value();
+	return current;
+}
+
 void MainWindow::onQuit ()
 {
 	m_tray_icon->hide();
 	storeState();
 	qApp->quit();
+}
+
+void MainWindow::onReuseTabChanged (int state)
+{
+	ui->clrFiltersCheckBox->setEnabled(state);
+}
+
+void MainWindow::onFilterFile (int state)
+{
+	ui->filterModeComboBox->setEnabled(state);
+	ui->presetComboBox->setEnabled(state);
+	m_server->onFilterFile(state);
 }
 
 void MainWindow::onQSearchEditingFinished ()
@@ -261,7 +297,7 @@ void MainWindow::onQSearchEditingFinished ()
 	QString text = ui->qSearchLineEdit->text();
 	QString qcolumn = ui->qSearchComboBox->currentText();
 	bool const search_all = (qcolumn == ".*");
-	qDebug("onQSearchEditingFinished: col=%s text=%s", qcolumn.toStdString().c_str(), text.toStdString().c_str());
+	//qDebug("onQSearchEditingFinished: col=%s text=%s", qcolumn.toStdString().c_str(), text.toStdString().c_str());
 	
 	if (search_all)
 	{
@@ -357,14 +393,40 @@ void MainWindow::onHotkeyShowOrHide ()
 	m_hidden = !m_hidden;
 	if (m_hidden)
 	{
-		qDebug("MainWindow::hide()");
+		m_was_maximized = isMaximized();
 		hide();
 	}
 	else
 	{
-		qDebug("MainWindow::show()");
-		showNormal();
+		if (m_was_maximized)
+			showMaximized();
+		else
+			showNormal();
+		raise();
+		activateWindow();
 	}
+}
+
+void MainWindow::onDumpFilters ()
+{
+	QDialog dialog(this);
+	dialog.setWindowFlags(Qt::Sheet);
+	m_help->setupUi(&dialog);
+	m_help->helpTextEdit->clear();
+
+	QString text(tr("Dumping current filters:\n"));
+	QString session_string;
+
+	if (Connection * conn = m_server->findCurrentConnection())
+	{
+		SessionExport se;
+		conn->sessionState().sessionExport(se);
+		session_string = QString("File filter:\n %1\nregex_filter:\n %2\ncolor_regexps:\n %3\n").arg(se.m_file_filters.c_str()).arg(se.m_regex_filters.c_str()).arg(se.m_color_regex_filters.c_str());
+	}
+
+	m_help->helpTextEdit->setPlainText(text + session_string);
+	m_help->helpTextEdit->setReadOnly(true);
+	dialog.exec();
 }
 
 void MainWindow::onShowHelp ()
@@ -373,119 +435,7 @@ void MainWindow::onShowHelp ()
 	dialog.setWindowFlags(Qt::Sheet);
 	m_help->setupUi(&dialog);
 	m_help->helpTextEdit->clear();
-
-	QString text(tr("\
-		<center><h1>Quick help</h1></center>\
-		<h2>General shortcuts</h2>\
-		<table>\
-			<tr>\
-				<td> Shortcut </td> <td> Description </td>\
-			</tr>\
-			<tr>\
-				<td> Scroll Lock </td>\
-				<td> show / hide the logging server window </td>\
-			</tr>\
-			<tr>\
-				<td> F1 </td>\
-				<td> this screen. </td>\
-			</tr>\
-			<tr>\
-				<td> Ctrl + L </td>\
-				<td> Load file </td>\
-			</tr>\
-			<tr>\
-				<td> Ctrl + S </td>\
-				<td> Save file </td>\
-			</tr>\
-			<tr>\
-				<td> Ctrl + Shift + S </td>\
-				<td> Export to CSV formatted file</td>\
-			</tr>\
-			<tr>\
-				<td> Ctrl + W </td>\
-				<td> Close current tab </td>\
-			</tr>\
-		</table>\
-		<h2>Text search shortcuts</h2>\
-		<table>\
-			<tr>\
-				<td> Shortcut </td> <td> Description </td>\
-			</tr>\
-			<tr>\
-				<td> Ctrl + F </td>\
-				<td> Find text in column. Specific column can be selected in the combobox on the right.</td>\
-			</tr>\
-			<tr>\
-				<td> / </td>\
-				<td> Find text in column. Specific column can be selected in the combobox on the right.</td>\
-			</tr>\
-			<tr>\
-				<td> some windows key </td>\
-				<td> Find next occurence </td>\
-			</tr>\
-			<tr>\
-				<td> some windows key2 </td>\
-				<td> Find prev occurence </td>\
-			</tr>\
-			<tr>\
-				<td> Ctrl + C </td>\
-				<td> Copy selection to clipboard </td>\
-			</tr>\
-			<tr>\
-				<td> Ctrl + Ins </td>\
-				<td> Copy selection to clipboard </td>\
-			</tr>\
-		</table>\
-		<h2>Filtering shortcuts</h2>\
-		<table>\
-			<tr>\
-				<td> Shortcut </td> <td> Description </td>\
-			</tr>\
-			<tr>\
-				<td> c </td>\
-				<td> clear current view (same as clicking on last row and pressing X) </td>\
-			</tr>\
-			<tr>\
-				<td> space </td>\
-				<td> toggle reference row </td>\
-			</tr>\
-			<tr>\
-				<td> x </td>\
-				<td> exclude currently selected row from view </td>\
-			</tr>\
-			<tr>\
-				<td> Del </td>\
-				<td> Hide previous rows </td>\
-			</tr>\
-			<tr>\
-				<td> Ctrl + Del </td>\
-				<td> Shows again hidden rows by Del</td>\
-			</tr>\
-			<tr>\
-				<td> </td>\
-				<td> </td>\
-			</tr>\
-		</table>\
-		<h2>Mouse operations:</h2>\
-		<table>\
-			<tr>\
-				<td> Shortcut </td> <td> Description </td>\
-			</tr>\
-			<tr>\
-				<td> click on table </td>\
-				<td> sets current cell for search and for operations using current cell, like pressing Del or X</td>\
-			</tr>\
-			<tr>\
-				<td> double click on table </td>\
-				<td> if double click occurs within { } scope, the scope will be collapsed (and grayed) </td>\
-			</tr>\
-			<tr>\
-				<td> double click on coloring regexp </td>\
-				<td> color selection </td>\
-			</tr>\
-		</table>"));
-	
-	m_help->helpTextEdit->setHtml(text);
+	m_help->helpTextEdit->setHtml(QString(html_help));
 	m_help->helpTextEdit->setReadOnly(true);
 	dialog.exec();
 }
@@ -555,11 +505,38 @@ void MainWindow::onPresetActivate (int idx)
 	for (size_t i = 0, ie = m_filter_presets.at(idx).size(); i < ie; ++i)
 	{
 		std::string filter_item(m_filter_presets.at(idx).at(i).toStdString());
-		conn->appendToFileFilters(filter_item, true);
+
+		// @TODO: duplicate
+		E_FilterMode const fmode = fltMode();
+		bool excluded = false;
+		bool const present = conn->sessionState().isFileLinePresent(filter_item, excluded);
+		bool const default_checked = fmode == e_Exclude ? false : true;
+		bool const checked = present ? (fmode == e_Exclude ? excluded : !excluded) : default_checked;
+		qDebug("present=%u checked=%u item=%s", present, checked, filter_item.c_str()); 
+		conn->appendToFileFilters(filter_item, checked);
+
 		conn->sessionState().appendFileFilter(filter_item);
-		conn->onInvalidateFilter();
 	}
+
+	getTreeViewFile()->expandAll();
+	conn->onInvalidateFilter();
 }
+
+void MainWindow::onFilterModeActivate (int idx)
+{
+	if (idx == -1) return;
+	if (!getTabTrace()->currentWidget()) return;
+
+	Connection * conn = m_server->findCurrentConnection();
+	if (!conn) return;
+	QString const qItem = ui->filterModeComboBox->currentText();
+
+	qDebug("item=%s", qItem.toStdString().c_str());
+	E_FilterMode const mode = qItem == "Inclusive" ? e_Include : e_Exclude;
+	//@TODO: do following for each connection?
+	conn->flipFilterMode(mode);
+}
+
 
 void MainWindow::onRegexActivate (int idx)
 {
@@ -688,6 +665,48 @@ void MainWindow::onColorRegexRm ()
 		conn->recompileColorRegexps();
 	}
 }
+void MainWindow::recompileColorRegexps ()
+{
+	//m_color_regexps.clear();
+	//m_color_regex_user_states.clear();
+
+/*	for (int i = 0, ie = m_filter_color_regexs.size(); i < ie; ++i)
+	{
+		QStandardItem * root = static_cast<QStandardItemModel *>(getListViewColorRegex()->model())->invisibleRootItem();
+		QStandardItem * child = findChildByText(root, m_filter_color_regexs.at(i));
+		QRegExp regex(QRegExp(m_filter_color_regexs.at(i)));
+		if (regex.isValid())
+		{
+			m_color_regexps.append(regex);
+			//m_color_regex_user_states.push_back(false);
+
+			bool const checked = (child->checkState() == Qt::Checked);
+			if (child && checked)
+			{
+				child->setData(QBrush(Qt::green), Qt::BackgroundRole);
+				child->setToolTip(tr("ok"));
+				//m_color_regex_user_states.back() = true;
+			}
+			else if (child && !checked)
+			{
+				child->setData(QBrush(Qt::yellow), Qt::BackgroundRole);
+				child->setToolTip(tr("not checked"));
+			}
+		}
+		else
+		{
+			if (child)
+			{
+				child->setData(QBrush(Qt::red), Qt::BackgroundRole);
+				child->setToolTip(regex.errorString());
+			}
+		}
+	}*/
+
+	Connection * conn = m_server->findCurrentConnection();
+	if (conn)
+		conn->onInvalidateFilter();
+}
 
 void MainWindow::onSaveCurrentFileFilter ()
 {
@@ -756,12 +775,21 @@ void MainWindow::setupMenuBar ()
 	editMenu->addSeparator();
 	editMenu->addAction(tr("Close Tab"), m_server, SLOT(onCloseCurrentTab()), QKeySequence(Qt::ControlModifier + Qt::Key_W));
 
+	// Filter
 	QMenu * filterMenu = menuBar()->addMenu(tr("Fi&lter"));
-	filterMenu->addAction(tr("Clear current view"), m_server, SLOT(onClearCurrentView()), QKeySequence(Qt::Key_C));
 	filterMenu->addAction(tr("Hide previous rows"), m_server, SLOT(onHidePrevFromRow()), QKeySequence(Qt::Key_Delete));
 	filterMenu->addAction(tr("Unhide previous rows"), m_server, SLOT(onUnhidePrevFromRow()), QKeySequence(Qt::ControlModifier + Qt::Key_Delete));
 	filterMenu->addAction(tr("Toggle reference row"), m_server, SLOT(onToggleRefFromRow()), QKeySequence(Qt::Key_Space));
 	filterMenu->addAction(tr("Exclude file:line row"), m_server, SLOT(onExcludeFileLine()), QKeySequence(Qt::Key_X));
+
+	// Clear
+	QMenu * clearMenu = menuBar()->addMenu(tr("&Clear"));
+	clearMenu->addAction(tr("Clear current table view"), m_server, SLOT(onClearCurrentView()), QKeySequence(Qt::Key_C));
+	clearMenu->addAction(tr("Clear current file filter"), m_server, SLOT(onClearCurrentFileFilter()));
+	clearMenu->addAction(tr("Clear current context filter"), m_server, SLOT(onClearCurrentCtxFilter()));
+	clearMenu->addAction(tr("Clear current thread id filter"), m_server, SLOT(onClearCurrentCtxFilter()));
+	clearMenu->addAction(tr("Clear current colorized regexp filter"), m_server, SLOT(onClearCurrentColorizedRegexFilter()));
+	clearMenu->addAction(tr("Clear current collapsed scope filter"), m_server, SLOT(onClearCurrentScopeFilter()));
 
 	// Tools
 	QMenu * tools = menuBar()->addMenu(tr("&Settings"));
@@ -771,8 +799,10 @@ void MainWindow::setupMenuBar ()
 	tools->addSeparator();
 	tools->addAction(tr("Save setup now"), this, SLOT(storeState()));
 
+	// Help
 	QMenu * helpMenu = menuBar()->addMenu(tr("&Help"));
 	helpMenu->addAction(tr("Help"), this, SLOT(onShowHelp()), QKeySequence(Qt::Key_F1));
+	helpMenu->addAction(tr("Dump filters"), this, SLOT(onDumpFilters()));
 }
 
 void write_list_of_strings (QSettings & settings, char const * groupname, char const * groupvaluename, QList<QString> const & lst)
@@ -852,6 +882,8 @@ void MainWindow::storeState ()
 	settings.setValue("filterFileCheckBox", ui->filterFileCheckBox->isChecked());
 	settings.setValue("buffCheckBox", ui->buffCheckBox->isChecked());
 	settings.setValue("clrFiltersCheckBox", ui->clrFiltersCheckBox->isChecked());
+	settings.setValue("filterModeComboBox", ui->filterModeComboBox->currentIndex());
+	settings.setValue("levelSpinBox", ui->levelSpinBox->value());
 
 	write_list_of_strings(settings, "known-applications", "application", m_app_names);
 	for (size_t i = 0, ie = m_app_names.size(); i < ie; ++i)
@@ -899,6 +931,8 @@ void MainWindow::loadState ()
 	ui->filterFileCheckBox->setChecked(settings.value("filterFileCheckBox", false).toBool());
 	ui->buffCheckBox->setChecked(settings.value("buffCheckBox", false).toBool());
 	ui->clrFiltersCheckBox->setChecked(settings.value("clrFiltersCheckBox", false).toBool());
+	ui->filterModeComboBox->setCurrentIndex(settings.value("filterModeComboBox").toInt());
+	ui->levelSpinBox->setValue(settings.value("levelSpinBox").toInt());
 
 	read_list_of_strings(settings, "known-applications", "application", m_app_names);
 	for (size_t i = 0, ie = m_app_names.size(); i < ie; ++i)

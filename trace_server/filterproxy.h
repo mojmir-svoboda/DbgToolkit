@@ -26,20 +26,4 @@
 #include "../filters/file_filter.hpp"
 #include "sessionstate.h"
 
-class FilterProxyModel : public QSortFilterProxyModel
-{
-	Q_OBJECT
-
-public:
-	FilterProxyModel (QObject * parent, QList<QRegExp> const & r, std::vector<bool> const & rs, SessionState & ss);
-
-public slots:
-	void force_update();
-
-protected:
-	bool filterAcceptsRow (int sourceRow, QModelIndex const & sourceParent) const;
-	SessionState & m_session_state;
-	QList<QRegExp> const & m_regexps;
-	std::vector<bool> const & m_regex_user_states;
-};
 

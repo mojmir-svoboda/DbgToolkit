@@ -23,16 +23,15 @@
 #include <QString>
 #include <QList>
 #include <QMap>
-#include "mainwindow.h"
+#include <QColor>
 #include <tlv_parser/tlv_parser.h>
 #include <tlv_parser/tlv_decoder.h> // htons!
 #include <filters/file_filter.hpp>
 #include "tls.h"
+#include "types.h"
 
 class Server;
 class MainWindow;
-
-typedef std::pair<std::string, std::string> fileline_t;
 
 struct CollapsedBlock {
 	QString m_tid;
@@ -46,8 +45,6 @@ struct CollapsedBlock {
 	{ }
 };
 
-enum E_ColorRole { e_Bg, e_Fg };
-
 struct ColorizedText {
 	E_ColorRole m_role;
 	QColor m_qcolor;
@@ -59,13 +56,13 @@ struct ColorizedText {
 	bool exactMatch (QString str) const { return m_regex.exactMatch(str); }
 
 	ColorizedText (std::string const & rs, E_ColorRole r)
-		: m_qcolor(Qt::magenta)
-		, m_role(r), m_regex_str(rs), m_regex(QString::fromStdString(rs)), m_isEnabled(0)
+        : m_role(r)
+        , m_qcolor(Qt::magenta), m_regex_str(rs), m_regex(QString::fromStdString(rs)), m_isEnabled(0)
 	{ }
 
 	ColorizedText (std::string const & rs, QColor const & col, E_ColorRole r)
-		: m_qcolor(col)
-		, m_role(r), m_regex_str(rs), m_regex(QString::fromStdString(rs)), m_isEnabled(0)
+        : m_role(r)
+        , m_qcolor(col), m_regex_str(rs), m_regex(QString::fromStdString(rs)), m_isEnabled(0)
 	{ }
 
 };
@@ -86,13 +83,13 @@ public:
 
 	void setTabWidget (int n) { m_tab_idx = n; }
 	void setTabWidget (QWidget * w) { m_tab_widget = w; }
-	void setupColumns (QList<QString> const * column_setup_template, MainWindow::columns_sizes_t * sizes);
+	void setupColumns (QList<QString> const * column_setup_template, columns_sizes_t * sizes);
 	void setupThreadColors (QList<QColor> const & tc);
 	QList<QString> const * getColumnsSetupCurrent () const { return m_columns_setup_current; }
 	QList<QString> * getColumnsSetupCurrent () { return m_columns_setup_current; }
 	QList<QString> const * getColumnsSetupTemplate () const { return m_columns_setup_template; }
-	MainWindow::columns_sizes_t const * getColumnSizes () const { return m_columns_sizes; }
-	MainWindow::columns_sizes_t * getColumnSizes () { return m_columns_sizes; }
+	columns_sizes_t const * getColumnSizes () const { return m_columns_sizes; }
+	columns_sizes_t * getColumnSizes () { return m_columns_sizes; }
 
 	int findColumn4TagInTemplate (tlv::tag_t tag) const;
 	int findColumn4Tag (tlv::tag_t tag) const;
@@ -107,10 +104,22 @@ public:
 
 	typedef file_filter file_filters_t;
 	file_filters_t const & getFileFilters () const { return m_file_filters; }
-	void appendFileFilter(fileline_t const & item);		/// add file + line pair
-	void appendFileFilter(std::string const & item);	/// add concantenated item
-	void removeFileFilter(fileline_t const & item);
+	void appendFileFilter (fileline_t const & item);		/// add file + line pair
+	void appendFileFilter (std::string const & item);	/// add concantenated item
+	void removeFileFilter (fileline_t const & item);
 	bool isFileLineExcluded (fileline_t const & p) const;
+	bool isFileLineExcluded (std::string const & fileline) const;
+	bool isFileLinePresent (fileline_t const & p, bool & state) const; /// checks for file:line existence in the tree
+	bool isFileLinePresent (std::string const & fileline, bool & state) const; /// checks for file:line existence in the tree
+	void excludeOffChilds (fileline_t const & item);
+
+	typedef QList<context_t> ctx_filters_t;
+	ctx_filters_t const & getCtxFilters () const { return m_ctx_filters; }
+	void appendCtxFilter (context_t item);
+	void flipFilterMode (E_FilterMode mode);
+	void removeCtxFilter (context_t item);
+	bool isCtxExcluded (context_t item) const;
+
 
 	typedef std::vector<std::string> tid_filters_t;
 	void appendTIDFilter (std::string const & item);
@@ -127,7 +136,7 @@ public:
 	void removeFromColorRegexFilters (std::string const & str);
 	bool isMatchedColorizedText (QString str, QColor & color, E_ColorRole & role) const;
 	void setRegexColor (std::string const & s, QColor col);
-	void setRegexChecked (std::string const & s, bool checked);
+	void setColorRegexChecked (std::string const & s, bool checked);
 
 	void excludeContentToRow (int row) { m_exclude_content_to_row = row; }
 	int excludeContentToRow () const { return m_exclude_content_to_row; }
@@ -135,10 +144,20 @@ public:
 	void toggleRefFromRow (int row) { m_toggle_ref_row = row; }
 	int toggleRefFromRow () const { return m_toggle_ref_row; }
 
+	void setFilterMode (E_FilterMode m) { m_filter_mode = m; }
+	E_FilterMode getFilterMode () const { return m_filter_mode; }
+
 	void makeInexactCopy (SessionState const & rhs);
    
 	void sessionExport (SessionExport & e) const;
 	void sessionImport (SessionExport const & e);
+
+	void clearFilters ();
+	void onClearFileFilter () { m_file_filters.set_state_to_childs(m_file_filters.root, false); }
+	void onClearCtxFilter () { m_ctx_filters.clear(); }
+	void onClearTIDFilter () { m_tid_filters.clear(); }
+	void onClearScopeFilter () { m_collapse_blocks.clear(); }
+	void onClearColorizedRegexFilter () { m_colorized_texts.clear(); }
 	
 signals:
 	
@@ -148,21 +167,22 @@ private:
 	friend class MainWindow;
 
 private:
-	//MainWindow * m_main_window;
 	int m_app_idx;
 	int m_tab_idx;
 	QWidget * m_tab_widget;
 	int m_from_file;
 	int m_exclude_content_to_row;
 	int m_toggle_ref_row;
+	E_FilterMode m_filter_mode;
 	file_filters_t m_file_filters;
+	ctx_filters_t m_ctx_filters;
 	tid_filters_t m_tid_filters;
 
 	QList<QColor> m_thread_colors;
 	QList<ColorizedText> m_colorized_texts;
 	QList<QString> * m_columns_setup_current;
 	QList<QString> const * m_columns_setup_template;
-	MainWindow::columns_sizes_t * m_columns_sizes;
+	columns_sizes_t * m_columns_sizes;
 	QMap<tlv::tag_t, int> m_tags2columns;
 	ThreadSpecific m_tls;
 	QString m_name;

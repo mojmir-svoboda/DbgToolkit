@@ -8,7 +8,7 @@
 #	elif defined _XBOX
 #		include "platforms/atomic_x360.h"
 #	else
-#		include "platforms/atomic_gcc.h"
+#		include "atomic_gcc.h"
 #	endif
 #endif
 

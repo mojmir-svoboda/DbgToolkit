@@ -59,6 +59,30 @@ struct DecodedCommand : tlv::StringCommand
 	}
 };
 
+/////////////// TODO: this belongs to filterproxy.cpp /////////////////////////
+class FilterProxyModel : public QSortFilterProxyModel
+{
+	Q_OBJECT
+
+public:
+	explicit FilterProxyModel (QObject * parent, QList<QRegExp> const & r, std::vector<bool> const & rs, SessionState & ss)
+		: QSortFilterProxyModel(parent), m_session_state(ss), m_regexps(r), m_regex_user_states(rs)
+	{ }
+
+
+public slots:
+	void force_update();
+
+protected:
+	bool filterAcceptsRow (int sourceRow, QModelIndex const & sourceParent) const;
+	SessionState & m_session_state;
+	QList<QRegExp> const & m_regexps;
+	std::vector<bool> const & m_regex_user_states;
+};
+/////////////// TODO: this belongs to filterproxy.cpp /////////////////////////
+
+
+
 /**@class		Connection
  * @brief		represents incoming connection (or file stream)
  */
@@ -69,11 +93,13 @@ public:
 	explicit Connection(QObject *parent = 0);
 	~Connection ();
 	void setMainWindow (MainWindow * w) { m_main_window = w; }
+	MainWindow const * getMainWindow () const { return m_main_window; }
 	void setTableViewWidget (QTableView * w) { m_table_view_widget = w; }
 	
 	SessionState & sessionState () { return m_session_state; }
 	SessionState const & sessionState () const { return m_session_state; }
-	void appendToFileFilters (std::string const & item, bool checked = false);
+	void appendToFileFilters (std::string const & item, bool checked);
+	void appendToCtxFilters (std::string const & item, bool checked);
 	void clearFilters ();
 	void findText (QString const & text, tlv::tag_t tag);
 	void findText (QString const & text);
@@ -83,15 +109,10 @@ public:
 	void appendToColorRegexFilters (std::string const & item);
 	void removeFromColorRegexFilters (std::string const & item);
 	void recompileColorRegexps ();
-
-	//filter_color_regexs_t m_filter_color_regexs; /// coloring regexps
-	//QList<QRegExp> const & getColorRegexps () const { return m_color_regexps; }
-	//std::vector<bool> const & getColorRegexUserStates () const { return m_color_regex_user_states; }
-	typedef QList<QString> filter_color_regexs_t;
-	//filter_color_regexs_t const & getFilterColorRegexs () const { return m_filter_color_regexs; }
-	//filter_color_regexs_t & getFilterColorRegexs () { return m_filter_color_regexs; }
-
+	void flipFilterMode (E_FilterMode mode);
 	void run ();
+
+	typedef QList<QString> filter_color_regexs_t;
 
 signals:
 	void readyForUse();
@@ -110,6 +131,11 @@ public slots:
 	void onHidePrevFromRow ();
 	void onUnhidePrevFromRow ();
 	void onClearCurrentView ();
+	void onClearCurrentFileFilter ();
+	void onClearCurrentCtxFilter ();
+	void onClearCurrentTIDFilter ();
+	void onClearCurrentColorizedRegexFilter ();
+	void onClearCurrentScopeFilter ();
 	void onShowContextMenu (QPoint const & pos);
 	void onExcludeFileLine ();
 	void onToggleRefFromRow ();
@@ -130,8 +156,8 @@ private:
 	bool handleSetupCommand (DecodedCommand const & cmd);
 
 	bool appendToFilters (DecodedCommand const & cmd);
-	void appendToFileFilters (boost::char_separator<char> const & sep, std::string const & item, bool checked = false);
-	void appendToFileFilters (boost::char_separator<char> const & sep, std::string const & file, std::string const & line);
+	void appendToFileFilters (boost::char_separator<char> const & sep, std::string const & item, bool checked);
+	void appendToFileFilters (boost::char_separator<char> const & sep, std::string const & file, std::string const & line, bool checked);
 	void appendToTIDFilters (std::string const & item);
 	void clearFilters (QStandardItem * node);
 	void hideLinearParents ();
@@ -144,6 +170,7 @@ private:
 	void closeStorage ();
 	void setSocketDescriptor (int sd);
 	void setupModelFile ();
+	void setupModelCtx ();
 	void setupModelTID ();
 	void setupModelColorRegex ();
 	QString findString4Tag (tlv::tag_t tag, QModelIndex const & row_index) const;
@@ -162,6 +189,7 @@ private:
 	QString m_last_search;
 	QTableView * m_table_view_widget;
 	QStandardItemModel * m_tree_view_file_model;
+	QStandardItemModel * m_tree_view_ctx_model;
 	QStandardItemModel * m_tree_view_func_model;
 	QStandardItemModel * m_list_view_tid_model;
 	QStandardItemModel * m_list_view_color_regex_model;

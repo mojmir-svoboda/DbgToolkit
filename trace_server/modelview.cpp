@@ -148,7 +148,7 @@ QVariant ModelView::data (const QModelIndex &index, int role) const
 }
 
 
-bool ModelView::setData (QModelIndex const & index, QVariant const & value, int role)
+bool ModelView::setData (QModelIndex const & /*index*/, QVariant const & /*value*/, int /*role*/)
 {
 	return true;	
 }
@@ -267,15 +267,11 @@ void ModelView::appendCommand (QSortFilterProxyModel * filter, tlv::StringComman
 	{
 		int const row = filter->rowCount();
 		filter->insertRow(row);
-		//QModelIndex data_idx = filter->index(row-1, 0, QModelIndex());
-		//emit dataChanged(data_idx, index(row, filter->columnCount(), QModelIndex()));
 	}
 	else
 	{
 		int const row = rowCount();
 		insertRow(row);
-		//QModelIndex data_idx = index(row -1, 0, QModelIndex());
-		//emit dataChanged(data_idx, index(row, columnCount(), QModelIndex()));
 	}
 
 }

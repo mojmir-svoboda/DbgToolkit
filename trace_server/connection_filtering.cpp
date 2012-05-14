@@ -4,6 +4,81 @@
 #include <tlv_parser/tlv_encoder.h>
 #include "modelview.h"
 #include "utils.h"
+#include "filterproxy.h"
+
+/////////////// TODO: this belongs to filterproxy.cpp /////////////////////////
+void FilterProxyModel::force_update ()
+{
+	//invalidate();
+	reset();
+}
+
+bool FilterProxyModel::filterAcceptsRow (int sourceRow, QModelIndex const & /*sourceParent*/) const
+{
+	MainWindow const * mw = static_cast<Connection const *>(parent())->getMainWindow();
+
+	QString file, line;
+	int const col_idx = m_session_state.findColumn4Tag(tlv::tag_file);
+	if (col_idx >= 0)
+	{
+		QModelIndex data_idx = sourceModel()->index(sourceRow, col_idx, QModelIndex());
+		file = sourceModel()->data(data_idx).toString();
+	}
+	int const col_idx2 = m_session_state.findColumn4Tag(tlv::tag_line);
+	if (col_idx2 >= 0)
+	{
+		QModelIndex data_idx2 = sourceModel()->index(sourceRow, col_idx2, QModelIndex());
+		line = sourceModel()->data(data_idx2).toString();
+	}
+
+	bool excluded = false;
+	excluded |= m_session_state.isFileLineExcluded(std::make_pair(file.toStdString(), line.toStdString()));
+
+	QString tid;
+	int const tid_idx = m_session_state.findColumn4Tag(tlv::tag_tid);
+	if (tid_idx >= 0)
+	{
+		QModelIndex data_idx = sourceModel()->index(sourceRow, tid_idx, QModelIndex());
+		tid = sourceModel()->data(data_idx).toString();
+	}
+
+	QString ctx;
+	int const ctx_idx = m_session_state.findColumn4Tag(tlv::tag_ctx);
+	if (ctx_idx >= 0)
+	{
+		QModelIndex data_idx = sourceModel()->index(sourceRow, ctx_idx, QModelIndex());
+		ctx = sourceModel()->data(data_idx).toString();
+	}
+
+	bool regex_accept = true;
+	if (m_regexps.size() > 0)
+	{
+		regex_accept = false;
+		QString msg;
+		int const msg_idx = m_session_state.findColumn4Tag(tlv::tag_msg);
+		if (msg_idx >= 0)
+		{
+			QModelIndex data_idx = sourceModel()->index(sourceRow, msg_idx, QModelIndex());
+			msg = sourceModel()->data(data_idx).toString();
+		}
+
+		for (int i = 0, ie = m_regexps.size(); i < ie; ++i)
+		{
+			if (m_regex_user_states[i])
+				regex_accept |= m_regexps[i].exactMatch(msg);
+		}
+	}
+
+	excluded |= m_session_state.isTIDExcluded(tid.toStdString());
+	excluded |= m_session_state.isCtxExcluded(ctx.toULongLong());
+
+	QModelIndex data_idx = sourceModel()->index(sourceRow, 0, QModelIndex());
+	excluded |= m_session_state.isBlockCollapsed(tid, data_idx.row());
+	excluded |= data_idx.row() < m_session_state.excludeContentToRow();
+	return !excluded && regex_accept;
+}
+/////////////// TODO: this belongs to filterproxy.cpp /////////////////////////
+
 
 void Connection::onInvalidateFilter ()
 {
@@ -33,6 +108,7 @@ void Connection::setFilterFile (int state)
 		}
 	}
 	m_main_window->getTreeViewFile()->setEnabled(m_main_window->filterEnabled());
+	m_main_window->getTreeViewCtx()->setEnabled(m_main_window->filterEnabled());
 	m_main_window->getListViewTID()->setEnabled(m_main_window->filterEnabled());
 }
 
@@ -51,12 +127,38 @@ void Connection::clearFilters (QStandardItem * node)
 
 void Connection::clearFilters ()
 {
+	//@TODO: call all functions below
+	//sessionState().clearFilters();
+}
+
+void Connection::onClearCurrentFileFilter ()
+{
 	QStandardItem * node = m_tree_view_file_model->invisibleRootItem();
-	clearFilters(node);
-	sessionState().m_file_filters.clear();
-	sessionState().m_tid_filters.clear();
-	//sessionState().m_regex_filters.clear();
-	//sessionState().m_color_regexps.clear();
+	E_FilterMode const fmode = m_main_window->fltMode();
+	setCheckStateRecursive(node->child(0,0), fmode ? true : false);
+	sessionState().onClearFileFilter();
+	onInvalidateFilter();
+}
+void Connection::onClearCurrentCtxFilter ()
+{
+	sessionState().onClearCtxFilter();
+	// @TODO: checkboxes
+	onInvalidateFilter();
+}
+void Connection::onClearCurrentTIDFilter ()
+{
+	sessionState().onClearTIDFilter();
+	onInvalidateFilter();
+}
+void Connection::onClearCurrentColorizedRegexFilter ()
+{
+	sessionState().onClearColorizedRegexFilter();
+	onInvalidateFilter();
+}
+void Connection::onClearCurrentScopeFilter ()
+{
+	sessionState().onClearScopeFilter();
+	onInvalidateFilter();
 }
 
 void Connection::appendToFileFilters (std::string const & item, bool checked)
@@ -98,24 +200,27 @@ void Connection::appendToFileFilters (boost::char_separator<char> const & sep, s
 		{
 			stop = true;
 			append = true;
-			QList<QStandardItem *> row_items = addRow(qItem, checked);
+			QList<QStandardItem *> row_items = addRowTriState(qItem, checked, m_main_window->fltMode());
 			node->appendRow(row_items);
 			node = row_items.at(0);
 		}
 	}
 	if (last_hidden_node)
 	{
-		m_main_window->getTreeViewFile()->setRootIndex(last_hidden_node->index());
+		if (last_hidden_node->parent())
+			m_main_window->getTreeViewFile()->setRootIndex(last_hidden_node->parent()->index());
+		else
+			m_main_window->getTreeViewFile()->setRootIndex(last_hidden_node->index());
 	}
-	if (!append && checked)
+	if (!append)
 	{
 		node->setCheckState(checked ? Qt::Checked : Qt::Unchecked);
 	}
 }
 
-void Connection::appendToFileFilters (boost::char_separator<char> const & sep, std::string const & file, std::string const & line)
+void Connection::appendToFileFilters (boost::char_separator<char> const & sep, std::string const & file, std::string const & line, bool checked)
 {
-	appendToFileFilters(sep, file + "/" + line);
+	appendToFileFilters(sep, file + "/" + line, checked);
 }
 
 void Connection::appendToTIDFilters (std::string const & item)
@@ -129,6 +234,20 @@ void Connection::appendToTIDFilters (std::string const & item)
 		root->appendRow(row_items);
 	}
 }
+
+void Connection::appendToCtxFilters (std::string const & item, bool checked)
+{
+	QString qItem = QString::fromStdString(item);
+	QStandardItemModel * model = static_cast<QStandardItemModel *>(m_main_window->getTreeViewCtx()->model());
+	QStandardItem * root = model->invisibleRootItem();
+	QStandardItem * child = findChildByText(root, qItem);
+	if (child == 0)
+	{
+		QList<QStandardItem *> row_items = addRow(qItem, false);
+		root->appendRow(row_items);
+	}
+}
+
 
 bool Connection::appendToFilters (DecodedCommand const & cmd)
 {
@@ -150,6 +269,11 @@ bool Connection::appendToFilters (DecodedCommand const & cmd)
 				sessionState().m_tls.decrIndent(idx);
 			appendToTIDFilters(cmd.tvs[i].m_val);
 		}
+
+		if (cmd.tvs[i].m_tag == tlv::tag_ctx)
+		{
+			appendToCtxFilters(cmd.tvs[i].m_val, false);
+		}
 	}
 
 	boost::char_separator<char> sep(":/\\");
@@ -159,7 +283,12 @@ bool Connection::appendToFilters (DecodedCommand const & cmd)
 		if (cmd.tvs[i].m_tag == tlv::tag_file)
 		{
 			std::string file(cmd.tvs[i].m_val);
-			appendToFileFilters(sep, file, line);
+			E_FilterMode fmode = m_main_window->fltMode();
+			bool excluded = false;
+			bool const present = sessionState().isFileLinePresent(fileline_t(file, line), excluded);
+			bool const default_checked = fmode == e_Exclude ? false : true;
+			bool const checked = present ? (fmode == e_Exclude ? excluded : !excluded) : default_checked;
+			appendToFileFilters(sep, file, line, checked);
 		}
 	}
 	return true;
@@ -216,5 +345,25 @@ void Connection::recompileColorRegexps ()
 	onInvalidateFilter();
 }
 
+void Connection::flipFilterMode (E_FilterMode mode)
+{
+	qDebug("filterMode changed: old=%u -> new=%u", sessionState().m_filter_mode, mode);
+	if (sessionState().m_filter_mode != mode)
+	{
+		QStandardItem * node = m_tree_view_file_model->invisibleRootItem();
+		flipCheckState(node);
+		flipCheckStateRecursive(node);
+		sessionState().flipFilterMode(mode);
+	}
+}
 
-
+/*void Connection::syncFileTreeWithFilter (E_FilterMode mode, QStandardItem * node)
+{
+	setCheckState(node, checked);
+	int const rc = node->rowCount();
+	for (int r = 0; r < rc; ++r)
+	{
+		QStandardItem * child = node->child(r, 0);
+		syncFileTreeWithFilter(child, checked);
+	}
+}*/
