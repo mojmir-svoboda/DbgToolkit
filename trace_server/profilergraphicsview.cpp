@@ -21,7 +21,7 @@ GraphicsView::GraphicsView (QSpinBox & fs, QWidget * parent)
   * sidebar case.  This function will claim the centerPoint to sceneRec ie.
   * the centerPoint must be within the sceneRec.
   */
-void GraphicsView::SetCenter (const QPointF& centerPoint)
+void GraphicsView::SetCenter (QPointF const & centerPoint)
 {
 	// Get the rectangle of the visible area in scene coords
 	QRectF visibleArea = mapToScene(rect()).boundingRect();
@@ -68,25 +68,24 @@ void GraphicsView::SetCenter (const QPointF& centerPoint)
 			}*/
 		}
 	}
- 
 	// Update the scrollbars
 	centerOn(CurrentCenterPoint);
 }
  
-void GraphicsView::mousePressEvent (QMouseEvent* event)
+void GraphicsView::mousePressEvent (QMouseEvent * event)
 {
 	// For panning the view
 	LastPanPoint = event->pos();
 	setCursor(Qt::ClosedHandCursor);
 }
  
-void GraphicsView::mouseReleaseEvent (QMouseEvent* event)
+void GraphicsView::mouseReleaseEvent (QMouseEvent * event)
 {
 	setCursor(Qt::OpenHandCursor);
 	LastPanPoint = QPoint();
 }
  
-void GraphicsView::mouseMoveEvent (QMouseEvent* event)
+void GraphicsView::mouseMoveEvent (QMouseEvent * event)
 {
 	if (!LastPanPoint.isNull())
 	{

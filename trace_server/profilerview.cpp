@@ -14,13 +14,13 @@ int g_heightValue = 38;
 int g_spaceValue = 15;
 float g_scaleValue = 1.0f;
 
-View::View (MainWindow * mw, const QString & name, QWidget * parent)
+View::View (ProfilerWindow * mw, const QString & name, QWidget * parent)
 	: m_mainWindow(mw)
 	, QFrame(parent)
 {
 	setFrameStyle(Sunken | StyledPanel);
 	m_frameSpinBox = new QSpinBox;
-	m_graphicsView = new MyGraphicsView(*m_frameSpinBox);
+	m_graphicsView = new GraphicsView(*m_frameSpinBox);
 	m_graphicsView->setRenderHint(QPainter::Antialiasing, false);
 	m_graphicsView->setDragMode(QGraphicsView::RubberBandDrag);
 	m_graphicsView->setOptimizationFlags(QGraphicsView::DontSavePainterState);

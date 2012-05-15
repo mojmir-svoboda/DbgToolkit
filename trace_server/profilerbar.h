@@ -3,6 +3,8 @@
 #include <QtGui/QGraphicsItem>
 #include "profilerblockinfo.h"
 
+namespace profiler {
+
 class BarText : public QGraphicsItem
 {
 public:
@@ -43,4 +45,6 @@ private:
     QColor m_color;
     //QList<QPointF> m_stuff;
 };
+
+} 
 

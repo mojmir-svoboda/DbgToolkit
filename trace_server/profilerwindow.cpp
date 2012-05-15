@@ -1,8 +1,8 @@
 #include "profilerwindow.h"
+#include <QtGui>
 #include "profilerview.h"
 #include "profilerbar.h"
 #include "profilerblockinfo.h"
-#include <QtGui>
 
 namespace profiler {
 

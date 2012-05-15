@@ -59,29 +59,6 @@ struct DecodedCommand : tlv::StringCommand
 	}
 };
 
-/////////////// TODO: this belongs to filterproxy.cpp /////////////////////////
-class FilterProxyModel : public QSortFilterProxyModel
-{
-	Q_OBJECT
-
-public:
-	explicit FilterProxyModel (QObject * parent, QList<QRegExp> const & r, std::vector<bool> const & rs, SessionState & ss)
-		: QSortFilterProxyModel(parent), m_session_state(ss), m_regexps(r), m_regex_user_states(rs)
-	{ }
-
-
-public slots:
-	void force_update();
-
-protected:
-	bool filterAcceptsRow (int sourceRow, QModelIndex const & sourceParent) const;
-	SessionState & m_session_state;
-	QList<QRegExp> const & m_regexps;
-	std::vector<bool> const & m_regex_user_states;
-};
-/////////////// TODO: this belongs to filterproxy.cpp /////////////////////////
-
-
 
 /**@class		Connection
  * @brief		represents incoming connection (or file stream)

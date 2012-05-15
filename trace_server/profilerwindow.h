@@ -1,25 +1,26 @@
 #pragma once
-#include "profilerblockinfo.h"
 #include <QtGui/qwidget.h>
+#include "profilerblockinfo.h"
 
 QT_FORWARD_DECLARE_CLASS(QGraphicsScene)
-QT_FORWARD_DECLARE_CLASS(QGraphicsView)
-QT_FORWARD_DECLARE_CLASS(QLabel)
-QT_FORWARD_DECLARE_CLASS(QSlider)
-QT_FORWARD_DECLARE_CLASS(QSplitter)
 
-class ProfilerWindow : public QWidget
-{
-	Q_OBJECT
-public:
-	ProfilerWindow (std::vector<ProfileInfo> & pis, QWidget * parent = 0);
-	void populateScene ();
+namespace profiler {
 
-	ProfileInfo const & getProfileInfo (size_t idx = 0) const { return m_profileInfos[idx]; }
-	
-private:
-	void setupMatrix ();
-	
-	QGraphicsScene * m_scene;
-	std::vector<ProfileInfo> & m_profileInfos;
-};
+	class ProfilerWindow : public QWidget
+	{
+		Q_OBJECT
+	public:
+		ProfilerWindow (std::vector<ProfileInfo> & pis, QWidget * parent = 0);
+		void populateScene ();
+
+		ProfileInfo const & getProfileInfo (size_t idx = 0) const { return m_profileInfos[idx]; }
+		
+	private:
+		void setupMatrix ();
+		
+		QGraphicsScene * m_scene;
+		std::vector<ProfileInfo> & m_profileInfos;
+	};
+
+}
+

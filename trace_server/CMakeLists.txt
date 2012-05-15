@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 2.8)
 PROJECT(trace_server)
+set (CMAKE_VERBOSE_MAKEFILE on)
 FIND_PACKAGE(Qt4 REQUIRED)
 
 include("${CMAKE_CURRENT_SOURCE_DIR}/FindReleaseAndDebug.cmake")
@@ -16,50 +17,72 @@ SET (EXECUTABLE_OUTPUT_PATH
    "Single Directory for all Executables."
    )
 
-SET(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH} "c:/devel/boost_1_47_0")
-SET(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} "c:/devel/boost_1_47_0")
+#SET(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH} "c:/devel/boost_1_47_0")
+#SET(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} "c:/devel/boost_1_47_0")
 
 add_definitions("-DTRACE_ENABLED")
 add_definitions("-DTRACE_STATIC")
 
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/..)
 
+set(Boost_DEBUG 1)
+set(Boost_USE_STATIC_LIBS 1)
 FIND_PACKAGE(Boost)
 IF (Boost_FOUND)
-    INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIR})
-    ADD_DEFINITIONS( "-DHAS_BOOST" )
+	INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIR})
+	ADD_DEFINITIONS( "-DHAS_BOOST" )
+
+	set(BOOST_LIBS thread date_time system regex)
+	find_package(Boost COMPONENTS ${BOOST_LIBS} REQUIRED)
 ENDIF()
+
 
 SET(trace_server_SOURCES
 	main.cpp
 	mainwindow.cpp
-    modelview.cpp
-	#	filterproxy.cpp
-    server.cpp
-    connection.cpp
-    connection_find.cpp
-    connection_stream.cpp
-    connection_setup.cpp
-    connection_filtering.cpp
-    sessionstate.cpp
-    settings.cpp )
+	modelview.cpp
+	filterproxy.cpp
+	server.cpp
+	connection.cpp
+	connection_find.cpp
+	connection_stream.cpp
+	connection_setup.cpp
+	connection_filtering.cpp
+	sessionstate.cpp
+	settings.cpp
+	profilerconnection.cpp
+	profilerbar.cpp
+	profilerconnection.cpp
+	profilergraphicsview.cpp
+	profilerview.cpp
+	profilerwindow.cpp
+	)
 
 SET(trace_server_HEADERS
 	mainwindow.h 
-    modelview.h
-    server.h
-    connection.h
-    ../tlv_parser/tlv_parser.h
-    ../tlv_parser/tlv_encoder.h
-    ../tlv_parser/tlv_decoder.h
-    ../filters/nnode.hpp
-    ../filters/file_filter.hpp
-    sessionstate.h
-    settings.h)
+	modelview.h
+	server.h
+	connection.h
+	filterproxy.h
+	../tlv_parser/tlv_parser.h
+	../tlv_parser/tlv_encoder.h
+	../tlv_parser/tlv_decoder.h
+	../filters/nnode.hpp
+	../filters/file_filter.hpp
+	sessionstate.h
+	settings.h
+	profilerconnection.h
+	profilerbar.h
+	profilerconnection.h
+	profilergraphicsview.h
+	profilerview.h
+	profilerwindow.h
+	)
 
 SET(trace_server_UI mainwindow.ui settings.ui help.ui)
 SET(trace_server_RESOURCES resources.qrc)
 SET(QT_USE_QTNETWORK true)
+SET(QT_USE_QTOPENGL true)
 IF (WIN32)
 	SET (QT_USE_QTMAIN TRUE)
 ENDIF (WIN32) 
@@ -82,23 +105,25 @@ message("Plugin libs ${QT_PLUGINS_DIR}")
 macro(QT_ADD_IMG_PLUGINS target)
 
   IF(QT_CONFIG MATCHES "static")
-    add_definitions(-DQT_STATICPLUGIN)
+	add_definitions(-DQT_STATICPLUGIN)
    
-    # Links against the static plugins
-    FIND_RELEASE_AND_DEBUG(QJPEG qjpeg qjpegd "${QT_PLUGINS_DIR}/imageformats")
-    FIND_RELEASE_AND_DEBUG(QGIF qgif qgifd "${QT_PLUGINS_DIR}/imageformats")
-    FIND_RELEASE_AND_DEBUG(QMNG qmng qmngd "${QT_PLUGINS_DIR}/imageformats")
-    FIND_RELEASE_AND_DEBUG(QICO qico qicod "${QT_PLUGINS_DIR}/imageformats")
-    FIND_RELEASE_AND_DEBUG(QSVG qsvg qsvgd "${QT_PLUGINS_DIR}/imageformats")
-    FIND_RELEASE_AND_DEBUG(QTIFF qtiff qtiffd "${QT_PLUGINS_DIR}/imageformats")
-    FIND_RELEASE_AND_DEBUG(QSVGR QtSvg QtSvgd "C:/devel/QtSDK/QtSources/4.7.4/lib")		# @TODO: fixed path
+	# Links against the static plugins
+	FIND_RELEASE_AND_DEBUG(QJPEG qjpeg qjpegd "${QT_PLUGINS_DIR}/imageformats")
+	FIND_RELEASE_AND_DEBUG(QGIF qgif qgifd "${QT_PLUGINS_DIR}/imageformats")
+	FIND_RELEASE_AND_DEBUG(QMNG qmng qmngd "${QT_PLUGINS_DIR}/imageformats")
+	FIND_RELEASE_AND_DEBUG(QICO qico qicod "${QT_PLUGINS_DIR}/imageformats")
+	FIND_RELEASE_AND_DEBUG(QSVG qsvg qsvgd "${QT_PLUGINS_DIR}/imageformats")
+	FIND_RELEASE_AND_DEBUG(QTIFF qtiff qtiffd "${QT_PLUGINS_DIR}/imageformats")
+	FIND_RELEASE_AND_DEBUG(QSVGR QtSvg QtSvgd "C:/devel/QtSDK/QtSources/4.7.4/lib")		# @TODO: fixed path
 
 	message("ico: ${QICO_LIBRARY}")
 	message("svg: ${QSVG_LIBRARY}")
 	message("svgr: ${QSVGR_LIBRARY}")
+	message("boost: ${Boost_LIBRARIES}")
   
-    target_link_libraries(${target} ${QJPEG_LIBRARY} ${QGIF_LIBRARY}
-      ${QMNG_LIBRARY} ${QICO_LIBRARY} ${QTIFF_LIBRARY} ${QSVG_LIBRARY} ${QSVGR_LIBRARY})
+	target_link_libraries(${target} ${QJPEG_LIBRARY} ${QGIF_LIBRARY}
+	  ${QMNG_LIBRARY} ${QICO_LIBRARY} ${QTIFF_LIBRARY} ${QSVG_LIBRARY}
+	  ${QSVGR_LIBRARY})
   
   endif(QT_CONFIG MATCHES "static")
 
@@ -121,5 +146,5 @@ ADD_EXECUTABLE(trace_server WIN32
 		${trace_server_SOURCES})
 
 QT_ADD_IMG_PLUGINS(trace_server)
-TARGET_LINK_LIBRARIES(trace_server ${QT_LIBRARIES} ${QICO} ${QSVG})
+TARGET_LINK_LIBRARIES(trace_server ${QT_LIBRARIES} ${QICO} ${QSVG} ${Boost_LIBRARIES})
 

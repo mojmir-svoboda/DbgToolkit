@@ -10,16 +10,34 @@
 #	include <windows.h>
 #endif
 
-#include "profiler/blockinfo.h"
-//#include "profiler/profilerserver.h"
+#include "profilerblockinfo.h"
+#include "profilerserver.h"
 
 class ProfilerAcceptorThread : public QThread
 { public:
 	void run ();
 };
 
+// @TODO: delete!!
+std::vector<profiler::ProfileInfo> profileinfos;
+
 void ProfilerAcceptorThread::run ()
 {
+	using boost::asio::ip::tcp;
+	/*if (argc < 2)
+	{
+		printf("Usage: server <port>\n");
+		return;
+	}*/
+
+	qDebug("profiler: server listening...\n");
+	boost::asio::io_service io_service;
+
+	int const port = 13147; // std::atoi(argv[1])
+	tcp::endpoint endpoint(tcp::v4(), port);
+	profiler::server_ptr_t tcp_server(new profiler::Server(io_service, endpoint, profileinfos));
+	io_service.run();
+
 }
 
 struct Application : QApplication
