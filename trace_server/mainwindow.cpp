@@ -362,6 +362,7 @@ void MainWindow::onFileLoad ()
 	QStringList files;
 	files << fname;
 	openFiles(files);
+	getTreeViewFile()->expandAll();
 }
 
 void MainWindow::onFileSave ()
@@ -508,22 +509,11 @@ void MainWindow::onPresetActivate (int idx)
 	Connection * conn = m_server->findCurrentConnection();
 	if (!conn) return;
 
-	conn->clearFilters();
-
+	conn->onClearCurrentFileFilter();
 	for (size_t i = 0, ie = m_filter_presets.at(idx).size(); i < ie; ++i)
 	{
 		std::string filter_item(m_filter_presets.at(idx).at(i).toStdString());
-
-		// @TODO: duplicate
-		E_FilterMode const fmode = fltMode();
-		bool excluded = false;
-		bool const present = conn->sessionState().isFileLinePresent(filter_item, excluded);
-		bool const default_checked = fmode == e_Exclude ? false : true;
-		bool const checked = present ? (fmode == e_Exclude ? excluded : !excluded) : default_checked;
-		qDebug("present=%u checked=%u item=%s", present, checked, filter_item.c_str()); 
-		conn->appendToFileFilters(filter_item, checked);
-
-		conn->sessionState().appendFileFilter(filter_item);
+		conn->loadToFileFilters(filter_item);
 	}
 
 	getTreeViewFile()->expandAll();

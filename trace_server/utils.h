@@ -72,19 +72,20 @@ inline void flipCheckStateRecursive (QStandardItem * node)
 	}
 }
 
-inline void setCheckState (QStandardItem * item, bool checked)
+inline void setCheckState (QStandardItem * const node, Qt::CheckState const state)
 {
-	item->setCheckState(checked ? Qt::Unchecked : Qt::Checked);
+	node->setCheckState(state);
 }
 
-inline void setCheckStateRecursive (QStandardItem * node, bool checked)
+inline void setCheckStateRecursive (QStandardItem * const node, Qt::CheckState const state)
 {
-	setCheckState(node, checked);
+	setCheckState(node, state);
 	int const rc = node->rowCount();
+	//qDebug("node=%s, state=%u", node->text().toStdString().c_str(), state);
 	for (int r = 0; r < rc; ++r)
 	{
 		QStandardItem * const child = node->child(r, 0);
-		setCheckStateRecursive(child, checked);
+		setCheckStateRecursive(child, state);
 	}
 }
 

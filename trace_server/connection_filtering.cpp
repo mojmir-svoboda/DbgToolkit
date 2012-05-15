@@ -61,7 +61,7 @@ void Connection::onClearCurrentFileFilter ()
 {
 	QStandardItem * node = m_tree_view_file_model->invisibleRootItem();
 	E_FilterMode const fmode = m_main_window->fltMode();
-	setCheckStateRecursive(node->child(0,0), fmode ? true : false);
+	setCheckStateRecursive(node->child(0,0), fmode == e_Include ? Qt::Checked : Qt::Unchecked);
 	sessionState().onClearFileFilter();
 	onInvalidateFilter();
 }
@@ -87,13 +87,32 @@ void Connection::onClearCurrentScopeFilter ()
 	onInvalidateFilter();
 }
 
+
+void Connection::loadToFileFilters (std::string const & filter_item)
+{
+	sessionState().appendFileFilter(filter_item);
+
+	E_FilterMode const fmode = m_main_window->fltMode();
+	bool excluded = false;
+	bool const present = sessionState().isFileLinePresent(filter_item, excluded);
+	bool const default_checked = fmode == e_Exclude ? false : true;
+	bool const checked = present ? (fmode == e_Exclude ? excluded : !excluded) : default_checked;
+	//qDebug("present=%u excluded=%u checked=%u item=%s", present, excluded, checked, filter_item.c_str()); 
+
+	boost::char_separator<char> sep(":/\\"); // @TODO: duplicate!
+	appendToFileFilters(sep, filter_item, checked, true);
+	m_main_window->getTreeViewFile()->expandAll();
+
+	onInvalidateFilter();
+}
+
 void Connection::appendToFileFilters (std::string const & item, bool checked)
 {
 	boost::char_separator<char> sep(":/\\");
-	appendToFileFilters(sep, item, checked);
+	appendToFileFilters(sep, item, checked, false);
 }
 
-void Connection::appendToFileFilters (boost::char_separator<char> const & sep, std::string const & item, bool checked)
+void Connection::appendToFileFilters (boost::char_separator<char> const & sep, std::string const & item, bool checked, bool recursive)
 {
 	typedef boost::tokenizer<boost::char_separator<char> > tokenizer_t;
 	tokenizer_t tok(item, sep);
@@ -142,11 +161,16 @@ void Connection::appendToFileFilters (boost::char_separator<char> const & sep, s
 	{
 		node->setCheckState(checked ? Qt::Checked : Qt::Unchecked);
 	}
+
+	if (recursive)
+	{
+		setCheckStateRecursive(node, checked ? Qt::Checked : Qt::Unchecked);
+	}
 }
 
 void Connection::appendToFileFilters (boost::char_separator<char> const & sep, std::string const & file, std::string const & line, bool checked)
 {
-	appendToFileFilters(sep, file + "/" + line, checked);
+	appendToFileFilters(sep, file + "/" + line, checked, false);
 }
 
 void Connection::appendToTIDFilters (std::string const & item)

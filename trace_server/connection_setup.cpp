@@ -45,7 +45,8 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 						tokenizer_t tok(e.m_file_filters, sep2);
 						for (tokenizer_t::const_iterator it = tok.begin(), ite = tok.end(); it != ite; ++it)
 						{
-							appendToFileFilters(sep, *it, true);
+							//appendToFileFilters(sep, *it, true);
+							loadToFileFilters(*it);
 						}
 					}
 

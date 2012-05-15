@@ -171,16 +171,8 @@ void Server::onClickedAtFileTree_Impl (QModelIndex idx, bool recursive)
 	E_FilterMode const fmode = main_window->fltMode();
 	bool const orig_checked = (item->checkState() == Qt::Checked ? false : true);
 
-	if (fmode == e_Include)
-	{
-		setCheckState(item, orig_checked);
-		setCheckStateRecursive(item, orig_checked);
-	}
-	else
-	{
-		setCheckState(item, orig_checked);
-		setCheckStateRecursive(item, orig_checked);
-	}
+	Qt::CheckState const new_state = orig_checked ? Qt::Unchecked : Qt::Checked;
+	setCheckStateRecursive(item, new_state);
 
 	QStandardItem const * line_item = 0;
 	if (!item->hasChildren())

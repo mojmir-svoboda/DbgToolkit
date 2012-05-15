@@ -59,8 +59,12 @@ public:
 	
 	SessionState & sessionState () { return m_session_state; }
 	SessionState const & sessionState () const { return m_session_state; }
+	void loadToFileFilters (std::string const & item);
 	void appendToFileFilters (std::string const & item, bool checked);
+	void appendToFileFilters (boost::char_separator<char> const & sep, std::string const & item, bool checked, bool recursive);
 	void appendToCtxFilters (std::string const & item, bool checked);
+
+
 	void clearFilters ();
 	void findText (QString const & text, tlv::tag_t tag);
 	void findText (QString const & text);
