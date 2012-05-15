@@ -41,6 +41,9 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay)
 	, ui(new Ui::MainWindow)
 	, m_settings(new Ui::SettingsDialog)
 	, m_help(new Ui::HelpDialog)
+#if (defined WIN32) && (defined STATIC)
+	, m_hotkey(VK_SCROLL)
+#endif
 	, m_hidden(false)
 	, m_was_maximized(false)
 	, m_timer(new QTimer(this))
@@ -143,14 +146,6 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay)
 	connect(ui->tabTrace, SIGNAL(tabCloseRequested(int)), m_server, SLOT(onCloseTabWithIndex(int)));
 	QTimer::singleShot(0, this, SLOT(loadState()));	// trigger lazy load of settings
 	setWindowTitle("flog server");
-
-#ifdef WIN32
-	DWORD hotkey = VK_NUMLOCK;
-	//DWORD hotkey = VK_SCROLL;
-	int mod = 0;
-	UnregisterHotKey(winId(), 0);
-	RegisterHotKey(winId(), 0, mod, LOBYTE(hotkey));
-#endif
 }
 
 MainWindow::~MainWindow()
@@ -924,6 +919,10 @@ void MainWindow::storeState ()
 		}
 		settings.endGroup();
 	}
+
+#ifdef WIN32
+	settings.setvalue("hotkeyCode", m_hotkey);
+#endif
 }
 
 void MainWindow::loadState ()
@@ -976,8 +975,16 @@ void MainWindow::loadState ()
 			m_thread_colors.push_back(QColor(static_cast<Qt::GlobalColor>(i)));
 	}
 
-	loadPresets();
+#ifdef WIN32
+	unsigned const hotkeyCode = settings.value("hotkeyCode").toInt();
+	m_hotkey = hotkeyCode ? hotkeyCode : VK_SCROLL;
+	DWORD const hotkey = m_hotkey;
+	int mod = 0;
+	UnregisterHotKey(winId(), 0);
+	RegisterHotKey(winId(), 0, mod, LOBYTE(hotkey));
+#endif
 
+	loadPresets();
 	getTreeViewFile()->setEnabled(filterEnabled());
 }
 

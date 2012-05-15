@@ -124,6 +124,8 @@ public:
 	void recompileRegexps ();
 	void recompileColorRegexps ();
 
+	unsigned getHotKey () const;
+
 public slots:
 	void onHotkeyShowOrHide ();
 
@@ -169,6 +171,7 @@ private:
 	Ui::MainWindow * ui;
 	Ui::SettingsDialog * m_settings;
 	Ui::HelpDialog * m_help;
+	unsigned m_hotkey;
 	bool m_hidden;
 	bool m_was_maximized;
 	QList<QString> m_app_names;					/// registered applications
