@@ -8,29 +8,9 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/enable_shared_from_this.hpp>
 #include "profilerblockinfo.h"
+#include "cmd.h"
 
 namespace profiler {
-
-struct DecodedCommand : tlv::StringCommand
-{
-	enum { e_max_length = 2048 };
-	std::vector<char> orig_message;
-
-	DecodedCommand ()
-		: StringCommand()
-	{
-		orig_message.resize(e_max_length);
-		tvs.reserve(tlv::tag_max_value);
-		Reset();
-	}
-
-	void Reset ()
-	{
-		hdr.Reset();
-		tvs.clear();
-	}
-};
-
 
 struct Connection : public boost::enable_shared_from_this<Connection>
 {

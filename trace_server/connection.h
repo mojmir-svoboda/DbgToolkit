@@ -35,29 +35,13 @@
 #include <boost/circular_buffer.hpp>
 #include "sessionstate.h"
 #include "filterproxy.h"
+#include "cmd.h"
 
 class Server;
 class QFile;
 class QDataStream;
 class QStandardItemModel;
 class QStandardItem;
-
-struct DecodedCommand : tlv::StringCommand
-{
-	enum { e_max_sz = 2048 };
-	char orig_message[e_max_sz];
-	bool written_hdr;
-	bool written_payload;
-
-	DecodedCommand () : StringCommand() { Reset(); }
-
-	void Reset ()
-	{
-		written_hdr = written_payload = false;
-		hdr.Reset();
-		tvs.clear();
-	}
-};
 
 
 /**@class		Connection

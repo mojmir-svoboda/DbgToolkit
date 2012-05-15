@@ -4,6 +4,7 @@
 #include <QHeaderView>
 #include <tlv_parser/tlv_encoder.h>
 #include "modelview.h"
+#include "cmd.h"
 
 /*inline void Dump (DecodedCommand const & c)
 {

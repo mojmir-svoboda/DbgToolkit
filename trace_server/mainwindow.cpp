@@ -145,7 +145,8 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay)
 	setWindowTitle("flog server");
 
 #ifdef WIN32
-	DWORD hotkey = VK_SCROLL;
+	DWORD hotkey = VK_NUMLOCK;
+	//DWORD hotkey = VK_SCROLL;
 	int mod = 0;
 	UnregisterHotKey(winId(), 0);
 	RegisterHotKey(winId(), 0, mod, LOBYTE(hotkey));
@@ -390,20 +391,32 @@ void MainWindow::onFileExportToCSV ()
 
 void MainWindow::onHotkeyShowOrHide ()
 {
-	m_hidden = !m_hidden;
-	if (m_hidden)
+	bool const not_on_top = !isActiveWindow();
+	qDebug("onHotkeyShowOrHide() isActive=%u", not_on_top);
+
+	if (!m_hidden && not_on_top)
 	{
-		m_was_maximized = isMaximized();
-		hide();
+		raise();
+		activateWindow();
+		return;
 	}
 	else
 	{
-		if (m_was_maximized)
-			showMaximized();
+		m_hidden = !m_hidden;
+		if (m_hidden)
+		{
+			m_was_maximized = isMaximized();
+			hide();
+		}
 		else
-			showNormal();
-		raise();
-		activateWindow();
+		{
+			if (m_was_maximized)
+				showMaximized();
+			else
+				showNormal();
+			raise();
+			activateWindow();
+		}
 	}
 }
 
