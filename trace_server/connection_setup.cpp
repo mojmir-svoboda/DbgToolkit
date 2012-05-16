@@ -1,6 +1,7 @@
 #include "connection.h"
 #include <QStandardItemModel>
 #include <QListView>
+#include <QHeaderView>
 #include <tlv_parser/tlv_encoder.h>
 #include "modelview.h"
 
@@ -77,15 +78,16 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 				m_table_view_widget->model()->insertColumn(i);
 			}
 
-			/*MainWindow::columns_sizes_t const & sizes = *sessionState().m_columns_sizes;
+			columns_sizes_t const & sizes = *sessionState().m_columns_sizes;
 			for (size_t c = 0, ce = sizes.size(); c < ce; ++c)
 			{
 				m_table_view_widget->horizontalHeader()->resizeSection(c, sizes.at(c));
-			}*/
+			}
 			connect(m_table_view_widget, SIGNAL(clicked(QModelIndex const &)), this, SLOT(onTableClicked(QModelIndex const &)));
 			connect(m_table_view_widget, SIGNAL(doubleClicked(QModelIndex const &)), this, SLOT(onTableDoubleClicked(QModelIndex const &)));
 			m_table_view_widget->setContextMenuPolicy(Qt::CustomContextMenu);
 			connect(m_table_view_widget, SIGNAL(customContextMenuRequested(QPoint const &)), this, SLOT(onShowContextMenu(QPoint const &)));
+			m_table_view_widget->horizontalHeader()->setStretchLastSection(true);
 
 			static_cast<ModelView *>(m_table_view_widget->model())->emitLayoutChanged();
 		}
