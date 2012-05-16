@@ -115,6 +115,7 @@ public:
 	bool reuseTabEnabled () const;
 	bool filterEnabled () const;
 	bool buffEnabled () const;
+	Qt::CheckState buffState () const;
 	bool clrFltEnabled () const;
 	E_FilterMode fltMode () const;
 	void changeEvent (QEvent* e);

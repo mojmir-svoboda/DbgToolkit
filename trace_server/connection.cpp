@@ -160,16 +160,18 @@ void Connection::onLevelValueChanged (int val)
 
 void Connection::onBufferingStateChanged (int val)
 {
+	bool const buffering_enabled = (val == Qt::Checked) ? true : false;
+
 	char tlv_buff[16];
 #ifdef __linux__
-	int const result = snprintf(tlv_buff, 16, "%u", val);
+	int const result = snprintf(tlv_buff, 16, "%u", buffering_enabled);
 #else
-	int const result = _snprintf(tlv_buff, 16, "%u", val);
+	int const result = _snprintf(tlv_buff, 16, "%u", buffering_enabled);
 #endif
 
 	if (result > 0)
 	{
-		qDebug("Connection::onBufferingStateChanged to_state=%i", val);
+		qDebug("Connection::onBufferingStateChanged to_state=%i", buffering_enabled);
 		char buff[256];
 		using namespace tlv;
 		Encoder e(cmd_set_buffering, buff, 256);
@@ -345,6 +347,21 @@ void Connection::onTableDoubleClicked (QModelIndex const & row_index)
 			m_session_state.appendCollapsedBlock(tid, from, to, file, line);
 		onInvalidateFilter();
 	}
+}
+
+void Connection::onApplyColumnSetup ()
+{
+	for (int i = 0; i < m_table_view_widget->horizontalHeader().count(), ++i)
+	{
+		qDebug("column: %s", m_table_view_widget->horizontalHeader());
+	}
+	
+	columns_setup_t const & cs = m_main_window->getColumnSetup(sessionState().m_app_idx);
+	//&m_main_window->getColumnSizes(sessionState().m_app_idx));
+
+	//m_table_view_widget->horizontalHeader()->moveSection(from, to);
+	//m_table_view_widget->horizontalHeader()->swapSection(from, to);
+	//m_table_view_widget->horizontalHeader()->hideSection(from, to);
 }
 
 void Connection::onExcludeFileLine ()

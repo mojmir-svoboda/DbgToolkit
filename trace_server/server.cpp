@@ -160,6 +160,13 @@ void Server::onToggleRefFromRow ()
 		conn->onToggleRefFromRow();
 }
 
+void Server::onApplyColumnSetup ()
+{
+	// @TODO: for each connection?
+	if (Connection * conn = findCurrentConnection())
+		conn->onApplyColumnSetup();
+}
+
 void Server::onClickedAtFileTree_Impl (QModelIndex idx, bool recursive)
 {
 	MainWindow * const main_window = static_cast<MainWindow *>(parent());

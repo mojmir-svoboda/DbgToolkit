@@ -12,6 +12,16 @@ INCLUDEPATH += ..
 INCLUDEPATH += c:/devel/boost_1_48_0
 
 win32-msvc* {
+	DEFINES += QT_NO_OPENGL
+	LIBS += c:/devel/boost_1_48_0/stage/lib/libboost_system-vc100-mt-1_48.lib
+	LIBS += c:/devel/boost_1_48_0/stage/lib/libboost_date_time-vc100-mt-1_48.lib
+	LIBS += c:/devel/boost_1_48_0/stage/lib/libboost_thread-vc100-mt-1_48.lib
+	LIBS += c:/devel/boost_1_48_0/stage/lib/libboost_regex-vc100-mt-1_48.lib
+	#LIBS += c:/devel/boost_1_48_0/stage/lib/libboost_system-vc100-mt-gd-1_48.lib
+	#LIBS += c:/devel/boost_1_48_0/stage/lib/libboost_date_time-vc100-mt-gd-1_48.lib
+	#LIBS += c:/devel/boost_1_48_0/stage/lib/libboost_thread-vc100-mt-gd-1_48.lib
+	#LIBS += c:/devel/boost_1_48_0/stage/lib/libboost_regex-vc100-mt-gd-1_48.lib
+
 }
 win32-g++ {
     QMAKE_CXXFLAGS += -Wno-deprecated
@@ -46,7 +56,13 @@ SOURCES += main.cpp\
     connection_filtering.cpp \
     connection.cpp \
     sessionstate.cpp \
-    settings.cpp
+    settings.cpp	\
+	profilerconnection.cpp \
+	profilerbar.cpp	\
+	profilerconnection.cpp	\
+	profilergraphicsview.cpp	\
+	profilerview.cpp	\
+	profilerwindow.cpp
 
 HEADERS  += mainwindow.h \
     modelview.h \
@@ -60,7 +76,14 @@ HEADERS  += mainwindow.h \
     ../filters/file_filter.hpp \
     ../trace_client/trace.h \
     sessionstate.h \
-    settings.h
+    settings.h	\
+	profilerbar.h	\
+	profilerblockinfo.h	\
+	profilerconnection.h	\
+	profilergraphicsview.h	\
+	profilerserver.h	\
+	profilerview.h	\
+	profilerwindow.h
 
 FORMS    += mainwindow.ui \
     settings.ui \

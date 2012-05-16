@@ -91,11 +91,8 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 		}
 	}
 
-	if (!m_main_window->buffEnabled())
-	{
-		qDebug("Server::incomingConnection buffering not enabled, notifying client\n");
-		onBufferingStateChanged(m_main_window->buffEnabled());
-	}
+	qDebug("Server::incomingConnection buffering not enabled, notifying client\n");
+	onBufferingStateChanged(m_main_window->buffState());
 	return true;
 }
 

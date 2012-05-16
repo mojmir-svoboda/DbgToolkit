@@ -111,6 +111,7 @@ private slots:
 	void onDisconnected ();
 	void onTableClicked (QModelIndex const & index);
 	void onTableDoubleClicked (QModelIndex const & index);
+	void onApplyColumnSetup ();
 
 private:
 	friend class Server;

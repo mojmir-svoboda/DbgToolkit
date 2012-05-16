@@ -245,6 +245,7 @@ bool MainWindow::filterEnabled () const { return ui->filterFileCheckBox->isCheck
 bool MainWindow::reuseTabEnabled () const { return ui->reuseTabCheckBox->isChecked(); }
 bool MainWindow::autoScrollEnabled () const { return ui->autoScrollCheckBox->isChecked(); }
 bool MainWindow::buffEnabled () const { return ui->buffCheckBox->isChecked(); }
+Qt::CheckState MainWindow::buffState () const { return ui->buffCheckBox->checkState(); }
 bool MainWindow::clrFltEnabled () const { return ui->clrFiltersCheckBox->isChecked(); }
 E_FilterMode MainWindow::fltMode () const
 {
@@ -494,6 +495,12 @@ void MainWindow::onColumnSetup ()
 					m_columns_sizes[idx].append(127);
 				}
 			}
+		}
+
+
+		if (Connection * conn = m_server->findCurrentConnection())
+		{
+			conn->applyColumnSetup();
 		}
 	}
 }
@@ -911,7 +918,7 @@ void MainWindow::storeState ()
 	}
 
 #ifdef WIN32
-	settings.setvalue("hotkeyCode", m_hotkey);
+	settings.setValue("hotkeyCode", m_hotkey);
 #endif
 }
 

@@ -80,6 +80,7 @@ public slots:
 	void onClearCurrentTIDFilter ();
 	void onClearCurrentColorizedRegexFilter ();
 	void onClearCurrentScopeFilter ();
+	void onApplyColumnSetup ();
 
 	void onCloseCurrentTab ();
 	void onCloseTab (QWidget * w);
