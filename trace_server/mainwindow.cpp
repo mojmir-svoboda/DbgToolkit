@@ -114,6 +114,10 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay)
     connect(ui->reuseTabCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onReuseTabChanged(int)));
     //connect(ui->clrFiltersCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onClrFiltersStateChanged(int)));
 	connect(ui->presetComboBox, SIGNAL(activated(int)), this, SLOT(onPresetActivate(int)));
+	connect(ui->presetAddButton, SIGNAL(clicked()), this, SLOT(onAddCurrentFileFilter()));
+	connect(ui->presetRmButton, SIGNAL(clicked()), this, SLOT(onRmCurrentFileFilter()));
+	connect(ui->presetSaveButton, SIGNAL(clicked()), this, SLOT(onSaveCurrentFileFilter()));
+	connect(ui->presetResetButton, SIGNAL(clicked()), m_server, SLOT(onClearCurrentFileFilter()));
 
 	connect(getListViewRegex(), SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtRegexList(QModelIndex)));
 	connect(getListViewRegex(), SIGNAL(doubleClicked(QModelIndex)), m_server, SLOT(onDoubleClickedAtRegexList(QModelIndex)));
@@ -137,6 +141,10 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay)
 	ui->filterFileCheckBox->setToolTip(tr("enables filtering via fileFilter tab"));
 	ui->buffCheckBox->setToolTip(tr("turns on/off buffering of messages on client side."));
 	ui->presetComboBox->setToolTip(tr("selects and applies saved preset file filter"));
+	ui->presetAddButton->setToolTip(tr("saves current fileFilter state as new preset"));
+	ui->presetRmButton->setToolTip(tr("removes currently selected preset"));
+	ui->presetSaveButton->setToolTip(tr("saves current fileFilter state as currently selected preset"));
+	ui->presetResetButton->setToolTip(tr("clear current fileFilter"));
 	ui->filterModeComboBox->setToolTip(tr("selects filtering mode: inclusive (check what you want, unchecked are not displayed) or exclusive (checked items are filtered out)."));
 	ui->levelSpinBox->setToolTip(tr("adjusts debug level of client side"));
 	ui->qSearchLineEdit->setToolTip(tr("search text in logged text"));
@@ -145,7 +153,7 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay)
 	connect(ui->filterModeComboBox, SIGNAL(activated(int)), this, SLOT(onFilterModeActivate(int)));
 	connect(ui->tabTrace, SIGNAL(tabCloseRequested(int)), m_server, SLOT(onCloseTabWithIndex(int)));
 	QTimer::singleShot(0, this, SLOT(loadState()));	// trigger lazy load of settings
-	setWindowTitle("flog server");
+	setWindowTitle(".*server");
 }
 
 MainWindow::~MainWindow()
@@ -500,7 +508,7 @@ void MainWindow::onColumnSetup ()
 
 		if (Connection * conn = m_server->findCurrentConnection())
 		{
-			conn->applyColumnSetup();
+			conn->onApplyColumnSetup();
 		}
 	}
 }
@@ -715,27 +723,24 @@ void MainWindow::recompileColorRegexps ()
 
 void MainWindow::onSaveCurrentFileFilter ()
 {
+	
+	onSaveCurrentFileFilterTo(ui->presetComboBox->currentText());
+}
+
+void MainWindow::onSaveCurrentFileFilterTo (QString const & preset_name)
+{
 	if (!getTabTrace()->currentWidget()) return;
 	Connection * conn = m_server->findCurrentConnection();
 	if (!conn) return;
 
-	QString filled_text;
-	filled_text.append(conn->sessionState().m_name);
-	filled_text.append("/new_preset");
-
-	QStringList items(m_preset_names);
-	items.push_front(filled_text);
-
-	bool ok = false;
-	QString text = QInputDialog::getItem(this, tr("Save current preset"), tr("Preset name:"), items, 0, true, &ok);
-	if (ok && !text.isEmpty())
+	if (!preset_name.isEmpty())
 	{
-		int idx = findPresetName(text);
+		int idx = findPresetName(preset_name);
 		if (idx == -1)
 		{
-			idx = addPresetName(text);
+			idx = addPresetName(preset_name);
 		}
-		qDebug("new preset_name[%i]=%s", idx, text.toStdString().c_str());
+		qDebug("new preset_name[%i]=%s", idx, preset_name.toStdString().c_str());
 
 		std::string current_filter;
 		conn->sessionState().m_file_filters.export_filter(current_filter);
@@ -757,6 +762,52 @@ void MainWindow::onSaveCurrentFileFilter ()
 			ui->presetComboBox->addItem(m_preset_names.at(i));
 	}
 }
+
+void MainWindow::onAddCurrentFileFilter ()
+{
+	if (!getTabTrace()->currentWidget()) return;
+	Connection * conn = m_server->findCurrentConnection();
+	if (!conn) return;
+
+	QString filled_text;
+	filled_text.append(conn->sessionState().m_name);
+	filled_text.append("/new_preset");
+
+	QStringList items(m_preset_names);
+	items.push_front(filled_text);
+
+	bool ok = false;
+	QString preset_name = QInputDialog::getItem(this, tr("Save current preset"), tr("Preset name:"), items, 0, true, &ok);
+	if (ok && !preset_name.isEmpty())
+	{
+		onSaveCurrentFileFilterTo(preset_name);
+	}
+}
+
+void MainWindow::onRmCurrentFileFilter ()
+{
+	/*if (!getTabTrace()->currentWidget()) return;
+	Connection * conn = m_server->findCurrentConnection();
+	if (!conn) return;
+
+	QString const text = ui->filterModeComboBox->currentText();
+	int idx = findPresetName(text);
+	if (idx == -1)
+	{
+		idx = addPresetName(text);
+	}
+	qDebug("removing preset_name[%i]=%s", idx, text.toStdString().c_str());
+	
+	ui->presetComboBox->clear();
+	m_filter_presets[idx].clear();
+
+	conn->onClearCurrentFileFilter();
+	conn->onInvalidateFilter();
+
+	//m_preset_names.at(idx) = QString("");
+	storePresets();*/
+}
+
 
 void MainWindow::setupMenuBar ()
 {
@@ -843,12 +894,15 @@ void MainWindow::storePresets ()
 
 	for (size_t i = 0, ie = m_preset_names.size(); i < ie; ++i)
 	{
-		qDebug("store group=%s", m_preset_names.at(i).toStdString().c_str());
-		settings.beginGroup(tr("preset_%1").arg(m_preset_names.at(i)));
+		if (!m_preset_names.at(i).isEmpty())
 		{
-			write_list_of_strings(settings, "items", "item", m_filter_presets.at(i));
+			qDebug("store group=%s", m_preset_names.at(i).toStdString().c_str());
+			settings.beginGroup(tr("preset_%1").arg(m_preset_names.at(i)));
+			{
+				write_list_of_strings(settings, "items", "item", m_filter_presets.at(i));
+			}
+			settings.endGroup();
 		}
-		settings.endGroup();
 	}
 }
 

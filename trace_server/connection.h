@@ -37,11 +37,26 @@
 #include "filterproxy.h"
 #include "cmd.h"
 
+#include <QItemDelegate>
+
 class Server;
 class QFile;
 class QDataStream;
 class QStandardItemModel;
 class QStandardItem;
+
+
+class TableItemDelegate : public QItemDelegate
+{
+public: 
+    TableItemDelegate (QObject *parent = 0) : QItemDelegate(parent) { }
+
+    void paint (QPainter * painter, QStyleOptionViewItem const & option, QModelIndex const & index) const;
+    void paintCustom (QPainter * painter, QStyleOptionViewItem const & option, QModelIndex const & index) const;
+    
+private slots:
+    //void commitAndCloseEditor ();
+};
 
 
 /**@class		Connection
@@ -105,13 +120,13 @@ public slots:
 	void onExcludeFileLine ();
 	void onToggleRefFromRow ();
 	void onExcludeFileLine (QModelIndex const & row_index);
+	void onApplyColumnSetup ();
 
 private slots:
 	void processReadyRead ();
 	void onDisconnected ();
 	void onTableClicked (QModelIndex const & index);
 	void onTableDoubleClicked (QModelIndex const & index);
-	void onApplyColumnSetup ();
 
 private:
 	friend class Server;

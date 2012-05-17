@@ -17,6 +17,22 @@
 #include "modelview.h"
 #include "utils.h"
 
+void TableItemDelegate::paint (QPainter * painter, QStyleOptionViewItem const & option, QModelIndex const & index) const
+{
+	if (index.column() == 4 || index.column() == 6)
+		paintCustom(painter, option, index);
+	else
+		QItemDelegate::paint(painter, option, index);
+}
+
+
+void TableItemDelegate::paintCustom (QPainter * painter, QStyleOptionViewItem const & option, QModelIndex const & index) const
+{
+	QStyleOptionViewItem option2 = option;
+	//option2.decorationAlignment = Qt::AlignRight;
+	//option2.textElideMode = Qt::ElideLeft;
+	QItemDelegate::paint(painter, option2, index);
+}
 
 Connection::Connection (QObject * parent)
 	: QThread(parent)
@@ -351,9 +367,9 @@ void Connection::onTableDoubleClicked (QModelIndex const & row_index)
 
 void Connection::onApplyColumnSetup ()
 {
-	for (int i = 0; i < m_table_view_widget->horizontalHeader().count(), ++i)
+	for (int i = 0; i < m_table_view_widget->horizontalHeader()->count(); ++i)
 	{
-		qDebug("column: %s", m_table_view_widget->horizontalHeader());
+		//qDebug("column: %s", m_table_view_widget->horizontalHeader()->text());
 	}
 	
 	columns_setup_t const & cs = m_main_window->getColumnSetup(sessionState().m_app_idx);

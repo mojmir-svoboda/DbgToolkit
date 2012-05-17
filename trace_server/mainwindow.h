@@ -150,6 +150,9 @@ private slots:
 	void iconActivated (QSystemTrayIcon::ActivationReason reason);
 	void onQSearchEditingFinished ();
 	void onSaveCurrentFileFilter ();
+	void onSaveCurrentFileFilterTo (QString const & name);
+	void onAddCurrentFileFilter ();
+	void onRmCurrentFileFilter ();
 	void onPresetActivate (int idx);
 	void onRegexActivate (int idx);
 	void onRegexAdd ();
