@@ -229,6 +229,11 @@ void ModelView::appendCommand (QSortFilterProxyModel * filter, tlv::StringComman
 		QString qval;
 		if (tag == tlv::tag_msg)
 		{
+			if (QString::fromStdString(val).endsWith("XXX"))
+			{
+				qDebug("x");
+			}
+
 			qval.append(qindent);
 		}
 

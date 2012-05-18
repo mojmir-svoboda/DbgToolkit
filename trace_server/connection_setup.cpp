@@ -87,7 +87,14 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 			connect(m_table_view_widget, SIGNAL(doubleClicked(QModelIndex const &)), this, SLOT(onTableDoubleClicked(QModelIndex const &)));
 			m_table_view_widget->setContextMenuPolicy(Qt::CustomContextMenu);
 			connect(m_table_view_widget, SIGNAL(customContextMenuRequested(QPoint const &)), this, SLOT(onShowContextMenu(QPoint const &)));
+
+			m_table_view_widget->horizontalHeader()->setStretchLastSection(false);
+//////////////// PERF!!!!! //////////////////
+	/*
 			m_table_view_widget->horizontalHeader()->setStretchLastSection(true);
+
+	*/
+//////////////// PERF!!!!! //////////////////
 
 			static_cast<ModelView *>(m_table_view_widget->model())->emitLayoutChanged();
 		}

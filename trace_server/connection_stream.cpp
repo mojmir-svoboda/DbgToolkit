@@ -79,7 +79,8 @@ void Connection::onHandleCommands ()
 		m_first_line = false;
 	}
 
-	{
+//////////////// PERF!!!!! //////////////////
+	/*{
 		// hotfix for disobedient column hiding @TODO: resolve in future
 		columns_sizes_t const & sizes = m_main_window->getColumnSizes(sessionState().m_app_idx);
 		columns_setup_t const & global_template = m_main_window->getColumnSetup(sessionState().m_app_idx);
@@ -94,7 +95,9 @@ void Connection::onHandleCommands ()
 		//static_cast<ModelView *>(m_table_view_widget->model())->emitLayoutChanged();
 		//m_main_window->getTreeViewFile()->setResizeMode(relevantColumn, QHeaderView::ResizeToContents);
 		m_main_window->getTreeViewFile()->resizeColumnToContents(0);
-	}
+	}*/
+
+//////////////// PERF!!!!! //////////////////
 
 	model->transactionCommit();
 
