@@ -11,7 +11,7 @@
 #endif
 
 #include "profilerblockinfo.h"
-#include "profilerserver.h"
+//#include "profilerserver.h"
 
 class ProfilerAcceptorThread : public QThread
 { public:
@@ -23,12 +23,12 @@ std::vector<profiler::ProfileInfo> profileinfos;
 
 void ProfilerAcceptorThread::run ()
 {
-	using boost::asio::ip::tcp;
 	/*if (argc < 2)
 	{
 		printf("Usage: server <port>\n");
 		return;
 	}*/
+/*	using boost::asio::ip::tcp;
 
 	qDebug("profiler: server listening...\n");
 	boost::asio::io_service io_service;
@@ -37,7 +37,7 @@ void ProfilerAcceptorThread::run ()
 	tcp::endpoint endpoint(tcp::v4(), port);
 	profiler::server_ptr_t tcp_server(new profiler::Server(io_service, endpoint, profileinfos));
 	io_service.run();
-
+*/
 }
 
 struct Application : QApplication
@@ -52,14 +52,14 @@ struct Application : QApplication
 
 	~Application ()
 	{
-		m_prof_acceptor_thread.terminate();
-		m_prof_acceptor_thread.wait();
+		//m_prof_acceptor_thread.terminate();
+		//m_prof_acceptor_thread.wait();
 	}
 
 	void setMainWindow (MainWindow * mw)
 	{
 		m_main_window = mw;
-		m_prof_acceptor_thread.start();
+		//m_prof_acceptor_thread.start();
 	}
 
 #ifdef WIN32

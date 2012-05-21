@@ -21,26 +21,45 @@
  **/
 #pragma once
 #include <QString>
-#include <QSortFilterProxyModel>
+#include <QAbstractProxyModel>
 #include <QRegExp>
 #include "../filters/file_filter.hpp"
 #include "sessionstate.h"
 
-class FilterProxyModel : public QSortFilterProxyModel
+class FilterProxyModel : public QAbstractProxyModel
 {
 	Q_OBJECT
 
 public:
 	explicit FilterProxyModel (QObject * parent, QList<QRegExp> const & r, std::vector<bool> const & rs, SessionState & ss)
-		: QSortFilterProxyModel(parent), m_session_state(ss), m_regexps(r), m_regex_user_states(rs)
+		: QAbstractProxyModel(parent)
+		, m_columns(0)
+		, m_session_state(ss), m_regexps(r), m_regex_user_states(rs)
 	{ }
 
+	virtual QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
+	virtual QModelIndex parent (QModelIndex const & child) const;
+
+	virtual int rowCount (QModelIndex const & parent = QModelIndex()) const;
+	virtual int columnCount (QModelIndex const & parent = QModelIndex()) const;
+
+	virtual QModelIndex mapToSource (QModelIndex const & proxyIndex) const;
+	virtual QModelIndex mapFromSource (QModelIndex const & sourceIndex) const;
+
+	virtual bool insertRows (int row, int count, QModelIndex const &);
+	virtual bool insertColumns (int column, int count, const QModelIndex &parent = QModelIndex());
+	QVariant data (QModelIndex const & index, int role) const;
 
 public slots:
 	void force_update();
 
 protected:
+
 	bool filterAcceptsRow (int sourceRow, QModelIndex const & sourceParent) const;
+
+	std::vector<int> m_map_from_tgt;
+	int m_columns;
+	std::vector<int> m_map_from_src;
 	SessionState & m_session_state;
 	QList<QRegExp> const & m_regexps;
 	std::vector<bool> const & m_regex_user_states;

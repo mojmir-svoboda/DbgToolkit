@@ -10,6 +10,7 @@ namespace trace {
 		e_Info,
 		e_Detail,
 		e_Debug,
+		e_Brutus,		// too much detail (per frame useless info etc)
 
 		e_max_trace_level
 	};

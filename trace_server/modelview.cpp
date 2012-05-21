@@ -1,7 +1,7 @@
 #include "modelview.h"
 #include <QBrush>
 #include <QColor>
-#include <QSortFilterProxyModel>
+#include <QAbstractProxyModel>
 #include "connection.h"
 #include <trace_client/trace.h>
 
@@ -168,15 +168,15 @@ QVariant ModelView::headerData (int section, Qt::Orientation orientation, int ro
 void ModelView::transactionStart (size_t n)
 {
 	int const row = rowCount();
-	beginInsertRows(QModelIndex(), row, row + n);
+	//beginInsertRows(QModelIndex(), row, row + n);
 
-	emit layoutAboutToBeChanged();
+	//emit layoutAboutToBeChanged();
 }
 
 void ModelView::transactionCommit ()
 {
-	endInsertRows();
-	emit layoutChanged();
+	//endInsertRows();
+	//emit layoutChanged();
 }
 
 void ModelView::emitLayoutChanged ()
@@ -184,7 +184,7 @@ void ModelView::emitLayoutChanged ()
 	emit layoutChanged();
 }
 
-void ModelView::appendCommand (QSortFilterProxyModel * filter, tlv::StringCommand const & cmd)
+void ModelView::appendCommand (QAbstractProxyModel * filter, tlv::StringCommand const & cmd)
 {
 	int column_index = -1;
 	int idx = -1;
@@ -229,11 +229,6 @@ void ModelView::appendCommand (QSortFilterProxyModel * filter, tlv::StringComman
 		QString qval;
 		if (tag == tlv::tag_msg)
 		{
-			if (QString::fromStdString(val).endsWith("XXX"))
-			{
-				qDebug("x");
-			}
-
 			qval.append(qindent);
 		}
 
@@ -242,6 +237,11 @@ void ModelView::appendCommand (QSortFilterProxyModel * filter, tlv::StringComman
 		if (column_index < 0)
 		{
 			column_index = m_session_state.insertColumn(tag);
+
+			if (filter)
+			{
+				filter->insertColumn(column_index);
+			}
 		}
 		columns[column_index] = qval;
 	}
@@ -278,5 +278,5 @@ void ModelView::appendCommand (QSortFilterProxyModel * filter, tlv::StringComman
 		int const row = rowCount();
 		insertRow(row);
 	}
-
 }
+

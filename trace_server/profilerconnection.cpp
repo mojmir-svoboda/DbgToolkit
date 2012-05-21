@@ -3,7 +3,7 @@
 #include <tlv_parser/tlv_encoder.h>
 
 namespace profiler {
-
+	/*
 bool Connection::tryHandleCommand (DecodedCommand const & cmd)
 {
 	if (cmd.hdr.cmd == tlv::cmd_setup)
@@ -146,7 +146,7 @@ bool Connection::handleProfileCommand (DecodedCommand const & cmd)
 	}
 
 	return true;
-}
+}*/
 
 } // namespace profiler
 

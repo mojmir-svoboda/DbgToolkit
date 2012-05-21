@@ -25,7 +25,7 @@
 #include <QString>
 #include <QTcpSocket>
 #include <QTableView>
-#include <QSortFilterProxyModel>
+#include <QAbstractProxyModel>
 #include <QThread>
 #include <QMenu>
 #include "mainwindow.h"
@@ -174,7 +174,7 @@ private:
 	QStandardItemModel * m_tree_view_func_model;
 	QStandardItemModel * m_list_view_tid_model;
 	QStandardItemModel * m_list_view_color_regex_model;
-	QSortFilterProxyModel * m_table_view_proxy;
+	QAbstractProxyModel * m_table_view_proxy;
 	QMenu m_ctx_menu;
 	QAction * m_toggle_ref;
 	QAction * m_hide_prev;

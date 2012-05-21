@@ -6,17 +6,104 @@
 #include <QListView>
 #include <tlv_parser/tlv_encoder.h>
 #include <trace_client/trace.h>
-//#include "mainwindow.h"
 
 void FilterProxyModel::force_update ()
 {
-	reset();
+	emit layoutAboutToBeChanged();
+
+	m_map_from_tgt.clear();
+	for (size_t src_idx = 0, se = m_map_from_src.size(); src_idx < se; ++src_idx)
+	{
+		if (filterAcceptsRow(src_idx, QModelIndex()))
+		{
+			int const tgt_idx = m_map_from_tgt.size();
+			m_map_from_tgt.push_back(src_idx);
+			m_map_from_src[src_idx] = tgt_idx;
+		}
+	}
+	emit layoutChanged();
+}
+
+QVariant FilterProxyModel::data (QModelIndex const & index, int role) const
+{
+	QModelIndex const src_idx = mapToSource(index);
+	return sourceModel()->data(src_idx, role);
+}
+
+QModelIndex FilterProxyModel::index (int row, int column, QModelIndex const & parent) const
+{
+	if (row < m_map_from_tgt.size()) // && column == reasonable
+		return QAbstractItemModel::createIndex(row, column, 0);
+	return QModelIndex();
+}
+QModelIndex FilterProxyModel::parent (QModelIndex const & child) const
+{
+	return QModelIndex();
+}
+
+int FilterProxyModel::rowCount (QModelIndex const & parent) const
+{
+	return m_map_from_tgt.size();
+}
+
+int FilterProxyModel::columnCount (QModelIndex const & parent) const
+{
+	return m_columns;
+}
+
+QModelIndex FilterProxyModel::mapToSource (QModelIndex const & proxyIndex) const
+{
+	if (proxyIndex.isValid())
+	{
+		return QAbstractItemModel::createIndex(m_map_from_tgt[proxyIndex.row()], proxyIndex.column(), 0);
+	}
+	return QModelIndex();
+}
+
+QModelIndex FilterProxyModel::mapFromSource (QModelIndex const & sourceIndex) const
+{
+	if (sourceIndex.isValid() && sourceIndex.row() < m_map_from_src.size())
+	{
+		//qDebug("FPM: %s src.row=%i, src.sz=%u", __FUNCTION__, sourceIndex.row(), m_map_from_src.size());
+		return QAbstractItemModel::createIndex(m_map_from_src[sourceIndex.row()], sourceIndex.column(), 0);
+	}
+	return QModelIndex();
+}
+
+bool FilterProxyModel::insertRows (int row, int count, QModelIndex const &parent)
+{
+	// @TODO: count == n
+
+	int const src_idx = m_map_from_src.size();
+	m_map_from_src.push_back(-1);
+
+	if (filterAcceptsRow(src_idx, QModelIndex()))
+	{
+		emit layoutAboutToBeChanged();
+
+		int const tgt_idx = m_map_from_tgt.size();
+		//beginInsertRows(parent, tgt_idx, tgt_idx);
+
+		m_map_from_tgt.push_back(src_idx);
+		m_map_from_src[src_idx] = tgt_idx;
+		
+		//endInsertRows();	//@TODO: this causes performance hit too
+
+		emit layoutChanged();
+	}
+	return true;
+}
+
+bool FilterProxyModel::insertColumns (int column, int count, QModelIndex const & parent)
+{
+	if (column >= m_columns)
+		++m_columns;
+	return true;
 }
 
 bool FilterProxyModel::filterAcceptsRow (int sourceRow, QModelIndex const & /*sourceParent*/) const
 {
-	//MainWindow const * mw = static_cast<Connection const *>(parent())->getMainWindow();
-
+	//@TODO: toStdString is a performance hit too
 	QString file, line;
 	int const col_idx = m_session_state.findColumn4Tag(tlv::tag_file);
 	if (col_idx >= 0)

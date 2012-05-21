@@ -3,7 +3,7 @@
 #include <tlv_parser/tlv_decoder.h>
 #include <filters/file_filter.hpp>
 #include <boost/config.hpp>
-#include <boost/asio.hpp>
+//#include <boost/asio.hpp>
 #include <boost/bind.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/enable_shared_from_this.hpp>
@@ -14,7 +14,7 @@ namespace profiler {
 
 struct Connection : public boost::enable_shared_from_this<Connection>
 {
-	ProfileInfo & m_profileInfo;
+/*	ProfileInfo & m_profileInfo;
 	boost::asio::io_service & m_io;
 	boost::asio::ip::tcp::socket m_socket;
 	DecodedCommand m_current_cmd;
@@ -81,6 +81,7 @@ struct Connection : public boost::enable_shared_from_this<Connection>
 	bool tryHandleCommand (DecodedCommand const & cmd);
 	bool handleProfileCommand (DecodedCommand const & cmd);
 	bool handleSetupCommand (DecodedCommand const & cmd);
+	*/
 };
 
 typedef boost::shared_ptr<Connection> connection_ptr_t;

@@ -146,7 +146,7 @@ bool SessionState::isFileLineExcluded (fileline_t const & item) const
 }
 bool SessionState::isFileLineExcluded (std::string const & fileline) const
 {
-	return m_file_filters.is_excluded(fileline);
+	return m_file_filters.is_excluded_fast(fileline);
 }
 bool SessionState::isFileLinePresent (fileline_t const & item, bool & state) const
 {

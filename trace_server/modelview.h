@@ -30,7 +30,7 @@
 
 class Connection;
 class SessionState;
-class QSortFilterProxyModel;
+class QAbstractProxyModel;
 
 class ModelView : public QAbstractTableModel
 {
@@ -45,7 +45,7 @@ public:
 	QVariant headerData (int section, Qt::Orientation orientation, int role) const;
 
 	void transactionStart (size_t n);
-	void appendCommand (QSortFilterProxyModel * filter, tlv::StringCommand const & cmd);
+	void appendCommand (QAbstractProxyModel * filter, tlv::StringCommand const & cmd);
 	void transactionCommit ();
 
 	void emitLayoutChanged ();

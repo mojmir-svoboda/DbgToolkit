@@ -102,6 +102,19 @@ struct NNode
 		return 0;
 	}
 
+	static NNode const * node_child_fast (NNode const * node, char const * left, char const * right)
+	{     
+		node = node->children;
+		while (node)
+		{
+			if (0 == strncmp(node->key.c_str(), left, right - left))
+				return node;
+			node = node->next;
+		}
+		return 0;
+	}
+
+
 
 	static bool is_leaf (NNode * node) { return node->children == 0; }
 	static bool is_root (NNode * node) { return node->parent == 0 && node->prev == 0 && node->next == 0; }

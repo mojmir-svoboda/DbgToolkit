@@ -127,10 +127,40 @@ struct file_filter
 			}
 		}
 	}
+
+	bool is_excluded_fast (std::string const & file) const
+	{
+		char const * const bgn = file.c_str();
+		char const * const end = bgn + file.size();
+
+		char const * left = bgn;
+		char const * right = bgn;
+		node_t const * level = root;
+		for (; right < end; ++right)
+		{
+			char const c = *right;
+			if (c == ':' || c == '/' || c == '\\' || c == '\0' || right + 1 == end)
+			{
+				if (right - left > 0)
+				{
+					level = node_t::node_child_fast(level, left, right);
+					if (level == 0)
+						return false; // node not in tree
+					else if (level->data.is_enabled) // node is tagged for exclusion
+						return true;  // node is tagged for exclusion
+
+				}
+				if (right + 1 < end)
+					left = right + 1;
+			}
+		}
+		return false; // node is not tagged
+	}
+
 	bool is_excluded (std::string const & file) const
 	{
 		tokenizer_t tok(file, separator);
-		node_t * level = root;
+		node_t const * level = root;
 	   	for (tokenizer_t::iterator it = tok.begin(), ite = tok.end(); it != ite; ++it)
 		{
 			level = node_t::node_child(level, *it);

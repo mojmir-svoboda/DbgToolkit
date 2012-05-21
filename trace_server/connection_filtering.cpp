@@ -26,7 +26,7 @@ void Connection::setFilterFile (int state)
 
 			m_table_view_proxy->setSourceModel(m_table_view_widget->model());
 			m_table_view_widget->setModel(m_table_view_proxy);
-			m_table_view_proxy->setDynamicSortFilter(true);
+			//m_table_view_proxy->setDynamicSortFilter(true);
 		}
 		else
 		{

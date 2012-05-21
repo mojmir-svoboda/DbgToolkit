@@ -219,7 +219,7 @@ int main ()
 	for (;;)
 	{
 #if defined WIN32 || defined WIN64
-		Sleep(2000);
+		Sleep(20);
 #elif defined __linux__
 		usleep(2000 * 1000);
 #endif
@@ -231,8 +231,8 @@ int main ()
 		++i;
 		TRACE_MSG(trace::e_Info, trace::CTX_Default,  "Some another annoying message i=%u from main thread", i);
 
-		if (i == 4)
-			break;
+		//if (i == 4)
+		//	break;
 
 		TRACE_MSG(trace::e_Info, trace::CTX_Default,  "Some warning message i=%u from main thread", i);
 	}
