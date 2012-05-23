@@ -154,6 +154,7 @@ private:
 	void setupModelCtx ();
 	void setupModelTID ();
 	void setupModelColorRegex ();
+	void setupColumnSizes ();
 	QString findString4Tag (tlv::tag_t tag, QModelIndex const & row_index) const;
 	QVariant findVariant4Tag (tlv::tag_t tag, QModelIndex const & row_index) const;
 	void selectionFromTo (int & from, int & to) const;
@@ -164,7 +165,7 @@ private:
 	MainWindow * m_main_window;
 	SessionState m_session_state;
 	int m_from_file;
-	bool m_first_line;
+	bool m_column_setup_done;
 	int m_last_search_row;
 	int m_last_search_col;
 	QString m_last_search;

@@ -64,6 +64,7 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 
 			sessionState().m_name = app_name;
 
+			m_table_view_widget->setVisible(false);
 			m_main_window->getTabTrace()->setTabText(sessionState().m_tab_idx, app_name);
 			QString storage_name = createStorageName();
 			setupStorage(storage_name);
@@ -78,17 +79,26 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 				m_table_view_widget->model()->insertColumn(i);
 			}
 
+			m_table_view_widget->horizontalHeader()->resizeSections(QHeaderView::Fixed);
+
 			columns_sizes_t const & sizes = *sessionState().m_columns_sizes;
 			for (size_t c = 0, ce = sizes.size(); c < ce; ++c)
 			{
 				m_table_view_widget->horizontalHeader()->resizeSection(c, sizes.at(c));
+				qDebug("sizes: %u %u %u", sizes.at(0), sizes.at(1), sizes.at(2));
 			}
+
+			m_table_view_widget->horizontalHeader()->setResizeMode(QHeaderView::Fixed);
+			m_table_view_widget->verticalHeader()->setResizeMode(QHeaderView::Fixed);
+
 			connect(m_table_view_widget, SIGNAL(clicked(QModelIndex const &)), this, SLOT(onTableClicked(QModelIndex const &)));
 			connect(m_table_view_widget, SIGNAL(doubleClicked(QModelIndex const &)), this, SLOT(onTableDoubleClicked(QModelIndex const &)));
 			m_table_view_widget->setContextMenuPolicy(Qt::CustomContextMenu);
 			connect(m_table_view_widget, SIGNAL(customContextMenuRequested(QPoint const &)), this, SLOT(onShowContextMenu(QPoint const &)));
 
-			m_table_view_widget->horizontalHeader()->setStretchLastSection(false);
+			m_table_view_widget->setVisible(true);
+
+			//m_table_view_widget->horizontalHeader()->setStretchLastSection(false);
 //////////////// PERF!!!!! //////////////////
 	/*
 			m_table_view_widget->horizontalHeader()->setStretchLastSection(true);
@@ -103,6 +113,39 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 	qDebug("Server::incomingConnection buffering not enabled, notifying client\n");
 	onBufferingStateChanged(m_main_window->buffState());
 	return true;
+}
+
+void Connection::setupColumnSizes ()
+{
+	if (!m_column_setup_done)
+	{
+		m_column_setup_done = true;
+		bool const old = m_table_view_widget->blockSignals(true);
+		{
+			m_table_view_widget->horizontalHeader()->resizeSections(QHeaderView::Fixed);
+
+			columns_sizes_t const & sizes = *sessionState().m_columns_sizes;
+			for (size_t c = 0, ce = sizes.size(); c < ce; ++c)
+			{
+				m_table_view_widget->horizontalHeader()->resizeSection(c, sizes.at(c));
+				qDebug("size: col[%i]=%u", c, sizes.at(c));
+			}
+
+			m_table_view_widget->horizontalHeader()->setResizeMode(QHeaderView::Interactive);
+			m_table_view_widget->verticalHeader()->setResizeMode(QHeaderView::Interactive);
+
+			columns_setup_t const & global_template = m_main_window->getColumnSetup(sessionState().m_app_idx);
+			for (size_t c = 0, ce = sizes.size(); c < ce; ++c)
+			{
+				if (c >= global_template.size())
+				{
+					m_table_view_widget->horizontalHeader()->hideSection(c);
+				}
+			}
+		}
+		m_table_view_widget->blockSignals(old);
+	}
+	//m_main_window->getTreeViewFile()->resizeColumnToContents(true);
 }
 
 void Connection::setupModelFile ()

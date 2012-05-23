@@ -60,45 +60,7 @@ void Connection::onHandleCommands ()
 		m_decoded_cmds.pop_front();
 	}
 
-		// sigh. hotfix for disobedient column resizing @TODO: resolve in future
-	//if (m_first_line)	// resize columns according to saved template
-	{
-		columns_sizes_t const & sizes = m_main_window->getColumnSizes(sessionState().m_app_idx);
-		columns_setup_t const & global_template = m_main_window->getColumnSetup(sessionState().m_app_idx);
-
-		if (global_template.empty())
-		{
-			Q_ASSERT(sessionState().getColumnsSetupCurrent());
-			m_main_window->getColumnSetup(sessionState().m_app_idx) = *sessionState().getColumnsSetupCurrent();
-		}
-		
-		bool const old = m_table_view_widget->blockSignals(true);
-		for (size_t c = 0, ce = sizes.size(); c < ce; ++c)
-			m_table_view_widget->horizontalHeader()->resizeSection(c, sizes.at(c));
-		m_table_view_widget->blockSignals(old);
-		m_first_line = false;
-	}
-
-//////////////// PERF!!!!! //////////////////
-	/*{
-		// hotfix for disobedient column hiding @TODO: resolve in future
-		columns_sizes_t const & sizes = m_main_window->getColumnSizes(sessionState().m_app_idx);
-		columns_setup_t const & global_template = m_main_window->getColumnSetup(sessionState().m_app_idx);
-		for (size_t c = 0, ce = sizes.size(); c < ce; ++c)
-		{
-			if (c >= global_template.size())
-			{
-				m_table_view_widget->horizontalHeader()->hideSection(c);
-				//m_table_view_widget->hideColumn(c);
-			}
-		}
-		//static_cast<ModelView *>(m_table_view_widget->model())->emitLayoutChanged();
-		//m_main_window->getTreeViewFile()->setResizeMode(relevantColumn, QHeaderView::ResizeToContents);
-		m_main_window->getTreeViewFile()->resizeColumnToContents(0);
-	}*/
-
-//////////////// PERF!!!!! //////////////////
-
+	setupColumnSizes();
 	model->transactionCommit();
 
 	if (m_main_window->autoScrollEnabled())
