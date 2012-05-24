@@ -265,9 +265,9 @@ bool Connection::appendToFilters (DecodedCommand const & cmd)
 	return true;
 }
 
-void Connection::appendToRegexFilters (std::string const & val)
+void Connection::appendToRegexFilters (std::string const & str, bool checked, bool inclusive)
 {
-	m_session_state.appendToRegexFilters(val);
+	m_session_state.appendToRegexFilters(str, checked, inclusive);
 }
 
 void Connection::removeFromRegexFilters (std::string const & val)

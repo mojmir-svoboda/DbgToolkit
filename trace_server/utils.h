@@ -49,14 +49,16 @@ inline QList<QStandardItem *> addTriRow (QString const & str, bool inclusive)
 	QList<QStandardItem *> row_items;
 
 	QStandardItem * const name_item = new QStandardItem(str);
-	name_item->setCheckable(false);
+	name_item->setCheckable(true);
 	row_items << name_item;
 
+	QString mode("E");
 	if (inclusive)
-		row_items << new QStandardItem("I");
-	else
-		row_items << new QStandardItem("E");
+		mode = "I";
 
+	QStandardItem * const mode_item = new QStandardItem(mode);
+	row_items.append(mode_item);
+	name_item->setCheckable(false);
 	return row_items;
 }
 

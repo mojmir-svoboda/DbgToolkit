@@ -60,6 +60,9 @@ public slots:
 	void onClickedAtTIDList (QModelIndex idx);
 	void onDoubleClickedAtTIDList (QModelIndex idx);
 
+	void onClickedAtLvlList (QModelIndex idx);
+	//void onDoubleClickedAtTIDList (QModelIndex idx);
+
 	void onClickedAtRegexList (QModelIndex idx);
 	void onDoubleClickedAtRegexList (QModelIndex idx);
 

@@ -327,10 +327,24 @@ void MainWindow::onQFilterLineEditFinished ()
 	Connection * conn = m_server->findCurrentConnection();
 	if (!conn) return;
 
+	if (ui->qFilterLineEdit->text().size() == 0)
+		return;
+
 	QString text(".*");
 	text.append(ui->qFilterLineEdit->text());
 	text.append(".*");
-	conn->appendToRegexFilters(text.toStdString());
+	conn->appendToRegexFilters(text.toStdString(), true, true);
+
+	QStandardItemModel * model = static_cast<QStandardItemModel *>(getListViewRegex()->model());
+	QStandardItem * root = model->invisibleRootItem();
+	QStandardItem * child = findChildByText(root, text);
+	if (!child)
+	{
+		QList<QStandardItem *> row_items = addTriRow(text, true);
+		root->appendRow(row_items);
+		child = findChildByText(root, text);
+	}
+
 	conn->recompileRegexps();
 	conn->onInvalidateFilter();
 }
@@ -593,9 +607,9 @@ void MainWindow::onRegexAdd ()
 	QStandardItem * child = findChildByText(root, qItem);
 	if (child == 0)
 	{
-		QList<QStandardItem *> row_items = addTriRow(qItem, false);
+		QList<QStandardItem *> row_items = addTriRow(qItem, true);
 		root->appendRow(row_items);
-		conn->appendToRegexFilters(qItem.toStdString());
+		conn->appendToRegexFilters(qItem.toStdString(), false, true);
 		conn->recompileRegexps();
 	}
 }

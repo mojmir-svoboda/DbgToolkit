@@ -264,6 +264,7 @@ void Server::onClickedAtCtxTree (QModelIndex idx)
 
 	if (Connection * conn = findCurrentConnection())
 	{
+
 		if (checked)
 			conn->sessionState().appendCtxFilter(ctx);
 		else
@@ -287,6 +288,7 @@ void Server::onClickedAtTIDList (QModelIndex idx)
 	if (!idx.isValid())
 		return;
 	MainWindow * main_window = static_cast<MainWindow *>(parent());
+	E_FilterMode const fmode = main_window->fltMode();
 	QStandardItemModel * model = static_cast<QStandardItemModel *>(main_window->getListViewTID()->model());
 	QStandardItem * item = model->itemFromIndex(idx);
 	Q_ASSERT(item);
@@ -294,10 +296,12 @@ void Server::onClickedAtTIDList (QModelIndex idx)
 	QString const & val = model->data(idx, Qt::DisplayRole).toString();
 	std::string filter_item(val.toStdString());
 
-	bool const checked = (item->checkState() == Qt::Checked);
-
+	bool checked = (item->checkState() == Qt::Checked);
 	if (Connection * conn = findCurrentConnection())
 	{
+		if (fmode == e_Include)
+			checked = !checked;
+
 		if (checked)
 			conn->sessionState().appendTIDFilter(filter_item);
 		else
@@ -305,6 +309,34 @@ void Server::onClickedAtTIDList (QModelIndex idx)
 		conn->onInvalidateFilter();
 	}
 }
+
+void Server::onClickedAtLvlList (QModelIndex idx)
+{
+	if (!idx.isValid())
+		return;
+	MainWindow * main_window = static_cast<MainWindow *>(parent());
+	QStandardItemModel * model = static_cast<QStandardItemModel *>(main_window->getListViewLvl()->model());
+	QStandardItem * item = model->itemFromIndex(idx);
+	Q_ASSERT(item);
+
+	QString const & val = model->data(idx, Qt::DisplayRole).toString();
+	std::string filter_item(val.toStdString());
+
+	E_FilterMode const fmode = main_window->fltMode();
+	bool checked = (item->checkState() == Qt::Checked);
+	if (Connection * conn = findCurrentConnection())
+	{
+		if (fmode == e_Include)
+			checked = !checked;
+
+		if (checked)
+			conn->sessionState().appendLvlFilter(filter_item);
+		else
+			conn->sessionState().removeLvlFilter(filter_item);
+		conn->onInvalidateFilter();
+	}
+}
+
 
 void Server::onDoubleClickedAtTIDList (QModelIndex idx)
 { }

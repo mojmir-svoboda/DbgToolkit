@@ -85,7 +85,7 @@ public:
 	void findText (QString const & text);
 	void findNext ();
 	void findPrev ();
-	void appendToRegexFilters (std::string const & item);
+	void appendToRegexFilters (std::string const & str, bool checked, bool inclusive);
 	void removeFromRegexFilters (std::string const & item);
 	void appendToColorRegexFilters (std::string const & item);
 	void removeFromColorRegexFilters (std::string const & item);

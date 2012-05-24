@@ -161,7 +161,7 @@ public:
 	void setColorRegexChecked (std::string const & s, bool checked);
 
 	// regex filtering
-	void appendToRegexFilters (std::string const & str);
+	void appendToRegexFilters (std::string const & str, bool checked, bool inclusive);
 	void removeFromRegexFilters (std::string const & str);
 	bool isMatchedRegexExcluded (QString str) const;
 	void setRegexChecked (std::string const & s, bool checked);

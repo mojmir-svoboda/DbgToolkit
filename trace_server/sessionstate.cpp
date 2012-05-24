@@ -432,10 +432,10 @@ void SessionState::removeFromRegexFilters (std::string const & s)
 		}
 	}
 }
-void SessionState::appendToRegexFilters (std::string const & s)
+void SessionState::appendToRegexFilters (std::string const & s, bool enabled, bool inclusive)
 {
-	m_filtered_regexps.push_back(FilteredRegex(s, e_Fg));
+	m_filtered_regexps.push_back(FilteredRegex(s, enabled));
+	m_filtered_regexps.back().m_is_inclusive = inclusive;
 }
-
 
 
