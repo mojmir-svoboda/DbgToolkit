@@ -129,6 +129,14 @@ bool FilterProxyModel::filterAcceptsRow (int sourceRow, QModelIndex const & /*so
 		tid = sourceModel()->data(data_idx).toString();
 	}
 
+	QString lvl;
+	int const lvl_idx = m_session_state.findColumn4Tag(tlv::tag_lvl);
+	if (lvl_idx >= 0)
+	{
+		QModelIndex data_idx = sourceModel()->index(sourceRow, lvl_idx, QModelIndex());
+		lvl = sourceModel()->data(data_idx).toString();
+	}
+
 	QString ctx;
 	int const ctx_idx = m_session_state.findColumn4Tag(tlv::tag_ctx);
 	if (ctx_idx >= 0)
@@ -138,7 +146,7 @@ bool FilterProxyModel::filterAcceptsRow (int sourceRow, QModelIndex const & /*so
 	}
 
 	bool regex_accept = true;
-	if (m_regexps.size() > 0)
+	if (m_session_state.m_filtered_regexps.size() > 0)
 	{
 		regex_accept = false;
 		QString msg;
@@ -149,14 +157,11 @@ bool FilterProxyModel::filterAcceptsRow (int sourceRow, QModelIndex const & /*so
 			msg = sourceModel()->data(data_idx).toString();
 		}
 
-		for (int i = 0, ie = m_regexps.size(); i < ie; ++i)
-		{
-			if (m_regex_user_states[i])
-				regex_accept |= m_regexps[i].exactMatch(msg);
-		}
+		excluded |= m_session_state.isMatchedRegexExcluded(msg);
 	}
 
 	excluded |= m_session_state.isTIDExcluded(tid.toStdString());
+	excluded |= m_session_state.isLvlExcluded(lvl.toStdString());
 	excluded |= m_session_state.isCtxExcluded(ctx.toULongLong());
 
 	QModelIndex data_idx = sourceModel()->index(sourceRow, 0, QModelIndex());

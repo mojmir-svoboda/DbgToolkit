@@ -319,17 +319,46 @@ void Server::onClickedAtRegexList (QModelIndex idx)
 	Q_ASSERT(item);
 
 	QString const & val = model->data(idx, Qt::DisplayRole).toString();
-	std::string filter_item(val.toStdString());
 
 	bool const checked = (item->checkState() == Qt::Checked);
 
-	qDebug("regex click! (checked=%u) %s ", checked, filter_item.c_str());
-
-	if (Connection * conn = findCurrentConnection())
+	if (idx.column() == 1)
 	{
-		// @TODO: if state really changed
-		main_window->recompileRegexps();
-		conn->onInvalidateFilter();
+		QString const & reg = model->data(model->index(idx.row(), 1, QModelIndex()), Qt::DisplayRole).toString();
+		std::string filter_item(val.toStdString());
+		bool is_inclusive = true;
+		if (val == "I")
+		{
+			model->setData(idx, QString("E"));
+			is_inclusive = false;
+		}
+
+		if (checked)
+		{
+			QString const & val = model->data(idx, Qt::DisplayRole).toString();
+			std::string filter_item(val.toStdString());
+
+			if (Connection * conn = findCurrentConnection())
+			{
+				conn->sessionState().setRegexInclusive(reg.toStdString(), is_inclusive);
+				conn->onInvalidateFilter();
+			}
+		}
+		else
+		{
+		}
+	}
+	else
+	{
+		std::string filter_item(val.toStdString());
+		qDebug("regex click! (checked=%u) %s ", checked, filter_item.c_str());
+
+		if (Connection * conn = findCurrentConnection())
+		{
+			// @TODO: if state really changed
+			conn->recompileRegexps();
+			conn->onInvalidateFilter();
+		}
 	}
 }
 
@@ -353,7 +382,7 @@ void Server::onClickedAtColorRegexList (QModelIndex idx)
 	if (Connection * conn = findCurrentConnection())
 	{
 		// @TODO: if state really changed
-		main_window->recompileColorRegexps();
+		conn->recompileColorRegexps();
 		conn->onInvalidateFilter();
 		conn->m_session_state.setColorRegexChecked(filter_item, checked);
 	}
@@ -376,7 +405,8 @@ void Server::onDoubleClickedAtColorRegexList (QModelIndex idx)
 	if (Connection * conn = findCurrentConnection())
 	{
 		conn->m_session_state.setRegexColor(val.toStdString(), color);
-		main_window->recompileRegexps();
+		conn->recompileColorRegexps();
+		conn->onInvalidateFilter();
 	}
 }
 
@@ -389,6 +419,8 @@ Connection * Server::createNewTableView ()
 	connection->setupModelCtx();
 	connection->setupModelTID();
 	connection->setupModelColorRegex();
+	connection->setupModelLvl();
+	connection->setupModelRegex();
 	QWidget * tab = new QWidget();
 	QHBoxLayout * horizontalLayout = new QHBoxLayout(tab);
 	horizontalLayout->setSpacing(6);

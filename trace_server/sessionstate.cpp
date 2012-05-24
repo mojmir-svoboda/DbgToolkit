@@ -111,16 +111,70 @@ void SessionState::sessionExport (SessionExport & e) const
 {
 	e.m_file_filters.reserve(32 * 1024);
 	m_file_filters.export_filter(e.m_file_filters);
+
+	for (int i = 0, ie = m_colorized_texts.size(); i < ie; ++i)
+	{
+		ColorizedText const & ct = m_colorized_texts.at(i);
+		e.m_colortext_regexs.append(ct.m_regex_str);
+		e.m_colortext_colors.append(ct.m_qcolor.name().toStdString());
+		e.m_colortext_enabled.append(ct.m_is_enabled ? "1" : "0");
+
+		if (i < ie)
+		{
+			e.m_colortext_regexs += "\n";
+			e.m_colortext_colors += "\n";
+			e.m_colortext_enabled += "\n";
+		}
+	}
+	//qDebug("color regexps:\n%s\n", e.m_colortext_regexs.c_str());
+	//qDebug("color colors:\n%s\n", e.m_colortext_colors.c_str());
 }
 void SessionState::sessionImport (SessionExport const & e)
 {
 	boost::char_separator<char> sep("\n");
 	typedef boost::tokenizer<boost::char_separator<char> > tokenizer_t;
-	tokenizer_t tok(e.m_file_filters, sep);
-	for (tokenizer_t::const_iterator it = tok.begin(), ite = tok.end(); it != ite; ++it)
+	
 	{
-		m_file_filters.exclude(*it);
+		tokenizer_t tok(e.m_file_filters, sep);
+		for (tokenizer_t::const_iterator it = tok.begin(), ite = tok.end(); it != ite; ++it)
+		{
+			m_file_filters.exclude(*it);
+		}
 	}
+
+	{
+		m_colorized_texts.clear();
+		{
+			tokenizer_t tok(e.m_colortext_regexs, sep);
+			for (tokenizer_t::const_iterator it = tok.begin(), ite = tok.end(); it != ite; ++it)
+			{
+				std::string tok(*it);
+				//qDebug("import regex: %s", tok.c_str());
+				m_colorized_texts.append(ColorizedText(*it, e_Fg)); //@TODO: save role
+			}
+		}
+		{
+			tokenizer_t tok(e.m_colortext_colors, sep);
+			int i = 0;
+			for (tokenizer_t::const_iterator it = tok.begin(), ite = tok.end(); it != ite; ++it, ++i)
+			{
+				std::string tok(*it);
+				//qDebug("import color[%i]: %s", i, tok.c_str());
+				m_colorized_texts[i].m_qcolor.setNamedColor(QString::fromStdString(*it));
+			}
+		}
+		{
+			tokenizer_t tok(e.m_colortext_enabled, sep);
+			int i = 0;
+			for (tokenizer_t::const_iterator it = tok.begin(), ite = tok.end(); it != ite; ++it, ++i)
+			{
+				std::string tok(*it);
+				//qDebug("import state[%i]: %s", i, tok.c_str());
+				m_colorized_texts[i].m_is_enabled = QString::fromStdString(*it).toInt();
+			}
+		}
+	}
+
 }
 void SessionState::makeInexactCopy (SessionState const & rhs)
 {
@@ -133,7 +187,7 @@ void SessionState::clearFilters ()
 {
 	//m_file_filters.clear();
 	m_tid_filters.clear();
-	//m_regex_filters.clear();
+	m_filtered_regexps.clear();
 	m_colorized_texts.clear();
 	m_collapse_blocks.clear();
 }
@@ -202,6 +256,21 @@ bool SessionState::isTIDExcluded (std::string const & item) const
 	return std::find(m_tid_filters.begin(), m_tid_filters.end(), item) != m_tid_filters.end();
 }
 
+///////// lvl filters
+void SessionState::appendLvlFilter (std::string const & item)
+{
+	m_lvl_filters.push_back(item);
+}
+void SessionState::removeLvlFilter (std::string const & item)
+{
+	m_lvl_filters.erase(std::remove(m_lvl_filters.begin(), m_lvl_filters.end(), item), m_lvl_filters.end());
+}
+bool SessionState::isLvlExcluded (std::string const & item) const
+{
+	return std::find(m_lvl_filters.begin(), m_lvl_filters.end(), item) != m_lvl_filters.end();
+}
+
+
 ///////// collapsed scopes
 void SessionState::appendCollapsedBlock (QString tid, int from, int to, QString file, QString line)
 {
@@ -267,7 +336,7 @@ bool SessionState::isMatchedColorizedText (QString str, QColor & color, E_ColorR
 		{
 			color = ct.m_qcolor;
 			role = ct.m_role;
-			return ct.m_isEnabled;
+			return ct.m_is_enabled;
 		}
 	}
 	return false;
@@ -290,7 +359,7 @@ void SessionState::setColorRegexChecked (std::string const & s, bool checked)
 		ColorizedText & ct = m_colorized_texts[i];
 		if (ct.m_regex_str == s)
 		{
-			ct.m_isEnabled = checked;
+			ct.m_is_enabled = checked;
 		}
 	}
 }
@@ -310,5 +379,63 @@ void SessionState::appendToColorRegexFilters (std::string const & s)
 {
 	m_colorized_texts.push_back(ColorizedText(s, e_Fg));
 }
+
+///////////////////
+bool SessionState::isMatchedRegexExcluded (QString str) const
+{
+	for (int i = 0, ie = m_filtered_regexps.size(); i < ie; ++i)
+	{
+		FilteredRegex const & fr = m_filtered_regexps.at(i);
+		if (fr.exactMatch(str))
+		{
+			if (!fr.m_is_enabled)
+				return false;
+			else
+			{
+				return fr.m_is_inclusive ? false : true;
+			}
+		}
+	}
+	return false;
+}
+void SessionState::setRegexInclusive (std::string const & s, bool inclusive)
+{
+	for (int i = 0, ie = m_filtered_regexps.size(); i < ie; ++i)
+	{
+		FilteredRegex & fr = m_filtered_regexps[i];
+		if (fr.m_regex_str == s)
+		{
+			fr.m_is_inclusive = inclusive;
+		}
+	}
+}
+void SessionState::setRegexChecked (std::string const & s, bool checked)
+{
+	for (int i = 0, ie = m_filtered_regexps.size(); i < ie; ++i)
+	{
+		FilteredRegex & fr = m_filtered_regexps[i];
+		if (fr.m_regex_str == s)
+		{
+			fr.m_is_enabled = checked;
+		}
+	}
+}
+void SessionState::removeFromRegexFilters (std::string const & s)
+{
+	for (int i = 0, ie = m_filtered_regexps.size(); i < ie; ++i)
+	{
+		FilteredRegex & fr = m_filtered_regexps[i];
+		if (fr.m_regex_str == s)
+		{
+			m_filtered_regexps.removeAt(i);
+			return;
+		}
+	}
+}
+void SessionState::appendToRegexFilters (std::string const & s)
+{
+	m_filtered_regexps.push_back(FilteredRegex(s, e_Fg));
+}
+
 
 

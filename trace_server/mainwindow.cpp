@@ -54,7 +54,6 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay)
 	, m_quit_action(0)
 	, m_tray_menu(0)
 	, m_tray_icon(0)
-	, m_list_view_regex_model(0)
 {
     //QDir::setSearchPaths("icons", QStringList(QDir::currentPath()));
 	ui->setupUi(this);
@@ -74,6 +73,7 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay)
 	m_server = new Server(this, quit_delay);
 	showServerStatus();
 	connect(ui->qSearchLineEdit, SIGNAL(editingFinished()), this, SLOT(onQSearchEditingFinished()));
+	connect(ui->qFilterLineEdit, SIGNAL(editingFinished()), this, SLOT(onQFilterLineEditFinished()));
 
 	size_t const n = tlv::get_tag_count();
 	QString msg_tag;
@@ -108,6 +108,9 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay)
 	connect(getListViewTID(), SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtTIDList(QModelIndex)));
 	connect(getListViewTID(), SIGNAL(doubleClicked(QModelIndex)), m_server, SLOT(onDoubleClickedAtTIDList(QModelIndex)));
 
+	connect(getListViewLvl(), SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtLvlList(QModelIndex)));
+	connect(getListViewLvl(), SIGNAL(doubleClicked(QModelIndex)), m_server, SLOT(onDoubleClickedAtLvlList(QModelIndex)));
+
 	connect(ui->levelSpinBox, SIGNAL(valueChanged(int)), m_server, SLOT(onLevelValueChanged(int)));
     connect(ui->filterFileCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onFilterFile(int)));
     connect(ui->buffCheckBox, SIGNAL(stateChanged(int)), m_server, SLOT(onBufferingStateChanged(int)));
@@ -124,9 +127,6 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay)
 	connect(ui->comboBoxRegex, SIGNAL(activated(int)), this, SLOT(onRegexActivate(int)));
 	connect(ui->buttonAddRegex, SIGNAL(clicked()), this, SLOT(onRegexAdd()));
 	connect(ui->buttonRmRegex, SIGNAL(clicked()), this, SLOT(onRegexRm()));
-	if (!m_list_view_regex_model)
-		m_list_view_regex_model = new QStandardItemModel;
-	getListViewRegex()->setModel(m_list_view_regex_model);
 
 	connect(getListViewColorRegex(), SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtColorRegexList(QModelIndex)));
 	connect(getListViewColorRegex(), SIGNAL(doubleClicked(QModelIndex)), m_server, SLOT(onDoubleClickedAtColorRegexList(QModelIndex)));
@@ -148,6 +148,7 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay)
 	ui->filterModeComboBox->setToolTip(tr("selects filtering mode: inclusive (check what you want, unchecked are not displayed) or exclusive (checked items are filtered out)."));
 	ui->levelSpinBox->setToolTip(tr("adjusts debug level of client side"));
 	ui->qSearchLineEdit->setToolTip(tr("search text in logged text"));
+	ui->qFilterLineEdit->setToolTip(tr("quick inclusive filter: adds string to regex filter as regex .*string.*"));
 	ui->qSearchComboBox->setToolTip(tr("specifies column to search"));
 
 	connect(ui->filterModeComboBox, SIGNAL(activated(int)), this, SLOT(onFilterModeActivate(int)));
@@ -244,9 +245,10 @@ QComboBox * MainWindow::getFilterColorRegex () { return ui->comboBoxColorRegex; 
 QComboBox const * MainWindow::getFilterColorRegex () const { return ui->comboBoxColorRegex; }
 QListView * MainWindow::getListViewColorRegex () { return ui->listViewColorRegex; }
 QListView const * MainWindow::getListViewColorRegex () const { return ui->listViewColorRegex; }
-
 QListView * MainWindow::getListViewTID () { return ui->listViewTID; }
 QListView const * MainWindow::getListViewTID () const { return ui->listViewTID; }
+QListView * MainWindow::getListViewLvl () { return ui->listViewLvl; }
+QListView const * MainWindow::getListViewLvl () const { return ui->listViewLvl; }
 
 bool MainWindow::scopesEnabled () const { return ui->scopesCheckBox->isChecked(); }
 bool MainWindow::filterEnabled () const { return ui->filterFileCheckBox->isChecked(); }
@@ -316,6 +318,21 @@ void MainWindow::onQSearchEditingFinished ()
 			conn->findText(text, tag_idx);
 		}
 	}
+}
+
+void MainWindow::onQFilterLineEditFinished ()
+{
+	if (!getTabTrace()->currentWidget()) return;
+
+	Connection * conn = m_server->findCurrentConnection();
+	if (!conn) return;
+
+	QString text(".*");
+	text.append(ui->qFilterLineEdit->text());
+	text.append(".*");
+	conn->appendToRegexFilters(text.toStdString());
+	conn->recompileRegexps();
+	conn->onInvalidateFilter();
 }
 
 void MainWindow::onEditFind ()
@@ -439,7 +456,11 @@ void MainWindow::onDumpFilters ()
 	{
 		SessionExport se;
 		conn->sessionState().sessionExport(se);
-		session_string = QString("File filter:\n %1\nregex_filter:\n %2\ncolor_regexps:\n %3\n").arg(se.m_file_filters.c_str()).arg(se.m_regex_filters.c_str()).arg(se.m_color_regex_filters.c_str());
+		session_string = QString("File filter:\n %1\nregex_filter:\n %2\ncolor_regexps:\n %3\ncolor_colors:\n %4\n")
+				.arg(se.m_file_filters.c_str())
+				.arg(se.m_regex_filters.c_str())
+				.arg(se.m_colortext_regexs.c_str())
+				.arg(se.m_colortext_colors.c_str());
 	}
 
 	m_help->helpTextEdit->setPlainText(text + session_string);
@@ -564,17 +585,19 @@ void MainWindow::onRegexActivate (int idx)
 
 void MainWindow::onRegexAdd ()
 {
+	Connection * conn = m_server->findCurrentConnection();
+	if (!conn) return;
+
 	QString qItem = ui->comboBoxRegex->currentText();
-	QStandardItem * root = m_list_view_regex_model->invisibleRootItem();
+	QStandardItem * root = static_cast<QStandardItemModel *>(getListViewRegex()->model())->invisibleRootItem();
 	QStandardItem * child = findChildByText(root, qItem);
 	if (child == 0)
 	{
-		QList<QStandardItem *> row_items = addRow(qItem, false);
+		QList<QStandardItem *> row_items = addTriRow(qItem, false);
 		root->appendRow(row_items);
-		m_filter_regexs.append(qItem);
+		conn->appendToRegexFilters(qItem.toStdString());
+		conn->recompileRegexps();
 	}
-
-	recompileRegexps();
 }
 
 void MainWindow::onRegexRm ()
@@ -586,52 +609,12 @@ void MainWindow::onRegexRm ()
 		return;
 	QString const & val = model->data(idx, Qt::DisplayRole).toString();
 	model->removeRow(idx.row());
-	m_filter_regexs.removeOne(val);
-
-	recompileRegexps();
-}
-
-void MainWindow::recompileRegexps ()
-{
-	m_regexps.clear();
-	m_regex_user_states.clear();
-
-	for (int i = 0, ie = m_filter_regexs.size(); i < ie; ++i)
-	{
-		QStandardItem * root = m_list_view_regex_model->invisibleRootItem();
-		QStandardItem * child = findChildByText(root, m_filter_regexs.at(i));
-		QRegExp regex(QRegExp(m_filter_regexs.at(i)));
-		if (regex.isValid())
-		{
-			m_regexps.append(regex);
-			m_regex_user_states.push_back(false);
-
-			bool const checked = (child->checkState() == Qt::Checked);
-			if (child && checked)
-			{
-				child->setData(QBrush(Qt::green), Qt::BackgroundRole);
-				child->setToolTip(tr("ok"));
-				m_regex_user_states.back() = true;
-			}
-			else if (child && !checked)
-			{
-				child->setData(QBrush(Qt::yellow), Qt::BackgroundRole);
-				child->setToolTip(tr("not checked"));
-			}
-		}
-		else
-		{
-			if (child)
-			{
-				child->setData(QBrush(Qt::red), Qt::BackgroundRole);
-				child->setToolTip(regex.errorString());
-			}
-		}
-	}
-
 	Connection * conn = m_server->findCurrentConnection();
 	if (conn)
-		conn->onInvalidateFilter();
+	{
+		conn->removeFromRegexFilters(val.toStdString());
+		conn->recompileRegexps();
+	}
 }
 
 // @TODO: all the color stuff is almost duplicate, remove duplicity
@@ -677,48 +660,6 @@ void MainWindow::onColorRegexRm ()
 		conn->removeFromColorRegexFilters(val.toStdString());
 		conn->recompileColorRegexps();
 	}
-}
-void MainWindow::recompileColorRegexps ()
-{
-	//m_color_regexps.clear();
-	//m_color_regex_user_states.clear();
-
-/*	for (int i = 0, ie = m_filter_color_regexs.size(); i < ie; ++i)
-	{
-		QStandardItem * root = static_cast<QStandardItemModel *>(getListViewColorRegex()->model())->invisibleRootItem();
-		QStandardItem * child = findChildByText(root, m_filter_color_regexs.at(i));
-		QRegExp regex(QRegExp(m_filter_color_regexs.at(i)));
-		if (regex.isValid())
-		{
-			m_color_regexps.append(regex);
-			//m_color_regex_user_states.push_back(false);
-
-			bool const checked = (child->checkState() == Qt::Checked);
-			if (child && checked)
-			{
-				child->setData(QBrush(Qt::green), Qt::BackgroundRole);
-				child->setToolTip(tr("ok"));
-				//m_color_regex_user_states.back() = true;
-			}
-			else if (child && !checked)
-			{
-				child->setData(QBrush(Qt::yellow), Qt::BackgroundRole);
-				child->setToolTip(tr("not checked"));
-			}
-		}
-		else
-		{
-			if (child)
-			{
-				child->setData(QBrush(Qt::red), Qt::BackgroundRole);
-				child->setToolTip(regex.errorString());
-			}
-		}
-	}*/
-
-	Connection * conn = m_server->findCurrentConnection();
-	if (conn)
-		conn->onInvalidateFilter();
 }
 
 void MainWindow::onSaveCurrentFileFilter ()

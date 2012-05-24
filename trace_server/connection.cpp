@@ -46,12 +46,14 @@ Connection::Connection (QObject * parent)
 	, m_tree_view_ctx_model(0)
 	, m_tree_view_func_model(0)
 	, m_list_view_tid_model(0)
+	, m_list_view_color_regex_model(0)
+	, m_list_view_regex_model(0)
+	, m_list_view_lvl_model(0)
 	, m_table_view_proxy(0)
 	, m_toggle_ref(0)
 	, m_hide_prev(0)
 	, m_exclude_fileline(0)
 	, m_last_clicked()
-	, m_list_view_color_regex_model(0)
 	, m_buffer(e_ringbuff_size)
 	, m_current_cmd()
 	, m_decoded_cmds(e_ringcmd_size)
@@ -83,10 +85,13 @@ void Connection::onTabTraceFocus (int i)
 	if (i != sessionState().m_tab_idx)
 		return;
 	m_main_window->getTreeViewFile()->setModel(m_tree_view_file_model);
+	hideLinearParents();
+
 	m_main_window->getTreeViewCtx()->setModel(m_tree_view_ctx_model);
 	m_main_window->getListViewTID()->setModel(m_list_view_tid_model);
 	m_main_window->getListViewColorRegex()->setModel(m_list_view_color_regex_model);
-	hideLinearParents();
+	m_main_window->getListViewRegex()->setModel(m_list_view_regex_model);
+	m_main_window->getListViewLvl()->setModel(m_list_view_lvl_model);
 }
 
 void Connection::hideLinearParents ()

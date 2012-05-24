@@ -31,10 +31,10 @@ class FilterProxyModel : public QAbstractProxyModel
 	Q_OBJECT
 
 public:
-	explicit FilterProxyModel (QObject * parent, QList<QRegExp> const & r, std::vector<bool> const & rs, SessionState & ss)
+	explicit FilterProxyModel (QObject * parent, SessionState & ss)
 		: QAbstractProxyModel(parent)
 		, m_columns(0)
-		, m_session_state(ss), m_regexps(r), m_regex_user_states(rs)
+		, m_session_state(ss)
 	{ }
 
 	virtual QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
@@ -61,8 +61,6 @@ protected:
 	int m_columns;
 	std::vector<int> m_map_from_src;
 	SessionState & m_session_state;
-	QList<QRegExp> const & m_regexps;
-	std::vector<bool> const & m_regex_user_states;
 };
 
 

@@ -219,7 +219,7 @@ int main ()
 	for (;;)
 	{
 #if defined WIN32 || defined WIN64
-		Sleep(20);
+		Sleep(10);
 #elif defined __linux__
 		usleep(2000 * 1000);
 #endif

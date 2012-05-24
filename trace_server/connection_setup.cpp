@@ -4,6 +4,7 @@
 #include <QHeaderView>
 #include <tlv_parser/tlv_encoder.h>
 #include "modelview.h"
+#include "utils.h"
 
 bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 {
@@ -34,6 +35,9 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 					this->setupModelFile();
 					this->setupModelCtx();
 					this->setupModelTID();
+					this->setupModelLvl();
+					this->setupModelColorRegex();
+					this->setupModelRegex();
 					if (!m_main_window->clrFltEnabled())
 					{
 						boost::char_separator<char> sep(":/\\");
@@ -49,6 +53,23 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 							//appendToFileFilters(sep, *it, true);
 							loadToFileFilters(*it);
 						}
+
+						QStandardItemModel * model = static_cast<QStandardItemModel *>(m_main_window->getListViewColorRegex()->model());
+						QStandardItem * root = model->invisibleRootItem();
+						for (int i = 0; i < sessionState().m_colorized_texts.size(); ++i)
+						{
+							ColorizedText & ct = sessionState().m_colorized_texts[i];
+							ct.m_regex = QRegExp(QString::fromStdString(ct.m_regex_str));
+
+							QStandardItem * child = findChildByText(root, QString::fromStdString(ct.m_regex_str));
+							if (child == 0)
+							{
+								QList<QStandardItem *> row_items = addRow(QString::fromStdString(ct.m_regex_str), ct.m_is_enabled);
+								root->appendRow(row_items);
+							}
+						}
+
+						recompileColorRegexps();
 					}
 
 					m_main_window->getTreeViewFile()->expandAll();
@@ -188,3 +209,18 @@ void Connection::setupModelColorRegex ()
 	m_main_window->getListViewColorRegex()->setEnabled(m_main_window->filterEnabled());
 }
 
+void Connection::setupModelRegex ()
+{
+	if (!m_list_view_regex_model)
+		m_list_view_regex_model = new QStandardItemModel;
+	m_main_window->getListViewRegex()->setModel(m_list_view_regex_model);
+	m_main_window->getListViewRegex()->setEnabled(m_main_window->filterEnabled());
+}
+
+void Connection::setupModelLvl ()
+{
+	if (!m_list_view_lvl_model)
+		m_list_view_lvl_model = new QStandardItemModel;
+	m_main_window->getListViewLvl()->setModel(m_list_view_lvl_model);
+	m_main_window->getListViewLvl()->setEnabled(m_main_window->filterEnabled());
+}

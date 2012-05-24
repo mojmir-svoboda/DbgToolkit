@@ -1,6 +1,7 @@
 #include "connection.h"
 #include <QListView>
 #include <QFile>
+#include <QRegExp>
 #include <tlv_parser/tlv_encoder.h>
 #include "modelview.h"
 #include "utils.h"
@@ -22,11 +23,10 @@ void Connection::setFilterFile (int state)
 	{
 		if (!m_table_view_proxy)
 		{
-			m_table_view_proxy = new FilterProxyModel(this, m_main_window->getRegexps(), m_main_window->getRegexUserStates(), m_session_state);
+			m_table_view_proxy = new FilterProxyModel(this, m_session_state);
 
 			m_table_view_proxy->setSourceModel(m_table_view_widget->model());
 			m_table_view_widget->setModel(m_table_view_proxy);
-			//m_table_view_proxy->setDynamicSortFilter(true);
 		}
 		else
 		{
@@ -36,6 +36,9 @@ void Connection::setFilterFile (int state)
 	m_main_window->getTreeViewFile()->setEnabled(m_main_window->filterEnabled());
 	m_main_window->getTreeViewCtx()->setEnabled(m_main_window->filterEnabled());
 	m_main_window->getListViewTID()->setEnabled(m_main_window->filterEnabled());
+	m_main_window->getListViewColorRegex()->setEnabled(m_main_window->filterEnabled());
+	m_main_window->getListViewRegex()->setEnabled(m_main_window->filterEnabled());
+	m_main_window->getListViewLvl()->setEnabled(m_main_window->filterEnabled());
 }
 
 void Connection::clearFilters (QStandardItem * node)
@@ -178,9 +181,23 @@ void Connection::appendToTIDFilters (std::string const & item)
 	QString qItem = QString::fromStdString(item);
 	QStandardItem * root = m_list_view_tid_model->invisibleRootItem();
 	QStandardItem * child = findChildByText(root, qItem);
+	E_FilterMode const fmode = m_main_window->fltMode();
 	if (child == 0)
 	{
-		QList<QStandardItem *> row_items = addRow(qItem, false);
+		QList<QStandardItem *> row_items = addRow(qItem, fmode == e_Include ? Qt::Checked : Qt::Unchecked);
+		root->appendRow(row_items);
+	}
+}
+
+void Connection::appendToLvlFilters (std::string const & item, bool checked)
+{
+	QString qItem = QString::fromStdString(item);
+	QStandardItem * root = m_list_view_lvl_model->invisibleRootItem();
+	QStandardItem * child = findChildByText(root, qItem);
+	E_FilterMode const fmode = m_main_window->fltMode();
+	if (child == 0)
+	{
+		QList<QStandardItem *> row_items = addRow(qItem, fmode == e_Include ? Qt::Checked : Qt::Unchecked);
 		root->appendRow(row_items);
 	}
 }
@@ -191,13 +208,13 @@ void Connection::appendToCtxFilters (std::string const & item, bool checked)
 	QStandardItemModel * model = static_cast<QStandardItemModel *>(m_main_window->getTreeViewCtx()->model());
 	QStandardItem * root = model->invisibleRootItem();
 	QStandardItem * child = findChildByText(root, qItem);
+	E_FilterMode const fmode = m_main_window->fltMode();
 	if (child == 0)
 	{
-		QList<QStandardItem *> row_items = addRow(qItem, false);
+		QList<QStandardItem *> row_items = addRow(qItem, fmode == e_Include ? Qt::Checked : Qt::Unchecked);
 		root->appendRow(row_items);
 	}
 }
-
 
 bool Connection::appendToFilters (DecodedCommand const & cmd)
 {
@@ -224,6 +241,10 @@ bool Connection::appendToFilters (DecodedCommand const & cmd)
 		{
 			appendToCtxFilters(cmd.tvs[i].m_val, false);
 		}
+		if (cmd.tvs[i].m_tag == tlv::tag_lvl)
+		{
+			appendToLvlFilters(cmd.tvs[i].m_val, false);
+		}
 	}
 
 	boost::char_separator<char> sep(":/\\");
@@ -244,6 +265,60 @@ bool Connection::appendToFilters (DecodedCommand const & cmd)
 	return true;
 }
 
+void Connection::appendToRegexFilters (std::string const & val)
+{
+	m_session_state.appendToRegexFilters(val);
+}
+
+void Connection::removeFromRegexFilters (std::string const & val)
+{
+	m_session_state.removeFromRegexFilters(val);
+}
+
+void Connection::recompileRegexps ()
+{
+	for (int i = 0, ie = sessionState().m_filtered_regexps.size(); i < ie; ++i)
+	{
+		FilteredRegex & fr = sessionState().m_filtered_regexps[i];
+		QStandardItem * root = m_list_view_regex_model->invisibleRootItem();
+		QString const qregex = QString::fromStdString(fr.m_regex_str);
+		QStandardItem * child = findChildByText(root, qregex);
+		fr.m_is_enabled = false;
+		if (!child)
+			continue;
+		QRegExp regex(qregex);
+		if (regex.isValid())
+		{
+			fr.m_regex = regex;
+			fr.m_is_inclusive = true;
+			//sessionState().appendToRegexFilters(FilteredRegex(regex, true)); //@TODO: is inclusive?
+
+			bool const checked = (child->checkState() == Qt::Checked);
+			if (child && checked)
+			{
+				child->setData(QBrush(Qt::green), Qt::BackgroundRole);
+				child->setToolTip(tr("ok"));
+				fr.m_is_enabled = true;
+			}
+			else if (child && !checked)
+			{
+				child->setData(QBrush(Qt::yellow), Qt::BackgroundRole);
+				child->setToolTip(tr("not checked"));
+			}
+		}
+		else
+		{
+			if (child)
+			{
+				child->setData(QBrush(Qt::red), Qt::BackgroundRole);
+				child->setToolTip(regex.errorString());
+			}
+		}
+	}
+
+	onInvalidateFilter();
+}
+
 void Connection::appendToColorRegexFilters (std::string const & val)
 {
 	m_session_state.appendToColorRegexFilters(val);
@@ -256,25 +331,26 @@ void Connection::removeFromColorRegexFilters (std::string const & val)
 
 void Connection::recompileColorRegexps ()
 {
-	m_color_regexps.clear();
-	m_color_regex_user_states.clear();
-
-	for (int i = 0, ie = m_filter_color_regexs.size(); i < ie; ++i)
+	for (int i = 0, ie = sessionState().m_colorized_texts.size(); i < ie; ++i)
 	{
+		ColorizedText & ct = sessionState().m_colorized_texts[i];
 		QStandardItem * root = m_list_view_color_regex_model->invisibleRootItem();
-		QStandardItem * child = findChildByText(root, m_filter_color_regexs.at(i));
-		QRegExp regex(QRegExp(m_filter_color_regexs.at(i)));
+		QString const qregex = QString::fromStdString(ct.m_regex_str);
+		QStandardItem * child = findChildByText(root, qregex);
+		ct.m_is_enabled = false;
+		if (!child)
+			continue;
+		QRegExp regex(qregex);
 		if (regex.isValid())
 		{
-			m_color_regexps.append(regex);
-			m_color_regex_user_states.push_back(false);
+			ct.m_regex = regex;
 
 			bool const checked = (child->checkState() == Qt::Checked);
 			if (child && checked)
 			{
 				child->setData(QBrush(Qt::green), Qt::BackgroundRole);
 				child->setToolTip(tr("ok"));
-				m_color_regex_user_states.back() = true;
+				ct.m_is_enabled = true;
 			}
 			else if (child && !checked)
 			{
@@ -317,3 +393,4 @@ void Connection::flipFilterMode (E_FilterMode mode)
 		syncFileTreeWithFilter(child, checked);
 	}
 }*/
+

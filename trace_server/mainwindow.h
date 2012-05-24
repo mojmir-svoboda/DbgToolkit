@@ -57,10 +57,6 @@ public:
 	columns_setup_t & getColumnSetup (size_t i) { return m_columns_setup[i]; }
 	columns_sizes_t const & getColumnSizes (size_t i) const { return m_columns_sizes.at(i); }
 	columns_sizes_t & getColumnSizes (size_t i) { return m_columns_sizes[i]; }
-	QList<QRegExp> const & getRegexps () const { return m_regexps; }
-	std::vector<bool> const & getRegexUserStates () const { return m_regex_user_states; }
-	filter_regexs_t const & getFilterRegexs () const { return m_filter_regexs; }
-	filter_regexs_t & getFilterRegexs () { return m_filter_regexs; }
 
 	filter_preset_t const & getFilterPresets (size_t i) const { return m_filter_presets.at(i); }
 	filter_preset_t & getFilterPresets (size_t i) { return m_filter_presets[i]; }
@@ -108,6 +104,8 @@ public:
 	QListView const * getListViewColorRegex () const;
 	QListView * getListViewTID ();
 	QListView const * getListViewTID () const;
+	QListView * getListViewLvl ();
+	QListView const * getListViewLvl () const;
 	void setLevel (int i);
 	int getLevel () const;
 	bool scopesEnabled () const;
@@ -122,8 +120,6 @@ public:
 	void dropEvent (QDropEvent * event);
 	void dragEnterEvent (QDragEnterEvent *event);
 	bool eventFilter (QObject * o, QEvent * e);
-	void recompileRegexps ();
-	void recompileColorRegexps ();
 
 	unsigned getHotKey () const;
 
@@ -149,6 +145,7 @@ private slots:
 	void closeEvent (QCloseEvent *event);
 	void iconActivated (QSystemTrayIcon::ActivationReason reason);
 	void onQSearchEditingFinished ();
+	void onQFilterLineEditFinished ();
 	void onSaveCurrentFileFilter ();
 	void onSaveCurrentFileFilterTo (QString const & name);
 	void onAddCurrentFileFilter ();
@@ -184,9 +181,6 @@ private:
 	QList<QColor> m_thread_colors;				/// predefined coloring of threads
 	QList<QString> m_preset_names;				/// registered presets
 	filter_presets_t m_filter_presets;			/// list of strings for each preset
-	filter_regexs_t m_filter_regexs;			/// filtering regexps
-	QList<QRegExp> m_regexps;
-	std::vector<bool> m_regex_user_states;
 	QString m_last_search;
 	QTimer * m_timer;
 	Server * m_server;
@@ -196,7 +190,6 @@ private:
 	QAction * m_quit_action;
 	QMenu * m_tray_menu;
 	QSystemTrayIcon * m_tray_icon;
-	QStandardItemModel * m_list_view_regex_model;
 };
 
 #endif // MAINWINDOW_H

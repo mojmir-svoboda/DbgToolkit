@@ -45,24 +45,38 @@ struct CollapsedBlock {
 	{ }
 };
 
+struct FilteredRegex {
+	std::string m_regex_str;
+	QRegExp m_regex;
+	bool m_is_enabled;
+	bool m_is_inclusive;
+
+	bool isValid () const { return m_regex.isValid(); }
+	bool exactMatch (QString str) const { return m_regex.exactMatch(str); }
+
+	FilteredRegex (std::string const & rs, bool is_inclusive)
+        : m_regex_str(rs), m_regex(QString::fromStdString(rs)), m_is_enabled(0), m_is_inclusive(is_inclusive)
+	{ }
+};
+
 struct ColorizedText {
 	E_ColorRole m_role;
 	QColor m_qcolor;
 	std::string m_regex_str;
 	QRegExp m_regex;
-	bool m_isEnabled;
+	bool m_is_enabled;
 
 	bool isValid () const { return m_regex.isValid(); }
 	bool exactMatch (QString str) const { return m_regex.exactMatch(str); }
 
 	ColorizedText (std::string const & rs, E_ColorRole r)
         : m_role(r)
-        , m_qcolor(Qt::magenta), m_regex_str(rs), m_regex(QString::fromStdString(rs)), m_isEnabled(0)
+        , m_qcolor(Qt::magenta), m_regex_str(rs), m_regex(QString::fromStdString(rs)), m_is_enabled(0)
 	{ }
 
 	ColorizedText (std::string const & rs, QColor const & col, E_ColorRole r)
         : m_role(r)
-        , m_qcolor(col), m_regex_str(rs), m_regex(QString::fromStdString(rs)), m_isEnabled(0)
+        , m_qcolor(col), m_regex_str(rs), m_regex(QString::fromStdString(rs)), m_is_enabled(0)
 	{ }
 
 };
@@ -71,7 +85,9 @@ struct SessionExport {
 	std::string m_name;
 	std::string m_file_filters;
 	std::string m_regex_filters;
-	std::string m_color_regex_filters;
+	std::string m_colortext_regexs;
+	std::string m_colortext_colors;
+	std::string m_colortext_enabled;
 	std::string m_collapsed_blocks;
 };
 
@@ -126,17 +142,30 @@ public:
 	void removeTIDFilter (std::string const & item);
 	bool isTIDExcluded (std::string const & item) const;
 
+	typedef std::vector<std::string> lvl_filters_t;
+	void appendLvlFilter (std::string const & item);
+	void removeLvlFilter (std::string const & item);
+	bool isLvlExcluded (std::string const & item) const;
+
 	void appendCollapsedBlock (QString tid, int from, int to, QString file, QString line);
 	bool findCollapsedBlock (QString tid, int from, int to) const;
 	bool eraseCollapsedBlock (QString tid, int from, int to);
 	bool isBlockCollapsed (QString tid, int row) const;
 	bool isBlockCollapsedIncl (QString tid, int row) const;
 
+	// text colorization
 	void appendToColorRegexFilters (std::string const & str);
 	void removeFromColorRegexFilters (std::string const & str);
 	bool isMatchedColorizedText (QString str, QColor & color, E_ColorRole & role) const;
 	void setRegexColor (std::string const & s, QColor col);
 	void setColorRegexChecked (std::string const & s, bool checked);
+
+	// regex filtering
+	void appendToRegexFilters (std::string const & str);
+	void removeFromRegexFilters (std::string const & str);
+	bool isMatchedRegexExcluded (QString str) const;
+	void setRegexChecked (std::string const & s, bool checked);
+	void setRegexInclusive (std::string const & s, bool inclusive);
 
 	void excludeContentToRow (int row) { m_exclude_content_to_row = row; }
 	int excludeContentToRow () const { return m_exclude_content_to_row; }
@@ -158,6 +187,8 @@ public:
 	void onClearTIDFilter () { m_tid_filters.clear(); }
 	void onClearScopeFilter () { m_collapse_blocks.clear(); }
 	void onClearColorizedRegexFilter () { m_colorized_texts.clear(); }
+	void onClearLvlFilter () { m_filtered_regexps.clear(); }
+	void onClearRegexFilter () { m_lvl_filters.clear(); }
 	
 signals:
 	
@@ -165,6 +196,7 @@ private:
 	friend class Connection;
 	friend class Server;
 	friend class MainWindow;
+	friend class FilterProxyModel;
 
 private:
 	int m_app_idx;
@@ -177,9 +209,11 @@ private:
 	file_filters_t m_file_filters;
 	ctx_filters_t m_ctx_filters;
 	tid_filters_t m_tid_filters;
+	lvl_filters_t m_lvl_filters;
 
 	QList<QColor> m_thread_colors;
 	QList<ColorizedText> m_colorized_texts;
+	QList<FilteredRegex> m_filtered_regexps;
 	QList<QString> * m_columns_setup_current;
 	QList<QString> const * m_columns_setup_template;
 	columns_sizes_t * m_columns_sizes;

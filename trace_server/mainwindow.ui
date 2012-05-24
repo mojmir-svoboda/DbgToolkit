@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>857</width>
+    <width>902</width>
     <height>329</height>
    </rect>
   </property>
@@ -225,6 +225,9 @@
        </spacer>
       </item>
       <item>
+       <widget class="QLineEdit" name="qFilterLineEdit"/>
+      </item>
+      <item>
        <widget class="QLineEdit" name="qSearchLineEdit">
         <property name="font">
          <font>
@@ -293,6 +296,9 @@
          <pointsize>7</pointsize>
         </font>
        </property>
+       <property name="layoutDirection">
+        <enum>Qt::LeftToRight</enum>
+       </property>
        <property name="tabShape">
         <enum>QTabWidget::Triangular</enum>
        </property>
@@ -301,7 +307,7 @@
        </property>
        <widget class="QWidget" name="filterFile">
         <attribute name="title">
-         <string>filterFile</string>
+         <string>File</string>
         </attribute>
         <layout class="QHBoxLayout" name="horizontalLayout_3">
          <item>
@@ -309,9 +315,19 @@
          </item>
         </layout>
        </widget>
+       <widget class="QWidget" name="filterLvl">
+        <attribute name="title">
+         <string>Level</string>
+        </attribute>
+        <layout class="QHBoxLayout" name="horizontalLayout_7">
+         <item>
+          <widget class="QListView" name="listViewLvl"/>
+         </item>
+        </layout>
+       </widget>
        <widget class="QWidget" name="filterCtx">
         <attribute name="title">
-         <string>filterCtx</string>
+         <string>Ctx</string>
         </attribute>
         <layout class="QHBoxLayout" name="horizontalLayout_6">
          <item>
@@ -321,7 +337,7 @@
        </widget>
        <widget class="QWidget" name="filterTID">
         <attribute name="title">
-         <string>filterTID</string>
+         <string>TID</string>
         </attribute>
         <layout class="QHBoxLayout" name="horizontalLayout_5">
          <item>
@@ -337,7 +353,7 @@
          </size>
         </property>
         <attribute name="title">
-         <string>filterRegEx</string>
+         <string>RegExp</string>
         </attribute>
         <layout class="QVBoxLayout" name="verticalLayout_2">
          <item>
@@ -482,7 +498,11 @@
          <item>
           <layout class="QVBoxLayout" name="verticalLayout_4">
            <item>
-            <widget class="QListView" name="listViewColorRegex"/>
+            <widget class="QListView" name="listViewColorRegex">
+             <property name="editTriggers">
+              <set>QAbstractItemView::EditKeyPressed</set>
+             </property>
+            </widget>
            </item>
           </layout>
          </item>
@@ -498,8 +518,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>857</width>
-     <height>22</height>
+     <width>902</width>
+     <height>16</height>
     </rect>
    </property>
   </widget>

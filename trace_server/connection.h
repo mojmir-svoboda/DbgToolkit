@@ -78,7 +78,7 @@ public:
 	void appendToFileFilters (std::string const & item, bool checked);
 	void appendToFileFilters (boost::char_separator<char> const & sep, std::string const & item, bool checked, bool recursive);
 	void appendToCtxFilters (std::string const & item, bool checked);
-
+	void appendToLvlFilters (std::string const & item, bool checked);
 
 	void clearFilters ();
 	void findText (QString const & text, tlv::tag_t tag);
@@ -86,13 +86,13 @@ public:
 	void findNext ();
 	void findPrev ();
 	void appendToRegexFilters (std::string const & item);
+	void removeFromRegexFilters (std::string const & item);
 	void appendToColorRegexFilters (std::string const & item);
 	void removeFromColorRegexFilters (std::string const & item);
+	void recompileRegexps ();
 	void recompileColorRegexps ();
 	void flipFilterMode (E_FilterMode mode);
 	void run ();
-
-	typedef QList<QString> filter_color_regexs_t;
 
 signals:
 	void readyForUse();
@@ -154,6 +154,8 @@ private:
 	void setupModelCtx ();
 	void setupModelTID ();
 	void setupModelColorRegex ();
+	void setupModelRegex ();
+	void setupModelLvl ();
 	void setupColumnSizes ();
 	QString findString4Tag (tlv::tag_t tag, QModelIndex const & row_index) const;
 	QVariant findVariant4Tag (tlv::tag_t tag, QModelIndex const & row_index) const;
@@ -175,15 +177,14 @@ private:
 	QStandardItemModel * m_tree_view_func_model;
 	QStandardItemModel * m_list_view_tid_model;
 	QStandardItemModel * m_list_view_color_regex_model;
+	QStandardItemModel * m_list_view_regex_model;
+	QStandardItemModel * m_list_view_lvl_model;
 	QAbstractProxyModel * m_table_view_proxy;
 	QMenu m_ctx_menu;
 	QAction * m_toggle_ref;
 	QAction * m_hide_prev;
 	QAction * m_exclude_fileline;
 	QModelIndex m_last_clicked;
-	QList<QRegExp> m_color_regexps;
-	std::vector<bool> m_color_regex_user_states;
-	filter_color_regexs_t m_filter_color_regexs;
 
 	// data receiving stuff
 	enum { e_ringbuff_size = 16 * 1024 };
