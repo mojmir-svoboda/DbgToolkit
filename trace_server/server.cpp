@@ -384,8 +384,6 @@ void Server::onClickedAtRegexList (QModelIndex idx)
 	else
 	{
 		std::string filter_item(val.toStdString());
-		qDebug("regex click! (checked=%u) %s ", checked, filter_item.c_str());
-
 		if (Connection * conn = findCurrentConnection())
 		{
 			// @TODO: if state really changed

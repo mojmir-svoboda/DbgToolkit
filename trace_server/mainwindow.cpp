@@ -348,6 +348,7 @@ void MainWindow::onQFilterLineEditFinished ()
 		QList<QStandardItem *> row_items = addTriRow(text, true);
 		root->appendRow(row_items);
 		child = findChildByText(root, text);
+		child->setCheckState(Qt::Checked);
 	}
 
 	conn->recompileRegexps();
