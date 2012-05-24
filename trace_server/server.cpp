@@ -359,8 +359,8 @@ void Server::onClickedAtRegexList (QModelIndex idx)
 
 	if (idx.column() == 1)
 	{
-		QString const & reg = model->data(model->index(idx.row(), 1, QModelIndex()), Qt::DisplayRole).toString();
-		std::string filter_item(val.toStdString());
+		QString const & reg = model->data(model->index(idx.row(), 0, QModelIndex()), Qt::DisplayRole).toString();
+		std::string filter_item(reg.toStdString());
 		bool is_inclusive = true;
 		if (val == "I")
 		{
@@ -372,20 +372,13 @@ void Server::onClickedAtRegexList (QModelIndex idx)
 			model->setData(idx, QString("I"));
 		}
 
-		if (checked)
-		{
-			QString const & val = model->data(idx, Qt::DisplayRole).toString();
-			std::string filter_item(val.toStdString());
+		QString const & val = model->data(idx, Qt::DisplayRole).toString();
 
-			if (Connection * conn = findCurrentConnection())
-			{
-				conn->sessionState().setRegexInclusive(reg.toStdString(), is_inclusive);
-				conn->m_session_state.setRegexChecked(filter_item, checked);
-				conn->onInvalidateFilter();
-			}
-		}
-		else
+		if (Connection * conn = findCurrentConnection())
 		{
+			conn->sessionState().setRegexInclusive(reg.toStdString(), is_inclusive);
+			conn->m_session_state.setRegexChecked(filter_item, checked);
+			conn->onInvalidateFilter();
 		}
 	}
 	else

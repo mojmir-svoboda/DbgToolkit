@@ -145,6 +145,22 @@ bool FilterProxyModel::filterAcceptsRow (int sourceRow, QModelIndex const & /*so
 		ctx = sourceModel()->data(data_idx).toString();
 	}
 
+	bool inclusive_filters = false;
+	for (int i = 0, ie = m_session_state.m_filtered_regexps.size(); i < ie; ++i)
+	{
+		FilteredRegex const & fr = m_session_state.m_filtered_regexps.at(i);
+		if (!fr.m_is_enabled)
+			continue;
+		else
+		{
+			if (fr.m_is_inclusive)
+			{
+				inclusive_filters = true;
+				break;
+			}
+		}
+	}
+
 	if (m_session_state.m_filtered_regexps.size() > 0)
 	{
 		QString msg;
@@ -155,8 +171,27 @@ bool FilterProxyModel::filterAcceptsRow (int sourceRow, QModelIndex const & /*so
 			msg = sourceModel()->data(data_idx).toString();
 		}
 
-		excluded |= m_session_state.isMatchedRegexExcluded(msg);
+		for (int i = 0, ie = m_session_state.m_filtered_regexps.size(); i < ie; ++i)
+		{
+			FilteredRegex const & fr = m_session_state.m_filtered_regexps.at(i);
+			if (fr.exactMatch(msg))
+			{
+				if (!fr.m_is_enabled)
+					continue;
+				else
+				{
+					if (fr.m_is_inclusive)
+						return true;
+					else
+						excluded = 1;
+				}
+			}
+		}
+
 	}
+
+	if (inclusive_filters)
+		return false;
 
 	excluded |= m_session_state.isTIDExcluded(tid.toStdString());
 	excluded |= m_session_state.isLvlExcluded(lvl.toStdString());
