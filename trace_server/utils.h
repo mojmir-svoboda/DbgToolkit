@@ -50,6 +50,7 @@ inline QList<QStandardItem *> addTriRow (QString const & str, bool inclusive)
 
 	QStandardItem * const name_item = new QStandardItem(str);
 	name_item->setCheckable(true);
+	name_item->setEditable(false);
 	row_items << name_item;
 
 	QString mode("E");

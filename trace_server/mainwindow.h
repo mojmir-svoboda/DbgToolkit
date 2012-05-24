@@ -96,8 +96,8 @@ public:
 	QTreeView const * getTreeViewCtx () const;
     QComboBox * getFilterRegex ();
     QComboBox const * getFilterRegex () const;
-	QListView * getListViewRegex ();
-	QListView const * getListViewRegex () const;
+	QTreeView * getListViewRegex ();
+	QTreeView const * getListViewRegex () const;
     QComboBox * getFilterColorRegex ();
     QComboBox const * getFilterColorRegex () const;
 	QListView * getListViewColorRegex ();

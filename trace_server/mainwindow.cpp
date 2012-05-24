@@ -105,9 +105,11 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay)
 	connect(getTreeViewCtx(), SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtCtxTree(QModelIndex)));
 	connect(getTreeViewCtx(), SIGNAL(doubleClicked(QModelIndex)), m_server, SLOT(onDoubleClickedAtCtxTree(QModelIndex)));
 
+	getListViewTID()->setEditTriggers(QAbstractItemView::NoEditTriggers);
 	connect(getListViewTID(), SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtTIDList(QModelIndex)));
 	connect(getListViewTID(), SIGNAL(doubleClicked(QModelIndex)), m_server, SLOT(onDoubleClickedAtTIDList(QModelIndex)));
 
+	getListViewLvl()->setEditTriggers(QAbstractItemView::NoEditTriggers);
 	connect(getListViewLvl(), SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtLvlList(QModelIndex)));
 	connect(getListViewLvl(), SIGNAL(doubleClicked(QModelIndex)), m_server, SLOT(onDoubleClickedAtLvlList(QModelIndex)));
 
@@ -122,12 +124,15 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay)
 	connect(ui->presetSaveButton, SIGNAL(clicked()), this, SLOT(onSaveCurrentFileFilter()));
 	connect(ui->presetResetButton, SIGNAL(clicked()), m_server, SLOT(onClearCurrentFileFilter()));
 
+	getListViewRegex()->setEditTriggers(QAbstractItemView::NoEditTriggers);
+	connect(getListViewTID(), SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtTIDList(QModelIndex)));
 	connect(getListViewRegex(), SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtRegexList(QModelIndex)));
 	connect(getListViewRegex(), SIGNAL(doubleClicked(QModelIndex)), m_server, SLOT(onDoubleClickedAtRegexList(QModelIndex)));
 	connect(ui->comboBoxRegex, SIGNAL(activated(int)), this, SLOT(onRegexActivate(int)));
 	connect(ui->buttonAddRegex, SIGNAL(clicked()), this, SLOT(onRegexAdd()));
 	connect(ui->buttonRmRegex, SIGNAL(clicked()), this, SLOT(onRegexRm()));
 
+	getListViewColorRegex()->setEditTriggers(QAbstractItemView::NoEditTriggers);
 	connect(getListViewColorRegex(), SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtColorRegexList(QModelIndex)));
 	connect(getListViewColorRegex(), SIGNAL(doubleClicked(QModelIndex)), m_server, SLOT(onDoubleClickedAtColorRegexList(QModelIndex)));
 	connect(ui->comboBoxColorRegex, SIGNAL(activated(int)), this, SLOT(onColorRegexActivate(int)));
@@ -239,8 +244,8 @@ QTreeView * MainWindow::getTreeViewCtx () { return ui->treeViewCtx; }
 QTreeView const * MainWindow::getTreeViewCtx () const { return ui->treeViewCtx; }
 QComboBox * MainWindow::getFilterRegex () { return ui->comboBoxRegex; }
 QComboBox const * MainWindow::getFilterRegex () const { return ui->comboBoxRegex; }
-QListView * MainWindow::getListViewRegex () { return ui->listViewRegex; }
-QListView const * MainWindow::getListViewRegex () const { return ui->listViewRegex; }
+QTreeView * MainWindow::getListViewRegex () { return ui->treeViewRegex; }
+QTreeView const * MainWindow::getListViewRegex () const { return ui->treeViewRegex; }
 QComboBox * MainWindow::getFilterColorRegex () { return ui->comboBoxColorRegex; }
 QComboBox const * MainWindow::getFilterColorRegex () const { return ui->comboBoxColorRegex; }
 QListView * MainWindow::getListViewColorRegex () { return ui->listViewColorRegex; }

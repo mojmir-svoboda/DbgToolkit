@@ -145,10 +145,8 @@ bool FilterProxyModel::filterAcceptsRow (int sourceRow, QModelIndex const & /*so
 		ctx = sourceModel()->data(data_idx).toString();
 	}
 
-	bool regex_accept = true;
 	if (m_session_state.m_filtered_regexps.size() > 0)
 	{
-		regex_accept = false;
 		QString msg;
 		int const msg_idx = m_session_state.findColumn4Tag(tlv::tag_msg);
 		if (msg_idx >= 0)
@@ -167,6 +165,6 @@ bool FilterProxyModel::filterAcceptsRow (int sourceRow, QModelIndex const & /*so
 	QModelIndex data_idx = sourceModel()->index(sourceRow, 0, QModelIndex());
 	excluded |= m_session_state.isBlockCollapsed(tid, data_idx.row());
 	excluded |= data_idx.row() < m_session_state.excludeContentToRow();
-	return !excluded && regex_accept;
+	return !excluded;
 }
 
