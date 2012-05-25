@@ -41,6 +41,7 @@ class QAction;
 class QMenu;
 class QListView;
 class QStandardItemModel;
+class QLabel;
 
 class MainWindow : public QMainWindow
 {
@@ -190,6 +191,7 @@ private:
 	QAction * m_quit_action;
 	QMenu * m_tray_menu;
 	QSystemTrayIcon * m_tray_icon;
+	QLabel * m_status_label;
 };
 
 #endif // MAINWINDOW_H

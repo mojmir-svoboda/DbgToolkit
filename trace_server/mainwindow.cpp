@@ -25,6 +25,7 @@
 #include "utils.h"
 #include "../tlv_parser/tlv_parser.h"
 #include "help.h"
+#include "version.h"
 
 #ifdef WIN32
 #	define WIN32_LEAN_AND_MEAN
@@ -54,6 +55,7 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay)
 	, m_quit_action(0)
 	, m_tray_menu(0)
 	, m_tray_icon(0)
+	, m_status_label(0)
 {
     //QDir::setSearchPaths("icons", QStringList(QDir::currentPath()));
 	ui->setupUi(this);
@@ -156,6 +158,16 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay)
 	ui->qFilterLineEdit->setToolTip(tr("quick inclusive filter: adds string to regex filter as regex .*string.*"));
 	ui->qSearchComboBox->setToolTip(tr("specifies column to search"));
 
+	QFrame * frame = new QFrame(this);
+	QHBoxLayout * labelLayout = new QHBoxLayout(frame);
+	m_status_label = new QLabel(m_server->getStatus());
+	labelLayout->addWidget(m_status_label);
+	QLabel * version_label = new QLabel(tr("Ver: %1").arg(g_Version));
+	labelLayout->addStretch();
+	labelLayout->addWidget(version_label);
+	frame->setLayout(labelLayout);
+	statusBar()->addWidget(frame);
+
 	connect(ui->filterModeComboBox, SIGNAL(activated(int)), this, SLOT(onFilterModeActivate(int)));
 	connect(ui->tabTrace, SIGNAL(tabCloseRequested(int)), m_server, SLOT(onCloseTabWithIndex(int)));
 	QTimer::singleShot(0, this, SLOT(loadState()));	// trigger lazy load of settings
@@ -228,7 +240,8 @@ void MainWindow::dragEnterEvent (QDragEnterEvent *event)
 
 void MainWindow::showServerStatus ()
 {
-	statusBar()->showMessage(m_server->getStatus());
+	if (m_status_label)
+		m_status_label->setText(m_server->getStatus());
 }
 
 void MainWindow::timerHit ()
