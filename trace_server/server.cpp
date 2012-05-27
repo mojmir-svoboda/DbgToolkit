@@ -172,7 +172,7 @@ void Server::onClickedAtFileTree_Impl (QModelIndex idx, bool recursive)
 	MainWindow * const main_window = static_cast<MainWindow *>(parent());
 	std::vector<QString> s;	// @TODO: reassemblePath
 	s.reserve(16);
-	QStandardItemModel const * const model = static_cast<QStandardItemModel *>(main_window->getTreeViewFile()->model());
+	QStandardItemModel const * const model = static_cast<QStandardItemModel *>(main_window->getWidgetFile()->model());
 	QStandardItem * const item = model->itemFromIndex(idx);
 
 	E_FilterMode const fmode = main_window->fltMode();
@@ -244,7 +244,7 @@ void Server::onClickedAtFileTree (QModelIndex idx)
 void Server::onDoubleClickedAtFileTree (QModelIndex idx)
 {
 	//MainWindow * main_window = static_cast<MainWindow *>(parent());
-	//QStandardItemModel * model = static_cast<QStandardItemModel *>(main_window->getTreeViewFile()->model());
+	//QStandardItemModel * model = static_cast<QStandardItemModel *>(main_window->getWidgetFile()->model());
 	//QStandardItem * item = model->itemFromIndex(idx);
 	//onClickedAtFileTree_Impl(idx, true);
 }
@@ -252,7 +252,7 @@ void Server::onDoubleClickedAtFileTree (QModelIndex idx)
 void Server::onClickedAtCtxTree (QModelIndex idx)
 {
 	MainWindow * main_window = static_cast<MainWindow *>(parent());
-	QStandardItemModel * model = static_cast<QStandardItemModel *>(main_window->getTreeViewCtx()->model());
+	QStandardItemModel * model = static_cast<QStandardItemModel *>(main_window->getWidgetCtx()->model());
 	QStandardItem * item = model->itemFromIndex(idx);
 	Q_ASSERT(item);
 
@@ -275,7 +275,7 @@ void Server::onClickedAtCtxTree (QModelIndex idx)
 
 void Server::onDoubleClickedAtCtxTree (QModelIndex idx)
 {
-	/*QStandardItemModel * model = static_cast<QStandardItemModel *>(main_window->getTreeViewCtx()->model());
+	/*QStandardItemModel * model = static_cast<QStandardItemModel *>(main_window->getWidgetCtx()->model());
 	QStandardItem * item = model->itemFromIndex(idx);
 
 	bool const checked = (item->checkState() == Qt::Checked);
@@ -289,7 +289,7 @@ void Server::onClickedAtTIDList (QModelIndex idx)
 		return;
 	MainWindow * main_window = static_cast<MainWindow *>(parent());
 	E_FilterMode const fmode = main_window->fltMode();
-	QStandardItemModel * model = static_cast<QStandardItemModel *>(main_window->getListViewTID()->model());
+	QStandardItemModel * model = static_cast<QStandardItemModel *>(main_window->getWidgetTID()->model());
 	QStandardItem * item = model->itemFromIndex(idx);
 	Q_ASSERT(item);
 
@@ -315,7 +315,7 @@ void Server::onClickedAtLvlList (QModelIndex idx)
 	if (!idx.isValid())
 		return;
 	MainWindow * main_window = static_cast<MainWindow *>(parent());
-	QStandardItemModel * model = static_cast<QStandardItemModel *>(main_window->getListViewLvl()->model());
+	QStandardItemModel * model = static_cast<QStandardItemModel *>(main_window->getWidgetLvl()->model());
 	QStandardItem * item = model->itemFromIndex(idx);
 	Q_ASSERT(item);
 
@@ -347,7 +347,7 @@ void Server::onClickedAtRegexList (QModelIndex idx)
 	if (!idx.isValid())
 		return;
 	MainWindow * main_window = static_cast<MainWindow *>(parent());
-	QStandardItemModel * model = static_cast<QStandardItemModel *>(main_window->getListViewRegex()->model());
+	QStandardItemModel * model = static_cast<QStandardItemModel *>(main_window->getWidgetRegex()->model());
 	QStandardItem * item = model->itemFromIndex(idx);
 	Q_ASSERT(item);
 
@@ -401,7 +401,7 @@ void Server::onClickedAtColorRegexList (QModelIndex idx)
 {
 	if (!idx.isValid()) return;
 	MainWindow * main_window = static_cast<MainWindow *>(parent());
-	QStandardItemModel * model = static_cast<QStandardItemModel *>(main_window->getListViewColorRegex()->model());
+	QStandardItemModel * model = static_cast<QStandardItemModel *>(main_window->getWidgetColorRegex()->model());
 	QStandardItem * item = model->itemFromIndex(idx);
 	Q_ASSERT(item);
 
@@ -425,7 +425,7 @@ void Server::onDoubleClickedAtColorRegexList (QModelIndex idx)
 	if (!idx.isValid())
 		return;
 	MainWindow * main_window = static_cast<MainWindow *>(parent());
-	QStandardItemModel * model = static_cast<QStandardItemModel *>(main_window->getListViewColorRegex()->model());
+	QStandardItemModel * model = static_cast<QStandardItemModel *>(main_window->getWidgetColorRegex()->model());
 	QStandardItem * item = model->itemFromIndex(idx);
 	Q_ASSERT(item);
 	QString const & val = model->data(idx, Qt::DisplayRole).toString();

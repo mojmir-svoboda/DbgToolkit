@@ -99,21 +99,21 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay)
 	m_timer->start();
 	setupMenuBar();
 
-	getTreeViewFile()->setEditTriggers(QAbstractItemView::NoEditTriggers);
-	connect(getTreeViewFile(), SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtFileTree(QModelIndex)));
-	connect(getTreeViewFile(), SIGNAL(doubleClicked(QModelIndex)), m_server, SLOT(onDoubleClickedAtFileTree(QModelIndex)));
+	getWidgetFile()->setEditTriggers(QAbstractItemView::NoEditTriggers);
+	connect(getWidgetFile(), SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtFileTree(QModelIndex)));
+	connect(getWidgetFile(), SIGNAL(doubleClicked(QModelIndex)), m_server, SLOT(onDoubleClickedAtFileTree(QModelIndex)));
 
-	getTreeViewCtx()->setEditTriggers(QAbstractItemView::NoEditTriggers);
-	connect(getTreeViewCtx(), SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtCtxTree(QModelIndex)));
-	connect(getTreeViewCtx(), SIGNAL(doubleClicked(QModelIndex)), m_server, SLOT(onDoubleClickedAtCtxTree(QModelIndex)));
+	getWidgetCtx()->setEditTriggers(QAbstractItemView::NoEditTriggers);
+	connect(getWidgetCtx(), SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtCtxTree(QModelIndex)));
+	connect(getWidgetCtx(), SIGNAL(doubleClicked(QModelIndex)), m_server, SLOT(onDoubleClickedAtCtxTree(QModelIndex)));
 
-	getListViewTID()->setEditTriggers(QAbstractItemView::NoEditTriggers);
-	connect(getListViewTID(), SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtTIDList(QModelIndex)));
-	connect(getListViewTID(), SIGNAL(doubleClicked(QModelIndex)), m_server, SLOT(onDoubleClickedAtTIDList(QModelIndex)));
+	getWidgetTID()->setEditTriggers(QAbstractItemView::NoEditTriggers);
+	connect(getWidgetTID(), SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtTIDList(QModelIndex)));
+	connect(getWidgetTID(), SIGNAL(doubleClicked(QModelIndex)), m_server, SLOT(onDoubleClickedAtTIDList(QModelIndex)));
 
-	getListViewLvl()->setEditTriggers(QAbstractItemView::NoEditTriggers);
-	connect(getListViewLvl(), SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtLvlList(QModelIndex)));
-	connect(getListViewLvl(), SIGNAL(doubleClicked(QModelIndex)), m_server, SLOT(onDoubleClickedAtLvlList(QModelIndex)));
+	getWidgetLvl()->setEditTriggers(QAbstractItemView::NoEditTriggers);
+	connect(getWidgetLvl(), SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtLvlList(QModelIndex)));
+	connect(getWidgetLvl(), SIGNAL(doubleClicked(QModelIndex)), m_server, SLOT(onDoubleClickedAtLvlList(QModelIndex)));
 
 	connect(ui->levelSpinBox, SIGNAL(valueChanged(int)), m_server, SLOT(onLevelValueChanged(int)));
     connect(ui->filterFileCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onFilterFile(int)));
@@ -126,17 +126,17 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay)
 	connect(ui->presetSaveButton, SIGNAL(clicked()), this, SLOT(onSaveCurrentFileFilter()));
 	connect(ui->presetResetButton, SIGNAL(clicked()), m_server, SLOT(onClearCurrentFileFilter()));
 
-	getListViewRegex()->setEditTriggers(QAbstractItemView::NoEditTriggers);
-	connect(getListViewTID(), SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtTIDList(QModelIndex)));
-	connect(getListViewRegex(), SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtRegexList(QModelIndex)));
-	connect(getListViewRegex(), SIGNAL(doubleClicked(QModelIndex)), m_server, SLOT(onDoubleClickedAtRegexList(QModelIndex)));
+	getWidgetRegex()->setEditTriggers(QAbstractItemView::NoEditTriggers);
+	connect(getWidgetTID(), SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtTIDList(QModelIndex)));
+	connect(getWidgetRegex(), SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtRegexList(QModelIndex)));
+	connect(getWidgetRegex(), SIGNAL(doubleClicked(QModelIndex)), m_server, SLOT(onDoubleClickedAtRegexList(QModelIndex)));
 	connect(ui->comboBoxRegex, SIGNAL(activated(int)), this, SLOT(onRegexActivate(int)));
 	connect(ui->buttonAddRegex, SIGNAL(clicked()), this, SLOT(onRegexAdd()));
 	connect(ui->buttonRmRegex, SIGNAL(clicked()), this, SLOT(onRegexRm()));
 
-	getListViewColorRegex()->setEditTriggers(QAbstractItemView::NoEditTriggers);
-	connect(getListViewColorRegex(), SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtColorRegexList(QModelIndex)));
-	connect(getListViewColorRegex(), SIGNAL(doubleClicked(QModelIndex)), m_server, SLOT(onDoubleClickedAtColorRegexList(QModelIndex)));
+	getWidgetColorRegex()->setEditTriggers(QAbstractItemView::NoEditTriggers);
+	connect(getWidgetColorRegex(), SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtColorRegexList(QModelIndex)));
+	connect(getWidgetColorRegex(), SIGNAL(doubleClicked(QModelIndex)), m_server, SLOT(onDoubleClickedAtColorRegexList(QModelIndex)));
 	connect(ui->comboBoxColorRegex, SIGNAL(activated(int)), this, SLOT(onColorRegexActivate(int)));
 	connect(ui->buttonAddColorRegex, SIGNAL(clicked()), this, SLOT(onColorRegexAdd()));
 	connect(ui->buttonRmColorRegex, SIGNAL(clicked()), this, SLOT(onColorRegexRm()));
@@ -247,22 +247,22 @@ void MainWindow::timerHit ()
 
 QTabWidget * MainWindow::getTabTrace () { return ui->tabTrace; }
 QTabWidget const * MainWindow::getTabTrace () const { return ui->tabTrace; }
-QTreeView * MainWindow::getTreeViewFile () { return ui->treeViewFile; }
-QTreeView const * MainWindow::getTreeViewFile () const { return ui->treeViewFile; }
-QTreeView * MainWindow::getTreeViewCtx () { return ui->treeViewCtx; }
-QTreeView const * MainWindow::getTreeViewCtx () const { return ui->treeViewCtx; }
+QTreeView * MainWindow::getWidgetFile () { return ui->treeViewFile; }
+QTreeView const * MainWindow::getWidgetFile () const { return ui->treeViewFile; }
+QTreeView * MainWindow::getWidgetCtx () { return ui->treeViewCtx; }
+QTreeView const * MainWindow::getWidgetCtx () const { return ui->treeViewCtx; }
 QComboBox * MainWindow::getFilterRegex () { return ui->comboBoxRegex; }
 QComboBox const * MainWindow::getFilterRegex () const { return ui->comboBoxRegex; }
-QTreeView * MainWindow::getListViewRegex () { return ui->treeViewRegex; }
-QTreeView const * MainWindow::getListViewRegex () const { return ui->treeViewRegex; }
+QTreeView * MainWindow::getWidgetRegex () { return ui->treeViewRegex; }
+QTreeView const * MainWindow::getWidgetRegex () const { return ui->treeViewRegex; }
 QComboBox * MainWindow::getFilterColorRegex () { return ui->comboBoxColorRegex; }
 QComboBox const * MainWindow::getFilterColorRegex () const { return ui->comboBoxColorRegex; }
-QListView * MainWindow::getListViewColorRegex () { return ui->listViewColorRegex; }
-QListView const * MainWindow::getListViewColorRegex () const { return ui->listViewColorRegex; }
-QListView * MainWindow::getListViewTID () { return ui->listViewTID; }
-QListView const * MainWindow::getListViewTID () const { return ui->listViewTID; }
-QListView * MainWindow::getListViewLvl () { return ui->listViewLvl; }
-QListView const * MainWindow::getListViewLvl () const { return ui->listViewLvl; }
+QListView * MainWindow::getWidgetColorRegex () { return ui->listViewColorRegex; }
+QListView const * MainWindow::getWidgetColorRegex () const { return ui->listViewColorRegex; }
+QListView * MainWindow::getWidgetTID () { return ui->listViewTID; }
+QListView const * MainWindow::getWidgetTID () const { return ui->listViewTID; }
+QListView * MainWindow::getWidgetLvl () { return ui->listViewLvl; }
+QListView const * MainWindow::getWidgetLvl () const { return ui->listViewLvl; }
 
 bool MainWindow::scopesEnabled () const { return ui->scopesCheckBox->isChecked(); }
 bool MainWindow::filterEnabled () const { return ui->filterFileCheckBox->isChecked(); }
@@ -349,7 +349,7 @@ void MainWindow::onQFilterLineEditFinished ()
 	text.append(".*");
 	conn->appendToRegexFilters(text.toStdString(), true, true);
 
-	QStandardItemModel * model = static_cast<QStandardItemModel *>(getListViewRegex()->model());
+	QStandardItemModel * model = static_cast<QStandardItemModel *>(getWidgetRegex()->model());
 	QStandardItem * root = model->invisibleRootItem();
 	QStandardItem * child = findChildByText(root, text);
 	if (!child)
@@ -417,7 +417,7 @@ void MainWindow::onFileLoad ()
 	QStringList files;
 	files << fname;
 	openFiles(files);
-	getTreeViewFile()->expandAll();
+	getWidgetFile()->expandAll();
 }
 
 void MainWindow::onFileSave ()
@@ -581,7 +581,7 @@ void MainWindow::onPresetActivate (int idx)
 		conn->loadToFileFilters(filter_item);
 	}
 
-	getTreeViewFile()->expandAll();
+	getWidgetFile()->expandAll();
 	conn->onInvalidateFilter();
 }
 
@@ -618,7 +618,7 @@ void MainWindow::onRegexAdd ()
 	if (!conn) return;
 
 	QString qItem = ui->comboBoxRegex->currentText();
-	QStandardItem * root = static_cast<QStandardItemModel *>(getListViewRegex()->model())->invisibleRootItem();
+	QStandardItem * root = static_cast<QStandardItemModel *>(getWidgetRegex()->model())->invisibleRootItem();
 	QStandardItem * child = findChildByText(root, qItem);
 	if (child == 0)
 	{
@@ -631,8 +631,8 @@ void MainWindow::onRegexAdd ()
 
 void MainWindow::onRegexRm ()
 {
-	QStandardItemModel * model = static_cast<QStandardItemModel *>(getListViewRegex()->model());
-	QModelIndex const idx = getListViewRegex()->currentIndex();
+	QStandardItemModel * model = static_cast<QStandardItemModel *>(getWidgetRegex()->model());
+	QModelIndex const idx = getWidgetRegex()->currentIndex();
 	QStandardItem * item = model->itemFromIndex(idx);
 	if (!item)
 		return;
@@ -661,7 +661,7 @@ void MainWindow::onColorRegexAdd ()
 	if (!conn) return;
 
 	QString qItem = ui->comboBoxColorRegex->currentText();
-	QStandardItem * root = static_cast<QStandardItemModel *>(getListViewColorRegex()->model())->invisibleRootItem();
+	QStandardItem * root = static_cast<QStandardItemModel *>(getWidgetColorRegex()->model())->invisibleRootItem();
 	QStandardItem * child = findChildByText(root, qItem);
 	if (child == 0)
 	{
@@ -676,8 +676,8 @@ void MainWindow::onColorRegexAdd ()
 void MainWindow::onColorRegexRm ()
 {
 	Connection * conn = m_server->findCurrentConnection();
-	QStandardItemModel * model = static_cast<QStandardItemModel *>(getListViewColorRegex()->model());
-	QModelIndex const idx = getListViewColorRegex()->currentIndex();
+	QStandardItemModel * model = static_cast<QStandardItemModel *>(getWidgetColorRegex()->model());
+	QModelIndex const idx = getWidgetColorRegex()->currentIndex();
 	QStandardItem * item = model->itemFromIndex(idx);
 	if (!item)
 		return;
@@ -1006,7 +1006,7 @@ void MainWindow::loadState ()
 #endif
 
 	loadPresets();
-	getTreeViewFile()->setEnabled(filterEnabled());
+	getWidgetFile()->setEnabled(filterEnabled());
 }
 
 void MainWindow::iconActivated (QSystemTrayIcon::ActivationReason reason)

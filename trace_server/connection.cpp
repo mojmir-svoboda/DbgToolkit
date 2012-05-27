@@ -42,13 +42,13 @@ Connection::Connection (QObject * parent)
 	, m_last_search_row(0)
 	, m_last_search_col(0)
 	, m_table_view_widget(0)
-	, m_tree_view_file_model(0)
-	, m_tree_view_ctx_model(0)
-	, m_tree_view_func_model(0)
-	, m_list_view_tid_model(0)
-	, m_list_view_color_regex_model(0)
-	, m_list_view_regex_model(0)
-	, m_list_view_lvl_model(0)
+	, m_file_model(0)
+	, m_ctx_model(0)
+	, m_func_model(0)
+	, m_tid_model(0)
+	, m_color_regex_model(0)
+	, m_regex_model(0)
+	, m_lvl_model(0)
 	, m_table_view_proxy(0)
 	, m_toggle_ref(0)
 	, m_hide_prev(0)
@@ -84,19 +84,19 @@ void Connection::onTabTraceFocus (int i)
 {
 	if (i != sessionState().m_tab_idx)
 		return;
-	m_main_window->getTreeViewFile()->setModel(m_tree_view_file_model);
+	m_main_window->getWidgetFile()->setModel(m_file_model);
 	hideLinearParents();
 
-	m_main_window->getTreeViewCtx()->setModel(m_tree_view_ctx_model);
-	m_main_window->getListViewTID()->setModel(m_list_view_tid_model);
-	m_main_window->getListViewColorRegex()->setModel(m_list_view_color_regex_model);
-	m_main_window->getListViewRegex()->setModel(m_list_view_regex_model);
-	m_main_window->getListViewLvl()->setModel(m_list_view_lvl_model);
+	m_main_window->getWidgetCtx()->setModel(m_ctx_model);
+	m_main_window->getWidgetTID()->setModel(m_tid_model);
+	m_main_window->getWidgetColorRegex()->setModel(m_color_regex_model);
+	m_main_window->getWidgetRegex()->setModel(m_regex_model);
+	m_main_window->getWidgetLvl()->setModel(m_lvl_model);
 }
 
 void Connection::hideLinearParents ()
 {
-	QStandardItem * node = m_tree_view_file_model->invisibleRootItem();
+	QStandardItem * node = m_file_model->invisibleRootItem();
 	QStandardItem * last_hidden_node = 0;
 	while (node)
 	{
@@ -119,9 +119,9 @@ void Connection::hideLinearParents ()
 	if (last_hidden_node)
 	{
 		if (last_hidden_node->parent())
-			m_main_window->getTreeViewFile()->setRootIndex(last_hidden_node->parent()->index());
+			m_main_window->getWidgetFile()->setRootIndex(last_hidden_node->parent()->index());
 		else
-			m_main_window->getTreeViewFile()->setRootIndex(last_hidden_node->index());
+			m_main_window->getWidgetFile()->setRootIndex(last_hidden_node->index());
 	}
 }
 
@@ -136,26 +136,26 @@ void Connection::onCloseTab ()
 	if (m_tcpstream)
 		m_tcpstream->close();
 	closeStorage();
-	if (m_main_window->getTreeViewFile()->model() == m_tree_view_file_model)
-		m_main_window->getTreeViewFile()->setModel(0);
+	if (m_main_window->getWidgetFile()->model() == m_file_model)
+		m_main_window->getWidgetFile()->setModel(0);
 
-	if (m_main_window->getTreeViewCtx()->model() == m_tree_view_ctx_model)
-		m_main_window->getTreeViewCtx()->setModel(0);
+	if (m_main_window->getWidgetCtx()->model() == m_ctx_model)
+		m_main_window->getWidgetCtx()->setModel(0);
 
-	if (m_main_window->getListViewTID()->model() == m_list_view_tid_model)
-		m_main_window->getListViewTID()->setModel(0);
+	if (m_main_window->getWidgetTID()->model() == m_tid_model)
+		m_main_window->getWidgetTID()->setModel(0);
 
-	if (m_main_window->getListViewColorRegex()->model() == m_list_view_color_regex_model)
-		m_main_window->getListViewColorRegex()->setModel(0);
+	if (m_main_window->getWidgetColorRegex()->model() == m_color_regex_model)
+		m_main_window->getWidgetColorRegex()->setModel(0);
 
-	delete m_tree_view_file_model;
-	m_tree_view_file_model = 0;
-	delete m_tree_view_ctx_model;
-	m_tree_view_ctx_model = 0;
-	delete m_list_view_tid_model;
-	m_list_view_tid_model = 0;
-	delete m_list_view_color_regex_model;
-	m_list_view_color_regex_model = 0;
+	delete m_file_model;
+	m_file_model = 0;
+	delete m_ctx_model;
+	m_ctx_model = 0;
+	delete m_tid_model;
+	m_tid_model = 0;
+	delete m_color_regex_model;
+	m_color_regex_model = 0;
 	m_table_view_widget = 0;
 }
 
@@ -250,43 +250,62 @@ void Connection::onTableClicked (QModelIndex const & row_index)
 		//qDebug("1c curr: (%i,col) -> (%i,col)", row_index.row(), curr.row());
 
 		m_last_clicked = curr;
-		QString file = findString4Tag(tlv::tag_file, curr);
-		QString line = findString4Tag(tlv::tag_line, curr);
 
-		boost::char_separator<char> sep(":/\\");
-		typedef boost::tokenizer<boost::char_separator<char> > tokenizer_t;
-		std::string fstr = file.toStdString();
-		tokenizer_t tok(fstr, sep);
-
-		QStandardItem * item = m_tree_view_file_model->invisibleRootItem();
-		for (tokenizer_t::const_iterator it = tok.begin(), ite = tok.end(); it != ite; ++it)
 		{
-			QString qfile = QString::fromStdString(*it);
-			QStandardItem * child = findChildByText(item, qfile);
-			if (child != 0)
+			QString file = findString4Tag(tlv::tag_file, curr);
+			QString line = findString4Tag(tlv::tag_line, curr);
+
+			boost::char_separator<char> sep(":/\\");
+			typedef boost::tokenizer<boost::char_separator<char> > tokenizer_t;
+			std::string fstr = file.toStdString();
+			tokenizer_t tok(fstr, sep);
+
+			QStandardItem * item = m_file_model->invisibleRootItem();
+			for (tokenizer_t::const_iterator it = tok.begin(), ite = tok.end(); it != ite; ++it)
 			{
-				item = child;
-				QModelIndex idx = item->index();
-				m_main_window->getTreeViewFile()->setExpanded(idx, true);
-				m_main_window->getTreeViewFile()->setCurrentIndex(idx);
+				QString qfile = QString::fromStdString(*it);
+				QStandardItem * child = findChildByText(item, qfile);
+				if (child != 0)
+				{
+					item = child;
+					QModelIndex idx = item->index();
+					m_main_window->getWidgetFile()->setExpanded(idx, true);
+					m_main_window->getWidgetFile()->setCurrentIndex(idx);
+				}
+			}
+
+			if (item != 0)
+			{
+				QStandardItem * last_level = findChildByText(item, line);
+				if (last_level != 0)
+				{
+					QModelIndex idx = last_level->index();
+					m_main_window->getWidgetFile()->setExpanded(idx, true);
+					m_main_window->getWidgetFile()->setCurrentIndex(idx);
+				}
 			}
 		}
 
-		if (item != 0)
 		{
-			QStandardItem * last_level = findChildByText(item, line);
-			if (last_level != 0)
-			{
-				QModelIndex idx = last_level->index();
-				m_main_window->getTreeViewFile()->setExpanded(idx, true);
-				m_main_window->getTreeViewFile()->setCurrentIndex(idx);
-			}
+			QString tid = findString4Tag(tlv::tag_tid, curr);
+			QModelIndexList indexList = m_tid_model->match(m_tid_model->index(0, 0), Qt::DisplayRole, tid);
+			QModelIndex const selectedIndex(indexList.first());
+			m_main_window->getWidgetTID()->setCurrentIndex(selectedIndex);
+		}
+		{
+			QString lvl = findString4Tag(tlv::tag_lvl, curr);
+			QModelIndexList indexList = m_lvl_model->match(m_lvl_model->index(0, 0), Qt::DisplayRole, lvl);
+			QModelIndex const selectedIndex(indexList.first());
+			m_main_window->getWidgetLvl()->setCurrentIndex(selectedIndex);
+		}
+		{
+			QString ctx = findString4Tag(tlv::tag_ctx, curr);
+			QModelIndexList indexList = m_ctx_model->match(m_ctx_model->index(0, 0), Qt::DisplayRole, ctx);
+			QModelIndex const selectedIndex(indexList.first());
+			m_main_window->getWidgetCtx()->setCurrentIndex(selectedIndex);
 		}
 
-		QString tid = findString4Tag(tlv::tag_tid, curr);
-		QModelIndexList indexList = m_list_view_tid_model->match(m_list_view_tid_model->index(0, 0), Qt::DisplayRole, tid);
-		QModelIndex const selectedIndex(indexList.first());
-		m_main_window->getListViewTID()->setCurrentIndex(selectedIndex);
+
 		m_last_search_row = curr.row(); // set search from this line
 	}
 	else

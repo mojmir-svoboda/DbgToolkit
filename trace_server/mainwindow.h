@@ -91,22 +91,22 @@ public:
 		return m_app_names.size() - 1;
 	}
 	QList<QColor> const & getThreadColors () const { return m_thread_colors; }
-	QTreeView * getTreeViewFile ();
-	QTreeView const * getTreeViewFile () const;
-	QTreeView * getTreeViewCtx ();
-	QTreeView const * getTreeViewCtx () const;
+	QTreeView * getWidgetFile ();
+	QTreeView const * getWidgetFile () const;
+	QTreeView * getWidgetCtx ();
+	QTreeView const * getWidgetCtx () const;
     QComboBox * getFilterRegex ();
     QComboBox const * getFilterRegex () const;
-	QTreeView * getListViewRegex ();
-	QTreeView const * getListViewRegex () const;
+	QTreeView * getWidgetRegex ();
+	QTreeView const * getWidgetRegex () const;
     QComboBox * getFilterColorRegex ();
     QComboBox const * getFilterColorRegex () const;
-	QListView * getListViewColorRegex ();
-	QListView const * getListViewColorRegex () const;
-	QListView * getListViewTID ();
-	QListView const * getListViewTID () const;
-	QListView * getListViewLvl ();
-	QListView const * getListViewLvl () const;
+	QListView * getWidgetColorRegex ();
+	QListView const * getWidgetColorRegex () const;
+	QListView * getWidgetTID ();
+	QListView const * getWidgetTID () const;
+	QListView * getWidgetLvl ();
+	QListView const * getWidgetLvl () const;
 	void setLevel (int i);
 	int getLevel () const;
 	bool scopesEnabled () const;

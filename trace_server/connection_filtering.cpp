@@ -33,12 +33,12 @@ void Connection::setFilterFile (int state)
 			m_table_view_widget->setModel(m_table_view_proxy);
 		}
 	}
-	m_main_window->getTreeViewFile()->setEnabled(m_main_window->filterEnabled());
-	m_main_window->getTreeViewCtx()->setEnabled(m_main_window->filterEnabled());
-	m_main_window->getListViewTID()->setEnabled(m_main_window->filterEnabled());
-	m_main_window->getListViewColorRegex()->setEnabled(m_main_window->filterEnabled());
-	m_main_window->getListViewRegex()->setEnabled(m_main_window->filterEnabled());
-	m_main_window->getListViewLvl()->setEnabled(m_main_window->filterEnabled());
+	m_main_window->getWidgetFile()->setEnabled(m_main_window->filterEnabled());
+	m_main_window->getWidgetCtx()->setEnabled(m_main_window->filterEnabled());
+	m_main_window->getWidgetTID()->setEnabled(m_main_window->filterEnabled());
+	m_main_window->getWidgetColorRegex()->setEnabled(m_main_window->filterEnabled());
+	m_main_window->getWidgetRegex()->setEnabled(m_main_window->filterEnabled());
+	m_main_window->getWidgetLvl()->setEnabled(m_main_window->filterEnabled());
 }
 
 void Connection::clearFilters (QStandardItem * node)
@@ -62,7 +62,7 @@ void Connection::clearFilters ()
 
 void Connection::onClearCurrentFileFilter ()
 {
-	QStandardItem * node = m_tree_view_file_model->invisibleRootItem();
+	QStandardItem * node = m_file_model->invisibleRootItem();
 	E_FilterMode const fmode = m_main_window->fltMode();
 	setCheckStateRecursive(node->child(0,0), fmode == e_Include ? Qt::Checked : Qt::Unchecked);
 	sessionState().onClearFileFilter();
@@ -104,7 +104,7 @@ void Connection::loadToFileFilters (std::string const & filter_item)
 
 	boost::char_separator<char> sep(":/\\"); // @TODO: duplicate!
 	appendToFileFilters(sep, filter_item, checked, true);
-	m_main_window->getTreeViewFile()->expandAll();
+	m_main_window->getWidgetFile()->expandAll();
 
 	onInvalidateFilter();
 }
@@ -120,7 +120,7 @@ void Connection::appendToFileFilters (boost::char_separator<char> const & sep, s
 	typedef boost::tokenizer<boost::char_separator<char> > tokenizer_t;
 	tokenizer_t tok(item, sep);
 
-	QStandardItem * node = m_tree_view_file_model->invisibleRootItem();
+	QStandardItem * node = m_file_model->invisibleRootItem();
 	QStandardItem * last_hidden_node = 0;
 	bool append = false;
 	bool stop = false;
@@ -156,9 +156,9 @@ void Connection::appendToFileFilters (boost::char_separator<char> const & sep, s
 	if (last_hidden_node)
 	{
 		if (last_hidden_node->parent())
-			m_main_window->getTreeViewFile()->setRootIndex(last_hidden_node->parent()->index());
+			m_main_window->getWidgetFile()->setRootIndex(last_hidden_node->parent()->index());
 		else
-			m_main_window->getTreeViewFile()->setRootIndex(last_hidden_node->index());
+			m_main_window->getWidgetFile()->setRootIndex(last_hidden_node->index());
 	}
 	if (!append)
 	{
@@ -179,7 +179,7 @@ void Connection::appendToFileFilters (boost::char_separator<char> const & sep, s
 void Connection::appendToTIDFilters (std::string const & item)
 {
 	QString qItem = QString::fromStdString(item);
-	QStandardItem * root = m_list_view_tid_model->invisibleRootItem();
+	QStandardItem * root = m_tid_model->invisibleRootItem();
 	QStandardItem * child = findChildByText(root, qItem);
 	E_FilterMode const fmode = m_main_window->fltMode();
 	if (child == 0)
@@ -192,7 +192,7 @@ void Connection::appendToTIDFilters (std::string const & item)
 void Connection::appendToLvlFilters (std::string const & item, bool checked)
 {
 	QString qItem = QString::fromStdString(item);
-	QStandardItem * root = m_list_view_lvl_model->invisibleRootItem();
+	QStandardItem * root = m_lvl_model->invisibleRootItem();
 	QStandardItem * child = findChildByText(root, qItem);
 	E_FilterMode const fmode = m_main_window->fltMode();
 	if (child == 0)
@@ -205,7 +205,7 @@ void Connection::appendToLvlFilters (std::string const & item, bool checked)
 void Connection::appendToCtxFilters (std::string const & item, bool checked)
 {
 	QString qItem = QString::fromStdString(item);
-	QStandardItemModel * model = static_cast<QStandardItemModel *>(m_main_window->getTreeViewCtx()->model());
+	QStandardItemModel * model = static_cast<QStandardItemModel *>(m_main_window->getWidgetCtx()->model());
 	QStandardItem * root = model->invisibleRootItem();
 	QStandardItem * child = findChildByText(root, qItem);
 	E_FilterMode const fmode = m_main_window->fltMode();
@@ -280,7 +280,7 @@ void Connection::recompileRegexps ()
 	for (int i = 0, ie = sessionState().m_filtered_regexps.size(); i < ie; ++i)
 	{
 		FilteredRegex & fr = sessionState().m_filtered_regexps[i];
-		QStandardItem * root = m_list_view_regex_model->invisibleRootItem();
+		QStandardItem * root = m_regex_model->invisibleRootItem();
 		QString const qregex = QString::fromStdString(fr.m_regex_str);
 		QStandardItem * child = findChildByText(root, qregex);
 		fr.m_is_enabled = false;
@@ -334,7 +334,7 @@ void Connection::recompileColorRegexps ()
 	for (int i = 0, ie = sessionState().m_colorized_texts.size(); i < ie; ++i)
 	{
 		ColorizedText & ct = sessionState().m_colorized_texts[i];
-		QStandardItem * root = m_list_view_color_regex_model->invisibleRootItem();
+		QStandardItem * root = m_color_regex_model->invisibleRootItem();
 		QString const qregex = QString::fromStdString(ct.m_regex_str);
 		QStandardItem * child = findChildByText(root, qregex);
 		ct.m_is_enabled = false;
@@ -376,7 +376,7 @@ void Connection::flipFilterMode (E_FilterMode mode)
 	qDebug("filterMode changed: old=%u -> new=%u", sessionState().m_filter_mode, mode);
 	if (sessionState().m_filter_mode != mode)
 	{
-		QStandardItem * node = m_tree_view_file_model->invisibleRootItem();
+		QStandardItem * node = m_file_model->invisibleRootItem();
 		flipCheckState(node);
 		flipCheckStateRecursive(node);
 		sessionState().flipFilterMode(mode);
