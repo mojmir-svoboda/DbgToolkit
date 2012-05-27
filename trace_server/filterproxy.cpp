@@ -30,6 +30,11 @@ QVariant FilterProxyModel::data (QModelIndex const & index, int role) const
 	return sourceModel()->data(src_idx, role);
 }
 
+Qt::ItemFlags FilterProxyModel::flags (QModelIndex const & index) const
+{
+	return sourceModel()->flags(mapToSource(index)) | Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+}
+
 QModelIndex FilterProxyModel::index (int row, int column, QModelIndex const & parent) const
 {
 	if (row < m_map_from_tgt.size()) // && column == reasonable

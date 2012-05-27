@@ -49,6 +49,7 @@ public:
 	virtual bool insertRows (int row, int count, QModelIndex const &);
 	virtual bool insertColumns (int column, int count, const QModelIndex &parent = QModelIndex());
 	QVariant data (QModelIndex const & index, int role) const;
+	Qt::ItemFlags flags (QModelIndex const & index) const;
 
 public slots:
 	void force_update();

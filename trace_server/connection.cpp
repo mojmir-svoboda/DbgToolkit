@@ -29,8 +29,8 @@ void TableItemDelegate::paint (QPainter * painter, QStyleOptionViewItem const & 
 void TableItemDelegate::paintCustom (QPainter * painter, QStyleOptionViewItem const & option, QModelIndex const & index) const
 {
 	QStyleOptionViewItem option2 = option;
-	//option2.decorationAlignment = Qt::AlignRight;
-	//option2.textElideMode = Qt::ElideLeft;
+	option2.decorationAlignment = Qt::AlignRight;
+	option2.textElideMode = Qt::ElideLeft;
 	QItemDelegate::paint(painter, option2, index);
 }
 
