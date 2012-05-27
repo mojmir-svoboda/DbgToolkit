@@ -72,7 +72,6 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 						recompileColorRegexps();
 					}
 
-					m_main_window->getWidgetFile()->expandAll();
 					m_main_window->getWidgetFile()->setEnabled(m_main_window->filterEnabled());
 	
 					QWidget * w = conn->sessionState().m_tab_widget;
@@ -80,6 +79,8 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 					// @TODO: delete persistent storage for the tab
 					sessionState().m_tab_idx = m_main_window->getTabTrace()->indexOf(sessionState().m_tab_widget);
 					onTabTraceFocus(sessionState().m_tab_idx);
+
+					m_main_window->getWidgetFile()->expandAll();
 				}
 			}
 
@@ -106,7 +107,7 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 			for (size_t c = 0, ce = sizes.size(); c < ce; ++c)
 			{
 				m_table_view_widget->horizontalHeader()->resizeSection(c, sizes.at(c));
-				qDebug("sizes: %u %u %u", sizes.at(0), sizes.at(1), sizes.at(2));
+				//qDebug("sizes: %u %u %u", sizes.at(0), sizes.at(1), sizes.at(2));
 			}
 
 			m_table_view_widget->horizontalHeader()->setResizeMode(QHeaderView::Fixed);
