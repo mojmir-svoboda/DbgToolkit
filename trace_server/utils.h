@@ -44,6 +44,15 @@ inline QList<QStandardItem *> addRow (QString const & str, bool checked )
 	return row_items;
 }
 
+inline QList<QStandardItem *> addUncheckableRow (QString const & str)
+{
+	QList<QStandardItem *> row_items;
+	QStandardItem * const name_item = new QStandardItem(str);
+	name_item->setCheckable(false);
+	row_items << name_item;
+	return row_items;
+}
+
 inline QList<QStandardItem *> addTriRow (QString const & str, bool inclusive)
 {
 	QList<QStandardItem *> row_items;
@@ -63,14 +72,14 @@ inline QList<QStandardItem *> addTriRow (QString const & str, bool inclusive)
 	return row_items;
 }
 
-
+	 
 inline QList<QStandardItem *> addRowTriState (QString const & str, bool checked, E_FilterMode filt_mode)
 {
 	QList<QStandardItem *> row_items;
 	QStandardItem * const name_item = new QStandardItem(str);
 	name_item->setCheckable(true);
 	name_item->setCheckState(checked ? Qt::Checked : Qt::Unchecked);
-	name_item->setTristate(true);
+	name_item->setTristate(true);	
 	row_items << name_item;
 	return row_items;
 }

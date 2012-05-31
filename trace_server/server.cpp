@@ -16,11 +16,11 @@ void SaveTableViewSettings (QTableView * tb)
 	settings.setValue("column_width", state);
 }
 
-Server::Server (QObject * parent, bool quit_delay)
+Server::Server (QString ip, unsigned short port, QObject * parent, bool quit_delay)
 	: QTcpServer(parent)
 {
-	QHostAddress addr(QHostAddress::LocalHost);
-	if (!listen(addr, default_port)) {
+	QHostAddress addr(ip);
+	if (!listen(addr, port)) {
 		status = tr("Unable to start server! Reason: %1").arg(errorString());
 		if (quit_delay)
 			QTimer::singleShot(5000, qApp, SLOT(quit()));

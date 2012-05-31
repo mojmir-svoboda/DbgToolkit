@@ -33,9 +33,18 @@
 #endif
 
 #if (defined WIN32) && (defined STATIC)
-    Q_IMPORT_PLUGIN(qico);
-    Q_IMPORT_PLUGIN(qsvg);
+	Q_IMPORT_PLUGIN(qico);
+	Q_IMPORT_PLUGIN(qsvg);
 #endif
+
+void MainWindow::loadNetworkSettings ()
+{
+	QSettings settings("MojoMir", "TraceServer");
+	m_trace_addr = settings.value("trace_addr", "127.0.0.1").toString();
+	m_trace_port = settings.value("trace_port", Server::default_port).toInt();
+	m_profiler_addr = settings.value("profiler_addr", "127.0.0.1").toString();
+	m_profiler_port = settings.value("profiler_port", 13147).toInt();
+}
 
 MainWindow::MainWindow (QWidget * parent, bool quit_delay)
 	: QMainWindow(parent)
@@ -56,23 +65,25 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay)
 	, m_tray_menu(0)
 	, m_tray_icon(0)
 	, m_status_label(0)
+	, m_settings_dialog(0)
+	, ui_settings(0)
 {
-    //QDir::setSearchPaths("icons", QStringList(QDir::currentPath()));
+	//QDir::setSearchPaths("icons", QStringList(QDir::currentPath()));
 	ui->setupUi(this);
 	ui->tabTrace->setTabsClosable(true);
 
 	// tray stuff
 	createActions();
 	createTrayIcon();
-    QIcon icon(":images/Icon1.ico");
+	QIcon icon(":images/Icon1.ico");
 	setWindowIcon(icon);
 	m_tray_icon->setVisible(true);
 	m_tray_icon->show();
 
 	setAcceptDrops(true);
-	qApp->installEventFilter(this);
 
-	m_server = new Server(this, quit_delay);
+	loadNetworkSettings();
+	m_server = new Server(m_trace_addr, m_trace_port, this, quit_delay);
 	showServerStatus();
 	connect(ui->qSearchLineEdit, SIGNAL(editingFinished()), this, SLOT(onQSearchEditingFinished()));
 	connect(ui->qFilterLineEdit, SIGNAL(editingFinished()), this, SLOT(onQFilterLineEditFinished()));
@@ -116,10 +127,10 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay)
 	connect(getWidgetLvl(), SIGNAL(doubleClicked(QModelIndex)), m_server, SLOT(onDoubleClickedAtLvlList(QModelIndex)));
 
 	connect(ui->levelSpinBox, SIGNAL(valueChanged(int)), m_server, SLOT(onLevelValueChanged(int)));
-    connect(ui->filterFileCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onFilterFile(int)));
-    connect(ui->buffCheckBox, SIGNAL(stateChanged(int)), m_server, SLOT(onBufferingStateChanged(int)));
-    connect(ui->reuseTabCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onReuseTabChanged(int)));
-    //connect(ui->clrFiltersCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onClrFiltersStateChanged(int)));
+	connect(ui->filterFileCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onFilterFile(int)));
+	connect(ui->buffCheckBox, SIGNAL(stateChanged(int)), m_server, SLOT(onBufferingStateChanged(int)));
+	connect(ui->reuseTabCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onReuseTabChanged(int)));
+	//connect(ui->clrFiltersCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onClrFiltersStateChanged(int)));
 	connect(ui->presetComboBox, SIGNAL(activated(int)), this, SLOT(onPresetActivate(int)));
 	connect(ui->presetAddButton, SIGNAL(clicked()), this, SLOT(onAddCurrentFileFilter()));
 	connect(ui->presetRmButton, SIGNAL(clicked()), this, SLOT(onRmCurrentFileFilter()));
@@ -279,13 +290,13 @@ E_FilterMode MainWindow::fltMode () const
 void MainWindow::setLevel (int i)
 {
 	bool const old = ui->levelSpinBox->blockSignals(true);
-    ui->levelSpinBox->setValue(i);
+	ui->levelSpinBox->setValue(i);
 	ui->levelSpinBox->blockSignals(old);
 }
 
 int MainWindow::getLevel () const
 {
-    int const current = ui->levelSpinBox->value();
+	int const current = ui->levelSpinBox->value();
 	return current;
 }
 
@@ -358,6 +369,15 @@ void MainWindow::onQFilterLineEditFinished ()
 		root->appendRow(row_items);
 		child = findChildByText(root, text);
 		child->setCheckState(Qt::Checked);
+	}
+
+	for (int i = 0, ie = ui->tabFilters->count(); i < ie; ++i)
+	{
+		if (ui->tabFilters->tabText(i) == "RegExp")
+		{
+			ui->tabFilters->setCurrentIndex(i);
+			break;
+		}
 	}
 
 	conn->recompileRegexps();
@@ -506,61 +526,6 @@ void MainWindow::onShowHelp ()
 	m_help->helpTextEdit->setHtml(QString(html_help));
 	m_help->helpTextEdit->setReadOnly(true);
 	dialog.exec();
-}
-
-void MainWindow::onColumnSetup ()
-{
-	QDialog dialog(this);
-	dialog.setWindowFlags(Qt::Sheet);
-
-	Ui::SettingsDialog sett_dialog;
-	sett_dialog.setupUi(&dialog);
-
-	QString tags("Available tags: ");
-	size_t const n = tlv::get_tag_count();
-	for (size_t i = tlv::tag_time; i < n; ++i)
-	{
-		char const * name = tlv::get_tag_name(i);
-		if (name)
-			tags += QString::fromStdString(name) + "  ";
-	}
-	sett_dialog.tagsLabel->setText(tags);
-	SettingsModelView model(m_app_names, m_columns_setup);
-	sett_dialog.tagsTableView->setModel(&model);
-	sett_dialog.tagsTableView->horizontalHeader()->resizeSection(0, 100);
-	sett_dialog.tagsTableView->horizontalHeader()->resizeSection(1, 400);
-	sett_dialog.tagsTableView->setItemDelegate(new SettingsEditDelegate());
-
-	if (dialog.exec() == QDialog::Accepted)
-	{
-		for (int i = 0, ie = model.m_app_names.size(); i < ie; ++i)
-		{
-			boost::char_separator<char> sep(", ");
-			typedef boost::tokenizer<boost::char_separator<char> > tokenizer_t;
-			std::string s(model.m_rows[i].toStdString());
-			tokenizer_t tok(s, sep);
-			int const idx = findAppName(m_app_names[i]);
-			qDebug("app=%s", m_app_names.at(i).toStdString().c_str());
-			m_columns_setup[idx].clear();
-			m_columns_sizes[idx].clear();
-			if (idx >= 0)
-			{
-				size_t j = 0;
-				for (tokenizer_t::const_iterator it = tok.begin(), ite = tok.end(); it != ite; ++it, ++j)
-				{
-					qDebug("  token=%s", it->c_str());
-					m_columns_setup[idx].append(QString::fromStdString(*it));
-					m_columns_sizes[idx].append(127);
-				}
-			}
-		}
-
-
-		if (Connection * conn = m_server->findCurrentConnection())
-		{
-			conn->onApplyColumnSetup();
-		}
-	}
 }
 
 void MainWindow::onFileFilterSetup ()
@@ -787,7 +752,7 @@ void MainWindow::setupMenuBar ()
 	fileMenu->addAction(tr("File &Save..."), this, SLOT(onFileSave()), QKeySequence(Qt::ControlModifier + Qt::Key_S));
 	fileMenu->addAction(tr("File &Save As CSV format"), this, SLOT(onFileExportToCSV()), QKeySequence(Qt::ControlModifier + Qt::ShiftModifier + Qt::Key_S));
 	fileMenu->addSeparator();
-    fileMenu->addAction(tr("Quit program"), this, SLOT(onQuit()), QKeySequence::Quit);
+	fileMenu->addAction(tr("Quit program"), this, SLOT(onQuit()), QKeySequence::Quit);
 
 	// Edit
 	QMenu * editMenu = menuBar()->addMenu(tr("&Edit"));
@@ -796,7 +761,7 @@ void MainWindow::setupMenuBar ()
 	editMenu->addAction(tr("Find Prev"), this, SLOT(onEditFindPrev()), QKeySequence::FindPrevious);
 	new QShortcut(QKeySequence(Qt::Key_Slash), this, SLOT(onEditFind()));
 	editMenu->addSeparator();
-    editMenu->addAction(tr("Copy"), m_server, SLOT(onCopyToClipboard()), QKeySequence::Copy);
+	editMenu->addAction(tr("Copy"), m_server, SLOT(onCopyToClipboard()), QKeySequence::Copy);
 	new QShortcut(QKeySequence(Qt::ControlModifier + Qt::Key_Insert), this, SLOT(onCopyToClipboard()));
 	editMenu->addSeparator();
 	editMenu->addAction(tr("Close Tab"), m_server, SLOT(onCloseCurrentTab()), QKeySequence(Qt::ControlModifier + Qt::Key_W));
@@ -819,7 +784,7 @@ void MainWindow::setupMenuBar ()
 
 	// Tools
 	QMenu * tools = menuBar()->addMenu(tr("&Settings"));
-	tools->addAction(tr("Column Setup"), this, SLOT(onColumnSetup()));
+	tools->addAction(tr("Setup"), this, SLOT(onSetup()));
 	tools->addAction(tr("File Filter Setup"), this, SLOT(onFileFilterSetup()));
 	tools->addAction(tr("Save Current File Filter As..."), this, SLOT(onSaveCurrentFileFilter()));
 	tools->addSeparator();
@@ -902,6 +867,12 @@ void MainWindow::loadPresets ()
 void MainWindow::storeState ()
 {
 	QSettings settings("MojoMir", "TraceServer");
+
+	settings.setValue("trace_addr", m_trace_addr);
+	settings.setValue("trace_port", m_trace_port);
+	settings.setValue("profiler_addr", m_profiler_addr);
+	settings.setValue("profiler_port", m_profiler_port);
+
 	settings.setValue("geometry", saveGeometry());
 	settings.setValue("windowState", saveState());
 	settings.setValue("splitter", ui->splitter->saveState());
@@ -1007,16 +978,21 @@ void MainWindow::loadState ()
 
 	loadPresets();
 	getWidgetFile()->setEnabled(filterEnabled());
+
+	m_settings_dialog = new QDialog(this);
+	m_settings_dialog->setWindowFlags(Qt::Sheet);
+	ui_settings = new Ui::SettingsDialog();
+	ui_settings->setupUi(m_settings_dialog);
+
+	qApp->installEventFilter(this);
 }
+
 
 void MainWindow::iconActivated (QSystemTrayIcon::ActivationReason reason)
 {
 	switch (reason) {
-		case QSystemTrayIcon::Trigger:
-			break;
-		case QSystemTrayIcon::DoubleClick:
-			onHotkeyShowOrHide();
-			break;
+		case QSystemTrayIcon::Trigger:     break;
+		case QSystemTrayIcon::DoubleClick: onHotkeyShowOrHide(); break;
 		case QSystemTrayIcon::MiddleClick: break;
 		default: break;
 	}
@@ -1031,12 +1007,8 @@ void MainWindow::closeEvent (QCloseEvent * event)
 	event->ignore();
 }
 
-void MainWindow::changeEvent (QEvent * e)
-{
-	QMainWindow::changeEvent(e);
-}
-
-bool MainWindow::eventFilter (QObject *, QEvent * e)
+void MainWindow::changeEvent (QEvent * e) { QMainWindow::changeEvent(e); }
+bool MainWindow::eventFilter (QObject * target, QEvent * e)
 {
 	if (e->type() == QEvent::Shortcut)
 	{
@@ -1050,4 +1022,3 @@ bool MainWindow::eventFilter (QObject *, QEvent * e)
 	return false;
 }
 
-/*he QSocketNotifier class provides support for monitoring activity on a file descriptor.  */

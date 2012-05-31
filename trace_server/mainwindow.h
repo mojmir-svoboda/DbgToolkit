@@ -141,7 +141,7 @@ private slots:
 	void openFiles (QStringList const & list);
 	void onFileSave ();
 	void onFileExportToCSV ();
-	void onColumnSetup ();
+	void onSetup ();
 	void onFileFilterSetup ();
 	void closeEvent (QCloseEvent *event);
 	void iconActivated (QSystemTrayIcon::ActivationReason reason);
@@ -163,9 +163,17 @@ private slots:
 	void onFilterModeActivate (int idx);
 	void onReuseTabChanged (int state);
 	void onFilterFile (int state);
+	void onSettingsIndexesMoved (QModelIndexList const & indexes);
+	void onSettingsAppSelected (int idx);
+
+	void onClickedAtSettingColumnSetup (QModelIndex idx);
+	void onClickedAtSettingColumnSizes (QModelIndex idx);
+	void onClickedAtSettingColumnAlign (QModelIndex idx);
+	void onClickedAtSettingColumnElide (QModelIndex idx);
 
 private:
 	void showServerStatus ();
+	void loadNetworkSettings ();
 	void setupMenuBar ();
 	void createActions ();
 	void createTrayIcon ();
@@ -192,6 +200,12 @@ private:
 	QMenu * m_tray_menu;
 	QSystemTrayIcon * m_tray_icon;
 	QLabel * m_status_label;
+	QDialog * m_settings_dialog;
+	Ui::SettingsDialog * ui_settings;
+	QString m_trace_addr;
+	unsigned short m_trace_port;
+	QString m_profiler_addr;
+	unsigned short m_profiler_port;
 };
 
 #endif // MAINWINDOW_H

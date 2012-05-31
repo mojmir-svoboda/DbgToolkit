@@ -4,7 +4,7 @@
 #include <QObject>
 #include "types.h"
 
-struct SettingsModelView : QAbstractTableModel
+/*struct SettingsModelView : QAbstractTableModel
 {
 	Q_OBJECT
 public:
@@ -38,5 +38,5 @@ public:
 
 private slots:
 	void commitAndCloseEditor ();
-};
+};*/
 
