@@ -1,16 +1,16 @@
 #pragma once
 #include <cstring>
 #include <cstdio>
-#include <cstdlib>
+//#include <cstdlib>
 //#include <unistd.h>
-#include <errno.h>
-#include <ctype.h>
+//#include <errno.h>
+//#include <ctype.h>
 //#include <stdint.h>
 
 #if defined WIN32 || defined __MINGW__
 //|| defined WIN64
-#	define WIN32_LEAN_AND_MEAN
-#	include <windows.h>
+//#	define WIN32_LEAN_AND_MEAN
+//#	include <windows.h>
 #else
 
 	inline void atomic_write32 (volatile uint32_t * mem, uint32_t val)

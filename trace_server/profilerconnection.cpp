@@ -1,9 +1,62 @@
 #include "profilerconnection.h"
+#include "profilerserver.h"
 #include <boost/tokenizer.hpp>
 #include <tlv_parser/tlv_encoder.h>
+#include <QtDebug>
+#include "mainwindow.h"
+
 
 namespace profiler {
-	/*
+
+	Server::Server (boost::asio::io_service & io_service, boost::asio::ip::tcp::endpoint const & endpoint, MainWindow & mw)
+		: m_io_service(io_service)
+		, m_acceptor(io_service, endpoint)
+		, m_main_window(mw)
+	{
+		start_accept();
+	}
+
+	void Server::start_accept ()
+	{
+		profiler_rvp_t * const rvp = getRendezVouses().create();
+		connection_ptr_t new_session(new Connection(m_io_service, *rvp, m_main_window));
+
+		m_acceptor.async_accept(new_session->socket(),
+				boost::bind(&Server::handle_accept, this, new_session, boost::asio::placeholders::error));
+	}
+
+	void Server::handle_accept (connection_ptr_t session, boost::system::error_code const & error)
+	{
+		if (!error)
+			session->start();
+		start_accept();
+	}
+}
+
+namespace profiler {
+
+Q_DECLARE_METATYPE(profiler::profiler_rvp_t *)
+
+Connection::Connection (boost::asio::io_service & io_service, profiler_rvp_t & rvp, MainWindow & mw)
+	: m_io(io_service), m_profileInfo(), m_socket(io_service) , m_current_cmd() , m_decoder()
+	, m_rvp(rvp)
+	, m_last_flush_end_idx(0)
+	, m_main_window(mw)
+{
+	qRegisterMetaType<profiler::profiler_rvp_t *>("prof_rvp_t");
+	connect(this, SIGNAL(incomingProfilerConnection(profiler::profiler_rvp_t *)), m_main_window.getServer(), SLOT(incomingProfilerConnection(profiler::profiler_rvp_t *)), Qt::QueuedConnection);
+	//printf("+++ connection\n");
+}
+
+void Connection::start ()
+{
+	emit incomingProfilerConnection(&m_rvp);
+	boost::asio::async_read(m_socket,
+		boost::asio::buffer(&m_current_cmd.orig_message[0], tlv::Header::e_Size),
+		boost::bind(&Connection::handle_read_header, shared_from_this(), boost::asio::placeholders::error));
+}
+
+
 bool Connection::tryHandleCommand (DecodedCommand const & cmd)
 {
 	if (cmd.hdr.cmd == tlv::cmd_setup)
@@ -113,6 +166,17 @@ bool Connection::handleProfileCommand (DecodedCommand const & cmd)
 	if (cmd.hdr.cmd == tlv::cmd_profile_frame_end)
 	{
 		m_profileInfo.m_frames.push_back(std::make_pair(m_profileInfo.m_frame_begin / g_scaleValue, time / g_scaleValue));
+	
+		size_t const from = m_last_flush_end_idx;
+		size_t const to = m_profileInfo.m_completed_frame_infos.size();
+		qDebug("flushing from %i to %i", from, to);
+
+		for (size_t i = from; i < to; ++i)
+		{
+			qDebug("flushing %i", i);
+			m_rvp.produce(&m_profileInfo.m_completed_frame_infos[i]);
+		}
+		m_last_flush_end_idx = to;
 		return true;
 	}
 
@@ -146,7 +210,7 @@ bool Connection::handleProfileCommand (DecodedCommand const & cmd)
 	}
 
 	return true;
-}*/
+}
 
 } // namespace profiler
 

@@ -13,10 +13,10 @@ INCLUDEPATH += c:/devel/boost_1_48_0
 
 win32-msvc* {
 	DEFINES += QT_NO_OPENGL
-	#LIBS += c:/devel/boost_1_47_0/stage/lib/libboost_system-vc100-mt-1_47.lib
-	#LIBS += c:/devel/boost_1_47_0/stage/lib/libboost_date_time-vc100-mt-1_47.lib
-	#LIBS += c:/devel/boost_1_47_0/stage/lib/libboost_thread-vc100-mt-1_47.lib
-	#LIBS += c:/devel/boost_1_47_0/stage/lib/libboost_regex-vc100-mt-1_47.lib
+	#LIBS += c:/devel/boost_1_49_0/stage/lib/libboost_system-vc100-mt-1_49.lib
+	#LIBS += c:/devel/boost_1_49_0/stage/lib/libboost_date_time-vc100-mt-1_49.lib
+	#LIBS += c:/devel/boost_1_49_0/stage/lib/libboost_thread-vc100-mt-1_49.lib
+	#LIBS += c:/devel/boost_1_49_0/stage/lib/libboost_regex-vc100-mt-1_49.lib
 
 	LIBS += c:/devel/boost_1_48_0/stage/lib/libboost_system-vc100-mt-1_48.lib
 	LIBS += c:/devel/boost_1_48_0/stage/lib/libboost_date_time-vc100-mt-1_48.lib
@@ -50,8 +50,9 @@ static { # everything below takes effect with CONFIG += static
 }
 
 
-SOURCES += main.cpp\
-        mainwindow.cpp \
+SOURCES += ../version.cpp \
+	main.cpp\
+	mainwindow.cpp \
     modelview.cpp \
     server.cpp \
     filterproxy.cpp \
@@ -63,6 +64,7 @@ SOURCES += main.cpp\
     connection.cpp \
     sessionstate.cpp \
     settings.cpp	\
+	rvps.cpp	\
 	profilerconnection.cpp \
 	profilerbar.cpp	\
 	profilerconnection.cpp	\
@@ -70,7 +72,8 @@ SOURCES += main.cpp\
 	profilerview.cpp	\
 	profilerwindow.cpp
 
-HEADERS  += mainwindow.h \
+HEADERS  += ../version.h	\
+	mainwindow.h \
     modelview.h \
     server.h \
     connection.h \
@@ -83,6 +86,8 @@ HEADERS  += mainwindow.h \
     ../trace_client/trace.h \
     sessionstate.h \
     settings.h	\
+	rvps.h	\
+	rendezvous.h	\
 	profilerbar.h	\
 	profilerblockinfo.h	\
 	profilerconnection.h	\

@@ -3,28 +3,34 @@
 #include <tlv_parser/tlv_decoder.h>
 #include <filters/file_filter.hpp>
 #include <boost/config.hpp>
-//#include <boost/asio.hpp>
+#include <boost/asio.hpp>
 #include <boost/bind.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/enable_shared_from_this.hpp>
+#include <QObject>
 #include "profilerblockinfo.h"
+#include "rvps.h"
 #include "cmd.h"
+
+class MainWindow;
 
 namespace profiler {
 
-struct Connection : public boost::enable_shared_from_this<Connection>
+struct Connection : QObject, boost::enable_shared_from_this<Connection>
 {
-/*	ProfileInfo & m_profileInfo;
+	Q_OBJECT
+public:
+
+	ProfileInfo m_profileInfo;
 	boost::asio::io_service & m_io;
 	boost::asio::ip::tcp::socket m_socket;
 	DecodedCommand m_current_cmd;
 	tlv::TVDecoder m_decoder;
+	profiler_rvp_t & m_rvp;
+	size_t m_last_flush_end_idx;
+	MainWindow & m_main_window;
 
-	explicit Connection (boost::asio::io_service & io_service, ProfileInfo & pi)
-		: m_io(io_service), m_profileInfo(pi), m_socket(io_service) , m_current_cmd() , m_decoder()
-	{
-		//printf("+++ connection\n");
-	}
+	explicit Connection (boost::asio::io_service & io_service, profiler_rvp_t & rvp, MainWindow & mw);
 
 	~Connection ()
 	{
@@ -34,12 +40,7 @@ struct Connection : public boost::enable_shared_from_this<Connection>
 
 	boost::asio::ip::tcp::socket & socket () { return m_socket; }
 
-	void start ()
-	{
-		boost::asio::async_read(m_socket,
-			boost::asio::buffer(&m_current_cmd.orig_message[0], tlv::Header::e_Size),
-			boost::bind(&Connection::handle_read_header, shared_from_this(), boost::asio::placeholders::error));
-	}
+	void start ();
 
 	void handle_read_header (boost::system::error_code const & error)
 	{
@@ -81,7 +82,10 @@ struct Connection : public boost::enable_shared_from_this<Connection>
 	bool tryHandleCommand (DecodedCommand const & cmd);
 	bool handleProfileCommand (DecodedCommand const & cmd);
 	bool handleSetupCommand (DecodedCommand const & cmd);
-	*/
+
+signals:
+	void incomingProfilerConnection (profiler::profiler_rvp_t * rvp);
+	void incomingProfilerData (profiler::profiler_rvp_t * rvp);
 };
 
 typedef boost::shared_ptr<Connection> connection_ptr_t;

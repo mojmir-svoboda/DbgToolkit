@@ -93,9 +93,9 @@ View::View (ProfilerWindow * mw, const QString & name, QWidget * parent)
 	m_frameSpinBox->setMinimum(0);
 	m_frameSpinBox->setValue(0);
 
-	int const max = m_mainWindow->getProfileInfo(0).m_frames.size();
-	m_frameSpinBox->setMaximum(max);
-	topLayout->addWidget(m_frameSpinBox, 0, 1);
+	//int const max = m_mainWindow->getProfileInfo(0).m_frames.size();
+	//m_frameSpinBox->setMaximum(max);
+	//topLayout->addWidget(m_frameSpinBox, 0, 1);
 
 	topLayout->addWidget(m_resetButton, 2, 1);
 	setLayout(topLayout);

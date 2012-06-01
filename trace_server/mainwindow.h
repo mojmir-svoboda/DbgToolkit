@@ -47,8 +47,8 @@ class MainWindow : public QMainWindow
 	Q_OBJECT
 
 public:
-	explicit MainWindow(QWidget * parent = 0, bool quit_delay = true);
-	~MainWindow();
+	explicit MainWindow (QWidget * parent = 0, bool quit_delay = true);
+	~MainWindow ();
 
 	QTabWidget * getTabTrace ();
 	QTabWidget const * getTabTrace () const;
@@ -122,6 +122,8 @@ public:
 	bool eventFilter (QObject * o, QEvent * e);
 
 	unsigned getHotKey () const;
+	Server const * getServer () const { return m_server; }
+	Server * getServer () { return m_server; }
 
 public slots:
 	void onHotkeyShowOrHide ();
