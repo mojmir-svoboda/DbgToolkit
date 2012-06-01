@@ -910,6 +910,18 @@ void MainWindow::storeState ()
 			}
 		}
 		settings.endGroup();
+
+		settings.beginGroup(tr("column_align_%1").arg(m_app_names[i]));
+		{
+			write_list_of_strings(settings, "aligns", "column", m_columns_align.at(i));
+		}
+		settings.endGroup();
+
+		settings.beginGroup(tr("column_elide_%1").arg(m_app_names[i]));
+		{
+			write_list_of_strings(settings, "elides", "column", m_columns_elide.at(i));
+		}
+		settings.endGroup();
 	}
 
 #ifdef WIN32
@@ -959,6 +971,28 @@ void MainWindow::loadState ()
 			settings.endArray();
 		}
 		settings.endGroup();
+
+		m_columns_align.push_back(columns_align_t());
+		settings.beginGroup(tr("column_align_%1").arg(m_app_names[i]));
+		{
+			read_list_of_strings(settings, "aligns", "column", m_columns_align.back());
+		}
+		settings.endGroup();
+
+		if (m_columns_align.back().size() < m_columns_sizes.back().size())
+			for (int i = 0, ie = m_columns_sizes.back().size(); i < ie; ++i)
+				m_columns_align.back().push_back(QString("L"));
+
+		m_columns_elide.push_back(columns_elide_t());
+		settings.beginGroup(tr("column_elide_%1").arg(m_app_names[i]));
+		{
+			read_list_of_strings(settings, "elides", "column", m_columns_elide.back());
+		}
+		settings.endGroup();
+
+		if (m_columns_elide.back().size() < m_columns_sizes.back().size())
+			for (int i = 0, ie = m_columns_sizes.back().size(); i < ie; ++i)
+				m_columns_elide.back().push_back(QString("R"));
 	}
 
 	if (m_thread_colors.empty())

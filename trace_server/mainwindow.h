@@ -58,6 +58,10 @@ public:
 	columns_setup_t & getColumnSetup (size_t i) { return m_columns_setup[i]; }
 	columns_sizes_t const & getColumnSizes (size_t i) const { return m_columns_sizes.at(i); }
 	columns_sizes_t & getColumnSizes (size_t i) { return m_columns_sizes[i]; }
+	columns_align_t const & getColumnAlign (size_t i) const { return m_columns_align.at(i); }
+	columns_align_t & getColumnAlign (size_t i) { return m_columns_align[i]; }
+	columns_elide_t const & getColumnElide (size_t i) const { return m_columns_elide.at(i); }
+	columns_align_t & getColumnElide (size_t i) { return m_columns_elide[i]; }
 
 	filter_preset_t const & getFilterPresets (size_t i) const { return m_filter_presets.at(i); }
 	filter_preset_t & getFilterPresets (size_t i) { return m_filter_presets[i]; }
@@ -88,6 +92,8 @@ public:
 		m_columns_setup.push_back(columns_setup_t());
 		m_columns_sizes.reserve(16);
 		m_columns_sizes.push_back(columns_sizes_t());
+		m_columns_align.push_back(columns_align_t());
+		m_columns_elide.push_back(columns_elide_t());
 		return m_app_names.size() - 1;
 	}
 	QList<QColor> const & getThreadColors () const { return m_thread_colors; }
@@ -163,11 +169,10 @@ private slots:
 	void onFilterModeActivate (int idx);
 	void onReuseTabChanged (int state);
 	void onFilterFile (int state);
-	void onSettingsIndexesMoved (QModelIndexList const & indexes);
 	void onSettingsAppSelected (int idx);
-
 	void onClickedAtSettingColumnSetup (QModelIndex idx);
 	void onClickedAtSettingColumnSizes (QModelIndex idx);
+	//void onEditingFinishedOfColumnSizes (QModelIndex idx);
 	void onClickedAtSettingColumnAlign (QModelIndex idx);
 	void onClickedAtSettingColumnElide (QModelIndex idx);
 
@@ -187,6 +192,8 @@ private:
 	QList<QString> m_app_names;					/// registered applications
 	QList<columns_setup_t> m_columns_setup;		/// column setup for each registered application
 	QList<columns_sizes_t> m_columns_sizes;		/// column sizes for each registered application
+	QList<columns_align_t> m_columns_align;		/// column align for each registered application
+	QList<columns_elide_t> m_columns_elide;		/// column elide for each registered application
 	QList<QColor> m_thread_colors;				/// predefined coloring of threads
 	QList<QString> m_preset_names;				/// registered presets
 	filter_presets_t m_filter_presets;			/// list of strings for each preset

@@ -25,7 +25,7 @@ public:
 	QList<QString> const & m_app_names;
 	std::vector<QString> m_rows;
 };
-
+*/
 class SettingsEditDelegate : public QItemDelegate
 {
 	Q_OBJECT
@@ -38,5 +38,5 @@ public:
 
 private slots:
 	void commitAndCloseEditor ();
-};*/
+};
 
