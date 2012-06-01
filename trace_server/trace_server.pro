@@ -50,9 +50,8 @@ static { # everything below takes effect with CONFIG += static
 }
 
 
-SOURCES += ../version.cpp \
-	main.cpp\
-	mainwindow.cpp \
+SOURCES += main.cpp\
+        mainwindow.cpp \
     modelview.cpp \
     server.cpp \
     filterproxy.cpp \
@@ -71,8 +70,7 @@ SOURCES += ../version.cpp \
 	profilerview.cpp	\
 	profilerwindow.cpp
 
-HEADERS  += ../version.h	\
-	mainwindow.h \
+HEADERS  += mainwindow.h \
     modelview.h \
     server.h \
     connection.h \
