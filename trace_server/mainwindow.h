@@ -177,6 +177,7 @@ private slots:
 	//void onEditingFinishedOfColumnSizes (QModelIndex idx);
 	void onClickedAtSettingColumnAlign (QModelIndex idx);
 	void onClickedAtSettingColumnElide (QModelIndex idx);
+	void syncSettingsViews (QListView const * const invoker, QModelIndex const idx);
 
 private:
 	void showServerStatus ();

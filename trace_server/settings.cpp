@@ -12,61 +12,72 @@
 #include "connection.h"
 #include <tlv_parser/tlv_parser.h>
 
-SettingsEditDelegate::SettingsEditDelegate(QObject *parent) : QItemDelegate(parent) {}
-
-QWidget *SettingsEditDelegate::createEditor(QWidget *parent,
-										  const QStyleOptionViewItem &,
-										  const QModelIndex &index) const
+void MainWindow::syncSettingsViews (QListView const * const invoker, QModelIndex const idx)
 {
-	QLineEdit * editor = new QLineEdit(parent);
-	connect(editor, SIGNAL(editingFinished()), this, SLOT(commitAndCloseEditor()));
-	return editor;
+	QListView * const views[] = { ui_settings->listViewColumnSetup, ui_settings->listViewColumnSizes, ui_settings->listViewColumnAlign, ui_settings->listViewColumnElide };
+
+	for (size_t i = 0; i < sizeof(views) / sizeof(*views); ++i)
+	{
+		if (views[i] != invoker)
+		{
+			views[i]->selectionModel()->clearSelection();
+			QModelIndex const other_idx = views[i]->model()->index(idx.row(), idx.column(), QModelIndex());
+			views[i]->selectionModel()->select(other_idx, QItemSelectionModel::Select);
+		}
+	}
 }
 
-void SettingsEditDelegate::commitAndCloseEditor()
+void MainWindow::onClickedAtSettingColumnSetup (QModelIndex const idx)
 {
-	QLineEdit * editor = qobject_cast<QLineEdit *>(sender());
-	emit commitData(editor);
-	emit closeEditor(editor);
-}
+	syncSettingsViews(ui_settings->listViewColumnSetup, idx);
 
-void SettingsEditDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
+	QStandardItem * const item = static_cast<QStandardItemModel *>(ui_settings->listViewColumnSetup->model())->itemFromIndex(idx);
+	Qt::CheckState const curr = item->checkState();
+
+	item->setCheckState(curr == Qt::Checked ? Qt::Unchecked : Qt::Checked);
+
+	QModelIndex const size_idx = ui_settings->listViewColumnSizes->model()->index(idx.row(), idx.column(), QModelIndex());
+	if (curr == Qt::Checked)
+	{
+		ui_settings->listViewColumnSizes->model()->setData(size_idx, QString("0"));
+	}
+	else
+	{
+		int app_idx = 0;
+		Connection * conn = m_server->findCurrentConnection();
+		if (conn)
+			app_idx = conn->sessionState().m_app_idx;
+
+		int size_val = 64;
+		if (size_idx.row() < m_columns_sizes[app_idx].size())
+			size_val = m_columns_sizes[app_idx].at(size_idx.row());
+		ui_settings->listViewColumnSizes->model()->setData(size_idx, tr("%1").arg(size_val));
+	}
+}
+void MainWindow::onClickedAtSettingColumnSizes (QModelIndex const idx)
 {
-	QLineEdit * edit = qobject_cast<QLineEdit*>(editor);
-	if (edit)
-		edit->setText(index.model()->data(index, Qt::EditRole).toString());
+	syncSettingsViews(ui_settings->listViewColumnSizes, idx);
 }
-
-void SettingsEditDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const
-{
-	QLineEdit * edit = qobject_cast<QLineEdit *>(editor);
-	if (edit)
-		model->setData(index, edit->text());
-}
-
-void MainWindow::onClickedAtSettingColumnSetup (QModelIndex idx)
-{ }
-void MainWindow::onClickedAtSettingColumnSizes (QModelIndex idx)
-{ }
-
-void MainWindow::onClickedAtSettingColumnAlign (QModelIndex idx)
+void MainWindow::onClickedAtSettingColumnAlign (QModelIndex const idx)
 {
 	QString const txt = qVariantValue<QString>(ui_settings->listViewColumnAlign->model()->data(idx));
 	E_Align const curr = stringToAlign(txt.toStdString().c_str()[0]);
 	size_t i = (curr + 1) % e_max_align_enum_value;
 	E_Align const act = static_cast<E_Align>(i);
 	ui_settings->listViewColumnAlign->model()->setData(idx, QString(alignToString(act)));
+
+	syncSettingsViews(ui_settings->listViewColumnAlign, idx);
 }
-void MainWindow::onClickedAtSettingColumnElide (QModelIndex idx)
+void MainWindow::onClickedAtSettingColumnElide (QModelIndex const idx)
 {
 	QString const txt = qVariantValue<QString>(ui_settings->listViewColumnElide->model()->data(idx));
 	E_Elide const curr = stringToElide(txt.toStdString().c_str()[0]);
 	size_t i = (curr + 1) % e_max_elide_enum_value;
 	E_Elide const act = static_cast<E_Elide>(i);
 	ui_settings->listViewColumnElide->model()->setData(idx, QString(elideToString(act)));
-}
 
-void onEditingFinishedOfColumnSizes (QModelIndex idx);
+	syncSettingsViews(ui_settings->listViewColumnElide, idx);
+}
 
 template<class C>
 void clearListView (C * v)
@@ -119,7 +130,6 @@ public:
 
 	bool dropMimeData (QMimeData const * mm, Qt::DropAction action, int row, int column, QModelIndex const & parent)
 	{
-		qDebug("%s row=%i", __FUNCTION__, row);
 		if (!mm->hasFormat("text/x-tlv-name"))
 			return false;
 
@@ -147,14 +157,15 @@ public:
 			int orig_row = -1;
 			stream >> tlvname >> orig_row;
 
-			qDebug("drop: %s, %i -> %i", tlvname.toStdString().c_str(), orig_row, endRow);
+			//qDebug("drop: %s, %i -> %i", tlvname.toStdString().c_str(), orig_row, endRow);
 			insertRow(endRow, addRow(tlvname, true));
 
 			for (size_t i = 0, ie = m_observers.size(); i < ie; ++i)
 			{
 				QString txt = qVariantValue<QString>(m_observers.at(i)->data(m_observers.at(i)->index(orig_row, 0, QModelIndex())));
 				m_observers.at(i)->removeRows(orig_row, 1);
-				static_cast<QStandardItemModel *>(m_observers.at(i))->insertRow(endRow - 1, addUncheckableRow(txt));
+				int const target_row = endRow > orig_row ? endRow - 1 : endRow;
+				static_cast<QStandardItemModel *>(m_observers.at(i))->insertRow(target_row, addUncheckableRow(txt));
 			}
 			//beginInsertRows(QModelIndex(), endRow, endRow);
 			//m_data.insert(endRow, tlvname);
@@ -207,55 +218,44 @@ void MainWindow::onSettingsAppSelected (int idx)
 	clearListView(ui_settings->listViewColumnElide);
 
 	QStandardItem * cs_root = static_cast<QStandardItemModel *>(ui_settings->listViewColumnSetup->model())->invisibleRootItem();
+	QStandardItem * csz_root = static_cast<QStandardItemModel *>(ui_settings->listViewColumnSizes->model())->invisibleRootItem();
+	QStandardItem * cal_root = static_cast<QStandardItemModel *>(ui_settings->listViewColumnAlign->model())->invisibleRootItem();
+	QStandardItem * cel_root = static_cast<QStandardItemModel *>(ui_settings->listViewColumnElide->model())->invisibleRootItem();
 	for (int i = 0, ie = m_columns_setup[idx].size(); i < ie; ++i)
 	{
-		QList<QStandardItem *> row_items = addRow(m_columns_setup.at(idx).at(i), true);
-		cs_root->appendRow(row_items);
+		cs_root->appendRow(addRow(m_columns_setup.at(idx).at(i), true));
+		csz_root->appendRow(addUncheckableRow(tr("%1").arg(m_columns_sizes.at(idx).at(i))));
+		cal_root->appendRow(addUncheckableRow(tr("%1").arg(m_columns_align.at(idx).at(i))));
+		cel_root->appendRow(addUncheckableRow(tr("%1").arg(m_columns_elide.at(idx).at(i))));
 	}
 
-	//connect(ui_settings->listViewColumnSetup, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtSettingColumnSetup(QModelIndex)));
-	//connect(ui_settings->listViewColumnSizes, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtSettingColumnSizes(QModelIndex)));
-	connect(ui_settings->listViewColumnAlign, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtSettingColumnAlign(QModelIndex)));
-	connect(ui_settings->listViewColumnElide, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtSettingColumnElide(QModelIndex)));
+	size_t const n = tlv::get_tag_count();
 
-	QStandardItem * csz_root = static_cast<QStandardItemModel *>(ui_settings->listViewColumnSizes->model())->invisibleRootItem();
-	for (int i = 0, ie = m_columns_sizes[idx].size(); i < ie; ++i)
-	{
-		QList<QStandardItem *> row_items = addUncheckableRow(tr("%1").arg(m_columns_sizes.at(idx).at(i)));
-		csz_root->appendRow(row_items);
-	}
-
-	QStandardItem * cal_root = static_cast<QStandardItemModel *>(ui_settings->listViewColumnAlign->model())->invisibleRootItem();
-	for (int i = 0, ie = m_columns_align[idx].size(); i < ie; ++i)
-	{
-		QList<QStandardItem *> row_items = addUncheckableRow(tr("%1").arg(m_columns_align.at(idx).at(i)));
-		cal_root->appendRow(row_items);
-	}
-
-	QStandardItem * cel_root = static_cast<QStandardItemModel *>(ui_settings->listViewColumnElide->model())->invisibleRootItem();
-	for (int i = 0, ie = m_columns_elide[idx].size(); i < ie; ++i)
-	{
-		QList<QStandardItem *> row_items = addUncheckableRow(tr("%1").arg(m_columns_elide.at(idx).at(i)));
-		cel_root->appendRow(row_items);
-	}
-
-
-	/*size_t const n = tlv::get_tag_count();
+	size_t add_tag_count = 0;
+	size_t * const add_tag_indices = static_cast<size_t * const>(alloca(sizeof(size_t) * n));
 	for (size_t i = tlv::tag_time; i < n; ++i)
 	{
 		char const * name = tlv::get_tag_name(i);
 		if (name)
 		{
-			QList<QStandardItem *> row_items = addRow(QString::fromAscii(name), true);
+			if (findChildByText(cs_root, QString::fromAscii(name)))
+				continue;
+
+			QList<QStandardItem *> row_items = addRow(QString::fromAscii(name), false);
 			cs_root->appendRow(row_items);
-			
-			//tags += QString::fromStdString(name) + "	";
+			add_tag_indices[add_tag_count++] = i;
+
+			csz_root->appendRow(addUncheckableRow(QString("0")));
+			cal_root->appendRow(addUncheckableRow(QString(aligns[0])));
+			cel_root->appendRow(addUncheckableRow(QString(elides[0])));
 		}
-	}*/
+	}
+
+	connect(ui_settings->listViewColumnSetup, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtSettingColumnSetup(QModelIndex)));
+	connect(ui_settings->listViewColumnSizes, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtSettingColumnSizes(QModelIndex)));
+	connect(ui_settings->listViewColumnAlign, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtSettingColumnAlign(QModelIndex)));
+	connect(ui_settings->listViewColumnElide, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtSettingColumnElide(QModelIndex)));
 }
-
-
-
 
 void MainWindow::onSetup ()
 {
@@ -288,9 +288,6 @@ void MainWindow::onSetup ()
 	ui_settings->listViewColumnAlign->setEditTriggers(QAbstractItemView::NoEditTriggers);
 	ui_settings->listViewColumnElide->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
-	//ui_settings->listViewColumnSizes->setItemDelegate(new SettingsEditDelegate());
-
-	// if sz > 0
 	onSettingsAppSelected(idx);
 
 	if (m_settings_dialog->exec() == QDialog::Accepted)
@@ -320,76 +317,4 @@ void MainWindow::onSetup ()
 */
 	}
 }
-
-
-
-
-
-
-
-/// old stuff
-
-/*SettingsModelView::SettingsModelView (QList<QString> const & app_names, QList<columns_setup_t> const & col_setup)
-	: QAbstractTableModel(0)
-	, m_app_names(app_names)
-	, m_rows()
-{
-	for (size_t i = 0, ie = app_names.size(); i < ie; ++i) {
-		m_rows.push_back(QString());
-		for (size_t j = 0, je = col_setup.at(i).size(); j < je; ++j)
-			m_rows.back() += col_setup.at(i).at(j) + QString(", ");
-	}
-}
-
-SettingsModelView::~SettingsModelView () { }
-int SettingsModelView::rowCount (const QModelIndex &) const { return m_app_names.size(); }
-int SettingsModelView::columnCount (const QModelIndex &) const { return 2; }
-
-QVariant SettingsModelView::data (const QModelIndex & index, int role) const
-{
-	if (role == Qt::DisplayRole || role == Qt::EditRole)
-	{
-		QString str("");
-		if (index.column() == 0)
-			if (index.row() < m_app_names.size())
-				return m_app_names[index.row()];
-		if (index.column() == 1)
-			if (index.row() < (int)m_rows.size())
-				return m_rows[index.row()];
-		return str;
-	}
-	return QVariant();
-}
-
-bool SettingsModelView::setData (QModelIndex const & index, QVariant const & value, int role)
-{
-	if (role == Qt::EditRole)
-	{
-		if (index.column() == 1)
-		{
-			m_rows[index.row()] = value.toString();
-			return true;
-		}
-	}
-	return false;
-}
-
-QVariant SettingsModelView::headerData (int section, Qt::Orientation orientation, int role) const
-{
-	if (role == Qt::DisplayRole && orientation == Qt::Horizontal)
-	{
-		if (section == 0)
-			return QString("Application name");
-		if (section == 1)	
-			return QString("tags separated by ,");
-	}
-	return QVariant();
-}
-
-Qt::ItemFlags SettingsModelView::flags (QModelIndex const & index) const
-{
-	 return QAbstractItemModel::flags(index) | Qt::ItemIsEditable;
-}
-*/
-
 
