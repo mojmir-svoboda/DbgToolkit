@@ -115,13 +115,12 @@ public:
 		return true;
 	}
 
-	/*QVariant data (QModelIndex const & index, int role = Qt::DisplayRole) const
-	{
+	// hmm, this not work. me not know why. this no meat bone crush it!
+	/*QVariant data (QModelIndex const & index, int role = Qt::DisplayRole) const {
 		if (!index.isValid()) return QVariant();
 		return QVariant(m_data[index.row()]);
 	}
-	int rowCount (QModelIndex const & parent) const
-	{
+	int rowCount (QModelIndex const & parent) const {
 		if (parent.isValid()) return 0;
 		else return m_data.size();
 	}
@@ -263,11 +262,11 @@ void MainWindow::onSetup ()
 	for (int a = 0, ae = m_app_names.size(); a < ae; ++a)
 		ui_settings->comboBoxApp->addItem(m_app_names.at(a));
 
-	int idx = 0;
+	int curr_app_idx = 0;
 	Connection * conn = m_server->findCurrentConnection();
 	if (conn)
 	{
-		idx = conn->sessionState().m_app_idx;
+		curr_app_idx = conn->sessionState().m_app_idx;
 	}
 
 	connect(ui_settings->comboBoxApp, SIGNAL(activated(int)), this, SLOT(onSettingsAppSelected(int)));
@@ -288,33 +287,45 @@ void MainWindow::onSetup ()
 	ui_settings->listViewColumnAlign->setEditTriggers(QAbstractItemView::NoEditTriggers);
 	ui_settings->listViewColumnElide->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
-	onSettingsAppSelected(idx);
+	onSettingsAppSelected(curr_app_idx);
 
 	if (m_settings_dialog->exec() == QDialog::Accepted)
 	{
-/*		for (int i = 0, ie = model.m_app_names.size(); i < ie; ++i)
+		for (int app_idx = 0, app_idxe = m_app_names.size(); app_idx < app_idxe; ++app_idx)
 		{
-			int const idx = findAppName(m_app_names[i]);
-			qDebug("app=%s", m_app_names.at(i).toStdString().c_str());
-			m_columns_setup[idx].clear();
-			m_columns_sizes[idx].clear();
-			m_columns_align[idx].clear();
-			m_columns_elide[idx].clear();
-			if (idx >= 0)
-			{
-				size_t j = 0;
-				for (tokenizer_t::const_iterator it = tok.begin(), ite = tok.end(); it != ite; ++it, ++j)
-				{
-					qDebug("  token=%s", it->c_str());
-					m_columns_setup[idx].append(QString::fromStdString(*it));
-					m_columns_sizes[idx].append(127);
-				}
-			}
-		}
+			qDebug("app=%s", m_app_names.at(app_idx).toStdString().c_str());
+			m_columns_setup[app_idx].clear();
+			m_columns_sizes[app_idx].clear();
+			m_columns_align[app_idx].clear();
+			m_columns_elide[app_idx].clear();
 
-		if (Connection * conn = m_server->findCurrentConnection())
-			conn->onApplyColumnSetup();
-*/
+			for (size_t j = 0, je = ui_settings->listViewColumnSetup->model()->rowCount(); j < je; ++j)
+			{
+				QModelIndex const row_idx = ui_settings->listViewColumnSetup->model()->index(j, 0, QModelIndex());
+				QStandardItem * const item = static_cast<QStandardItemModel *>(ui_settings->listViewColumnSetup->model())->itemFromIndex(row_idx);
+				if (item->checkState() == Qt::Checked)
+					m_columns_setup[app_idx].append(qVariantValue<QString>(ui_settings->listViewColumnSetup->model()->data(row_idx)));
+			}
+			for (size_t j = 0, je = ui_settings->listViewColumnSizes->model()->rowCount(); j < je; ++j)
+			{
+				QModelIndex const row_idx = ui_settings->listViewColumnSizes->model()->index(j, 0, QModelIndex());
+				m_columns_sizes[app_idx].append(qVariantValue<QString>(ui_settings->listViewColumnSizes->model()->data(row_idx)).toInt());
+			}
+			for (size_t j = 0, je = ui_settings->listViewColumnAlign->model()->rowCount(); j < je; ++j)
+			{
+				QModelIndex const row_idx = ui_settings->listViewColumnAlign->model()->index(j, 0, QModelIndex());
+				m_columns_align[app_idx].append(qVariantValue<QString>(ui_settings->listViewColumnAlign->model()->data(row_idx)));
+			}
+			for (size_t j = 0, je = ui_settings->listViewColumnElide->model()->rowCount(); j < je; ++j)
+			{
+				QModelIndex const row_idx = ui_settings->listViewColumnElide->model()->index(j, 0, QModelIndex());
+				m_columns_elide[app_idx].append(qVariantValue<QString>(ui_settings->listViewColumnElide->model()->data(row_idx)));
+			}
+
+			if (curr_app_idx == app_idx)
+				if (Connection * conn = m_server->findCurrentConnection())
+					conn->onApplyColumnSetup();
+		}
 	}
 }
 
