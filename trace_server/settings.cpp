@@ -154,10 +154,11 @@ public:
 		{
 			QString tlvname;
 			int orig_row = -1;
-			stream >> tlvname >> orig_row;
+			int check_state = Qt::Checked;
+			stream >> tlvname >> orig_row >> check_state;
 
 			//qDebug("drop: %s, %i -> %i", tlvname.toStdString().c_str(), orig_row, endRow);
-			insertRow(endRow, addRow(tlvname, true));
+			insertRow(endRow, addRow(tlvname, check_state == Qt::Checked));
 
 			for (size_t i = 0, ie = m_observers.size(); i < ie; ++i)
 			{
@@ -185,7 +186,8 @@ public:
 			if (index.isValid())
 			{
 				QString tlvname = qVariantValue<QString>(data(index, Qt::DisplayRole));
-				stream << tlvname << index.row();
+				QStandardItem const * const item = itemFromIndex(index);
+				stream << tlvname << index.row() << static_cast<int>(item->checkState());
 				//qDebug("drag: %s, %i", tlvname.toStdString().c_str(), index.row());
 			}
 		}
@@ -250,6 +252,10 @@ void MainWindow::onSettingsAppSelected (int idx)
 		}
 	}
 
+	disconnect(ui_settings->listViewColumnSetup, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtSettingColumnSetup(QModelIndex)));
+	disconnect(ui_settings->listViewColumnSizes, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtSettingColumnSizes(QModelIndex)));
+	disconnect(ui_settings->listViewColumnAlign, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtSettingColumnAlign(QModelIndex)));
+	disconnect(ui_settings->listViewColumnElide, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtSettingColumnElide(QModelIndex)));
 	connect(ui_settings->listViewColumnSetup, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtSettingColumnSetup(QModelIndex)));
 	connect(ui_settings->listViewColumnSizes, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtSettingColumnSizes(QModelIndex)));
 	connect(ui_settings->listViewColumnAlign, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtSettingColumnAlign(QModelIndex)));
@@ -327,5 +333,18 @@ void MainWindow::onSetup ()
 					conn->onApplyColumnSetup();
 		}
 	}
+
+	disconnect(ui_settings->listViewColumnSetup, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtSettingColumnSetup(QModelIndex)));
+	disconnect(ui_settings->listViewColumnSizes, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtSettingColumnSizes(QModelIndex)));
+	disconnect(ui_settings->listViewColumnAlign, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtSettingColumnAlign(QModelIndex)));
+	disconnect(ui_settings->listViewColumnElide, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtSettingColumnElide(QModelIndex)));
+	clearListView(ui_settings->listViewColumnSetup);
+	clearListView(ui_settings->listViewColumnSizes);
+	clearListView(ui_settings->listViewColumnAlign);
+	clearListView(ui_settings->listViewColumnElide);
+	ui_settings->listViewColumnSetup->reset();
+	ui_settings->listViewColumnSizes->reset();
+	ui_settings->listViewColumnAlign->reset();
+	ui_settings->listViewColumnElide->reset();
 }
 
