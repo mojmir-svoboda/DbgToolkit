@@ -150,7 +150,6 @@ private slots:
 	void onFileSave ();
 	void onFileExportToCSV ();
 	void onSetup ();
-	void onFileFilterSetup ();
 	void closeEvent (QCloseEvent *event);
 	void iconActivated (QSystemTrayIcon::ActivationReason reason);
 	void onQSearchEditingFinished ();

@@ -526,9 +526,6 @@ void MainWindow::onShowHelp ()
 	dialog.exec();
 }
 
-void MainWindow::onFileFilterSetup ()
-{ }
-
 void MainWindow::onPresetActivate (int idx)
 {
 	if (idx == -1) return;
@@ -656,8 +653,10 @@ void MainWindow::onColorRegexRm ()
 
 void MainWindow::onSaveCurrentFileFilter ()
 {
-	
-	onSaveCurrentFileFilterTo(ui->presetComboBox->currentText());
+	QString txt = ui->presetComboBox->currentText();
+	if (0 == txt.size())
+		txt = "default";
+	onSaveCurrentFileFilterTo(txt);
 }
 
 void MainWindow::onSaveCurrentFileFilterTo (QString const & preset_name)
@@ -782,11 +781,10 @@ void MainWindow::setupMenuBar ()
 
 	// Tools
 	QMenu * tools = menuBar()->addMenu(tr("&Settings"));
-	tools->addAction(tr("Setup"), this, SLOT(onSetup()));
-	tools->addAction(tr("File Filter Setup"), this, SLOT(onFileFilterSetup()));
-	tools->addAction(tr("Save Current File Filter As..."), this, SLOT(onSaveCurrentFileFilter()));
+	tools->addAction(tr("&Options"), this, SLOT(onSetup()), QKeySequence(Qt::AltModifier + Qt::Key_O));
+	//tools->addAction(tr("Save Current Filter As..."), this, SLOT(onSaveCurrentFileFilter()));
 	tools->addSeparator();
-	tools->addAction(tr("Save setup now"), this, SLOT(storeState()));
+	tools->addAction(tr("Save options now (this will NOT save presets)"), this, SLOT(storeState()), QKeySequence(Qt::AltModifier + Qt::ControlModifier + Qt::ShiftModifier + Qt::Key_O));
 
 	// Help
 	QMenu * helpMenu = menuBar()->addMenu(tr("&Help"));

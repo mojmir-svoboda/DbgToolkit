@@ -56,7 +56,6 @@ public:
     void paintCustom (QPainter * painter, QStyleOptionViewItem const & option, QModelIndex const & index) const;
     
 private slots:
-    //void commitAndCloseEditor ();
 };
 
 
