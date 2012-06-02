@@ -10,28 +10,36 @@
 #include <QTimer>
 #include <QSortFilterProxyModel>
 #include <QStandardItemModel>
+#include <QPainter>
 #include <QListView>
 #include <boost/tokenizer.hpp>
 #include <tlv_parser/tlv_encoder.h>
 #include <trace_client/trace.h>
 #include "modelview.h"
 #include "utils.h"
+#include "types.h"
 
 void TableItemDelegate::paint (QPainter * painter, QStyleOptionViewItem const & option, QModelIndex const & index) const
 {
-	if (index.column() == 4 || index.column() == 6)
-		paintCustom(painter, option, index);
-	else
-		QItemDelegate::paint(painter, option, index);
-}
+	//QStyleOptionViewItem option2 = option;
+
+    QStyleOptionViewItem option2 = option;
+    initStyleOption(&option2, index);
+
+    painter->save();
 
 
-void TableItemDelegate::paintCustom (QPainter * painter, QStyleOptionViewItem const & option, QModelIndex const & index) const
-{
-	QStyleOptionViewItem option2 = option;
-	option2.decorationAlignment = Qt::AlignRight;
-	option2.textElideMode = Qt::ElideLeft;
-	QItemDelegate::paint(painter, option2, index);
+	columns_align_t const & column_aligns = *m_session_state.getColumnsAlignTemplate();
+	E_Align const align = stringToAlign(column_aligns[index.column()].at(0).toAscii());
+	option2.displayAlignment = static_cast<Qt::Alignment>(align);
+	columns_elide_t const & column_elides = *m_session_state.getColumnsElideTemplate();
+	E_Elide const elide = stringToElide(column_elides[index.column()].at(0).toAscii());
+	option2.textElideMode = static_cast<Qt::TextElideMode>(elide);
+	//option2.textElideMode = Qt::ElideLeft;
+
+	//qDebug("col=%i align=%i elide=%i", index.column(), align, elide);
+	QStyledItemDelegate::paint(painter, option2, index);
+	painter->restore();
 }
 
 Connection::Connection (QObject * parent)

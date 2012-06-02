@@ -126,7 +126,7 @@ QVariant ModelView::data (const QModelIndex &index, int role) const
 		}
 	}
 	
-	if (role == Qt::TextAlignmentRole)
+/*if (role == Qt::TextAlignmentRole)
 	{
 		if (checkTagExistence(tlv::tag_time, index))
 			return Qt::AlignRight;
@@ -142,7 +142,7 @@ QVariant ModelView::data (const QModelIndex &index, int role) const
 			return Qt::AlignRight;
 		if (checkTagExistence(tlv::tag_tid, index))
 			return Qt::AlignRight;
-	}
+	}*/
 
 	return QVariant();
 }

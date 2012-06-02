@@ -186,6 +186,7 @@ MyListModel::MyListModel (QObject * parent) : QStandardItemModel(parent) { }
 
 void MainWindow::onSettingsAppSelected (int idx)
 {
+	qDebug("settings, clicked idx=%i", idx);
 	clearListView(ui_settings->listViewColumnSetup);
 	clearListView(ui_settings->listViewColumnSizes);
 	clearListView(ui_settings->listViewColumnAlign);

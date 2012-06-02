@@ -99,13 +99,19 @@ public:
 
 	void setTabWidget (int n) { m_tab_idx = n; }
 	void setTabWidget (QWidget * w) { m_tab_widget = w; }
-	void setupColumns (QList<QString> const * column_setup_template, columns_sizes_t * sizes);
+	void setupColumns (QList<QString> const * column_setup_template, columns_sizes_t * sizes
+			, columns_align_t const * ca_template, columns_elide_t const * ce_template);
 	void setupThreadColors (QList<QColor> const & tc);
+
 	QList<QString> const * getColumnsSetupCurrent () const { return m_columns_setup_current; }
 	QList<QString> * getColumnsSetupCurrent () { return m_columns_setup_current; }
 	QList<QString> const * getColumnsSetupTemplate () const { return m_columns_setup_template; }
+
 	columns_sizes_t const * getColumnSizes () const { return m_columns_sizes; }
 	columns_sizes_t * getColumnSizes () { return m_columns_sizes; }
+
+	QList<QString> const * getColumnsAlignTemplate () const { return m_columns_align_template; }
+	QList<QString> const * getColumnsElideTemplate () const { return m_columns_elide_template; }
 
 	int findColumn4TagInTemplate (tlv::tag_t tag) const;
 	int findColumn4Tag (tlv::tag_t tag) const;
@@ -216,6 +222,8 @@ private:
 	QList<FilteredRegex> m_filtered_regexps;
 	QList<QString> * m_columns_setup_current;
 	QList<QString> const * m_columns_setup_template;
+	QList<QString> const * m_columns_align_template;
+	QList<QString> const * m_columns_elide_template;
 	columns_sizes_t * m_columns_sizes;
 	QMap<tlv::tag_t, int> m_tags2columns;
 	ThreadSpecific m_tls;

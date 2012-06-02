@@ -10,6 +10,8 @@ SessionState::SessionState (QObject * parent)
 	, m_filter_mode(e_Exclude)
 	, m_columns_setup_current(0)
 	, m_columns_setup_template(0)
+	, m_columns_align_template(0)
+	, m_columns_elide_template(0)
 	, m_columns_sizes(0)
 	, m_name()
 {
@@ -24,10 +26,13 @@ SessionState::~SessionState ()
 		delete m_columns_setup_current;
 }
 
-void SessionState::setupColumns (QList<QString> const * cs_template, columns_sizes_t * sizes)
+void SessionState::setupColumns (QList<QString> const * cs_template, columns_sizes_t * sizes
+			, columns_align_t const * ca_template, columns_elide_t const * ce_template)
 {
 	m_columns_sizes = sizes;
 	m_columns_setup_template = cs_template;
+	m_columns_align_template = ca_template;
+	m_columns_elide_template = ce_template;
 
 	if (!m_columns_setup_current)
 	{

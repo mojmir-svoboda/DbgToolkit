@@ -37,7 +37,7 @@
 #include "filterproxy.h"
 #include "cmd.h"
 
-#include <QItemDelegate>
+#include <QStyledItemDelegate>
 
 class Server;
 class QFile;
@@ -46,10 +46,11 @@ class QStandardItemModel;
 class QStandardItem;
 
 
-class TableItemDelegate : public QItemDelegate
+class TableItemDelegate : public QStyledItemDelegate
 {
+	SessionState const & m_session_state;
 public: 
-    TableItemDelegate (QObject *parent = 0) : QItemDelegate(parent) { }
+    TableItemDelegate (SessionState & ss, QObject *parent = 0) : QStyledItemDelegate(parent), m_session_state(ss) { }
 
     void paint (QPainter * painter, QStyleOptionViewItem const & option, QModelIndex const & index) const;
     void paintCustom (QPainter * painter, QStyleOptionViewItem const & option, QModelIndex const & index) const;

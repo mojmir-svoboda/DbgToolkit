@@ -92,7 +92,9 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 			setupStorage(storage_name);
 
 			sessionState().m_app_idx = m_main_window->findAppName(app_name);
-			sessionState().setupColumns(&m_main_window->getColumnSetup(sessionState().m_app_idx), &m_main_window->getColumnSizes(sessionState().m_app_idx));
+			sessionState().setupColumns(&m_main_window->getColumnSetup(sessionState().m_app_idx), &m_main_window->getColumnSizes(sessionState().m_app_idx)
+					, &m_main_window->getColumnAlign(sessionState().m_app_idx)
+					, &m_main_window->getColumnElide(sessionState().m_app_idx));
 
 			m_current_cmd.tvs.reserve(sessionState().getColumnsSetupCurrent()->size());
 
