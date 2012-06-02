@@ -104,29 +104,6 @@ public:
 		return Qt::ItemIsDropEnabled;
 	}
 
-	bool add (QString const & tlvname, int row, bool checked)
-	{
-		//insertRow(row, addRow(tlvname, checked));
-		//beginInsertRows(QModelIndex(), row, row);
-		//insertRow(m_data.count());
-		//m_data.insert(row, tlvname);
-		//endInsertRows();
-		//emit layoutChanged();
-		return true;
-	}
-
-	// hmm, this not work. me not know why. this no meat bone crush it!
-	/*QVariant data (QModelIndex const & index, int role = Qt::DisplayRole) const {
-		if (!index.isValid()) return QVariant();
-		return QVariant(m_data[index.row()]);
-	}
-	int rowCount (QModelIndex const & parent) const {
-		if (parent.isValid()) return 0;
-		else return m_data.size();
-	}
-	int columnCount (QModelIndex const & parent) const { return 1; }*/
-
-
 	bool dropMimeData (QMimeData const * mm, Qt::DropAction action, int row, int column, QModelIndex const & parent)
 	{
 		if (!mm->hasFormat("text/x-tlv-name"))
@@ -167,10 +144,6 @@ public:
 				int const target_row = endRow > orig_row ? endRow - 1 : endRow;
 				static_cast<QStandardItemModel *>(m_observers.at(i))->insertRow(target_row, addUncheckableRow(txt));
 			}
-			//beginInsertRows(QModelIndex(), endRow, endRow);
-			//m_data.insert(endRow, tlvname);
-			//endInsertRows();
-
 			++endRow;
 		}
 		return true;
@@ -217,6 +190,11 @@ void MainWindow::onSettingsAppSelected (int idx)
 	clearListView(ui_settings->listViewColumnSizes);
 	clearListView(ui_settings->listViewColumnAlign);
 	clearListView(ui_settings->listViewColumnElide);
+
+	ui_settings->listViewColumnSetup->reset();
+	ui_settings->listViewColumnSizes->reset();
+	ui_settings->listViewColumnAlign->reset();
+	ui_settings->listViewColumnElide->reset();
 
 	QStandardItem * cs_root = static_cast<QStandardItemModel *>(ui_settings->listViewColumnSetup->model())->invisibleRootItem();
 	QStandardItem * csz_root = static_cast<QStandardItemModel *>(ui_settings->listViewColumnSizes->model())->invisibleRootItem();
@@ -347,4 +325,33 @@ void MainWindow::onSetup ()
 	ui_settings->listViewColumnAlign->reset();
 	ui_settings->listViewColumnElide->reset();
 }
+
+#if 0
+	bool add (QString const & tlvname, int row, bool checked)
+	{
+		//insertRow(row, addRow(tlvname, checked));
+		//beginInsertRows(QModelIndex(), row, row);
+		//insertRow(m_data.count());
+		//m_data.insert(row, tlvname);
+		//endInsertRows();
+		//emit layoutChanged();
+		return true;
+	}
+
+	// @NOTE: hmm, that not work. me not know why. this no meat bone crush it!
+	/*QVariant data (QModelIndex const & index, int role = Qt::DisplayRole) const {
+		if (!index.isValid()) return QVariant();
+		return QVariant(m_data[index.row()]);
+	}
+	int rowCount (QModelIndex const & parent) const {
+		if (parent.isValid()) return 0;
+		else return m_data.size();
+	}
+	int columnCount (QModelIndex const & parent) const { return 1; }*/
+
+			//beginInsertRows(QModelIndex(), endRow, endRow);
+			//m_data.insert(endRow, tlvname);
+			//endInsertRows();
+
+#endif
 
