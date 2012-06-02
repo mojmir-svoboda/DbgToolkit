@@ -21,23 +21,15 @@
 
 void TableItemDelegate::paint (QPainter * painter, QStyleOptionViewItem const & option, QModelIndex const & index) const
 {
-	//QStyleOptionViewItem option2 = option;
-
     QStyleOptionViewItem option2 = option;
     initStyleOption(&option2, index);
-
     painter->save();
-
-
 	columns_align_t const & column_aligns = *m_session_state.getColumnsAlignTemplate();
 	E_Align const align = stringToAlign(column_aligns[index.column()].at(0).toAscii());
-	option2.displayAlignment = static_cast<Qt::Alignment>(align);
+	option2.displayAlignment = static_cast<Qt::Alignment>(1 << align);
 	columns_elide_t const & column_elides = *m_session_state.getColumnsElideTemplate();
 	E_Elide const elide = stringToElide(column_elides[index.column()].at(0).toAscii());
 	option2.textElideMode = static_cast<Qt::TextElideMode>(elide);
-	//option2.textElideMode = Qt::ElideLeft;
-
-	//qDebug("col=%i align=%i elide=%i", index.column(), align, elide);
 	QStyledItemDelegate::paint(painter, option2, index);
 	painter->restore();
 }

@@ -126,22 +126,11 @@ QVariant ModelView::data (const QModelIndex &index, int role) const
 		}
 	}
 	
-/*if (role == Qt::TextAlignmentRole)
+	/*if (role == Qt::TextAlignmentRole)
 	{
-		if (checkTagExistence(tlv::tag_time, index))
-			return Qt::AlignRight;
-		if (checkTagExistence(tlv::tag_line, index))
-			return Qt::AlignRight;
-		if (checkTagExistence(tlv::tag_file, index))
-			return Qt::AlignRight;
-		if (checkTagExistence(tlv::tag_func, index))
-			return Qt::AlignRight;
-		if (checkTagExistence(tlv::tag_lvl, index))
-			return Qt::AlignRight;
-		if (checkTagExistence(tlv::tag_ctx, index))
-			return Qt::AlignRight;
-		if (checkTagExistence(tlv::tag_tid, index))
-			return Qt::AlignRight;
+		columns_align_t const & column_aligns = *m_session_state.getColumnsAlignTemplate();
+		E_Align const align = stringToAlign(column_aligns[index.column()].at(0).toAscii());
+		return static_cast<Qt::Alignment>(align);
 	}*/
 
 	return QVariant();
