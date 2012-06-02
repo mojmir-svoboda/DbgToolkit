@@ -23,7 +23,7 @@ void TableItemDelegate::paint (QPainter * painter, QStyleOptionViewItem const & 
 {
     QStyleOptionViewItem option2 = option;
     initStyleOption(&option2, index);
-    painter->save();
+    //painter->save();
 	columns_align_t const & column_aligns = *m_session_state.getColumnsAlignTemplate();
 	E_Align const align = stringToAlign(column_aligns[index.column()].at(0).toAscii());
 	option2.displayAlignment = static_cast<Qt::Alignment>(1 << align);
@@ -31,7 +31,7 @@ void TableItemDelegate::paint (QPainter * painter, QStyleOptionViewItem const & 
 	E_Elide const elide = stringToElide(column_elides[index.column()].at(0).toAscii());
 	option2.textElideMode = static_cast<Qt::TextElideMode>(elide);
 	QStyledItemDelegate::paint(painter, option2, index);
-	painter->restore();
+	//painter->restore();
 }
 
 Connection::Connection (QObject * parent)
