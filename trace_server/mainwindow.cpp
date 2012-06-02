@@ -25,6 +25,7 @@
 #include "utils.h"
 #include "../tlv_parser/tlv_parser.h"
 #include "help.h"
+#include "version.h"
 
 #ifdef WIN32
 #	define WIN32_LEAN_AND_MEAN

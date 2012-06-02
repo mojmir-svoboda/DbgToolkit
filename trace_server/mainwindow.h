@@ -41,6 +41,7 @@ class QAction;
 class QMenu;
 class QListView;
 class QStandardItemModel;
+class QLabel;
 
 class MainWindow : public QMainWindow
 {
@@ -207,8 +208,6 @@ private:
 	QAction * m_quit_action;
 	QMenu * m_tray_menu;
 	QSystemTrayIcon * m_tray_icon;
-<<<<<<< HEAD
-=======
 	QLabel * m_status_label;
 	QDialog * m_settings_dialog;
 	Ui::SettingsDialog * ui_settings;
@@ -216,7 +215,6 @@ private:
 	unsigned short m_trace_port;
 	QString m_profiler_addr;
 	unsigned short m_profiler_port;
->>>>>>> fecba07ca0197dedd41ed2d40d10d6520776abb7
 };
 
 #endif // MAINWINDOW_H
