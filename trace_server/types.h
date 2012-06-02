@@ -9,7 +9,22 @@ enum E_ColorRole { e_Bg, e_Fg };
 
 typedef QList<QString>			filter_regexs_t;
 typedef QList<QString>			filter_preset_t;
-typedef QList<filter_preset_t>	filter_presets_t;
+
+struct Preset {
+	filter_preset_t m_file_filters;
+	filter_preset_t m_colortext_regexs;
+	filter_preset_t m_colortext_colors;
+	filter_preset_t m_colortext_enabled;
+	
+	Preset () {
+		m_file_filters.reserve(32 * 1024);
+		m_colortext_regexs.reserve(256);
+		m_colortext_colors.reserve(256);
+		m_colortext_enabled.reserve(256);
+	}
+};
+
+typedef QList<Preset>	filter_presets_t;
 typedef QList<QString>			columns_setup_t;
 typedef QList<int>				columns_sizes_t;
 

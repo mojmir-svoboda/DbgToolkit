@@ -535,11 +535,16 @@ void MainWindow::onPresetActivate (int idx)
 	if (!conn) return;
 
 	conn->onClearCurrentFileFilter();
-	for (size_t i = 0, ie = m_filter_presets.at(idx).size(); i < ie; ++i)
+	for (size_t i = 0, ie = m_filter_presets.at(idx).m_file_filters.size(); i < ie; ++i)
 	{
-		std::string filter_item(m_filter_presets.at(idx).at(i).toStdString());
+		std::string filter_item(m_filter_presets.at(idx).m_file_filters.at(i).toStdString());
 		conn->loadToFileFilters(filter_item);
 	}
+	/*for (size_t i = 0, ie = m_filter_presets.at(idx).m_color_regex_filter.size(); i < ie; ++i)
+	{
+		std::string cregex_item(m_filter_presets.at(idx).m_color_regex_filter.at(i).toStdString());
+		conn->loadToColorRegexps(filter_item);
+	}*/
 
 	getWidgetFile()->expandAll();
 	conn->onInvalidateFilter();
@@ -674,17 +679,48 @@ void MainWindow::onSaveCurrentFileFilterTo (QString const & preset_name)
 		}
 		qDebug("new preset_name[%i]=%s", idx, preset_name.toStdString().c_str());
 
-		std::string current_filter;
-		conn->sessionState().m_file_filters.export_filter(current_filter);
 
+		SessionExport e;
+		conn->sessionState().sessionExport(e);
 		boost::char_separator<char> sep("\n");
 		typedef boost::tokenizer<boost::char_separator<char> > tokenizer_t;
-		tokenizer_t tok(current_filter, sep);
-		m_filter_presets[idx].clear();
-		for (tokenizer_t::const_iterator it = tok.begin(), ite = tok.end(); it != ite; ++it)
 		{
-			qDebug("appending to preset: %s", it->c_str());
-			m_filter_presets[idx] << QString::fromStdString(*it);
+			m_filter_presets[idx].m_file_filters.clear();
+			tokenizer_t tok(e.m_file_filters, sep);
+			for (tokenizer_t::const_iterator it = tok.begin(), ite = tok.end(); it != ite; ++it)
+			{
+				qDebug("appending to file preset: %s", it->c_str());
+				m_filter_presets[idx].m_file_filters << QString::fromStdString(*it);
+			}
+		}
+
+		{
+			m_filter_presets[idx].m_colortext_regexs.clear();
+			tokenizer_t tok(e.m_colortext_regexs, sep);
+			for (tokenizer_t::const_iterator it = tok.begin(), ite = tok.end(); it != ite; ++it)
+			{
+				qDebug("appending to colorized regex: %s", it->c_str());
+				m_filter_presets[idx].m_colortext_regexs << QString::fromStdString(*it);
+			}
+		}
+		{
+			m_filter_presets[idx].m_colortext_colors.clear();
+			tokenizer_t tok(e.m_colortext_colors, sep);
+			for (tokenizer_t::const_iterator it = tok.begin(), ite = tok.end(); it != ite; ++it)
+			{
+				qDebug("appending to colorized regex with color: %s", it->c_str());
+				m_filter_presets[idx].m_colortext_colors << QString::fromStdString(*it);
+			}
+
+		}
+		{
+			m_filter_presets[idx].m_colortext_enabled.clear();
+			tokenizer_t tok(e.m_colortext_enabled, sep);
+			for (tokenizer_t::const_iterator it = tok.begin(), ite = tok.end(); it != ite; ++it)
+			{
+				qDebug("appending to colorized regex with enabled: %s", it->c_str());
+				m_filter_presets[idx].m_colortext_enabled << QString::fromStdString(*it);
+			}
 		}
 
 		storePresets();
@@ -830,7 +866,10 @@ void MainWindow::storePresets ()
 			qDebug("store group=%s", m_preset_names.at(i).toStdString().c_str());
 			settings.beginGroup(tr("preset_%1").arg(m_preset_names.at(i)));
 			{
-				write_list_of_strings(settings, "items", "item", m_filter_presets.at(i));
+				write_list_of_strings(settings, "items", "item", m_filter_presets.at(i).m_file_filters);
+				write_list_of_strings(settings, "cregexps", "item", m_filter_presets.at(i).m_colortext_regexs);
+				write_list_of_strings(settings, "cregexps_colors", "item", m_filter_presets.at(i).m_colortext_colors);
+				write_list_of_strings(settings, "cregexps_enabled", "item", m_filter_presets.at(i).m_colortext_enabled);
 			}
 			settings.endGroup();
 		}
@@ -851,10 +890,13 @@ void MainWindow::loadPresets ()
 	for (size_t i = 0, ie = m_preset_names.size(); i < ie; ++i)
 	{
 		qDebug("reading preset: %s", m_preset_names.at(i).toStdString().c_str());
-		m_filter_presets.push_back(filter_preset_t());
+		m_filter_presets.push_back(Preset());
 		settings.beginGroup(tr("preset_%1").arg(m_preset_names[i]));
 		{
-			read_list_of_strings(settings, "items", "item", m_filter_presets.back());
+			read_list_of_strings(settings, "items", "item", m_filter_presets.back().m_file_filters);
+			read_list_of_strings(settings, "cregexps", "item", m_filter_presets.back().m_colortext_regexs);
+			read_list_of_strings(settings, "cregexps_colors", "item", m_filter_presets.back().m_colortext_colors);
+			read_list_of_strings(settings, "cregexps_enabled", "item", m_filter_presets.back().m_colortext_enabled);
 		}
 		settings.endGroup();
 	}

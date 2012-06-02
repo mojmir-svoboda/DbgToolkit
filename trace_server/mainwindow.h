@@ -63,8 +63,8 @@ public:
 	columns_elide_t const & getColumnElide (size_t i) const { return m_columns_elide.at(i); }
 	columns_align_t & getColumnElide (size_t i) { return m_columns_elide[i]; }
 
-	filter_preset_t const & getFilterPresets (size_t i) const { return m_filter_presets.at(i); }
-	filter_preset_t & getFilterPresets (size_t i) { return m_filter_presets[i]; }
+	Preset const & getFilterPresets (size_t i) const { return m_filter_presets[i]; }
+	Preset & getFilterPresets (size_t i) { return m_filter_presets[i]; }
 	int findPresetName (QString const & name)
 	{
 		for (size_t i = 0, ie = m_preset_names.size(); i < ie; ++i)
@@ -76,8 +76,7 @@ public:
 	size_t addPresetName (QString const & name)
 	{
 		m_preset_names.push_back(name);
-		m_filter_presets.push_back(filter_preset_t());
-		m_filter_presets.back().reserve(32);
+		m_filter_presets.push_back(Preset());
 		return m_preset_names.size() - 1;
 	}
 
