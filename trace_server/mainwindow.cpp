@@ -32,9 +32,18 @@
 #endif
 
 #if (defined WIN32) && (defined STATIC)
-    Q_IMPORT_PLUGIN(qico);
-    Q_IMPORT_PLUGIN(qsvg);
+	Q_IMPORT_PLUGIN(qico);
+	Q_IMPORT_PLUGIN(qsvg);
 #endif
+
+void MainWindow::loadNetworkSettings ()
+{
+	QSettings settings("MojoMir", "TraceServer");
+	m_trace_addr = settings.value("trace_addr", "127.0.0.1").toString();
+	m_trace_port = settings.value("trace_port", Server::default_port).toInt();
+	m_profiler_addr = settings.value("profiler_addr", "127.0.0.1").toString();
+	m_profiler_port = settings.value("profiler_port", 13147).toInt();
+}
 
 MainWindow::MainWindow (QWidget * parent, bool quit_delay)
 	: QMainWindow(parent)
@@ -54,23 +63,25 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay)
 	, m_quit_action(0)
 	, m_tray_menu(0)
 	, m_tray_icon(0)
+	, m_settings_dialog(0)
+	, ui_settings(0)
 {
-    //QDir::setSearchPaths("icons", QStringList(QDir::currentPath()));
+	//QDir::setSearchPaths("icons", QStringList(QDir::currentPath()));
 	ui->setupUi(this);
 	ui->tabTrace->setTabsClosable(true);
 
 	// tray stuff
 	createActions();
 	createTrayIcon();
-    QIcon icon(":images/Icon1.ico");
+	QIcon icon(":images/Icon1.ico");
 	setWindowIcon(icon);
 	m_tray_icon->setVisible(true);
 	m_tray_icon->show();
 
 	setAcceptDrops(true);
-	qApp->installEventFilter(this);
 
-	m_server = new Server(this, quit_delay);
+	loadNetworkSettings();
+	m_server = new Server(m_trace_addr, m_trace_port, this, quit_delay);
 	showServerStatus();
 	connect(ui->qSearchLineEdit, SIGNAL(editingFinished()), this, SLOT(onQSearchEditingFinished()));
 	connect(ui->qFilterLineEdit, SIGNAL(editingFinished()), this, SLOT(onQFilterLineEditFinished()));
@@ -97,44 +108,44 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay)
 	m_timer->start();
 	setupMenuBar();
 
-	getTreeViewFile()->setEditTriggers(QAbstractItemView::NoEditTriggers);
-	connect(getTreeViewFile(), SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtFileTree(QModelIndex)));
-	connect(getTreeViewFile(), SIGNAL(doubleClicked(QModelIndex)), m_server, SLOT(onDoubleClickedAtFileTree(QModelIndex)));
+	getWidgetFile()->setEditTriggers(QAbstractItemView::NoEditTriggers);
+	connect(getWidgetFile(), SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtFileTree(QModelIndex)));
+	connect(getWidgetFile(), SIGNAL(doubleClicked(QModelIndex)), m_server, SLOT(onDoubleClickedAtFileTree(QModelIndex)));
 
-	getTreeViewCtx()->setEditTriggers(QAbstractItemView::NoEditTriggers);
-	connect(getTreeViewCtx(), SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtCtxTree(QModelIndex)));
-	connect(getTreeViewCtx(), SIGNAL(doubleClicked(QModelIndex)), m_server, SLOT(onDoubleClickedAtCtxTree(QModelIndex)));
+	getWidgetCtx()->setEditTriggers(QAbstractItemView::NoEditTriggers);
+	connect(getWidgetCtx(), SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtCtxTree(QModelIndex)));
+	connect(getWidgetCtx(), SIGNAL(doubleClicked(QModelIndex)), m_server, SLOT(onDoubleClickedAtCtxTree(QModelIndex)));
 
-	getListViewTID()->setEditTriggers(QAbstractItemView::NoEditTriggers);
-	connect(getListViewTID(), SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtTIDList(QModelIndex)));
-	connect(getListViewTID(), SIGNAL(doubleClicked(QModelIndex)), m_server, SLOT(onDoubleClickedAtTIDList(QModelIndex)));
+	getWidgetTID()->setEditTriggers(QAbstractItemView::NoEditTriggers);
+	connect(getWidgetTID(), SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtTIDList(QModelIndex)));
+	connect(getWidgetTID(), SIGNAL(doubleClicked(QModelIndex)), m_server, SLOT(onDoubleClickedAtTIDList(QModelIndex)));
 
-	getListViewLvl()->setEditTriggers(QAbstractItemView::NoEditTriggers);
-	connect(getListViewLvl(), SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtLvlList(QModelIndex)));
-	connect(getListViewLvl(), SIGNAL(doubleClicked(QModelIndex)), m_server, SLOT(onDoubleClickedAtLvlList(QModelIndex)));
+	getWidgetLvl()->setEditTriggers(QAbstractItemView::NoEditTriggers);
+	connect(getWidgetLvl(), SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtLvlList(QModelIndex)));
+	connect(getWidgetLvl(), SIGNAL(doubleClicked(QModelIndex)), m_server, SLOT(onDoubleClickedAtLvlList(QModelIndex)));
 
 	connect(ui->levelSpinBox, SIGNAL(valueChanged(int)), m_server, SLOT(onLevelValueChanged(int)));
-    connect(ui->filterFileCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onFilterFile(int)));
-    connect(ui->buffCheckBox, SIGNAL(stateChanged(int)), m_server, SLOT(onBufferingStateChanged(int)));
-    connect(ui->reuseTabCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onReuseTabChanged(int)));
-    //connect(ui->clrFiltersCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onClrFiltersStateChanged(int)));
+	connect(ui->filterFileCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onFilterFile(int)));
+	connect(ui->buffCheckBox, SIGNAL(stateChanged(int)), m_server, SLOT(onBufferingStateChanged(int)));
+	connect(ui->reuseTabCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onReuseTabChanged(int)));
+	//connect(ui->clrFiltersCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onClrFiltersStateChanged(int)));
 	connect(ui->presetComboBox, SIGNAL(activated(int)), this, SLOT(onPresetActivate(int)));
 	connect(ui->presetAddButton, SIGNAL(clicked()), this, SLOT(onAddCurrentFileFilter()));
 	connect(ui->presetRmButton, SIGNAL(clicked()), this, SLOT(onRmCurrentFileFilter()));
 	connect(ui->presetSaveButton, SIGNAL(clicked()), this, SLOT(onSaveCurrentFileFilter()));
 	connect(ui->presetResetButton, SIGNAL(clicked()), m_server, SLOT(onClearCurrentFileFilter()));
 
-	getListViewRegex()->setEditTriggers(QAbstractItemView::NoEditTriggers);
-	connect(getListViewTID(), SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtTIDList(QModelIndex)));
-	connect(getListViewRegex(), SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtRegexList(QModelIndex)));
-	connect(getListViewRegex(), SIGNAL(doubleClicked(QModelIndex)), m_server, SLOT(onDoubleClickedAtRegexList(QModelIndex)));
+	getWidgetRegex()->setEditTriggers(QAbstractItemView::NoEditTriggers);
+	connect(getWidgetTID(), SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtTIDList(QModelIndex)));
+	connect(getWidgetRegex(), SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtRegexList(QModelIndex)));
+	connect(getWidgetRegex(), SIGNAL(doubleClicked(QModelIndex)), m_server, SLOT(onDoubleClickedAtRegexList(QModelIndex)));
 	connect(ui->comboBoxRegex, SIGNAL(activated(int)), this, SLOT(onRegexActivate(int)));
 	connect(ui->buttonAddRegex, SIGNAL(clicked()), this, SLOT(onRegexAdd()));
 	connect(ui->buttonRmRegex, SIGNAL(clicked()), this, SLOT(onRegexRm()));
 
-	getListViewColorRegex()->setEditTriggers(QAbstractItemView::NoEditTriggers);
-	connect(getListViewColorRegex(), SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtColorRegexList(QModelIndex)));
-	connect(getListViewColorRegex(), SIGNAL(doubleClicked(QModelIndex)), m_server, SLOT(onDoubleClickedAtColorRegexList(QModelIndex)));
+	getWidgetColorRegex()->setEditTriggers(QAbstractItemView::NoEditTriggers);
+	connect(getWidgetColorRegex(), SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtColorRegexList(QModelIndex)));
+	connect(getWidgetColorRegex(), SIGNAL(doubleClicked(QModelIndex)), m_server, SLOT(onDoubleClickedAtColorRegexList(QModelIndex)));
 	connect(ui->comboBoxColorRegex, SIGNAL(activated(int)), this, SLOT(onColorRegexActivate(int)));
 	connect(ui->buttonAddColorRegex, SIGNAL(clicked()), this, SLOT(onColorRegexAdd()));
 	connect(ui->buttonRmColorRegex, SIGNAL(clicked()), this, SLOT(onColorRegexRm()));
@@ -155,6 +166,12 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay)
 	ui->qSearchLineEdit->setToolTip(tr("search text in logged text"));
 	ui->qFilterLineEdit->setToolTip(tr("quick inclusive filter: adds string to regex filter as regex .*string.*"));
 	ui->qSearchComboBox->setToolTip(tr("specifies column to search"));
+
+
+	m_status_label = new QLabel(m_server->getStatus());
+	QLabel * version_label = new QLabel(tr("Ver: %1").arg(g_Version));
+	statusBar()->addPermanentWidget(version_label);
+	statusBar()->addWidget(m_status_label);
 
 	connect(ui->filterModeComboBox, SIGNAL(activated(int)), this, SLOT(onFilterModeActivate(int)));
 	connect(ui->tabTrace, SIGNAL(tabCloseRequested(int)), m_server, SLOT(onCloseTabWithIndex(int)));
@@ -238,22 +255,22 @@ void MainWindow::timerHit ()
 
 QTabWidget * MainWindow::getTabTrace () { return ui->tabTrace; }
 QTabWidget const * MainWindow::getTabTrace () const { return ui->tabTrace; }
-QTreeView * MainWindow::getTreeViewFile () { return ui->treeViewFile; }
-QTreeView const * MainWindow::getTreeViewFile () const { return ui->treeViewFile; }
-QTreeView * MainWindow::getTreeViewCtx () { return ui->treeViewCtx; }
-QTreeView const * MainWindow::getTreeViewCtx () const { return ui->treeViewCtx; }
+QTreeView * MainWindow::getWidgetFile () { return ui->treeViewFile; }
+QTreeView const * MainWindow::getWidgetFile () const { return ui->treeViewFile; }
+QTreeView * MainWindow::getWidgetCtx () { return ui->treeViewCtx; }
+QTreeView const * MainWindow::getWidgetCtx () const { return ui->treeViewCtx; }
 QComboBox * MainWindow::getFilterRegex () { return ui->comboBoxRegex; }
 QComboBox const * MainWindow::getFilterRegex () const { return ui->comboBoxRegex; }
-QTreeView * MainWindow::getListViewRegex () { return ui->treeViewRegex; }
-QTreeView const * MainWindow::getListViewRegex () const { return ui->treeViewRegex; }
+QTreeView * MainWindow::getWidgetRegex () { return ui->treeViewRegex; }
+QTreeView const * MainWindow::getWidgetRegex () const { return ui->treeViewRegex; }
 QComboBox * MainWindow::getFilterColorRegex () { return ui->comboBoxColorRegex; }
 QComboBox const * MainWindow::getFilterColorRegex () const { return ui->comboBoxColorRegex; }
-QListView * MainWindow::getListViewColorRegex () { return ui->listViewColorRegex; }
-QListView const * MainWindow::getListViewColorRegex () const { return ui->listViewColorRegex; }
-QListView * MainWindow::getListViewTID () { return ui->listViewTID; }
-QListView const * MainWindow::getListViewTID () const { return ui->listViewTID; }
-QListView * MainWindow::getListViewLvl () { return ui->listViewLvl; }
-QListView const * MainWindow::getListViewLvl () const { return ui->listViewLvl; }
+QListView * MainWindow::getWidgetColorRegex () { return ui->listViewColorRegex; }
+QListView const * MainWindow::getWidgetColorRegex () const { return ui->listViewColorRegex; }
+QListView * MainWindow::getWidgetTID () { return ui->listViewTID; }
+QListView const * MainWindow::getWidgetTID () const { return ui->listViewTID; }
+QListView * MainWindow::getWidgetLvl () { return ui->listViewLvl; }
+QListView const * MainWindow::getWidgetLvl () const { return ui->listViewLvl; }
 
 bool MainWindow::scopesEnabled () const { return ui->scopesCheckBox->isChecked(); }
 bool MainWindow::filterEnabled () const { return ui->filterFileCheckBox->isChecked(); }
@@ -270,13 +287,13 @@ E_FilterMode MainWindow::fltMode () const
 void MainWindow::setLevel (int i)
 {
 	bool const old = ui->levelSpinBox->blockSignals(true);
-    ui->levelSpinBox->setValue(i);
+	ui->levelSpinBox->setValue(i);
 	ui->levelSpinBox->blockSignals(old);
 }
 
 int MainWindow::getLevel () const
 {
-    int const current = ui->levelSpinBox->value();
+	int const current = ui->levelSpinBox->value();
 	return current;
 }
 
@@ -340,7 +357,7 @@ void MainWindow::onQFilterLineEditFinished ()
 	text.append(".*");
 	conn->appendToRegexFilters(text.toStdString(), true, true);
 
-	QStandardItemModel * model = static_cast<QStandardItemModel *>(getListViewRegex()->model());
+	QStandardItemModel * model = static_cast<QStandardItemModel *>(getWidgetRegex()->model());
 	QStandardItem * root = model->invisibleRootItem();
 	QStandardItem * child = findChildByText(root, text);
 	if (!child)
@@ -349,6 +366,15 @@ void MainWindow::onQFilterLineEditFinished ()
 		root->appendRow(row_items);
 		child = findChildByText(root, text);
 		child->setCheckState(Qt::Checked);
+	}
+
+	for (int i = 0, ie = ui->tabFilters->count(); i < ie; ++i)
+	{
+		if (ui->tabFilters->tabText(i) == "RegExp")
+		{
+			ui->tabFilters->setCurrentIndex(i);
+			break;
+		}
 	}
 
 	conn->recompileRegexps();
@@ -408,7 +434,7 @@ void MainWindow::onFileLoad ()
 	QStringList files;
 	files << fname;
 	openFiles(files);
-	getTreeViewFile()->expandAll();
+	getWidgetFile()->expandAll();
 }
 
 void MainWindow::onFileSave ()
@@ -499,61 +525,6 @@ void MainWindow::onShowHelp ()
 	dialog.exec();
 }
 
-void MainWindow::onColumnSetup ()
-{
-	QDialog dialog(this);
-	dialog.setWindowFlags(Qt::Sheet);
-
-	Ui::SettingsDialog sett_dialog;
-	sett_dialog.setupUi(&dialog);
-
-	QString tags("Available tags: ");
-	size_t const n = tlv::get_tag_count();
-	for (size_t i = tlv::tag_time; i < n; ++i)
-	{
-		char const * name = tlv::get_tag_name(i);
-		if (name)
-			tags += QString::fromStdString(name) + "  ";
-	}
-	sett_dialog.tagsLabel->setText(tags);
-	SettingsModelView model(m_app_names, m_columns_setup);
-	sett_dialog.tagsTableView->setModel(&model);
-	sett_dialog.tagsTableView->horizontalHeader()->resizeSection(0, 100);
-	sett_dialog.tagsTableView->horizontalHeader()->resizeSection(1, 400);
-	sett_dialog.tagsTableView->setItemDelegate(new SettingsEditDelegate());
-
-	if (dialog.exec() == QDialog::Accepted)
-	{
-		for (int i = 0, ie = model.m_app_names.size(); i < ie; ++i)
-		{
-			boost::char_separator<char> sep(", ");
-			typedef boost::tokenizer<boost::char_separator<char> > tokenizer_t;
-			std::string s(model.m_rows[i].toStdString());
-			tokenizer_t tok(s, sep);
-			int const idx = findAppName(m_app_names[i]);
-			qDebug("app=%s", m_app_names.at(i).toStdString().c_str());
-			m_columns_setup[idx].clear();
-			m_columns_sizes[idx].clear();
-			if (idx >= 0)
-			{
-				size_t j = 0;
-				for (tokenizer_t::const_iterator it = tok.begin(), ite = tok.end(); it != ite; ++it, ++j)
-				{
-					qDebug("  token=%s", it->c_str());
-					m_columns_setup[idx].append(QString::fromStdString(*it));
-					m_columns_sizes[idx].append(127);
-				}
-			}
-		}
-
-
-		if (Connection * conn = m_server->findCurrentConnection())
-		{
-			conn->onApplyColumnSetup();
-		}
-	}
-}
-
 void MainWindow::onFileFilterSetup ()
 { }
 
@@ -572,7 +543,7 @@ void MainWindow::onPresetActivate (int idx)
 		conn->loadToFileFilters(filter_item);
 	}
 
-	getTreeViewFile()->expandAll();
+	getWidgetFile()->expandAll();
 	conn->onInvalidateFilter();
 }
 
@@ -609,7 +580,7 @@ void MainWindow::onRegexAdd ()
 	if (!conn) return;
 
 	QString qItem = ui->comboBoxRegex->currentText();
-	QStandardItem * root = static_cast<QStandardItemModel *>(getListViewRegex()->model())->invisibleRootItem();
+	QStandardItem * root = static_cast<QStandardItemModel *>(getWidgetRegex()->model())->invisibleRootItem();
 	QStandardItem * child = findChildByText(root, qItem);
 	if (child == 0)
 	{
@@ -622,8 +593,8 @@ void MainWindow::onRegexAdd ()
 
 void MainWindow::onRegexRm ()
 {
-	QStandardItemModel * model = static_cast<QStandardItemModel *>(getListViewRegex()->model());
-	QModelIndex const idx = getListViewRegex()->currentIndex();
+	QStandardItemModel * model = static_cast<QStandardItemModel *>(getWidgetRegex()->model());
+	QModelIndex const idx = getWidgetRegex()->currentIndex();
 	QStandardItem * item = model->itemFromIndex(idx);
 	if (!item)
 		return;
@@ -652,7 +623,7 @@ void MainWindow::onColorRegexAdd ()
 	if (!conn) return;
 
 	QString qItem = ui->comboBoxColorRegex->currentText();
-	QStandardItem * root = static_cast<QStandardItemModel *>(getListViewColorRegex()->model())->invisibleRootItem();
+	QStandardItem * root = static_cast<QStandardItemModel *>(getWidgetColorRegex()->model())->invisibleRootItem();
 	QStandardItem * child = findChildByText(root, qItem);
 	if (child == 0)
 	{
@@ -667,8 +638,8 @@ void MainWindow::onColorRegexAdd ()
 void MainWindow::onColorRegexRm ()
 {
 	Connection * conn = m_server->findCurrentConnection();
-	QStandardItemModel * model = static_cast<QStandardItemModel *>(getListViewColorRegex()->model());
-	QModelIndex const idx = getListViewColorRegex()->currentIndex();
+	QStandardItemModel * model = static_cast<QStandardItemModel *>(getWidgetColorRegex()->model());
+	QModelIndex const idx = getWidgetColorRegex()->currentIndex();
 	QStandardItem * item = model->itemFromIndex(idx);
 	if (!item)
 		return;
@@ -778,7 +749,7 @@ void MainWindow::setupMenuBar ()
 	fileMenu->addAction(tr("File &Save..."), this, SLOT(onFileSave()), QKeySequence(Qt::ControlModifier + Qt::Key_S));
 	fileMenu->addAction(tr("File &Save As CSV format"), this, SLOT(onFileExportToCSV()), QKeySequence(Qt::ControlModifier + Qt::ShiftModifier + Qt::Key_S));
 	fileMenu->addSeparator();
-    fileMenu->addAction(tr("Quit program"), this, SLOT(onQuit()), QKeySequence::Quit);
+	fileMenu->addAction(tr("Quit program"), this, SLOT(onQuit()), QKeySequence::Quit);
 
 	// Edit
 	QMenu * editMenu = menuBar()->addMenu(tr("&Edit"));
@@ -787,7 +758,7 @@ void MainWindow::setupMenuBar ()
 	editMenu->addAction(tr("Find Prev"), this, SLOT(onEditFindPrev()), QKeySequence::FindPrevious);
 	new QShortcut(QKeySequence(Qt::Key_Slash), this, SLOT(onEditFind()));
 	editMenu->addSeparator();
-    editMenu->addAction(tr("Copy"), m_server, SLOT(onCopyToClipboard()), QKeySequence::Copy);
+	editMenu->addAction(tr("Copy"), m_server, SLOT(onCopyToClipboard()), QKeySequence::Copy);
 	new QShortcut(QKeySequence(Qt::ControlModifier + Qt::Key_Insert), this, SLOT(onCopyToClipboard()));
 	editMenu->addSeparator();
 	editMenu->addAction(tr("Close Tab"), m_server, SLOT(onCloseCurrentTab()), QKeySequence(Qt::ControlModifier + Qt::Key_W));
@@ -810,7 +781,7 @@ void MainWindow::setupMenuBar ()
 
 	// Tools
 	QMenu * tools = menuBar()->addMenu(tr("&Settings"));
-	tools->addAction(tr("Column Setup"), this, SLOT(onColumnSetup()));
+	tools->addAction(tr("Setup"), this, SLOT(onSetup()));
 	tools->addAction(tr("File Filter Setup"), this, SLOT(onFileFilterSetup()));
 	tools->addAction(tr("Save Current File Filter As..."), this, SLOT(onSaveCurrentFileFilter()));
 	tools->addSeparator();
@@ -893,6 +864,12 @@ void MainWindow::loadPresets ()
 void MainWindow::storeState ()
 {
 	QSettings settings("MojoMir", "TraceServer");
+
+	settings.setValue("trace_addr", m_trace_addr);
+	settings.setValue("trace_port", m_trace_port);
+	settings.setValue("profiler_addr", m_profiler_addr);
+	settings.setValue("profiler_port", m_profiler_port);
+
 	settings.setValue("geometry", saveGeometry());
 	settings.setValue("windowState", saveState());
 	settings.setValue("splitter", ui->splitter->saveState());
@@ -928,6 +905,18 @@ void MainWindow::storeState ()
 				settings.endArray();
 				++oi;
 			}
+		}
+		settings.endGroup();
+
+		settings.beginGroup(tr("column_align_%1").arg(m_app_names[i]));
+		{
+			write_list_of_strings(settings, "aligns", "column", m_columns_align.at(i));
+		}
+		settings.endGroup();
+
+		settings.beginGroup(tr("column_elide_%1").arg(m_app_names[i]));
+		{
+			write_list_of_strings(settings, "elides", "column", m_columns_elide.at(i));
 		}
 		settings.endGroup();
 	}
@@ -979,6 +968,28 @@ void MainWindow::loadState ()
 			settings.endArray();
 		}
 		settings.endGroup();
+
+		m_columns_align.push_back(columns_align_t());
+		settings.beginGroup(tr("column_align_%1").arg(m_app_names[i]));
+		{
+			read_list_of_strings(settings, "aligns", "column", m_columns_align.back());
+		}
+		settings.endGroup();
+
+		if (m_columns_align.back().size() < m_columns_sizes.back().size())
+			for (int i = 0, ie = m_columns_sizes.back().size(); i < ie; ++i)
+				m_columns_align.back().push_back(QString("L"));
+
+		m_columns_elide.push_back(columns_elide_t());
+		settings.beginGroup(tr("column_elide_%1").arg(m_app_names[i]));
+		{
+			read_list_of_strings(settings, "elides", "column", m_columns_elide.back());
+		}
+		settings.endGroup();
+
+		if (m_columns_elide.back().size() < m_columns_sizes.back().size())
+			for (int i = 0, ie = m_columns_sizes.back().size(); i < ie; ++i)
+				m_columns_elide.back().push_back(QString("R"));
 	}
 
 	if (m_thread_colors.empty())
@@ -997,17 +1008,22 @@ void MainWindow::loadState ()
 #endif
 
 	loadPresets();
-	getTreeViewFile()->setEnabled(filterEnabled());
+	getWidgetFile()->setEnabled(filterEnabled());
+
+	m_settings_dialog = new QDialog(this);
+	m_settings_dialog->setWindowFlags(Qt::Sheet);
+	ui_settings = new Ui::SettingsDialog();
+	ui_settings->setupUi(m_settings_dialog);
+
+	qApp->installEventFilter(this);
 }
+
 
 void MainWindow::iconActivated (QSystemTrayIcon::ActivationReason reason)
 {
 	switch (reason) {
-		case QSystemTrayIcon::Trigger:
-			break;
-		case QSystemTrayIcon::DoubleClick:
-			onHotkeyShowOrHide();
-			break;
+		case QSystemTrayIcon::Trigger:     break;
+		case QSystemTrayIcon::DoubleClick: onHotkeyShowOrHide(); break;
 		case QSystemTrayIcon::MiddleClick: break;
 		default: break;
 	}
@@ -1022,12 +1038,8 @@ void MainWindow::closeEvent (QCloseEvent * event)
 	event->ignore();
 }
 
-void MainWindow::changeEvent (QEvent * e)
-{
-	QMainWindow::changeEvent(e);
-}
-
-bool MainWindow::eventFilter (QObject *, QEvent * e)
+void MainWindow::changeEvent (QEvent * e) { QMainWindow::changeEvent(e); }
+bool MainWindow::eventFilter (QObject * target, QEvent * e)
 {
 	if (e->type() == QEvent::Shortcut)
 	{
@@ -1041,4 +1053,3 @@ bool MainWindow::eventFilter (QObject *, QEvent * e)
 	return false;
 }
 
-/*he QSocketNotifier class provides support for monitoring activity on a file descriptor.  */

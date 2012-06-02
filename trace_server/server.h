@@ -40,7 +40,7 @@ class Server : public QTcpServer
 	Q_OBJECT
 public:
 	static unsigned short const default_port = 13127;
-	explicit Server (QObject * parent = 0, bool quit_delay = true);
+	explicit Server (QString addr, unsigned short port, QObject * parent = 0, bool quit_delay = true);
 
 	QString const & getStatus () const { return status; }
 	void incomingDataStream (QDataStream & stream);

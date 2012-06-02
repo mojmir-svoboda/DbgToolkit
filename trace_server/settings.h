@@ -4,7 +4,7 @@
 #include <QObject>
 #include "types.h"
 
-struct SettingsModelView : QAbstractTableModel
+/*struct SettingsModelView : QAbstractTableModel
 {
 	Q_OBJECT
 public:
@@ -25,7 +25,7 @@ public:
 	QList<QString> const & m_app_names;
 	std::vector<QString> m_rows;
 };
-
+*/
 class SettingsEditDelegate : public QItemDelegate
 {
 	Q_OBJECT

@@ -54,7 +54,7 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 							loadToFileFilters(*it);
 						}
 
-						QStandardItemModel * model = static_cast<QStandardItemModel *>(m_main_window->getListViewColorRegex()->model());
+						QStandardItemModel * model = static_cast<QStandardItemModel *>(m_main_window->getWidgetColorRegex()->model());
 						QStandardItem * root = model->invisibleRootItem();
 						for (int i = 0; i < sessionState().m_colorized_texts.size(); ++i)
 						{
@@ -72,14 +72,15 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 						recompileColorRegexps();
 					}
 
-					m_main_window->getTreeViewFile()->expandAll();
-					m_main_window->getTreeViewFile()->setEnabled(m_main_window->filterEnabled());
+					m_main_window->getWidgetFile()->setEnabled(m_main_window->filterEnabled());
 	
 					QWidget * w = conn->sessionState().m_tab_widget;
 					server->onCloseTab(w);	// close old one
 					// @TODO: delete persistent storage for the tab
 					sessionState().m_tab_idx = m_main_window->getTabTrace()->indexOf(sessionState().m_tab_widget);
 					onTabTraceFocus(sessionState().m_tab_idx);
+
+					m_main_window->getWidgetFile()->expandAll();
 				}
 			}
 
@@ -106,7 +107,7 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 			for (size_t c = 0, ce = sizes.size(); c < ce; ++c)
 			{
 				m_table_view_widget->horizontalHeader()->resizeSection(c, sizes.at(c));
-				qDebug("sizes: %u %u %u", sizes.at(0), sizes.at(1), sizes.at(2));
+				//qDebug("sizes: %u %u %u", sizes.at(0), sizes.at(1), sizes.at(2));
 			}
 
 			m_table_view_widget->horizontalHeader()->setResizeMode(QHeaderView::Fixed);
@@ -166,61 +167,61 @@ void Connection::setupColumnSizes ()
 		}
 		m_table_view_widget->blockSignals(old);
 	}
-	//m_main_window->getTreeViewFile()->resizeColumnToContents(true);
+	//m_main_window->getWidgetFile()->resizeColumnToContents(true);
 }
 
 void Connection::setupModelFile ()
 {
-	if (!m_tree_view_file_model)
+	if (!m_file_model)
 	{
 		qDebug("new tree view file model");
-		m_tree_view_file_model = new QStandardItemModel;
+		m_file_model = new QStandardItemModel;
 	}
-	m_main_window->getTreeViewFile()->setModel(m_tree_view_file_model);
-	m_main_window->getTreeViewFile()->expandAll();
-	m_main_window->getTreeViewFile()->setEnabled(m_main_window->filterEnabled());
+	m_main_window->getWidgetFile()->setModel(m_file_model);
+	m_main_window->getWidgetFile()->expandAll();
+	m_main_window->getWidgetFile()->setEnabled(m_main_window->filterEnabled());
 }
 
 void Connection::setupModelCtx ()
 {
-	if (!m_tree_view_ctx_model)
+	if (!m_ctx_model)
 	{
 		qDebug("new tree view ctx model");
-		m_tree_view_ctx_model = new QStandardItemModel;
+		m_ctx_model = new QStandardItemModel;
 	}
-	m_main_window->getTreeViewCtx()->setModel(m_tree_view_ctx_model);
-	m_main_window->getTreeViewCtx()->expandAll();
-	m_main_window->getTreeViewCtx()->setEnabled(m_main_window->filterEnabled());
+	m_main_window->getWidgetCtx()->setModel(m_ctx_model);
+	m_main_window->getWidgetCtx()->expandAll();
+	m_main_window->getWidgetCtx()->setEnabled(m_main_window->filterEnabled());
 }
 
 void Connection::setupModelTID ()
 {
-	if (!m_list_view_tid_model)
-		m_list_view_tid_model = new QStandardItemModel;
-	m_main_window->getListViewTID()->setModel(m_list_view_tid_model);
-	m_main_window->getListViewTID()->setEnabled(m_main_window->filterEnabled());
+	if (!m_tid_model)
+		m_tid_model = new QStandardItemModel;
+	m_main_window->getWidgetTID()->setModel(m_tid_model);
+	m_main_window->getWidgetTID()->setEnabled(m_main_window->filterEnabled());
 }
 
 void Connection::setupModelColorRegex ()
 {
-	if (!m_list_view_color_regex_model)
-		m_list_view_color_regex_model = new QStandardItemModel;
-	m_main_window->getListViewColorRegex()->setModel(m_list_view_color_regex_model);
-	m_main_window->getListViewColorRegex()->setEnabled(m_main_window->filterEnabled());
+	if (!m_color_regex_model)
+		m_color_regex_model = new QStandardItemModel;
+	m_main_window->getWidgetColorRegex()->setModel(m_color_regex_model);
+	m_main_window->getWidgetColorRegex()->setEnabled(m_main_window->filterEnabled());
 }
 
 void Connection::setupModelRegex ()
 {
-	if (!m_list_view_regex_model)
-		m_list_view_regex_model = new QStandardItemModel;
-	m_main_window->getListViewRegex()->setModel(m_list_view_regex_model);
-	m_main_window->getListViewRegex()->setEnabled(m_main_window->filterEnabled());
+	if (!m_regex_model)
+		m_regex_model = new QStandardItemModel;
+	m_main_window->getWidgetRegex()->setModel(m_regex_model);
+	m_main_window->getWidgetRegex()->setEnabled(m_main_window->filterEnabled());
 }
 
 void Connection::setupModelLvl ()
 {
-	if (!m_list_view_lvl_model)
-		m_list_view_lvl_model = new QStandardItemModel;
-	m_main_window->getListViewLvl()->setModel(m_list_view_lvl_model);
-	m_main_window->getListViewLvl()->setEnabled(m_main_window->filterEnabled());
+	if (!m_lvl_model)
+		m_lvl_model = new QStandardItemModel;
+	m_main_window->getWidgetLvl()->setModel(m_lvl_model);
+	m_main_window->getWidgetLvl()->setEnabled(m_main_window->filterEnabled());
 }
