@@ -540,14 +540,25 @@ void MainWindow::onPresetActivate (int idx)
 		std::string filter_item(m_filter_presets.at(idx).m_file_filters.at(i).toStdString());
 		conn->loadToFileFilters(filter_item);
 	}
-	/*for (size_t i = 0, ie = m_filter_presets.at(idx).m_color_regex_filter.size(); i < ie; ++i)
+	for (size_t i = 0, ie = m_filter_presets.at(idx).m_colortext_regexs.size(); i < ie; ++i)
 	{
-		std::string cregex_item(m_filter_presets.at(idx).m_color_regex_filter.at(i).toStdString());
-		conn->loadToColorRegexps(filter_item);
-	}*/
+		std::string cregex_item(m_filter_presets.at(idx).m_colortext_regexs.at(i).toStdString());
+		std::string cregex_col(m_filter_presets.at(idx).m_colortext_colors.at(i).toStdString());
+		bool const enabled = m_filter_presets.at(idx).m_colortext_enabled.at(i).toInt();
+		conn->loadToColorRegexps(cregex_item, cregex_col, enabled);
+
+		QStandardItem * const root = static_cast<QStandardItemModel *>(getWidgetColorRegex()->model())->invisibleRootItem();
+		QStandardItem * const child = findChildByText(root, m_filter_presets.at(idx).m_colortext_regexs.at(i));
+		if (child == 0)
+		{
+			QList<QStandardItem *> row_items = addRow(m_filter_presets.at(idx).m_colortext_regexs.at(i), enabled);
+			root->appendRow(row_items);
+		}
+	}
 
 	getWidgetFile()->expandAll();
 	conn->onInvalidateFilter();
+	conn->recompileColorRegexps();
 }
 
 void MainWindow::onFilterModeActivate (int idx)

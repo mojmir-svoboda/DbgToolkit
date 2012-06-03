@@ -93,6 +93,7 @@ public:
 	void recompileColorRegexps ();
 	void flipFilterMode (E_FilterMode mode);
 	void run ();
+	void loadToColorRegexps (std::string const & filter_item, std::string const & color, bool enabled);
 
 signals:
 	void readyForUse();

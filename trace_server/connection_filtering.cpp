@@ -329,6 +329,14 @@ void Connection::removeFromColorRegexFilters (std::string const & val)
 	m_session_state.removeFromColorRegexFilters(val);
 }
 
+void Connection::loadToColorRegexps (std::string const & filter_item, std::string const & color, bool enabled)
+{
+	sessionState().appendToColorRegexFilters(filter_item);
+	sessionState().setRegexColor(filter_item, QColor(color.c_str()));
+	sessionState().setRegexChecked(filter_item, enabled);
+}
+
+
 void Connection::recompileColorRegexps ()
 {
 	for (int i = 0, ie = sessionState().m_colorized_texts.size(); i < ie; ++i)
