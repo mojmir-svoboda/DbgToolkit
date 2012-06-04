@@ -379,6 +379,11 @@ void Connection::recompileColorRegexps ()
 	onInvalidateFilter();
 }
 
+void Connection::loadToRegexps (std::string const & filter_item, bool inclusive, bool enabled)
+{
+	sessionState().appendToRegexFilters(filter_item, inclusive, enabled);
+}
+
 void Connection::flipFilterMode (E_FilterMode mode)
 {
 	qDebug("filterMode changed: old=%u -> new=%u", sessionState().m_filter_mode, mode);

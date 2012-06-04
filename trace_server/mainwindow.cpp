@@ -356,7 +356,7 @@ void MainWindow::onQFilterLineEditFinished ()
 	QString text(".*");
 	text.append(ui->qFilterLineEdit->text());
 	text.append(".*");
-	conn->appendToRegexFilters(text.toStdString(), true, true);
+	conn->appendToRegexFilters(text.toStdString(), true, true); // @TODO: second true can use global incl/excl fmode
 
 	QStandardItemModel * model = static_cast<QStandardItemModel *>(getWidgetRegex()->model());
 	QStandardItem * root = model->invisibleRootItem();
@@ -503,9 +503,10 @@ void MainWindow::onDumpFilters ()
 	{
 		SessionExport se;
 		conn->sessionState().sessionExport(se);
-		session_string = QString("File filter:\n %1\nregex_filter:\n %2\ncolor_regexps:\n %3\ncolor_colors:\n %4\n")
+		session_string = QString("File filter:\n %1\nregex_filter:\n %2\nregex_inclusive:\n %3\ncolor_regexps:\n %4\ncolor_colors:\n %5\n")
 				.arg(se.m_file_filters.c_str())
 				.arg(se.m_regex_filters.c_str())
+				.arg(se.m_regex_fmode.c_str())
 				.arg(se.m_colortext_regexs.c_str())
 				.arg(se.m_colortext_colors.c_str());
 	}
@@ -540,6 +541,8 @@ void MainWindow::onPresetActivate (int idx)
 		std::string filter_item(m_filter_presets.at(idx).m_file_filters.at(i).toStdString());
 		conn->loadToFileFilters(filter_item);
 	}
+
+	conn->onClearCurrentColorizedRegexFilter();
 	for (size_t i = 0, ie = m_filter_presets.at(idx).m_colortext_regexs.size(); i < ie; ++i)
 	{
 		std::string cregex_item(m_filter_presets.at(idx).m_colortext_regexs.at(i).toStdString());
@@ -556,9 +559,28 @@ void MainWindow::onPresetActivate (int idx)
 		}
 	}
 
+	conn->recompileColorRegexps();
+	for (size_t i = 0, ie = m_filter_presets.at(idx).m_regex_filters.size(); i < ie; ++i)
+	{
+		std::string regex_item(m_filter_presets.at(idx).m_regex_filters.at(i).toStdString());
+		std::string regex_fmode(m_filter_presets.at(idx).m_regex_fmode.at(i).toStdString());
+		bool const enabled = m_filter_presets.at(idx).m_regex_enabled.at(i).toInt();
+		bool const inclusive = m_filter_presets.at(idx).m_regex_fmode.at(i).toInt();
+		conn->loadToRegexps(regex_item, inclusive, enabled);
+
+		QStandardItem * const root = static_cast<QStandardItemModel *>(getWidgetRegex()->model())->invisibleRootItem();
+		QStandardItem * const child = findChildByText(root, m_filter_presets.at(idx).m_regex_filters.at(i));
+		if (child == 0)
+		{
+			QList<QStandardItem *> row_items = addTriRow(m_filter_presets.at(idx).m_regex_filters.at(i), inclusive);
+			row_items.at(0)->setCheckState(enabled ? Qt::Checked : Qt::Unchecked);
+			root->appendRow(row_items);
+		}
+	}
+	conn->recompileRegexps();
+
 	getWidgetFile()->expandAll();
 	conn->onInvalidateFilter();
-	conn->recompileColorRegexps();
 }
 
 void MainWindow::onFilterModeActivate (int idx)
@@ -699,39 +721,45 @@ void MainWindow::onSaveCurrentFileFilterTo (QString const & preset_name)
 			m_filter_presets[idx].m_file_filters.clear();
 			tokenizer_t tok(e.m_file_filters, sep);
 			for (tokenizer_t::const_iterator it = tok.begin(), ite = tok.end(); it != ite; ++it)
-			{
-				qDebug("appending to file preset: %s", it->c_str());
 				m_filter_presets[idx].m_file_filters << QString::fromStdString(*it);
-			}
 		}
 
 		{
 			m_filter_presets[idx].m_colortext_regexs.clear();
 			tokenizer_t tok(e.m_colortext_regexs, sep);
 			for (tokenizer_t::const_iterator it = tok.begin(), ite = tok.end(); it != ite; ++it)
-			{
-				qDebug("appending to colorized regex: %s", it->c_str());
 				m_filter_presets[idx].m_colortext_regexs << QString::fromStdString(*it);
-			}
 		}
 		{
 			m_filter_presets[idx].m_colortext_colors.clear();
 			tokenizer_t tok(e.m_colortext_colors, sep);
 			for (tokenizer_t::const_iterator it = tok.begin(), ite = tok.end(); it != ite; ++it)
-			{
-				qDebug("appending to colorized regex with color: %s", it->c_str());
 				m_filter_presets[idx].m_colortext_colors << QString::fromStdString(*it);
-			}
-
 		}
 		{
 			m_filter_presets[idx].m_colortext_enabled.clear();
 			tokenizer_t tok(e.m_colortext_enabled, sep);
 			for (tokenizer_t::const_iterator it = tok.begin(), ite = tok.end(); it != ite; ++it)
-			{
-				qDebug("appending to colorized regex with enabled: %s", it->c_str());
 				m_filter_presets[idx].m_colortext_enabled << QString::fromStdString(*it);
-			}
+		}
+
+		{
+			m_filter_presets[idx].m_regex_filters.clear();
+			tokenizer_t tok(e.m_regex_filters, sep);
+			for (tokenizer_t::const_iterator it = tok.begin(), ite = tok.end(); it != ite; ++it)
+				m_filter_presets[idx].m_regex_filters << QString::fromStdString(*it);
+		}
+		{
+			m_filter_presets[idx].m_regex_fmode.clear();
+			tokenizer_t tok(e.m_regex_fmode, sep);
+			for (tokenizer_t::const_iterator it = tok.begin(), ite = tok.end(); it != ite; ++it)
+				m_filter_presets[idx].m_regex_fmode << QString::fromStdString(*it);
+		}
+		{
+			m_filter_presets[idx].m_regex_enabled.clear();
+			tokenizer_t tok(e.m_regex_enabled, sep);
+			for (tokenizer_t::const_iterator it = tok.begin(), ite = tok.end(); it != ite; ++it)
+				m_filter_presets[idx].m_regex_enabled << QString::fromStdString(*it);
 		}
 
 		storePresets();
@@ -881,6 +909,9 @@ void MainWindow::storePresets ()
 				write_list_of_strings(settings, "cregexps", "item", m_filter_presets.at(i).m_colortext_regexs);
 				write_list_of_strings(settings, "cregexps_colors", "item", m_filter_presets.at(i).m_colortext_colors);
 				write_list_of_strings(settings, "cregexps_enabled", "item", m_filter_presets.at(i).m_colortext_enabled);
+				write_list_of_strings(settings, "regexps", "item", m_filter_presets.at(i).m_regex_filters);
+				write_list_of_strings(settings, "regexps_fmode", "item", m_filter_presets.at(i).m_regex_fmode);
+				write_list_of_strings(settings, "regexps_enabled", "item", m_filter_presets.at(i).m_regex_enabled);
 			}
 			settings.endGroup();
 		}
@@ -908,6 +939,9 @@ void MainWindow::loadPresets ()
 			read_list_of_strings(settings, "cregexps", "item", m_filter_presets.back().m_colortext_regexs);
 			read_list_of_strings(settings, "cregexps_colors", "item", m_filter_presets.back().m_colortext_colors);
 			read_list_of_strings(settings, "cregexps_enabled", "item", m_filter_presets.back().m_colortext_enabled);
+			read_list_of_strings(settings, "regexps", "item", m_filter_presets.back().m_regex_filters);
+			read_list_of_strings(settings, "regexps_fmode", "item", m_filter_presets.back().m_regex_fmode);
+			read_list_of_strings(settings, "regexps_enabled", "item", m_filter_presets.back().m_regex_enabled);
 		}
 		settings.endGroup();
 	}

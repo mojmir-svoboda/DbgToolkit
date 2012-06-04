@@ -94,6 +94,7 @@ public:
 	void flipFilterMode (E_FilterMode mode);
 	void run ();
 	void loadToColorRegexps (std::string const & filter_item, std::string const & color, bool enabled);
+	void loadToRegexps (std::string const & filter_item, bool inclusive, bool enabled);
 
 signals:
 	void readyForUse();
@@ -131,8 +132,18 @@ private slots:
 
 private:
 	friend class Server;
+	enum {
+		e_data_ok = 0,
+		e_data_pipe_full,
+		e_data_decode_oor,
+		e_data_decode_lnerr,
+		e_data_decode_captain_failure,
+		e_data_decode_general_failure,
+		e_data_decode_error,
+	};
+
 	template <class T, typename T_Ret, typename T_Arg0, typename T_Arg1>
-	void processStream (T *, T_Ret (T::*read_member_t)(T_Arg0, T_Arg1));
+	int processStream (T *, T_Ret (T::*read_member_t)(T_Arg0, T_Arg1));
 	bool tryHandleCommand (DecodedCommand const & cmd);
 	bool handleLogCommand (DecodedCommand const & cmd);
 	bool handleSetupCommand (DecodedCommand const & cmd);

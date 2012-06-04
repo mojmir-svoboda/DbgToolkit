@@ -348,14 +348,8 @@ void Server::onClickedAtRegexList (QModelIndex idx)
 		return;
 	MainWindow * main_window = static_cast<MainWindow *>(parent());
 	QStandardItemModel * model = static_cast<QStandardItemModel *>(main_window->getWidgetRegex()->model());
-	QStandardItem * item = model->itemFromIndex(idx);
-	Q_ASSERT(item);
 
 	QString const & val = model->data(idx, Qt::DisplayRole).toString();
-
-	bool const orig_checked = (item->checkState() == Qt::Checked);
-	bool const checked = orig_checked ? Qt::Unchecked : Qt::Checked;
-	item->setCheckState(checked ? Qt::Checked : Qt::Unchecked);
 
 	if (idx.column() == 1)
 	{
@@ -377,12 +371,17 @@ void Server::onClickedAtRegexList (QModelIndex idx)
 		if (Connection * conn = findCurrentConnection())
 		{
 			conn->sessionState().setRegexInclusive(reg.toStdString(), is_inclusive);
-			conn->m_session_state.setRegexChecked(filter_item, checked);
+			//conn->m_session_state.setRegexChecked(filter_item, checked);
+			conn->recompileRegexps();
 			conn->onInvalidateFilter();
 		}
 	}
 	else
 	{
+		QStandardItem * item = model->itemFromIndex(idx);
+		Q_ASSERT(item);
+		bool const orig_checked = (item->checkState() == Qt::Checked);
+		bool const checked = orig_checked ? Qt::Unchecked : Qt::Checked;
 		std::string filter_item(val.toStdString());
 		if (Connection * conn = findCurrentConnection())
 		{
@@ -391,6 +390,8 @@ void Server::onClickedAtRegexList (QModelIndex idx)
 			conn->recompileRegexps();
 			conn->onInvalidateFilter();
 		}
+
+		item->setCheckState(checked ? Qt::Checked : Qt::Unchecked);
 	}
 }
 

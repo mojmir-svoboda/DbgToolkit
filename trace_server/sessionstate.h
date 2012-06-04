@@ -85,10 +85,18 @@ struct SessionExport {
 	std::string m_name;
 	std::string m_file_filters;
 	std::string m_regex_filters;
+	std::string m_regex_fmode;
+	std::string m_regex_enabled;
 	std::string m_colortext_regexs;
 	std::string m_colortext_colors;
 	std::string m_colortext_enabled;
 	std::string m_collapsed_blocks;
+};
+
+struct SessionStats {
+	size_t m_Read_B;
+	size_t m_Write_B;
+	//hptimer_t m_StartT;
 };
 
 class SessionState

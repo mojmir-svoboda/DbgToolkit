@@ -131,8 +131,20 @@ void SessionState::sessionExport (SessionExport & e) const
 			e.m_colortext_enabled += "\n";
 		}
 	}
-	//qDebug("color regexps:\n%s\n", e.m_colortext_regexs.c_str());
-	//qDebug("color colors:\n%s\n", e.m_colortext_colors.c_str());
+	for (int i = 0, ie = m_filtered_regexps.size(); i < ie; ++i)
+	{
+		FilteredRegex const & flt = m_filtered_regexps.at(i);
+		e.m_regex_filters.append(flt.m_regex_str);
+		e.m_regex_fmode.append(flt.m_is_inclusive ? "1" : "0");
+		e.m_regex_enabled.append(flt.m_is_enabled ? "1" : "0");
+
+		if (i < ie)
+		{
+			e.m_regex_filters += "\n";
+			e.m_regex_fmode += "\n";
+			e.m_regex_enabled += "\n";
+		}
+	}
 }
 void SessionState::sessionImport (SessionExport const & e)
 {
@@ -152,31 +164,40 @@ void SessionState::sessionImport (SessionExport const & e)
 		{
 			tokenizer_t tok(e.m_colortext_regexs, sep);
 			for (tokenizer_t::const_iterator it = tok.begin(), ite = tok.end(); it != ite; ++it)
-			{
-				std::string tok(*it);
-				//qDebug("import regex: %s", tok.c_str());
 				m_colorized_texts.append(ColorizedText(*it, e_Fg)); //@TODO: save role
-			}
 		}
 		{
 			tokenizer_t tok(e.m_colortext_colors, sep);
 			int i = 0;
 			for (tokenizer_t::const_iterator it = tok.begin(), ite = tok.end(); it != ite; ++it, ++i)
-			{
-				std::string tok(*it);
-				//qDebug("import color[%i]: %s", i, tok.c_str());
 				m_colorized_texts[i].m_qcolor.setNamedColor(QString::fromStdString(*it));
-			}
 		}
 		{
 			tokenizer_t tok(e.m_colortext_enabled, sep);
 			int i = 0;
 			for (tokenizer_t::const_iterator it = tok.begin(), ite = tok.end(); it != ite; ++it, ++i)
-			{
-				std::string tok(*it);
-				//qDebug("import state[%i]: %s", i, tok.c_str());
 				m_colorized_texts[i].m_is_enabled = QString::fromStdString(*it).toInt();
-			}
+		}
+	}
+
+	{
+		m_filtered_regexps.clear();
+		{
+			tokenizer_t tok(e.m_regex_filters, sep);
+			for (tokenizer_t::const_iterator it = tok.begin(), ite = tok.end(); it != ite; ++it)
+				m_filtered_regexps.append(FilteredRegex(*it, true));
+		}
+		{
+			tokenizer_t tok(e.m_regex_fmode, sep);
+			int i = 0;
+			for (tokenizer_t::const_iterator it = tok.begin(), ite = tok.end(); it != ite; ++it, ++i)
+				m_filtered_regexps[i].m_is_inclusive = QString::fromStdString(*it).toInt();
+		}
+		{
+			tokenizer_t tok(e.m_regex_enabled, sep);
+			int i = 0;
+			for (tokenizer_t::const_iterator it = tok.begin(), ite = tok.end(); it != ite; ++it, ++i)
+				m_filtered_regexps[i].m_is_enabled = QString::fromStdString(*it).toInt();
 		}
 	}
 
@@ -439,6 +460,9 @@ void SessionState::removeFromRegexFilters (std::string const & s)
 }
 void SessionState::appendToRegexFilters (std::string const & s, bool enabled, bool inclusive)
 {
+	for (int i = 0, ie = m_filtered_regexps.size(); i < ie; ++i)
+		if (m_filtered_regexps[i].m_regex_str == s)
+			return;
 	m_filtered_regexps.push_back(FilteredRegex(s, enabled));
 	m_filtered_regexps.back().m_is_inclusive = inclusive;
 }

@@ -53,23 +53,44 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 							//appendToFileFilters(sep, *it, true);
 							loadToFileFilters(*it);
 						}
-
-						QStandardItemModel * model = static_cast<QStandardItemModel *>(m_main_window->getWidgetColorRegex()->model());
-						QStandardItem * root = model->invisibleRootItem();
-						for (int i = 0; i < sessionState().m_colorized_texts.size(); ++i)
+						
 						{
-							ColorizedText & ct = sessionState().m_colorized_texts[i];
-							ct.m_regex = QRegExp(QString::fromStdString(ct.m_regex_str));
-
-							QStandardItem * child = findChildByText(root, QString::fromStdString(ct.m_regex_str));
-							if (child == 0)
+							QStandardItemModel * model = static_cast<QStandardItemModel *>(m_main_window->getWidgetColorRegex()->model());
+							QStandardItem * root = model->invisibleRootItem();
+							for (int i = 0; i < sessionState().m_colorized_texts.size(); ++i)
 							{
-								QList<QStandardItem *> row_items = addRow(QString::fromStdString(ct.m_regex_str), ct.m_is_enabled);
-								root->appendRow(row_items);
+								ColorizedText & ct = sessionState().m_colorized_texts[i];
+								ct.m_regex = QRegExp(QString::fromStdString(ct.m_regex_str));
+
+								QStandardItem * child = findChildByText(root, QString::fromStdString(ct.m_regex_str));
+								if (child == 0)
+								{
+									QList<QStandardItem *> row_items = addRow(QString::fromStdString(ct.m_regex_str), ct.m_is_enabled);
+									root->appendRow(row_items);
+								}
 							}
+							recompileColorRegexps();
 						}
 
-						recompileColorRegexps();
+						{
+							QStandardItemModel * model = static_cast<QStandardItemModel *>(m_main_window->getWidgetRegex()->model());
+							QStandardItem * root = model->invisibleRootItem();
+							for (int i = 0; i < sessionState().m_filtered_regexps.size(); ++i)
+							{
+								FilteredRegex & flt = sessionState().m_filtered_regexps[i];
+								flt.m_regex = QRegExp(QString::fromStdString(flt.m_regex_str));
+
+								QStandardItem * child = findChildByText(root, QString::fromStdString(flt.m_regex_str));
+								if (child == 0)
+								{
+									QList<QStandardItem *> row_items = addTriRow(QString::fromStdString(flt.m_regex_str), flt.m_is_enabled);
+									root->appendRow(row_items);
+									child = findChildByText(root, QString::fromStdString(flt.m_regex_str));
+									child->setCheckState(Qt::Checked);
+								}
+							}
+							recompileRegexps();
+						}
 					}
 
 					m_main_window->getWidgetFile()->setEnabled(m_main_window->filterEnabled());

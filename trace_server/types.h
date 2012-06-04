@@ -15,12 +15,18 @@ struct Preset {
 	filter_preset_t m_colortext_regexs;
 	filter_preset_t m_colortext_colors;
 	filter_preset_t m_colortext_enabled;
+	filter_preset_t m_regex_filters;
+	filter_preset_t m_regex_fmode;
+	filter_preset_t m_regex_enabled;
 	
 	Preset () {
 		m_file_filters.reserve(32 * 1024);
 		m_colortext_regexs.reserve(256);
 		m_colortext_colors.reserve(256);
 		m_colortext_enabled.reserve(256);
+		m_regex_filters.reserve(256);
+		m_regex_fmode.reserve(256);
+		m_regex_enabled.reserve(256);
 	}
 };
 

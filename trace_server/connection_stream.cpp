@@ -68,7 +68,7 @@ void Connection::onHandleCommands ()
 }
 
 template <class T, typename T_Ret, typename T_Arg0, typename T_Arg1>
-void Connection::processStream (T * t, T_Ret (T::*read_member_fn)(T_Arg0, T_Arg1))
+int Connection::processStream (T * t, T_Ret (T::*read_member_fn)(T_Arg0, T_Arg1))
 {
 	enum { local_buff_sz = 128 };
 	char local_buff[local_buff_sz];
@@ -138,31 +138,40 @@ void Connection::processStream (T * t, T_Ret (T::*read_member_fn)(T_Arg0, T_Arg1
 
 		if (m_decoded_cmds.size() > 0)
 			emit handleCommands();
+	
+		if (m_buffer.full())
+			return e_data_pipe_full;
+		return e_data_ok;
 	}
 	catch (std::out_of_range const & e)
 	{
 		QMessageBox::critical(0, tr("My Application"),
 								tr("OOR exception during decoding: %1").arg(e.what()),
 								QMessageBox::Ok, QMessageBox::Ok);	
+		return e_data_decode_oor;
 	}
 	catch (std::length_error const & e)
 	{
 		QMessageBox::critical(0, tr("My Application"),
 								tr("LE exception during decoding: %1").arg(e.what()),
 								QMessageBox::Ok, QMessageBox::Ok);
+		return e_data_decode_lnerr;
 	}
 	catch (std::exception const & e)
 	{
 		QMessageBox::critical(0, tr("My Application"),
 								tr("generic exception during decoding: %1").arg(e.what()),
 								QMessageBox::Ok, QMessageBox::Ok);
+		return e_data_decode_captain_failure;
 	}
 	catch (...)
 	{
 		QMessageBox::critical(0, tr("My Application"),
 								tr("... exception during decoding"),
 								QMessageBox::Ok, QMessageBox::Ok);
+		return e_data_decode_general_failure;
 	}
+	return e_data_decode_error;
 }
 
 void Connection::processReadyRead ()
@@ -194,14 +203,33 @@ void Connection::processDataStream (QDataStream & stream)
 	m_from_file = true;
 
 	connect(this, SIGNAL(handleCommands()), this, SLOT(onHandleCommands()));
-	processStream(&stream, &QDataStream::readRawData);
 
-	// update column sizes
-	columns_sizes_t const & sizes = *sessionState().m_columns_sizes;
-	bool const old = m_table_view_widget->blockSignals(true);
-	for (size_t c = 0, ce = sizes.size(); c < ce; ++c)
-		m_table_view_widget->horizontalHeader()->resizeSection(c, sizes.at(c));
-	m_table_view_widget->blockSignals(old);
+	for (;;)
+	{
+		int const res = processStream(&stream, &QDataStream::readRawData);
+		switch (res)
+		{
+			case e_data_ok:
+			{
+				// update column sizes
+				columns_sizes_t const & sizes = *sessionState().m_columns_sizes;
+				bool const old = m_table_view_widget->blockSignals(true);
+				for (size_t c = 0, ce = sizes.size(); c < ce; ++c)
+					m_table_view_widget->horizontalHeader()->resizeSection(c, sizes.at(c));
+				m_table_view_widget->blockSignals(old);
+				return;
+			}
+			case e_data_pipe_full:
+				// more data in the pipeline
+				break;
+			case e_data_decode_oor:
+			case e_data_decode_lnerr:
+			case e_data_decode_captain_failure:
+			case e_data_decode_general_failure:
+			case e_data_decode_error:
+				qDebug("!!! exception duging decoding!");
+		}
+	}
 }
 
 bool Connection::tryHandleCommand (DecodedCommand const & cmd)
