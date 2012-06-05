@@ -16,11 +16,10 @@ class MainWindow;
 
 namespace profiler {
 
-struct Connection : QObject, boost::enable_shared_from_this<Connection>
+struct Connection : QObject, boost::enable_shared_from_this<profiler::Connection>
 {
 	Q_OBJECT
 public:
-
 	ProfileInfo m_profileInfo;
 	boost::asio::io_service & m_io;
 	boost::asio::ip::tcp::socket m_socket;
@@ -30,7 +29,7 @@ public:
 	size_t m_last_flush_end_idx;
 	MainWindow & m_main_window;
 
-	explicit Connection (boost::asio::io_service & io_service, profiler_rvp_t & rvp, MainWindow & mw);
+	explicit Connection (QObject * parent, boost::asio::io_service & io_service, profiler_rvp_t & rvp, MainWindow & mw);
 
 	~Connection ()
 	{

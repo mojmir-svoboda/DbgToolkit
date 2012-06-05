@@ -8,7 +8,7 @@ namespace profiler
 {
 	class Connection;
 	class ProfilerWindow;
-	typedef RendezVousPoint<threadinfos_t, Connection, ProfilerWindow> profiler_rvp_t;
+	typedef RendezVousPoint<threadinfos_t, profiler::Connection, ProfilerWindow> profiler_rvp_t;
 	RendezVouses<profiler_rvp_t, Connection, ProfilerWindow> & getRendezVouses ();
 }
 

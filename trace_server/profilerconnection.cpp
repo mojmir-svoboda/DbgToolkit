@@ -19,7 +19,8 @@ namespace profiler {
 	void Server::start_accept ()
 	{
 		profiler_rvp_t * const rvp = getRendezVouses().create();
-		connection_ptr_t new_session(new Connection(m_io_service, *rvp, m_main_window));
+		connection_ptr_t new_session(new Connection(NULL, m_io_service, *rvp, m_main_window));
+		rvp->m_Source = new_session.get(); // @TODO: ehm
 
 		m_acceptor.async_accept(new_session->socket(),
 				boost::bind(&Server::handle_accept, this, new_session, boost::asio::placeholders::error));
@@ -37,8 +38,9 @@ namespace profiler {
 
 Q_DECLARE_METATYPE(profiler::profiler_rvp_t *)
 
-Connection::Connection (boost::asio::io_service & io_service, profiler_rvp_t & rvp, MainWindow & mw)
-	: m_io(io_service), m_profileInfo(), m_socket(io_service) , m_current_cmd() , m_decoder()
+Connection::Connection (QObject * parent, boost::asio::io_service & io_service, profiler_rvp_t & rvp, MainWindow & mw)
+	: QObject(parent)
+	, m_io(io_service), m_profileInfo(), m_socket(io_service) , m_current_cmd() , m_decoder()
 	, m_rvp(rvp)
 	, m_last_flush_end_idx(0)
 	, m_main_window(mw)
@@ -177,6 +179,7 @@ bool Connection::handleProfileCommand (DecodedCommand const & cmd)
 			m_rvp.produce(&m_profileInfo.m_completed_frame_infos[i]);
 		}
 		m_last_flush_end_idx = to;
+		emit incomingProfilerData(&m_rvp);
 		return true;
 	}
 

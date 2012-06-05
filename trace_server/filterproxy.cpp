@@ -188,7 +188,6 @@ bool FilterProxyModel::filterAcceptsRow (int sourceRow, QModelIndex const & /*so
 						return true;
 					else
 						return false;
-						//excluded = 1;
 				}
 			}
 		}

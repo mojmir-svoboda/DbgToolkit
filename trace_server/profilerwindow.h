@@ -14,6 +14,9 @@ namespace profiler {
 	public:
 		ProfilerWindow (QObject * parent = 0, profiler::profiler_rvp_t * rvp = 0);
 		void populateScene ();
+	
+	public slots:
+		void incomingProfilerData (profiler::profiler_rvp_t * rvp);
 
 	private:
 		void setupMatrix ();
