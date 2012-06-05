@@ -239,6 +239,8 @@ void MainWindow::onSettingsAppSelected (int idx)
 	connect(ui_settings->listViewColumnSizes, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtSettingColumnSizes(QModelIndex)));
 	connect(ui_settings->listViewColumnAlign, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtSettingColumnAlign(QModelIndex)));
 	connect(ui_settings->listViewColumnElide, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtSettingColumnElide(QModelIndex)));
+
+	connect(ui_settings->macUserButton, SIGNAL(clicked()), this, SLOT(onClickedAtSettingPooftahButton()));
 }
 
 void MainWindow::onSetup ()
@@ -325,6 +327,51 @@ void MainWindow::onSetup ()
 	ui_settings->listViewColumnSizes->reset();
 	ui_settings->listViewColumnAlign->reset();
 	ui_settings->listViewColumnElide->reset();
+}
+
+void MainWindow::onClickedAtSettingPooftahButton ()
+{
+	for (size_t j = 0, je = ui_settings->listViewColumnAlign->model()->rowCount(); j < je; ++j)
+	{
+		QModelIndex const tag_idx = ui_settings->listViewColumnSetup->model()->index(j, 0, QModelIndex());
+		QString const tag = qVariantValue<QString>(ui_settings->listViewColumnSetup->model()->data(tag_idx));
+
+		E_Align const default_aligns[tlv::tag_max_value] = {
+			  e_AlignLeft		// invalid
+			, e_AlignLeft		// app
+			, e_AlignLeft		// pid
+			, e_AlignRight		// time
+			, e_AlignRight		// tid
+			, e_AlignRight		// file
+			, e_AlignRight		// line
+			, e_AlignRight		// func
+			, e_AlignLeft		// msg
+			, e_AlignRight		// lvl
+			, e_AlignRight		// ctx
+			, e_AlignLeft		// bool
+		};
+		E_Elide const default_elides[tlv::tag_max_value] = {
+			  e_ElideNone		// invalid
+			, e_ElideNone		// app
+			, e_ElideNone		// pid
+			, e_ElideLeft		// time
+			, e_ElideNone		// tid
+			, e_ElideLeft		// file
+			, e_ElideNone		// line
+			, e_ElideLeft		// func
+			, e_ElideRight		// msg
+			, e_ElideLeft		// lvl
+			, e_ElideLeft		// ctx
+			, e_ElideNone		// bool
+		};
+
+		QModelIndex const row_idx = ui_settings->listViewColumnAlign->model()->index(j, 0, QModelIndex());
+		size_t const tag_val = tlv::tag_for_name(tag.toAscii());
+		ui_settings->listViewColumnAlign->model()->setData(row_idx, QString(alignToString(default_aligns[tag_val])));
+
+		QModelIndex const erow_idx = ui_settings->listViewColumnElide->model()->index(j, 0, QModelIndex());
+		ui_settings->listViewColumnElide->model()->setData(erow_idx, QString(elideToString(default_elides[tag_val])));
+	}
 }
 
 #if 0

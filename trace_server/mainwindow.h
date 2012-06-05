@@ -170,9 +170,9 @@ private slots:
 	void onReuseTabChanged (int state);
 	void onFilterFile (int state);
 	void onSettingsAppSelected (int idx);
+	void onClickedAtSettingPooftahButton ();
 	void onClickedAtSettingColumnSetup (QModelIndex idx);
 	void onClickedAtSettingColumnSizes (QModelIndex idx);
-	//void onEditingFinishedOfColumnSizes (QModelIndex idx);
 	void onClickedAtSettingColumnAlign (QModelIndex idx);
 	void onClickedAtSettingColumnElide (QModelIndex idx);
 	void syncSettingsViews (QListView const * const invoker, QModelIndex const idx);

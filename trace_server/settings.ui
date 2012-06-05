@@ -24,7 +24,7 @@
        <string>Columns</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_3">
-       <item row="1" column="0">
+       <item row="2" column="0">
         <layout class="QGridLayout" name="gridColumns">
          <item row="1" column="3">
           <widget class="QListView" name="listViewColumnSetup">
@@ -131,6 +131,16 @@
        </item>
        <item row="0" column="0">
         <widget class="QComboBox" name="comboBoxApp"/>
+       </item>
+       <item row="1" column="0">
+        <widget class="QPushButton" name="macUserButton">
+         <property name="toolTip">
+          <string>pooftah!</string>
+         </property>
+         <property name="text">
+          <string>I'm a mac user and I'm too sexy to participate in a click fest. Please use best defaults for me.</string>
+         </property>
+        </widget>
        </item>
       </layout>
      </widget>
