@@ -16,12 +16,12 @@ char const html_help[] = "\
 			<td> this screen. </td>\
 		</tr>\
 		<tr>\
-			<td> Ctrl + L </td>\
-			<td> Load file </td>\
+			<td> Ctrl + O </td>\
+			<td> Open trace file </td>\
 		</tr>\
 		<tr>\
 			<td> Ctrl + S </td>\
-			<td> Save file </td>\
+			<td> Save trace file </td>\
 		</tr>\
 		<tr>\
 			<td> Ctrl + Shift + S </td>\
@@ -70,6 +70,10 @@ char const html_help[] = "\
 		<tr>\
 			<td> c </td>\
 			<td> clear current view (same as clicking on last row and pressing X) </td>\
+		</tr>\
+		<tr>\
+			<td> ctrl + L </td>\
+			<td> clear current view </td>\
 		</tr>\
 		<tr>\
 			<td> space </td>\

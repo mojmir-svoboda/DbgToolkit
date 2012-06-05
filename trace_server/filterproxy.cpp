@@ -32,7 +32,7 @@ QVariant FilterProxyModel::data (QModelIndex const & index, int role) const
 
 Qt::ItemFlags FilterProxyModel::flags (QModelIndex const & index) const
 {
-	return sourceModel()->flags(mapToSource(index)) | Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+	return sourceModel()->flags(index) | Qt::ItemIsEnabled | Qt::ItemIsSelectable;
 }
 
 QModelIndex FilterProxyModel::index (int row, int column, QModelIndex const & parent) const
@@ -59,9 +59,8 @@ int FilterProxyModel::columnCount (QModelIndex const & parent) const
 QModelIndex FilterProxyModel::mapToSource (QModelIndex const & proxyIndex) const
 {
 	if (proxyIndex.isValid())
-	{
-		return QAbstractItemModel::createIndex(m_map_from_tgt[proxyIndex.row()], proxyIndex.column(), 0);
-	}
+		if (proxyIndex.row() < m_map_from_tgt.size())
+			return QAbstractItemModel::createIndex(m_map_from_tgt[proxyIndex.row()], proxyIndex.column(), 0);
 	return QModelIndex();
 }
 
@@ -188,7 +187,8 @@ bool FilterProxyModel::filterAcceptsRow (int sourceRow, QModelIndex const & /*so
 					if (fr.m_is_inclusive)
 						return true;
 					else
-						excluded = 1;
+						return false;
+						//excluded = 1;
 				}
 			}
 		}

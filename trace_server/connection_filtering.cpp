@@ -290,9 +290,6 @@ void Connection::recompileRegexps ()
 		if (regex.isValid())
 		{
 			fr.m_regex = regex;
-			fr.m_is_inclusive = true;
-			//sessionState().appendToRegexFilters(FilteredRegex(regex, true)); //@TODO: is inclusive?
-
 			bool const checked = (child->checkState() == Qt::Checked);
 			if (child && checked)
 			{
@@ -303,7 +300,7 @@ void Connection::recompileRegexps ()
 			else if (child && !checked)
 			{
 				child->setData(QBrush(Qt::yellow), Qt::BackgroundRole);
-				child->setToolTip(tr("not checked"));
+				child->setToolTip(tr("regex not enabled"));
 			}
 		}
 		else

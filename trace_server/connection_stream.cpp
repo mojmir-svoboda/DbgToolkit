@@ -48,17 +48,28 @@ inline size_t read_min (boost::circular_buffer<char> & ring, char * dst, size_t 
 	return min;
 }
 
-void Connection::onHandleCommands ()
+void Connection::onHandleCommandsStart ()
 {
 	ModelView * model = static_cast<ModelView *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
 	size_t const rows = m_decoded_cmds.size();
 	model->transactionStart(rows);
+}
+
+void Connection::onHandleCommands ()
+{
+	ModelView * model = static_cast<ModelView *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
+	size_t const rows = m_decoded_cmds.size();
 	for (size_t i = 0; i < rows; ++i)
 	{
 		DecodedCommand & cmd = m_decoded_cmds.front();
 		tryHandleCommand(cmd);
 		m_decoded_cmds.pop_front();
 	}
+}
+
+void Connection::onHandleCommandsCommit ()
+{
+	ModelView * model = static_cast<ModelView *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
 
 	setupColumnSizes();
 	model->transactionCommit();
@@ -67,6 +78,7 @@ void Connection::onHandleCommands ()
 		m_table_view_widget->scrollToBottom();
 }
 
+
 template <class T, typename T_Ret, typename T_Arg0, typename T_Arg1>
 int Connection::processStream (T * t, T_Ret (T::*read_member_fn)(T_Arg0, T_Arg1))
 {
@@ -74,73 +86,80 @@ int Connection::processStream (T * t, T_Ret (T::*read_member_fn)(T_Arg0, T_Arg1)
 	char local_buff[local_buff_sz];
 	try {
 
-		// read data into ring buffer
-		while (!m_buffer.full())
+		emit onHandleCommandsStart();
+		bool data_in_stream = true;
+		while (data_in_stream)
 		{
-			size_t const free_space = m_buffer.reserve();
-			size_t const to_read = free_space < local_buff_sz ? free_space : local_buff_sz;
-
-			qint64 const count = (t->*read_member_fn)(local_buff, to_read);
-			if (count <= 0)
-				break;	// no more data in stream
-
-			for (size_t i = 0; i < count; ++i)
-				m_buffer.push_back(local_buff[i]);
-		}
-
-		// try process data in ring buffer
-		while (!m_decoded_cmds.full())
-		{
-			if (!m_current_cmd.written_hdr)
+			// read data into ring buffer
+			while (!m_buffer.full())
 			{
-				size_t const count_hdr = read_min(m_buffer, &m_current_cmd.orig_message[0], tlv::Header::e_Size);
-				if (count_hdr == tlv::Header::e_Size)
+				size_t const free_space = m_buffer.reserve();
+				size_t const to_read = free_space < local_buff_sz ? free_space : local_buff_sz;
+
+				qint64 const count = (t->*read_member_fn)(local_buff, to_read);
+				if (count <= 0)
 				{
-					m_decoder.decode_header(&m_current_cmd.orig_message[0], tlv::Header::e_Size, m_current_cmd);
-					if (m_current_cmd.hdr.cmd == 0 || m_current_cmd.hdr.len == 0)
+					data_in_stream = false;
+					break;	// no more data in stream
+				}
+
+				for (size_t i = 0; i < count; ++i)
+					m_buffer.push_back(local_buff[i]);
+			}
+
+			// try process data in ring buffer
+			while (!m_decoded_cmds.full())
+			{
+				if (!m_current_cmd.written_hdr)
+				{
+					size_t const count_hdr = read_min(m_buffer, &m_current_cmd.orig_message[0], tlv::Header::e_Size);
+					if (count_hdr == tlv::Header::e_Size)
+					{
+						m_decoder.decode_header(&m_current_cmd.orig_message[0], tlv::Header::e_Size, m_current_cmd);
+						if (m_current_cmd.hdr.cmd == 0 || m_current_cmd.hdr.len == 0)
+						{
+							Q_ASSERT(false);
+							//@TODO: parsing error, discard everything and re-request stop sequence
+							break;
+						}
+						m_current_cmd.written_hdr = true;
+					}
+					else
+						break; // not enough data
+				}
+
+				if (m_current_cmd.written_hdr && !m_current_cmd.written_payload)
+				{
+					size_t const count_payload = read_min(m_buffer, &m_current_cmd.orig_message[0] + tlv::Header::e_Size, m_current_cmd.hdr.len);
+					if (count_payload == m_current_cmd.hdr.len)
+						m_current_cmd.written_payload = true;
+					else
+						break; // not enough data
+				}
+
+				if (m_current_cmd.written_hdr && m_current_cmd.written_payload)
+				{
+					if (m_decoder.decode_payload(&m_current_cmd.orig_message[0] + tlv::Header::e_Size, m_current_cmd.hdr.len, m_current_cmd))
+					{
+						//qDebug("CONN: hdr_sz=%u payload_sz=%u buff_sz=%u ",  tlv::Header::e_Size, m_current_cmd.hdr.len, m_buffer.size());
+						m_decoded_cmds.push_back(m_current_cmd);
+					}
+					else
 					{
 						Q_ASSERT(false);
 						//@TODO: parsing error, discard everything and re-request stop sequence
 						break;
 					}
-					m_current_cmd.written_hdr = true;
+
+					m_current_cmd.Reset(); // reset current command for another decoding pass
 				}
-				else
-					break; // not enough data
 			}
 
-			if (m_current_cmd.written_hdr && !m_current_cmd.written_payload)
-			{
-				size_t const count_payload = read_min(m_buffer, &m_current_cmd.orig_message[0] + tlv::Header::e_Size, m_current_cmd.hdr.len);
-				if (count_payload == m_current_cmd.hdr.len)
-					m_current_cmd.written_payload = true;
-				else
-					break; // not enough data
-			}
-
-			if (m_current_cmd.written_hdr && m_current_cmd.written_payload)
-			{
-				if (m_decoder.decode_payload(&m_current_cmd.orig_message[0] + tlv::Header::e_Size, m_current_cmd.hdr.len, m_current_cmd))
-				{
-					//qDebug("CONN: hdr_sz=%u payload_sz=%u buff_sz=%u ",  tlv::Header::e_Size, m_current_cmd.hdr.len, m_buffer.size());
-					m_decoded_cmds.push_back(m_current_cmd);
-				}
-				else
-				{
-					Q_ASSERT(false);
-					//@TODO: parsing error, discard everything and re-request stop sequence
-					break;
-				}
-
-				m_current_cmd.Reset(); // reset current command for another decoding pass
-			}
+			if (m_decoded_cmds.size() > 0)
+				emit handleCommands();
 		}
-
-		if (m_decoded_cmds.size() > 0)
-			emit handleCommands();
-	
-		if (m_buffer.full())
-			return e_data_pipe_full;
+		
+		emit onHandleCommandsCommit();
 		return e_data_ok;
 	}
 	catch (std::out_of_range const & e)
@@ -204,31 +223,25 @@ void Connection::processDataStream (QDataStream & stream)
 
 	connect(this, SIGNAL(handleCommands()), this, SLOT(onHandleCommands()));
 
-	for (;;)
+	int const res = processStream(&stream, &QDataStream::readRawData);
+	switch (res)
 	{
-		int const res = processStream(&stream, &QDataStream::readRawData);
-		switch (res)
+		case e_data_ok:
 		{
-			case e_data_ok:
-			{
-				// update column sizes
-				columns_sizes_t const & sizes = *sessionState().m_columns_sizes;
-				bool const old = m_table_view_widget->blockSignals(true);
-				for (size_t c = 0, ce = sizes.size(); c < ce; ++c)
-					m_table_view_widget->horizontalHeader()->resizeSection(c, sizes.at(c));
-				m_table_view_widget->blockSignals(old);
-				return;
-			}
-			case e_data_pipe_full:
-				// more data in the pipeline
-				break;
-			case e_data_decode_oor:
-			case e_data_decode_lnerr:
-			case e_data_decode_captain_failure:
-			case e_data_decode_general_failure:
-			case e_data_decode_error:
-				qDebug("!!! exception duging decoding!");
+			// update column sizes
+			columns_sizes_t const & sizes = *sessionState().m_columns_sizes;
+			bool const old = m_table_view_widget->blockSignals(true);
+			for (size_t c = 0, ce = sizes.size(); c < ce; ++c)
+				m_table_view_widget->horizontalHeader()->resizeSection(c, sizes.at(c));
+			m_table_view_widget->blockSignals(old);
+			return;
 		}
+		case e_data_decode_oor:
+		case e_data_decode_lnerr:
+		case e_data_decode_captain_failure:
+		case e_data_decode_general_failure:
+		case e_data_decode_error:
+			qDebug("!!! exception duging decoding!");
 	}
 }
 

@@ -820,7 +820,7 @@ void MainWindow::setupMenuBar ()
 {
 	// File
 	QMenu * fileMenu = menuBar()->addMenu(tr("&File"));
-	fileMenu->addAction(tr("File &Load..."), this, SLOT(onFileLoad()), QKeySequence(Qt::ControlModifier + Qt::Key_L));
+	fileMenu->addAction(tr("File &Load..."), this, SLOT(onFileLoad()), QKeySequence(Qt::ControlModifier + Qt::Key_O));
 	fileMenu->addAction(tr("File &Save..."), this, SLOT(onFileSave()), QKeySequence(Qt::ControlModifier + Qt::Key_S));
 	fileMenu->addAction(tr("File &Save As CSV format"), this, SLOT(onFileExportToCSV()), QKeySequence(Qt::ControlModifier + Qt::ShiftModifier + Qt::Key_S));
 	fileMenu->addSeparator();
@@ -848,6 +848,7 @@ void MainWindow::setupMenuBar ()
 	// Clear
 	QMenu * clearMenu = menuBar()->addMenu(tr("&Clear"));
 	clearMenu->addAction(tr("Clear current table view"), m_server, SLOT(onClearCurrentView()), QKeySequence(Qt::Key_C));
+	new QShortcut(QKeySequence(Qt::ControlModifier + Qt::Key_L), this, SLOT(onClearCurrentView()));
 	clearMenu->addAction(tr("Clear current file filter"), m_server, SLOT(onClearCurrentFileFilter()));
 	clearMenu->addAction(tr("Clear current context filter"), m_server, SLOT(onClearCurrentCtxFilter()));
 	clearMenu->addAction(tr("Clear current thread id filter"), m_server, SLOT(onClearCurrentCtxFilter()));
@@ -856,7 +857,7 @@ void MainWindow::setupMenuBar ()
 
 	// Tools
 	QMenu * tools = menuBar()->addMenu(tr("&Settings"));
-	tools->addAction(tr("&Options"), this, SLOT(onSetup()), QKeySequence(Qt::AltModifier + Qt::Key_O));
+	tools->addAction(tr("&Options"), this, SLOT(onSetup()), QKeySequence(Qt::AltModifier + Qt::ShiftModifier + Qt::Key_O));
 	//tools->addAction(tr("Save Current Filter As..."), this, SLOT(onSaveCurrentFileFilter()));
 	tools->addSeparator();
 	tools->addAction(tr("Save options now (this will NOT save presets)"), this, SLOT(storeState()), QKeySequence(Qt::AltModifier + Qt::ControlModifier + Qt::ShiftModifier + Qt::Key_O));

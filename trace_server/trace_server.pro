@@ -9,7 +9,7 @@ TARGET = trace_server
 TEMPLATE = app
 DEFINES += TRACE_ENABLED
 INCLUDEPATH += ..
-INCUDEPATH += c:/devel/boost_1_49_0
+INCLUDEPATH += c:/devel/boost_1_49_0
 
 win32-msvc* {
 	DEFINES += QT_NO_OPENGL

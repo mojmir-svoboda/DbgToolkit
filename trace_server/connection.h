@@ -108,6 +108,8 @@ public slots:
 	void setFilterFile (int state);
 	void onBufferingStateChanged (int state);
 	void onHandleCommands ();
+	void onHandleCommandsStart ();
+	void onHandleCommandsCommit ();
 	void onCloseTab ();
 	void onInvalidateFilter ();
 	void onHidePrevFromRow ();
@@ -199,10 +201,10 @@ private:
 	QModelIndex m_last_clicked;
 
 	// data receiving stuff
-	enum { e_ringbuff_size = 16 * 1024 };
+	enum { e_ringbuff_size = 128 * 1024 };
 	boost::circular_buffer<char> m_buffer;
 	DecodedCommand m_current_cmd;
-	enum { e_ringcmd_size = 128 };
+	enum { e_ringcmd_size = 16384 };
 	boost::circular_buffer<DecodedCommand> m_decoded_cmds;
 	tlv::TVDecoder m_decoder;
 	QFile * m_storage;
