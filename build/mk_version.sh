@@ -1,6 +1,7 @@
 #!/bin/bash
 
 VERSION=`git describe`
+echo "git version: ${VERSION}"
 
 VER_SRC=../version.cpp
 if [[ -e "$VER_SRC" ]]; then
