@@ -2,6 +2,7 @@
 #include <vector>
 #include <string>
 #include <cstdio>
+#include <QColor>
 
 namespace profiler {
 
@@ -21,8 +22,9 @@ namespace profiler {
 		std::string m_msg;
 		std::string m_tag;
 		BlockInfo * m_parent;
+		QColor m_color;
 
-		BlockInfo () : m_frame(0), m_time_bgn(0), m_time_end(0), m_delta_t(0), m_tid(0), m_layer(0), m_parent(0) { }
+		BlockInfo () : m_frame(0), m_time_bgn(0), m_time_end(0), m_delta_t(0), m_tid(0), m_layer(0), m_parent(0), m_color(Qt::gray) { }
 
 		void complete ()
 		{

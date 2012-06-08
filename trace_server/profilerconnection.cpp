@@ -20,7 +20,7 @@ namespace profiler {
 	{
 		profiler_rvp_t * const rvp = getRendezVouses().create();
 		connection_ptr_t new_session(new Connection(NULL, m_io_service, *rvp, m_main_window));
-		rvp->m_Source = new_session.get(); // @TODO: ehm
+		rvp->m_Source = new_session;
 
 		m_acceptor.async_accept(new_session->socket(),
 				boost::bind(&Server::handle_accept, this, new_session, boost::asio::placeholders::error));
@@ -175,7 +175,7 @@ bool Connection::handleProfileCommand (DecodedCommand const & cmd)
 
 		for (size_t i = from; i < to; ++i)
 		{
-			qDebug("flushing %i", i);
+			qDebug("producing item=0x%016x %i, sz=%u", &m_profileInfo.m_completed_frame_infos[i], i, m_profileInfo.m_completed_frame_infos[i].size());
 			m_rvp.produce(&m_profileInfo.m_completed_frame_infos[i]);
 		}
 		m_last_flush_end_idx = to;
