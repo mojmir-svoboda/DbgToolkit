@@ -1,6 +1,6 @@
 #include "trace.h"
 #include <stdarg.h>
-#include "platforms/time_query.h"
+#include <sysfn/time_query.h>
 
 #if defined TRACE_ENABLED
 

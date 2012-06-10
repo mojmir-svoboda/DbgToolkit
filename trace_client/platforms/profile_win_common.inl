@@ -6,11 +6,10 @@
 #	include <windows.h>
 #endif
 #include <cstdio>
-#include "../../tlv_parser/tlv_parser.h"
-#include "atomic_win.h"
-#include "select_atomic.h"
-#include "time_query.h"
-#include "os.h"
+#include <tlv_parser/tlv_parser.h>
+#include <sysfn/select_atomic.h>
+#include <sysfn/time_query.h>
+#include <sysfn/os.h>
 #include "msg.h"
 
 namespace profile {

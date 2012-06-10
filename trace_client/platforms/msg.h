@@ -1,6 +1,6 @@
 #pragma once
-#include "macros.h"
-#include "select_atomic.h"
+#include <sysfn/macros.h>
+#include <sysfn/select_atomic.h>
 
 namespace sys {
 

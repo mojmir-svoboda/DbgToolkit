@@ -17,8 +17,8 @@
 #	pragma comment (lib, "Ws2.lib")
 #	pragma comment (lib, "Mswsock.lib")
 #endif
-#include "../../tlv_parser/tlv_parser.h"
-#include "../../tlv_parser/tlv_decoder.h"
+#include <tlv_parser/tlv_parser.h>
+#include <tlv_parser/tlv_decoder.h>
 #include "trace_win_common.inl"
 #include "encode_log.inl"
 #include "encode_scope.inl"

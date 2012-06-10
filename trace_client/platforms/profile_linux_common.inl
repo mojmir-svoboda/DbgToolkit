@@ -14,7 +14,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h>
-#include "time_query.h"
+#include <sysfn/time_query.h>
 
 //@TODO: align
 //@TODO: thread suspend/resume

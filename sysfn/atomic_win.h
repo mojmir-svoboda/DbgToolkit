@@ -19,6 +19,12 @@ namespace sys {
 		return *val;
 	}
 
+	inline PVOID atomic_wrtptr (PVOID volatile const * mem, PVOID val)
+	{
+		return InterlockedExchangePointer(mem, val);
+	}
+
+
 	inline atomic32_t atomic_cas32 (atomic32_t volatile * mem, atomic32_t with, atomic32_t cmp)
 	{
 		return InterlockedCompareExchange(mem, with, cmp);
