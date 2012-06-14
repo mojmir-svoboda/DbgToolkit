@@ -43,15 +43,21 @@ void MainWindow::onClickedAtSettingColumnSetup (QModelIndex const idx)
 	}
 	else
 	{
-		int app_idx = 0;
+		// this does not work at all
+		/*int app_idx = 0;
 		Connection * conn = m_server->findCurrentConnection();
 		if (conn)
 			app_idx = conn->sessionState().m_app_idx;
 
 		int size_val = 64;
-		if (size_idx.row() < m_columns_sizes[app_idx].size())
-			size_val = m_columns_sizes[app_idx].at(size_idx.row());
-		ui_settings->listViewColumnSizes->model()->setData(size_idx, tr("%1").arg(size_val));
+		if (app_idx < m_columns_sizes.size())
+		{
+			if (size_idx.row() < m_columns_sizes[app_idx].size())
+			{
+				size_val = m_columns_sizes[app_idx].at(size_idx.row());
+				ui_settings->listViewColumnSizes->model()->setData(size_idx, tr("%1").arg(size_val));
+			}
+		}*/
 	}
 }
 void MainWindow::onClickedAtSettingColumnSizes (QModelIndex const idx)
@@ -366,12 +372,31 @@ void MainWindow::onClickedAtSettingPooftahButton ()
 			, e_ElideNone		// bool
 		};
 
+		int const default_sizes[tlv::tag_max_value] = {
+			  0		// invalid
+			, 0		// app
+			, 0		// pid
+			, 64	// time
+			, 16	// tid
+			, 192	// file
+			, 32	// line
+			, 128	// func
+			, 512	// msg
+			, 16	// lvl
+			, 16	// ctx
+			, 0		// bool
+		};
+
+
 		QModelIndex const row_idx = ui_settings->listViewColumnAlign->model()->index(j, 0, QModelIndex());
 		size_t const tag_val = tlv::tag_for_name(tag.toAscii());
 		ui_settings->listViewColumnAlign->model()->setData(row_idx, QString(alignToString(default_aligns[tag_val])));
 
 		QModelIndex const erow_idx = ui_settings->listViewColumnElide->model()->index(j, 0, QModelIndex());
 		ui_settings->listViewColumnElide->model()->setData(erow_idx, QString(elideToString(default_elides[tag_val])));
+
+		QModelIndex const srow_idx = ui_settings->listViewColumnSizes->model()->index(j, 0, QModelIndex());
+		ui_settings->listViewColumnSizes->model()->setData(srow_idx, tr("%1").arg(default_sizes[tag_val]));
 	}
 }
 
