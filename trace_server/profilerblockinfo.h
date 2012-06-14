@@ -39,6 +39,7 @@ namespace profiler {
 
 	typedef std::vector<blockinfos_t> threadinfos_t;
 	typedef std::vector<threadinfos_t> frameinfos_t;
+	typedef std::vector<threadinfos_t *> ptrframeinfos_t;
 
 	struct ProfileInfo
 	{
@@ -52,7 +53,7 @@ namespace profiler {
 		std::vector<unsigned> m_critical_paths;
 		unsigned m_frame;
 		unsigned m_frame_begin;
-		frameinfos_t m_completed_frame_infos;
+		ptrframeinfos_t m_completed_frame_infos;
 	};
 } // namespace profiler
 

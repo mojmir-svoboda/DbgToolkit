@@ -71,7 +71,6 @@ SOURCES += ../version.cpp \
 	rvps.cpp	\
 	profilerconnection.cpp \
 	profilerbar.cpp	\
-	profilerconnection.cpp	\
 	profilergraphicsview.cpp	\
 	profilerview.cpp	\
 	profilerwindow.cpp \

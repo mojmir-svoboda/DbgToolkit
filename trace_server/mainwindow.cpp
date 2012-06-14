@@ -34,7 +34,7 @@
 
 #if (defined WIN32) && (defined STATIC)
 	Q_IMPORT_PLUGIN(qico);
-	Q_IMPORT_PLUGIN(qsvg);
+//	Q_IMPORT_PLUGIN(qsvg); //@TODO: NEZAPOMENOUT ODKOMENTOVAT!
 #endif
 
 void MainWindow::loadNetworkSettings ()
