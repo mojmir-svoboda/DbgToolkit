@@ -13,12 +13,12 @@ struct RendezVousPoint
 	typedef SourceT T_Source;
 	typedef TargetT T_Target;
 	T_Queue * m_Queue;
-	T_Source * m_Source;
-	T_Target * m_Target;
+	T_Source m_Source;
+	T_Target m_Target;
 
 	RendezVousPoint ()
 		: m_Queue(new T_Queue)
-		, m_Source(0), m_Target(0)
+		, m_Source(), m_Target()
 	{ }
 
 	~RendezVousPoint ()
@@ -32,11 +32,17 @@ struct RendezVousPoint
 		m_Queue->Produce(t);
 	}
 
+	/*bool consume (T const * & t)
+	{
+		t = 0;
+		return m_Queue->Consume(t);
+	}*/
 	bool consume (T * & t)
 	{
 		t = 0;
 		return m_Queue->Consume(t);
 	}
+
 };
 
 template<typename T, class SourceT, class TargetT>

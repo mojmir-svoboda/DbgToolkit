@@ -71,10 +71,10 @@ SOURCES += ../version.cpp \
 	rvps.cpp	\
 	profilerconnection.cpp \
 	profilerbar.cpp	\
-	profilerconnection.cpp	\
 	profilergraphicsview.cpp	\
 	profilerview.cpp	\
-	profilerwindow.cpp
+	profilerwindow.cpp \
+    profilermainwindow.cpp
 
 HEADERS  += ../version.h	\
 	mainwindow.h \
@@ -98,11 +98,13 @@ HEADERS  += ../version.h	\
 	profilergraphicsview.h	\
 	profilerserver.h	\
 	profilerview.h	\
-	profilerwindow.h
+	profilerwindow.h \
+    profilermainwindow.h
 
 FORMS    += mainwindow.ui \
     settings.ui \
-    help.ui
+    help.ui \
+    profilermainwindow.ui
 
 RESOURCES += \
     resources.qrc

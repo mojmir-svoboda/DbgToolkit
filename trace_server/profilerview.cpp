@@ -132,9 +132,9 @@ void View::changeHeight (int n)
 	view()->setScene(0);
 
 	scene->clear();
-	m_mainWindow->populateScene();
-	view()->setScene(scene);
-	m_graphicsView->viewport()->update();
+	//m_mainWindow->populateScene();
+	//view()->setScene(scene);
+	//m_graphicsView->viewport()->update();
 }
 
 void View::setResetButtonEnabled()
@@ -173,6 +173,11 @@ void View::zoomIn()
 void View::zoomOut()
 {
 	m_zoomSlider->setValue(m_zoomSlider->value() - 1);
+}
+
+void View::forceUpdate ()
+{
+	m_graphicsView->viewport()->update();
 }
 
 }
