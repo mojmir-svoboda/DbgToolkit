@@ -20,7 +20,7 @@ namespace profiler {
 	{
 		profiler_rvp_t * const rvp = getRendezVouses().create();
 		connection_ptr_t new_session(new Connection(NULL, m_io_service, *rvp, m_main_window));
-		rvp->m_Source = new_session;
+		rvp->m_Source = new_session.get(); // @TODO: ehm
 
 		m_acceptor.async_accept(new_session->socket(),
 				boost::bind(&Server::handle_accept, this, new_session, boost::asio::placeholders::error));
@@ -75,7 +75,7 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 		if (cmd.tvs[i].m_tag == tlv::tag_app)
 			printf("received setup command from application: %s\n", cmd.tvs[i].m_val.c_str());
 
-	m_profileInfo.m_completed_frame_infos.push_back(new threadinfos_t()); // @TODO: reserve
+	m_profileInfo.m_completed_frame_infos.push_back(threadinfos_t()); // @TODO: reserve
 	return true;
 }
 
@@ -130,7 +130,7 @@ bool Connection::handleProfileCommand (DecodedCommand const & cmd)
 				tid_idx = m_profileInfo.m_tids.size();
 				m_profileInfo.m_tids.push_back(tid);
 
-				m_profileInfo.m_completed_frame_infos[m_profileInfo.m_frame]->push_back(blockinfos_t()); // @TODO: reserve
+				m_profileInfo.m_completed_frame_infos[m_profileInfo.m_frame].push_back(blockinfos_t()); // @TODO: reserve
 
 				m_profileInfo.m_pending_infos.push_back(blockinfos_t());
 			}
@@ -154,11 +154,11 @@ bool Connection::handleProfileCommand (DecodedCommand const & cmd)
 	if (cmd.hdr.cmd == tlv::cmd_profile_frame_bgn)
 	{
 		m_profileInfo.m_frame_begin = time;
-		m_profileInfo.m_completed_frame_infos.push_back(new threadinfos_t()); // @TODO: reserve
+		m_profileInfo.m_completed_frame_infos.push_back(threadinfos_t()); // @TODO: reserve
 
 		for(size_t i = 0, ie = m_profileInfo.m_tids.size(); i < ie; ++i)
 		{
-			m_profileInfo.m_completed_frame_infos.back()->push_back(blockinfos_t()); // @TODO: reserve
+			m_profileInfo.m_completed_frame_infos.back().push_back(blockinfos_t()); // @TODO: reserve
 		}
 
 		++m_profileInfo.m_frame;
@@ -175,15 +175,9 @@ bool Connection::handleProfileCommand (DecodedCommand const & cmd)
 
 		for (size_t i = from; i < to; ++i)
 		{
-			qDebug("producing item=0x%016x %i, sz=%u", m_profileInfo.m_completed_frame_infos[i], i, m_profileInfo.m_completed_frame_infos[i]->size());
-			m_rvp.produce(m_profileInfo.m_completed_frame_infos[i]);
+			qDebug("flushing %i", i);
+			m_rvp.produce(&m_profileInfo.m_completed_frame_infos[i]);
 		}
-
-		//dump
-		for (size_t i = from; i < to; ++i)
-			for (size_t j = 0, je = m_profileInfo.m_completed_frame_infos[i]->size(); j < je; ++j)
-				qDebug("producing item[%i]=0x%016x, tis=%u bis_sz=%u", i, m_profileInfo.m_completed_frame_infos[i], m_profileInfo.m_completed_frame_infos[i]->size(),  m_profileInfo.m_completed_frame_infos[i]->operator[](j).size());
-
 		m_last_flush_end_idx = to;
 		emit incomingProfilerData(&m_rvp);
 		return true;
@@ -215,7 +209,7 @@ bool Connection::handleProfileCommand (DecodedCommand const & cmd)
 		bi->m_msg.append(text);
 		bi->complete();
 
-		(*m_profileInfo.m_completed_frame_infos[bi->m_frame])[tid_idx].push_back(bi);
+		m_profileInfo.m_completed_frame_infos[bi->m_frame][tid_idx].push_back(bi);
 	}
 
 	return true;

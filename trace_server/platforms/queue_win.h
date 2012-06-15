@@ -8,6 +8,9 @@
 //#include <stdint.h>
 
 #if defined WIN32 || defined __MINGW__
+//|| defined WIN64
+//#	define WIN32_LEAN_AND_MEAN
+//#	include <windows.h>
 #else
 
 	inline void atomic_write32 (volatile uint32_t * mem, uint32_t val)
@@ -55,7 +58,7 @@ public:
 	{
 		m_Last->m_Next = new Node(rNew);
 		//m_Last = m_Last->m_Next;
-		_InterlockedExchangePointer(reinterpret_cast<PVOID volatile *>(&m_Last), m_Last->m_Next);
+		InterlockedExchangePointer(reinterpret_cast<PVOID volatile *>(&m_Last), m_Last->m_Next);
 
 		while (m_First != m_Divider)
 		{
@@ -71,7 +74,7 @@ public:
 		{
 			result = m_Divider->m_Next->m_Value;
 			//m_Divider = m_Divider->m_Next;
-			_InterlockedExchangePointer(reinterpret_cast<PVOID volatile *>(&m_Divider), m_Divider->m_Next);
+			InterlockedExchangePointer(reinterpret_cast<PVOID volatile *>(&m_Divider), m_Divider->m_Next);
 			return true;
 		}
 		return false;

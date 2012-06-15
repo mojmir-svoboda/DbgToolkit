@@ -43,21 +43,15 @@ void MainWindow::onClickedAtSettingColumnSetup (QModelIndex const idx)
 	}
 	else
 	{
-		// this does not work at all
-		/*int app_idx = 0;
+		int app_idx = 0;
 		Connection * conn = m_server->findCurrentConnection();
 		if (conn)
 			app_idx = conn->sessionState().m_app_idx;
 
 		int size_val = 64;
-		if (app_idx < m_columns_sizes.size())
-		{
-			if (size_idx.row() < m_columns_sizes[app_idx].size())
-			{
-				size_val = m_columns_sizes[app_idx].at(size_idx.row());
-				ui_settings->listViewColumnSizes->model()->setData(size_idx, tr("%1").arg(size_val));
-			}
-		}*/
+		if (size_idx.row() < m_columns_sizes[app_idx].size())
+			size_val = m_columns_sizes[app_idx].at(size_idx.row());
+		ui_settings->listViewColumnSizes->model()->setData(size_idx, tr("%1").arg(size_val));
 	}
 }
 void MainWindow::onClickedAtSettingColumnSizes (QModelIndex const idx)
@@ -207,14 +201,13 @@ void MainWindow::onSettingsAppSelected (int idx)
 	QStandardItem * csz_root = static_cast<QStandardItemModel *>(ui_settings->listViewColumnSizes->model())->invisibleRootItem();
 	QStandardItem * cal_root = static_cast<QStandardItemModel *>(ui_settings->listViewColumnAlign->model())->invisibleRootItem();
 	QStandardItem * cel_root = static_cast<QStandardItemModel *>(ui_settings->listViewColumnElide->model())->invisibleRootItem();
-	if (idx < m_columns_setup.size())
-		for (int i = 0, ie = m_columns_setup[idx].size(); i < ie; ++i)
-		{
-			cs_root->appendRow(addRow(m_columns_setup.at(idx).at(i), true));
-			csz_root->appendRow(addUncheckableRow(tr("%1").arg(m_columns_sizes.at(idx).at(i))));
-			cal_root->appendRow(addUncheckableRow(tr("%1").arg(m_columns_align.at(idx).at(i))));
-			cel_root->appendRow(addUncheckableRow(tr("%1").arg(m_columns_elide.at(idx).at(i))));
-		}
+	for (int i = 0, ie = m_columns_setup[idx].size(); i < ie; ++i)
+	{
+		cs_root->appendRow(addRow(m_columns_setup.at(idx).at(i), true));
+		csz_root->appendRow(addUncheckableRow(tr("%1").arg(m_columns_sizes.at(idx).at(i))));
+		cal_root->appendRow(addUncheckableRow(tr("%1").arg(m_columns_align.at(idx).at(i))));
+		cel_root->appendRow(addUncheckableRow(tr("%1").arg(m_columns_elide.at(idx).at(i))));
+	}
 
 	size_t const n = tlv::get_tag_count();
 
@@ -372,31 +365,12 @@ void MainWindow::onClickedAtSettingPooftahButton ()
 			, e_ElideNone		// bool
 		};
 
-		int const default_sizes[tlv::tag_max_value] = {
-			  0		// invalid
-			, 0		// app
-			, 0		// pid
-			, 64	// time
-			, 16	// tid
-			, 192	// file
-			, 32	// line
-			, 128	// func
-			, 512	// msg
-			, 16	// lvl
-			, 16	// ctx
-			, 0		// bool
-		};
-
-
 		QModelIndex const row_idx = ui_settings->listViewColumnAlign->model()->index(j, 0, QModelIndex());
 		size_t const tag_val = tlv::tag_for_name(tag.toAscii());
 		ui_settings->listViewColumnAlign->model()->setData(row_idx, QString(alignToString(default_aligns[tag_val])));
 
 		QModelIndex const erow_idx = ui_settings->listViewColumnElide->model()->index(j, 0, QModelIndex());
 		ui_settings->listViewColumnElide->model()->setData(erow_idx, QString(elideToString(default_elides[tag_val])));
-
-		QModelIndex const srow_idx = ui_settings->listViewColumnSizes->model()->index(j, 0, QModelIndex());
-		ui_settings->listViewColumnSizes->model()->setData(srow_idx, tr("%1").arg(default_sizes[tag_val]));
 	}
 }
 

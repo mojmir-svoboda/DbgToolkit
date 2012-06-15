@@ -115,7 +115,6 @@ public:
 	void setLevel (int i);
 	int getLevel () const;
 	bool scopesEnabled () const;
-	bool onTopEnabled () const;
 	bool autoScrollEnabled () const;
 	bool reuseTabEnabled () const;
 	bool filterEnabled () const;
@@ -134,7 +133,6 @@ public:
 
 public slots:
 	void onHotkeyShowOrHide ();
-	void onOnTop (int);
 
 private slots:
 	void loadState ();

@@ -27,7 +27,6 @@ namespace profiler {
 		View (ProfilerWindow * mw, const QString & name, QWidget * parent = 0);
 
 		QGraphicsView * view () const;
-		void forceUpdate ();
 
 	private slots:
 		void resetView ();
@@ -39,7 +38,6 @@ namespace profiler {
 		void zoomIn ();
 		void zoomOut ();
 		void changeHeight (int n);
-
 		
 	private:
 		ProfilerWindow * m_mainWindow;

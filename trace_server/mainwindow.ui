@@ -28,25 +28,6 @@
         <property name="text">
          <string>autoScroll</string>
         </property>
-        <property name="checked">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QCheckBox" name="onTopCheckBox">
-        <property name="font">
-         <font>
-          <family>Verdana</family>
-          <pointsize>7</pointsize>
-         </font>
-        </property>
-        <property name="text">
-         <string>onTop</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
-        </property>
        </widget>
       </item>
       <item>
@@ -89,9 +70,6 @@
         <property name="text">
          <string>reuseTab</string>
         </property>
-        <property name="checked">
-         <bool>true</bool>
-        </property>
        </widget>
       </item>
       <item>
@@ -103,7 +81,7 @@
          </font>
         </property>
         <property name="text">
-         <string>clrFlt</string>
+         <string>clrFilters</string>
         </property>
        </widget>
       </item>
@@ -117,9 +95,6 @@
         </property>
         <property name="text">
          <string>filter</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
         </property>
        </widget>
       </item>
@@ -544,7 +519,7 @@
      <x>0</x>
      <y>0</y>
      <width>937</width>
-     <height>18</height>
+     <height>16</height>
     </rect>
    </property>
   </widget>

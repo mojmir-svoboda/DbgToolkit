@@ -34,7 +34,7 @@
 
 #if (defined WIN32) && (defined STATIC)
 	Q_IMPORT_PLUGIN(qico);
-//	Q_IMPORT_PLUGIN(qsvg); //@TODO: NEZAPOMENOUT ODKOMENTOVAT!
+	Q_IMPORT_PLUGIN(qsvg);
 #endif
 
 void MainWindow::loadNetworkSettings ()
@@ -80,14 +80,6 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay)
 	m_tray_icon->show();
 
 	setAcceptDrops(true);
-
-	QSettings settings("MojoMir", "TraceServer");
-	bool const on_top = settings.value("onTopCheckBox", true).toBool();
-	if (on_top)
-	{
-		onOnTop(on_top);
-	}
-	ui->onTopCheckBox->setChecked(on_top);
 
 	loadNetworkSettings();
 	m_server = new Server(m_trace_addr, m_trace_port, this, quit_delay);
@@ -136,7 +128,6 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay)
 	connect(ui->levelSpinBox, SIGNAL(valueChanged(int)), m_server, SLOT(onLevelValueChanged(int)));
 	connect(ui->filterFileCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onFilterFile(int)));
 	connect(ui->buffCheckBox, SIGNAL(stateChanged(int)), m_server, SLOT(onBufferingStateChanged(int)));
-	//connect(ui->onTopCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onOnTop(int)));
 	connect(ui->reuseTabCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onReuseTabChanged(int)));
 	//connect(ui->clrFiltersCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onClrFiltersStateChanged(int)));
 	connect(ui->presetComboBox, SIGNAL(activated(int)), this, SLOT(onPresetActivate(int)));
@@ -164,7 +155,6 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay)
 	ui->reuseTabCheckBox->setToolTip(tr("reuses compatible tab instead of creating new one"));
 	ui->clrFiltersCheckBox->setToolTip(tr("force clearing of filters when reuseTab is checked"));
 	ui->scopesCheckBox->setToolTip(tr("hides scopes if checked"));
-	ui->onTopCheckBox->setToolTip(tr("keeps window on top if checked. have to restart program, sorry"));
 	ui->filterFileCheckBox->setToolTip(tr("enables filtering via fileFilter tab"));
 	ui->buffCheckBox->setToolTip(tr("turns on/off buffering of messages on client side."));
 	ui->presetComboBox->setToolTip(tr("selects and applies saved preset file filter"));
@@ -284,7 +274,6 @@ QListView * MainWindow::getWidgetLvl () { return ui->listViewLvl; }
 QListView const * MainWindow::getWidgetLvl () const { return ui->listViewLvl; }
 
 bool MainWindow::scopesEnabled () const { return ui->scopesCheckBox->isChecked(); }
-bool MainWindow::onTopEnabled () const { return ui->onTopCheckBox->isChecked(); }
 bool MainWindow::filterEnabled () const { return ui->filterFileCheckBox->isChecked(); }
 bool MainWindow::reuseTabEnabled () const { return ui->reuseTabCheckBox->isChecked(); }
 bool MainWindow::autoScrollEnabled () const { return ui->autoScrollCheckBox->isChecked(); }
@@ -466,20 +455,6 @@ void MainWindow::onFileExportToCSV ()
 	if (filename != "")
 	{
 		m_server->exportStorageToCSV(filename);
-	}
-}
-
-void MainWindow::onOnTop (int const state)
-{
-	if (state == 0)
-	{
-		Qt::WindowFlags const old = windowFlags();
-		Qt::WindowFlags const newflags = Qt::Window | (old & ~(Qt::WindowStaysOnTopHint | Qt::Tool));
-		setWindowFlags(newflags);
-	}
-	else
-	{
-		setWindowFlags(Qt::WindowStaysOnTopHint | Qt::Tool);
 	}
 }
 
@@ -988,7 +963,6 @@ void MainWindow::storeState ()
 	settings.setValue("autoScrollCheckBox", ui->autoScrollCheckBox->isChecked());
 	settings.setValue("reuseTabCheckBox", ui->reuseTabCheckBox->isChecked());
 	settings.setValue("scopesCheckBox", ui->scopesCheckBox->isChecked());
-	settings.setValue("onTopCheckBox", ui->onTopCheckBox->isChecked());
 	settings.setValue("filterFileCheckBox", ui->filterFileCheckBox->isChecked());
 	settings.setValue("buffCheckBox", ui->buffCheckBox->isChecked());
 	settings.setValue("clrFiltersCheckBox", ui->clrFiltersCheckBox->isChecked());
@@ -1051,11 +1025,11 @@ void MainWindow::loadState ()
 	if (settings.contains("splitter"))
 		ui->splitter->restoreState(settings.value("splitter").toByteArray());
 
-	ui->autoScrollCheckBox->setChecked(settings.value("autoScrollCheckBox", true).toBool());
-	ui->reuseTabCheckBox->setChecked(settings.value("reuseTabCheckBox", true).toBool());
+	ui->autoScrollCheckBox->setChecked(settings.value("autoScrollCheckBox", false).toBool());
+	ui->reuseTabCheckBox->setChecked(settings.value("reuseTabCheckBox", false).toBool());
 	ui->scopesCheckBox->setChecked(settings.value("scopesCheckBox", false).toBool());
-	ui->filterFileCheckBox->setChecked(settings.value("filterFileCheckBox", true).toBool());
-	ui->buffCheckBox->setChecked(settings.value("buffCheckBox", true).toBool());
+	ui->filterFileCheckBox->setChecked(settings.value("filterFileCheckBox", false).toBool());
+	ui->buffCheckBox->setChecked(settings.value("buffCheckBox", false).toBool());
 	ui->clrFiltersCheckBox->setChecked(settings.value("clrFiltersCheckBox", false).toBool());
 	ui->filterModeComboBox->setCurrentIndex(settings.value("filterModeComboBox").toInt());
 	ui->levelSpinBox->setValue(settings.value("levelSpinBox").toInt());

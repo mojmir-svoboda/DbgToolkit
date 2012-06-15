@@ -87,5 +87,7 @@ signals:
 	void incomingProfilerData (profiler::profiler_rvp_t * rvp);
 };
 
+typedef boost::shared_ptr<Connection> connection_ptr_t;
+
 } // namespace profiler
 
