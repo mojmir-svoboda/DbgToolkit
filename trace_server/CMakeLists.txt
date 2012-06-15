@@ -53,6 +53,7 @@ SET(trace_server_SOURCES
 	sessionstate.cpp
 	settings.cpp
 	rvps.cpp
+	statswindow.cpp
 	profilerconnection.cpp
 	profilerbar.cpp
 	profilergraphicsview.cpp
@@ -75,6 +76,7 @@ SET(trace_server_HEADERS
 	../filters/file_filter.hpp
 	sessionstate.h
 	settings.h
+	statswindow.h
 	profilerconnection.h
 	profilerbar.h
 	profilerconnection.h

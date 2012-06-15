@@ -92,6 +92,7 @@ HEADERS  += ../version.h	\
     settings.h	\
 	rvps.h	\
 	rendezvous.h	\
+	statswindow.h	\
 	profilerbar.h	\
 	profilerblockinfo.h	\
 	profilerconnection.h	\
