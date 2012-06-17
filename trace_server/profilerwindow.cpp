@@ -65,14 +65,14 @@ void ProfilerWindow::incomingProfilerData (profiler::profiler_rvp_t * rvp)
 	threadinfos_t * node = 0;
 	while (rvp->consume(node))
 	{
-		qDebug("consumed node: 0x%016x", node);
+		//qDebug("consumed node: 0x%016x", node);
 		threadinfos_t const & tis = *node;
 
 		qDebug("consumed node: 0x%016x, tis_sz=%u", node, tis.size());
 		for (size_t t = 0, te = tis.size(); t < te; ++t)
 		{
 			blockinfos_t const & bis = tis[t];
-			qDebug("consumed node: 0x%016x, tis_sz=%u bis_sz=%u", node, tis.size(), bis.size());
+			qDebug("processing bi node: 0x%016x, tis_sz=%u bis_sz=%u", node, tis.size(), bis.size());
 			for (size_t b = 0, be = bis.size(); b < be; ++b)
 			{
 				BlockInfo & block = *bis[b];
@@ -114,7 +114,8 @@ void ProfilerWindow::incomingProfilerData (profiler::profiler_rvp_t * rvp)
 				qreal y = (offs) * (h + space)  + block.m_layer * (h + space);
 				block.m_x = x / g_scaleValue;
 				block.m_y = y;
-				//printf("f=%2u t=%2u b=%2u    (%3.2f, %3.2f) (x=%6.1f y=%6.1f w=%4i h=%4i dt=%3.3f)\n", f, t, b, block.m_x, block.m_y, x, y, w, h, block.m_dt); fflush(stdout);
+				//qDebug("f=%2u t=%2u b=%2u  %s   (%3.2f, %3.2f) (x=%6.1f y=%6.1f w=%4i h=%4i dt=%3.3f)\n", block.m_frame, t, b, block.m_msg.c_str(), block.m_x, block.m_y, x, y, w, h, block.m_dt);
+				//fflush(stdout);
 
 				if (y > max_y)
 					max_y = y;
@@ -131,7 +132,49 @@ void ProfilerWindow::incomingProfilerData (profiler::profiler_rvp_t * rvp)
 				titem->setPos(QPointF(block.m_x, y));
 				m_scene->addItem(titem);
 			}
+
+			offs += m_max_layers[t];
 		}
+
+		/*int const h = g_heightValue;
+		int const space = g_spaceValue;
+		for (size_t t = 0, te = tis.size(); t < te; ++t)
+		{
+			blockinfos_t const & bis = tis[t];
+
+			for (size_t b = 0, be = bis.size(); b < be; ++b)
+			{
+				BlockInfo const & block = *bis[b];
+				if (block.m_parent)
+				{
+					if (block.m_parent->m_x < 100.0f || block.m_parent->m_y < 100.0f)
+					{
+						// incomplete parent!
+					}
+					else
+					{
+						QPen p1;
+						p1.setColor(Qt::blue);
+						p1.setWidth(0);
+						QGraphicsLineItem * ln_bg = new QGraphicsLineItem(block.m_x, block.m_y, block.m_parent->m_x, block.m_parent->m_y + g_heightValue);
+						ln_bg->setPen(p1);
+						m_scene->addItem(ln_bg);
+						QGraphicsLineItem * ln_nd = new QGraphicsLineItem(block.m_x + block.m_dt, block.m_y, block.m_parent->m_x + block.m_parent->m_dt, block.m_parent->m_y + g_heightValue);
+						p1.setColor(Qt::cyan);
+						ln_nd->setPen(p1);
+						m_scene->addItem(ln_nd);
+					}
+				}
+
+				QPen p1;
+				p1.setColor(Qt::gray);
+				QGraphicsLineItem * ln_end = new QGraphicsLineItem(block.m_x + block.m_dt, block.m_y, block.m_x + block.m_dt, block.m_y + g_heightValue);
+				ln_end->setPen(p1);
+				p1.setWidth(4);
+				m_scene->addItem(ln_end);
+			}
+		} */
+
 	}
 	m_view->forceUpdate();
 }

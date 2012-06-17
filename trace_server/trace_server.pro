@@ -62,7 +62,6 @@ SOURCES += ../version.cpp \
 	rvps.cpp	\
 	profilerconnection.cpp \
 	profilerbar.cpp	\
-	profilerconnection.cpp	\
 	profilergraphicsview.cpp	\
 	profilerview.cpp	\
 	profilerwindow.cpp \
@@ -84,6 +83,7 @@ HEADERS  += ../version.h	\
     settings.h	\
 	rvps.h	\
 	rendezvous.h	\
+	statswindow.h	\
 	profilerbar.h	\
 	profilerblockinfo.h	\
 	profilerconnection.h	\
