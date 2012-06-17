@@ -112,10 +112,10 @@ void SessionState::flipFilterMode (E_FilterMode mode)
 	m_filter_mode = mode;
 }
 
-void SessionState::sessionExport (SessionExport & e) const
+void SessionState::sessionDump (SessionExport & e) const
 {
 	e.m_file_filters.reserve(32 * 1024);
-	m_file_filters.export_filter(e.m_file_filters);
+	m_file_filters.dump_filter(e.m_file_filters);
 
 	for (int i = 0, ie = m_colorized_texts.size(); i < ie; ++i)
 	{
@@ -146,72 +146,10 @@ void SessionState::sessionExport (SessionExport & e) const
 		}
 	}
 }
-void SessionState::sessionImport (SessionExport const & e)
-{
-	boost::char_separator<char> sep("\n");
-	typedef boost::tokenizer<boost::char_separator<char> > tokenizer_t;
-	
-	{
-		tokenizer_t tok(e.m_file_filters, sep);
-		for (tokenizer_t::const_iterator it = tok.begin(), ite = tok.end(); it != ite; ++it)
-		{
-			m_file_filters.exclude(*it);
-		}
-	}
-
-	{
-		m_colorized_texts.clear();
-		{
-			tokenizer_t tok(e.m_colortext_regexs, sep);
-			for (tokenizer_t::const_iterator it = tok.begin(), ite = tok.end(); it != ite; ++it)
-				m_colorized_texts.append(ColorizedText(*it, e_Fg)); //@TODO: save role
-		}
-		{
-			tokenizer_t tok(e.m_colortext_colors, sep);
-			int i = 0;
-			for (tokenizer_t::const_iterator it = tok.begin(), ite = tok.end(); it != ite; ++it, ++i)
-				m_colorized_texts[i].m_qcolor.setNamedColor(QString::fromStdString(*it));
-		}
-		{
-			tokenizer_t tok(e.m_colortext_enabled, sep);
-			int i = 0;
-			for (tokenizer_t::const_iterator it = tok.begin(), ite = tok.end(); it != ite; ++it, ++i)
-				m_colorized_texts[i].m_is_enabled = QString::fromStdString(*it).toInt();
-		}
-	}
-
-	{
-		m_filtered_regexps.clear();
-		{
-			tokenizer_t tok(e.m_regex_filters, sep);
-			for (tokenizer_t::const_iterator it = tok.begin(), ite = tok.end(); it != ite; ++it)
-				m_filtered_regexps.append(FilteredRegex(*it, true));
-		}
-		{
-			tokenizer_t tok(e.m_regex_fmode, sep);
-			int i = 0;
-			for (tokenizer_t::const_iterator it = tok.begin(), ite = tok.end(); it != ite; ++it, ++i)
-				m_filtered_regexps[i].m_is_inclusive = QString::fromStdString(*it).toInt();
-		}
-		{
-			tokenizer_t tok(e.m_regex_enabled, sep);
-			int i = 0;
-			for (tokenizer_t::const_iterator it = tok.begin(), ite = tok.end(); it != ite; ++it, ++i)
-				m_filtered_regexps[i].m_is_enabled = QString::fromStdString(*it).toInt();
-		}
-	}
-
-}
-void SessionState::makeInexactCopy (SessionState const & rhs)
-{
-	SessionExport e;
-	rhs.sessionExport(e);
-	sessionImport(e);
-}
 
 void SessionState::clearFilters ()
 {
-	//m_file_filters.clear();
+	m_file_filters.clear();
 	m_tid_filters.clear();
 	m_filtered_regexps.clear();
 	m_colorized_texts.clear();
@@ -220,38 +158,33 @@ void SessionState::clearFilters ()
 
 
 ///////// file filters
-bool SessionState::isFileLineExcluded (fileline_t const & item) const
+/*bool SessionState::isFileLineExcluded (fileline_t const & item) const
 {
 	return isFileLineExcluded(item.first + "/" + item.second);
 }
 bool SessionState::isFileLineExcluded (std::string const & fileline) const
 {
 	return m_file_filters.is_excluded_fast(fileline);
-}
-bool SessionState::isFileLinePresent (fileline_t const & item, bool & state) const
+}*/
+bool SessionState::isFileLinePresent (fileline_t const & item, E_NodeStates & state) const
 {
 	return m_file_filters.is_present(item.first + "/" + item.second, state);
 }
-bool SessionState::isFileLinePresent (std::string const & fileline, bool & state) const
+bool SessionState::isFileLinePresent (std::string const & fileline, E_NodeStates & state) const
 {
 	return m_file_filters.is_present(fileline, state);
 }
 void SessionState::appendFileFilter (fileline_t const & item)
 {
-	m_file_filters.exclude(item.first + "/" + item.second);
+	//m_file_filters.exclude(item.first + "/" + item.second);
 }
 void SessionState::appendFileFilter (std::string const & item)
 {
-	m_file_filters.exclude(item);
+	//m_file_filters.exclude(item);
 }
-void SessionState::removeFileFilter (fileline_t const & item)
+void SessionState::stateToFileChilds (fileline_t const & item, E_NodeStates const state)
 {
-	m_file_filters.exclude_to_state(item.first + "/" + item.second, false);
-}
-
-void SessionState::excludeOffChilds (fileline_t const & item)
-{
-	m_file_filters.exclude_enable_childs(item.first + "/" + item.second, false);
+	m_file_filters.set_state_to_childs(item.first + "/" + item.second, state);
 }
 
 ///////// ctx filters

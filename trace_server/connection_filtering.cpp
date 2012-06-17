@@ -64,7 +64,7 @@ void Connection::onClearCurrentFileFilter ()
 {
 	QStandardItem * node = m_file_model->invisibleRootItem();
 	E_FilterMode const fmode = m_main_window->fltMode();
-	setCheckStateRecursive(node->child(0,0), fmode == e_Include ? Qt::Checked : Qt::Unchecked);
+	setCheckStateChilds(node->child(0,0), fmode == e_Include ? Qt::Checked : Qt::Unchecked);
 	sessionState().onClearFileFilter();
 	onInvalidateFilter();
 }
@@ -90,36 +90,12 @@ void Connection::onClearCurrentScopeFilter ()
 	onInvalidateFilter();
 }
 
-
-void Connection::loadToFileFilters (std::string const & filter_item)
-{
-	sessionState().appendFileFilter(filter_item);
-
-	E_FilterMode const fmode = m_main_window->fltMode();
-	bool excluded = false;
-	bool const present = sessionState().isFileLinePresent(filter_item, excluded);
-	bool const default_checked = fmode == e_Exclude ? false : true;
-	bool const checked = present ? (fmode == e_Exclude ? excluded : !excluded) : default_checked;
-	//qDebug("present=%u excluded=%u checked=%u item=%s", present, excluded, checked, filter_item.c_str()); 
-
-	boost::char_separator<char> sep(":/\\"); // @TODO: duplicate!
-	appendToFileFilters(sep, filter_item, checked, true);
-	m_main_window->getWidgetFile()->expandAll();
-
-	onInvalidateFilter();
-}
-
-void Connection::appendToFileFilters (std::string const & item, bool checked)
-{
-	boost::char_separator<char> sep(":/\\");
-	appendToFileFilters(sep, item, checked, false);
-}
-
-void Connection::appendToFileFilters (boost::char_separator<char> const & sep, std::string const & item, bool checked, bool recursive)
+void Connection::appendToFileTree (boost::char_separator<char> const & sep, std::string const & item)
 {
 	typedef boost::tokenizer<boost::char_separator<char> > tokenizer_t;
 	tokenizer_t tok(item, sep);
 
+	E_FilterMode const fmode = m_main_window->fltMode();
 	QStandardItem * node = m_file_model->invisibleRootItem();
 	QStandardItem * last_hidden_node = 0;
 	bool append = false;
@@ -148,8 +124,27 @@ void Connection::appendToFileFilters (boost::char_separator<char> const & sep, s
 		{
 			stop = true;
 			append = true;
-			QList<QStandardItem *> row_items = addRowTriState(qItem, checked, m_main_window->fltMode());
+			
+			E_NodeStates new_state = e_Checked;
+			if (fmode == e_Include)
+			{
+				new_state = e_Checked;
+					if (node->checkState() == Qt::PartiallyChecked || node->checkState() == Qt::Unchecked)
+					{
+						new_state = e_Unchecked;
+					}
+			}
+			else
+			{
+
+			}
+
+			sessionState().m_file_filters.set_to_state(item, static_cast<E_NodeStates>(new_state));
+
+			//sessionState().m_file_filters.set_to_state(item, new_state);
+			QList<QStandardItem *> row_items = addRowTriState(qItem, new_state);
 			node->appendRow(row_items);
+
 			node = row_items.at(0);
 		}
 	}
@@ -160,20 +155,15 @@ void Connection::appendToFileFilters (boost::char_separator<char> const & sep, s
 		else
 			m_main_window->getWidgetFile()->setRootIndex(last_hidden_node->index());
 	}
-	if (!append)
-	{
-		node->setCheckState(checked ? Qt::Checked : Qt::Unchecked);
-	}
+	//if (!append)
+	//{
+		//node->setCheckState(checked ? Qt::Checked : Qt::Unchecked);
+	//}
 
-	if (recursive)
-	{
-		setCheckStateRecursive(node, checked ? Qt::Checked : Qt::Unchecked);
-	}
-}
-
-void Connection::appendToFileFilters (boost::char_separator<char> const & sep, std::string const & file, std::string const & line, bool checked)
-{
-	appendToFileFilters(sep, file + "/" + line, checked, false);
+	//if (recursive)
+	//{
+//		setCheckStateRecursive(node, static_cast<Qt::CheckState>(state));
+//	}
 }
 
 void Connection::appendToTIDFilters (std::string const & item)
@@ -254,12 +244,21 @@ bool Connection::appendToFilters (DecodedCommand const & cmd)
 		if (cmd.tvs[i].m_tag == tlv::tag_file)
 		{
 			std::string file(cmd.tvs[i].m_val);
-			E_FilterMode fmode = m_main_window->fltMode();
-			bool excluded = false;
-			bool const present = sessionState().isFileLinePresent(fileline_t(file, line), excluded);
-			bool const default_checked = fmode == e_Exclude ? false : true;
-			bool const checked = present ? (fmode == e_Exclude ? excluded : !excluded) : default_checked;
-			appendToFileFilters(sep, file, line, checked);
+			appendToFileTree(sep, file + "/" + line);
+
+			//_FilterMode fmode = m_main_window->fltMode();
+			//E_NodeStates state = e_Checked;
+			//bool const present = sessionState().isFileLinePresent(fileline_t(file, line), excluded);
+			//if (!present)
+			{
+				//@TODO: stav checkboxu 
+				// if inclusive && parent == partial --> unchecked
+				// if inclusive && parent == checked --> checked
+				// if inclusive && parent == unchecked --> unchecked
+			}
+			//bool const default_checked = fmode == e_Exclude ? false : true;
+			//bool const checked = present ? (fmode == e_Exclude ? excluded : !excluded) : default_checked;
+			//appendToFileFilters(sep, file, line, checked);
 		}
 	}
 	return true;
@@ -388,7 +387,7 @@ void Connection::flipFilterMode (E_FilterMode mode)
 	{
 		QStandardItem * node = m_file_model->invisibleRootItem();
 		flipCheckState(node);
-		flipCheckStateRecursive(node);
+		flipCheckStateChilds(node);
 		sessionState().flipFilterMode(mode);
 	}
 }

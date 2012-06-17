@@ -73,13 +73,13 @@ inline QList<QStandardItem *> addTriRow (QString const & str, bool inclusive)
 }
 
 	 
-inline QList<QStandardItem *> addRowTriState (QString const & str, bool checked, E_FilterMode filt_mode)
+inline QList<QStandardItem *> addRowTriState (QString const & str, E_NodeStates const state)
 {
 	QList<QStandardItem *> row_items;
 	QStandardItem * const name_item = new QStandardItem(str);
 	name_item->setCheckable(true);
-	name_item->setCheckState(checked ? Qt::Checked : Qt::Unchecked);
 	name_item->setTristate(true);	
+	name_item->setCheckState(static_cast<Qt::CheckState>(state));
 	row_items << name_item;
 	return row_items;
 }
@@ -90,14 +90,14 @@ inline void flipCheckState (QStandardItem * item)
 	item->setCheckState(checked ? Qt::Unchecked : Qt::Checked);
 }
 
-inline void flipCheckStateRecursive (QStandardItem * node)
+inline void flipCheckStateChilds (QStandardItem * node)
 {
 	flipCheckState(node);
 	int const rc = node->rowCount();
 	for (int r = 0; r < rc; ++r)
 	{
 		QStandardItem * const child = node->child(r, 0);
-		flipCheckStateRecursive(child);
+		flipCheckStateChilds(child);
 	}
 }
 
@@ -106,7 +106,21 @@ inline void setCheckState (QStandardItem * const node, Qt::CheckState const stat
 	node->setCheckState(state);
 }
 
-inline void setCheckStateRecursive (QStandardItem * const node, Qt::CheckState const state)
+inline bool checkChildState (QStandardItem * const node, Qt::CheckState const state)
+{
+	bool result = true;
+	if (node->rowCount() == 0)
+		result &= (node->checkState() == state);
+	else
+		for (int r = 0, re = node->rowCount(); r < re; ++r)
+		{
+			QStandardItem * const child = node->child(r, 0);
+			result &= checkChildState(child, state);
+		}
+	return result;
+}
+
+inline void setCheckStateChilds (QStandardItem * const node, Qt::CheckState const state)
 {
 	setCheckState(node, state);
 	int const rc = node->rowCount();
@@ -114,11 +128,11 @@ inline void setCheckStateRecursive (QStandardItem * const node, Qt::CheckState c
 	for (int r = 0; r < rc; ++r)
 	{
 		QStandardItem * const child = node->child(r, 0);
-		setCheckStateRecursive(child, state);
+		setCheckStateChilds(child, state);
 	}
 }
 
-inline void setCheckStateReverse (QStandardItem * n, Qt::CheckState state)
+inline void setCheckStateReverse (QStandardItem * n, Qt::CheckState const state)
 {
 	while (n)
 	{
@@ -145,14 +159,15 @@ inline void reassemblePath (std::vector<QString> const & tokens, QString & path)
 	}
 }
 
-inline void syncCheckBoxesWithFileFilters (QStandardItem const * node, E_FilterMode const fmode, file_filter & ff, strings_t & stack)
+/*inline void syncCheckBoxesWithFileFilters (QStandardItem const * node, E_FilterMode const fmode, file_filter & ff, strings_t & stack)
 {
 	stack.push_back(node->text().toStdString());
+	ff.exclude_to_state(stack, static_cast<E_NodeStates>(node->checkState()));
 	bool const checked = (node->checkState() == Qt::Checked);
-	if (fmode == e_Include)
-		ff.exclude_to_state(stack, !checked);
-	else
-		ff.exclude_to_state(stack, checked);
+	//if (fmode == e_Include)
+	//	ff.exclude_to_state(stack, !checked);
+	//else
+	//	ff.exclude_to_state(stack, checked);
 
 	bool const descend = ((fmode == e_Include && checked) || (fmode == e_Exclude && !checked));
 	if (descend)
@@ -173,5 +188,5 @@ inline void syncCheckBoxesWithFileFilters (QStandardItem const * node, E_FilterM
 	stack.reserve(256);
 	syncCheckBoxesWithFileFilters(node, fmode, ff, stack);
 }
-
+*/
 

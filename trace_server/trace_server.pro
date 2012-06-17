@@ -17,6 +17,7 @@ win32-msvc* {
 	LIBS += $(BOOST_ROOT)/stage/lib/libboost_date_time-vc100-mt-1_49.lib
 	LIBS += $(BOOST_ROOT)/stage/lib/libboost_thread-vc100-mt-1_49.lib
 	LIBS += $(BOOST_ROOT)/stage/lib/libboost_regex-vc100-mt-1_49.lib
+	LIBS += $(BOOST_ROOT)/stage/lib/libboost_serialization-vc100-mt-1_49.lib
 	#LIBS += c:/devel/boost_1_47_0/stage/lib/libboost_system-vc100-mt-1_47.lib
 	#LIBS += c:/devel/boost_1_47_0/stage/lib/libboost_date_time-vc100-mt-1_47.lib
 	#LIBS += c:/devel/boost_1_47_0/stage/lib/libboost_thread-vc100-mt-1_47.lib
@@ -56,6 +57,7 @@ SOURCES += ../version.cpp \
     connection_filtering.cpp \
     connection.cpp \
     sessionstate.cpp \
+    serialization.cpp \
     settings.cpp	\
 	rvps.cpp	\
 	profilerconnection.cpp \

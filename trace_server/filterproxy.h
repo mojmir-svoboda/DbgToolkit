@@ -26,16 +26,14 @@
 #include "../filters/file_filter.hpp"
 #include "sessionstate.h"
 
+class MainWindow;
+
 class FilterProxyModel : public QAbstractProxyModel
 {
 	Q_OBJECT
 
 public:
-	explicit FilterProxyModel (QObject * parent, SessionState & ss)
-		: QAbstractProxyModel(parent)
-		, m_columns(0)
-		, m_session_state(ss)
-	{ }
+	explicit FilterProxyModel (QObject * parent, SessionState & ss);
 
 	virtual QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
 	virtual QModelIndex parent (QModelIndex const & child) const;
@@ -62,6 +60,7 @@ protected:
 	int m_columns;
 	std::vector<int> m_map_from_src;
 	SessionState & m_session_state;
+	MainWindow const * m_main_window;
 };
 
 

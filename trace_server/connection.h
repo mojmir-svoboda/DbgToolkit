@@ -74,9 +74,7 @@ public:
 	
 	SessionState & sessionState () { return m_session_state; }
 	SessionState const & sessionState () const { return m_session_state; }
-	void loadToFileFilters (std::string const & item);
-	void appendToFileFilters (std::string const & item, bool checked);
-	void appendToFileFilters (boost::char_separator<char> const & sep, std::string const & item, bool checked, bool recursive);
+	void appendToFileTree (boost::char_separator<char> const & sep, std::string const & item);
 	void appendToCtxFilters (std::string const & item, bool checked);
 	void appendToLvlFilters (std::string const & item, bool checked);
 
@@ -134,6 +132,7 @@ private slots:
 
 private:
 	friend class Server;
+	friend class MainWindow;
 	enum {
 		e_data_ok = 0,
 		e_data_pipe_full,
@@ -151,8 +150,6 @@ private:
 	bool handleSetupCommand (DecodedCommand const & cmd);
 
 	bool appendToFilters (DecodedCommand const & cmd);
-	void appendToFileFilters (boost::char_separator<char> const & sep, std::string const & item, bool checked);
-	void appendToFileFilters (boost::char_separator<char> const & sep, std::string const & file, std::string const & line, bool checked);
 	void appendToTIDFilters (std::string const & item);
 	void clearFilters (QStandardItem * node);
 	void hideLinearParents ();
