@@ -87,11 +87,11 @@ void StatsPlot::timerEvent (QTimerEvent *)
     //for (size_t c = 0, ce = m_curves.size(); c < ce; ++c)
 	{
 		size_t const c = e_ReadBytes;
-		if (m_curves[c].m_data.size() > e_history_ln / 2)
+		if (m_curves[c].m_data.size() / 2 > e_history_ln)
 		{
-			size_t const n = m_curves[c].m_data.size() - e_history_ln;
-			m_curves[c].m_curve->setRawSamples(&m_curves[c].m_time_data[n], &m_curves[c].m_data[n], e_history_ln);
-			setAxisScale(QwtPlot::xBottom, n, n + e_history_ln);
+			size_t const n = m_curves[c].m_data.size() - e_history_ln * 2;
+			m_curves[c].m_curve->setRawSamples(&m_curves[c].m_time_data[n], &m_curves[c].m_data[n], e_history_ln * 2);
+			setAxisScale(QwtPlot::xBottom, n / 2, n / 2 + e_history_ln);
 		}
 		else
 		{
