@@ -69,6 +69,7 @@ SOURCES += ../version.cpp \
     sessionstate.cpp \
     settings.cpp	\
 	rvps.cpp	\
+	statswindow.cpp		\
 	profilerconnection.cpp \
 	profilerbar.cpp	\
 	profilergraphicsview.cpp	\

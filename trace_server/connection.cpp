@@ -18,6 +18,7 @@
 #include "modelview.h"
 #include "utils.h"
 #include "types.h"
+#include "statswindow.h"
 
 void TableItemDelegate::paint (QPainter * painter, QStyleOptionViewItem const & option, QModelIndex const & index) const
 {
@@ -68,6 +69,8 @@ Connection::Connection (QObject * parent)
 	m_exclude_fileline = new QAction("Exclude File:Line", this);
     m_ctx_menu.addAction(m_toggle_ref);
     m_ctx_menu.addAction(m_exclude_fileline);
+
+	stats::StatsWindow * m_statswindow	= new stats::StatsWindow(this, m_session_state);
 }
 
 Connection::~Connection ()

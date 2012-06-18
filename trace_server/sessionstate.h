@@ -203,6 +203,8 @@ public:
 	void onClearColorizedRegexFilter () { m_colorized_texts.clear(); }
 	void onClearLvlFilter () { m_filtered_regexps.clear(); }
 	void onClearRegexFilter () { m_lvl_filters.clear(); }
+
+	unsigned getRecvBytes () const { return m_recv_bytes; }
 	
 signals:
 	
@@ -237,5 +239,6 @@ private:
 	ThreadSpecific m_tls;
 	QString m_name;
 	QList<CollapsedBlock> m_collapse_blocks;
+	unsigned m_recv_bytes;
 };
 

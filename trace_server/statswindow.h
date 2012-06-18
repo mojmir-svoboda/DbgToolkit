@@ -1,14 +1,29 @@
 #pragma once
 #include <QtGui/qwidget.h>
 #include "qwt/qwt_plot.h"
+#include "sessionstate.h"
 
 QT_FORWARD_DECLARE_CLASS(QMainWindow)
+class QwtPlotCurve;
 
 namespace stats {
 
-	class QwtPlotCurve;
-
 	enum { e_history_ln = 60 };
+
+	struct Curves {
+		QwtPlotCurve * m_curve;
+		std::vector<double> m_data;
+		std::vector<double> m_time_data;
+		double m_last;
+
+		Curves ()
+			: m_curve(0)
+			, m_last(0)
+		{
+			m_data.reserve(e_history_ln);
+			m_time_data.reserve(e_history_ln);
+		}
+	};
 
 	class StatsPlot : public QwtPlot
 	{
@@ -21,8 +36,8 @@ namespace stats {
 			e_max_statsdata_enum_value
 		};
 	
-		StatsPlot (QWidget * = 0);
-		QwtPlotCurve const * getStatsCurve (E_StatsData const id) const { return m_data[id].m_curve; }
+		StatsPlot (QWidget *, SessionState & s);
+		QwtPlotCurve const * getStatsCurve (E_StatsData const id) const { return m_curves[id].m_curve; }
 
 	protected:
 		void timerEvent (QTimerEvent * e);
@@ -31,11 +46,8 @@ namespace stats {
 		void showCurve (QwtPlotItem *, bool on);
 
 	private:
-		struct
-		{
-			QwtPlotCurve * m_curve;
-			double m_data[e_history_ln];
-		} m_data[e_max_statsdata_enum_value];
+		std::vector<Curves> m_curves;
+		SessionState & m_state;
 	};
 
 
@@ -43,7 +55,7 @@ namespace stats {
 	{
 		Q_OBJECT
 	public:
-		StatsWindow (QObject * parent = 0);
+		StatsWindow (QObject * parent, SessionState & state);
 		~StatsWindow ();
 	
 	public slots:
@@ -52,6 +64,7 @@ namespace stats {
 	
 		QMainWindow	* m_window;
 		StatsPlot * m_plot;
+		SessionState & m_state;
 	};
 
 }

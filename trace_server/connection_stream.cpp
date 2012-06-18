@@ -97,6 +97,8 @@ int Connection::processStream (T * t, T_Ret (T::*read_member_fn)(T_Arg0, T_Arg1)
 				size_t const to_read = free_space < local_buff_sz ? free_space : local_buff_sz;
 
 				qint64 const count = (t->*read_member_fn)(local_buff, to_read);
+				sessionState().m_recv_bytes += count;			
+
 				if (count <= 0)
 				{
 					data_in_stream = false;

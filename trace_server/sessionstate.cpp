@@ -14,6 +14,7 @@ SessionState::SessionState (QObject * parent)
 	, m_columns_elide_template(0)
 	, m_columns_sizes(0)
 	, m_name()
+	, m_recv_bytes(0)
 {
 	m_colorized_texts.push_back(ColorizedText(".*[Ww]arning.*", QColor(Qt::yellow), e_Bg));
 	m_colorized_texts.push_back(ColorizedText(".*[Ee]rror.*", QColor(Qt::red), e_Fg));

@@ -68,7 +68,7 @@ void ProfilerWindow::incomingProfilerData (profiler::profiler_rvp_t * rvp)
 		//qDebug("consumed node: 0x%016x", node);
 		threadinfos_t const & tis = *node;
 
-		qDebug("consumed node: 0x%016x, tis_sz=%u", node, tis.size());
+		/*qDebug("consumed node: 0x%016x, tis_sz=%u", node, tis.size());
 		for (size_t t = 0, te = tis.size(); t < te; ++t)
 		{
 			blockinfos_t const & bis = tis[t];
@@ -134,7 +134,7 @@ void ProfilerWindow::incomingProfilerData (profiler::profiler_rvp_t * rvp)
 			}
 
 			offs += m_max_layers[t];
-		}
+		}*/
 
 		/*int const h = g_heightValue;
 		int const space = g_spaceValue;
