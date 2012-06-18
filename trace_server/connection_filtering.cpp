@@ -100,13 +100,21 @@ void Connection::appendToFileTree (boost::char_separator<char> const & sep, std:
 	QStandardItem * last_hidden_node = 0;
 	bool append = false;
 	bool stop = false;
+	std::string path;
 	for (tokenizer_t::const_iterator it = tok.begin(), ite = tok.end(); it != ite; ++it)
 	{
 		QString qItem = QString::fromStdString(*it);
 		QStandardItem * child = findChildByText(node, qItem);
+		path += "/";
+		path += *it;
 		if (child != 0)
 		{
 			node = child;
+			E_NodeStates ff_state = e_Unchecked;
+			bool const known = sessionState().m_file_filters.is_present(path, ff_state);
+			if (known)
+				node->setCheckState(static_cast<Qt::CheckState>(ff_state));
+
 			if (!stop)
 			{
 				if (child->rowCount() == 1)
@@ -124,27 +132,25 @@ void Connection::appendToFileTree (boost::char_separator<char> const & sep, std:
 		{
 			stop = true;
 			append = true;
-			
 			E_NodeStates new_state = e_Checked;
-			if (fmode == e_Include)
+
+			E_NodeStates ff_state = e_Unchecked;
+			bool const known = sessionState().m_file_filters.is_present(path, ff_state);
+			if (known)
 			{
-				new_state = e_Checked;
-					if (node->checkState() == Qt::PartiallyChecked || node->checkState() == Qt::Unchecked)
-					{
-						new_state = e_Unchecked;
-					}
+				node->setCheckState(static_cast<Qt::CheckState>(ff_state));
+				new_state = ff_state;
 			}
 			else
 			{
-
+				new_state = e_Checked;
+				qDebug("unknown: %s, state=%u", path.c_str(), new_state);
+				sessionState().m_file_filters.set_to_state(item, static_cast<E_NodeStates>(new_state));
 			}
 
-			sessionState().m_file_filters.set_to_state(item, static_cast<E_NodeStates>(new_state));
-
-			//sessionState().m_file_filters.set_to_state(item, new_state);
+			//qDebug("new node: %s, state=%u", path.c_str(), new_state);
 			QList<QStandardItem *> row_items = addRowTriState(qItem, new_state);
 			node->appendRow(row_items);
-
 			node = row_items.at(0);
 		}
 	}
@@ -155,15 +161,6 @@ void Connection::appendToFileTree (boost::char_separator<char> const & sep, std:
 		else
 			m_main_window->getWidgetFile()->setRootIndex(last_hidden_node->index());
 	}
-	//if (!append)
-	//{
-		//node->setCheckState(checked ? Qt::Checked : Qt::Unchecked);
-	//}
-
-	//if (recursive)
-	//{
-//		setCheckStateRecursive(node, static_cast<Qt::CheckState>(state));
-//	}
 }
 
 void Connection::appendToTIDFilters (std::string const & item)

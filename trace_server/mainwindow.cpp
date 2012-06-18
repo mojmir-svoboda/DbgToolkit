@@ -556,6 +556,26 @@ void MainWindow::onShowHelp ()
 	dialog.exec();
 }
 
+void syncOnPreset (QStandardItem * qnode, file_filter::node_t * node)
+{
+	if (node)
+	{
+		//qnode->setCheckState(static_cast<Qt::CheckState>(node->data.m_state));
+		if (node && node->children)
+		{
+			qnode->removeRows(0, qnode->rowCount());
+			file_filter::node_t * child = node->children;
+			while (child)
+			{
+				QList<QStandardItem *> row_items = addRowTriState(QString::fromStdString(child->key), static_cast<E_NodeStates>(child->data.m_state));
+				qnode->appendRow(row_items);
+				syncOnPreset(row_items[0], child);
+				child = child->next;
+			}
+		}
+	}
+}
+
 void MainWindow::onPresetActivate (int idx)
 {
 	if (idx == -1) return;
@@ -564,9 +584,15 @@ void MainWindow::onPresetActivate (int idx)
 	Connection * conn = m_server->findCurrentConnection();
 	if (!conn) return;
 
+	conn->onClearCurrentFileFilter();
 	loadSession(conn->m_session_state, m_preset_names.at(idx));
 
-	//conn->onClearCurrentFileFilter();
+	file_filter::node_t * node = conn->m_session_state.m_file_filters.root;
+	QStandardItem * qnode = static_cast<QStandardItemModel *>(getWidgetFile()->model())->invisibleRootItem();
+	syncOnPreset(qnode, node);
+
+	//node->setCheckState(static_cast<Qt::CheckState>(ff_state));
+
 	//conn->onClearCurrentColorizedRegexFilter();
 	/*for (size_t i = 0, ie = m_filter_presets.at(idx).m_colortext_regexs.size(); i < ie; ++i)
 	{
@@ -604,7 +630,6 @@ void MainWindow::onPresetActivate (int idx)
 	}*/
 	conn->recompileRegexps();
 
-	//getWidgetFile()->expandAll();
 	conn->onInvalidateFilter();
 }
 

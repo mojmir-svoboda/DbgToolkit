@@ -96,7 +96,6 @@ struct file_filter
 			node_t * n = node_t::node_child(level, *it);
 			if (n == 0)
 			{
-				//reassemble_path(path, strpath);
 				n = new node_t(*it, file_info(state));
 				node_t::node_append(level, n);
 			}
@@ -160,17 +159,10 @@ struct file_filter
 		{
 			level = node_t::node_child(level, *it);
 			if (level == 0)
-			{
 				return false; // node not in tree
-			}
-			else if (level->data.m_state == e_Checked)
-			{
-				state = static_cast<E_NodeStates>(level->data.m_state);
-				return true;  // node is tagged for exclusion
-			}
+			state = static_cast<E_NodeStates>(level->data.m_state);
 		}
-		state = e_Unchecked;
-		return true; // node is not tagged
+		return true;
 	}
 
 
