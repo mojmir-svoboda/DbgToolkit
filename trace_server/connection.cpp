@@ -70,12 +70,14 @@ Connection::Connection (QObject * parent)
     m_ctx_menu.addAction(m_toggle_ref);
     m_ctx_menu.addAction(m_exclude_fileline);
 
-	stats::StatsWindow * m_statswindow	= new stats::StatsWindow(this, m_session_state);
+	m_statswindow	= new stats::StatsWindow(this, m_session_state);
 }
 
 Connection::~Connection ()
 {
 	qDebug("Connection::~Connection() this=0x%08x", this);
+	delete m_statswindow;
+	m_statswindow = 0;
 }
 
 void Connection::onDisconnected ()

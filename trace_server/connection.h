@@ -45,6 +45,8 @@ class QDataStream;
 class QStandardItemModel;
 class QStandardItem;
 
+namespace stats { class StatsWindow; }
+
 
 class TableItemDelegate : public QStyledItemDelegate
 {
@@ -207,5 +209,6 @@ private:
 	QFile * m_storage;
 	QDataStream * m_datastream;
 	QTcpSocket * m_tcpstream;
+	stats::StatsWindow * m_statswindow;
 };
 

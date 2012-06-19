@@ -295,6 +295,7 @@ bool MainWindow::autoScrollEnabled () const { return ui->autoScrollCheckBox->isC
 bool MainWindow::buffEnabled () const { return ui->buffCheckBox->isChecked(); }
 Qt::CheckState MainWindow::buffState () const { return ui->buffCheckBox->checkState(); }
 bool MainWindow::clrFltEnabled () const { return ui->clrFiltersCheckBox->isChecked(); }
+bool MainWindow::statsEnabled () const { return m_settings->traceStatsCheckBox->isChecked(); }
 E_FilterMode MainWindow::fltMode () const
 {
 	return ui->filterModeComboBox->currentText() == QString("Inclusive") ? e_Include : e_Exclude;
@@ -1034,6 +1035,7 @@ void MainWindow::storeState ()
 	settings.setValue("trace_port", m_trace_port);
 	settings.setValue("profiler_addr", m_profiler_addr);
 	settings.setValue("profiler_port", m_profiler_port);
+	settings.setValue("trace_stats", m_settings->traceStatsCheckBox->isChecked());
 
 	settings.setValue("geometry", saveGeometry());
 	settings.setValue("windowState", saveState());
@@ -1104,6 +1106,8 @@ void MainWindow::loadState ()
 	if (settings.contains("splitter"))
 		ui->splitter->restoreState(settings.value("splitter").toByteArray());
 
+	m_settings->traceStatsCheckBox->setChecked(settings.value("trace_stats", true).toBool());
+
 	ui->autoScrollCheckBox->setChecked(settings.value("autoScrollCheckBox", true).toBool());
 	ui->reuseTabCheckBox->setChecked(settings.value("reuseTabCheckBox", true).toBool());
 	ui->scopesCheckBox->setChecked(settings.value("scopesCheckBox", false).toBool());
@@ -1111,7 +1115,7 @@ void MainWindow::loadState ()
 	ui->buffCheckBox->setChecked(settings.value("buffCheckBox", true).toBool());
 	ui->clrFiltersCheckBox->setChecked(settings.value("clrFiltersCheckBox", false).toBool());
 	ui->filterModeComboBox->setCurrentIndex(settings.value("filterModeComboBox").toInt());
-	ui->levelSpinBox->setValue(settings.value("levelSpinBox").toInt());
+	ui->levelSpinBox->setValue(settings.value("levelSpinBox", 3).toInt());
 
 	read_list_of_strings(settings, "known-applications", "application", m_app_names);
 	for (size_t i = 0, ie = m_app_names.size(); i < ie; ++i)

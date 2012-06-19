@@ -21,15 +21,27 @@ StatsWindow::StatsWindow (QObject * parent, SessionState & state)
 	qDebug("%s", __FUNCTION__);
 	m_window = new QMainWindow;
 	m_plot = new StatsPlot(0, state);
-	m_plot->setTitle("traffic");
+	m_plot->setTitle("trace traffic");
 	m_plot->setContentsMargins(3, 3, 3, 3);
 	m_window->setCentralWidget(m_plot);
 	m_window->resize(700, 300);
 	m_window->show();
 }
+
+void StatsWindow::stopUpdate ()
+{
+	m_plot->stopUpdate();
+}
 	
 StatsWindow::~StatsWindow ()
-{ }
+{
+	m_window->hide();
+	qDebug("%s", __FUNCTION__);
+	delete m_plot;
+	m_plot = 0;
+	delete m_window;
+	m_window = 0;
+}
 
 
 struct TrafficCurve : public QwtPlotCurve
@@ -67,14 +79,24 @@ StatsPlot::StatsPlot (QWidget * parent, SessionState & state)
     //setAxisLabelRotation(QwtPlot::xBottom, -50.0);
     //setAxisLabelAlignment(QwtPlot::xBottom, Qt::AlignLeft | Qt::AlignBottom);
 
-    setAxisTitle(QwtPlot::yLeft, "recv [B]");
+    setAxisTitle(QwtPlot::yLeft, "received [Bytes]");
     //setAxisScale(QwtPlot::yLeft, 0, 1e6);
 	
-	m_curves[e_ReadBytes].m_curve = new TrafficCurve("recv", Qt::green);
+	m_curves[e_ReadBytes].m_curve = new TrafficCurve("recv", Qt::blue);
 	m_curves[e_ReadBytes].m_curve->attach(this);
 	showCurve(m_curves[e_ReadBytes].m_curve, true);
 
 	startTimer(500);
+}
+
+StatsPlot::~StatsPlot ()
+{
+	qDebug("%s", __FUNCTION__);
+}
+
+void StatsPlot::stopUpdate ()
+{
+	killTimer();
 }
 
 void StatsPlot::timerEvent (QTimerEvent *)

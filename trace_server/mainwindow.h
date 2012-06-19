@@ -126,6 +126,7 @@ public:
 	bool buffEnabled () const;
 	Qt::CheckState buffState () const;
 	bool clrFltEnabled () const;
+	bool statsEnabled () const;
 	E_FilterMode fltMode () const;
 	void changeEvent (QEvent* e);
 	void dropEvent (QDropEvent * event);

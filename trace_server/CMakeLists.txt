@@ -60,6 +60,7 @@ SET(trace_server_SOURCES
 	profilerview.cpp
 	profilerwindow.cpp
 	profilermainwindow.cpp
+	serialization.cpp
 	../version.cpp
 	)
 
@@ -86,6 +87,7 @@ SET(trace_server_HEADERS
 	profilermainwindow.h
 	rvps.h
 	rendezvous.h
+	serialization.h
 	)
 
 SET(trace_server_UI mainwindow.ui settings.ui help.ui profilermainwindow.ui)

@@ -19,7 +19,7 @@ namespace sys {
 		return *val;
 	}
 
-	inline PVOID atomic_wrtptr (PVOID volatile const * mem, PVOID val)
+	inline PVOID atomic_wrtptr (PVOID volatile * mem, PVOID val)
 	{
 		return InterlockedExchangePointer(mem, val);
 	}
