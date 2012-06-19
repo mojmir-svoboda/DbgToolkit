@@ -560,16 +560,20 @@ void syncOnPreset (QStandardItem * qnode, file_filter::node_t * node)
 {
 	if (node)
 	{
-		//qnode->setCheckState(static_cast<Qt::CheckState>(node->data.m_state));
+		qnode->setCheckState(static_cast<Qt::CheckState>(node->data.m_state));
 		if (node && node->children)
 		{
-			qnode->removeRows(0, qnode->rowCount());
 			file_filter::node_t * child = node->children;
 			while (child)
 			{
-				QList<QStandardItem *> row_items = addRowTriState(QString::fromStdString(child->key), static_cast<E_NodeStates>(child->data.m_state));
-				qnode->appendRow(row_items);
-				syncOnPreset(row_items[0], child);
+				QStandardItem * qchild = findChildByText(qnode, QString::fromStdString(child->key));
+				if (!qchild)
+				{
+					QList<QStandardItem *> row_items = addRowTriState(QString::fromStdString(child->key), static_cast<E_NodeStates>(child->data.m_state));
+					qnode->appendRow(row_items);
+					qchild = row_items[0];
+				}
+				syncOnPreset(qchild, child);
 				child = child->next;
 			}
 		}

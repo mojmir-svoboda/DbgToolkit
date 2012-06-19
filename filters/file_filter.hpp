@@ -241,7 +241,7 @@ struct file_filter
 	template <class ArchiveT>
 	inline void save (ArchiveT & a, unsigned const /*version*/) const
 	{
-		qDebug("%s root=%x children=%x next=%x prev=%x", __FUNCTION__, root->children, root->next, root->prev);
+		//qDebug("%s root=%x children=%x next=%x prev=%x", __FUNCTION__, root->children, root->next, root->prev);
 		a.register_type(static_cast<node_t *>(NULL));
 		a & root;
 	}
