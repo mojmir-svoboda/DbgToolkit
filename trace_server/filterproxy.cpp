@@ -6,6 +6,15 @@
 #include <QListView>
 #include <tlv_parser/tlv_encoder.h>
 #include <trace_client/trace.h>
+#include "connection.h"
+#include "mainwindow.h"
+
+FilterProxyModel::FilterProxyModel (QObject * parent, SessionState & ss)
+	: QAbstractProxyModel(parent)
+	, m_columns(0)
+	, m_session_state(ss)
+	, m_main_window(static_cast<Connection const *>(parent)->getMainWindow())
+{ }
 
 void FilterProxyModel::force_update ()
 {
@@ -123,7 +132,17 @@ bool FilterProxyModel::filterAcceptsRow (int sourceRow, QModelIndex const & /*so
 	}
 
 	bool excluded = false;
-	excluded |= m_session_state.isFileLineExcluded(std::make_pair(file.toStdString(), line.toStdString()));
+	E_NodeStates state;
+	bool const ff_present = m_session_state.isFileLinePresent(std::make_pair(file.toStdString(), line.toStdString()), state);
+	E_FilterMode const fmode = m_main_window->fltMode();
+	if (ff_present && fmode == e_Include)
+	{
+		excluded |= state == e_Unchecked;
+	}
+	if (ff_present && fmode == e_Exclude)
+	{
+		excluded |= state == e_Checked;
+	}
 
 	QString tid;
 	int const tid_idx = m_session_state.findColumn4Tag(tlv::tag_tid);

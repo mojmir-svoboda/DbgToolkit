@@ -167,21 +167,21 @@ void Server::onApplyColumnSetup ()
 		conn->onApplyColumnSetup();
 }
 
+	std::vector<QString> s;	// @TODO: hey piggy, to member variables
+
 void Server::onClickedAtFileTree_Impl (QModelIndex idx, bool recursive)
 {
+	Connection * const conn = findCurrentConnection();
+	if (!conn)
+		return;
+
 	MainWindow * const main_window = static_cast<MainWindow *>(parent());
-	std::vector<QString> s;	// @TODO: reassemblePath
-	s.reserve(16);
 	QStandardItemModel const * const model = static_cast<QStandardItemModel *>(main_window->getWidgetFile()->model());
 	QStandardItem * const item = model->itemFromIndex(idx);
-
-	E_FilterMode const fmode = main_window->fltMode();
-	bool const orig_checked = (item->checkState() == Qt::Checked ? false : true);
-
-	Qt::CheckState const new_state = orig_checked ? Qt::Unchecked : Qt::Checked;
-	setCheckStateRecursive(item, new_state);
-
 	QStandardItem const * line_item = 0;
+
+	s.clear();
+	s.reserve(16);
 	if (!item->hasChildren())
 		line_item = item;
 	else
@@ -201,40 +201,49 @@ void Server::onClickedAtFileTree_Impl (QModelIndex idx, bool recursive)
 	for (std::vector<QString>::const_reverse_iterator it=s.rbegin(), ite=s.rend(); it != ite; ++it)
 		file += std::string("/") + (*it).toStdString();
 
-	bool checked = (item->checkState() == Qt::Checked);
-
 	fileline_t filter_item(file, std::string());
 	if (line_item)
 	{
 		QString const & val = model->data(idx, Qt::DisplayRole).toString();
 		filter_item.second = val.toStdString();
 	}
+	std::string const fileline = filter_item.first + "/" + filter_item.second;
 
-	if (Connection * const conn = findCurrentConnection())
+/*
+	 *	Qt::Unchecked	0	The item is unchecked.
+	 *	Qt::PartiallyChecked	1	The item is partially checked. Items in hierarchical models may be partially checked if some, but not all, of their children are checked.
+	 *	Qt::Checked	2	The item is checked.
+	 */
+	E_FilterMode const fmode = main_window->fltMode();
+
+	Qt::CheckState const curr_state = item->checkState();
+	if (curr_state == Qt::Checked)
 	{
-		if (fmode == e_Include)
-			checked = !checked;
+		// unchecked --> checked
+		setCheckStateChilds(item, curr_state);
+		conn->sessionState().m_file_filters.set_state_to_childs(fileline, static_cast<E_NodeStates>(curr_state));
 
-		qDebug("file click! (checked=%u) %s: %s/%s", checked, (checked ? "append" : "remove"), filter_item.first.c_str(), filter_item.second.c_str());
-		if (checked)
-			conn->sessionState().appendFileFilter(filter_item);
-		else
-			conn->sessionState().removeFileFilter(filter_item);
-
-		if (fmode == e_Include && !orig_checked)
+		if (item->parent())
 		{
-			//qDebug("inclusive && !orig_checked, disabling exclusion in subtree");
-			setCheckStateReverse(item->parent(), Qt::Checked); // iff parent unchecked and clicked on leaf
-			syncCheckBoxesWithFileFilters(model->invisibleRootItem()->child(0, 0), fmode, conn->sessionState().m_file_filters);
+			//@TODO progress up the tree (reverse)
+			bool const all_checked = checkChildState(item->parent(), Qt::Checked);
+			if (all_checked && item->parent())
+				item->parent()->setCheckState(Qt::Checked);
 		}
-		else if (fmode == e_Exclude && orig_checked)
-		{
-			//qDebug("exclusive && orig_checked, disabling exclusion in subtree");
-			conn->sessionState().excludeOffChilds(filter_item);
-		}
-
-		conn->onInvalidateFilter();
 	}
+	else if (curr_state == Qt::Unchecked)
+	{
+		// checked --> unchecked
+		conn->sessionState().m_file_filters.set_state_to_topdown(fileline, static_cast<E_NodeStates>(curr_state), e_PartialCheck);
+		setCheckStateChilds(item, curr_state);
+		setCheckStateReverse(item->parent(), Qt::PartiallyChecked); // iff parent unchecked and clicked on leaf
+	}
+
+	E_NodeStates const new_state = static_cast<E_NodeStates>(curr_state);
+
+	qDebug("file click! sync state of %s --> item_checkstate=%i", fileline.c_str(), item->checkState());
+	conn->sessionState().m_file_filters.set_to_state(fileline, static_cast<E_NodeStates>(new_state));
+	conn->onInvalidateFilter();
 }
 void Server::onClickedAtFileTree (QModelIndex idx)
 {

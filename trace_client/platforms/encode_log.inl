@@ -1,7 +1,7 @@
 #pragma once
 #include "include_ntohs.h"
-#include "../../tlv_parser/tlv_parser.h"
-#include "../../tlv_parser/tlv_encoder.h"
+#include <tlv_parser/tlv_parser.h>
+#include <tlv_parser/tlv_encoder.h>
 #include "encode_common_fields.inl"
 
 namespace trace {

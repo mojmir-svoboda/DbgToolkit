@@ -21,16 +21,38 @@
  **/
 #pragma once
 #include <string>
+#include <cstdio>
 #include <boost/tokenizer.hpp>
+#include <boost/serialization/split_member.hpp>
 #include "nnode.hpp"
+
+enum E_NodeStates {
+	e_Unchecked,
+	e_PartialCheck,
+	e_Checked
+};
 
 struct file_info
 {
-	bool is_enabled;
-	file_info (bool enabled) : is_enabled(enabled) { }
-};
+	/*@member	state
+	 * duplicates qt enum
+	 *	Qt::Unchecked	0	The item is unchecked.
+	 *	Qt::PartiallyChecked	1	The item is partially checked. Items in hierarchical models may be partially checked if some, but not all, of their children are checked.
+	 *	Qt::Checked	2	The item is checked.
+	 */
+	int m_state;
+	int m_collapsed;
 
-#include <cstdio>
+	file_info () : m_state(e_Unchecked), m_collapsed(false) { }
+	file_info (int s) : m_state(s), m_collapsed(false) { }
+
+	template <class ArchiveT>
+	void serialize (ArchiveT & ar, unsigned const version)
+	{
+		ar & m_state;
+		ar & m_collapsed;
+	}
+};
 
 struct file_filter
 {
@@ -60,75 +82,32 @@ struct file_filter
 
 	bool empty () const { return !(root && root->children); }
 
-	void exclude (std::string const & path)
+	void set_to_state (std::string const & file, E_NodeStates state)
 	{
-		if (!root)
-			root = new node_t(std::string("/"), file_info(false));
-
-		tokenizer_t tok(path, separator);
-		node_t * level = root;
-	   	tokenizer_t::const_iterator it = tok.begin(), ite = tok.end();
-		while (it != ite)
-		{
-			node_t * n = node_t::node_child(level, *it);
-			if (n == 0)
-			{
-				n = new node_t(*it, file_info(false));
-				node_t::node_append(level, n);
-			}
-			level = n;
-			++it;
-			if (it == ite)
-			{
-				level->data.is_enabled = true;
-			}
-   		}
-	}
-
-	void exclude_to_state (std::vector<std::string> const & tokens, bool state)
-	{
-		if (!root)
-			root = new node_t(std::string("/"), file_info(false));
-
-		node_t * level = root;
-		std::vector<std::string>::const_iterator it = tokens.begin(), ite = tokens.end();
-		while (it != ite)
-		{
-			node_t * n = node_t::node_child(level, *it);
-			if (n == 0)
-			{
-				n = new node_t(*it, file_info(false));
-				node_t::node_append(level, n);
-			}
-			level = n;
-			++it;
-			if (it == ite)
-			{
-				level->data.is_enabled = state;
-			}
-   		}
-	}
-
-	void exclude_to_state (std::string const & file, bool state)
-	{
+		std::vector<node_t *> path;
+		std::string strpath;	//@TODO: terrible, i know
+		strpath.reserve(512);
 		tokenizer_t tok(file, separator);
 		node_t * level = root;
 	   	tokenizer_t::const_iterator it = tok.begin(), ite = tok.end();
+		path.reserve(std::distance(it, ite));
 		while (it != ite)
 		{
-			level = node_t::node_child(level, *it);
-			if (level == 0)
-				return;
+			node_t * n = node_t::node_child(level, *it);
+			if (n == 0)
+			{
+				n = new node_t(*it, file_info(state));
+				node_t::node_append(level, n);
+			}
+			level = n;
 
 			++it;
 			if (it == ite)
-			{
-				level->data.is_enabled = state;
-			}
+				level->data.m_state = state;
 		}
 	}
 
-	bool is_excluded_fast (std::string const & file) const
+	/*bool is_set_fast (std::string const & file) const
 	{
 		char const * const bgn = file.c_str();
 		char const * const end = bgn + file.size();
@@ -146,7 +125,7 @@ struct file_filter
 					level = node_t::node_child_fast(level, left, right);
 					if (level == 0)
 						return false; // node not in tree
-					else if (level->data.is_enabled) // node is tagged for exclusion
+					else if (level->data.m_state == e_Checked) // node is tagged for exclusion
 						return true;  // node is tagged for exclusion
 
 				}
@@ -155,9 +134,9 @@ struct file_filter
 			}
 		}
 		return false; // node is not tagged
-	}
+	}*/
 
-	bool is_excluded (std::string const & file) const
+	/*bool is_excluded (std::string const & file) const
 	{
 		tokenizer_t tok(file, separator);
 		node_t const * level = root;
@@ -166,13 +145,13 @@ struct file_filter
 			level = node_t::node_child(level, *it);
 			if (level == 0)
 				return false; // node not in tree
-			else if (level->data.is_enabled) // node is tagged for exclusion
+			else if (level->data.m_state == e_Checked) // node is tagged for exclusion
 				return true;  // node is tagged for exclusion
 		}
 		return false; // node is not tagged
-	}
+	}*/
 
-	bool is_present (std::string const & file, bool & state) const
+	bool is_present (std::string const & file, E_NodeStates & state) const
 	{
 		tokenizer_t tok(file, separator);
 		node_t const * level = root;
@@ -180,33 +159,25 @@ struct file_filter
 		{
 			level = node_t::node_child(level, *it);
 			if (level == 0)
-			{
 				return false; // node not in tree
-			}
-			else if (level->data.is_enabled)
-			{
-				state = true;
-				return true;  // node is tagged for exclusion
-			}
+			state = static_cast<E_NodeStates>(level->data.m_state);
 		}
-		state = false;
-		return true; // node is not tagged
+		return true;
 	}
 
 
-	void set_state_to_childs (node_t * node, bool is_enabled)
+	void set_state_to_childs (node_t * node, E_NodeStates state)
 	{
 		node = node->children;
 		while (node)
 		{
-			//printf("file_filter: disabling child %s\n", node->key.c_str());
-			node->data.is_enabled = is_enabled;
-			set_state_to_childs(node, is_enabled);
+			node->data.m_state = state;
+			set_state_to_childs(node, state);
 			node = node->next;
 		}
 	}
 
-	void exclude_enable_childs (std::string const & file, bool state)
+	void set_state_to_childs (std::string const & file, E_NodeStates state)
 	{
 		tokenizer_t tok(file, separator);
 		node_t * level = root;
@@ -220,11 +191,42 @@ struct file_filter
 			++it;
 			if (it == ite)
 			{
-				level->data.is_enabled = state;
+				level->data.m_state = state;
 				set_state_to_childs(level, state);
 			}
 		}
 	}
+
+	void set_state_to_parents (node_t * node, E_NodeStates state)
+	{
+		while (node = node->parent)
+		{
+			node->data.m_state = state;
+			set_state_to_parents(node, state);
+		}
+	}
+
+	void set_state_to_topdown (std::string const & file, E_NodeStates fw_state, E_NodeStates rev_state)
+	{
+		tokenizer_t tok(file, separator);
+		node_t * level = root;
+	   	tokenizer_t::const_iterator it = tok.begin(), ite = tok.end();
+		while (it != ite)
+		{
+			level = node_t::node_child(level, *it);
+			if (level == 0)
+				return;
+
+			++it;
+			if (it == ite)
+			{
+				level->data.m_state = fw_state;
+				set_state_to_childs(level, fw_state);
+				set_state_to_parents(level, rev_state);
+			}
+		}
+	}
+
 
 	void reassemble_path (std::vector<node_t *> const & nodes, std::string & path) const
 	{
@@ -236,7 +238,25 @@ struct file_filter
 		}
 	}
 
-	void export_filter_impl (node_t const * node, std::vector<node_t *> & nodes, std::string & output) const
+	template <class ArchiveT>
+	inline void save (ArchiveT & a, unsigned const /*version*/) const
+	{
+		//qDebug("%s root=%x children=%x next=%x prev=%x", __FUNCTION__, root->children, root->next, root->prev);
+		a.register_type(static_cast<node_t *>(NULL));
+		a & root;
+	}
+	 
+	template <class ArchiveT>
+	inline void load (ArchiveT & a, unsigned const /*version*/)
+	{
+		a.register_type(static_cast<node_t *>(NULL));
+		a & root;
+		//qDebug("%s root=%x children=%x next=%x prev=%x", __FUNCTION__, root, root->children, root->next, root->prev);
+	}
+
+	BOOST_SERIALIZATION_SPLIT_MEMBER()
+	 
+	void dump_filter_impl (node_t const * node, std::vector<node_t *> & nodes, std::string & output) const
 	{
 		if (node && node->children)
 		{
@@ -246,28 +266,35 @@ struct file_filter
 			{
 				node_t * current = child;
 				nodes.push_back(current);
-				if (current->data.is_enabled == true)
+				//if (current->data.m_state == e_Unchecked)
 				{
+
 					std::string path;
 					path.reserve(128);
 					reassemble_path(nodes, path);
 					output.append("\n");
+					if (current->data.m_state == e_Checked)
+						output += "X ";
+					else if (current->data.m_state == e_PartialCheck)
+						output += "# ";
+					else
+						output += "- ";
 					output.append(path);
 					path.clear();
 				}
-				export_filter_impl(current, nodes, output);
+				dump_filter_impl(current, nodes, output);
 				nodes.pop_back();
 				child = current->next;
 			}
 		}
 	}
 
-	void export_filter (std::string & output) const
+	void dump_filter (std::string & output) const
 	{
 		output.reserve(128);
 		std::vector<node_t *> path;
 		path.reserve(32);
-		export_filter_impl(root, path, output);
+		dump_filter_impl(root, path, output);
 	}
 };
 

@@ -34,7 +34,7 @@ IF (Boost_FOUND)
 	INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIR})
 	ADD_DEFINITIONS( "-DHAS_BOOST" )
 
-	set(BOOST_LIBS thread date_time system regex)
+	set(BOOST_LIBS thread date_time system regex serialization)
 	find_package(Boost COMPONENTS ${BOOST_LIBS} REQUIRED)
 ENDIF()
 

@@ -152,4 +152,58 @@ struct NNode
 			node = next;
 		}
 	}
+
+	unsigned count_childs () const
+	{
+		unsigned count = 0;
+		NNode const * child = children;
+		while (child)
+		{
+			++count;
+			child = child->next;
+		}
+		return count;
+	}
+
+	template <class ArchiveT>
+	void save (ArchiveT & a, unsigned const) const
+	{
+		a.register_type(static_cast<NNode *>(NULL));
+		a & key;
+		a & data;
+		unsigned count = count_childs();
+		a & count;
+
+		NNode * child = children;
+		for (size_t i = 0; i < count; ++i)
+		{
+			a & child;
+			child = child->next;
+		}
+	}
+
+	template <class ArchiveT>
+	void load (ArchiveT & a, unsigned const)
+	{
+		a.register_type(static_cast<NNode *>(NULL));
+		a & key;
+		a & data;
+		unsigned count = 0;
+		a & count;
+		//qDebug("loaded node key=%s, child_count=%u, data=%u", key.c_str(), count, data.m_state, data.m_collapsed);
+
+		NNode * * child = &children;
+		NNode * prev = 0;
+		for (size_t i = 0; i < count; ++i)
+		{
+			a & (*child);
+			(*child)->parent = this;
+			(*child)->prev = prev;
+			prev = *child;
+			child = &(*child)->next;
+		}
+	}
+
+	BOOST_SERIALIZATION_SPLIT_MEMBER()
 };
+

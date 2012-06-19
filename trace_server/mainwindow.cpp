@@ -26,6 +26,7 @@
 #include "../tlv_parser/tlv_parser.h"
 #include "help.h"
 #include "version.h"
+#include "serialization.h"
 
 #ifdef WIN32
 #	define WIN32_LEAN_AND_MEAN
@@ -70,6 +71,9 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay)
 	//QDir::setSearchPaths("icons", QStringList(QDir::currentPath()));
 	ui->setupUi(this);
 	ui->tabTrace->setTabsClosable(true);
+
+	QString const homedir = QDir::homePath();
+	m_appdir = homedir + "/.flogging";
 
 	// tray stuff
 	createActions();
@@ -527,7 +531,7 @@ void MainWindow::onDumpFilters ()
 	if (Connection * conn = m_server->findCurrentConnection())
 	{
 		SessionExport se;
-		conn->sessionState().sessionExport(se);
+		conn->sessionState().sessionDump(se);
 		session_string = QString("File filter:\n %1\nregex_filter:\n %2\nregex_inclusive:\n %3\ncolor_regexps:\n %4\ncolor_colors:\n %5\n")
 				.arg(se.m_file_filters.c_str())
 				.arg(se.m_regex_filters.c_str())
@@ -552,6 +556,30 @@ void MainWindow::onShowHelp ()
 	dialog.exec();
 }
 
+void syncOnPreset (QStandardItem * qnode, file_filter::node_t * node)
+{
+	if (node)
+	{
+		qnode->setCheckState(static_cast<Qt::CheckState>(node->data.m_state));
+		if (node && node->children)
+		{
+			file_filter::node_t * child = node->children;
+			while (child)
+			{
+				QStandardItem * qchild = findChildByText(qnode, QString::fromStdString(child->key));
+				if (!qchild)
+				{
+					QList<QStandardItem *> row_items = addRowTriState(QString::fromStdString(child->key), static_cast<E_NodeStates>(child->data.m_state));
+					qnode->appendRow(row_items);
+					qchild = row_items[0];
+				}
+				syncOnPreset(qchild, child);
+				child = child->next;
+			}
+		}
+	}
+}
+
 void MainWindow::onPresetActivate (int idx)
 {
 	if (idx == -1) return;
@@ -561,14 +589,16 @@ void MainWindow::onPresetActivate (int idx)
 	if (!conn) return;
 
 	conn->onClearCurrentFileFilter();
-	for (size_t i = 0, ie = m_filter_presets.at(idx).m_file_filters.size(); i < ie; ++i)
-	{
-		std::string filter_item(m_filter_presets.at(idx).m_file_filters.at(i).toStdString());
-		conn->loadToFileFilters(filter_item);
-	}
+	loadSession(conn->m_session_state, m_preset_names.at(idx));
 
-	conn->onClearCurrentColorizedRegexFilter();
-	for (size_t i = 0, ie = m_filter_presets.at(idx).m_colortext_regexs.size(); i < ie; ++i)
+	file_filter::node_t * node = conn->m_session_state.m_file_filters.root;
+	QStandardItem * qnode = static_cast<QStandardItemModel *>(getWidgetFile()->model())->invisibleRootItem();
+	syncOnPreset(qnode, node);
+
+	//node->setCheckState(static_cast<Qt::CheckState>(ff_state));
+
+	//conn->onClearCurrentColorizedRegexFilter();
+	/*for (size_t i = 0, ie = m_filter_presets.at(idx).m_colortext_regexs.size(); i < ie; ++i)
 	{
 		std::string cregex_item(m_filter_presets.at(idx).m_colortext_regexs.at(i).toStdString());
 		std::string cregex_col(m_filter_presets.at(idx).m_colortext_colors.at(i).toStdString());
@@ -582,10 +612,10 @@ void MainWindow::onPresetActivate (int idx)
 			QList<QStandardItem *> row_items = addRow(m_filter_presets.at(idx).m_colortext_regexs.at(i), enabled);
 			root->appendRow(row_items);
 		}
-	}
+	}*/
 
 	conn->recompileColorRegexps();
-	for (size_t i = 0, ie = m_filter_presets.at(idx).m_regex_filters.size(); i < ie; ++i)
+	/*for (size_t i = 0, ie = m_filter_presets.at(idx).m_regex_filters.size(); i < ie; ++i)
 	{
 		std::string regex_item(m_filter_presets.at(idx).m_regex_filters.at(i).toStdString());
 		std::string regex_fmode(m_filter_presets.at(idx).m_regex_fmode.at(i).toStdString());
@@ -601,10 +631,9 @@ void MainWindow::onPresetActivate (int idx)
 			row_items.at(0)->setCheckState(enabled ? Qt::Checked : Qt::Unchecked);
 			root->appendRow(row_items);
 		}
-	}
+	}*/
 	conn->recompileRegexps();
 
-	getWidgetFile()->expandAll();
 	conn->onInvalidateFilter();
 }
 
@@ -737,8 +766,8 @@ void MainWindow::onSaveCurrentFileFilterTo (QString const & preset_name)
 		}
 		qDebug("new preset_name[%i]=%s", idx, preset_name.toStdString().c_str());
 
-
-		SessionExport e;
+		//saveSessionState(conn->sessionState(), "prvni.txt");
+		/*SessionExport e;
 		conn->sessionState().sessionExport(e);
 		boost::char_separator<char> sep("\n");
 		typedef boost::tokenizer<boost::char_separator<char> > tokenizer_t;
@@ -785,7 +814,7 @@ void MainWindow::onSaveCurrentFileFilterTo (QString const & preset_name)
 			tokenizer_t tok(e.m_regex_enabled, sep);
 			for (tokenizer_t::const_iterator it = tok.begin(), ite = tok.end(); it != ite; ++it)
 				m_filter_presets[idx].m_regex_enabled << QString::fromStdString(*it);
-		}
+		}*/
 
 		storePresets();
 
@@ -918,34 +947,53 @@ void read_list_of_strings (QSettings & settings, char const * groupname, char co
 	settings.endArray();
 }
 
+void MainWindow::getPresetFileName (QString const & preset_name, QString & fname) const
+{
+	QString presetdir = m_appdir + "/" + preset_name;
+	QDir d;
+	d.mkpath(presetdir);
+	fname = presetdir + "/session.state";
+}
+
+void MainWindow::saveSession (SessionState const & s, QString const & preset_name) const
+{
+	QString fname;
+	getPresetFileName(preset_name, fname);
+	qDebug("store file=%s", fname.toAscii());
+	saveSessionState(s, fname.toAscii());
+}
+
 void MainWindow::storePresets ()
 {
 	qDebug("storePresets()");
+	if (!getTabTrace()->currentWidget()) return;
+	Connection * conn = m_server->findCurrentConnection();
+	if (!conn) return;
+
 	QSettings settings("MojoMir", "TraceServer");
 	write_list_of_strings(settings, "known-presets", "preset", m_preset_names);
 
 	for (size_t i = 0, ie = m_preset_names.size(); i < ie; ++i)
-	{
 		if (!m_preset_names.at(i).isEmpty())
-		{
-			qDebug("store group=%s", m_preset_names.at(i).toStdString().c_str());
-			settings.beginGroup(tr("preset_%1").arg(m_preset_names.at(i)));
-			{
-				write_list_of_strings(settings, "items", "item", m_filter_presets.at(i).m_file_filters);
-				write_list_of_strings(settings, "cregexps", "item", m_filter_presets.at(i).m_colortext_regexs);
-				write_list_of_strings(settings, "cregexps_colors", "item", m_filter_presets.at(i).m_colortext_colors);
-				write_list_of_strings(settings, "cregexps_enabled", "item", m_filter_presets.at(i).m_colortext_enabled);
-				write_list_of_strings(settings, "regexps", "item", m_filter_presets.at(i).m_regex_filters);
-				write_list_of_strings(settings, "regexps_fmode", "item", m_filter_presets.at(i).m_regex_fmode);
-				write_list_of_strings(settings, "regexps_enabled", "item", m_filter_presets.at(i).m_regex_enabled);
-			}
-			settings.endGroup();
-		}
-	}
+			saveSession(conn->sessionState(), m_preset_names.at(i));
+}
+
+
+bool MainWindow::loadSession (SessionState & s, QString const & preset_name)
+{
+	QString fname;
+	getPresetFileName(preset_name, fname);
+	qDebug("store file=%s", fname.toAscii());
+	s.m_file_filters.clear();
+	return loadSessionState(s, fname.toAscii());
 }
 
 void MainWindow::loadPresets ()
 {
+	if (!getTabTrace()->currentWidget()) return;
+	Connection * conn = m_server->findCurrentConnection();
+	if (!conn) return;
+
 	m_preset_names.clear();
 	m_filter_presets.clear();
 	QSettings settings("MojoMir", "TraceServer");
@@ -955,6 +1003,11 @@ void MainWindow::loadPresets ()
 		ui->presetComboBox->addItem(m_preset_names.at(i));
 	}
 
+	for (size_t i = 0, ie = m_preset_names.size(); i < ie; ++i)
+		if (!m_preset_names.at(i).isEmpty())
+			loadSession(conn->m_session_state, m_preset_names.at(i));
+
+	/* @TODO: read and transform into file
 	for (size_t i = 0, ie = m_preset_names.size(); i < ie; ++i)
 	{
 		qDebug("reading preset: %s", m_preset_names.at(i).toStdString().c_str());
@@ -970,7 +1023,7 @@ void MainWindow::loadPresets ()
 			read_list_of_strings(settings, "regexps_enabled", "item", m_filter_presets.back().m_regex_enabled);
 		}
 		settings.endGroup();
-	}
+	}*/
 }
 
 void MainWindow::storeState ()

@@ -135,7 +135,7 @@
        <item row="1" column="0">
         <widget class="QPushButton" name="macUserButton">
          <property name="toolTip">
-          <string>pooftah!</string>
+          <string>...!</string>
          </property>
          <property name="text">
           <string>I'm a mac user and I'm too sexy to participate in a click fest. Please use best defaults for me.</string>

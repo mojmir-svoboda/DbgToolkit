@@ -43,6 +43,16 @@ struct CollapsedBlock {
 	CollapsedBlock (QString tid, int from, int to, QString file, QString line)
 		: m_tid(tid), m_from(from), m_to(to), m_file(file), m_line(line)
 	{ }
+
+	template <class ArchiveT>
+	void serialize (ArchiveT & ar, unsigned const version)
+	{
+		ar & m_tid;
+		ar & m_from;
+		ar & m_to;
+		ar & m_file;
+		ar & m_line;
+	}
 };
 
 struct FilteredRegex {
@@ -57,11 +67,21 @@ struct FilteredRegex {
 	FilteredRegex (std::string const & rs, bool is_inclusive)
         : m_regex_str(rs), m_regex(QString::fromStdString(rs)), m_is_enabled(0), m_is_inclusive(is_inclusive)
 	{ }
+
+	template <class ArchiveT>
+	void serialize (ArchiveT & ar, unsigned const version)
+	{
+		ar & m_regex_str;
+		ar & m_regex;
+		ar & m_is_enabled;
+		ar & m_is_inclusive;
+	}
 };
 
 struct ColorizedText {
 	E_ColorRole m_role;
 	QColor m_qcolor;
+	QColor m_bgcolor;
 	std::string m_regex_str;
 	QRegExp m_regex;
 	bool m_is_enabled;
@@ -79,6 +99,16 @@ struct ColorizedText {
         , m_qcolor(col), m_regex_str(rs), m_regex(QString::fromStdString(rs)), m_is_enabled(0)
 	{ }
 
+	template <class ArchiveT>
+	void serialize (ArchiveT & ar, unsigned const version)
+	{
+		ar & m_regex_str;
+		ar & m_qcolor;
+		ar & m_bgcolor;
+		ar & m_regex_str;
+		ar & m_regex;
+		ar & m_is_enabled;
+	}
 };
 
 struct SessionExport {
@@ -136,12 +166,11 @@ public:
 	file_filters_t const & getFileFilters () const { return m_file_filters; }
 	void appendFileFilter (fileline_t const & item);		/// add file + line pair
 	void appendFileFilter (std::string const & item);	/// add concantenated item
-	void removeFileFilter (fileline_t const & item);
-	bool isFileLineExcluded (fileline_t const & p) const;
-	bool isFileLineExcluded (std::string const & fileline) const;
-	bool isFileLinePresent (fileline_t const & p, bool & state) const; /// checks for file:line existence in the tree
-	bool isFileLinePresent (std::string const & fileline, bool & state) const; /// checks for file:line existence in the tree
-	void excludeOffChilds (fileline_t const & item);
+	//bool isFileLineExcluded (fileline_t const & p) const;
+	//bool isFileLineExcluded (std::string const & fileline) const;
+	bool isFileLinePresent (fileline_t const & p, E_NodeStates & state) const; /// checks for file:line existence in the tree
+	bool isFileLinePresent (std::string const & fileline, E_NodeStates & state) const; /// checks for file:line existence in the tree
+	void stateToFileChilds (fileline_t const & item, E_NodeStates const state);
 
 	typedef QList<context_t> ctx_filters_t;
 	ctx_filters_t const & getCtxFilters () const { return m_ctx_filters; }
@@ -190,13 +219,13 @@ public:
 	void setFilterMode (E_FilterMode m) { m_filter_mode = m; }
 	E_FilterMode getFilterMode () const { return m_filter_mode; }
 
-	void makeInexactCopy (SessionState const & rhs);
-   
-	void sessionExport (SessionExport & e) const;
-	void sessionImport (SessionExport const & e);
+	void sessionDump (SessionExport & e) const;
 
 	void clearFilters ();
-	void onClearFileFilter () { m_file_filters.set_state_to_childs(m_file_filters.root, false); }
+	void onClearFileFilter ()
+	{
+		m_file_filters.set_state_to_childs(m_file_filters.root, e_Unchecked);
+	}
 	void onClearCtxFilter () { m_ctx_filters.clear(); }
 	void onClearTIDFilter () { m_tid_filters.clear(); }
 	void onClearScopeFilter () { m_collapse_blocks.clear(); }
@@ -209,6 +238,18 @@ public:
 signals:
 	
 private:
+public:
+
+	template <class ArchiveT>
+	void serialize (ArchiveT & ar, unsigned const version)
+	{
+		ar & m_file_filters;
+		//ar & m_thread_colors;
+		//ar & m_colorized_texts;
+		//ar & m_filtered_regexps;
+		//ar & m_collapse_blocks;
+	}
+
 	friend class Connection;
 	friend class Server;
 	friend class MainWindow;

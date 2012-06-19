@@ -5,6 +5,7 @@
 #include <tlv_parser/tlv_encoder.h>
 #include "modelview.h"
 #include "utils.h"
+#include "serialization.h"
 
 bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 {
@@ -40,20 +41,8 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 					this->setupModelRegex();
 					if (!m_main_window->clrFltEnabled())
 					{
-						boost::char_separator<char> sep(":/\\");
-						SessionExport e;
-						conn->sessionState().sessionExport(e);
-						sessionState().sessionImport(e);
+						loadSessionState(conn->sessionState(), m_session_state);
 
-						boost::char_separator<char> sep2("\n");
-						typedef boost::tokenizer<boost::char_separator<char> > tokenizer_t;
-						tokenizer_t tok(e.m_file_filters, sep2);
-						for (tokenizer_t::const_iterator it = tok.begin(), ite = tok.end(); it != ite; ++it)
-						{
-							//appendToFileFilters(sep, *it, true);
-							loadToFileFilters(*it);
-						}
-						
 						{
 							QStandardItemModel * model = static_cast<QStandardItemModel *>(m_main_window->getWidgetColorRegex()->model());
 							QStandardItem * root = model->invisibleRootItem();

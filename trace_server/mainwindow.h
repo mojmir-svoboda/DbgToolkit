@@ -42,6 +42,7 @@ class QMenu;
 class QListView;
 class QStandardItemModel;
 class QLabel;
+class SessionState;
 
 class MainWindow : public QMainWindow
 {
@@ -73,6 +74,9 @@ public:
 		return -1;
 	}
 	
+	void getPresetFileName (QString const & preset_name, QString & fname) const;
+	void saveSession (SessionState const & s, QString const & preset_name) const;
+	bool loadSession (SessionState & s, QString const & preset_name);
 	size_t addPresetName (QString const & name)
 	{
 		m_preset_names.push_back(name);
@@ -216,6 +220,7 @@ private:
 	unsigned short m_trace_port;
 	QString m_profiler_addr;
 	unsigned short m_profiler_port;
+	QString m_appdir;
 };
 
 #endif // MAINWINDOW_H
