@@ -16,7 +16,7 @@ namespace boost { namespace serialization {
 	{
 		using boost::serialization::make_nvp;
 		std::string s;
-		ar >> make_nvp("value", s);
+		a >> make_nvp("value", s);
 		q = QString::fromStdString(s);
 	}
 	 

@@ -35,12 +35,13 @@ void StatsWindow::stopUpdate ()
 	
 StatsWindow::~StatsWindow ()
 {
+	m_plot->stopUpdate();
 	m_window->hide();
 	qDebug("%s", __FUNCTION__);
-	delete m_plot;
-	m_plot = 0;
-	delete m_window;
-	m_window = 0;
+	//delete m_plot;
+	//m_plot = 0;
+	//delete m_window;
+	//m_window = 0;
 }
 
 
@@ -86,7 +87,7 @@ StatsPlot::StatsPlot (QWidget * parent, SessionState & state)
 	m_curves[e_ReadBytes].m_curve->attach(this);
 	showCurve(m_curves[e_ReadBytes].m_curve, true);
 
-	startTimer(500);
+	m_timer = startTimer(500);
 }
 
 StatsPlot::~StatsPlot ()
@@ -96,7 +97,7 @@ StatsPlot::~StatsPlot ()
 
 void StatsPlot::stopUpdate ()
 {
-	killTimer();
+	killTimer(m_timer);
 }
 
 void StatsPlot::timerEvent (QTimerEvent *)

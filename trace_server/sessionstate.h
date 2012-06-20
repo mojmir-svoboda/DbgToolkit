@@ -40,6 +40,8 @@ struct CollapsedBlock {
 	QString m_file;
 	QString m_line;
 
+	CollapsedBlock () { }
+
 	CollapsedBlock (QString tid, int from, int to, QString file, QString line)
 		: m_tid(tid), m_from(from), m_to(to), m_file(file), m_line(line)
 	{ }
@@ -64,6 +66,7 @@ struct FilteredRegex {
 	bool isValid () const { return m_regex.isValid(); }
 	bool exactMatch (QString str) const { return m_regex.exactMatch(str); }
 
+	FilteredRegex () { }
 	FilteredRegex (std::string const & rs, bool is_inclusive)
         : m_regex_str(rs), m_regex(QString::fromStdString(rs)), m_is_enabled(0), m_is_inclusive(is_inclusive)
 	{ }
@@ -89,6 +92,8 @@ struct ColorizedText {
 	bool isValid () const { return m_regex.isValid(); }
 	bool exactMatch (QString str) const { return m_regex.exactMatch(str); }
 
+	ColorizedText () { }
+
 	ColorizedText (std::string const & rs, E_ColorRole r)
         : m_role(r)
         , m_qcolor(Qt::magenta), m_regex_str(rs), m_regex(QString::fromStdString(rs)), m_is_enabled(0)
@@ -102,6 +107,7 @@ struct ColorizedText {
 	template <class ArchiveT>
 	void serialize (ArchiveT & ar, unsigned const version)
 	{
+		ar & m_role;
 		ar & m_regex_str;
 		ar & m_qcolor;
 		ar & m_bgcolor;
@@ -164,10 +170,6 @@ public:
 
 	typedef file_filter file_filters_t;
 	file_filters_t const & getFileFilters () const { return m_file_filters; }
-	void appendFileFilter (fileline_t const & item);		/// add file + line pair
-	void appendFileFilter (std::string const & item);	/// add concantenated item
-	//bool isFileLineExcluded (fileline_t const & p) const;
-	//bool isFileLineExcluded (std::string const & fileline) const;
 	bool isFileLinePresent (fileline_t const & p, E_NodeStates & state) const; /// checks for file:line existence in the tree
 	bool isFileLinePresent (std::string const & fileline, E_NodeStates & state) const; /// checks for file:line existence in the tree
 	void stateToFileChilds (fileline_t const & item, E_NodeStates const state);
@@ -230,8 +232,8 @@ public:
 	void onClearTIDFilter () { m_tid_filters.clear(); }
 	void onClearScopeFilter () { m_collapse_blocks.clear(); }
 	void onClearColorizedRegexFilter () { m_colorized_texts.clear(); }
-	void onClearLvlFilter () { m_filtered_regexps.clear(); }
-	void onClearRegexFilter () { m_lvl_filters.clear(); }
+	void onClearLvlFilter () { m_lvl_filters.clear(); }
+	void onClearRegexFilter () { m_filtered_regexps.clear(); }
 
 	unsigned getRecvBytes () const { return m_recv_bytes; }
 	
@@ -245,9 +247,10 @@ public:
 	{
 		ar & m_file_filters;
 		//ar & m_thread_colors;
-		//ar & m_colorized_texts;
-		//ar & m_filtered_regexps;
-		//ar & m_collapse_blocks;
+		ar & m_colorized_texts;
+		ar & m_filtered_regexps;
+		ar & m_collapse_blocks;
+		ar & m_thread_colors;
 	}
 
 	friend class Connection;

@@ -40,6 +40,11 @@ struct ThreadSpecific
 		return 0;
 	}
 
+	void clear ()
+	{
+		m_tids.clear();
+		m_indents.clear();
+	}
 };
 
 

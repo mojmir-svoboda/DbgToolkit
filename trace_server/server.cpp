@@ -151,7 +151,15 @@ void Server::onUnhidePrevFromRow ()
 void Server::onExcludeFileLine ()
 {
 	if (Connection * conn = findCurrentConnection())
+	{
+		/*QModelIndex const current = m_last_clicked;
+		if (current.isValid())
+		{
+			onClickedAtFileTree_Impl(m_last_clicked);
+		}*/
+
 		conn->onExcludeFileLine();
+	}
 }
 
 void Server::onToggleRefFromRow ()
@@ -177,17 +185,17 @@ void Server::onClickedAtFileTree_Impl (QModelIndex idx, bool recursive)
 
 	MainWindow * const main_window = static_cast<MainWindow *>(parent());
 	QStandardItemModel const * const model = static_cast<QStandardItemModel *>(main_window->getWidgetFile()->model());
-	QStandardItem * const item = model->itemFromIndex(idx);
-	QStandardItem const * line_item = 0;
+	QStandardItem * const node = model->itemFromIndex(idx);
+	QStandardItem const * line_node = 0;
 
 	s.clear();
 	s.reserve(16);
-	if (!item->hasChildren())
-		line_item = item;
+	if (!node->hasChildren())
+		line_node = node;
 	else
 		s.push_back(model->data(idx, Qt::DisplayRole).toString());
 
-	QStandardItem * parent = item->parent();
+	QStandardItem * parent = node->parent();
 	std::string file;
 	QModelIndex parent_idx = model->indexFromItem(parent);
 	while (parent_idx.isValid())
@@ -201,47 +209,41 @@ void Server::onClickedAtFileTree_Impl (QModelIndex idx, bool recursive)
 	for (std::vector<QString>::const_reverse_iterator it=s.rbegin(), ite=s.rend(); it != ite; ++it)
 		file += std::string("/") + (*it).toStdString();
 
-	fileline_t filter_item(file, std::string());
-	if (line_item)
+	fileline_t filter_node(file, std::string());
+	if (line_node)
 	{
 		QString const & val = model->data(idx, Qt::DisplayRole).toString();
-		filter_item.second = val.toStdString();
+		filter_node.second = val.toStdString();
 	}
-	std::string const fileline = filter_item.first + "/" + filter_item.second;
+	std::string const fileline = filter_node.first + "/" + filter_node.second;
 
-/*
-	 *	Qt::Unchecked	0	The item is unchecked.
-	 *	Qt::PartiallyChecked	1	The item is partially checked. Items in hierarchical models may be partially checked if some, but not all, of their children are checked.
-	 *	Qt::Checked	2	The item is checked.
-	 */
 	E_FilterMode const fmode = main_window->fltMode();
-
-	Qt::CheckState const curr_state = item->checkState();
+	Qt::CheckState const curr_state = node->checkState();
 	if (curr_state == Qt::Checked)
 	{
 		// unchecked --> checked
-		setCheckStateChilds(item, curr_state);
+		setCheckStateChilds(node, curr_state);
 		conn->sessionState().m_file_filters.set_state_to_childs(fileline, static_cast<E_NodeStates>(curr_state));
 
-		if (item->parent())
+		if (node->parent())
 		{
 			//@TODO progress up the tree (reverse)
-			bool const all_checked = checkChildState(item->parent(), Qt::Checked);
-			if (all_checked && item->parent())
-				item->parent()->setCheckState(Qt::Checked);
+			bool const all_checked = checkChildState(node->parent(), Qt::Checked);
+			if (all_checked && node->parent())
+				node->parent()->setCheckState(Qt::Checked);
 		}
 	}
 	else if (curr_state == Qt::Unchecked)
 	{
 		// checked --> unchecked
 		conn->sessionState().m_file_filters.set_state_to_topdown(fileline, static_cast<E_NodeStates>(curr_state), e_PartialCheck);
-		setCheckStateChilds(item, curr_state);
-		setCheckStateReverse(item->parent(), Qt::PartiallyChecked); // iff parent unchecked and clicked on leaf
+		setCheckStateChilds(node, curr_state);
+		setCheckStateReverse(node->parent(), Qt::PartiallyChecked); // iff parent unchecked and clicked on leaf
 	}
 
 	E_NodeStates const new_state = static_cast<E_NodeStates>(curr_state);
 
-	qDebug("file click! sync state of %s --> item_checkstate=%i", fileline.c_str(), item->checkState());
+	qDebug("file click! sync state of %s --> node_checkstate=%i", fileline.c_str(), node->checkState());
 	conn->sessionState().m_file_filters.set_to_state(fileline, static_cast<E_NodeStates>(new_state));
 	conn->onInvalidateFilter();
 }

@@ -84,24 +84,44 @@ void Connection::onClearCurrentColorizedRegexFilter ()
 	sessionState().onClearColorizedRegexFilter();
 	onInvalidateFilter();
 }
+void Connection::onClearCurrentRegexFilter ()
+{
+	sessionState().onClearRegexFilter();
+	onInvalidateFilter();
+}
 void Connection::onClearCurrentScopeFilter ()
 {
 	sessionState().onClearScopeFilter();
 	onInvalidateFilter();
 }
 
-void Connection::appendToFileTree (boost::char_separator<char> const & sep, std::string const & item)
+void Connection::onExcludeFileLine (QModelIndex const & row_index)
+{
+	QString file = findString4Tag(tlv::tag_file, row_index);
+	QString line = findString4Tag(tlv::tag_line, row_index);
+
+	fileline_t filter_item(file.toStdString(), line.toStdString());
+	qDebug("appending: %s:%s", file.toStdString().c_str(), line.toStdString().c_str());
+	//m_session_state.appendFileFilter(filter_item);
+	//bool const checked = m_main_window->fltMode() == e_Exclude ? Qt::checked : false;
+	boost::char_separator<char> sep(":/\\");
+	appendToFileTree(sep, file.toStdString() + "/" + line.toStdString(), true);
+
+	onInvalidateFilter();
+}
+
+void Connection::appendToFileTree (boost::char_separator<char> const & sep, std::string const & fileline, bool exclude)
 {
 	typedef boost::tokenizer<boost::char_separator<char> > tokenizer_t;
-	tokenizer_t tok(item, sep);
+	tokenizer_t tok(fileline, sep);
 
 	E_FilterMode const fmode = m_main_window->fltMode();
 	QStandardItem * node = m_file_model->invisibleRootItem();
 	QStandardItem * last_hidden_node = 0;
-	bool append = false;
 	bool stop = false;
 	std::string path;
-	for (tokenizer_t::const_iterator it = tok.begin(), ite = tok.end(); it != ite; ++it)
+	tokenizer_t::const_iterator it = tok.begin(), ite = tok.end();
+	while (it != ite)
 	{
 		QString qItem = QString::fromStdString(*it);
 		QStandardItem * child = findChildByText(node, qItem);
@@ -110,6 +130,7 @@ void Connection::appendToFileTree (boost::char_separator<char> const & sep, std:
 		if (child != 0)
 		{
 			node = child;
+
 			E_NodeStates ff_state = e_Unchecked;
 			bool const known = sessionState().m_file_filters.is_present(path, ff_state);
 			if (known)
@@ -131,9 +152,8 @@ void Connection::appendToFileTree (boost::char_separator<char> const & sep, std:
 		else
 		{
 			stop = true;
-			append = true;
-			E_NodeStates new_state = e_Checked;
 
+			E_NodeStates new_state = e_Checked;
 			E_NodeStates ff_state = e_Unchecked;
 			bool const known = sessionState().m_file_filters.is_present(path, ff_state);
 			if (known)
@@ -144,14 +164,58 @@ void Connection::appendToFileTree (boost::char_separator<char> const & sep, std:
 			else
 			{
 				new_state = e_Checked;
-				qDebug("unknown: %s, state=%u", path.c_str(), new_state);
-				sessionState().m_file_filters.set_to_state(item, static_cast<E_NodeStates>(new_state));
+				//qDebug("unknown: %s, state=%u", path.c_str(), new_state);
+				sessionState().m_file_filters.set_to_state(fileline, static_cast<E_NodeStates>(new_state));
 			}
 
 			//qDebug("new node: %s, state=%u", path.c_str(), new_state);
 			QList<QStandardItem *> row_items = addRowTriState(qItem, new_state);
 			node->appendRow(row_items);
 			node = row_items.at(0);
+		}
+		++it;
+
+		if (it == ite)
+		{
+			if (exclude)
+			{
+				E_NodeStates new_state = e_Checked;
+				new_state = fmode == e_Include ? e_Unchecked : e_Checked;
+				sessionState().m_file_filters.set_to_state(fileline, static_cast<E_NodeStates>(new_state));
+				node->setCheckState(static_cast<Qt::CheckState>(new_state));
+			}
+
+			////////////
+
+			E_FilterMode const fmode = m_main_window->fltMode();
+			Qt::CheckState const curr_state = node->checkState();
+			if (curr_state == Qt::Checked)
+			{
+				// unchecked --> checked
+				setCheckStateChilds(node, curr_state);
+				sessionState().m_file_filters.set_state_to_childs(fileline, static_cast<E_NodeStates>(curr_state));
+
+				if (node->parent())
+				{
+					//@TODO progress up the tree (reverse)
+					bool const all_checked = checkChildState(node->parent(), Qt::Checked);
+					if (all_checked && node->parent())
+						node->parent()->setCheckState(Qt::Checked);
+				}
+			}
+			else if (curr_state == Qt::Unchecked)
+			{
+				// checked --> unchecked
+				sessionState().m_file_filters.set_state_to_topdown(fileline, static_cast<E_NodeStates>(curr_state), e_PartialCheck);
+				setCheckStateChilds(node, curr_state);
+				setCheckStateReverse(node->parent(), Qt::PartiallyChecked); // iff parent unchecked and clicked on leaf
+			}
+
+			E_NodeStates const new_state = static_cast<E_NodeStates>(curr_state);
+
+			qDebug("file click! sync state of %s --> node_checkstate=%i", fileline.c_str(), node->checkState());
+			sessionState().m_file_filters.set_to_state(fileline, static_cast<E_NodeStates>(new_state));
+
 		}
 	}
 	if (last_hidden_node)

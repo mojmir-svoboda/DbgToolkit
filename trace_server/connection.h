@@ -76,7 +76,7 @@ public:
 	
 	SessionState & sessionState () { return m_session_state; }
 	SessionState const & sessionState () const { return m_session_state; }
-	void appendToFileTree (boost::char_separator<char> const & sep, std::string const & item);
+	void appendToFileTree (boost::char_separator<char> const & sep, std::string const & item, bool exclude = false);
 	void appendToCtxFilters (std::string const & item, bool checked);
 	void appendToLvlFilters (std::string const & item, bool checked);
 
@@ -119,6 +119,7 @@ public slots:
 	void onClearCurrentCtxFilter ();
 	void onClearCurrentTIDFilter ();
 	void onClearCurrentColorizedRegexFilter ();
+	void onClearCurrentRegexFilter ();
 	void onClearCurrentScopeFilter ();
 	void onShowContextMenu (QPoint const & pos);
 	void onExcludeFileLine ();

@@ -85,8 +85,6 @@ struct file_filter
 	void set_to_state (std::string const & file, E_NodeStates state)
 	{
 		std::vector<node_t *> path;
-		std::string strpath;	//@TODO: terrible, i know
-		strpath.reserve(512);
 		tokenizer_t tok(file, separator);
 		node_t * level = root;
 	   	tokenizer_t::const_iterator it = tok.begin(), ite = tok.end();
@@ -165,7 +163,6 @@ struct file_filter
 		return true;
 	}
 
-
 	void set_state_to_childs (node_t * node, E_NodeStates state)
 	{
 		node = node->children;
@@ -227,7 +224,6 @@ struct file_filter
 		}
 	}
 
-
 	void reassemble_path (std::vector<node_t *> const & nodes, std::string & path) const
 	{
 		for (size_t i = 0, ie = nodes.size(); i < ie; ++i)
@@ -241,7 +237,6 @@ struct file_filter
 	template <class ArchiveT>
 	inline void save (ArchiveT & a, unsigned const /*version*/) const
 	{
-		//qDebug("%s root=%x children=%x next=%x prev=%x", __FUNCTION__, root->children, root->next, root->prev);
 		a.register_type(static_cast<node_t *>(NULL));
 		a & root;
 	}
@@ -251,7 +246,6 @@ struct file_filter
 	{
 		a.register_type(static_cast<node_t *>(NULL));
 		a & root;
-		//qDebug("%s root=%x children=%x next=%x prev=%x", __FUNCTION__, root, root->children, root->next, root->prev);
 	}
 
 	BOOST_SERIALIZATION_SPLIT_MEMBER()

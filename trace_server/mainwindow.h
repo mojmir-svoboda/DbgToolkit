@@ -145,6 +145,7 @@ private slots:
 	void loadState ();
 	void loadPresets ();
 	void storeState ();
+	void saveCurrentSession (QString const & preset_name);
 	void storePresets ();
 	void timerHit ();
 	void onQuit ();
@@ -183,6 +184,8 @@ private slots:
 	void onClickedAtSettingColumnAlign (QModelIndex idx);
 	void onClickedAtSettingColumnElide (QModelIndex idx);
 	void syncSettingsViews (QListView const * const invoker, QModelIndex const idx);
+	void syncColorRegexOnPreset (Connection * conn);
+	void syncRegexOnPreset (Connection * conn);
 
 private:
 	void showServerStatus ();
@@ -192,7 +195,7 @@ private:
 	void createTrayIcon ();
 
 	Ui::MainWindow * ui;
-	Ui::SettingsDialog * m_settings;
+	Ui::SettingsDialog * ui_settings;
 	Ui::HelpDialog * m_help;
 	unsigned m_hotkey;
 	bool m_hidden;
@@ -216,7 +219,6 @@ private:
 	QSystemTrayIcon * m_tray_icon;
 	QLabel * m_status_label;
 	QDialog * m_settings_dialog;
-	Ui::SettingsDialog * ui_settings;
 	QString m_trace_addr;
 	unsigned short m_trace_port;
 	QString m_profiler_addr;

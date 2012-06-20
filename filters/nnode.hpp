@@ -190,7 +190,7 @@ struct NNode
 		a & data;
 		unsigned count = 0;
 		a & count;
-		//qDebug("loaded node key=%s, child_count=%u, data=%u", key.c_str(), count, data.m_state, data.m_collapsed);
+		qDebug("loaded node key=%s, child_count=%u, data=%u", key.c_str(), count, data.m_state, data.m_collapsed);
 
 		NNode * * child = &children;
 		NNode * prev = 0;

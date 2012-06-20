@@ -58,6 +58,7 @@ namespace stats {
 	private:
 		std::vector<Curves> m_curves;
 		SessionState & m_state;
+		int m_timer;
 	};
 
 

@@ -233,21 +233,6 @@ QString Connection::onCopyToClipboard ()
 	return selected_text;
 }
 
-void Connection::onExcludeFileLine (QModelIndex const & row_index)
-{
-	QString file = findString4Tag(tlv::tag_file, row_index);
-	QString line = findString4Tag(tlv::tag_line, row_index);
-
-	fileline_t filter_item(file.toStdString(), line.toStdString());
-	qDebug("appending: %s:%s", file.toStdString().c_str(), line.toStdString().c_str());
-	//m_session_state.appendFileFilter(filter_item);
-	//bool const checked = m_main_window->fltMode() == e_Exclude ? Qt::checked : false;
-	boost::char_separator<char> sep(":/\\");
-	appendToFileTree(sep, file.toStdString() + "/" + line.toStdString());
-
-	onInvalidateFilter();
-}
-
 void Connection::onTableClicked (QModelIndex const & row_index)
 {
 	if (m_table_view_proxy)

@@ -159,14 +159,6 @@ void SessionState::clearFilters ()
 
 
 ///////// file filters
-/*bool SessionState::isFileLineExcluded (fileline_t const & item) const
-{
-	return isFileLineExcluded(item.first + "/" + item.second);
-}
-bool SessionState::isFileLineExcluded (std::string const & fileline) const
-{
-	return m_file_filters.is_excluded_fast(fileline);
-}*/
 bool SessionState::isFileLinePresent (fileline_t const & item, E_NodeStates & state) const
 {
 	return m_file_filters.is_present(item.first + "/" + item.second, state);
@@ -174,14 +166,6 @@ bool SessionState::isFileLinePresent (fileline_t const & item, E_NodeStates & st
 bool SessionState::isFileLinePresent (std::string const & fileline, E_NodeStates & state) const
 {
 	return m_file_filters.is_present(fileline, state);
-}
-void SessionState::appendFileFilter (fileline_t const & item)
-{
-	//m_file_filters.exclude(item.first + "/" + item.second);
-}
-void SessionState::appendFileFilter (std::string const & item)
-{
-	//m_file_filters.exclude(item);
 }
 void SessionState::stateToFileChilds (fileline_t const & item, E_NodeStates const state)
 {

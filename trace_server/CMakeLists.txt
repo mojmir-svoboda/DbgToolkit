@@ -41,6 +41,7 @@ ENDIF()
 
 SET(trace_server_SOURCES
 	main.cpp
+	../version.cpp
 	mainwindow.cpp
 	modelview.cpp
 	server.cpp
@@ -60,8 +61,6 @@ SET(trace_server_SOURCES
 	profilerview.cpp
 	profilerwindow.cpp
 	profilermainwindow.cpp
-	serialization.cpp
-	../version.cpp
 	serialization.cpp
 	)
 
@@ -89,6 +88,7 @@ SET(trace_server_HEADERS
 	rvps.h
 	rendezvous.h
 	serialization.h
+	utils.h
 	)
 
 SET(trace_server_UI mainwindow.ui settings.ui help.ui profilermainwindow.ui)

@@ -50,7 +50,7 @@ void MainWindow::loadNetworkSettings ()
 MainWindow::MainWindow (QWidget * parent, bool quit_delay)
 	: QMainWindow(parent)
 	, ui(new Ui::MainWindow)
-	, m_settings(new Ui::SettingsDialog)
+	, ui_settings(0)
 	, m_help(new Ui::HelpDialog)
 #if (defined WIN32) && (defined STATIC)
 	, m_hotkey(VK_SCROLL)
@@ -66,7 +66,6 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay)
 	, m_tray_menu(0)
 	, m_tray_icon(0)
 	, m_settings_dialog(0)
-	, ui_settings(0)
 {
 	//QDir::setSearchPaths("icons", QStringList(QDir::currentPath()));
 	ui->setupUi(this);
@@ -182,6 +181,10 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay)
 	ui->qFilterLineEdit->setToolTip(tr("quick inclusive filter: adds string to regex filter as regex .*string.*"));
 	ui->qSearchComboBox->setToolTip(tr("specifies column to search"));
 
+	m_settings_dialog = new QDialog(this);
+	m_settings_dialog->setWindowFlags(Qt::Sheet);
+	ui_settings = new Ui::SettingsDialog();
+	ui_settings->setupUi(m_settings_dialog);
 
 	m_status_label = new QLabel(m_server->getStatus());
 	QLabel * version_label = new QLabel(tr("Ver: %1").arg(g_Version));
@@ -200,8 +203,8 @@ MainWindow::~MainWindow()
 	UnregisterHotKey(winId(), 0);
 #endif
 	delete m_help;
-	delete m_settings;
 	delete ui;
+	delete ui_settings;
 }
 
 void MainWindow::createActions ()
@@ -295,7 +298,7 @@ bool MainWindow::autoScrollEnabled () const { return ui->autoScrollCheckBox->isC
 bool MainWindow::buffEnabled () const { return ui->buffCheckBox->isChecked(); }
 Qt::CheckState MainWindow::buffState () const { return ui->buffCheckBox->checkState(); }
 bool MainWindow::clrFltEnabled () const { return ui->clrFiltersCheckBox->isChecked(); }
-bool MainWindow::statsEnabled () const { return m_settings->traceStatsCheckBox->isChecked(); }
+bool MainWindow::statsEnabled () const { return ui_settings->traceStatsCheckBox->isChecked(); }
 E_FilterMode MainWindow::fltMode () const
 {
 	return ui->filterModeComboBox->currentText() == QString("Inclusive") ? e_Include : e_Exclude;
@@ -581,6 +584,48 @@ void syncOnPreset (QStandardItem * qnode, file_filter::node_t * node)
 	}
 }
 
+void MainWindow::syncColorRegexOnPreset (Connection * conn)
+{
+	QStandardItem * const root = static_cast<QStandardItemModel *>(getWidgetColorRegex()->model())->invisibleRootItem();
+	SessionState const & sess = conn->sessionState();
+	for (size_t i = 0, ie = sess.m_colorized_texts.size(); i < ie; ++i)
+	{
+		std::string const & cregex_item = sess.m_colorized_texts.at(i).m_regex_str;
+		std::string cregex_col(sess.m_colorized_texts.at(i).m_qcolor.name().toStdString());
+		bool const enabled = sess.m_colorized_texts.at(i).m_is_enabled;
+		conn->loadToColorRegexps(cregex_item, cregex_col, enabled);
+		QStandardItem * const child = findChildByText(root, QString::fromStdString(cregex_item));
+		if (child == 0)
+		{
+			QList<QStandardItem *> row_items = addRow(QString::fromStdString(cregex_item), enabled);
+			root->appendRow(row_items);
+		}
+	}
+	conn->recompileColorRegexps();
+}
+
+void MainWindow::syncRegexOnPreset (Connection * conn)
+{
+	QStandardItem * const root = static_cast<QStandardItemModel *>(getWidgetRegex()->model())->invisibleRootItem();
+	SessionState const & sess = conn->sessionState();
+	for (size_t i = 0, ie = sess.m_filtered_regexps.size(); i < ie; ++i)
+	{
+		std::string const & cregex_item = sess.m_filtered_regexps.at(i).m_regex_str;
+		bool const enabled = sess.m_filtered_regexps.at(i).m_is_enabled;
+		bool const inclusive = sess.m_filtered_regexps.at(i).m_is_inclusive;
+		conn->loadToRegexps(cregex_item, enabled, inclusive);
+
+		QStandardItem * const child = findChildByText(root, QString::fromStdString(cregex_item));
+		if (child == 0)
+		{
+			QList<QStandardItem *> row_items = addTriRow(QString::fromStdString(cregex_item), inclusive);
+			row_items.at(0)->setCheckState(enabled ? Qt::Checked : Qt::Unchecked);
+			root->appendRow(row_items);
+		}
+	}
+	conn->recompileRegexps();
+}
+
 void MainWindow::onPresetActivate (int idx)
 {
 	if (idx == -1) return;
@@ -590,50 +635,18 @@ void MainWindow::onPresetActivate (int idx)
 	if (!conn) return;
 
 	conn->onClearCurrentFileFilter();
-	loadSession(conn->m_session_state, m_preset_names.at(idx));
+	SessionState dummy;
+	loadSession(dummy, m_preset_names.at(idx));
+
+	std::swap(conn->m_session_state.m_file_filters.root, dummy.m_file_filters.root);
+	conn->m_session_state.m_filtered_regexps.swap(dummy.m_filtered_regexps);
+	conn->m_session_state.m_colorized_texts.swap(dummy.m_colorized_texts);
 
 	file_filter::node_t * node = conn->m_session_state.m_file_filters.root;
 	QStandardItem * qnode = static_cast<QStandardItemModel *>(getWidgetFile()->model())->invisibleRootItem();
 	syncOnPreset(qnode, node);
-
-	//node->setCheckState(static_cast<Qt::CheckState>(ff_state));
-
-	//conn->onClearCurrentColorizedRegexFilter();
-	/*for (size_t i = 0, ie = m_filter_presets.at(idx).m_colortext_regexs.size(); i < ie; ++i)
-	{
-		std::string cregex_item(m_filter_presets.at(idx).m_colortext_regexs.at(i).toStdString());
-		std::string cregex_col(m_filter_presets.at(idx).m_colortext_colors.at(i).toStdString());
-		bool const enabled = m_filter_presets.at(idx).m_colortext_enabled.at(i).toInt();
-		conn->loadToColorRegexps(cregex_item, cregex_col, enabled);
-
-		QStandardItem * const root = static_cast<QStandardItemModel *>(getWidgetColorRegex()->model())->invisibleRootItem();
-		QStandardItem * const child = findChildByText(root, m_filter_presets.at(idx).m_colortext_regexs.at(i));
-		if (child == 0)
-		{
-			QList<QStandardItem *> row_items = addRow(m_filter_presets.at(idx).m_colortext_regexs.at(i), enabled);
-			root->appendRow(row_items);
-		}
-	}*/
-
-	conn->recompileColorRegexps();
-	/*for (size_t i = 0, ie = m_filter_presets.at(idx).m_regex_filters.size(); i < ie; ++i)
-	{
-		std::string regex_item(m_filter_presets.at(idx).m_regex_filters.at(i).toStdString());
-		std::string regex_fmode(m_filter_presets.at(idx).m_regex_fmode.at(i).toStdString());
-		bool const enabled = m_filter_presets.at(idx).m_regex_enabled.at(i).toInt();
-		bool const inclusive = m_filter_presets.at(idx).m_regex_fmode.at(i).toInt();
-		conn->loadToRegexps(regex_item, inclusive, enabled);
-
-		QStandardItem * const root = static_cast<QStandardItemModel *>(getWidgetRegex()->model())->invisibleRootItem();
-		QStandardItem * const child = findChildByText(root, m_filter_presets.at(idx).m_regex_filters.at(i));
-		if (child == 0)
-		{
-			QList<QStandardItem *> row_items = addTriRow(m_filter_presets.at(idx).m_regex_filters.at(i), inclusive);
-			row_items.at(0)->setCheckState(enabled ? Qt::Checked : Qt::Unchecked);
-			root->appendRow(row_items);
-		}
-	}*/
-	conn->recompileRegexps();
+	syncColorRegexOnPreset(conn);
+	syncRegexOnPreset(conn);
 
 	conn->onInvalidateFilter();
 }
@@ -767,7 +780,7 @@ void MainWindow::onSaveCurrentFileFilterTo (QString const & preset_name)
 		}
 		qDebug("new preset_name[%i]=%s", idx, preset_name.toStdString().c_str());
 
-		storePresets();
+		saveCurrentSession(preset_name);
 
 		ui->presetComboBox->clear();
 		for (size_t i = 0, ie = m_preset_names.size(); i < ie; ++i)
@@ -929,12 +942,24 @@ void MainWindow::storePresets ()
 			saveSession(conn->sessionState(), m_preset_names.at(i));
 }
 
+void MainWindow::saveCurrentSession (QString const & preset_name)
+{
+	qDebug("MainWindow::saveCurrentSession(), name=%s", preset_name.toStdString().c_str());
+	if (!getTabTrace()->currentWidget()) return;
+	Connection * conn = m_server->findCurrentConnection();
+	if (!conn) return;
+
+	QSettings settings("MojoMir", "TraceServer");
+	write_list_of_strings(settings, "known-presets", "preset", m_preset_names);
+
+	saveSession(conn->sessionState(), preset_name);
+}
 
 bool MainWindow::loadSession (SessionState & s, QString const & preset_name)
 {
 	QString fname;
 	getPresetFileName(preset_name, fname);
-	qDebug("store file=%s", fname.toAscii());
+	qDebug("load file=%s", fname.toStdString().c_str());
 	s.m_file_filters.clear();
 	return loadSessionState(s, fname.toAscii());
 }
@@ -956,48 +981,30 @@ void MainWindow::loadPresets ()
 	{
 		qDebug("reading preset: %s", m_preset_names.at(i).toStdString().c_str());
 		m_filter_presets.push_back(Preset());
-		settings.beginGroup(tr("preset_%1").arg(m_preset_names[i]));
+		QString const prs_name = tr("preset_%1").arg(m_preset_names[i]);
+		if (settings.contains(prs_name))
 		{
-			read_list_of_strings(settings, "items", "item", m_filter_presets.back().m_file_filters);
-			read_list_of_strings(settings, "cregexps", "item", m_filter_presets.back().m_colortext_regexs);
-			read_list_of_strings(settings, "cregexps_colors", "item", m_filter_presets.back().m_colortext_colors);
-			read_list_of_strings(settings, "cregexps_enabled", "item", m_filter_presets.back().m_colortext_enabled);
-			read_list_of_strings(settings, "regexps", "item", m_filter_presets.back().m_regex_filters);
-			read_list_of_strings(settings, "regexps_fmode", "item", m_filter_presets.back().m_regex_fmode);
-			read_list_of_strings(settings, "regexps_enabled", "item", m_filter_presets.back().m_regex_enabled);
-
-			SessionState ss;
-			E_FilterMode const fmode = fltMode();
-			for (int f = 0, fe = m_filter_presets.back().m_file_filters.size(); f < fe; ++f)
-				ss.m_file_filters.set_to_state(m_filter_presets.back().m_file_filters.at(f).toStdString(), fmode == e_Exclude ? e_Checked : e_Unchecked);
-
-			saveSession(ss, m_preset_names.at(i));
-		}
-		settings.endGroup();
-
-		/*void SessionState::sessionImport (SessionExport const & e)
-		{
+			settings.beginGroup(prs_name);
 			{
-				m_colorized_texts.clear();
-				{
-					tokenizer_t tok(e.m_colortext_regexs, sep);
-					for (tokenizer_t::const_iterator it = tok.begin(), ite = tok.end(); it != ite; ++it)
-						m_colorized_texts.append(ColorizedText(*it, e_Fg)); //@TODO: save role
-				}
-				{
-					tokenizer_t tok(e.m_colortext_colors, sep);
-					int i = 0;
-					for (tokenizer_t::const_iterator it = tok.begin(), ite = tok.end(); it != ite; ++it, ++i)
-						m_colorized_texts[i].m_qcolor.setNamedColor(QString::fromStdString(*it));
-				}
-				{
-					tokenizer_t tok(e.m_colortext_enabled, sep);
-					int i = 0;
-					for (tokenizer_t::const_iterator it = tok.begin(), ite = tok.end(); it != ite; ++it, ++i)
-						m_colorized_texts[i].m_is_enabled = QString::fromStdString(*it).toInt();
-				}
+				read_list_of_strings(settings, "items", "item", m_filter_presets.back().m_file_filters);
+				read_list_of_strings(settings, "cregexps", "item", m_filter_presets.back().m_colortext_regexs);
+				read_list_of_strings(settings, "cregexps_colors", "item", m_filter_presets.back().m_colortext_colors);
+				read_list_of_strings(settings, "cregexps_enabled", "item", m_filter_presets.back().m_colortext_enabled);
+				read_list_of_strings(settings, "regexps", "item", m_filter_presets.back().m_regex_filters);
+				read_list_of_strings(settings, "regexps_fmode", "item", m_filter_presets.back().m_regex_fmode);
+				read_list_of_strings(settings, "regexps_enabled", "item", m_filter_presets.back().m_regex_enabled);
+
+				SessionState ss;
+				E_FilterMode const fmode = fltMode();
+				for (int f = 0, fe = m_filter_presets.back().m_file_filters.size(); f < fe; ++f)
+					ss.m_file_filters.set_to_state(m_filter_presets.back().m_file_filters.at(f).toStdString(), fmode == e_Exclude ? e_Checked : e_Unchecked);
+
+				saveSession(ss, m_preset_names.at(i));
+
+				settings.remove("");
 			}
-		}*/
+			settings.endGroup();
+		}
 	}
 }
 
@@ -1009,7 +1016,7 @@ void MainWindow::storeState ()
 	settings.setValue("trace_port", m_trace_port);
 	settings.setValue("profiler_addr", m_profiler_addr);
 	settings.setValue("profiler_port", m_profiler_port);
-	settings.setValue("trace_stats", m_settings->traceStatsCheckBox->isChecked());
+	settings.setValue("trace_stats", ui_settings->traceStatsCheckBox->isChecked());
 
 	settings.setValue("geometry", saveGeometry());
 	settings.setValue("windowState", saveState());
@@ -1080,7 +1087,7 @@ void MainWindow::loadState ()
 	if (settings.contains("splitter"))
 		ui->splitter->restoreState(settings.value("splitter").toByteArray());
 
-	m_settings->traceStatsCheckBox->setChecked(settings.value("trace_stats", true).toBool());
+	ui_settings->traceStatsCheckBox->setChecked(settings.value("trace_stats", true).toBool());
 
 	ui->autoScrollCheckBox->setChecked(settings.value("autoScrollCheckBox", true).toBool());
 	ui->reuseTabCheckBox->setChecked(settings.value("reuseTabCheckBox", true).toBool());
@@ -1153,11 +1160,6 @@ void MainWindow::loadState ()
 
 	loadPresets();
 	getWidgetFile()->setEnabled(filterEnabled());
-
-	m_settings_dialog = new QDialog(this);
-	m_settings_dialog->setWindowFlags(Qt::Sheet);
-	ui_settings = new Ui::SettingsDialog();
-	ui_settings->setupUi(m_settings_dialog);
 
 	qApp->installEventFilter(this);
 }
