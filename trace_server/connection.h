@@ -103,6 +103,8 @@ signals:
 	
 public slots:
 	void onTabTraceFocus (int i);
+	void onFileExpanded (QModelIndex const &);
+	void onFileCollapsed (QModelIndex const &);
 	void onLevelValueChanged (int i);
 	QString onCopyToClipboard ();
 	void setFilterFile (int state);

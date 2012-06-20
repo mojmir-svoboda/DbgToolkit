@@ -55,6 +55,8 @@ public:
 	QTabWidget * getTabTrace ();
 	QTabWidget const * getTabTrace () const;
 
+	QString getAppDir () const { return m_appdir; }
+
 	columns_setup_t const & getColumnSetup (size_t i) const { return m_columns_setup.at(i); }
 	columns_setup_t & getColumnSetup (size_t i) { return m_columns_setup[i]; }
 	columns_sizes_t const & getColumnSizes (size_t i) const { return m_columns_sizes.at(i); }
@@ -74,7 +76,6 @@ public:
 		return -1;
 	}
 	
-	void getPresetFileName (QString const & preset_name, QString & fname) const;
 	void saveSession (SessionState const & s, QString const & preset_name) const;
 	bool loadSession (SessionState & s, QString const & preset_name);
 	size_t addPresetName (QString const & name)

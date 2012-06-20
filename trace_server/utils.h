@@ -22,7 +22,34 @@
 #pragma once
 #include <QStandardItem>
 #include <QString>
+#include <QDir>
+#include <QFile>
 #include "sessionstate.h"
+#include "constants.h"
+
+inline QString getPresetFileName (QString const & appdir, QString const & preset_name)
+{
+	QString presetdir = appdir + "/" + preset_name;
+	QDir d;
+	d.mkpath(presetdir);
+	QString const fname = presetdir + "/" + g_presetFileName;
+	return fname;
+}
+
+inline bool existsPresetFile (char const * fname)
+{
+	QFile file(fname);
+	return file.exists();
+}
+
+inline QString getPresetPath (QString const & app_name, QString const & name)
+{
+	QString path;
+	path.append(app_name);
+	path.append("/");
+	path.append(name);
+	return path;
+}
 
 inline QStandardItem * findChildByText (QStandardItem * parent, QString const & txt)
 {

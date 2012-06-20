@@ -213,7 +213,7 @@ void Connection::appendToFileTree (boost::char_separator<char> const & sep, std:
 
 			E_NodeStates const new_state = static_cast<E_NodeStates>(curr_state);
 
-			qDebug("file click! sync state of %s --> node_checkstate=%i", fileline.c_str(), node->checkState());
+			//qDebug("file click! sync state of %s --> node_checkstate=%i", fileline.c_str(), node->checkState());
 			sessionState().m_file_filters.set_to_state(fileline, static_cast<E_NodeStates>(new_state));
 
 		}
@@ -225,6 +225,16 @@ void Connection::appendToFileTree (boost::char_separator<char> const & sep, std:
 		else
 			m_main_window->getWidgetFile()->setRootIndex(last_hidden_node->index());
 	}
+}
+
+void Connection::onFileExpanded (QModelIndex const &)
+{
+	qDebug("%s", __FUNCTION__);
+}
+
+void Connection::onFileCollapsed (QModelIndex const &)
+{
+	qDebug("%s", __FUNCTION__);
 }
 
 void Connection::appendToTIDFilters (std::string const & item)

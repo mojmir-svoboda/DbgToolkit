@@ -27,6 +27,7 @@
 #include "help.h"
 #include "version.h"
 #include "serialization.h"
+#include "constants.h"
 
 #ifdef WIN32
 #	define WIN32_LEAN_AND_MEAN
@@ -761,7 +762,8 @@ void MainWindow::onSaveCurrentFileFilter ()
 {
 	QString txt = ui->presetComboBox->currentText();
 	if (0 == txt.size())
-		txt = "default";
+		if (Connection * conn = m_server->findCurrentConnection())
+			txt = getPresetPath(conn->sessionState().getAppName(), g_defaultPresetName);
 	onSaveCurrentFileFilterTo(txt);
 }
 
@@ -775,16 +777,15 @@ void MainWindow::onSaveCurrentFileFilterTo (QString const & preset_name)
 	{
 		int idx = findPresetName(preset_name);
 		if (idx == -1)
-		{
 			idx = addPresetName(preset_name);
-		}
-		qDebug("new preset_name[%i]=%s", idx, preset_name.toStdString().c_str());
 
+		qDebug("new preset_name[%i]=%s", idx, preset_name.toStdString().c_str());
 		saveCurrentSession(preset_name);
 
 		ui->presetComboBox->clear();
 		for (size_t i = 0, ie = m_preset_names.size(); i < ie; ++i)
 			ui->presetComboBox->addItem(m_preset_names.at(i));
+		ui->presetComboBox->setCurrentIndex(ui->presetComboBox->findText(preset_name));
 	}
 }
 
@@ -794,10 +795,7 @@ void MainWindow::onAddCurrentFileFilter ()
 	Connection * conn = m_server->findCurrentConnection();
 	if (!conn) return;
 
-	QString filled_text;
-	filled_text.append(conn->sessionState().m_name);
-	filled_text.append("/new_preset");
-
+	QString const filled_text = getPresetPath(conn->sessionState().getAppName(), g_defaultPresetName);
 	QStringList items(m_preset_names);
 	items.push_front(filled_text);
 
@@ -911,18 +909,9 @@ void read_list_of_strings (QSettings & settings, char const * groupname, char co
 	settings.endArray();
 }
 
-void MainWindow::getPresetFileName (QString const & preset_name, QString & fname) const
-{
-	QString presetdir = m_appdir + "/" + preset_name;
-	QDir d;
-	d.mkpath(presetdir);
-	fname = presetdir + "/session.state";
-}
-
 void MainWindow::saveSession (SessionState const & s, QString const & preset_name) const
 {
-	QString fname;
-	getPresetFileName(preset_name, fname);
+	QString fname = getPresetFileName(m_appdir, preset_name);
 	qDebug("store file=%s", fname.toAscii());
 	saveSessionState(s, fname.toAscii());
 }
@@ -957,8 +946,7 @@ void MainWindow::saveCurrentSession (QString const & preset_name)
 
 bool MainWindow::loadSession (SessionState & s, QString const & preset_name)
 {
-	QString fname;
-	getPresetFileName(preset_name, fname);
+	QString fname = getPresetFileName(m_appdir, preset_name);
 	qDebug("load file=%s", fname.toStdString().c_str());
 	s.m_file_filters.clear();
 	return loadSessionState(s, fname.toAscii());
@@ -982,7 +970,7 @@ void MainWindow::loadPresets ()
 		qDebug("reading preset: %s", m_preset_names.at(i).toStdString().c_str());
 		m_filter_presets.push_back(Preset());
 		QString const prs_name = tr("preset_%1").arg(m_preset_names[i]);
-		if (settings.contains(prs_name))
+		if (settings.childGroups().contains(prs_name))
 		{
 			settings.beginGroup(prs_name);
 			{
@@ -1004,6 +992,12 @@ void MainWindow::loadPresets ()
 				settings.remove("");
 			}
 			settings.endGroup();
+		}
+		else
+		{
+			// @TODO
+			// check if on disk
+			// and if not, clear name from combobox
 		}
 	}
 }

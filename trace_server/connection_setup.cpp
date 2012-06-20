@@ -6,6 +6,7 @@
 #include "modelview.h"
 #include "utils.h"
 #include "serialization.h"
+#include "constants.h"
 
 bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 {
@@ -92,6 +93,14 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 
 					m_main_window->getWidgetFile()->expandAll();
 				}
+				else
+				{
+					QString const pname = getPresetPath(app_name, g_defaultPresetName);
+					QString const total_path = getPresetFileName(m_main_window->getAppDir(), pname);
+					if (existsPresetFile(total_path.toAscii()))
+						m_main_window->loadSession(m_session_state, pname);
+				}
+				
 			}
 
 			sessionState().m_name = app_name;

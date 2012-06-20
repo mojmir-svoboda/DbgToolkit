@@ -147,6 +147,8 @@ public:
 			, columns_align_t const * ca_template, columns_elide_t const * ce_template);
 	void setupThreadColors (QList<QColor> const & tc);
 
+	QString getAppName () const { return m_name; }
+
 	QList<QString> const * getColumnsSetupCurrent () const { return m_columns_setup_current; }
 	QList<QString> * getColumnsSetupCurrent () { return m_columns_setup_current; }
 	QList<QString> const * getColumnsSetupTemplate () const { return m_columns_setup_template; }

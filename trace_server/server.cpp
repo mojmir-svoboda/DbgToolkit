@@ -225,12 +225,15 @@ void Server::onClickedAtFileTree_Impl (QModelIndex idx, bool recursive)
 		setCheckStateChilds(node, curr_state);
 		conn->sessionState().m_file_filters.set_state_to_childs(fileline, static_cast<E_NodeStates>(curr_state));
 
-		if (node->parent())
+		QStandardItem * p = node;
+		while (p = p->parent())
 		{
-			//@TODO progress up the tree (reverse)
-			bool const all_checked = checkChildState(node->parent(), Qt::Checked);
-			if (all_checked && node->parent())
-				node->parent()->setCheckState(Qt::Checked);
+			bool const all_checked = checkChildState(p, Qt::Checked);
+			if (all_checked)
+			{
+				//conn->sessionState().m_file_filters.set_state_to_childs(fileline, static_cast<E_NodeStates>(curr_state));
+				p->setCheckState(Qt::Checked);
+			}
 		}
 	}
 	else if (curr_state == Qt::Unchecked)
@@ -501,6 +504,8 @@ Connection * Server::createNewTableView ()
 	connections.insert(std::make_pair(tab, connection));
 	QObject::connect(main_window->getTabTrace(), SIGNAL(currentChanged(int)), connection, SLOT(onTabTraceFocus(int)));
 	QObject::connect(tableView->horizontalHeader(), SIGNAL(sectionResized(int, int, int)), this, SLOT(onSectionResized(int, int, int)));
+	QObject::connect(main_window->getWidgetFile(), SIGNAL(expanded(QModelIndex const &)), connection, SLOT(onFileExpanded(QModelIndex const &)));
+	QObject::connect(main_window->getWidgetFile(), SIGNAL(collapsed(QModelIndex const &)), connection, SLOT(onFileCollapsed(QModelIndex const &)));
 	return connection;
 }
 
