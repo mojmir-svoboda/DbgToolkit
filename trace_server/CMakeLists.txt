@@ -62,6 +62,7 @@ SET(trace_server_SOURCES
 	profilermainwindow.cpp
 	serialization.cpp
 	../version.cpp
+	serialization.cpp
 	)
 
 SET(trace_server_HEADERS

@@ -767,56 +767,6 @@ void MainWindow::onSaveCurrentFileFilterTo (QString const & preset_name)
 		}
 		qDebug("new preset_name[%i]=%s", idx, preset_name.toStdString().c_str());
 
-		//saveSessionState(conn->sessionState(), "prvni.txt");
-		/*SessionExport e;
-		conn->sessionState().sessionExport(e);
-		boost::char_separator<char> sep("\n");
-		typedef boost::tokenizer<boost::char_separator<char> > tokenizer_t;
-		{
-			m_filter_presets[idx].m_file_filters.clear();
-			tokenizer_t tok(e.m_file_filters, sep);
-			for (tokenizer_t::const_iterator it = tok.begin(), ite = tok.end(); it != ite; ++it)
-				m_filter_presets[idx].m_file_filters << QString::fromStdString(*it);
-		}
-
-		{
-			m_filter_presets[idx].m_colortext_regexs.clear();
-			tokenizer_t tok(e.m_colortext_regexs, sep);
-			for (tokenizer_t::const_iterator it = tok.begin(), ite = tok.end(); it != ite; ++it)
-				m_filter_presets[idx].m_colortext_regexs << QString::fromStdString(*it);
-		}
-		{
-			m_filter_presets[idx].m_colortext_colors.clear();
-			tokenizer_t tok(e.m_colortext_colors, sep);
-			for (tokenizer_t::const_iterator it = tok.begin(), ite = tok.end(); it != ite; ++it)
-				m_filter_presets[idx].m_colortext_colors << QString::fromStdString(*it);
-		}
-		{
-			m_filter_presets[idx].m_colortext_enabled.clear();
-			tokenizer_t tok(e.m_colortext_enabled, sep);
-			for (tokenizer_t::const_iterator it = tok.begin(), ite = tok.end(); it != ite; ++it)
-				m_filter_presets[idx].m_colortext_enabled << QString::fromStdString(*it);
-		}
-
-		{
-			m_filter_presets[idx].m_regex_filters.clear();
-			tokenizer_t tok(e.m_regex_filters, sep);
-			for (tokenizer_t::const_iterator it = tok.begin(), ite = tok.end(); it != ite; ++it)
-				m_filter_presets[idx].m_regex_filters << QString::fromStdString(*it);
-		}
-		{
-			m_filter_presets[idx].m_regex_fmode.clear();
-			tokenizer_t tok(e.m_regex_fmode, sep);
-			for (tokenizer_t::const_iterator it = tok.begin(), ite = tok.end(); it != ite; ++it)
-				m_filter_presets[idx].m_regex_fmode << QString::fromStdString(*it);
-		}
-		{
-			m_filter_presets[idx].m_regex_enabled.clear();
-			tokenizer_t tok(e.m_regex_enabled, sep);
-			for (tokenizer_t::const_iterator it = tok.begin(), ite = tok.end(); it != ite; ++it)
-				m_filter_presets[idx].m_regex_enabled << QString::fromStdString(*it);
-		}*/
-
 		storePresets();
 
 		ui->presetComboBox->clear();
@@ -991,12 +941,9 @@ bool MainWindow::loadSession (SessionState & s, QString const & preset_name)
 
 void MainWindow::loadPresets ()
 {
-	if (!getTabTrace()->currentWidget()) return;
-	Connection * conn = m_server->findCurrentConnection();
-	if (!conn) return;
-
 	m_preset_names.clear();
 	m_filter_presets.clear();
+
 	QSettings settings("MojoMir", "TraceServer");
 	read_list_of_strings(settings, "known-presets", "preset", m_preset_names);
 	for (size_t i = 0, ie = m_preset_names.size(); i < ie; ++i)
@@ -1004,11 +951,7 @@ void MainWindow::loadPresets ()
 		ui->presetComboBox->addItem(m_preset_names.at(i));
 	}
 
-	for (size_t i = 0, ie = m_preset_names.size(); i < ie; ++i)
-		if (!m_preset_names.at(i).isEmpty())
-			loadSession(conn->m_session_state, m_preset_names.at(i));
-
-	/* @TODO: read and transform into file
+	// @NOTE: this is only for smooth transition only
 	for (size_t i = 0, ie = m_preset_names.size(); i < ie; ++i)
 	{
 		qDebug("reading preset: %s", m_preset_names.at(i).toStdString().c_str());
@@ -1022,9 +965,40 @@ void MainWindow::loadPresets ()
 			read_list_of_strings(settings, "regexps", "item", m_filter_presets.back().m_regex_filters);
 			read_list_of_strings(settings, "regexps_fmode", "item", m_filter_presets.back().m_regex_fmode);
 			read_list_of_strings(settings, "regexps_enabled", "item", m_filter_presets.back().m_regex_enabled);
+
+			SessionState ss;
+			E_FilterMode const fmode = fltMode();
+			for (int f = 0, fe = m_filter_presets.back().m_file_filters.size(); f < fe; ++f)
+				ss.m_file_filters.set_to_state(m_filter_presets.back().m_file_filters.at(f).toStdString(), fmode == e_Exclude ? e_Checked : e_Unchecked);
+
+			saveSession(ss, m_preset_names.at(i));
 		}
 		settings.endGroup();
-	}*/
+
+		/*void SessionState::sessionImport (SessionExport const & e)
+		{
+			{
+				m_colorized_texts.clear();
+				{
+					tokenizer_t tok(e.m_colortext_regexs, sep);
+					for (tokenizer_t::const_iterator it = tok.begin(), ite = tok.end(); it != ite; ++it)
+						m_colorized_texts.append(ColorizedText(*it, e_Fg)); //@TODO: save role
+				}
+				{
+					tokenizer_t tok(e.m_colortext_colors, sep);
+					int i = 0;
+					for (tokenizer_t::const_iterator it = tok.begin(), ite = tok.end(); it != ite; ++it, ++i)
+						m_colorized_texts[i].m_qcolor.setNamedColor(QString::fromStdString(*it));
+				}
+				{
+					tokenizer_t tok(e.m_colortext_enabled, sep);
+					int i = 0;
+					for (tokenizer_t::const_iterator it = tok.begin(), ite = tok.end(); it != ite; ++it, ++i)
+						m_colorized_texts[i].m_is_enabled = QString::fromStdString(*it).toInt();
+				}
+			}
+		}*/
+	}
 }
 
 void MainWindow::storeState ()
