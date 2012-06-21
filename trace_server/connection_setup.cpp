@@ -97,6 +97,8 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 					QString const total_path = getPresetFileName(m_main_window->getAppDir(), pname);
 					if (existsPresetFile(total_path.toAscii()))
 						m_main_window->loadSession(m_session_state, pname);
+
+					m_main_window->setPresetNameIntoComboBox(pname);
 				}
 				
 			}

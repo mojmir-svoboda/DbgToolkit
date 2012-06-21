@@ -132,9 +132,14 @@ void Connection::appendToFileTree (boost::char_separator<char> const & sep, std:
 			node = child;
 
 			E_NodeStates ff_state = e_Unchecked;
-			bool const known = sessionState().m_file_filters.is_present(path, ff_state);
+			bool col_state = true;
+			file_info const * fi = 0;
+			bool const known = sessionState().m_file_filters.is_present(path, fi);
 			if (known)
-				node->setCheckState(static_cast<Qt::CheckState>(ff_state));
+			{
+				node->setCheckState(static_cast<Qt::CheckState>(fi->m_state));
+				m_main_window->getWidgetFile()->setExpanded(m_file_model->indexFromItem(node), !fi->m_collapsed);
+			}
 
 			if (!stop)
 			{

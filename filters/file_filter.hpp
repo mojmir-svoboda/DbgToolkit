@@ -167,6 +167,22 @@ struct file_filter
 		return true;
 	}
 
+	bool is_present (std::string const & file, file_info const * & fi) const
+	{
+		fi = 0;
+		tokenizer_t tok(file, separator);
+		node_t const * level = root;
+	   	for (tokenizer_t::iterator it = tok.begin(), ite = tok.end(); it != ite; ++it)
+		{
+			level = node_t::node_child(level, *it);
+			if (level == 0)
+				return false; // node not in tree
+			fi = &level->data;
+		}
+		return true;
+	}
+
+
 	void set_state_to_childs (node_t * node, E_NodeStates state)
 	{
 		node = node->children;

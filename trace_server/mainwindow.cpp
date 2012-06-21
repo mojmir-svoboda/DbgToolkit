@@ -784,8 +784,13 @@ void MainWindow::onSaveCurrentFileFilterTo (QString const & preset_name)
 		ui->presetComboBox->clear();
 		for (size_t i = 0, ie = m_preset_names.size(); i < ie; ++i)
 			ui->presetComboBox->addItem(m_preset_names.at(i));
-		ui->presetComboBox->setCurrentIndex(ui->presetComboBox->findText(preset_name));
+		setPresetNameIntoComboBox(preset_name);
 	}
+}
+
+void MainWindow::setPresetNameIntoComboBox (QString const & pname)
+{
+	ui->presetComboBox->setCurrentIndex(ui->presetComboBox->findText(pname));
 }
 
 void MainWindow::onAddCurrentFileFilter ()

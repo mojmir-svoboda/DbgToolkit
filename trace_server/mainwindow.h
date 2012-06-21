@@ -133,6 +133,7 @@ public:
 	void dropEvent (QDropEvent * event);
 	void dragEnterEvent (QDragEnterEvent *event);
 	bool eventFilter (QObject * o, QEvent * e);
+	void setPresetNameIntoComboBox (QString const & pname);
 
 	unsigned getHotKey () const;
 	Server const * getServer () const { return m_server; }
