@@ -97,7 +97,7 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay)
 	m_server = new Server(m_trace_addr, m_trace_port, this, quit_delay);
 	showServerStatus();
 	connect(ui->qSearchLineEdit, SIGNAL(editingFinished()), this, SLOT(onQSearchEditingFinished()));
-	connect(ui->qFilterLineEdit, SIGNAL(editingFinished()), this, SLOT(onQFilterLineEditFinished()));
+	connect(ui->qFilterLineEdit, SIGNAL(returnPressed()), this, SLOT(onQFilterLineEditFinished()));
 
 	size_t const n = tlv::get_tag_count();
 	QString msg_tag;
@@ -169,13 +169,13 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay)
 	ui->clrFiltersCheckBox->setToolTip(tr("force clearing of filters when reuseTab is checked"));
 	ui->scopesCheckBox->setToolTip(tr("hides scopes if checked"));
 	ui->onTopCheckBox->setToolTip(tr("keeps window on top if checked. have to restart program, sorry"));
-	ui->filterFileCheckBox->setToolTip(tr("enables filtering via fileFilter tab"));
+	ui->filterFileCheckBox->setToolTip(tr("enables filtering via filter tabs"));
 	ui->buffCheckBox->setToolTip(tr("turns on/off buffering of messages on client side."));
 	ui->presetComboBox->setToolTip(tr("selects and applies saved preset file filter"));
-	ui->presetAddButton->setToolTip(tr("saves current fileFilter state as new preset"));
+	ui->presetAddButton->setToolTip(tr("saves current filter state as new preset"));
 	ui->presetRmButton->setToolTip(tr("removes currently selected preset"));
-	ui->presetSaveButton->setToolTip(tr("saves current fileFilter state as currently selected preset"));
-	ui->presetResetButton->setToolTip(tr("clear current fileFilter"));
+	ui->presetSaveButton->setToolTip(tr("saves current filter state as currently selected preset"));
+	ui->presetResetButton->setToolTip(tr("clear current filter"));
 	ui->filterModeComboBox->setToolTip(tr("selects filtering mode: inclusive (check what you want, unchecked are not displayed) or exclusive (checked items are filtered out)."));
 	ui->levelSpinBox->setToolTip(tr("adjusts debug level of client side"));
 	ui->qSearchLineEdit->setToolTip(tr("search text in logged text"));
@@ -626,17 +626,17 @@ void MainWindow::syncRegexOnPreset (Connection * conn)
 	conn->recompileRegexps();
 }
 
-void MainWindow::onPresetActivate (int idx)
+void MainWindow::onPresetActivate (QString const & pname)
 {
-	if (idx == -1) return;
-	if (!getTabTrace()->currentWidget()) return;
+	onPresetActivate(ui->presetComboBox->findText(pname));
+}
 
-	Connection * conn = m_server->findCurrentConnection();
+void MainWindow::onPresetActivate (Connection * conn, QString const & pname)
+{
 	if (!conn) return;
 
-	conn->onClearCurrentFileFilter();
 	SessionState dummy;
-	loadSession(dummy, m_preset_names.at(idx));
+	loadSession(dummy, pname);
 
 	std::swap(conn->m_session_state.m_file_filters.root, dummy.m_file_filters.root);
 	conn->m_session_state.m_filtered_regexps.swap(dummy.m_filtered_regexps);
@@ -649,13 +649,20 @@ void MainWindow::onPresetActivate (int idx)
 	syncRegexOnPreset(conn);
 
 	conn->onInvalidateFilter();
+	setPresetNameIntoComboBox(pname);
+}
+
+void MainWindow::onPresetActivate (int idx)
+{
+	if (idx == -1) return;
+	Connection * conn = m_server->findCurrentConnection();
+	conn->onClearCurrentFileFilter();
+	onPresetActivate(conn, m_preset_names.at(idx));
 }
 
 void MainWindow::onFilterModeActivate (int idx)
 {
 	if (idx == -1) return;
-	if (!getTabTrace()->currentWidget()) return;
-
 	Connection * conn = m_server->findCurrentConnection();
 	if (!conn) return;
 	QString const qItem = ui->filterModeComboBox->currentText();
@@ -835,6 +842,10 @@ void MainWindow::onRmCurrentFileFilter ()
 	storePresets();*/
 }
 
+void MainWindow::onGotoFileFilter () { ui->tabFilters->setCurrentIndex(0); }
+void MainWindow::onGotoLevelFilter () { ui->tabFilters->setCurrentIndex(1); }
+void MainWindow::onGotoColorFilter () { ui->tabFilters->setCurrentIndex(5); }
+void MainWindow::onGotoRegexFilter () { ui->tabFilters->setCurrentIndex(4); }
 
 void MainWindow::setupMenuBar ()
 {
@@ -864,7 +875,11 @@ void MainWindow::setupMenuBar ()
 	filterMenu->addAction(tr("Unhide previous rows"), m_server, SLOT(onUnhidePrevFromRow()), QKeySequence(Qt::ControlModifier + Qt::Key_Delete));
 	filterMenu->addAction(tr("Toggle reference row"), m_server, SLOT(onToggleRefFromRow()), QKeySequence(Qt::Key_Space));
 	filterMenu->addAction(tr("Exclude file:line row"), m_server, SLOT(onExcludeFileLine()), QKeySequence(Qt::Key_X));
-
+	filterMenu->addAction(tr("Goto file filter"), this, SLOT(onGotoFileFilter()), QKeySequence(Qt::ControlModifier + Qt::Key_F1));
+	filterMenu->addAction(tr("Goto level filter"), this, SLOT(onGotoLevelFilter()), QKeySequence(Qt::ControlModifier + Qt::Key_F2));
+	filterMenu->addAction(tr("Goto regex filter"), this, SLOT(onGotoRegexFilter()), QKeySequence(Qt::ControlModifier + Qt::Key_F3));
+	filterMenu->addAction(tr("Goto color filter"), this, SLOT(onGotoColorFilter()), QKeySequence(Qt::ControlModifier + Qt::Key_F4));
+		
 	// Clear
 	QMenu * clearMenu = menuBar()->addMenu(tr("&Clear"));
 	clearMenu->addAction(tr("Clear current table view"), m_server, SLOT(onClearCurrentView()), QKeySequence(Qt::Key_C));
@@ -884,7 +899,7 @@ void MainWindow::setupMenuBar ()
 
 	// Help
 	QMenu * helpMenu = menuBar()->addMenu(tr("&Help"));
-	helpMenu->addAction(tr("Help"), this, SLOT(onShowHelp()), QKeySequence(Qt::Key_F1));
+	helpMenu->addAction(tr("Help"), this, SLOT(onShowHelp()));
 	helpMenu->addAction(tr("Dump filters"), this, SLOT(onDumpFilters()));
 }
 

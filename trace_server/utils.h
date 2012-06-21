@@ -130,7 +130,8 @@ inline void flipCheckStateChilds (QStandardItem * node)
 
 inline void setCheckState (QStandardItem * const node, Qt::CheckState const state)
 {
-	node->setCheckState(state);
+	if (node)
+		node->setCheckState(state);
 }
 
 inline bool checkChildState (QStandardItem * const node, Qt::CheckState const state)

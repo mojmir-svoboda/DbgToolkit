@@ -83,6 +83,7 @@ Connection::~Connection ()
 void Connection::onDisconnected ()
 {
 	qDebug("onDisconnected()");
+	m_statswindow->stopUpdate();
 }
 
 void Connection::onTabTraceFocus (int i)

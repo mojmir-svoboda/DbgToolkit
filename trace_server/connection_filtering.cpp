@@ -260,13 +260,11 @@ void Connection::onFileColOrExp (QModelIndex const & idx, bool collapsed)
 
 void Connection::onFileExpanded (QModelIndex const & idx)
 {
-	qDebug("%s", __FUNCTION__);
 	onFileColOrExp(idx, false);
 }
 
 void Connection::onFileCollapsed (QModelIndex const & idx)
 {
-	qDebug("%s", __FUNCTION__);
 	onFileColOrExp(idx, true);
 }
 
