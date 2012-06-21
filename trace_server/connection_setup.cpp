@@ -90,8 +90,6 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 					// @TODO: delete persistent storage for the tab
 					sessionState().m_tab_idx = m_main_window->getTabTrace()->indexOf(sessionState().m_tab_widget);
 					onTabTraceFocus(sessionState().m_tab_idx);
-
-					m_main_window->getWidgetFile()->expandAll();
 				}
 				else
 				{

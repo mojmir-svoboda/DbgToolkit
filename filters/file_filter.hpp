@@ -43,8 +43,9 @@ struct file_info
 	int m_state;
 	int m_collapsed;
 
-	file_info () : m_state(e_Unchecked), m_collapsed(false) { }
-	file_info (int s) : m_state(s), m_collapsed(false) { }
+	file_info () : m_state(e_Unchecked), m_collapsed(true) { }
+	file_info (int s) : m_state(s), m_collapsed(true) { }
+	file_info (int s, bool c) : m_state(s), m_collapsed(c) { }
 
 	template <class ArchiveT>
 	void serialize (ArchiveT & ar, unsigned const version)
@@ -82,7 +83,7 @@ struct file_filter
 
 	bool empty () const { return !(root && root->children); }
 
-	void set_to_state (std::string const & file, E_NodeStates state)
+	void set_to_state (std::string const & file, E_NodeStates state, bool collapsed = true)
 	{
 		std::vector<node_t *> path;
 		tokenizer_t tok(file, separator);
@@ -94,14 +95,17 @@ struct file_filter
 			node_t * n = node_t::node_child(level, *it);
 			if (n == 0)
 			{
-				n = new node_t(*it, file_info(state));
+				n = new node_t(*it, file_info(state, collapsed));
 				node_t::node_append(level, n);
 			}
 			level = n;
 
 			++it;
 			if (it == ite)
+			{
 				level->data.m_state = state;
+				level->data.m_collapsed = collapsed;
+			}
 		}
 	}
 
@@ -267,6 +271,11 @@ struct file_filter
 					path.reserve(128);
 					reassemble_path(nodes, path);
 					output.append("\n");
+					if (current->data.m_collapsed)
+						output += "c ";
+					else
+						output += "E ";
+
 					if (current->data.m_state == e_Checked)
 						output += "X ";
 					else if (current->data.m_state == e_PartialCheck)

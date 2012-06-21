@@ -227,14 +227,42 @@ void Connection::appendToFileTree (boost::char_separator<char> const & sep, std:
 	}
 }
 
-void Connection::onFileExpanded (QModelIndex const &)
+
+void Connection::onFileColOrExp (QModelIndex const & idx, bool collapsed)
 {
-	qDebug("%s", __FUNCTION__);
+	QStandardItemModel const * const model = static_cast<QStandardItemModel *>(m_main_window->getWidgetFile()->model());
+	QStandardItem * const node = model->itemFromIndex(idx);
+
+	std::vector<QString> s;	// @TODO: hey piggy, to member variables
+	s.clear();
+	s.reserve(16);
+	QStandardItem * parent = node;
+	QModelIndex parent_idx = model->indexFromItem(parent);
+	while (parent_idx.isValid())
+	{
+		QString const & val = model->data(parent_idx, Qt::DisplayRole).toString();
+		s.push_back(val);
+		parent = parent->parent();
+		parent_idx = model->indexFromItem(parent);
+	}
+
+	std::string file;
+	for (std::vector<QString>::const_reverse_iterator it=s.rbegin(), ite=s.rend(); it != ite; ++it)
+		file += std::string("/") + (*it).toStdString();
+
+	sessionState().m_file_filters.set_to_state(file, static_cast<E_NodeStates>(node->checkState()), false);
 }
 
-void Connection::onFileCollapsed (QModelIndex const &)
+void Connection::onFileExpanded (QModelIndex const & idx)
 {
 	qDebug("%s", __FUNCTION__);
+	onFileColOrExp(idx, false);
+}
+
+void Connection::onFileCollapsed (QModelIndex const & idx)
+{
+	qDebug("%s", __FUNCTION__);
+	onFileColOrExp(idx, true);
 }
 
 void Connection::appendToTIDFilters (std::string const & item)

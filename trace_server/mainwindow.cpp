@@ -455,7 +455,6 @@ void MainWindow::onFileLoad ()
 	QStringList files;
 	files << fname;
 	openFiles(files);
-	getWidgetFile()->expandAll();
 }
 
 void MainWindow::onFileSave ()

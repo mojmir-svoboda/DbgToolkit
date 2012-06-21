@@ -103,6 +103,7 @@ signals:
 	
 public slots:
 	void onTabTraceFocus (int i);
+	void onFileColOrExp (QModelIndex const &, bool collapsed);
 	void onFileExpanded (QModelIndex const &);
 	void onFileCollapsed (QModelIndex const &);
 	void onLevelValueChanged (int i);
