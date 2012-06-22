@@ -98,6 +98,7 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 					if (existsPresetFile(total_path.toAscii()))
 						m_main_window->loadSession(m_session_state, pname);
 
+					m_main_window->onPresetActivate(this, pname);
 					m_main_window->setPresetNameIntoComboBox(pname);
 				}
 				

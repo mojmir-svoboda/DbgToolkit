@@ -134,6 +134,8 @@ public:
 	void dragEnterEvent (QDragEnterEvent *event);
 	bool eventFilter (QObject * o, QEvent * e);
 	void setPresetNameIntoComboBox (QString const & pname);
+	void onPresetActivate (QString const & pname);
+	void onPresetActivate (Connection * conn, QString const & pname);
 
 	unsigned getHotKey () const;
 	Server const * getServer () const { return m_server; }
@@ -185,6 +187,10 @@ private slots:
 	void onClickedAtSettingColumnSizes (QModelIndex idx);
 	void onClickedAtSettingColumnAlign (QModelIndex idx);
 	void onClickedAtSettingColumnElide (QModelIndex idx);
+	void onGotoFileFilter ();
+	void onGotoColorFilter ();
+	void onGotoRegexFilter ();
+	void onGotoLevelFilter ();
 	void syncSettingsViews (QListView const * const invoker, QModelIndex const idx);
 	void syncColorRegexOnPreset (Connection * conn);
 	void syncRegexOnPreset (Connection * conn);

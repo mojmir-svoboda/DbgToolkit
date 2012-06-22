@@ -321,6 +321,12 @@ void SessionState::removeFromColorRegexFilters (std::string const & s)
 }
 void SessionState::appendToColorRegexFilters (std::string const & s)
 {
+	for (int i = 0, ie = m_colorized_texts.size(); i < ie; ++i)
+	{
+		ColorizedText & ct = m_colorized_texts[i];
+		if (ct.m_regex_str == s)
+			return;
+	}
 	m_colorized_texts.push_back(ColorizedText(s, e_Fg));
 }
 
