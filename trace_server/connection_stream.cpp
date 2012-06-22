@@ -21,7 +21,7 @@ bool Connection::handleLogCommand (DecodedCommand const & cmd)
 
 	if (cmd.hdr.cmd == tlv::cmd_scope_entry || (cmd.hdr.cmd == tlv::cmd_scope_exit))
 	{
-		if (!m_main_window->scopesEnabled())
+		if (m_main_window->scopesEnabled())
 		{
 			ModelView * model = static_cast<ModelView *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
 			model->appendCommand(m_table_view_proxy, cmd);

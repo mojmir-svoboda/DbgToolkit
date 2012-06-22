@@ -182,13 +182,16 @@ void ModelView::appendCommand (QAbstractProxyModel * filter, tlv::StringCommand 
 			idx = m_session_state.getTLS().findThreadId(cmd.tvs[i].m_val);
 
 	int indent = 0;
-	if (idx >= 0)
-		indent = m_session_state.getTLS().m_indents[idx];
-
 	QString qindent;
-	if (indent > 0)
-		for(int j = 0; j < indent; ++j)
-			qindent.append("  ");	// @TODO: ugh
+	if (m_connection->getMainWindow()->indentEnabled())
+	{
+		if (idx >= 0)
+			indent = m_session_state.getTLS().m_indents[idx];
+
+		if (indent > 0)
+			for(int j = 0; j < indent; ++j)
+				qindent.append("  ");	// @TODO: ugh
+	}
 
 	m_rows.push_back(columns_t(cmd.tvs.size()));
 	m_layers.push_back(indent);

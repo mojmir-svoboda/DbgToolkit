@@ -72,6 +72,11 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay)
 	ui->setupUi(this);
 	ui->tabTrace->setTabsClosable(true);
 
+	m_settings_dialog = new QDialog(this);
+	m_settings_dialog->setWindowFlags(Qt::Sheet);
+	ui_settings = new Ui::SettingsDialog();
+	ui_settings->setupUi(m_settings_dialog);
+
 	QString const homedir = QDir::homePath();
 	m_appdir = homedir + "/.flogging";
 
@@ -91,7 +96,7 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay)
 	{
 		onOnTop(on_top);
 	}
-	ui->onTopCheckBox->setChecked(on_top);
+	ui_settings->onTopCheckBox->setChecked(on_top);
 
 	loadNetworkSettings();
 	m_server = new Server(m_trace_addr, m_trace_port, this, quit_delay);
@@ -141,7 +146,7 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay)
 	connect(ui->filterFileCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onFilterFile(int)));
 	connect(ui->buffCheckBox, SIGNAL(stateChanged(int)), m_server, SLOT(onBufferingStateChanged(int)));
 	//connect(ui->onTopCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onOnTop(int)));
-	connect(ui->reuseTabCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onReuseTabChanged(int)));
+	connect(ui_settings->reuseTabCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onReuseTabChanged(int)));
 	//connect(ui->clrFiltersCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onClrFiltersStateChanged(int)));
 	connect(ui->presetComboBox, SIGNAL(activated(int)), this, SLOT(onPresetActivate(int)));
 	connect(ui->presetAddButton, SIGNAL(clicked()), this, SLOT(onAddCurrentFileFilter()));
@@ -165,10 +170,10 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay)
 	connect(ui->buttonRmColorRegex, SIGNAL(clicked()), this, SLOT(onColorRegexRm()));
 
 	ui->autoScrollCheckBox->setToolTip(tr("auto scrolls to bottom if checked"));
-	ui->reuseTabCheckBox->setToolTip(tr("reuses compatible tab instead of creating new one"));
-	ui->clrFiltersCheckBox->setToolTip(tr("force clearing of filters when reuseTab is checked"));
-	ui->scopesCheckBox->setToolTip(tr("hides scopes if checked"));
-	ui->onTopCheckBox->setToolTip(tr("keeps window on top if checked. have to restart program, sorry"));
+	//ui_settings->reuseTabCheckBox->setToolTip(tr("reuses compatible tab instead of creating new one"));
+	//ui_settings->clrFiltersCheckBox->setToolTip(tr("force clearing of filters when reuseTab is checked"));
+	//ui_settings->scopesCheckBox->setToolTip(tr("hides scopes if checked"));
+	ui_settings->onTopCheckBox->setToolTip(tr("keeps window on top if checked. have to restart program, sorry"));
 	ui->filterFileCheckBox->setToolTip(tr("enables filtering via filter tabs"));
 	ui->buffCheckBox->setToolTip(tr("turns on/off buffering of messages on client side."));
 	ui->presetComboBox->setToolTip(tr("selects and applies saved preset file filter"));
@@ -181,11 +186,6 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay)
 	ui->qSearchLineEdit->setToolTip(tr("search text in logged text"));
 	ui->qFilterLineEdit->setToolTip(tr("quick inclusive filter: adds string to regex filter as regex .*string.*"));
 	ui->qSearchComboBox->setToolTip(tr("specifies column to search"));
-
-	m_settings_dialog = new QDialog(this);
-	m_settings_dialog->setWindowFlags(Qt::Sheet);
-	ui_settings = new Ui::SettingsDialog();
-	ui_settings->setupUi(m_settings_dialog);
 
 	m_status_label = new QLabel(m_server->getStatus());
 	QLabel * version_label = new QLabel(tr("Ver: %1").arg(g_Version));
@@ -291,14 +291,17 @@ QListView const * MainWindow::getWidgetTID () const { return ui->listViewTID; }
 QListView * MainWindow::getWidgetLvl () { return ui->listViewLvl; }
 QListView const * MainWindow::getWidgetLvl () const { return ui->listViewLvl; }
 
-bool MainWindow::scopesEnabled () const { return ui->scopesCheckBox->isChecked(); }
-bool MainWindow::onTopEnabled () const { return ui->onTopCheckBox->isChecked(); }
+bool MainWindow::scopesEnabled () const { return ui_settings->scopesCheckBox->isChecked(); }
+bool MainWindow::indentEnabled () const { return ui_settings->indentCheckBox->isChecked(); }
+bool MainWindow::cutPathEnabled () const { return ui_settings->cutPathCheckBox->isChecked(); }
+bool MainWindow::cutNamespaceEnabled () const { return ui_settings->cutNamespaceCheckBox->isChecked(); }
+bool MainWindow::onTopEnabled () const { return ui_settings->onTopCheckBox->isChecked(); }
 bool MainWindow::filterEnabled () const { return ui->filterFileCheckBox->isChecked(); }
-bool MainWindow::reuseTabEnabled () const { return ui->reuseTabCheckBox->isChecked(); }
+bool MainWindow::reuseTabEnabled () const { return ui_settings->reuseTabCheckBox->isChecked(); }
 bool MainWindow::autoScrollEnabled () const { return ui->autoScrollCheckBox->isChecked(); }
 bool MainWindow::buffEnabled () const { return ui->buffCheckBox->isChecked(); }
 Qt::CheckState MainWindow::buffState () const { return ui->buffCheckBox->checkState(); }
-bool MainWindow::clrFltEnabled () const { return ui->clrFiltersCheckBox->isChecked(); }
+bool MainWindow::clrFltEnabled () const { return ui_settings->clrFiltersCheckBox->isChecked(); }
 bool MainWindow::statsEnabled () const { return ui_settings->traceStatsCheckBox->isChecked(); }
 E_FilterMode MainWindow::fltMode () const
 {
@@ -327,7 +330,7 @@ void MainWindow::onQuit ()
 
 void MainWindow::onReuseTabChanged (int state)
 {
-	ui->clrFiltersCheckBox->setEnabled(state);
+	ui_settings->clrFiltersCheckBox->setEnabled(state);
 }
 
 void MainWindow::onFilterFile (int state)
@@ -655,9 +658,11 @@ void MainWindow::onPresetActivate (Connection * conn, QString const & pname)
 void MainWindow::onPresetActivate (int idx)
 {
 	if (idx == -1) return;
-	Connection * conn = m_server->findCurrentConnection();
-	conn->onClearCurrentFileFilter();
-	onPresetActivate(conn, m_preset_names.at(idx));
+	if (Connection * conn = m_server->findCurrentConnection())
+	{
+		conn->onClearCurrentFileFilter();
+		onPresetActivate(conn, m_preset_names.at(idx));
+	}
 }
 
 void MainWindow::onFilterModeActivate (int idx)
@@ -1035,12 +1040,15 @@ void MainWindow::storeState ()
 	settings.setValue("windowState", saveState());
 	settings.setValue("splitter", ui->splitter->saveState());
 	settings.setValue("autoScrollCheckBox", ui->autoScrollCheckBox->isChecked());
-	settings.setValue("reuseTabCheckBox", ui->reuseTabCheckBox->isChecked());
-	settings.setValue("scopesCheckBox", ui->scopesCheckBox->isChecked());
-	settings.setValue("onTopCheckBox", ui->onTopCheckBox->isChecked());
+	settings.setValue("reuseTabCheckBox", ui_settings->reuseTabCheckBox->isChecked());
+	settings.setValue("scopesCheckBox", ui_settings->scopesCheckBox->isChecked());
+	settings.setValue("indentCheckBox", ui_settings->indentCheckBox->isChecked());
+	settings.setValue("cutPathCheckBox", ui_settings->cutPathCheckBox->isChecked());
+	settings.setValue("cutNamespaceCheckBox", ui_settings->cutNamespaceCheckBox->isChecked());
+	settings.setValue("onTopCheckBox", ui_settings->onTopCheckBox->isChecked());
 	settings.setValue("filterFileCheckBox", ui->filterFileCheckBox->isChecked());
 	settings.setValue("buffCheckBox", ui->buffCheckBox->isChecked());
-	settings.setValue("clrFiltersCheckBox", ui->clrFiltersCheckBox->isChecked());
+	settings.setValue("clrFiltersCheckBox", ui_settings->clrFiltersCheckBox->isChecked());
 	settings.setValue("filterModeComboBox", ui->filterModeComboBox->currentIndex());
 	settings.setValue("levelSpinBox", ui->levelSpinBox->value());
 
@@ -1103,11 +1111,14 @@ void MainWindow::loadState ()
 	ui_settings->traceStatsCheckBox->setChecked(settings.value("trace_stats", true).toBool());
 
 	ui->autoScrollCheckBox->setChecked(settings.value("autoScrollCheckBox", true).toBool());
-	ui->reuseTabCheckBox->setChecked(settings.value("reuseTabCheckBox", true).toBool());
-	ui->scopesCheckBox->setChecked(settings.value("scopesCheckBox", false).toBool());
+	ui_settings->reuseTabCheckBox->setChecked(settings.value("reuseTabCheckBox", true).toBool());
+	ui_settings->scopesCheckBox->setChecked(settings.value("scopesCheckBox", true).toBool());
+	ui_settings->indentCheckBox->setChecked(settings.value("indentCheckBox", true).toBool());
+	ui_settings->cutPathCheckBox->setChecked(settings.value("cutPathCheckBox", true).toBool());
+	ui_settings->cutNamespaceCheckBox->setChecked(settings.value("cutNamespaceCheckBox", true).toBool());
 	ui->filterFileCheckBox->setChecked(settings.value("filterFileCheckBox", true).toBool());
 	ui->buffCheckBox->setChecked(settings.value("buffCheckBox", true).toBool());
-	ui->clrFiltersCheckBox->setChecked(settings.value("clrFiltersCheckBox", false).toBool());
+	ui_settings->clrFiltersCheckBox->setChecked(settings.value("clrFiltersCheckBox", false).toBool());
 	ui->filterModeComboBox->setCurrentIndex(settings.value("filterModeComboBox").toInt());
 	ui->levelSpinBox->setValue(settings.value("levelSpinBox", 3).toInt());
 

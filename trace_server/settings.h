@@ -4,4 +4,7 @@
 #include <QObject>
 #include "types.h"
 
+struct Settings {
+
+};
 

@@ -151,15 +151,7 @@ void Server::onUnhidePrevFromRow ()
 void Server::onExcludeFileLine ()
 {
 	if (Connection * conn = findCurrentConnection())
-	{
-		/*QModelIndex const current = m_last_clicked;
-		if (current.isValid())
-		{
-			onClickedAtFileTree_Impl(m_last_clicked);
-		}*/
-
 		conn->onExcludeFileLine();
-	}
 }
 
 void Server::onToggleRefFromRow ()

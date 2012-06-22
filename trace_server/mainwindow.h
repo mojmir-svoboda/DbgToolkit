@@ -120,6 +120,9 @@ public:
 	void setLevel (int i);
 	int getLevel () const;
 	bool scopesEnabled () const;
+	bool indentEnabled () const;
+	bool cutPathEnabled () const;
+	bool cutNamespaceEnabled () const;
 	bool onTopEnabled () const;
 	bool autoScrollEnabled () const;
 	bool reuseTabEnabled () const;

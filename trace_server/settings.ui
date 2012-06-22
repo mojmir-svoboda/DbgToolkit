@@ -17,7 +17,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="tabColumns">
       <attribute name="title">
@@ -269,6 +269,133 @@
            </property>
            <property name="text">
             <string>show</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab">
+      <attribute name="title">
+       <string>Filtering</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_4">
+       <item row="0" column="0">
+        <layout class="QGridLayout" name="gridLayout_2">
+         <item row="0" column="0">
+          <widget class="QCheckBox" name="clrFiltersCheckBox">
+           <property name="font">
+            <font>
+             <family>Verdana</family>
+             <pointsize>8</pointsize>
+            </font>
+           </property>
+           <property name="text">
+            <string>Clear filters on new connection (ony if reuseTab checked)</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QCheckBox" name="scopesCheckBox">
+           <property name="font">
+            <font>
+             <family>Verdana</family>
+             <pointsize>8</pointsize>
+            </font>
+           </property>
+           <property name="text">
+            <string>Show lines with scope characters { } that delimitis function entry and exit</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QCheckBox" name="indentCheckBox">
+           <property name="font">
+            <font>
+             <family>Verdana</family>
+             <pointsize>8</pointsize>
+            </font>
+           </property>
+           <property name="text">
+            <string>Indent scopes delimited by the { } blocks</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="0">
+          <widget class="QCheckBox" name="cutPathCheckBox">
+           <property name="font">
+            <font>
+             <family>Verdana</family>
+             <pointsize>8</pointsize>
+            </font>
+           </property>
+           <property name="text">
+            <string>Abbreviate paths (cut leading dirs)</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="0">
+          <widget class="QCheckBox" name="cutNamespaceCheckBox">
+           <property name="font">
+            <font>
+             <family>Verdana</family>
+             <pointsize>8</pointsize>
+            </font>
+           </property>
+           <property name="text">
+            <string>Abbreviate functions (cut leading namespaces)</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab_2">
+      <attribute name="title">
+       <string>Window</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_6">
+       <item row="0" column="0">
+        <layout class="QGridLayout" name="gridLayout_5">
+         <item row="1" column="0">
+          <widget class="QCheckBox" name="reuseTabCheckBox">
+           <property name="font">
+            <font>
+             <family>Verdana</family>
+             <pointsize>8</pointsize>
+            </font>
+           </property>
+           <property name="text">
+            <string>Reuse current tab for connections/files from the same application</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0">
+          <widget class="QCheckBox" name="onTopCheckBox">
+           <property name="font">
+            <font>
+             <family>Verdana</family>
+            </font>
+           </property>
+           <property name="text">
+            <string>Keep window on top (buggy)</string>
            </property>
           </widget>
          </item>
