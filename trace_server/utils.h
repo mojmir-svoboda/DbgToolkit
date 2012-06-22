@@ -80,7 +80,7 @@ inline QList<QStandardItem *> addUncheckableRow (QString const & str)
 	return row_items;
 }
 
-inline QList<QStandardItem *> addTriRow (QString const & str, bool inclusive)
+inline QList<QStandardItem *> addTriRow (QString const & str, Qt::CheckState const checked, bool const inclusive)
 {
 	QList<QStandardItem *> row_items;
 
@@ -169,7 +169,7 @@ inline void setCheckStateReverse (QStandardItem * n, Qt::CheckState const state)
 	}
 }
 
-inline void collectPath (QStandardItem * n, std::vector<QString> & tokens)
+inline void collectPath (QStandardItem const * n, std::vector<QString> & tokens)
 {
 	while (n)
 	{

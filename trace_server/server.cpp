@@ -325,21 +325,44 @@ void Server::onClickedAtLvlList (QModelIndex idx)
 	QStandardItem * item = model->itemFromIndex(idx);
 	Q_ASSERT(item);
 
-	QString const & val = model->data(idx, Qt::DisplayRole).toString();
-	std::string filter_item(val.toStdString());
-
 	E_FilterMode const fmode = main_window->fltMode();
 	bool checked = (item->checkState() == Qt::Checked);
-	if (Connection * conn = findCurrentConnection())
-	{
-		if (fmode == e_Include)
-			checked = !checked;
 
-		if (checked)
-			conn->sessionState().appendLvlFilter(filter_item);
+	if (idx.column() == 1)
+	{
+		QString const & filter_item = model->data(model->index(idx.row(), 0, QModelIndex()), Qt::DisplayRole).toString();
+		bool is_inclusive = true;
+		QString const & mod = model->data(idx, Qt::DisplayRole).toString();
+		if (mod == "I")
+		{
+			model->setData(idx, QString("E"));
+			is_inclusive = false;
+		}
 		else
-			conn->sessionState().removeLvlFilter(filter_item);
-		conn->onInvalidateFilter();
+		{
+			model->setData(idx, QString("I"));
+		}
+
+		if (Connection * conn = findCurrentConnection())
+		{
+			conn->onInvalidateFilter();
+		}
+	}
+	else
+	{
+		QString const & val = model->data(idx, Qt::DisplayRole).toString();
+		std::string filter_item(val.toStdString());
+		if (Connection * conn = findCurrentConnection())
+		{
+			if (fmode == e_Include)
+				checked = !checked;
+
+			if (checked)
+				conn->sessionState().appendLvlFilter(filter_item);
+			else
+				conn->sessionState().removeLvlFilter(filter_item);
+			conn->onInvalidateFilter();
+		}
 	}
 }
 void Server::onDoubleClickedAtLvlList (QModelIndex idx)
@@ -384,20 +407,30 @@ void Server::onClickedAtRegexList (QModelIndex idx)
 	}
 	else
 	{
+		QString const & mod = model->data(model->index(idx.row(), 1, QModelIndex()), Qt::DisplayRole).toString();
+		bool is_inclusive = false;
+		if (mod == "I")
+		{
+			is_inclusive = true;
+		}
+		else
+		{ }
+
 		QStandardItem * item = model->itemFromIndex(idx);
 		Q_ASSERT(item);
 		bool const orig_checked = (item->checkState() == Qt::Checked);
 		bool const checked = orig_checked ? Qt::Unchecked : Qt::Checked;
 		std::string filter_item(val.toStdString());
+		item->setCheckState(checked ? Qt::Checked : Qt::Unchecked);
 		if (Connection * conn = findCurrentConnection())
 		{
 			// @TODO: if state really changed
+			conn->sessionState().setRegexInclusive(val.toStdString(), is_inclusive);
 			conn->m_session_state.setRegexChecked(filter_item, checked);
 			conn->recompileRegexps();
 			conn->onInvalidateFilter();
 		}
 
-		item->setCheckState(checked ? Qt::Checked : Qt::Unchecked);
 	}
 }
 

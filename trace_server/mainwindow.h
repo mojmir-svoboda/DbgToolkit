@@ -115,8 +115,8 @@ public:
 	QListView const * getWidgetColorRegex () const;
 	QListView * getWidgetTID ();
 	QListView const * getWidgetTID () const;
-	QListView * getWidgetLvl ();
-	QListView const * getWidgetLvl () const;
+	QTreeView * getWidgetLvl ();
+	QTreeView const * getWidgetLvl () const;
 	void setLevel (int i);
 	int getLevel () const;
 	bool scopesEnabled () const;

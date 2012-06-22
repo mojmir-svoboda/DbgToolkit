@@ -175,7 +175,7 @@
          </font>
         </property>
         <property name="text">
-         <string>SrvLvl:</string>
+         <string>Server</string>
         </property>
        </widget>
       </item>
@@ -354,7 +354,7 @@
         </attribute>
         <layout class="QHBoxLayout" name="horizontalLayout_7">
          <item>
-          <widget class="QListView" name="listViewLvl"/>
+          <widget class="QTreeView" name="treeViewLvl"/>
          </item>
         </layout>
        </widget>

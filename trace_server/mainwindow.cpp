@@ -288,8 +288,8 @@ QListView * MainWindow::getWidgetColorRegex () { return ui->listViewColorRegex; 
 QListView const * MainWindow::getWidgetColorRegex () const { return ui->listViewColorRegex; }
 QListView * MainWindow::getWidgetTID () { return ui->listViewTID; }
 QListView const * MainWindow::getWidgetTID () const { return ui->listViewTID; }
-QListView * MainWindow::getWidgetLvl () { return ui->listViewLvl; }
-QListView const * MainWindow::getWidgetLvl () const { return ui->listViewLvl; }
+QTreeView * MainWindow::getWidgetLvl () { return ui->treeViewLvl; }
+QTreeView const * MainWindow::getWidgetLvl () const { return ui->treeViewLvl; }
 
 bool MainWindow::scopesEnabled () const { return ui_settings->scopesCheckBox->isChecked(); }
 bool MainWindow::indentEnabled () const { return ui_settings->indentCheckBox->isChecked(); }
@@ -386,7 +386,7 @@ void MainWindow::onQFilterLineEditFinished ()
 	QStandardItem * child = findChildByText(root, text);
 	if (!child)
 	{
-		QList<QStandardItem *> row_items = addTriRow(text, true);
+		QList<QStandardItem *> row_items = addTriRow(text, Qt::Checked, true);
 		root->appendRow(row_items);
 		child = findChildByText(root, text);
 		child->setCheckState(Qt::Checked);
@@ -621,8 +621,7 @@ void MainWindow::syncRegexOnPreset (Connection * conn)
 		QStandardItem * const child = findChildByText(root, QString::fromStdString(cregex_item));
 		if (child == 0)
 		{
-			QList<QStandardItem *> row_items = addTriRow(QString::fromStdString(cregex_item), inclusive);
-			row_items.at(0)->setCheckState(enabled ? Qt::Checked : Qt::Unchecked);
+			QList<QStandardItem *> row_items = addTriRow(QString::fromStdString(cregex_item), enabled ? Qt::Checked : Qt::Unchecked, inclusive);
 			root->appendRow(row_items);
 		}
 	}
@@ -700,7 +699,7 @@ void MainWindow::onRegexAdd ()
 	QStandardItem * child = findChildByText(root, qItem);
 	if (child == 0)
 	{
-		QList<QStandardItem *> row_items = addTriRow(qItem, true);
+		QList<QStandardItem *> row_items = addTriRow(qItem, Qt::Unchecked, true);
 		root->appendRow(row_items);
 		conn->appendToRegexFilters(qItem.toStdString(), false, true);
 		conn->recompileRegexps();
@@ -1041,7 +1040,7 @@ void MainWindow::storeState ()
 	settings.setValue("splitter", ui->splitter->saveState());
 	settings.setValue("autoScrollCheckBox", ui->autoScrollCheckBox->isChecked());
 	settings.setValue("reuseTabCheckBox", ui_settings->reuseTabCheckBox->isChecked());
-	settings.setValue("scopesCheckBox", ui_settings->scopesCheckBox->isChecked());
+	settings.setValue("scopesCheckBox1", ui_settings->scopesCheckBox->isChecked());
 	settings.setValue("indentCheckBox", ui_settings->indentCheckBox->isChecked());
 	settings.setValue("cutPathCheckBox", ui_settings->cutPathCheckBox->isChecked());
 	settings.setValue("cutNamespaceCheckBox", ui_settings->cutNamespaceCheckBox->isChecked());
@@ -1112,7 +1111,7 @@ void MainWindow::loadState ()
 
 	ui->autoScrollCheckBox->setChecked(settings.value("autoScrollCheckBox", true).toBool());
 	ui_settings->reuseTabCheckBox->setChecked(settings.value("reuseTabCheckBox", true).toBool());
-	ui_settings->scopesCheckBox->setChecked(settings.value("scopesCheckBox", true).toBool());
+	ui_settings->scopesCheckBox->setChecked(settings.value("scopesCheckBox1", true).toBool());
 	ui_settings->indentCheckBox->setChecked(settings.value("indentCheckBox", true).toBool());
 	ui_settings->cutPathCheckBox->setChecked(settings.value("cutPathCheckBox", true).toBool());
 	ui_settings->cutNamespaceCheckBox->setChecked(settings.value("cutNamespaceCheckBox", true).toBool());

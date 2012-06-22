@@ -289,7 +289,7 @@ void Connection::appendToLvlFilters (std::string const & item, bool checked)
 	E_FilterMode const fmode = m_main_window->fltMode();
 	if (child == 0)
 	{
-		QList<QStandardItem *> row_items = addRow(qItem, fmode == e_Include ? Qt::Checked : Qt::Unchecked);
+		QList<QStandardItem *> row_items = addTriRow(qItem, fmode == e_Include ? Qt::Checked : Qt::Unchecked, true);
 		root->appendRow(row_items);
 	}
 }
