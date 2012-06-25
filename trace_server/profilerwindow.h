@@ -6,7 +6,7 @@
 #include "rvps.h"
 
 QT_FORWARD_DECLARE_CLASS(QGraphicsScene)
-QT_FORWARD_DECLARE_CLASS(QMainWindow)
+QT_FORWARD_DECLARE_CLASS(ProfilerMainWindow)
 
 namespace profiler {
 
@@ -26,7 +26,7 @@ namespace profiler {
 		void setupMatrix ();
 		
 		QGraphicsScene * m_scene;
-		QMainWindow	* m_window;
+		ProfilerMainWindow	* m_window;
 		View * m_view;
 		profiler::profiler_rvp_t * m_rvp;
 

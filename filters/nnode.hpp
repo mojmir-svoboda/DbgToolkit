@@ -114,8 +114,6 @@ struct NNode
 		return 0;
 	}
 
-
-
 	static bool is_leaf (NNode * node) { return node->children == 0; }
 	static bool is_root (NNode * node) { return node->parent == 0 && node->prev == 0 && node->next == 0; }
 
@@ -190,7 +188,6 @@ struct NNode
 		a & data;
 		unsigned count = 0;
 		a & count;
-		qDebug("loaded node key=%s, child_count=%u, data=%u", key.c_str(), count, data.m_state, data.m_collapsed);
 
 		NNode * * child = &children;
 		NNode * prev = 0;

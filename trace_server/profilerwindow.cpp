@@ -4,6 +4,8 @@
 #include <QMainWindow>
 #include "profilerview.h"
 #include "profilerbar.h"
+#include "profilermainwindow.h"
+#include "ui_profilermainwindow.h"
 #include "profilerblockinfo.h"
 #include "hsv.h"
 
@@ -16,9 +18,8 @@ ProfilerWindow::ProfilerWindow (QObject * parent, profiler::profiler_rvp_t * rvp
 	, m_rvp(0)
 {
 	qDebug("%s", __FUNCTION__);
-	m_window = new QMainWindow;
-	m_scene = new QGraphicsScene;
-	//populateScene();
+	m_window = new ProfilerMainWindow();
+	m_scene = new QGraphicsScene(m_window);
 
 	QSplitter * vSplitter = new QSplitter;
 	vSplitter->setOrientation(Qt::Vertical);
@@ -27,11 +28,11 @@ ProfilerWindow::ProfilerWindow (QObject * parent, profiler::profiler_rvp_t * rvp
 	m_view->view()->setScene(m_scene);
 	vSplitter->addWidget(m_view);
 
-	//view = new View(this, "View 1");view->view()->setScene(m_scene); vSplitter->addWidget(view);
+	//View * view = new View(this, "View 1");
+	//view->view()->setScene(m_scene);
+	//vSplitter->addWidget(view);
 
-	//QVBoxLayout * layout = new QVBoxLayout;
-	m_window->layout()->addWidget(vSplitter);
-	//m_window->setLayout(layout);
+	m_window->getUI()->gridLayout->addWidget(vSplitter, 0, 0, 1, 1);
 	m_window->show();
 	m_window->setWindowTitle(tr("Profiler Demo"));
 
@@ -68,7 +69,7 @@ void ProfilerWindow::incomingProfilerData (profiler::profiler_rvp_t * rvp)
 		//qDebug("consumed node: 0x%016x", node);
 		threadinfos_t const & tis = *node;
 
-		/*qDebug("consumed node: 0x%016x, tis_sz=%u", node, tis.size());
+		qDebug("consumed node: 0x%016x, tis_sz=%u", node, tis.size());
 		for (size_t t = 0, te = tis.size(); t < te; ++t)
 		{
 			blockinfos_t const & bis = tis[t];
@@ -134,9 +135,9 @@ void ProfilerWindow::incomingProfilerData (profiler::profiler_rvp_t * rvp)
 			}
 
 			offs += m_max_layers[t];
-		}*/
+		}
 
-		/*int const h = g_heightValue;
+		int const h = g_heightValue;
 		int const space = g_spaceValue;
 		for (size_t t = 0, te = tis.size(); t < te; ++t)
 		{
@@ -173,7 +174,7 @@ void ProfilerWindow::incomingProfilerData (profiler::profiler_rvp_t * rvp)
 				p1.setWidth(4);
 				m_scene->addItem(ln_end);
 			}
-		} */
+		} 
 
 	}
 	m_view->forceUpdate();

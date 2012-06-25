@@ -622,11 +622,6 @@ void Server::incomingProfilerConnection (profiler::profiler_rvp_t * rvp)
 
 	using namespace profiler;
 	ProfilerWindow * w = new ProfilerWindow(this, rvp);
-	//Connection * connection = createNewTableView ();
-	//connection->setSocketDescriptor(socketDescriptor);
-	//QObject::connect(connection->m_tcpstream, SIGNAL(readyRead()), connection, SLOT(processReadyRead()));
-	//QObject::connect(connection->m_tcpstream, SIGNAL(disconnected()), connection, SLOT(onDisconnected()));
-	//
 	qDebug("Incomming profiler rendez-vous point!");
 	main_window->statusBar()->showMessage(tr("Incomming profiler rendez-vous point!"));
 }

@@ -287,10 +287,6 @@ struct file_filter
 					path.reserve(128);
 					reassemble_path(nodes, path);
 					output.append("\n");
-					if (current->data.m_collapsed)
-						output += "c ";
-					else
-						output += "E ";
 
 					if (current->data.m_state == e_Checked)
 						output += "X ";
@@ -298,6 +294,11 @@ struct file_filter
 						output += "# ";
 					else
 						output += "- ";
+
+					if (current->data.m_collapsed)
+						output += "c ";
+					else
+						output += "E ";
 					output.append(path);
 					path.clear();
 				}
