@@ -161,7 +161,10 @@ void SessionState::clearFilters ()
 ///////// file filters
 bool SessionState::isFileLinePresent (fileline_t const & item, E_NodeStates & state) const
 {
-	return m_file_filters.is_present(item.first + "/" + item.second, state);
+	file_info const * fi = 0;
+	bool const exists = m_file_filters.is_present(item.first + "/" + item.second, fi);
+	state = static_cast<E_NodeStates>(fi->m_state);
+	return exists;
 }
 bool SessionState::isFileLinePresent (std::string const & fileline, E_NodeStates & state) const
 {

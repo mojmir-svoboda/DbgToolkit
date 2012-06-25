@@ -38,6 +38,11 @@ struct NNode
 		: key(k), data(d), next(0), prev(0), parent(0), children(0)
 	{ }
 
+	explicit NNode (char const * k_left, char const * k_right, typename boost::call_traits<Data>::param_type d)
+		: key(k_left, k_right - k_left), data(d), next(0), prev(0), parent(0), children(0)
+	{ }
+
+
 	~NNode () { }
 
 	static NNode * node_append (NNode * parent, NNode * node) { return node_insert_before(parent, NULL, node); }
@@ -113,6 +118,19 @@ struct NNode
 		}
 		return 0;
 	}
+
+	static NNode * node_child_fast (NNode * node, char const * left, char const * right)
+	{     
+		node = node->children;
+		while (node)
+		{
+			if (0 == strncmp(node->key.c_str(), left, right - left))
+				return node;
+			node = node->next;
+		}
+		return 0;
+	}
+
 
 	static bool is_leaf (NNode * node) { return node->children == 0; }
 	static bool is_root (NNode * node) { return node->parent == 0 && node->prev == 0 && node->next == 0; }

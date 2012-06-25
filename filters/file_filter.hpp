@@ -83,32 +83,6 @@ struct file_filter
 
 	bool empty () const { return !(root && root->children); }
 
-	void set_to_state (std::string const & file, E_NodeStates state, bool collapsed = true)
-	{
-		std::vector<node_t *> path;
-		tokenizer_t tok(file, separator);
-		node_t * level = root;
-	   	tokenizer_t::const_iterator it = tok.begin(), ite = tok.end();
-		path.reserve(std::distance(it, ite));
-		while (it != ite)
-		{
-			node_t * n = node_t::node_child(level, *it);
-			if (n == 0)
-			{
-				n = new node_t(*it, file_info(state, collapsed));
-				node_t::node_append(level, n);
-			}
-			level = n;
-
-			++it;
-			if (it == ite)
-			{
-				level->data.m_state = state;
-				level->data.m_collapsed = collapsed;
-			}
-		}
-	}
-
 	/*bool is_set_fast (std::string const & file) const
 	{
 		char const * const bgn = file.c_str();
@@ -138,20 +112,39 @@ struct file_filter
 		return false; // node is not tagged
 	}*/
 
-	/*bool is_excluded (std::string const & file) const
+	void set_to_state (std::string const & file, E_NodeStates state, bool collapsed = true)
 	{
-		tokenizer_t tok(file, separator);
-		node_t const * level = root;
-	   	for (tokenizer_t::iterator it = tok.begin(), ite = tok.end(); it != ite; ++it)
+		char const * const bgn = file.c_str();
+		char const * const end = bgn + file.size();
+
+		char const * left = bgn;
+		char const * right = bgn;
+		node_t * level = root;
+		for (; right < end; ++right)
 		{
-			level = node_t::node_child(level, *it);
-			if (level == 0)
-				return false; // node not in tree
-			else if (level->data.m_state == e_Checked) // node is tagged for exclusion
-				return true;  // node is tagged for exclusion
+			char const c = *right;
+			if (c == ':' || c == '/' || c == '\\' || c == '\0' || right + 1 == end)
+			{
+				if (right - left > 0)
+				{
+					level = node_t::node_child_fast(level, left, right);
+
+					if (level == 0)
+					{
+						node_t * const n = new node_t(left, right, file_info(state, collapsed));
+						node_t::node_append(level, n);
+						level = n;
+					}
+				}
+
+				if (right + 1 < end)
+					left = right + 1;
+			}
 		}
-		return false; // node is not tagged
-	}*/
+
+		level->data.m_state = state;
+		level->data.m_collapsed = collapsed;
+	}
 
 	bool is_present (std::string const & file, E_NodeStates & state) const
 	{
@@ -170,18 +163,30 @@ struct file_filter
 	bool is_present (std::string const & file, file_info const * & fi) const
 	{
 		fi = 0;
-		tokenizer_t tok(file, separator);
+		char const * const bgn = file.c_str();
+		char const * const end = bgn + file.size() + 1;
+
+		char const * left = bgn;
+		char const * right = bgn;
 		node_t const * level = root;
-	   	for (tokenizer_t::iterator it = tok.begin(), ite = tok.end(); it != ite; ++it)
+		for (; right < end; ++right)
 		{
-			level = node_t::node_child(level, *it);
-			if (level == 0)
-				return false; // node not in tree
-			fi = &level->data;
+			char const c = *right;
+			if (c == ':' || c == '/' || c == '\\' || c == '\0' || right + 1 == end)
+			{
+				if (right - left > 0)
+				{
+					level = node_t::node_child_fast(level, left, right);
+					if (level == 0)
+						return false; // node not in tree
+					fi = &level->data;
+				}
+				if (right + 1 < end)
+					left = right + 1;
+			}
 		}
 		return true;
 	}
-
 
 	void set_state_to_childs (node_t * node, E_NodeStates state)
 	{
@@ -280,7 +285,6 @@ struct file_filter
 			{
 				node_t * current = child;
 				nodes.push_back(current);
-				//if (current->data.m_state == e_Unchecked)
 				{
 
 					std::string path;
