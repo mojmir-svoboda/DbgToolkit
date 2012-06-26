@@ -115,7 +115,7 @@ struct file_filter
 	void set_to_state (std::string const & file, E_NodeStates state, bool collapsed = true)
 	{
 		char const * const bgn = file.c_str();
-		char const * const end = bgn + file.size();
+		char const * const end = bgn + file.size() + 1;
 
 		char const * left = bgn;
 		char const * right = bgn;
@@ -127,14 +127,13 @@ struct file_filter
 			{
 				if (right - left > 0)
 				{
-					level = node_t::node_child_fast(level, left, right);
-
-					if (level == 0)
+					node_t * child = node_t::node_child_fast(level, left, right);
+					if (child == 0)
 					{
-						node_t * const n = new node_t(left, right, file_info(state, collapsed));
-						node_t::node_append(level, n);
-						level = n;
+						child = new node_t(left, right, file_info(state, collapsed));
+						node_t::node_append(level, child);
 					}
+					level = child;
 				}
 
 				if (right + 1 < end)

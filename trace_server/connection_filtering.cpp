@@ -255,7 +255,7 @@ void Connection::onFileColOrExp (QModelIndex const & idx, bool collapsed)
 	for (std::vector<QString>::const_reverse_iterator it=s.rbegin(), ite=s.rend(); it != ite; ++it)
 		file += std::string("/") + (*it).toStdString();
 
-	sessionState().m_file_filters.set_to_state(file, static_cast<E_NodeStates>(node->checkState()), false);
+	sessionState().m_file_filters.set_to_state(file, static_cast<E_NodeStates>(node->checkState()), collapsed);
 }
 
 void Connection::onFileExpanded (QModelIndex const & idx)
