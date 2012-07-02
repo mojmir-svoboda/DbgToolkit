@@ -54,7 +54,6 @@ QVariant ModelView::data (const QModelIndex &index, int role) const
 		QString str("");
 		if (checkExistence(index))
 		{
-			//qDebug("row=%u col=%u, rows_size=%u rows_size[%u].size()=%u value=%s",index.row(), index.column(), rows.size(), index.row(), rows[index.row()].size(), rows[index.row()][index.column()].toStdString().c_str());
 			return m_rows[index.row()][index.column()];
 		}
 		return str;

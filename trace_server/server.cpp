@@ -499,7 +499,7 @@ Connection * Server::createNewTableView ()
 	horizontalLayout->setContentsMargins(11, 11, 11, 11);
 	horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
 	QTableView * tableView = new QTableView(tab);
-	tableView->setItemDelegate(new TableItemDelegate(connection->sessionState()));
+	tableView->setItemDelegate(new TableItemDelegate(connection->sessionState(), connection));
 	
 	// to ignore 'resizeColumnToContents' when accidentaly double-clicked on header handle
 	disconnect(tableView->horizontalHeader(), SIGNAL(sectionHandleDoubleClicked(int)), tableView, SLOT(resizeColumnToContents(int)));
