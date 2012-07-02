@@ -62,6 +62,18 @@ public:
 private slots:
 };
 
+class LevelDelegate : public QStyledItemDelegate
+{
+	SessionState const & m_session_state;
+public: 
+    LevelDelegate (SessionState & ss, QObject *parent = 0) : QStyledItemDelegate(parent), m_session_state(ss) { }
+
+    void paint (QPainter * painter, QStyleOptionViewItem const & option, QModelIndex const & index) const;
+    
+private slots:
+};
+
+
 
 /**@class		Connection
  * @brief		represents incoming connection (or file stream)

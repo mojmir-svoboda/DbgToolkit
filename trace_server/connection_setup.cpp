@@ -246,4 +246,6 @@ void Connection::setupModelLvl ()
 		m_lvl_model = new QStandardItemModel;
 	m_main_window->getWidgetLvl()->setModel(m_lvl_model);
 	m_main_window->getWidgetLvl()->setEnabled(m_main_window->filterEnabled());
+
+	m_main_window->getWidgetLvl()->setItemDelegate(new LevelDelegate(sessionState(), this));
 }

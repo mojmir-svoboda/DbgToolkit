@@ -77,6 +77,31 @@ void TableItemDelegate::paint (QPainter * painter, QStyleOptionViewItem const & 
 	painter->restore();
 }
 
+
+void LevelDelegate::paint (QPainter * painter, QStyleOptionViewItem const & option, QModelIndex const & index) const
+{
+    painter->save();
+    QStyleOptionViewItemV4 option4 = option;
+    initStyleOption(&option4, index);
+
+	QVariant value = index.data(Qt::DisplayRole);
+	if (value.isValid() && !value.isNull())
+	{
+		QString const qs = value.toString();
+		int const lvl = qs.toInt();
+		option4.text = QString("%1").arg(lvl < tlv::tag_max_value ? tlv::get_tag_name(lvl): qs);
+
+		if (QWidget const * widget = option4.widget)
+		{
+			QStyle * style = widget->style();
+			style->drawControl(QStyle::CE_ItemViewItem, &option4, painter, widget);
+		}
+	}
+	painter->restore();
+}
+
+
+
 Connection::Connection (QObject * parent)
 	: QThread(parent)
 	, m_main_window(0)
