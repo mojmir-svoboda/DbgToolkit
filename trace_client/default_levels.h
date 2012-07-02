@@ -14,6 +14,7 @@ namespace trace {
 		XX(max_trace_level,)
 
 FACT_DECLARE_ENUM(E_TraceLevel,TRACELEVEL_ENUM);
+FACT_DECLARE_ENUM_TO_STRING(E_TraceLevel,TRACELEVEL_ENUM);
 
 typedef E_TraceLevel level_t;
 

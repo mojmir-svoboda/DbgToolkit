@@ -354,9 +354,10 @@ void Server::onClickedAtLvlList (QModelIndex idx)
 		std::string filter_item(val.toStdString());
 		if (Connection * conn = findCurrentConnection())
 		{
-			if (fmode == e_Include)
+			if (fmode == e_Exclude)
 				checked = !checked;
 
+			item->setCheckState(!checked ? Qt::Checked : Qt::Unchecked);
 			if (checked)
 				conn->sessionState().appendLvlFilter(filter_item);
 			else

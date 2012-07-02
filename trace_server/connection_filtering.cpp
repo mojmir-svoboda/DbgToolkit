@@ -281,7 +281,7 @@ void Connection::appendToTIDFilters (std::string const & item)
 	}
 }
 
-void Connection::appendToLvlFilters (std::string const & item, bool checked)
+void Connection::appendToLvlFilters (std::string const & item)
 {
 	QString qItem = QString::fromStdString(item);
 	QStandardItem * root = m_lvl_model->invisibleRootItem();
@@ -290,7 +290,9 @@ void Connection::appendToLvlFilters (std::string const & item, bool checked)
 	if (child == 0)
 	{
 		QList<QStandardItem *> row_items = addTriRow(qItem, fmode == e_Include ? Qt::Checked : Qt::Unchecked, true);
+		row_items[0]->setCheckState(fmode == e_Include ? Qt::Checked : Qt::Unchecked);
 		root->appendRow(row_items);
+		m_main_window->getWidgetLvl()->sortByColumn(0, Qt::AscendingOrder);
 	}
 }
 
@@ -335,7 +337,7 @@ bool Connection::appendToFilters (DecodedCommand const & cmd)
 		}
 		if (cmd.tvs[i].m_tag == tlv::tag_lvl)
 		{
-			appendToLvlFilters(cmd.tvs[i].m_val, false);
+			appendToLvlFilters(cmd.tvs[i].m_val);
 		}
 	}
 
