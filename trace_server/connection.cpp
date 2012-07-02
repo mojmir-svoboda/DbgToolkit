@@ -20,50 +20,59 @@
 #include "types.h"
 #include "statswindow.h"
 
+void TableItemDelegate::paintTokenized (QPainter * painter, QStyleOptionViewItemV4 & option4, QModelIndex const & index, QString const & separator, int level) const
+{
+	QVariant value = index.data(Qt::DisplayRole);
+	if (value.isValid() && !value.isNull())
+	{
+		//painter->translate(option4.rect.topLeft());
+		Connection const * conn = static_cast<Connection const *>(parent());
+		if (conn->getMainWindow()->cutPathEnabled())
+		{
+			QStringList list = value.toString().split(QRegExp(separator));
+			if (!list.empty())
+			{
+				option4.text = list.at(level < list.size() ? list.size() - level : 1);
+			}
+
+			QWidget const * widget = option4.widget;
+			if (widget)
+			{
+				QStyle * style = widget->style();
+				style->drawControl(QStyle::CE_ItemViewItem, &option4, painter, widget);
+			}
+		}
+		else
+		{
+			QStyledItemDelegate::paint(painter, option4, index);
+		}
+		//painter->translate(-option4.rect.topLeft());
+	}
+}
+
 void TableItemDelegate::paint (QPainter * painter, QStyleOptionViewItem const & option, QModelIndex const & index) const
 {
     painter->save();
-    QStyleOptionViewItemV4 option3 = option;
-    initStyleOption(&option3, index);
+    QStyleOptionViewItemV4 option4 = option;
+    initStyleOption(&option4, index);
 	columns_align_t const & column_aligns = *m_session_state.getColumnsAlignTemplate();
 	E_Align const align = stringToAlign(column_aligns[index.column()].at(0).toAscii());
-	option3.displayAlignment = static_cast<Qt::Alignment>(1 << align);
+	option4.displayAlignment = static_cast<Qt::Alignment>(1 << align);
 	columns_elide_t const & column_elides = *m_session_state.getColumnsElideTemplate();
 	E_Elide const elide = stringToElide(column_elides[index.column()].at(0).toAscii());
-	option3.textElideMode = static_cast<Qt::TextElideMode>(elide);
+	option4.textElideMode = static_cast<Qt::TextElideMode>(elide);
 
-	int const column_idx = m_session_state.findColumn4Tag(tlv::tag_file);
-	if (index.column() == column_idx)
+	if (index.column() == m_session_state.findColumn4Tag(tlv::tag_file))
 	{
-		QVariant value = index.data(Qt::DisplayRole);
-		if (value.isValid() && !value.isNull())
-		{
-			//painter->translate(option.rect.topLeft());
-			Connection const * conn = static_cast<Connection const *>(parent());
-			if (conn->getMainWindow()->cutPathEnabled())
-			{
-				QString const file = value.toString();
-				QStringList list = file.split(QRegExp("[/\\\\]"));
-				if (!list.empty())
-					option3.text = list.at(list.size() - 1);
-
-				QWidget const * widget = option3.widget;
-				if (widget)
-				{
-					QStyle * style = widget->style();
-					style->drawControl(QStyle::CE_ItemViewItem, &option3, painter, widget);
-				}
-			}
-			else
-			{
-				QStyledItemDelegate::paint(painter, option3, index);
-			}
-			//painter->translate(-option.rect.topLeft());
-		}
+		paintTokenized(painter, option4, index, QString("[:/\\\\]"));
+	}
+	else if (index.column() == m_session_state.findColumn4Tag(tlv::tag_func))
+	{
+		paintTokenized(painter, option4, index, QString("[::]"));
 	}
 	else
 	{
-		QStyledItemDelegate::paint(painter, option3, index);
+		QStyledItemDelegate::paint(painter, option4, index);
 	}
 	painter->restore();
 }
