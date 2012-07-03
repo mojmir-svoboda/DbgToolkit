@@ -66,8 +66,6 @@ public:
 	columns_elide_t const & getColumnElide (size_t i) const { return m_columns_elide.at(i); }
 	columns_align_t & getColumnElide (size_t i) { return m_columns_elide[i]; }
 
-	Preset const & getFilterPresets (size_t i) const { return m_filter_presets[i]; }
-	Preset & getFilterPresets (size_t i) { return m_filter_presets[i]; }
 	int findPresetName (QString const & name)
 	{
 		for (size_t i = 0, ie = m_preset_names.size(); i < ie; ++i)
@@ -81,7 +79,6 @@ public:
 	size_t addPresetName (QString const & name)
 	{
 		m_preset_names.push_back(name);
-		m_filter_presets.push_back(Preset());
 		return m_preset_names.size() - 1;
 	}
 
@@ -154,6 +151,7 @@ private slots:
 	void storeState ();
 	void saveCurrentSession (QString const & preset_name);
 	void storePresets ();
+	void storePresetNames ();
 	void timerHit ();
 	void onQuit ();
 	void onEditFind ();
@@ -218,7 +216,6 @@ private:
 	QList<columns_elide_t> m_columns_elide;		/// column elide for each registered application
 	QList<QColor> m_thread_colors;				/// predefined coloring of threads
 	QList<QString> m_preset_names;				/// registered presets
-	filter_presets_t m_filter_presets;			/// list of strings for each preset
 	QString m_last_search;
 	QTimer * m_timer;
 	Server * m_server;

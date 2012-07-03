@@ -32,7 +32,7 @@ void TableItemDelegate::paintTokenized (QPainter * painter, QStyleOptionViewItem
 			QStringList list = value.toString().split(QRegExp(separator));
 			if (!list.empty())
 			{
-				option4.text = list.at(level < list.size() ? list.size() - level : 0);
+				option4.text = list.at(level < list.size() ? list.size() - level : 1);
 			}
 
 			QWidget const * widget = option4.widget;
@@ -78,41 +78,25 @@ void TableItemDelegate::paint (QPainter * painter, QStyleOptionViewItem const & 
 }
 
 
-// @TODO: tmp, via dictionnary in future
-#include <trace_client/default_levels.h>
-namespace trace {
-	FACT_DEFINE_ENUM_STR(E_TraceLevel,TRACELEVEL_ENUM);
-	FACT_DEFINE_ENUM_TO_STRING(E_TraceLevel,TRACELEVEL_ENUM);
-}
-
 void LevelDelegate::paint (QPainter * painter, QStyleOptionViewItem const & option, QModelIndex const & index) const
 {
     painter->save();
     QStyleOptionViewItemV4 option4 = option;
     initStyleOption(&option4, index);
 
-	if (index.column() == 0)
+	QVariant value = index.data(Qt::DisplayRole);
+	if (value.isValid() && !value.isNull())
 	{
-		QVariant value = index.data(Qt::DisplayRole);
-		if (value.isValid() && !value.isNull())
-		{
-			QString const qs = value.toString();
-			int const lvl = qs.toInt();
-			// @TODO: this should be exchanged via dictionnary in future
-			if (lvl >= 0 && lvl < trace::e_max_trace_level)
-			{
-				option4.text = QString::fromAscii(trace::enumToString(static_cast<trace::E_TraceLevel>(lvl)));
-			}
+		QString const qs = value.toString();
+		int const lvl = qs.toInt();
+		option4.text = QString("%1").arg(lvl < tlv::tag_max_value ? tlv::get_tag_name(lvl): qs);
 
-			if (QWidget const * widget = option4.widget)
-			{
-				QStyle * style = widget->style();
-				style->drawControl(QStyle::CE_ItemViewItem, &option4, painter, widget);
-			}
+		if (QWidget const * widget = option4.widget)
+		{
+			QStyle * style = widget->style();
+			style->drawControl(QStyle::CE_ItemViewItem, &option4, painter, widget);
 		}
 	}
-	else
-		QStyledItemDelegate::paint(painter, option4, index);
 	painter->restore();
 }
 

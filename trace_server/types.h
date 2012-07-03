@@ -4,33 +4,25 @@
 
 enum E_FilterMode { e_Include, e_Exclude };
 
+enum E_LevelMode {
+	e_LvlInclude = 0,
+	e_LvlForceInclude = 1,
+	e_max_lvlmod_enum_value
+};
+
+static char lvlmods[e_max_lvlmod_enum_value] = { 'I', 'F' };
+inline char lvlModToString (E_LevelMode l) { return lvlmods[l]; }
+inline E_LevelMode stringToLvlMod (char c) {
+	for (size_t i = 0; i < e_max_lvlmod_enum_value; ++i)
+		if (lvlmods[i] == c)
+			return static_cast<E_LevelMode>(i);
+	return e_LvlInclude;
+}
+
+
 inline E_FilterMode invert (E_FilterMode m) { return m == e_Include ? e_Include : e_Exclude; }
 enum E_ColorRole { e_Bg, e_Fg };
 
-typedef QList<QString>			filter_regexs_t;
-typedef QList<QString>			filter_preset_t;
-
-struct Preset {
-	filter_preset_t m_file_filters;
-	filter_preset_t m_colortext_regexs;
-	filter_preset_t m_colortext_colors;
-	filter_preset_t m_colortext_enabled;
-	filter_preset_t m_regex_filters;
-	filter_preset_t m_regex_fmode;
-	filter_preset_t m_regex_enabled;
-	
-	Preset () {
-		m_file_filters.reserve(32 * 1024);
-		m_colortext_regexs.reserve(256);
-		m_colortext_colors.reserve(256);
-		m_colortext_enabled.reserve(256);
-		m_regex_filters.reserve(256);
-		m_regex_fmode.reserve(256);
-		m_regex_enabled.reserve(256);
-	}
-};
-
-typedef QList<Preset>	filter_presets_t;
 typedef QList<QString>			columns_setup_t;
 typedef QList<int>				columns_sizes_t;
 

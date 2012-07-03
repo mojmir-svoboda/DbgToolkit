@@ -10,11 +10,6 @@
 
 	namespace trace {
 
-#if !defined TRACE_LEVELS_INCLUDE
-		//FACT_DEFINE_ENUM_TO_STRING_METHOD(E_TraceLevel,TRACELEVEL_ENUM)
-		FACT_DEFINE_ENUM_TO_STRING(E_TraceLevel,TRACELEVEL_ENUM);
-#endif
-
 		level_t      g_RuntimeLevel       = static_cast<level_t>(e_max_trace_level);
 		context_t    g_RuntimeContextMask = ~(0U);
 		char const * g_AppName            = "trace_client";

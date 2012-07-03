@@ -117,19 +117,22 @@ struct ColorizedText {
 	}
 };
 
+
 struct FilteredLevel {
+	QString m_level_str;
 	int m_level;
 	bool m_is_enabled;
 	int m_state;
 
 	FilteredLevel () { }
-	FilteredLevel (int level, bool enabled, int state)
-        : m_level(level), m_is_enabled(enabled), m_state(state)
+	FilteredLevel (QString level, bool enabled, int state)
+        : m_level_str(level), m_level(level.toInt()), m_is_enabled(enabled), m_state(state)
 	{ }
 
 	template <class ArchiveT>
 	void serialize (ArchiveT & ar, unsigned const version)
 	{
+		ar & m_level_str;
 		ar & m_level;
 		ar & m_is_enabled;
 		ar & m_state;
@@ -208,11 +211,10 @@ public:
 	void removeTIDFilter (std::string const & item);
 	bool isTIDExcluded (std::string const & item) const;
 
-	typedef std::vector<std::string> lvl_filters_t;
-	typedef std::vector<FilteredLevel> lvl_filters_t;
+	typedef QList<FilteredLevel> lvl_filters_t;
 	void appendLvlFilter (std::string const & item);
 	void removeLvlFilter (std::string const & item);
-	bool isLvlExcluded (std::string const & item) const;
+	bool isLvlPresent (std::string const & item, bool & enabled, E_LevelMode & lvlmode) const;
 
 	void appendCollapsedBlock (QString tid, int from, int to, QString file, QString line);
 	bool findCollapsedBlock (QString tid, int from, int to) const;

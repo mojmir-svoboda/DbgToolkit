@@ -206,15 +206,38 @@ bool SessionState::isTIDExcluded (std::string const & item) const
 ///////// lvl filters
 void SessionState::appendLvlFilter (std::string const & item)
 {
-	m_lvl_filters.push_back(item);
+/*	QString const qitem = QString::fromStdString(item);
+	for (int i = 0, ie = m_lvl_filters.size(); i < ie; ++i)
+		if (m_lvl_filters[i].m_level_str == qitem)
+			return;
+	m_lvl_filters.push_back(FilteredLevel(qitem, true, e_LvlInclude));
+*/
 }
 void SessionState::removeLvlFilter (std::string const & item)
 {
-	m_lvl_filters.erase(std::remove(m_lvl_filters.begin(), m_lvl_filters.end(), item), m_lvl_filters.end());
+/*	QString const qitem = QString::fromStdString(item);
+	for (int i = 0, ie = m_lvl_filters.size(); i < ie; ++i)
+		if (m_lvl_filters[i].m_level_str == qitem)
+		{
+			m_lvl_filters.removeAt(i);
+			return;
+		}
+*/
 }
-bool SessionState::isLvlExcluded (std::string const & item) const
+bool SessionState::isLvlPresent (std::string const & item, bool & enabled, E_LevelMode & lvlmode) const
 {
-	return std::find(m_lvl_filters.begin(), m_lvl_filters.end(), item) != m_lvl_filters.end();
+/*	QString const qitem = QString::fromStdString(item);
+	for (int i = 0, ie = m_lvl_filters.size(); i < ie; ++i)
+		if (m_lvl_filters.at(i).m_level_str == qitem)
+		{
+			FilteredLevel const & l = m_lvl_filters.at(i);
+			lvlmode = static_cast<E_LevelMode>(l.m_state);
+			enabled = l.m_is_enabled;
+			return true;
+		}
+	return false;
+*/
+	return true;
 }
 
 

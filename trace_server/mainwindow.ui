@@ -336,7 +336,7 @@
         <enum>QTabWidget::Triangular</enum>
        </property>
        <property name="currentIndex">
-        <number>1</number>
+        <number>0</number>
        </property>
        <widget class="QWidget" name="filterFile">
         <attribute name="title">
@@ -552,7 +552,7 @@
      <x>0</x>
      <y>0</y>
      <width>906</width>
-     <height>16</height>
+     <height>18</height>
     </rect>
    </property>
   </widget>

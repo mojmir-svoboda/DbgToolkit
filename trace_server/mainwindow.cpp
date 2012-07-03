@@ -638,20 +638,21 @@ void MainWindow::onPresetActivate (Connection * conn, QString const & pname)
 	if (!conn) return;
 
 	SessionState dummy;
-	loadSession(dummy, pname);
+	if (loadSession(dummy, pname))
+	{
+		std::swap(conn->m_session_state.m_file_filters.root, dummy.m_file_filters.root);
+		conn->m_session_state.m_filtered_regexps.swap(dummy.m_filtered_regexps);
+		conn->m_session_state.m_colorized_texts.swap(dummy.m_colorized_texts);
 
-	std::swap(conn->m_session_state.m_file_filters.root, dummy.m_file_filters.root);
-	conn->m_session_state.m_filtered_regexps.swap(dummy.m_filtered_regexps);
-	conn->m_session_state.m_colorized_texts.swap(dummy.m_colorized_texts);
+		file_filter::node_t * node = conn->m_session_state.m_file_filters.root;
+		QStandardItem * qnode = static_cast<QStandardItemModel *>(getWidgetFile()->model())->invisibleRootItem();
+		syncOnPreset(qnode, node);
+		syncColorRegexOnPreset(conn);
+		syncRegexOnPreset(conn);
 
-	file_filter::node_t * node = conn->m_session_state.m_file_filters.root;
-	QStandardItem * qnode = static_cast<QStandardItemModel *>(getWidgetFile()->model())->invisibleRootItem();
-	syncOnPreset(qnode, node);
-	syncColorRegexOnPreset(conn);
-	syncRegexOnPreset(conn);
-
-	conn->onInvalidateFilter();
-	setPresetNameIntoComboBox(pname);
+		conn->onInvalidateFilter();
+		setPresetNameIntoComboBox(pname);
+	}
 }
 
 void MainWindow::onPresetActivate (int idx)
@@ -796,6 +797,7 @@ void MainWindow::onSaveCurrentFileFilterTo (QString const & preset_name)
 		for (size_t i = 0, ie = m_preset_names.size(); i < ie; ++i)
 			ui->presetComboBox->addItem(m_preset_names.at(i));
 		setPresetNameIntoComboBox(preset_name);
+		storePresetNames();
 	}
 }
 
@@ -824,26 +826,39 @@ void MainWindow::onAddCurrentFileFilter ()
 
 void MainWindow::onRmCurrentFileFilter ()
 {
-	/*if (!getTabTrace()->currentWidget()) return;
-	Connection * conn = m_server->findCurrentConnection();
-	if (!conn) return;
-
-	QString const text = ui->filterModeComboBox->currentText();
-	int idx = findPresetName(text);
+	QString const preset_name = ui->presetComboBox->currentText();
+	int idx = findPresetName(preset_name);
 	if (idx == -1)
-	{
-		idx = addPresetName(text);
-	}
-	qDebug("removing preset_name[%i]=%s", idx, text.toStdString().c_str());
+		return;
+
+	qDebug("removing preset_name[%i]=%s", idx, preset_name.toStdString().c_str());
 	
+	QString fname = getPresetFileName(m_appdir, preset_name);
+	qDebug("session file=%s", fname.toAscii());
+
+	QMessageBox msg_box;
+	QPushButton * b_del = msg_box.addButton(tr("Yes, Delete"), QMessageBox::ActionRole);
+	QPushButton * b_abort = msg_box.addButton(QMessageBox::Abort);
+	msg_box.exec();
+	if (msg_box.clickedButton() == b_abort)
+		return;
+
+	QFile qf(fname);
+	qf.remove();
+
 	ui->presetComboBox->clear();
-	m_filter_presets[idx].clear();
 
-	conn->onClearCurrentFileFilter();
-	conn->onInvalidateFilter();
+	m_preset_names.erase(std::remove(m_preset_names.begin(), m_preset_names.end(), preset_name), m_preset_names.end());
+	for (size_t i = 0, ie = m_preset_names.size(); i < ie; ++i)
+		ui->presetComboBox->addItem(m_preset_names.at(i));
+	//setPresetNameIntoComboBox(preset_name);
+	storePresetNames();
+}
 
-	//m_preset_names.at(idx) = QString("");
-	storePresets();*/
+void MainWindow::storePresetNames ()
+{
+	QSettings settings("MojoMir", "TraceServer");
+	write_list_of_strings(settings, "known-presets", "preset", m_preset_names);
 }
 
 void MainWindow::onGotoFileFilter () { ui->tabFilters->setCurrentIndex(0); }
@@ -907,31 +922,6 @@ void MainWindow::setupMenuBar ()
 	helpMenu->addAction(tr("Dump filters"), this, SLOT(onDumpFilters()));
 }
 
-void write_list_of_strings (QSettings & settings, char const * groupname, char const * groupvaluename, QList<QString> const & lst)
-{
-	settings.beginWriteArray(groupname);
-	for (int i = 0, ie = lst.size(); i < ie; ++i)
-	{
-		settings.setArrayIndex(i);
-		settings.setValue(groupvaluename, lst.at(i));
-		qDebug("store to registry %i/%i: %s", i,ie, lst.at(i).toStdString().c_str());
-	}
-	settings.endArray();
-}
-
-void read_list_of_strings (QSettings & settings, char const * groupname, char const * groupvaluename, QList<QString> & lst)
-{
-	int const size = settings.beginReadArray(groupname);
-	for (int i = 0; i < size; ++i)
-	{
-		settings.setArrayIndex(i);
-		QString val = settings.value(groupvaluename).toString();
-		qDebug("read from registry: %s", val.toStdString().c_str());
-		lst.push_back(val);
-	}
-	settings.endArray();
-}
-
 void MainWindow::saveSession (SessionState const & s, QString const & preset_name) const
 {
 	QString fname = getPresetFileName(m_appdir, preset_name);
@@ -946,8 +936,7 @@ void MainWindow::storePresets ()
 	Connection * conn = m_server->findCurrentConnection();
 	if (!conn) return;
 
-	QSettings settings("MojoMir", "TraceServer");
-	write_list_of_strings(settings, "known-presets", "preset", m_preset_names);
+	storePresetNames();
 
 	for (size_t i = 0, ie = m_preset_names.size(); i < ie; ++i)
 		if (!m_preset_names.at(i).isEmpty())
@@ -962,7 +951,6 @@ void MainWindow::saveCurrentSession (QString const & preset_name)
 	if (!conn) return;
 
 	QSettings settings("MojoMir", "TraceServer");
-	write_list_of_strings(settings, "known-presets", "preset", m_preset_names);
 
 	saveSession(conn->sessionState(), preset_name);
 }
@@ -978,7 +966,6 @@ bool MainWindow::loadSession (SessionState & s, QString const & preset_name)
 void MainWindow::loadPresets ()
 {
 	m_preset_names.clear();
-	m_filter_presets.clear();
 
 	QSettings settings("MojoMir", "TraceServer");
 	read_list_of_strings(settings, "known-presets", "preset", m_preset_names);
@@ -991,24 +978,34 @@ void MainWindow::loadPresets ()
 	for (size_t i = 0, ie = m_preset_names.size(); i < ie; ++i)
 	{
 		qDebug("reading preset: %s", m_preset_names.at(i).toStdString().c_str());
-		m_filter_presets.push_back(Preset());
 		QString const prs_name = tr("preset_%1").arg(m_preset_names[i]);
 		if (settings.childGroups().contains(prs_name))
 		{
 			settings.beginGroup(prs_name);
 			{
-				read_list_of_strings(settings, "items", "item", m_filter_presets.back().m_file_filters);
-				read_list_of_strings(settings, "cregexps", "item", m_filter_presets.back().m_colortext_regexs);
-				read_list_of_strings(settings, "cregexps_colors", "item", m_filter_presets.back().m_colortext_colors);
-				read_list_of_strings(settings, "cregexps_enabled", "item", m_filter_presets.back().m_colortext_enabled);
-				read_list_of_strings(settings, "regexps", "item", m_filter_presets.back().m_regex_filters);
-				read_list_of_strings(settings, "regexps_fmode", "item", m_filter_presets.back().m_regex_fmode);
-				read_list_of_strings(settings, "regexps_enabled", "item", m_filter_presets.back().m_regex_enabled);
+				typedef QList<QString>			filter_regexs_t;
+				typedef QList<QString>			filter_preset_t;
+
+				filter_preset_t m_file_filters;
+				filter_preset_t m_colortext_regexs;
+				filter_preset_t m_colortext_colors;
+				filter_preset_t m_colortext_enabled;
+				filter_preset_t m_regex_filters;
+				filter_preset_t m_regex_fmode;
+				filter_preset_t m_regex_enabled;
+
+				read_list_of_strings(settings, "items", "item", m_file_filters);
+				read_list_of_strings(settings, "cregexps", "item", m_colortext_regexs);
+				read_list_of_strings(settings, "cregexps_colors", "item", m_colortext_colors);
+				read_list_of_strings(settings, "cregexps_enabled", "item", m_colortext_enabled);
+				read_list_of_strings(settings, "regexps", "item", m_regex_filters);
+				read_list_of_strings(settings, "regexps_fmode", "item", m_regex_fmode);
+				read_list_of_strings(settings, "regexps_enabled", "item", m_regex_enabled);
 
 				SessionState ss;
 				E_FilterMode const fmode = fltMode();
-				for (int f = 0, fe = m_filter_presets.back().m_file_filters.size(); f < fe; ++f)
-					ss.m_file_filters.set_to_state(m_filter_presets.back().m_file_filters.at(f).toStdString(), fmode == e_Exclude ? e_Checked : e_Unchecked);
+				for (int f = 0, fe = m_file_filters.size(); f < fe; ++f)
+					ss.m_file_filters.set_to_state(m_file_filters.at(f).toStdString(), fmode == e_Exclude ? e_Checked : e_Unchecked);
 
 				saveSession(ss, m_preset_names.at(i));
 
