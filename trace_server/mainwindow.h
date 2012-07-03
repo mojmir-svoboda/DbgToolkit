@@ -120,6 +120,9 @@ public:
 	bool indentEnabled () const;
 	bool cutPathEnabled () const;
 	bool cutNamespaceEnabled () const;
+	int cutPathLevel () const;
+	int cutNamespaceLevel () const;
+	int indentLevel () const;
 	bool onTopEnabled () const;
 	bool autoScrollEnabled () const;
 	bool reuseTabEnabled () const;

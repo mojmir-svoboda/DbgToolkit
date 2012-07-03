@@ -293,8 +293,11 @@ QTreeView const * MainWindow::getWidgetLvl () const { return ui->treeViewLvl; }
 
 bool MainWindow::scopesEnabled () const { return ui_settings->scopesCheckBox->isChecked(); }
 bool MainWindow::indentEnabled () const { return ui_settings->indentCheckBox->isChecked(); }
+int MainWindow::indentLevel () const { return ui_settings->indentSpinBox->value(); }
 bool MainWindow::cutPathEnabled () const { return ui_settings->cutPathCheckBox->isChecked(); }
+int MainWindow::cutPathLevel () const { return ui_settings->cutPathSpinBox->value(); }
 bool MainWindow::cutNamespaceEnabled () const { return ui_settings->cutNamespaceCheckBox->isChecked(); }
+int MainWindow::cutNamespaceLevel () const { return ui_settings->cutNamespaceSpinBox->value(); }
 bool MainWindow::onTopEnabled () const { return ui_settings->onTopCheckBox->isChecked(); }
 bool MainWindow::filterEnabled () const { return ui->filterFileCheckBox->isChecked(); }
 bool MainWindow::reuseTabEnabled () const { return ui_settings->reuseTabCheckBox->isChecked(); }
