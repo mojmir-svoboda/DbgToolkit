@@ -239,7 +239,24 @@ bool FilterProxyModel::filterAcceptsRow (int sourceRow, QModelIndex const & /*so
 		return false;
 
 	excluded |= m_session_state.isTIDExcluded(tid.toStdString());
-	excluded |= m_session_state.isCtxExcluded(ctx.toULongLong());
+
+
+	bool ctx_enabled = true;
+	bool const ctx_present = m_session_state.isCtxPresent(ctx.toStdString(), ctx_enabled);
+
+	if (fmode == e_Include)
+	{
+		if (ctx_present && ctx_enabled)
+		{
+		}
+		else
+			excluded |= false;
+	}
+	else
+	{
+		excluded |= (ctx_present && ctx_enabled);
+	}
+
 
 	QModelIndex data_idx = sourceModel()->index(sourceRow, 0, QModelIndex());
 	excluded |= m_session_state.isBlockCollapsed(tid, data_idx.row());

@@ -117,7 +117,6 @@ struct ColorizedText {
 	}
 };
 
-
 struct FilteredLevel {
 	QString m_level_str;
 	int m_level;
@@ -138,6 +137,28 @@ struct FilteredLevel {
 		ar & m_state;
 	}
 };
+
+struct FilteredContext {
+	QString m_ctx_str;
+	unsigned long long m_ctx;
+	bool m_is_enabled;
+	int m_state;
+
+	FilteredContext () { }
+	FilteredContext (QString ctx, bool enabled, int state)
+        : m_ctx_str(ctx), m_ctx(ctx.toULongLong()), m_is_enabled(enabled), m_state(state)
+	{ }
+
+	template <class ArchiveT>
+	void serialize (ArchiveT & ar, unsigned const version)
+	{
+		ar & m_ctx_str;
+		ar & m_ctx;
+		ar & m_is_enabled;
+		ar & m_state;
+	}
+};
+
 
 struct SessionExport {
 	std::string m_name;
@@ -198,12 +219,12 @@ public:
 	bool isFileLinePresent (std::string const & fileline, E_NodeStates & state) const; /// checks for file:line existence in the tree
 	void stateToFileChilds (fileline_t const & item, E_NodeStates const state);
 
-	typedef QList<context_t> ctx_filters_t;
-	ctx_filters_t const & getCtxFilters () const { return m_ctx_filters; }
-	void appendCtxFilter (context_t item);
+	typedef QList<FilteredContext> ctx_filters_t;
+	bool isCtxPresent (std::string const & item, bool & enabled) const;
+	//ctx_filters_t const & getCtxFilters () const { return m_ctx_filters; }
+	void appendCtxFilter (std::string const & item);
 	void flipFilterMode (E_FilterMode mode);
-	void removeCtxFilter (context_t item);
-	bool isCtxExcluded (context_t item) const;
+	void removeCtxFilter (std::string const & item);
 
 
 	typedef std::vector<std::string> tid_filters_t;
@@ -215,6 +236,7 @@ public:
 	void appendLvlFilter (std::string const & item);
 	void removeLvlFilter (std::string const & item);
 	bool isLvlPresent (std::string const & item, bool & enabled, E_LevelMode & lvlmode) const;
+	bool setLvlMode (std::string const & item, bool enabled, E_LevelMode lvlmode) const;
 
 	void appendCollapsedBlock (QString tid, int from, int to, QString file, QString line);
 	bool findCollapsedBlock (QString tid, int from, int to) const;
@@ -271,6 +293,8 @@ public:
 	{
 		ar & m_file_filters;
 		//ar & m_thread_colors;
+		ar & m_ctx_filters;
+		ar & m_lvl_filters;
 		ar & m_colorized_texts;
 		ar & m_filtered_regexps;
 		ar & m_collapse_blocks;

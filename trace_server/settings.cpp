@@ -216,7 +216,7 @@ void MainWindow::onSettingsAppSelected (int idx)
 			cel_root->appendRow(addUncheckableRow(tr("%1").arg(m_columns_elide.at(idx).at(i))));
 		}
 
-	size_t const n = tlv::get_tag_count();
+	size_t const n = tlv::get_tag_count() - 1; // -1 is for the tag Bool
 
 	size_t add_tag_count = 0;
 	size_t * const add_tag_indices = static_cast<size_t * const>(alloca(sizeof(size_t) * n));

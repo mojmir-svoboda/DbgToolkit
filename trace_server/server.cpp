@@ -263,14 +263,10 @@ void Server::onClickedAtCtxTree (QModelIndex idx)
 	Q_ASSERT(item);
 
 	QString const & val = model->data(idx, Qt::DisplayRole).toString();
-	std::string const ctx_item(val.toStdString());
-	context_t const ctx = val.toULongLong();
-
+	std::string const ctx = val.toStdString();
 	bool const checked = (item->checkState() == Qt::Checked);
-
 	if (Connection * conn = findCurrentConnection())
 	{
-
 		if (checked)
 			conn->sessionState().appendCtxFilter(ctx);
 		else
@@ -333,15 +329,25 @@ void Server::onClickedAtLvlList (QModelIndex idx)
 		QString const & filter_item = model->data(model->index(idx.row(), 0, QModelIndex()), Qt::DisplayRole).toString();
 		bool is_inclusive = true;
 		QString const & mod = model->data(idx, Qt::DisplayRole).toString();
+
+		E_Align const curr = stringToAlign(mod.toStdString().c_str()[0]);
+		size_t i = (curr + 1) % e_max_lvlmod_enum_value;
+		E_LevelMode const act = static_cast<E_LevelMode>(i);
+		//ui_settings->listViewColumnAlign->model()->setData(idx, QString(alignToString(act)));
+		
+		model->setData(idx, QString(lvlModToString(act)));
+
 		if (mod == "I")
 		{
-			model->setData(idx, QString("E"));
+			//model->setData(idx, QString("E"));
 			is_inclusive = false;
 		}
 		else
 		{
-			model->setData(idx, QString("I"));
+			//model->setData(idx, QString("I"));
 		}
+
+		conn->sessionState().setLvlMode(filter_item, !checked, curr);
 
 		if (Connection * conn = findCurrentConnection())
 		{
@@ -358,7 +364,7 @@ void Server::onClickedAtLvlList (QModelIndex idx)
 				checked = !checked;
 
 			item->setCheckState(!checked ? Qt::Checked : Qt::Unchecked);
-			if (checked)
+			if (!checked)
 				conn->sessionState().appendLvlFilter(filter_item);
 			else
 				conn->sessionState().removeLvlFilter(filter_item);

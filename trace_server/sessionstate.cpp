@@ -176,17 +176,38 @@ void SessionState::stateToFileChilds (fileline_t const & item, E_NodeStates cons
 }
 
 ///////// ctx filters
-bool SessionState::isCtxExcluded (context_t item) const
+bool SessionState::isCtxPresent (std::string const & item, bool & enabled) const
 {
-	return std::find(m_ctx_filters.begin(), m_ctx_filters.end(), item) != m_ctx_filters.end();
+	QString const qitem = QString::fromStdString(item);
+	for (int i = 0, ie = m_ctx_filters.size(); i < ie; ++i)
+		if (m_ctx_filters.at(i).m_ctx_str == qitem)
+		{
+			FilteredContext const & fc = m_ctx_filters.at(i);
+			enabled = fc.m_is_enabled;
+			return true;
+		}
+	return false;
 }
-void SessionState::appendCtxFilter (context_t item)
+
+void SessionState::appendCtxFilter (std::string const & item)
 {
-	m_ctx_filters.push_back(item);
+	QString const qitem = QString::fromStdString(item);
+	for (int i = 0, ie = m_ctx_filters.size(); i < ie; ++i)
+		if (m_ctx_filters[i].m_ctx_str == qitem)
+			return;
+	m_ctx_filters.push_back(FilteredContext(qitem, true, 0));
+
 }
-void SessionState::removeCtxFilter (context_t item)
+void SessionState::removeCtxFilter (std::string const & item)
 {
-	m_ctx_filters.erase(std::remove(m_ctx_filters.begin(), m_ctx_filters.end(), item), m_ctx_filters.end());
+	QString const qitem = QString::fromStdString(item);
+	for (int i = 0, ie = m_ctx_filters.size(); i < ie; ++i)
+		if (m_ctx_filters[i].m_ctx_str == qitem)
+		{
+			m_ctx_filters.removeAt(i);
+			// @TODO: or only disable?
+			return;
+		}
 }
 
 ///////// tid filters
@@ -206,27 +227,26 @@ bool SessionState::isTIDExcluded (std::string const & item) const
 ///////// lvl filters
 void SessionState::appendLvlFilter (std::string const & item)
 {
-/*	QString const qitem = QString::fromStdString(item);
+	QString const qitem = QString::fromStdString(item);
 	for (int i = 0, ie = m_lvl_filters.size(); i < ie; ++i)
 		if (m_lvl_filters[i].m_level_str == qitem)
 			return;
 	m_lvl_filters.push_back(FilteredLevel(qitem, true, e_LvlInclude));
-*/
 }
 void SessionState::removeLvlFilter (std::string const & item)
 {
-/*	QString const qitem = QString::fromStdString(item);
+	QString const qitem = QString::fromStdString(item);
 	for (int i = 0, ie = m_lvl_filters.size(); i < ie; ++i)
 		if (m_lvl_filters[i].m_level_str == qitem)
 		{
 			m_lvl_filters.removeAt(i);
+			// @TODO: or only disable?
 			return;
 		}
-*/
 }
 bool SessionState::isLvlPresent (std::string const & item, bool & enabled, E_LevelMode & lvlmode) const
 {
-/*	QString const qitem = QString::fromStdString(item);
+	QString const qitem = QString::fromStdString(item);
 	for (int i = 0, ie = m_lvl_filters.size(); i < ie; ++i)
 		if (m_lvl_filters.at(i).m_level_str == qitem)
 		{
@@ -236,10 +256,23 @@ bool SessionState::isLvlPresent (std::string const & item, bool & enabled, E_Lev
 			return true;
 		}
 	return false;
-*/
-	return true;
 }
 
+
+bool SessionState::setLvlMode (std::string const & item, bool enabled, E_LevelMode lvlmode) const
+{
+	QString const qitem = QString::fromStdString(item);
+	for (int i = 0, ie = m_lvl_filters.size(); i < ie; ++i)
+		if (m_lvl_filters.at(i).m_level_str == qitem)
+		{
+			FilteredLevel const & l = m_lvl_filters.at(i);
+			l.m_state = lvlmode;
+			l.m_is_enabled = enabled;
+			return true;
+		}
+	return false;
+
+}
 
 ///////// collapsed scopes
 void SessionState::appendCollapsedBlock (QString tid, int from, int to, QString file, QString line)

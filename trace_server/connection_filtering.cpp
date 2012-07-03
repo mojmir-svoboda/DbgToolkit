@@ -293,6 +293,11 @@ void Connection::appendToLvlFilters (std::string const & item)
 		row_items[0]->setCheckState(fmode == e_Include ? Qt::Checked : Qt::Unchecked);
 		root->appendRow(row_items);
 		m_main_window->getWidgetLvl()->sortByColumn(0, Qt::AscendingOrder);
+
+		if (fmode == e_Include)
+			sessionState().appendLvlFilter(qItem.toStdString());
+		else
+			sessionState().removeLvlFilter(qItem.toStdString());
 	}
 }
 
