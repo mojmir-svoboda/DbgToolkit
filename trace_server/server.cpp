@@ -330,7 +330,7 @@ void Server::onClickedAtLvlList (QModelIndex idx)
 		bool is_inclusive = true;
 		QString const & mod = model->data(idx, Qt::DisplayRole).toString();
 
-		E_Align const curr = stringToAlign(mod.toStdString().c_str()[0]);
+		E_LevelMode const curr = stringToLvlMod(mod.toStdString().c_str()[0]);
 		size_t i = (curr + 1) % e_max_lvlmod_enum_value;
 		E_LevelMode const act = static_cast<E_LevelMode>(i);
 		//ui_settings->listViewColumnAlign->model()->setData(idx, QString(alignToString(act)));
@@ -347,10 +347,9 @@ void Server::onClickedAtLvlList (QModelIndex idx)
 			//model->setData(idx, QString("I"));
 		}
 
-		conn->sessionState().setLvlMode(filter_item, !checked, curr);
-
 		if (Connection * conn = findCurrentConnection())
 		{
+			conn->sessionState().setLvlMode(filter_item.toStdString(), !checked, act);
 			conn->onInvalidateFilter();
 		}
 	}

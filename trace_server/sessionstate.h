@@ -236,7 +236,7 @@ public:
 	void appendLvlFilter (std::string const & item);
 	void removeLvlFilter (std::string const & item);
 	bool isLvlPresent (std::string const & item, bool & enabled, E_LevelMode & lvlmode) const;
-	bool setLvlMode (std::string const & item, bool enabled, E_LevelMode lvlmode) const;
+	bool setLvlMode (std::string const & item, bool enabled, E_LevelMode lvlmode);
 
 	void appendCollapsedBlock (QString tid, int from, int to, QString file, QString line);
 	bool findCollapsedBlock (QString tid, int from, int to) const;

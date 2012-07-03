@@ -259,13 +259,13 @@ bool SessionState::isLvlPresent (std::string const & item, bool & enabled, E_Lev
 }
 
 
-bool SessionState::setLvlMode (std::string const & item, bool enabled, E_LevelMode lvlmode) const
+bool SessionState::setLvlMode (std::string const & item, bool enabled, E_LevelMode lvlmode)
 {
 	QString const qitem = QString::fromStdString(item);
 	for (int i = 0, ie = m_lvl_filters.size(); i < ie; ++i)
 		if (m_lvl_filters.at(i).m_level_str == qitem)
 		{
-			FilteredLevel const & l = m_lvl_filters.at(i);
+			FilteredLevel & l = m_lvl_filters[i];
 			l.m_state = lvlmode;
 			l.m_is_enabled = enabled;
 			return true;
