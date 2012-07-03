@@ -1,21 +1,22 @@
 #pragma once
+#include "enum_factory.h"
 
 namespace trace {
 
-	enum E_TraceLevel
-	{
-		e_Fatal = 0,
-		e_Error,
-		e_Warning,
-		e_Info,
-		e_Detail,
-		e_Debug,
-		e_Brutus,		// too much detail (per frame useless info etc)
+#define TRACELEVEL_ENUM(XX)							\
+		XX(Fatal,)									\
+		XX(Error,)									\
+		XX(Warning,)								\
+		XX(Info,)									\
+		XX(Detail,)									\
+		XX(Debug,)									\
+		XX(Brutus,)	 /* too much detail (per frame useless info etc)*/ \
+		XX(max_trace_level,)
 
-		e_max_trace_level
-	};
+FACT_DECLARE_ENUM(E_TraceLevel,TRACELEVEL_ENUM);
+FACT_DECLARE_ENUM_TO_STRING(E_TraceLevel,TRACELEVEL_ENUM);
 
-	typedef E_TraceLevel level_t;
+typedef E_TraceLevel level_t;
+
 }
-
 
