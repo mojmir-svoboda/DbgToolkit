@@ -25,28 +25,19 @@ void TableItemDelegate::paintTokenized (QPainter * painter, QStyleOptionViewItem
 	QVariant value = index.data(Qt::DisplayRole);
 	if (value.isValid() && !value.isNull())
 	{
-		//painter->translate(option4.rect.topLeft());
 		Connection const * conn = static_cast<Connection const *>(parent());
-		if (conn->getMainWindow()->cutPathEnabled())
+		QStringList list = value.toString().split(QRegExp(separator));
+		if (!list.empty())
 		{
-			QStringList list = value.toString().split(QRegExp(separator));
-			if (!list.empty())
-			{
-				option4.text = list.at(level < list.size() ? list.size() - level : 0);
-			}
+			option4.text = list.at(level < list.size() ? list.size() - level : 0);
+		}
 
-			QWidget const * widget = option4.widget;
-			if (widget)
-			{
-				QStyle * style = widget->style();
-				style->drawControl(QStyle::CE_ItemViewItem, &option4, painter, widget);
-			}
-		}
-		else
+		QWidget const * widget = option4.widget;
+		if (widget)
 		{
-			QStyledItemDelegate::paint(painter, option4, index);
+			QStyle * style = widget->style();
+			style->drawControl(QStyle::CE_ItemViewItem, &option4, painter, widget);
 		}
-		//painter->translate(-option4.rect.topLeft());
 	}
 }
 
@@ -62,13 +53,16 @@ void TableItemDelegate::paint (QPainter * painter, QStyleOptionViewItem const & 
 	E_Elide const elide = stringToElide(column_elides[index.column()].at(0).toAscii());
 	option4.textElideMode = static_cast<Qt::TextElideMode>(elide);
 
-	if (index.column() == m_session_state.findColumn4Tag(tlv::tag_file))
+	Connection const * conn = static_cast<Connection const *>(parent());
+	if (conn->getMainWindow()->cutPathEnabled() && index.column() == m_session_state.findColumn4Tag(tlv::tag_file))
 	{
-		paintTokenized(painter, option4, index, QString("[:/\\\\]"));
+		int level = conn->getMainWindow()->cutPathLevel();
+		paintTokenized(painter, option4, index, QString("[:/\\\\]"), level);
 	}
-	else if (index.column() == m_session_state.findColumn4Tag(tlv::tag_func))
+	else if (conn->getMainWindow()->cutNamespaceEnabled() && index.column() == m_session_state.findColumn4Tag(tlv::tag_func))
 	{
-		paintTokenized(painter, option4, index, QString("[::]"));
+		int level = conn->getMainWindow()->cutNamespaceLevel();
+		paintTokenized(painter, option4, index, QString("[::]"), level);
 	}
 	else
 	{
