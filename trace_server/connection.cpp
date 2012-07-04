@@ -28,11 +28,16 @@ void TableItemDelegate::paintTokenized (QPainter * painter, QStyleOptionViewItem
 		Connection const * conn = static_cast<Connection const *>(parent());
 		QStringList list = value.toString().split(QRegExp(separator), QString::SkipEmptyParts);
 		if (level < list.size())
+		{
+			QString p;
 			for (size_t i = list.size() - level, ie = list.size(); i < ie; ++i)
 			{
-				option4.text.append("/");
-				option4.text.append(list.at(i));
+				if (i > 0)
+					p.append("/");
+				p.append(list.at(i));
 			}
+			option4.text = p;
+		}
 
 		QWidget const * widget = option4.widget;
 		if (widget)
@@ -148,9 +153,6 @@ Connection::Connection (QObject * parent)
 	m_exclude_fileline = new QAction("Exclude File:Line", this);
     m_ctx_menu.addAction(m_toggle_ref);
     m_ctx_menu.addAction(m_exclude_fileline);
-
-	if (m_main_window->statsEnabled())
-		m_statswindow = new stats::StatsWindow(this, m_session_state);
 }
 
 Connection::~Connection ()

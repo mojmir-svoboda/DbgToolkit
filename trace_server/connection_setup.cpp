@@ -7,6 +7,7 @@
 #include "utils.h"
 #include "serialization.h"
 #include "constants.h"
+#include "statswindow.h"
 
 bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 {
@@ -153,6 +154,9 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 			static_cast<ModelView *>(m_table_view_widget->model())->emitLayoutChanged();
 		}
 	}
+
+	if (m_main_window->statsEnabled())
+		m_statswindow = new stats::StatsWindow(this, m_session_state);
 
 	qDebug("Server::incomingConnection buffering not enabled, notifying client\n");
 	onBufferingStateChanged(m_main_window->buffState());
