@@ -20,7 +20,7 @@
 #include "types.h"
 #include "statswindow.h"
 
-void TableItemDelegate::paintTokenized (QPainter * painter, QStyleOptionViewItemV4 & option4, QModelIndex const & index, QString const & separator, int level) const
+void TableItemDelegate::paintTokenized (QPainter * painter, QStyleOptionViewItemV4 & option4, QModelIndex const & index, QString const & separator, QString const & out_separator, int level) const
 {
 	QVariant value = index.data(Qt::DisplayRole);
 	if (value.isValid() && !value.isNull())
@@ -33,7 +33,7 @@ void TableItemDelegate::paintTokenized (QPainter * painter, QStyleOptionViewItem
 			for (size_t i = list.size() - level, ie = list.size(); i < ie; ++i)
 			{
 				if (i > 0)
-					p.append("/");
+					p.append(out_separator);
 				p.append(list.at(i));
 			}
 			option4.text = p;
@@ -64,12 +64,12 @@ void TableItemDelegate::paint (QPainter * painter, QStyleOptionViewItem const & 
 	if (conn->getMainWindow()->cutPathEnabled() && index.column() == m_session_state.findColumn4Tag(tlv::tag_file))
 	{
 		int level = conn->getMainWindow()->cutPathLevel();
-		paintTokenized(painter, option4, index, QString("[:/\\\\]"), level);
+		paintTokenized(painter, option4, index, QString("[:/\\\\]"), "/", level);
 	}
 	else if (conn->getMainWindow()->cutNamespaceEnabled() && index.column() == m_session_state.findColumn4Tag(tlv::tag_func))
 	{
 		int level = conn->getMainWindow()->cutNamespaceLevel();
-		paintTokenized(painter, option4, index, QString("[::]"), level);
+		paintTokenized(painter, option4, index, QString("[::]"), "::", level);
 	}
 	else
 	{

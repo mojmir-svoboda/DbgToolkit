@@ -1033,23 +1033,27 @@ void MainWindow::storeState ()
 	settings.setValue("trace_port", m_trace_port);
 	settings.setValue("profiler_addr", m_profiler_addr);
 	settings.setValue("profiler_port", m_profiler_port);
-	settings.setValue("trace_stats", ui_settings->traceStatsCheckBox->isChecked());
 
 	settings.setValue("geometry", saveGeometry());
 	settings.setValue("windowState", saveState());
 	settings.setValue("splitter", ui->splitter->saveState());
 	settings.setValue("autoScrollCheckBox", ui->autoScrollCheckBox->isChecked());
-	settings.setValue("reuseTabCheckBox", ui_settings->reuseTabCheckBox->isChecked());
-	settings.setValue("scopesCheckBox1", ui_settings->scopesCheckBox->isChecked());
-	settings.setValue("indentCheckBox", ui_settings->indentCheckBox->isChecked());
-	settings.setValue("cutPathCheckBox", ui_settings->cutPathCheckBox->isChecked());
-	settings.setValue("cutNamespaceCheckBox", ui_settings->cutNamespaceCheckBox->isChecked());
-	settings.setValue("onTopCheckBox", ui_settings->onTopCheckBox->isChecked());
 	settings.setValue("filterFileCheckBox", ui->filterFileCheckBox->isChecked());
 	settings.setValue("buffCheckBox", ui->buffCheckBox->isChecked());
 	settings.setValue("clrFiltersCheckBox", ui_settings->clrFiltersCheckBox->isChecked());
 	settings.setValue("filterModeComboBox", ui->filterModeComboBox->currentIndex());
 	settings.setValue("levelSpinBox", ui->levelSpinBox->value());
+
+	settings.setValue("trace_stats", ui_settings->traceStatsCheckBox->isChecked());
+	settings.setValue("reuseTabCheckBox", ui_settings->reuseTabCheckBox->isChecked());
+	settings.setValue("scopesCheckBox1", ui_settings->scopesCheckBox->isChecked());
+	settings.setValue("indentCheckBox", ui_settings->indentCheckBox->isChecked());
+	settings.setValue("cutPathCheckBox", ui_settings->cutPathCheckBox->isChecked());
+	settings.setValue("cutNamespaceCheckBox", ui_settings->cutNamespaceCheckBox->isChecked());
+	settings.setValue("indentSpinBox", ui_settings->indentSpinBox->value());
+	settings.setValue("cutPathSpinBox", ui_settings->cutPathSpinBox->value());
+	settings.setValue("cutNamespaceSpinBox", ui_settings->cutNamespaceSpinBox->value());
+	settings.setValue("onTopCheckBox", ui_settings->onTopCheckBox->isChecked());
 
 	write_list_of_strings(settings, "known-applications", "application", m_app_names);
 	for (size_t i = 0, ie = m_app_names.size(); i < ie; ++i)
@@ -1115,6 +1119,12 @@ void MainWindow::loadState ()
 	ui_settings->indentCheckBox->setChecked(settings.value("indentCheckBox", true).toBool());
 	ui_settings->cutPathCheckBox->setChecked(settings.value("cutPathCheckBox", true).toBool());
 	ui_settings->cutNamespaceCheckBox->setChecked(settings.value("cutNamespaceCheckBox", true).toBool());
+
+
+	ui_settings->indentSpinBox->setValue(settings.value("indentSpinBox", 2).toInt());
+	ui_settings->cutPathSpinBox->setValue(settings.value("cutPathSpinBox", 1).toInt());
+	ui_settings->cutNamespaceSpinBox->setValue(settings.value("cutNamespaceSpinBox", 1).toInt());
+
 	ui->filterFileCheckBox->setChecked(settings.value("filterFileCheckBox", true).toBool());
 	ui->buffCheckBox->setChecked(settings.value("buffCheckBox", true).toBool());
 	ui_settings->clrFiltersCheckBox->setChecked(settings.value("clrFiltersCheckBox", false).toBool());

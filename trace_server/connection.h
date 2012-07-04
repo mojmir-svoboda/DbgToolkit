@@ -57,7 +57,7 @@ public:
     void paint (QPainter * painter, QStyleOptionViewItem const & option, QModelIndex const & index) const;
     void paintCustom (QPainter * painter, QStyleOptionViewItem const & option, QModelIndex const & index) const;
 
-	void paintTokenized (QPainter * painter, QStyleOptionViewItemV4 & option, QModelIndex const & index, QString const & separator, int level = 1) const;
+	void paintTokenized (QPainter * painter, QStyleOptionViewItemV4 & option, QModelIndex const & index, QString const & separator, QString const & out_separator, int level = 1) const;
     
 private slots:
 };
