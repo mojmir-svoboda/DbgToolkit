@@ -33,10 +33,10 @@ project "flogging"
 
 	if isXbox == true then
 		includedirs {
-			enginePath.."/SDKs/STLPORT/stlport",
+			sdkRootPath.."/STLPORT/stlport",
 			"$(XDKInstallDir)/include/xbox",
-			enginePath.."/SDKs/boost",
-			enginePath.."/SDKs",
+			sdkRootPath.."/boost",
+			sdkRootPath.."",
 			externalsCodePath,
 			externalsCodePath.."/PhysX2.8.4/Include"
 		}
@@ -44,8 +44,8 @@ project "flogging"
 		libdirs {"$(XDKInstallDir)/lib/xbox"}
 	else
 		includedirs {
-			enginePath.."/SDKs/STLPORT/stlport",
-			enginePath.."/SDKs/DXSDK/Include",
+			sdkRootPath.."/STLPORT/stlport",
+			sdkRootPath.."/DXSDK/Include",
 			"$(VCInstallDir)include",
 			"$(VCInstallDir)atlmfc/include",
 			"$(WindowsSdkDir)/include",
@@ -53,8 +53,8 @@ project "flogging"
 			enginePath.."/CryEngine/CryCommon", -- add engine for all projects (because nested includes are without path)
 			enginePath.."/CryEngine/CryAction", -- add engine for all projects (because nested includes are without path)
 			enginePath.."/CryEngine",
-			enginePath.."/SDKs/boost",
-			enginePath.."/SDKs",
+			sdkRootPath.."/boost",
+			sdkRootPath,
 			externalsCodePath,
 			externalsCodePath.."/PhysX2.8.4/Include"
 		}

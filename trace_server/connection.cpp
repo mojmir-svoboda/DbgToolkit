@@ -26,11 +26,13 @@ void TableItemDelegate::paintTokenized (QPainter * painter, QStyleOptionViewItem
 	if (value.isValid() && !value.isNull())
 	{
 		Connection const * conn = static_cast<Connection const *>(parent());
-		QStringList list = value.toString().split(QRegExp(separator));
-		if (!list.empty())
-		{
-			option4.text = list.at(level < list.size() ? list.size() - level : 0);
-		}
+		QStringList list = value.toString().split(QRegExp(separator), QString::SkipEmptyParts);
+		if (level < list.size())
+			for (size_t i = list.size() - level, ie = list.size(); i < ie; ++i)
+			{
+				option4.text.append("/");
+				option4.text.append(list.at(i));
+			}
 
 		QWidget const * widget = option4.widget;
 		if (widget)
@@ -147,20 +149,25 @@ Connection::Connection (QObject * parent)
     m_ctx_menu.addAction(m_toggle_ref);
     m_ctx_menu.addAction(m_exclude_fileline);
 
-	m_statswindow	= new stats::StatsWindow(this, m_session_state);
+	if (m_main_window->statsEnabled())
+		m_statswindow = new stats::StatsWindow(this, m_session_state);
 }
 
 Connection::~Connection ()
 {
 	qDebug("Connection::~Connection() this=0x%08x", this);
-	delete m_statswindow;
-	m_statswindow = 0;
+	if (m_statswindow)
+	{
+		delete m_statswindow;
+		m_statswindow = 0;
+	}
 }
 
 void Connection::onDisconnected ()
 {
 	qDebug("onDisconnected()");
-	m_statswindow->stopUpdate();
+	if (m_statswindow)
+		m_statswindow->stopUpdate();
 }
 
 void Connection::onTabTraceFocus (int i)
