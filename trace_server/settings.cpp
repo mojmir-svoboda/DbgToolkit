@@ -39,7 +39,7 @@ void MainWindow::onClickedAtSettingColumnSetup (QModelIndex const idx)
 	QModelIndex const size_idx = ui_settings->listViewColumnSizes->model()->index(idx.row(), idx.column(), QModelIndex());
 	if (curr == Qt::Checked)
 	{
-		ui_settings->listViewColumnSizes->model()->setData(size_idx, QString("0"));
+		//ui_settings->listViewColumnSizes->model()->setData(size_idx, QString("0"));
 	}
 	else
 	{
