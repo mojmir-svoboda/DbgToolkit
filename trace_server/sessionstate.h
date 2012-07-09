@@ -292,7 +292,6 @@ public:
 	void serialize (ArchiveT & ar, unsigned const version)
 	{
 		ar & m_file_filters;
-		//ar & m_thread_colors;
 		ar & m_ctx_filters;
 		ar & m_lvl_filters;
 		ar & m_colorized_texts;

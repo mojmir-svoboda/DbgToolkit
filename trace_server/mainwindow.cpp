@@ -1120,7 +1120,6 @@ void MainWindow::loadState ()
 	ui_settings->cutPathCheckBox->setChecked(settings.value("cutPathCheckBox", true).toBool());
 	ui_settings->cutNamespaceCheckBox->setChecked(settings.value("cutNamespaceCheckBox", true).toBool());
 
-
 	ui_settings->indentSpinBox->setValue(settings.value("indentSpinBox", 2).toInt());
 	ui_settings->cutPathSpinBox->setValue(settings.value("cutPathSpinBox", 1).toInt());
 	ui_settings->cutNamespaceSpinBox->setValue(settings.value("cutNamespaceSpinBox", 1).toInt());
