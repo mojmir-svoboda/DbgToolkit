@@ -176,6 +176,12 @@ void Connection::appendToFileTree (boost::char_separator<char> const & sep, std:
 			//qDebug("new node: %s, state=%u", path.c_str(), new_state);
 			QList<QStandardItem *> row_items = addRowTriState(qItem, new_state);
 			node->appendRow(row_items);
+
+			if (ff_state == e_PartialCheck)
+			{
+				m_main_window->getWidgetFile()->setExpanded(m_file_model->indexFromItem(node), false);
+			}
+
 			node = row_items.at(0);
 		}
 		++it;
