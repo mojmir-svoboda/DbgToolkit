@@ -146,6 +146,7 @@ Connection::Connection (QObject * parent)
 	, m_storage(0)
 	, m_datastream(0)
 	, m_tcpstream(0)
+	, m_statswindow(0)
 {
 	qDebug("Connection::Connection() this=0x%08x", this);
 	m_toggle_ref = new QAction("Toggle Ref", this);
