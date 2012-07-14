@@ -93,6 +93,7 @@ public:
 	void appendToFileTree (boost::char_separator<char> const & sep, std::string const & item, bool exclude = false);
 	void appendToCtxFilters (std::string const & item, bool checked);
 	void appendToLvlFilters (std::string const & item);
+	void appendToLvlWidgets (FilteredLevel const & flt);
 
 	void clearFilters ();
 	void findText (QString const & text, tlv::tag_t tag);

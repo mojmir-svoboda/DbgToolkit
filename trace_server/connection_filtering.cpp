@@ -288,6 +288,22 @@ void Connection::appendToTIDFilters (std::string const & item)
 	}
 }
 
+void Connection::appendToLvlWidgets (FilteredLevel const & flt)
+{
+	QStandardItem * root = m_lvl_model->invisibleRootItem();
+	QStandardItem * child = findChildByText(root, flt.m_level_str);
+	E_FilterMode const fmode = m_main_window->fltMode();
+	if (child == 0)
+	{
+		E_LevelMode const mode = static_cast<E_LevelMode>(flt.m_state);
+
+		QList<QStandardItem *> row_items = addTriRow(flt.m_level_str, fmode == e_Include ? Qt::Checked : Qt::Unchecked, lvlModToString(mode));
+		///row_items[0]->setCheckState(fmode == e_Include ? Qt::Checked : Qt::Unchecked);
+		root->appendRow(row_items);
+		m_main_window->getWidgetLvl()->sortByColumn(0, Qt::AscendingOrder);
+	}
+}
+
 void Connection::appendToLvlFilters (std::string const & item)
 {
 	QString qItem = QString::fromStdString(item);

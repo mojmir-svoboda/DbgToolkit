@@ -248,25 +248,18 @@ void Connection::processDataStream (QDataStream & stream)
 }
 
 bool Connection::tryHandleCommand (DecodedCommand const & cmd)
-{		
-	if (cmd.hdr.cmd == tlv::cmd_log)
+{
+	switch (cmd.hdr.cmd)
 	{
-		handleLogCommand(cmd);
-	}
-	else if (cmd.hdr.cmd == tlv::cmd_setup)
-	{
-		handleSetupCommand(cmd);
-	}
-	else if (cmd.hdr.cmd == tlv::cmd_scope_entry)
-	{
-		handleLogCommand(cmd);	
-	}
-	else if (cmd.hdr.cmd == tlv::cmd_scope_exit)
-	{
-		handleLogCommand(cmd);
+		case tlv::cmd_setup:		handleSetupCommand(cmd); break;
+		case tlv::cmd_log:			handleLogCommand(cmd); break;
+		case tlv::cmd_scope_entry:	handleLogCommand(cmd); break;
+		case tlv::cmd_scope_exit:	handleLogCommand(cmd); break;
+		//case tlv::cmd_save_as:		handleSaveAsCommand(cmd); break;
+		default: qDebug("unknown command, ignoring\n"); break;
 	}
 
-	if (!m_from_file && m_datastream) // @TODO: && persistenCheckBox == true
+	if (!m_from_file && m_datastream)
 		m_datastream->writeRawData(&cmd.orig_message[0], cmd.hdr.len + tlv::Header::e_Size);
 	return true;
 }

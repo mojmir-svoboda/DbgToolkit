@@ -107,6 +107,20 @@ inline QList<QStandardItem *> addUncheckableRow (QString const & str)
 	return row_items;
 }
 
+inline QList<QStandardItem *> addTriRow (QString const & str, Qt::CheckState const checked, char const mode)
+{
+	QList<QStandardItem *> row_items;
+
+	QStandardItem * const name_item = new QStandardItem(str);
+	name_item->setCheckable(true);
+	name_item->setEditable(false);
+	row_items << name_item;
+	QStandardItem * const mode_item = new QStandardItem(QString(mode));
+	row_items.append(mode_item);
+	name_item->setCheckable(false);
+	return row_items;
+}
+
 inline QList<QStandardItem *> addTriRow (QString const & str, Qt::CheckState const checked, bool const inclusive)
 {
 	QList<QStandardItem *> row_items;

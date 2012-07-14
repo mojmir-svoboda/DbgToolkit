@@ -216,7 +216,8 @@ void MainWindow::onSettingsAppSelected (int idx)
 			cel_root->appendRow(addUncheckableRow(tr("%1").arg(m_columns_elide.at(idx).at(i))));
 		}
 
-	size_t const n = tlv::get_tag_count() - 1; // -1 is for the tag Bool
+	//size_t const n = tlv::get_tag_count() - 1; // -1 is for the tag Bool
+	size_t const n = tlv::tag_bool;
 
 	size_t add_tag_count = 0;
 	size_t * const add_tag_indices = static_cast<size_t * const>(alloca(sizeof(size_t) * n));
@@ -356,6 +357,7 @@ void MainWindow::onClickedAtSettingPooftahButton ()
 			, e_AlignRight		// lvl
 			, e_AlignRight		// ctx
 			, e_AlignLeft		// bool
+			, e_AlignLeft		// int
 		};
 		E_Elide const default_elides[tlv::tag_max_value] = {
 			  e_ElideNone		// invalid
@@ -370,6 +372,7 @@ void MainWindow::onClickedAtSettingPooftahButton ()
 			, e_ElideLeft		// lvl
 			, e_ElideLeft		// ctx
 			, e_ElideNone		// bool
+			, e_ElideNone		// int
 		};
 
 		int const default_sizes[tlv::tag_max_value] = {
@@ -385,6 +388,7 @@ void MainWindow::onClickedAtSettingPooftahButton ()
 			, 16	// lvl
 			, 16	// ctx
 			, 0		// bool
+			, 0		// int
 		};
 
 
