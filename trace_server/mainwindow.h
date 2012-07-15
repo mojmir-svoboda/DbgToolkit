@@ -132,6 +132,7 @@ public:
 	bool clrFltEnabled () const;
 	bool statsEnabled () const;
 	E_FilterMode fltMode () const;
+	bool filterPaneVertical () const;
 	void changeEvent (QEvent* e);
 	void dropEvent (QDropEvent * event);
 	void dragEnterEvent (QDragEnterEvent *event);

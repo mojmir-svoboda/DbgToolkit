@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>581</width>
+    <width>619</width>
     <height>389</height>
    </rect>
   </property>
@@ -17,7 +17,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>2</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="tabColumns">
       <attribute name="title">
@@ -331,7 +331,7 @@
       <layout class="QGridLayout" name="gridLayout_4">
        <item row="0" column="0">
         <layout class="QGridLayout" name="gridLayout_2">
-         <item row="0" column="0">
+         <item row="5" column="0">
           <widget class="QCheckBox" name="clrFiltersCheckBox">
            <property name="font">
             <font>
@@ -344,7 +344,7 @@
            </property>
           </widget>
          </item>
-         <item row="1" column="0">
+         <item row="6" column="0">
           <widget class="QCheckBox" name="scopesCheckBox">
            <property name="font">
             <font>
@@ -360,7 +360,7 @@
            </property>
           </widget>
          </item>
-         <item row="2" column="0">
+         <item row="7" column="0">
           <widget class="QCheckBox" name="indentCheckBox">
            <property name="font">
             <font>
@@ -376,7 +376,7 @@
            </property>
           </widget>
          </item>
-         <item row="3" column="0">
+         <item row="8" column="0">
           <widget class="QCheckBox" name="cutPathCheckBox">
            <property name="font">
             <font>
@@ -392,7 +392,7 @@
            </property>
           </widget>
          </item>
-         <item row="4" column="0">
+         <item row="9" column="0">
           <widget class="QCheckBox" name="cutNamespaceCheckBox">
            <property name="font">
             <font>
@@ -408,7 +408,7 @@
            </property>
           </widget>
          </item>
-         <item row="3" column="1">
+         <item row="8" column="1">
           <widget class="QSpinBox" name="cutPathSpinBox">
            <property name="minimum">
             <number>1</number>
@@ -421,7 +421,7 @@
            </property>
           </widget>
          </item>
-         <item row="4" column="1">
+         <item row="9" column="1">
           <widget class="QSpinBox" name="cutNamespaceSpinBox">
            <property name="minimum">
             <number>1</number>
@@ -434,7 +434,7 @@
            </property>
           </widget>
          </item>
-         <item row="2" column="1">
+         <item row="7" column="1">
           <widget class="QSpinBox" name="indentSpinBox">
            <property name="minimum">
             <number>0</number>
@@ -445,6 +445,30 @@
            <property name="value">
             <number>4</number>
            </property>
+          </widget>
+         </item>
+         <item row="3" column="0">
+          <widget class="QLabel" name="label_15">
+           <property name="text">
+            <string>File filtering mode</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1">
+          <widget class="QComboBox" name="filterModeComboBox">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <item>
+            <property name="text">
+             <string>Inclusive</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Exclusive</string>
+            </property>
+           </item>
           </widget>
          </item>
         </layout>
@@ -458,7 +482,7 @@
       <layout class="QGridLayout" name="gridLayout_6">
        <item row="0" column="0">
         <layout class="QGridLayout" name="gridLayout_5">
-         <item row="1" column="0">
+         <item row="2" column="0">
           <widget class="QCheckBox" name="reuseTabCheckBox">
            <property name="font">
             <font>
@@ -474,7 +498,7 @@
            </property>
           </widget>
          </item>
-         <item row="0" column="0">
+         <item row="1" column="0">
           <widget class="QCheckBox" name="onTopCheckBox">
            <property name="font">
             <font>
@@ -484,6 +508,27 @@
            <property name="text">
             <string>Keep window on top (buggy)</string>
            </property>
+          </widget>
+         </item>
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_16">
+           <property name="text">
+            <string>Filtering pane position</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QComboBox" name="filterPaneComboBox">
+           <item>
+            <property name="text">
+             <string>Horizontal</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Vertical</string>
+            </property>
+           </item>
           </widget>
          </item>
         </layout>

@@ -12,7 +12,7 @@ message ("Flog srcs: ${FLOGGING_SOURCE_DIRS}")
 add_definitions ("-DPROFILE_ENABLED")
 add_definitions ("-DPROFILE_STATIC")
 include_directories (${FLOGGING_INCLUDE_DIRS})
-add_library (fprof_client_lib STATIC "${FLOGGING_SOURCE_DIRS}/trace_client/profile.cpp")
+add_library (fprof_client_lib STATIC "${FLOGGING_SOURCE_DIRS}/trace_client/profile.cpp" "${FLOGGING_SOURCE_DIRS}/trace_client/trace.cpp")
 
 add_executable (profile_client profile_client.cpp)
 

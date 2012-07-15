@@ -181,7 +181,7 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay)
 	ui->presetRmButton->setToolTip(tr("removes currently selected preset"));
 	ui->presetSaveButton->setToolTip(tr("saves current filter state as currently selected preset"));
 	ui->presetResetButton->setToolTip(tr("clear current filter"));
-	ui->filterModeComboBox->setToolTip(tr("selects filtering mode: inclusive (check what you want, unchecked are not displayed) or exclusive (checked items are filtered out)."));
+	//ui_settings->filterModeComboBox->setToolTip(tr("selects filtering mode: inclusive (check what you want, unchecked are not displayed) or exclusive (checked items are filtered out)."));
 	ui->levelSpinBox->setToolTip(tr("adjusts debug level of client side"));
 	ui->qSearchLineEdit->setToolTip(tr("search text in logged text"));
 	ui->qFilterLineEdit->setToolTip(tr("quick inclusive filter: adds string to regex filter as regex .*string.*"));
@@ -192,7 +192,7 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay)
 	statusBar()->addPermanentWidget(version_label);
 	statusBar()->addWidget(m_status_label);
 
-	connect(ui->filterModeComboBox, SIGNAL(activated(int)), this, SLOT(onFilterModeActivate(int)));
+	//connect(ui->filterModeComboBox, SIGNAL(activated(int)), this, SLOT(onFilterModeActivate(int)));
 	connect(ui->tabTrace, SIGNAL(tabCloseRequested(int)), m_server, SLOT(onCloseTabWithIndex(int)));
 	QTimer::singleShot(0, this, SLOT(loadState()));	// trigger lazy load of settings
 	setWindowTitle(".*server");
@@ -308,7 +308,14 @@ bool MainWindow::clrFltEnabled () const { return ui_settings->clrFiltersCheckBox
 bool MainWindow::statsEnabled () const { return ui_settings->traceStatsCheckBox->isChecked(); }
 E_FilterMode MainWindow::fltMode () const
 {
-	return ui->filterModeComboBox->currentText() == QString("Inclusive") ? e_Include : e_Exclude;
+	// @NOTE: intentionally removed as nobody except me fucking cares...
+	//return ui->filterModeComboBox->currentText() == QString("Inclusive") ? e_Include : e_Exclude;
+	return e_Include;
+}
+
+bool MainWindow::filterPaneVertical () const
+{
+	return ui_settings->filterPaneComboBox->currentText() == QString("Vertical");
 }
 
 void MainWindow::setLevel (int i)
@@ -338,7 +345,6 @@ void MainWindow::onReuseTabChanged (int state)
 
 void MainWindow::onFilterFile (int state)
 {
-	ui->filterModeComboBox->setEnabled(state);
 	ui->presetComboBox->setEnabled(state);
 	m_server->onFilterFile(state);
 }
@@ -670,7 +676,7 @@ void MainWindow::onPresetActivate (int idx)
 
 void MainWindow::onFilterModeActivate (int idx)
 {
-	if (idx == -1) return;
+/*	if (idx == -1) return;
 	Connection * conn = m_server->findCurrentConnection();
 	if (!conn) return;
 	QString const qItem = ui->filterModeComboBox->currentText();
@@ -678,7 +684,7 @@ void MainWindow::onFilterModeActivate (int idx)
 	qDebug("item=%s", qItem.toStdString().c_str());
 	E_FilterMode const mode = qItem == "Inclusive" ? e_Include : e_Exclude;
 	//@TODO: do following for each connection?
-	conn->flipFilterMode(mode);
+	conn->flipFilterMode(mode);*/
 }
 
 
@@ -1041,7 +1047,8 @@ void MainWindow::storeState ()
 	settings.setValue("filterFileCheckBox", ui->filterFileCheckBox->isChecked());
 	settings.setValue("buffCheckBox", ui->buffCheckBox->isChecked());
 	settings.setValue("clrFiltersCheckBox", ui_settings->clrFiltersCheckBox->isChecked());
-	settings.setValue("filterModeComboBox", ui->filterModeComboBox->currentIndex());
+	//settings.setValue("filterModeComboBox", ui->filterModeComboBox->currentIndex());
+	settings.setValue("filterPaneComboBox", ui_settings->filterPaneComboBox->currentIndex());
 	settings.setValue("levelSpinBox", ui->levelSpinBox->value());
 
 	settings.setValue("trace_stats", ui_settings->traceStatsCheckBox->isChecked());
@@ -1108,8 +1115,13 @@ void MainWindow::loadState ()
 	QSettings settings("MojoMir", "TraceServer");
 	restoreGeometry(settings.value("geometry").toByteArray());
 	restoreState(settings.value("windowState").toByteArray());
+	int const pane_val = settings.value("filterPaneComboBox", 0).toInt();
+	ui_settings->filterPaneComboBox->setCurrentIndex(pane_val);
 	if (settings.contains("splitter"))
+	{
 		ui->splitter->restoreState(settings.value("splitter").toByteArray());
+		ui->splitter->setOrientation(pane_val ? Qt::Vertical : Qt::Horizontal);
+	}
 
 	ui_settings->traceStatsCheckBox->setChecked(settings.value("trace_stats", true).toBool());
 
@@ -1127,7 +1139,8 @@ void MainWindow::loadState ()
 	ui->filterFileCheckBox->setChecked(settings.value("filterFileCheckBox", true).toBool());
 	ui->buffCheckBox->setChecked(settings.value("buffCheckBox", true).toBool());
 	ui_settings->clrFiltersCheckBox->setChecked(settings.value("clrFiltersCheckBox", false).toBool());
-	ui->filterModeComboBox->setCurrentIndex(settings.value("filterModeComboBox").toInt());
+	//ui->filterModeComboBox->setCurrentIndex(settings.value("filterModeComboBox").toInt());
+	//@TODO: delete filterMode from registry if exists
 	ui->levelSpinBox->setValue(settings.value("levelSpinBox", 3).toInt());
 
 	read_list_of_strings(settings, "known-applications", "application", m_app_names);
