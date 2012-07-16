@@ -572,14 +572,14 @@ void MainWindow::onShowHelp ()
 	dialog.exec();
 }
 
-void syncOnPreset (QStandardItem * qnode, file_filter::node_t * node)
+void syncOnPreset (QStandardItem * qnode, file_filter<FilteredFile>::node_t * node)
 {
 	if (node)
 	{
 		qnode->setCheckState(static_cast<Qt::CheckState>(node->data.m_state));
 		if (node && node->children)
 		{
-			file_filter::node_t * child = node->children;
+			file_filter<FilteredFile>::node_t * child = node->children;
 			while (child)
 			{
 				QStandardItem * qchild = findChildByText(qnode, QString::fromStdString(child->key));
@@ -653,7 +653,7 @@ void MainWindow::onPresetActivate (Connection * conn, QString const & pname)
 		conn->m_session_state.m_filtered_regexps.swap(dummy.m_filtered_regexps);
 		conn->m_session_state.m_colorized_texts.swap(dummy.m_colorized_texts);
 
-		file_filter::node_t * node = conn->m_session_state.m_file_filters.root;
+		file_filter<FilteredFile>::node_t * node = conn->m_session_state.m_file_filters.root;
 		QStandardItem * qnode = static_cast<QStandardItemModel *>(getWidgetFile()->model())->invisibleRootItem();
 		syncOnPreset(qnode, node);
 		syncColorRegexOnPreset(conn);

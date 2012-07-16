@@ -133,7 +133,7 @@ void Connection::appendToFileTree (boost::char_separator<char> const & sep, std:
 
 			E_NodeStates ff_state = e_Unchecked;
 			bool col_state = true;
-			file_info const * fi = 0;
+			FilteredFile const * fi = 0;
 			bool const known = sessionState().m_file_filters.is_present(path, fi);
 			if (known)
 			{
@@ -160,10 +160,11 @@ void Connection::appendToFileTree (boost::char_separator<char> const & sep, std:
 
 			E_NodeStates new_state = e_Checked;
 			E_NodeStates ff_state = e_Unchecked;
-			bool const known = sessionState().m_file_filters.is_present(path, ff_state);
+			FilteredFile ff;
+			bool const known = sessionState().m_file_filters.is_present(path, ff);
 			if (known)
 			{
-				node->setCheckState(static_cast<Qt::CheckState>(ff_state));
+				node->setCheckState(static_cast<Qt::CheckState>(ff.m_state));
 				new_state = ff_state;
 			}
 			else
@@ -218,7 +219,7 @@ void Connection::appendToFileTree (boost::char_separator<char> const & sep, std:
 			else if (curr_state == Qt::Unchecked)
 			{
 				// checked --> unchecked
-				sessionState().m_file_filters.set_state_to_topdown(fileline, static_cast<E_NodeStates>(curr_state), e_PartialCheck);
+				set_state_to_topdown(sessionState().m_file_filters, fileline, static_cast<E_NodeStates>(curr_state), e_PartialCheck);
 				setCheckStateChilds(node, curr_state);
 				setCheckStateReverse(node->parent(), Qt::PartiallyChecked); // iff parent unchecked and clicked on leaf
 			}
@@ -262,7 +263,7 @@ void Connection::onFileColOrExp (QModelIndex const & idx, bool collapsed)
 	for (std::vector<QString>::const_reverse_iterator it=s.rbegin(), ite=s.rend(); it != ite; ++it)
 		file += std::string("/") + (*it).toStdString();
 
-	sessionState().m_file_filters.set_to_state(file, static_cast<E_NodeStates>(node->checkState()), collapsed);
+	sessionState().m_file_filters.set_to_state(file, FilteredFile(static_cast<E_NodeStates>(node->checkState()), collapsed));
 }
 
 void Connection::onFileExpanded (QModelIndex const & idx)
@@ -514,14 +515,14 @@ void Connection::loadToRegexps (std::string const & filter_item, bool inclusive,
 
 void Connection::flipFilterMode (E_FilterMode mode)
 {
-	qDebug("filterMode changed: old=%u -> new=%u", sessionState().m_filter_mode, mode);
+/*	qDebug("filterMode changed: old=%u -> new=%u", sessionState().m_filter_mode, mode);
 	if (sessionState().m_filter_mode != mode)
 	{
 		QStandardItem * node = m_file_model->invisibleRootItem();
 		flipCheckState(node);
 		flipCheckStateChilds(node);
 		sessionState().flipFilterMode(mode);
-	}
+	}*/
 }
 
 /*void Connection::syncFileTreeWithFilter (E_FilterMode mode, QStandardItem * node)

@@ -152,7 +152,7 @@ inline QList<QStandardItem *> addRowTriState (QString const & str, E_NodeStates 
 	return row_items;
 }
 
-inline void flipCheckState (QStandardItem * item)
+/*inline void flipCheckState (QStandardItem * item)
 {
 	bool const checked = (item->checkState() == Qt::Checked);
 	item->setCheckState(checked ? Qt::Unchecked : Qt::Checked);
@@ -167,7 +167,7 @@ inline void flipCheckStateChilds (QStandardItem * node)
 		QStandardItem * const child = node->child(r, 0);
 		flipCheckStateChilds(child);
 	}
-}
+}*/
 
 inline void setCheckState (QStandardItem * const node, Qt::CheckState const state)
 {
@@ -227,6 +227,73 @@ inline void reassemblePath (std::vector<QString> const & tokens, QString & path)
 		path += '/';
 	}
 }
+
+void set_state_to_childs (file_filter<FilteredFile> const & ff, std::string const & file, E_NodeStates state);
+void set_state_to_parents (file_filter<FilteredFile> const & ff, file_filter<FilteredFile>::node_t * node, E_NodeStates state);
+void set_state_to_childs (file_filter<FilteredFile> const & ff, file_filter<FilteredFile>::node_t * node, E_NodeStates state);
+inline void set_state_to_topdown (file_filter<FilteredFile> const & ff, std::string const & file, E_NodeStates fw_state, E_NodeStates rev_state)
+{
+	typedef file_filter<FilteredFile>::tokenizer_t tokenizer_t;
+	tokenizer_t tok(file, ff.separator);
+	file_filter<FilteredFile>::node_t * level = ff.root;
+	tokenizer_t::const_iterator it = tok.begin(), ite = tok.end();
+	while (it != ite)
+	{
+		level = file_filter<FilteredFile>::node_t::node_child(level, *it);
+		if (level == 0)
+			return;
+
+		++it;
+		if (it == ite)
+		{
+			level->data.m_state = fw_state;
+			set_state_to_childs(ff, level, fw_state);
+			set_state_to_parents(ff, level, rev_state);
+		}
+	}
+}
+
+inline void set_state_to_childs (file_filter<FilteredFile> const & ff, std::string const & file, E_NodeStates state)
+{
+	file_filter<FilteredFile>::tokenizer_t tok(file, ff.separator);
+	file_filter<FilteredFile>::node_t * level = ff.root;
+	file_filter<FilteredFile>::tokenizer_t::const_iterator it = tok.begin(), ite = tok.end();
+	while (it != ite)
+	{
+		level = file_filter<FilteredFile>::node_t::node_child(level, *it);
+		if (level == 0)
+			return;
+
+		++it;
+		if (it == ite)
+		{
+			level->data.m_state = state;
+			set_state_to_childs(ff, level, state);
+		}
+	}
+}
+
+inline void set_state_to_childs (file_filter<FilteredFile> const & ff, file_filter<FilteredFile>::node_t * node, E_NodeStates state)
+{
+	node = node->children;
+	while (node)
+	{
+		node->data.m_state = state;
+		set_state_to_childs(ff, node, state);
+		node = node->next;
+	}
+}
+
+inline void set_state_to_parents (file_filter<FilteredFile> const & ff, file_filter<FilteredFile>::node_t * node, E_NodeStates state)
+{
+	while (node = node->parent)
+	{
+		node->data.m_state = state;
+		set_state_to_parents(ff, node, state);
+	}
+}
+
+
 
 /*inline void syncCheckBoxesWithFileFilters (QStandardItem const * node, E_FilterMode const fmode, file_filter & ff, strings_t & stack)
 {

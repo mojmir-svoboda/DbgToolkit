@@ -167,6 +167,8 @@ void Server::onApplyColumnSetup ()
 		conn->onApplyColumnSetup();
 }
 
+
+
 	std::vector<QString> s;	// @TODO: hey piggy, to member variables
 
 void Server::onClickedAtFileTree_Impl (QModelIndex idx, bool recursive)
@@ -231,7 +233,7 @@ void Server::onClickedAtFileTree_Impl (QModelIndex idx, bool recursive)
 	else if (curr_state == Qt::Unchecked)
 	{
 		// checked --> unchecked
-		conn->sessionState().m_file_filters.set_state_to_topdown(fileline, static_cast<E_NodeStates>(curr_state), e_PartialCheck);
+		set_state_to_topdown(conn->sessionState().m_file_filters, fileline, static_cast<E_NodeStates>(curr_state), e_PartialCheck);
 		setCheckStateChilds(node, curr_state);
 		setCheckStateReverse(node->parent(), Qt::PartiallyChecked); // iff parent unchecked and clicked on leaf
 	}
