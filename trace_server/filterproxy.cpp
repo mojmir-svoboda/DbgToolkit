@@ -132,16 +132,16 @@ bool FilterProxyModel::filterAcceptsRow (int sourceRow, QModelIndex const & /*so
 	}
 
 	bool excluded = false;
-	E_NodeStates state;
-	bool const ff_present = m_session_state.isFileLinePresent(std::make_pair(file.toStdString(), line.toStdString()), state);
+	FilteredFile ff;
+	bool const ff_present = m_session_state.isFileLinePresent(std::make_pair(file.toStdString(), line.toStdString()), ff);
 	E_FilterMode const fmode = m_main_window->fltMode();
 	if (ff_present && fmode == e_Include)
 	{
-		excluded |= state == e_Unchecked;
+		excluded |= ff.m_state == e_Unchecked;
 	}
 	if (ff_present && fmode == e_Exclude)
 	{
-		excluded |= state == e_Checked;
+		excluded |= ff.m_state == e_Checked;
 	}
 
 	QString tid;

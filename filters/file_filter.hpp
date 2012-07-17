@@ -26,44 +26,17 @@
 #include <boost/serialization/split_member.hpp>
 #include "nnode.hpp"
 
-enum E_NodeStates {
-	e_Unchecked,
-	e_PartialCheck,
-	e_Checked
-};
-
-struct file_info
-{
-	/*@member	state
-	 * duplicates qt enum
-	 *	Qt::Unchecked	0	The item is unchecked.
-	 *	Qt::PartiallyChecked	1	The item is partially checked. Items in hierarchical models may be partially checked if some, but not all, of their children are checked.
-	 *	Qt::Checked	2	The item is checked.
-	 */
-	int m_state;
-	int m_collapsed;
-
-	file_info () : m_state(e_Unchecked), m_collapsed(true) { }
-	file_info (int s) : m_state(s), m_collapsed(true) { }
-	file_info (int s, bool c) : m_state(s), m_collapsed(c) { }
-
-	template <class ArchiveT>
-	void serialize (ArchiveT & ar, unsigned const version)
-	{
-		ar & m_state;
-		ar & m_collapsed;
-	}
-};
-
+template <class FilterT>
 struct file_filter
 {
+	typedef FilterT filter_t;
 	typedef boost::tokenizer<boost::char_separator<char> > tokenizer_t;
-	typedef NNode<std::string, file_info> node_t;
+	typedef NNode<std::string, filter_t> node_t;
 	node_t * root;
 	boost::char_separator<char> separator;
 
 	file_filter ()
-		: root(new node_t(std::string("/"), file_info(false)))
+		: root(new node_t(std::string("/"), filter_t()))
 		, separator(":/\\")
 	{ }
 
@@ -83,36 +56,7 @@ struct file_filter
 
 	bool empty () const { return !(root && root->children); }
 
-	/*bool is_set_fast (std::string const & file) const
-	{
-		char const * const bgn = file.c_str();
-		char const * const end = bgn + file.size();
-
-		char const * left = bgn;
-		char const * right = bgn;
-		node_t const * level = root;
-		for (; right < end; ++right)
-		{
-			char const c = *right;
-			if (c == ':' || c == '/' || c == '\\' || c == '\0' || right + 1 == end)
-			{
-				if (right - left > 0)
-				{
-					level = node_t::node_child_fast(level, left, right);
-					if (level == 0)
-						return false; // node not in tree
-					else if (level->data.m_state == e_Checked) // node is tagged for exclusion
-						return true;  // node is tagged for exclusion
-
-				}
-				if (right + 1 < end)
-					left = right + 1;
-			}
-		}
-		return false; // node is not tagged
-	}*/
-
-	void set_to_state (std::string const & file, E_NodeStates state, bool collapsed = true)
+	void set_to_state (std::string const & file, filter_t const & data)
 	{
 		char const * const bgn = file.c_str();
 		char const * const end = bgn + file.size() + 1;
@@ -130,7 +74,7 @@ struct file_filter
 					node_t * child = node_t::node_child_fast(level, left, right);
 					if (child == 0)
 					{
-						child = new node_t(left, right, file_info(state, collapsed));
+						child = new node_t(left, right, data);
 						node_t::node_append(level, child);
 					}
 					level = child;
@@ -141,11 +85,10 @@ struct file_filter
 			}
 		}
 
-		level->data.m_state = state;
-		level->data.m_collapsed = collapsed;
+		level->data = data;
 	}
 
-	bool is_present (std::string const & file, E_NodeStates & state) const
+	bool is_present (std::string const & file, filter_t & data) const
 	{
 		tokenizer_t tok(file, separator);
 		node_t const * level = root;
@@ -154,12 +97,12 @@ struct file_filter
 			level = node_t::node_child(level, *it);
 			if (level == 0)
 				return false; // node not in tree
-			state = static_cast<E_NodeStates>(level->data.m_state);
+			data = level->data;
 		}
 		return true;
 	}
 
-	bool is_present (std::string const & file, file_info const * & fi) const
+	bool is_present (std::string const & file, filter_t const * & fi) const
 	{
 		fi = 0;
 		char const * const bgn = file.c_str();
@@ -187,18 +130,18 @@ struct file_filter
 		return true;
 	}
 
-	void set_state_to_childs (node_t * node, E_NodeStates state)
+	void set_state_to_childs (node_t * node, filter_t const & data)
 	{
 		node = node->children;
 		while (node)
 		{
-			node->data.m_state = state;
-			set_state_to_childs(node, state);
+			node->data = data;
+			set_state_to_childs(node, data);
 			node = node->next;
 		}
 	}
 
-	void set_state_to_childs (std::string const & file, E_NodeStates state)
+	void set_state_to_childs (std::string const & file, filter_t const & data)
 	{
 		tokenizer_t tok(file, separator);
 		node_t * level = root;
@@ -212,21 +155,21 @@ struct file_filter
 			++it;
 			if (it == ite)
 			{
-				level->data.m_state = state;
-				set_state_to_childs(level, state);
+				level->data = data;
+				set_state_to_childs(level, data);
 			}
 		}
 	}
 
-	void set_state_to_parents (node_t * node, E_NodeStates state)
+	void set_state_to_parents (node_t * node, filter_t const & data)
 	{
 		while (node = node->parent)
 		{
-			node->data.m_state = state;
-			set_state_to_parents(node, state);
+			node->data = data;
+			set_state_to_parents(node, data);
 		}
 	}
-
+/*
 	void set_state_to_topdown (std::string const & file, E_NodeStates fw_state, E_NodeStates rev_state)
 	{
 		tokenizer_t tok(file, separator);
@@ -247,7 +190,7 @@ struct file_filter
 			}
 		}
 	}
-
+*/
 	void reassemble_path (std::vector<node_t *> const & nodes, std::string & path) const
 	{
 		for (size_t i = 0, ie = nodes.size(); i < ie; ++i)

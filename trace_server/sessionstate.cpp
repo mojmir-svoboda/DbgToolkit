@@ -159,20 +159,17 @@ void SessionState::clearFilters ()
 
 
 ///////// file filters
-bool SessionState::isFileLinePresent (fileline_t const & item, E_NodeStates & state) const
+bool SessionState::isFileLinePresent (fileline_t const & item, FilteredFile & fi) const
 {
-	file_info const * fi = 0;
-	bool const exists = m_file_filters.is_present(item.first + "/" + item.second, fi);
-	state = static_cast<E_NodeStates>(fi->m_state);
+	FilteredFile const * tmp_fi = 0;
+	bool const exists = m_file_filters.is_present(item.first + "/" + item.second, tmp_fi);
+	if (exists)
+		fi = *tmp_fi;
 	return exists;
 }
-bool SessionState::isFileLinePresent (std::string const & fileline, E_NodeStates & state) const
+bool SessionState::isFileLinePresent (std::string const & fileline, FilteredFile & fi) const
 {
-	return m_file_filters.is_present(fileline, state);
-}
-void SessionState::stateToFileChilds (fileline_t const & item, E_NodeStates const state)
-{
-	m_file_filters.set_state_to_childs(item.first + "/" + item.second, state);
+	return m_file_filters.is_present(fileline, fi);
 }
 
 ///////// ctx filters
