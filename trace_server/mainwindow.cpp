@@ -188,7 +188,9 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay)
 	ui->qSearchComboBox->setToolTip(tr("specifies column to search"));
 
 	m_status_label = new QLabel(m_server->getStatus());
-	QLabel * version_label = new QLabel(tr("Ver: %1").arg(g_Version));
+	QString human_version(g_Version);
+	human_version.chop(human_version.lastIndexOf(QChar('-')));
+	QLabel * version_label = new QLabel(tr("Ver: %1").arg(human_version));
 	statusBar()->addPermanentWidget(version_label);
 	statusBar()->addWidget(m_status_label);
 

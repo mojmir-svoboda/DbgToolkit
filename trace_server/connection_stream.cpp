@@ -255,7 +255,8 @@ bool Connection::tryHandleCommand (DecodedCommand const & cmd)
 		case tlv::cmd_log:			handleLogCommand(cmd); break;
 		case tlv::cmd_scope_entry:	handleLogCommand(cmd); break;
 		case tlv::cmd_scope_exit:	handleLogCommand(cmd); break;
-		//case tlv::cmd_save_as:		handleSaveAsCommand(cmd); break;
+		case tlv::cmd_save_tlv:		handleSaveTLVCommand(cmd); break;
+		case tlv::cmd_export_csv:   handleExportCSVCommand(cmd); break;
 		default: qDebug("unknown command, ignoring\n"); break;
 	}
 
@@ -304,8 +305,24 @@ void Connection::copyStorageTo (QString const & filename)
 	}
 }
 
+bool Connection::handleSaveTLVCommand (DecodedCommand const & cmd)
+{
+	for (size_t i=0, ie=cmd.tvs.size(); i < ie; ++i)
+	{
+		if (cmd.tvs[i].m_tag == tlv::tag_file)
+		{
+			copyStorageTo(QString::fromStdString(cmd.tvs[i].m_val));
+			return true;
+		}
+	}
+	return true;
+}
+
 void Connection::exportStorageToCSV (QString const & filename)
 {
+	// " --> ""
+	QRegExp regex("\"");
+	QString to_string("\"\"");
 	QFile csv(filename);
 	csv.open(QIODevice::WriteOnly);
 	QTextStream str(&csv);
@@ -315,13 +332,27 @@ void Connection::exportStorageToCSV (QString const & filename)
 		{
 			QModelIndex current = m_table_view_widget->model()->index(r, c, QModelIndex());
 			QString txt = m_table_view_widget->model()->data(current).toString();
-			str << "\"" << txt << "\"";
+			QString const quoted_txt = txt.replace(regex, to_string);
+			str << "\"" << quoted_txt << "\"";
 			if (c < ce - 1)
 				str << ",\t";
 		}
 		str << "\n";
 	}
 	csv.close();
+}
+
+bool Connection::handleExportCSVCommand (DecodedCommand const & cmd)
+{
+	for (size_t i=0, ie=cmd.tvs.size(); i < ie; ++i)
+	{
+		if (cmd.tvs[i].m_tag == tlv::tag_file)
+		{
+			exportStorageToCSV(QString::fromStdString(cmd.tvs[i].m_val));
+			return true;
+		}
+	}
+	return false;
 }
 
 void Connection::closeStorage ()

@@ -358,6 +358,7 @@ void MainWindow::onClickedAtSettingPooftahButton ()
 			, e_AlignRight		// ctx
 			, e_AlignLeft		// bool
 			, e_AlignLeft		// int
+			, e_AlignLeft		// str
 		};
 		E_Elide const default_elides[tlv::tag_max_value] = {
 			  e_ElideNone		// invalid
@@ -373,6 +374,7 @@ void MainWindow::onClickedAtSettingPooftahButton ()
 			, e_ElideLeft		// ctx
 			, e_ElideNone		// bool
 			, e_ElideNone		// int
+			, e_ElideNone		// str
 		};
 
 		int const default_sizes[tlv::tag_max_value] = {
@@ -389,6 +391,7 @@ void MainWindow::onClickedAtSettingPooftahButton ()
 			, 16	// ctx
 			, 0		// bool
 			, 0		// int
+			, 0		// str
 		};
 
 

@@ -23,6 +23,7 @@
 #include "encode_log.inl"
 #include "encode_scope.inl"
 #include "encode_setup.inl"
+#include "encode_exportcsv.inl"
 
 //#define DBG_OUT printf
 #define DBG_OUT(fmt, ...) ((void)0)
@@ -397,6 +398,26 @@ namespace trace {
 			encode_scope(msg, type == ScopedLog::e_Entry ? tlv::cmd_scope_entry : tlv::cmd_scope_exit , level, context, file, line, fn);
 			socks::WriteToSocket(msg.m_data, msg.m_length);
 		}
+	}
+
+	inline void ExportToCSV (char const * file)
+	{
+		if (GetRuntimeBuffering())
+		{
+			msg_t & msg = socks::acquire_msg_buffer();
+			msg.WriteLock();
+			{
+				encode_exportCSV(msg, file);
+			}
+			msg.WriteUnlockAndDirty();
+		}
+		else
+		{
+			msg_t msg;
+			encode_exportCSV(msg, file);
+			socks::WriteToSocket(msg.m_data, msg.m_length);
+		}
+
 	}
 }
 

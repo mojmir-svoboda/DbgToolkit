@@ -23,7 +23,10 @@ Server::Server (QString ip, unsigned short port, QObject * parent, bool quit_del
 	if (!listen(addr, port)) {
 		status = tr("Unable to start server! Reason: %1").arg(errorString());
 		if (quit_delay)
-			QTimer::singleShot(5000, qApp, SLOT(quit()));
+		{
+			QMessageBox::critical(0, tr("ee"), status, QMessageBox::Ok, QMessageBox::Ok);	
+			QTimer::singleShot(0, qApp, SLOT(quit()));
+		}
 		else
 		{
 			printf("Another instance already running!\n");

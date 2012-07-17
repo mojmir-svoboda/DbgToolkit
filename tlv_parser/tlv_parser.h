@@ -42,8 +42,9 @@ namespace tlv {
 	static cmd_t const cmd_set_ctx           = 0xF7;	/// adjust runtime context filtering
 	static cmd_t const cmd_set_ctx_ack       = 0xF6;	/// request context from other party
 	static cmd_t const cmd_set_buffering     = 0xF5;	/// set buffering on/off
-	static cmd_t const cmd_save_as           = 0xF4;	/// save as (tlv, csv)
-	static cmd_t const cmd_setup_ack         = 0xF4;	/// acknowledge setup command
+	static cmd_t const cmd_export_csv        = 0xF4;	/// export as csv
+	static cmd_t const cmd_save_tlv          = 0xF3;	/// save as tlv (native format)
+	static cmd_t const cmd_setup_ack         = 0xF2;	/// acknowledge setup command
                                              
 	static cmd_t const cmd_profile_bgn       = 0xEF;	/// send profiling begin
 	static cmd_t const cmd_profile_end       = 0xEE;	/// send profiling end
@@ -67,6 +68,7 @@ namespace tlv {
 		/// now following tags are considered as "system"
 		tag_bool,         /// bool
 		tag_int,          /// int
+		tag_string,       /// string
 
 		tag_max_value     /** this should be last line of enum **/
 	};
@@ -88,6 +90,7 @@ namespace tlv {
 		/*sys tags*/
 		"Bool",
 		"Int",
+		"Str"
 	};
 
 	inline size_t get_tag_count () { return tag_max_value; }

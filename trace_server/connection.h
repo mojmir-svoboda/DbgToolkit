@@ -169,6 +169,8 @@ private:
 	bool tryHandleCommand (DecodedCommand const & cmd);
 	bool handleLogCommand (DecodedCommand const & cmd);
 	bool handleSetupCommand (DecodedCommand const & cmd);
+	bool handleExportCSVCommand (DecodedCommand const & cmd);
+	bool handleSaveTLVCommand (DecodedCommand const & cmd);
 
 	bool appendToFilters (DecodedCommand const & cmd);
 	void appendToTIDFilters (std::string const & item);

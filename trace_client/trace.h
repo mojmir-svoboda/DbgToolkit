@@ -127,6 +127,12 @@
  **/
 #	define TRACE_CODE(code) code
 
+/** @macro		TRACE_EXPORT_CSV
+ *  @brief      causes export of current server content as csv format
+ */
+#	define TRACE_EXPORT_CSV(filename)	\
+		trace::ExportToCSV(filename)
+
 	namespace trace {
 
 		TRACE_API void SetAppName (char const *);
@@ -147,6 +153,10 @@
 		TRACE_API void SetRuntimeBuffering (bool level);
 		TRACE_API bool GetRuntimeBuffering ();
 
+		/**@fn		ExportToCSV
+		 * @brief	client sends command to force server dump content to csv
+		 **/
+		TRACE_API void ExportToCSV (char const *);
 
 		/**@fn		SetRuntimeContextMask
 		 * @brief	adjusts run-time context of log message filtering
@@ -201,6 +211,7 @@
 #	define TRACE_MSG(level, context, fmt, ... )     ((void)0)
 #	define TRACE_MSG_VA(level, context, fmt, va)    ((void)0)
 #	define TRACE_SCOPE(level, context)              ((void)0)
-#	define TRACE_SETBUFFERED(on)                     ((void)0)
-#	define TRACE_CODE(code)							((void)0)
+#	define TRACE_SETBUFFERED(on)                    ((void)0)
+#	define TRACE_CODE(code)                         ((void)0)
+#	define TRACE_EXPORT_CSV(file)                   ((void)0)
 #endif // TRACE_ENABLED
