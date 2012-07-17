@@ -2,12 +2,11 @@
 #include <stdarg.h>
 #include <sysfn/time_query.h>
 
-#if defined TRACE_ENABLED
-
 	namespace sys {
 		hptimer_t g_Start = 0, g_Freq = 1000000;
 	}
 
+#if defined TRACE_ENABLED
 	namespace trace {
 
 		level_t      g_RuntimeLevel       = static_cast<level_t>(e_max_trace_level);

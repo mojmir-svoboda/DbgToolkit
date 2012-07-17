@@ -5,6 +5,8 @@
 #include "profilerview.h"
 #include "profilerbar.h"
 #include "profilermainwindow.h"
+#include "profilerplot.h"
+#include "pickableplot.h"
 #include "ui_profilermainwindow.h"
 #include "profilerblockinfo.h"
 #include "hsv.h"
@@ -19,20 +21,49 @@ ProfilerWindow::ProfilerWindow (QObject * parent, profiler::profiler_rvp_t * rvp
 {
 	qDebug("%s", __FUNCTION__);
 	m_window = new ProfilerMainWindow();
-	m_scene = new QGraphicsScene(m_window);
+	//QDockWidget & dock = m_window->getUI()->dockWidget;
 
-	QSplitter * vSplitter = new QSplitter;
-	vSplitter->setOrientation(Qt::Vertical);
+	//QSplitter * vSplitter = new QSplitter;
+	//vSplitter->setOrientation(Qt::Vertical);
 
-	m_view = new View(this, "View 0");
-	m_view->view()->setScene(m_scene);
-	vSplitter->addWidget(m_view);
+	{
+		QDockWidget * dock = new QDockWidget(tr("detail"), m_window);
+		m_scene = new QGraphicsScene();
+		m_view = new View(this, "View 0");
+		m_view->view()->setScene(m_scene);
+		dock->setAllowedAreas(Qt::AllDockWidgetAreas);
+		dock->setWidget(m_view);
+		m_window->addDockWidget(Qt::TopDockWidgetArea, dock);
+	}
 
-	//View * view = new View(this, "View 1");
-	//view->view()->setScene(m_scene);
-	//vSplitter->addWidget(view);
+	{
+		QDockWidget * dock = new QDockWidget(tr("frames"), m_window);
+		PickablePlot * plot = new PickablePlot(dock);
+		dock->setAllowedAreas(Qt::AllDockWidgetAreas);
+		dock->setWidget(plot);
+		m_window->addDockWidget(Qt::TopDockWidgetArea, dock);
+	}
 
-	m_window->getUI()->gridLayout->addWidget(vSplitter, 0, 0, 1, 1);
+	{
+		QDockWidget * dock = new QDockWidget(tr("plot"), m_window);
+		ProfPlot * plot = new ProfPlot(dock);
+		dock->setAllowedAreas(Qt::AllDockWidgetAreas);
+		dock->setWidget(plot);
+		m_window->addDockWidget(Qt::TopDockWidgetArea, dock);
+	}
+
+	{
+		QDockWidget * dock = new QDockWidget(tr("tags"), m_window);
+		QListView * lv = new QListView(dock);
+		dock->setAllowedAreas(Qt::AllDockWidgetAreas);
+		dock->setWidget(lv);
+		m_window->addDockWidget(Qt::TopDockWidgetArea, dock);
+	}
+
+
+	//vSplitter->addWidget(m_view);
+
+	//m_window->getUI()->gridLayout->addWidget(vSplitter, 0, 0, 1, 1);
 	m_window->show();
 	m_window->setWindowTitle(tr("Profiler Demo"));
 

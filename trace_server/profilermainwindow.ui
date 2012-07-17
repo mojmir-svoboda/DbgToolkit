@@ -29,11 +29,17 @@
      <x>0</x>
      <y>0</y>
      <width>1041</width>
-     <height>18</height>
+     <height>16</height>
     </rect>
    </property>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <widget class="QDockWidget" name="dockWidget">
+   <attribute name="dockWidgetArea">
+    <number>1</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents"/>
+  </widget>
  </widget>
  <resources/>
  <connections/>
