@@ -228,18 +228,23 @@ inline void reassemblePath (std::vector<QString> const & tokens, QString & path)
 	}
 }
 
-void set_state_to_childs (file_filter<FilteredFile> const & ff, std::string const & file, E_NodeStates state);
-void set_state_to_parents (file_filter<FilteredFile> const & ff, file_filter<FilteredFile>::node_t * node, E_NodeStates state);
-void set_state_to_childs (file_filter<FilteredFile> const & ff, file_filter<FilteredFile>::node_t * node, E_NodeStates state);
-inline void set_state_to_topdown (file_filter<FilteredFile> const & ff, std::string const & file, E_NodeStates fw_state, E_NodeStates rev_state)
+template <class F>
+void set_state_to_childs (file_filter<F> const & ff, std::string const & file, E_NodeStates state);
+template <class F>
+void set_state_to_parents (file_filter<F> const & ff, typename file_filter<F>::node_t * node, E_NodeStates state);
+template <class F>
+void set_state_to_childs (file_filter<F> const & ff, typename file_filter<F>::node_t * node, E_NodeStates state);
+
+template <class F>
+inline void set_state_to_topdown (file_filter<F> const & ff, std::string const & file, E_NodeStates fw_state, E_NodeStates rev_state)
 {
-	typedef file_filter<FilteredFile>::tokenizer_t tokenizer_t;
+	typedef typename file_filter<F>::tokenizer_t tokenizer_t;
 	tokenizer_t tok(file, ff.separator);
-	file_filter<FilteredFile>::node_t * level = ff.root;
+	typename file_filter<F>::node_t * level = ff.root;
 	tokenizer_t::const_iterator it = tok.begin(), ite = tok.end();
 	while (it != ite)
 	{
-		level = file_filter<FilteredFile>::node_t::node_child(level, *it);
+		level = typename::file_filter<F>::node_t::node_child(level, *it);
 		if (level == 0)
 			return;
 
@@ -253,14 +258,15 @@ inline void set_state_to_topdown (file_filter<FilteredFile> const & ff, std::str
 	}
 }
 
-inline void set_state_to_childs (file_filter<FilteredFile> const & ff, std::string const & file, E_NodeStates state)
+template <class F>
+inline void set_state_to_childs (file_filter<F> const & ff, std::string const & file, E_NodeStates state)
 {
-	file_filter<FilteredFile>::tokenizer_t tok(file, ff.separator);
-	file_filter<FilteredFile>::node_t * level = ff.root;
-	file_filter<FilteredFile>::tokenizer_t::const_iterator it = tok.begin(), ite = tok.end();
+	typename file_filter<F>::tokenizer_t tok(file, ff.separator);
+	typename file_filter<F>::node_t * level = ff.root;
+	typename file_filter<F>::tokenizer_t::const_iterator it = tok.begin(), ite = tok.end();
 	while (it != ite)
 	{
-		level = file_filter<FilteredFile>::node_t::node_child(level, *it);
+		level = file_filter<F>::node_t::node_child(level, *it);
 		if (level == 0)
 			return;
 
@@ -273,7 +279,8 @@ inline void set_state_to_childs (file_filter<FilteredFile> const & ff, std::stri
 	}
 }
 
-inline void set_state_to_childs (file_filter<FilteredFile> const & ff, file_filter<FilteredFile>::node_t * node, E_NodeStates state)
+template <class F>
+inline void set_state_to_childs (file_filter<F> const & ff, typename file_filter<F>::node_t * node, E_NodeStates state)
 {
 	node = node->children;
 	while (node)
@@ -284,7 +291,8 @@ inline void set_state_to_childs (file_filter<FilteredFile> const & ff, file_filt
 	}
 }
 
-inline void set_state_to_parents (file_filter<FilteredFile> const & ff, file_filter<FilteredFile>::node_t * node, E_NodeStates state)
+template <class F>
+inline void set_state_to_parents (file_filter<F> const & ff, typename file_filter<F>::node_t * node, E_NodeStates state)
 {
 	while (node = node->parent)
 	{

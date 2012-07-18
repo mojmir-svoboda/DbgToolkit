@@ -159,12 +159,6 @@ struct FilteredContext {
 	}
 };
 
-enum E_NodeStates {
-	e_Unchecked,
-	e_PartialCheck,
-	e_Checked
-};
-
 struct FilteredFile
 {
 	/*@member	state

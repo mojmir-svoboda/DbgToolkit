@@ -2,12 +2,21 @@
 #include <QList>
 #include <QString>
 
-enum E_FilterMode { e_Include, e_Exclude };
+enum E_NodeStates {
+	  e_Unchecked
+	, e_PartialCheck
+	, e_Checked
+};
+
+enum E_FilterMode {
+	  e_Include
+	, e_Exclude
+};
 
 enum E_LevelMode {
-	e_LvlInclude = 0,
-	e_LvlForceInclude = 1,
-	e_max_lvlmod_enum_value
+	  e_LvlInclude = 0
+	, e_LvlForceInclude = 1
+	, e_max_lvlmod_enum_value
 };
 
 static char lvlmods[e_max_lvlmod_enum_value] = { 'I', 'F' };
