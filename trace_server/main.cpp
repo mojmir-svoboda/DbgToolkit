@@ -99,12 +99,14 @@ void usage ()
 	printf("Available options:\n");
 	printf("    -q    quit immeadiately if another instance running\n");
 	printf("    -n    no visible window at start (can be activated by ScrollLock hotkey)\n");
+	printf("    -d    dump mode (csv by default)\n");
 }
 
 int main (int argc, char *argv[])
 {
 	bool quit_delay = true;
 	bool start_hidden = false;
+	bool dump_mode = false;
     for (int i = 1; i < argc; ++i)
     {
         if (argv[i][0] != '-')
@@ -121,6 +123,10 @@ int main (int argc, char *argv[])
             case 'q':
 				printf("cmd arg: -q, quit immeadiately\n");
 				quit_delay = false;
+				break;
+            case 'd':
+				printf("cmd arg: -d, dump mode\n");
+				dump_mode = true;
 				break;
             case 'n':
 				printf("cmd arg: -n, no visible window\n");
@@ -144,7 +150,7 @@ int main (int argc, char *argv[])
 	}
 #endif
 
-	MainWindow w(0, quit_delay);
+	MainWindow w(0, quit_delay, dump_mode);
 
 	if (!start_hidden)
 	{

@@ -49,7 +49,7 @@ class MainWindow : public QMainWindow
 	Q_OBJECT
 
 public:
-	explicit MainWindow (QWidget * parent = 0, bool quit_delay = true);
+	explicit MainWindow (QWidget * parent = 0, bool quit_delay = true, bool dump_mode = false);
 	~MainWindow ();
 
 	QTabWidget * getTabTrace ();
@@ -116,6 +116,7 @@ public:
 	QTreeView const * getWidgetLvl () const;
 	void setLevel (int i);
 	int getLevel () const;
+	bool dumpModeEnabled () const { return m_dump_mode; }
 	bool scopesEnabled () const;
 	bool indentEnabled () const;
 	bool cutPathEnabled () const;
@@ -213,6 +214,7 @@ private:
 	unsigned m_hotkey;
 	bool m_hidden;
 	bool m_was_maximized;
+	bool m_dump_mode;
 	QList<QString> m_app_names;					/// registered applications
 	QList<columns_setup_t> m_columns_setup;		/// column setup for each registered application
 	QList<columns_sizes_t> m_columns_sizes;		/// column sizes for each registered application

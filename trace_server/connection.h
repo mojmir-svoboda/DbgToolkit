@@ -202,6 +202,7 @@ private:
 	SessionState m_session_state;
 	int m_from_file;
 	bool m_column_setup_done;
+	bool m_marked_for_close;
 	int m_last_search_row;
 	int m_last_search_col;
 	QString m_last_search;

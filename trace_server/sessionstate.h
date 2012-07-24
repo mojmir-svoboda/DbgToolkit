@@ -351,6 +351,7 @@ private:
 	QMap<tlv::tag_t, int> m_tags2columns;
 	ThreadSpecific m_tls;
 	QString m_name;
+	QString m_pid;
 	QList<CollapsedBlock> m_collapse_blocks;
 	unsigned m_recv_bytes;
 };

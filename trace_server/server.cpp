@@ -42,15 +42,15 @@ Connection * Server::findCurrentConnection ()
 {
 	Q_ASSERT(parent());
 	QWidget * w = static_cast<MainWindow *>(parent())->getTabTrace()->currentWidget();
-	connections_t::iterator it = connections.find(w);
-	return (it != connections.end()) ? it->second : 0;
+	connections_t::iterator it = m_connections.find(w);
+	return (it != m_connections.end()) ? it->second : 0;
 }
 
 Connection * Server::findConnectionByName (QString const & app_name)
 {
 	Q_ASSERT(parent());
 
-	for (connections_t::const_iterator it = connections.begin(), ite = connections.end(); it != ite; ++it)
+	for (connections_t::const_iterator it = m_connections.begin(), ite = m_connections.end(); it != ite; ++it)
 		if (it->second->sessionState().m_name == app_name)
 			return it->second;
 	return 0;
@@ -537,7 +537,7 @@ Connection * Server::createNewTableView ()
 		connection->setFilterFile(Qt::Checked);
 	}
 	main_window->getTabTrace()->setCurrentIndex(n);
-	connections.insert(std::make_pair(tab, connection));
+	m_connections.insert(std::make_pair(tab, connection));
 	QObject::connect(main_window->getTabTrace(), SIGNAL(currentChanged(int)), connection, SLOT(onTabTraceFocus(int)));
 	QObject::connect(tableView->horizontalHeader(), SIGNAL(sectionResized(int, int, int)), this, SLOT(onSectionResized(int, int, int)));
 	QObject::connect(main_window->getWidgetFile(), SIGNAL(expanded(QModelIndex const &)), connection, SLOT(onFileExpanded(QModelIndex const &)));
@@ -575,8 +575,8 @@ void Server::onCloseTab (int idx, QWidget * w)
 	MainWindow * main_window = static_cast<MainWindow *>(parent());
 	qDebug("Server::onCloseTab(idx=%i, QWidget *=0x%08x) idx=%i", idx, w);
 	main_window->getTabTrace()->removeTab(idx);
-	connections_t::iterator it = connections.find(w);
-	if (it != connections.end())
+	connections_t::iterator it = m_connections.find(w);
+	if (it != m_connections.end())
 	{
 		Connection * connection = it->second;
 
@@ -584,7 +584,7 @@ void Server::onCloseTab (int idx, QWidget * w)
 		QObject::disconnect(main_window->getTabTrace(), SIGNAL(currentChanged(int)), connection, SLOT(onTabTraceFocus(int)));
 
 		connection->onCloseTab();
-		connections.erase(it);
+		m_connections.erase(it);
 		delete connection;
 	}
 }
@@ -616,10 +616,29 @@ void Server::onCloseTabWithIndex (int idx)
 }
 void Server::onCloseCurrentTab ()
 {
-	qDebug("Server::onCloseCurrentTab");
+	qDebug("%s", __FUNCTION__);
 	MainWindow * main_window = static_cast<MainWindow *>(parent());
 	QWidget * w = main_window->getTabTrace()->currentWidget();
 	onCloseTab(w);
+}
+void Server::onCloseMarkedTabs ()
+{
+	qDebug("%s", __FUNCTION__);
+
+	std::vector<QWidget *> to_delete;
+	to_delete.reserve(m_connections.size());
+
+	for (connections_t::iterator it = m_connections.begin(), ite = m_connections.end(); it != ite; ++it)
+	{
+		if (it->second->m_marked_for_close)
+			to_delete.push_back(it->first);
+	}
+
+	while (!to_delete.empty())
+	{
+		onCloseTab(to_delete.back());
+		to_delete.pop_back();
+	}
 }
 
 profiler::ProfilerWindow * Server::createNewProfilerView ()

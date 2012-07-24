@@ -48,7 +48,7 @@ void MainWindow::loadNetworkSettings ()
 	m_profiler_port = settings.value("profiler_port", 13147).toInt();
 }
 
-MainWindow::MainWindow (QWidget * parent, bool quit_delay)
+MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode)
 	: QMainWindow(parent)
 	, ui(new Ui::MainWindow)
 	, ui_settings(0)
@@ -58,6 +58,7 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay)
 #endif
 	, m_hidden(false)
 	, m_was_maximized(false)
+	, m_dump_mode(dump_mode)
 	, m_timer(new QTimer(this))
 	, m_server(0)
 	, m_minimize_action(0)
@@ -169,7 +170,13 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay)
 	connect(ui->buttonAddColorRegex, SIGNAL(clicked()), this, SLOT(onColorRegexAdd()));
 	connect(ui->buttonRmColorRegex, SIGNAL(clicked()), this, SLOT(onColorRegexRm()));
 
-	ui->autoScrollCheckBox->setToolTip(tr("auto scrolls to bottom if checked"));
+	if (m_dump_mode)
+	{
+		ui->autoScrollCheckBox->setEnabled(false);
+		ui->autoScrollCheckBox->setToolTip(tr("disabled due to -d option"));
+	}
+	else
+		ui->autoScrollCheckBox->setToolTip(tr("auto scrolls to bottom if checked"));
 	//ui_settings->reuseTabCheckBox->setToolTip(tr("reuses compatible tab instead of creating new one"));
 	//ui_settings->clrFiltersCheckBox->setToolTip(tr("force clearing of filters when reuseTab is checked"));
 	//ui_settings->scopesCheckBox->setToolTip(tr("hides scopes if checked"));
@@ -303,7 +310,7 @@ int MainWindow::cutNamespaceLevel () const { return ui_settings->cutNamespaceSpi
 bool MainWindow::onTopEnabled () const { return ui_settings->onTopCheckBox->isChecked(); }
 bool MainWindow::filterEnabled () const { return ui->filterFileCheckBox->isChecked(); }
 bool MainWindow::reuseTabEnabled () const { return ui_settings->reuseTabCheckBox->isChecked(); }
-bool MainWindow::autoScrollEnabled () const { return ui->autoScrollCheckBox->isChecked(); }
+bool MainWindow::autoScrollEnabled () const { return !m_dump_mode && ui->autoScrollCheckBox->isChecked(); }
 bool MainWindow::buffEnabled () const { return ui->buffCheckBox->isChecked(); }
 Qt::CheckState MainWindow::buffState () const { return ui->buffCheckBox->checkState(); }
 bool MainWindow::clrFltEnabled () const { return ui_settings->clrFiltersCheckBox->isChecked(); }

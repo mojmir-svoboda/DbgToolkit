@@ -124,6 +124,7 @@ Connection::Connection (QObject * parent)
 	, m_main_window(0)
 	, m_from_file(false)
 	, m_column_setup_done(false)
+	, m_marked_for_close(false)
 	, m_last_search_row(0)
 	, m_last_search_col(0)
 	, m_table_view_widget(0)
@@ -171,6 +172,16 @@ void Connection::onDisconnected ()
 	qDebug("onDisconnected()");
 	if (m_statswindow)
 		m_statswindow->stopUpdate();
+
+	if (m_main_window->dumpModeEnabled())
+	{
+		QString fname = tr("%1_%2.csv").arg(sessionState().m_name).arg(sessionState().m_pid);
+		exportStorageToCSV(fname);
+
+		Server * server = static_cast<Server *>(parent());
+		m_marked_for_close = true;
+		QTimer::singleShot(0, server, SLOT(onCloseMarkedTabs()));
+	}
 }
 
 void Connection::onTabTraceFocus (int i)

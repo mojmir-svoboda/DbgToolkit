@@ -13,6 +13,14 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 {
 	qDebug("Connection::handleSetupCommand() this=0x%08x", this);
 
+	QString pid;
+	if (m_main_window->dumpModeEnabled())
+	{
+		for (size_t i=0, ie=cmd.tvs.size(); i < ie; ++i)
+			if (cmd.tvs[i].m_tag == tlv::tag_pid)
+				pid = QString::fromStdString(cmd.tvs[i].m_val);
+	}
+
 	for (size_t i=0, ie=cmd.tvs.size(); i < ie; ++i)
 	{
 		if (cmd.tvs[i].m_tag == tlv::tag_lvl)
@@ -135,6 +143,7 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 			}
 
 			sessionState().m_name = app_name;
+			sessionState().m_pid = pid;
 
 			m_table_view_widget->setVisible(false);
 			m_main_window->getTabTrace()->setTabText(sessionState().m_tab_idx, app_name);

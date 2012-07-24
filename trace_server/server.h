@@ -87,6 +87,7 @@ public slots:
 	void onClearCurrentScopeFilter ();
 	void onApplyColumnSetup ();
 
+	void onCloseMarkedTabs ();
 	void onCloseCurrentTab ();
 	void onCloseTab (QWidget * w);
 	void onCloseTab (int idx, QWidget * w);
@@ -108,7 +109,7 @@ protected:
 private:
 	QString status;
 	typedef std::map<QWidget *, Connection *> connections_t;
-	connections_t connections;
+	connections_t m_connections;
 };
 
 #endif // SERVER_H
