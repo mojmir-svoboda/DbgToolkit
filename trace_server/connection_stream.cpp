@@ -326,6 +326,15 @@ void Connection::exportStorageToCSV (QString const & filename)
 	QFile csv(filename);
 	csv.open(QIODevice::WriteOnly);
 	QTextStream str(&csv);
+
+	for (size_t c = 0, ce = m_session_state.m_columns_setup_current->size(); c < ce; ++c)
+	{
+		str << "\"" << m_session_state.m_columns_setup_current->at(c) << "\"";
+		if (c < ce - 1)
+			str << ",\t";
+	}
+	str << "\n";
+
 	for (size_t r = 0, re = m_table_view_widget->model()->rowCount(); r < re; ++r)
 	{
 		for (size_t c = 0, ce = m_table_view_widget->model()->columnCount(); c < ce; ++c)
