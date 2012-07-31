@@ -207,6 +207,9 @@ private slots:
 	void onFilterFile (int state);
 	void onSettingsAppSelected (int idx);
 	void onClickedAtSettingPooftahButton ();
+	void onClickedAtSettingOkButton ();
+	void onClickedAtSettingOkSaveButton ();
+	void onClickedAtSettingCancelButton ();
 	void onClickedAtSettingColumnSetup (QModelIndex idx);
 	void onClickedAtSettingColumnSizes (QModelIndex idx);
 	void onClickedAtSettingColumnAlign (QModelIndex idx);

@@ -146,7 +146,8 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode)
 	connect(ui->levelSpinBox, SIGNAL(valueChanged(int)), m_server, SLOT(onLevelValueChanged(int)));
 	connect(ui->filterFileCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onFilterFile(int)));
 	connect(ui->buffCheckBox, SIGNAL(stateChanged(int)), m_server, SLOT(onBufferingStateChanged(int)));
-	//connect(ui->onTopCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onOnTop(int)));
+	//@FIXME: this has some issues
+	//connect(ui_settings->onTopCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onOnTop(int)));
 	connect(ui_settings->reuseTabCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onReuseTabChanged(int)));
 	//connect(ui->clrFiltersCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onClrFiltersStateChanged(int)));
 	connect(ui->presetComboBox, SIGNAL(activated(int)), this, SLOT(onPresetActivate(int)));
@@ -217,6 +218,8 @@ MainWindow::~MainWindow()
 #ifdef WIN32
 	UnregisterHotKey(winId(), 0);
 #endif
+	delete m_tray_icon;
+	delete m_tray_menu;
 	delete m_help;
 	delete ui;
 	delete ui_settings;
@@ -347,6 +350,7 @@ int MainWindow::getLevel () const
 
 void MainWindow::onQuit ()
 {
+	m_tray_icon->setVisible(false);
 	m_tray_icon->hide();
 	storeState();
 	qApp->quit();
@@ -508,12 +512,13 @@ void MainWindow::onOnTop (int const state)
 	if (state == 0)
 	{
 		Qt::WindowFlags const old = windowFlags();
-		Qt::WindowFlags const newflags = Qt::Window | (old & ~(Qt::WindowStaysOnTopHint | Qt::Tool));
+		Qt::WindowFlags const newflags = Qt::Window | (old & ~(Qt::WindowStaysOnTopHint));
 		setWindowFlags(newflags);
 	}
 	else
 	{
-		setWindowFlags(Qt::WindowStaysOnTopHint | Qt::Tool);
+		//setWindowFlags(Qt::WindowStaysOnTopHint); //@NOTE: win users lacks the min and max buttons. sigh.
+		setWindowFlags(Qt::WindowStaysOnTopHint);
 	}
 }
 

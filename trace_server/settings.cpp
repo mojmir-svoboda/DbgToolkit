@@ -207,7 +207,7 @@ void MainWindow::onSettingsAppSelected (int idx)
 	QStandardItem * csz_root = static_cast<QStandardItemModel *>(ui_settings->listViewColumnSizes->model())->invisibleRootItem();
 	QStandardItem * cal_root = static_cast<QStandardItemModel *>(ui_settings->listViewColumnAlign->model())->invisibleRootItem();
 	QStandardItem * cel_root = static_cast<QStandardItemModel *>(ui_settings->listViewColumnElide->model())->invisibleRootItem();
-	if (idx > 0 && idx < m_columns_setup.size())
+	if (idx >= 0 && idx < m_columns_setup.size())
 		for (int i = 0, ie = m_columns_setup[idx].size(); i < ie; ++i)
 		{
 			cs_root->appendRow(addRow(m_columns_setup.at(idx).at(i), true));
@@ -249,6 +249,9 @@ void MainWindow::onSettingsAppSelected (int idx)
 	connect(ui_settings->listViewColumnElide, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtSettingColumnElide(QModelIndex)));
 
 	connect(ui_settings->macUserButton, SIGNAL(clicked()), this, SLOT(onClickedAtSettingPooftahButton()));
+	connect(ui_settings->okButton, SIGNAL(clicked()), this, SLOT(onClickedAtSettingOkButton()));
+	connect(ui_settings->okSaveButton, SIGNAL(clicked()), this, SLOT(onClickedAtSettingOkSaveButton()));
+	connect(ui_settings->cancelButton, SIGNAL(clicked()), this, SLOT(onClickedAtSettingCancelButton()));
 }
 
 void MainWindow::onSetupAction ()
@@ -298,44 +301,7 @@ void MainWindow::onSetup (int curr_app_idx)
 
 	onSettingsAppSelected(curr_app_idx);
 
-	if (m_settings_dialog->exec() == QDialog::Accepted)
-	{
-		for (int app_idx = 0, app_idxe = m_app_names.size(); app_idx < app_idxe; ++app_idx)
-		{
-			qDebug("app=%s", m_app_names.at(app_idx).toStdString().c_str());
-			m_columns_setup[app_idx].clear();
-			m_columns_sizes[app_idx].clear();
-			m_columns_align[app_idx].clear();
-			m_columns_elide[app_idx].clear();
-
-			for (size_t j = 0, je = ui_settings->listViewColumnSetup->model()->rowCount(); j < je; ++j)
-			{
-				QModelIndex const row_idx = ui_settings->listViewColumnSetup->model()->index(j, 0, QModelIndex());
-				QStandardItem * const item = static_cast<QStandardItemModel *>(ui_settings->listViewColumnSetup->model())->itemFromIndex(row_idx);
-				if (item->checkState() == Qt::Checked)
-					m_columns_setup[app_idx].append(qVariantValue<QString>(ui_settings->listViewColumnSetup->model()->data(row_idx)));
-			}
-			for (size_t j = 0, je = ui_settings->listViewColumnSizes->model()->rowCount(); j < je; ++j)
-			{
-				QModelIndex const row_idx = ui_settings->listViewColumnSizes->model()->index(j, 0, QModelIndex());
-				m_columns_sizes[app_idx].append(qVariantValue<QString>(ui_settings->listViewColumnSizes->model()->data(row_idx)).toInt());
-			}
-			for (size_t j = 0, je = ui_settings->listViewColumnAlign->model()->rowCount(); j < je; ++j)
-			{
-				QModelIndex const row_idx = ui_settings->listViewColumnAlign->model()->index(j, 0, QModelIndex());
-				m_columns_align[app_idx].append(qVariantValue<QString>(ui_settings->listViewColumnAlign->model()->data(row_idx)));
-			}
-			for (size_t j = 0, je = ui_settings->listViewColumnElide->model()->rowCount(); j < je; ++j)
-			{
-				QModelIndex const row_idx = ui_settings->listViewColumnElide->model()->index(j, 0, QModelIndex());
-				m_columns_elide[app_idx].append(qVariantValue<QString>(ui_settings->listViewColumnElide->model()->data(row_idx)));
-			}
-
-			if (curr_app_idx == app_idx)
-				if (Connection * conn = m_server->findCurrentConnection())
-					conn->onApplyColumnSetup();
-		}
-	}
+	m_settings_dialog->exec();
 
 	disconnect(ui_settings->listViewColumnSetup, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtSettingColumnSetup(QModelIndex)));
 	disconnect(ui_settings->listViewColumnSizes, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtSettingColumnSizes(QModelIndex)));
@@ -368,6 +334,55 @@ void MainWindow::onClickedAtSettingPooftahButton ()
 		QModelIndex const srow_idx = ui_settings->listViewColumnSizes->model()->index(j, 0, QModelIndex());
 		ui_settings->listViewColumnSizes->model()->setData(srow_idx, tr("%1").arg(default_sizes[tag_val]));
 	}
+}
+
+void MainWindow::onClickedAtSettingOkButton ()
+{
+	for (int app_idx = 0, app_idxe = m_app_names.size(); app_idx < app_idxe; ++app_idx)
+	{
+		qDebug("app=%s", m_app_names.at(app_idx).toStdString().c_str());
+		m_columns_setup[app_idx].clear();
+		m_columns_sizes[app_idx].clear();
+		m_columns_align[app_idx].clear();
+		m_columns_elide[app_idx].clear();
+
+		for (size_t j = 0, je = ui_settings->listViewColumnSetup->model()->rowCount(); j < je; ++j)
+		{
+			QModelIndex const row_idx = ui_settings->listViewColumnSetup->model()->index(j, 0, QModelIndex());
+			QStandardItem * const item = static_cast<QStandardItemModel *>(ui_settings->listViewColumnSetup->model())->itemFromIndex(row_idx);
+			if (item->checkState() == Qt::Checked)
+				m_columns_setup[app_idx].append(qVariantValue<QString>(ui_settings->listViewColumnSetup->model()->data(row_idx)));
+		}
+		for (size_t j = 0, je = ui_settings->listViewColumnSizes->model()->rowCount(); j < je; ++j)
+		{
+			QModelIndex const row_idx = ui_settings->listViewColumnSizes->model()->index(j, 0, QModelIndex());
+			m_columns_sizes[app_idx].append(qVariantValue<QString>(ui_settings->listViewColumnSizes->model()->data(row_idx)).toInt());
+		}
+		for (size_t j = 0, je = ui_settings->listViewColumnAlign->model()->rowCount(); j < je; ++j)
+		{
+			QModelIndex const row_idx = ui_settings->listViewColumnAlign->model()->index(j, 0, QModelIndex());
+			m_columns_align[app_idx].append(qVariantValue<QString>(ui_settings->listViewColumnAlign->model()->data(row_idx)));
+		}
+		for (size_t j = 0, je = ui_settings->listViewColumnElide->model()->rowCount(); j < je; ++j)
+		{
+			QModelIndex const row_idx = ui_settings->listViewColumnElide->model()->index(j, 0, QModelIndex());
+			m_columns_elide[app_idx].append(qVariantValue<QString>(ui_settings->listViewColumnElide->model()->data(row_idx)));
+		}
+	}
+
+	m_settings_dialog->close();
+	m_server->onApplyColumnSetup();
+}
+
+void MainWindow::onClickedAtSettingOkSaveButton ()
+{
+	onClickedAtSettingOkButton();
+	storeState();
+}
+
+void MainWindow::onClickedAtSettingCancelButton ()
+{
+	m_settings_dialog->close();
 }
 
 #if 0

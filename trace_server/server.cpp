@@ -165,9 +165,10 @@ void Server::onToggleRefFromRow ()
 
 void Server::onApplyColumnSetup ()
 {
-	// @TODO: for each connection?
-	if (Connection * conn = findCurrentConnection())
-		conn->onApplyColumnSetup();
+	foreach (connections_t::value_type item, m_connections)
+	{
+		item.second->onApplyColumnSetup();
+	}
 }
 
 
