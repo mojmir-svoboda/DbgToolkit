@@ -207,7 +207,7 @@ void MainWindow::onSettingsAppSelected (int idx)
 	QStandardItem * csz_root = static_cast<QStandardItemModel *>(ui_settings->listViewColumnSizes->model())->invisibleRootItem();
 	QStandardItem * cal_root = static_cast<QStandardItemModel *>(ui_settings->listViewColumnAlign->model())->invisibleRootItem();
 	QStandardItem * cel_root = static_cast<QStandardItemModel *>(ui_settings->listViewColumnElide->model())->invisibleRootItem();
-	if (idx < m_columns_setup.size())
+	if (idx > 0 && idx < m_columns_setup.size())
 		for (int i = 0, ie = m_columns_setup[idx].size(); i < ie; ++i)
 		{
 			cs_root->appendRow(addRow(m_columns_setup.at(idx).at(i), true));
