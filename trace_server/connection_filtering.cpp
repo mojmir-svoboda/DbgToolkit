@@ -164,6 +164,7 @@ void Connection::appendToFileTree (boost::char_separator<char> const & sep, std:
 			bool const known = sessionState().m_file_filters.is_present(path, ff);
 			if (known)
 			{
+				ff_state = static_cast<E_NodeStates>(ff.m_state);
 				node->setCheckState(static_cast<Qt::CheckState>(ff.m_state));
 				new_state = ff_state;
 			}

@@ -172,16 +172,21 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode)
 
 	if (m_dump_mode)
 	{
+		ui->filterFileCheckBox->setEnabled(false);
 		ui->autoScrollCheckBox->setEnabled(false);
-		ui->autoScrollCheckBox->setToolTip(tr("disabled due to -d option"));
+		char const reason[] = "disabled due to -d option";
+		ui->autoScrollCheckBox->setToolTip(tr(reason));
+		ui->filterFileCheckBox->setToolTip(tr(reason));
 	}
 	else
+	{
 		ui->autoScrollCheckBox->setToolTip(tr("auto scrolls to bottom if checked"));
+		ui->filterFileCheckBox->setToolTip(tr("enables filtering via filter tabs"));
+	}
 	//ui_settings->reuseTabCheckBox->setToolTip(tr("reuses compatible tab instead of creating new one"));
 	//ui_settings->clrFiltersCheckBox->setToolTip(tr("force clearing of filters when reuseTab is checked"));
 	//ui_settings->scopesCheckBox->setToolTip(tr("hides scopes if checked"));
 	ui_settings->onTopCheckBox->setToolTip(tr("keeps window on top if checked. have to restart program, sorry"));
-	ui->filterFileCheckBox->setToolTip(tr("enables filtering via filter tabs"));
 	ui->buffCheckBox->setToolTip(tr("turns on/off buffering of messages on client side."));
 	ui->presetComboBox->setToolTip(tr("selects and applies saved preset file filter"));
 	ui->presetAddButton->setToolTip(tr("saves current filter state as new preset"));
@@ -308,7 +313,7 @@ int MainWindow::cutPathLevel () const { return ui_settings->cutPathSpinBox->valu
 bool MainWindow::cutNamespaceEnabled () const { return ui_settings->cutNamespaceCheckBox->isChecked(); }
 int MainWindow::cutNamespaceLevel () const { return ui_settings->cutNamespaceSpinBox->value(); }
 bool MainWindow::onTopEnabled () const { return ui_settings->onTopCheckBox->isChecked(); }
-bool MainWindow::filterEnabled () const { return ui->filterFileCheckBox->isChecked(); }
+bool MainWindow::filterEnabled () const { return ui->filterFileCheckBox->isEnabled() && ui->filterFileCheckBox->isChecked(); }
 bool MainWindow::reuseTabEnabled () const { return ui_settings->reuseTabCheckBox->isChecked(); }
 bool MainWindow::autoScrollEnabled () const { return !m_dump_mode && ui->autoScrollCheckBox->isChecked(); }
 bool MainWindow::buffEnabled () const { return ui->buffCheckBox->isChecked(); }
@@ -929,7 +934,7 @@ void MainWindow::setupMenuBar ()
 
 	// Tools
 	QMenu * tools = menuBar()->addMenu(tr("&Settings"));
-	tools->addAction(tr("&Options"), this, SLOT(onSetup()), QKeySequence(Qt::AltModifier + Qt::ShiftModifier + Qt::Key_O));
+	tools->addAction(tr("&Options"), this, SLOT(onSetupAction()), QKeySequence(Qt::AltModifier + Qt::ShiftModifier + Qt::Key_O));
 	//tools->addAction(tr("Save Current Filter As..."), this, SLOT(onSaveCurrentFileFilter()));
 	tools->addSeparator();
 	tools->addAction(tr("Save options now (this will NOT save presets)"), this, SLOT(storeState()), QKeySequence(Qt::AltModifier + Qt::ControlModifier + Qt::ShiftModifier + Qt::Key_O));

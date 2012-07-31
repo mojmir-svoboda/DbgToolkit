@@ -29,6 +29,8 @@
 #include <QSystemTrayIcon>
 #include "server.h"
 #include "types.h"
+#include "settings.h"
+#include <tlv_parser/tlv_parser.h>
 
 namespace Ui {
 	class MainWindow;
@@ -95,7 +97,22 @@ public:
 		m_columns_sizes.push_back(columns_sizes_t());
 		m_columns_align.push_back(columns_align_t());
 		m_columns_elide.push_back(columns_elide_t());
-		return m_app_names.size() - 1;
+
+		size_t const n = tlv::tag_bool;
+		for (size_t i = tlv::tag_time; i < n; ++i)
+		{
+			char const * name = tlv::get_tag_name(i);
+			if (name)
+			{
+				m_columns_setup.back().push_back(QString::fromAscii(name));
+				m_columns_sizes.back().push_back(default_sizes[i]);
+				m_columns_align.back().push_back(QChar(alignToString(default_aligns[i])));
+				m_columns_elide.back().push_back(QChar(elideToString(default_elides[i])));
+			}
+		}
+		size_t const i = m_app_names.size() - 1;
+		onSetup(i);
+		return i;
 	}
 	QList<QColor> const & getThreadColors () const { return m_thread_colors; }
 	QTreeView * getWidgetFile ();
@@ -166,7 +183,8 @@ private slots:
 	void openFiles (QStringList const & list);
 	void onFileSave ();
 	void onFileExportToCSV ();
-	void onSetup ();
+	void onSetupAction ();
+	void onSetup (int curr_app_idx = -1);
 	void closeEvent (QCloseEvent *event);
 	void iconActivated (QSystemTrayIcon::ActivationReason reason);
 	void onQSearchEditingFinished ();

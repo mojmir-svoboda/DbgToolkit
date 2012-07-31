@@ -340,6 +340,7 @@ void Connection::exportStorageToCSV (QString const & filename)
 		for (size_t c = 0, ce = m_table_view_widget->model()->columnCount(); c < ce; ++c)
 		{
 			QModelIndex current = m_table_view_widget->model()->index(r, c, QModelIndex());
+			// csv nedumpovat pres proxy
 			QString txt = m_table_view_widget->model()->data(current).toString();
 			QString const quoted_txt = txt.replace(regex, to_string);
 			str << "\"" << quoted_txt << "\"";

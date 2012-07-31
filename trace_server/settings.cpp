@@ -251,17 +251,31 @@ void MainWindow::onSettingsAppSelected (int idx)
 	connect(ui_settings->macUserButton, SIGNAL(clicked()), this, SLOT(onClickedAtSettingPooftahButton()));
 }
 
-void MainWindow::onSetup ()
+void MainWindow::onSetupAction ()
 {
-	ui_settings->comboBoxApp->clear();
-	for (int a = 0, ae = m_app_names.size(); a < ae; ++a)
-		ui_settings->comboBoxApp->addItem(m_app_names.at(a));
+	onSetup(-1);
+}
 
-	int curr_app_idx = 0;
-	Connection * conn = m_server->findCurrentConnection();
-	if (conn)
+void MainWindow::onSetup (int curr_app_idx)
+{
+	if (curr_app_idx == -1)
 	{
-		curr_app_idx = conn->sessionState().m_app_idx;
+		ui_settings->comboBoxApp->setEnabled(true);
+		ui_settings->comboBoxApp->clear();
+		for (int a = 0, ae = m_app_names.size(); a < ae; ++a)
+			ui_settings->comboBoxApp->addItem(m_app_names.at(a));
+
+		Connection * conn = m_server->findCurrentConnection();
+		if (conn)
+		{
+			curr_app_idx = conn->sessionState().m_app_idx;
+		}
+	}
+	else
+	{
+		ui_settings->comboBoxApp->clear();
+		ui_settings->comboBoxApp->addItem(m_app_names.at(curr_app_idx));
+		ui_settings->comboBoxApp->setEnabled(false);
 	}
 
 	connect(ui_settings->comboBoxApp, SIGNAL(activated(int)), this, SLOT(onSettingsAppSelected(int)));
@@ -343,57 +357,6 @@ void MainWindow::onClickedAtSettingPooftahButton ()
 	{
 		QModelIndex const tag_idx = ui_settings->listViewColumnSetup->model()->index(j, 0, QModelIndex());
 		QString const tag = qVariantValue<QString>(ui_settings->listViewColumnSetup->model()->data(tag_idx));
-
-		E_Align const default_aligns[tlv::tag_max_value] = {
-			  e_AlignLeft		// invalid
-			, e_AlignLeft		// app
-			, e_AlignLeft		// pid
-			, e_AlignRight		// time
-			, e_AlignRight		// tid
-			, e_AlignRight		// file
-			, e_AlignRight		// line
-			, e_AlignRight		// func
-			, e_AlignLeft		// msg
-			, e_AlignRight		// lvl
-			, e_AlignRight		// ctx
-			, e_AlignLeft		// bool
-			, e_AlignLeft		// int
-			, e_AlignLeft		// str
-		};
-		E_Elide const default_elides[tlv::tag_max_value] = {
-			  e_ElideNone		// invalid
-			, e_ElideNone		// app
-			, e_ElideNone		// pid
-			, e_ElideLeft		// time
-			, e_ElideNone		// tid
-			, e_ElideLeft		// file
-			, e_ElideNone		// line
-			, e_ElideLeft		// func
-			, e_ElideRight		// msg
-			, e_ElideLeft		// lvl
-			, e_ElideLeft		// ctx
-			, e_ElideNone		// bool
-			, e_ElideNone		// int
-			, e_ElideNone		// str
-		};
-
-		int const default_sizes[tlv::tag_max_value] = {
-			  0		// invalid
-			, 0		// app
-			, 0		// pid
-			, 64	// time
-			, 16	// tid
-			, 192	// file
-			, 32	// line
-			, 128	// func
-			, 512	// msg
-			, 16	// lvl
-			, 16	// ctx
-			, 0		// bool
-			, 0		// int
-			, 0		// str
-		};
-
 
 		QModelIndex const row_idx = ui_settings->listViewColumnAlign->model()->index(j, 0, QModelIndex());
 		size_t const tag_val = tlv::tag_for_name(tag.toAscii());
