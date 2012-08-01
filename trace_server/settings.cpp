@@ -190,7 +190,7 @@ public:
 
 MyListModel::MyListModel (QObject * parent) : QStandardItemModel(parent) { }
 
-void MainWindow::onSettingsAppSelected (int idx)
+void MainWindow::onSettingsAppSelected (int const idx, bool const first_time)
 {
 	qDebug("settings, clicked idx=%i", idx);
 	clearListView(ui_settings->listViewColumnSetup);
@@ -229,7 +229,7 @@ void MainWindow::onSettingsAppSelected (int idx)
 			if (findChildByText(cs_root, QString::fromAscii(name)))
 				continue;
 
-			QList<QStandardItem *> row_items = addRow(QString::fromAscii(name), false);
+			QList<QStandardItem *> row_items = addRow(QString::fromAscii(name), first_time);
 			cs_root->appendRow(row_items);
 			add_tag_indices[add_tag_count++] = i;
 
@@ -259,7 +259,7 @@ void MainWindow::onSetupAction ()
 	onSetup(-1);
 }
 
-void MainWindow::onSetup (int curr_app_idx)
+void MainWindow::onSetup (int curr_app_idx, bool first_time)
 {
 	if (curr_app_idx == -1)
 	{
@@ -299,7 +299,7 @@ void MainWindow::onSetup (int curr_app_idx)
 	ui_settings->listViewColumnAlign->setEditTriggers(QAbstractItemView::NoEditTriggers);
 	ui_settings->listViewColumnElide->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
-	onSettingsAppSelected(curr_app_idx);
+	onSettingsAppSelected(curr_app_idx, first_time);
 
 	m_settings_dialog->exec();
 

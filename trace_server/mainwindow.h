@@ -111,7 +111,7 @@ public:
 			}
 		}
 		size_t const i = m_app_names.size() - 1;
-		onSetup(i);
+		onSetup(i, true);
 		return i;
 	}
 	QList<QColor> const & getThreadColors () const { return m_thread_colors; }
@@ -184,7 +184,7 @@ private slots:
 	void onFileSave ();
 	void onFileExportToCSV ();
 	void onSetupAction ();
-	void onSetup (int curr_app_idx = -1);
+	void onSetup (int curr_app_idx = -1, bool first_time = false);
 	void closeEvent (QCloseEvent *event);
 	void iconActivated (QSystemTrayIcon::ActivationReason reason);
 	void onQSearchEditingFinished ();
@@ -205,7 +205,7 @@ private slots:
 	void onFilterModeActivate (int idx);
 	void onReuseTabChanged (int state);
 	void onFilterFile (int state);
-	void onSettingsAppSelected (int idx);
+	void onSettingsAppSelected (int idx, bool first_time = false);
 	void onClickedAtSettingPooftahButton ();
 	void onClickedAtSettingOkButton ();
 	void onClickedAtSettingOkSaveButton ();
