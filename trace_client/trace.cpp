@@ -45,6 +45,20 @@
 		// scope logging
 		inline void WriteScope (ScopedLog::E_Type type, level_t level, context_t context, char const * file, int line, char const * fn);
 		
+		inline void WriteData_impl (level_t level, context_t context, float x, float y, char const * fmt, va_list args);
+		void WriteDataVA (level_t level, context_t context, float x, float y, char const * fmt, va_list args)
+		{
+			if (RuntimeFilterPredicate(level, context))
+				WriteData_impl(level, context, x, y, fmt, args);
+		}
+		void WriteData (level_t level, context_t context, float x, float y, char const * fmt, ...)
+		{
+			va_list args;
+			va_start(args, fmt);
+			WriteDataVA(level, context, x, y, fmt, args);
+			va_end(args);
+		}
+		
 		ScopedLog::ScopedLog (level_t level, context_t context, char const * file, int line, char const * fn)
 			: m_level(level), m_context(context), m_file(file), m_line(line), m_fn(fn)
 		{

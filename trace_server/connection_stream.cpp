@@ -5,6 +5,7 @@
 #include <tlv_parser/tlv_encoder.h>
 #include "modelview.h"
 #include "cmd.h"
+#include <cstdlib>
 
 /*inline void Dump (DecodedCommand const & c)
 {
@@ -14,6 +15,29 @@
 		qDebug("tlv[%u] t=%02x val=%s", i, c.tvs[i].m_tag, c.tvs[i].m_val.c_str());
 #endif
 }*/
+
+bool Connection::handleDataXYCommand (DecodedCommand const & cmd)
+{
+	std::string tag;
+	float x = 0.0f;
+	float y = 0.0f;
+	for (size_t i=0, ie=cmd.tvs.size(); i < ie; ++i)
+	{
+		if (cmd.tvs[i].m_tag == tlv::tag_msg)
+			tag = cmd.tvs[i].m_val;
+		else if (cmd.tvs[i].m_tag == tlv::tag_x)
+			x = atof(cmd.tvs[i].m_val.c_str());
+		else if (cmd.tvs[i].m_tag == tlv::tag_y)
+			y = atof(cmd.tvs[i].m_val.c_str());
+	}
+
+	return true;
+}
+
+bool Connection::handleDataXYZCommand (DecodedCommand const & cmd)
+{
+	return true;
+}
 
 bool Connection::handleLogCommand (DecodedCommand const & cmd)
 {
@@ -253,6 +277,8 @@ bool Connection::tryHandleCommand (DecodedCommand const & cmd)
 	{
 		case tlv::cmd_setup:		handleSetupCommand(cmd); break;
 		case tlv::cmd_log:			handleLogCommand(cmd); break;
+		case tlv::cmd_data_xy:		handleDataXYCommand(cmd); break;
+		case tlv::cmd_data_xyz:		handleDataXYZCommand(cmd); break;
 		case tlv::cmd_scope_entry:	handleLogCommand(cmd); break;
 		case tlv::cmd_scope_exit:	handleLogCommand(cmd); break;
 		case tlv::cmd_save_tlv:		handleSaveTLVCommand(cmd); break;

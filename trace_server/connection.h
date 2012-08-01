@@ -168,6 +168,8 @@ private:
 	int processStream (T *, T_Ret (T::*read_member_t)(T_Arg0, T_Arg1));
 	bool tryHandleCommand (DecodedCommand const & cmd);
 	bool handleLogCommand (DecodedCommand const & cmd);
+	bool handleDataXYCommand (DecodedCommand const & cmd);
+	bool handleDataXYZCommand (DecodedCommand const & cmd);
 	bool handleSetupCommand (DecodedCommand const & cmd);
 	bool handleExportCSVCommand (DecodedCommand const & cmd);
 	bool handleSaveTLVCommand (DecodedCommand const & cmd);

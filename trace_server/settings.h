@@ -18,8 +18,12 @@ E_Align const default_aligns[tlv::tag_max_value] = {
 	, e_AlignRight		// lvl
 	, e_AlignRight		// ctx
 	, e_AlignLeft		// bool
-	, e_AlignLeft		// int
+	, e_AlignRight		// int
 	, e_AlignLeft		// str
+	, e_AlignLeft		// flt
+	, e_AlignLeft		// x
+	, e_AlignLeft		// y
+	, e_AlignLeft		// z
 };
 E_Elide const default_elides[tlv::tag_max_value] = {
 	  e_ElideNone		// invalid
@@ -36,6 +40,10 @@ E_Elide const default_elides[tlv::tag_max_value] = {
 	, e_ElideNone		// bool
 	, e_ElideNone		// int
 	, e_ElideNone		// str
+	, e_ElideNone		// flt
+	, e_ElideNone		// x
+	, e_ElideNone		// y
+	, e_ElideNone		// z
 };
 
 int const default_sizes[tlv::tag_max_value] = {
@@ -53,6 +61,10 @@ int const default_sizes[tlv::tag_max_value] = {
 	, 0		// bool
 	, 0		// int
 	, 0		// str
+	, 0		// flt
+	, 0		// x
+	, 0		// y
+	, 0		// z
 };
 
 

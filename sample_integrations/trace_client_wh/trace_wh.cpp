@@ -1,4 +1,5 @@
 #include "wh_trace.h"
+#include <cmath>
 
 #if defined WIN32 || defined WIN64
 #	define WIN32_LEAN_AND_MEAN
@@ -231,10 +232,17 @@ int main ()
 		++i;
 		TRACE_MSG(trace::e_Info, trace::CTX_Default,  "Some another annoying message i=%u from main thread", i);
 
-		//if (i == 4)
-		//	break;
+		if (i == 4)
+			break;
 
 		TRACE_MSG(trace::e_Info, trace::CTX_Default,  "Some warning message i=%u from main thread", i);
+	}
+
+	for (int i = 0; i < 128; ++i)
+	{
+		float x = 3.1415926535 * 2 / 128.0f * static_cast<float>(i);
+		float y = sinf(x);
+		TRACE_DATA_XY(trace::e_Info, trace::CTX_Default, x, y, "plot_%s_%i", "sin", 1);
 	}
 
 	g_Quit = 1;

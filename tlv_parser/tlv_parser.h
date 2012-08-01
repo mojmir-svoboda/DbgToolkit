@@ -45,6 +45,8 @@ namespace tlv {
 	static cmd_t const cmd_export_csv        = 0xF4;	/// export as csv
 	static cmd_t const cmd_save_tlv          = 0xF3;	/// save as tlv (native format)
 	static cmd_t const cmd_setup_ack         = 0xF2;	/// acknowledge setup command
+	static cmd_t const cmd_data_xy           = 0xF1;	/// draw data xy
+	static cmd_t const cmd_data_xyz          = 0xF0;	/// draw data xyz
                                              
 	static cmd_t const cmd_profile_bgn       = 0xEF;	/// send profiling begin
 	static cmd_t const cmd_profile_end       = 0xEE;	/// send profiling end
@@ -69,6 +71,10 @@ namespace tlv {
 		tag_bool,         /// bool
 		tag_int,          /// int
 		tag_string,       /// string
+		tag_float,        /// float
+		tag_x,            /// x
+		tag_y,            /// y
+		tag_z,            /// z
 
 		tag_max_value     /** this should be last line of enum **/
 	};
@@ -90,7 +96,11 @@ namespace tlv {
 		/*sys tags*/
 		"Bool",
 		"Int",
-		"Str"
+		"Str",
+		"Flt",
+		"x",
+		"y",
+		"z"
 	};
 
 	inline size_t get_tag_count () { return tag_max_value; }

@@ -391,7 +391,7 @@ void ProfilerWindow::incomingProfilerData (profiler::profiler_rvp_t * rvp)
 				qreal y = (offs) * (h + space)  + block.m_layer * (h + space);
 				block.m_x = x / g_scaleValue;
 				block.m_y = y;
-				//qDebug("f=%2u t=%2u b=%2u  %s   (%3.2f, %3.2f) (x=%6.1f y=%6.1f w=%4i h=%4i dt=%3.3f)\n", block.m_frame, t, b, block.m_msg.c_str(), block.m_x, block.m_y, x, y, w, h, block.m_dt);
+				qDebug("f=%2u t=%2u b=%2u  %s   (%3.2f, %3.2f) (x=%6.1f y=%6.1f w=%4i h=%4i dt=%3.3f)\n", block.m_frame, t, b, block.m_msg.c_str(), block.m_x, block.m_y, x, y, w, h, block.m_dt);
 				//fflush(stdout);
 
 				if (y > max_y)
@@ -403,7 +403,7 @@ void ProfilerWindow::incomingProfilerData (profiler::profiler_rvp_t * rvp)
 				QGraphicsItem * item = new Bar(block, block.m_color, 0, 0, w, h, t, offs);
 				item->setPos(QPointF(block.m_x, y));
 				m_scene->addItem(item);
-				//item->setToolTip(QString("frame=%1 thread=%2 %3 [%4 ms]").arg(block.m_frame).arg(t).arg(block.m_msg.c_str()).arg(block.m_dt / 1000.0f));
+				item->setToolTip(QString("frame=%1 thread=%2 %3 [%4 ms]").arg(block.m_frame).arg(t).arg(block.m_msg.c_str()).arg(block.m_dt / 1000.0f));
 
 				QGraphicsItem * titem = new BarText(block, block.m_color, 0, 0, w, h, t, offs);
 				titem->setPos(QPointF(block.m_x, y));

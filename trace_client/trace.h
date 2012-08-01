@@ -109,18 +109,27 @@
  *	@brief		logging of the form TRACE_MSG(lvl, ctx, fmt, ...)
  **/
 #	define TRACE_MSG(level, context, fmt, ... )	\
-		trace::Write(static_cast<trace::level_t>(level), context, __FILE__, __LINE__, __FUNCTION__, fmt, __VA_ARGS__);
+		trace::Write(static_cast<trace::level_t>(level), context, __FILE__, __LINE__, __FUNCTION__, fmt, __VA_ARGS__)
 /**	@macro		TRACE_MSG_VA
  *	@brief		logging of the form TRACE_MSG_VA(lvl, ctx, fmt, va_list)
  **/
 #	define TRACE_MSG_VA(level, context, fmt, vaargs)	\
-		trace::WriteVA(static_cast<trace::level_t>(level), context, __FILE__, __LINE__, __FUNCTION__, fmt, vaargs);
+		trace::WriteVA(static_cast<trace::level_t>(level), context, __FILE__, __LINE__, __FUNCTION__, fmt, vaargs)
+
+/**	@macro		TRACE_DATA_XY
+ *	@brief		logging of the form 
+ **/
+#	define TRACE_DATA_XY	trace::WriteData
+/**	@macro		TRACE_DATA_XYZ
+ *	@brief		logging of the form TRACE_MSG_VA(lvl, ctx, fmt, va_list)
+ **/
+#	define TRACE_DATA_XYZ	trace::WriteData
 
 /**	@macro		TRACE_SCOPE
  *	@brief		logs "entry to" and "exit from" scope
  **/
 #	define TRACE_SCOPE(level, context)	\
-		trace::ScopedLog UNIQUE(entry_guard_)(static_cast<trace::level_t>(level), context, __FILE__, __LINE__, __FUNCTION__);
+		trace::ScopedLog UNIQUE(entry_guard_)(static_cast<trace::level_t>(level), context, __FILE__, __LINE__, __FUNCTION__)
 
 /**	@macro		TRACE_CODE
  *	@brief		code that is executed only when trace is enabled
@@ -185,6 +194,9 @@
 #elif defined _MSC_VER
 		TRACE_API void Write (level_t level, context_t context, char const * file, int line, char const * fn, char const * fmt, ...);
 #endif
+
+		TRACE_API void WriteData (level_t level, context_t context, float x, float y, char const * fmt, ...);
+		TRACE_API void WriteData (level_t level, context_t context, float x, float y, float z, char const * fmt, ...);
 
 		/**@class	ScopedLog
 		 * @brief	RAII class for logging entry on construction and exit on destruction
