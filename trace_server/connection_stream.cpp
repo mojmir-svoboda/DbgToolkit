@@ -72,10 +72,15 @@ void Connection::appendDataXY (QString const & msg_tag, double x, double y)
 		mkDockWidget(m_main_window, dp->m_plot, QString("detail"));
 		// if (!cfg_plot_visible)
 		//dp->hide
+		plot::Curve * curve = (*it)->m_plot->findCurve(subtag);
+		dp->m_plot->showCurve(curve->m_curve, true);
 		dp->m_plot->show();
 	}
+	else
+	{
+		(*it)->m_plot->findCurve(subtag)->m_data->push_back(x, y);
+	}
 
-	(*it)->m_plot->findCurve(subtag)->m_data->push_back(x, y);
 	// if (autoscroll && need_to) shift m_from;
 }
 

@@ -50,7 +50,7 @@ namespace plot {
 				CurveConfig & cc = cfg.m_ccfg[c];
 				Curve * curve = new Curve();
 				m_curves[cc.m_tag] = curve;
-				curve->m_curve = new BasePlotCurve(cc.m_tag, cc);
+				curve->m_curve = new QwtPlotCurve(cc.m_tag);
 				curve->m_data = new Data(cfg.m_history_ln);
 				curve->m_curve->attach(this);
 				showCurve(curve->m_curve, true);
@@ -92,6 +92,7 @@ namespace plot {
 				Curve * curve = new Curve();
 				it = m_curves.insert(subtag, curve);
 				curve->m_data = new Data(m_config.m_history_ln);
+				curve->m_curve = new QwtPlotCurve(subtag);
 				CurveConfig ccfg;
 				// load from file?
 				// if (!in config)
@@ -130,7 +131,7 @@ namespace plot {
 			replot();
 		}
 
-	protected Q_SLOTS:
+	public Q_SLOTS:
 		void showCurve (QwtPlotItem * item, bool on)
 		{
 			item->setVisible(on);
