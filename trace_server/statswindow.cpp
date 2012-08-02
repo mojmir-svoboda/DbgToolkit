@@ -31,12 +31,12 @@ StatsWindow::StatsWindow (QObject * parent, SessionState & state)
 
 void StatsWindow::stopUpdate ()
 {
-	m_plot->stopUpdate();
+	if (m_plot)
+		m_plot->stopUpdate();
 }
-	
+
 StatsWindow::~StatsWindow ()
 {
-	m_plot->stopUpdate();
 	m_window->hide();
 	qDebug("%s", __FUNCTION__);
 	delete m_plot;

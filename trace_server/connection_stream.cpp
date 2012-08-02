@@ -6,6 +6,7 @@
 #include "modelview.h"
 #include "cmd.h"
 #include "utils.h"
+#include "dock.h"
 #include <cstdlib>
 
 /*inline void Dump (DecodedCommand const & c)
@@ -68,8 +69,10 @@ void Connection::appendDataXY (QString const & msg_tag, double x, double y)
 		DataPlot * const dp = new DataPlot(0, config);
 		it = m_dataplots.insert(tag, dp);
 		dp->m_plot = new plot::BasePlot(0, config);
+		mkDockWidget(m_main_window, dp->m_plot, QString("detail"));
 		// if (!cfg_plot_visible)
 		//dp->hide
+		dp->m_plot->show();
 	}
 
 	(*it)->m_plot->findCurve(subtag)->m_data->push_back(x, y);

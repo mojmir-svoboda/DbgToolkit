@@ -72,7 +72,13 @@ namespace plot {
 			m_timer = startTimer(cfg.m_timer_delay_ms);
 		}
 
-		virtual ~BasePlot () { }
+		virtual ~BasePlot ()
+		{
+			stopUpdate();
+			//@TODO: delete resrcs
+			//m_window->hide();
+		    qDebug("%s", __FUNCTION__);
+		}
 		void stopUpdate ()
 		{
 			killTimer(m_timer);
@@ -102,6 +108,25 @@ namespace plot {
 
 		virtual void update ()
 		{
+			for (curves_t::iterator it = m_curves.begin(), ite = m_curves.end(); it != ite; ++it)
+			{
+				Curve & curve = **it;
+				Data const & data = *curve.m_data;
+				size_t from = 0;
+				size_t n = data.m_data_x.size();
+				int h = m_config.m_history_ln;
+				if (m_config.m_auto_scroll)
+				{
+					from = n > h ? n - h : 0;
+				}
+				else
+				{
+					from = 0; // hm?
+				}
+
+				curve.m_curve->setRawSamples(&data.m_data_x[from], &data.m_data_y[from], n > h ? n - h : n);
+			}
+
 			replot();
 		}
 
