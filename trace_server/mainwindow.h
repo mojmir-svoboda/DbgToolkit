@@ -28,9 +28,9 @@
 #include <QTreeView>
 #include <QSystemTrayIcon>
 #include "server.h"
-#include "types.h"
 #include "settings.h"
 #include <tlv_parser/tlv_parser.h>
+#include "config.h"
 
 namespace Ui {
 	class MainWindow;
@@ -57,21 +57,21 @@ public:
 	QTabWidget * getTabTrace ();
 	QTabWidget const * getTabTrace () const;
 
-	QString getAppDir () const { return m_appdir; }
+	QString getAppDir () const { return m_config.m_appdir; }
 
-	columns_setup_t const & getColumnSetup (size_t i) const { return m_columns_setup.at(i); }
-	columns_setup_t & getColumnSetup (size_t i) { return m_columns_setup[i]; }
-	columns_sizes_t const & getColumnSizes (size_t i) const { return m_columns_sizes.at(i); }
-	columns_sizes_t & getColumnSizes (size_t i) { return m_columns_sizes[i]; }
-	columns_align_t const & getColumnAlign (size_t i) const { return m_columns_align.at(i); }
-	columns_align_t & getColumnAlign (size_t i) { return m_columns_align[i]; }
-	columns_elide_t const & getColumnElide (size_t i) const { return m_columns_elide.at(i); }
-	columns_align_t & getColumnElide (size_t i) { return m_columns_elide[i]; }
+	columns_setup_t const & getColumnSetup (size_t i) const { return m_config.m_columns_setup.at(i); }
+	columns_setup_t & getColumnSetup (size_t i) { return m_config.m_columns_setup[i]; }
+	columns_sizes_t const & getColumnSizes (size_t i) const { return m_config.m_columns_sizes.at(i); }
+	columns_sizes_t & getColumnSizes (size_t i) { return m_config.m_columns_sizes[i]; }
+	columns_align_t const & getColumnAlign (size_t i) const { return m_config.m_columns_align.at(i); }
+	columns_align_t & getColumnAlign (size_t i) { return m_config.m_columns_align[i]; }
+	columns_elide_t const & getColumnElide (size_t i) const { return m_config.m_columns_elide.at(i); }
+	columns_align_t & getColumnElide (size_t i) { return m_config.m_columns_elide[i]; }
 
 	int findPresetName (QString const & name)
 	{
-		for (size_t i = 0, ie = m_preset_names.size(); i < ie; ++i)
-			if (m_preset_names[i] == name)
+		for (size_t i = 0, ie = m_config.m_preset_names.size(); i < ie; ++i)
+			if (m_config.m_preset_names[i] == name)
 				return i;
 		return -1;
 	}
@@ -80,23 +80,23 @@ public:
 	bool loadSession (SessionState & s, QString const & preset_name);
 	size_t addPresetName (QString const & name)
 	{
-		m_preset_names.push_back(name);
-		return m_preset_names.size() - 1;
+		m_config.m_preset_names.push_back(name);
+		return m_config.m_preset_names.size() - 1;
 	}
 
 	size_t findAppName (QString const & appname)
 	{
-		for (size_t i = 0, ie = m_app_names.size(); i < ie; ++i)
-			if (m_app_names[i] == appname)
+		for (size_t i = 0, ie = m_config.m_app_names.size(); i < ie; ++i)
+			if (m_config.m_app_names[i] == appname)
 				return i;
 		
-		m_app_names.push_back(appname);
-		m_columns_setup.reserve(16);
-		m_columns_setup.push_back(columns_setup_t());
-		m_columns_sizes.reserve(16);
-		m_columns_sizes.push_back(columns_sizes_t());
-		m_columns_align.push_back(columns_align_t());
-		m_columns_elide.push_back(columns_elide_t());
+		m_config.m_app_names.push_back(appname);
+		m_config.m_columns_setup.reserve(16);
+		m_config.m_columns_setup.push_back(columns_setup_t());
+		m_config.m_columns_sizes.reserve(16);
+		m_config.m_columns_sizes.push_back(columns_sizes_t());
+		m_config.m_columns_align.push_back(columns_align_t());
+		m_config.m_columns_elide.push_back(columns_elide_t());
 
 		size_t const n = tlv::tag_bool;
 		for (size_t i = tlv::tag_time; i < n; ++i)
@@ -104,17 +104,17 @@ public:
 			char const * name = tlv::get_tag_name(i);
 			if (name)
 			{
-				m_columns_setup.back().push_back(QString::fromAscii(name));
-				m_columns_sizes.back().push_back(default_sizes[i]);
-				m_columns_align.back().push_back(QChar(alignToString(default_aligns[i])));
-				m_columns_elide.back().push_back(QChar(elideToString(default_elides[i])));
+				m_config.m_columns_setup.back().push_back(QString::fromAscii(name));
+				m_config.m_columns_sizes.back().push_back(default_sizes[i]);
+				m_config.m_columns_align.back().push_back(QChar(alignToString(default_aligns[i])));
+				m_config.m_columns_elide.back().push_back(QChar(elideToString(default_elides[i])));
 			}
 		}
-		size_t const i = m_app_names.size() - 1;
+		size_t const i = m_config.m_app_names.size() - 1;
 		onSetup(i, true);
 		return i;
 	}
-	QList<QColor> const & getThreadColors () const { return m_thread_colors; }
+	QList<QColor> const & getThreadColors () const { return m_config.m_thread_colors; }
 	QTreeView * getWidgetFile ();
 	QTreeView const * getWidgetFile () const;
 	QTreeView * getWidgetCtx ();
@@ -133,7 +133,7 @@ public:
 	QTreeView const * getWidgetLvl () const;
 	void setLevel (int i);
 	int getLevel () const;
-	bool dumpModeEnabled () const { return m_dump_mode; }
+	bool dumpModeEnabled () const { return m_config.m_dump_mode; }
 	bool scopesEnabled () const;
 	bool indentEnabled () const;
 	bool cutPathEnabled () const;
@@ -189,6 +189,7 @@ private slots:
 	void iconActivated (QSystemTrayIcon::ActivationReason reason);
 	void onQSearchEditingFinished ();
 	void onQFilterLineEditFinished ();
+	void appendToSearchHistory (QString const & str);
 	void onSaveCurrentFileFilter ();
 	void onSaveCurrentFileFilterTo (QString const & name);
 	void onAddCurrentFileFilter ();
@@ -232,18 +233,8 @@ private:
 	Ui::MainWindow * ui;
 	Ui::SettingsDialog * ui_settings;
 	Ui::HelpDialog * m_help;
-	unsigned m_hotkey;
-	bool m_hidden;
-	bool m_was_maximized;
-	bool m_dump_mode;
-	QList<QString> m_app_names;					/// registered applications
-	QList<columns_setup_t> m_columns_setup;		/// column setup for each registered application
-	QList<columns_sizes_t> m_columns_sizes;		/// column sizes for each registered application
-	QList<columns_align_t> m_columns_align;		/// column align for each registered application
-	QList<columns_elide_t> m_columns_elide;		/// column elide for each registered application
-	QList<QColor> m_thread_colors;				/// predefined coloring of threads
-	QList<QString> m_preset_names;				/// registered presets
-	QString m_last_search;
+	GlobalConfig m_config;
+
 	QTimer * m_timer;
 	Server * m_server;
 	QAction * m_minimize_action;
@@ -254,11 +245,6 @@ private:
 	QSystemTrayIcon * m_tray_icon;
 	QLabel * m_status_label;
 	QDialog * m_settings_dialog;
-	QString m_trace_addr;
-	unsigned short m_trace_port;
-	QString m_profiler_addr;
-	unsigned short m_profiler_port;
-	QString m_appdir;
 };
 
 #endif // MAINWINDOW_H

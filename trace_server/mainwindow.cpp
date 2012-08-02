@@ -42,10 +42,10 @@
 void MainWindow::loadNetworkSettings ()
 {
 	QSettings settings("MojoMir", "TraceServer");
-	m_trace_addr = settings.value("trace_addr", "127.0.0.1").toString();
-	m_trace_port = settings.value("trace_port", Server::default_port).toInt();
-	m_profiler_addr = settings.value("profiler_addr", "127.0.0.1").toString();
-	m_profiler_port = settings.value("profiler_port", 13147).toInt();
+	m_config.m_trace_addr = settings.value("trace_addr", "127.0.0.1").toString();
+	m_config.m_trace_port = settings.value("trace_port", Server::default_port).toInt();
+	m_config.m_profiler_addr = settings.value("profiler_addr", "127.0.0.1").toString();
+	m_config.m_profiler_port = settings.value("profiler_port", 13147).toInt();
 }
 
 MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode)
@@ -53,12 +53,6 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode)
 	, ui(new Ui::MainWindow)
 	, ui_settings(0)
 	, m_help(new Ui::HelpDialog)
-#if (defined WIN32) && (defined STATIC)
-	, m_hotkey(VK_SCROLL)
-#endif
-	, m_hidden(false)
-	, m_was_maximized(false)
-	, m_dump_mode(dump_mode)
 	, m_timer(new QTimer(this))
 	, m_server(0)
 	, m_minimize_action(0)
@@ -79,7 +73,8 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode)
 	ui_settings->setupUi(m_settings_dialog);
 
 	QString const homedir = QDir::homePath();
-	m_appdir = homedir + "/.flogging";
+	m_config.m_appdir = homedir + "/.flogging";
+	m_config.m_dump_mode = dump_mode;
 
 	// tray stuff
 	createActions();
@@ -100,7 +95,7 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode)
 	ui_settings->onTopCheckBox->setChecked(on_top);
 
 	loadNetworkSettings();
-	m_server = new Server(m_trace_addr, m_trace_port, this, quit_delay);
+	m_server = new Server(m_config.m_trace_addr, m_config.m_trace_port, this, quit_delay);
 	showServerStatus();
 	connect(ui->qSearchLineEdit, SIGNAL(editingFinished()), this, SLOT(onQSearchEditingFinished()));
 	connect(ui->qFilterLineEdit, SIGNAL(returnPressed()), this, SLOT(onQFilterLineEditFinished()));
@@ -171,7 +166,7 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode)
 	connect(ui->buttonAddColorRegex, SIGNAL(clicked()), this, SLOT(onColorRegexAdd()));
 	connect(ui->buttonRmColorRegex, SIGNAL(clicked()), this, SLOT(onColorRegexRm()));
 
-	if (m_dump_mode)
+	if (m_config.m_dump_mode)
 	{
 		ui->filterFileCheckBox->setEnabled(false);
 		ui->autoScrollCheckBox->setEnabled(false);
@@ -318,7 +313,7 @@ int MainWindow::cutNamespaceLevel () const { return ui_settings->cutNamespaceSpi
 bool MainWindow::onTopEnabled () const { return ui_settings->onTopCheckBox->isChecked(); }
 bool MainWindow::filterEnabled () const { return ui->filterFileCheckBox->isEnabled() && ui->filterFileCheckBox->isChecked(); }
 bool MainWindow::reuseTabEnabled () const { return ui_settings->reuseTabCheckBox->isChecked(); }
-bool MainWindow::autoScrollEnabled () const { return !m_dump_mode && ui->autoScrollCheckBox->isChecked(); }
+bool MainWindow::autoScrollEnabled () const { return !m_config.m_dump_mode && ui->autoScrollCheckBox->isChecked(); }
 bool MainWindow::buffEnabled () const { return ui->buffCheckBox->isChecked(); }
 Qt::CheckState MainWindow::buffState () const { return ui->buffCheckBox->checkState(); }
 bool MainWindow::clrFltEnabled () const { return ui_settings->clrFiltersCheckBox->isChecked(); }
@@ -432,6 +427,11 @@ void MainWindow::onQFilterLineEditFinished ()
 	conn->onInvalidateFilter();
 }
 
+void MainWindow::appendToSearchHistory (QString const & str)
+{
+
+}
+
 void MainWindow::onEditFind ()
 {
 	int const tab_idx = getTabTrace()->currentIndex();
@@ -439,10 +439,11 @@ void MainWindow::onEditFind ()
 		return;
 
 	bool ok;
-	QString search = QInputDialog::getText(this, tr("Find"), tr("Text:"), QLineEdit::Normal, m_last_search, &ok);
+	QString search = QInputDialog::getText(this, tr("Find"), tr("Text:"), QLineEdit::Normal, m_config.m_last_search, &ok);
 	if (ok)
 	{
-		m_last_search = search;
+		m_config.m_search_history.insert(search);
+		m_config.m_last_search = search;
 		ui->qSearchLineEdit->setText(search);
 		onQSearchEditingFinished();
 	}
@@ -527,7 +528,7 @@ void MainWindow::onHotkeyShowOrHide ()
 	bool const not_on_top = !isActiveWindow();
 	qDebug("onHotkeyShowOrHide() isActive=%u", not_on_top);
 
-	if (!m_hidden && not_on_top)
+	if (!m_config.m_hidden && not_on_top)
 	{
 		raise();
 		activateWindow();
@@ -535,15 +536,15 @@ void MainWindow::onHotkeyShowOrHide ()
 	}
 	else
 	{
-		m_hidden = !m_hidden;
-		if (m_hidden)
+		m_config.m_hidden = !m_config.m_hidden;
+		if (m_config.m_hidden)
 		{
-			m_was_maximized = isMaximized();
+			m_config.m_was_maximized = isMaximized();
 			hide();
 		}
 		else
 		{
-			if (m_was_maximized)
+			if (m_config.m_was_maximized)
 				showMaximized();
 			else
 				showNormal();
@@ -689,7 +690,7 @@ void MainWindow::onPresetActivate (int idx)
 	if (Connection * conn = m_server->findCurrentConnection())
 	{
 		conn->onClearCurrentFileFilter();
-		onPresetActivate(conn, m_preset_names.at(idx));
+		onPresetActivate(conn, m_config.m_preset_names.at(idx));
 	}
 }
 
@@ -822,8 +823,8 @@ void MainWindow::onSaveCurrentFileFilterTo (QString const & preset_name)
 		saveCurrentSession(preset_name);
 
 		ui->presetComboBox->clear();
-		for (size_t i = 0, ie = m_preset_names.size(); i < ie; ++i)
-			ui->presetComboBox->addItem(m_preset_names.at(i));
+		for (size_t i = 0, ie = m_config.m_preset_names.size(); i < ie; ++i)
+			ui->presetComboBox->addItem(m_config.m_preset_names.at(i));
 		setPresetNameIntoComboBox(preset_name);
 		storePresetNames();
 	}
@@ -841,7 +842,7 @@ void MainWindow::onAddCurrentFileFilter ()
 	if (!conn) return;
 
 	QString const filled_text = getPresetPath(conn->sessionState().getAppName(), g_defaultPresetName);
-	QStringList items(m_preset_names);
+	QStringList items(m_config.m_preset_names);
 	items.push_front(filled_text);
 
 	bool ok = false;
@@ -861,7 +862,7 @@ void MainWindow::onRmCurrentFileFilter ()
 
 	qDebug("removing preset_name[%i]=%s", idx, preset_name.toStdString().c_str());
 	
-	QString fname = getPresetFileName(m_appdir, preset_name);
+	QString fname = getPresetFileName(m_config.m_appdir, preset_name);
 	qDebug("session file=%s", fname.toAscii());
 
 	QMessageBox msg_box;
@@ -876,9 +877,9 @@ void MainWindow::onRmCurrentFileFilter ()
 
 	ui->presetComboBox->clear();
 
-	m_preset_names.erase(std::remove(m_preset_names.begin(), m_preset_names.end(), preset_name), m_preset_names.end());
-	for (size_t i = 0, ie = m_preset_names.size(); i < ie; ++i)
-		ui->presetComboBox->addItem(m_preset_names.at(i));
+	m_config.m_preset_names.erase(std::remove(m_config.m_preset_names.begin(), m_config.m_preset_names.end(), preset_name), m_config.m_preset_names.end());
+	for (size_t i = 0, ie = m_config.m_preset_names.size(); i < ie; ++i)
+		ui->presetComboBox->addItem(m_config.m_preset_names.at(i));
 	//setPresetNameIntoComboBox(preset_name);
 	storePresetNames();
 }
@@ -886,7 +887,7 @@ void MainWindow::onRmCurrentFileFilter ()
 void MainWindow::storePresetNames ()
 {
 	QSettings settings("MojoMir", "TraceServer");
-	write_list_of_strings(settings, "known-presets", "preset", m_preset_names);
+	write_list_of_strings(settings, "known-presets", "preset", m_config.m_preset_names);
 }
 
 void MainWindow::onGotoFileFilter () { ui->tabFilters->setCurrentIndex(0); }
@@ -952,7 +953,7 @@ void MainWindow::setupMenuBar ()
 
 void MainWindow::saveSession (SessionState const & s, QString const & preset_name) const
 {
-	QString fname = getPresetFileName(m_appdir, preset_name);
+	QString fname = getPresetFileName(m_config.m_appdir, preset_name);
 	qDebug("store file=%s", fname.toAscii());
 	saveSessionState(s, fname.toAscii());
 }
@@ -966,9 +967,9 @@ void MainWindow::storePresets ()
 
 	storePresetNames();
 
-	for (size_t i = 0, ie = m_preset_names.size(); i < ie; ++i)
-		if (!m_preset_names.at(i).isEmpty())
-			saveSession(conn->sessionState(), m_preset_names.at(i));
+	for (size_t i = 0, ie = m_config.m_preset_names.size(); i < ie; ++i)
+		if (!m_config.m_preset_names.at(i).isEmpty())
+			saveSession(conn->sessionState(), m_config.m_preset_names.at(i));
 }
 
 void MainWindow::saveCurrentSession (QString const & preset_name)
@@ -985,7 +986,7 @@ void MainWindow::saveCurrentSession (QString const & preset_name)
 
 bool MainWindow::loadSession (SessionState & s, QString const & preset_name)
 {
-	QString fname = getPresetFileName(m_appdir, preset_name);
+	QString fname = getPresetFileName(m_config.m_appdir, preset_name);
 	qDebug("load file=%s", fname.toStdString().c_str());
 	s.m_file_filters.clear();
 	return loadSessionState(s, fname.toAscii());
@@ -993,20 +994,20 @@ bool MainWindow::loadSession (SessionState & s, QString const & preset_name)
 
 void MainWindow::loadPresets ()
 {
-	m_preset_names.clear();
+	m_config.m_preset_names.clear();
 
 	QSettings settings("MojoMir", "TraceServer");
-	read_list_of_strings(settings, "known-presets", "preset", m_preset_names);
-	for (size_t i = 0, ie = m_preset_names.size(); i < ie; ++i)
+	read_list_of_strings(settings, "known-presets", "preset", m_config.m_preset_names);
+	for (size_t i = 0, ie = m_config.m_preset_names.size(); i < ie; ++i)
 	{
-		ui->presetComboBox->addItem(m_preset_names.at(i));
+		ui->presetComboBox->addItem(m_config.m_preset_names.at(i));
 	}
 
 	// @NOTE: this is only for smooth transition only
-	for (size_t i = 0, ie = m_preset_names.size(); i < ie; ++i)
+	for (size_t i = 0, ie = m_config.m_preset_names.size(); i < ie; ++i)
 	{
-		qDebug("reading preset: %s", m_preset_names.at(i).toStdString().c_str());
-		QString const prs_name = tr("preset_%1").arg(m_preset_names[i]);
+		qDebug("reading preset: %s", m_config.m_preset_names.at(i).toStdString().c_str());
+		QString const prs_name = tr("preset_%1").arg(m_config.m_preset_names[i]);
 		if (settings.childGroups().contains(prs_name))
 		{
 			settings.beginGroup(prs_name);
@@ -1035,7 +1036,7 @@ void MainWindow::loadPresets ()
 				for (int f = 0, fe = m_file_filters.size(); f < fe; ++f)
 					ss.m_file_filters.set_to_state(m_file_filters.at(f).toStdString(), fmode == e_Exclude ? e_Checked : e_Unchecked);
 
-				saveSession(ss, m_preset_names.at(i));
+				saveSession(ss, m_config.m_preset_names.at(i));
 
 				settings.remove("");
 			}
@@ -1054,10 +1055,10 @@ void MainWindow::storeState ()
 {
 	QSettings settings("MojoMir", "TraceServer");
 
-	settings.setValue("trace_addr", m_trace_addr);
-	settings.setValue("trace_port", m_trace_port);
-	settings.setValue("profiler_addr", m_profiler_addr);
-	settings.setValue("profiler_port", m_profiler_port);
+	settings.setValue("trace_addr", m_config.m_trace_addr);
+	settings.setValue("trace_port", m_config.m_trace_port);
+	settings.setValue("profiler_addr", m_config.m_profiler_addr);
+	settings.setValue("profiler_port", m_config.m_profiler_port);
 
 	settings.setValue("geometry", saveGeometry());
 	settings.setValue("windowState", saveState());
@@ -1081,19 +1082,19 @@ void MainWindow::storeState ()
 	settings.setValue("cutNamespaceSpinBox", ui_settings->cutNamespaceSpinBox->value());
 	settings.setValue("onTopCheckBox", ui_settings->onTopCheckBox->isChecked());
 
-	write_list_of_strings(settings, "known-applications", "application", m_app_names);
-	for (size_t i = 0, ie = m_app_names.size(); i < ie; ++i)
+	write_list_of_strings(settings, "known-applications", "application", m_config.m_app_names);
+	for (size_t i = 0, ie = m_config.m_app_names.size(); i < ie; ++i)
 	{
-		settings.beginGroup(tr("column_order_%1").arg(m_app_names[i]));
+		settings.beginGroup(tr("column_order_%1").arg(m_config.m_app_names[i]));
 		{
-			write_list_of_strings(settings, "orders", "column", m_columns_setup.at(i));
+			write_list_of_strings(settings, "orders", "column", m_config.m_columns_setup.at(i));
 		}
 		settings.endGroup();
 
-		settings.beginGroup(tr("column_sizes_%1").arg(m_app_names[i]));
+		settings.beginGroup(tr("column_sizes_%1").arg(m_config.m_app_names[i]));
 		{
-			QList<columns_sizes_t>::const_iterator oi = m_columns_sizes.constBegin();
-			while (oi != m_columns_sizes.constEnd())
+			QList<columns_sizes_t>::const_iterator oi = m_config.m_columns_sizes.constBegin();
+			while (oi != m_config.m_columns_sizes.constEnd())
 			{
 				settings.beginWriteArray("sizes");
 				int const size = (*oi).size();
@@ -1107,29 +1108,29 @@ void MainWindow::storeState ()
 		}
 		settings.endGroup();
 
-		settings.beginGroup(tr("column_align_%1").arg(m_app_names[i]));
+		settings.beginGroup(tr("column_align_%1").arg(m_config.m_app_names[i]));
 		{
-			write_list_of_strings(settings, "aligns", "column", m_columns_align.at(i));
+			write_list_of_strings(settings, "aligns", "column", m_config.m_columns_align.at(i));
 		}
 		settings.endGroup();
 
-		settings.beginGroup(tr("column_elide_%1").arg(m_app_names[i]));
+		settings.beginGroup(tr("column_elide_%1").arg(m_config.m_app_names[i]));
 		{
-			write_list_of_strings(settings, "elides", "column", m_columns_elide.at(i));
+			write_list_of_strings(settings, "elides", "column", m_config.m_columns_elide.at(i));
 		}
 		settings.endGroup();
 	}
 
 #ifdef WIN32
-	settings.setValue("hotkeyCode", m_hotkey);
+	settings.setValue("hotkeyCode", m_config.m_hotkey);
 #endif
 }
 
 void MainWindow::loadState ()
 {
-	m_app_names.clear();
-	m_columns_setup.clear();
-	m_columns_sizes.clear();
+	m_config.m_app_names.clear();
+	m_config.m_columns_setup.clear();
+	m_config.m_columns_sizes.clear();
 
 	QSettings settings("MojoMir", "TraceServer");
 	restoreGeometry(settings.value("geometry").toByteArray());
@@ -1162,61 +1163,61 @@ void MainWindow::loadState ()
 	//@TODO: delete filterMode from registry if exists
 	ui->levelSpinBox->setValue(settings.value("levelSpinBox", 3).toInt());
 
-	read_list_of_strings(settings, "known-applications", "application", m_app_names);
-	for (size_t i = 0, ie = m_app_names.size(); i < ie; ++i)
+	read_list_of_strings(settings, "known-applications", "application", m_config.m_app_names);
+	for (size_t i = 0, ie = m_config.m_app_names.size(); i < ie; ++i)
 	{
-		m_columns_setup.push_back(columns_setup_t());
-		settings.beginGroup(tr("column_order_%1").arg(m_app_names[i]));
+		m_config.m_columns_setup.push_back(columns_setup_t());
+		settings.beginGroup(tr("column_order_%1").arg(m_config.m_app_names[i]));
 		{
-			read_list_of_strings(settings, "orders", "column", m_columns_setup.back());
+			read_list_of_strings(settings, "orders", "column", m_config.m_columns_setup.back());
 		}
 		settings.endGroup();
 		
-		m_columns_sizes.push_back(columns_sizes_t());
-		settings.beginGroup(tr("column_sizes_%1").arg(m_app_names[i]));
+		m_config.m_columns_sizes.push_back(columns_sizes_t());
+		settings.beginGroup(tr("column_sizes_%1").arg(m_config.m_app_names[i]));
 		{
 			int const size = settings.beginReadArray("sizes");
 			for (int i = 0; i < size; ++i) {
 				settings.setArrayIndex(i);
-				m_columns_sizes.back().push_back(settings.value("column").toInt());
+				m_config.m_columns_sizes.back().push_back(settings.value("column").toInt());
 			}
 			settings.endArray();
 		}
 		settings.endGroup();
 
-		m_columns_align.push_back(columns_align_t());
-		settings.beginGroup(tr("column_align_%1").arg(m_app_names[i]));
+		m_config.m_columns_align.push_back(columns_align_t());
+		settings.beginGroup(tr("column_align_%1").arg(m_config.m_app_names[i]));
 		{
-			read_list_of_strings(settings, "aligns", "column", m_columns_align.back());
+			read_list_of_strings(settings, "aligns", "column", m_config.m_columns_align.back());
 		}
 		settings.endGroup();
 
-		if (m_columns_align.back().size() < m_columns_sizes.back().size())
-			for (int i = 0, ie = m_columns_sizes.back().size(); i < ie; ++i)
-				m_columns_align.back().push_back(QString("L"));
+		if (m_config.m_columns_align.back().size() < m_config.m_columns_sizes.back().size())
+			for (int i = 0, ie = m_config.m_columns_sizes.back().size(); i < ie; ++i)
+				m_config.m_columns_align.back().push_back(QString("L"));
 
-		m_columns_elide.push_back(columns_elide_t());
-		settings.beginGroup(tr("column_elide_%1").arg(m_app_names[i]));
+		m_config.m_columns_elide.push_back(columns_elide_t());
+		settings.beginGroup(tr("column_elide_%1").arg(m_config.m_app_names[i]));
 		{
-			read_list_of_strings(settings, "elides", "column", m_columns_elide.back());
+			read_list_of_strings(settings, "elides", "column", m_config.m_columns_elide.back());
 		}
 		settings.endGroup();
 
-		if (m_columns_elide.back().size() < m_columns_sizes.back().size())
-			for (int i = 0, ie = m_columns_sizes.back().size(); i < ie; ++i)
-				m_columns_elide.back().push_back(QString("R"));
+		if (m_config.m_columns_elide.back().size() < m_config.m_columns_sizes.back().size())
+			for (int i = 0, ie = m_config.m_columns_sizes.back().size(); i < ie; ++i)
+				m_config.m_columns_elide.back().push_back(QString("R"));
 	}
 
-	if (m_thread_colors.empty())
+	if (m_config.m_thread_colors.empty())
 	{
 		for (size_t i = Qt::white; i < Qt::transparent; ++i)
-			m_thread_colors.push_back(QColor(static_cast<Qt::GlobalColor>(i)));
+			m_config.m_thread_colors.push_back(QColor(static_cast<Qt::GlobalColor>(i)));
 	}
 
 #ifdef WIN32
 	unsigned const hotkeyCode = settings.value("hotkeyCode").toInt();
-	m_hotkey = hotkeyCode ? hotkeyCode : VK_SCROLL;
-	DWORD const hotkey = m_hotkey;
+	m_config.m_hotkey = hotkeyCode ? hotkeyCode : VK_SCROLL;
+	DWORD const hotkey = m_config.m_hotkey;
 	int mod = 0;
 	UnregisterHotKey(winId(), 0);
 	RegisterHotKey(winId(), 0, mod, LOBYTE(hotkey));
@@ -1243,7 +1244,7 @@ void MainWindow::closeEvent (QCloseEvent * event)
 {
 	storeState();
 
-	m_hidden = true;
+	m_config.m_hidden = true;
 	hide();
 	event->ignore();
 }

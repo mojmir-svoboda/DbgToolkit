@@ -5,15 +5,17 @@
 #include "profilerview.h"
 #include "profilerbar.h"
 #include "profilermainwindow.h"
-#include "profilerplot.h"
+#include "simpleplot.h"
 #include "pickableplot.h"
 #include "ui_profilermainwindow.h"
 #include "profilerblockinfo.h"
 #include "hsv.h"
 #include "utils.h"
+#include "dock.h"
 
 namespace profiler {
 
+using namespace plot;
 
 ProfilerWindow::ProfilerWindow (QObject * parent, profiler::profiler_rvp_t * rvp)
 	: QObject(parent)
@@ -24,47 +26,21 @@ ProfilerWindow::ProfilerWindow (QObject * parent, profiler::profiler_rvp_t * rvp
 {
 	qDebug("%s", __FUNCTION__);
 	m_window = new ProfilerMainWindow();
-	{
-		QDockWidget * dock = new QDockWidget(tr("detail"), m_window);
-		m_scene = new QGraphicsScene();
-		m_view = new View(this, "View 0");
-		m_view->view()->setScene(m_scene);
-		dock->setAllowedAreas(Qt::AllDockWidgetAreas);
-		dock->setWidget(m_view);
-		m_window->addDockWidget(Qt::TopDockWidgetArea, dock);
-	}
+	
+	m_scene = new QGraphicsScene();
+	m_view = new View(this, "View 0");
+	m_view->view()->setScene(m_scene);
+	mkDockWidget(m_window, m_view, QString("detail"));
 
-	{
-		QDockWidget * dock = new QDockWidget(tr("frames"), m_window);
-		PickablePlot * plot = new PickablePlot(dock);
-		dock->setAllowedAreas(Qt::AllDockWidgetAreas);
-		dock->setWidget(plot);
-		m_window->addDockWidget(Qt::TopDockWidgetArea, dock);
-	}
+	PickablePlot * plot = new PickablePlot();
+	mkDockWidget(m_window, plot, QString("frames"));
 
-	{
-		QDockWidget * dock = new QDockWidget(tr("plot"), m_window);
-		ProfPlot * plot = new ProfPlot(dock);
-		dock->setAllowedAreas(Qt::AllDockWidgetAreas);
-		dock->setWidget(plot);
-		m_window->addDockWidget(Qt::TopDockWidgetArea, dock);
-	}
-
-	{
-		QDockWidget * dock = new QDockWidget(tr("tags"), m_window);
-		m_tagWidget = new QTreeView(dock);
-
-		m_tagWidget->setModel(new QStandardItemModel);
-
-		dock->setAllowedAreas(Qt::AllDockWidgetAreas);
-		dock->setWidget(m_tagWidget);
-		m_window->addDockWidget(Qt::TopDockWidgetArea, dock);
-
-		connect(m_tagWidget, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtTagTree(QModelIndex)));
-
-		QObject::connect(m_tagWidget, SIGNAL(expanded(QModelIndex const &)), this, SLOT(onFileExpanded(QModelIndex const &)));
-		QObject::connect(m_tagWidget, SIGNAL(collapsed(QModelIndex const &)), this, SLOT(onFileCollapsed(QModelIndex const &)));
-	}
+	m_tagWidget = new QTreeView();
+	m_tagWidget->setModel(new QStandardItemModel);
+	connect(m_tagWidget, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtTagTree(QModelIndex)));
+	QObject::connect(m_tagWidget, SIGNAL(expanded(QModelIndex const &)), this, SLOT(onFileExpanded(QModelIndex const &)));
+	QObject::connect(m_tagWidget, SIGNAL(collapsed(QModelIndex const &)), this, SLOT(onFileCollapsed(QModelIndex const &)));
+	mkDockWidget(m_window, m_tagWidget, QString("tags"));
 
 	m_window->setEnabled(true);
 	m_window->show();

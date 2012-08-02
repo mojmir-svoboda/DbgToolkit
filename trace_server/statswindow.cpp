@@ -20,6 +20,7 @@ StatsWindow::StatsWindow (QObject * parent, SessionState & state)
 {
 	qDebug("%s", __FUNCTION__);
 	m_window = new QMainWindow;
+	m_window->setWindowFlags(Qt::Tool);
 	m_plot = new StatsPlot(0, state);
 	m_plot->setTitle("trace traffic");
 	m_plot->setContentsMargins(3, 3, 3, 3);
@@ -38,34 +39,15 @@ StatsWindow::~StatsWindow ()
 	m_plot->stopUpdate();
 	m_window->hide();
 	qDebug("%s", __FUNCTION__);
-	//delete m_plot;
-	//m_plot = 0;
-	//delete m_window;
-	//m_window = 0;
+	delete m_plot;
+	m_plot = 0;
+	delete m_window;
+	m_window = 0;
 }
 
 
-struct TrafficCurve : public QwtPlotCurve
-{
-    TrafficCurve (QString const & title, QColor const & c)
-		: QwtPlotCurve(title)
-    {
-		setColor(c);
-        setRenderHint(QwtPlotItem::RenderAntialiased);
-    }
-    
-    void setColor (QColor const & color)
-    {
-        QColor c = color;
-        c.setAlpha( 150 );
-        setPen(c);
-        setBrush(c);
-    }
-};  
-
-
 StatsPlot::StatsPlot (QWidget * parent, SessionState & state)
-	: QwtPlot(parent)
+	: BasePlot(parent)
 	, m_state(state)
 {
 	m_curves.resize(e_max_statsdata_enum_value);
@@ -123,17 +105,6 @@ void StatsPlot::timerEvent (QTimerEvent *)
     }
 
 	replot();
-}
-
-void StatsPlot::showCurve (QwtPlotItem * item, bool on)
-{
-    item->setVisible(on);
-
-    //QwtLegendItem * legendItem = qobject_cast<QwtLegendItem *>( legend()->find(item));
-    //if (legendItem)
-    //    legendItem->setChecked(on);
-
-    replot();
 }
 
 }

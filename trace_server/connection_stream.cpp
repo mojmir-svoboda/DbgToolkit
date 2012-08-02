@@ -19,8 +19,8 @@
 bool Connection::handleDataXYCommand (DecodedCommand const & cmd)
 {
 	std::string tag;
-	float x = 0.0f;
-	float y = 0.0f;
+	double x = 0.0;
+	double y = 0.0;
 	for (size_t i=0, ie=cmd.tvs.size(); i < ie; ++i)
 	{
 		if (cmd.tvs[i].m_tag == tlv::tag_msg)
@@ -31,12 +31,29 @@ bool Connection::handleDataXYCommand (DecodedCommand const & cmd)
 			y = atof(cmd.tvs[i].m_val.c_str());
 	}
 
+	appendDataXY(QString::fromStdString(tag), x, y);
 	return true;
 }
 
 bool Connection::handleDataXYZCommand (DecodedCommand const & cmd)
 {
 	return true;
+}
+
+void Connection::appendDataXY (QString const & tag, double x, double y)
+{
+	dataplots_t::iterator it = m_dataplots.find(tag);
+	if (it == m_dataplots.end())
+	{
+		plot::PlotConfig & config = findConfigForPlot(tag);
+		DataPlot * const dp = new DataPlot(config);
+		it = m_dataplots.insert(tag, dp);
+		// if (!cfg_plot_visible)
+		//dp->hide
+	}
+
+	it->second->m_curve.m_data.push_back(x, y);
+	// if (autoscroll && need_to) shift m_from;
 }
 
 bool Connection::handleLogCommand (DecodedCommand const & cmd)

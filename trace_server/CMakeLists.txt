@@ -61,7 +61,8 @@ SET(trace_server_SOURCES
 	profilerview.cpp
 	profilerwindow.cpp
 	profilermainwindow.cpp
-	profilerplot.cpp
+	baseplot.cpp
+	simpleplot.cpp
 	pickableplot.cpp
 	serialization.cpp
 	constants.cpp
@@ -88,12 +89,16 @@ SET(trace_server_HEADERS
 	profilerview.h
 	profilerwindow.h
 	profilermainwindow.h
-	profilerplot.h
+	curves.h
+	baseplot.h
+	simpleplot.h
 	pickableplot.h
 	rvps.h
 	rendezvous.h
 	serialization.h
 	utils.h
+	dock.h
+	config.h
 	constants.h
 	)
 

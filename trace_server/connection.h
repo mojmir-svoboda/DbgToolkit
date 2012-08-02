@@ -36,6 +36,7 @@
 #include "sessionstate.h"
 #include "filterproxy.h"
 #include "cmd.h"
+#include "baseplot.h"
 
 #include <QStyledItemDelegate>
 
@@ -74,6 +75,16 @@ private slots:
 };
 
 
+
+struct DataPlot {
+	plot::PlotConfig & m_config;
+	plot::BasePlot * m_plot;
+	int m_from;
+
+	DataPlot (QWidget * parent, plot::PlotConfig & config) : m_config(config), m_from(0) { }
+};
+
+typedef QMap<QString, DataPlot *> dataplots_t;
 
 /**@class		Connection
  * @brief		represents incoming connection (or file stream)
@@ -174,6 +185,7 @@ private:
 	bool handleExportCSVCommand (DecodedCommand const & cmd);
 	bool handleSaveTLVCommand (DecodedCommand const & cmd);
 
+	void appendDataXY (QString const & tag, double x, double y);
 	bool appendToFilters (DecodedCommand const & cmd);
 	void appendToTIDFilters (std::string const & item);
 	void clearFilters (QStandardItem * node);
@@ -234,5 +246,6 @@ private:
 	QDataStream * m_datastream;
 	QTcpSocket * m_tcpstream;
 	stats::StatsWindow * m_statswindow;
+	dataplots_t m_dataplots;
 };
 

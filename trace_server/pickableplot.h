@@ -1,31 +1,25 @@
 #pragma once
 #include <QtGui/qwidget.h>
-#include "qwt/qwt_plot.h"
+#include "baseplot.h"
 #include "curves.h"
 
 class QwtPlotCurve;
 class QwtPlotMarker;
 
-namespace profiler {
+namespace plot {
 
-	class PickablePlot : public QwtPlot
+	class PickablePlot : public BasePlot
 	{
 		Q_OBJECT
 	public:
 
-		PickablePlot (QWidget *);
+		PickablePlot (QWidget * = 0);
 		~PickablePlot ();
-		void stopUpdate ();
-
-	protected:
-		void timerEvent (QTimerEvent * e);
 
 	private Q_SLOTS:
 		void showCurve (QwtPlotItem *, bool on);
 
 	private:
-		FrameCurve m_curve;
-		//SessionState & m_state;
 		int m_timer;
 		std::vector<QwtPlotMarker *> m_markers;
 	};
