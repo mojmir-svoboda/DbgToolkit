@@ -81,7 +81,11 @@ struct DataPlot {
 	plot::BasePlot * m_plot;
 	int m_from;
 
-	DataPlot (QWidget * parent, plot::PlotConfig & config) : m_config(config), m_from(0) { }
+	DataPlot (QWidget * parent, plot::PlotConfig & config)
+		: m_config(config)
+		, m_plot(0)
+		, m_from(0)
+	{ }
 };
 
 typedef QMap<QString, DataPlot *> dataplots_t;
@@ -121,6 +125,7 @@ public:
 	void run ();
 	void loadToColorRegexps (std::string const & filter_item, std::string const & color, bool enabled);
 	void loadToRegexps (std::string const & filter_item, bool inclusive, bool enabled);
+	bool loadConfigForPlot (plot::PlotConfig & config, QString const & tag);
 
 signals:
 	void readyForUse();
@@ -190,6 +195,8 @@ private:
 	void appendToTIDFilters (std::string const & item);
 	void clearFilters (QStandardItem * node);
 	void hideLinearParents ();
+
+	GlobalConfig const & getConfig () { return m_main_window->getConfig(); }
 
 	bool setupStorage (QString const & name);
 	QString createStorageName () const;

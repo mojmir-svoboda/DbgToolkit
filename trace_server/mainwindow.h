@@ -162,6 +162,7 @@ public:
 	unsigned getHotKey () const;
 	Server const * getServer () const { return m_server; }
 	Server * getServer () { return m_server; }
+	GlobalConfig const & getConfig () { return m_config; }
 
 public slots:
 	void onHotkeyShowOrHide ();

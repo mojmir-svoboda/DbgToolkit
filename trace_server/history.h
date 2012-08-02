@@ -28,7 +28,7 @@ struct History
 		{
 			if (n > m_item_limit)
 				evict();
-			it = m_dict.insert(std::make_pair(k, ItemInfo())).second;
+			it = m_dict.insert(std::make_pair(k, ItemInfo())).first;
 		}
 		++(it->second.m_use_count);
 	}

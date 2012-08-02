@@ -66,6 +66,7 @@ SET(trace_server_SOURCES
 	pickableplot.cpp
 	serialization.cpp
 	constants.cpp
+	config.cpp
 	)
 
 SET(trace_server_HEADERS

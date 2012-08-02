@@ -13,11 +13,10 @@
 namespace plot {
 
 PickablePlot::PickablePlot (QWidget * parent)
-	: QwtPlot(parent)
-	, m_curve(512)
+	: BasePlot(parent, PlotConfig())
 {
-	m_curve.m_curve = new ColoredCurve("pickable plot", Qt::red);
-	m_curve.m_curve->attach(this);
+	//m_curve.m_curve = new ColoredCurve("pickable plot", Qt::red);
+	//m_curve.m_curve->attach(this);
 	//showCurve(m_curve.m_curve, true);
 /*
 

@@ -242,7 +242,8 @@ int main ()
 	{
 		float x = 3.1415926535 * 2 / 128.0f * static_cast<float>(i);
 		float y = sinf(x);
-		TRACE_DATA_XY(trace::e_Info, trace::CTX_Default, x, y, "plot_%s_%i", "sin", 1);
+		TRACE_DATA_XY(trace::e_Info, trace::CTX_Default, x, sinf(x), "sample_plot/%s", "sin");
+		TRACE_DATA_XY(trace::e_Info, trace::CTX_Default, x, cosf(y), "sample_plot/%s", "cos");
 	}
 
 	g_Quit = 1;

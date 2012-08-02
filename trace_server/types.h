@@ -1,6 +1,8 @@
 #pragma once
 #include <QList>
 #include <QString>
+#include <QColor>
+#include <vector>
 
 enum E_NodeStates {
 	  e_Unchecked

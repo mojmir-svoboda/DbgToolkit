@@ -5,6 +5,7 @@
 #include <tlv_parser/tlv_encoder.h>
 #include "modelview.h"
 #include "cmd.h"
+#include "utils.h"
 #include <cstdlib>
 
 /*inline void Dump (DecodedCommand const & c)
@@ -39,20 +40,39 @@ bool Connection::handleDataXYZCommand (DecodedCommand const & cmd)
 {
 	return true;
 }
-
-void Connection::appendDataXY (QString const & tag, double x, double y)
+ 
+bool Connection::loadConfigForPlot (plot::PlotConfig & config, QString const & tag)
 {
+	QString const fname = getDataTagFileName(getConfig().m_appdir, sessionState().m_name, tag);
+	qDebug("load tag file=%s", fname.toStdString().c_str());
+
+	return loadConfig(config, fname);
+}
+
+void Connection::appendDataXY (QString const & msg_tag, double x, double y)
+{
+	QString tag = msg_tag;
+	int const slash_pos = tag.lastIndexOf(QChar('/'));
+	tag.chop(msg_tag.size() - slash_pos);
+
+	QString subtag = msg_tag;
+	subtag.remove(0, slash_pos + 1);
+	//qDebug("consumed node: 0x%016x, tis_sz=%u bis_sz=%u b=%u block_msg=%s", node, tis.size(), bis.size(), b, block.m_msg.c_str());
+
 	dataplots_t::iterator it = m_dataplots.find(tag);
 	if (it == m_dataplots.end())
 	{
-		plot::PlotConfig & config = findConfigForPlot(tag);
-		DataPlot * const dp = new DataPlot(config);
+		plot::PlotConfig config;
+		loadConfigForPlot(config, tag);
+		
+		DataPlot * const dp = new DataPlot(0, config);
 		it = m_dataplots.insert(tag, dp);
+		dp->m_plot = new plot::BasePlot(0, config);
 		// if (!cfg_plot_visible)
 		//dp->hide
 	}
 
-	it->second->m_curve.m_data.push_back(x, y);
+	(*it)->m_plot->findCurve(subtag)->m_data->push_back(x, y);
 	// if (autoscroll && need_to) shift m_from;
 }
 

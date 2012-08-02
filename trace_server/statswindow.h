@@ -23,7 +23,8 @@ namespace stats {
 	
 		StatsPlot (QWidget *, SessionState & s);
 		~StatsPlot ();
-		QwtPlotCurve const * getStatsCurve (E_StatsData const id) const { return m_curves[id].m_curve; }
+		virtual void update ();
+		//QwtPlotCurve const * getStatsCurve (E_StatsData const id) const { return m_curves[id].m_curve; }
 
 	private:
 		SessionState & m_state;

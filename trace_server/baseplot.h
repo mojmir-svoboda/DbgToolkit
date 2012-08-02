@@ -39,6 +39,7 @@ namespace plot {
 			: QwtPlot(parent)
 			, m_curves()
 			, m_timer(-1)
+			, m_config(cfg)
 		{
 			setAutoReplot(false);
 			canvas()->setBorderRadius(10);
@@ -47,12 +48,12 @@ namespace plot {
 			for (size_t c = 0, ce = cfg.m_ccfg.size(); c < ce; ++c)
 			{
 				CurveConfig & cc = cfg.m_ccfg[c];
-				m_curves.push_back(Curve());
-				Curve & curve = m_curves.back();
-				curve.m_curve = new BasePlotCurve(cc.m_tag, cc);
-				curve.m_data = new Data(cfg.m_history_ln);
-				curve.m_curve->attach(this);
-				showCurve(curve.m_curve, true);
+				Curve * curve = new Curve();
+				m_curves[cc.m_tag] = curve;
+				curve->m_curve = new BasePlotCurve(cc.m_tag, cc);
+				curve->m_data = new Data(cfg.m_history_ln);
+				curve->m_curve->attach(this);
+				showCurve(curve->m_curve, true);
 			}
 
 			for (size_t a = 0, ae = cfg.m_acfg.size(); a < ae; ++a)
@@ -77,6 +78,22 @@ namespace plot {
 			killTimer(m_timer);
 		}
 
+		Curve * findCurve (QString const & subtag)
+		{
+			curves_t::const_iterator it = m_curves.find(subtag);
+			if (it == m_curves.end())
+			{
+				Curve * curve = new Curve();
+				it = m_curves.insert(subtag, curve);
+				curve->m_data = new Data(m_config.m_history_ln);
+				CurveConfig ccfg;
+				// load from file?
+				// if (!in config)
+				//     m_config.m_ccfg.push_back(ccfg);
+			}
+			return *it;
+		}
+
 	protected:
 		void timerEvent (QTimerEvent * e)
 		{
@@ -98,7 +115,8 @@ namespace plot {
 		}
 
 	protected:
-		std::vector<Curve> m_curves;
+		typedef QMap<QString, Curve *> curves_t;
+		curves_t m_curves;
 		int m_timer;
 		PlotConfig m_config;
 		//std::vector<QwtPlotMarker *> m_markers;

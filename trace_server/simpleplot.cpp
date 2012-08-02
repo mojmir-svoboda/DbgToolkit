@@ -13,16 +13,11 @@
 namespace plot {
 
 SimplePlot::SimplePlot (QWidget * parent)
-	: BasePlot(parent)
+	: BasePlot(parent, PlotConfig())
 {
 }
 
 SimplePlot::~SimplePlot () { qDebug("%s", __FUNCTION__); }
-
-void SimplePlot::update ()
-{
-	replot();
-}
 
 }
 

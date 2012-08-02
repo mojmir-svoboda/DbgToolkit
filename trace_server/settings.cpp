@@ -207,13 +207,13 @@ void MainWindow::onSettingsAppSelected (int const idx, bool const first_time)
 	QStandardItem * csz_root = static_cast<QStandardItemModel *>(ui_settings->listViewColumnSizes->model())->invisibleRootItem();
 	QStandardItem * cal_root = static_cast<QStandardItemModel *>(ui_settings->listViewColumnAlign->model())->invisibleRootItem();
 	QStandardItem * cel_root = static_cast<QStandardItemModel *>(ui_settings->listViewColumnElide->model())->invisibleRootItem();
-	if (idx >= 0 && idx < m_columns_setup.size())
-		for (int i = 0, ie = m_columns_setup[idx].size(); i < ie; ++i)
+	if (idx >= 0 && idx < m_config.m_columns_setup.size())
+		for (int i = 0, ie = m_config.m_columns_setup[idx].size(); i < ie; ++i)
 		{
-			cs_root->appendRow(addRow(m_columns_setup.at(idx).at(i), true));
-			csz_root->appendRow(addUncheckableRow(tr("%1").arg(m_columns_sizes.at(idx).at(i))));
-			cal_root->appendRow(addUncheckableRow(tr("%1").arg(m_columns_align.at(idx).at(i))));
-			cel_root->appendRow(addUncheckableRow(tr("%1").arg(m_columns_elide.at(idx).at(i))));
+			cs_root->appendRow(addRow(m_config.m_columns_setup.at(idx).at(i), true));
+			csz_root->appendRow(addUncheckableRow(tr("%1").arg(m_config.m_columns_sizes.at(idx).at(i))));
+			cal_root->appendRow(addUncheckableRow(tr("%1").arg(m_config.m_columns_align.at(idx).at(i))));
+			cel_root->appendRow(addUncheckableRow(tr("%1").arg(m_config.m_columns_elide.at(idx).at(i))));
 		}
 
 	//size_t const n = tlv::get_tag_count() - 1; // -1 is for the tag Bool
@@ -265,8 +265,8 @@ void MainWindow::onSetup (int curr_app_idx, bool first_time)
 	{
 		ui_settings->comboBoxApp->setEnabled(true);
 		ui_settings->comboBoxApp->clear();
-		for (int a = 0, ae = m_app_names.size(); a < ae; ++a)
-			ui_settings->comboBoxApp->addItem(m_app_names.at(a));
+		for (int a = 0, ae = m_config.m_app_names.size(); a < ae; ++a)
+			ui_settings->comboBoxApp->addItem(m_config.m_app_names.at(a));
 
 		Connection * conn = m_server->findCurrentConnection();
 		if (conn)
@@ -277,7 +277,7 @@ void MainWindow::onSetup (int curr_app_idx, bool first_time)
 	else
 	{
 		ui_settings->comboBoxApp->clear();
-		ui_settings->comboBoxApp->addItem(m_app_names.at(curr_app_idx));
+		ui_settings->comboBoxApp->addItem(m_config.m_app_names.at(curr_app_idx));
 		ui_settings->comboBoxApp->setEnabled(false);
 	}
 
@@ -338,35 +338,35 @@ void MainWindow::onClickedAtSettingPooftahButton ()
 
 void MainWindow::onClickedAtSettingOkButton ()
 {
-	for (int app_idx = 0, app_idxe = m_app_names.size(); app_idx < app_idxe; ++app_idx)
+	for (int app_idx = 0, app_idxe = m_config.m_app_names.size(); app_idx < app_idxe; ++app_idx)
 	{
-		qDebug("app=%s", m_app_names.at(app_idx).toStdString().c_str());
-		m_columns_setup[app_idx].clear();
-		m_columns_sizes[app_idx].clear();
-		m_columns_align[app_idx].clear();
-		m_columns_elide[app_idx].clear();
+		qDebug("app=%s", m_config.m_app_names.at(app_idx).toStdString().c_str());
+		m_config.m_columns_setup[app_idx].clear();
+		m_config.m_columns_sizes[app_idx].clear();
+		m_config.m_columns_align[app_idx].clear();
+		m_config.m_columns_elide[app_idx].clear();
 
 		for (size_t j = 0, je = ui_settings->listViewColumnSetup->model()->rowCount(); j < je; ++j)
 		{
 			QModelIndex const row_idx = ui_settings->listViewColumnSetup->model()->index(j, 0, QModelIndex());
 			QStandardItem * const item = static_cast<QStandardItemModel *>(ui_settings->listViewColumnSetup->model())->itemFromIndex(row_idx);
 			if (item->checkState() == Qt::Checked)
-				m_columns_setup[app_idx].append(qVariantValue<QString>(ui_settings->listViewColumnSetup->model()->data(row_idx)));
+				m_config.m_columns_setup[app_idx].append(qVariantValue<QString>(ui_settings->listViewColumnSetup->model()->data(row_idx)));
 		}
 		for (size_t j = 0, je = ui_settings->listViewColumnSizes->model()->rowCount(); j < je; ++j)
 		{
 			QModelIndex const row_idx = ui_settings->listViewColumnSizes->model()->index(j, 0, QModelIndex());
-			m_columns_sizes[app_idx].append(qVariantValue<QString>(ui_settings->listViewColumnSizes->model()->data(row_idx)).toInt());
+			m_config.m_columns_sizes[app_idx].append(qVariantValue<QString>(ui_settings->listViewColumnSizes->model()->data(row_idx)).toInt());
 		}
 		for (size_t j = 0, je = ui_settings->listViewColumnAlign->model()->rowCount(); j < je; ++j)
 		{
 			QModelIndex const row_idx = ui_settings->listViewColumnAlign->model()->index(j, 0, QModelIndex());
-			m_columns_align[app_idx].append(qVariantValue<QString>(ui_settings->listViewColumnAlign->model()->data(row_idx)));
+			m_config.m_columns_align[app_idx].append(qVariantValue<QString>(ui_settings->listViewColumnAlign->model()->data(row_idx)));
 		}
 		for (size_t j = 0, je = ui_settings->listViewColumnElide->model()->rowCount(); j < je; ++j)
 		{
 			QModelIndex const row_idx = ui_settings->listViewColumnElide->model()->index(j, 0, QModelIndex());
-			m_columns_elide[app_idx].append(qVariantValue<QString>(ui_settings->listViewColumnElide->model()->data(row_idx)));
+			m_config.m_columns_elide[app_idx].append(qVariantValue<QString>(ui_settings->listViewColumnElide->model()->data(row_idx)));
 		}
 	}
 

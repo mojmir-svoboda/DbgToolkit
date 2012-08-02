@@ -17,7 +17,6 @@ namespace plot {
 		~PickablePlot ();
 
 	private Q_SLOTS:
-		void showCurve (QwtPlotItem *, bool on);
 
 	private:
 		int m_timer;

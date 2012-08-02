@@ -38,22 +38,30 @@ namespace plot {
 	{
 		QString m_tag;
 		int m_line_width;
-		int m_curve_style;
+		int m_style;
 		QColor m_color;
+
+		CurveConfig ()
+			: m_line_width(2)
+			, m_style(0)
+			, m_color(Qt::red)
+		{ }
 
 		template <class ArchiveT>
 		void serialize (ArchiveT & ar, unsigned const version)
 		{
 			ar & m_tag;
 			ar & m_line_width;
-			ar & m_curve_style;
-			ar & m_curve_color;
+			ar & m_style;
+			ar & m_color;
 		}
 	};
 
 	struct AxisConfig
 	{
 		QString m_label;
+
+		AxisConfig () { }
 
 		template <class ArchiveT>
 		void serialize (ArchiveT & ar, unsigned const version)
@@ -78,7 +86,14 @@ namespace plot {
 		bool m_unused_b1;
 		bool m_unused_b2;
 
-		PlotConfig () {}
+		PlotConfig ()
+			: m_tag()
+			, m_timer_delay_ms(250)
+			, m_history_ln(256)
+			, m_from(0)
+			, m_auto_scroll(true)
+		{ }
+
 		PlotConfig (QString const & tag)
 			: m_tag(tag)
 			, m_timer_delay_ms(250)
@@ -104,5 +119,7 @@ namespace plot {
 		}
 	};
 
+	bool loadConfig (PlotConfig & config, QString const & fname);
+	bool saveConfig (PlotConfig & config, QString const & fname);
 }
 

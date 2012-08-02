@@ -19,14 +19,14 @@ StatsWindow::StatsWindow (QObject * parent, SessionState & state)
 	, m_state(state)
 {
 	qDebug("%s", __FUNCTION__);
-	m_window = new QMainWindow;
-	m_window->setWindowFlags(Qt::Tool);
-	m_plot = new StatsPlot(0, state);
-	m_plot->setTitle("trace traffic");
-	m_plot->setContentsMargins(3, 3, 3, 3);
-	m_window->setCentralWidget(m_plot);
-	m_window->resize(700, 300);
-	m_window->show();
+	//m_window = new QMainWindow;
+	//m_window->setWindowFlags(Qt::Tool);
+	//m_plot = new StatsPlot(0, state);
+	//m_plot->setTitle("trace traffic");
+	//m_plot->setContentsMargins(3, 3, 3, 3);
+//	m_window->setCentralWidget(m_plot);
+	//m_window->resize(700, 300);
+	//m_window->show();
 }
 
 void StatsWindow::stopUpdate ()
@@ -47,10 +47,10 @@ StatsWindow::~StatsWindow ()
 
 
 StatsPlot::StatsPlot (QWidget * parent, SessionState & state)
-	: BasePlot(parent)
+	: plot::BasePlot(parent, plot::PlotConfig())
 	, m_state(state)
 {
-	m_curves.resize(e_max_statsdata_enum_value);
+	//m_curves.resize(e_max_statsdata_enum_value);
 
 	setAutoReplot(false);
 	canvas()->setBorderRadius(10);
@@ -58,33 +58,21 @@ StatsPlot::StatsPlot (QWidget * parent, SessionState & state)
 
     setAxisTitle(QwtPlot::xBottom, "t");
 	setAxisScale(QwtPlot::xBottom, 0, e_history_ln);
-    //setAxisScaleDraw(QwtPlot::xBottom, new TimeScaleDraw(cpuStat.upTime()));
-    //setAxisLabelRotation(QwtPlot::xBottom, -50.0);
-    //setAxisLabelAlignment(QwtPlot::xBottom, Qt::AlignLeft | Qt::AlignBottom);
-
     setAxisTitle(QwtPlot::yLeft, "received [Bytes]");
     //setAxisScale(QwtPlot::yLeft, 0, 1e6);
 	
-	m_curves[e_ReadBytes].m_curve = new TrafficCurve("recv", Qt::blue);
-	m_curves[e_ReadBytes].m_curve->attach(this);
-	showCurve(m_curves[e_ReadBytes].m_curve, true);
+	//m_curves[e_ReadBytes].m_curve = new TrafficCurve("recv", Qt::blue);
+	//m_curves[e_ReadBytes].m_curve->attach(this);
+	//showCurve(m_curves[e_ReadBytes].m_curve, true);
 
 	m_timer = startTimer(500);
 }
 
-StatsPlot::~StatsPlot ()
-{
-	qDebug("%s", __FUNCTION__);
-}
+StatsPlot::~StatsPlot () { qDebug("%s", __FUNCTION__); }
 
-void StatsPlot::stopUpdate ()
+void StatsPlot::update ()
 {
-	killTimer(m_timer);
-}
-
-void StatsPlot::timerEvent (QTimerEvent *)
-{
-	unsigned const diff = m_state.getRecvBytes() - m_curves[e_ReadBytes].m_last;
+/*	unsigned const diff = m_state.getRecvBytes() - m_curves[e_ReadBytes].m_last;
 	m_curves[e_ReadBytes].m_data.push_back(diff);
 	m_curves[e_ReadBytes].m_last = m_state.getRecvBytes();
 	m_curves[e_ReadBytes].m_time_data.push_back(m_curves[e_ReadBytes].m_time_data.size() / 2.0f);
@@ -103,7 +91,7 @@ void StatsPlot::timerEvent (QTimerEvent *)
 			m_curves[c].m_curve->setRawSamples(&m_curves[c].m_time_data[0], &m_curves[c].m_data[0], m_curves[c].m_data.size());
 		}
     }
-
+*/
 	replot();
 }
 
