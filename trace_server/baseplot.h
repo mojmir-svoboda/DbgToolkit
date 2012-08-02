@@ -44,6 +44,8 @@ namespace plot {
 			setAutoReplot(false);
 			canvas()->setBorderRadius(10);
 			plotLayout()->setAlignCanvasToScales(true);
+			setAxisScale(QwtPlot::yLeft, 0, 1);
+			setAxisScale(QwtPlot::xBottom , 0, 1);
 
 			for (size_t c = 0, ce = cfg.m_ccfg.size(); c < ce; ++c)
 			{
