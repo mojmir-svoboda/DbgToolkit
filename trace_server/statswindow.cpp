@@ -37,12 +37,18 @@ void StatsWindow::stopUpdate ()
 
 StatsWindow::~StatsWindow ()
 {
-	m_window->hide();
 	qDebug("%s", __FUNCTION__);
-	delete m_plot;
-	m_plot = 0;
-	delete m_window;
-	m_window = 0;
+	if (m_plot)
+	{
+		delete m_plot;
+		m_plot = 0;
+	}
+	if (m_window)
+	{
+		m_window->hide();
+		delete m_window;
+		m_window = 0;
+	}
 }
 
 

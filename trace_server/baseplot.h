@@ -34,6 +34,18 @@ namespace plot {
 	{
 		Q_OBJECT
 	public:
+		typedef QMap<QString, Curve *> curves_t;
+
+		curves_t::iterator mkCurve (QString const & subtag)
+		{
+			Curve * curve = new Curve();
+			curve->m_curve = new QwtPlotCurve(subtag);
+			curve->m_data = new Data(m_config.m_history_ln);
+			curve->m_curve->attach(this);
+			// if (enabled)
+				showCurve(curve->m_curve, true);
+			return m_curves.insert(subtag, curve);
+		}
 
 		BasePlot (QWidget * parent, PlotConfig & cfg)
 			: QwtPlot(parent)
@@ -42,20 +54,16 @@ namespace plot {
 			, m_config(cfg)
 		{
 			setAutoReplot(false);
-			canvas()->setBorderRadius(10);
+			canvas()->setBorderRadius(0);
 			plotLayout()->setAlignCanvasToScales(true);
-			setAxisScale(QwtPlot::yLeft, 0, 1);
-			setAxisScale(QwtPlot::xBottom , 0, 1);
+			//setAxisScale(QwtPlot::yLeft, 0, 1);
+			//setAxisScale(QwtPlot::xBottom , 0, 1);
 
 			for (size_t c = 0, ce = cfg.m_ccfg.size(); c < ce; ++c)
 			{
 				CurveConfig & cc = cfg.m_ccfg[c];
-				Curve * curve = new Curve();
-				m_curves[cc.m_tag] = curve;
-				curve->m_curve = new QwtPlotCurve(cc.m_tag);
-				curve->m_data = new Data(cfg.m_history_ln);
-				curve->m_curve->attach(this);
-				showCurve(curve->m_curve, true);
+				mkCurve(cc.m_tag); // cc.m_tag is a subtag
+
 			}
 
 			for (size_t a = 0, ae = cfg.m_acfg.size(); a < ae; ++a)
@@ -91,11 +99,8 @@ namespace plot {
 			curves_t::const_iterator it = m_curves.find(subtag);
 			if (it == m_curves.end())
 			{
-				Curve * curve = new Curve();
-				it = m_curves.insert(subtag, curve);
-				curve->m_data = new Data(m_config.m_history_ln);
-				curve->m_curve = new QwtPlotCurve(subtag);
-				CurveConfig ccfg;
+				it = mkCurve(subtag);
+				//CurveConfig ccfg;
 				// load from file?
 				// if (!in config)
 				//     m_config.m_ccfg.push_back(ccfg);
@@ -115,19 +120,19 @@ namespace plot {
 			{
 				Curve & curve = **it;
 				Data const & data = *curve.m_data;
-				size_t from = 0;
 				size_t n = data.m_data_x.size();
+				if (!n)
+					continue;
+
+				size_t from = 0;
 				int h = m_config.m_history_ln;
 				if (m_config.m_auto_scroll)
 				{
 					from = n > h ? n - h : 0;
 				}
-				else
-				{
-					from = 0; // hm?
-				}
 
-				curve.m_curve->setRawSamples(&data.m_data_x[from], &data.m_data_y[from], n > h ? n - h : n);
+				size_t N = n > h ? h : n;
+				curve.m_curve->setRawSamples(&data.m_data_x[from], &data.m_data_y[from], N);
 			}
 
 			replot();
@@ -143,7 +148,6 @@ namespace plot {
 		}
 
 	protected:
-		typedef QMap<QString, Curve *> curves_t;
 		curves_t m_curves;
 		int m_timer;
 		PlotConfig m_config;

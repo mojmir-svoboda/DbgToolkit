@@ -238,7 +238,7 @@ int main ()
 		TRACE_MSG(trace::e_Info, trace::CTX_Default,  "Some warning message i=%u from main thread", i);
 	}
 
-	for (int i = 0; i < 128; ++i)
+	for (int i = 0; i < 128 * 128; ++i)
 	{
 		float x = 3.1415926535 * 2 / 128.0f * static_cast<float>(i);
 		float y = sinf(x);

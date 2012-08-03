@@ -69,7 +69,7 @@ void Connection::appendDataXY (QString const & msg_tag, double x, double y)
 		DataPlot * const dp = new DataPlot(0, config);
 		it = m_dataplots.insert(tag, dp);
 		dp->m_plot = new plot::BasePlot(0, config);
-		mkDockWidget(m_main_window, dp->m_plot, QString("detail"));
+		mkDockWidget(m_main_window, dp->m_plot, QString(sessionState().m_name + "/" + tag));
 		// if (!cfg_plot_visible)
 		//dp->hide
 		plot::Curve * curve = (*it)->m_plot->findCurve(subtag);
