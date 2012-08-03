@@ -96,7 +96,7 @@ namespace plot {
 
 		PlotConfig (QString const & tag)
 			: m_tag(tag)
-			, m_timer_delay_ms(250)
+			, m_timer_delay_ms(50)
 			, m_history_ln(256)
 			, m_from(0)
 			, m_auto_scroll(true)

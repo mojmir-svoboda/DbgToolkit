@@ -101,6 +101,7 @@ SET(trace_server_HEADERS
 	dock.h
 	config.h
 	constants.h
+	plotctxmenu.h
 	)
 
 SET(trace_server_UI mainwindow.ui settings.ui help.ui profilermainwindow.ui)
