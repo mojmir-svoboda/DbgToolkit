@@ -97,7 +97,8 @@ HEADERS  += ../version.h	\
 FORMS    += mainwindow.ui \
     settings.ui \
     help.ui \
-    profilermainwindow.ui
+    profilermainwindow.ui \
+    settingsplot.ui
 
 RESOURCES += \
     resources.qrc

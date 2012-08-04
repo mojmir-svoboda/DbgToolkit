@@ -7,24 +7,37 @@
 #include <QLineEdit>
 #include <QLabel>
 #include "config.h"
+#include "ui_settingsplot.h"
 
 namespace plot {
 
 	class CtxCurveConfig : QObject
 	{
 	public:
-		CtxCurveConfig (CurveConfig & config, QMenu * parentmenu)
+		CtxCurveConfig (CurveConfig & config, QObject * parentmenu)
 		{
 		}
+
+		QAction * m_color;
+		QWidgetAction * m_width;
+		QAction * m_style;
 	};
 
 
 	class CtxAxisConfig : QObject
 	{
 	public:
-		CtxAxisConfig (AxisConfig & config, QMenu * parentmenu)
+		CtxAxisConfig (AxisConfig & config, QObject * parentmenu)
+			: m_acfg(config)
 		{
 		}
+
+		AxisConfig & m_acfg;
+		QWidgetAction * m_label;
+		QWidgetAction * m_from;
+		QWidgetAction * m_to;
+		QWidgetAction * m_scale;
+		QWidgetAction * m_auto_scale;
 	};
 
 
@@ -33,58 +46,35 @@ namespace plot {
 	public:
 
 		CtxPlotConfig (PlotConfig & cfg, QWidget * parent)
-			: m_pcfg(cfg)
+			: m_parent(parent)
+			, m_pcfg(cfg)
 		{
-			m_menu_pcfg = new QMenu("Plot", parent);
-			m_tag = new QWidgetAction(parent);
-			m_tag->setDefaultWidget(new QLabel(cfg.m_tag));
-			m_menu_pcfg->addAction(m_tag);
-
-			m_menu_ccfg = new QMenu("Curve", parent);
 			for (int i = 0, ie = cfg.m_ccfg.size(); i < ie; ++i)
-				m_ccfg.push_back(new CtxCurveConfig(cfg.m_ccfg[i], m_menu_ccfg));
-			m_menu_pcfg->addMenu(m_menu_ccfg);
+				m_ccfg.push_back(new CtxCurveConfig(cfg.m_ccfg[i], this));
 
-			m_timer_delay_ms = new QWidgetAction(parent);
-
-			m_tag->setDefaultWidget(new QLineEdit("prdel"));
-			m_menu_pcfg->addAction(m_timer_delay_ms);
-
-			//m_toggle_ref = new QAction("Toggle Ref", this);
-			//m_hide_prev = new QAction("Hide prev rows", this);
-			//m_exclude_fileline = new QAction("Exclude File:Line", this);
+			for (int i = 0, ie = cfg.m_acfg.size(); i < ie; ++i)
+				m_acfg.push_back(new CtxAxisConfig(cfg.m_acfg[i], this));
 		}
 
 		PlotConfig & m_pcfg;
-		QMenu * m_menu_pcfg;
-		QWidgetAction * m_tag;
-		QMenu * m_menu_ccfg;
+		QWidget * m_parent;
+		Ui::SettingsPlot * ui_settingsplot;
+		QDockWidget * m_settingsplot;
 		QList<CtxCurveConfig *> m_ccfg;
 		QList<CtxAxisConfig *> m_acfg;
-		QWidgetAction * m_timer_delay_ms;
-		QWidgetAction * m_history_ln;
-
-		//int m_timer_delay_ms;
-		//int m_history_ln;
-		//int m_from;
-		// qwt state
-		// flags
-		bool m_auto_scroll;
-
 
 		void onShowPlotContextMenu (QPoint const & pos)
 		{
-			//QPoint globalPos = m_table_view_widget->mapToGlobal(pos);
+			if (ui_settingsplot == 0)
+			{
+				m_settingsplot = new QDockWidget(m_parent);
+				ui_settingsplot = new Ui::SettingsPlot;
+				ui_settingsplot->setupUi(m_settingsplot);
+			}
 
-			QAction * selectedItem = m_menu_pcfg->exec(QCursor::pos()); // @TODO: rather async
-			if (selectedItem == m_timer_delay_ms)
-			{
-				qDebug("jep!");
-			}
-			else
-			{
-				qDebug("nip!");
-			}
+			m_settingsplot->show();
+			//QPoint globalPos = m_table_view_widget->mapToGlobal(pos);
+			//QAction * selectedItem = m_menu_pcfg->exec(QCursor::pos());
 		}
 	};
 

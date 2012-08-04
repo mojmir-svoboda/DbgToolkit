@@ -104,7 +104,14 @@ SET(trace_server_HEADERS
 	plotctxmenu.h
 	)
 
-SET(trace_server_UI mainwindow.ui settings.ui help.ui profilermainwindow.ui)
+SET(trace_server_UI 
+	mainwindow.ui
+	settings.ui
+	settingsplot.ui
+	help.ui
+	profilermainwindow.ui
+	)
+
 SET(trace_server_RESOURCES resources.qrc)
 SET(QT_USE_QTNETWORK true)
 SET(QT_USE_QTOPENGL true)
