@@ -48,6 +48,8 @@ namespace plot {
 		CtxPlotConfig (PlotConfig & cfg, QWidget * parent)
 			: m_parent(parent)
 			, m_pcfg(cfg)
+			, ui_settingsplot(0)
+			, m_settingsplot(0)
 		{
 			for (int i = 0, ie = cfg.m_ccfg.size(); i < ie; ++i)
 				m_ccfg.push_back(new CtxCurveConfig(cfg.m_ccfg[i], this));
@@ -56,8 +58,14 @@ namespace plot {
 				m_acfg.push_back(new CtxAxisConfig(cfg.m_acfg[i], this));
 		}
 
-		PlotConfig & m_pcfg;
+		~CtxPlotConfig ()
+		{
+			delete ui_settingsplot;
+			delete m_settingsplot;
+		}
+
 		QWidget * m_parent;
+		PlotConfig & m_pcfg;
 		Ui::SettingsPlot * ui_settingsplot;
 		QDockWidget * m_settingsplot;
 		QList<CtxCurveConfig *> m_ccfg;
@@ -65,7 +73,7 @@ namespace plot {
 
 		void onShowPlotContextMenu (QPoint const & pos)
 		{
-			if (ui_settingsplot == 0)
+			if (m_settingsplot == 0)
 			{
 				m_settingsplot = new QDockWidget(m_parent);
 				ui_settingsplot = new Ui::SettingsPlot;
