@@ -1,4 +1,3 @@
-
 #pragma once
 #include <QtGui/qwidget.h>
 #include "qwt/qwt_plot.h"
@@ -6,6 +5,7 @@
 #include "qwt/qwt_plot_layout.h"
 #include "curves.h"
 #include "config.h"
+#include "plotctxmenu.h"
 
 class QwtPlotCurve;
 class QwtPlotMarker;
@@ -49,9 +49,10 @@ namespace plot {
 
 		BasePlot (QWidget * parent, PlotConfig & cfg)
 			: QwtPlot(parent)
+			, m_config(cfg)
+			, m_menu_config(cfg, this)
 			, m_curves()
 			, m_timer(-1)
-			, m_config(cfg)
 		{
 			setAutoReplot(false);
 			canvas()->setBorderRadius(0);
@@ -80,6 +81,9 @@ namespace plot {
 			}
 
 			m_timer = startTimer(cfg.m_timer_delay_ms);
+
+			setContextMenuPolicy(Qt::CustomContextMenu);
+			connect(this, SIGNAL(customContextMenuRequested(QPoint const &)), this, SLOT(onShowPlotContextMenu(QPoint const &)));
 		}
 
 		virtual ~BasePlot ()
@@ -147,10 +151,16 @@ namespace plot {
 			replot();
 		}
 
+		void onShowPlotContextMenu (QPoint const & pos)
+		{
+			m_menu_config.onShowPlotContextMenu(pos);
+		}
+
 	protected:
 		curves_t m_curves;
 		int m_timer;
-		PlotConfig m_config;
+		PlotConfig & m_config;
+		plot::CtxPlotConfig m_menu_config;
 		//std::vector<QwtPlotMarker *> m_markers;
 	};
 }
