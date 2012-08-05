@@ -23,7 +23,7 @@ namespace plot {
 		ifs.close();
 	}
 
-	bool saveConfig (PlotConfig & config, QString const & fname)
+	bool saveConfig (PlotConfig const & config, QString const & fname)
 	{
 		std::ofstream ofs(fname.toAscii());
 		if (!ofs) return false;

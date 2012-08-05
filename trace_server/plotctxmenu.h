@@ -11,7 +11,7 @@
 
 namespace plot {
 
-	class CtxCurveConfig : QObject
+	/*class CtxCurveConfig : QObject
 	{
 	public:
 		CtxCurveConfig (CurveConfig & config, QObject * parentmenu)
@@ -33,12 +33,7 @@ namespace plot {
 		}
 
 		AxisConfig & m_acfg;
-		QWidgetAction * m_label;
-		QWidgetAction * m_from;
-		QWidgetAction * m_to;
-		QWidgetAction * m_scale;
-		QWidgetAction * m_auto_scale;
-	};
+	};*/
 
 
 	class CtxPlotConfig : QObject
@@ -51,11 +46,6 @@ namespace plot {
 			, ui_settingsplot(0)
 			, m_settingsplot(0)
 		{
-			for (int i = 0, ie = cfg.m_ccfg.size(); i < ie; ++i)
-				m_ccfg.push_back(new CtxCurveConfig(cfg.m_ccfg[i], this));
-
-			for (int i = 0, ie = cfg.m_acfg.size(); i < ie; ++i)
-				m_acfg.push_back(new CtxAxisConfig(cfg.m_acfg[i], this));
 		}
 
 		~CtxPlotConfig ()
@@ -68,8 +58,8 @@ namespace plot {
 		PlotConfig & m_pcfg;
 		Ui::SettingsPlot * ui_settingsplot;
 		QDockWidget * m_settingsplot;
-		QList<CtxCurveConfig *> m_ccfg;
-		QList<CtxAxisConfig *> m_acfg;
+		//QList<CtxCurveConfig *> m_ccfg;
+		//QList<CtxAxisConfig *> m_acfg;
 
 		void onShowPlotContextMenu (QPoint const & pos)
 		{
@@ -84,6 +74,8 @@ namespace plot {
 			//QPoint globalPos = m_table_view_widget->mapToGlobal(pos);
 			//QAction * selectedItem = m_menu_pcfg->exec(QCursor::pos());
 		}
+
+		Ui::SettingsPlot * ui () { return ui_settingsplot; }
 	};
 
 }

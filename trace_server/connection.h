@@ -77,15 +77,18 @@ private slots:
 
 
 struct DataPlot {
-	plot::PlotConfig & m_config;
-	plot::BasePlot * m_plot;
+	QWidget * m_parent;
+	plot::PlotConfig m_config;
+	plot::BasePlot m_plot;
 	int m_from;
 
 	DataPlot (QWidget * parent, plot::PlotConfig & config)
-		: m_config(config)
-		, m_plot(0)
+		: m_parent(parent)
+		, m_config(config)
+		, m_plot(parent, m_config)
 		, m_from(0)
-	{ }
+	{
+	}
 };
 
 typedef QMap<QString, DataPlot *> dataplots_t;
@@ -126,6 +129,7 @@ public:
 	void loadToColorRegexps (std::string const & filter_item, std::string const & color, bool enabled);
 	void loadToRegexps (std::string const & filter_item, bool inclusive, bool enabled);
 	bool loadConfigForPlot (plot::PlotConfig & config, QString const & tag);
+	bool saveConfigForPlot (plot::PlotConfig const & config, QString const & tag);
 
 signals:
 	void readyForUse();

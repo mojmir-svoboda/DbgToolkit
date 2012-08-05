@@ -50,6 +50,14 @@ bool Connection::loadConfigForPlot (plot::PlotConfig & config, QString const & t
 	return loadConfig(config, fname);
 }
 
+bool Connection::saveConfigForPlot (plot::PlotConfig const & config, QString const & tag)
+{
+	QString const fname = getDataTagFileName(getConfig().m_appdir, sessionState().m_name, tag);
+	qDebug("save tag file=%s", fname.toStdString().c_str());
+
+	return saveConfig(config, fname);
+}
+
 void Connection::appendDataXY (QString const & msg_tag, double x, double y)
 {
 	QString tag = msg_tag;
@@ -63,22 +71,21 @@ void Connection::appendDataXY (QString const & msg_tag, double x, double y)
 	dataplots_t::iterator it = m_dataplots.find(tag);
 	if (it == m_dataplots.end())
 	{
-		plot::PlotConfig config;
-		loadConfigForPlot(config, tag);
+		plot::PlotConfig template_config;
+		loadConfigForPlot(template_config, tag);
 		
-		DataPlot * const dp = new DataPlot(0, config);
+		DataPlot * const dp = new DataPlot(0, template_config);
 		it = m_dataplots.insert(tag, dp);
-		dp->m_plot = new plot::BasePlot(0, config);
-		mkDockWidget(m_main_window, dp->m_plot, QString(sessionState().m_name + "/" + tag));
+		mkDockWidget(m_main_window, &dp->m_plot, QString(sessionState().m_name + "/" + tag));
 		// if (!cfg_plot_visible)
 		//dp->hide
-		plot::Curve * curve = (*it)->m_plot->findCurve(subtag);
-		dp->m_plot->showCurve(curve->m_curve, true);
-		dp->m_plot->show();
+		plot::Curve * curve = (*it)->m_plot.findCurve(subtag);
+		dp->m_plot.showCurve(curve->m_curve, true);
+		dp->m_plot.show();
 	}
 	else
 	{
-		(*it)->m_plot->findCurve(subtag)->m_data->push_back(x, y);
+		(*it)->m_plot.findCurve(subtag)->m_data->push_back(x, y);
 	}
 
 	// if (autoscroll && need_to) shift m_from;

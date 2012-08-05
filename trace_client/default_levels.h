@@ -1,5 +1,5 @@
 #pragma once
-#include "enum_factory.h"
+#include <sysfn/enum_factory.h>
 
 namespace trace {
 

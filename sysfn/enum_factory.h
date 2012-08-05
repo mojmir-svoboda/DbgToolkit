@@ -16,10 +16,14 @@
 	}; \
 
 #define FACT_DECLARE_ENUM_STR(EnumType)			\
-	extern char const * enum_to_string_##EnumType [];
+	extern char const * enum_to_string_##EnumType [];	\
+	size_t enum_to_string_ln_##EnumType ()
+
+#define FACT_DECLARE_ENUM_FROM_STR(EnumType,ENUM_DEF)			\
+	EnumType enumFromString (char const * str);
 
 #define FACT_DEFINE_ENUM_FROM_STR(EnumType,ENUM_DEF)			\
-	EnumType enumFromString (const char *str)					\
+	EnumType enumFrom_##EnumType (char const * str)				\
 	{															\
 		ENUM_DEF(FACT_ENUM_STRCMP)								\
 		assert("Undefined string to enum conversion!");			\
@@ -30,7 +34,14 @@
 	char const * enum_to_string_##EnumType [] =					\
 	{															\
 		ENUM_DEF(FACT_ENUM_CASE)								\
+	}															\
+
+#define FACT_DEFINE_ENUM_STR_LN(EnumType,ENUM_DEF)				\
+	size_t enum_to_string_ln_##EnumType()						\
+	{															\
+		return sizeof(enum_to_string_##EnumType) / sizeof(*enum_to_string_##EnumType);	\
 	}
+
 
 #define FACT_DECLARE_ENUM_TO_STRING(EnumType,ENUM_DEF)			\
 	char const * enumToString (EnumType e);						\

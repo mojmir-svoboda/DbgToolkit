@@ -37,13 +37,16 @@ namespace plot {
 	struct CurveConfig
 	{
 		QString m_tag;
-		int m_line_width;
+		QString m_label;
+		float m_pen_width;
 		int m_style;
+		int m_symbol;
 		QColor m_color;
 
 		CurveConfig ()
-			: m_line_width(2)
+			: m_pen_width(0.0f)
 			, m_style(0)
+			, m_symbol(0)
 			, m_color(Qt::red)
 		{ }
 
@@ -51,8 +54,10 @@ namespace plot {
 		void serialize (ArchiveT & ar, unsigned const version)
 		{
 			ar & m_tag;
-			ar & m_line_width;
+			ar & m_label;
+			ar & m_pen_width;
 			ar & m_style;
+			ar & m_symbol;
 			ar & m_color;
 		}
 	};
@@ -60,19 +65,34 @@ namespace plot {
 	struct AxisConfig
 	{
 		QString m_label;
-
-		AxisConfig () { }
+		double m_from;
+		double m_to;
+		double m_div;
+		int m_scale_type;
+		bool m_auto_scale;
+		bool m_unused_b0;
+		bool m_unused_b1;
+		bool m_unused_b2;
 
 		template <class ArchiveT>
 		void serialize (ArchiveT & ar, unsigned const version)
 		{
 			ar & m_label;
+			ar & m_from;
+			ar & m_to;
+			ar & m_div;
+			ar & m_scale_type;
+			ar & m_auto_scale;
+			ar & m_unused_b0;
+			ar & m_unused_b1;
+			ar & m_unused_b2;
 		}
 	};
 
 	struct PlotConfig
 	{
 		QString m_tag;
+		QString m_title;
 		QList<CurveConfig> m_ccfg;
 		QList<AxisConfig> m_acfg;
 
@@ -82,7 +102,7 @@ namespace plot {
 		// qwt state
 		// flags
 		bool m_auto_scroll;
-		bool m_unused_b0;
+		bool m_show;
 		bool m_unused_b1;
 		bool m_unused_b2;
 
@@ -92,7 +112,11 @@ namespace plot {
 			, m_history_ln(256)
 			, m_from(0)
 			, m_auto_scroll(true)
-		{ }
+			, m_show(true)
+		{
+			m_acfg.push_back(AxisConfig());
+			m_acfg.push_back(AxisConfig());
+		}
 
 		PlotConfig (QString const & tag)
 			: m_tag(tag)
@@ -113,13 +137,13 @@ namespace plot {
 			//ar & m_from;
 			// flags
 			ar & m_auto_scroll;
-			ar & m_unused_b0;
+			ar & m_show;
 			ar & m_unused_b1;
 			ar & m_unused_b2;
 		}
 	};
 
 	bool loadConfig (PlotConfig & config, QString const & fname);
-	bool saveConfig (PlotConfig & config, QString const & fname);
+	bool saveConfig (PlotConfig const & config, QString const & fname);
 }
 

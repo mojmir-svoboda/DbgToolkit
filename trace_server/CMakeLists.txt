@@ -67,6 +67,7 @@ SET(trace_server_SOURCES
 	serialization.cpp
 	constants.cpp
 	config.cpp
+	plottypes.cpp
 	)
 
 SET(trace_server_HEADERS

@@ -200,6 +200,17 @@ int main ()
 #endif
 	TRACE_APPNAME("WarHorse_App");
 	TRACE_CONNECT();
+	for (int i = 0; i < 128 * 128; ++i)
+	{
+		float x = 3.1415926535 * 2 / 128.0f * static_cast<float>(i);
+		float y = sinf(x);
+		TRACE_DATA_XY(trace::e_Info, trace::CTX_Default, x, sinf(x), "sample_plot/%s", "sin");
+		TRACE_DATA_XY(trace::e_Info, trace::CTX_Default, x, cosf(y), "sample_plot/%s", "cos");
+	}
+	return 0;
+
+	TRACE_DISCONNECT();
+
 	//TRACE_MSG(trace::e_Info, trace::CTX_Default,	"first message"); // not sure if this is a valid case!
 	TRACE_MSG(trace::e_Info, trace::CTX_Default,	"this is %s", "first message");
 	TRACE_MSG(trace::e_Info, trace::CTX_Default,  "args: %s and %s", "first arg", "second arg");
@@ -236,14 +247,6 @@ int main ()
 			break;
 
 		TRACE_MSG(trace::e_Info, trace::CTX_Default,  "Some warning message i=%u from main thread", i);
-	}
-
-	for (int i = 0; i < 128 * 128; ++i)
-	{
-		float x = 3.1415926535 * 2 / 128.0f * static_cast<float>(i);
-		float y = sinf(x);
-		TRACE_DATA_XY(trace::e_Info, trace::CTX_Default, x, sinf(x), "sample_plot/%s", "sin");
-		TRACE_DATA_XY(trace::e_Info, trace::CTX_Default, x, cosf(y), "sample_plot/%s", "cos");
 	}
 
 	g_Quit = 1;
