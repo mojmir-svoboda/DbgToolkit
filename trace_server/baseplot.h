@@ -74,30 +74,20 @@ namespace plot {
 			, m_curves()
 			, m_timer(-1)
 		{
-			setAutoReplot(false);
 			canvas()->setBorderRadius(0);
+			setAutoReplot(false);
 			plotLayout()->setAlignCanvasToScales(true);
-			//setAxisScale(QwtPlot::yLeft, 0, 1);
-			//setAxisScale(QwtPlot::xBottom , 0, 1);
 
 			for (size_t c = 0, ce = cfg.m_ccfg.size(); c < ce; ++c)
 			{
 				CurveConfig & cc = cfg.m_ccfg[c];
 				mkCurve(cc.m_tag); // cc.m_tag is a subtag
-
 			}
 
 			for (size_t a = 0, ae = cfg.m_acfg.size(); a < ae; ++a)
 			{
 				AxisConfig & ac = cfg.m_acfg[a];
-
-				//setAxisTitle(QwtPlot::yLeft, "t [ms]");
-				//setAxisScale(QwtPlot::yLeft, 0, 1e6);
-				//setAxisTitle(QwtPlot::xBottom, "frame");
-				//setAxisScale(QwtPlot::xBottom, 0, m_curve.m_history_ln);
-				//setAxisScaleDraw(QwtPlot::xBottom, new TimeScaleDraw(cpuStat.upTime()));
-				//setAxisLabelRotation(QwtPlot::xBottom, -50.0);
-				//setAxisLabelAlignment(QwtPlot::xBottom, Qt::AlignLeft | Qt::AlignBottom);
+				// ...
 			}
 
 			m_timer = startTimer(cfg.m_timer_delay_ms);
@@ -105,11 +95,11 @@ namespace plot {
 			setContextMenuPolicy(Qt::CustomContextMenu);
 			connect(this, SIGNAL(customContextMenuRequested(QPoint const &)), this, SLOT(onShowPlotContextMenu(QPoint const &)));
 
-			m_colors.push_back(QColor(Qt::black));
-			m_colors.push_back(QColor(Qt::red));
-			m_colors.push_back(QColor(Qt::darkRed));
-			m_colors.push_back(QColor(Qt::green));
-			m_colors.push_back(QColor(Qt::darkGreen));
+			m_colors.push_back(Qt::black);
+			m_colors.push_back(Qt::red);
+			m_colors.push_back(Qt::darkRed);
+			m_colors.push_back(Qt::green);
+			m_colors.push_back(Qt::darkGreen);
 			m_colors.push_back(Qt::blue);
 			m_colors.push_back(Qt::darkBlue);
 			m_colors.push_back(Qt::cyan);
@@ -119,6 +109,38 @@ namespace plot {
 			m_colors.push_back(Qt::yellow);
 			m_colors.push_back(Qt::darkYellow);
 		}
+
+		void applyConfig (PlotConfig const & pcfg)
+		{
+			setTitle(pcfg.m_title);
+			for (size_t c = 0, ce = pcfg.m_ccfg.size(); c < ce; ++c)
+			{
+				CurveConfig const & cc = pcfg.m_ccfg[c];
+				Curve * const curve = m_curves[cc.m_tag];
+				curve->m_curve->setPen(cc.m_color);
+			}
+
+			killTimer(m_timer);
+			m_timer = startTimer(pcfg.m_timer_delay_ms);
+
+			setAxisTitle(QwtPlot::xBottom, pcfg.m_acfg[0].m_label);
+			if (!pcfg.m_acfg[0].m_auto_scale)
+				setAxisScale(QwtPlot::xBottom, pcfg.m_acfg[0].m_from, pcfg.m_acfg[0].m_to);
+			setAxisTitle(QwtPlot::yLeft, pcfg.m_acfg[1].m_label);
+			if (!pcfg.m_acfg[1].m_auto_scale)
+				setAxisScale(QwtPlot::yLeft, pcfg.m_acfg[1].m_from, pcfg.m_acfg[1].m_to);
+
+			for (size_t a = 0, ae = pcfg.m_acfg.size(); a < ae; ++a)
+			{
+				AxisConfig const & ac = pcfg.m_acfg[a];
+				//setAxisTitle(QwtPlot::xBottom, "frame");
+				//setAxisScale(QwtPlot::xBottom, 0, m_curve.m_history_ln);
+				//setAxisScaleDraw(QwtPlot::xBottom, new TimeScaleDraw(cpuStat.upTime()));
+				//setAxisLabelRotation(QwtPlot::xBottom, -50.0);
+				//setAxisLabelAlignment(QwtPlot::xBottom, Qt::AlignLeft | Qt::AlignBottom);
+			}
+		}
+
 
 		virtual ~BasePlot ()
 		{
@@ -273,6 +295,16 @@ namespace plot {
 			ccfg.m_pen_width = ui->penWidthDblSpinBox->value();
 			ccfg.m_style = ui->styleComboBox->currentIndex();
 			ccfg.m_symbol = ui->symbolComboBox->currentIndex();
+
+			m_config.m_acfg[0].m_label = ui->xLabelLineEdit->text();
+			m_config.m_acfg[0].m_from = ui->xFromDblSpinBox->value();
+			m_config.m_acfg[0].m_to = ui->xToDblSpinBox->value();
+			m_config.m_acfg[0].m_div = ui->xDivDblSpinBox->value();
+			m_config.m_acfg[0].m_scale_type = ui->xScaleComboBox->currentIndex();
+			m_config.m_acfg[0].m_auto_scale = ui->xAutoScaleCheckBox->checkState() == Qt::Checked;
+			//ccfg.m_color = ;
+
+			applyConfig(m_config);
 		}
 
 		void onResetButton () { setConfigValues(m_config); }
