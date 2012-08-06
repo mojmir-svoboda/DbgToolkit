@@ -13,7 +13,7 @@
 namespace plot {
 
 SimplePlot::SimplePlot (QWidget * parent)
-	: BasePlot(parent, PlotConfig())
+	: BasePlot(parent, PlotConfig(), QString("grr"))
 {
 }
 

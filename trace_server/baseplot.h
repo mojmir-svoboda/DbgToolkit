@@ -68,12 +68,13 @@ namespace plot {
 			return c;
 		}
 
-		BasePlot (QWidget * parent, PlotConfig & cfg)
+		BasePlot (QWidget * parent, PlotConfig & cfg, QString const & fname)
 			: QwtPlot(parent)
 			, m_config(cfg)
 			, m_config_ui(cfg, this)
 			, m_curves()
 			, m_timer(-1)
+			, m_fname(fname)
 		{
 			canvas()->setBorderRadius(0);
 			setAutoReplot(false);
@@ -109,6 +110,8 @@ namespace plot {
 			m_colors.push_back(Qt::darkMagenta);
 			m_colors.push_back(Qt::yellow);
 			m_colors.push_back(Qt::darkYellow);
+
+			applyConfig(m_config);
 		}
 
 		void applyAxis (AxisConfig const & acfg)
@@ -153,7 +156,6 @@ namespace plot {
 			stopUpdate();
 			//@TODO: delete resrcs
 			//m_window->hide();
-		    qDebug("%s", __FUNCTION__);
 		}
 		void stopUpdate ()
 		{
@@ -215,10 +217,12 @@ namespace plot {
 
 		void onShowPlotContextMenu (QPoint const & pos)
 		{
+		    qDebug("%s", __FUNCTION__);
 			m_config_ui.onShowPlotContextMenu(pos);
 			Ui::SettingsPlot * ui = m_config_ui.ui();
 			setConfigValues(m_config);
 			connect(ui->applyButton, SIGNAL(clicked()), this, SLOT(onApplyButton()));
+			connect(ui->saveButton, SIGNAL(clicked()), this, SLOT(onSaveButton()));
 			connect(ui->resetButton, SIGNAL(clicked()), this, SLOT(onResetButton()));
 			connect(ui->defaultButton, SIGNAL(clicked()), this, SLOT(onDefaultButton()));
 			connect(ui->curveColorToolButton, SIGNAL(clicked()), this, SLOT(onColorButton()));
@@ -231,6 +235,7 @@ namespace plot {
 
 		void setConfigValues (PlotConfig const & pcfg)
 		{
+		    qDebug("%s", __FUNCTION__);
 			Ui::SettingsPlot * ui = m_config_ui.ui();
 			ui->curveComboBox->clear();
 			for (size_t i = 0, ie = pcfg.m_ccfg.size(); i < ie; ++i)
@@ -290,14 +295,24 @@ namespace plot {
 			//ui->zScaleComboBox->setEnabled(enabled);
 		}
 
+		void onSaveButton ()
+		{
+		    qDebug("%s", __FUNCTION__);
+			saveConfig(m_config, m_fname);
+		}
+
 		void onApplyButton ()
 		{
+		    qDebug("%s", __FUNCTION__);
 			Ui::SettingsPlot * ui = m_config_ui.ui();
 			m_config.m_auto_scroll = ui->autoScrollCheckBox->checkState() == Qt::Checked;
 			m_config.m_timer_delay_ms = ui->updateTimerSpinBox->value();
 			m_config.m_title = ui->titleLineEdit->text();
 
 			int const curveidx = ui->curveComboBox->currentIndex();
+			if (curveidx < 0 || curveidx >= m_config.m_ccfg.size())
+				return;
+
 			CurveConfig & ccfg = m_config.m_ccfg[curveidx];
 			ccfg.m_pen_width = ui->penWidthDblSpinBox->value();
 			ccfg.m_style = ui->styleComboBox->currentIndex();
@@ -351,6 +366,7 @@ namespace plot {
 
 		void onColorButton ()
 		{
+		    qDebug("%s", __FUNCTION__);
 			Ui::SettingsPlot * ui = m_config_ui.ui();
 			int const curveidx = ui->curveComboBox->currentIndex();
 			QColor const color = QColorDialog::getColor(m_config.m_ccfg[curveidx].m_color);
@@ -365,6 +381,7 @@ namespace plot {
 		PlotConfig & m_config;
 		plot::CtxPlotConfig m_config_ui;
 		QList<QColor> m_colors;
+		QString m_fname;
 		//std::vector<QwtPlotMarker *> m_markers;
 	};
 }

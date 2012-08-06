@@ -72,9 +72,13 @@ void Connection::appendDataXY (QString const & msg_tag, double x, double y)
 	if (it == m_dataplots.end())
 	{
 		plot::PlotConfig template_config;
-		loadConfigForPlot(template_config, tag);
+		QString const fname = getDataTagFileName(getConfig().m_appdir, sessionState().m_name, tag);
+		if (loadConfigForPlot(template_config, tag))
+		{
+			qDebug("loaded tag from file=%s", fname.toStdString().c_str());
+		}
 		
-		DataPlot * const dp = new DataPlot(0, template_config);
+		DataPlot * const dp = new DataPlot(0, template_config, fname);
 		it = m_dataplots.insert(tag, dp);
 		mkDockWidget(m_main_window, &dp->m_plot, QString(sessionState().m_name + "/" + tag));
 		// if (!cfg_plot_visible)

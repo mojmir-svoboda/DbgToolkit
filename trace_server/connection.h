@@ -81,12 +81,14 @@ struct DataPlot {
 	plot::PlotConfig m_config;
 	plot::BasePlot m_plot;
 	int m_from;
+	QString m_fname;
 
-	DataPlot (QWidget * parent, plot::PlotConfig & config)
+	DataPlot (QWidget * parent, plot::PlotConfig & config, QString const & fname)
 		: m_parent(parent)
 		, m_config(config)
-		, m_plot(parent, m_config)
+		, m_plot(parent, m_config, fname)
 		, m_from(0)
+		, m_fname(fname)
 	{
 	}
 };

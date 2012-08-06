@@ -77,6 +77,22 @@ namespace plot {
 		bool m_unused_b1;
 		bool m_unused_b2;
 
+		AxisConfig ()
+			: m_label()
+			, m_from(0.0f)
+			, m_to(1.0f)
+			, m_step(0.0f)
+			, m_scale_type(0)
+			, m_axis_pos(0)
+			, m_alignment(0)
+			, m_rotation(0.0f)
+			, m_auto_scale(true)
+			, m_unused_b0(true)
+			, m_unused_b1(true)
+			, m_unused_b2(true)
+		{ }
+			
+
 		template <class ArchiveT>
 		void serialize (ArchiveT & ar, unsigned const version)
 		{
@@ -119,6 +135,8 @@ namespace plot {
 			, m_from(0)
 			, m_auto_scroll(true)
 			, m_show(true)
+			, m_unused_b1(false)
+			, m_unused_b2(false)
 		{
 			m_acfg.push_back(AxisConfig());
 			m_acfg.back().m_axis_pos = 2; //QwtPlot::xBottom;

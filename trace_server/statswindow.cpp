@@ -52,8 +52,8 @@ StatsWindow::~StatsWindow ()
 }
 
 
-StatsPlot::StatsPlot (QWidget * parent, SessionState & state)
-	: plot::BasePlot(parent, plot::PlotConfig())
+StatsPlot::StatsPlot (QWidget * parent, SessionState & state, QString const & fname)
+	: plot::BasePlot(parent, plot::PlotConfig(), fname)
 	, m_state(state)
 {
 	//m_curves.resize(e_max_statsdata_enum_value);
