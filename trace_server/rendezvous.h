@@ -52,18 +52,18 @@ struct RendezVouses : std::vector<T *> {
 
 	RendezVouses ()
 	{
-		reserve(16);
+		this->reserve(16);
 	}
 
 	T * create ()
 	{
-		push_back(new T);
-		return back();
+		this->push_back(new T);
+		return this->back();
 	}
 
 	void destroy (T const * item)
 	{
-		erase(std::remove(begin(), end(), item), end());
+		this->erase(std::remove(this->begin(), this->end(), item), this->end());
 		delete item;
 	}
 };

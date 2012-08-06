@@ -25,7 +25,7 @@ ProfilerWindow::ProfilerWindow (QObject * parent, profiler::profiler_rvp_t * rvp
 	, m_tagWidget(0)
 {
 	qDebug("%s", __FUNCTION__);
-	m_window = new ProfilerMainWindow();
+	/*m_window = new ProfilerMainWindow();
 	
 	m_scene = new QGraphicsScene();
 	m_view = new View(this, "View 0");
@@ -59,7 +59,7 @@ ProfilerWindow::ProfilerWindow (QObject * parent, profiler::profiler_rvp_t * rvp
 		QColor qcolor;
 		qcolor.setHsvF(hsv.h, hsv.s, hsv.v);
 		m_unique_colors.push_back(qcolor);
-	}
+	}*/
 }
 
 ProfilerWindow::~ProfilerWindow ()

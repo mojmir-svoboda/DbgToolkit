@@ -670,8 +670,11 @@ void MainWindow::onPresetActivate (Connection * conn, QString const & pname)
 	if (loadSession(dummy, pname))
 	{
 		std::swap(conn->m_session_state.m_file_filters.root, dummy.m_file_filters.root);
-		conn->m_session_state.m_filtered_regexps.swap(dummy.m_filtered_regexps);
-		conn->m_session_state.m_colorized_texts.swap(dummy.m_colorized_texts);
+		conn->m_session_state.m_filtered_regexps = dummy.m_filtered_regexps;
+		conn->m_session_state.m_colorized_texts = dummy.m_colorized_texts;
+		//@TODO: this blows under linux
+		//conn->m_session_state.m_filtered_regexps.swap(dummy.m_filtered_regexps);
+		//conn->m_session_state.m_colorized_texts.swap(dummy.m_colorized_texts);
 
 		file_filter<FilteredFile>::node_t * node = conn->m_session_state.m_file_filters.root;
 		QStandardItem * qnode = static_cast<QStandardItemModel *>(getWidgetFile()->model())->invisibleRootItem();
@@ -863,7 +866,7 @@ void MainWindow::onRmCurrentFileFilter ()
 	qDebug("removing preset_name[%i]=%s", idx, preset_name.toStdString().c_str());
 	
 	QString fname = getPresetFileName(m_config.m_appdir, preset_name);
-	qDebug("session file=%s", fname.toAscii());
+	qDebug("session file=%s", fname.toStdString().c_str());
 
 	QMessageBox msg_box;
 	QPushButton * b_del = msg_box.addButton(tr("Yes, Delete"), QMessageBox::ActionRole);
@@ -954,7 +957,7 @@ void MainWindow::setupMenuBar ()
 void MainWindow::saveSession (SessionState const & s, QString const & preset_name) const
 {
 	QString fname = getPresetFileName(m_config.m_appdir, preset_name);
-	qDebug("store file=%s", fname.toAscii());
+	qDebug("store file=%s", fname.toStdString().c_str());
 	saveSessionState(s, fname.toAscii());
 }
 

@@ -1,7 +1,6 @@
 #pragma once
 #include <QtGui/qwidget.h>
 #include <QTreeView>
-#include <hash_map>
 #include <map>
 #include "profilerblockinfo.h"
 #include "rvps.h"
@@ -46,7 +45,7 @@ namespace profiler {
 		static size_t const m_max_unique_colors = 256;
 		std::vector<QColor> m_unique_colors;
 
-		typedef std::hash_map<std::string, QColor> colormap_t;
+		typedef std::map<std::string, QColor> colormap_t;
 		colormap_t m_tagcolors;
 		std::map<unsigned, unsigned> m_max_layers;
 	};

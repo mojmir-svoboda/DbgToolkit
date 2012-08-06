@@ -34,9 +34,9 @@ namespace profiler {
 	}
 }
 
-namespace profiler {
-
 Q_DECLARE_METATYPE(profiler::profiler_rvp_t *)
+
+namespace profiler {
 
 Connection::Connection (QObject * parent, boost::asio::io_service & io_service, profiler_rvp_t & rvp, MainWindow & mw)
 	: QObject(parent)

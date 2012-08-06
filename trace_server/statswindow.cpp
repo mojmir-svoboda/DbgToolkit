@@ -21,7 +21,7 @@ StatsWindow::StatsWindow (QObject * parent, SessionState & state)
 	qDebug("%s", __FUNCTION__);
 	//m_window = new QMainWindow;
 	//m_window->setWindowFlags(Qt::Tool);
-	//m_plot = new StatsPlot(0, state);
+	//m_plot = new StatsPlot(this, 0, state, m_config, fname);
 	//m_plot->setTitle("trace traffic");
 	//m_plot->setContentsMargins(3, 3, 3, 3);
 //	m_window->setCentralWidget(m_plot);
@@ -52,8 +52,8 @@ StatsWindow::~StatsWindow ()
 }
 
 
-StatsPlot::StatsPlot (QObject * oparent, QWidget * parent, SessionState & state, QString const & fname)
-	: plot::BasePlot(oparent, parent, plot::PlotConfig(), fname)
+StatsPlot::StatsPlot (QObject * oparent, QWidget * parent, SessionState & state, plot::PlotConfig & pcfg, QString const & fname)
+	: plot::BasePlot(oparent, parent, pcfg, fname)
 	, m_state(state)
 {
 	//m_curves.resize(e_max_statsdata_enum_value);

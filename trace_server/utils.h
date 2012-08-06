@@ -250,10 +250,10 @@ inline void set_state_to_topdown (file_filter<F> const & ff, std::string const &
 	typedef typename file_filter<F>::tokenizer_t tokenizer_t;
 	tokenizer_t tok(file, ff.separator);
 	typename file_filter<F>::node_t * level = ff.root;
-	tokenizer_t::const_iterator it = tok.begin(), ite = tok.end();
+	typename tokenizer_t::const_iterator it = tok.begin(), ite = tok.end();
 	while (it != ite)
 	{
-		level = typename::file_filter<F>::node_t::node_child(level, *it);
+		level = file_filter<F>::node_t::node_child(level, *it);
 		if (level == 0)
 			return;
 

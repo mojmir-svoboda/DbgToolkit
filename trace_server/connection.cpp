@@ -236,10 +236,13 @@ void Connection::onCloseTab ()
 	for (dataplots_t::iterator it = m_dataplots.begin(), ite = m_dataplots.end(); it != ite; ++it)
 	{
 		DataPlot * dp = (*it);
-		//m_main_window->removeDockWidget(dp->m_wd);
-		delete dp->m_wd;
-		dp->m_wd = 0;
-		//delete dp;
+		m_main_window->removeDockWidget(dp->m_wd);
+		dp->m_wd->setWidget(0);
+		delete dp;
+		//delete dp->m_wd;
+		//dp->m_wd = 0;
+		// @FIXME: this results in leak, but i cannot find a solution of double-free that
+		// occurs if i try to delete that little turd correctly
 	}
 	m_dataplots.clear();
 

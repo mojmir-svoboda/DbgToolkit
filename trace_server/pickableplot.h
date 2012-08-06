@@ -13,7 +13,7 @@ namespace plot {
 		Q_OBJECT
 	public:
 
-		PickablePlot (QObject * oparent, QWidget * wparent, QString const & fname);
+		PickablePlot (QObject * oparent, QWidget * wparent, plot::PlotConfig &, QString const & fname);
 		~PickablePlot ();
 
 	private Q_SLOTS:

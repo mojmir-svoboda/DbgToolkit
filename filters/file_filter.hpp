@@ -234,9 +234,9 @@ struct file_filter
 					reassemble_path(nodes, path);
 					output.append("\n");
 
-					if (current->data.m_state == e_Checked)
+					if (current->data.m_state == 2 /*e_Checked*/)
 						output += "X ";
-					else if (current->data.m_state == e_PartialCheck)
+					else if (current->data.m_state == 1 /*e_PartialCheck*/)
 						output += "# ";
 					else
 						output += "- ";

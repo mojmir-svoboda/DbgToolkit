@@ -14,8 +14,8 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h>
-#include "time_query.h"
-#include "os.h"
+#include "sysfn/time_query.h"
+#include "sysfn/os.h"
 #include "msg.h"
 
 namespace trace {

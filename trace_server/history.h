@@ -23,7 +23,7 @@ struct History
 	void insert (KeyT const & k)
 	{
 		size_t n = m_dict.size();
-		dict_t::iterator it = m_dict.find(k);
+		typename dict_t::iterator it = m_dict.find(k);
 		if (it == m_dict.end())
 		{
 			if (n > m_item_limit)
@@ -35,8 +35,8 @@ struct History
 
 	void evict ()
 	{
-		dict_t::iterator it = m_dict.begin(), ite = m_dict.end();
-		dict_t::iterator evict_it = m_dict.end();
+		typename dict_t::iterator it = m_dict.begin(), ite = m_dict.end();
+		typename dict_t::iterator evict_it = m_dict.end();
 		unsigned min = ~(0U);
 		while (it != ite)
 		{

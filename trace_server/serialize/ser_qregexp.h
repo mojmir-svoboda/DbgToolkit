@@ -8,7 +8,8 @@ namespace boost { namespace serialization {
 	inline void save (ArchiveT & a, QRegExp const & q, unsigned const /*version*/)
 	{
 		using boost::serialization::make_nvp;
-		a << make_nvp("value", q.pattern().toStdString());
+		std::string s = q.pattern().toStdString();
+		a << make_nvp("value", s);
 	}
 	 
 	template <class ArchiveT>
