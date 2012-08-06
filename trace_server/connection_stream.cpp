@@ -83,16 +83,13 @@ void Connection::appendDataXY (QString const & msg_tag, double x, double y)
 		dp->m_wd = mkDockWidget(m_main_window, &dp->m_plot, QString(sessionState().m_name + "/" + tag));
 		it = m_dataplots.insert(tag, dp);
 		plot::Curve * curve = (*it)->m_plot.findCurve(subtag);
-		if (template_config.m_show)
+		//if (template_config.m_show)
 		{
 			dp->m_plot.showCurve(curve->m_curve, curve->m_config.m_show);
 			dp->m_plot.show();
 		}
 	}
-	else
-	{
-		(*it)->m_plot.findCurve(subtag)->m_data->push_back(x, y);
-	}
+	(*it)->m_plot.findCurve(subtag)->m_data->push_back(x, y);
 
 	// if (autoscroll && need_to) shift m_from;
 }

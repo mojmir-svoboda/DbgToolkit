@@ -49,7 +49,7 @@ namespace plot {
 
 		CurveConfig ()
 			: m_pen_width(0.0f)
-			, m_style(0)
+			, m_style(1)
 			, m_symbol(0)
 			, m_color(Qt::red)
 			, m_show(true)

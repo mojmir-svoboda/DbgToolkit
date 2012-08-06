@@ -236,10 +236,10 @@ void Connection::onCloseTab ()
 	for (dataplots_t::iterator it = m_dataplots.begin(), ite = m_dataplots.end(); it != ite; ++it)
 	{
 		DataPlot * dp = (*it);
-		m_main_window->removeDockWidget(dp->m_wd);
+		//m_main_window->removeDockWidget(dp->m_wd);
 		delete dp->m_wd;
 		dp->m_wd = 0;
-		delete dp;
+		//delete dp;
 	}
 	m_dataplots.clear();
 

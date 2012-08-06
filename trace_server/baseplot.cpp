@@ -1,4 +1,5 @@
 #include "baseplot.h"
+#include "qwt/qwt_legend_item.h"
 
 namespace plot {
 
@@ -46,9 +47,10 @@ namespace plot {
 		, m_fname(fname)
 	{
 		qDebug("%s this=0x%08x", __FUNCTION__, this);
-		canvas()->setBorderRadius(0);
 		setAutoReplot(false);
+		canvas()->setBorderRadius(0);
 		plotLayout()->setAlignCanvasToScales(true);
+		insertLegend(new QwtLegend(this), QwtPlot::BottomLegend);
 
 		for (size_t c = 0, ce = cfg.m_ccfg.size(); c < ce; ++c)
 		{
@@ -81,11 +83,13 @@ namespace plot {
 		m_colors.push_back(Qt::darkYellow);
 		
 		applyConfig(m_config);
+		setAutoReplot(true);
 		replot();
 	}
 
 	BasePlot::~BasePlot ()
 	{
+		stopUpdate();
 		qDebug("%s this=0x%08x", __FUNCTION__, this);
 		for (curves_t::iterator it = m_curves.begin(), ite = m_curves.end(); it != ite; ++it)
 		{
@@ -96,7 +100,6 @@ namespace plot {
 
 		//disconnect(this, SIGNAL(customContextMenuRequested(QPoint const &)), oparent, SLOT(onShowPlotContextMenu(QPoint const &)));
 		disconnect(this, SIGNAL(customContextMenuRequested(QPoint const &)), this, SLOT(onShowPlotContextMenu(QPoint const &)));
-		stopUpdate();
 		//QwtPlot::~QwtPlot();
 	}
 
@@ -120,11 +123,14 @@ namespace plot {
 		{
 			CurveConfig const & cc = pcfg.m_ccfg[c];
 			Curve * const curve = m_curves[cc.m_tag];
-			curve->m_curve->setPen(cc.m_color);
+			curve->m_curve->setPen(QPen(cc.m_color));
+			//curve->m_curve->setBrush(QBrush(cc.m_color));
 			curve->m_curve->setTitle(cc.m_tag);
-			curve->m_curve->setStyle(static_cast<QwtPlotCurve::CurveStyle>(cc.m_style));
-			curve->m_curve->setSymbol(new QwtSymbol(static_cast<QwtSymbol::Style>(cc.m_symbol)));
-			curve->m_curve->setBaseline(cc.m_pen_width);
+			curve->m_curve->setStyle(static_cast<QwtPlotCurve::CurveStyle>(cc.m_style - 1));
+			curve->m_curve->setSymbol(new QwtSymbol(static_cast<QwtSymbol::Style>(cc.m_symbol - 1)));
+			//curve->m_curve->setBaseline(cc.m_pen_width);
+			curve->m_curve->setLegendAttribute(QwtPlotCurve::LegendShowLine);
+			curve->m_curve->setLegendAttribute(QwtPlotCurve::LegendShowSymbol);
 		}
 
 		killTimer(m_timer);
@@ -168,7 +174,7 @@ namespace plot {
 				continue;
 
 			size_t from = 0;
-			int h = 1;//m_config.m_history_ln;
+			int h = m_config.m_history_ln;
 			if (m_config.m_auto_scroll)
 			{
 				from = n > h ? n - h : 0;
@@ -184,8 +190,8 @@ namespace plot {
 	void BasePlot::showCurve (QwtPlotItem * item, bool on)
 	{
 		item->setVisible(on);
-		//if (QwtLegendItem * legendItem = qobject_cast<QwtLegendItem *>( legend()->find(item)))
-		//    legendItem->setChecked(on);
+		if (QwtLegendItem * legendItem = qobject_cast<QwtLegendItem *>( legend()->find(item)))
+			legendItem->setChecked(on);
 		replot();
 	}
 
@@ -198,7 +204,9 @@ namespace plot {
 	{
 		//m_parent->onShowPlotContextMenuCallback();
 		qDebug("%s this=0x%08x", __FUNCTION__, this);
-		m_config_ui.onShowPlotContextMenu(QCursor::pos());
+		QRect widgetRect = geometry();
+		QPoint mousePos = mapFromGlobal(QCursor::pos());
+		m_config_ui.onShowPlotContextMenu(mousePos);
 		Ui::SettingsPlot * ui = m_config_ui.ui();
 		setConfigValues(m_config);
 		connect(ui->applyButton, SIGNAL(clicked()), this, SLOT(onApplyButton()));
@@ -241,11 +249,51 @@ namespace plot {
 		for (size_t i = 0; i < enum_to_string_ln_E_CurveStyle(); ++i)
 			ui->styleComboBox->addItem(QString::fromAscii(enum_to_string_E_CurveStyle[i]));
 
+		m_config.m_title = ui->titleLineEdit->text();
+		ui->plotShowCheckBox->setCheckState(pcfg.m_show ? Qt::Checked : Qt::Unchecked);
 		ui->autoScrollCheckBox->setCheckState(pcfg.m_auto_scroll ? Qt::Checked : Qt::Unchecked);
 		ui->updateTimerSpinBox->setValue(pcfg.m_timer_delay_ms);
 
 		onCurveActivate(0);
 	}
+
+	void BasePlot::onApplyButton ()
+	{
+		Ui::SettingsPlot * ui = m_config_ui.ui();
+		m_config.m_auto_scroll = ui->autoScrollCheckBox->checkState() == Qt::Checked;
+		m_config.m_timer_delay_ms = ui->updateTimerSpinBox->value();
+		m_config.m_title = ui->titleLineEdit->text();
+		m_config.m_show = ui->plotShowCheckBox->checkState() == Qt::Checked;
+
+		int const curveidx = ui->curveComboBox->currentIndex();
+		if (curveidx < 0 || curveidx >= m_config.m_ccfg.size())
+			return;
+
+		CurveConfig & ccfg = m_config.m_ccfg[curveidx];
+		ccfg.m_pen_width = ui->penWidthDblSpinBox->value();
+		ccfg.m_style = ui->styleComboBox->currentIndex();
+		ccfg.m_symbol = ui->symbolComboBox->currentIndex();
+		ccfg.m_show = ui->showCurveCheckBox->checkState() == Qt::Checked;
+
+		m_config.m_acfg[0].m_label = ui->xLabelLineEdit->text();
+		m_config.m_acfg[0].m_from = ui->xFromDblSpinBox->value();
+		m_config.m_acfg[0].m_to = ui->xToDblSpinBox->value();
+		m_config.m_acfg[0].m_step = ui->xStepDblSpinBox->value();
+		m_config.m_acfg[0].m_scale_type = ui->xScaleComboBox->currentIndex();
+		m_config.m_acfg[0].m_auto_scale = ui->xAutoScaleCheckBox->checkState() == Qt::Checked;
+		m_config.m_acfg[1].m_label = ui->yLabelLineEdit->text();
+		m_config.m_acfg[1].m_from = ui->yFromDblSpinBox->value();
+		m_config.m_acfg[1].m_to = ui->yToDblSpinBox->value();
+		m_config.m_acfg[1].m_step = ui->yStepDblSpinBox->value();
+		m_config.m_acfg[1].m_scale_type = ui->yScaleComboBox->currentIndex();
+		m_config.m_acfg[1].m_auto_scale = ui->yAutoScaleCheckBox->checkState() == Qt::Checked;
+
+		//ccfg.m_color = ;
+
+		applyConfig(m_config);
+		replot();
+	}
+
 
 	void BasePlot::onXAutoScaleChanged (int state)
 	{
@@ -280,41 +328,6 @@ namespace plot {
 		saveConfig(m_config, m_fname);
 	}
 
-	void BasePlot::onApplyButton ()
-	{
-		Ui::SettingsPlot * ui = m_config_ui.ui();
-		m_config.m_auto_scroll = ui->autoScrollCheckBox->checkState() == Qt::Checked;
-		m_config.m_timer_delay_ms = ui->updateTimerSpinBox->value();
-		m_config.m_title = ui->titleLineEdit->text();
-
-		int const curveidx = ui->curveComboBox->currentIndex();
-		if (curveidx < 0 || curveidx >= m_config.m_ccfg.size())
-			return;
-
-		CurveConfig & ccfg = m_config.m_ccfg[curveidx];
-		ccfg.m_pen_width = ui->penWidthDblSpinBox->value();
-		ccfg.m_style = ui->styleComboBox->currentIndex();
-		ccfg.m_symbol = ui->symbolComboBox->currentIndex();
-
-		m_config.m_acfg[0].m_label = ui->xLabelLineEdit->text();
-		m_config.m_acfg[0].m_from = ui->xFromDblSpinBox->value();
-		m_config.m_acfg[0].m_to = ui->xToDblSpinBox->value();
-		m_config.m_acfg[0].m_step = ui->xStepDblSpinBox->value();
-		m_config.m_acfg[0].m_scale_type = ui->xScaleComboBox->currentIndex();
-		m_config.m_acfg[0].m_auto_scale = ui->xAutoScaleCheckBox->checkState() == Qt::Checked;
-		m_config.m_acfg[1].m_label = ui->yLabelLineEdit->text();
-		m_config.m_acfg[1].m_from = ui->yFromDblSpinBox->value();
-		m_config.m_acfg[1].m_to = ui->yToDblSpinBox->value();
-		m_config.m_acfg[1].m_step = ui->yStepDblSpinBox->value();
-		m_config.m_acfg[1].m_scale_type = ui->yScaleComboBox->currentIndex();
-		m_config.m_acfg[1].m_auto_scale = ui->yAutoScaleCheckBox->checkState() == Qt::Checked;
-
-		//ccfg.m_color = ;
-
-		applyConfig(m_config);
-		replot();
-	}
-
 	void BasePlot::onResetButton () { setConfigValues(m_config); }
 	void BasePlot::onDefaultButton () { setConfigValues(PlotConfig()); }
 
@@ -327,10 +340,10 @@ namespace plot {
 			CurveConfig const & ccfg = m_config.m_ccfg[i];
 			if (ccfg.m_tag == curvename)
 			{
+				ui->showCurveCheckBox->setCheckState(ccfg.m_show ? Qt::Checked : Qt::Unchecked);
 				ui->penWidthDblSpinBox->setValue(ccfg.m_pen_width);
 				ui->styleComboBox->setCurrentIndex(ccfg.m_style);
 				ui->symbolComboBox->setCurrentIndex(ccfg.m_symbol);
-
 				ui->curveColorLabel->setAutoFillBackground(true);
 				int const alpha  = 140;
 				ui->curveColorLabel->setStyleSheet(tr("QLabel { background-color: rgba(%1, %2, %3, %4); }")

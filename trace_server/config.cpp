@@ -21,6 +21,7 @@ namespace plot {
 		boost::archive::text_iarchive ia(ifs);
 		ia >> BOOST_SERIALIZATION_NVP(config);
 		ifs.close();
+		return true;
 	}
 
 	bool saveConfig (PlotConfig const & config, QString const & fname)

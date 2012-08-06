@@ -7,7 +7,7 @@
 
 namespace profiler
 {
-	class Connection;
+	struct Connection;
 	class ProfilerWindow;
 	typedef boost::shared_ptr<Connection> connection_ptr_t;
 	typedef RendezVousPoint<threadinfos_t, connection_ptr_t, ProfilerWindow * > profiler_rvp_t;
