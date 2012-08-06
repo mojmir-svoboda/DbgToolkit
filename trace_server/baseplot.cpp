@@ -1,5 +1,9 @@
 #include "baseplot.h"
 #include "qwt/qwt_legend_item.h"
+#include "qwt/qwt_plot_panner.h"
+#include "qwt/qwt_plot_zoomer.h"
+#include "qwt/qwt_picker_machine.h"
+#include <QTimer>
 
 namespace plot {
 
@@ -85,6 +89,25 @@ namespace plot {
 		applyConfig(m_config);
 		setAutoReplot(true);
 		replot();
+
+
+		QwtPlotZoomer * zoomer = new QwtPlotZoomer(canvas());
+		zoomer->setRubberBandPen( QColor( Qt::black ) );
+		zoomer->setTrackerPen( QColor( Qt::black ) );
+		zoomer->setMousePattern( QwtEventPattern::MouseSelect2, Qt::RightButton, Qt::ControlModifier );
+		zoomer->setMousePattern( QwtEventPattern::MouseSelect3, Qt::RightButton );
+
+		QwtPlotPicker * picker = new QwtPlotPicker(QwtPlot::xBottom, QwtPlot::yLeft,
+											QwtPlotPicker::CrossRubberBand, QwtPicker::AlwaysOn,
+											canvas());
+		picker->setStateMachine(new QwtPickerDragPointMachine());
+		picker->setRubberBandPen(QColor(Qt::green));
+		picker->setRubberBand(QwtPicker::CrossRubberBand);
+		picker->setTrackerPen(QColor(Qt::white));
+
+		QwtPlotPanner * panner = new QwtPlotPanner(canvas());
+		panner->setMouseButton(Qt::MidButton);
+		QTimer::singleShot(0, this, SLOT(replot()));
 	}
 
 	BasePlot::~BasePlot ()
@@ -127,7 +150,10 @@ namespace plot {
 			//curve->m_curve->setBrush(QBrush(cc.m_color));
 			curve->m_curve->setTitle(cc.m_tag);
 			curve->m_curve->setStyle(static_cast<QwtPlotCurve::CurveStyle>(cc.m_style - 1));
-			curve->m_curve->setSymbol(new QwtSymbol(static_cast<QwtSymbol::Style>(cc.m_symbol - 1)));
+			QwtSymbol * symbol = new QwtSymbol(static_cast<QwtSymbol::Style>(cc.m_symbol - 1));
+			symbol->setSize(4);
+			symbol->setPen(QPen(cc.m_color));
+			curve->m_curve->setSymbol(symbol);
 			//curve->m_curve->setBaseline(cc.m_pen_width);
 			curve->m_curve->setLegendAttribute(QwtPlotCurve::LegendShowLine);
 			curve->m_curve->setLegendAttribute(QwtPlotCurve::LegendShowSymbol);
@@ -173,7 +199,7 @@ namespace plot {
 			if (!n)
 				continue;
 
-			size_t from = 0;
+			/*size_t from = 0;
 			int h = m_config.m_history_ln;
 			if (m_config.m_auto_scroll)
 			{
@@ -181,7 +207,8 @@ namespace plot {
 			}
 
 			size_t N = n > h ? h : n;
-			curve.m_curve->setRawSamples(&data.m_data_x[from], &data.m_data_y[from], N);
+			curve.m_curve->setRawSamples(&data.m_data_x[from], &data.m_data_y[from], N);*/
+			curve.m_curve->setRawSamples(&data.m_data_x[0], &data.m_data_y[0], n);
 		}
 
 		replot();
@@ -244,8 +271,10 @@ namespace plot {
 		ui->zAutoScaleCheckBox->setCheckState(z_auto ? Qt::Checked : Qt::Unchecked);
 		onZAutoScaleChanged(z_auto ? Qt::Checked : Qt::Unchecked);
 		//m_config_ui.ui()->curveComboBox->setCurrentIndex(0);
+		ui->symbolComboBox->clear();
 		for (size_t i = 0; i < enum_to_string_ln_E_PlotSymbol(); ++i)
 			ui->symbolComboBox->addItem(QString::fromAscii(enum_to_string_E_PlotSymbol[i]));
+		ui->styleComboBox->clear();
 		for (size_t i = 0; i < enum_to_string_ln_E_CurveStyle(); ++i)
 			ui->styleComboBox->addItem(QString::fromAscii(enum_to_string_E_CurveStyle[i]));
 
