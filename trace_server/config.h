@@ -67,8 +67,11 @@ namespace plot {
 		QString m_label;
 		double m_from;
 		double m_to;
-		double m_div;
+		double m_step;
 		int m_scale_type;
+		int m_axis_pos;
+		int m_alignment;
+		double m_rotation;
 		bool m_auto_scale;
 		bool m_unused_b0;
 		bool m_unused_b1;
@@ -80,7 +83,10 @@ namespace plot {
 			ar & m_label;
 			ar & m_from;
 			ar & m_to;
-			ar & m_div;
+			ar & m_step;
+			ar & m_alignment;
+			ar & m_axis_pos;
+			ar & m_rotation;
 			ar & m_scale_type;
 			ar & m_auto_scale;
 			ar & m_unused_b0;
@@ -115,7 +121,10 @@ namespace plot {
 			, m_show(true)
 		{
 			m_acfg.push_back(AxisConfig());
+			m_acfg.back().m_axis_pos = 2; //QwtPlot::xBottom;
+				//yLeft, yRight, xBottom, xTop,
 			m_acfg.push_back(AxisConfig());
+			m_acfg.back().m_axis_pos = 0; //QwtPlot::yLeft;
 		}
 
 		PlotConfig (QString const & tag)

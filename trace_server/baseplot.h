@@ -4,6 +4,7 @@
 #include "qwt/qwt_plot.h"
 #include "qwt/qwt_plot_canvas.h"
 #include "qwt/qwt_plot_layout.h"
+#include "qwt/qwt_symbol.h"
 #include "curves.h"
 #include "config.h"
 #include "plotctxmenu.h"
@@ -110,6 +111,19 @@ namespace plot {
 			m_colors.push_back(Qt::darkYellow);
 		}
 
+		void applyAxis (AxisConfig const & acfg)
+		{
+			setAxisTitle(acfg.m_axis_pos, acfg.m_label);
+			if (!acfg.m_auto_scale)
+				setAxisScale(acfg.m_axis_pos, acfg.m_from, acfg.m_to, acfg.m_step);
+			else
+				setAxisAutoScale(acfg.m_axis_pos, true);
+
+			//setAxisScaleDraw(QwtPlot::xBottom, new TimeScaleDraw(cpuStat.upTime()));
+			//setAxisLabelRotation(QwtPlot::xBottom, -50.0);
+			//setAxisLabelAlignment(QwtPlot::xBottom, Qt::AlignLeft | Qt::AlignBottom);
+		}
+
 		void applyConfig (PlotConfig const & pcfg)
 		{
 			setTitle(pcfg.m_title);
@@ -118,27 +132,19 @@ namespace plot {
 				CurveConfig const & cc = pcfg.m_ccfg[c];
 				Curve * const curve = m_curves[cc.m_tag];
 				curve->m_curve->setPen(cc.m_color);
+				curve->m_curve->setTitle(cc.m_tag);
+				curve->m_curve->setStyle(static_cast<QwtPlotCurve::CurveStyle>(cc.m_style));
+				curve->m_curve->setSymbol(new QwtSymbol(static_cast<QwtSymbol::Style>(cc.m_symbol)));
 			}
 
 			killTimer(m_timer);
 			m_timer = startTimer(pcfg.m_timer_delay_ms);
 
-			setAxisTitle(QwtPlot::xBottom, pcfg.m_acfg[0].m_label);
-			if (!pcfg.m_acfg[0].m_auto_scale)
-				setAxisScale(QwtPlot::xBottom, pcfg.m_acfg[0].m_from, pcfg.m_acfg[0].m_to);
-			setAxisTitle(QwtPlot::yLeft, pcfg.m_acfg[1].m_label);
-			if (!pcfg.m_acfg[1].m_auto_scale)
-				setAxisScale(QwtPlot::yLeft, pcfg.m_acfg[1].m_from, pcfg.m_acfg[1].m_to);
+			applyAxis(pcfg.m_acfg[0]);
+			applyAxis(pcfg.m_acfg[1]);
 
-			for (size_t a = 0, ae = pcfg.m_acfg.size(); a < ae; ++a)
-			{
-				AxisConfig const & ac = pcfg.m_acfg[a];
-				//setAxisTitle(QwtPlot::xBottom, "frame");
-				//setAxisScale(QwtPlot::xBottom, 0, m_curve.m_history_ln);
-				//setAxisScaleDraw(QwtPlot::xBottom, new TimeScaleDraw(cpuStat.upTime()));
-				//setAxisLabelRotation(QwtPlot::xBottom, -50.0);
-				//setAxisLabelAlignment(QwtPlot::xBottom, Qt::AlignLeft | Qt::AlignBottom);
-			}
+			//for (size_t a = 0, ae = pcfg.m_acfg.size(); a < ae; ++a)
+			//	AxisConfig const & ac = pcfg.m_acfg[a];
 		}
 
 
@@ -262,7 +268,7 @@ namespace plot {
 			bool enabled = state == Qt::Checked ? false : true;
 			ui->xFromDblSpinBox->setEnabled(enabled);
 			ui->xToDblSpinBox->setEnabled(enabled);
-			ui->xDivDblSpinBox->setEnabled(enabled);
+			ui->xStepDblSpinBox->setEnabled(enabled);
 			ui->xScaleComboBox->setEnabled(enabled);
 		}
 		void onYAutoScaleChanged (int state)
@@ -271,17 +277,17 @@ namespace plot {
 			bool enabled = state == Qt::Checked ? false : true;
 			ui->yFromDblSpinBox->setEnabled(enabled);
 			ui->yToDblSpinBox->setEnabled(enabled);
-			ui->yDivDblSpinBox->setEnabled(enabled);
+			ui->yStepDblSpinBox->setEnabled(enabled);
 			ui->yScaleComboBox->setEnabled(enabled);
 		}
 		void onZAutoScaleChanged (int state)
 		{
-			Ui::SettingsPlot * ui = m_config_ui.ui();
-			bool enabled = state == Qt::Checked ? false : true;
-			ui->zFromDblSpinBox->setEnabled(enabled);
-			ui->zToDblSpinBox->setEnabled(enabled);
-			ui->zDivDblSpinBox->setEnabled(enabled);
-			ui->zScaleComboBox->setEnabled(enabled);
+			//Ui::SettingsPlot * ui = m_config_ui.ui();
+			//bool enabled = state == Qt::Checked ? false : true;
+			//ui->zFromDblSpinBox->setEnabled(enabled);
+			//ui->zToDblSpinBox->setEnabled(enabled);
+			//ui->zStepDblSpinBox->setEnabled(enabled);
+			//ui->zScaleComboBox->setEnabled(enabled);
 		}
 
 		void onApplyButton ()
@@ -289,6 +295,7 @@ namespace plot {
 			Ui::SettingsPlot * ui = m_config_ui.ui();
 			m_config.m_auto_scroll = ui->autoScrollCheckBox->checkState() == Qt::Checked;
 			m_config.m_timer_delay_ms = ui->updateTimerSpinBox->value();
+			m_config.m_title = ui->titleLineEdit->text();
 
 			int const curveidx = ui->curveComboBox->currentIndex();
 			CurveConfig & ccfg = m_config.m_ccfg[curveidx];
@@ -299,9 +306,16 @@ namespace plot {
 			m_config.m_acfg[0].m_label = ui->xLabelLineEdit->text();
 			m_config.m_acfg[0].m_from = ui->xFromDblSpinBox->value();
 			m_config.m_acfg[0].m_to = ui->xToDblSpinBox->value();
-			m_config.m_acfg[0].m_div = ui->xDivDblSpinBox->value();
+			m_config.m_acfg[0].m_step = ui->xStepDblSpinBox->value();
 			m_config.m_acfg[0].m_scale_type = ui->xScaleComboBox->currentIndex();
 			m_config.m_acfg[0].m_auto_scale = ui->xAutoScaleCheckBox->checkState() == Qt::Checked;
+			m_config.m_acfg[1].m_label = ui->yLabelLineEdit->text();
+			m_config.m_acfg[1].m_from = ui->yFromDblSpinBox->value();
+			m_config.m_acfg[1].m_to = ui->yToDblSpinBox->value();
+			m_config.m_acfg[1].m_step = ui->yStepDblSpinBox->value();
+			m_config.m_acfg[1].m_scale_type = ui->yScaleComboBox->currentIndex();
+			m_config.m_acfg[1].m_auto_scale = ui->yAutoScaleCheckBox->checkState() == Qt::Checked;
+
 			//ccfg.m_color = ;
 
 			applyConfig(m_config);
@@ -322,6 +336,14 @@ namespace plot {
 					ui->penWidthDblSpinBox->setValue(ccfg.m_pen_width);
 					ui->styleComboBox->setCurrentIndex(ccfg.m_style);
 					ui->symbolComboBox->setCurrentIndex(ccfg.m_symbol);
+
+					ui->curveColorLabel->setAutoFillBackground(true);
+					int const alpha  = 140;
+					ui->curveColorLabel->setStyleSheet(tr("QLabel { background-color: rgba(%1, %2, %3, %4); }")
+														.arg(ccfg.m_color.red())
+														.arg(ccfg.m_color.green())
+														.arg(ccfg.m_color.blue())
+														.arg(alpha));
 					break;
 				}
 			}
@@ -330,11 +352,11 @@ namespace plot {
 		void onColorButton ()
 		{
 			Ui::SettingsPlot * ui = m_config_ui.ui();
-			//QString const & curvename = ui->curveComboBox->currentText();
 			int const curveidx = ui->curveComboBox->currentIndex();
-			QColor color = QColorDialog::getColor(m_config.m_ccfg[curveidx].m_color);
+			QColor const color = QColorDialog::getColor(m_config.m_ccfg[curveidx].m_color);
 			if (!color.isValid())
 				return;
+			m_config.m_ccfg[curveidx].m_color = color;
 		}
 
 	protected:

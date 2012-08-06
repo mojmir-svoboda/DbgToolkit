@@ -190,7 +190,7 @@
              </widget>
             </item>
             <item row="3" column="1">
-             <widget class="QLineEdit" name="plotNameLineEdit"/>
+             <widget class="QLineEdit" name="titleLineEdit"/>
             </item>
            </layout>
           </item>
@@ -264,7 +264,7 @@
            </widget>
           </item>
           <item row="6" column="0">
-           <widget class="QLabel" name="label_16">
+           <widget class="QLabel" name="curveColorLabel">
             <property name="text">
              <string>Color</string>
             </property>
@@ -411,6 +411,9 @@
             </item>
             <item row="3" column="1">
              <widget class="QLineEdit" name="zLabelLineEdit">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="text">
                <string>z</string>
               </property>
@@ -448,12 +451,12 @@
                <double>1000.000000000000000</double>
               </property>
               <property name="value">
-               <double>1000.000000000000000</double>
+               <double>1.000000000000000</double>
               </property>
              </widget>
             </item>
             <item row="1" column="5">
-             <widget class="QDoubleSpinBox" name="xDivDblSpinBox">
+             <widget class="QDoubleSpinBox" name="xStepDblSpinBox">
               <property name="decimals">
                <number>3</number>
               </property>
@@ -510,6 +513,9 @@
             </item>
             <item row="3" column="2">
              <widget class="QCheckBox" name="zAutoScaleCheckBox">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="text">
                <string/>
               </property>
@@ -586,6 +592,9 @@
             </item>
             <item row="3" column="6">
              <widget class="QComboBox" name="zScaleComboBox">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="minimumSize">
                <size>
                 <width>60</width>
@@ -613,6 +622,9 @@
             </item>
             <item row="3" column="3">
              <widget class="QDoubleSpinBox" name="zFromDblSpinBox">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="decimals">
                <number>3</number>
               </property>
@@ -624,12 +636,15 @@
                <number>3</number>
               </property>
               <property name="value">
-               <double>99.989999999999995</double>
+               <double>1.000000000000000</double>
               </property>
              </widget>
             </item>
             <item row="3" column="4">
-             <widget class="QDoubleSpinBox" name="zToDblSpinBox">
+             <widget class="QDoubleSpinBox" name="zToDblSpinBox_2">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="decimals">
                <number>3</number>
               </property>
@@ -642,14 +657,17 @@
              </widget>
             </item>
             <item row="2" column="5">
-             <widget class="QDoubleSpinBox" name="yDivDblSpinBox">
+             <widget class="QDoubleSpinBox" name="yStepDblSpinBox">
               <property name="decimals">
                <number>3</number>
               </property>
              </widget>
             </item>
             <item row="3" column="5">
-             <widget class="QDoubleSpinBox" name="zDivDblSpinBox">
+             <widget class="QDoubleSpinBox" name="zStepDblSpinBox">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="decimals">
                <number>3</number>
               </property>
