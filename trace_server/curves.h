@@ -2,6 +2,7 @@
 #include <QtGui/qwidget.h>
 #include "qwt/qwt_plot.h"
 #include "qwt/qwt_plot_curve.h"
+#include "config.h"
 
 class QwtPlotCurve;
 
@@ -35,18 +36,24 @@ namespace plot {
 	struct Curve {
 		QwtPlotCurve * m_curve;
 		Data * m_data;
+		CurveConfig & m_config;
 
-		Curve ()
+		Curve (CurveConfig & curve)
 			: m_curve(0)
 			, m_data(0)
-		{ }
+			, m_config(curve)
+		{
+			qDebug("%s this=0x%08x", __FUNCTION__, this);
+		}
 
 		QwtPlotCurve const * getCurve () const { return m_curve; }
 		QwtPlotCurve * getCurve () { return m_curve; }
 		
 		~Curve ()
 		{
+			qDebug("%s this=0x%08x", __FUNCTION__, this);
 			if (m_curve) {
+				m_curve->detach();
 				delete m_curve;
 				m_curve = 0;
 			}

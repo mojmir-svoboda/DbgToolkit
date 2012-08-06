@@ -42,12 +42,20 @@ namespace plot {
 		int m_style;
 		int m_symbol;
 		QColor m_color;
+		bool m_show;
+		bool m_unused_b0;
+		bool m_unused_b1;
+		bool m_unused_b2;
 
 		CurveConfig ()
 			: m_pen_width(0.0f)
 			, m_style(0)
 			, m_symbol(0)
 			, m_color(Qt::red)
+			, m_show(true)
+			, m_unused_b0(true)
+			, m_unused_b1(true)
+			, m_unused_b2(true)
 		{ }
 
 		template <class ArchiveT>
@@ -59,6 +67,10 @@ namespace plot {
 			ar & m_style;
 			ar & m_symbol;
 			ar & m_color;
+			ar & m_show;
+			ar & m_unused_b0;
+			ar & m_unused_b1;
+			ar & m_unused_b2;
 		}
 	};
 

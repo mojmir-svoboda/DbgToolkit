@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>366</width>
-    <height>224</height>
+    <width>462</width>
+    <height>175</height>
    </rect>
   </property>
   <property name="font">
@@ -367,6 +367,9 @@
             <property name="text">
              <string/>
             </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
            </widget>
           </item>
          </layout>
@@ -466,6 +469,12 @@
               <property name="decimals">
                <number>3</number>
               </property>
+              <property name="minimum">
+               <double>-1000000.000000000000000</double>
+              </property>
+              <property name="maximum">
+               <double>1000000.000000000000000</double>
+              </property>
              </widget>
             </item>
             <item row="1" column="4">
@@ -473,8 +482,11 @@
               <property name="decimals">
                <number>3</number>
               </property>
+              <property name="minimum">
+               <double>-1000000.000000000000000</double>
+              </property>
               <property name="maximum">
-               <double>1000.000000000000000</double>
+               <double>1000000.000000000000000</double>
               </property>
               <property name="value">
                <double>1.000000000000000</double>
@@ -485,6 +497,12 @@
              <widget class="QDoubleSpinBox" name="xStepDblSpinBox">
               <property name="decimals">
                <number>3</number>
+              </property>
+              <property name="minimum">
+               <double>-1000000.000000000000000</double>
+              </property>
+              <property name="maximum">
+               <double>1000000.000000000000000</double>
               </property>
              </widget>
             </item>
@@ -644,6 +662,12 @@
               <property name="decimals">
                <number>3</number>
               </property>
+              <property name="minimum">
+               <double>-1000000.000000000000000</double>
+              </property>
+              <property name="maximum">
+               <double>1000000.000000000000000</double>
+              </property>
              </widget>
             </item>
             <item row="3" column="3">
@@ -660,6 +684,12 @@
              <widget class="QDoubleSpinBox" name="yToDblSpinBox">
               <property name="decimals">
                <number>3</number>
+              </property>
+              <property name="minimum">
+               <double>-1000000.000000000000000</double>
+              </property>
+              <property name="maximum">
+               <double>1000000.000000000000000</double>
               </property>
               <property name="value">
                <double>1.000000000000000</double>
@@ -686,6 +716,12 @@
              <widget class="QDoubleSpinBox" name="yStepDblSpinBox">
               <property name="decimals">
                <number>3</number>
+              </property>
+              <property name="minimum">
+               <double>-1000000.000000000000000</double>
+              </property>
+              <property name="maximum">
+               <double>1000000.000000000000000</double>
               </property>
              </widget>
             </item>

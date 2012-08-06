@@ -21,7 +21,7 @@ namespace stats {
 			e_max_statsdata_enum_value
 		};
 	
-		StatsPlot (QWidget *, SessionState & s, QString const & fname);
+		StatsPlot (QObject * oparent, QWidget * wparent, SessionState & s, QString const & fname);
 		~StatsPlot ();
 		virtual void update ();
 		//QwtPlotCurve const * getStatsCurve (E_StatsData const id) const { return m_curves[id].m_curve; }

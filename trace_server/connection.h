@@ -77,20 +77,14 @@ private slots:
 
 
 struct DataPlot {
-	QWidget * m_parent;
+	Connection * m_parent;
+	QDockWidget * m_wd;
 	plot::PlotConfig m_config;
 	plot::BasePlot m_plot;
 	int m_from;
 	QString m_fname;
 
-	DataPlot (QWidget * parent, plot::PlotConfig & config, QString const & fname)
-		: m_parent(parent)
-		, m_config(config)
-		, m_plot(parent, m_config, fname)
-		, m_from(0)
-		, m_fname(fname)
-	{
-	}
+	DataPlot (Connection * parent, plot::PlotConfig & config, QString const & fname);
 };
 
 typedef QMap<QString, DataPlot *> dataplots_t;
@@ -162,6 +156,7 @@ public slots:
 	void onClearCurrentRegexFilter ();
 	void onClearCurrentScopeFilter ();
 	void onShowContextMenu (QPoint const & pos);
+	void onShowPlotContextMenu (QPoint const &);
 	void onExcludeFileLine ();
 	void onToggleRefFromRow ();
 	void onExcludeFileLine (QModelIndex const & row_index);
@@ -261,4 +256,15 @@ private:
 	stats::StatsWindow * m_statswindow;
 	dataplots_t m_dataplots;
 };
+
+inline DataPlot::DataPlot (Connection * parent, plot::PlotConfig & config, QString const & fname)
+	: m_parent(parent)
+	, m_wd(0)
+	, m_config(config)
+	, m_plot(parent, 0, m_config, fname)
+	, m_from(0)
+	, m_fname(fname)
+{
+	qDebug("%s this=0x%08x", __FUNCTION__, this);
+}
 

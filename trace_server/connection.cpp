@@ -232,6 +232,17 @@ void Connection::hideLinearParents ()
 void Connection::onCloseTab ()
 {
 	qDebug("Connection::onCloseTab this=0x%08x", this);
+
+	for (dataplots_t::iterator it = m_dataplots.begin(), ite = m_dataplots.end(); it != ite; ++it)
+	{
+		DataPlot * dp = (*it);
+		m_main_window->removeDockWidget(dp->m_wd);
+		delete dp->m_wd;
+		dp->m_wd = 0;
+		delete dp;
+	}
+	m_dataplots.clear();
+
 	if (m_tcpstream)
 	{
 		QObject::disconnect(m_tcpstream, SIGNAL(readyRead()), this, SLOT(processReadyRead()));
@@ -559,5 +570,14 @@ void Connection::onShowContextMenu (QPoint const & pos)
 	}
     else
     { }
+}
+
+void Connection::onShowPlotContextMenu (QPoint const &)
+{
+	qDebug("%s", __FUNCTION__);
+	for (dataplots_t::iterator it = m_dataplots.begin(), ite = m_dataplots.end(); it != ite; ++it)
+	{
+		(*it)->m_plot.onHidePlotContextMenu();
+	}
 }
 

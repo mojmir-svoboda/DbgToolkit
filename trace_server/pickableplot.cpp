@@ -12,8 +12,8 @@
 
 namespace plot {
 
-PickablePlot::PickablePlot (QWidget * parent, QString const & fname)
-	: BasePlot(parent, PlotConfig(), fname)
+PickablePlot::PickablePlot (QObject * oparent, QWidget * parent, QString const & fname)
+	: BasePlot(oparent, parent, PlotConfig(), fname)
 {
 	//m_curve.m_curve = new ColoredCurve("pickable plot", Qt::red);
 	//m_curve.m_curve->attach(this);

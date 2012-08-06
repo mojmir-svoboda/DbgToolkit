@@ -32,7 +32,7 @@ ProfilerWindow::ProfilerWindow (QObject * parent, profiler::profiler_rvp_t * rvp
 	m_view->view()->setScene(m_scene);
 	mkDockWidget(m_window, m_view, QString("detail"));
 
-	PickablePlot * plot = new PickablePlot(0, QString("tmp")); // @FIXME untmp
+	PickablePlot * plot = new PickablePlot(this, 0, QString("tmp")); // @FIXME untmp
 	mkDockWidget(m_window, plot, QString("frames"));
 
 	m_tagWidget = new QTreeView();

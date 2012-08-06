@@ -11,20 +11,23 @@
 
 namespace plot {
 
-	class CtxPlotConfig : QObject
+	struct CtxPlotConfig : QObject
 	{
-	public:
+		PlotConfig & m_pcfg;
+		Ui::SettingsPlot * ui_settingsplot;
+		QDockWidget * m_settingsplot;
 
 		CtxPlotConfig (PlotConfig & cfg, QWidget * parent)
 			: m_pcfg(cfg)
 			, ui_settingsplot(new Ui::SettingsPlot)
 			, m_settingsplot(new QDockWidget(parent))
 		{
+			qDebug("%s this=0x%08x", __FUNCTION__, this);
+			m_settingsplot->setVisible(false);
 			ui_settingsplot->setupUi(m_settingsplot);
 			setAxisRange(ui_settingsplot->xFromDblSpinBox);
 			setAxisRange(ui_settingsplot->yFromDblSpinBox);
 			setAxisRange(ui_settingsplot->zFromDblSpinBox);
-			m_settingsplot->hide();
 		}
 
 		void setAxisRange (QDoubleSpinBox * w)
@@ -35,18 +38,26 @@ namespace plot {
 
 		~CtxPlotConfig ()
 		{
-			delete ui_settingsplot;
-			delete m_settingsplot;
-		}
+			qDebug("%s this=0x%08x", __FUNCTION__, this);
 
-		PlotConfig & m_pcfg;
-		Ui::SettingsPlot * ui_settingsplot;
-		QDockWidget * m_settingsplot;
+			m_settingsplot->setVisible(false);
+			delete ui_settingsplot;
+			ui_settingsplot = 0;
+			delete m_settingsplot;
+			m_settingsplot = 0;
+		}
 
 		void onShowPlotContextMenu (QPoint const & pos)
 		{
+			qDebug("%s", __FUNCTION__);
 			bool const visible = m_settingsplot->isVisible();
 			m_settingsplot->setVisible(!visible);
+		}
+
+		void onHidePlotContextMenu ()
+		{
+			//qDebug("%s", __FUNCTION__);
+			//m_settingsplot->setVisible(false);
 		}
 
 		Ui::SettingsPlot * ui () { return ui_settingsplot; }

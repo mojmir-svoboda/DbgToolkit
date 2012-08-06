@@ -71,6 +71,7 @@ void Connection::appendDataXY (QString const & msg_tag, double x, double y)
 	dataplots_t::iterator it = m_dataplots.find(tag);
 	if (it == m_dataplots.end())
 	{
+		// new data plot
 		plot::PlotConfig template_config;
 		QString const fname = getDataTagFileName(getConfig().m_appdir, sessionState().m_name, tag);
 		if (loadConfigForPlot(template_config, tag))
@@ -78,14 +79,15 @@ void Connection::appendDataXY (QString const & msg_tag, double x, double y)
 			qDebug("loaded tag from file=%s", fname.toStdString().c_str());
 		}
 		
-		DataPlot * const dp = new DataPlot(0, template_config, fname);
+		DataPlot * const dp = new DataPlot(this, template_config, fname);
+		dp->m_wd = mkDockWidget(m_main_window, &dp->m_plot, QString(sessionState().m_name + "/" + tag));
 		it = m_dataplots.insert(tag, dp);
-		mkDockWidget(m_main_window, &dp->m_plot, QString(sessionState().m_name + "/" + tag));
-		// if (!cfg_plot_visible)
-		//dp->hide
 		plot::Curve * curve = (*it)->m_plot.findCurve(subtag);
-		dp->m_plot.showCurve(curve->m_curve, true);
-		dp->m_plot.show();
+		if (template_config.m_show)
+		{
+			dp->m_plot.showCurve(curve->m_curve, curve->m_config.m_show);
+			dp->m_plot.show();
+		}
 	}
 	else
 	{

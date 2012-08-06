@@ -12,12 +12,6 @@
 
 namespace plot {
 
-SimplePlot::SimplePlot (QWidget * parent)
-	: BasePlot(parent, PlotConfig(), QString("grr"))
-{
-}
-
-SimplePlot::~SimplePlot () { qDebug("%s", __FUNCTION__); }
 
 }
 

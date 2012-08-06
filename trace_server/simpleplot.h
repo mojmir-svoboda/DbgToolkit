@@ -6,14 +6,5 @@ class QwtPlotCurve;
 
 namespace plot {
 
-	class SimplePlot : public BasePlot
-	{
-		Q_OBJECT
-	public:
-
-		SimplePlot (QWidget *);
-		~SimplePlot ();
-	private:
-	};
 }
 
