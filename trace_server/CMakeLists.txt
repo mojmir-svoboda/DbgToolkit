@@ -21,6 +21,7 @@ SET (EXECUTABLE_OUTPUT_PATH
 #SET(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} "c:/devel/boost_1_47_0")
 
 add_subdirectory("qwt")
+add_subdirectory("qtsln")
 
 add_definitions("-DTRACE_ENABLED")
 add_definitions("-DTRACE_STATIC")
@@ -180,5 +181,5 @@ ADD_EXECUTABLE(trace_server WIN32
 
 QT_ADD_IMG_PLUGINS(trace_server)
 #TARGET_LINK_LIBRARIES(trace_server ${QT_LIBRARIES} ${QICO} ${QSVG} ${Boost_LIBRARIES} qwt)
-TARGET_LINK_LIBRARIES(trace_server ${QT_LIBRARIES} ${QICO} ${Boost_LIBRARIES} qwt)
+TARGET_LINK_LIBRARIES(trace_server ${QT_LIBRARIES} ${QICO} ${Boost_LIBRARIES} qwt qtsln)
 

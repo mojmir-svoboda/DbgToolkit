@@ -8,6 +8,7 @@
 #include <QLabel>
 #include "config.h"
 #include "ui_settingsplot.h"
+#include "qtsln/qtcolorpicker/qtcolorpicker.h"
 
 namespace plot {
 
@@ -16,15 +17,23 @@ namespace plot {
 		PlotConfig & m_pcfg;
 		Ui::SettingsPlot * ui_settingsplot;
 		QDockWidget * m_settingsplot;
+		QtColorPicker * m_curve_color;
+		QtColorPicker * m_symbol_color;
 
 		CtxPlotConfig (PlotConfig & cfg, QWidget * parent)
 			: m_pcfg(cfg)
 			, ui_settingsplot(new Ui::SettingsPlot)
 			, m_settingsplot(new QDockWidget(parent))
+			, m_curve_color(new QtColorPicker(parent))
+			, m_symbol_color(new QtColorPicker(parent))
 		{
 			qDebug("%s this=0x%08x", __FUNCTION__, this);
 			m_settingsplot->setVisible(false);
 			ui_settingsplot->setupUi(m_settingsplot);
+			ui_settingsplot->curveColorLayout->addWidget(m_curve_color);
+			ui_settingsplot->symbolColorLayout->addWidget(m_symbol_color);
+			m_curve_color->setStandardColors();
+			m_symbol_color->setStandardColors();
 			setAxisRange(ui_settingsplot->xFromDblSpinBox);
 			setAxisRange(ui_settingsplot->yFromDblSpinBox);
 			setAxisRange(ui_settingsplot->zFromDblSpinBox);

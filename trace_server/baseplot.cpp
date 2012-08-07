@@ -170,7 +170,7 @@ namespace plot {
 			curve->m_curve->setStyle(static_cast<QwtPlotCurve::CurveStyle>(cc.m_style - 1));
 			QwtSymbol * symbol = new QwtSymbol(static_cast<QwtSymbol::Style>(cc.m_symbol - 1));
 			symbol->setSize(cc.m_symbolsize);
-			symbol->setPen(QPen(cc.m_color));
+			symbol->setPen(QPen(cc.m_symbolcolor));
 			curve->m_curve->setSymbol(symbol);
 			//curve->m_curve->setBaseline(cc.m_pen_width);
 			curve->m_curve->setLegendAttribute(QwtPlotCurve::LegendShowLine);
@@ -247,18 +247,18 @@ namespace plot {
 
 	void BasePlot::onShowPlotContextMenu (QPoint const & pos)
 	{
-		//m_parent->onShowPlotContextMenuCallback();
 		qDebug("%s this=0x%08x", __FUNCTION__, this);
 		QRect widgetRect = geometry();
-		QPoint mousePos = mapFromGlobal(QCursor::pos());
-		m_config_ui.onShowPlotContextMenu(mousePos);
+		m_config_ui.onShowPlotContextMenu(pos);
 		Ui::SettingsPlot * ui = m_config_ui.ui();
+
+		m_config_ui.m_settingsplot->move(QCursor::pos());
+
 		setConfigValues(m_config);
 		connect(ui->applyButton, SIGNAL(clicked()), this, SLOT(onApplyButton()));
 		connect(ui->saveButton, SIGNAL(clicked()), this, SLOT(onSaveButton()));
 		connect(ui->resetButton, SIGNAL(clicked()), this, SLOT(onResetButton()));
 		connect(ui->defaultButton, SIGNAL(clicked()), this, SLOT(onDefaultButton()));
-		connect(ui->curveColorToolButton, SIGNAL(clicked()), this, SLOT(onColorButton()));
 		connect(ui->curveComboBox, SIGNAL(activated(int)), this, SLOT(onCurveActivate(int)));
 
 		connect(ui->xAutoScaleCheckBox, SIGNAL(stateChanged(int)), SLOT(onXAutoScaleChanged(int)));
@@ -322,6 +322,8 @@ namespace plot {
 			ccfg.m_symbol = ui->symbolComboBox->currentIndex();
 			ccfg.m_symbolsize = ui->symbolSizeSpinBox->value();
 			ccfg.m_show = ui->showCurveCheckBox->checkState() == Qt::Checked;
+			ccfg.m_color = m_config_ui.m_curve_color->currentColor();
+			ccfg.m_symbolcolor = m_config_ui.m_symbol_color->currentColor();
 		}
 
 		m_config.m_acfg[0].m_label = ui->xLabelLineEdit->text();
@@ -394,6 +396,8 @@ namespace plot {
 				ui->styleComboBox->setCurrentIndex(ccfg.m_style);
 				ui->symbolComboBox->setCurrentIndex(ccfg.m_symbol);
 				ui->symbolSizeSpinBox->setValue(ccfg.m_symbolsize);
+				m_config_ui.m_curve_color->setCurrentColor(ccfg.m_color);
+				m_config_ui.m_symbol_color->setCurrentColor(ccfg.m_color);
 				ui->curveColorLabel->setAutoFillBackground(true);
 				int const alpha  = 140;
 				ui->curveColorLabel->setStyleSheet(tr("QLabel { background-color: rgba(%1, %2, %3, %4); }")
@@ -404,17 +408,6 @@ namespace plot {
 				break;
 			}
 		}
-	}
-
-	void BasePlot::onColorButton ()
-	{
-		qDebug("%s", __FUNCTION__);
-		Ui::SettingsPlot * ui = m_config_ui.ui();
-		int const curveidx = ui->curveComboBox->currentIndex();
-		QColor const color = QColorDialog::getColor(m_config.m_ccfg[curveidx].m_color);
-		if (!color.isValid())
-			return;
-		m_config.m_ccfg[curveidx].m_color = color;
 	}
 }
 

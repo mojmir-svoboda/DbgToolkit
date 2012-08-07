@@ -237,7 +237,8 @@ void Connection::onCloseTab ()
 	{
 		DataPlot * dp = (*it);
 		m_main_window->removeDockWidget(dp->m_wd);
-		dp->m_wd->setWidget(0);
+		if (dp->m_wd)
+			dp->m_wd->setWidget(0);
 		delete dp;
 		//delete dp->m_wd;
 		//dp->m_wd = 0;
@@ -573,6 +574,24 @@ void Connection::onShowContextMenu (QPoint const & pos)
 	}
     else
     { }
+}
+
+void Connection::onShowPlots ()
+{
+	qDebug("%s", __FUNCTION__);
+	for (dataplots_t::iterator it = m_dataplots.begin(), ite = m_dataplots.end(); it != ite; ++it)
+	{
+		(*it)->m_plot.onShowPlots();
+	}
+}
+
+void Connection::onHidePlots ()
+{
+	qDebug("%s", __FUNCTION__);
+	for (dataplots_t::iterator it = m_dataplots.begin(), ite = m_dataplots.end(); it != ite; ++it)
+	{
+		(*it)->m_plot.onHidePlots();
+	}
 }
 
 void Connection::onShowPlotContextMenu (QPoint const &)

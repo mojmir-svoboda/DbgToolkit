@@ -53,7 +53,6 @@ namespace plot {
 		void onResetButton ();
 		void onDefaultButton ();
 		void onCurveActivate (int idx);
-		void onColorButton ();
 
 	protected:
 		curves_t m_curves;

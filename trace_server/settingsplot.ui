@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>472</width>
-    <height>193</height>
+    <height>187</height>
    </rect>
   </property>
   <property name="font">
@@ -332,13 +332,6 @@
             </property>
            </widget>
           </item>
-          <item row="8" column="1">
-           <widget class="QToolButton" name="curveColorToolButton">
-            <property name="text">
-             <string>...</string>
-            </property>
-           </widget>
-          </item>
           <item row="9" column="0">
            <spacer name="verticalSpacer_3">
             <property name="orientation">
@@ -351,19 +344,6 @@
              </size>
             </property>
            </spacer>
-          </item>
-          <item row="3" column="3">
-           <widget class="QComboBox" name="symbolComboBox"/>
-          </item>
-          <item row="3" column="2">
-           <widget class="QLabel" name="label_3">
-            <property name="text">
-             <string>Symbol</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-            </property>
-           </widget>
           </item>
           <item row="1" column="2">
            <widget class="QLabel" name="label_19">
@@ -382,26 +362,6 @@
             </property>
            </widget>
           </item>
-          <item row="6" column="2">
-           <widget class="QLabel" name="label_20">
-            <property name="text">
-             <string>Symbol size</string>
-            </property>
-           </widget>
-          </item>
-          <item row="6" column="3">
-           <widget class="QSpinBox" name="symbolSizeSpinBox">
-            <property name="minimum">
-             <number>0</number>
-            </property>
-            <property name="maximum">
-             <number>24</number>
-            </property>
-            <property name="value">
-             <number>5</number>
-            </property>
-           </widget>
-          </item>
           <item row="6" column="0">
            <widget class="QLabel" name="label_2">
             <property name="text">
@@ -415,19 +375,51 @@
           <item row="6" column="1">
            <widget class="QComboBox" name="styleComboBox"/>
           </item>
-          <item row="7" column="2">
+          <item row="8" column="1">
+           <layout class="QHBoxLayout" name="curveColorLayout"/>
+          </item>
+          <item row="8" column="2">
            <widget class="QLabel" name="label_21">
             <property name="text">
              <string>Symbol color</string>
             </property>
            </widget>
           </item>
-          <item row="7" column="3">
-           <widget class="QToolButton" name="symbolColorButton">
+          <item row="8" column="3">
+           <layout class="QHBoxLayout" name="symbolColorLayout"/>
+          </item>
+          <item row="7" column="2">
+           <widget class="QLabel" name="label_20">
             <property name="text">
-             <string>...</string>
+             <string>Symbol size</string>
             </property>
            </widget>
+          </item>
+          <item row="7" column="3">
+           <widget class="QSpinBox" name="symbolSizeSpinBox">
+            <property name="minimum">
+             <number>0</number>
+            </property>
+            <property name="maximum">
+             <number>24</number>
+            </property>
+            <property name="value">
+             <number>5</number>
+            </property>
+           </widget>
+          </item>
+          <item row="6" column="2">
+           <widget class="QLabel" name="label_3">
+            <property name="text">
+             <string>Symbol</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="6" column="3">
+           <widget class="QComboBox" name="symbolComboBox"/>
           </item>
          </layout>
         </item>
