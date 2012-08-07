@@ -61,6 +61,9 @@ namespace plot {
 			qDebug("%s", __FUNCTION__);
 			bool const visible = m_settingsplot->isVisible();
 			m_settingsplot->setVisible(!visible);
+
+			if (m_settingsplot->isVisible())
+				m_settingsplot->move(pos);
 		}
 
 		void onHidePlotContextMenu ()

@@ -186,6 +186,12 @@ namespace plot {
 			ar & m_unused_b1;
 			ar & m_unused_b2;
 		}
+
+		void partialLoadFrom (PlotConfig const & rhs)
+		{
+			m_tag = rhs.m_tag;
+			m_ccfg = rhs.m_ccfg;
+		}
 	};
 
 	bool loadConfig (PlotConfig & config, QString const & fname);

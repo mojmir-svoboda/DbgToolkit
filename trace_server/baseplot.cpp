@@ -249,10 +249,8 @@ namespace plot {
 	{
 		qDebug("%s this=0x%08x", __FUNCTION__, this);
 		QRect widgetRect = geometry();
-		m_config_ui.onShowPlotContextMenu(pos);
+		m_config_ui.onShowPlotContextMenu(QCursor::pos());
 		Ui::SettingsPlot * ui = m_config_ui.ui();
-
-		m_config_ui.m_settingsplot->move(QCursor::pos());
 
 		setConfigValues(m_config);
 		connect(ui->applyButton, SIGNAL(clicked()), this, SLOT(onApplyButton()));
@@ -374,13 +372,14 @@ namespace plot {
 		//ui->zScaleComboBox->setEnabled(enabled);
 	}
 
-	void BasePlot::onSaveButton ()
-	{
-		saveConfig(m_config, m_fname);
-	}
-
+	void BasePlot::onSaveButton () { saveConfig(m_config, m_fname); }
 	void BasePlot::onResetButton () { setConfigValues(m_config); }
-	void BasePlot::onDefaultButton () { setConfigValues(PlotConfig()); }
+	void BasePlot::onDefaultButton ()
+	{
+		PlotConfig defaults;
+		defaults.partialLoadFrom(m_config);
+		setConfigValues(defaults);
+	}
 
 	void BasePlot::onCurveActivate (int idx)
 	{
@@ -398,13 +397,13 @@ namespace plot {
 				ui->symbolSizeSpinBox->setValue(ccfg.m_symbolsize);
 				m_config_ui.m_curve_color->setCurrentColor(ccfg.m_color);
 				m_config_ui.m_symbol_color->setCurrentColor(ccfg.m_color);
-				ui->curveColorLabel->setAutoFillBackground(true);
+				/*ui->curveColorLabel->setAutoFillBackground(true);
 				int const alpha  = 140;
 				ui->curveColorLabel->setStyleSheet(tr("QLabel { background-color: rgba(%1, %2, %3, %4); }")
 													.arg(ccfg.m_color.red())
 													.arg(ccfg.m_color.green())
 													.arg(ccfg.m_color.blue())
-													.arg(alpha));
+													.arg(alpha));*/
 				break;
 			}
 		}
