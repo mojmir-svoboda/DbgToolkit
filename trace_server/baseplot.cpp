@@ -2,6 +2,7 @@
 #include "qwt/qwt_legend_item.h"
 #include "qwt/qwt_plot_panner.h"
 #include "qwt/qwt_plot_zoomer.h"
+#include "qwt/qwt_plot_magnifier.h"
 #include "qwt/qwt_picker_machine.h"
 #include <QTimer>
 
@@ -69,7 +70,7 @@ namespace plot {
 		}
 
 		setContextMenuPolicy(Qt::CustomContextMenu);
-		connect(this, SIGNAL(customContextMenuRequested(QPoint const &)), oparent, SLOT(onShowPlotContextMenu(QPoint const &)));
+		//connect(this, SIGNAL(customContextMenuRequested(QPoint const &)), oparent, SLOT(onShowPlotContextMenu(QPoint const &)));
 		connect(this, SIGNAL(customContextMenuRequested(QPoint const &)), this, SLOT(onShowPlotContextMenu(QPoint const &)));
 
 		m_colors.push_back(Qt::black);
@@ -86,9 +87,10 @@ namespace plot {
 		m_colors.push_back(Qt::yellow);
 		m_colors.push_back(Qt::darkYellow);
 		
-		//applyConfig(m_config);
 		setAutoReplot(true);
-		replot();
+
+		QwtPlotMagnifier * lookglass = new QwtPlotMagnifier(canvas());
+		canvas()->setFocusPolicy(Qt::WheelFocus);
 
 		QwtPlotZoomer * zoomer = new QwtPlotZoomer(canvas());
 		zoomer->setRubberBandPen( QColor( Qt::black ) );

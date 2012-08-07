@@ -200,12 +200,12 @@ int main ()
 #endif
 	TRACE_APPNAME("WarHorse_App");
 	TRACE_CONNECT();
-	for (int i = 0; i < 128 * 128; ++i)
+	for (int i = 0; i < 128 * 16; ++i)
 	{
 		float x = 3.1415926535 * 2 / 128.0f * static_cast<float>(i);
-		float y = sinf(x);
 		TRACE_DATA_XY(trace::e_Info, trace::CTX_Default, x, sinf(x), "sample_plot/%s", "sin");
-		TRACE_DATA_XY(trace::e_Info, trace::CTX_Default, x, cosf(y), "sample_plot/%s", "cos");
+		TRACE_DATA_XY(trace::e_Info, trace::CTX_Default, x, cosf(x), "sample_plot/%s", "cos");
+		TRACE_DATA_XY(trace::e_Info, trace::CTX_Default, x, sinf(x) * cosf(x), "sample_plot2/%s", "cos");
 	}
 	return 0;
 
