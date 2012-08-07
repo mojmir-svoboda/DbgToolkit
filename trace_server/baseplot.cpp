@@ -86,16 +86,15 @@ namespace plot {
 		m_colors.push_back(Qt::yellow);
 		m_colors.push_back(Qt::darkYellow);
 		
-		applyConfig(m_config);
+		//applyConfig(m_config);
 		setAutoReplot(true);
 		replot();
-
 
 		QwtPlotZoomer * zoomer = new QwtPlotZoomer(canvas());
 		zoomer->setRubberBandPen( QColor( Qt::black ) );
 		zoomer->setTrackerPen( QColor( Qt::black ) );
 		zoomer->setMousePattern( QwtEventPattern::MouseSelect2, Qt::RightButton, Qt::ControlModifier );
-		zoomer->setMousePattern( QwtEventPattern::MouseSelect3, Qt::RightButton );
+		zoomer->setMousePattern( QwtEventPattern::MouseSelect3, Qt::RightButton, Qt::ShiftModifier);
 
 		QwtPlotPicker * picker = new QwtPlotPicker(QwtPlot::xBottom, QwtPlot::yLeft,
 											QwtPlotPicker::CrossRubberBand, QwtPicker::AlwaysOn,
@@ -108,6 +107,7 @@ namespace plot {
 		QwtPlotPanner * panner = new QwtPlotPanner(canvas());
 		panner->setMouseButton(Qt::MidButton);
 		QTimer::singleShot(0, this, SLOT(replot()));
+		onApplyButton();
 	}
 
 	BasePlot::~BasePlot ()
@@ -129,6 +129,12 @@ namespace plot {
 	void BasePlot::onShowPlots ()
 	{
 		show();
+		for (curves_t::iterator it = m_curves.begin(), ite = m_curves.end(); it != ite; ++it)
+		{
+			Curve & curve = **it;
+			showCurve(curve.getCurve(), true);
+		}
+
 		// show curves?
 	}
 
@@ -163,7 +169,7 @@ namespace plot {
 			curve->m_curve->setTitle(cc.m_tag);
 			curve->m_curve->setStyle(static_cast<QwtPlotCurve::CurveStyle>(cc.m_style - 1));
 			QwtSymbol * symbol = new QwtSymbol(static_cast<QwtSymbol::Style>(cc.m_symbol - 1));
-			symbol->setSize(4);
+			symbol->setSize(cc.m_symbolsize);
 			symbol->setPen(QPen(cc.m_color));
 			curve->m_curve->setSymbol(symbol);
 			//curve->m_curve->setBaseline(cc.m_pen_width);
@@ -314,6 +320,7 @@ namespace plot {
 		ccfg.m_pen_width = ui->penWidthDblSpinBox->value();
 		ccfg.m_style = ui->styleComboBox->currentIndex();
 		ccfg.m_symbol = ui->symbolComboBox->currentIndex();
+		ccfg.m_symbolsize = ui->symbolSizeSpinBox->value();
 		ccfg.m_show = ui->showCurveCheckBox->checkState() == Qt::Checked;
 
 		m_config.m_acfg[0].m_label = ui->xLabelLineEdit->text();
@@ -385,6 +392,7 @@ namespace plot {
 				ui->penWidthDblSpinBox->setValue(ccfg.m_pen_width);
 				ui->styleComboBox->setCurrentIndex(ccfg.m_style);
 				ui->symbolComboBox->setCurrentIndex(ccfg.m_symbol);
+				ui->symbolSizeSpinBox->setValue(ccfg.m_symbolsize);
 				ui->curveColorLabel->setAutoFillBackground(true);
 				int const alpha  = 140;
 				ui->curveColorLabel->setStyleSheet(tr("QLabel { background-color: rgba(%1, %2, %3, %4); }")

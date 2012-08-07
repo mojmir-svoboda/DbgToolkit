@@ -42,6 +42,8 @@ namespace plot {
 		int m_style;
 		int m_symbol;
 		QColor m_color;
+		QColor m_symbolcolor;
+		int m_symbolsize;
 		bool m_show;
 		bool m_unused_b0;
 		bool m_unused_b1;
@@ -52,6 +54,8 @@ namespace plot {
 			, m_style(1)
 			, m_symbol(0)
 			, m_color(Qt::red)
+			, m_symbolcolor(Qt::red)
+			, m_symbolsize(6)
 			, m_show(true)
 			, m_unused_b0(true)
 			, m_unused_b1(true)
@@ -66,6 +70,8 @@ namespace plot {
 			ar & m_pen_width;
 			ar & m_style;
 			ar & m_symbol;
+			ar & m_symbolcolor;
+			ar & m_symbolsize;
 			ar & m_color;
 			ar & m_show;
 			ar & m_unused_b0;
