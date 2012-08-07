@@ -126,6 +126,18 @@ namespace plot {
 		//QwtPlot::~QwtPlot();
 	}
 
+	void BasePlot::onShowPlots ()
+	{
+		show();
+		// show curves?
+	}
+
+	void BasePlot::onHidePlots ()
+	{
+		hide();
+		// hide curves?
+	}
+
 	void BasePlot::applyAxis (AxisConfig const & acfg)
 	{
 		setAxisTitle(acfg.m_axis_pos, acfg.m_label);

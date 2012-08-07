@@ -87,6 +87,9 @@ public slots:
 	void onClearCurrentScopeFilter ();
 	void onApplyColumnSetup ();
 
+	void onShowPlots ();
+	void onHidePlots ();
+
 	void onCloseMarkedTabs ();
 	void onCloseCurrentTab ();
 	void onCloseTab (QWidget * w);

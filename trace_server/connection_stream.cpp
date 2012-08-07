@@ -58,6 +58,22 @@ bool Connection::saveConfigForPlot (plot::PlotConfig const & config, QString con
 	return saveConfig(config, fname);
 }
 
+void Connection::onShowPlots ()
+{
+	for (dataplots_t::iterator it = m_dataplots.begin(), ite = m_dataplots.end(); it != ite; ++it)
+	{
+		(*it)->onShowPlots();
+	}
+}
+
+void Connection::onHidePlots ()
+{
+	for (dataplots_t::iterator it = m_dataplots.begin(), ite = m_dataplots.end(); it != ite; ++it)
+	{
+		(*it)->onHidePlots();
+	}
+}
+
 void Connection::appendDataXY (QString const & msg_tag, double x, double y)
 {
 	QString tag = msg_tag;
@@ -83,10 +99,17 @@ void Connection::appendDataXY (QString const & msg_tag, double x, double y)
 		dp->m_wd = mkDockWidget(m_main_window, &dp->m_plot, QString(sessionState().m_name + "/" + tag));
 		it = m_dataplots.insert(tag, dp);
 		plot::Curve * curve = (*it)->m_plot.findCurve(subtag);
-		//if (template_config.m_show)
+		if (m_main_window->plotEnabled() && template_config.m_show)
 		{
-			dp->m_plot.showCurve(curve->m_curve, curve->m_config.m_show);
+			dp->m_plot.showCurve(curve->m_curve, true);
 			dp->m_plot.show();
+			dp->m_wd->setVisible(true);
+		}
+		else
+		{
+			dp->m_plot.showCurve(curve->m_curve, false);
+			dp->m_plot.hide();
+			dp->m_wd->setVisible(false);
 		}
 	}
 	(*it)->m_plot.findCurve(subtag)->m_data->push_back(x, y);

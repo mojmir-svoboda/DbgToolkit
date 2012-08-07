@@ -145,6 +145,7 @@ public:
 	bool autoScrollEnabled () const;
 	bool reuseTabEnabled () const;
 	bool filterEnabled () const;
+	bool plotEnabled () const;
 	bool buffEnabled () const;
 	Qt::CheckState buffState () const;
 	bool clrFltEnabled () const;
@@ -206,6 +207,7 @@ private slots:
 	void onDumpFilters ();
 	void onFilterModeActivate (int idx);
 	void onReuseTabChanged (int state);
+	void onPlotStateChanged (int state);
 	void onFilterFile (int state);
 	void onSettingsAppSelected (int idx, bool first_time = false);
 	void onClickedAtSettingPooftahButton ();

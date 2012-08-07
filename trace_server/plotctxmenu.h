@@ -56,8 +56,8 @@ namespace plot {
 
 		void onHidePlotContextMenu ()
 		{
-			//qDebug("%s", __FUNCTION__);
-			//m_settingsplot->setVisible(false);
+			qDebug("%s", __FUNCTION__);
+			m_settingsplot->setVisible(false);
 		}
 
 		Ui::SettingsPlot * ui () { return ui_settingsplot; }

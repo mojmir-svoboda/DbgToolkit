@@ -571,6 +571,18 @@ void Server::incomingConnection (int socketDescriptor)
 	connection->start();*/
 }
 
+void Server::onShowPlots ()
+{
+
+}
+void Server::onHidePlots ()
+{
+	for (connections_t::iterator it = m_connections.begin(), ite = m_connections.end(); it != ite; ++it)
+	{
+		it->second->onHidePlots();
+	}
+}
+
 void Server::onCloseTab (int idx, QWidget * w)
 {
 	MainWindow * main_window = static_cast<MainWindow *>(parent());

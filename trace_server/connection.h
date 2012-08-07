@@ -85,6 +85,17 @@ struct DataPlot {
 	QString m_fname;
 
 	DataPlot (Connection * parent, plot::PlotConfig & config, QString const & fname);
+
+	void onShowPlots ()
+	{
+		m_wd->show();
+		m_plot.onShowPlots();
+	}
+	void onHidePlots ()
+	{
+		m_wd->hide();
+		m_plot.onHidePlots();
+	}
 };
 
 typedef QMap<QString, DataPlot *> dataplots_t;
@@ -157,6 +168,8 @@ public slots:
 	void onClearCurrentScopeFilter ();
 	void onShowContextMenu (QPoint const & pos);
 	void onShowPlotContextMenu (QPoint const &);
+	void onShowPlots ();
+	void onHidePlots ();
 	void onExcludeFileLine ();
 	void onToggleRefFromRow ();
 	void onExcludeFileLine (QModelIndex const & row_index);

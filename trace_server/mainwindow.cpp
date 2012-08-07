@@ -140,6 +140,7 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode)
 
 	connect(ui->levelSpinBox, SIGNAL(valueChanged(int)), m_server, SLOT(onLevelValueChanged(int)));
 	connect(ui->filterFileCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onFilterFile(int)));
+	connect(ui->plotsCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onPlotStateChanged(int)));
 	connect(ui->buffCheckBox, SIGNAL(stateChanged(int)), m_server, SLOT(onBufferingStateChanged(int)));
 	//@FIXME: this has some issues
 	//connect(ui_settings->onTopCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onOnTop(int)));
@@ -312,6 +313,7 @@ bool MainWindow::cutNamespaceEnabled () const { return ui_settings->cutNamespace
 int MainWindow::cutNamespaceLevel () const { return ui_settings->cutNamespaceSpinBox->value(); }
 bool MainWindow::onTopEnabled () const { return ui_settings->onTopCheckBox->isChecked(); }
 bool MainWindow::filterEnabled () const { return ui->filterFileCheckBox->isEnabled() && ui->filterFileCheckBox->isChecked(); }
+bool MainWindow::plotEnabled () const { return ui->plotsCheckBox->isChecked(); }
 bool MainWindow::reuseTabEnabled () const { return ui_settings->reuseTabCheckBox->isChecked(); }
 bool MainWindow::autoScrollEnabled () const { return !m_config.m_dump_mode && ui->autoScrollCheckBox->isChecked(); }
 bool MainWindow::buffEnabled () const { return ui->buffCheckBox->isChecked(); }
@@ -354,6 +356,18 @@ void MainWindow::onQuit ()
 void MainWindow::onReuseTabChanged (int state)
 {
 	ui_settings->clrFiltersCheckBox->setEnabled(state);
+}
+
+void MainWindow::onPlotStateChanged (int state)
+{
+	m_server->onHidePlots();
+	if (state == Qt::Checked)
+	{
+		Connection * conn = m_server->findCurrentConnection();
+		if (!conn) return;
+
+		conn->onShowPlots();
+	}
 }
 
 void MainWindow::onFilterFile (int state)

@@ -40,6 +40,13 @@
        </widget>
       </item>
       <item>
+       <widget class="QCheckBox" name="plotsCheckBox">
+        <property name="text">
+         <string>plots</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QCheckBox" name="buffCheckBox">
         <property name="font">
          <font>
@@ -548,7 +555,7 @@
      <x>0</x>
      <y>0</y>
      <width>906</width>
-     <height>16</height>
+     <height>18</height>
     </rect>
    </property>
   </widget>
