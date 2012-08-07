@@ -137,6 +137,7 @@ public:
 	void loadToRegexps (std::string const & filter_item, bool inclusive, bool enabled);
 	bool loadConfigForPlot (plot::PlotConfig & config, QString const & tag);
 	bool saveConfigForPlot (plot::PlotConfig const & config, QString const & tag);
+	bool filterEnabled () const { return m_main_window->filterEnabled(); }
 
 signals:
 	void readyForUse();

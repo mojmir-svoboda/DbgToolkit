@@ -392,10 +392,13 @@
           <item row="6" column="3">
            <widget class="QSpinBox" name="symbolSizeSpinBox">
             <property name="minimum">
-             <number>5</number>
+             <number>0</number>
             </property>
             <property name="maximum">
              <number>24</number>
+            </property>
+            <property name="value">
+             <number>5</number>
             </property>
            </widget>
           </item>

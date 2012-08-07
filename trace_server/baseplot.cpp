@@ -106,8 +106,7 @@ namespace plot {
 
 		QwtPlotPanner * panner = new QwtPlotPanner(canvas());
 		panner->setMouseButton(Qt::MidButton);
-		QTimer::singleShot(0, this, SLOT(replot()));
-		onApplyButton();
+		QTimer::singleShot(0, this, SLOT(onApplyButton()));
 	}
 
 	BasePlot::~BasePlot ()
@@ -159,6 +158,7 @@ namespace plot {
 
 	void BasePlot::applyConfig (PlotConfig const & pcfg)
 	{
+		qDebug("%s this=0x%08x", __FUNCTION__, this);
 		setTitle(pcfg.m_title);
 		for (size_t c = 0, ce = pcfg.m_ccfg.size(); c < ce; ++c)
 		{
@@ -306,6 +306,7 @@ namespace plot {
 
 	void BasePlot::onApplyButton ()
 	{
+		qDebug("%s this=0x%08x", __FUNCTION__, this);
 		Ui::SettingsPlot * ui = m_config_ui.ui();
 		m_config.m_auto_scroll = ui->autoScrollCheckBox->checkState() == Qt::Checked;
 		m_config.m_timer_delay_ms = ui->updateTimerSpinBox->value();
@@ -313,15 +314,15 @@ namespace plot {
 		m_config.m_show = ui->plotShowCheckBox->checkState() == Qt::Checked;
 
 		int const curveidx = ui->curveComboBox->currentIndex();
-		if (curveidx < 0 || curveidx >= m_config.m_ccfg.size())
-			return;
-
-		CurveConfig & ccfg = m_config.m_ccfg[curveidx];
-		ccfg.m_pen_width = ui->penWidthDblSpinBox->value();
-		ccfg.m_style = ui->styleComboBox->currentIndex();
-		ccfg.m_symbol = ui->symbolComboBox->currentIndex();
-		ccfg.m_symbolsize = ui->symbolSizeSpinBox->value();
-		ccfg.m_show = ui->showCurveCheckBox->checkState() == Qt::Checked;
+		if (curveidx >= 0 && curveidx < m_config.m_ccfg.size())
+		{
+			CurveConfig & ccfg = m_config.m_ccfg[curveidx];
+			ccfg.m_pen_width = ui->penWidthDblSpinBox->value();
+			ccfg.m_style = ui->styleComboBox->currentIndex();
+			ccfg.m_symbol = ui->symbolComboBox->currentIndex();
+			ccfg.m_symbolsize = ui->symbolSizeSpinBox->value();
+			ccfg.m_show = ui->showCurveCheckBox->checkState() == Qt::Checked;
+		}
 
 		m_config.m_acfg[0].m_label = ui->xLabelLineEdit->text();
 		m_config.m_acfg[0].m_from = ui->xFromDblSpinBox->value();
