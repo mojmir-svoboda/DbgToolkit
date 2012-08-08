@@ -6,6 +6,7 @@
 #include "modelview.h"
 #include "utils.h"
 #include "filterproxy.h"
+#include "qtsln/qtcolorpicker/qtcolorpicker.h"
 
 void Connection::onInvalidateFilter ()
 {
@@ -466,6 +467,7 @@ void Connection::loadToColorRegexps (std::string const & filter_item, std::strin
 	sessionState().setRegexChecked(filter_item, enabled);
 }
 
+#include <QDialogButtonBox>
 
 void Connection::recompileColorRegexps ()
 {
@@ -475,6 +477,7 @@ void Connection::recompileColorRegexps ()
 		QStandardItem * root = m_color_regex_model->invisibleRootItem();
 		QString const qregex = QString::fromStdString(ct.m_regex_str);
 		QStandardItem * child = findChildByText(root, qregex);
+		QModelIndex const idx = m_color_regex_model->indexFromItem(child);
 		ct.m_is_enabled = false;
 		if (!child)
 			continue;
@@ -486,6 +489,12 @@ void Connection::recompileColorRegexps ()
 			bool const checked = (child->checkState() == Qt::Checked);
 			if (child && checked)
 			{
+				if (m_main_window->getWidgetColorRegex()->indexWidget(idx) == 0)
+				{
+					QWidget * w = new QtColorPicker(m_main_window->getWidgetColorRegex(), qregex);
+					m_main_window->getWidgetColorRegex()->setIndexWidget(idx, w);
+				}
+
 				child->setData(QBrush(Qt::green), Qt::BackgroundRole);
 				child->setToolTip(tr("ok"));
 				ct.m_is_enabled = true;

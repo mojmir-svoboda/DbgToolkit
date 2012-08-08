@@ -85,6 +85,8 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode)
 	m_tray_icon->show();
 
 	setAcceptDrops(true);
+	setDockNestingEnabled(true);
+	setAnimated(false);
 
 	QSettings settings("MojoMir", "TraceServer");
 	bool const on_top = settings.value("onTopCheckBox", true).toBool();
@@ -141,6 +143,7 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode)
 	connect(ui->levelSpinBox, SIGNAL(valueChanged(int)), m_server, SLOT(onLevelValueChanged(int)));
 	connect(ui->filterFileCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onFilterFile(int)));
 	connect(ui->plotsCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onPlotStateChanged(int)));
+	connect(ui->plotSaveAllButton, SIGNAL(clicked()), this, SLOT(onPlotSaveAllButton()));
 	connect(ui->buffCheckBox, SIGNAL(stateChanged(int)), m_server, SLOT(onBufferingStateChanged(int)));
 	//@FIXME: this has some issues
 	//connect(ui_settings->onTopCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onOnTop(int)));
@@ -899,6 +902,23 @@ void MainWindow::onRmCurrentFileFilter ()
 		ui->presetComboBox->addItem(m_config.m_preset_names.at(i));
 	//setPresetNameIntoComboBox(preset_name);
 	storePresetNames();
+}
+void onPlotSaveAllButton ();
+	void onPlotSaveAllButton ();
+	void onPlotRestoreButton ();
+
+void MainWindow::onPlotSaveAllButton ()
+{
+	QSettings settings("MojoMir", "TraceServer");
+	settings.setValue("MainWindow/State", saveState());
+	settings.setValue("MainWindow/Geometry", saveGeometry());
+}
+
+void MainWindow::onPlotRestoreButton ()
+{
+	QSettings settings("MojoMir", "TraceServer");
+	restoreState(settings.value("MainWindow/State").toByteArray());
+	restoreGeometry(settings.value("MainWindow/Geometry").toByteArray());
 }
 
 void MainWindow::storePresetNames ()

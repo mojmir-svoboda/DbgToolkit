@@ -265,7 +265,7 @@ private:
 
     \sa QFrame
 */
-QtColorPicker::QtColorPicker(QWidget *parent,
+QtColorPicker::QtColorPicker(QWidget *parent, QString const & label,
 			     int cols, bool enableColorDialog)
     : QPushButton(parent), popup(0), withColorDialog(enableColorDialog)
 {
@@ -275,8 +275,8 @@ QtColorPicker::QtColorPicker(QWidget *parent,
     setAutoFillBackground(true);
     setCheckable(true);
 
-    // Set text
-    setText(tr("Black"));
+	if (label != QString::null)
+		setText(label);
     firstInserted = false;
 
     // Create and set icon
@@ -441,7 +441,6 @@ void QtColorPicker::setCurrentColor(const QColor &color)
     }
 
     col = color;
-    setText(item->text());
 
     dirty = true;
 
@@ -463,7 +462,6 @@ void QtColorPicker::insertColor(const QColor &color, const QString &text, int in
     popup->insertColor(color, text, index);
     if (!firstInserted) {
 	col = color;
-	setText(text);
 	firstInserted = true;
     }
 }

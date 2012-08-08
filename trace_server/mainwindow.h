@@ -208,6 +208,8 @@ private slots:
 	void onFilterModeActivate (int idx);
 	void onReuseTabChanged (int state);
 	void onPlotStateChanged (int state);
+	void onPlotSaveAllButton ();
+	void onPlotRestoreButton ();
 	void onFilterFile (int state);
 	void onSettingsAppSelected (int idx, bool first_time = false);
 	void onClickedAtSettingPooftahButton ();
