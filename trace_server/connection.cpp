@@ -581,7 +581,7 @@ void Connection::onShowPlots ()
 	qDebug("%s", __FUNCTION__);
 	for (dataplots_t::iterator it = m_dataplots.begin(), ite = m_dataplots.end(); it != ite; ++it)
 	{
-		(*it)->m_plot.onShowPlots();
+		(*it)->onShowPlots();
 	}
 }
 
@@ -590,7 +590,7 @@ void Connection::onHidePlots ()
 	qDebug("%s", __FUNCTION__);
 	for (dataplots_t::iterator it = m_dataplots.begin(), ite = m_dataplots.end(); it != ite; ++it)
 	{
-		(*it)->m_plot.onHidePlots();
+		(*it)->onHidePlots();
 	}
 }
 

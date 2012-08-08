@@ -81,10 +81,20 @@ void Connection::appendDataXY (QString const & msg_tag, double x, double y)
 		
 		DataPlot * const dp = new DataPlot(this, template_config, fname);
 		it = m_dataplots.insert(tag, dp);
-		mkDockWidget(m_main_window, &dp->m_plot, QString(sessionState().m_name + "/" + tag));
+		dp->m_wd = mkDockWidget(m_main_window, &dp->m_plot, QString(sessionState().m_name + "/" + tag));
 		plot::Curve * curve = (*it)->m_plot.findCurve(subtag);
-		dp->m_plot.showCurve(curve->m_curve, true);
-		dp->m_plot.show();
+
+		if (m_main_window->plotEnabled() && template_config.m_show)
+		{
+			dp->m_plot.showCurve(curve->m_curve, true);
+			dp->m_plot.show();
+		}
+		else
+		{
+			dp->m_plot.showCurve(curve->m_curve, false);
+			dp->m_plot.hide();
+			dp->m_wd->hide();
+		}
 	}
 	else
 	{
