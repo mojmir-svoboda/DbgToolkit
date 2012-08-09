@@ -11,11 +11,9 @@ int main (int argc, char * argv[])
 
 	printf("TraceServer launcher...\n");
 
-	char const * g_TraceName = "trace_server.exe";
-	char const * g_TraceNameRun = "trace_server_running.exe";
 	try {
-
-		trace::runTraceServer(g_TraceName, g_TraceNameRun);
+		trace::tryUpdateTraceServer(argv[1], argv[2]);
+		trace::runTraceServer(argv[1], argv[2]);
 	}
 	catch (...)
 	{

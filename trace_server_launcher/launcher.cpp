@@ -74,12 +74,22 @@ void tryCopyTraceServer (char const * origname, char const * runname)
 
 void tryUpdateTraceServer (char const * origname, char const * runname)
 {
-	if (fileExists(origname) && fileExists(runname))
+	bool const orig_exists = fileExists(origname);
+	if (!orig_exists)
+	{
+		printf("Error: source file not present, nothing to do\n");
+		return;
+	}
+	if (fileExists(runname))
 	{
 		if (false == compareFiles(origname, runname))
 			tryCopyTraceServer(origname, runname);
 		else
 			printf("up to date.\n");
+	}
+	else
+	{
+		tryCopyTraceServer(origname, runname);
 	}
 }
 
