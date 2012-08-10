@@ -40,7 +40,8 @@ namespace trace {
 
 		sys::Thread g_ThreadSend(THREAD_PRIORITY_HIGHEST);		/// consumer-sender thread (high priority)
 		sys::Thread g_ThreadRecv(THREAD_PRIORITY_LOWEST);		/// receiving thread (low priority)
-		SOCKET g_Socket = INVALID_SOCKET;
+		typedef SOCKET socket_t;
+		socket_t g_Socket = INVALID_SOCKET;
 		HANDLE g_LogFile = INVALID_HANDLE_VALUE;
 		sys::Timer g_ReconnectTimer;
 		sys::Timer g_ClottedTimer;
@@ -217,7 +218,7 @@ namespace trace {
 	}
 
 	namespace socks {
-		void connect (char const * host, char const * port)
+		void connect (char const * host, char const * port, socket_t & handle)
 		{
 			WSADATA wsaData;
 			int const init_result = WSAStartup(MAKEWORD(2,2), &wsaData);
@@ -243,18 +244,18 @@ namespace trace {
 			// attempt to connect to an address until one succeeded
 			for (addrinfo * ptr = result; ptr != NULL ; ptr = ptr->ai_next) {
 				// create a SOCKET for connecting to server
-				g_Socket = socket(ptr->ai_family, ptr->ai_socktype, ptr->ai_protocol);
-				if (g_Socket == INVALID_SOCKET) {
+				handle = socket(ptr->ai_family, ptr->ai_socktype, ptr->ai_protocol);
+				if (handle == INVALID_SOCKET) {
 					DBG_OUT("socket failed with error: %ld\n", get_errno());
 					WSACleanup();
 					return;
 				}
 
 				// Connect to server.
-				int const connect_result = connect(g_Socket, ptr->ai_addr, (int)ptr->ai_addrlen);
+				int const connect_result = connect(handle, ptr->ai_addr, (int)ptr->ai_addrlen);
 				if (connect_result == SOCKET_ERROR) {
-					closesocket(g_Socket);
-					g_Socket = INVALID_SOCKET;
+					closesocket(handle);
+					handle = INVALID_SOCKET;
 					continue;
 				}
 				break;
@@ -262,7 +263,7 @@ namespace trace {
 
 			freeaddrinfo(result);
 
-			if (g_Socket == INVALID_SOCKET)
+			if (handle == INVALID_SOCKET)
 			{
 				DBG_OUT("Unable to connect to server!\n");
 				WSACleanup();
@@ -270,10 +271,10 @@ namespace trace {
 			}
 
 			int send_buff_sz = 64 * 1024;
-			setsockopt(g_Socket, SOL_SOCKET, SO_SNDBUF, reinterpret_cast<char *>(&send_buff_sz), sizeof(int));
+			setsockopt(handle, SOL_SOCKET, SO_SNDBUF, reinterpret_cast<char *>(&send_buff_sz), sizeof(int));
 
 			DWORD send_timeout_ms = 1;
-			setsockopt(g_Socket, SOL_SOCKET, SO_SNDTIMEO, reinterpret_cast<char *>(&send_timeout_ms), sizeof(DWORD));
+			setsockopt(handle, SOL_SOCKET, SO_SNDTIMEO, reinterpret_cast<char *>(&send_timeout_ms), sizeof(DWORD));
 		}
 
 		bool try_connect ()
@@ -284,7 +285,7 @@ namespace trace {
 			// send cmd_setup message
 			encode_setup(msg, GetRuntimeLevel(), GetRuntimeContextMask());
 
-			socks::connect("localhost", "13127");
+			socks::connect("localhost", "13127", g_Socket);
 
 			if (socks::is_connected())
 			{
