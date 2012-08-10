@@ -53,6 +53,10 @@ namespace tlv {
 	static cmd_t const cmd_profile_frame_bgn = 0xED;	/// send profiling frame begin
 	static cmd_t const cmd_profile_frame_end = 0xEC;	/// send profiling frame end
 
+	static cmd_t const cmd_shutdown          = 0xCF;	/// request to shut down server
+	static cmd_t const cmd_ping          	 = 0xCE;	/// ping
+	static cmd_t const cmd_pong          	 = 0xCD;	/// ping response
+
 	enum e_Tags
 	{
 		tag_invalid = 0,  /// invalid tag value

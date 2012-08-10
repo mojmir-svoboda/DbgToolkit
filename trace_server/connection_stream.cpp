@@ -336,6 +336,19 @@ void Connection::processDataStream (QDataStream & stream)
 	}
 }
 
+bool Connection::handlePingCommand (DecodedCommand const & cmd)
+{
+	// close created tab?
+	return true;
+}
+
+bool Connection::handleShutdownCommand (DecodedCommand const & cmd)
+{
+	qDebug("remote shutdown requested");
+	//QTimer::singleShot(0, m_main_window, SLOT(close()));
+	return true;
+}
+
 bool Connection::tryHandleCommand (DecodedCommand const & cmd)
 {
 	switch (cmd.hdr.cmd)
@@ -348,6 +361,8 @@ bool Connection::tryHandleCommand (DecodedCommand const & cmd)
 		case tlv::cmd_scope_exit:	handleLogCommand(cmd); break;
 		case tlv::cmd_save_tlv:		handleSaveTLVCommand(cmd); break;
 		case tlv::cmd_export_csv:   handleExportCSVCommand(cmd); break;
+		case tlv::cmd_ping:			handlePingCommand(cmd); break;
+		case tlv::cmd_shutdown:     handleShutdownCommand(cmd); break;
 		default: qDebug("unknown command, ignoring\n"); break;
 	}
 

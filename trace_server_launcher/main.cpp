@@ -1,5 +1,6 @@
 #include <cstdlib>
 #include <cstdio>
+#include <exception>
 #include "test_server.h"
 #include "launcher.h"
 
@@ -23,6 +24,12 @@ int main (int argc, char * argv[])
 
 		printf("launcher: starting test server...\n");
 
+		while (isTraceServerRunning())
+		{
+			printf("launcher: shutting down server...\n");
+			tryTraceServerShutdown();
+			Sleep(1000);
+		}
 		trace::tryUpdateTraceServer(argv[1], argv[2]);
 		trace::runTraceServer(argv[1], argv[2]);
 	}

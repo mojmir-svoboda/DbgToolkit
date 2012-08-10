@@ -1,24 +1,6 @@
-#if defined __MINGW32__
-#	undef _WIN32_WINNT
-#	define _WIN32_WINNT 0x0600 
-#endif
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#include <winsock2.h>
-#include <ws2tcpip.h>
-#include <cstdlib>	// for atoi
-#include <cstdio>	// for vsnprintf etc
-// Need to link with Ws2_32.lib, Mswsock.lib, and Advapi32.lib
-#if defined WIN32
-#	pragma comment (lib, "Ws2_32.lib")
-#	pragma comment (lib, "Mswsock.lib")
-#	pragma comment (lib, "AdvApi32.lib")
-#elif defined WIN64
-#	pragma comment (lib, "Ws2.lib")
-#	pragma comment (lib, "Mswsock.lib")
-#endif
 #include <tlv_parser/tlv_parser.h>
 #include <tlv_parser/tlv_decoder.h>
+#include <sysfn/socket_win.h>
 #include "trace_win_common.inl"
 #include "encode_log.inl"
 #include "encode_data.inl"
@@ -33,6 +15,8 @@ namespace trace {
 
 	namespace socks {
 
+		using namespace sys::socks;
+
 		sys::atomic32_t volatile g_Quit = 0;			/// request to quit
 		CACHE_ALIGN sys::atomic32_t volatile m_wr_idx = 0;		// write index
 		MessagePool<msg_t, 1024> g_MessagePool;					// pool of messages
@@ -40,7 +24,6 @@ namespace trace {
 
 		sys::Thread g_ThreadSend(THREAD_PRIORITY_HIGHEST);		/// consumer-sender thread (high priority)
 		sys::Thread g_ThreadRecv(THREAD_PRIORITY_LOWEST);		/// receiving thread (low priority)
-		typedef SOCKET socket_t;
 		socket_t g_Socket = INVALID_SOCKET;
 		HANDLE g_LogFile = INVALID_HANDLE_VALUE;
 		sys::Timer g_ReconnectTimer;
@@ -57,7 +40,6 @@ namespace trace {
 			return msg_buffer_at((wr_idx - 1) % MessagePool<msg_t, 1024>::e_size);
 		}
 
-		inline bool is_connected () { return g_Socket != INVALID_SOCKET; }
 		inline bool is_file_connected () { return g_LogFile != INVALID_HANDLE_VALUE; }
 
 		inline bool WriteToFile (char const * buff, size_t ln)
@@ -71,12 +53,9 @@ namespace trace {
 			return false;
 		}
 
-		int get_errno () { return WSAGetLastError(); }
-		bool is_timeouted () { return get_errno() == WSAETIMEDOUT; }
-
 		inline bool WriteToSocket (char const * buff, size_t ln)
 		{
-			if (is_connected())
+			if (is_connected(socks::g_Socket))
 			{
 				int result = SOCKET_ERROR;
 				if (!g_ClottedTimer.enabled())
@@ -218,64 +197,6 @@ namespace trace {
 	}
 
 	namespace socks {
-		void connect (char const * host, char const * port, socket_t & handle)
-		{
-			WSADATA wsaData;
-			int const init_result = WSAStartup(MAKEWORD(2,2), &wsaData);
-			if (init_result != 0) {
-				DBG_OUT("WSAStartup failed with error: %d\n", init_result);
-				return;
-			}
-
-			addrinfo hints;
-			ZeroMemory(&hints, sizeof(hints));
-			hints.ai_family = AF_UNSPEC;
-			hints.ai_socktype = SOCK_STREAM;
-			hints.ai_protocol = IPPROTO_TCP;
-
-			addrinfo * result = NULL;
-			int const resolve_result = getaddrinfo(host, port, &hints, &result); // resolve the server address and port
-			if (resolve_result != 0) {
-				DBG_OUT("getaddrinfo failed with error: %d\n", resolve_result);
-				WSACleanup();
-				return;
-			}
-
-			// attempt to connect to an address until one succeeded
-			for (addrinfo * ptr = result; ptr != NULL ; ptr = ptr->ai_next) {
-				// create a SOCKET for connecting to server
-				handle = socket(ptr->ai_family, ptr->ai_socktype, ptr->ai_protocol);
-				if (handle == INVALID_SOCKET) {
-					DBG_OUT("socket failed with error: %ld\n", get_errno());
-					WSACleanup();
-					return;
-				}
-
-				// Connect to server.
-				int const connect_result = connect(handle, ptr->ai_addr, (int)ptr->ai_addrlen);
-				if (connect_result == SOCKET_ERROR) {
-					closesocket(handle);
-					handle = INVALID_SOCKET;
-					continue;
-				}
-				break;
-			}
-
-			freeaddrinfo(result);
-
-			if (handle == INVALID_SOCKET)
-			{
-				DBG_OUT("Unable to connect to server!\n");
-				WSACleanup();
-				return;
-			}
-
-			int send_buff_sz = 64 * 1024;
-			setsockopt(handle, SOL_SOCKET, SO_SNDBUF, reinterpret_cast<char *>(&send_buff_sz), sizeof(int));
-
-			DWORD send_timeout_ms = 1;
-			setsockopt(handle, SOL_SOCKET, SO_SNDTIMEO, reinterpret_cast<char *>(&send_timeout_ms), sizeof(DWORD));
-		}
 
 		bool try_connect ()
 		{
@@ -287,7 +208,7 @@ namespace trace {
 
 			socks::connect("localhost", "13127", g_Socket);
 
-			if (socks::is_connected())
+			if (socks::is_connected(socks::g_Socket))
 			{
 				socks::WriteToSocket(msg.m_data, msg.m_length);
 
@@ -326,15 +247,8 @@ namespace trace {
 	void Disconnect ()
 	{
 		socks::g_Quit = 1; // @TODO: atomic_store?
-		if (socks::is_connected())
-		{
-			int const result = shutdown(socks::g_Socket, SD_SEND);
-			if (result == SOCKET_ERROR)
-				DBG_OUT("shutdown failed with error: %d\n", get_errno());
-			closesocket(socks::g_Socket);
-			socks::g_Socket = INVALID_SOCKET;
-			WSACleanup();
-		}
+		if (socks::is_connected(socks::g_Socket))
+			sys::socks::disconnect(socks::g_Socket);
 		socks::g_ThreadSend.WaitForTerminate();
 		socks::g_ThreadSend.Close();
 		socks::g_ThreadRecv.WaitForTerminate();

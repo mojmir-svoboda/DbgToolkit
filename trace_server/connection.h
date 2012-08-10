@@ -204,6 +204,8 @@ private:
 	bool handleSetupCommand (DecodedCommand const & cmd);
 	bool handleExportCSVCommand (DecodedCommand const & cmd);
 	bool handleSaveTLVCommand (DecodedCommand const & cmd);
+	bool handlePingCommand (DecodedCommand const & cmd);
+	bool handleShutdownCommand (DecodedCommand const & cmd);
 
 	void appendDataXY (QString const & tag, double x, double y);
 	bool appendToFilters (DecodedCommand const & cmd);
