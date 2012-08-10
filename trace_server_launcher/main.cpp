@@ -22,16 +22,36 @@ int main (int argc, char * argv[])
 		if (argc == 3)
 			log = argv[2];
 
-		printf("launcher: starting test server...\n");
+		printf("launcher: is server running?\n");
 
-		while (isTraceServerRunning())
+		bool const need_update = trace::tryUpdateTraceServer(argv[1], argv[2]);
+		if (need_update)
 		{
-			printf("launcher: shutting down server...\n");
-			tryTraceServerShutdown();
-			Sleep(1000);
+			int count = 0;
+			while (isTraceServerRunning())
+			{
+				printf("launcher: shutting down server...\n");
+				tryTraceServerShutdown();
+				Sleep(500);
+				if (count >= 4)
+				{
+					printf("launcher: old version not responding. never give up! never surrender!\n");
+					Sleep(1000);
+				}
+				if (count >= 8)
+				{
+					printf("launcher: old version not responding. oh i give up...\n");
+					break;
+				}
+			}
+
+			bool const copy_ok = trace::tryCopyTraceServer(argv[1], argv[2]);
+			if (!copy_ok)
+				printf("launcher: old version not responding. oh and i surrender too!\n");
 		}
-		trace::tryUpdateTraceServer(argv[1], argv[2]);
-		trace::runTraceServer(argv[1], argv[2]);
+
+		printf("launcher: starting server...\n");
+		trace::runTraceServer(argv[2], "-n -q"); //@TODO: from argv
 	}
 	catch (std::exception & e)
 	{
@@ -43,6 +63,7 @@ int main (int argc, char * argv[])
 		printf("launcher: ERROR - General Failure!\n");
 		return 10;
 	}
+	//system("pause");
 	return 0;
 }
 

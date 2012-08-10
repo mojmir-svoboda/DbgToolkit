@@ -587,15 +587,16 @@ void Server::onCloseTab (int idx, QWidget * w)
 {
 	MainWindow * main_window = static_cast<MainWindow *>(parent());
 	qDebug("Server::onCloseTab(idx=%i, QWidget *=0x%08x) idx=%i", idx, w);
-	main_window->getTabTrace()->removeTab(idx);
 	connections_t::iterator it = m_connections.find(w);
 	if (it != m_connections.end())
 	{
 		Connection * connection = it->second;
 
+		QObject::disconnect(connection->m_tcpstream, SIGNAL(readyRead()), connection, SLOT(processReadyRead()));
 		QObject::disconnect(connection->m_table_view_widget->horizontalHeader(), SIGNAL(sectionResized(int, int, int)), this, SLOT(onSectionResized(int, int, int)));
 		QObject::disconnect(main_window->getTabTrace(), SIGNAL(currentChanged(int)), connection, SLOT(onTabTraceFocus(int)));
 
+		main_window->getTabTrace()->removeTab(idx);
 		connection->onCloseTab();
 		m_connections.erase(it);
 		delete connection;

@@ -210,22 +210,25 @@ void Connection::setupColumnSizes ()
 		{
 			m_table_view_widget->horizontalHeader()->resizeSections(QHeaderView::Fixed);
 
-			columns_sizes_t const & sizes = *sessionState().m_columns_sizes;
-			for (size_t c = 0, ce = sizes.size(); c < ce; ++c)
+			if (sessionState().m_columns_sizes)
 			{
-				m_table_view_widget->horizontalHeader()->resizeSection(c, sizes.at(c));
-				qDebug("size: col[%i]=%u", c, sizes.at(c));
-			}
-
-			m_table_view_widget->horizontalHeader()->setResizeMode(QHeaderView::Interactive);
-			m_table_view_widget->verticalHeader()->setResizeMode(QHeaderView::Interactive);
-
-			columns_setup_t const & global_template = m_main_window->getColumnSetup(sessionState().m_app_idx);
-			for (size_t c = 0, ce = sizes.size(); c < ce; ++c)
-			{
-				if (c >= global_template.size())
+				columns_sizes_t const & sizes = *sessionState().m_columns_sizes;
+				for (size_t c = 0, ce = sizes.size(); c < ce; ++c)
 				{
-					m_table_view_widget->horizontalHeader()->hideSection(c);
+					m_table_view_widget->horizontalHeader()->resizeSection(c, sizes.at(c));
+					qDebug("size: col[%i]=%u", c, sizes.at(c));
+				}
+
+				m_table_view_widget->horizontalHeader()->setResizeMode(QHeaderView::Interactive);
+				m_table_view_widget->verticalHeader()->setResizeMode(QHeaderView::Interactive);
+
+				columns_setup_t const & global_template = m_main_window->getColumnSetup(sessionState().m_app_idx);
+				for (size_t c = 0, ce = sizes.size(); c < ce; ++c)
+				{
+					if (c >= global_template.size())
+					{
+						m_table_view_widget->horizontalHeader()->hideSection(c);
+					}
 				}
 			}
 		}

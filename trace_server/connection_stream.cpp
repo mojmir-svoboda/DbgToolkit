@@ -338,14 +338,20 @@ void Connection::processDataStream (QDataStream & stream)
 
 bool Connection::handlePingCommand (DecodedCommand const & cmd)
 {
-	// close created tab?
+	qDebug("ping from client! (crash follows)");
+	QWidget * w = sessionState().m_tab_widget;
+	if (w)
+	{
+		Server * server = static_cast<Server *>(parent());
+		server->onCloseTab(w);	// close this one
+	}
 	return true;
 }
 
 bool Connection::handleShutdownCommand (DecodedCommand const & cmd)
 {
-	qDebug("remote shutdown requested");
-	//QTimer::singleShot(0, m_main_window, SLOT(close()));
+	qDebug("shutdown from client requested (update?)");
+	qApp->quit();
 	return true;
 }
 

@@ -18,6 +18,7 @@ bool getHashFromFile (char const * fname, T_Sha1 sha)
 	FILE * file;
 	if (0 == fopen_s(&file, fname, "rb"))
 	{
+		printf("launcher: hashing file %s\n", fname);
 		char buf[SHA1_DIGEST_SIZE];
 		int const res = sha1_stream(file, sha);
 		fclose(file);
@@ -35,7 +36,7 @@ bool compareFiles (char const * filename0, char const * filename1)
 
 	bool const do_compare = getHashFromFile(filename0, hash0) && getHashFromFile(filename1, hash1);
 	if (do_compare)
-		return memcmp(hash0, hash1, SHA1_DIGEST_SIZE);
+		return 0 == memcmp(hash0, hash1, SHA1_DIGEST_SIZE);
 	return false;
 }
 
@@ -50,7 +51,7 @@ bool fileExists (char const * fname)
 	return false;
 }
 
-void runTraceServer (char const * origname, char const * runname)
+void runTraceServer (char const * runname, char * args)
 {
 	STARTUPINFO startupInfo;
 	PROCESS_INFORMATION processInformation;
@@ -59,37 +60,49 @@ void runTraceServer (char const * origname, char const * runname)
 	startupInfo.cb = sizeof(startupInfo);
 	ZeroMemory(&processInformation, sizeof(processInformation));
 
-	if (CreateProcess("bin64\\trace_server.exe", "-n -q", nullptr, nullptr, FALSE, 0, nullptr, nullptr, &startupInfo, &processInformation))
+	if (CreateProcess(runname, args, nullptr, nullptr, FALSE, 0, nullptr, nullptr, &startupInfo, &processInformation))
 	{
 		CloseHandle(processInformation.hProcess);
 		CloseHandle(processInformation.hThread);
 	}
 }
 
-void tryCopyTraceServer (char const * origname, char const * runname)
+bool tryCopyTraceServer (char const * origname, char const * runname)
 {
-	BOOL res = CopyFile(origname, runname, false);
-
+	if (BOOL res = CopyFile(origname, runname, false))
+	{
+		printf("launcher: copied to destination.\n");
+		return true;
+	}
+	printf("launcher: copy failed with error=0x%08x\n", GetLastError());
+	return false;
 }
 
-void tryUpdateTraceServer (char const * origname, char const * runname)
+bool tryUpdateTraceServer (char const * origname, char const * runname)
 {
 	bool const orig_exists = fileExists(origname);
 	if (!orig_exists)
 	{
-		printf("Error: source file not present, nothing to do\n");
-		return;
+		printf("launcher: Error: source file not present, nothing to do\n");
+		return false;
 	}
-	if (fileExists(runname))
+	if (!fileExists(runname))
 	{
-		if (false == compareFiles(origname, runname))
-			tryCopyTraceServer(origname, runname);
-		else
-			printf("up to date.\n");
+		printf("launcher: dest file not existing, copying...\n");
+		tryCopyTraceServer(origname, runname);
+		return false;
+	}
+
+	printf("launcher: both files exists, checking...\n");
+	if (false == compareFiles(origname, runname))
+	{
+		printf("launcher: files differ, trying simple copy...\n");
+		return true;
 	}
 	else
 	{
-		tryCopyTraceServer(origname, runname);
+		printf("launcher: both files are up to date.\n");
+		return false;
 	}
 }
 

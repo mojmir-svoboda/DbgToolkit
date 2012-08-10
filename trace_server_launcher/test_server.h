@@ -25,6 +25,18 @@ bool isTraceServerRunning (char const * port = "13127")
 	bool const is_running = socket != INVALID_SOCKET;
 	if (is_running)
 	{
+		char data[64];
+		tlv::Encoder e(tlv::cmd_ping, data, 64);
+		size_t const tlv_buff_sz = 64;
+		char tlv_buff[tlv_buff_sz];
+		using namespace tlv;
+		e.Encode(TLV(tag_app,  sys::trc_vsnprintf(tlv_buff, tlv_buff_sz, "%s", "trace_server_launcher"), tlv_buff));
+		if (e.Commit())
+		{
+			if (writeToSocket(socket, data, e.total_len))
+				return true;
+		}
+
 		closesocket(socket);
 		socket = INVALID_SOCKET;
 	}
@@ -35,10 +47,9 @@ bool tryTraceServerShutdown (char const * port = "13127")
 {
 	sys::socks::socket_t socket = INVALID_SOCKET;
 	sys::socks::connect("localhost", port, socket);
-	bool const is_running = socket != INVALID_SOCKET;
+	bool is_running = socket != INVALID_SOCKET;
 	if (is_running)
 	{
-
 		char data[64];
 		tlv::Encoder e(tlv::cmd_shutdown, data, 64);
 		size_t const tlv_buff_sz = 64;
@@ -47,7 +58,7 @@ bool tryTraceServerShutdown (char const * port = "13127")
 		e.Encode(TLV(tag_app,  sys::trc_vsnprintf(tlv_buff, tlv_buff_sz, "%s", "trace_server_launcher"), tlv_buff));
 		if (e.Commit())
 		{
-			writeToSocket(socket, data, e.total_len);
+			is_running = writeToSocket(socket, data, e.total_len);
 		}
 
 		closesocket(socket);
