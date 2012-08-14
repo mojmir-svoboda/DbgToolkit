@@ -1,6 +1,7 @@
 #include <cstdlib>
 #include <cstdio>
 #include <exception>
+#include <string>
 #include "test_server.h"
 #include "launcher.h"
 
@@ -9,20 +10,22 @@ int main (int argc, char * argv[])
 {
 	try
 	{
-		char const * log = 0;
 		if (argc < 3)
 		{
-			printf("launcher: ERROR: Wrong number of arguments\n");
+			printf("launcher: ERROR: Insufficient number of arguments\n");
 
-			printf("\tUsage: trace_server_launcher.exe source_exe running_exe\n");
-			printf("\tExample: trace_server_launcher.exe trace_server.exe trace_server_running.exe\n");
+			printf("\tUsage: trace_server_launcher.exe source_exe running_exe args\n");
+			printf("\tExample: trace_server_launcher.exe trace_server.exe trace_server.running.exe\n");
+			printf("\tExample: trace_server_launcher.exe trace_server.exe trace_server.running.exe -n -q\n");
 			return 1;
 		}
 
-		if (argc == 3)
-			log = argv[2];
-
-		printf("launcher: is server running?\n");
+		std::string args;
+		for (int i = 3; i < argc; ++i)
+		{
+			args += argv[i];
+			args += " ";
+		}
 
 		bool const need_update = trace::tryUpdateTraceServer(argv[1], argv[2]);
 		if (need_update)
@@ -30,7 +33,6 @@ int main (int argc, char * argv[])
 			int count = 0;
 			while (isTraceServerRunning())
 			{
-				printf("launcher: shutting down server...\n");
 				tryTraceServerShutdown();
 				Sleep(500);
 				if (count >= 4)
@@ -40,18 +42,36 @@ int main (int argc, char * argv[])
 				}
 				if (count >= 8)
 				{
-					printf("launcher: old version not responding. oh i give up...\n");
+					printf("launcher: old version not responding. d'oh i give up!\n");
 					break;
 				}
 			}
 
 			bool const copy_ok = trace::tryCopyTraceServer(argv[1], argv[2]);
 			if (!copy_ok)
-				printf("launcher: old version not responding. oh and i surrender too!\n");
+			{
+				printf("launcher: old version not responding. d'oh, i surrender!\n");
+				printf("launcher: trying to start server anyway\n");
+			}
+			else
+			{
+				printf("launcher: server updated. starting...\n");
+			}
+			trace::runTraceServer(argv[2], args.c_str());
+		}
+		else
+		{
+			if (!isTraceServerRunning())
+			{
+				printf("launcher: server already up-to-date, but not running. starting...\n");
+				trace::runTraceServer(argv[2], args.c_str());
+			}
+			else
+			{
+				printf("launcher: already up-to-date & started. nothing to do.\n");
+			}
 		}
 
-		printf("launcher: starting server...\n");
-		trace::runTraceServer(argv[2], "-n -q"); //@TODO: from argv
 	}
 	catch (std::exception & e)
 	{

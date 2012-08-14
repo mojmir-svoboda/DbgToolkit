@@ -1,13 +1,9 @@
-#define TRACE_ENABLE
-#define TRACE_WINDOWS_USES_SOCKET
-//#include <trace_client/default_config.h>
-//#include <trace_client/trace.h>
 #include <sysfn/socket_win.h>
 #include <tlv_parser/tlv_parser.h>
 #include <tlv_parser/tlv_encoder.h>
 #include <sysfn/os.h>
 
-bool writeToSocket (sys::socks::socket_t & socket, char const * buff, size_t ln)
+inline bool writeToSocket (sys::socks::socket_t & socket, char const * buff, size_t ln)
 {
 	if (sys::socks::is_connected(socket))
 	{
@@ -18,8 +14,9 @@ bool writeToSocket (sys::socks::socket_t & socket, char const * buff, size_t ln)
 	return false;
 }
 
-bool isTraceServerRunning (char const * port = "13127")
+inline bool isTraceServerRunning (char const * port = "13127")
 {
+	printf("launcher: is server running?\n");
 	sys::socks::socket_t socket = INVALID_SOCKET;
 	sys::socks::connect("localhost", port, socket);
 	bool const is_running = socket != INVALID_SOCKET;
@@ -33,8 +30,7 @@ bool isTraceServerRunning (char const * port = "13127")
 		e.Encode(TLV(tag_app,  sys::trc_vsnprintf(tlv_buff, tlv_buff_sz, "%s", "trace_server_launcher"), tlv_buff));
 		if (e.Commit())
 		{
-			if (writeToSocket(socket, data, e.total_len))
-				return true;
+			writeToSocket(socket, data, e.total_len);
 		}
 
 		closesocket(socket);
@@ -43,10 +39,11 @@ bool isTraceServerRunning (char const * port = "13127")
 	return is_running;
 }
 
-bool tryTraceServerShutdown (char const * port = "13127")
+inline bool tryTraceServerShutdown (char const * host = "localhost", char const * port = "13127")
 {
+	printf("launcher: trying to shut down server at %s:%s\n", host, port);
 	sys::socks::socket_t socket = INVALID_SOCKET;
-	sys::socks::connect("localhost", port, socket);
+	sys::socks::connect(host, port, socket);
 	bool is_running = socket != INVALID_SOCKET;
 	if (is_running)
 	{
@@ -59,8 +56,9 @@ bool tryTraceServerShutdown (char const * port = "13127")
 		if (e.Commit())
 		{
 			is_running = writeToSocket(socket, data, e.total_len);
+			Sleep(1000);
 		}
-
+		
 		closesocket(socket);
 		socket = INVALID_SOCKET;
 	}

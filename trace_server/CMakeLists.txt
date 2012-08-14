@@ -44,6 +44,7 @@ SET(trace_server_SOURCES
 	main.cpp
 	../version.cpp
 	mainwindow.cpp
+	treewidget.cpp
 	modelview.cpp
 	server.cpp
 	filterproxy.cpp
@@ -73,6 +74,7 @@ SET(trace_server_SOURCES
 
 SET(trace_server_HEADERS
 	mainwindow.h 
+	treewidget.h
 	modelview.h
 	server.h
 	connection.h

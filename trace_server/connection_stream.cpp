@@ -161,8 +161,11 @@ void Connection::onHandleCommandsCommit ()
 {
 	ModelView * model = static_cast<ModelView *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
 
-	setupColumnSizes();
+	setupColumnSizes(false);
 	model->transactionCommit();
+
+	if (!m_main_window->filterEnabled())
+		model->emitLayoutChanged();
 
 	if (m_main_window->autoScrollEnabled())
 		m_table_view_widget->scrollToBottom();
@@ -343,8 +346,8 @@ bool Connection::handlePingCommand (DecodedCommand const & cmd)
 	QWidget * w = sessionState().m_tab_widget;
 	if (w)
 	{
-		Server * server = static_cast<Server *>(parent());
-		server->onCloseTab(w);	// close this one
+		m_marked_for_close = true;
+		QTimer::singleShot(0, static_cast<Server *>(parent()), SLOT(onCloseMarkedTabs()));
 	}
 	return true;
 }

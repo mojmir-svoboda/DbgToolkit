@@ -228,12 +228,14 @@ private:
 	void setupModelColorRegex ();
 	void setupModelRegex ();
 	void setupModelLvl ();
-	void setupColumnSizes ();
+	void setupColumnSizes (bool force_setup = false);
 	QString findString4Tag (tlv::tag_t tag, QModelIndex const & row_index) const;
 	QVariant findVariant4Tag (tlv::tag_t tag, QModelIndex const & row_index) const;
 	void selectionFromTo (int & from, int & to) const;
 	void findTextInAllColumns (QString const & text, int from_row, int to_row);
 	void findTextInColumn (QString const & text, int col, int from_row, int to_row);
+
+	bool isModelProxy () const;
 
 private:
 	MainWindow * m_main_window;

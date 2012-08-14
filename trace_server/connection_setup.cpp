@@ -201,9 +201,9 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 	return true;
 }
 
-void Connection::setupColumnSizes ()
+void Connection::setupColumnSizes (bool force_setup)
 {
-	if (!m_column_setup_done)
+	if (force_setup || !m_column_setup_done)
 	{
 		m_column_setup_done = true;
 		bool const old = m_table_view_widget->blockSignals(true);
