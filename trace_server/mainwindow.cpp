@@ -903,9 +903,6 @@ void MainWindow::onRmCurrentFileFilter ()
 	//setPresetNameIntoComboBox(preset_name);
 	storePresetNames();
 }
-void onPlotSaveAllButton ();
-	void onPlotSaveAllButton ();
-	void onPlotRestoreButton ();
 
 void MainWindow::onPlotSaveAllButton ()
 {

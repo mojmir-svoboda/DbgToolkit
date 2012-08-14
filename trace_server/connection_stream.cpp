@@ -95,6 +95,7 @@ void Connection::appendDataXY (QString const & msg_tag, double x, double y)
 			dp->m_plot.hide();
 			dp->m_wd->hide();
 		}
+		m_main_window->onPlotRestoreButton();
 	}
 	else
 	{

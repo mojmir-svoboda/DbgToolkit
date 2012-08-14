@@ -169,6 +169,7 @@ public slots:
 	void onHotkeyShowOrHide ();
 	void onOnTop (int);
 
+	friend class Connection;
 private slots:
 	void loadState ();
 	void loadPresets ();

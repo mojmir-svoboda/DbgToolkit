@@ -206,7 +206,8 @@ int main ()
 		TRACE_DATA_XY(trace::e_Info, trace::CTX_Default, x, sinf(x), "sample_plot/%s", "sin");
 		TRACE_DATA_XY(trace::e_Info, trace::CTX_Default, x, cosf(x), "sample_plot/%s", "cos");
 		TRACE_DATA_XY(trace::e_Info, trace::CTX_Default, x, sinf(x) * cosf(x), "sample_plot2/%s", "cos");
-		TRACE_DATA_XY(trace::e_Info, trace::CTX_Default, x, cosf(x) / x, "sample_plot3/%s", "cos");
+		TRACE_DATA_XY(trace::e_Info, trace::CTX_Default, x, cosf(x) / x, "sample_plot3/%s", "hadej");
+		TRACE_DATA_XY(trace::e_Info, trace::CTX_Default, x, sinf(x) * sinf(x)/ x, "sample_plot4/%s", "hadej");
 	}
 	return 0;
 
