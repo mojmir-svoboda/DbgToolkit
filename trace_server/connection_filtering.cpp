@@ -34,12 +34,15 @@ void Connection::setFilterFile (int state)
 			m_table_view_widget->setModel(m_table_view_proxy);
 		}
 	}
+
 	m_main_window->getWidgetFile()->setEnabled(m_main_window->filterEnabled());
 	m_main_window->getWidgetCtx()->setEnabled(m_main_window->filterEnabled());
 	m_main_window->getWidgetTID()->setEnabled(m_main_window->filterEnabled());
 	m_main_window->getWidgetColorRegex()->setEnabled(m_main_window->filterEnabled());
 	m_main_window->getWidgetRegex()->setEnabled(m_main_window->filterEnabled());
 	m_main_window->getWidgetLvl()->setEnabled(m_main_window->filterEnabled());
+	if (m_column_setup_done)
+		setupColumnSizes(true);
 }
 
 void Connection::clearFilters (QStandardItem * node)

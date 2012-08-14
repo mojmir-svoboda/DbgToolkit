@@ -347,6 +347,13 @@ QString Connection::onCopyToClipboard ()
 	return selected_text;
 }
 
+bool Connection::isModelProxy () const
+{
+	if (0 == m_table_view_widget->model())
+		return false;
+	return m_table_view_widget->model() == m_table_view_proxy;
+}
+
 void Connection::onTableClicked (QModelIndex const & row_index)
 {
 	if (m_table_view_proxy)

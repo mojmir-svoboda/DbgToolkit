@@ -29,7 +29,7 @@ Server::Server (QString ip, unsigned short port, QObject * parent, bool quit_del
 		}
 		else
 		{
-			printf("Another instance already running!\n");
+			printf("Another instance is already running!\n");
 			exit(0);
 		}
 		return;

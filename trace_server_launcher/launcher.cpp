@@ -51,7 +51,7 @@ bool fileExists (char const * fname)
 	return false;
 }
 
-void runTraceServer (char const * runname, char * args)
+void runTraceServer (char const * runname, char const * args)
 {
 	STARTUPINFO startupInfo;
 	PROCESS_INFORMATION processInformation;
@@ -60,7 +60,7 @@ void runTraceServer (char const * runname, char * args)
 	startupInfo.cb = sizeof(startupInfo);
 	ZeroMemory(&processInformation, sizeof(processInformation));
 
-	if (CreateProcess(runname, args, nullptr, nullptr, FALSE, 0, nullptr, nullptr, &startupInfo, &processInformation))
+	if (CreateProcess(runname, const_cast<char *>(args), nullptr, nullptr, FALSE, 0, nullptr, nullptr, &startupInfo, &processInformation))
 	{
 		CloseHandle(processInformation.hProcess);
 		CloseHandle(processInformation.hThread);
@@ -96,7 +96,7 @@ bool tryUpdateTraceServer (char const * origname, char const * runname)
 	printf("launcher: both files exists, checking...\n");
 	if (false == compareFiles(origname, runname))
 	{
-		printf("launcher: files differ, trying simple copy...\n");
+		printf("launcher: files differ!\n");
 		return true;
 	}
 	else

@@ -22,7 +22,7 @@ namespace trace {
 	 */
 	bool tryCopyTraceServer (char const * origname, char const * runname);
 
-	void runTraceServer (char const * runname, char * args);
+	void runTraceServer (char const * runname, char const * args);
 
 } // namespace
 
