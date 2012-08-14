@@ -2,6 +2,11 @@
 #include <QStandardItemModel>
 
 
+class TreeModel : public QStandardItemModel
+{
+
+
+};
 
 class TreeView : public QTreeView
 {
