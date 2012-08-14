@@ -583,30 +583,3 @@ void Connection::onShowContextMenu (QPoint const & pos)
     { }
 }
 
-void Connection::onShowPlots ()
-{
-	qDebug("%s", __FUNCTION__);
-	for (dataplots_t::iterator it = m_dataplots.begin(), ite = m_dataplots.end(); it != ite; ++it)
-	{
-		(*it)->onShowPlots();
-	}
-}
-
-void Connection::onHidePlots ()
-{
-	qDebug("%s", __FUNCTION__);
-	for (dataplots_t::iterator it = m_dataplots.begin(), ite = m_dataplots.end(); it != ite; ++it)
-	{
-		(*it)->onHidePlots();
-	}
-}
-
-void Connection::onShowPlotContextMenu (QPoint const &)
-{
-	qDebug("%s", __FUNCTION__);
-	for (dataplots_t::iterator it = m_dataplots.begin(), ite = m_dataplots.end(); it != ite; ++it)
-	{
-		(*it)->m_plot.onHidePlotContextMenu();
-	}
-}
-
