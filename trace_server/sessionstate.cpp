@@ -159,15 +159,15 @@ void SessionState::clearFilters ()
 
 
 ///////// file filters
-bool SessionState::isFileLinePresent (fileline_t const & item, FilteredFile & fi) const
+bool SessionState::isFileLinePresent (fileline_t const & item, TreeViewItem & fi) const
 {
-	FilteredFile const * tmp_fi = 0;
+	TreeViewItem const * tmp_fi = 0;
 	bool const exists = m_file_filters.is_present(item.first + "/" + item.second, tmp_fi);
 	if (exists)
 		fi = *tmp_fi;
 	return exists;
 }
-bool SessionState::isFileLinePresent (std::string const & fileline, FilteredFile & fi) const
+bool SessionState::isFileLinePresent (std::string const & fileline, TreeViewItem & fi) const
 {
 	return m_file_filters.is_present(fileline, fi);
 }

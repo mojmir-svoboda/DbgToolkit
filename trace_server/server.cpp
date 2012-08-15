@@ -446,8 +446,8 @@ Connection * Server::createNewTableView ()
 	m_connections.insert(std::make_pair(tab, connection));
 	QObject::connect(main_window->getTabTrace(), SIGNAL(currentChanged(int)), connection, SLOT(onTabTraceFocus(int)));
 	QObject::connect(tableView->horizontalHeader(), SIGNAL(sectionResized(int, int, int)), this, SLOT(onSectionResized(int, int, int)));
-	QObject::connect(main_window->getWidgetFile(), SIGNAL(expanded(QModelIndex const &)), connection, SLOT(onFileExpanded(QModelIndex const &)));
-	QObject::connect(main_window->getWidgetFile(), SIGNAL(collapsed(QModelIndex const &)), connection, SLOT(onFileCollapsed(QModelIndex const &)));
+	//QObject::connect(main_window->getWidgetFile(), SIGNAL(expanded(QModelIndex const &)), connection, SLOT(onFileExpanded(QModelIndex const &)));
+	//QObject::connect(main_window->getWidgetFile(), SIGNAL(collapsed(QModelIndex const &)), connection, SLOT(onFileCollapsed(QModelIndex const &)));
 	return connection;
 }
 
@@ -478,7 +478,10 @@ void Server::incomingConnection (int socketDescriptor)
 
 void Server::onShowPlots ()
 {
-
+	for (connections_t::iterator it = m_connections.begin(), ite = m_connections.end(); it != ite; ++it)
+	{
+		it->second->onShowPlots();
+	}
 }
 void Server::onHidePlots ()
 {

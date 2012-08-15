@@ -91,7 +91,7 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 							recompileRegexps();
 						}
 
-						{
+						/*{
 							QStandardItemModel * model = static_cast<QStandardItemModel *>(m_main_window->getWidgetRegex()->model());
 							QStandardItem * root = model->invisibleRootItem();
 							for (int i = 0; i < sessionState().m_filtered_regexps.size(); ++i)
@@ -109,7 +109,7 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 								}
 							}
 							recompileRegexps();
-						}
+						}*/
 						{
 							QStandardItemModel * model = static_cast<QStandardItemModel *>(m_main_window->getWidgetLvl()->model());
 							QStandardItem * root = model->invisibleRootItem();
@@ -242,10 +242,12 @@ void Connection::setupModelFile ()
 	if (!m_file_model)
 	{
 		qDebug("new tree view file model");
-		m_file_model = new QStandardItemModel;
+		m_file_model = new TreeModel(this);
+		m_file_model->setData(&m_session_state.m_file_filters);
 	}
 	m_main_window->getWidgetFile()->setModel(m_file_model);
-	m_main_window->getWidgetFile()->expandAll();
+	//m_main_window->getWidgetFile()->setModel(m_file_model);
+	//m_main_window->getWidgetFile()->expandAll();
 	m_main_window->getWidgetFile()->setEnabled(m_main_window->filterEnabled());
 }
 

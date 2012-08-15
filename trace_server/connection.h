@@ -25,18 +25,18 @@
 #include <QString>
 #include <QTcpSocket>
 #include <QTableView>
-#include <QAbstractProxyModel>
+//#include <QAbstractProxyModel>
 #include <QThread>
-#include <QMenu>
+//#include <QMenu>
 #include "mainwindow.h"
-#include "../tlv_parser/tlv_parser.h"
-#include "../tlv_parser/tlv_decoder.h"
-#include "../filters/file_filter.hpp"
-#include <boost/circular_buffer.hpp>
+#include <tlv_parser/tlv_parser.h>
+//#include <tlv_parser/tlv_decoder.h>
+//#include <boost/circular_buffer.hpp>
 #include "sessionstate.h"
 #include "filterproxy.h"
 #include "cmd.h"
 #include "baseplot.h"
+#include "treeview.h"
 
 #include <QStyledItemDelegate>
 
@@ -247,7 +247,7 @@ private:
 	int m_last_search_col;
 	QString m_last_search;
 	QTableView * m_table_view_widget;
-	QStandardItemModel * m_file_model;
+	TreeModel * m_file_model;
 	QStandardItemModel * m_ctx_model;
 	QStandardItemModel * m_func_model;
 	QStandardItemModel * m_tid_model;

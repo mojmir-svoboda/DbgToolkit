@@ -1,4 +1,4 @@
-#include "config.h"
+#include "plotconfig.h"
 #include <boost/serialization/type_info_implementation.hpp>
 #include <boost/archive/text_iarchive.hpp>
 #include <boost/archive/text_oarchive.hpp>

@@ -45,6 +45,7 @@ class QListView;
 class QStandardItemModel;
 class QLabel;
 class SessionState;
+class TreeView;
 
 class MainWindow : public QMainWindow
 {
@@ -115,7 +116,7 @@ public:
 		return i;
 	}
 	QList<QColor> const & getThreadColors () const { return m_config.m_thread_colors; }
-	QTreeView * getWidgetFile ();
+	TreeView * getWidgetFile ();
 	QTreeView const * getWidgetFile () const;
 	QTreeView * getWidgetCtx ();
 	QTreeView const * getWidgetCtx () const;

@@ -45,6 +45,7 @@ SET(trace_server_SOURCES
 	../version.cpp
 	mainwindow.cpp
 	treeview.cpp
+	treemodel.cpp
 	modelview.cpp
 	server.cpp
 	filterproxy.cpp
@@ -70,12 +71,14 @@ SET(trace_server_SOURCES
 	serialization.cpp
 	constants.cpp
 	config.cpp
+	plotconfig.cpp
 	plottypes.cpp
 	)
 
 SET(trace_server_HEADERS
 	mainwindow.h 
 	treeview.h
+	treemodel.h
 	modelview.h
 	server.h
 	connection.h
@@ -105,6 +108,7 @@ SET(trace_server_HEADERS
 	utils.h
 	dock.h
 	config.h
+	plotconfig.h
 	constants.h
 	plotctxmenu.h
 	)

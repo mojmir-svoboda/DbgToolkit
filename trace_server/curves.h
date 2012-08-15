@@ -2,7 +2,7 @@
 #include <QtGui/qwidget.h>
 #include "qwt/qwt_plot.h"
 #include "qwt/qwt_plot_curve.h"
-#include "config.h"
+#include "plotconfig.h"
 
 class QwtPlotCurve;
 

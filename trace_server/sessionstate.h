@@ -28,159 +28,10 @@
 #include <tlv_parser/tlv_decoder.h> // htons!
 #include <filters/file_filter.hpp>
 #include "tls.h"
-#include "types.h"
+#include "config.h"
 
 class Server;
 class MainWindow;
-
-struct CollapsedBlock {
-	QString m_tid;
-	int m_from;
-	int m_to;
-	QString m_file;
-	QString m_line;
-
-	CollapsedBlock () { }
-
-	CollapsedBlock (QString tid, int from, int to, QString file, QString line)
-		: m_tid(tid), m_from(from), m_to(to), m_file(file), m_line(line)
-	{ }
-
-	template <class ArchiveT>
-	void serialize (ArchiveT & ar, unsigned const version)
-	{
-		ar & m_tid;
-		ar & m_from;
-		ar & m_to;
-		ar & m_file;
-		ar & m_line;
-	}
-};
-
-struct FilteredRegex {
-	std::string m_regex_str;
-	QRegExp m_regex;
-	bool m_is_enabled;
-	bool m_is_inclusive;
-
-	bool isValid () const { return m_regex.isValid(); }
-	bool exactMatch (QString str) const { return m_regex.exactMatch(str); }
-
-	FilteredRegex () { }
-	FilteredRegex (std::string const & rs, bool is_inclusive)
-        : m_regex_str(rs), m_regex(QString::fromStdString(rs)), m_is_enabled(0), m_is_inclusive(is_inclusive)
-	{ }
-
-	template <class ArchiveT>
-	void serialize (ArchiveT & ar, unsigned const version)
-	{
-		ar & m_regex_str;
-		ar & m_regex;
-		ar & m_is_enabled;
-		ar & m_is_inclusive;
-	}
-};
-
-struct ColorizedText {
-	E_ColorRole m_role;
-	QColor m_qcolor;
-	QColor m_bgcolor;
-	std::string m_regex_str;
-	QRegExp m_regex;
-	bool m_is_enabled;
-
-	bool isValid () const { return m_regex.isValid(); }
-	bool exactMatch (QString str) const { return m_regex.exactMatch(str); }
-
-	ColorizedText () { }
-
-	ColorizedText (std::string const & rs, E_ColorRole r)
-        : m_role(r)
-        , m_qcolor(Qt::magenta), m_regex_str(rs), m_regex(QString::fromStdString(rs)), m_is_enabled(0)
-	{ }
-
-	ColorizedText (std::string const & rs, QColor const & col, E_ColorRole r)
-        : m_role(r)
-        , m_qcolor(col), m_regex_str(rs), m_regex(QString::fromStdString(rs)), m_is_enabled(0)
-	{ }
-
-	template <class ArchiveT>
-	void serialize (ArchiveT & ar, unsigned const version)
-	{
-		ar & m_role;
-		ar & m_regex_str;
-		ar & m_qcolor;
-		ar & m_bgcolor;
-		ar & m_regex_str;
-		ar & m_regex;
-		ar & m_is_enabled;
-	}
-};
-
-struct FilteredLevel {
-	QString m_level_str;
-	int m_level;
-	bool m_is_enabled;
-	int m_state;
-
-	FilteredLevel () { }
-	FilteredLevel (QString level, bool enabled, int state)
-        : m_level_str(level), m_level(level.toInt()), m_is_enabled(enabled), m_state(state)
-	{ }
-
-	template <class ArchiveT>
-	void serialize (ArchiveT & ar, unsigned const version)
-	{
-		ar & m_level_str;
-		ar & m_level;
-		ar & m_is_enabled;
-		ar & m_state;
-	}
-};
-
-struct FilteredContext {
-	QString m_ctx_str;
-	unsigned long long m_ctx;
-	bool m_is_enabled;
-	int m_state;
-
-	FilteredContext () { }
-	FilteredContext (QString ctx, bool enabled, int state)
-        : m_ctx_str(ctx), m_ctx(ctx.toULongLong()), m_is_enabled(enabled), m_state(state)
-	{ }
-
-	template <class ArchiveT>
-	void serialize (ArchiveT & ar, unsigned const version)
-	{
-		ar & m_ctx_str;
-		ar & m_ctx;
-		ar & m_is_enabled;
-		ar & m_state;
-	}
-};
-
-struct FilteredFile
-{
-	/*@member	state
-	 * duplicates qt enum
-	 *	Qt::Unchecked	0	The item is unchecked.
-	 *	Qt::PartiallyChecked	1	The item is partially checked. Items in hierarchical models may be partially checked if some, but not all, of their children are checked.
-	 *	Qt::Checked	2	The item is checked.
-	 */
-	int m_state;
-	int m_collapsed;
-
-	FilteredFile () : m_state(e_Unchecked), m_collapsed(true) { }
-	FilteredFile (int s) : m_state(s), m_collapsed(true) { }
-	FilteredFile (int s, bool c) : m_state(s), m_collapsed(c) { }
-
-	template <class ArchiveT>
-	void serialize (ArchiveT & ar, unsigned const version)
-	{
-		ar & m_state;
-		ar & m_collapsed;
-	}
-};
 
 struct SessionExport {
 	std::string m_name;
@@ -235,17 +86,16 @@ public:
 	ThreadSpecific & getTLS () { return m_tls; }
 	ThreadSpecific const & getTLS () const { return m_tls; }
 
-	typedef file_filter<FilteredFile> file_filters_t;
-	file_filters_t const & getFileFilters () const { return m_file_filters; }
-	bool isFileLinePresent (fileline_t const & p, FilteredFile & state) const; /// checks for file:line existence in the tree
-	bool isFileLinePresent (std::string const & fileline, FilteredFile & state) const; /// checks for file:line existence in the tree
-	//void stateToFileChilds (fileline_t const & item, FilteredFile const & state);
+	typedef tree_filter<TreeViewItem> file_filters_t;
+	//file_filters_t const & getFileFilters () const { return m_file_filters; }
+	bool isFileLinePresent (fileline_t const & p, TreeViewItem & state) const; /// checks for file:line existence in the tree
+	bool isFileLinePresent (std::string const & fileline, TreeViewItem & state) const; /// checks for file:line existence in the tree
+	//void stateToFileChilds (fileline_t const & item, TreeViewItem const & state);
 
 	typedef QList<FilteredContext> ctx_filters_t;
 	bool isCtxPresent (std::string const & item, bool & enabled) const;
 	//ctx_filters_t const & getCtxFilters () const { return m_ctx_filters; }
 	void appendCtxFilter (std::string const & item);
-	void flipFilterMode (E_FilterMode mode);
 	void removeCtxFilter (std::string const & item);
 
 
@@ -294,7 +144,7 @@ public:
 	void clearFilters ();
 	void onClearFileFilter ()
 	{
-		m_file_filters.set_state_to_childs(m_file_filters.root, FilteredFile());
+		m_file_filters.set_state_to_childs(m_file_filters.root, TreeViewItem());
 	}
 	void onClearCtxFilter () { m_ctx_filters.clear(); }
 	void onClearTIDFilter () { m_tid_filters.clear(); }

@@ -27,7 +27,7 @@
 #include "nnode.hpp"
 
 template <class FilterT>
-struct file_filter
+struct tree_filter
 {
 	typedef FilterT filter_t;
 	typedef boost::tokenizer<boost::char_separator<char> > tokenizer_t;
@@ -35,12 +35,12 @@ struct file_filter
 	node_t * root;
 	boost::char_separator<char> separator;
 
-	file_filter ()
+	tree_filter ()
 		: root(new node_t(std::string("/"), filter_t()))
 		, separator(":/\\")
 	{ }
 
-	~file_filter ()
+	~tree_filter ()
 	{
 		clear();
 	}
@@ -56,10 +56,10 @@ struct file_filter
 
 	bool empty () const { return !(root && root->children); }
 
-	void set_to_state (std::string const & file, filter_t const & data)
+	void set_to_state (std::string const & path, filter_t const & data)
 	{
-		char const * const bgn = file.c_str();
-		char const * const end = bgn + file.size() + 1;
+		char const * const bgn = path.c_str();
+		char const * const end = bgn + path.size() + 1;
 
 		char const * left = bgn;
 		char const * right = bgn;
@@ -88,9 +88,9 @@ struct file_filter
 		level->data = data;
 	}
 
-	bool is_present (std::string const & file, filter_t & data) const
+	bool is_present (std::string const & path, filter_t & data) const
 	{
-		tokenizer_t tok(file, separator);
+		tokenizer_t tok(path, separator);
 		node_t const * level = root;
 	   	for (tokenizer_t::iterator it = tok.begin(), ite = tok.end(); it != ite; ++it)
 		{
@@ -102,11 +102,11 @@ struct file_filter
 		return true;
 	}
 
-	bool is_present (std::string const & file, filter_t const * & fi) const
+	bool is_present (std::string const & path, filter_t const * & fi) const
 	{
 		fi = 0;
-		char const * const bgn = file.c_str();
-		char const * const end = bgn + file.size() + 1;
+		char const * const bgn = path.c_str();
+		char const * const end = bgn + path.size() + 1;
 
 		char const * left = bgn;
 		char const * right = bgn;
@@ -141,9 +141,9 @@ struct file_filter
 		}
 	}
 
-	void set_state_to_childs (std::string const & file, filter_t const & data)
+	void set_state_to_childs (std::string const & path, filter_t const & data)
 	{
-		tokenizer_t tok(file, separator);
+		tokenizer_t tok(path, separator);
 		node_t * level = root;
 	   	tokenizer_t::const_iterator it = tok.begin(), ite = tok.end();
 		while (it != ite)
@@ -170,9 +170,9 @@ struct file_filter
 		}
 	}
 /*
-	void set_state_to_topdown (std::string const & file, E_NodeStates fw_state, E_NodeStates rev_state)
+	void set_state_to_topdown (std::string const & path, E_NodeStates fw_state, E_NodeStates rev_state)
 	{
-		tokenizer_t tok(file, separator);
+		tokenizer_t tok(path, separator);
 		node_t * level = root;
 	   	tokenizer_t::const_iterator it = tok.begin(), ite = tok.end();
 		while (it != ite)

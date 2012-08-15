@@ -2,8 +2,7 @@
 #include "types.h"
 #include "history.h"
 
-struct GlobalConfig
-{
+struct GlobalConfig {
 	unsigned m_hotkey;
 	bool m_hidden;
 	bool m_was_maximized;
@@ -32,169 +31,152 @@ struct GlobalConfig
 	{ }
 };
 
-namespace plot {
+struct CollapsedBlock {
+	QString m_tid;
+	int m_from;
+	int m_to;
+	QString m_file;
+	QString m_line;
 
-	struct CurveConfig
+	CollapsedBlock () { }
+
+	CollapsedBlock (QString tid, int from, int to, QString file, QString line)
+		: m_tid(tid), m_from(from), m_to(to), m_file(file), m_line(line)
+	{ }
+
+	template <class ArchiveT>
+	void serialize (ArchiveT & ar, unsigned const version)
 	{
-		QString m_tag;
-		QString m_label;
-		float m_pen_width;
-		int m_style;
-		int m_symbol;
-		QColor m_color;
-		QColor m_symbolcolor;
-		int m_symbolsize;
-		bool m_show;
-		bool m_unused_b0;
-		bool m_unused_b1;
-		bool m_unused_b2;
+		ar & m_tid;
+		ar & m_from;
+		ar & m_to;
+		ar & m_file;
+		ar & m_line;
+	}
+};
 
-		CurveConfig ()
-			: m_pen_width(0.0f)
-			, m_style(1)
-			, m_symbol(0)
-			, m_color(Qt::red)
-			, m_symbolcolor(Qt::red)
-			, m_symbolsize(6)
-			, m_show(true)
-			, m_unused_b0(true)
-			, m_unused_b1(true)
-			, m_unused_b2(true)
-		{ }
+struct FilteredRegex {
+	std::string m_regex_str;
+	QRegExp m_regex;
+	bool m_is_enabled;
+	bool m_is_inclusive;
 
-		template <class ArchiveT>
-		void serialize (ArchiveT & ar, unsigned const version)
-		{
-			ar & m_tag;
-			ar & m_label;
-			ar & m_pen_width;
-			ar & m_style;
-			ar & m_symbol;
-			ar & m_symbolcolor;
-			ar & m_symbolsize;
-			ar & m_color;
-			ar & m_show;
-			ar & m_unused_b0;
-			ar & m_unused_b1;
-			ar & m_unused_b2;
-		}
-	};
+	bool isValid () const { return m_regex.isValid(); }
+	bool exactMatch (QString str) const { return m_regex.exactMatch(str); }
 
-	struct AxisConfig
+	FilteredRegex () { }
+	FilteredRegex (std::string const & rs, bool is_inclusive)
+        : m_regex_str(rs), m_regex(QString::fromStdString(rs)), m_is_enabled(0), m_is_inclusive(is_inclusive)
+	{ }
+
+	template <class ArchiveT>
+	void serialize (ArchiveT & ar, unsigned const version)
 	{
-		QString m_label;
-		double m_from;
-		double m_to;
-		double m_step;
-		int m_scale_type;
-		int m_axis_pos;
-		int m_alignment;
-		double m_rotation;
-		bool m_auto_scale;
-		bool m_unused_b0;
-		bool m_unused_b1;
-		bool m_unused_b2;
+		ar & m_regex_str;
+		ar & m_regex;
+		ar & m_is_enabled;
+		ar & m_is_inclusive;
+	}
+};
 
-		AxisConfig ()
-			: m_label()
-			, m_from(0.0f)
-			, m_to(1.0f)
-			, m_step(0.0f)
-			, m_scale_type(0)
-			, m_axis_pos(0)
-			, m_alignment(0)
-			, m_rotation(0.0f)
-			, m_auto_scale(true)
-			, m_unused_b0(true)
-			, m_unused_b1(true)
-			, m_unused_b2(true)
-		{ }
-			
+struct ColorizedText {
+	E_ColorRole m_role;
+	QColor m_qcolor;
+	QColor m_bgcolor;
+	std::string m_regex_str;
+	QRegExp m_regex;
+	bool m_is_enabled;
 
-		template <class ArchiveT>
-		void serialize (ArchiveT & ar, unsigned const version)
-		{
-			ar & m_label;
-			ar & m_from;
-			ar & m_to;
-			ar & m_step;
-			ar & m_alignment;
-			ar & m_axis_pos;
-			ar & m_rotation;
-			ar & m_scale_type;
-			ar & m_auto_scale;
-			ar & m_unused_b0;
-			ar & m_unused_b1;
-			ar & m_unused_b2;
-		}
-	};
+	bool isValid () const { return m_regex.isValid(); }
+	bool exactMatch (QString str) const { return m_regex.exactMatch(str); }
 
-	struct PlotConfig
+	ColorizedText () { }
+
+	ColorizedText (std::string const & rs, E_ColorRole r)
+        : m_role(r)
+        , m_qcolor(Qt::magenta), m_regex_str(rs), m_regex(QString::fromStdString(rs)), m_is_enabled(0)
+	{ }
+
+	ColorizedText (std::string const & rs, QColor const & col, E_ColorRole r)
+        : m_role(r)
+        , m_qcolor(col), m_regex_str(rs), m_regex(QString::fromStdString(rs)), m_is_enabled(0)
+	{ }
+
+	template <class ArchiveT>
+	void serialize (ArchiveT & ar, unsigned const version)
 	{
-		QString m_tag;
-		QString m_title;
-		QList<CurveConfig> m_ccfg;
-		QList<AxisConfig> m_acfg;
+		ar & m_role;
+		ar & m_regex_str;
+		ar & m_qcolor;
+		ar & m_bgcolor;
+		ar & m_regex_str;
+		ar & m_regex;
+		ar & m_is_enabled;
+	}
+};
 
-		int m_timer_delay_ms;
-		int m_history_ln;
-		int m_from;
-		// qwt state
-		// flags
-		bool m_auto_scroll;
-		bool m_show;
-		bool m_unused_b1;
-		bool m_unused_b2;
+struct FilteredLevel {
+	QString m_level_str;
+	int m_level;
+	bool m_is_enabled;
+	int m_state;
 
-		PlotConfig ()
-			: m_tag()
-			, m_timer_delay_ms(50)
-			, m_history_ln(256)
-			, m_from(0)
-			, m_auto_scroll(true)
-			, m_show(true)
-			, m_unused_b1(false)
-			, m_unused_b2(false)
-		{
-			m_acfg.push_back(AxisConfig());
-			m_acfg.back().m_axis_pos = 2; //QwtPlot::xBottom;
-				//yLeft, yRight, xBottom, xTop,
-			m_acfg.push_back(AxisConfig());
-			m_acfg.back().m_axis_pos = 0; //QwtPlot::yLeft;
-		}
+	FilteredLevel () { }
+	FilteredLevel (QString level, bool enabled, int state)
+        : m_level_str(level), m_level(level.toInt()), m_is_enabled(enabled), m_state(state)
+	{ }
 
-		PlotConfig (QString const & tag)
-			: m_tag(tag)
-			, m_timer_delay_ms(50)
-			, m_history_ln(256)
-			, m_from(0)
-			, m_auto_scroll(true)
-		{ }
+	template <class ArchiveT>
+	void serialize (ArchiveT & ar, unsigned const version)
+	{
+		ar & m_level_str;
+		ar & m_level;
+		ar & m_is_enabled;
+		ar & m_state;
+	}
+};
 
-		template <class ArchiveT>
-		void serialize (ArchiveT & ar, unsigned const version)
-		{
-			ar & m_tag;
-			ar & m_ccfg;
-			ar & m_acfg;
-			ar & m_timer_delay_ms;
-			ar & m_history_ln;
-			//ar & m_from;
-			// flags
-			ar & m_auto_scroll;
-			ar & m_show;
-			ar & m_unused_b1;
-			ar & m_unused_b2;
-		}
+struct FilteredContext {
+	QString m_ctx_str;
+	unsigned long long m_ctx;
+	bool m_is_enabled;
+	int m_state;
 
-		void partialLoadFrom (PlotConfig const & rhs)
-		{
-			m_tag = rhs.m_tag;
-			m_ccfg = rhs.m_ccfg;
-		}
-	};
+	FilteredContext () { }
+	FilteredContext (QString ctx, bool enabled, int state)
+        : m_ctx_str(ctx), m_ctx(ctx.toULongLong()), m_is_enabled(enabled), m_state(state)
+	{ }
 
-	bool loadConfig (PlotConfig & config, QString const & fname);
-	bool saveConfig (PlotConfig const & config, QString const & fname);
-}
+	template <class ArchiveT>
+	void serialize (ArchiveT & ar, unsigned const version)
+	{
+		ar & m_ctx_str;
+		ar & m_ctx;
+		ar & m_is_enabled;
+		ar & m_state;
+	}
+};
+
+struct TreeViewItem {
+	/*@member	state
+	 * duplicates qt enum
+	 *	Qt::Unchecked	0	The item is unchecked.
+	 *	Qt::PartiallyChecked	1	The item is partially checked. Items in hierarchical models may be partially checked if some, but not all, of their children are checked.
+	 *	Qt::Checked	2	The item is checked.
+	 */
+	int m_state;
+	int m_collapsed;
+
+	TreeViewItem () : m_state(e_Unchecked), m_collapsed(true) { }
+	TreeViewItem (int s) : m_state(s), m_collapsed(true) { }
+	TreeViewItem (int s, bool c) : m_state(s), m_collapsed(c) { }
+
+	template <class ArchiveT>
+	void serialize (ArchiveT & ar, unsigned const version)
+	{
+		ar & m_state;
+		ar & m_collapsed;
+	}
+};
+
 

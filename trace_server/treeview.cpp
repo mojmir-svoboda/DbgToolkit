@@ -1,5 +1,45 @@
 #include "treeview.h"
 
+TreeView::TreeView (QObject * parent)
+	: QTreeView(parent)
+{
+}
+
+void TreeView::setModel (TreeModel * model)
+{
+	if (!m_models.contains(model))
+		m_models.push_back(model);
+	m_current = model;
+}
+
+
+
+#if defined NE_E
+/// W specific
+
+	m_main_window->getWidgetFile()->setEnabled(m_main_window->filterEnabled());
+			m_main_window->getWidgetFile()->setRootIndex(last_hidden_node->parent()->index());
+
+		QStandardItem * qnode = static_cast<QStandardItemModel *>(getWidgetFile()->model())->invisibleRootItem();
+	m_main_window->getWidgetFile()->setModel(m_file_model);
+				m_main_window->getWidgetFile()->setExpanded(m_file_model->indexFromItem(node), !fi->m_collapsed);
+			bool const orig_exp = m_main_window->getWidgetFile()->isExpanded(m_file_model->indexFromItem(node));
+
+	QObject::connect(getWidgetFile(), SIGNAL(expanded(QModelIndex const &)), connection, SLOT(onFileExpanded(QModelIndex const &)));
+	QObject::connect(getWidgetFile(), SIGNAL(collapsed(QModelIndex const &)), connection, SLOT(onFileCollapsed(QModelIndex const &)));
+
+	m_main_window->getWidgetFile()->setModel(m_file_model);
+	m_main_window->getWidgetFile()->expandAll();
+	m_main_window->getWidgetFile()->setEnabled(m_main_window->filterEnabled());
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+	getWidgetFile()->setEditTriggers(QAbstractItemView::NoEditTriggers);
+	connect(getWidgetFile(), SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtFileTree(QModelIndex)));
+	connect(getWidgetFile(), SIGNAL(doubleClicked(QModelIndex)), m_server, SLOT(onDoubleClickedAtFileTree(QModelIndex)));
+
+
+/// M specific
 
 void TreeModel::hideLinearParents ()
 {
@@ -273,8 +313,8 @@ void Connection::onFileCollapsed (QModelIndex const & idx)
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-	QObject::connect(main_window->getWidgetFile(), SIGNAL(expanded(QModelIndex const &)), connection, SLOT(onFileExpanded(QModelIndex const &)));
-	QObject::connect(main_window->getWidgetFile(), SIGNAL(collapsed(QModelIndex const &)), connection, SLOT(onFileCollapsed(QModelIndex const &)));
+	QObject::connect(getWidgetFile(), SIGNAL(expanded(QModelIndex const &)), connection, SLOT(onFileExpanded(QModelIndex const &)));
+	QObject::connect(getWidgetFile(), SIGNAL(collapsed(QModelIndex const &)), connection, SLOT(onFileCollapsed(QModelIndex const &)));
 /////////////////////////////////////////////////////////////////////////////////////
 void Connection::setupModelFile ()
 {
@@ -306,8 +346,7 @@ void Server::onClickedAtFileTree_Impl (QModelIndex idx, bool recursive)
 	if (!conn)
 		return;
 
-	MainWindow * const main_window = static_cast<MainWindow *>(parent());
-	QStandardItemModel const * const model = static_cast<QStandardItemModel *>(main_window->getWidgetFile()->model());
+	QStandardItemModel const * const model = static_cast<QStandardItemModel *>(getWidgetFile()->model());
 	QStandardItem * const node = model->itemFromIndex(idx);
 	QStandardItem const * line_node = 0;
 
@@ -384,10 +423,9 @@ void Server::onClickedAtFileTree (QModelIndex idx)
 
 void Server::onDoubleClickedAtFileTree (QModelIndex idx)
 {
-	//MainWindow * main_window = static_cast<MainWindow *>(parent());
-	//QStandardItemModel * model = static_cast<QStandardItemModel *>(main_window->getWidgetFile()->model());
+	//QStandardItemModel * model = static_cast<QStandardItemModel *>(getWidgetFile()->model());
 	//QStandardItem * item = model->itemFromIndex(idx);
 	//onClickedAtFileTree_Impl(idx, true);
 }
 
-
+#endif

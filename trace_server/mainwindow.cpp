@@ -290,8 +290,8 @@ void MainWindow::timerHit ()
 
 QTabWidget * MainWindow::getTabTrace () { return ui->tabTrace; }
 QTabWidget const * MainWindow::getTabTrace () const { return ui->tabTrace; }
-QTreeView * MainWindow::getWidgetFile () { return ui->treeViewFile; }
-QTreeView const * MainWindow::getWidgetFile () const { return ui->treeViewFile; }
+TreeView * MainWindow::getWidgetFile () { return ui->treeViewFile; }
+TreeView const * MainWindow::getWidgetFile () const { return ui->treeViewFile; }
 QTreeView * MainWindow::getWidgetCtx () { return ui->treeViewCtx; }
 QTreeView const * MainWindow::getWidgetCtx () const { return ui->treeViewCtx; }
 QComboBox * MainWindow::getFilterRegex () { return ui->comboBoxRegex; }

@@ -29,7 +29,7 @@ namespace profiler {
 
 	struct SessionState {
 
-		typedef file_filter<TagInfo> tag_filters_t;
+		typedef tree_filter<TagInfo> tag_filters_t;
 		tag_filters_t m_tag_filters;
 
 		explicit SessionState (QObject *parent = 0)
