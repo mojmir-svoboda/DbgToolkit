@@ -1,33 +1,53 @@
-//#include <QStandardItemModel>
+#pragma once
 #include <QAbstractItemModel>
-#include <filters/file_filter.hpp>
 #include "config.h"
+#include <filters/file_filter.hpp>
 
-typedef tree_filter<TreeViewItem> tree_data_t;
+typedef tree_filter<TreeModelItem> tree_data_t;
 
-class TreeModel : public QStandardItemModel
+class TreeModel : public QAbstractItemModel
 {
 	Q_OBJECT
 
-	tree_data_t * m_tree_data;
 public:
 
-	typedef QStandardItemModel parent_t;
+	typedef QAbstractItemModel parent_t;
+	typedef tree_data_t::node_t node_t;
+
 	explicit TreeModel (QObject * parent = 0, tree_data_t * data = 0);
-	~ModelView ();
+	~TreeModel ();
 
 	virtual QVariant data (const QModelIndex & index, int role = Qt::DisplayRole) const;
 	virtual bool setData (QModelIndex const & index, QVariant const & value, int role = Qt::EditRole);
-	//virtual QVariant headerData (int section, Qt::Orientation orientation, int role) const;
+	virtual QVariant headerData (int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
+	//bool setHeaderData (int section, Qt::Orientation orientation, QVariant const & value, int role = Qt::EditRole);
 
-	//virtual QModelIndex index (int row, int column, const QModelIndex &parent = QModelIndex()) const;
-	//virtual QModelIndex parent (QModelIndex const & child) const;
+	virtual QModelIndex index (int row, int column, QModelIndex const & parent = QModelIndex()) const;
+	virtual QModelIndex parent (QModelIndex const & child) const;
 
 	virtual int rowCount (QModelIndex const & parent = QModelIndex()) const;
 	virtual int columnCount (QModelIndex const & parent = QModelIndex()) const;
 
-	//virtual bool insertRows (int row, int count, QModelIndex const &);
-	//virtual bool insertColumns (int column, int count, const QModelIndex &parent = QModelIndex());
 	virtual Qt::ItemFlags flags (QModelIndex const & index) const;
+
+	//bool insertColumns (int position, int columns, QModelIndex const & parent = QModelIndex());
+	//bool removeColumns (int position, int columns, QModelIndex const & parent = QModelIndex());
+	//bool insertRows (int position, int rows, QModelIndex const & parent = QModelIndex());
+	//bool removeRows (int position, int rows, QModelIndex const & parent = QModelIndex());
+
+	bool insertItem (std::string const & s);
+	bool selectItem (std::string const & s);
+
+public Q_SLOTS:
+	void onExpanded (QModelIndex const & idx);
+	void onCollapsed (QModelIndex const & idx);
+
+private:
+
+	node_t const * itemFromIndex (QModelIndex const & index) const;
+	node_t * itemFromIndex (QModelIndex const & index);
+	QModelIndex indexFromItem (node_t const * item) const;
+
+	tree_data_t * m_tree_data;
 };
 

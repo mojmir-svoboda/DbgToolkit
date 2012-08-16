@@ -200,7 +200,7 @@ int main ()
 #endif
 	TRACE_APPNAME("WarHorse_App");
 	TRACE_CONNECT();
-	for (int i = 0; i < 128 * 16; ++i)
+	/*for (int i = 0; i < 128 * 16; ++i)
 	{
 		float x = 3.1415926535 * 2 / 128.0f * static_cast<float>(i);
 		TRACE_DATA_XY(trace::e_Info, trace::CTX_Default, x, sinf(x), "sample_plot/%s", "sin");
@@ -208,10 +208,10 @@ int main ()
 		TRACE_DATA_XY(trace::e_Info, trace::CTX_Default, x, sinf(x) * cosf(x), "sample_plot2/%s", "cos");
 		TRACE_DATA_XY(trace::e_Info, trace::CTX_Default, x, cosf(x) / x, "sample_plot3/%s", "hadej");
 		TRACE_DATA_XY(trace::e_Info, trace::CTX_Default, x, sinf(x) * sinf(x)/ x, "sample_plot4/%s", "hadej");
-	}
-	return 0;
+	}*/
+	//return 0;
 
-	TRACE_DISCONNECT();
+	//TRACE_DISCONNECT();
 
 	//TRACE_MSG(trace::e_Info, trace::CTX_Default,	"first message"); // not sure if this is a valid case!
 	TRACE_MSG(trace::e_Info, trace::CTX_Default,	"this is %s", "first message");

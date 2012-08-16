@@ -52,10 +52,6 @@ signals:
 	void newConnection (Connection * connection);
 
 public slots:
-	void onClickedAtFileTree (QModelIndex idx);
-	void onClickedAtFileTree_Impl (QModelIndex idx, bool recursive);
-	void onDoubleClickedAtFileTree (QModelIndex idx);
-
 	void onClickedAtCtxTree (QModelIndex idx);
 	void onDoubleClickedAtCtxTree (QModelIndex idx);
 

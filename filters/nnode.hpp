@@ -28,18 +28,19 @@ struct NNode
 	typedef typename boost::call_traits<Key>::param_type key_param_t;
 	Key 	key;
 	Data	data;
+	int		row;
 	NNode * next;
 	NNode * prev;
 	NNode * parent;
 	NNode * children;
 
-	NNode () : key(), data(), next(0), prev(0), parent(0), children(0) { }
+	NNode () : key(), data(), row(0), next(0), prev(0), parent(0), children(0) { }
 	explicit NNode (key_param_t k, typename boost::call_traits<Data>::param_type d)
-		: key(k), data(d), next(0), prev(0), parent(0), children(0)
+		: key(k), data(d), row(0), next(0), prev(0), parent(0), children(0)
 	{ }
 
 	explicit NNode (char const * k_left, char const * k_right, typename boost::call_traits<Data>::param_type d)
-		: key(k_left, k_right - k_left), data(d), next(0), prev(0), parent(0), children(0)
+		: key(k_left, k_right - k_left), data(d), row(0), next(0), prev(0), parent(0), children(0)
 	{ }
 
 
@@ -76,6 +77,7 @@ struct NNode
 					sibling = sibling->next;
 				node->prev = sibling;
 				sibling->next = node;
+				node->row = sibling->row + 1;
 			}
 			else
 				node->parent->children = node;
@@ -89,6 +91,18 @@ struct NNode
 		while (node)
 		{
 			if (node->key == k)
+				return node;
+			node = node->next;
+		}
+		return 0;
+	}
+
+	static NNode * node_child (NNode * node, int r)
+	{     
+		node = node->children;
+		while (node)
+		{
+			if (node->row == r)
 				return node;
 			node = node->next;
 		}

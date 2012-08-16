@@ -157,7 +157,7 @@ struct FilteredContext {
 	}
 };
 
-struct TreeViewItem {
+struct TreeModelItem {
 	/*@member	state
 	 * duplicates qt enum
 	 *	Qt::Unchecked	0	The item is unchecked.
@@ -167,9 +167,9 @@ struct TreeViewItem {
 	int m_state;
 	int m_collapsed;
 
-	TreeViewItem () : m_state(e_Unchecked), m_collapsed(true) { }
-	TreeViewItem (int s) : m_state(s), m_collapsed(true) { }
-	TreeViewItem (int s, bool c) : m_state(s), m_collapsed(c) { }
+	TreeModelItem () : m_state(e_Unchecked), m_collapsed(true) { }
+	TreeModelItem (int s) : m_state(s), m_collapsed(true) { }
+	TreeModelItem (int s, bool c) : m_state(s), m_collapsed(c) { }
 
 	template <class ArchiveT>
 	void serialize (ArchiveT & ar, unsigned const version)

@@ -56,7 +56,7 @@ struct tree_filter
 
 	bool empty () const { return !(root && root->children); }
 
-	void set_to_state (std::string const & path, filter_t const & data)
+	node_t * set_to_state (std::string const & path, filter_t const & data)
 	{
 		char const * const bgn = path.c_str();
 		char const * const end = bgn + path.size() + 1;
@@ -86,6 +86,7 @@ struct tree_filter
 		}
 
 		level->data = data;
+		return level;
 	}
 
 	bool is_present (std::string const & path, filter_t & data) const
@@ -102,7 +103,7 @@ struct tree_filter
 		return true;
 	}
 
-	bool is_present (std::string const & path, filter_t const * & fi) const
+	node_t const * is_present (std::string const & path, filter_t const * & fi) const
 	{
 		fi = 0;
 		char const * const bgn = path.c_str();
@@ -120,14 +121,14 @@ struct tree_filter
 				{
 					level = node_t::node_child_fast(level, left, right);
 					if (level == 0)
-						return false; // node not in tree
+						return 0; // node not in tree
 					fi = &level->data;
 				}
 				if (right + 1 < end)
 					left = right + 1;
 			}
 		}
-		return true;
+		return level;
 	}
 
 	void set_state_to_childs (node_t * node, filter_t const & data)

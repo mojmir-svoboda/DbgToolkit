@@ -132,7 +132,7 @@ bool FilterProxyModel::filterAcceptsRow (int sourceRow, QModelIndex const & /*so
 	}
 
 	bool excluded = false;
-	FilteredFile ff;
+	TreeModelItem ff;
 	bool const ff_present = m_session_state.isFileLinePresent(std::make_pair(file.toStdString(), line.toStdString()), ff);
 	E_FilterMode const fmode = m_main_window->fltMode();
 	if (ff_present && fmode == e_Include)

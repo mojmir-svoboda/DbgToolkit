@@ -17,6 +17,7 @@
 #include <trace_client/trace.h>
 #include "modelview.h"
 #include "utils.h"
+#include "utils_qstandarditem.h"
 #include "types.h"
 #include "statswindow.h"
 
@@ -200,33 +201,6 @@ void Connection::onTabTraceFocus (int i)
 
 void Connection::hideLinearParents ()
 {
-	QStandardItem * node = m_file_model->invisibleRootItem();
-	QStandardItem * last_hidden_node = 0;
-	while (node)
-	{
-		QStandardItem * child = node->child(0);
-		if (child != 0)
-		{
-			if (child->rowCount() == 1)
-				last_hidden_node = child;
-			else if (child->rowCount() > 1)
-			{
-				last_hidden_node = child;
-				break;
-			}
-		}
-		else
-			break;
-
-		node = child;
-	}
-	if (last_hidden_node)
-	{
-		if (last_hidden_node->parent())
-			m_main_window->getWidgetFile()->setRootIndex(last_hidden_node->parent()->index());
-		else
-			m_main_window->getWidgetFile()->setRootIndex(last_hidden_node->index());
-	}
 }
 
 void Connection::onCloseTab ()
@@ -369,10 +343,13 @@ void Connection::onTableClicked (QModelIndex const & row_index)
 
 			boost::char_separator<char> sep(":/\\");
 			typedef boost::tokenizer<boost::char_separator<char> > tokenizer_t;
-			std::string fstr = file.toStdString();
-			tokenizer_t tok(fstr, sep);
+			//std::string fstr = file.toStdString();
+			//tokenizer_t tok(fstr, sep);
 
-			QStandardItem * item = m_file_model->invisibleRootItem();
+			QString combined = file + "/" + line;
+			m_file_model->selectItem(combined.toStdString());
+
+			/*QStandardItem * item = m_file_model->invisibleRootItem();
 			for (tokenizer_t::const_iterator it = tok.begin(), ite = tok.end(); it != ite; ++it)
 			{
 				QString qfile = QString::fromStdString(*it);
@@ -395,7 +372,7 @@ void Connection::onTableClicked (QModelIndex const & row_index)
 					m_main_window->getWidgetFile()->setExpanded(idx, true);
 					m_main_window->getWidgetFile()->setCurrentIndex(idx);
 				}
-			}
+			}*/
 		}
 
 		{

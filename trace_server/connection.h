@@ -31,7 +31,7 @@
 #include "mainwindow.h"
 #include <tlv_parser/tlv_parser.h>
 //#include <tlv_parser/tlv_decoder.h>
-//#include <boost/circular_buffer.hpp>
+#include <boost/circular_buffer.hpp>
 #include "sessionstate.h"
 #include "filterproxy.h"
 #include "cmd.h"

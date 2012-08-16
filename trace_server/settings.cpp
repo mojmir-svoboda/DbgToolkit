@@ -8,6 +8,7 @@
 #include <QStandardItem>
 #include "types.h"
 #include "utils.h"
+#include "utils_qstandarditem.h"
 #include "mainwindow.h"
 #include "connection.h"
 #include <tlv_parser/tlv_parser.h>

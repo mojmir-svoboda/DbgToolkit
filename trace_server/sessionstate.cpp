@@ -104,15 +104,6 @@ int SessionState::insertColumn (tlv::tag_t tag)
 	return column_index;
 }
 
-void SessionState::flipFilterMode (E_FilterMode mode)
-{
-	if (m_filter_mode != mode)
-	{
-		// @TODO: dead code
-	}
-	m_filter_mode = mode;
-}
-
 void SessionState::sessionDump (SessionExport & e) const
 {
 	e.m_file_filters.reserve(32 * 1024);
@@ -159,15 +150,15 @@ void SessionState::clearFilters ()
 
 
 ///////// file filters
-bool SessionState::isFileLinePresent (fileline_t const & item, TreeViewItem & fi) const
+bool SessionState::isFileLinePresent (fileline_t const & item, TreeModelItem & fi) const
 {
-	TreeViewItem const * tmp_fi = 0;
+	TreeModelItem const * tmp_fi = 0;
 	bool const exists = m_file_filters.is_present(item.first + "/" + item.second, tmp_fi);
 	if (exists)
 		fi = *tmp_fi;
 	return exists;
 }
-bool SessionState::isFileLinePresent (std::string const & fileline, TreeViewItem & fi) const
+bool SessionState::isFileLinePresent (std::string const & fileline, TreeModelItem & fi) const
 {
 	return m_file_filters.is_present(fileline, fi);
 }

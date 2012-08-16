@@ -1,15 +1,29 @@
 #include "treeview.h"
 
-TreeView::TreeView (QObject * parent)
+TreeView::TreeView (QWidget * parent)
 	: QTreeView(parent)
 {
+	setEditTriggers(QAbstractItemView::NoEditTriggers);
 }
 
 void TreeView::setModel (TreeModel * model)
 {
+	if (m_current == model) return;
+
+	disconnect(this, SIGNAL(     expanded(QModelIndex const &)), model, SLOT(onExpanded(QModelIndex const &)));
+	disconnect(this, SIGNAL(    collapsed(QModelIndex const &)), model, SLOT(onCollapsed(QModelIndex const &)));
+	disconnect(this, SIGNAL(      clicked(QModelIndex const &)), model, SLOT(onClicked(QModelIndex const &)));
+	disconnect(this, SIGNAL(doubleClicked(QModelIndex const &)), model, SLOT(onDblClicked(QModelIndex const &)));
+
 	if (!m_models.contains(model))
 		m_models.push_back(model);
 	m_current = model;
+	QTreeView::setModel(model);
+
+	connect(this, SIGNAL(     expanded(QModelIndex const &)), model, SLOT(onExpanded(QModelIndex const &)));
+	connect(this, SIGNAL(    collapsed(QModelIndex const &)), model, SLOT(onCollapsed(QModelIndex const &)));
+	connect(this, SIGNAL(      clicked(QModelIndex const &)), model, SLOT(onClicked(QModelIndex const &)));
+	connect(this, SIGNAL(doubleClicked(QModelIndex const &)), model, SLOT(onDblClicked(QModelIndex const &)));
 }
 
 
@@ -21,22 +35,13 @@ void TreeView::setModel (TreeModel * model)
 			m_main_window->getWidgetFile()->setRootIndex(last_hidden_node->parent()->index());
 
 		QStandardItem * qnode = static_cast<QStandardItemModel *>(getWidgetFile()->model())->invisibleRootItem();
-	m_main_window->getWidgetFile()->setModel(m_file_model);
 				m_main_window->getWidgetFile()->setExpanded(m_file_model->indexFromItem(node), !fi->m_collapsed);
 			bool const orig_exp = m_main_window->getWidgetFile()->isExpanded(m_file_model->indexFromItem(node));
 
-	QObject::connect(getWidgetFile(), SIGNAL(expanded(QModelIndex const &)), connection, SLOT(onFileExpanded(QModelIndex const &)));
-	QObject::connect(getWidgetFile(), SIGNAL(collapsed(QModelIndex const &)), connection, SLOT(onFileCollapsed(QModelIndex const &)));
-
-	m_main_window->getWidgetFile()->setModel(m_file_model);
-	m_main_window->getWidgetFile()->expandAll();
-	m_main_window->getWidgetFile()->setEnabled(m_main_window->filterEnabled());
+	//m_main_window->getWidgetFile()->setEnabled(m_main_window->filterEnabled());
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
-	getWidgetFile()->setEditTriggers(QAbstractItemView::NoEditTriggers);
-	connect(getWidgetFile(), SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtFileTree(QModelIndex)));
-	connect(getWidgetFile(), SIGNAL(doubleClicked(QModelIndex)), m_server, SLOT(onDoubleClickedAtFileTree(QModelIndex)));
 
 
 /// M specific

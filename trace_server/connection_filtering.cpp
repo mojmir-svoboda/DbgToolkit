@@ -5,6 +5,7 @@
 #include <tlv_parser/tlv_encoder.h>
 #include "modelview.h"
 #include "utils.h"
+#include "utils_qstandarditem.h"
 #include "filterproxy.h"
 #include "qtsln/qtcolorpicker/qtcolorpicker.h"
 
@@ -66,9 +67,9 @@ void Connection::clearFilters ()
 
 void Connection::onClearCurrentFileFilter ()
 {
-	QStandardItem * node = m_file_model->invisibleRootItem();
-	E_FilterMode const fmode = m_main_window->fltMode();
-	setCheckStateChilds(node->child(0,0), fmode == e_Include ? Qt::Checked : Qt::Unchecked);
+	//QStandardItem * node = m_file_model->invisibleRootItem();
+	//E_FilterMode const fmode = m_main_window->fltMode();
+	//setCheckStateChilds(node->child(0,0), fmode == e_Include ? Qt::Checked : Qt::Unchecked);
 	sessionState().onClearFileFilter();
 	onInvalidateFilter();
 }
@@ -116,7 +117,8 @@ void Connection::onExcludeFileLine (QModelIndex const & row_index)
 
 void Connection::appendToFileTree (boost::char_separator<char> const & sep, std::string const & fileline, bool exclude)
 {
-	typedef boost::tokenizer<boost::char_separator<char> > tokenizer_t;
+	m_file_model->insertItem(fileline);
+/*	typedef boost::tokenizer<boost::char_separator<char> > tokenizer_t;
 	tokenizer_t tok(fileline, sep);
 
 	E_FilterMode const fmode = m_main_window->fltMode();
@@ -137,7 +139,7 @@ void Connection::appendToFileTree (boost::char_separator<char> const & sep, std:
 
 			E_NodeStates ff_state = e_Unchecked;
 			bool col_state = true;
-			FilteredFile const * fi = 0;
+			TreeModelItem const * fi = 0;
 			bool const known = sessionState().m_file_filters.is_present(path, fi);
 			if (known)
 			{
@@ -164,7 +166,7 @@ void Connection::appendToFileTree (boost::char_separator<char> const & sep, std:
 
 			E_NodeStates new_state = e_Checked;
 			E_NodeStates ff_state = e_Unchecked;
-			FilteredFile ff;
+			TreeModelItem ff;
 			bool const known = sessionState().m_file_filters.is_present(path, ff);
 			if (known)
 			{
@@ -242,7 +244,7 @@ void Connection::appendToFileTree (boost::char_separator<char> const & sep, std:
 			m_main_window->getWidgetFile()->setRootIndex(last_hidden_node->parent()->index());
 		else
 			m_main_window->getWidgetFile()->setRootIndex(last_hidden_node->index());
-	}
+	}*/
 }
 
 
@@ -268,7 +270,7 @@ void Connection::onFileColOrExp (QModelIndex const & idx, bool collapsed)
 	for (std::vector<QString>::const_reverse_iterator it=s.rbegin(), ite=s.rend(); it != ite; ++it)
 		file += std::string("/") + (*it).toStdString();
 
-	sessionState().m_file_filters.set_to_state(file, FilteredFile(static_cast<E_NodeStates>(node->checkState()), collapsed));
+	sessionState().m_file_filters.set_to_state(file, TreeModelItem(static_cast<E_NodeStates>(node->checkState()), collapsed));
 }
 
 void Connection::onFileExpanded (QModelIndex const & idx)

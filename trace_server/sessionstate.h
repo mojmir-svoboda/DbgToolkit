@@ -86,11 +86,11 @@ public:
 	ThreadSpecific & getTLS () { return m_tls; }
 	ThreadSpecific const & getTLS () const { return m_tls; }
 
-	typedef tree_filter<TreeViewItem> file_filters_t;
+	typedef tree_filter<TreeModelItem> file_filters_t;
 	//file_filters_t const & getFileFilters () const { return m_file_filters; }
-	bool isFileLinePresent (fileline_t const & p, TreeViewItem & state) const; /// checks for file:line existence in the tree
-	bool isFileLinePresent (std::string const & fileline, TreeViewItem & state) const; /// checks for file:line existence in the tree
-	//void stateToFileChilds (fileline_t const & item, TreeViewItem const & state);
+	bool isFileLinePresent (fileline_t const & p, TreeModelItem & state) const; /// checks for file:line existence in the tree
+	bool isFileLinePresent (std::string const & fileline, TreeModelItem & state) const; /// checks for file:line existence in the tree
+	//void stateToFileChilds (fileline_t const & item, TreeModelItem const & state);
 
 	typedef QList<FilteredContext> ctx_filters_t;
 	bool isCtxPresent (std::string const & item, bool & enabled) const;
@@ -144,7 +144,7 @@ public:
 	void clearFilters ();
 	void onClearFileFilter ()
 	{
-		m_file_filters.set_state_to_childs(m_file_filters.root, TreeViewItem());
+		m_file_filters.set_state_to_childs(m_file_filters.root, TreeModelItem());
 	}
 	void onClearCtxFilter () { m_ctx_filters.clear(); }
 	void onClearTIDFilter () { m_tid_filters.clear(); }

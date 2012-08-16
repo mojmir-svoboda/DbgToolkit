@@ -5,6 +5,7 @@
 #include <tlv_parser/tlv_encoder.h>
 #include "modelview.h"
 #include "utils.h"
+#include "utils_qstandarditem.h"
 #include "serialization.h"
 #include "constants.h"
 #include "statswindow.h"
@@ -242,8 +243,7 @@ void Connection::setupModelFile ()
 	if (!m_file_model)
 	{
 		qDebug("new tree view file model");
-		m_file_model = new TreeModel(this);
-		m_file_model->setData(&m_session_state.m_file_filters);
+		m_file_model = new TreeModel(this, &m_session_state.m_file_filters);
 	}
 	m_main_window->getWidgetFile()->setModel(m_file_model);
 	//m_main_window->getWidgetFile()->setModel(m_file_model);
