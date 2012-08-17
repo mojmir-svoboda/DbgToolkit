@@ -184,10 +184,7 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 
 			//m_table_view_widget->horizontalHeader()->setStretchLastSection(false);
 //////////////// PERF!!!!! //////////////////
-	/*
-			m_table_view_widget->horizontalHeader()->setStretchLastSection(true);
-
-	*/
+			/* m_table_view_widget->horizontalHeader()->setStretchLastSection(true); */
 //////////////// PERF!!!!! //////////////////
 
 			static_cast<ModelView *>(m_table_view_widget->model())->emitLayoutChanged();
@@ -246,8 +243,6 @@ void Connection::setupModelFile ()
 		m_file_model = new TreeModel(this, &m_session_state.m_file_filters);
 	}
 	m_main_window->getWidgetFile()->setModel(m_file_model);
-	//m_main_window->getWidgetFile()->setModel(m_file_model);
-	//m_main_window->getWidgetFile()->expandAll();
 	m_main_window->getWidgetFile()->setEnabled(m_main_window->filterEnabled());
 }
 

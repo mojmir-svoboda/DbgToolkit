@@ -164,8 +164,6 @@ void Server::onApplyColumnSetup ()
 	}
 }
 
-
-
 void Server::onClickedAtCtxTree (QModelIndex idx)
 {
 	MainWindow * main_window = static_cast<MainWindow *>(parent());
@@ -186,15 +184,7 @@ void Server::onClickedAtCtxTree (QModelIndex idx)
 	}
 }
 
-void Server::onDoubleClickedAtCtxTree (QModelIndex idx)
-{
-	/*QStandardItemModel * model = static_cast<QStandardItemModel *>(main_window->getWidgetCtx()->model());
-	QStandardItem * item = model->itemFromIndex(idx);
-
-	bool const checked = (item->checkState() == Qt::Checked);
-	item->setCheckState(checked ? Qt::Unchecked : Qt::Checked);
-	onClickedAtCtxTree(idx);*/
-}
+void Server::onDoubleClickedAtCtxTree (QModelIndex idx) { }
 
 void Server::onClickedAtTIDList (QModelIndex idx)
 {
@@ -446,8 +436,6 @@ Connection * Server::createNewTableView ()
 	m_connections.insert(std::make_pair(tab, connection));
 	QObject::connect(main_window->getTabTrace(), SIGNAL(currentChanged(int)), connection, SLOT(onTabTraceFocus(int)));
 	QObject::connect(tableView->horizontalHeader(), SIGNAL(sectionResized(int, int, int)), this, SLOT(onSectionResized(int, int, int)));
-	//QObject::connect(main_window->getWidgetFile(), SIGNAL(expanded(QModelIndex const &)), connection, SLOT(onFileExpanded(QModelIndex const &)));
-	//QObject::connect(main_window->getWidgetFile(), SIGNAL(collapsed(QModelIndex const &)), connection, SLOT(onFileCollapsed(QModelIndex const &)));
 	return connection;
 }
 

@@ -3,49 +3,49 @@
 TreeModel::TreeModel (QObject * parent, tree_data_t * data)
 	: QAbstractItemModel(parent)
 	, m_tree_data(data)
-{
-}
+{ }
 
-TreeModel::~TreeModel ()
-{
-}
+TreeModel::~TreeModel () { /* leave m_tree_data untouched. they are owned by sessionState */ }
 
 QVariant TreeModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
-    if (orientation == Qt::Horizontal && role == Qt::DisplayRole)
-        return QString("grr");//rootItem->data(section);
+    //if (orientation == Qt::Horizontal && role == Qt::DisplayRole)
+    //    return QString("grr");
     return QVariant();
 }
 
-
 int TreeModel::rowCount (QModelIndex const & parent) const
 {
-	//qDebug("{ %s for parent.row=%i parent.col=%i parent.ptr=%i", __FUNCTION__, parent.row(), parent.column(), parent.internalPointer());
-	if (parent.isValid())
+	node_t const * const parent_node = itemFromIndex(parent);
+	int count = 0;
+	node_t const * child = parent_node->children;
+	while (child)
 	{
-		node_t const * parent_node = static_cast<node_t const *>(parent.internalPointer());
-		int count = 0;
-		node_t const * child = parent_node->children;
-		while (child)
-		{
-			++count;
-			child = child->next;
-		}
-		qDebug("p.r=%u count=%u", parent.row(), count);
-		return count;
+		++count;
+		child = child->next;
 	}
-	return 0;
+	return count;
 }
 
 int TreeModel::columnCount (QModelIndex const & parent) const
 {
-	//qDebug("{ %s for parent.row=%i parent.col=%i parent.ptr=%i", __FUNCTION__, parent.row(), parent.column(), parent.internalPointer());
 	return 1; // @TODO: not supported yet
 }
 
 TreeModel::node_t const * TreeModel::itemFromIndex (QModelIndex const & index) const
 {
-	return static_cast<node_t const *>(index.internalPointer());
+	if (index.isValid())
+		if (node_t const * node = static_cast<node_t const *>(index.internalPointer()))
+			return node;
+	return m_tree_data->root;
+}
+
+TreeModel::node_t * TreeModel::itemFromIndex (QModelIndex const & index)
+{
+	if (index.isValid())
+		if (node_t * node = static_cast<node_t *>(index.internalPointer()))
+			return node;
+	return m_tree_data->root;
 }
 
 QModelIndex TreeModel::index (int row, int column, QModelIndex const & parent) const
@@ -53,39 +53,30 @@ QModelIndex TreeModel::index (int row, int column, QModelIndex const & parent) c
 	if (parent.isValid() && parent.column() != 0)
 		return QModelIndex();
 
-	node_t * const parent_item = static_cast<node_t *>(parent.internalPointer());
-	if (parent_item)
-	{
+	if (node_t * const parent_item = const_cast<node_t *>(itemFromIndex(parent))) // sigh, const_cast
 		if (node_t * const child_item = node_t::node_child(parent_item, row))
 			return createIndex(row, column, child_item);
-	}
 	return QModelIndex();
 
 }
 
 QModelIndex TreeModel::parent (QModelIndex const & index) const
 {
-    if (!index.isValid()) return QModelIndex();
-
-	node_t const * const item = static_cast<node_t const *>(index.internalPointer());
-	if (!item || item->parent)
+    if (!index.isValid())
 		return QModelIndex();
 
+	node_t const * const item = itemFromIndex(index);
 	node_t * const parent_node = item->parent;
-	int const parent_row = parent_node->row;
-	int const parent_column = 0;
 
     if (parent_node == m_tree_data->root)
 		return QModelIndex();
 
+	int const parent_row = parent_node->row;
+	int const parent_column = 0;
 	QModelIndex const parent = createIndex(parent_row, parent_column, parent_node);
 	return parent;
 }
 
-TreeModel::node_t * TreeModel::itemFromIndex (QModelIndex const & index)
-{
-	return static_cast<node_t *>(index.internalPointer());
-}
 
 QModelIndex TreeModel::indexFromItem (node_t const * item) const
 {
@@ -102,7 +93,6 @@ QModelIndex TreeModel::indexFromItem (node_t const * item) const
 
 QVariant TreeModel::data (QModelIndex const & index, int role) const
 {
-	qDebug("{ %s", __FUNCTION__);
 	if (!index.isValid())
 		return QVariant();
 
@@ -119,8 +109,8 @@ QVariant TreeModel::data (QModelIndex const & index, int role) const
 	else if (role == Qt::CheckStateRole)
 	{
 		return static_cast<Qt::CheckState>(item->data.m_state);
-		// 
 	}
+	return QVariant();
 }
 
 void TreeModel::onExpanded (QModelIndex const & idx)
@@ -141,32 +131,21 @@ bool TreeModel::insertItem (std::string const & path)
 		return false;
 	
 	node_t const * const n = m_tree_data->set_to_state(path, i);
-	int const orig_count = n->parent ? n->parent->count_childs() - 1: 0;
 	QModelIndex idx = indexFromItem(n);
 
-	//beginInsertRows(parent(idx), 0, 20);
-	beginInsertRows(idx, 0, 2);
-	qDebug("+++ %s", path.c_str());
-
 	emit dataChanged(idx, idx);
-	endInsertRows();
 }
 
 bool TreeModel::selectItem (std::string const & s)
 {
-	return true;
+	return true; // @TODO
 }
 
 bool TreeModel::setData (QModelIndex const & index, QVariant const & value, int role)
 {
-	qDebug("{ %s", __FUNCTION__);
-	if (!index.isValid())
-		return false;
+	if (!index.isValid()) return false;
 
 	node_t * const item = itemFromIndex(index);
-
-	//@TODO: column bool result = item->setData(index.column(), value);
-
 	if (role == Qt::DisplayRole)
 		return false;
 	else if (role == Qt::UserRole)
@@ -176,7 +155,7 @@ bool TreeModel::setData (QModelIndex const & index, QVariant const & value, int 
 	}
 	else if (role == Qt::CheckStateRole)
 	{
-		int state = value.toInt();
+		int const state = value.toInt();
 		item->data.m_state = state;
 	}
 	else
@@ -190,9 +169,28 @@ Qt::ItemFlags TreeModel::flags (QModelIndex const & index) const
 	return QAbstractItemModel::flags(index)
 				| Qt::ItemIsEnabled
 				| Qt::ItemIsUserCheckable
-				| Qt::ItemIsDragEnabled
-				| Qt::ItemIsDropEnabled
+				| Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled
 				| Qt::ItemIsSelectable
 				| Qt::ItemIsTristate;
+}
+
+
+bool TreeModel::insertColumns (int position, int columns, QModelIndex const & parent)
+{
+    bool success = true;
+    beginInsertColumns(parent, position, position + columns - 1);
+    //success = rootItem->insertColumns(position, columns);
+    endInsertColumns();
+    return success;
+}
+
+bool TreeModel::insertRows (int position, int rows, QModelIndex const & parent)
+{
+    node_t * parent_item = itemFromIndex(parent);
+    bool success = true;
+    beginInsertRows(parent, position, position + rows - 1);
+    //success = parentItem->insertChildren(position, rows, rootItem->columnCount());
+    endInsertRows();
+    return success;
 }
 

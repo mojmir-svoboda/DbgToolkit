@@ -8,7 +8,6 @@ typedef tree_filter<TreeModelItem> tree_data_t;
 class TreeModel : public QAbstractItemModel
 {
 	Q_OBJECT
-
 public:
 
 	typedef QAbstractItemModel parent_t;
@@ -30,9 +29,9 @@ public:
 
 	virtual Qt::ItemFlags flags (QModelIndex const & index) const;
 
-	//bool insertColumns (int position, int columns, QModelIndex const & parent = QModelIndex());
+	bool insertColumns (int position, int columns, QModelIndex const & parent = QModelIndex());
 	//bool removeColumns (int position, int columns, QModelIndex const & parent = QModelIndex());
-	//bool insertRows (int position, int rows, QModelIndex const & parent = QModelIndex());
+	bool insertRows (int position, int rows, QModelIndex const & parent = QModelIndex());
 	//bool removeRows (int position, int rows, QModelIndex const & parent = QModelIndex());
 
 	bool insertItem (std::string const & s);
@@ -42,7 +41,7 @@ public Q_SLOTS:
 	void onExpanded (QModelIndex const & idx);
 	void onCollapsed (QModelIndex const & idx);
 
-private:
+protected:
 
 	node_t const * itemFromIndex (QModelIndex const & index) const;
 	node_t * itemFromIndex (QModelIndex const & index);
