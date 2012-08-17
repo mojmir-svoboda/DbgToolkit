@@ -194,3 +194,59 @@ bool TreeModel::insertRows (int position, int rows, QModelIndex const & parent)
     return success;
 }
 
+void TreeModel::modelItemChanged (QStandardItem * item)
+{
+    QStandardItem * parent = item->parent();
+    int checkCount = 0;
+    int rowCount = parent->rowCount();
+
+    for (int i = 0; i < rowCount; i++)
+        if (parent->child(i)->checkState() == Qt::Checked)
+            checkCount++;
+
+    switch (checkCount)
+    {
+		case 0:
+			parent->setCheckState(Qt::Unchecked);
+			break;
+		case rowCount:
+			parent->setCheckState(Qt::Checked);
+			break;
+		default:
+			parent->setCheckState(Qt::PartiallyChecked);
+    }
+}
+
+void TreeModel::ModelItemChanged (QStandardItem * item)
+{
+    QStandardItem * parent = item->parent();
+    if (parent == 0)
+	{
+        //folder state changed--> update children if not partially selected
+        Qt::CheckState newState = item->checkState();
+        if(newState != Qt::PartiallyChecked){
+            for (int i = 0; i < item->rowCount(); i++)
+            {
+                item->child(i)->setCheckState(newState);
+            }
+        }
+    }
+    else
+	{
+		//child item changed--> count parent's children that are checked
+        int checkCount = 0;
+        for (int i = 0; i < parent->rowCount(); i++)
+        {
+            if (parent->child(i)->checkState() == Qt::Checked)
+                checkCount++;
+        }
+
+        if(checkCount == 0)
+            parent->setCheckState(Qt::Unchecked);
+        else if (checkCount ==  parent->rowCount())
+            parent->setCheckState(Qt::Checked);
+        else
+            parent->setCheckState(Qt::PartiallyChecked);
+    }
+}
+
