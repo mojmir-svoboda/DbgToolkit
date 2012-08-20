@@ -206,7 +206,6 @@ private slots:
 	void onColorRegexRm ();
 	void onShowHelp ();
 	void onDumpFilters ();
-	void onFilterModeActivate (int idx);
 	void onReuseTabChanged (int state);
 	void onPlotStateChanged (int state);
 	void onPlotSaveAllButton ();

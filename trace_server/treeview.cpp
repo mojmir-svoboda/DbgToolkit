@@ -24,6 +24,8 @@ void TreeView::setModel (TreeModel * model)
 	connect(this, SIGNAL(    collapsed(QModelIndex const &)), model, SLOT(onCollapsed(QModelIndex const &)));
 	connect(this, SIGNAL(      clicked(QModelIndex const &)), model, SLOT(onClicked(QModelIndex const &)));
 	connect(this, SIGNAL(doubleClicked(QModelIndex const &)), model, SLOT(onDblClicked(QModelIndex const &)));
+
+	setRootIndex(m_current->rootIndex());
 }
 
 

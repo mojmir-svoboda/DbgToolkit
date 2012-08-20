@@ -7,10 +7,21 @@ TreeModel::TreeModel (QObject * parent, tree_data_t * data)
 	qDebug("%s", __FUNCTION__);
 }
 
-void TreeModel::updateViewAfterLoad ()
+void TreeModel::beforeLoad()
+{
+	emit layoutAboutToBeChanged();
+	//reset();
+}
+
+void TreeModel::afterLoad ()
 {
 	emit layoutChanged();
-	reset();
+	//setRootIndex(indexFromItem(m_tree_data->root));
+}
+
+QModelIndex TreeModel::rootIndex () const
+{
+	return indexFromItem(m_tree_data->root);
 }
 
 TreeModel::~TreeModel () { /* leave m_tree_data untouched. they are owned by sessionState */ }
@@ -33,7 +44,7 @@ int TreeModel::rowCount (QModelIndex const & index) const
 		child = child->next;
 	}
 
-	//qDebug("row count of=%s is %i    r=%i c=%i", node->key.c_str(), count, index.row(), index.column());
+	qDebug("row count of=%s is %i    r=%i c=%i", node->key.c_str(), count, index.row(), index.column());
 	return count;
 }
 
@@ -140,8 +151,7 @@ void TreeModel::onCollapsed (QModelIndex const & idx)
 
 bool TreeModel::insertItem (std::string const & path)
 {
-	return false;
-	/*TreeModelItem i;
+	TreeModelItem i;
 	bool const present = m_tree_data->is_present(path, i);
 	if (present)
 		return false;
@@ -149,7 +159,7 @@ bool TreeModel::insertItem (std::string const & path)
 	node_t * const n = m_tree_data->set_to_state(path, i);
 	n->data.m_state = Qt::Checked;
 	QModelIndex const idx = indexFromItem(n);
-	emit dataChanged(idx, idx);*/
+	emit dataChanged(idx, idx);
 }
 
 bool TreeModel::selectItem (std::string const & s)

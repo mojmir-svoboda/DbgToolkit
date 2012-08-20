@@ -51,9 +51,10 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 					this->setupModelRegex();
 					if (!m_main_window->clrFltEnabled())
 					{
+						m_file_model->beforeLoad();
 						loadSessionState(conn->sessionState(), m_session_state);
+						m_file_model->afterLoad();
 						this->setupModelFile();
-						m_file_model->updateViewAfterLoad();
 
 						{
 							QStandardItemModel * model = static_cast<QStandardItemModel *>(m_main_window->getWidgetColorRegex()->model());
@@ -133,15 +134,10 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 				}
 				else
 				{
+					m_file_model->beforeLoad();
 					QString const pname = getPresetPath(app_name, g_defaultPresetName);
-					QString const total_path = getPresetFileName(m_main_window->getAppDir(), pname);
-					if (existsFile(total_path.toAscii()))
-						m_main_window->loadSession(m_session_state, pname);
-
-					m_file_model->updateViewAfterLoad();
-
 					m_main_window->onPresetActivate(this, pname);
-					m_main_window->setPresetNameIntoComboBox(pname);
+					m_file_model->afterLoad();
 				}
 				
 			}

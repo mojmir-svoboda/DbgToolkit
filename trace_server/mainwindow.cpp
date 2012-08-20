@@ -207,7 +207,6 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode)
 	statusBar()->addPermanentWidget(version_label);
 	statusBar()->addWidget(m_status_label);
 
-	//connect(ui->filterModeComboBox, SIGNAL(activated(int)), this, SLOT(onFilterModeActivate(int)));
 	connect(ui->tabTrace, SIGNAL(tabCloseRequested(int)), m_server, SLOT(onCloseTabWithIndex(int)));
 	QTimer::singleShot(0, this, SLOT(loadState()));	// trigger lazy load of settings
 	setWindowTitle(".*server");
@@ -676,6 +675,12 @@ void MainWindow::onPresetActivate (Connection * conn, QString const & pname)
 		conn->onInvalidateFilter();
 		setPresetNameIntoComboBox(pname);
 	}
+	else
+	{
+		ui->presetComboBox->removeItem(ui->presetComboBox->findText(pname));
+		m_config.m_preset_names.removeAll(pname);
+		storePresetNames();
+	}
 }
 
 void MainWindow::onPresetActivate (int idx)
@@ -687,20 +692,6 @@ void MainWindow::onPresetActivate (int idx)
 		onPresetActivate(conn, m_config.m_preset_names.at(idx));
 	}
 }
-
-void MainWindow::onFilterModeActivate (int idx)
-{
-/*	if (idx == -1) return;
-	Connection * conn = m_server->findCurrentConnection();
-	if (!conn) return;
-	QString const qItem = ui->filterModeComboBox->currentText();
-
-	qDebug("item=%s", qItem.toStdString().c_str());
-	E_FilterMode const mode = qItem == "Inclusive" ? e_Include : e_Exclude;
-	//@TODO: do following for each connection?
-	conn->flipFilterMode(mode);*/
-}
-
 
 void MainWindow::onRegexActivate (int idx)
 {

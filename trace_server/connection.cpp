@@ -347,7 +347,7 @@ void Connection::onTableClicked (QModelIndex const & row_index)
 			//tokenizer_t tok(fstr, sep);
 
 			QString combined = file + "/" + line;
-			m_file_model->selectItem(combined.toStdString());
+			//m_file_model->selectItem(combined.toStdString());
 
 			/*QStandardItem * item = m_file_model->invisibleRootItem();
 			for (tokenizer_t::const_iterator it = tok.begin(), ite = tok.end(); it != ite; ++it)
