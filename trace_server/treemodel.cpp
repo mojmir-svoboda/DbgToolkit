@@ -4,8 +4,13 @@ TreeModel::TreeModel (QObject * parent, tree_data_t * data)
 	: QAbstractItemModel(parent)
 	, m_tree_data(data)
 {
-	if (data->root->children)
-		emit layoutChanged();
+	qDebug("%s", __FUNCTION__);
+}
+
+void TreeModel::updateViewAfterLoad ()
+{
+	emit layoutChanged();
+	reset();
 }
 
 TreeModel::~TreeModel () { /* leave m_tree_data untouched. they are owned by sessionState */ }
@@ -17,16 +22,18 @@ QVariant TreeModel::headerData(int section, Qt::Orientation orientation, int rol
     return QVariant();
 }
 
-int TreeModel::rowCount (QModelIndex const & parent) const
+int TreeModel::rowCount (QModelIndex const & index) const
 {
-	node_t const * const parent_node = itemFromIndex(parent);
+	node_t const * const node = itemFromIndex(index);
 	int count = 0;
-	node_t const * child = parent_node->children;
+	node_t const * child = node->children;
 	while (child)
 	{
 		++count;
 		child = child->next;
 	}
+
+	//qDebug("row count of=%s is %i    r=%i c=%i", node->key.c_str(), count, index.row(), index.column());
 	return count;
 }
 
@@ -58,7 +65,10 @@ QModelIndex TreeModel::index (int row, int column, QModelIndex const & parent) c
 
 	if (node_t * const parent_item = const_cast<node_t *>(itemFromIndex(parent))) // sigh, const_cast
 		if (node_t * const child_item = node_t::node_child(parent_item, row))
+		{
+			qDebug("indexof=%s row=%i col=%i", child_item->key.c_str(), row, column); 
 			return createIndex(row, column, child_item);
+		}
 	return QModelIndex();
 
 }
@@ -79,7 +89,6 @@ QModelIndex TreeModel::parent (QModelIndex const & index) const
 	QModelIndex const parent = createIndex(parent_row, parent_column, parent_node);
 	return parent;
 }
-
 
 QModelIndex TreeModel::indexFromItem (node_t const * item) const
 {
@@ -102,15 +111,18 @@ QVariant TreeModel::data (QModelIndex const & index, int role) const
 	node_t const * const item = itemFromIndex(index);
 	if (role == Qt::DisplayRole)
 	{
+		qDebug("role=%i dataof=%s row=%i col=%i", role, item->key.c_str(), index.row(), index.column()); 
 		return QVariant(QString::fromStdString(item->key));
 		//@TODO: columns: return item->data(index.column());
 	}
 	else if (role == Qt::UserRole) // collapsed or expanded?
 	{
+		//qDebug("role=%i dataof=%s row=%i col=%i", role, item->key.c_str(), index.row(), index.column()); 
 		return static_cast<bool>(item->data.m_collapsed);
 	}
 	else if (role == Qt::CheckStateRole)
 	{
+		//qDebug("role=%i dataof=%s row=%i col=%i", role, item->key.c_str(), index.row(), index.column());
 		return static_cast<Qt::CheckState>(item->data.m_state);
 	}
 	return QVariant();
@@ -128,7 +140,8 @@ void TreeModel::onCollapsed (QModelIndex const & idx)
 
 bool TreeModel::insertItem (std::string const & path)
 {
-	TreeModelItem i;
+	return false;
+	/*TreeModelItem i;
 	bool const present = m_tree_data->is_present(path, i);
 	if (present)
 		return false;
@@ -136,7 +149,7 @@ bool TreeModel::insertItem (std::string const & path)
 	node_t * const n = m_tree_data->set_to_state(path, i);
 	n->data.m_state = Qt::Checked;
 	QModelIndex const idx = indexFromItem(n);
-	emit dataChanged(idx, idx);
+	emit dataChanged(idx, idx);*/
 }
 
 bool TreeModel::selectItem (std::string const & s)
@@ -161,7 +174,7 @@ bool TreeModel::setData (QModelIndex const & index, QVariant const & value, int 
 		Qt::CheckState const state = static_cast<Qt::CheckState>(value.toInt());
 		item->data.m_state = state;
 
-		if (state == Qt::Checked)
+/*		if (state == Qt::Checked)
 		{
 			node_t const * child = item->children;
 			while (child)
@@ -186,7 +199,7 @@ bool TreeModel::setData (QModelIndex const & index, QVariant const & value, int 
 		{
 			//if (item->parent && item->parent->parent)
 		//		setData(indexFromItem(item->parent), QVariant(Qt::PartiallyChecked), role);
-		}
+		}*/
 	}
 	else
 		return false;

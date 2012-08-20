@@ -37,6 +37,8 @@ public:
 	bool insertItem (std::string const & s);
 	bool selectItem (std::string const & s);
 
+	void updateViewAfterLoad ();
+
 public Q_SLOTS:
 	
 	//void onItemChanged (QModelIndex const & idx);
