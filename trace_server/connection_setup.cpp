@@ -44,7 +44,6 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 				Connection * conn = server->findConnectionByName(app_name);
 				if (conn)
 				{
-					this->setupModelFile();
 					this->setupModelCtx();
 					this->setupModelTID();
 					this->setupModelLvl();
@@ -53,6 +52,7 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 					if (!m_main_window->clrFltEnabled())
 					{
 						loadSessionState(conn->sessionState(), m_session_state);
+						this->setupModelFile();
 
 						{
 							QStandardItemModel * model = static_cast<QStandardItemModel *>(m_main_window->getWidgetColorRegex()->model());

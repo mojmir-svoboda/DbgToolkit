@@ -3,7 +3,10 @@
 TreeModel::TreeModel (QObject * parent, tree_data_t * data)
 	: QAbstractItemModel(parent)
 	, m_tree_data(data)
-{ }
+{
+	if (data->root->children)
+		emit layoutChanged();
+}
 
 TreeModel::~TreeModel () { /* leave m_tree_data untouched. they are owned by sessionState */ }
 
@@ -130,9 +133,9 @@ bool TreeModel::insertItem (std::string const & path)
 	if (present)
 		return false;
 	
-	node_t const * const n = m_tree_data->set_to_state(path, i);
-	QModelIndex idx = indexFromItem(n);
-
+	node_t * const n = m_tree_data->set_to_state(path, i);
+	n->data.m_state = Qt::Checked;
+	QModelIndex const idx = indexFromItem(n);
 	emit dataChanged(idx, idx);
 }
 
@@ -155,8 +158,35 @@ bool TreeModel::setData (QModelIndex const & index, QVariant const & value, int 
 	}
 	else if (role == Qt::CheckStateRole)
 	{
-		int const state = value.toInt();
+		Qt::CheckState const state = static_cast<Qt::CheckState>(value.toInt());
 		item->data.m_state = state;
+
+		if (state == Qt::Checked)
+		{
+			node_t const * child = item->children;
+			while (child)
+			{
+				setData(indexFromItem(child), value, role);
+				child = child->next;
+			}
+		}
+		else if (state == Qt::Unchecked)
+		{
+			node_t const * child = item->children;
+			while (child)
+			{
+				setData(indexFromItem(child), value, role);
+				child = child->next;
+			}
+
+			//if (item->parent && item->parent->parent)
+			//	setData(indexFromItem(item->parent), QVariant(Qt::PartiallyChecked), role);
+		}
+		else if (state == Qt::PartiallyChecked)
+		{
+			//if (item->parent && item->parent->parent)
+		//		setData(indexFromItem(item->parent), QVariant(Qt::PartiallyChecked), role);
+		}
 	}
 	else
 		return false;
@@ -194,6 +224,7 @@ bool TreeModel::insertRows (int position, int rows, QModelIndex const & parent)
     return success;
 }
 
+#if kurvaprdel
 void TreeModel::modelItemChanged (QStandardItem * item)
 {
     QStandardItem * parent = item->parent();
@@ -203,7 +234,6 @@ void TreeModel::modelItemChanged (QStandardItem * item)
     for (int i = 0; i < rowCount; i++)
         if (parent->child(i)->checkState() == Qt::Checked)
             checkCount++;
-
     switch (checkCount)
     {
 		case 0:
@@ -249,4 +279,4 @@ void TreeModel::ModelItemChanged (QStandardItem * item)
             parent->setCheckState(Qt::PartiallyChecked);
     }
 }
-
+#endif

@@ -38,6 +38,8 @@ public:
 	bool selectItem (std::string const & s);
 
 public Q_SLOTS:
+	
+	//void onItemChanged (QModelIndex const & idx);
 	void onExpanded (QModelIndex const & idx);
 	void onCollapsed (QModelIndex const & idx);
 
