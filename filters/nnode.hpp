@@ -229,6 +229,7 @@ struct NNode
 			(*child)->parent = this;
 			(*child)->prev = prev;
 			prev = *child;
+			(*child)->row = i;
 			child = &(*child)->next;
 		}
 	}

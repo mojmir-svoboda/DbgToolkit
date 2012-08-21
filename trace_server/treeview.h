@@ -13,6 +13,8 @@ public:
 
 	void setModel (TreeModel * m);
 
+	void hideLinearParents ();
+
 protected:
 	QList<TreeModel *> m_models;
 	TreeModel * m_current;

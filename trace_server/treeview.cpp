@@ -25,64 +25,26 @@ void TreeView::setModel (TreeModel * model)
 	connect(this, SIGNAL(      clicked(QModelIndex const &)), model, SLOT(onClicked(QModelIndex const &)));
 	connect(this, SIGNAL(doubleClicked(QModelIndex const &)), model, SLOT(onDblClicked(QModelIndex const &)));
 
-	setRootIndex(m_current->rootIndex());
+	hideLinearParents();
 }
 
+void TreeView::hideLinearParents ()
+{
+	setRootIndex(m_current->hideLinearParents());
+}
 
 
 #if defined NE_E
 /// W specific
 
 	m_main_window->getWidgetFile()->setEnabled(m_main_window->filterEnabled());
-			m_main_window->getWidgetFile()->setRootIndex(last_hidden_node->parent()->index());
 
-		QStandardItem * qnode = static_cast<QStandardItemModel *>(getWidgetFile()->model())->invisibleRootItem();
-				m_main_window->getWidgetFile()->setExpanded(m_file_model->indexFromItem(node), !fi->m_collapsed);
 			bool const orig_exp = m_main_window->getWidgetFile()->isExpanded(m_file_model->indexFromItem(node));
 
 	//m_main_window->getWidgetFile()->setEnabled(m_main_window->filterEnabled());
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
-
-
-/// M specific
-
-void TreeModel::hideLinearParents ()
-{
-	QStandardItem * node = m_file_model->invisibleRootItem();
-	QStandardItem * last_hidden_node = 0;
-	while (node)
-	{
-		QStandardItem * child = node->child(0);
-		if (child != 0)
-		{
-			if (child->rowCount() == 1)
-				last_hidden_node = child;
-			else if (child->rowCount() > 1)
-			{
-				last_hidden_node = child;
-				break;
-			}
-		}
-		else
-			break;
-
-		node = child;
-	}
-	if (last_hidden_node)
-	{
-		if (last_hidden_node->parent())
-			m_main_window->getWidgetFile()->setRootIndex(last_hidden_node->parent()->index());
-		else
-			m_main_window->getWidgetFile()->setRootIndex(last_hidden_node->index());
-	}
-}
-
-
-
-
-
 
 
 /////////////////////////////////////////////////////////////////////////////////////

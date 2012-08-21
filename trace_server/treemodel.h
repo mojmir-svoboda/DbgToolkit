@@ -33,6 +33,10 @@ public:
 	//bool removeColumns (int position, int columns, QModelIndex const & parent = QModelIndex());
 	bool insertRows (int position, int rows, QModelIndex const & parent = QModelIndex());
 	//bool removeRows (int position, int rows, QModelIndex const & parent = QModelIndex());
+	//
+	bool hasChildren (QModelIndex const & parent = QModelIndex()) const;
+
+	QModelIndex hideLinearParents () const;
 
 	bool insertItem (std::string const & s);
 	bool selectItem (std::string const & s);

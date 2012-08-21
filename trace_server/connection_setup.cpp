@@ -138,8 +138,8 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 					QString const pname = getPresetPath(app_name, g_defaultPresetName);
 					m_main_window->onPresetActivate(this, pname);
 					m_file_model->afterLoad();
+					m_main_window->getWidgetFile()->setRootIndex(m_file_model->hideLinearParents());
 				}
-				
 			}
 
 			sessionState().m_name = app_name;
