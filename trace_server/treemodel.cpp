@@ -1,4 +1,5 @@
 #include "treemodel.h"
+#include <QTreeView>
 
 TreeModel::TreeModel (QObject * parent, tree_data_t * data)
 	: QAbstractItemModel(parent)
@@ -47,8 +48,6 @@ int TreeModel::rowCount (QModelIndex const & index) const
 		++count;
 		child = child->next;
 	}
-
-	qDebug("row count of=%s is %i    r=%i c=%i", node->key.c_str(), count, index.row(), index.column());
 	return count;
 }
 
@@ -80,10 +79,7 @@ QModelIndex TreeModel::index (int row, int column, QModelIndex const & parent) c
 
 	if (node_t * const parent_item = const_cast<node_t *>(itemFromIndex(parent))) // sigh, const_cast
 		if (node_t * const child_item = node_t::node_child(parent_item, row))
-		{
-			//qDebug("indexof=%s row=%i col=%i", child_item->key.c_str(), row, column); 
 			return createIndex(row, column, child_item);
-		}
 	return QModelIndex();
 
 }
@@ -129,18 +125,15 @@ QVariant TreeModel::data (QModelIndex const & index, int role) const
 	node_t const * const item = itemFromIndex(index);
 	if (role == Qt::DisplayRole)
 	{
-		//qDebug("role=%i dataof=%s row=%i col=%i", role, item->key.c_str(), index.row(), index.column()); 
 		return QVariant(QString::fromStdString(item->key));
 		//@TODO: columns: return item->data(index.column());
 	}
 	else if (role == Qt::UserRole) // collapsed or expanded?
 	{
-		//qDebug("role=%i dataof=%s row=%i col=%i", role, item->key.c_str(), index.row(), index.column()); 
 		return static_cast<bool>(item->data.m_collapsed);
 	}
 	else if (role == Qt::CheckStateRole)
 	{
-		//qDebug("role=%i dataof=%s row=%i col=%i", role, item->key.c_str(), index.row(), index.column());
 		return static_cast<Qt::CheckState>(item->data.m_state);
 	}
 	return QVariant();
@@ -277,6 +270,28 @@ QModelIndex TreeModel::hideLinearParents () const
 	return indexFromItem(last_linear);
 }
 
+
+void TreeModel::syncExpandState (QTreeView * tv)
+{
+	if (!m_tree_data->root->children)
+		return;
+	QList<node_t const *> q;
+	q.push_back(m_tree_data->root->children);
+	while (!q.empty())
+	{
+		node_t const * n = q.back();
+		bool const expanded = !static_cast<bool>(n->data.m_collapsed);
+		tv->setExpanded(indexFromItem(n), expanded);
+		q.pop_back();
+
+		node_t const * child = n->children;
+		while (child)
+		{
+			q.push_back(child);
+			child = child->next;
+		}
+	}
+}
 
 
 #if kurvaprdel

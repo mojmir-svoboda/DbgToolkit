@@ -33,6 +33,10 @@ void TreeView::hideLinearParents ()
 	setRootIndex(m_current->hideLinearParents());
 }
 
+void TreeView::syncExpandState ()
+{
+	m_current->syncExpandState(this);
+}
 
 #if defined NE_E
 /// W specific

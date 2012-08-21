@@ -3,6 +3,7 @@
 #include "config.h"
 #include <filters/file_filter.hpp>
 
+class QTreeView;
 typedef tree_filter<TreeModelItem> tree_data_t;
 
 class TreeModel : public QAbstractItemModel
@@ -44,6 +45,8 @@ public:
 	void beforeLoad ();
 	void afterLoad ();
 	QModelIndex rootIndex () const;
+
+	void syncExpandState (QTreeView *);
 
 public Q_SLOTS:
 	

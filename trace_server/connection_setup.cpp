@@ -44,6 +44,7 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 				Connection * conn = server->findConnectionByName(app_name);
 				if (conn)
 				{
+					this->setupModelFile();
 					this->setupModelCtx();
 					this->setupModelTID();
 					this->setupModelLvl();
@@ -54,7 +55,8 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 						m_file_model->beforeLoad();
 						loadSessionState(conn->sessionState(), m_session_state);
 						m_file_model->afterLoad();
-						this->setupModelFile();
+						m_main_window->getWidgetFile()->hideLinearParents();
+						m_main_window->getWidgetFile()->syncExpandState();
 
 						{
 							QStandardItemModel * model = static_cast<QStandardItemModel *>(m_main_window->getWidgetColorRegex()->model());
@@ -138,7 +140,8 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 					QString const pname = getPresetPath(app_name, g_defaultPresetName);
 					m_main_window->onPresetActivate(this, pname);
 					m_file_model->afterLoad();
-					m_main_window->getWidgetFile()->setRootIndex(m_file_model->hideLinearParents());
+					m_main_window->getWidgetFile()->hideLinearParents();
+					m_main_window->getWidgetFile()->syncExpandState();
 				}
 			}
 

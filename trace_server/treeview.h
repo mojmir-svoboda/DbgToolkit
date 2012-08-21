@@ -14,6 +14,7 @@ public:
 	void setModel (TreeModel * m);
 
 	void hideLinearParents ();
+	void syncExpandState ();
 
 protected:
 	QList<TreeModel *> m_models;
