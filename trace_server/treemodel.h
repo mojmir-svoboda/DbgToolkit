@@ -47,6 +47,7 @@ public:
 	QModelIndex rootIndex () const;
 
 	void syncExpandState (QTreeView *);
+	void selectItem (QTreeView *, std::string const &);
 
 public Q_SLOTS:
 	

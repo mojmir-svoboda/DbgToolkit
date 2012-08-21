@@ -333,46 +333,16 @@ void Connection::onTableClicked (QModelIndex const & row_index)
 	if (m_table_view_proxy)
 	{
 		QModelIndex const curr = m_table_view_proxy->mapToSource(row_index);
+
 		//qDebug("1c curr: (%i,col) -> (%i,col)", row_index.row(), curr.row());
 
 		m_last_clicked = curr;
 
 		{
-			QString file = findString4Tag(tlv::tag_file, curr);
-			QString line = findString4Tag(tlv::tag_line, curr);
-
-			boost::char_separator<char> sep(":/\\");
-			typedef boost::tokenizer<boost::char_separator<char> > tokenizer_t;
-			//std::string fstr = file.toStdString();
-			//tokenizer_t tok(fstr, sep);
-
-			QString combined = file + "/" + line;
-			//m_file_model->selectItem(combined.toStdString());
-
-			/*QStandardItem * item = m_file_model->invisibleRootItem();
-			for (tokenizer_t::const_iterator it = tok.begin(), ite = tok.end(); it != ite; ++it)
-			{
-				QString qfile = QString::fromStdString(*it);
-				QStandardItem * child = findChildByText(item, qfile);
-				if (child != 0)
-				{
-					item = child;
-					QModelIndex idx = item->index();
-					m_main_window->getWidgetFile()->setExpanded(idx, true);
-					m_main_window->getWidgetFile()->setCurrentIndex(idx);
-				}
-			}
-
-			if (item != 0)
-			{
-				QStandardItem * last_level = findChildByText(item, line);
-				if (last_level != 0)
-				{
-					QModelIndex idx = last_level->index();
-					m_main_window->getWidgetFile()->setExpanded(idx, true);
-					m_main_window->getWidgetFile()->setCurrentIndex(idx);
-				}
-			}*/
+			QString const file = findString4Tag(tlv::tag_file, curr);
+			QString const line = findString4Tag(tlv::tag_line, curr);
+			QString const combined = file + "/" + line;
+			m_file_model->selectItem(m_main_window->getWidgetFile(), combined.toStdString());
 		}
 
 		{
@@ -393,7 +363,6 @@ void Connection::onTableClicked (QModelIndex const & row_index)
 			QModelIndex const selectedIndex(indexList.first());
 			m_main_window->getWidgetCtx()->setCurrentIndex(selectedIndex);
 		}
-
 
 		m_last_search_row = curr.row(); // set search from this line
 	}

@@ -96,6 +96,15 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 							recompileRegexps();
 						}
 
+						{
+							QStandardItemModel * model = static_cast<QStandardItemModel *>(m_main_window->getWidgetLvl()->model());
+							QStandardItem * root = model->invisibleRootItem();
+							for (int i = 0; i < sessionState().m_lvl_filters.size(); ++i)
+							{
+								FilteredLevel & flt = sessionState().m_lvl_filters[i];
+								appendToLvlWidgets(flt);
+							}
+						// @TODO: predelat na lvl
 						/*{
 							QStandardItemModel * model = static_cast<QStandardItemModel *>(m_main_window->getWidgetRegex()->model());
 							QStandardItem * root = model->invisibleRootItem();
@@ -115,14 +124,7 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 							}
 							recompileRegexps();
 						}*/
-						{
-							QStandardItemModel * model = static_cast<QStandardItemModel *>(m_main_window->getWidgetLvl()->model());
-							QStandardItem * root = model->invisibleRootItem();
-							for (int i = 0; i < sessionState().m_lvl_filters.size(); ++i)
-							{
-								FilteredLevel & flt = sessionState().m_lvl_filters[i];
-								appendToLvlWidgets(flt);
-							}
+
 						}
 					}
 

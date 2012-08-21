@@ -33,8 +33,6 @@ TreeModel::~TreeModel () { /* leave m_tree_data untouched. they are owned by ses
 
 QVariant TreeModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
-    //if (orientation == Qt::Horizontal && role == Qt::DisplayRole)
-    //    return QString("grr");
     return QVariant();
 }
 
@@ -162,9 +160,13 @@ bool TreeModel::insertItem (std::string const & path)
 	emit dataChanged(idx, idx);
 }
 
-bool TreeModel::selectItem (std::string const & s)
+
+void TreeModel::selectItem (QTreeView * tv, std::string const & path)
 {
-	return true; // @TODO
+	TreeModelItem const * i = 0;
+	node_t const * node = m_tree_data->is_present(path, i);
+	if (node)
+		tv->setCurrentIndex(indexFromItem(node));
 }
 
 bool TreeModel::setData (QModelIndex const & index, QVariant const & value, int role)
@@ -222,7 +224,7 @@ Qt::ItemFlags TreeModel::flags (QModelIndex const & index) const
 	return QAbstractItemModel::flags(index)
 				| Qt::ItemIsEnabled
 				| Qt::ItemIsUserCheckable
-				| Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled
+			//	| Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled
 				| Qt::ItemIsSelectable
 				| Qt::ItemIsTristate;
 }
@@ -269,7 +271,6 @@ QModelIndex TreeModel::hideLinearParents () const
 
 	return indexFromItem(last_linear);
 }
-
 
 void TreeModel::syncExpandState (QTreeView * tv)
 {
