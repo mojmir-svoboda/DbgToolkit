@@ -54,9 +54,6 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 					{
 						m_file_model->beforeLoad();
 						loadSessionState(conn->sessionState(), m_session_state);
-						m_file_model->afterLoad();
-						m_main_window->getWidgetFile()->hideLinearParents();
-						m_main_window->getWidgetFile()->syncExpandState();
 
 						{
 							QStandardItemModel * model = static_cast<QStandardItemModel *>(m_main_window->getWidgetColorRegex()->model());
@@ -135,6 +132,10 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 					// @TODO: delete persistent storage for the tab
 					sessionState().m_tab_idx = m_main_window->getTabTrace()->indexOf(sessionState().m_tab_widget);
 					onTabTraceFocus(sessionState().m_tab_idx);
+
+					m_file_model->afterLoad();
+					m_main_window->getWidgetFile()->hideLinearParents();
+					m_main_window->getWidgetFile()->syncExpandState();
 				}
 				else
 				{
