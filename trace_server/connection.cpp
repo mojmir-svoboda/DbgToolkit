@@ -48,6 +48,7 @@ Connection::Connection (QObject * parent)
 	, m_datastream(0)
 	, m_tcpstream(0)
 	, m_statswindow(0)
+	, m_plots_model(0)
 {
 	qDebug("Connection::Connection() this=0x%08x", this);
 	m_toggle_ref = new QAction("Toggle Ref", this);
@@ -55,6 +56,7 @@ Connection::Connection (QObject * parent)
 	m_exclude_fileline = new QAction("Exclude File:Line", this);
     m_ctx_menu.addAction(m_toggle_ref);
     m_ctx_menu.addAction(m_exclude_fileline);
+	m_plots_model = new TreeModel(this, &m_session_state.m_plot_filters);
 }
 
 Connection::~Connection ()

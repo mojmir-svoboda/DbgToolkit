@@ -238,6 +238,7 @@ private:
 	QTcpSocket * m_tcpstream;
 	stats::StatsWindow * m_statswindow;
 	dataplots_t m_dataplots;
+	TreeModel * m_plots_model;
 };
 
 inline DataPlot::DataPlot (Connection * parent, plot::PlotConfig & config, QString const & fname)

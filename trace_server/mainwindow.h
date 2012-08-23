@@ -209,6 +209,7 @@ private slots:
 	void onReuseTabChanged (int state);
 	void onPlotStateChanged (int state);
 	void onPlotSaveAllButton ();
+	void onPlotsToolButton ();
 	void onPlotRestoreButton ();
 	void onFilterFile (int state);
 	void onSettingsAppSelected (int idx, bool first_time = false);
@@ -250,6 +251,8 @@ private:
 	QSystemTrayIcon * m_tray_icon;
 	QLabel * m_status_label;
 	QDialog * m_settings_dialog;
+	QDockWidget * m_plots_dock;
+	TreeView * m_plot_tree_view;
 };
 
 #endif // MAINWINDOW_H

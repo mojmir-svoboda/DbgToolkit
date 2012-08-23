@@ -93,22 +93,39 @@ void Connection::appendDataXY (QString const & msg_tag, double x, double y)
 		QString const fname = getDataTagFileName(getConfig().m_appdir, sessionState().m_name, tag);
 		if (loadConfigForPlot(template_config, tag))
 		{
-			qDebug("loaded tag from file=%s", fname.toStdString().c_str());
+			qDebug("plot: loaded tag configuration from file=%s", fname.toStdString().c_str());
 		}
 		
 		DataPlot * const dp = new DataPlot(this, template_config, fname);
 		it = m_dataplots.insert(tag, dp);
-		dp->m_wd = mkDockWidget(m_main_window, &dp->m_plot, QString(sessionState().m_name + "/" + tag));
-		plot::Curve * curve = (*it)->m_plot.findCurve(subtag);
+		QString const plots_name = sessionState().m_name + "/" + msg_tag;
+		QModelIndex const item_idx = m_plots_model->insertItem(plots_name.toStdString());
 
-		if (m_main_window->plotEnabled() && template_config.m_show)
+		QString const complete_name = sessionState().m_name + "/" + tag;
+		dp->m_wd = mkDockWidget(m_main_window, &dp->m_plot, complete_name);
+		plot::Curve * curve = (*it)->m_plot.findCurve(subtag);
+		plot::CurveConfig const * ccfg = 0;
+		dp->m_config.findCurveConfig(subtag, ccfg);
+	
+		if (template_config.m_show)
 		{
-			dp->m_plot.showCurve(curve->m_curve, true);
+			bool const visible = ccfg ? ccfg->m_show : true;
+			dp->m_plot.showCurve(curve->m_curve, visible);
+			m_plots_model->setData(item_idx, QVariant(visible ? Qt::Checked : Qt::Unchecked), Qt::CheckStateRole);
+		}
+		else
+		{
+			bool const visible = ccfg ? ccfg->m_show : false;
+			dp->m_plot.showCurve(curve->m_curve, visible);
+			m_plots_model->setData(item_idx, QVariant(visible ? Qt::Checked : Qt::Unchecked), Qt::CheckStateRole);
+		}
+
+		if (m_main_window->plotEnabled())
+		{
 			dp->m_plot.show();
 		}
 		else
 		{
-			dp->m_plot.showCurve(curve->m_curve, false);
 			dp->m_plot.hide();
 			dp->m_wd->hide();
 		}

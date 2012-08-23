@@ -12,6 +12,7 @@ public:
 	TreeView (QWidget * parent = 0);
 
 	void setModel (TreeModel * m);
+	void setHidingLinearParents (bool state) { m_hiding = state; }
 
 	void hideLinearParents ();
 	void syncExpandState ();
@@ -19,6 +20,7 @@ public:
 protected:
 	QList<TreeModel *> m_models;
 	TreeModel * m_current;
+	bool m_hiding;
 };
 
 

@@ -3,7 +3,6 @@
 #include <QFile>
 #include <QRegExp>
 #include <tlv_parser/tlv_encoder.h>
-#include "modelview.h"
 #include "utils.h"
 #include "utils_qstandarditem.h"
 #include "filterproxy.h"
@@ -67,16 +66,12 @@ void Connection::clearFilters ()
 
 void Connection::onClearCurrentFileFilter ()
 {
-	//QStandardItem * node = m_file_model->invisibleRootItem();
-	//E_FilterMode const fmode = m_main_window->fltMode();
-	//setCheckStateChilds(node->child(0,0), fmode == e_Include ? Qt::Checked : Qt::Unchecked);
 	sessionState().onClearFileFilter();
 	onInvalidateFilter();
 }
 void Connection::onClearCurrentCtxFilter ()
 {
 	sessionState().onClearCtxFilter();
-	// @TODO: checkboxes
 	onInvalidateFilter();
 }
 void Connection::onClearCurrentTIDFilter ()
@@ -104,10 +99,9 @@ void Connection::onExcludeFileLine (QModelIndex const & row_index)
 {
 	QString file = findString4Tag(tlv::tag_file, row_index);
 	QString line = findString4Tag(tlv::tag_line, row_index);
+	qDebug("appending: %s:%s", file.toStdString().c_str(), line.toStdString().c_str());
 
 	fileline_t filter_item(file.toStdString(), line.toStdString());
-	qDebug("appending: %s:%s", file.toStdString().c_str(), line.toStdString().c_str());
-	//m_session_state.appendFileFilter(filter_item);
 	boost::char_separator<char> sep(":/\\");
 	appendToFileTree(sep, file.toStdString() + "/" + line.toStdString(), true);
 

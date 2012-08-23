@@ -299,12 +299,12 @@ void TreeModel::syncExpandState (QTreeView * tv)
 	}
 }
 
-bool TreeModel::insertItem (std::string const & path)
+QModelIndex TreeModel::insertItem (std::string const & path)
 {
 	TreeModelItem i;
 	bool const present = m_tree_data->is_present(path, i);
 	if (present)
-		return false;
+		return QModelIndex();
 	
 	node_t * const n = m_tree_data->set_to_state(path, i);
 	if (n->parent)
@@ -315,14 +315,19 @@ bool TreeModel::insertItem (std::string const & path)
 		n->data.m_state = Qt::Checked;
 	QModelIndex const idx = indexFromItem(n);
 	emit dataChanged(idx, idx);
+	return idx;
 }
 
-void TreeModel::selectItem (QTreeView * tv, std::string const & path)
+QModelIndex TreeModel::selectItem (QTreeView * tv, std::string const & path)
 {
 	TreeModelItem const * i = 0;
 	node_t const * node = m_tree_data->is_present(path, i);
-	if (node)
-		tv->setCurrentIndex(indexFromItem(node));
+	if (!node)
+		return QModelIndex();
+
+	QModelIndex const idx = indexFromItem(node);
+	tv->setCurrentIndex(idx);
+	return idx;
 }
 
 

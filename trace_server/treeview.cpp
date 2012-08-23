@@ -2,6 +2,7 @@
 
 TreeView::TreeView (QWidget * parent)
 	: QTreeView(parent)
+	, m_hiding(true)
 {
 	setEditTriggers(QAbstractItemView::NoEditTriggers);
 }
@@ -30,7 +31,8 @@ void TreeView::setModel (TreeModel * model)
 
 void TreeView::hideLinearParents ()
 {
-	setRootIndex(m_current->hideLinearParents());
+	if (m_hiding)
+		setRootIndex(m_current->hideLinearParents());
 }
 
 void TreeView::syncExpandState ()
