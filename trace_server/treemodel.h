@@ -34,7 +34,6 @@ public:
 	//bool removeColumns (int position, int columns, QModelIndex const & parent = QModelIndex());
 	bool insertRows (int position, int rows, QModelIndex const & parent = QModelIndex());
 	//bool removeRows (int position, int rows, QModelIndex const & parent = QModelIndex());
-	//
 	bool hasChildren (QModelIndex const & parent = QModelIndex()) const;
 
 	QModelIndex hideLinearParents () const;
@@ -51,7 +50,6 @@ public:
 
 public Q_SLOTS:
 	
-	//void onItemChanged (QModelIndex const & idx);
 	void onExpanded (QModelIndex const & idx);
 	void onCollapsed (QModelIndex const & idx);
 
@@ -63,6 +61,10 @@ protected:
 	node_t const * itemFromIndex (QModelIndex const & index) const;
 	node_t * itemFromIndex (QModelIndex const & index);
 	QModelIndex indexFromItem (node_t const * item) const;
+
+	void stateToChildren (node_t * item, Qt::CheckState state);
+	void stateToParents (node_t * item, Qt::CheckState state);
+	void syncParents (node_t * const item, Qt::CheckState state);
 
 	tree_data_t * m_tree_data;
 };
