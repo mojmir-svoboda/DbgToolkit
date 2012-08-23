@@ -47,6 +47,7 @@ SET(trace_server_SOURCES
 	treeview.cpp
 	treemodel.cpp
 	modelview.cpp
+	delegates.cpp
 	server.cpp
 	filterproxy.cpp
 	connection.cpp
@@ -91,6 +92,7 @@ SET(trace_server_HEADERS
 	sessionstate.h
 	settings.h
 	statswindow.h
+	delegates.h
 	profilerconnection.h
 	profilerbar.h
 	profilerconnection.h

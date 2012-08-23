@@ -257,20 +257,6 @@ bool Connection::appendToFilters (DecodedCommand const & cmd)
 		{
 			std::string file(cmd.tvs[i].m_val);
 			appendToFileTree(sep, file + "/" + line);
-
-			//_FilterMode fmode = m_main_window->fltMode();
-			//E_NodeStates state = e_Checked;
-			//bool const present = sessionState().isFileLinePresent(fileline_t(file, line), excluded);
-			//if (!present)
-			{
-				//@TODO: stav checkboxu 
-				// if inclusive && parent == partial --> unchecked
-				// if inclusive && parent == checked --> checked
-				// if inclusive && parent == unchecked --> unchecked
-			}
-			//bool const default_checked = fmode == e_Exclude ? false : true;
-			//bool const checked = present ? (fmode == e_Exclude ? excluded : !excluded) : default_checked;
-			//appendToFileFilters(sep, file, line, checked);
 		}
 	}
 	return true;
@@ -344,8 +330,6 @@ void Connection::loadToColorRegexps (std::string const & filter_item, std::strin
 	sessionState().setRegexChecked(filter_item, enabled);
 }
 
-#include <QDialogButtonBox>
-
 void Connection::recompileColorRegexps ()
 {
 	for (int i = 0, ie = sessionState().m_colorized_texts.size(); i < ie; ++i)
@@ -399,27 +383,4 @@ void Connection::loadToRegexps (std::string const & filter_item, bool inclusive,
 {
 	sessionState().appendToRegexFilters(filter_item, inclusive, enabled);
 }
-
-void Connection::flipFilterMode (E_FilterMode mode)
-{
-/*	qDebug("filterMode changed: old=%u -> new=%u", sessionState().m_filter_mode, mode);
-	if (sessionState().m_filter_mode != mode)
-	{
-		QStandardItem * node = m_file_model->invisibleRootItem();
-		flipCheckState(node);
-		flipCheckStateChilds(node);
-		sessionState().flipFilterMode(mode);
-	}*/
-}
-
-/*void Connection::syncFileTreeWithFilter (E_FilterMode mode, QStandardItem * node)
-{
-	setCheckState(node, checked);
-	int const rc = node->rowCount();
-	for (int r = 0; r < rc; ++r)
-	{
-		QStandardItem * child = node->child(r, 0);
-		syncFileTreeWithFilter(child, checked);
-	}
-}*/
 

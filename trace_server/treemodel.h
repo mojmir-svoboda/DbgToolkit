@@ -31,9 +31,7 @@ public:
 	virtual Qt::ItemFlags flags (QModelIndex const & index) const;
 
 	bool insertColumns (int position, int columns, QModelIndex const & parent = QModelIndex());
-	//bool removeColumns (int position, int columns, QModelIndex const & parent = QModelIndex());
 	bool insertRows (int position, int rows, QModelIndex const & parent = QModelIndex());
-	//bool removeRows (int position, int rows, QModelIndex const & parent = QModelIndex());
 	bool hasChildren (QModelIndex const & parent = QModelIndex()) const;
 
 	QModelIndex hideLinearParents () const;
@@ -57,7 +55,6 @@ Q_SIGNALS:
 	void invalidateFilter ();
 
 protected:
-
 	node_t const * itemFromIndex (QModelIndex const & index) const;
 	node_t * itemFromIndex (QModelIndex const & index);
 	QModelIndex indexFromItem (node_t const * item) const;

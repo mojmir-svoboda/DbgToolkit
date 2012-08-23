@@ -8,6 +8,7 @@
 #include "mainwindow.h"
 #include "modelview.h"
 #include "utils.h"
+#include "delegates.h"
 
 Server::Server (QString ip, unsigned short port, QObject * parent, bool quit_delay)
 	: QTcpServer(parent)
