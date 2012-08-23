@@ -21,6 +21,8 @@ int main (int argc, char * argv[])
 		}
 
 		std::string args;
+		args += argv[2];
+		args += " ";
 		for (int i = 3; i < argc; ++i)
 		{
 			args += argv[i];
