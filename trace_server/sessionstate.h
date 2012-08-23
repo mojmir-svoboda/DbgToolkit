@@ -86,30 +86,31 @@ public:
 	ThreadSpecific & getTLS () { return m_tls; }
 	ThreadSpecific const & getTLS () const { return m_tls; }
 
+	// file
 	typedef tree_filter<TreeModelItem> file_filters_t;
-	//file_filters_t const & getFileFilters () const { return m_file_filters; }
 	bool isFileLinePresent (fileline_t const & p, TreeModelItem & state) const; /// checks for file:line existence in the tree
 	bool isFileLinePresent (std::string const & fileline, TreeModelItem & state) const; /// checks for file:line existence in the tree
-	//void stateToFileChilds (fileline_t const & item, TreeModelItem const & state);
-
+	
+	// ctx
 	typedef QList<FilteredContext> ctx_filters_t;
 	bool isCtxPresent (std::string const & item, bool & enabled) const;
-	//ctx_filters_t const & getCtxFilters () const { return m_ctx_filters; }
 	void appendCtxFilter (std::string const & item);
 	void removeCtxFilter (std::string const & item);
 
-
+	// tid
 	typedef std::vector<std::string> tid_filters_t;
 	void appendTIDFilter (std::string const & item);
 	void removeTIDFilter (std::string const & item);
 	bool isTIDExcluded (std::string const & item) const;
 
+	// lvl
 	typedef QList<FilteredLevel> lvl_filters_t;
 	void appendLvlFilter (std::string const & item);
 	void removeLvlFilter (std::string const & item);
 	bool isLvlPresent (std::string const & item, bool & enabled, E_LevelMode & lvlmode) const;
 	bool setLvlMode (std::string const & item, bool enabled, E_LevelMode lvlmode);
 
+	// blocks
 	void appendCollapsedBlock (QString tid, int from, int to, QString file, QString line);
 	bool findCollapsedBlock (QString tid, int from, int to) const;
 	bool eraseCollapsedBlock (QString tid, int from, int to);

@@ -119,7 +119,6 @@ void Connection::appendToFileTree (boost::char_separator<char> const & sep, std:
 	m_file_model->insertItem(fileline);
 }
 
-
 void Connection::onFileColOrExp (QModelIndex const & idx, bool collapsed)
 {
 	QStandardItemModel const * const model = static_cast<QStandardItemModel *>(m_main_window->getWidgetFile()->model());

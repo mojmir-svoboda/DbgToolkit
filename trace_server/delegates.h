@@ -27,5 +27,16 @@ public:
 private slots:
 };
 
+class CtxDelegate : public QStyledItemDelegate
+{
+	SessionState const & m_session_state;
+public: 
+    CtxDelegate (SessionState & ss, QObject *parent = 0) : QStyledItemDelegate(parent), m_session_state(ss) { }
+
+    void paint (QPainter * painter, QStyleOptionViewItem const & option, QModelIndex const & index) const;
+    
+private slots:
+};
+
 
 
