@@ -229,6 +229,8 @@ void Connection::onCloseTab ()
 	if (m_tcpstream)
 		m_tcpstream->close();
 	closeStorage();
+
+	disconnect(m_file_model, SIGNAL(invalidateFilter()), this, SLOT(onInvalidateFilter()));
 	if (m_main_window->getWidgetFile()->model() == m_file_model)
 		m_main_window->getWidgetFile()->setModel(0);
 

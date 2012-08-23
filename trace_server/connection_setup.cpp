@@ -247,6 +247,7 @@ void Connection::setupModelFile ()
 		m_file_model = new TreeModel(this, &m_session_state.m_file_filters);
 	}
 	m_main_window->getWidgetFile()->setModel(m_file_model);
+	connect(m_file_model, SIGNAL(invalidateFilter()), this, SLOT(onInvalidateFilter()));
 	m_main_window->getWidgetFile()->setEnabled(m_main_window->filterEnabled());
 }
 

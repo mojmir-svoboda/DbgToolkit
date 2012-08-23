@@ -217,6 +217,7 @@ bool TreeModel::setData (QModelIndex const & index, QVariant const & value, int 
 		return false;
 
 	emit dataChanged(index, index);
+	emit invalidateFilter();
 }
 
 Qt::ItemFlags TreeModel::flags (QModelIndex const & index) const
@@ -268,7 +269,6 @@ QModelIndex TreeModel::hideLinearParents () const
 		else
 			break;
 	}
-
 	return indexFromItem(last_linear);
 }
 

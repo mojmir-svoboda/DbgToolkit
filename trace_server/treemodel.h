@@ -55,6 +55,9 @@ public Q_SLOTS:
 	void onExpanded (QModelIndex const & idx);
 	void onCollapsed (QModelIndex const & idx);
 
+Q_SIGNALS:
+	void invalidateFilter ();
+
 protected:
 
 	node_t const * itemFromIndex (QModelIndex const & index) const;
