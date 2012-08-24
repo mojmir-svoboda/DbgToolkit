@@ -143,6 +143,7 @@ void SessionState::clearFilters ()
 {
 	m_file_filters.clear();
 	m_tid_filters.clear();
+	m_lvl_filters.clear();
 	m_filtered_regexps.clear();
 	m_colorized_texts.clear();
 	m_collapse_blocks.clear();
@@ -176,7 +177,6 @@ bool SessionState::isCtxPresent (std::string const & item, bool & enabled) const
 		}
 	return false;
 }
-
 void SessionState::appendCtxFilter (std::string const & item)
 {
 	QString const qitem = QString::fromStdString(item);
@@ -245,8 +245,6 @@ bool SessionState::isLvlPresent (std::string const & item, bool & enabled, E_Lev
 		}
 	return false;
 }
-
-
 bool SessionState::setLvlMode (std::string const & item, bool enabled, E_LevelMode lvlmode)
 {
 	QString const qitem = QString::fromStdString(item);

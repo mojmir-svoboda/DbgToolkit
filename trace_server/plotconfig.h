@@ -162,6 +162,17 @@ namespace plot {
 			m_tag = rhs.m_tag;
 			m_ccfg = rhs.m_ccfg;
 		}
+
+		bool findCurveConfig (QString const & tag, CurveConfig const * & ccfg)
+		{
+			for (int i = 0, ie = m_ccfg.size(); i < ie; ++i)
+				if (m_ccfg.at(i).m_tag == tag)
+				{
+					ccfg = &m_ccfg.at(i);
+					return true;
+				}
+			return false;
+		}
 	};
 
 	bool loadConfig (PlotConfig & config, QString const & fname);

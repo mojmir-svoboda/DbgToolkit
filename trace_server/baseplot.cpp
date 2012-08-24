@@ -130,11 +130,11 @@ namespace plot {
 	void BasePlot::onShowPlots ()
 	{
 		show();
-		for (curves_t::iterator it = m_curves.begin(), ite = m_curves.end(); it != ite; ++it)
+		/*for (curves_t::iterator it = m_curves.begin(), ite = m_curves.end(); it != ite; ++it)
 		{
 			Curve & curve = **it;
 			showCurve(curve.getCurve(), true);
-		}
+		}*/
 
 		// show curves?
 	}
@@ -177,6 +177,7 @@ namespace plot {
 			//curve->m_curve->setBaseline(cc.m_pen_width);
 			curve->m_curve->setLegendAttribute(QwtPlotCurve::LegendShowLine);
 			curve->m_curve->setLegendAttribute(QwtPlotCurve::LegendShowSymbol);
+			showCurve(curve.getCurve(), cc.m_show);
 		}
 
 		killTimer(m_timer);

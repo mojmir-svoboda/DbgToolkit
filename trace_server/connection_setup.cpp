@@ -9,6 +9,7 @@
 #include "serialization.h"
 #include "constants.h"
 #include "statswindow.h"
+#include "delegates.h"
 
 bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 {

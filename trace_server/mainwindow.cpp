@@ -28,6 +28,7 @@
 #include "version.h"
 #include "serialization.h"
 #include "constants.h"
+#include "dock.h"
 #include "utils_qstandarditem.h"
 
 #ifdef WIN32
@@ -63,6 +64,8 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode)
 	, m_tray_menu(0)
 	, m_tray_icon(0)
 	, m_settings_dialog(0)
+	, m_plots_dock(0)
+	, m_plot_tree_view(0)
 {
 	//QDir::setSearchPaths("icons", QStringList(QDir::currentPath()));
 	ui->setupUi(this);
@@ -72,6 +75,11 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode)
 	m_settings_dialog->setWindowFlags(Qt::Sheet);
 	ui_settings = new Ui::SettingsDialog();
 	ui_settings->setupUi(m_settings_dialog);
+
+	m_plot_tree_view = new TreeView(this);
+	m_plot_tree_view->setHidingLinearParents(false);
+	m_plots_dock = mkDockWidget(this, m_plot_tree_view, QString("plot list"), Qt::LeftDockWidgetArea);
+	m_plots_dock->setVisible(false);
 
 	QString const homedir = QDir::homePath();
 	m_config.m_appdir = homedir + "/.flogging";
@@ -119,7 +127,6 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode)
 	ui->qSearchComboBox->addItem(".*");
 	ui->qSearchComboBox->setCurrentIndex(ui->qSearchComboBox->findText(msg_tag));
 
-
 	m_timer->setInterval(5000);
 	connect(m_timer, SIGNAL(timeout()) , this, SLOT(timerHit()));
 	m_timer->start();
@@ -145,6 +152,7 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode)
 	connect(ui->filterFileCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onFilterFile(int)));
 	connect(ui->plotsCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onPlotStateChanged(int)));
 	connect(ui->plotSaveAllButton, SIGNAL(clicked()), this, SLOT(onPlotSaveAllButton()));
+	connect(ui->plotsToolButton, SIGNAL(clicked()), this, SLOT(onPlotsToolButton()));
 	connect(ui->buffCheckBox, SIGNAL(stateChanged(int)), m_server, SLOT(onBufferingStateChanged(int)));
 	//@FIXME: this has some issues
 	//connect(ui_settings->onTopCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onOnTop(int)));
@@ -370,6 +378,23 @@ void MainWindow::onPlotStateChanged (int state)
 		if (!conn) return;
 
 		conn->onShowPlots();
+	}
+}
+
+void MainWindow::onPlotsToolButton ()
+{
+	if (ui->plotsToolButton->isChecked())
+	{
+		m_plots_dock->show();
+
+		if (Connection * conn = m_server->findCurrentConnection())
+		{
+			m_plot_tree_view->setModel(conn->m_plots_model);
+		}
+	}
+	else
+	{
+		m_plots_dock->hide();
 	}
 }
 
@@ -665,7 +690,7 @@ void MainWindow::onPresetActivate (Connection * conn, QString const & pname)
 		std::swap(conn->m_session_state.m_file_filters.root, dummy.m_file_filters.root);
 		conn->m_session_state.m_filtered_regexps = dummy.m_filtered_regexps;
 		conn->m_session_state.m_colorized_texts = dummy.m_colorized_texts;
-		//@TODO: this blows under linux
+		//@TODO: this blows under linux, i wonder why?
 		//conn->m_session_state.m_filtered_regexps.swap(dummy.m_filtered_regexps);
 		//conn->m_session_state.m_colorized_texts.swap(dummy.m_colorized_texts);
 
@@ -848,7 +873,7 @@ void MainWindow::onRmCurrentFileFilter ()
 	qDebug("removing preset_name[%i]=%s", idx, preset_name.toStdString().c_str());
 	
 	QString fname = getPresetFileName(m_config.m_appdir, preset_name);
-	qDebug("session file=%s", fname.toStdString().c_str());
+	qDebug("confirm to remove session file=%s", fname.toStdString().c_str());
 
 	QMessageBox msg_box;
 	QPushButton * b_del = msg_box.addButton(tr("Yes, Delete"), QMessageBox::ActionRole);

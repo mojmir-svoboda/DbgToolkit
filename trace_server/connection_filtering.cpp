@@ -3,7 +3,6 @@
 #include <QFile>
 #include <QRegExp>
 #include <tlv_parser/tlv_encoder.h>
-#include "modelview.h"
 #include "utils.h"
 #include "utils_qstandarditem.h"
 #include "filterproxy.h"
@@ -67,16 +66,12 @@ void Connection::clearFilters ()
 
 void Connection::onClearCurrentFileFilter ()
 {
-	//QStandardItem * node = m_file_model->invisibleRootItem();
-	//E_FilterMode const fmode = m_main_window->fltMode();
-	//setCheckStateChilds(node->child(0,0), fmode == e_Include ? Qt::Checked : Qt::Unchecked);
 	sessionState().onClearFileFilter();
 	onInvalidateFilter();
 }
 void Connection::onClearCurrentCtxFilter ()
 {
 	sessionState().onClearCtxFilter();
-	// @TODO: checkboxes
 	onInvalidateFilter();
 }
 void Connection::onClearCurrentTIDFilter ()
@@ -104,10 +99,9 @@ void Connection::onExcludeFileLine (QModelIndex const & row_index)
 {
 	QString file = findString4Tag(tlv::tag_file, row_index);
 	QString line = findString4Tag(tlv::tag_line, row_index);
+	qDebug("appending: %s:%s", file.toStdString().c_str(), line.toStdString().c_str());
 
 	fileline_t filter_item(file.toStdString(), line.toStdString());
-	qDebug("appending: %s:%s", file.toStdString().c_str(), line.toStdString().c_str());
-	//m_session_state.appendFileFilter(filter_item);
 	boost::char_separator<char> sep(":/\\");
 	appendToFileTree(sep, file.toStdString() + "/" + line.toStdString(), true);
 
@@ -118,7 +112,6 @@ void Connection::appendToFileTree (boost::char_separator<char> const & sep, std:
 {
 	m_file_model->insertItem(fileline);
 }
-
 
 void Connection::onFileColOrExp (QModelIndex const & idx, bool collapsed)
 {
@@ -257,20 +250,6 @@ bool Connection::appendToFilters (DecodedCommand const & cmd)
 		{
 			std::string file(cmd.tvs[i].m_val);
 			appendToFileTree(sep, file + "/" + line);
-
-			//_FilterMode fmode = m_main_window->fltMode();
-			//E_NodeStates state = e_Checked;
-			//bool const present = sessionState().isFileLinePresent(fileline_t(file, line), excluded);
-			//if (!present)
-			{
-				//@TODO: stav checkboxu 
-				// if inclusive && parent == partial --> unchecked
-				// if inclusive && parent == checked --> checked
-				// if inclusive && parent == unchecked --> unchecked
-			}
-			//bool const default_checked = fmode == e_Exclude ? false : true;
-			//bool const checked = present ? (fmode == e_Exclude ? excluded : !excluded) : default_checked;
-			//appendToFileFilters(sep, file, line, checked);
 		}
 	}
 	return true;
@@ -344,8 +323,6 @@ void Connection::loadToColorRegexps (std::string const & filter_item, std::strin
 	sessionState().setRegexChecked(filter_item, enabled);
 }
 
-#include <QDialogButtonBox>
-
 void Connection::recompileColorRegexps ()
 {
 	for (int i = 0, ie = sessionState().m_colorized_texts.size(); i < ie; ++i)
@@ -399,27 +376,4 @@ void Connection::loadToRegexps (std::string const & filter_item, bool inclusive,
 {
 	sessionState().appendToRegexFilters(filter_item, inclusive, enabled);
 }
-
-void Connection::flipFilterMode (E_FilterMode mode)
-{
-/*	qDebug("filterMode changed: old=%u -> new=%u", sessionState().m_filter_mode, mode);
-	if (sessionState().m_filter_mode != mode)
-	{
-		QStandardItem * node = m_file_model->invisibleRootItem();
-		flipCheckState(node);
-		flipCheckStateChilds(node);
-		sessionState().flipFilterMode(mode);
-	}*/
-}
-
-/*void Connection::syncFileTreeWithFilter (E_FilterMode mode, QStandardItem * node)
-{
-	setCheckState(node, checked);
-	int const rc = node->rowCount();
-	for (int r = 0; r < rc; ++r)
-	{
-		QStandardItem * child = node->child(r, 0);
-		syncFileTreeWithFilter(child, checked);
-	}
-}*/
 

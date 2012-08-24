@@ -20,25 +20,19 @@
  * SOFTWARE.
  **/
 #pragma once
-
 #include <QHostAddress>
 #include <QString>
 #include <QTcpSocket>
 #include <QTableView>
-//#include <QAbstractProxyModel>
 #include <QThread>
-//#include <QMenu>
 #include "mainwindow.h"
 #include <tlv_parser/tlv_parser.h>
-//#include <tlv_parser/tlv_decoder.h>
 #include <boost/circular_buffer.hpp>
 #include "sessionstate.h"
 #include "filterproxy.h"
 #include "cmd.h"
 #include "baseplot.h"
 #include "treeview.h"
-
-#include <QStyledItemDelegate>
 
 class Server;
 class QFile;
@@ -47,34 +41,6 @@ class QStandardItemModel;
 class QStandardItem;
 
 namespace stats { class StatsWindow; }
-
-
-class TableItemDelegate : public QStyledItemDelegate
-{
-	SessionState const & m_session_state;
-public: 
-    TableItemDelegate (SessionState & ss, QObject *parent = 0) : QStyledItemDelegate(parent), m_session_state(ss) { }
-
-    void paint (QPainter * painter, QStyleOptionViewItem const & option, QModelIndex const & index) const;
-    void paintCustom (QPainter * painter, QStyleOptionViewItem const & option, QModelIndex const & index) const;
-
-	void paintTokenized (QPainter * painter, QStyleOptionViewItemV4 & option, QModelIndex const & index, QString const & separator, QString const & out_separator, int level = 1) const;
-    
-private slots:
-};
-
-class LevelDelegate : public QStyledItemDelegate
-{
-	SessionState const & m_session_state;
-public: 
-    LevelDelegate (SessionState & ss, QObject *parent = 0) : QStyledItemDelegate(parent), m_session_state(ss) { }
-
-    void paint (QPainter * painter, QStyleOptionViewItem const & option, QModelIndex const & index) const;
-    
-private slots:
-};
-
-
 
 struct DataPlot {
 	Connection * m_parent;
@@ -211,7 +177,6 @@ private:
 	bool appendToFilters (DecodedCommand const & cmd);
 	void appendToTIDFilters (std::string const & item);
 	void clearFilters (QStandardItem * node);
-	void hideLinearParents ();
 
 	GlobalConfig const & getConfig () { return m_main_window->getConfig(); }
 
@@ -273,6 +238,7 @@ private:
 	QTcpSocket * m_tcpstream;
 	stats::StatsWindow * m_statswindow;
 	dataplots_t m_dataplots;
+	TreeModel * m_plots_model;
 };
 
 inline DataPlot::DataPlot (Connection * parent, plot::PlotConfig & config, QString const & fname)

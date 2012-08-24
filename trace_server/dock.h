@@ -13,3 +13,12 @@ inline QDockWidget * mkDockWidget (QMainWindow * const window, QWidget * const d
 	return dock;
 }
 
+inline QDockWidget * mkDockWidget (QMainWindow * const window, QWidget * const docked_widget, QString const & name, Qt::DockWidgetAreas flags)
+{
+	QDockWidget * const dock = new QDockWidget(name, window);
+	docked_widget->setParent(dock);
+	dock->setAllowedAreas(flags);
+	dock->setWidget(docked_widget);
+	window->addDockWidget(Qt::TopDockWidgetArea, dock);
+	return dock;
+}

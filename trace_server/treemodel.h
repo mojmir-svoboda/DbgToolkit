@@ -31,22 +31,19 @@ public:
 	virtual Qt::ItemFlags flags (QModelIndex const & index) const;
 
 	bool insertColumns (int position, int columns, QModelIndex const & parent = QModelIndex());
-	//bool removeColumns (int position, int columns, QModelIndex const & parent = QModelIndex());
 	bool insertRows (int position, int rows, QModelIndex const & parent = QModelIndex());
-	//bool removeRows (int position, int rows, QModelIndex const & parent = QModelIndex());
 	bool hasChildren (QModelIndex const & parent = QModelIndex()) const;
 
 	QModelIndex hideLinearParents () const;
 
-	bool insertItem (std::string const & s);
-	bool selectItem (std::string const & s);
+	QModelIndex insertItem (std::string const & s);
 
 	void beforeLoad ();
 	void afterLoad ();
 	QModelIndex rootIndex () const;
 
 	void syncExpandState (QTreeView *);
-	void selectItem (QTreeView *, std::string const &);
+	QModelIndex selectItem (QTreeView *, std::string const &);
 
 public Q_SLOTS:
 	
@@ -57,7 +54,6 @@ Q_SIGNALS:
 	void invalidateFilter ();
 
 protected:
-
 	node_t const * itemFromIndex (QModelIndex const & index) const;
 	node_t * itemFromIndex (QModelIndex const & index);
 	QModelIndex indexFromItem (node_t const * item) const;

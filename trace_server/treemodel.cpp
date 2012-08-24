@@ -79,7 +79,6 @@ QModelIndex TreeModel::index (int row, int column, QModelIndex const & parent) c
 		if (node_t * const child_item = node_t::node_child(parent_item, row))
 			return createIndex(row, column, child_item);
 	return QModelIndex();
-
 }
 
 QModelIndex TreeModel::parent (QModelIndex const & index) const
@@ -124,7 +123,6 @@ QVariant TreeModel::data (QModelIndex const & index, int role) const
 	if (role == Qt::DisplayRole)
 	{
 		return QVariant(QString::fromStdString(item->key));
-		//@TODO: columns: return item->data(index.column());
 	}
 	else if (role == Qt::UserRole) // collapsed or expanded?
 	{
@@ -137,37 +135,8 @@ QVariant TreeModel::data (QModelIndex const & index, int role) const
 	return QVariant();
 }
 
-void TreeModel::onExpanded (QModelIndex const & idx)
-{
-	setData(idx, 0, Qt::UserRole);
-}
-
-void TreeModel::onCollapsed (QModelIndex const & idx)
-{
-	setData(idx, 1, Qt::UserRole);
-}
-
-bool TreeModel::insertItem (std::string const & path)
-{
-	TreeModelItem i;
-	bool const present = m_tree_data->is_present(path, i);
-	if (present)
-		return false;
-	
-	node_t * const n = m_tree_data->set_to_state(path, i);
-	n->data.m_state = Qt::Checked;
-	QModelIndex const idx = indexFromItem(n);
-	emit dataChanged(idx, idx);
-}
-
-
-void TreeModel::selectItem (QTreeView * tv, std::string const & path)
-{
-	TreeModelItem const * i = 0;
-	node_t const * node = m_tree_data->is_present(path, i);
-	if (node)
-		tv->setCurrentIndex(indexFromItem(node));
-}
+void TreeModel::onExpanded (QModelIndex const & idx) { setData(idx, 0, Qt::UserRole); }
+void TreeModel::onCollapsed (QModelIndex const & idx) { setData(idx, 1, Qt::UserRole); }
 
 void TreeModel::stateToChildren (node_t * item, Qt::CheckState state)
 {
@@ -220,7 +189,6 @@ void TreeModel::syncParents (node_t * const item, Qt::CheckState state)
 	syncParents(parent, state);
 }
 
-
 bool TreeModel::setData (QModelIndex const & index, QVariant const & value, int role)
 {
 	if (!index.isValid()) return false;
@@ -270,12 +238,10 @@ Qt::ItemFlags TreeModel::flags (QModelIndex const & index) const
 				| Qt::ItemIsTristate;
 }
 
-
 bool TreeModel::insertColumns (int position, int columns, QModelIndex const & parent)
 {
     bool success = true;
     beginInsertColumns(parent, position, position + columns - 1);
-    //success = rootItem->insertColumns(position, columns);
     endInsertColumns();
     return success;
 }
@@ -285,15 +251,12 @@ bool TreeModel::insertRows (int position, int rows, QModelIndex const & parent)
     node_t * parent_item = itemFromIndex(parent);
     bool success = true;
     beginInsertRows(parent, position, position + rows - 1);
-    //success = parentItem->insertChildren(position, rows, rootItem->columnCount());
     endInsertRows();
     return success;
 }
 
 QModelIndex TreeModel::hideLinearParents () const
 {
-	return QModelIndex();
-
 	node_t const * node = m_tree_data->root;
 	node_t const * child = node->children;
 	if (!child)
@@ -335,4 +298,36 @@ void TreeModel::syncExpandState (QTreeView * tv)
 		}
 	}
 }
+
+QModelIndex TreeModel::insertItem (std::string const & path)
+{
+	TreeModelItem i;
+	bool const present = m_tree_data->is_present(path, i);
+	if (present)
+		return QModelIndex();
+	
+	node_t * const n = m_tree_data->set_to_state(path, i);
+	if (n->parent)
+	{
+		n->data.m_state = n->parent->data.m_state == Qt::Checked ? Qt::Checked : Qt::Unchecked;
+	}
+	else
+		n->data.m_state = Qt::Checked;
+	QModelIndex const idx = indexFromItem(n);
+	emit dataChanged(idx, idx);
+	return idx;
+}
+
+QModelIndex TreeModel::selectItem (QTreeView * tv, std::string const & path)
+{
+	TreeModelItem const * i = 0;
+	node_t const * node = m_tree_data->is_present(path, i);
+	if (!node)
+		return QModelIndex();
+
+	QModelIndex const idx = indexFromItem(node);
+	tv->setCurrentIndex(idx);
+	return idx;
+}
+
 
