@@ -90,7 +90,7 @@ QModelIndex TreeModel::parent (QModelIndex const & index) const
 	node_t const * const item = itemFromIndex(index);
 	node_t * const parent_node = item->parent;
 
-    if (parent_node == m_tree_data->root)
+    if (parent_node == 0 || parent_node == m_tree_data->root)
 		return QModelIndex();
 
 	int const parent_row = parent_node->row;
