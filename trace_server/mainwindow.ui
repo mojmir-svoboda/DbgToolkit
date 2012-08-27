@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>907</width>
+    <width>912</width>
     <height>332</height>
    </rect>
   </property>
@@ -372,26 +372,14 @@
        </widget>
       </item>
       <item>
-       <widget class="QLineEdit" name="qSearchLineEdit">
-        <property name="minimumSize">
-         <size>
-          <width>64</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="font">
-         <font>
-          <family>Verdana</family>
-          <pointsize>7</pointsize>
-         </font>
-        </property>
-        <property name="whatsThis">
-         <string extracomment="quick search"/>
+       <widget class="QComboBox" name="qSearchComboBox">
+        <property name="editable">
+         <bool>true</bool>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QComboBox" name="qSearchComboBox">
+       <widget class="QComboBox" name="qSearchColumnComboBox">
         <property name="minimumSize">
          <size>
           <width>32</width>
@@ -683,8 +671,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>907</width>
-     <height>16</height>
+     <width>912</width>
+     <height>18</height>
     </rect>
    </property>
   </widget>

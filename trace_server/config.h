@@ -28,7 +28,11 @@ struct GlobalConfig {
 		, m_hidden(false)
 		, m_was_maximized(false)
 		, m_dump_mode(false)
+		, m_search_history(16)
 	{ }
+
+	void loadSearchHistory ();
+	void saveSearchHistory () const;
 };
 
 struct CollapsedBlock {

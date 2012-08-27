@@ -53,3 +53,13 @@ struct hash<std::string>
 		return FnvHash<>::hash(__s.data(), __s.length());
 	}
 };
+
+template <>
+struct hash<QString>
+	: public std::unary_function<QString, std::size_t>
+{      
+	std::size_t operator() (QString const & __s) const
+	{
+		return FnvHash<>::hash(__s.toAscii(), __s.length());
+	}
+};

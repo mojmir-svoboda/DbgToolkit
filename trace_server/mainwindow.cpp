@@ -108,7 +108,7 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode)
 	loadNetworkSettings();
 	m_server = new Server(m_config.m_trace_addr, m_config.m_trace_port, this, quit_delay);
 	showServerStatus();
-	connect(ui->qSearchLineEdit, SIGNAL(editingFinished()), this, SLOT(onQSearchEditingFinished()));
+	connect(ui->qSearchComboBox, SIGNAL(editingFinished()), this, SLOT(onQSearchEditingFinished()));
 	connect(ui->qFilterLineEdit, SIGNAL(returnPressed()), this, SLOT(onQFilterLineEditFinished()));
 
 	size_t const n = tlv::get_tag_count();
@@ -121,11 +121,11 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode)
 			QString qname = QString::fromStdString(name);
 			if (i == tlv::tag_msg)
 				msg_tag = qname;
-			ui->qSearchComboBox->addItem(qname);
+			ui->qSearchColumnComboBox->addItem(qname);
 		}
 	}
-	ui->qSearchComboBox->addItem(".*");
-	ui->qSearchComboBox->setCurrentIndex(ui->qSearchComboBox->findText(msg_tag));
+	ui->qSearchColumnComboBox->addItem(".*");
+	ui->qSearchColumnComboBox->setCurrentIndex(ui->qSearchColumnComboBox->findText(msg_tag));
 
 	m_timer->setInterval(5000);
 	connect(m_timer, SIGNAL(timeout()) , this, SLOT(timerHit()));
@@ -204,9 +204,9 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode)
 	ui->presetResetButton->setToolTip(tr("clear current filter"));
 	//ui_settings->filterModeComboBox->setToolTip(tr("selects filtering mode: inclusive (check what you want, unchecked are not displayed) or exclusive (checked items are filtered out)."));
 	ui->levelSpinBox->setToolTip(tr("adjusts debug level of client side"));
-	ui->qSearchLineEdit->setToolTip(tr("search text in logged text"));
+	ui->qSearchComboBox->setToolTip(tr("search text in logged text"));
 	ui->qFilterLineEdit->setToolTip(tr("quick inclusive filter: adds string to regex filter as regex .*string.*"));
-	ui->qSearchComboBox->setToolTip(tr("specifies column to search"));
+	ui->qSearchColumnComboBox->setToolTip(tr("specifies column to search"));
 
 	m_status_label = new QLabel(m_server->getStatus());
 	QString human_version(g_Version);
@@ -404,6 +404,22 @@ void MainWindow::onFilterFile (int state)
 	m_server->onFilterFile(state);
 }
 
+
+void MainWindow::onEditFind ()
+{
+	int const tab_idx = getTabTrace()->currentIndex();
+	if (tab_idx < 0)
+		return;
+
+	bool ok;
+	QString search = QInputDialog::getText(this, tr("Find"), tr("Text:"), QLineEdit::Normal, m_config.m_last_search, &ok);
+	if (ok)
+	{
+		m_config.m_last_search = search;
+		onQSearchEditingFinished();
+	}
+}
+
 void MainWindow::onQSearchEditingFinished ()
 {
 	if (!getTabTrace()->currentWidget()) return;
@@ -411,10 +427,13 @@ void MainWindow::onQSearchEditingFinished ()
 	Connection * conn = m_server->findCurrentConnection();
 	if (!conn) return;
 
-	QString text = ui->qSearchLineEdit->text();
-	QString qcolumn = ui->qSearchComboBox->currentText();
+	QString text = ui->qSearchComboBox->currentText();
+
+	QString qcolumn = ui->qSearchColumnComboBox->currentText();
 	bool const search_all = (qcolumn == ".*");
-	//qDebug("onQSearchEditingFinished: col=%s text=%s", qcolumn.toStdString().c_str(), text.toStdString().c_str());
+	qDebug("onQSearchEditingFinished: col=%s text=%s", qcolumn.toStdString().c_str(), text.toStdString().c_str());
+
+	appendToSearchHistory(text);
 	
 	if (search_all)
 	{
@@ -471,24 +490,13 @@ void MainWindow::onQFilterLineEditFinished ()
 
 void MainWindow::appendToSearchHistory (QString const & str)
 {
+	m_config.m_search_history.insert(str);
+	m_config.saveSearchHistory();
 
-}
+	for (size_t i = 0, ie = m_config.m_search_history.size(); i < ie; ++i)
+		ui->qSearchComboBox->addItem(m_config.m_search_history[i].m_key);
 
-void MainWindow::onEditFind ()
-{
-	int const tab_idx = getTabTrace()->currentIndex();
-	if (tab_idx < 0)
-		return;
-
-	bool ok;
-	QString search = QInputDialog::getText(this, tr("Find"), tr("Text:"), QLineEdit::Normal, m_config.m_last_search, &ok);
-	if (ok)
-	{
-		m_config.m_search_history.insert(search);
-		m_config.m_last_search = search;
-		ui->qSearchLineEdit->setText(search);
-		onQSearchEditingFinished();
-	}
+	ui->qSearchComboBox->setCurrentIndex(ui->qSearchComboBox->find(str));
 }
 
 void MainWindow::onEditFindNext ()
@@ -1155,6 +1163,7 @@ void MainWindow::loadState ()
 	m_config.m_app_names.clear();
 	m_config.m_columns_setup.clear();
 	m_config.m_columns_sizes.clear();
+	m_config.loadSearchHistory();
 
 	QSettings settings("MojoMir", "TraceServer");
 	restoreGeometry(settings.value("geometry").toByteArray());

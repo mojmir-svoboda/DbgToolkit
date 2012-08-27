@@ -80,5 +80,9 @@ struct History
 		for (size_t i = 0, ie = m_dict.size(); i < ie; ++i)
 			printf("\titem: %3i %s\n", m_dict[i].m_use_count, m_dict[i].m_key.c_str());
 	}*/
+
+	size_t size () const { return m_dict.size(); }
+
+	KeyT const & operator[] (size_t i) const { return m_dict[i]; }
 };
 

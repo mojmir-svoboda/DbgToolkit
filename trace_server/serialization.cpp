@@ -13,9 +13,9 @@
 #include <fstream>
 #include <sstream>
 
-bool saveSessionState (SessionState const & s, char const * file)
+bool saveSessionState (SessionState const & s, char const * filename)
 {
-    std::ofstream ofs(file);
+    std::ofstream ofs(filename);
     if (!ofs) return false;
     boost::archive::text_oarchive oa(ofs);
     oa << BOOST_SERIALIZATION_NVP(s);
@@ -23,14 +23,13 @@ bool saveSessionState (SessionState const & s, char const * file)
     return true;
 }
 
-bool loadSessionState (SessionState & s, char const * file)
+bool loadSessionState (SessionState & s, char const * filename)
 {
-    std::ifstream ifs(file);
+    std::ifstream ifs(filename);
     if (!ifs) return false;
     boost::archive::text_iarchive ia(ifs);
     ia >> BOOST_SERIALIZATION_NVP(s);
     ifs.close();
-
 	return true;
 }
 
@@ -44,3 +43,4 @@ bool loadSessionState (SessionState const & src, SessionState & target)
     ia >> BOOST_SERIALIZATION_NVP(target);
     return true;
 }
+
