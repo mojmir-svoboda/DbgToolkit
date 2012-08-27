@@ -209,8 +209,8 @@ int main ()
 		TRACE_DATA_XY(trace::e_Info, trace::CTX_Default, x, cosf(x) / x, "sample_plot3/%s", "hadej");
 		TRACE_DATA_XY(trace::e_Info, trace::CTX_Default, x, sinf(x) * sinf(x)/ x, "sample_plot4/%s", "hadej");
 	}
-	TRACE_DISCONNECT();
-	return 0;
+	//TRACE_DISCONNECT();
+	//return 0;
 
 
 	//TRACE_MSG(trace::e_Info, trace::CTX_Default,	"first message"); // not sure if this is a valid case!

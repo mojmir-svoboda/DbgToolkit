@@ -193,6 +193,7 @@ private slots:
 	void onQSearchEditingFinished ();
 	void onQFilterLineEditFinished ();
 	void appendToSearchHistory (QString const & str);
+	void updateSearchHistory ();
 	void onSaveCurrentFileFilter ();
 	void onSaveCurrentFileFilterTo (QString const & name);
 	void onAddCurrentFileFilter ();

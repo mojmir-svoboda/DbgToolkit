@@ -226,6 +226,7 @@ bool TreeModel::setData (QModelIndex const & index, QVariant const & value, int 
 
 	emit dataChanged(index, index);
 	emit invalidateFilter();
+	return true;
 }
 
 Qt::ItemFlags TreeModel::flags (QModelIndex const & index) const

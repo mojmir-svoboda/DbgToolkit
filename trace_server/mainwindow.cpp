@@ -108,7 +108,7 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode)
 	loadNetworkSettings();
 	m_server = new Server(m_config.m_trace_addr, m_config.m_trace_port, this, quit_delay);
 	showServerStatus();
-	connect(ui->qSearchComboBox, SIGNAL(editingFinished()), this, SLOT(onQSearchEditingFinished()));
+	connect(ui->qSearchComboBox->lineEdit(), SIGNAL(editingFinished()), this, SLOT(onQSearchEditingFinished()));
 	connect(ui->qFilterLineEdit, SIGNAL(returnPressed()), this, SLOT(onQFilterLineEditFinished()));
 
 	size_t const n = tlv::get_tag_count();
@@ -492,11 +492,15 @@ void MainWindow::appendToSearchHistory (QString const & str)
 {
 	m_config.m_search_history.insert(str);
 	m_config.saveSearchHistory();
+	updateSearchHistory();
+	ui->qSearchComboBox->setCurrentIndex(ui->qSearchComboBox->findText(str));
+}
 
+void MainWindow::updateSearchHistory ()
+{
+	ui->qSearchComboBox->clear();
 	for (size_t i = 0, ie = m_config.m_search_history.size(); i < ie; ++i)
 		ui->qSearchComboBox->addItem(m_config.m_search_history[i]);
-
-	ui->qSearchComboBox->setCurrentIndex(ui->qSearchComboBox->findText(str));
 }
 
 void MainWindow::onEditFindNext ()
@@ -1164,6 +1168,7 @@ void MainWindow::loadState ()
 	m_config.m_columns_setup.clear();
 	m_config.m_columns_sizes.clear();
 	m_config.loadSearchHistory();
+	updateSearchHistory();
 
 	QSettings settings("MojoMir", "TraceServer");
 	restoreGeometry(settings.value("geometry").toByteArray());
