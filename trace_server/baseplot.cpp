@@ -177,7 +177,7 @@ namespace plot {
 			//curve->m_curve->setBaseline(cc.m_pen_width);
 			curve->m_curve->setLegendAttribute(QwtPlotCurve::LegendShowLine);
 			curve->m_curve->setLegendAttribute(QwtPlotCurve::LegendShowSymbol);
-			showCurve(curve.getCurve(), cc.m_show);
+			showCurve(curve->getCurve(), cc.m_show);
 		}
 
 		killTimer(m_timer);
