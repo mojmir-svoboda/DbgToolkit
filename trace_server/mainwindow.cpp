@@ -494,9 +494,9 @@ void MainWindow::appendToSearchHistory (QString const & str)
 	m_config.saveSearchHistory();
 
 	for (size_t i = 0, ie = m_config.m_search_history.size(); i < ie; ++i)
-		ui->qSearchComboBox->addItem(m_config.m_search_history[i].m_key);
+		ui->qSearchComboBox->addItem(m_config.m_search_history[i]);
 
-	ui->qSearchComboBox->setCurrentIndex(ui->qSearchComboBox->find(str));
+	ui->qSearchComboBox->setCurrentIndex(ui->qSearchComboBox->findText(str));
 }
 
 void MainWindow::onEditFindNext ()

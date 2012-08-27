@@ -5,6 +5,7 @@
 #include <boost/serialization/utility.hpp>
 #include <boost/serialization/serialization.hpp>
 #include <boost/serialization/vector.hpp>
+#include <boost/serialization/nvp.hpp>
 #include "serialize/ser_qlist.h"
 #include "serialize/ser_qcolor.h"
 #include "serialize/ser_qregexp.h"
@@ -41,7 +42,7 @@ void GlobalConfig::loadSearchHistory ()
 void GlobalConfig::saveSearchHistory () const
 {
 	QString const filename = m_appdir + "search_history";
-	saveSearchHistory(m_search_history, filename.toAscii());
+	saveHistory(m_search_history, filename.toAscii());
 }
 
 

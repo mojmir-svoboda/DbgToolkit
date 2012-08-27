@@ -9,16 +9,19 @@
 template <typename KeyT>
 struct ItemInfo
 {
-	unsigned m_use_count;
+	unsigned m_ref_count;
 	unsigned m_hash;
 	KeyT m_key;
 
-	ItemInfo () : m_use_count(0), m_hash(0) { }
+	ItemInfo () : m_ref_count(0), m_hash(0) { }
 
 	ItemInfo (typename boost::call_traits<KeyT>::param_type key)
-		: m_use_count(0), m_hash(hash<std::string>()(key)), m_key(key) { }
+		: m_ref_count(0), m_hash(hash<KeyT>()(key)), m_key(key) { }
 
-	/*friend bool operator< (ItemInfo const & lhs, ItemInfo const & rhs) { return lhs.m_use_count < rhs.m_use_count; }*/
+	friend bool operator< (ItemInfo const & lhs, ItemInfo const & rhs)
+	{
+		return rhs.m_ref_count < lhs.m_ref_count; // @NOTE: reverse order rhs < lhs
+	}
 
 	friend bool operator== (ItemInfo const & lhs, ItemInfo const & rhs)
 	{
@@ -28,9 +31,9 @@ struct ItemInfo
 	template <class ArchiveT>
 	void serialize (ArchiveT & ar, unsigned const version)
 	{
-		ar & m_use_count;
-		ar & m_hash;
-		ar & m_key;
+		ar & boost::serialization::make_nvp("ref_count", m_ref_count);
+		ar & boost::serialization::make_nvp("hash", m_hash);
+		ar & boost::serialization::make_nvp("key", m_key);
 	}
 };
 
@@ -52,15 +55,17 @@ struct History
 
 	void insert (typename boost::call_traits<KeyT>::param_type key)
 	{
-		unsigned const key_hash = hash<std::string>()(key);
+		unsigned const key_hash = hash<KeyT>()(key);
 		for (size_t i = 0, ie = m_dict.size(); i < ie; ++i)
 		{
 			if (m_dict[i].m_hash == key_hash && m_dict[i].m_key == key)
 			{
-				++m_dict[i].m_use_count;
+				++m_dict[i].m_ref_count;
 				return;
 			}
 		}
+
+		std::sort(m_dict.begin(), m_dict.end());
 
 		// item not found, replace another
 		if (m_dict.size() >= m_key_limit)
@@ -71,18 +76,10 @@ struct History
 	template <class ArchiveT>
 	void serialize (ArchiveT & ar, unsigned const version)
 	{
-		ar & m_dict;
+		ar & boost::serialization::make_nvp("dict", m_dict);
 	}
 
-	/*void dump ()
-	{
-		printf("dump:\n");
-		for (size_t i = 0, ie = m_dict.size(); i < ie; ++i)
-			printf("\titem: %3i %s\n", m_dict[i].m_use_count, m_dict[i].m_key.c_str());
-	}*/
-
 	size_t size () const { return m_dict.size(); }
-
-	KeyT const & operator[] (size_t i) const { return m_dict[i]; }
+	KeyT const & operator[] (size_t i) const { return m_dict[i].m_key; }
 };
 

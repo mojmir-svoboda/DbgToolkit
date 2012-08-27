@@ -34,18 +34,18 @@ namespace plot {
 		template <class ArchiveT>
 		void serialize (ArchiveT & ar, unsigned const version)
 		{
-			ar & m_tag;
-			ar & m_label;
-			ar & m_pen_width;
-			ar & m_style;
-			ar & m_symbol;
-			ar & m_symbolcolor;
-			ar & m_symbolsize;
-			ar & m_color;
-			ar & m_show;
-			ar & m_unused_b0;
-			ar & m_unused_b1;
-			ar & m_unused_b2;
+			ar & boost::serialization::make_nvp("tag", m_tag);
+			ar & boost::serialization::make_nvp("label", m_label);
+			ar & boost::serialization::make_nvp("pen", m_pen_width);
+			ar & boost::serialization::make_nvp("style", m_style);
+			ar & boost::serialization::make_nvp("symbol", m_symbol);
+			ar & boost::serialization::make_nvp("symcol", m_symbolcolor);
+			ar & boost::serialization::make_nvp("symsize", m_symbolsize);
+			ar & boost::serialization::make_nvp("color", m_color);
+			ar & boost::serialization::make_nvp("show", m_show);
+			ar & boost::serialization::make_nvp("flag0", m_unused_b0);
+			ar & boost::serialization::make_nvp("flag1", m_unused_b1);
+			ar & boost::serialization::make_nvp("flag2", m_unused_b2);
 		}
 	};
 
@@ -83,18 +83,18 @@ namespace plot {
 		template <class ArchiveT>
 		void serialize (ArchiveT & ar, unsigned const version)
 		{
-			ar & m_label;
-			ar & m_from;
-			ar & m_to;
-			ar & m_step;
-			ar & m_alignment;
-			ar & m_axis_pos;
-			ar & m_rotation;
-			ar & m_scale_type;
-			ar & m_auto_scale;
-			ar & m_unused_b0;
-			ar & m_unused_b1;
-			ar & m_unused_b2;
+			ar & boost::serialization::make_nvp("label", m_label);
+			ar & boost::serialization::make_nvp("from", m_from);
+			ar & boost::serialization::make_nvp("to", m_to);
+			ar & boost::serialization::make_nvp("step", m_step);
+			ar & boost::serialization::make_nvp("align", m_alignment);
+			ar & boost::serialization::make_nvp("axis", m_axis_pos);
+			ar & boost::serialization::make_nvp("rot", m_rotation);
+			ar & boost::serialization::make_nvp("scale", m_scale_type);
+			ar & boost::serialization::make_nvp("autoscale", m_auto_scale);
+			ar & boost::serialization::make_nvp("flag0", m_unused_b0);
+			ar & boost::serialization::make_nvp("flag1", m_unused_b1);
+			ar & boost::serialization::make_nvp("flag2", m_unused_b2);
 		}
 	};
 
@@ -143,17 +143,17 @@ namespace plot {
 		template <class ArchiveT>
 		void serialize (ArchiveT & ar, unsigned const version)
 		{
-			ar & m_tag;
-			ar & m_ccfg;
-			ar & m_acfg;
-			ar & m_timer_delay_ms;
-			ar & m_history_ln;
+			ar & boost::serialization::make_nvp("tag", m_tag);
+			ar & boost::serialization::make_nvp("ccfg", m_ccfg);
+			ar & boost::serialization::make_nvp("acfg", m_acfg);
+			ar & boost::serialization::make_nvp("timer", m_timer_delay_ms);
+			ar & boost::serialization::make_nvp("length", m_history_ln);
 			//ar & m_from;
 			// flags
-			ar & m_auto_scroll;
-			ar & m_show;
-			ar & m_unused_b1;
-			ar & m_unused_b2;
+			ar & boost::serialization::make_nvp("autoscroll", m_auto_scroll);
+			ar & boost::serialization::make_nvp("show", m_show);
+			ar & boost::serialization::make_nvp("flag1", m_unused_b1);
+			ar & boost::serialization::make_nvp("flag2", m_unused_b2);
 		}
 
 		void partialLoadFrom (PlotConfig const & rhs)
