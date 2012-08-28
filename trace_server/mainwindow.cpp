@@ -109,6 +109,7 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode)
 	m_server = new Server(m_config.m_trace_addr, m_config.m_trace_port, this, quit_delay);
 	showServerStatus();
 	connect(ui->qSearchComboBox->lineEdit(), SIGNAL(editingFinished()), this, SLOT(onQSearchEditingFinished()));
+	connect(ui->qSearchComboBox, SIGNAL(activated(QString const &)), this, SLOT(onQSearchEditingFinished()));
 	connect(ui->qFilterLineEdit, SIGNAL(returnPressed()), this, SLOT(onQFilterLineEditFinished()));
 
 	size_t const n = tlv::get_tag_count();
@@ -416,25 +417,26 @@ void MainWindow::onEditFind ()
 	if (ok)
 	{
 		m_config.m_last_search = search;
-		onQSearchEditingFinished();
+		if (int const pos = ui->qSearchComboBox->findText(search) >= 0)
+			ui->qSearchComboBox->setCurrentIndex(pos);
+		else
+		{
+			ui->qSearchComboBox->addItem(search);
+			ui->qSearchComboBox->setCurrentIndex(ui->qSearchComboBox->findText(search));
+		}
+		onQSearch(search);
 	}
 }
 
-void MainWindow::onQSearchEditingFinished ()
+void MainWindow::onQSearch (QString const & text)
 {
-	if (!getTabTrace()->currentWidget()) return;
-
 	Connection * conn = m_server->findCurrentConnection();
 	if (!conn) return;
 
-	QString text = ui->qSearchComboBox->currentText();
-
-	QString qcolumn = ui->qSearchColumnComboBox->currentText();
-	bool const search_all = (qcolumn == ".*");
-	qDebug("onQSearchEditingFinished: col=%s text=%s", qcolumn.toStdString().c_str(), text.toStdString().c_str());
-
 	appendToSearchHistory(text);
-	
+	QString qcolumn = ui->qSearchColumnComboBox->currentText();
+	qDebug("onQSearch: col=%s text=%s", qcolumn.toStdString().c_str(), text.toStdString().c_str());
+	bool const search_all = (qcolumn == ".*");
 	if (search_all)
 	{
 		conn->findText(text);
@@ -447,6 +449,14 @@ void MainWindow::onQSearchEditingFinished ()
 			conn->findText(text, tag_idx);
 		}
 	}
+}
+
+void MainWindow::onQSearchEditingFinished ()
+{
+	if (!getTabTrace()->currentWidget()) return;
+
+	QString text = ui->qSearchComboBox->currentText();
+	onQSearch(text);
 }
 
 void MainWindow::onQFilterLineEditFinished ()
@@ -490,6 +500,8 @@ void MainWindow::onQFilterLineEditFinished ()
 
 void MainWindow::appendToSearchHistory (QString const & str)
 {
+	if (str.empty())
+		return;
 	m_config.m_search_history.insert(str);
 	m_config.saveSearchHistory();
 	updateSearchHistory();

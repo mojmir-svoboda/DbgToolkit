@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>912</width>
-    <height>332</height>
+    <width>826</width>
+    <height>306</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -61,7 +61,7 @@
          </font>
         </property>
         <property name="text">
-         <string>plots</string>
+         <string>plot</string>
         </property>
        </widget>
       </item>
@@ -80,6 +80,12 @@
       </item>
       <item>
        <widget class="QPushButton" name="plotSaveAllButton">
+        <property name="minimumSize">
+         <size>
+          <width>15</width>
+          <height>0</height>
+         </size>
+        </property>
         <property name="maximumSize">
          <size>
           <width>20</width>
@@ -93,26 +99,7 @@
          </font>
         </property>
         <property name="text">
-         <string>SA</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="plotAutoAlignButton">
-        <property name="maximumSize">
-         <size>
-          <width>30</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="font">
-         <font>
-          <family>Verdana</family>
-          <pointsize>7</pointsize>
-         </font>
-        </property>
-        <property name="text">
-         <string>AA</string>
+         <string>S</string>
         </property>
        </widget>
       </item>
@@ -138,7 +125,7 @@
          </font>
         </property>
         <property name="text">
-         <string>buffered</string>
+         <string>buff</string>
         </property>
         <property name="checked">
          <bool>true</bool>
@@ -270,19 +257,6 @@
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="label">
-        <property name="font">
-         <font>
-          <family>Verdana</family>
-          <pointsize>7</pointsize>
-         </font>
-        </property>
-        <property name="text">
-         <string>Server</string>
-        </property>
-       </widget>
-      </item>
-      <item>
        <widget class="QSpinBox" name="levelSpinBox">
         <property name="font">
          <font>
@@ -373,6 +347,12 @@
       </item>
       <item>
        <widget class="QComboBox" name="qSearchComboBox">
+        <property name="minimumSize">
+         <size>
+          <width>64</width>
+          <height>0</height>
+         </size>
+        </property>
         <property name="editable">
          <bool>true</bool>
         </property>
@@ -382,7 +362,7 @@
        <widget class="QComboBox" name="qSearchColumnComboBox">
         <property name="minimumSize">
          <size>
-          <width>32</width>
+          <width>48</width>
           <height>0</height>
          </size>
         </property>
@@ -525,19 +505,6 @@
             </widget>
            </item>
            <item>
-            <spacer name="horizontalSpacer_2">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>40</width>
-               <height>20</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-           <item>
             <widget class="QPushButton" name="buttonAddRegex">
              <property name="maximumSize">
               <size>
@@ -576,6 +543,19 @@
              </property>
             </widget>
            </item>
+           <item>
+            <spacer name="horizontalSpacer_2">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
           </layout>
          </item>
          <item>
@@ -608,19 +588,6 @@
             </widget>
            </item>
            <item>
-            <spacer name="horizontalSpacer_3">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>40</width>
-               <height>20</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-           <item>
             <widget class="QPushButton" name="buttonAddColorRegex">
              <property name="maximumSize">
               <size>
@@ -645,6 +612,19 @@
               <string>-</string>
              </property>
             </widget>
+           </item>
+           <item>
+            <spacer name="horizontalSpacer_3">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
            </item>
           </layout>
          </item>
@@ -671,7 +651,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>912</width>
+     <width>826</width>
      <height>18</height>
     </rect>
    </property>

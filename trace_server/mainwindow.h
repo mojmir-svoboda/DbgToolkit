@@ -190,6 +190,7 @@ private slots:
 	void onSetup (int curr_app_idx = -1, bool first_time = false);
 	void closeEvent (QCloseEvent *event);
 	void iconActivated (QSystemTrayIcon::ActivationReason reason);
+	void onQSearch (QString const &);
 	void onQSearchEditingFinished ();
 	void onQFilterLineEditFinished ();
 	void appendToSearchHistory (QString const & str);
