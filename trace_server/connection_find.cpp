@@ -12,7 +12,7 @@ void Connection::findTextInAllColumns (QString const & text, int from_row, int t
 		{
 			// TODO: proxymodel 
 			QModelIndex const idx = model->index(i, j, QModelIndex());
-			if (idx.isValid() && model->data(idx).toString().contains(text))
+			if (idx.isValid() && model->data(idx).toString().contains(text, Qt::CaseInsensitive))
 			{
 				m_table_view_widget->selectionModel()->setCurrentIndex(idx, QItemSelectionModel::Select);
 				m_last_search_row = idx.row();
@@ -29,7 +29,7 @@ void Connection::findTextInColumn (QString const & text, int col, int from_row, 
 	for (int i = from_row, ie = to_row; i < ie; ++i)
 	{
 		QModelIndex const idx = model->index(i, col, QModelIndex());
-		if (idx.isValid() && model->data(idx).toString().contains(text))
+		if (idx.isValid() && model->data(idx).toString().contains(text, Qt::CaseInsensitive))
 		{
 
 			if (m_table_view_proxy)
