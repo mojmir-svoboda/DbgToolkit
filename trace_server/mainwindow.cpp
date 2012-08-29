@@ -500,7 +500,7 @@ void MainWindow::onQFilterLineEditFinished ()
 
 void MainWindow::appendToSearchHistory (QString const & str)
 {
-	if (str.empty())
+	if (0 == str.length())
 		return;
 	m_config.m_search_history.insert(str);
 	m_config.saveSearchHistory();

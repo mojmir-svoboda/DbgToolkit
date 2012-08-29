@@ -95,7 +95,9 @@ public:
 		m_config.m_columns_setup.push_back(columns_setup_t());
 		m_config.m_columns_sizes.reserve(16);
 		m_config.m_columns_sizes.push_back(columns_sizes_t());
+		m_config.m_columns_align.reserve(16);
 		m_config.m_columns_align.push_back(columns_align_t());
+		m_config.m_columns_elide.reserve(16);
 		m_config.m_columns_elide.push_back(columns_elide_t());
 
 		size_t const n = tlv::tag_bool;

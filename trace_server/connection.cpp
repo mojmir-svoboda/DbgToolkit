@@ -350,9 +350,21 @@ void Connection::onApplyColumnSetup ()
 	{
 		//qDebug("column: %s", m_table_view_widget->horizontalHeader()->text());
 	}
+
+	if (sessionState().m_app_idx == -1)
+		sessionState().m_app_idx = m_main_window->m_config.m_columns_setup.size() - 1;
 	
-	columns_setup_t const & cs = m_main_window->getColumnSetup(sessionState().m_app_idx);
-	//&m_main_window->getColumnSizes(sessionState().m_app_idx));
+	columns_setup_t const & new_cs = m_main_window->getColumnSetup(sessionState().m_app_idx);
+	if (0 == sessionState().m_columns_setup_current)
+	{
+	}
+	else
+	{
+		columns_setup_t const & old_cs = *sessionState().m_columns_setup_current;
+		int const i = 0, j = 1; // @TODO: only testing moveSection
+		m_table_view_widget->horizontalHeader()->moveSection(i, j);
+		qDebug("%i -> %i   %s -> %s", i, j, old_cs.at(i).toAscii(), new_cs.at(j).toAscii());
+	}
 
 	//m_table_view_widget->horizontalHeader()->moveSection(from, to);
 	//m_table_view_widget->horizontalHeader()->swapSection(from, to);
