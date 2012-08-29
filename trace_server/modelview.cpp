@@ -49,7 +49,7 @@ QVariant ModelView::data (const QModelIndex &index, int role) const
 {
 	if (!index.isValid())
 		return QVariant();
-	if (role == Qt::DisplayRole)
+	if (role == Qt::DisplayRole || role == Qt::ToolTipRole)
 	{
 		QString str("");
 		if (checkExistence(index))
@@ -124,7 +124,7 @@ QVariant ModelView::data (const QModelIndex &index, int role) const
 				return QBrush(Qt::white);
 		}
 	}
-	
+
 	/*if (role == Qt::TextAlignmentRole)
 	{
 		columns_align_t const & column_aligns = *m_session_state.getColumnsAlignTemplate();

@@ -9,6 +9,7 @@
 #include "modelview.h"
 #include "utils.h"
 #include "delegates.h"
+#include "tableview.h"
 
 Server::Server (QString ip, unsigned short port, QObject * parent, bool quit_delay)
 	: QTcpServer(parent)
@@ -406,7 +407,7 @@ Connection * Server::createNewTableView ()
 	horizontalLayout->setSpacing(6);
 	horizontalLayout->setContentsMargins(11, 11, 11, 11);
 	horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
-	QTableView * tableView = new QTableView(tab);
+	TableView * tableView = new TableView(tab);
 	tableView->setItemDelegate(new TableItemDelegate(connection->sessionState(), connection));
 	
 	// to ignore 'resizeColumnToContents' when accidentaly double-clicked on header handle

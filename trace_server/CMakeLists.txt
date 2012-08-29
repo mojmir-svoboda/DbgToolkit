@@ -47,6 +47,7 @@ SET(trace_server_SOURCES
 	treeview.cpp
 	treemodel.cpp
 	modelview.cpp
+	tableview.cpp
 	delegates.cpp
 	server.cpp
 	filterproxy.cpp
@@ -81,6 +82,7 @@ SET(trace_server_HEADERS
 	treeview.h
 	treemodel.h
 	modelview.h
+	tableview.h
 	server.h
 	connection.h
 	filterproxy.h
