@@ -85,10 +85,11 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 								QStandardItem * child = findChildByText(root, QString::fromStdString(flt.m_regex_str));
 								if (child == 0)
 								{
-									QList<QStandardItem *> row_items = addTriRow(QString::fromStdString(flt.m_regex_str), flt.m_is_enabled ? Qt::Checked : Qt::Unchecked, flt.m_is_inclusive);
+									Qt::CheckState const state = flt.m_is_enabled ? Qt::Checked : Qt::Unchecked;
+									QList<QStandardItem *> row_items = addTriRow(QString::fromStdString(flt.m_regex_str), state, flt.m_is_inclusive);
 									root->appendRow(row_items);
 									child = findChildByText(root, QString::fromStdString(flt.m_regex_str));
-									child->setCheckState(Qt::Checked);
+									child->setCheckState(state);
 								}
 							}
 							recompileRegexps();
