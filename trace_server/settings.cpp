@@ -352,7 +352,10 @@ void MainWindow::onClickedAtSettingOkButton ()
 			QModelIndex const row_idx = ui_settings->listViewColumnSetup->model()->index(j, 0, QModelIndex());
 			QStandardItem * const item = static_cast<QStandardItemModel *>(ui_settings->listViewColumnSetup->model())->itemFromIndex(row_idx);
 			if (item->checkState() == Qt::Checked)
-				m_config.m_columns_setup[app_idx].append(qVariantValue<QString>(ui_settings->listViewColumnSetup->model()->data(row_idx)));
+			{
+				QString const & d = qVariantValue<QString>(ui_settings->listViewColumnSetup->model()->data(row_idx));
+				m_config.m_columns_setup[app_idx].append(d);
+			}
 		}
 		for (size_t j = 0, je = ui_settings->listViewColumnSizes->model()->rowCount(); j < je; ++j)
 		{

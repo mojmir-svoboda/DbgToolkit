@@ -31,7 +31,7 @@ void TreeView::setModel (TreeModel * model)
 
 void TreeView::hideLinearParents ()
 {
-	if (m_hiding)
+	if (m_hiding && m_current)
 		setRootIndex(m_current->hideLinearParents());
 }
 

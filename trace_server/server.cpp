@@ -490,6 +490,7 @@ void Server::onCloseTab (int idx, QWidget * w)
 	{
 		Connection * connection = it->second;
 
+		QObject::disconnect(connection->m_tcpstream, SIGNAL(disconnected()), this, SLOT(onDisconnected()));
 		QObject::disconnect(connection->m_tcpstream, SIGNAL(readyRead()), connection, SLOT(processReadyRead()));
 		QObject::disconnect(connection->m_table_view_widget->horizontalHeader(), SIGNAL(sectionResized(int, int, int)), this, SLOT(onSectionResized(int, int, int)));
 		QObject::disconnect(main_window->getTabTrace(), SIGNAL(currentChanged(int)), connection, SLOT(onTabTraceFocus(int)));
