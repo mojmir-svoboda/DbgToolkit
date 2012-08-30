@@ -346,6 +346,7 @@ void Connection::onTableDoubleClicked (QModelIndex const & row_index)
 
 void Connection::onApplyColumnSetup ()
 {
+	qDebug("%s", __FUNCTION__);
 	for (int i = 0; i < m_table_view_widget->horizontalHeader()->count(); ++i)
 	{
 		//qDebug("column: %s", m_table_view_widget->horizontalHeader()->text());
@@ -361,9 +362,6 @@ void Connection::onApplyColumnSetup ()
 	else
 	{
 		columns_setup_t const & old_cs = *sessionState().m_columns_setup_current;
-		int const i = 0, j = 1; // @TODO: only testing moveSection
-		m_table_view_widget->horizontalHeader()->moveSection(i, j);
-		qDebug("%i -> %i   %s -> %s", i, j, old_cs.at(i).toAscii(), new_cs.at(j).toAscii());
 	}
 
 	//m_table_view_widget->horizontalHeader()->moveSection(from, to);

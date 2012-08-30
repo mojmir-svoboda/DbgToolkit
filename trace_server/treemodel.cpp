@@ -306,8 +306,14 @@ QModelIndex TreeModel::insertItem (std::string const & path)
 	bool const present = m_tree_data->is_present(path, i);
 	if (present)
 		return QModelIndex();
+	else
+	{
+		i.m_state = Qt::Checked;
+		i.m_collapsed = false;
+	}
 	
 	node_t * const n = m_tree_data->set_to_state(path, i);
+
 	if (n->parent)
 	{
 		n->data.m_state = n->parent->data.m_state == Qt::Checked ? Qt::Checked : Qt::Unchecked;

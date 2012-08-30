@@ -802,6 +802,8 @@ void MainWindow::onColorRegexAdd ()
 	if (!conn) return;
 
 	QString qItem = ui->comboBoxColorRegex->currentText();
+	if (!qItem.length())
+		return;
 	QStandardItem * root = static_cast<QStandardItemModel *>(getWidgetColorRegex()->model())->invisibleRootItem();
 	QStandardItem * child = findChildByText(root, qItem);
 	if (child == 0)
@@ -810,8 +812,8 @@ void MainWindow::onColorRegexAdd ()
 		root->appendRow(row_items);
 
 		conn->appendToColorRegexFilters(qItem.toStdString());
-		conn->recompileColorRegexps();
 	}
+	conn->recompileColorRegexps();
 }
 
 void MainWindow::onColorRegexRm ()
@@ -984,6 +986,7 @@ void MainWindow::setupMenuBar ()
 	clearMenu->addAction(tr("Clear current context filter"), m_server, SLOT(onClearCurrentCtxFilter()));
 	clearMenu->addAction(tr("Clear current thread id filter"), m_server, SLOT(onClearCurrentCtxFilter()));
 	clearMenu->addAction(tr("Clear current colorized regexp filter"), m_server, SLOT(onClearCurrentColorizedRegexFilter()));
+	clearMenu->addAction(tr("Clear current regexp filter"), m_server, SLOT(onClearCurrentRegexFilter()));
 	clearMenu->addAction(tr("Clear current collapsed scope filter"), m_server, SLOT(onClearCurrentScopeFilter()));
 
 	// Tools

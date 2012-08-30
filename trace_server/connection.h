@@ -141,6 +141,7 @@ public slots:
 	void onToggleRefFromRow ();
 	void onExcludeFileLine (QModelIndex const & row_index);
 	void onApplyColumnSetup ();
+	void onColorRegexChanged();
 
 private slots:
 	void processReadyRead ();

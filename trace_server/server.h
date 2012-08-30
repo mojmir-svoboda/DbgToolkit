@@ -80,6 +80,7 @@ public slots:
 	void onClearCurrentCtxFilter ();
 	void onClearCurrentTIDFilter ();
 	void onClearCurrentColorizedRegexFilter ();
+	void onClearCurrentRegexFilter ();
 	void onClearCurrentScopeFilter ();
 	void onApplyColumnSetup ();
 

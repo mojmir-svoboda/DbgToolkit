@@ -123,6 +123,11 @@ void Server::onClearCurrentTIDFilter ()
 	if (Connection * conn = findCurrentConnection())
 		conn->onClearCurrentTIDFilter();
 }
+void Server::onClearCurrentRegexFilter ()
+{
+	if (Connection * conn = findCurrentConnection())
+		conn->onClearCurrentRegexFilter();
+}
 void Server::onClearCurrentColorizedRegexFilter ()
 {
 	if (Connection * conn = findCurrentConnection())
@@ -160,6 +165,7 @@ void Server::onToggleRefFromRow ()
 
 void Server::onApplyColumnSetup ()
 {
+	qDebug("%s", __FUNCTION__);
 	foreach (connections_t::value_type item, m_connections)
 	{
 		item.second->onApplyColumnSetup();
@@ -328,9 +334,9 @@ void Server::onClickedAtRegexList (QModelIndex idx)
 		QStandardItem * item = model->itemFromIndex(idx);
 		Q_ASSERT(item);
 		bool const orig_checked = (item->checkState() == Qt::Checked);
-		bool const checked = orig_checked ? Qt::Unchecked : Qt::Checked;
+		Qt::CheckState const checked = orig_checked ? Qt::Unchecked : Qt::Checked;
 		std::string filter_item(val.toStdString());
-		item->setCheckState(checked ? Qt::Checked : Qt::Unchecked);
+		item->setCheckState(checked);
 		if (Connection * conn = findCurrentConnection())
 		{
 			// @TODO: if state really changed
@@ -356,39 +362,21 @@ void Server::onClickedAtColorRegexList (QModelIndex idx)
 
 	QString const & val = model->data(idx, Qt::DisplayRole).toString();
 	std::string filter_item(val.toStdString());
-
-	bool const checked = (item->checkState() == Qt::Checked);
+	bool const orig_checked = (item->checkState() == Qt::Checked);
+	Qt::CheckState const checked = orig_checked ? Qt::Unchecked : Qt::Checked;
 	qDebug("color regex click! (checked=%u) %s ", checked, filter_item.c_str());
-
+	item->setCheckState(checked);
 	if (Connection * conn = findCurrentConnection())
 	{
 		// @TODO: if state really changed
+		conn->m_session_state.setColorRegexChecked(filter_item, checked);
 		conn->recompileColorRegexps();
 		conn->onInvalidateFilter();
-		conn->m_session_state.setColorRegexChecked(filter_item, checked);
 	}
 }
 
 void Server::onDoubleClickedAtColorRegexList (QModelIndex idx)
 {
-	if (!idx.isValid())
-		return;
-	MainWindow * main_window = static_cast<MainWindow *>(parent());
-	QStandardItemModel * model = static_cast<QStandardItemModel *>(main_window->getWidgetColorRegex()->model());
-	QStandardItem * item = model->itemFromIndex(idx);
-	Q_ASSERT(item);
-	QString const & val = model->data(idx, Qt::DisplayRole).toString();
-
-    QColor color = QColorDialog::getColor(Qt::black);
-	if (!color.isValid())
-		return;
-
-	if (Connection * conn = findCurrentConnection())
-	{
-		conn->m_session_state.setRegexColor(val.toStdString(), color);
-		conn->recompileColorRegexps();
-		conn->onInvalidateFilter();
-	}
 }
 
 Connection * Server::createNewTableView ()

@@ -323,6 +323,26 @@ void Connection::loadToColorRegexps (std::string const & filter_item, std::strin
 	sessionState().setRegexChecked(filter_item, enabled);
 }
 
+void Connection::onColorRegexChanged ()
+{
+	for (int i = 0, ie = sessionState().m_colorized_texts.size(); i < ie; ++i)
+	{
+		ColorizedText & ct = sessionState().m_colorized_texts[i];
+		QStandardItem * root = m_color_regex_model->invisibleRootItem();
+		QString const qregex = QString::fromStdString(ct.m_regex_str);
+		QStandardItem * child = findChildByText(root, qregex);
+		QModelIndex const idx = m_color_regex_model->indexFromItem(child);
+		if (!child)
+			continue;
+
+		if (QtColorPicker * w = static_cast<QtColorPicker *>(m_main_window->getWidgetColorRegex()->indexWidget(idx)))
+		{
+			ct.m_qcolor = w->currentColor();
+		}
+	}
+	onInvalidateFilter();
+}
+
 void Connection::recompileColorRegexps ()
 {
 	for (int i = 0, ie = sessionState().m_colorized_texts.size(); i < ie; ++i)
@@ -335,6 +355,16 @@ void Connection::recompileColorRegexps ()
 		ct.m_is_enabled = false;
 		if (!child)
 			continue;
+
+		if (m_main_window->getWidgetColorRegex()->indexWidget(idx) == 0)
+		{
+			QtColorPicker * w = new QtColorPicker(m_main_window->getWidgetColorRegex(), qregex);
+			w->setStandardColors();
+
+			connect(w, SIGNAL(colorChanged(const QColor &)), this, SLOT(onColorRegexChanged()));
+			m_main_window->getWidgetColorRegex()->setIndexWidget(idx, w);
+		}
+
 		QRegExp regex(qregex);
 		if (regex.isValid())
 		{
@@ -343,12 +373,6 @@ void Connection::recompileColorRegexps ()
 			bool const checked = (child->checkState() == Qt::Checked);
 			if (child && checked)
 			{
-				if (m_main_window->getWidgetColorRegex()->indexWidget(idx) == 0)
-				{
-					QWidget * w = new QtColorPicker(m_main_window->getWidgetColorRegex(), qregex);
-					m_main_window->getWidgetColorRegex()->setIndexWidget(idx, w);
-				}
-
 				child->setData(QBrush(Qt::green), Qt::BackgroundRole);
 				child->setToolTip(tr("ok"));
 				ct.m_is_enabled = true;
