@@ -153,10 +153,9 @@ void Connection::appendToTIDFilters (std::string const & item)
 	QString qItem = QString::fromStdString(item);
 	QStandardItem * root = m_tid_model->invisibleRootItem();
 	QStandardItem * child = findChildByText(root, qItem);
-	E_FilterMode const fmode = m_main_window->fltMode();
 	if (child == 0)
 	{
-		QList<QStandardItem *> row_items = addRow(qItem, fmode == e_Include ? Qt::Checked : Qt::Unchecked);
+		QList<QStandardItem *> row_items = addRow(qItem, Qt::Checked);
 		root->appendRow(row_items);
 	}
 }
@@ -165,13 +164,11 @@ void Connection::appendToLvlWidgets (FilteredLevel const & flt)
 {
 	QStandardItem * root = m_lvl_model->invisibleRootItem();
 	QStandardItem * child = findChildByText(root, flt.m_level_str);
-	E_FilterMode const fmode = m_main_window->fltMode();
 	if (child == 0)
 	{
 		E_LevelMode const mode = static_cast<E_LevelMode>(flt.m_state);
-
-		QList<QStandardItem *> row_items = addTriRow(flt.m_level_str, fmode == e_Include ? Qt::Checked : Qt::Unchecked, lvlModToString(mode));
-		///row_items[0]->setCheckState(fmode == e_Include ? Qt::Checked : Qt::Unchecked);
+		QList<QStandardItem *> row_items = addTriRow(flt.m_level_str, Qt::Checked, lvlModToString(mode));
+		row_items[0]->setCheckState(flt.m_is_enabled ? Qt::Checked : Qt::Unchecked);
 		root->appendRow(row_items);
 		m_main_window->getWidgetLvl()->sortByColumn(0, Qt::AscendingOrder);
 	}
@@ -182,18 +179,14 @@ void Connection::appendToLvlFilters (std::string const & item)
 	QString qItem = QString::fromStdString(item);
 	QStandardItem * root = m_lvl_model->invisibleRootItem();
 	QStandardItem * child = findChildByText(root, qItem);
-	E_FilterMode const fmode = m_main_window->fltMode();
 	if (child == 0)
 	{
-		QList<QStandardItem *> row_items = addTriRow(qItem, fmode == e_Include ? Qt::Checked : Qt::Unchecked, true);
-		row_items[0]->setCheckState(fmode == e_Include ? Qt::Checked : Qt::Unchecked);
+		QList<QStandardItem *> row_items = addTriRow(qItem, Qt::Checked, true);
+		row_items[0]->setCheckState(Qt::Checked);
 		root->appendRow(row_items);
 		m_main_window->getWidgetLvl()->sortByColumn(0, Qt::AscendingOrder);
 
-		if (fmode == e_Include)
-			sessionState().appendLvlFilter(qItem.toStdString());
-		else
-			sessionState().removeLvlFilter(qItem.toStdString());
+		sessionState().appendLvlFilter(qItem.toStdString());
 	}
 }
 
@@ -203,10 +196,9 @@ void Connection::appendToCtxFilters (std::string const & item, bool checked)
 	QStandardItemModel * model = static_cast<QStandardItemModel *>(m_main_window->getWidgetCtx()->model());
 	QStandardItem * root = model->invisibleRootItem();
 	QStandardItem * child = findChildByText(root, qItem);
-	E_FilterMode const fmode = m_main_window->fltMode();
 	if (child == 0)
 	{
-		QList<QStandardItem *> row_items = addRow(qItem, fmode == e_Include ? Qt::Checked : Qt::Unchecked);
+		QList<QStandardItem *> row_items = addRow(qItem, Qt::Checked);
 		root->appendRow(row_items);
 	}
 }
