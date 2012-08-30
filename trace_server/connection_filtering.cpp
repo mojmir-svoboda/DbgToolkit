@@ -360,6 +360,7 @@ void Connection::recompileColorRegexps ()
 		{
 			QtColorPicker * w = new QtColorPicker(m_main_window->getWidgetColorRegex(), qregex);
 			w->setStandardColors();
+			w->setCurrentColor(ct.m_qcolor);
 
 			connect(w, SIGNAL(colorChanged(const QColor &)), this, SLOT(onColorRegexChanged()));
 			m_main_window->getWidgetColorRegex()->setIndexWidget(idx, w);
