@@ -136,10 +136,12 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode)
 	getWidgetFile()->setEditTriggers(QAbstractItemView::NoEditTriggers);
 	connect(getWidgetFile(), SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtFileTree(QModelIndex)));
 	connect(getWidgetFile(), SIGNAL(doubleClicked(QModelIndex)), m_server, SLOT(onDoubleClickedAtFileTree(QModelIndex)));
+	getWidgetFile()->header()->hide();
 
 	getWidgetCtx()->setEditTriggers(QAbstractItemView::NoEditTriggers);
 	connect(getWidgetCtx(), SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtCtxTree(QModelIndex)));
 	connect(getWidgetCtx(), SIGNAL(doubleClicked(QModelIndex)), m_server, SLOT(onDoubleClickedAtCtxTree(QModelIndex)));
+	getWidgetCtx()->header()->hide();
 
 	getWidgetTID()->setEditTriggers(QAbstractItemView::NoEditTriggers);
 	connect(getWidgetTID(), SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtTIDList(QModelIndex)));
@@ -148,6 +150,7 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode)
 	getWidgetLvl()->setEditTriggers(QAbstractItemView::NoEditTriggers);
 	connect(getWidgetLvl(), SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtLvlList(QModelIndex)));
 	connect(getWidgetLvl(), SIGNAL(doubleClicked(QModelIndex)), m_server, SLOT(onDoubleClickedAtLvlList(QModelIndex)));
+	getWidgetLvl()->header()->hide();
 
 	connect(ui->levelSpinBox, SIGNAL(valueChanged(int)), m_server, SLOT(onLevelValueChanged(int)));
 	connect(ui->filterFileCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onFilterFile(int)));
@@ -166,6 +169,7 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode)
 	connect(ui->presetResetButton, SIGNAL(clicked()), m_server, SLOT(onClearCurrentFileFilter()));
 
 	getWidgetRegex()->setEditTriggers(QAbstractItemView::NoEditTriggers);
+	getWidgetRegex()->header()->hide();
 	connect(getWidgetTID(), SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtTIDList(QModelIndex)));
 	connect(getWidgetRegex(), SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtRegexList(QModelIndex)));
 	connect(getWidgetRegex(), SIGNAL(doubleClicked(QModelIndex)), m_server, SLOT(onDoubleClickedAtRegexList(QModelIndex)));
