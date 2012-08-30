@@ -364,6 +364,11 @@ void Connection::recompileColorRegexps ()
 			connect(w, SIGNAL(colorChanged(const QColor &)), this, SLOT(onColorRegexChanged()));
 			m_main_window->getWidgetColorRegex()->setIndexWidget(idx, w);
 		}
+		else
+		{
+			QtColorPicker * w = static_cast<QtColorPicker *>(m_main_window->getWidgetColorRegex()->indexWidget(idx));
+			w->setCurrentColor(ct.m_qcolor);
+		}
 
 		QRegExp regex(qregex);
 		if (regex.isValid())
