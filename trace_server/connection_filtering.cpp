@@ -168,6 +168,11 @@ void Connection::appendToLvlWidgets (FilteredLevel const & flt)
 
 void Connection::appendToLvlFilters (std::string const & item)
 {
+	bool enabled = false;
+	E_LevelMode lvlmode = e_LvlInclude;
+	if (sessionState().isLvlPresent(item, enabled, lvlmode))
+		return;
+
 	QString qItem = QString::fromStdString(item);
 	QStandardItem * root = m_lvl_model->invisibleRootItem();
 	QStandardItem * child = findChildByText(root, qItem);
@@ -182,8 +187,25 @@ void Connection::appendToLvlFilters (std::string const & item)
 	}
 }
 
+void Connection::appendToCtxWidgets (FilteredContext const & flt)
+{
+	QStandardItem * root = m_ctx_model->invisibleRootItem();
+	QStandardItem * child = findChildByText(root, flt.m_ctx_str);
+	if (child == 0)
+	{
+		QList<QStandardItem *> row_items = addRow(flt.m_ctx_str, Qt::Checked);
+		row_items[0]->setCheckState(flt.m_is_enabled ? Qt::Checked : Qt::Unchecked);
+		root->appendRow(row_items);
+	}
+}
+
+
 void Connection::appendToCtxFilters (std::string const & item, bool checked)
 {
+	bool enabled = false;
+	if (sessionState().isCtxPresent(item, enabled))
+		return;
+
 	QString qItem = QString::fromStdString(item);
 	QStandardItemModel * model = static_cast<QStandardItemModel *>(m_main_window->getWidgetCtx()->model());
 	QStandardItem * root = model->invisibleRootItem();
@@ -191,6 +213,7 @@ void Connection::appendToCtxFilters (std::string const & item, bool checked)
 	if (child == 0)
 	{
 		QList<QStandardItem *> row_items = addRow(qItem, Qt::Checked);
+		row_items[0]->setCheckState(Qt::Checked);
 		root->appendRow(row_items);
 	}
 }

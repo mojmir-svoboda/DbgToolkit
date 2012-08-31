@@ -134,14 +134,9 @@ bool FilterProxyModel::filterAcceptsRow (int sourceRow, QModelIndex const & /*so
 	bool excluded = false;
 	TreeModelItem ff;
 	bool const ff_present = m_session_state.isFileLinePresent(std::make_pair(file.toStdString(), line.toStdString()), ff);
-	E_FilterMode const fmode = m_main_window->fltMode();
-	if (ff_present && fmode == e_Include)
+	if (ff_present)
 	{
 		excluded |= ff.m_state == e_Unchecked;
-	}
-	if (ff_present && fmode == e_Exclude)
-	{
-		excluded |= ff.m_state == e_Checked;
 	}
 
 	QString tid;
@@ -173,22 +168,14 @@ bool FilterProxyModel::filterAcceptsRow (int sourceRow, QModelIndex const & /*so
 	bool lvl_enabled = true;
 	bool const lvl_present = m_session_state.isLvlPresent(lvl.toStdString(), lvl_enabled, lvlmode);
 
-	if (fmode == e_Include)
+	if (lvl_present && lvl_enabled)
 	{
-		if (lvl_present && lvl_enabled)
-		{
-			if (lvlmode == e_LvlForceInclude)
-				return true; // forced levels (errors etc)
+		if (lvlmode == e_LvlForceInclude)
+			return true; // forced levels (errors etc)
 
-		}
-		else
-			excluded |= true;
 	}
 	else
-	{
-		excluded |= (lvl_present && lvl_enabled);
-	}
-
+		excluded |= true;
 
 	bool inclusive_filters = false;
 	for (int i = 0, ie = m_session_state.m_filtered_regexps.size(); i < ie; ++i)
@@ -240,23 +227,14 @@ bool FilterProxyModel::filterAcceptsRow (int sourceRow, QModelIndex const & /*so
 
 	excluded |= m_session_state.isTIDExcluded(tid.toStdString());
 
-
 	bool ctx_enabled = true;
 	bool const ctx_present = m_session_state.isCtxPresent(ctx.toStdString(), ctx_enabled);
-
-	if (fmode == e_Include)
+	if (ctx_present && ctx_enabled)
 	{
-		if (ctx_present && ctx_enabled)
-		{
-		}
-		else
-			excluded |= false;
+		excluded |= true;
 	}
 	else
-	{
-		excluded |= (ctx_present && ctx_enabled);
-	}
-
+		excluded |= false;
 
 	QModelIndex data_idx = sourceModel()->index(sourceRow, 0, QModelIndex());
 	excluded |= m_session_state.isBlockCollapsed(tid, data_idx.row());

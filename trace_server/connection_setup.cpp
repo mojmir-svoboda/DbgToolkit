@@ -55,76 +55,6 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 					{
 						m_file_model->beforeLoad();
 						loadSessionState(conn->sessionState(), m_session_state);
-
-						{
-							QStandardItemModel * model = static_cast<QStandardItemModel *>(m_main_window->getWidgetColorRegex()->model());
-							QStandardItem * root = model->invisibleRootItem();
-							for (int i = 0; i < sessionState().m_colorized_texts.size(); ++i)
-							{
-								ColorizedText & ct = sessionState().m_colorized_texts[i];
-								ct.m_regex = QRegExp(QString::fromStdString(ct.m_regex_str));
-
-								QStandardItem * child = findChildByText(root, QString::fromStdString(ct.m_regex_str));
-								if (child == 0)
-								{
-									QList<QStandardItem *> row_items = addRow(QString::fromStdString(ct.m_regex_str), ct.m_is_enabled);
-									root->appendRow(row_items);
-								}
-							}
-							recompileColorRegexps();
-						}
-
-						{
-							QStandardItemModel * model = static_cast<QStandardItemModel *>(m_main_window->getWidgetRegex()->model());
-							QStandardItem * root = model->invisibleRootItem();
-							for (int i = 0; i < sessionState().m_filtered_regexps.size(); ++i)
-							{
-								FilteredRegex & flt = sessionState().m_filtered_regexps[i];
-								flt.m_regex = QRegExp(QString::fromStdString(flt.m_regex_str));
-
-								QStandardItem * child = findChildByText(root, QString::fromStdString(flt.m_regex_str));
-								if (child == 0)
-								{
-									Qt::CheckState const state = flt.m_is_enabled ? Qt::Checked : Qt::Unchecked;
-									QList<QStandardItem *> row_items = addTriRow(QString::fromStdString(flt.m_regex_str), state, flt.m_is_inclusive);
-									root->appendRow(row_items);
-									child = findChildByText(root, QString::fromStdString(flt.m_regex_str));
-									child->setCheckState(state);
-								}
-							}
-							recompileRegexps();
-						}
-
-						{
-							QStandardItemModel * model = static_cast<QStandardItemModel *>(m_main_window->getWidgetLvl()->model());
-							QStandardItem * root = model->invisibleRootItem();
-							for (int i = 0; i < sessionState().m_lvl_filters.size(); ++i)
-							{
-								FilteredLevel & flt = sessionState().m_lvl_filters[i];
-								appendToLvlWidgets(flt);
-							}
-						// @TODO: predelat na lvl
-						/*{
-							QStandardItemModel * model = static_cast<QStandardItemModel *>(m_main_window->getWidgetRegex()->model());
-							QStandardItem * root = model->invisibleRootItem();
-							for (int i = 0; i < sessionState().m_filtered_regexps.size(); ++i)
-							{
-								FilteredRegex & flt = sessionState().m_filtered_regexps[i];
-								flt.m_regex = QRegExp(QString::fromStdString(flt.m_regex_str));
-
-								QStandardItem * child = findChildByText(root, QString::fromStdString(flt.m_regex_str));
-								if (child == 0)
-								{
-									QList<QStandardItem *> row_items = addTriRow(QString::fromStdString(flt.m_regex_str), flt.m_is_enabled ? Qt::Checked : Qt::Unchecked, flt.m_is_inclusive);
-									root->appendRow(row_items);
-									child = findChildByText(root, QString::fromStdString(flt.m_regex_str));
-									child->setCheckState(Qt::Checked);
-								}
-							}
-							recompileRegexps();
-						}*/
-
-						}
 					}
 
 					m_main_window->getWidgetFile()->setEnabled(m_main_window->filterEnabled());
@@ -147,7 +77,68 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 					m_file_model->afterLoad();
 					m_main_window->getWidgetFile()->hideLinearParents();
 					m_main_window->getWidgetFile()->syncExpandState();
+
 				}
+
+
+				{
+					QStandardItemModel * model = static_cast<QStandardItemModel *>(m_main_window->getWidgetColorRegex()->model());
+					QStandardItem * root = model->invisibleRootItem();
+					for (int i = 0; i < sessionState().m_colorized_texts.size(); ++i)
+					{
+						ColorizedText & ct = sessionState().m_colorized_texts[i];
+						ct.m_regex = QRegExp(QString::fromStdString(ct.m_regex_str));
+
+						QStandardItem * child = findChildByText(root, QString::fromStdString(ct.m_regex_str));
+						if (child == 0)
+						{
+							QList<QStandardItem *> row_items = addRow(QString::fromStdString(ct.m_regex_str), ct.m_is_enabled);
+							root->appendRow(row_items);
+						}
+					}
+					recompileColorRegexps();
+				}
+
+				{
+					QStandardItemModel * model = static_cast<QStandardItemModel *>(m_main_window->getWidgetRegex()->model());
+					QStandardItem * root = model->invisibleRootItem();
+					for (int i = 0; i < sessionState().m_filtered_regexps.size(); ++i)
+					{
+						FilteredRegex & flt = sessionState().m_filtered_regexps[i];
+						flt.m_regex = QRegExp(QString::fromStdString(flt.m_regex_str));
+
+						QStandardItem * child = findChildByText(root, QString::fromStdString(flt.m_regex_str));
+						if (child == 0)
+						{
+							Qt::CheckState const state = flt.m_is_enabled ? Qt::Checked : Qt::Unchecked;
+							QList<QStandardItem *> row_items = addTriRow(QString::fromStdString(flt.m_regex_str), state, flt.m_is_inclusive);
+							root->appendRow(row_items);
+							child = findChildByText(root, QString::fromStdString(flt.m_regex_str));
+							child->setCheckState(state);
+						}
+					}
+					recompileRegexps();
+				}
+
+				{
+					QStandardItemModel * model = static_cast<QStandardItemModel *>(m_main_window->getWidgetLvl()->model());
+					QStandardItem * root = model->invisibleRootItem();
+					for (int i = 0; i < sessionState().m_lvl_filters.size(); ++i)
+					{
+						FilteredLevel & flt = sessionState().m_lvl_filters[i];
+						appendToLvlWidgets(flt);
+					}
+				}
+				{
+					QStandardItemModel * model = static_cast<QStandardItemModel *>(m_main_window->getWidgetCtx()->model());
+					QStandardItem * root = model->invisibleRootItem();
+					for (int i = 0; i < sessionState().m_ctx_filters.size(); ++i)
+					{
+						FilteredContext & flt = sessionState().m_ctx_filters[i];
+						appendToCtxWidgets(flt);
+					}
+				}
+
 			}
 
 			sessionState().m_name = app_name;

@@ -181,9 +181,10 @@ void Server::onClickedAtCtxTree (QModelIndex idx)
 
 	QString const & val = model->data(idx, Qt::DisplayRole).toString();
 	std::string const ctx = val.toStdString();
-	bool const checked = (item->checkState() == Qt::Checked);
+	bool const orig_checked = (item->checkState() == Qt::Checked);
 	if (Connection * conn = findCurrentConnection())
 	{
+		bool const checked = !orig_checked;
 		if (checked)
 			conn->sessionState().appendCtxFilter(ctx);
 		else
@@ -199,7 +200,6 @@ void Server::onClickedAtTIDList (QModelIndex idx)
 	if (!idx.isValid())
 		return;
 	MainWindow * main_window = static_cast<MainWindow *>(parent());
-	E_FilterMode const fmode = main_window->fltMode();
 	QStandardItemModel * model = static_cast<QStandardItemModel *>(main_window->getWidgetTID()->model());
 	QStandardItem * item = model->itemFromIndex(idx);
 	Q_ASSERT(item);
@@ -207,12 +207,10 @@ void Server::onClickedAtTIDList (QModelIndex idx)
 	QString const & val = model->data(idx, Qt::DisplayRole).toString();
 	std::string filter_item(val.toStdString());
 
-	bool checked = (item->checkState() == Qt::Checked);
+	bool const orig_checked = (item->checkState() == Qt::Checked);
 	if (Connection * conn = findCurrentConnection())
 	{
-		if (fmode == e_Include)
-			checked = !checked;
-
+		bool const checked = !orig_checked;
 		if (checked)
 			conn->sessionState().appendTIDFilter(filter_item);
 		else
@@ -230,7 +228,6 @@ void Server::onClickedAtLvlList (QModelIndex idx)
 	QStandardItem * item = model->itemFromIndex(idx);
 	Q_ASSERT(item);
 
-	E_FilterMode const fmode = main_window->fltMode();
 	bool checked = (item->checkState() == Qt::Checked);
 
 	if (idx.column() == 1)
@@ -268,9 +265,6 @@ void Server::onClickedAtLvlList (QModelIndex idx)
 		std::string filter_item(val.toStdString());
 		if (Connection * conn = findCurrentConnection())
 		{
-			if (fmode == e_Exclude)
-				checked = !checked;
-
 			item->setCheckState(!checked ? Qt::Checked : Qt::Unchecked);
 			if (!checked)
 				conn->sessionState().appendLvlFilter(filter_item);

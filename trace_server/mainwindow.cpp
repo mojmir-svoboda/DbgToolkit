@@ -647,7 +647,7 @@ void MainWindow::onDumpFilters ()
 			cols += QString("%1 %2 %3\n")
 						.arg(QString::fromStdString(x.m_regex_str))
 						.arg(x.m_qcolor.name())
-						.arg(x.m_is_enabled ? "1" : "0");
+						.arg(x.m_is_enabled ? " on" : "off");
 		}
 		QString regs;
 		for (int i = 0, ie = ss.m_filtered_regexps.size(); i < ie; ++i)
@@ -655,8 +655,8 @@ void MainWindow::onDumpFilters ()
 			FilteredRegex const & x = ss.m_filtered_regexps.at(i);
 			regs += QString("%1 %2 %3\n")
 						.arg(QString::fromStdString(x.m_regex_str))
-						.arg(x.m_is_inclusive ? "1" : "0")
-						.arg(x.m_is_enabled ? "1" : "0");
+						.arg(x.m_is_inclusive ? "incl" : "excl")
+						.arg(x.m_is_enabled ? " on" : "off");
 		}
 		QString lvls;
 		for (int i = 0, ie = ss.m_lvl_filters.size(); i < ie; ++i)
@@ -664,8 +664,8 @@ void MainWindow::onDumpFilters ()
 			FilteredLevel const & x = ss.m_lvl_filters.at(i);
 			lvls += QString("%1 %2 %3\n")
 						.arg(x.m_level_str)
-						.arg(x.m_state)
-						.arg(x.m_is_enabled ? "1" : "0");
+						.arg(x.m_is_enabled ? " on" : "off")
+						.arg(x.m_state ? "forced" : "");
 		}
 		QString ctxs;
 		for (int i = 0, ie = ss.m_ctx_filters.size(); i < ie; ++i)
@@ -674,10 +674,10 @@ void MainWindow::onDumpFilters ()
 			ctxs += QString("%1 %2 %3\n")
 						.arg(x.m_ctx_str)
 						.arg(x.m_state)
-						.arg(x.m_is_enabled ? "1" : "0");
+						.arg(x.m_is_enabled ? " on" : "off");
 		}
 
-		session_string = QString("Files:\n %1\n\nColors:\n %2\n\nRegExps:\n %3\n\nLevels:\n %4\n\nContexts:\n %5\n\n")
+		session_string = QString("Files:\n%1\n\nColors:\n%2\n\nRegExps:\n%3\n\nLevels:\n%4\n\nContexts:\n%5\n\n")
 				.arg(ff.c_str())
 				.arg(cols)
 				.arg(regs)
@@ -757,6 +757,8 @@ void MainWindow::onPresetActivate (Connection * conn, QString const & pname)
 		std::swap(conn->m_session_state.m_file_filters.root, dummy.m_file_filters.root);
 		conn->m_session_state.m_filtered_regexps = dummy.m_filtered_regexps;
 		conn->m_session_state.m_colorized_texts = dummy.m_colorized_texts;
+		conn->m_session_state.m_lvl_filters = dummy.m_lvl_filters;
+		conn->m_session_state.m_ctx_filters = dummy.m_ctx_filters;
 		//@TODO: this blows under linux, i wonder why?
 		//conn->m_session_state.m_filtered_regexps.swap(dummy.m_filtered_regexps);
 		//conn->m_session_state.m_colorized_texts.swap(dummy.m_colorized_texts);

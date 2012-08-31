@@ -147,7 +147,11 @@ void SessionState::appendCtxFilter (std::string const & item)
 	QString const qitem = QString::fromStdString(item);
 	for (int i = 0, ie = m_ctx_filters.size(); i < ie; ++i)
 		if (m_ctx_filters[i].m_ctx_str == qitem)
+		{
+			FilteredContext & fc = m_ctx_filters[i];
+			fc.m_is_enabled = true;
 			return;
+		}
 	m_ctx_filters.push_back(FilteredContext(qitem, true, 0));
 
 }
@@ -157,8 +161,8 @@ void SessionState::removeCtxFilter (std::string const & item)
 	for (int i = 0, ie = m_ctx_filters.size(); i < ie; ++i)
 		if (m_ctx_filters[i].m_ctx_str == qitem)
 		{
-			m_ctx_filters.removeAt(i);
-			// @TODO: or only disable?
+			FilteredContext & fc = m_ctx_filters[i];
+			fc.m_is_enabled = false;
 			return;
 		}
 }
@@ -183,7 +187,11 @@ void SessionState::appendLvlFilter (std::string const & item)
 	QString const qitem = QString::fromStdString(item);
 	for (int i = 0, ie = m_lvl_filters.size(); i < ie; ++i)
 		if (m_lvl_filters[i].m_level_str == qitem)
+		{
+			FilteredLevel & l = m_lvl_filters[i];
+			l.m_is_enabled = true;
 			return;
+		}
 	m_lvl_filters.push_back(FilteredLevel(qitem, true, e_LvlInclude));
 }
 void SessionState::removeLvlFilter (std::string const & item)
@@ -192,8 +200,8 @@ void SessionState::removeLvlFilter (std::string const & item)
 	for (int i = 0, ie = m_lvl_filters.size(); i < ie; ++i)
 		if (m_lvl_filters[i].m_level_str == qitem)
 		{
-			m_lvl_filters.removeAt(i);
-			// @TODO: or only disable?
+			FilteredLevel & l = m_lvl_filters[i];
+			l.m_is_enabled = false;
 			return;
 		}
 }

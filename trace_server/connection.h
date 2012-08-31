@@ -82,6 +82,7 @@ public:
 	SessionState & sessionState () { return m_session_state; }
 	SessionState const & sessionState () const { return m_session_state; }
 	void appendToCtxFilters (std::string const & item, bool checked);
+	void appendToCtxWidgets (FilteredContext const & flt);
 	void appendToLvlFilters (std::string const & item);
 	void appendToLvlWidgets (FilteredLevel const & flt);
 
