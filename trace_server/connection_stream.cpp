@@ -259,6 +259,7 @@ bool Connection::handlePingCommand (DecodedCommand const & cmd)
 	QWidget * w = sessionState().m_tab_widget;
 	if (w)
 	{
+		disconnect(m_tcpstream, SIGNAL(disconnected()), this, SLOT(onDisconnected()));
 		m_marked_for_close = true;
 		QTimer::singleShot(0, static_cast<Server *>(parent()), SLOT(onCloseMarkedTabs()));
 	}
