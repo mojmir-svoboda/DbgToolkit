@@ -636,14 +636,53 @@ void MainWindow::onDumpFilters ()
 
 	if (Connection * conn = m_server->findCurrentConnection())
 	{
-		SessionExport se;
-		conn->sessionState().sessionDump(se);
-		session_string = QString("File filter:\n %1\nregex_filter:\n %2\nregex_inclusive:\n %3\ncolor_regexps:\n %4\ncolor_colors:\n %5\n")
-				.arg(se.m_file_filters.c_str())
-				.arg(se.m_regex_filters.c_str())
-				.arg(se.m_regex_fmode.c_str())
-				.arg(se.m_colortext_regexs.c_str())
-				.arg(se.m_colortext_colors.c_str());
+		SessionState const & ss = conn->sessionState();
+		std::string ff;
+		ss.m_file_filters.dump_filter(ff);
+
+		QString cols;
+		for (int i = 0, ie = ss.m_colorized_texts.size(); i < ie; ++i)
+		{
+			ColorizedText const & x = ss.m_colorized_texts.at(i);
+			cols += QString("%1 %2 %3\n")
+						.arg(QString::fromStdString(x.m_regex_str))
+						.arg(x.m_qcolor.name())
+						.arg(x.m_is_enabled ? "1" : "0");
+		}
+		QString regs;
+		for (int i = 0, ie = ss.m_filtered_regexps.size(); i < ie; ++i)
+		{
+			FilteredRegex const & x = ss.m_filtered_regexps.at(i);
+			regs += QString("%1 %2 %3\n")
+						.arg(QString::fromStdString(x.m_regex_str))
+						.arg(x.m_is_inclusive ? "1" : "0")
+						.arg(x.m_is_enabled ? "1" : "0");
+		}
+		QString lvls;
+		for (int i = 0, ie = ss.m_lvl_filters.size(); i < ie; ++i)
+		{
+			FilteredLevel const & x = ss.m_lvl_filters.at(i);
+			lvls += QString("%1 %2 %3\n")
+						.arg(x.m_level_str)
+						.arg(x.m_state)
+						.arg(x.m_is_enabled ? "1" : "0");
+		}
+		QString ctxs;
+		for (int i = 0, ie = ss.m_ctx_filters.size(); i < ie; ++i)
+		{
+			FilteredContext const & x = ss.m_ctx_filters.at(i);
+			ctxs += QString("%1 %2 %3\n")
+						.arg(x.m_ctx_str)
+						.arg(x.m_state)
+						.arg(x.m_is_enabled ? "1" : "0");
+		}
+
+		session_string = QString("Files:\n %1\n\nColors:\n %2\n\nRegExps:\n %3\n\nLevels:\n %4\n\nContexts:\n %5\n\n")
+				.arg(ff.c_str())
+				.arg(cols)
+				.arg(regs)
+				.arg(lvls)
+				.arg(ctxs);
 	}
 
 	m_help->helpTextEdit->setPlainText(text + session_string);

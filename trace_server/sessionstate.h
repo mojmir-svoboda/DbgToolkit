@@ -33,18 +33,6 @@
 class Server;
 class MainWindow;
 
-struct SessionExport {
-	std::string m_name;
-	std::string m_file_filters;
-	std::string m_regex_filters;
-	std::string m_regex_fmode;
-	std::string m_regex_enabled;
-	std::string m_colortext_regexs;
-	std::string m_colortext_colors;
-	std::string m_colortext_enabled;
-	std::string m_collapsed_blocks;
-};
-
 struct SessionStats {
 	size_t m_Read_B;
 	size_t m_Write_B;
@@ -139,8 +127,6 @@ public:
 
 	void setFilterMode (E_FilterMode m) { m_filter_mode = m; }
 	E_FilterMode getFilterMode () const { return m_filter_mode; }
-
-	void sessionDump (SessionExport & e) const;
 
 	void clearFilters ();
 	void onClearFileFilter ()

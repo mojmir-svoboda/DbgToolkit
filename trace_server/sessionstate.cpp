@@ -104,41 +104,6 @@ int SessionState::insertColumn (tlv::tag_t tag)
 	return column_index;
 }
 
-void SessionState::sessionDump (SessionExport & e) const
-{
-	e.m_file_filters.reserve(32 * 1024);
-	m_file_filters.dump_filter(e.m_file_filters);
-
-	for (int i = 0, ie = m_colorized_texts.size(); i < ie; ++i)
-	{
-		ColorizedText const & ct = m_colorized_texts.at(i);
-		e.m_colortext_regexs.append(ct.m_regex_str);
-		e.m_colortext_colors.append(ct.m_qcolor.name().toStdString());
-		e.m_colortext_enabled.append(ct.m_is_enabled ? "1" : "0");
-
-		if (i < ie)
-		{
-			e.m_colortext_regexs += "\n";
-			e.m_colortext_colors += "\n";
-			e.m_colortext_enabled += "\n";
-		}
-	}
-	for (int i = 0, ie = m_filtered_regexps.size(); i < ie; ++i)
-	{
-		FilteredRegex const & flt = m_filtered_regexps.at(i);
-		e.m_regex_filters.append(flt.m_regex_str);
-		e.m_regex_fmode.append(flt.m_is_inclusive ? "1" : "0");
-		e.m_regex_enabled.append(flt.m_is_enabled ? "1" : "0");
-
-		if (i < ie)
-		{
-			e.m_regex_filters += "\n";
-			e.m_regex_fmode += "\n";
-			e.m_regex_enabled += "\n";
-		}
-	}
-}
-
 void SessionState::clearFilters ()
 {
 	m_file_filters.clear();
