@@ -100,17 +100,9 @@ void Connection::onExcludeFileLine (QModelIndex const & row_index)
 	QString file = findString4Tag(tlv::tag_file, row_index);
 	QString line = findString4Tag(tlv::tag_line, row_index);
 	qDebug("appending: %s:%s", file.toStdString().c_str(), line.toStdString().c_str());
-
-	fileline_t filter_item(file.toStdString(), line.toStdString());
-	boost::char_separator<char> sep(":/\\");
-	appendToFileTree(sep, file.toStdString() + "/" + line.toStdString(), true);
-
+	std::string const fileline = file.toStdString() + "/" + line.toStdString();
+	m_file_model->stateToItem(fileline, Qt::Unchecked);
 	onInvalidateFilter();
-}
-
-void Connection::appendToFileTree (boost::char_separator<char> const & sep, std::string const & fileline, bool exclude)
-{
-	m_file_model->insertItem(fileline);
 }
 
 void Connection::onFileColOrExp (QModelIndex const & idx, bool collapsed)
@@ -241,7 +233,7 @@ bool Connection::appendToFilters (DecodedCommand const & cmd)
 		if (cmd.tvs[i].m_tag == tlv::tag_file)
 		{
 			std::string file(cmd.tvs[i].m_val);
-			appendToFileTree(sep, file + "/" + line);
+			m_file_model->insertItem(file + "/" + line);
 		}
 	}
 	return true;

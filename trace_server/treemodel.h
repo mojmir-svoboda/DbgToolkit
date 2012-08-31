@@ -44,6 +44,8 @@ public:
 
 	void syncExpandState (QTreeView *);
 	QModelIndex selectItem (QTreeView *, std::string const &);
+	QModelIndex stateToItem (std::string const & path, Qt::CheckState state);
+	QModelIndex stateToItem (std::string const & path, Qt::CheckState state, bool collapsed);
 
 public Q_SLOTS:
 	
