@@ -3,6 +3,7 @@
 class TableView : public QTableView
 {
 public:
-	explicit TableView (QWidget * parent = 0) : QTableView(parent) { }
+	explicit TableView (QWidget * parent = 0);
+	virtual ~TableView ();
 	bool viewportEvent (QEvent * event);
 };

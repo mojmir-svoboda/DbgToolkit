@@ -2,6 +2,17 @@
 #include <QEvent>
 #include <QHelpEvent>
 
+TableView::TableView (QWidget * parent)
+	: QTableView(parent)
+{
+	qDebug("%s this=0x%08x", __FUNCTION__, this);
+}
+
+TableView::~TableView () 
+{
+	qDebug("%s this=0x%08x", __FUNCTION__, this);
+}
+
 bool TableView::viewportEvent (QEvent * event)
 {
 	if (event->type() == QEvent::ToolTip)

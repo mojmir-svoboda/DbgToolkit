@@ -50,6 +50,7 @@ SET(trace_server_SOURCES
 	tableview.cpp
 	delegates.cpp
 	server.cpp
+	server_filtering.cpp
 	filterproxy.cpp
 	connection.cpp
 	connection_find.cpp

@@ -38,6 +38,13 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 
 		if (cmd.tvs[i].m_tag == tlv::tag_app)
 		{
+			this->setupModelFile();
+			this->setupModelCtx();
+			this->setupModelTID();
+			this->setupModelLvl();
+			this->setupModelColorRegex();
+			this->setupModelRegex();
+
 			QString app_name = QString::fromStdString(cmd.tvs[i].m_val);
 			if (m_main_window->reuseTabEnabled())
 			{
@@ -45,12 +52,6 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 				Connection * conn = server->findConnectionByName(app_name);
 				if (conn)
 				{
-					this->setupModelFile();
-					this->setupModelCtx();
-					this->setupModelTID();
-					this->setupModelLvl();
-					this->setupModelColorRegex();
-					this->setupModelRegex();
 					if (!m_main_window->clrFltEnabled())
 					{
 						m_file_model->beforeLoad();
