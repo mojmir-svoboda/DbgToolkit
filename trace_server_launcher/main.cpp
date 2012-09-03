@@ -8,6 +8,9 @@
 
 int main (int argc, char * argv[])
 {
+#ifdef WIN32
+	ShowWindow( GetConsoleWindow(), SW_MINIMIZE);
+#endif
 	try
 	{
 		if (argc < 3)

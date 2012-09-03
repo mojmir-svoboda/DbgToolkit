@@ -9,17 +9,12 @@ namespace trace {
 
 typedef char T_Sha1[SHA1_DIGEST_SIZE];
 
-const char * in1 = "abcdefgh";
-const char * out1 = "\x42\x5a\xf1\x2a\x07\x43\x50\x2b" "\x32\x2e\x93\xa0\x15\xbc\xf8\x68\xe3\x24\xd5\x6a";
-char buf[SHA1_DIGEST_SIZE];
-
 bool getHashFromFile (char const * fname, T_Sha1 sha)
 {
 	FILE * file;
 	if (0 == fopen_s(&file, fname, "rb"))
 	{
 		printf("launcher: hashing file %s\n", fname);
-		char buf[SHA1_DIGEST_SIZE];
 		int const res = sha1_stream(file, sha);
 		fclose(file);
 		return res == 0;
@@ -58,6 +53,8 @@ void runTraceServer (char const * runname, char const * args)
 
 	ZeroMemory(&startupInfo, sizeof(startupInfo));
 	startupInfo.cb = sizeof(startupInfo);
+	//startupInfo.dwFlags = STARTF_USESHOWWINDOW;
+	//startupInfo.wShowWindow = SW_MINIMIZE;
 	ZeroMemory(&processInformation, sizeof(processInformation));
 
 	if (CreateProcess(runname, const_cast<char *>(args), nullptr, nullptr, FALSE, 0, nullptr, nullptr, &startupInfo, &processInformation))
