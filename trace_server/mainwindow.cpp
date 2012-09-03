@@ -703,7 +703,7 @@ void MainWindow::onShowHelp ()
 
 void MainWindow::syncColorRegexOnPreset (Connection * conn)
 {
-	QStandardItem * const root = static_cast<QStandardItemModel *>(getWidgetColorRegex()->model())->invisibleRootItem();
+/*	QStandardItem * const root = static_cast<QStandardItemModel *>(getWidgetColorRegex()->model())->invisibleRootItem();
 	SessionState const & sess = conn->sessionState();
 	for (size_t i = 0, ie = sess.m_colorized_texts.size(); i < ie; ++i)
 	{
@@ -718,12 +718,12 @@ void MainWindow::syncColorRegexOnPreset (Connection * conn)
 			root->appendRow(row_items);
 		}
 	}
-	conn->recompileColorRegexps();
+	conn->recompileColorRegexps();*/
 }
 
 void MainWindow::syncRegexOnPreset (Connection * conn)
 {
-	QStandardItem * const root = static_cast<QStandardItemModel *>(getWidgetRegex()->model())->invisibleRootItem();
+/*	QStandardItem * const root = static_cast<QStandardItemModel *>(getWidgetRegex()->model())->invisibleRootItem();
 	SessionState const & sess = conn->sessionState();
 	for (size_t i = 0, ie = sess.m_filtered_regexps.size(); i < ie; ++i)
 	{
@@ -739,7 +739,7 @@ void MainWindow::syncRegexOnPreset (Connection * conn)
 			root->appendRow(row_items);
 		}
 	}
-	conn->recompileRegexps();
+	conn->recompileRegexps();*/
 }
 
 void MainWindow::onPresetActivate (QString const & pname)
@@ -766,8 +766,8 @@ void MainWindow::onPresetActivate (Connection * conn, QString const & pname)
 		//conn->m_session_state.m_colorized_texts.swap(dummy.m_colorized_texts);
 
 
-		syncColorRegexOnPreset(conn);
-		syncRegexOnPreset(conn);
+		//syncColorRegexOnPreset(conn);
+		//syncRegexOnPreset(conn);
 
 		getWidgetFile()->hideLinearParents();
 		getWidgetFile()->syncExpandState();

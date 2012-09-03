@@ -77,7 +77,7 @@ void Connection::onHandleCommandsCommit ()
 	setupColumnSizes(false);
 	model->transactionCommit();
 
-	if (!m_main_window->filterEnabled())
+	if (!m_main_window->filterEnabled() || m_main_window->autoScrollEnabled())
 		model->emitLayoutChanged();
 
 	if (m_main_window->autoScrollEnabled())
@@ -261,7 +261,7 @@ bool Connection::handlePingCommand (DecodedCommand const & cmd)
 	{
 		disconnect(m_tcpstream, SIGNAL(disconnected()), this, SLOT(onDisconnected()));
 		m_marked_for_close = true;
-		QTimer::singleShot(0, static_cast<Server *>(parent()), SLOT(onCloseMarkedTabs()));
+		//QTimer::singleShot(0, static_cast<Server *>(parent()), SLOT(onCloseMarkedTabs()));
 	}
 	return true;
 }

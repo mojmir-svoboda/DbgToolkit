@@ -13,8 +13,8 @@ void TreeView::setModel (TreeModel * model)
 
 	disconnect(this, SIGNAL(     expanded(QModelIndex const &)), model, SLOT(onExpanded(QModelIndex const &)));
 	disconnect(this, SIGNAL(    collapsed(QModelIndex const &)), model, SLOT(onCollapsed(QModelIndex const &)));
-	disconnect(this, SIGNAL(      clicked(QModelIndex const &)), model, SLOT(onClicked(QModelIndex const &)));
-	disconnect(this, SIGNAL(doubleClicked(QModelIndex const &)), model, SLOT(onDblClicked(QModelIndex const &)));
+	//disconnect(this, SIGNAL(      clicked(QModelIndex const &)), model, SLOT(onClicked(QModelIndex const &)));
+	//disconnect(this, SIGNAL(doubleClicked(QModelIndex const &)), model, SLOT(onDblClicked(QModelIndex const &)));
 
 	if (!m_models.contains(model))
 		m_models.push_back(model);
@@ -23,8 +23,8 @@ void TreeView::setModel (TreeModel * model)
 
 	connect(this, SIGNAL(     expanded(QModelIndex const &)), model, SLOT(onExpanded(QModelIndex const &)));
 	connect(this, SIGNAL(    collapsed(QModelIndex const &)), model, SLOT(onCollapsed(QModelIndex const &)));
-	connect(this, SIGNAL(      clicked(QModelIndex const &)), model, SLOT(onClicked(QModelIndex const &)));
-	connect(this, SIGNAL(doubleClicked(QModelIndex const &)), model, SLOT(onDblClicked(QModelIndex const &)));
+	//connect(this, SIGNAL(      clicked(QModelIndex const &)), model, SLOT(onClicked(QModelIndex const &)));
+	//connect(this, SIGNAL(doubleClicked(QModelIndex const &)), model, SLOT(onDblClicked(QModelIndex const &)));
 
 	hideLinearParents();
 }
@@ -39,8 +39,8 @@ void TreeView::unsetModel (TreeModel * model)
 
 	disconnect(this, SIGNAL(     expanded(QModelIndex const &)), model, SLOT(onExpanded(QModelIndex const &)));
 	disconnect(this, SIGNAL(    collapsed(QModelIndex const &)), model, SLOT(onCollapsed(QModelIndex const &)));
-	disconnect(this, SIGNAL(      clicked(QModelIndex const &)), model, SLOT(onClicked(QModelIndex const &)));
-	disconnect(this, SIGNAL(doubleClicked(QModelIndex const &)), model, SLOT(onDblClicked(QModelIndex const &)));
+	//disconnect(this, SIGNAL(      clicked(QModelIndex const &)), model, SLOT(onClicked(QModelIndex const &)));
+	//disconnect(this, SIGNAL(doubleClicked(QModelIndex const &)), model, SLOT(onDblClicked(QModelIndex const &)));
 
 	if (int const idx = m_models.indexOf(model) >= 0)
 		m_models.removeAt(idx);

@@ -207,8 +207,7 @@ void Connection::appendToCtxFilters (std::string const & item, bool checked)
 		return;
 
 	QString qItem = QString::fromStdString(item);
-	QStandardItemModel * model = static_cast<QStandardItemModel *>(m_main_window->getWidgetCtx()->model());
-	QStandardItem * root = model->invisibleRootItem();
+	QStandardItem * root = m_ctx_model->invisibleRootItem();
 	QStandardItem * child = findChildByText(root, qItem);
 	if (child == 0)
 	{
