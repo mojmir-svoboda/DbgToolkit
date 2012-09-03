@@ -189,6 +189,7 @@ private:
 	void closeStorage ();
 	void setSocketDescriptor (int sd);
 	void setupModelFile ();
+	void destroyModelFile ();
 	void setupModelCtx ();
 	void setupModelTID ();
 	void setupModelColorRegex ();

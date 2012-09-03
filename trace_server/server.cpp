@@ -184,8 +184,7 @@ void Server::onClickedAtCtxTree (QModelIndex idx)
 	bool const orig_checked = (item->checkState() == Qt::Checked);
 	if (Connection * conn = findCurrentConnection())
 	{
-		bool const checked = !orig_checked;
-		if (checked)
+		if (orig_checked)
 			conn->sessionState().appendCtxFilter(ctx);
 		else
 			conn->sessionState().removeCtxFilter(ctx);

@@ -91,6 +91,7 @@ void Connection::onTabTraceFocus (int i)
 	if (i != sessionState().m_tab_idx)
 		return;
 	m_main_window->getWidgetFile()->setModel(m_file_model);
+	m_main_window->getWidgetFile()->syncExpandState();
 	m_main_window->getWidgetCtx()->setModel(m_ctx_model);
 	m_main_window->getWidgetTID()->setModel(m_tid_model);
 	m_main_window->getWidgetColorRegex()->setModel(m_color_regex_model);
@@ -125,27 +126,23 @@ void Connection::onCloseTab ()
 		m_tcpstream->close();
 	closeStorage();
 
-	disconnect(m_file_model, SIGNAL(invalidateFilter()), this, SLOT(onInvalidateFilter()));
-	if (m_main_window->getWidgetFile()->model() == m_file_model)
-		m_main_window->getWidgetFile()->setModel(0);
+	destroyModelFile();
 
 	if (m_main_window->getWidgetCtx()->model() == m_ctx_model)
 		m_main_window->getWidgetCtx()->setModel(0);
+	delete m_ctx_model;
+	m_ctx_model = 0;
 
 	if (m_main_window->getWidgetTID()->model() == m_tid_model)
 		m_main_window->getWidgetTID()->setModel(0);
+	delete m_tid_model;
+	m_tid_model = 0;
 
 	if (m_main_window->getWidgetColorRegex()->model() == m_color_regex_model)
 		m_main_window->getWidgetColorRegex()->setModel(0);
-
-	delete m_file_model;
-	m_file_model = 0;
-	delete m_ctx_model;
-	m_ctx_model = 0;
-	delete m_tid_model;
-	m_tid_model = 0;
 	delete m_color_regex_model;
 	m_color_regex_model = 0;
+
 	m_table_view_widget = 0;
 }
 

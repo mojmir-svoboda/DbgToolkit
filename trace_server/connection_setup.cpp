@@ -75,9 +75,6 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 					QString const pname = getPresetPath(app_name, g_defaultPresetName);
 					m_main_window->onPresetActivate(this, pname);
 					m_file_model->afterLoad();
-					m_main_window->getWidgetFile()->hideLinearParents();
-					m_main_window->getWidgetFile()->syncExpandState();
-
 				}
 
 
@@ -242,7 +239,19 @@ void Connection::setupModelFile ()
 	}
 	m_main_window->getWidgetFile()->setModel(m_file_model);
 	connect(m_file_model, SIGNAL(invalidateFilter()), this, SLOT(onInvalidateFilter()));
-	m_main_window->getWidgetFile()->setEnabled(m_main_window->filterEnabled());
+	//m_main_window->getWidgetFile()->setEnabled(m_main_window->filterEnabled());
+}
+
+void Connection::destroyModelFile ()
+{
+	if (m_file_model)
+	{
+		qDebug("destroying file model");
+		disconnect(m_file_model, SIGNAL(invalidateFilter()), this, SLOT(onInvalidateFilter()));
+		m_main_window->getWidgetFile()->unsetModel(m_file_model);
+		delete m_file_model;
+		m_file_model = 0;
+	}
 }
 
 void Connection::setupModelCtx ()

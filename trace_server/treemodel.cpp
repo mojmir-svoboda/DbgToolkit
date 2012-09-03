@@ -220,12 +220,12 @@ bool TreeModel::setData (QModelIndex const & index, QVariant const & value, int 
 		}
 		else if (state == Qt::PartiallyChecked)
 		{ }
+		emit invalidateFilter();
 	}
 	else
 		return false;
 
 	emit dataChanged(index, index);
-	emit invalidateFilter();
 	return true;
 }
 

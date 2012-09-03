@@ -29,6 +29,23 @@ void TreeView::setModel (TreeModel * model)
 	hideLinearParents();
 }
 
+void TreeView::unsetModel (TreeModel * model)
+{
+	if (m_current == model)
+	{
+		m_current = 0;
+		QTreeView::setModel(0);
+	}
+
+	disconnect(this, SIGNAL(     expanded(QModelIndex const &)), model, SLOT(onExpanded(QModelIndex const &)));
+	disconnect(this, SIGNAL(    collapsed(QModelIndex const &)), model, SLOT(onCollapsed(QModelIndex const &)));
+	disconnect(this, SIGNAL(      clicked(QModelIndex const &)), model, SLOT(onClicked(QModelIndex const &)));
+	disconnect(this, SIGNAL(doubleClicked(QModelIndex const &)), model, SLOT(onDblClicked(QModelIndex const &)));
+
+	if (int const idx = m_models.indexOf(model) >= 0)
+		m_models.removeAt(idx);
+}
+
 void TreeView::hideLinearParents ()
 {
 	if (m_hiding && m_current)

@@ -168,14 +168,12 @@ bool FilterProxyModel::filterAcceptsRow (int sourceRow, QModelIndex const & /*so
 	bool lvl_enabled = true;
 	bool const lvl_present = m_session_state.isLvlPresent(lvl.toStdString(), lvl_enabled, lvlmode);
 
-	if (lvl_present && lvl_enabled)
+	if (lvl_present)
 	{
-		if (lvlmode == e_LvlForceInclude)
+		if (lvl_enabled && lvlmode == e_LvlForceInclude)
 			return true; // forced levels (errors etc)
-
+		excluded |= !lvl_enabled;
 	}
-	else
-		excluded |= true;
 
 	bool inclusive_filters = false;
 	for (int i = 0, ie = m_session_state.m_filtered_regexps.size(); i < ie; ++i)
@@ -229,12 +227,10 @@ bool FilterProxyModel::filterAcceptsRow (int sourceRow, QModelIndex const & /*so
 
 	bool ctx_enabled = true;
 	bool const ctx_present = m_session_state.isCtxPresent(ctx.toStdString(), ctx_enabled);
-	if (ctx_present && ctx_enabled)
+	if (ctx_present)
 	{
-		excluded |= true;
+		excluded |= !ctx_enabled;
 	}
-	else
-		excluded |= false;
 
 	QModelIndex data_idx = sourceModel()->index(sourceRow, 0, QModelIndex());
 	excluded |= m_session_state.isBlockCollapsed(tid, data_idx.row());

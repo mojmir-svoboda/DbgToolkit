@@ -754,7 +754,9 @@ void MainWindow::onPresetActivate (Connection * conn, QString const & pname)
 	SessionState dummy;
 	if (loadSession(dummy, pname))
 	{
+		conn->destroyModelFile();
 		std::swap(conn->m_session_state.m_file_filters.root, dummy.m_file_filters.root);
+		conn->setupModelFile();
 		conn->m_session_state.m_filtered_regexps = dummy.m_filtered_regexps;
 		conn->m_session_state.m_colorized_texts = dummy.m_colorized_texts;
 		conn->m_session_state.m_lvl_filters = dummy.m_lvl_filters;
@@ -763,8 +765,12 @@ void MainWindow::onPresetActivate (Connection * conn, QString const & pname)
 		//conn->m_session_state.m_filtered_regexps.swap(dummy.m_filtered_regexps);
 		//conn->m_session_state.m_colorized_texts.swap(dummy.m_colorized_texts);
 
+
 		syncColorRegexOnPreset(conn);
 		syncRegexOnPreset(conn);
+
+		getWidgetFile()->hideLinearParents();
+		getWidgetFile()->syncExpandState();
 
 		conn->onInvalidateFilter();
 		setPresetNameIntoComboBox(pname);

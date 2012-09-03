@@ -215,6 +215,7 @@ void Connection::appendToCtxFilters (std::string const & item, bool checked)
 		QList<QStandardItem *> row_items = addRow(qItem, Qt::Checked);
 		row_items[0]->setCheckState(Qt::Checked);
 		root->appendRow(row_items);
+		sessionState().appendCtxFilter(qItem.toStdString());
 	}
 }
 
