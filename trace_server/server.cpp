@@ -137,7 +137,7 @@ Connection * Server::createNewTableView ()
 	disconnect(model, SIGNAL(rowsInserted(QModelIndex,int,int)), tableView->verticalHeader(), SLOT(sectionsInserted(QModelIndex,int,int)));
     //tableView->verticalHeader()->setFont(QFont(""));		// @TODO: into config
 	tableView->verticalHeader()->setDefaultSectionSize(14);	// @TODO: into config
-	tableView->verticalHeader()->hide();
+	//tableView->verticalHeader()->hide();
 	tableView->setModel(model);
 	horizontalLayout->addWidget(tableView);
 	connection->setTableViewWidget(tableView);
