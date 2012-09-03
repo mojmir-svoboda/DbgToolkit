@@ -372,6 +372,20 @@ void Server::onDoubleClickedAtColorRegexList (QModelIndex idx)
 {
 }
 
+void Server::onTabTraceFocus (int i)
+{
+	MainWindow * main_window = static_cast<MainWindow *>(parent());
+	QWidget * w = main_window->getTabTrace()->widget(i);
+	for (connections_t::iterator it = m_connections.begin(), ite = m_connections.end(); it != ite; ++it)
+	{
+		if (it->second->sessionState().m_tab_widget == w)
+		{
+			it->second->onTabTraceFocus();
+			return;
+		}
+	}
+}
+
 Connection * Server::createNewTableView ()
 {
 	MainWindow * main_window = static_cast<MainWindow *>(parent());
@@ -407,7 +421,6 @@ Connection * Server::createNewTableView ()
 	int const n = main_window->getTabTrace()->addTab(tab, QString::fromUtf8("???"));
 	qDebug("created new tab at %u for connection @ 0x%08x", n, connection);
 
-	connection->sessionState().setTabWidget(n);
 	connection->sessionState().setTabWidget(tab);
 	connection->sessionState().setFilterMode(main_window->fltMode());
 
@@ -415,9 +428,7 @@ Connection * Server::createNewTableView ()
 	{
 		connection->setFilterFile(Qt::Checked);
 	}
-	main_window->getTabTrace()->setCurrentIndex(n);
 	m_connections.insert(std::make_pair(tab, connection));
-	QObject::connect(main_window->getTabTrace(), SIGNAL(currentChanged(int)), connection, SLOT(onTabTraceFocus(int)));
 	QObject::connect(tableView->horizontalHeader(), SIGNAL(sectionResized(int, int, int)), this, SLOT(onSectionResized(int, int, int)));
 	return connection;
 }
@@ -462,26 +473,6 @@ void Server::onHidePlots ()
 	}
 }
 
-void Server::onCloseTab (int idx, QWidget * w)
-{
-	MainWindow * main_window = static_cast<MainWindow *>(parent());
-	qDebug("Server::onCloseTab(idx=%i, QWidget *=0x%08x) idx=%i", idx, w);
-	connections_t::iterator it = m_connections.find(w);
-	if (it != m_connections.end())
-	{
-		Connection * connection = it->second;
-
-		QObject::disconnect(connection->m_tcpstream, SIGNAL(disconnected()), this, SLOT(onDisconnected()));
-		QObject::disconnect(connection->m_tcpstream, SIGNAL(readyRead()), connection, SLOT(processReadyRead()));
-		QObject::disconnect(connection->m_table_view_widget->horizontalHeader(), SIGNAL(sectionResized(int, int, int)), this, SLOT(onSectionResized(int, int, int)));
-		QObject::disconnect(main_window->getTabTrace(), SIGNAL(currentChanged(int)), connection, SLOT(onTabTraceFocus(int)));
-
-		main_window->getTabTrace()->removeTab(idx);
-		connection->onCloseTab();
-		m_connections.erase(it);
-		delete connection;
-	}
-}
 void Server::onCloseTab (QWidget * w)
 {
 	if (w)
@@ -500,10 +491,9 @@ void Server::onCloseTabWithIndex (int idx)
 	MainWindow * main_window = static_cast<MainWindow *>(parent());
 	if (idx != -1)
 	{
-		QWidget * w = main_window->getTabTrace()->widget(idx);
-		if (w)
+		if (QWidget * w = main_window->getTabTrace()->widget(idx))
 		{
-			qDebug("Server::onCloseTabWithIndex(QWidget *) idx=%i widget=0x%08x", idx, w);
+			qDebug("Server::onCloseTabWithIndex(int) idx=%i widget=0x%08x", idx, w);
 			onCloseTab(idx, w);
 		}
 	}
@@ -514,6 +504,29 @@ void Server::onCloseCurrentTab ()
 	MainWindow * main_window = static_cast<MainWindow *>(parent());
 	QWidget * w = main_window->getTabTrace()->currentWidget();
 	onCloseTab(w);
+}
+
+void Server::destroyConnection (Connection * connection)
+{
+	QObject::disconnect(connection->m_tcpstream, SIGNAL(disconnected()), this, SLOT(onDisconnected()));
+	QObject::disconnect(connection->m_tcpstream, SIGNAL(readyRead()), connection, SLOT(processReadyRead()));
+	QObject::disconnect(connection->m_table_view_widget->horizontalHeader(), SIGNAL(sectionResized(int, int, int)), this, SLOT(onSectionResized(int, int, int)));
+
+	delete connection;
+}
+
+void Server::onCloseTab (int idx, QWidget * w)
+{
+	qDebug("Server::onCloseTab(idx=%i, QWidget *=0x%08x) idx=%i", idx, w);
+	MainWindow * main_window = static_cast<MainWindow *>(parent());
+	connections_t::iterator it = m_connections.find(w);
+	if (it != m_connections.end())
+	{
+		Connection * connection = it->second;
+		m_connections.erase(it);
+		destroyConnection(connection);
+	}
+	main_window->getTabTrace()->removeTab(idx);
 }
 void Server::onCloseMarkedTabs ()
 {

@@ -62,8 +62,6 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 					QWidget * w = conn->sessionState().m_tab_widget;
 					server->onCloseTab(w);	// close old one
 					// @TODO: delete persistent storage for the tab
-					sessionState().m_tab_idx = m_main_window->getTabTrace()->indexOf(sessionState().m_tab_widget);
-					onTabTraceFocus(sessionState().m_tab_idx);
 
 					m_file_model->afterLoad();
 					m_main_window->getWidgetFile()->hideLinearParents();
@@ -142,7 +140,8 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 			sessionState().m_pid = pid;
 
 			m_table_view_widget->setVisible(false);
-			m_main_window->getTabTrace()->setTabText(sessionState().m_tab_idx, app_name);
+			int const tab_idx = m_main_window->getTabTrace()->indexOf(sessionState().m_tab_widget);
+			m_main_window->getTabTrace()->setTabText(tab_idx, app_name);
 			QString storage_name = createStorageName();
 			setupStorage(storage_name);
 
@@ -176,6 +175,8 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 			connect(m_table_view_widget, SIGNAL(customContextMenuRequested(QPoint const &)), this, SLOT(onShowContextMenu(QPoint const &)));
 
 			m_table_view_widget->setVisible(true);
+
+			m_main_window->getTabTrace()->setCurrentIndex(tab_idx);
 
 			//m_table_view_widget->horizontalHeader()->setStretchLastSection(false);
 //////////////// PERF!!!!! //////////////////

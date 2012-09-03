@@ -261,7 +261,7 @@ bool Connection::handlePingCommand (DecodedCommand const & cmd)
 	{
 		disconnect(m_tcpstream, SIGNAL(disconnected()), this, SLOT(onDisconnected()));
 		m_marked_for_close = true;
-		//QTimer::singleShot(0, static_cast<Server *>(parent()), SLOT(onCloseMarkedTabs()));
+		QTimer::singleShot(0, static_cast<Server *>(parent()), SLOT(onCloseMarkedTabs()));
 	}
 	return true;
 }
@@ -299,7 +299,7 @@ bool Connection::tryHandleCommand (DecodedCommand const & cmd)
 //////////////////// storage stuff //////////////////////////////
 QString Connection::createStorageName () const
 {
-	return sessionState().m_name + QString::number(sessionState().m_tab_idx);
+	return sessionState().m_name + QString::number(sessionState().m_storage_idx);
 }
 
 bool Connection::setupStorage (QString const & name)

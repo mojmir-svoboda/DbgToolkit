@@ -93,6 +93,10 @@ public slots:
 	void onCloseTab (int idx, QWidget * w);
 	void onCloseTabWithIndex (int);
 
+	void onTabTraceFocus (int i);
+
+	void destroyConnection (Connection * c);
+
 	void onFilterFile (int state);
 	void onLevelValueChanged (int val);
 	void onBufferingStateChanged (int state);

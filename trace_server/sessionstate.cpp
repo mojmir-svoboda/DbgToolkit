@@ -3,7 +3,7 @@
 
 SessionState::SessionState (QObject * parent)
 	: m_app_idx(-1)
-	, m_tab_idx(-2)
+	, m_storage_idx(-2)
 	, m_tab_widget(0)
 	, m_exclude_content_to_row(0)
 	, m_toggle_ref_row(0)
@@ -18,6 +18,9 @@ SessionState::SessionState (QObject * parent)
 {
 	m_colorized_texts.push_back(ColorizedText(".*[Ww]arning.*", QColor(Qt::yellow), e_Bg));
 	m_colorized_texts.push_back(ColorizedText(".*[Ee]rror.*", QColor(Qt::red), e_Fg));
+	static int counter = 0;
+	m_storage_idx = counter;
+	++counter;
 }
 
 SessionState::~SessionState ()

@@ -111,7 +111,7 @@ signals:
 	void handleCommands ();
 	
 public slots:
-	void onTabTraceFocus (int i);
+	void onTabTraceFocus ();
 	void onFileColOrExp (QModelIndex const &, bool collapsed);
 	void onFileExpanded (QModelIndex const &);
 	void onFileCollapsed (QModelIndex const &);
@@ -122,7 +122,6 @@ public slots:
 	void onHandleCommands ();
 	void onHandleCommandsStart ();
 	void onHandleCommandsCommit ();
-	void onCloseTab ();
 	void onInvalidateFilter ();
 	void onHidePrevFromRow ();
 	void onUnhidePrevFromRow ();

@@ -67,41 +67,6 @@ Connection::~Connection ()
 		delete m_statswindow;
 		m_statswindow = 0;
 	}
-}
-
-void Connection::onDisconnected ()
-{
-	qDebug("onDisconnected()");
-	if (m_statswindow)
-		m_statswindow->stopUpdate();
-
-	if (m_main_window->dumpModeEnabled())
-	{
-		QString fname = tr("%1_%2.csv").arg(sessionState().m_name).arg(sessionState().m_pid);
-		exportStorageToCSV(fname);
-
-		Server * server = static_cast<Server *>(parent());
-		m_marked_for_close = true;
-		QTimer::singleShot(0, server, SLOT(onCloseMarkedTabs()));
-	}
-}
-
-void Connection::onTabTraceFocus (int i)
-{
-	if (i != sessionState().m_tab_idx)
-		return;
-	m_main_window->getWidgetFile()->setModel(m_file_model);
-	m_main_window->getWidgetFile()->syncExpandState();
-	m_main_window->getWidgetCtx()->setModel(m_ctx_model);
-	m_main_window->getWidgetTID()->setModel(m_tid_model);
-	m_main_window->getWidgetColorRegex()->setModel(m_color_regex_model);
-	m_main_window->getWidgetRegex()->setModel(m_regex_model);
-	m_main_window->getWidgetLvl()->setModel(m_lvl_model);
-}
-
-void Connection::onCloseTab ()
-{
-	qDebug("Connection::onCloseTab this=0x%08x", this);
 
 	for (dataplots_t::iterator it = m_dataplots.begin(), ite = m_dataplots.end(); it != ite; ++it)
 	{
@@ -144,6 +109,34 @@ void Connection::onCloseTab ()
 	m_color_regex_model = 0;
 
 	m_table_view_widget = 0;
+}
+
+void Connection::onDisconnected ()
+{
+	qDebug("onDisconnected()");
+	if (m_statswindow)
+		m_statswindow->stopUpdate();
+
+	if (m_main_window->dumpModeEnabled())
+	{
+		QString fname = tr("%1_%2.csv").arg(sessionState().m_name).arg(sessionState().m_pid);
+		exportStorageToCSV(fname);
+
+		Server * server = static_cast<Server *>(parent());
+		m_marked_for_close = true;
+		QTimer::singleShot(0, server, SLOT(onCloseMarkedTabs()));
+	}
+}
+
+void Connection::onTabTraceFocus ()
+{
+	m_main_window->getWidgetFile()->setModel(m_file_model);
+	m_main_window->getWidgetFile()->syncExpandState();
+	m_main_window->getWidgetCtx()->setModel(m_ctx_model);
+	m_main_window->getWidgetTID()->setModel(m_tid_model);
+	m_main_window->getWidgetColorRegex()->setModel(m_color_regex_model);
+	m_main_window->getWidgetRegex()->setModel(m_regex_model);
+	m_main_window->getWidgetLvl()->setModel(m_lvl_model);
 }
 
 void Connection::onLevelValueChanged (int val)

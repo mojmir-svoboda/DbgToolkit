@@ -45,7 +45,6 @@ public:
 	explicit SessionState(QObject *parent = 0);
 	~SessionState ();
 
-	void setTabWidget (int n) { m_tab_idx = n; }
 	void setTabWidget (QWidget * w) { m_tab_widget = w; }
 	void setupColumns (QList<QString> const * column_setup_template, columns_sizes_t * sizes
 			, columns_align_t const * ca_template, columns_elide_t const * ce_template);
@@ -166,7 +165,7 @@ public:
 
 private:
 	int m_app_idx;
-	int m_tab_idx;
+	int m_storage_idx;
 	QWidget * m_tab_widget;
 	int m_from_file;
 	int m_exclude_content_to_row;
