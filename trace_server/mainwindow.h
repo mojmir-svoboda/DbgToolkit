@@ -134,6 +134,7 @@ public:
 	QListView const * getWidgetTID () const;
 	QTreeView * getWidgetLvl ();
 	QTreeView const * getWidgetLvl () const;
+	QTreeView const * getWidgetPlots () const;
 	void setLevel (int i);
 	int getLevel () const;
 	bool dumpModeEnabled () const { return m_config.m_dump_mode; }

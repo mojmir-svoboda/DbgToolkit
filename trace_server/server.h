@@ -85,6 +85,7 @@ public slots:
 	void onApplyColumnSetup ();
 
 	void onShowPlots ();
+	void onClickedAtPlotTree (QModelIndex idx);
 	void onHidePlots ();
 
 	void onCloseMarkedTabs ();

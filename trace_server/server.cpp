@@ -197,6 +197,39 @@ void Server::onHidePlots ()
 	}
 }
 
+void Server::onClickedAtPlotTree (QModelIndex idx)
+{
+	MainWindow * main_window = static_cast<MainWindow *>(parent());
+	TreeModel * model = static_cast<TreeModel *>(main_window->getWidgetPlots()->model());
+	//QStandardItem * item = model->itemFromIndex(idx);
+	//Q_ASSERT(item);
+
+	QList<QString> path;
+	QList<bool> state;
+	path.push_front(model->data(idx).toString());
+	state.push_front(model->data(idx, Qt::CheckStateRole).toBool());
+	QModelIndex parent = model->parent(idx);
+	while (parent.isValid())
+	{
+		path.push_front(model->data(parent).toString());
+		parent = model->parent(parent);
+	}
+
+	if (Connection * conn = findConnectionByName(path.at(0)))
+	{
+		if (path.size() > 0)
+			for (dataplots_t::iterator it = conn->m_dataplots.begin(), ite = conn->m_dataplots.end(); it != ite; ++it)
+			{
+				DataPlot * dp = (*it);
+				if (dp->m_config.m_tag == path.at(1))
+				{
+					break;
+				}
+			}
+	}
+
+}
+
 void Server::onCloseTab (QWidget * w)
 {
 	if (w)

@@ -323,6 +323,8 @@ QListView const * MainWindow::getWidgetTID () const { return ui->listViewTID; }
 QTreeView * MainWindow::getWidgetLvl () { return ui->treeViewLvl; }
 QTreeView const * MainWindow::getWidgetLvl () const { return ui->treeViewLvl; }
 
+QTreeView const * MainWindow::getWidgetPlots () const { return m_plot_tree_view; }
+
 bool MainWindow::scopesEnabled () const { return ui_settings->scopesCheckBox->isChecked(); }
 bool MainWindow::indentEnabled () const { return ui_settings->indentCheckBox->isChecked(); }
 int MainWindow::indentLevel () const { return ui_settings->indentSpinBox->value(); }
@@ -398,6 +400,7 @@ void MainWindow::onPlotsToolButton ()
 		if (Connection * conn = m_server->findCurrentConnection())
 		{
 			m_plot_tree_view->setModel(conn->m_plots_model);
+			connect(m_plot_tree_view, SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtPlotTree(QModelIndex)));
 		}
 	}
 	else
