@@ -39,6 +39,7 @@ class QFile;
 class QDataStream;
 class QStandardItemModel;
 class QStandardItem;
+class LevelDelegate;
 
 namespace stats { class StatsWindow; }
 
@@ -220,6 +221,7 @@ private:
 	QStandardItemModel * m_color_regex_model;
 	QStandardItemModel * m_regex_model;
 	QStandardItemModel * m_lvl_model;
+	LevelDelegate * m_lvl_delegate;
 	QAbstractProxyModel * m_table_view_proxy;
 	QMenu m_ctx_menu;
 	QAction * m_toggle_ref;

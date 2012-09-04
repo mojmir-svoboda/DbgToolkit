@@ -299,5 +299,6 @@ void Connection::setupModelLvl ()
 	m_main_window->getWidgetLvl()->setModel(m_lvl_model);
 	m_main_window->getWidgetLvl()->setEnabled(m_main_window->filterEnabled());
 	m_main_window->getWidgetLvl()->setSortingEnabled(true);
-	m_main_window->getWidgetLvl()->setItemDelegate(new LevelDelegate(sessionState(), this));
+	m_main_window->getWidgetLvl()->setItemDelegate(m_lvl_delegate);
+	m_main_window->getWidgetLvl()->setRootIndex(m_lvl_model->indexFromItem(m_lvl_model->invisibleRootItem()));
 }

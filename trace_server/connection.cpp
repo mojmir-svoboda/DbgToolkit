@@ -18,6 +18,7 @@
 #include "utils_qstandarditem.h"
 #include "types.h"
 #include "statswindow.h"
+#include "delegates.h"
 
 Connection::Connection (QObject * parent)
 	: QThread(parent)
@@ -35,6 +36,7 @@ Connection::Connection (QObject * parent)
 	, m_color_regex_model(0)
 	, m_regex_model(0)
 	, m_lvl_model(0)
+	, m_lvl_delegate(0)
 	, m_table_view_proxy(0)
 	, m_toggle_ref(0)
 	, m_hide_prev(0)
@@ -57,6 +59,7 @@ Connection::Connection (QObject * parent)
     m_ctx_menu.addAction(m_toggle_ref);
     m_ctx_menu.addAction(m_exclude_fileline);
 	m_plots_model = new TreeModel(this, &m_session_state.m_plot_filters);
+	m_lvl_delegate = new LevelDelegate(m_session_state, this);
 }
 
 Connection::~Connection ()
@@ -92,6 +95,15 @@ Connection::~Connection ()
 	closeStorage();
 
 	destroyModelFile();
+
+	if (m_main_window->getWidgetLvl()->itemDelegate() == m_lvl_delegate)
+		m_main_window->getWidgetLvl()->setItemDelegate(0);
+	if (m_main_window->getWidgetLvl()->model() == m_lvl_model)
+		m_main_window->getWidgetLvl()->setModel(0);
+	delete m_lvl_model;
+	m_lvl_model = 0;
+	delete m_lvl_delegate;
+	m_lvl_delegate = 0;
 
 	if (m_main_window->getWidgetCtx()->model() == m_ctx_model)
 		m_main_window->getWidgetCtx()->setModel(0);
@@ -132,11 +144,12 @@ void Connection::onTabTraceFocus ()
 {
 	m_main_window->getWidgetFile()->setModel(m_file_model);
 	m_main_window->getWidgetFile()->syncExpandState();
+
+	setupModelLvl();//m_main_window->getWidgetLvl()->setModel(m_lvl_model);
 	m_main_window->getWidgetCtx()->setModel(m_ctx_model);
 	m_main_window->getWidgetTID()->setModel(m_tid_model);
 	m_main_window->getWidgetColorRegex()->setModel(m_color_regex_model);
 	m_main_window->getWidgetRegex()->setModel(m_regex_model);
-	m_main_window->getWidgetLvl()->setModel(m_lvl_model);
 }
 
 void Connection::onLevelValueChanged (int val)
