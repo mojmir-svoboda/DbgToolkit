@@ -23,6 +23,8 @@ int main (int argc, char * argv[])
 			return 1;
 		}
 
+		freopen("trace_server_launcher.log", "w", stdout);
+
 		std::string args;
 		args += argv[2];
 		args += " ";
