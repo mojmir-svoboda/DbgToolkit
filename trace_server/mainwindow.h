@@ -30,6 +30,7 @@
 #include "settings.h"
 #include <tlv_parser/tlv_parser.h>
 #include "config.h"
+#include "dock.h"
 
 namespace Ui {
 	class MainWindow;
@@ -255,6 +256,7 @@ private:
 	QSystemTrayIcon * m_tray_icon;
 	QLabel * m_status_label;
 	QDialog * m_settings_dialog;
+	DockManager m_dock_mgr;
 	QDockWidget * m_plots_dock;
 	TreeView * m_plot_tree_view;
 };

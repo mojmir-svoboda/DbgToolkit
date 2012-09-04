@@ -64,6 +64,7 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode)
 	, m_tray_menu(0)
 	, m_tray_icon(0)
 	, m_settings_dialog(0)
+	, m_dock_mgr()
 	, m_plots_dock(0)
 	, m_plot_tree_view(0)
 {
@@ -78,7 +79,7 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode)
 
 	m_plot_tree_view = new TreeView(this);
 	m_plot_tree_view->setHidingLinearParents(false);
-	m_plots_dock = mkDockWidget(this, m_plot_tree_view, QString("plot list"), Qt::LeftDockWidgetArea);
+	m_plots_dock = m_dock_mgr.mkDockWidget(this, m_plot_tree_view, QString("plot list"), Qt::LeftDockWidgetArea);
 	m_plots_dock->setVisible(false);
 
 	QString const homedir = QDir::homePath();

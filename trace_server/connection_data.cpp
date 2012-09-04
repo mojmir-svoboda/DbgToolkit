@@ -102,7 +102,7 @@ void Connection::appendDataXY (QString const & msg_tag, double x, double y)
 		QModelIndex const item_idx = m_plots_model->insertItem(plots_name.toStdString());
 
 		QString const complete_name = sessionState().m_name + "/" + tag;
-		dp->m_wd = mkDockWidget(m_main_window, &dp->m_plot, complete_name);
+		dp->m_wd = m_main_window->m_dock_mgr.mkDockWidget(m_main_window, &dp->m_plot, complete_name);
 		plot::Curve * curve = (*it)->m_plot.findCurve(subtag);
 		plot::CurveConfig const * ccfg = 0;
 		dp->m_config.findCurveConfig(subtag, ccfg);

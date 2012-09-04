@@ -2,23 +2,32 @@
 #include <QString>
 #include <QWidget>
 #include <QDockWidget>
+#include <QMultiMap>
 
-inline QDockWidget * mkDockWidget (QMainWindow * const window, QWidget * const docked_widget, QString const & name)
-{
-	QDockWidget * const dock = new QDockWidget(name, window);
-	docked_widget->setParent(dock);
-	dock->setAllowedAreas(Qt::AllDockWidgetAreas);
-	dock->setWidget(docked_widget);
-	window->addDockWidget(Qt::TopDockWidgetArea, dock);
-	return dock;
-}
+struct DockManager {
 
-inline QDockWidget * mkDockWidget (QMainWindow * const window, QWidget * const docked_widget, QString const & name, Qt::DockWidgetAreas flags)
-{
-	QDockWidget * const dock = new QDockWidget(name, window);
-	docked_widget->setParent(dock);
-	dock->setAllowedAreas(flags);
-	dock->setWidget(docked_widget);
-	window->addDockWidget(Qt::TopDockWidgetArea, dock);
-	return dock;
-}
+	QMultiMap<QString, QDockWidget *> m_widgets;
+
+	DockManager () { }
+	
+
+	QDockWidget * mkDockWidget (QMainWindow * const window, QWidget * const docked_widget, QString const & name)
+	{
+		return mkDockWidget(window, docked_widget, name, Qt::BottomDockWidgetArea);
+	}
+
+	QDockWidget * mkDockWidget (QMainWindow * const window, QWidget * const docked_widget, QString const & name, Qt::DockWidgetArea area)
+	{
+		QDockWidget * const dock = new QDockWidget(name, window);
+		//docked_widget->setParent(dock);
+		dock->setAllowedAreas(Qt::AllDockWidgetAreas);
+		dock->setWidget(docked_widget);
+		window->addDockWidget(area, dock);
+		m_widgets.insert(name, dock);
+		return dock;
+	}
+
+
+};
+
+

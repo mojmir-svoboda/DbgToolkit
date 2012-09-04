@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>826</width>
+    <width>843</width>
     <height>306</height>
    </rect>
   </property>
@@ -74,7 +74,7 @@
          <bool>true</bool>
         </property>
         <property name="checked">
-         <bool>true</bool>
+         <bool>false</bool>
         </property>
        </widget>
       </item>
@@ -651,8 +651,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>826</width>
-     <height>18</height>
+     <width>843</width>
+     <height>16</height>
     </rect>
    </property>
   </widget>
