@@ -223,10 +223,12 @@ private:
 	QStandardItemModel * m_lvl_model;
 	LevelDelegate * m_lvl_delegate;
 	QAbstractProxyModel * m_table_view_proxy;
+
 	QMenu m_ctx_menu;
 	QAction * m_toggle_ref;
 	QAction * m_hide_prev;
 	QAction * m_exclude_fileline;
+	QAction * m_copy_to_clipboard;
 	QModelIndex m_last_clicked;
 
 	// data receiving stuff

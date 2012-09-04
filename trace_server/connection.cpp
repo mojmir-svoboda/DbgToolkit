@@ -41,6 +41,7 @@ Connection::Connection (QObject * parent)
 	, m_toggle_ref(0)
 	, m_hide_prev(0)
 	, m_exclude_fileline(0)
+	, m_copy_to_clipboard(0)
 	, m_last_clicked()
 	, m_buffer(e_ringbuff_size)
 	, m_current_cmd()
@@ -53,11 +54,13 @@ Connection::Connection (QObject * parent)
 	, m_plots_model(0)
 {
 	qDebug("Connection::Connection() this=0x%08x", this);
-	m_toggle_ref = new QAction("Toggle Ref", this);
+	m_copy_to_clipboard = new QAction("Copy", this);
 	m_hide_prev = new QAction("Hide prev rows", this);
+	m_toggle_ref = new QAction("Toggle Ref", this);
 	m_exclude_fileline = new QAction("Exclude File:Line", this);
     m_ctx_menu.addAction(m_toggle_ref);
     m_ctx_menu.addAction(m_exclude_fileline);
+    m_ctx_menu.addAction(m_copy_to_clipboard);
 	m_plots_model = new TreeModel(this, &m_session_state.m_plot_filters);
 	m_lvl_delegate = new LevelDelegate(m_session_state, this);
 }
@@ -427,13 +430,17 @@ void Connection::onShowContextMenu (QPoint const & pos)
     {
 		onHidePrevFromRow();
     }
-    if (selectedItem == m_toggle_ref)
+    else if (selectedItem == m_toggle_ref)
     {
 		onToggleRefFromRow();
     }
     else if (selectedItem == m_exclude_fileline)
 	{
 		onExcludeFileLine(m_last_clicked);
+	}
+    else if (selectedItem == m_copy_to_clipboard)
+	{
+		onCopyToClipboard();
 	}
     else
     { }

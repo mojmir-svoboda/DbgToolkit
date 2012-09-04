@@ -156,14 +156,14 @@ QVariant ModelView::headerData (int section, Qt::Orientation orientation, int ro
 void ModelView::transactionStart (size_t n)
 {
 	int const row = rowCount();
-	//beginInsertRows(QModelIndex(), row, row + n);
+	beginInsertRows(QModelIndex(), row, row + n);
 
 	//emit layoutAboutToBeChanged();
 }
 
 void ModelView::transactionCommit ()
 {
-	//endInsertRows();
+	endInsertRows();
 	//emit layoutChanged();
 }
 
