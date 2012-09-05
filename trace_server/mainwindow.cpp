@@ -160,6 +160,8 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode)
 	connect(ui->plotsCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onPlotStateChanged(int)));
 	connect(ui->plotSaveAllButton, SIGNAL(clicked()), this, SLOT(onPlotSaveAllButton()));
 	connect(ui->plotsToolButton, SIGNAL(clicked()), this, SLOT(onPlotsToolButton()));
+	connect(m_plots_dock, SIGNAL(dockClosed()), this, SLOT(onPlotsClosed()));
+
 	connect(ui->buffCheckBox, SIGNAL(stateChanged(int)), m_server, SLOT(onBufferingStateChanged(int)));
 	//@FIXME: this has some issues
 	//connect(ui_settings->onTopCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onOnTop(int)));
@@ -210,7 +212,6 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode)
 	ui->presetRmButton->setToolTip(tr("removes currently selected preset"));
 	ui->presetSaveButton->setToolTip(tr("saves current filter state as currently selected preset"));
 	ui->presetResetButton->setToolTip(tr("clear current filter"));
-	//ui_settings->filterModeComboBox->setToolTip(tr("selects filtering mode: inclusive (check what you want, unchecked are not displayed) or exclusive (checked items are filtered out)."));
 	ui->levelSpinBox->setToolTip(tr("adjusts debug level of client side"));
 	ui->qSearchComboBox->setToolTip(tr("search text in logged text"));
 	ui->qFilterLineEdit->setToolTip(tr("quick inclusive filter: adds string to regex filter as regex .*string.*"));
@@ -341,12 +342,6 @@ bool MainWindow::buffEnabled () const { return ui->buffCheckBox->isChecked(); }
 Qt::CheckState MainWindow::buffState () const { return ui->buffCheckBox->checkState(); }
 bool MainWindow::clrFltEnabled () const { return ui_settings->clrFiltersCheckBox->isChecked(); }
 bool MainWindow::statsEnabled () const { return ui_settings->traceStatsCheckBox->isChecked(); }
-E_FilterMode MainWindow::fltMode () const
-{
-	// @NOTE: intentionally removed as nobody except me fucking cares...
-	//return ui->filterModeComboBox->currentText() == QString("Inclusive") ? e_Include : e_Exclude;
-	return e_Include;
-}
 
 bool MainWindow::filterPaneVertical () const
 {
@@ -407,6 +402,11 @@ void MainWindow::onPlotsToolButton ()
 	{
 		m_plots_dock->hide();
 	}
+}
+
+void MainWindow::onPlotsClosed ()
+{
+	ui->plotsToolButton->setChecked(false);
 }
 
 void MainWindow::onFilterFile (int state)
@@ -1112,7 +1112,7 @@ void MainWindow::loadPresets ()
 	}
 
 	// @NOTE: this is only for smooth transition only
-	for (size_t i = 0, ie = m_config.m_preset_names.size(); i < ie; ++i)
+	/*for (size_t i = 0, ie = m_config.m_preset_names.size(); i < ie; ++i)
 	{
 		qDebug("reading preset: %s", m_config.m_preset_names.at(i).toStdString().c_str());
 		QString const prs_name = tr("preset_%1").arg(m_config.m_preset_names[i]);
@@ -1140,12 +1140,7 @@ void MainWindow::loadPresets ()
 				read_list_of_strings(settings, "regexps_enabled", "item", m_regex_enabled);
 
 				SessionState ss;
-				E_FilterMode const fmode = fltMode();
-				for (int f = 0, fe = m_file_filters.size(); f < fe; ++f)
-					ss.m_file_filters.set_to_state(m_file_filters.at(f).toStdString(), fmode == e_Exclude ? e_Checked : e_Unchecked);
-
 				saveSession(ss, m_config.m_preset_names.at(i));
-
 				settings.remove("");
 			}
 			settings.endGroup();
@@ -1157,6 +1152,7 @@ void MainWindow::loadPresets ()
 			// and if not, clear name from combobox
 		}
 	}
+	*/
 }
 
 void MainWindow::storeState ()

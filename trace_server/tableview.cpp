@@ -29,3 +29,8 @@ bool TableView::viewportEvent (QEvent * event)
 	else
 		return QTableView::viewportEvent(event);
 }
+
+void TableView::scrollTo (QModelIndex const & index, ScrollHint hint)
+{
+	QTableView::scrollTo(index, hint);
+}

@@ -124,9 +124,6 @@ public:
 	void toggleRefFromRow (int row) { m_toggle_ref_row = row; }
 	int toggleRefFromRow () const { return m_toggle_ref_row; }
 
-	void setFilterMode (E_FilterMode m) { m_filter_mode = m; }
-	E_FilterMode getFilterMode () const { return m_filter_mode; }
-
 	void clearFilters ();
 	void onClearFileFilter ()
 	{
@@ -170,7 +167,6 @@ private:
 	int m_from_file;
 	int m_exclude_content_to_row;
 	int m_toggle_ref_row;
-	E_FilterMode m_filter_mode;
 	file_filters_t m_file_filters;
 	ctx_filters_t m_ctx_filters;
 	tid_filters_t m_tid_filters;

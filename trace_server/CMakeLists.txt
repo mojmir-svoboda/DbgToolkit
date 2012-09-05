@@ -76,6 +76,7 @@ SET(trace_server_SOURCES
 	config.cpp
 	plotconfig.cpp
 	plottypes.cpp
+	dock.cpp
 	)
 
 SET(trace_server_HEADERS

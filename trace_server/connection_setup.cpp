@@ -39,9 +39,9 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 		if (cmd.tvs[i].m_tag == tlv::tag_app)
 		{
 			this->setupModelFile();
+			this->setupModelLvl();
 			this->setupModelCtx();
 			this->setupModelTID();
-			this->setupModelLvl();
 			this->setupModelColorRegex();
 			this->setupModelRegex();
 
@@ -65,8 +65,6 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 					// @TODO: delete persistent storage for the tab
 
 					m_file_model->afterLoad();
-					m_main_window->getWidgetFile()->hideLinearParents();
-					m_main_window->getWidgetFile()->syncExpandState();
 				}
 				else
 				{
@@ -136,6 +134,9 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 				}
 
 			}
+
+			this->setupModelFile();
+			this->setupModelLvl();
 
 			sessionState().m_name = app_name;
 			sessionState().m_pid = pid;
@@ -240,8 +241,10 @@ void Connection::setupModelFile ()
 		m_file_model = new TreeModel(this, &m_session_state.m_file_filters);
 	}
 	m_main_window->getWidgetFile()->setModel(m_file_model);
+	m_main_window->getWidgetFile()->hideLinearParents();
+	m_main_window->getWidgetFile()->syncExpandState();
 	connect(m_file_model, SIGNAL(invalidateFilter()), this, SLOT(onInvalidateFilter()));
-	//m_main_window->getWidgetFile()->setEnabled(m_main_window->filterEnabled());
+	m_main_window->getWidgetFile()->setEnabled(m_main_window->filterEnabled());
 }
 
 void Connection::destroyModelFile ()

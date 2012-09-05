@@ -145,10 +145,8 @@ void Connection::onDisconnected ()
 
 void Connection::onTabTraceFocus ()
 {
-	m_main_window->getWidgetFile()->setModel(m_file_model);
-	m_main_window->getWidgetFile()->syncExpandState();
-
-	setupModelLvl();//m_main_window->getWidgetLvl()->setModel(m_lvl_model);
+	setupModelFile();
+	setupModelLvl();
 	m_main_window->getWidgetCtx()->setModel(m_ctx_model);
 	m_main_window->getWidgetTID()->setModel(m_tid_model);
 	m_main_window->getWidgetColorRegex()->setModel(m_color_regex_model);

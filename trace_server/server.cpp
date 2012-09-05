@@ -146,7 +146,6 @@ Connection * Server::createNewTableView ()
 	qDebug("created new tab at %u for connection @ 0x%08x", n, connection);
 
 	connection->sessionState().setTabWidget(tab);
-	connection->sessionState().setFilterMode(main_window->fltMode());
 
 	if (main_window->filterEnabled())
 	{

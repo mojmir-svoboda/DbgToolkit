@@ -154,7 +154,6 @@ public:
 	Qt::CheckState buffState () const;
 	bool clrFltEnabled () const;
 	bool statsEnabled () const;
-	E_FilterMode fltMode () const;
 	bool filterPaneVertical () const;
 	void changeEvent (QEvent* e);
 	void dropEvent (QDropEvent * event);
@@ -217,6 +216,7 @@ private slots:
 	void onPlotSaveAllButton ();
 	void onPlotsToolButton ();
 	void onPlotRestoreButton ();
+	void onPlotsClosed ();
 	void onFilterFile (int state);
 	void onSettingsAppSelected (int idx, bool first_time = false);
 	void onClickedAtSettingPooftahButton ();
@@ -258,7 +258,7 @@ private:
 	QLabel * m_status_label;
 	QDialog * m_settings_dialog;
 	DockManager m_dock_mgr;
-	QDockWidget * m_plots_dock;
+	DockWidget * m_plots_dock;
 	TreeView * m_plot_tree_view;
 };
 

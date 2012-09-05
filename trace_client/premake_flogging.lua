@@ -26,6 +26,7 @@ project "flogging"
 
 	defines {"TRACE_ENABLED"}
 	defines {"PROFILE_ENABLED"}
+	defines {"TRACE_CONTEXTS_INCLUDE=<Shared/Include/TraceContexts.h>"}
 
 	includedirs {
 		os.getenv("WH_CODE_ROOT").."/externals_code/flogging/src/"
