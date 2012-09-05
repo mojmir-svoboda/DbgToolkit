@@ -31,7 +31,11 @@ namespace plot {
 		void stopUpdate ();
 
 		Curve * findCurve (QString const & subtag);
+		Curve * findOrCreateCurve (QString const & subtag);
 		curves_t::iterator mkCurve (QString const & subtag);
+
+		PlotConfig & getConfig () { return m_config; }
+		PlotConfig const & getConfig () const { return m_config; }
 
 	protected:
 		void timerEvent (QTimerEvent * e);

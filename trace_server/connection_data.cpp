@@ -104,38 +104,46 @@ void Connection::appendDataXY (QString const & msg_tag, double x, double y)
 
 		QString const complete_name = sessionState().m_name + "/" + tag;
 		dp->m_wd = m_main_window->m_dock_mgr.mkDockWidget(m_main_window, &dp->m_plot, complete_name);
-		plot::Curve * curve = (*it)->m_plot.findCurve(subtag);
-		plot::CurveConfig const * ccfg = 0;
-		dp->m_config.findCurveConfig(subtag, ccfg);
-	
-		if (template_config.m_show)
-		{
-			bool const visible = ccfg ? ccfg->m_show : true;
-			dp->m_plot.showCurve(curve->m_curve, visible);
-			m_plots_model->setData(item_idx, QVariant(visible ? Qt::Checked : Qt::Unchecked), Qt::CheckStateRole);
-		}
-		else
-		{
-			bool const visible = ccfg ? ccfg->m_show : false;
-			dp->m_plot.showCurve(curve->m_curve, visible);
-			m_plots_model->setData(item_idx, QVariant(visible ? Qt::Checked : Qt::Unchecked), Qt::CheckStateRole);
-		}
+	}
 
-		if (m_main_window->plotEnabled())
-		{
-			dp->m_plot.show();
-		}
-		else
-		{
-			dp->m_plot.hide();
-			dp->m_wd->hide();
-		}
-		m_main_window->onPlotRestoreButton();
+	DataPlot * const dp = *it;
+
+	////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////
+	// uz nemuzu uz se mi chce spat
+	////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////
+
+	plot::Curve * curve = (*it)->m_plot.findCurve(subtag);
+	plot::CurveConfig const * ccfg = 0;
+	dp->m_config.findCurveConfig(subtag, ccfg);
+
+	if (dp->m_config.m_show)
+	{
+		bool const visible = ccfg ? ccfg->m_show : true;
+		dp->m_plot.showCurve(curve->m_curve, visible);
+		m_plots_model->setData(item_idx, QVariant(visible ? Qt::Checked : Qt::Unchecked), Qt::CheckStateRole);
 	}
 	else
 	{
-		(*it)->m_plot.findCurve(subtag)->m_data->push_back(x, y);
+		bool const visible = ccfg ? ccfg->m_show : false;
+		dp->m_plot.showCurve(curve->m_curve, visible);
+		m_plots_model->setData(item_idx, QVariant(visible ? Qt::Checked : Qt::Unchecked), Qt::CheckStateRole);
 	}
+
+	if (m_main_window->plotEnabled())
+	{
+		dp->m_plot.show();
+	}
+	else
+	{
+		dp->m_plot.hide();
+		dp->m_wd->hide();
+	}
+	m_main_window->onPlotRestoreButton();
+
+	dp->m_plot.findCurve(subtag)->m_data->push_back(x, y);
 
 	// if (autoscroll && need_to) shift m_from;
 }

@@ -206,26 +206,74 @@ void Server::onClickedAtPlotTree (QModelIndex idx)
 	QList<QString> path;
 	QList<bool> state;
 	path.push_front(model->data(idx).toString());
-	state.push_front(model->data(idx, Qt::CheckStateRole).toBool());
+	state.push_front(model->data(idx, Qt::CheckStateRole).toInt());
 	QModelIndex parent = model->parent(idx);
 	while (parent.isValid())
 	{
 		path.push_front(model->data(parent).toString());
+		state.push_front(model->data(parent, Qt::CheckStateRole).toInt());
 		parent = model->parent(parent);
 	}
 
+	Q_ASSERT(path.size());
+
 	if (Connection * conn = findConnectionByName(path.at(0)))
 	{
-		if (path.size() > 0)
+		if (path.size() > 1)
+		{
 			for (dataplots_t::iterator it = conn->m_dataplots.begin(), ite = conn->m_dataplots.end(); it != ite; ++it)
 			{
 				DataPlot * dp = (*it);
 				if (dp->m_config.m_tag == path.at(1))
 				{
-					break;
+					bool apply = false;
+					bool const xchg = dp->m_plot.getConfig().m_show ^ state.at(1);
+					apply |= xchg;
+					if (xchg)
+					{
+						dp->m_config.m_show = state.at(1);
+					}
+
+					if (path.size() > 2)
+					{
+						for (size_t cc = 0, cce = dp->m_config.m_ccfg.size(); cc < cce; ++cc)
+						{
+							plot::CurveConfig & cfg = dp->m_config.m_ccfg[cc];
+							if (cfg.m_tag == path.at(2))
+							{
+								apply |= cfg.m_show ^ state.at(2);
+								cfg.m_show = state.at(2);
+								break;
+							}
+						}
+					}
+					else
+					{
+						for (size_t cc = 0, cce = dp->m_config.m_ccfg.size(); cc < cce; ++cc)
+						{
+							plot::CurveConfig & cfg = dp->m_config.m_ccfg[cc];
+							apply |= cfg.m_show ^ state.at(1);
+							cfg.m_show = state.at(1);
+						}
+					}
+
+					if (apply)
+					{
+						dp->m_plot.applyConfig(dp->m_plot.getConfig());
+					}
 				}
+
 			}
+		}
+		else
+		{
+			if (state.at(0))
+				conn->onShowPlots();
+			else
+				conn->onHidePlots();
+		}
 	}
+
 
 }
 

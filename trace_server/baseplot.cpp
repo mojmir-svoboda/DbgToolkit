@@ -201,6 +201,13 @@ namespace plot {
 	{
 		curves_t::const_iterator it = m_curves.find(subtag);
 		if (it == m_curves.end())
+			return 0;
+		return *it;
+	}
+	Curve * BasePlot::findOrCreateCurve (QString const & subtag)
+	{
+		curves_t::const_iterator it = m_curves.find(subtag);
+		if (it == m_curves.end())
 			it = mkCurve(subtag);
 		return *it;
 	}
