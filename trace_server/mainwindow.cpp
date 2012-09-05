@@ -126,7 +126,7 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode)
 			ui->qSearchColumnComboBox->addItem(qname);
 		}
 	}
-	ui->qSearchColumnComboBox->addItem(".*");
+	ui->qSearchColumnComboBox->addItem("trace_server");
 	ui->qSearchColumnComboBox->setCurrentIndex(ui->qSearchColumnComboBox->findText(msg_tag));
 
 	m_timer->setInterval(5000);
@@ -163,8 +163,8 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode)
 	connect(m_plots_dock, SIGNAL(dockClosed()), this, SLOT(onPlotsClosed()));
 
 	connect(ui->buffCheckBox, SIGNAL(stateChanged(int)), m_server, SLOT(onBufferingStateChanged(int)));
-	//@FIXME: this has some issues
-	//connect(ui_settings->onTopCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onOnTop(int)));
+	
+	connect(ui_settings->onTopCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onOnTop(int)));//@FIXME: this has some issues
 	connect(ui_settings->reuseTabCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onReuseTabChanged(int)));
 	//connect(ui->clrFiltersCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onClrFiltersStateChanged(int)));
 	connect(ui->presetComboBox, SIGNAL(activated(int)), this, SLOT(onPresetActivate(int)));
@@ -234,6 +234,8 @@ MainWindow::~MainWindow()
 #ifdef WIN32
 	UnregisterHotKey(winId(), 0);
 #endif
+	m_server->setParent(0);
+	delete m_server;
 	delete m_tray_icon;
 	delete m_tray_menu;
 	delete m_help;
@@ -707,47 +709,6 @@ void MainWindow::onShowHelp ()
 	dialog.exec();
 }
 
-void MainWindow::syncColorRegexOnPreset (Connection * conn)
-{
-/*	QStandardItem * const root = static_cast<QStandardItemModel *>(getWidgetColorRegex()->model())->invisibleRootItem();
-	SessionState const & sess = conn->sessionState();
-	for (size_t i = 0, ie = sess.m_colorized_texts.size(); i < ie; ++i)
-	{
-		std::string const & cregex_item = sess.m_colorized_texts.at(i).m_regex_str;
-		std::string cregex_col(sess.m_colorized_texts.at(i).m_qcolor.name().toStdString());
-		bool const enabled = sess.m_colorized_texts.at(i).m_is_enabled;
-		conn->loadToColorRegexps(cregex_item, cregex_col, enabled);
-		QStandardItem * const child = findChildByText(root, QString::fromStdString(cregex_item));
-		if (child == 0)
-		{
-			QList<QStandardItem *> row_items = addRow(QString::fromStdString(cregex_item), enabled);
-			root->appendRow(row_items);
-		}
-	}
-	conn->recompileColorRegexps();*/
-}
-
-void MainWindow::syncRegexOnPreset (Connection * conn)
-{
-/*	QStandardItem * const root = static_cast<QStandardItemModel *>(getWidgetRegex()->model())->invisibleRootItem();
-	SessionState const & sess = conn->sessionState();
-	for (size_t i = 0, ie = sess.m_filtered_regexps.size(); i < ie; ++i)
-	{
-		std::string const & cregex_item = sess.m_filtered_regexps.at(i).m_regex_str;
-		bool const enabled = sess.m_filtered_regexps.at(i).m_is_enabled;
-		bool const inclusive = sess.m_filtered_regexps.at(i).m_is_inclusive;
-		conn->loadToRegexps(cregex_item, enabled, inclusive);
-
-		QStandardItem * const child = findChildByText(root, QString::fromStdString(cregex_item));
-		if (child == 0)
-		{
-			QList<QStandardItem *> row_items = addTriRow(QString::fromStdString(cregex_item), enabled ? Qt::Checked : Qt::Unchecked, inclusive);
-			root->appendRow(row_items);
-		}
-	}
-	conn->recompileRegexps();*/
-}
-
 void MainWindow::onPresetActivate (QString const & pname)
 {
 	onPresetActivate(ui->presetComboBox->findText(pname));
@@ -770,10 +731,6 @@ void MainWindow::onPresetActivate (Connection * conn, QString const & pname)
 		//@TODO: this blows under linux, i wonder why?
 		//conn->m_session_state.m_filtered_regexps.swap(dummy.m_filtered_regexps);
 		//conn->m_session_state.m_colorized_texts.swap(dummy.m_colorized_texts);
-
-
-		//syncColorRegexOnPreset(conn);
-		//syncRegexOnPreset(conn);
 
 		getWidgetFile()->hideLinearParents();
 		getWidgetFile()->syncExpandState();
