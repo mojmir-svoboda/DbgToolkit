@@ -90,6 +90,7 @@ void Connection::appendDataXY (QString const & msg_tag, double x, double y)
 	{
 		// new data plot
 		plot::PlotConfig template_config;
+		template_config.m_tag = tag;
 		QString const fname = getDataTagFileName(getConfig().m_appdir, sessionState().m_name, tag);
 		if (loadConfigForPlot(template_config, tag))
 		{
