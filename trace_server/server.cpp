@@ -14,7 +14,6 @@
 Server::Server (QString ip, unsigned short port, QObject * parent, bool quit_delay)
 	: QTcpServer(parent)
 {
-	//QHostAddress addr("192.168.1.79");
 	QHostAddress addr(ip);
 	if (!listen(addr, port)) {
 		status = tr("Unable to start server! Reason: %1").arg(errorString());

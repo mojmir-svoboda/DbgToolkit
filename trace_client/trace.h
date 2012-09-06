@@ -139,8 +139,12 @@
 /** @macro		TRACE_EXPORT_CSV
  *  @brief      causes export of current server content as csv format
  */
-#	define TRACE_EXPORT_CSV(filename)	\
-		trace::ExportToCSV(filename)
+#	define TRACE_EXPORT_CSV(file)	trace::ExportToCSV(file)
+
+/** @macro		TRACE_SET_CTX_DICT
+ *  @brief      causes export of current server content as csv format
+ */
+#	define TRACE_SET_CTX_DICT()		trace::SetCustomUserDictionnary()
 
 	namespace trace {
 
@@ -172,6 +176,8 @@
 		 **/
 		TRACE_API void SetRuntimeContextMask (context_t mask);
 		TRACE_API context_t GetRuntimeContextMask ();
+
+		TRACE_API void SetCustomUserDictionnary ();
 
 		/**@fn		RuntimeFilterPredicate
 		 * @brief	decides if message will be logged or not
@@ -226,4 +232,5 @@
 #	define TRACE_SETBUFFERED(on)                    ((void)0)
 #	define TRACE_CODE(code)                         ((void)0)
 #	define TRACE_EXPORT_CSV(file)                   ((void)0)
+#	define TRACE_SET_CTX_DICT()						((void)0)
 #endif // TRACE_ENABLED

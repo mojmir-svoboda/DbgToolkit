@@ -71,6 +71,14 @@
 			if (RuntimeFilterPredicate(m_level, m_context))
 				WriteScope(e_Exit, m_level, m_context, m_file, m_line, m_fn);
 		}
+
+		inline void SetCustomUserDictionnary (CtxDictPair const * ptr, size_t n);
+		void SetCustomUserDictionnary ()
+		{
+			CtxDictPair const * ptr = 0;
+			size_t const n = getContextDictionnary(ptr);
+			SetCustomUserDictionnary(ptr, n);
+		}
 	}
 #	include "platforms/select_platform.inl"
 

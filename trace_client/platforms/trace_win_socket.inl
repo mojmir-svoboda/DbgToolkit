@@ -7,6 +7,7 @@
 #include "encode_scope.inl"
 #include "encode_setup.inl"
 #include "encode_exportcsv.inl"
+#include "encode_ctx_dict.inl"
 
 //#define DBG_OUT printf
 #define DBG_OUT(fmt, ...) ((void)0)
@@ -333,7 +334,25 @@ namespace trace {
 			encode_exportCSV(msg, file);
 			socks::WriteToSocket(msg.m_data, msg.m_length);
 		}
+	}
 
+	inline void SetCustomUserDictionnary (CtxDictPair const * ptr, size_t n)
+	{
+		if (GetRuntimeBuffering())
+		{
+			msg_t & msg = socks::acquire_msg_buffer();
+			msg.WriteLock();
+			{
+				encode_ctx_dict(msg, ptr, n);
+			}
+			msg.WriteUnlockAndDirty();
+		}
+		else
+		{
+			msg_t msg;
+			encode_ctx_dict(msg, ptr, n);
+			socks::WriteToSocket(msg.m_data, msg.m_length);
+		}
 	}
 
 	inline void WriteData_impl (level_t level, context_t context, float x, float y, char const * fmt, va_list args)
