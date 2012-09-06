@@ -83,7 +83,7 @@ void Connection::appendDataXY (QString const & msg_tag, double x, double y)
 
 	QString subtag = msg_tag;
 	subtag.remove(0, slash_pos + 1);
-	//qDebug("consumed node: 0x%016x, tis_sz=%u bis_sz=%u b=%u block_msg=%s", node, tis.size(), bis.size(), b, block.m_msg.c_str());
+	QString const plot_name = sessionState().m_name + "/" + tag;
 
 	dataplots_t::iterator it = m_dataplots.find(tag);
 	if (it == m_dataplots.end())
@@ -99,51 +99,49 @@ void Connection::appendDataXY (QString const & msg_tag, double x, double y)
 		
 		DataPlot * const dp = new DataPlot(this, template_config, fname);
 		it = m_dataplots.insert(tag, dp);
-		QString const plots_name = sessionState().m_name + "/" + msg_tag;
-		QModelIndex const item_idx = m_plots_model->insertItem(plots_name.toStdString());
+		QModelIndex const item_idx = m_plots_model->insertItem(plot_name.toStdString());
 
-		QString const complete_name = sessionState().m_name + "/" + tag;
-		dp->m_wd = m_main_window->m_dock_mgr.mkDockWidget(m_main_window, &dp->m_plot, complete_name);
+		dp->m_wd = m_main_window->m_dock_mgr.mkDockWidget(m_main_window, &dp->m_plot, plot_name);
+		if (m_main_window->plotEnabled())
+		{
+			dp->m_plot.show();
+		}
+		else
+		{
+			dp->m_plot.hide();
+			dp->m_wd->hide();
+		}
+		m_main_window->onPlotRestoreButton();
+
 	}
 
-	DataPlot * const dp = *it;
+	DataPlot & dp = **it;
+	QString const curve_name = plot_name + "/" + subtag;
+	plot::Curve * curve = dp.m_plot.findCurve(subtag);
 
-	////////////////////////////////////////////////////////
-	////////////////////////////////////////////////////////
-	////////////////////////////////////////////////////////
-	// uz nemuzu uz se mi chce spat
-	////////////////////////////////////////////////////////
-	////////////////////////////////////////////////////////
-
-	plot::Curve * curve = (*it)->m_plot.findCurve(subtag);
-	plot::CurveConfig const * ccfg = 0;
-	dp->m_config.findCurveConfig(subtag, ccfg);
-
-	if (dp->m_config.m_show)
+	if (!curve)
 	{
-		bool const visible = ccfg ? ccfg->m_show : true;
-		dp->m_plot.showCurve(curve->m_curve, visible);
-		m_plots_model->setData(item_idx, QVariant(visible ? Qt::Checked : Qt::Unchecked), Qt::CheckStateRole);
-	}
-	else
-	{
-		bool const visible = ccfg ? ccfg->m_show : false;
-		dp->m_plot.showCurve(curve->m_curve, visible);
-		m_plots_model->setData(item_idx, QVariant(visible ? Qt::Checked : Qt::Unchecked), Qt::CheckStateRole);
+		curve = *dp.m_plot.mkCurve(subtag);
+		QModelIndex const item_idx = m_plots_model->insertItem(curve_name.toStdString());
+
+		plot::CurveConfig const * ccfg = 0;
+		dp.m_config.findCurveConfig(subtag, ccfg); // config is created by mkCurve
+
+		if (dp.m_config.m_show)
+		{
+			bool const visible = ccfg ? ccfg->m_show : true;
+			dp.m_plot.showCurve(curve->m_curve, visible);
+			m_plots_model->setData(item_idx, QVariant(visible ? Qt::Checked : Qt::Unchecked), Qt::CheckStateRole);
+		}
+		else
+		{
+			bool const visible = ccfg ? ccfg->m_show : false;
+			dp.m_plot.showCurve(curve->m_curve, visible);
+			m_plots_model->setData(item_idx, QVariant(visible ? Qt::Checked : Qt::Unchecked), Qt::CheckStateRole);
+		}
 	}
 
-	if (m_main_window->plotEnabled())
-	{
-		dp->m_plot.show();
-	}
-	else
-	{
-		dp->m_plot.hide();
-		dp->m_wd->hide();
-	}
-	m_main_window->onPlotRestoreButton();
-
-	dp->m_plot.findCurve(subtag)->m_data->push_back(x, y);
+	curve->m_data->push_back(x, y);
 
 	// if (autoscroll && need_to) shift m_from;
 }

@@ -15,6 +15,7 @@ SessionState::SessionState (QObject * parent)
 	, m_name()
 	, m_recv_bytes(0)
 {
+	qDebug("SessionState()");
 	m_colorized_texts.push_back(ColorizedText(".*[Ww]arning.*", QColor(Qt::yellow), e_Bg));
 	m_colorized_texts.push_back(ColorizedText(".*[Ee]rror.*", QColor(Qt::red), e_Fg));
 	static int counter = 0;

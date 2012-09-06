@@ -76,6 +76,7 @@ class Connection : public QThread
 public:
 	explicit Connection(QObject *parent = 0);
 	~Connection ();
+
 	void setMainWindow (MainWindow * w) { m_main_window = w; }
 	MainWindow const * getMainWindow () const { return m_main_window; }
 	void setTableViewWidget (QTableView * w) { m_table_view_widget = w; }
