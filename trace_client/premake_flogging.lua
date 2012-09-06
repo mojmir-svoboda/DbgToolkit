@@ -18,6 +18,10 @@ project "flogging"
 		defines {"TRACE_DLL"}
 		defines {"PROFILE_DLL"}
 
+	configuration { "Debug*" }
+		defines {"_ITERATOR_DEBUG_LEVEL=0"}
+
+
 	configuration { "not *DLL" }
 		defines {"TRACE_STATIC"}
 		defines {"PROFILE_STATIC"}
