@@ -14,6 +14,7 @@
 Server::Server (QString ip, unsigned short port, QObject * parent, bool quit_delay)
 	: QTcpServer(parent)
 {
+	//QHostAddress addr("192.168.1.79");
 	QHostAddress addr(ip);
 	if (!listen(addr, port)) {
 		status = tr("Unable to start server! Reason: %1").arg(errorString());
@@ -196,6 +197,7 @@ void Server::onHidePlots ()
 	}
 }
 
+// @TODO: hmm. this whole fn is.. unfortunately rushed. need to rethink
 void Server::onClickedAtPlotTree (QModelIndex idx)
 {
 	MainWindow * main_window = static_cast<MainWindow *>(parent());
@@ -255,6 +257,11 @@ void Server::onClickedAtPlotTree (QModelIndex idx)
 							apply |= cfg.m_show ^ state.at(1);
 							cfg.m_show = state.at(1);
 						}
+
+						if (state.at(1))
+							dp->m_wd->show();
+						else
+							dp->m_wd->hide();
 					}
 
 					if (apply)
@@ -262,7 +269,6 @@ void Server::onClickedAtPlotTree (QModelIndex idx)
 						dp->m_plot.applyConfig(dp->m_plot.getConfig());
 					}
 				}
-
 			}
 		}
 		else
@@ -323,6 +329,7 @@ void Server::onCloseTab (int idx, QWidget * w)
 {
 	qDebug("Server::onCloseTab(idx=%i, QWidget *=0x%08x) idx=%i", idx, w, idx);
 	MainWindow * main_window = static_cast<MainWindow *>(parent());
+	main_window->getTabTrace()->removeTab(idx);
 	connections_t::iterator it = m_connections.find(w);
 	if (it != m_connections.end())
 	{
@@ -330,7 +337,6 @@ void Server::onCloseTab (int idx, QWidget * w)
 		m_connections.erase(it);
 		destroyConnection(connection);
 	}
-	main_window->getTabTrace()->removeTab(idx);
 	qDebug("Server::onCloseTab(idx=%i, QWidget *=0x%08x) curr idx=%i", idx, w, main_window->getTabTrace()->currentIndex());
 	onTabTraceFocus(main_window->getTabTrace()->currentIndex());
 }
@@ -365,7 +371,7 @@ void Server::incomingProfilerConnection (profiler::profiler_rvp_t * rvp)
 
 	using namespace profiler;
 	ProfilerWindow * w = new ProfilerWindow(this, rvp);
-	qDebug("Incomming profiler rendez-vous point!");
-	main_window->statusBar()->showMessage(tr("Incomming profiler rendez-vous point!"));
+	qDebug("Incoming profiler rendez-vous point!");
+	main_window->statusBar()->showMessage(tr("Incoming profiler rendez-vous point!"));
 }
 
