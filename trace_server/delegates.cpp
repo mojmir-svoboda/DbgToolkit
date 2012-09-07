@@ -3,6 +3,23 @@
 #include <QPainter>
 #include "connection.h"
 
+void TableItemDelegate::paintContext (QPainter * painter, QStyleOptionViewItemV4 & option4, QModelIndex const & index) const
+{
+	QVariant const value = index.data(Qt::DisplayRole);
+	if (value.isValid() && !value.isNull())
+	{
+		Dict const & dict = m_session_state.getDictCtx();
+
+		option4.text = dict.findNameFor(value.toString());
+		QWidget const * widget = option4.widget;
+		if (widget)
+		{
+			QStyle * style = widget->style();
+			style->drawControl(QStyle::CE_ItemViewItem, &option4, painter, widget);
+		}
+	}
+}
+
 void TableItemDelegate::paintTokenized (QPainter * painter, QStyleOptionViewItemV4 & option4, QModelIndex const & index, QString const & separator, QString const & out_separator, int level) const
 {
 	QVariant value = index.data(Qt::DisplayRole);
@@ -54,6 +71,10 @@ void TableItemDelegate::paint (QPainter * painter, QStyleOptionViewItem const & 
 		int level = conn->getMainWindow()->cutNamespaceLevel();
 		paintTokenized(painter, option4, index, QString("[::]"), "::", level);
 	}
+	else if (conn->sessionState().getDictCtx().m_names.size() && index.column() == m_session_state.findColumn4Tag(tlv::tag_ctx))
+	{
+		paintContext(painter, option4, index);
+	}
 	else
 	{
 		QStyledItemDelegate::paint(painter, option4, index);
@@ -89,6 +110,34 @@ void LevelDelegate::paint (QPainter * painter, QStyleOptionViewItem const & opti
 			}
 
 			if (QWidget const * widget = option4.widget)
+			{
+				QStyle * style = widget->style();
+				style->drawControl(QStyle::CE_ItemViewItem, &option4, painter, widget);
+			}
+		}
+	}
+	else
+		QStyledItemDelegate::paint(painter, option4, index);
+	painter->restore();
+}
+
+void CtxDelegate::paint (QPainter * painter, QStyleOptionViewItem const & option, QModelIndex const & index) const
+{
+    painter->save();
+    QStyleOptionViewItemV4 option4 = option;
+    initStyleOption(&option4, index);
+
+	Connection const * conn = static_cast<Connection const *>(parent());
+	if (conn->sessionState().getDictCtx().m_names.size())
+	{
+		QVariant const value = index.data(Qt::DisplayRole);
+		if (value.isValid() && !value.isNull())
+		{
+			Dict const & dict = m_session_state.getDictCtx();
+
+			option4.text = dict.findNameFor(value.toString());
+			QWidget const * widget = option4.widget;
+			if (widget)
 			{
 				QStyle * style = widget->style();
 				style->drawControl(QStyle::CE_ItemViewItem, &option4, painter, widget);

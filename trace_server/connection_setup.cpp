@@ -269,6 +269,7 @@ void Connection::setupModelCtx ()
 	m_main_window->getWidgetCtx()->setModel(m_ctx_model);
 	m_main_window->getWidgetCtx()->expandAll();
 	m_main_window->getWidgetCtx()->setEnabled(m_main_window->filterEnabled());
+	m_main_window->getWidgetCtx()->setItemDelegate(m_ctx_delegate);
 }
 
 void Connection::setupModelTID ()

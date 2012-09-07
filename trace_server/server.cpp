@@ -317,7 +317,7 @@ void Server::onCloseCurrentTab ()
 
 void Server::destroyConnection (Connection * connection)
 {
-	QObject::disconnect(connection->m_tcpstream, SIGNAL(disconnected()), this, SLOT(onDisconnected()));
+	QObject::disconnect(connection->m_tcpstream, SIGNAL(disconnected()), connection, SLOT(onDisconnected()));
 	QObject::disconnect(connection->m_tcpstream, SIGNAL(readyRead()), connection, SLOT(processReadyRead()));
 	QObject::disconnect(connection->m_table_view_widget->horizontalHeader(), SIGNAL(sectionResized(int, int, int)), this, SLOT(onSectionResized(int, int, int)));
 

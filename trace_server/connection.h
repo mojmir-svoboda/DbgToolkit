@@ -40,6 +40,7 @@ class QDataStream;
 class QStandardItemModel;
 class QStandardItem;
 class LevelDelegate;
+class CtxDelegate;
 
 namespace stats { class StatsWindow; }
 
@@ -174,6 +175,7 @@ private:
 	bool handleSaveTLVCommand (DecodedCommand const & cmd);
 	bool handlePingCommand (DecodedCommand const & cmd);
 	bool handleShutdownCommand (DecodedCommand const & cmd);
+	bool handleDictionnaryCtx (DecodedCommand const & cmd);
 
 	void appendDataXY (QString const & tag, double x, double y);
 	bool appendToFilters (DecodedCommand const & cmd);
@@ -223,6 +225,7 @@ private:
 	QStandardItemModel * m_regex_model;
 	QStandardItemModel * m_lvl_model;
 	LevelDelegate * m_lvl_delegate;
+	CtxDelegate * m_ctx_delegate;
 	QAbstractProxyModel * m_table_view_proxy;
 
 	QMenu m_ctx_menu;

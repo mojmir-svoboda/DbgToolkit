@@ -273,6 +273,27 @@ bool Connection::handleShutdownCommand (DecodedCommand const & cmd)
 	return true;
 }
 
+bool Connection::handleDictionnaryCtx (DecodedCommand const & cmd)
+{
+	qDebug("received custom context dictionnary");
+	QList<QString> name;
+	QList<QString> value;
+	for (size_t i=0, ie=cmd.tvs.size(); i < ie; i+=2)
+	{
+		if (cmd.tvs[i].m_tag == tlv::tag_string)
+		{
+			name.append(QString::fromStdString(cmd.tvs[i].m_val));
+		}
+
+		if (cmd.tvs[i+1].m_tag == tlv::tag_int)
+		{
+			value.append(QString::fromStdString(cmd.tvs[i+1].m_val));
+		}
+	}
+	sessionState().addCtxDict(name, value);
+	return true;
+}
+
 bool Connection::tryHandleCommand (DecodedCommand const & cmd)
 {
 	switch (cmd.hdr.cmd)
@@ -287,6 +308,7 @@ bool Connection::tryHandleCommand (DecodedCommand const & cmd)
 		case tlv::cmd_export_csv:   handleExportCSVCommand(cmd); break;
 		case tlv::cmd_ping:			handlePingCommand(cmd); break;
 		case tlv::cmd_shutdown:     handleShutdownCommand(cmd); break;
+		case tlv::cmd_dict_ctx:		handleDictionnaryCtx(cmd); break;
 		default: qDebug("unknown command, ignoring\n"); break;
 	}
 

@@ -39,6 +39,20 @@ struct SessionStats {
 	//hptimer_t m_StartT;
 };
 
+struct Dict {
+	QList<QString> m_names;
+	QList<QString> m_strvalues;
+	QList<int> m_values;
+
+	QString findNameFor (QString const & strval) const
+	{
+		for (size_t i = 0, ie = m_strvalues.size(); i < ie; ++i)
+			if (m_strvalues.at(i) == strval)
+				return m_names.at(i);
+		return QString();
+	}
+};
+
 class SessionState
 {
 public:
@@ -83,6 +97,15 @@ public:
 	bool isCtxPresent (std::string const & item, bool & enabled) const;
 	void appendCtxFilter (std::string const & item);
 	void removeCtxFilter (std::string const & item);
+
+	void addCtxDict (QList<QString> const & names, QList<QString> const & strvalues)
+	{
+		m_dict_ctx.m_names = names;
+		m_dict_ctx.m_strvalues = strvalues;
+		
+		foreach (QString const & item, m_dict_ctx.m_strvalues)
+			m_dict_ctx.m_values.append(item.toInt());
+	}
 
 	// tid
 	typedef std::vector<std::string> tid_filters_t;
@@ -137,6 +160,8 @@ public:
 	void onClearRegexFilter () { m_filtered_regexps.clear(); }
 
 	unsigned getRecvBytes () const { return m_recv_bytes; }
+
+	Dict const & getDictCtx () const { return m_dict_ctx; }
 	
 signals:
 	
@@ -189,5 +214,6 @@ private:
 	QString m_pid;
 	QList<CollapsedBlock> m_collapse_blocks;
 	unsigned m_recv_bytes;
+	Dict m_dict_ctx;
 };
 

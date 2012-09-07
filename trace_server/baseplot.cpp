@@ -70,7 +70,6 @@ namespace plot {
 		}
 
 		setContextMenuPolicy(Qt::CustomContextMenu);
-		//connect(this, SIGNAL(customContextMenuRequested(QPoint const &)), oparent, SLOT(onShowPlotContextMenu(QPoint const &)));
 		connect(this, SIGNAL(customContextMenuRequested(QPoint const &)), this, SLOT(onShowPlotContextMenu(QPoint const &)));
 
 		m_colors.push_back(Qt::black);
@@ -122,27 +121,17 @@ namespace plot {
 		}
 		m_curves.clear();
 
-		//disconnect(this, SIGNAL(customContextMenuRequested(QPoint const &)), oparent, SLOT(onShowPlotContextMenu(QPoint const &)));
 		disconnect(this, SIGNAL(customContextMenuRequested(QPoint const &)), this, SLOT(onShowPlotContextMenu(QPoint const &)));
-		//QwtPlot::~QwtPlot();
 	}
 
 	void BasePlot::onShowPlots ()
 	{
 		show();
-		/*for (curves_t::iterator it = m_curves.begin(), ite = m_curves.end(); it != ite; ++it)
-		{
-			Curve & curve = **it;
-			showCurve(curve.getCurve(), true);
-		}*/
-
-		// show curves?
 	}
 
 	void BasePlot::onHidePlots ()
 	{
 		hide();
-		// hide curves?
 	}
 
 	void BasePlot::applyAxis (AxisConfig const & acfg)
@@ -174,7 +163,7 @@ namespace plot {
 			symbol->setSize(cc.m_symbolsize);
 			symbol->setPen(QPen(cc.m_symbolcolor));
 			curve->m_curve->setSymbol(symbol);
-			//curve->m_curve->setBaseline(cc.m_pen_width);
+			curve->m_curve->setBaseline(cc.m_pen_width);
 			curve->m_curve->setLegendAttribute(QwtPlotCurve::LegendShowLine);
 			curve->m_curve->setLegendAttribute(QwtPlotCurve::LegendShowSymbol);
 			showCurve(curve->getCurve(), cc.m_show);
@@ -186,9 +175,6 @@ namespace plot {
 		applyAxis(pcfg.m_acfg[0]);
 		applyAxis(pcfg.m_acfg[1]);
 		updateAxes();
-
-		//for (size_t a = 0, ae = pcfg.m_acfg.size(); a < ae; ++a)
-		//	AxisConfig const & ac = pcfg.m_acfg[a];
 	}
 
 	void BasePlot::stopUpdate ()
@@ -347,12 +333,9 @@ namespace plot {
 		m_config.m_acfg[1].m_scale_type = ui->yScaleComboBox->currentIndex();
 		m_config.m_acfg[1].m_auto_scale = ui->yAutoScaleCheckBox->checkState() == Qt::Checked;
 
-		//ccfg.m_color = ;
-
 		applyConfig(m_config);
 		replot();
 	}
-
 
 	void BasePlot::onXAutoScaleChanged (int state)
 	{

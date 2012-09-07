@@ -37,6 +37,7 @@ Connection::Connection (QObject * parent)
 	, m_regex_model(0)
 	, m_lvl_model(0)
 	, m_lvl_delegate(0)
+	, m_ctx_delegate(0)
 	, m_table_view_proxy(0)
 	, m_toggle_ref(0)
 	, m_hide_prev(0)
@@ -63,6 +64,7 @@ Connection::Connection (QObject * parent)
     m_ctx_menu.addAction(m_copy_to_clipboard);
 	m_plots_model = new TreeModel(this, &m_session_state.m_plot_filters);
 	m_lvl_delegate = new LevelDelegate(m_session_state, this);
+	m_ctx_delegate = new CtxDelegate(m_session_state, this);
 }
 
 Connection::~Connection ()
@@ -108,10 +110,14 @@ Connection::~Connection ()
 	delete m_lvl_delegate;
 	m_lvl_delegate = 0;
 
+	if (m_main_window->getWidgetCtx()->itemDelegate() == m_ctx_delegate)
+		m_main_window->getWidgetCtx()->setItemDelegate(0);
 	if (m_main_window->getWidgetCtx()->model() == m_ctx_model)
 		m_main_window->getWidgetCtx()->setModel(0);
 	delete m_ctx_model;
 	m_ctx_model = 0;
+	delete m_ctx_delegate;
+	m_ctx_delegate = 0;
 
 	if (m_main_window->getWidgetTID()->model() == m_tid_model)
 		m_main_window->getWidgetTID()->setModel(0);
