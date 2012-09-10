@@ -14,19 +14,24 @@ public:
 	virtual void closeEvent (QCloseEvent * event);
 
 Q_SIGNALS:
-	void dockClosed ();
+	void dockClosed (DockWidget * w);
 };
 
 
-struct DockManager
+struct DockManager : public QObject
 {
+	Q_OBJECT
+public:
 
 	QMultiMap<QString, QDockWidget *> m_widgets;
 
-	DockManager () { }
+	explicit DockManager (QObject * parent = 0) { }
 
 	DockWidget * mkDockWidget (QMainWindow * const window, QWidget * const docked_widget, QString const & name);
 	DockWidget * mkDockWidget (QMainWindow * const window, QWidget * const docked_widget, QString const & name, Qt::DockWidgetArea area);
+
+public slots:
+	void onPlotClosed (DockWidget * w);
 };
 
 

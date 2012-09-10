@@ -14,7 +14,9 @@ void Connection::onShowPlots ()
 	for (dataplots_t::iterator it = m_dataplots.begin(), ite = m_dataplots.end(); it != ite; ++it)
 	{
 		(*it)->onShowPlots();
+		m_main_window->restoreDockWidget((*it)->m_wd);
 	}
+	m_main_window->onPlotRestoreButton();
 }
 
 void Connection::onHidePlots ()
@@ -104,15 +106,19 @@ void Connection::appendDataXY (QString const & msg_tag, double x, double y)
 		dp->m_wd = m_main_window->m_dock_mgr.mkDockWidget(m_main_window, &dp->m_plot, plot_name);
 		if (m_main_window->plotEnabled())
 		{
-			dp->m_plot.show();
+			if (template_config.m_show)
+			{
+				dp->m_plot.show();
+				dp->m_wd->show();
+				m_main_window->restoreDockWidget(dp->m_wd);
+				m_main_window->onPlotRestoreButton();
+			}
 		}
 		else
 		{
 			dp->m_plot.hide();
 			dp->m_wd->hide();
 		}
-		m_main_window->onPlotRestoreButton();
-
 	}
 
 	DataPlot & dp = **it;
