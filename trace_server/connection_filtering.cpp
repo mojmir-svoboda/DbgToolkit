@@ -259,7 +259,9 @@ bool Connection::appendToFilters (DecodedCommand const & cmd)
 		if (cmd.tvs[i].m_tag == tlv::tag_file)
 		{
 			std::string file(cmd.tvs[i].m_val);
-			m_file_model->insertItem(file + "/" + line);
+			QModelIndex const ret = m_file_model->insertItem(file + "/" + line);
+			if (ret.isValid())
+				m_main_window->getWidgetFile()->hideLinearParents();
 		}
 	}
 	return true;

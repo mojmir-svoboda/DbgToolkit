@@ -302,27 +302,39 @@ void TreeModel::syncExpandState (QTreeView * tv)
 
 QModelIndex TreeModel::insertItem (std::string const & path)
 {
-	TreeModelItem i;
-	bool const present = m_tree_data->is_present(path, i);
-	if (present)
+	TreeModelItem const * i = 0;
+	node_t const * node = m_tree_data->is_present(path, i);
+	if (node)
+	{
+		//QModelIndex const idx = indexFromItem(node);
+		//emit dataChanged(idx, idx);
 		return QModelIndex();
+	}
 	else
 	{
+		TreeModelItem i;
 		i.m_state = Qt::Checked;
 		i.m_collapsed = false;
-	}
 	
-	node_t * const n = m_tree_data->set_to_state(path, i);
+		node_t * const n = m_tree_data->set_to_state(path, i);
+		node_t * parent = n->parent;
+		while (parent)
+		{
+			QModelIndex pi = indexFromItem(parent);
+			emit dataChanged(pi, pi);
+			parent = parent->parent;
+		}
 
-	if (n->parent)
-	{
-		n->data.m_state = n->parent->data.m_state == Qt::Checked ? Qt::Checked : Qt::Unchecked;
+		if (n->parent)
+		{
+			n->data.m_state = n->parent->data.m_state == Qt::Checked ? Qt::Checked : Qt::Unchecked;
+		}
+		else
+			n->data.m_state = Qt::Checked;
+		QModelIndex const idx = indexFromItem(n);
+		emit dataChanged(idx, idx);
+		return idx;
 	}
-	else
-		n->data.m_state = Qt::Checked;
-	QModelIndex const idx = indexFromItem(n);
-	emit dataChanged(idx, idx);
-	return idx;
 }
 
 QModelIndex TreeModel::stateToItem (std::string const & path, Qt::CheckState state, bool collapsed)
