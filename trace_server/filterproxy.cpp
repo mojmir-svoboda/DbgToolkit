@@ -21,7 +21,11 @@ void FilterProxyModel::force_update ()
 	emit layoutAboutToBeChanged();
 
 	m_map_from_tgt.clear();
-	for (size_t src_idx = 0, se = m_map_from_src.size(); src_idx < se; ++src_idx)
+	QAbstractTableModel const * src_model = static_cast<QAbstractTableModel const *>(sourceModel());
+	m_map_from_src.clear();
+	m_map_from_src.resize(src_model->rowCount());
+	m_columns = src_model->columnCount();
+	for (size_t src_idx = 0, se = src_model->rowCount(); src_idx < se; ++src_idx)
 	{
 		if (filterAcceptsRow(src_idx, QModelIndex()))
 		{

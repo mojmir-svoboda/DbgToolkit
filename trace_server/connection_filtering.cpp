@@ -33,6 +33,9 @@ void Connection::setFilterFile (int state)
 		{
 			m_table_view_widget->setModel(m_table_view_proxy);
 		}
+
+		static_cast<FilterProxyModel *>(m_table_view_proxy)->force_update();
+		onInvalidateFilter();
 	}
 
 	m_main_window->getWidgetFile()->setEnabled(m_main_window->filterEnabled());
