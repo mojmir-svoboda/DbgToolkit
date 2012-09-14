@@ -107,6 +107,8 @@ namespace plot {
 
 		QwtPlotPanner * panner = new QwtPlotPanner(canvas());
 		panner->setMouseButton(Qt::MidButton);
+
+		setConfigValues(m_config);
 		QTimer::singleShot(0, this, SLOT(onApplyButton()));
 	}
 
@@ -295,6 +297,10 @@ namespace plot {
 		ui->autoScrollCheckBox->setCheckState(pcfg.m_auto_scroll ? Qt::Checked : Qt::Unchecked);
 		ui->updateTimerSpinBox->setValue(pcfg.m_timer_delay_ms);
 
+		if (m_config.m_acfg.size() >= 1)
+			ui->xLabelLineEdit->setText(m_config.m_acfg[0].m_label);
+		if (m_config.m_acfg.size() >= 2)
+			ui->yLabelLineEdit->setText(m_config.m_acfg[1].m_label);
 		onCurveActivate(0);
 	}
 
