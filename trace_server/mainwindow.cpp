@@ -613,11 +613,13 @@ void MainWindow::onOnTop (int const state)
 		Qt::WindowFlags const old = windowFlags();
 		Qt::WindowFlags const newflags = Qt::Window | (old & ~(Qt::WindowStaysOnTopHint));
 		setWindowFlags(newflags);
+		show();
 	}
 	else
 	{
 		//setWindowFlags(Qt::WindowStaysOnTopHint); //@NOTE: win users lacks the min and max buttons. sigh.
 		setWindowFlags(Qt::WindowStaysOnTopHint);
+		show();
 	}
 }
 
