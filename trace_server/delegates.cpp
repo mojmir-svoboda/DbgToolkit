@@ -20,6 +20,26 @@ void TableItemDelegate::paintContext (QPainter * painter, QStyleOptionViewItemV4
 	}
 }
 
+void TableItemDelegate::paintTime (QPainter * painter, QStyleOptionViewItemV4 & option4, QModelIndex const & index) const
+{
+	QVariant const value = index.data(Qt::DisplayRole);
+	if (value.isValid() && !value.isNull())
+	{
+		unsigned long long const ref_value = m_session_state.timeRefValue();
+		QVariant value = index.data(Qt::DisplayRole);
+
+		long long const dt = value.toString().toULongLong() - ref_value;
+
+		option4.text = dt >= 0 ? tr("%1").arg(dt) : "";
+		QWidget const * widget = option4.widget;
+		if (widget)
+		{
+			QStyle * style = widget->style();
+			style->drawControl(QStyle::CE_ItemViewItem, &option4, painter, widget);
+		}
+	}
+}
+
 void TableItemDelegate::paintTokenized (QPainter * painter, QStyleOptionViewItemV4 & option4, QModelIndex const & index, QString const & separator, QString const & out_separator, int level) const
 {
 	QVariant value = index.data(Qt::DisplayRole);
@@ -75,6 +95,10 @@ void TableItemDelegate::paint (QPainter * painter, QStyleOptionViewItem const & 
 	{
 		paintContext(painter, option4, index);
 	}
+	else if (conn->sessionState().timeRefFromRow() > 0 && index.column() == m_session_state.findColumn4Tag(tlv::tag_time))
+	{
+		paintTime(painter, option4, index);
+	}
 	else
 	{
 		QStyledItemDelegate::paint(painter, option4, index);
@@ -127,8 +151,7 @@ void CtxDelegate::paint (QPainter * painter, QStyleOptionViewItem const & option
     QStyleOptionViewItemV4 option4 = option;
     initStyleOption(&option4, index);
 
-	Connection const * conn = static_cast<Connection const *>(parent());
-	if (conn->sessionState().getDictCtx().m_names.size())
+	if (m_session_state.getDictCtx().m_names.size())
 	{
 		QVariant const value = index.data(Qt::DisplayRole);
 		if (value.isValid() && !value.isNull())
@@ -148,5 +171,4 @@ void CtxDelegate::paint (QPainter * painter, QStyleOptionViewItem const & option
 		QStyledItemDelegate::paint(painter, option4, index);
 	painter->restore();
 }
-
 

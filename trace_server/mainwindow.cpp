@@ -999,7 +999,7 @@ void MainWindow::setupMenuBar ()
 	QMenu * filterMenu = menuBar()->addMenu(tr("Fi&lter"));
 	filterMenu->addAction(tr("Hide previous rows"), m_server, SLOT(onHidePrevFromRow()), QKeySequence(Qt::Key_Delete));
 	filterMenu->addAction(tr("Unhide previous rows"), m_server, SLOT(onUnhidePrevFromRow()), QKeySequence(Qt::ControlModifier + Qt::Key_Delete));
-	filterMenu->addAction(tr("Toggle reference row"), m_server, SLOT(onToggleRefFromRow()), QKeySequence(Qt::Key_Space));
+	filterMenu->addAction(tr("Set time reference row"), m_server, SLOT(onTimeRefFromRow()), QKeySequence(Qt::Key_Space));
 	filterMenu->addAction(tr("Exclude file:line row"), m_server, SLOT(onExcludeFileLine()), QKeySequence(Qt::Key_X));
 	filterMenu->addAction(tr("Goto file filter"), this, SLOT(onGotoFileFilter()), QKeySequence(Qt::ControlModifier + Qt::Key_F1));
 	filterMenu->addAction(tr("Goto level filter"), this, SLOT(onGotoLevelFilter()), QKeySequence(Qt::ControlModifier + Qt::Key_F2));
@@ -1016,6 +1016,7 @@ void MainWindow::setupMenuBar ()
 	clearMenu->addAction(tr("Clear current colorized regexp filter"), m_server, SLOT(onClearCurrentColorizedRegexFilter()));
 	clearMenu->addAction(tr("Clear current regexp filter"), m_server, SLOT(onClearCurrentRegexFilter()));
 	clearMenu->addAction(tr("Clear current collapsed scope filter"), m_server, SLOT(onClearCurrentScopeFilter()));
+	clearMenu->addAction(tr("Clear current ref time"), m_server, SLOT(onClearCurrentRefTime()));
 
 	// Tools
 	QMenu * tools = menuBar()->addMenu(tr("&Settings"));

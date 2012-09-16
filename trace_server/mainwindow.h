@@ -114,7 +114,7 @@ public:
 			}
 		}
 		size_t const i = m_config.m_app_names.size() - 1;
-		onSetup(i, true);
+		onSetup(i, true, true);
 		return i;
 	}
 	QList<QColor> const & getThreadColors () const { return m_config.m_thread_colors; }
@@ -193,7 +193,7 @@ private slots:
 	void onFileSave ();
 	void onFileExportToCSV ();
 	void onSetupAction ();
-	void onSetup (int curr_app_idx = -1, bool first_time = false);
+	void onSetup (int curr_app_idx = -1, bool first_time = false, bool mac_user = false);
 	void closeEvent (QCloseEvent *event);
 	void iconActivated (QSystemTrayIcon::ActivationReason reason);
 	void onQSearch (QString const &);

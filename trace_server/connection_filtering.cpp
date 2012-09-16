@@ -97,6 +97,11 @@ void Connection::onClearCurrentScopeFilter ()
 	sessionState().onClearScopeFilter();
 	onInvalidateFilter();
 }
+void Connection::onClearCurrentRefTime ()
+{
+	sessionState().onClearRefTime();
+	onInvalidateFilter();
+}
 
 void Connection::onExcludeFileLine (QModelIndex const & row_index)
 {

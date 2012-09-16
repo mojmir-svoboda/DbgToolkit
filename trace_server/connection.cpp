@@ -57,7 +57,7 @@ Connection::Connection (QObject * parent)
 	qDebug("Connection::Connection() this=0x%08x", this);
 	m_copy_to_clipboard = new QAction("Copy", this);
 	m_hide_prev = new QAction("Hide prev rows", this);
-	m_toggle_ref = new QAction("Toggle Ref", this);
+	m_toggle_ref = new QAction("Set as reference time", this);
 	m_exclude_fileline = new QAction("Exclude File:Line", this);
     m_ctx_menu.addAction(m_toggle_ref);
     m_ctx_menu.addAction(m_exclude_fileline);
@@ -395,7 +395,11 @@ void Connection::onToggleRefFromRow ()
 	if (current.isValid())
 	{
 		qDebug("Toggle Ref from row=%i", current.row());
-		m_session_state.toggleRefFromRow(current.row());
+		m_session_state.setTimeRefFromRow(current.row());
+
+		ModelView * model = static_cast<ModelView *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
+		QString const & strtime = findString4Tag(tlv::tag_time, current);
+		m_session_state.setTimeRefValue(strtime.toULongLong());
 		onInvalidateFilter();
 	}
 }

@@ -135,6 +135,7 @@ public slots:
 	void onClearCurrentColorizedRegexFilter ();
 	void onClearCurrentRegexFilter ();
 	void onClearCurrentScopeFilter ();
+	void onClearCurrentRefTime ();
 	void onShowContextMenu (QPoint const & pos);
 	void onShowPlotContextMenu (QPoint const &);
 	void onShowPlots ();

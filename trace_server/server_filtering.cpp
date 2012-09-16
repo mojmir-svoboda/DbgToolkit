@@ -16,7 +16,6 @@ void Server::onClearCurrentView ()
 	if (Connection * conn = findCurrentConnection())
 		conn->onClearCurrentView();
 }
-
 void Server::onClearCurrentFileFilter ()
 {
 	if (Connection * conn = findCurrentConnection())
@@ -46,6 +45,11 @@ void Server::onClearCurrentScopeFilter ()
 {
 	if (Connection * conn = findCurrentConnection())
 		conn->onClearCurrentScopeFilter();
+}
+void Server::onClearCurrentRefTime ()
+{
+	if (Connection * conn = findCurrentConnection())
+		conn->onClearCurrentRefTime();
 }
 
 void Server::onHidePrevFromRow ()

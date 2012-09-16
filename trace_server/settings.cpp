@@ -260,7 +260,7 @@ void MainWindow::onSetupAction ()
 	onSetup(-1);
 }
 
-void MainWindow::onSetup (int curr_app_idx, bool first_time)
+void MainWindow::onSetup (int curr_app_idx, bool first_time, bool mac_user)
 {
 	if (curr_app_idx == -1)
 	{
@@ -301,6 +301,9 @@ void MainWindow::onSetup (int curr_app_idx, bool first_time)
 	ui_settings->listViewColumnElide->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
 	onSettingsAppSelected(curr_app_idx, first_time);
+
+	if (mac_user)
+		onClickedAtSettingPooftahButton();
 
 	m_settings_dialog->exec();
 

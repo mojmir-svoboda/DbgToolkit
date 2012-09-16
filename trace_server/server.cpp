@@ -8,7 +8,6 @@
 #include "mainwindow.h"
 #include "modelview.h"
 #include "utils.h"
-#include "delegates.h"
 #include "tableview.h"
 
 Server::Server (QString ip, unsigned short port, QObject * parent, bool quit_delay)
@@ -127,7 +126,6 @@ Connection * Server::createNewTableView ()
 	horizontalLayout->setContentsMargins(11, 11, 11, 11);
 	horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
 	TableView * tableView = new TableView(tab);
-	tableView->setItemDelegate(new TableItemDelegate(connection->sessionState(), connection));
 	
 	// to ignore 'resizeColumnToContents' when accidentaly double-clicked on header handle
 	disconnect(tableView->horizontalHeader(), SIGNAL(sectionHandleDoubleClicked(int)), tableView, SLOT(resizeColumnToContents(int)));

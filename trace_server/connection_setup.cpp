@@ -148,12 +148,20 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 			setupStorage(storage_name);
 
 			sessionState().m_app_idx = m_main_window->findAppName(app_name);
-			sessionState().setupColumns(&m_main_window->getColumnSetup(sessionState().m_app_idx), &m_main_window->getColumnSizes(sessionState().m_app_idx)
-					, &m_main_window->getColumnAlign(sessionState().m_app_idx)
-					, &m_main_window->getColumnElide(sessionState().m_app_idx));
+
+			columns_setup_t const & cs_setup = m_main_window->getColumnSetup(sessionState().m_app_idx);
+			columns_sizes_t & cs_sizes = m_main_window->getColumnSizes(sessionState().m_app_idx);
+			columns_align_t const & cs_align = m_main_window->getColumnAlign(sessionState().m_app_idx);
+			columns_elide_t const & cs_elide = m_main_window->getColumnElide(sessionState().m_app_idx);
+
+			if (cs_setup.empty() || cs_sizes.empty() || cs_align.empty() || cs_elide.empty())
+			{
+				m_main_window->onSetup(sessionState().m_app_idx, true, true);
+			}
+
+			sessionState().setupColumns(&cs_setup, &cs_sizes, &cs_align, &cs_elide); 
 
 			m_current_cmd.tvs.reserve(sessionState().getColumnsSetupCurrent()->size());
-
 			for (size_t i = 0, ie = sessionState().getColumnsSetupCurrent()->size(); i < ie; ++i)
 			{
 				m_table_view_widget->model()->insertColumn(i);
@@ -177,6 +185,7 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 			connect(m_table_view_widget, SIGNAL(customContextMenuRequested(QPoint const &)), this, SLOT(onShowContextMenu(QPoint const &)));
 
 			m_table_view_widget->setVisible(true);
+			m_table_view_widget->setItemDelegate(new TableItemDelegate(sessionState(), this));
 
 			m_main_window->getTabTrace()->setCurrentIndex(tab_idx);
 

@@ -144,8 +144,11 @@ public:
 	void excludeContentToRow (int row) { m_exclude_content_to_row = row; }
 	int excludeContentToRow () const { return m_exclude_content_to_row; }
 
-	void toggleRefFromRow (int row) { m_toggle_ref_row = row; }
-	int toggleRefFromRow () const { return m_toggle_ref_row; }
+	void setTimeRefFromRow (int row) { m_time_ref_row = row; }
+	int timeRefFromRow () const { return m_time_ref_row; }
+
+	unsigned long long timeRefValue () const { return m_time_ref_value; }
+	void setTimeRefValue (unsigned long long t) { m_time_ref_value = t; }
 
 	void clearFilters ();
 	void onClearFileFilter ()
@@ -158,6 +161,7 @@ public:
 	void onClearColorizedRegexFilter () { m_colorized_texts.clear(); }
 	void onClearLvlFilter () { m_lvl_filters.clear(); }
 	void onClearRegexFilter () { m_filtered_regexps.clear(); }
+	void onClearRefTime () { m_time_ref_row = 0; }
 
 	unsigned getRecvBytes () const { return m_recv_bytes; }
 
@@ -191,7 +195,8 @@ private:
 	QWidget * m_tab_widget;
 	int m_from_file;
 	int m_exclude_content_to_row;
-	int m_toggle_ref_row;
+	int m_time_ref_row;
+	unsigned long long m_time_ref_value;
 	file_filters_t m_file_filters;
 	ctx_filters_t m_ctx_filters;
 	tid_filters_t m_tid_filters;
