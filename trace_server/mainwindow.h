@@ -170,6 +170,9 @@ public:
 
 public slots:
 	void onHotkeyShowOrHide ();
+	void hide ();
+	void showNormal ();
+	void showMaximized ();
 	void onOnTop (int);
 
 	friend class Connection;

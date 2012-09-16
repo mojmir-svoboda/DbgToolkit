@@ -244,6 +244,24 @@ MainWindow::~MainWindow()
 	delete ui_settings;
 }
 
+void MainWindow::hide ()
+{
+	m_config.m_hidden = true;
+	QMainWindow::hide();
+}
+
+void MainWindow::showNormal ()
+{
+	m_config.m_hidden = false;
+	QMainWindow::showNormal();
+}
+
+void MainWindow::showMaximized ()
+{
+	m_config.m_hidden = false;
+	QMainWindow::showMaximized();
+}
+
 void MainWindow::createActions ()
 {
 	m_minimize_action = new QAction(tr("Mi&nimize"), this);

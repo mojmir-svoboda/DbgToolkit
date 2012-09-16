@@ -269,7 +269,7 @@ bool Connection::handlePingCommand (DecodedCommand const & cmd)
 bool Connection::handleShutdownCommand (DecodedCommand const & cmd)
 {
 	qDebug("shutdown from client requested (update?)");
-	qApp->quit();
+	m_main_window->onQuit();
 	return true;
 }
 
