@@ -1,5 +1,6 @@
 #include "sessionstate.h"
 #include <tlv_parser/tlv_encoder.h>
+#include "settings.h"
 
 SessionState::SessionState (QObject * parent)
 	: m_app_idx(-1)
@@ -31,8 +32,8 @@ SessionState::~SessionState ()
 		delete m_columns_setup_current;
 }
 
-void SessionState::setupColumns (QList<QString> const * cs_template, columns_sizes_t * sizes
-			, columns_align_t const * ca_template, columns_elide_t const * ce_template)
+void SessionState::setupColumns (QList<QString> * cs_template, columns_sizes_t * sizes
+			, columns_align_t * ca_template, columns_elide_t * ce_template)
 {
 	m_columns_sizes = sizes;
 	m_columns_setup_template = cs_template;
@@ -82,29 +83,29 @@ int SessionState::findColumn4TagInTemplate (tlv::tag_t tag) const
 	return -1;
 }
 
-void SessionState::insertColumn4Tag (tlv::tag_t tag, int column_idx)
-{
-	m_tags2columns.insert(tag, column_idx);
-}
-void SessionState::insertColumn ()
-{
-	m_columns_setup_current->push_back(QString());
-	if (m_columns_sizes->size() < m_columns_setup_current->size())
-		m_columns_sizes->push_back(127);
-	qDebug("inserting column and size. tmpl_sz=%u curr_sz=%u sizes_sz=%u", m_columns_setup_template->size(), m_columns_setup_current->size(), m_columns_sizes->size());
-}
-
 int SessionState::insertColumn (tlv::tag_t tag)
 {
-	insertColumn();
+	m_columns_setup_current->push_back(QString());
+	tlv::tag_t const used_tag = tag > tlv::tag_max_value ? tlv::tag_time : tag;
+	if (m_columns_sizes->size() < m_columns_setup_current->size())
+	{
+		m_columns_align_template->push_back(QString(alignToString(default_aligns[used_tag])));
+		m_columns_sizes->push_back(default_sizes[used_tag]);
+		m_columns_elide_template->push_back(QString(elideToString(default_elides[used_tag])));
+	}
+
+	qDebug("inserting column and size. tmpl_sz=%u curr_sz=%u sizes_sz=%u", m_columns_setup_template->size(), m_columns_setup_current->size(), m_columns_sizes->size());
+
 	int const column_index = m_columns_setup_current->size() - 1;
 	char const * name = tlv::get_tag_name(tag);
-	insertColumn4Tag(tag, column_index);
+
+	m_tags2columns.insert(tag, column_index);
 
 	if (name)
 		m_columns_setup_current->operator[](column_index) = QString::fromStdString(name);
 	else
 		m_columns_setup_current->operator[](column_index) = QString("???");
+
 	return column_index;
 }
 

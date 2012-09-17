@@ -239,7 +239,7 @@ bool Connection::appendToFilters (DecodedCommand const & cmd)
 
 		if (cmd.tvs[i].m_tag == tlv::tag_tid)
 		{
-			int idx = sessionState().m_tls.findThreadId(cmd.tvs[i].m_val);
+			int const idx = sessionState().m_tls.findThreadId(cmd.tvs[i].m_val);
 			if (cmd.hdr.cmd == tlv::cmd_scope_entry)
 				sessionState().m_tls.incrIndent(idx);
 			if (cmd.hdr.cmd == tlv::cmd_scope_exit)

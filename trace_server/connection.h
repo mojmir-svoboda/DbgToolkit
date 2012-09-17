@@ -108,6 +108,8 @@ public:
 	bool saveConfigForPlot (plot::PlotConfig const & config, QString const & tag);
 	bool filterEnabled () const { return m_main_window->filterEnabled(); }
 
+	QAbstractTableModel const * modelView () const { return static_cast<QAbstractTableModel const *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model()); }
+
 signals:
 	void readyForUse();
 	void newMessage (QString const & from, QString const & message);

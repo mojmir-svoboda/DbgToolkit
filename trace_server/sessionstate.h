@@ -60,8 +60,8 @@ public:
 	~SessionState ();
 
 	void setTabWidget (QWidget * w) { m_tab_widget = w; }
-	void setupColumns (QList<QString> const * column_setup_template, columns_sizes_t * sizes
-			, columns_align_t const * ca_template, columns_elide_t const * ce_template);
+	void setupColumns (QList<QString> * column_setup_template, columns_sizes_t * sizes
+			, columns_align_t * ca_template, columns_elide_t * ce_template);
 	void setupThreadColors (QList<QColor> const & tc);
 
 	QString getAppName () const { return m_name; }
@@ -78,8 +78,6 @@ public:
 
 	int findColumn4TagInTemplate (tlv::tag_t tag) const;
 	int findColumn4Tag (tlv::tag_t tag) const;
-	void insertColumn4Tag (tlv::tag_t tag, int column_idx);
-	void insertColumn ();
 	int insertColumn (tlv::tag_t tag);
 
 	QList<QColor> const & getThreadColors () const { return m_thread_colors; }
@@ -209,9 +207,9 @@ private:
 	QList<ColorizedText> m_colorized_texts;
 	QList<FilteredRegex> m_filtered_regexps;
 	QList<QString> * m_columns_setup_current;
-	QList<QString> const * m_columns_setup_template;
-	QList<QString> const * m_columns_align_template;
-	QList<QString> const * m_columns_elide_template;
+	QList<QString> * m_columns_setup_template;
+	QList<QString> * m_columns_align_template;
+	QList<QString> * m_columns_elide_template;
 	columns_sizes_t * m_columns_sizes;
 	QMap<tlv::tag_t, int> m_tags2columns;
 	ThreadSpecific m_tls;

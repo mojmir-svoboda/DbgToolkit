@@ -155,6 +155,7 @@ public:
 	bool clrFltEnabled () const;
 	bool statsEnabled () const;
 	bool filterPaneVertical () const;
+	bool dtEnabled () const;
 	void changeEvent (QEvent* e);
 	void dropEvent (QDropEvent * event);
 	void dragEnterEvent (QDragEnterEvent *event);

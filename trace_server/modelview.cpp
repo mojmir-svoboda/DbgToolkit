@@ -175,17 +175,17 @@ void ModelView::emitLayoutChanged ()
 void ModelView::appendCommand (QAbstractProxyModel * filter, tlv::StringCommand const & cmd)
 {
 	int column_index = -1;
-	int idx = -1;
+	int thread_idx = -1;
 	for (size_t i=0, ie=cmd.tvs.size(); i < ie; ++i)
 		if (cmd.tvs[i].m_tag == tlv::tag_tid)
-			idx = m_session_state.getTLS().findThreadId(cmd.tvs[i].m_val);
+			thread_idx = m_session_state.getTLS().findThreadId(cmd.tvs[i].m_val);
 
 	int indent = 0;
 	QString qindent;
 	if (m_connection->getMainWindow()->indentEnabled())
 	{
-		if (idx >= 0)
-			indent = m_session_state.getTLS().m_indents[idx];
+		if (thread_idx >= 0)
+			indent = m_session_state.getTLS().m_indents[thread_idx];
 
 		if (indent > 0)
 			for(int j = 0; j < indent; ++j)
@@ -198,14 +198,19 @@ void ModelView::appendCommand (QAbstractProxyModel * filter, tlv::StringCommand 
 	columns_t & columns = m_rows.back();
 	columns.reserve(cmd.tvs.size());
 
+	size_t n = cmd.tvs.size();
 	if (cmd.hdr.cmd == tlv::cmd_scope_entry || (cmd.hdr.cmd == tlv::cmd_scope_exit))
-		columns.resize(cmd.tvs.size() + 1);
-	else
-		columns.resize(cmd.tvs.size());
+		n = n + 1;
+	
+	//if (m_main_window->dtEnabled())
+		n = n + 1;
+
+	columns.resize(n);
 
 	std::string file;
 	std::string line;
 	std::string func;
+	std::string time;
 	for (size_t i = 0, ie = cmd.tvs.size(); i < ie; ++i)
 	{
 		tlv::tag_t const tag = cmd.tvs[i].m_tag;
@@ -216,6 +221,8 @@ void ModelView::appendCommand (QAbstractProxyModel * filter, tlv::StringCommand 
 			line = val;
 		if (tag == tlv::tag_func)
 			func = val;
+		if (tag == tlv::tag_time)
+			time = val;
 
 		QString qval;
 		if (tag == tlv::tag_msg)
@@ -235,6 +242,26 @@ void ModelView::appendCommand (QAbstractProxyModel * filter, tlv::StringCommand 
 			}
 		}
 		columns[column_index] = qval;
+	}
+
+	//if (m_main_window->dtEnabled())
+	{
+		int const tag = tlv::tag_max_value + 1;
+		int ci = m_session_state.findColumn4Tag(static_cast<tlv::tag_t>(tag));
+		if (ci < 0)
+		{
+			ci = m_session_state.insertColumn(tag);
+			if (filter)
+			{
+				filter->insertColumn(ci);
+			}
+		}
+
+		unsigned long long const last_t = m_session_state.getTLS().lastTime(thread_idx);
+		unsigned long long const t = QString::fromStdString(time).toULongLong();
+		long long const dt = t - last_t;
+		columns[ci] = tr("%1").arg(dt);
+		m_session_state.getTLS().setLastTime(thread_idx, t);
 	}
 
 	if (cmd.hdr.cmd == tlv::cmd_scope_entry)

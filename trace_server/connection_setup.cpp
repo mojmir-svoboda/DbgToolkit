@@ -149,10 +149,10 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 
 			sessionState().m_app_idx = m_main_window->findAppName(app_name);
 
-			columns_setup_t const & cs_setup = m_main_window->getColumnSetup(sessionState().m_app_idx);
+			columns_setup_t & cs_setup = m_main_window->getColumnSetup(sessionState().m_app_idx);
 			columns_sizes_t & cs_sizes = m_main_window->getColumnSizes(sessionState().m_app_idx);
-			columns_align_t const & cs_align = m_main_window->getColumnAlign(sessionState().m_app_idx);
-			columns_elide_t const & cs_elide = m_main_window->getColumnElide(sessionState().m_app_idx);
+			columns_align_t & cs_align = m_main_window->getColumnAlign(sessionState().m_app_idx);
+			columns_elide_t & cs_elide = m_main_window->getColumnElide(sessionState().m_app_idx);
 
 			if (cs_setup.empty() || cs_sizes.empty() || cs_align.empty() || cs_elide.empty())
 			{

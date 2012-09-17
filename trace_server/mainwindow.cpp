@@ -363,6 +363,7 @@ bool MainWindow::buffEnabled () const { return ui->buffCheckBox->isChecked(); }
 Qt::CheckState MainWindow::buffState () const { return ui->buffCheckBox->checkState(); }
 bool MainWindow::clrFltEnabled () const { return ui_settings->clrFiltersCheckBox->isChecked(); }
 bool MainWindow::statsEnabled () const { return ui_settings->traceStatsCheckBox->isChecked(); }
+bool MainWindow::dtEnabled () const { return ui->dtToolButton->isChecked(); }
 
 bool MainWindow::filterPaneVertical () const
 {
@@ -1090,14 +1091,54 @@ void MainWindow::loadPresets ()
 		QString const prs_name = tr("preset_%1").arg(m_config.m_preset_names[i]);
 		QStringList const split = prs_name.split("/");
 
-		qDebug("split[0]: %s", split.at(0).toStdString().c_str());
-		qDebug("split[1]: %s", split.at(1).toStdString().c_str());
-		if (settings.childGroups().contains(split.at(0)))
+		if (prs_name.isEmpty())
+			continue;
+
+		if (split.size() == 2)
 		{
-			settings.beginGroup(split.at(0));
-			if (settings.childGroups().contains(split.at(1)))
+			qDebug("split[0]: %s", split.at(0).toStdString().c_str());
+			qDebug("split[1]: %s", split.at(1).toStdString().c_str());
+			if (settings.childGroups().contains(split.at(0)))
 			{
-				settings.beginGroup(split.at(1));
+				settings.beginGroup(split.at(0));
+				if (settings.childGroups().contains(split.at(1)))
+				{
+					settings.beginGroup(split.at(1));
+					typedef QList<QString>			filter_regexs_t;
+					typedef QList<QString>			filter_preset_t;
+
+					filter_preset_t m_file_filters;
+					filter_preset_t m_colortext_regexs;
+					filter_preset_t m_colortext_colors;
+					filter_preset_t m_colortext_enabled;
+					filter_preset_t m_regex_filters;
+					filter_preset_t m_regex_fmode;
+					filter_preset_t m_regex_enabled;
+
+					read_list_of_strings(settings, "items", "item", m_file_filters);
+					read_list_of_strings(settings, "cregexps", "item", m_colortext_regexs);
+					read_list_of_strings(settings, "cregexps_colors", "item", m_colortext_colors);
+					read_list_of_strings(settings, "cregexps_enabled", "item", m_colortext_enabled);
+					read_list_of_strings(settings, "regexps", "item", m_regex_filters);
+					read_list_of_strings(settings, "regexps_fmode", "item", m_regex_fmode);
+					read_list_of_strings(settings, "regexps_enabled", "item", m_regex_enabled);
+
+					SessionState ss;
+					for (int f = 0, fe = m_file_filters.size(); f < fe; ++f)
+						ss.m_file_filters.set_to_state(m_file_filters.at(f).toStdString(), e_Checked);
+
+					saveSession(ss, m_config.m_preset_names.at(i));
+
+					settings.remove("");
+					settings.endGroup();
+				}
+				settings.endGroup();
+		}
+		else
+		{
+			if (settings.childGroups().contains(prs_name))
+			{
+				settings.beginGroup(prs_name);
 				typedef QList<QString>			filter_regexs_t;
 				typedef QList<QString>			filter_preset_t;
 
@@ -1126,7 +1167,9 @@ void MainWindow::loadPresets ()
 				settings.remove("");
 				settings.endGroup();
 			}
-			settings.endGroup();
+		}
+
+
 		}
 		else
 		{
