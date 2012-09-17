@@ -127,15 +127,15 @@ void CtxDelegate::paint (QPainter * painter, QStyleOptionViewItem const & option
     QStyleOptionViewItemV4 option4 = option;
     initStyleOption(&option4, index);
 
-	/*if (index.column() == 0)
+	if (index.column() == 0)
 	{
-
 		QVariant const value = index.data(Qt::DisplayRole);
 		if (value.isValid() && !value.isNull())
 		{
 			Dict const & dict = m_session_state.getDictCtx();
 
-			option4.text = dict.findNameFor(value.toString());
+			QString const name = dict.findNameFor(value.toString());
+			option4.text = name.isEmpty() ? value.toString() : name;
 			QWidget const * widget = option4.widget;
 			if (widget)
 			{
@@ -144,7 +144,7 @@ void CtxDelegate::paint (QPainter * painter, QStyleOptionViewItem const & option
 			}
 		}
 	}
-	else*/
+	else
 		QStyledItemDelegate::paint(painter, option4, index);
 	painter->restore();
 }
