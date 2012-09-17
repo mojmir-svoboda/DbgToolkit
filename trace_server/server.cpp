@@ -367,7 +367,7 @@ void Server::incomingProfilerConnection (profiler::profiler_rvp_t * rvp)
 	MainWindow * main_window = static_cast<MainWindow *>(parent());
 
 	using namespace profiler;
-	ProfilerWindow * w = new ProfilerWindow(this, rvp);
+	ProfilerWindow * w = new ProfilerWindow(main_window, this, rvp);
 	qDebug("Incoming profiler rendez-vous point!");
 	main_window->statusBar()->showMessage(tr("Incoming profiler rendez-vous point!"));
 }

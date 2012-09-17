@@ -17,23 +17,25 @@ namespace profiler {
 
 using namespace plot;
 
-ProfilerWindow::ProfilerWindow (QObject * parent, profiler::profiler_rvp_t * rvp)
+ProfilerWindow::ProfilerWindow (QMainWindow * window, QObject * parent, profiler::profiler_rvp_t * rvp)
 	: QObject(parent)
-	, m_window(0)
+	, m_window(window)
+	, m_tag_model(new TreeModel(this, ))
 	, m_scene(0)
 	, m_rvp(0)
 	, m_tagWidget(0)
 {
 	qDebug("%s", __FUNCTION__);
-	/*m_window = new ProfilerMainWindow();
+
+	m_tag_model = new TreeModel(this, m_prof_filters);
 	
 	m_scene = new QGraphicsScene();
 	m_view = new View(this, "View 0");
 	m_view->view()->setScene(m_scene);
-	mkDockWidget(m_window, m_view, QString("detail"));
+	mkDockWidget(m_window, m_view, QString("prof_detail"));
 
 	PickablePlot * plot = new PickablePlot(this, 0, QString("tmp")); // @FIXME untmp
-	mkDockWidget(m_window, plot, QString("frames"));
+	mkDockWidget(m_window, plot, QString("prof_frames"));
 
 	m_tagWidget = new QTreeView();
 	m_tagWidget->setModel(new QStandardItemModel);
@@ -59,7 +61,7 @@ ProfilerWindow::ProfilerWindow (QObject * parent, profiler::profiler_rvp_t * rvp
 		QColor qcolor;
 		qcolor.setHsvF(hsv.h, hsv.s, hsv.v);
 		m_unique_colors.push_back(qcolor);
-	}*/
+	}
 }
 
 ProfilerWindow::~ProfilerWindow ()

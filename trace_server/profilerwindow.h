@@ -4,6 +4,8 @@
 #include <map>
 #include "profilerblockinfo.h"
 #include "rvps.h"
+#include "dock.h"
+#include "treemodel.h"
 #include "profilersessionstate.h"
 
 QT_FORWARD_DECLARE_CLASS(QGraphicsScene)
@@ -37,6 +39,11 @@ namespace profiler {
 		
 		QGraphicsScene * m_scene;
 		ProfilerMainWindow	* m_window;
+		DockManager m_docks;
+
+		typedef tree_filter<TreeModelItem> prof_filters_t;
+		plot_filters_t m_prof_filters;
+		TreeModel * m_tag_model;
 		View * m_view;
 		profiler::profiler_rvp_t * m_rvp;
 		QTreeView * m_tagWidget;
