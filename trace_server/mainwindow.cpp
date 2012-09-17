@@ -156,6 +156,7 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode)
 	connect(getWidgetLvl(), SIGNAL(doubleClicked(QModelIndex)), m_server, SLOT(onDoubleClickedAtLvlList(QModelIndex)));
 	getWidgetLvl()->header()->hide();
 
+	connect(ui->dtToolButton, SIGNAL(clicked()), this, SLOT(ondtToolButton()));
 	connect(ui->levelSpinBox, SIGNAL(valueChanged(int)), m_server, SLOT(onLevelValueChanged(int)));
 	connect(ui->filterFileCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onFilterFile(int)));
 	connect(ui->plotsCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onPlotStateChanged(int)));
@@ -394,6 +395,12 @@ void MainWindow::onQuit ()
 void MainWindow::onReuseTabChanged (int state)
 {
 	ui_settings->clrFiltersCheckBox->setEnabled(state);
+}
+
+void MainWindow::ondtToolButton ()
+{
+	if (Connection * conn = m_server->findCurrentConnection())
+		conn->onInvalidateFilter();
 }
 
 void MainWindow::onPlotStateChanged (int state)

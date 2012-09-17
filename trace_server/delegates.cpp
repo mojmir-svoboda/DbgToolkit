@@ -20,6 +20,65 @@ void TableItemDelegate::paintContext (QPainter * painter, QStyleOptionViewItemV4
 	}
 }
 
+void TableItemDelegate::paintTime (QPainter * painter, QStyleOptionViewItemV4 & option4, QModelIndex const & index) const
+{
+	QVariant const value = index.data(Qt::DisplayRole);
+	if (value.isValid() && !value.isNull())
+	{
+		Connection const * conn = static_cast<Connection const *>(parent());
+
+		unsigned long long const ref_value = m_session_state.timeRefValue();
+		QVariant value = index.data(Qt::DisplayRole);
+
+		long long const ref_dt = value.toString().toULongLong() - ref_value;
+
+		option4.text.clear();
+		if (conn->getMainWindow()->dtEnabled())
+		{
+			if (ref_dt >= 0)
+			{
+				QAbstractItemModel const * model = conn->modelView();
+				
+				tlv::tag_t const tag = tlv::tag_max_value + 1;
+				int const col_idx = m_session_state.findColumn4Tag(tag);
+				
+				if (col_idx >= 0)
+				{
+					QVariant value;
+					if (QAbstractProxyModel const * proxy = conn->proxyView())
+					{
+						QModelIndex const idx = proxy->index(index.row(), col_idx, QModelIndex());
+						QModelIndex const curr = proxy->mapToSource(idx);
+						value = model->data(curr);
+					}
+					else
+					{
+						QModelIndex const idx = model->index(index.row(), col_idx, QModelIndex());
+						value = model->data(idx).toString();
+					}
+
+					if (value.isValid())
+					{
+						option4.text = value.toString();
+					}
+				}
+			}
+		}
+		else
+		{
+			if (ref_dt >= 0)
+				option4.text = tr("%1").arg(ref_dt);
+		}
+
+		QWidget const * widget = option4.widget;
+		if (widget)
+		{
+			QStyle * style = widget->style();
+			style->drawControl(QStyle::CE_ItemViewItem, &option4, painter, widget);
+		}
+	}
+}
+
 void TableItemDelegate::paintTokenized (QPainter * painter, QStyleOptionViewItemV4 & option4, QModelIndex const & index, QString const & separator, QString const & out_separator, int level) const
 {
 	QVariant value = index.data(Qt::DisplayRole);
@@ -71,9 +130,14 @@ void TableItemDelegate::paint (QPainter * painter, QStyleOptionViewItem const & 
 		int level = conn->getMainWindow()->cutNamespaceLevel();
 		paintTokenized(painter, option4, index, QString("[::]"), "::", level);
 	}
-	else if (index.column() == m_session_state.findColumn4Tag(tlv::tag_ctx))
+	else if (conn->sessionState().getDictCtx().m_names.size() && index.column() == m_session_state.findColumn4Tag(tlv::tag_ctx))
 	{
 		paintContext(painter, option4, index);
+	}
+	else if ((conn->sessionState().timeRefFromRow() > 0 || conn->getMainWindow()->dtEnabled())
+			&& index.column() == m_session_state.findColumn4Tag(tlv::tag_time))
+	{
+		paintTime(painter, option4, index);
 	}
 	else
 	{
@@ -127,15 +191,14 @@ void CtxDelegate::paint (QPainter * painter, QStyleOptionViewItem const & option
     QStyleOptionViewItemV4 option4 = option;
     initStyleOption(&option4, index);
 
-	if (index.column() == 0)
+	if (m_session_state.getDictCtx().m_names.size())
 	{
 		QVariant const value = index.data(Qt::DisplayRole);
 		if (value.isValid() && !value.isNull())
 		{
 			Dict const & dict = m_session_state.getDictCtx();
 
-			QString const name = dict.findNameFor(value.toString());
-			option4.text = name.isEmpty() ? value.toString() : name;
+			option4.text = dict.findNameFor(value.toString());
 			QWidget const * widget = option4.widget;
 			if (widget)
 			{
@@ -148,5 +211,4 @@ void CtxDelegate::paint (QPainter * painter, QStyleOptionViewItem const & option
 		QStyledItemDelegate::paint(painter, option4, index);
 	painter->restore();
 }
-
 

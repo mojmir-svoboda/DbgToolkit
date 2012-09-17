@@ -216,6 +216,7 @@ private slots:
 	void onShowHelp ();
 	void onDumpFilters ();
 	void onReuseTabChanged (int state);
+	void ondtToolButton ();
 	void onPlotStateChanged (int state);
 	void onPlotSaveAllButton ();
 	void onPlotsToolButton ();
