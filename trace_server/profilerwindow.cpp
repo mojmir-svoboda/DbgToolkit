@@ -20,33 +20,24 @@ using namespace plot;
 ProfilerWindow::ProfilerWindow (QMainWindow * window, QObject * parent, profiler::profiler_rvp_t * rvp)
 	: QObject(parent)
 	, m_window(window)
-	, m_tag_model(new TreeModel(this, ))
-	, m_scene(0)
+	, m_tag_model(0)
 	, m_rvp(0)
 	, m_tagWidget(0)
 {
 	qDebug("%s", __FUNCTION__);
 
-	m_tag_model = new TreeModel(this, m_prof_filters);
+	m_tag_model = new TreeModel(this, &m_prof_filters);
 	
-	m_scene = new QGraphicsScene();
-	m_view = new View(this, "View 0");
-	m_view->view()->setScene(m_scene);
-	mkDockWidget(m_window, m_view, QString("prof_detail"));
 
-	PickablePlot * plot = new PickablePlot(this, 0, QString("tmp")); // @FIXME untmp
-	mkDockWidget(m_window, plot, QString("prof_frames"));
+	BasePlot * plot = new BasePlot(this, 0, m_config, QString("tmp")); // @FIXME untmp
+	m_docks.mkDockWidget(m_window, plot, QString("prof_frames"));
 
 	m_tagWidget = new QTreeView();
 	m_tagWidget->setModel(new QStandardItemModel);
 	connect(m_tagWidget, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtTagTree(QModelIndex)));
 	QObject::connect(m_tagWidget, SIGNAL(expanded(QModelIndex const &)), this, SLOT(onFileExpanded(QModelIndex const &)));
 	QObject::connect(m_tagWidget, SIGNAL(collapsed(QModelIndex const &)), this, SLOT(onFileCollapsed(QModelIndex const &)));
-	mkDockWidget(m_window, m_tagWidget, QString("tags"));
-
-	m_window->setEnabled(true);
-	m_window->show();
-	m_window->setWindowTitle(tr("Profiler Demo"));
+	m_docks.mkDockWidget(m_window, m_tagWidget, QString("tags"));
 
 	connect(rvp->m_Source.get(), SIGNAL(incomingProfilerData(profiler::profiler_rvp_t *)), this, SLOT(incomingProfilerData(profiler::profiler_rvp_t *)), Qt::QueuedConnection);
 
@@ -147,6 +138,29 @@ void ProfilerWindow::onFileCollapsed (QModelIndex const & idx)
 	onFileColOrExp(idx, true);
 }
 
+GfxView ProfilerWindow::mkGfxView (int i)
+{
+	GfxView tmp;
+	tmp.m_scene = new QGraphicsScene();
+	tmp.m_view = new View(this, "View 0");
+	tmp.m_view->view()->setScene(tmp.m_scene);
+	tmp.m_wd = m_docks.mkDockWidget(m_window, tmp.m_view, QString("prof_detail"));
+	return tmp;
+}
+
+void ProfilerWindow::viewAt (int i)
+{
+	if (m_views.size() < i)
+	{
+		m_views.resize(i);
+	}
+
+	if (m_views.at(i)->m_scene == 0)
+	{
+		m_views[i] = mkGfxView(i);
+	}
+}
+
 void ProfilerWindow::incomingProfilerData (profiler::profiler_rvp_t * rvp)
 {
 	qDebug("%s", __FUNCTION__);
@@ -159,6 +173,15 @@ void ProfilerWindow::incomingProfilerData (profiler::profiler_rvp_t * rvp)
 		qDebug("consumed node: 0x%016x, tis_sz=%u", node, tis.size());
 		for (size_t t = 0, te = tis.size(); t < te; ++t)
 		{
+			GfxView & v = getViewAt(t);
+
+
+
+
+
+
+
+			}
 			blockinfos_t const & bis = tis[t];
 			qDebug("processing bi node: 0x%016x, tis_sz=%u bis_sz=%u", node, tis.size(), bis.size());
 			for (size_t b = 0, be = bis.size(); b < be; ++b)

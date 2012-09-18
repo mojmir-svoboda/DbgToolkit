@@ -199,6 +199,7 @@ bool Connection::handleProfileCommand (DecodedCommand const & cmd)
 		BlockInfo & bi = *m_profileInfo.m_pending_infos[tid_idx].back();
 		bi.m_time_bgn = time;
 		bi.m_tid = tid;
+		bi.m_tid_idx = tid_idx;
 		bi.m_msg = text;
 		bi.m_layer = m_profileInfo.m_pending_infos[tid_idx].size() - 1;
 		bi.m_frame = m_profileInfo.m_frame;

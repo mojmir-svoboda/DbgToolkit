@@ -155,7 +155,7 @@ void Connection::appendToTIDFilters (std::string const & item)
 	QStandardItem * child = findChildByText(root, qItem);
 	if (child == 0)
 	{
-		QList<QStandardItem *> row_items = addRow(qItem, Qt::Checked);
+		QList<QStandardItem *> row_items = addRow(qItem, true);
 		root->appendRow(row_items);
 	}
 }
