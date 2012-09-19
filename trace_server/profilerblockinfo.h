@@ -11,6 +11,7 @@ namespace profiler {
 	struct BlockInfo
 	{
 		unsigned m_frame;
+		unsigned m_tid_idx;
 		unsigned long long m_time_bgn;
 		unsigned long long m_time_end;
 		unsigned long long m_delta_t;
@@ -24,7 +25,7 @@ namespace profiler {
 		BlockInfo * m_parent;
 		QColor m_color;
 
-		BlockInfo () : m_frame(0), m_time_bgn(0), m_time_end(0), m_delta_t(0), m_tid(0), m_layer(0), m_parent(0), m_color(Qt::gray) { }
+		BlockInfo () : m_frame(0), m_tid_idx(0), m_time_bgn(0), m_time_end(0), m_delta_t(0), m_tid(0), m_layer(0), m_parent(0), m_color(Qt::gray) { }
 
 		void complete ()
 		{
