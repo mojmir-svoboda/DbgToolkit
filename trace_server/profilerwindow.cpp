@@ -27,7 +27,6 @@ ProfilerWindow::ProfilerWindow (QMainWindow * window, QObject * parent, profiler
 	qDebug("%s", __FUNCTION__);
 
 	m_tag_model = new TreeModel(this, &m_prof_filters);
-	
 
 	BasePlot * plot = new BasePlot(this, 0, m_config, QString("tmp")); // @FIXME untmp
 	m_docks.mkDockWidget(m_window, plot, QString("prof_frames"));
@@ -148,17 +147,18 @@ GfxView ProfilerWindow::mkGfxView (int i)
 	return tmp;
 }
 
-void ProfilerWindow::viewAt (int i)
+GfxView & ProfilerWindow::viewAt (size_t i)
 {
-	if (m_views.size() < i)
+	if (i >= m_views.size())
 	{
-		m_views.resize(i);
+		m_views.push_back(GfxView());
 	}
 
-	if (m_views.at(i)->m_scene == 0)
+	if (m_views[i].m_scene == 0)
 	{
 		m_views[i] = mkGfxView(i);
 	}
+	return m_views[i];
 }
 
 void ProfilerWindow::incomingProfilerData (profiler::profiler_rvp_t * rvp)
@@ -173,15 +173,8 @@ void ProfilerWindow::incomingProfilerData (profiler::profiler_rvp_t * rvp)
 		qDebug("consumed node: 0x%016x, tis_sz=%u", node, tis.size());
 		for (size_t t = 0, te = tis.size(); t < te; ++t)
 		{
-			GfxView & v = getViewAt(t);
+			GfxView & v = viewAt(t);
 
-
-
-
-
-
-
-			}
 			blockinfos_t const & bis = tis[t];
 			qDebug("processing bi node: 0x%016x, tis_sz=%u bis_sz=%u", node, tis.size(), bis.size());
 			for (size_t b = 0, be = bis.size(); b < be; ++b)
@@ -238,12 +231,12 @@ void ProfilerWindow::incomingProfilerData (profiler::profiler_rvp_t * rvp)
 
 				QGraphicsItem * item = new Bar(block, block.m_color, 0, 0, w, h, t, offs);
 				item->setPos(QPointF(block.m_x, y));
-				m_scene->addItem(item);
+				v.m_scene->addItem(item);
 				item->setToolTip(QString("frame=%1 thread=%2 %3 [%4 ms]").arg(block.m_frame).arg(t).arg(block.m_msg.c_str()).arg(block.m_dt / 1000.0f));
 
 				QGraphicsItem * titem = new BarText(block, block.m_color, 0, 0, w, h, t, offs);
 				titem->setPos(QPointF(block.m_x, y));
-				m_scene->addItem(titem);
+				v.m_scene->addItem(titem);
 			}
 
 			offs += m_max_layers[t];
@@ -253,6 +246,7 @@ void ProfilerWindow::incomingProfilerData (profiler::profiler_rvp_t * rvp)
 		int const space = g_spaceValue;
 		for (size_t t = 0, te = tis.size(); t < te; ++t)
 		{
+			GfxView & v = viewAt(t);
 			blockinfos_t const & bis = tis[t];
 
 			for (size_t b = 0, be = bis.size(); b < be; ++b)
@@ -271,11 +265,11 @@ void ProfilerWindow::incomingProfilerData (profiler::profiler_rvp_t * rvp)
 						p1.setWidth(0);
 						QGraphicsLineItem * ln_bg = new QGraphicsLineItem(block.m_x, block.m_y, block.m_parent->m_x, block.m_parent->m_y + g_heightValue);
 						ln_bg->setPen(p1);
-						m_scene->addItem(ln_bg);
+						v.m_scene->addItem(ln_bg);
 						QGraphicsLineItem * ln_nd = new QGraphicsLineItem(block.m_x + block.m_dt, block.m_y, block.m_parent->m_x + block.m_parent->m_dt, block.m_parent->m_y + g_heightValue);
 						p1.setColor(Qt::cyan);
 						ln_nd->setPen(p1);
-						m_scene->addItem(ln_nd);
+						v.m_scene->addItem(ln_nd);
 					}
 				}
 
@@ -284,12 +278,16 @@ void ProfilerWindow::incomingProfilerData (profiler::profiler_rvp_t * rvp)
 				QGraphicsLineItem * ln_end = new QGraphicsLineItem(block.m_x + block.m_dt, block.m_y, block.m_x + block.m_dt, block.m_y + g_heightValue);
 				ln_end->setPen(p1);
 				p1.setWidth(4);
-				m_scene->addItem(ln_end);
+				v.m_scene->addItem(ln_end);
 			}
 		} 
 
+		for (size_t t = 0, te = tis.size(); t < te; ++t)
+		{
+			GfxView & v = viewAt(t);
+			v.m_view->forceUpdate();
+		}
 	}
-	m_view->forceUpdate();
 }
 
 			/*	offs += max_layers[t] + 1;
