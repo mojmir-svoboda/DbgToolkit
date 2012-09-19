@@ -6,12 +6,18 @@
 #include "utils.h"
 #include "utils_qstandarditem.h"
 #include "filterproxy.h"
+#include "modelview.h"
 #include "qtsln/qtcolorpicker/qtcolorpicker.h"
 
 void Connection::onInvalidateFilter ()
 {
-	if (m_table_view_proxy)
+	if (isModelProxy())
 		static_cast<FilterProxyModel *>(m_table_view_proxy)->force_update();
+	else
+	{
+		ModelView * model = static_cast<ModelView *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
+		model->emitLayoutChanged();
+	}
 }
 
 void Connection::setFilterFile (int state)

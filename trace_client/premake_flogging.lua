@@ -5,6 +5,7 @@
 project "flogging"
 
 	is3rdProject = true; -- must be before projectIncludeFunction()
+	is3rdLoggingProject = true;
 
 	projectIncludeFunction() -- some common settings (we can't use "dofile" here - it is inefficient and it runs in different folder)
 	

@@ -20,14 +20,14 @@ using namespace plot;
 ProfilerWindow::ProfilerWindow (QMainWindow * window, QObject * parent, profiler::profiler_rvp_t * rvp)
 	: QObject(parent)
 	, m_window(window)
-	, m_tag_model(new TreeModel(this, ))
+	, m_tag_model(0)
 	, m_scene(0)
 	, m_rvp(0)
 	, m_tagWidget(0)
 {
 	qDebug("%s", __FUNCTION__);
-
-	m_tag_model = new TreeModel(this, m_prof_filters);
+/*
+	m_tag_model = new TreeModel(window, this, m_prof_filters);
 	
 	m_scene = new QGraphicsScene();
 	m_view = new View(this, "View 0");
@@ -61,7 +61,7 @@ ProfilerWindow::ProfilerWindow (QMainWindow * window, QObject * parent, profiler
 		QColor qcolor;
 		qcolor.setHsvF(hsv.h, hsv.s, hsv.v);
 		m_unique_colors.push_back(qcolor);
-	}
+	}*/
 }
 
 ProfilerWindow::~ProfilerWindow ()

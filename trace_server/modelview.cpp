@@ -125,13 +125,6 @@ QVariant ModelView::data (const QModelIndex &index, int role) const
 		}
 	}
 
-	/*if (role == Qt::TextAlignmentRole)
-	{
-		columns_align_t const & column_aligns = *m_session_state.getColumnsAlignTemplate();
-		E_Align const align = stringToAlign(column_aligns[index.column()].at(0).toAscii());
-		return static_cast<Qt::Alignment>(align);
-	}*/
-
 	return QVariant();
 }
 

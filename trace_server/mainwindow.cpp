@@ -400,7 +400,9 @@ void MainWindow::onReuseTabChanged (int state)
 void MainWindow::ondtToolButton ()
 {
 	if (Connection * conn = m_server->findCurrentConnection())
+	{
 		conn->onInvalidateFilter();
+	}
 }
 
 void MainWindow::onPlotStateChanged (int state)

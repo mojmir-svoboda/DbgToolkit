@@ -26,24 +26,29 @@ namespace {
 }
 #endif
 
-void EngineLogCallback::OnWriteToConsole (char const * pText, bool /*bNewLine*/)
+void EngineLogCallback::OnWriteToConsole (char const * msg, bool b)
+{
+	OnWriteToConsole(__FILE__, __LINE__, msg, b);
+}
+
+void EngineLogCallback::OnWriteToConsole (char const * file, int line, char const * msg, bool)
 {
 #if defined TRACE_ENABLED
 	E_TraceLevel traceLevel = e_Info;
 	for (int i = 0; i < sizeof(s_CallbackSplitInfos)/sizeof(CallbackSplitInfo); ++i)
 	{
-		if (strstr(pText, s_CallbackSplitInfos[i].m_Substring))
+		if (strstr(msg, s_CallbackSplitInfos[i].m_Substring))
 		{
 			traceLevel = s_CallbackSplitInfos[i].m_TraceLevel;
 			break;
 		}
 	}
-	TRACE_MSG(traceLevel, trace::CTX_Engine, "%s", pText);
+	trace::Write(traceLevel, trace::CTX_Engine, file, line, __FUNCTION__, "%s", msg);
 #else
-	WH_UNUSED_VARIABLE(pText);
+	WH_UNUSED_VARIABLE(msg);
 #endif
 }
 
-void EngineLogCallback::OnWriteToFile (char const * , bool /*bNewLine*/)
+void EngineLogCallback::OnWriteToFile (char const * , bool)
 { }
 
