@@ -79,10 +79,15 @@
  **/
 #	define PROFILE_MSG_VA(fmt, vaargs)	profile::WriteVA(fmt, vaargs);
 
-/**	@macro		PROFILE_ENTRY
+/**	@macro		PROFILE_SCOPE
  *	@brief		profiles scope
  **/
 #	define PROFILE_SCOPE                profile::ScopedProfile UNIQUE(profile_entry_guard_)
+
+/**	@macro		FRAME_PROFILE_SCOPE
+ *	@brief		profiles scope
+ **/
+#	define PROFILE_FRAME_SCOPE          profile::ScopedFrameProfile UNIQUE(profile_entry_guard_)
 
 	namespace profile {
 
@@ -127,6 +132,15 @@
 			PROFILE_API ScopedProfile (char const * fmt, ...);
 			PROFILE_API ~ScopedProfile ();
 		};
+		/**@class	ScopedFrameProfile
+		 * @brief	RAII class for profiling begin on construction and profiling end on destruction
+		 **/
+		struct ScopedFrameProfile
+		{
+			PROFILE_API ScopedFrameProfile (char const * fmt, ...);
+			PROFILE_API ~ScopedFrameProfile ();
+		};
+
 	}
 
 #else // no profiling at all

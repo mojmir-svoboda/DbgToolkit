@@ -1,5 +1,4 @@
 #include "cryengine_listener.h"
-#include <string>
 
 #include <CryCommon/platform.h>
 #include <CryCommon/platform_impl.h>

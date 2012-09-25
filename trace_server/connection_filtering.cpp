@@ -115,7 +115,11 @@ void Connection::onExcludeFileLine (QModelIndex const & row_index)
 	QString line = findString4Tag(tlv::tag_line, row_index);
 	qDebug("appending: %s:%s", file.toStdString().c_str(), line.toStdString().c_str());
 	std::string const fileline = file.toStdString() + "/" + line.toStdString();
-	m_file_model->stateToItem(fileline, Qt::Unchecked);
+	QModelIndex const result = m_file_model->stateToItem(fileline, Qt::Unchecked);
+	if (!result.isValid())
+	{
+		Q_ASSERT("nonexistent index");
+	}
 	onInvalidateFilter();
 }
 

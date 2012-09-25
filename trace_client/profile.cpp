@@ -68,6 +68,22 @@
 			WriteEnd();
 		}
 
+		ScopedFrameProfile::ScopedFrameProfile (char const * fmt, ...)
+		{
+			va_list args;
+			va_start(args, fmt);
+			WriteFrameBgnVA(fmt, args);
+			WriteBgnVA(fmt, args);
+			va_end(args);
+		}
+		
+		ScopedFrameProfile::~ScopedFrameProfile ()
+		{
+			WriteEnd();
+			WriteFrameEnd();
+		}
+
+
 		void PROFILE_API foo ()
 		{
 			WriteFrameBgn();
