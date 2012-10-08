@@ -120,6 +120,7 @@ namespace trace {
 				int const result = recv(g_Socket, buff, e_buff_sz, 0); //@TODO: better recv logic (this is sufficent for now)
 				if (result > 0)
 				{
+					cmd.Reset();
 					tlv::TLVDecoder d;
 					if (d.decode_header(buff, result, cmd))
 					{
