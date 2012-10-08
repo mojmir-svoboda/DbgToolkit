@@ -50,7 +50,7 @@ Qt::ItemFlags FilterProxyModel::flags (QModelIndex const & index) const
 
 QModelIndex FilterProxyModel::index (int row, int column, QModelIndex const & parent) const
 {
-	if (row < m_map_from_tgt.size()) // && column == reasonable
+	if (row < static_cast<int>(m_map_from_tgt.size())) // && column == reasonable
 		return QAbstractItemModel::createIndex(row, column, 0);
 	return QModelIndex();
 }
@@ -72,14 +72,14 @@ int FilterProxyModel::columnCount (QModelIndex const & parent) const
 QModelIndex FilterProxyModel::mapToSource (QModelIndex const & proxyIndex) const
 {
 	if (proxyIndex.isValid())
-		if (proxyIndex.row() < m_map_from_tgt.size())
+		if (proxyIndex.row() < static_cast<int>(m_map_from_tgt.size()))
 			return QAbstractItemModel::createIndex(m_map_from_tgt[proxyIndex.row()], proxyIndex.column(), 0);
 	return QModelIndex();
 }
 
 QModelIndex FilterProxyModel::mapFromSource (QModelIndex const & sourceIndex) const
 {
-	if (sourceIndex.isValid() && sourceIndex.row() < m_map_from_src.size())
+	if (sourceIndex.isValid() && sourceIndex.row() < static_cast<int>(m_map_from_src.size()))
 	{
 		//qDebug("FPM: %s src.row=%i, src.sz=%u", __FUNCTION__, sourceIndex.row(), m_map_from_src.size());
 		return QAbstractItemModel::createIndex(m_map_from_src[sourceIndex.row()], sourceIndex.column(), 0);

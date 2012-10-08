@@ -207,7 +207,7 @@ void Connection::appendToCtxWidgets (FilteredContext const & flt)
 	QStandardItem * child = findChildByText(root, flt.m_ctx_str);
 	if (child == 0)
 	{
-		QList<QStandardItem *> row_items = addRow(flt.m_ctx_str, Qt::Checked);
+		QList<QStandardItem *> row_items = addRow(flt.m_ctx_str, true);
 		row_items[0]->setCheckState(flt.m_is_enabled ? Qt::Checked : Qt::Unchecked);
 		root->appendRow(row_items);
 	}
@@ -225,7 +225,7 @@ void Connection::appendToCtxFilters (std::string const & item, bool checked)
 	QStandardItem * child = findChildByText(root, qItem);
 	if (child == 0)
 	{
-		QList<QStandardItem *> row_items = addRow(qItem, Qt::Checked);
+		QList<QStandardItem *> row_items = addRow(qItem, true);
 		row_items[0]->setCheckState(Qt::Checked);
 		root->appendRow(row_items);
 		sessionState().appendCtxFilter(qItem.toStdString());
