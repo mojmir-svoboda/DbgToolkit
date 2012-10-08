@@ -220,7 +220,7 @@ bool TreeModel::setData (QModelIndex const & index, QVariant const & value, int 
 		}
 		else if (state == Qt::PartiallyChecked)
 		{ }
-		emit invalidateFilter();
+		emit invalidateFilter(); // @TODO: perf problem - do not call recursively!
 	}
 	else
 		return false;
