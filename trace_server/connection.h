@@ -231,6 +231,7 @@ private:
 	LevelDelegate * m_lvl_delegate;
 	CtxDelegate * m_ctx_delegate;
 	QAbstractProxyModel * m_table_view_proxy;
+	QAbstractItemModel * m_table_view_src;
 
 	QMenu m_ctx_menu;
 	QAction * m_toggle_ref;

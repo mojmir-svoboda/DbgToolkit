@@ -39,6 +39,7 @@ Connection::Connection (QObject * parent)
 	, m_lvl_delegate(0)
 	, m_ctx_delegate(0)
 	, m_table_view_proxy(0)
+	, m_table_view_src(0)
 	, m_toggle_ref(0)
 	, m_hide_prev(0)
 	, m_exclude_fileline(0)
@@ -128,6 +129,18 @@ Connection::~Connection ()
 		m_main_window->getWidgetColorRegex()->setModel(0);
 	delete m_color_regex_model;
 	m_color_regex_model = 0;
+
+
+	if (m_table_view_proxy)
+	{
+		m_table_view_proxy->setSourceModel(0);
+		delete m_table_view_proxy;
+		m_table_view_proxy = 0;
+	}
+
+	m_table_view_widget->setModel(0);
+	delete m_table_view_src;
+	m_table_view_src = 0;
 
 	m_table_view_widget = 0;
 }

@@ -132,6 +132,7 @@ Connection * Server::createNewTableView ()
 
 	tableView->setObjectName(QString::fromUtf8("tableView"));
 	ModelView * model = new ModelView(tableView, connection);
+	connection->m_table_view_src = model;
 	disconnect(model, SIGNAL(rowsInserted(QModelIndex,int,int)), tableView->verticalHeader(), SLOT(sectionsInserted(QModelIndex,int,int)));
     //tableView->verticalHeader()->setFont(QFont(""));		// @TODO: into config
 	tableView->verticalHeader()->setDefaultSectionSize(14);	// @TODO: into config
