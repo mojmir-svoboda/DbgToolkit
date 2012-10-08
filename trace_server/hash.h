@@ -34,11 +34,11 @@ struct FnvHash<8>
 {
 	static std::size_t hash (char const * __first, std::size_t __length)
 	{
-		std::size_t __result = static_cast<std::size_t>(14695981039346656037ULL);
+		unsigned long long __result = static_cast<unsigned long long>(14695981039346656037ULL);
 		for (; __length > 0; --__length)
 		{
-			__result ^= static_cast<std::size_t>(*__first++);
-			__result *= static_cast<std::size_t>(1099511628211ULL);
+			__result ^= static_cast<unsigned long long>(*__first++);
+			__result *= static_cast<unsigned long long>(1099511628211ULL);
 		}
 		return __result;
 	}
