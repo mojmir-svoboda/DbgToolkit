@@ -171,19 +171,19 @@ bool Connection::handleProfileCommand (DecodedCommand const & cmd)
 	
 		size_t const from = m_last_flush_end_idx;
 		size_t const to = m_profileInfo.m_completed_frame_infos.size();
-		qDebug("flushing from %i to %i", from, to);
+		//qDebug("flushing from %i to %i", from, to);
 
 		for (size_t i = from; i < to; ++i)
 		{
-			qDebug("producing item=0x%016x %i, sz=%u", m_profileInfo.m_completed_frame_infos[i], i, m_profileInfo.m_completed_frame_infos[i]->size());
+			//qDebug("producing item=0x%016x %i, sz=%u", m_profileInfo.m_completed_frame_infos[i], i, m_profileInfo.m_completed_frame_infos[i]->size());
 			m_rvp.produce(m_profileInfo.m_completed_frame_infos[i]);
 		}
 
 		//dump
-		for (size_t i = from; i < to; ++i)
+		/*for (size_t i = from; i < to; ++i)
 			for (size_t j = 0, je = m_profileInfo.m_completed_frame_infos[i]->size(); j < je; ++j)
 				qDebug("producing item[%i]=0x%016x, tis=%u bis_sz=%u", i, m_profileInfo.m_completed_frame_infos[i], m_profileInfo.m_completed_frame_infos[i]->size(),  m_profileInfo.m_completed_frame_infos[i]->operator[](j).size());
-
+*/
 		m_last_flush_end_idx = to;
 		emit incomingProfilerData(&m_rvp);
 		return true;

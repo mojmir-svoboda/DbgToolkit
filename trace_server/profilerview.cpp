@@ -29,7 +29,7 @@ View::View (ProfilerWindow * mw, const QString & name, QWidget * parent)
 	int size = style()->pixelMetric(QStyle::PM_ToolBarIconSize);
 	QSize iconSize(size, size);
 
-	QToolButton * zoomInIcon = new QToolButton;
+/*	QToolButton * zoomInIcon = new QToolButton;
 	zoomInIcon->setAutoRepeat(true);
 	zoomInIcon->setAutoRepeatInterval(33);
 	zoomInIcon->setAutoRepeatDelay(0);
@@ -40,7 +40,7 @@ View::View (ProfilerWindow * mw, const QString & name, QWidget * parent)
 	zoomOutIcon->setAutoRepeatInterval(33);
 	zoomOutIcon->setAutoRepeatDelay(0);
 	zoomOutIcon->setIcon(QPixmap(":/zoomout.png"));
-	zoomOutIcon->setIconSize(iconSize);
+	zoomOutIcon->setIconSize(iconSize);*/
 	m_zoomSlider = new QSlider;
 	m_zoomSlider->setMinimum(0);
 	m_zoomSlider->setMaximum(500);
@@ -49,10 +49,10 @@ View::View (ProfilerWindow * mw, const QString & name, QWidget * parent)
 
 	// Zoom slider layout
 	QVBoxLayout *zoomSliderLayout = new QVBoxLayout;
-	zoomSliderLayout->addWidget(zoomInIcon);
+	//zoomSliderLayout->addWidget(zoomInIcon);
 	zoomSliderLayout->addWidget(m_zoomSlider);
-	zoomSliderLayout->addWidget(zoomOutIcon);
-
+	//zoomSliderLayout->addWidget(zoomOutIcon);
+/*
 	m_resetButton = new QToolButton;
 	m_resetButton->setText(tr("0"));
 	m_resetButton->setEnabled(false);
@@ -77,17 +77,17 @@ View::View (ProfilerWindow * mw, const QString & name, QWidget * parent)
 	labelLayout->addStretch();
 	labelLayout->addWidget(m_antialiasButton);
 	labelLayout->addWidget(m_openGlButton);
-
+*/
 	QGridLayout *topLayout = new QGridLayout;
-	topLayout->addLayout(labelLayout, 0, 0);
+	//topLayout->addLayout(labelLayout, 0, 0);
 	topLayout->addWidget(m_graphicsView, 1, 0);
 	topLayout->addLayout(zoomSliderLayout, 1, 1);
 
-	QSlider * m_heightSlider = new QSlider;
-	m_heightSlider->setMinimum(0);
-	m_heightSlider->setMaximum(400);
-	m_heightSlider->setValue(g_heightValue);
-	topLayout->addWidget(m_heightSlider, 1, 2);
+	//QSlider * m_heightSlider = new QSlider;
+	//m_heightSlider->setMinimum(0);
+	//m_heightSlider->setMaximum(400);
+	//m_heightSlider->setValue(g_heightValue);
+	//topLayout->addWidget(m_heightSlider, 1, 2);
 	//m_heightSlider->setTickPosition(QSlider::TicksRight);
 	//
 	m_frameSpinBox->setMinimum(0);
@@ -97,19 +97,19 @@ View::View (ProfilerWindow * mw, const QString & name, QWidget * parent)
 	//m_frameSpinBox->setMaximum(max);
 	//topLayout->addWidget(m_frameSpinBox, 0, 1);
 
-	topLayout->addWidget(m_resetButton, 2, 1);
+	//topLayout->addWidget(m_resetButton, 2, 1);
 	setLayout(topLayout);
 
-	connect(m_resetButton, SIGNAL(clicked()), this, SLOT(resetView()));
-	connect(m_zoomSlider, SIGNAL(valueChanged(int)), this, SLOT(setupMatrix()));
+	//connect(m_resetButton, SIGNAL(clicked()), this, SLOT(resetView()));
+	//connect(m_zoomSlider, SIGNAL(valueChanged(int)), this, SLOT(setupMatrix()));
 	connect(m_graphicsView->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(setResetButtonEnabled()));
 	connect(m_graphicsView->horizontalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(setResetButtonEnabled()));
-	connect(m_antialiasButton, SIGNAL(toggled(bool)), this, SLOT(toggleAntialiasing()));
-	connect(m_openGlButton, SIGNAL(toggled(bool)), this, SLOT(toggleOpenGL()));
-	connect(zoomInIcon, SIGNAL(clicked()), this, SLOT(zoomIn()));
-	connect(zoomOutIcon, SIGNAL(clicked()), this, SLOT(zoomOut()));
+	//connect(m_antialiasButton, SIGNAL(toggled(bool)), this, SLOT(toggleAntialiasing()));
+	//connect(m_openGlButton, SIGNAL(toggled(bool)), this, SLOT(toggleOpenGL()));
+	//connect(zoomInIcon, SIGNAL(clicked()), this, SLOT(zoomIn()));
+	//connect(zoomOutIcon, SIGNAL(clicked()), this, SLOT(zoomOut()));
 
-	connect(m_heightSlider, SIGNAL(valueChanged(int)), this, SLOT(changeHeight(int)));
+	//connect(m_heightSlider, SIGNAL(valueChanged(int)), this, SLOT(changeHeight(int)));
 
 	setupMatrix();
 }
@@ -118,11 +118,11 @@ QGraphicsView * View::view() const { return m_graphicsView; }
 
 void View::resetView()
 {
-	m_zoomSlider->setValue(250);
+	//m_zoomSlider->setValue(250);
 	setupMatrix();
 	m_graphicsView->ensureVisible(QRectF(0, 0, 0, 0));
 
-	m_resetButton->setEnabled(false);
+	//m_resetButton->setEnabled(false);
 }
 
 void View::changeHeight (int n)
@@ -139,7 +139,7 @@ void View::changeHeight (int n)
 
 void View::setResetButtonEnabled()
 {
-	m_resetButton->setEnabled(true);
+	//m_resetButton->setEnabled(true);
 }
 
 void View::setupMatrix()
@@ -156,13 +156,13 @@ void View::setupMatrix()
 void View::toggleOpenGL()
 {
 #ifndef QT_NO_OPENGL
-	m_graphicsView->setViewport(m_openGlButton->isChecked() ? new QGLWidget(QGLFormat(QGL::SampleBuffers)) : new QWidget);
+	//m_graphicsView->setViewport(m_openGlButton->isChecked() ? new QGLWidget(QGLFormat(QGL::SampleBuffers)) : new QWidget);
 #endif
 }
 
 void View::toggleAntialiasing()
 {
-	m_graphicsView->setRenderHint(QPainter::Antialiasing, m_antialiasButton->isChecked());
+	//m_graphicsView->setRenderHint(QPainter::Antialiasing, m_antialiasButton->isChecked());
 }
 
 void View::zoomIn()

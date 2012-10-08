@@ -44,10 +44,10 @@ namespace profiler {
 	private:
 		ProfilerWindow * m_mainWindow;
 		GraphicsView * m_graphicsView;
-		QLabel * m_label;
-		QToolButton * m_openGlButton;
-		QToolButton * m_antialiasButton;
-		QToolButton * m_resetButton;
+		//QLabel * m_label;
+		//QToolButton * m_openGlButton;
+		//QToolButton * m_antialiasButton;
+		//QToolButton * m_resetButton;
 		QSlider * m_zoomSlider;
 		QSpinBox * m_frameSpinBox;
 	};
