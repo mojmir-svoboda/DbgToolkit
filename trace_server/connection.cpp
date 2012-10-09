@@ -160,6 +160,12 @@ void Connection::onDisconnected ()
 		m_marked_for_close = true;
 		QTimer::singleShot(0, server, SLOT(onCloseMarkedTabs()));
 	}
+
+	for (dataplots_t::iterator it = m_dataplots.begin(), ite = m_dataplots.end(); it != ite; ++it)
+	{
+		DataPlot * dp = (*it);
+		dp->m_plot.stopUpdate();
+	}
 }
 
 void Connection::onTabTraceFocus ()

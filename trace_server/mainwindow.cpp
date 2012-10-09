@@ -82,6 +82,7 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode)
 	m_plots_dock = m_dock_mgr.mkDockWidget(this, m_plot_tree_view, QString("plot list"), Qt::LeftDockWidgetArea);
 	restoreDockWidget(m_plots_dock);
 	m_plots_dock->setVisible(false);
+	m_plots_dock->setFeatures(QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetFloatable);
 
 	QString const homedir = QDir::homePath();
 	m_config.m_appdir = homedir + "/.flogging";
