@@ -506,7 +506,7 @@
             </font>
            </property>
            <property name="text">
-            <string>Keep window on top (buggy)</string>
+            <string>Keep window on top</string>
            </property>
           </widget>
          </item>

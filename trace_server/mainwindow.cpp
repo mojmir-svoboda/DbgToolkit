@@ -1200,7 +1200,7 @@ void MainWindow::storeState ()
 
 	settings.setValue("geometry", saveGeometry());
 	settings.setValue("windowState", saveState());
-	settings.setValue("splitter", ui->splitter->saveState());
+	//settings.setValue("splitter", ui->splitter->saveState());
 	settings.setValue("autoScrollCheckBox", ui->autoScrollCheckBox->isChecked());
 	settings.setValue("filterFileCheckBox", ui->filterFileCheckBox->isChecked());
 	settings.setValue("buffCheckBox", ui->buffCheckBox->isChecked());
@@ -1279,8 +1279,8 @@ void MainWindow::loadState ()
 	ui_settings->filterPaneComboBox->setCurrentIndex(pane_val);
 	if (settings.contains("splitter"))
 	{
-		ui->splitter->restoreState(settings.value("splitter").toByteArray());
-		ui->splitter->setOrientation(pane_val ? Qt::Vertical : Qt::Horizontal);
+		//ui->splitter->restoreState(settings.value("splitter").toByteArray());
+		//ui->splitter->setOrientation(pane_val ? Qt::Vertical : Qt::Horizontal);
 	}
 
 	ui_settings->traceStatsCheckBox->setChecked(settings.value("trace_stats", true).toBool());
