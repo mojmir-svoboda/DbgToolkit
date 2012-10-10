@@ -46,7 +46,7 @@ inline void read_list_of_strings (QSettings & settings, char const * groupname, 
 	{
 		settings.setArrayIndex(i);
 		QString val = settings.value(groupvaluename).toString();
-		qDebug("read from registry: %s", val.toStdString().c_str());
+		//qDebug("read from registry: %s", val.toStdString().c_str());
 		lst.push_back(val);
 	}
 	settings.endArray();
