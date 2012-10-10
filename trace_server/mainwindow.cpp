@@ -209,16 +209,6 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode)
 	//ui_settings->clrFiltersCheckBox->setToolTip(tr("force clearing of filters when reuseTab is checked"));
 	//ui_settings->scopesCheckBox->setToolTip(tr("hides scopes if checked"));
 	ui_settings->onTopCheckBox->setToolTip(tr("keeps window on top if checked. have to restart program, sorry"));
-	ui->buffCheckBox->setToolTip(tr("turns on/off buffering of messages on client side."));
-	ui->presetComboBox->setToolTip(tr("selects and applies saved preset file filter"));
-	ui->presetAddButton->setToolTip(tr("saves current filter state as new preset"));
-	ui->presetRmButton->setToolTip(tr("removes currently selected preset"));
-	ui->presetSaveButton->setToolTip(tr("saves current filter state as currently selected preset"));
-	ui->presetResetButton->setToolTip(tr("clear current filter"));
-	ui->levelSpinBox->setToolTip(tr("adjusts debug level of client side"));
-	ui->qSearchComboBox->setToolTip(tr("search text in logged text"));
-	ui->qFilterLineEdit->setToolTip(tr("quick inclusive filter: adds string to regex filter as regex .*string.*"));
-	ui->qSearchColumnComboBox->setToolTip(tr("specifies column to search"));
 
 	m_status_label = new QLabel(m_server->getStatus());
 	QString human_version(g_Version);
