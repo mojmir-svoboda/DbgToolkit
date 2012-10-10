@@ -101,7 +101,7 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode)
 	setAnimated(false);
 
 	QSettings settings("MojoMir", "TraceServer");
-	bool const on_top = settings.value("onTopCheckBox", true).toBool();
+	bool const on_top = settings.value("onTopCheckBox", false).toBool();
 	if (on_top)
 	{
 		onOnTop(on_top);
