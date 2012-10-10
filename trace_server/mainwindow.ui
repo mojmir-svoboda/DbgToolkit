@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1083</width>
-    <height>302</height>
+    <width>912</width>
+    <height>320</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -23,6 +23,9 @@
     </property>
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout">
+      <property name="spacing">
+       <number>1</number>
+      </property>
       <item>
        <widget class="QCheckBox" name="autoScrollCheckBox">
         <property name="font">
@@ -61,7 +64,7 @@
          </font>
         </property>
         <property name="toolTip">
-         <string>displays plots</string>
+         <string>displays plots or not at all</string>
         </property>
         <property name="text">
          <string>plot</string>
@@ -71,7 +74,7 @@
       <item>
        <widget class="QToolButton" name="plotsToolButton">
         <property name="toolTip">
-         <string>plot manager</string>
+         <string>show/hide plot and curve manager</string>
         </property>
         <property name="text">
          <string>...</string>
@@ -88,7 +91,7 @@
        <widget class="QPushButton" name="plotSaveAllButton">
         <property name="minimumSize">
          <size>
-          <width>15</width>
+          <width>13</width>
           <height>0</height>
          </size>
         </property>
@@ -105,7 +108,7 @@
          </font>
         </property>
         <property name="toolTip">
-         <string>save plot layout</string>
+         <string>save widget layout</string>
         </property>
         <property name="text">
          <string>S</string>
@@ -167,7 +170,7 @@
         </property>
         <property name="minimumSize">
          <size>
-          <width>128</width>
+          <width>64</width>
           <height>0</height>
          </size>
         </property>
@@ -186,7 +189,7 @@
        <widget class="QPushButton" name="presetAddButton">
         <property name="maximumSize">
          <size>
-          <width>15</width>
+          <width>13</width>
           <height>16777215</height>
          </size>
         </property>
@@ -205,7 +208,7 @@
        <widget class="QPushButton" name="presetRmButton">
         <property name="maximumSize">
          <size>
-          <width>15</width>
+          <width>13</width>
           <height>16777215</height>
          </size>
         </property>
@@ -224,7 +227,7 @@
        <widget class="QPushButton" name="presetSaveButton">
         <property name="maximumSize">
          <size>
-          <width>15</width>
+          <width>13</width>
           <height>16777215</height>
          </size>
         </property>
@@ -294,6 +297,12 @@
       </item>
       <item>
        <widget class="QToolButton" name="dtToolButton">
+        <property name="maximumSize">
+         <size>
+          <width>14</width>
+          <height>16777215</height>
+         </size>
+        </property>
         <property name="toolTip">
          <string>switches time to time difference to previous line</string>
         </property>
@@ -345,6 +354,9 @@
           <pointsize>7</pointsize>
          </font>
         </property>
+        <property name="frame">
+         <bool>true</bool>
+        </property>
        </widget>
       </item>
       <item>
@@ -378,6 +390,9 @@
         <property name="editable">
          <bool>true</bool>
         </property>
+        <property name="maxVisibleItems">
+         <number>16</number>
+        </property>
        </widget>
       </item>
       <item>
@@ -403,6 +418,9 @@
         <property name="whatsThis">
          <string extracomment="hello1"/>
         </property>
+        <property name="maxVisibleItems">
+         <number>16</number>
+        </property>
        </widget>
       </item>
      </layout>
@@ -427,13 +445,19 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1083</width>
+     <width>912</width>
      <height>18</height>
     </rect>
    </property>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <widget class="QDockWidget" name="dockWidget">
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
    <property name="features">
     <set>QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable</set>
    </property>
@@ -455,7 +479,7 @@
       <widget class="QTabWidget" name="tabFilters">
        <property name="minimumSize">
         <size>
-         <width>0</width>
+         <width>128</width>
          <height>0</height>
         </size>
        </property>
