@@ -10,7 +10,7 @@ namespace plot {
 
 	BasePlot::curves_t::iterator BasePlot::mkCurve (QString const & subtag)
 	{
-		qDebug("%s this=0x%08x", __FUNCTION__, this);
+		//qDebug("%s this=0x%08x", __FUNCTION__, this);
 		CurveConfig * cc = 0;
 		bool found = false;
 		for (size_t i = 0, ie = m_config.m_ccfg.size(); i < ie; ++i)
