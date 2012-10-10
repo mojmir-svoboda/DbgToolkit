@@ -4,17 +4,23 @@
 #include <QMultiMap>
 class QCloseEvent;
 class QMainWindow;
+struct DockManager;
 
 struct DockWidget : public QDockWidget
 {
 	Q_OBJECT
+	friend struct DockManager;
 public:
 
-	explicit DockWidget (QString const & name, QMainWindow * const window);
+	explicit DockWidget (DockManager & mgr, QString const & name, QMainWindow * const window);
 	virtual void closeEvent (QCloseEvent * event);
 
 Q_SIGNALS:
 	void dockClosed (DockWidget * w);
+
+private:
+
+	DockManager & m_mgr;
 };
 
 

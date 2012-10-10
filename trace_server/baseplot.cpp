@@ -10,7 +10,6 @@ namespace plot {
 
 	BasePlot::curves_t::iterator BasePlot::mkCurve (QString const & subtag)
 	{
-		//qDebug("%s this=0x%08x", __FUNCTION__, this);
 		CurveConfig * cc = 0;
 		bool found = false;
 		for (size_t i = 0, ie = m_config.m_ccfg.size(); i < ie; ++i)
@@ -114,15 +113,15 @@ namespace plot {
 
 	BasePlot::~BasePlot ()
 	{
-		stopUpdate();
 		qDebug("%s this=0x%08x", __FUNCTION__, this);
+		stopUpdate();
 		for (curves_t::iterator it = m_curves.begin(), ite = m_curves.end(); it != ite; ++it)
 		{
 			Curve * curve = *it;
+			curve->m_curve->detach();
 			delete curve;
 		}
 		m_curves.clear();
-
 		disconnect(this, SIGNAL(customContextMenuRequested(QPoint const &)), this, SLOT(onShowPlotContextMenu(QPoint const &)));
 	}
 
@@ -215,15 +214,6 @@ namespace plot {
 			if (!n)
 				continue;
 
-			/*size_t from = 0;
-			int h = m_config.m_history_ln;
-			if (m_config.m_auto_scroll)
-			{
-				from = n > h ? n - h : 0;
-			}
-
-			size_t N = n > h ? h : n;
-			curve.m_curve->setRawSamples(&data.m_data_x[from], &data.m_data_y[from], N);*/
 			curve.m_curve->setRawSamples(&data.m_data_x[0], &data.m_data_y[0], n);
 		}
 
@@ -363,12 +353,6 @@ namespace plot {
 	}
 	void BasePlot::onZAutoScaleChanged (int state)
 	{
-		//Ui::SettingsPlot * ui = m_config_ui.ui();
-		//bool enabled = state == Qt::Checked ? false : true;
-		//ui->zFromDblSpinBox->setEnabled(enabled);
-		//ui->zToDblSpinBox->setEnabled(enabled);
-		//ui->zStepDblSpinBox->setEnabled(enabled);
-		//ui->zScaleComboBox->setEnabled(enabled);
 	}
 
 	void BasePlot::onSaveButton () { saveConfig(m_config, m_fname); }
