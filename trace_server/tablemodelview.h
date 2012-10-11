@@ -27,7 +27,7 @@
 
 class TableModelView : public QAbstractTableModel
 {
-	Q_OBJECT
+	//Q_OBJECT
 public:
 	explicit TableModelView (QObject * parent = 0);
 	~TableModelView ();
