@@ -9,11 +9,18 @@ namespace table {
 		, m_config(cfg)
 		, m_config_ui(cfg, this)
 		, m_fname(fname)
+		, m_modelView(0)
+		, m_widget(0)
 	{
 		qDebug("%s this=0x%08x", __FUNCTION__, this);
 
 		setContextMenuPolicy(Qt::CustomContextMenu);
 		connect(this, SIGNAL(customContextMenuRequested(QPoint const &)), this, SLOT(onShowTableContextMenu(QPoint const &)));
+
+		m_modelView = new TableModelView(this);
+		m_widget = new QTableView();
+		m_widget->setModel(m_modelView);
+		m_widget->show();
 
 		setConfigValues(m_config);
 		QTimer::singleShot(0, this, SLOT(onApplyButton()));

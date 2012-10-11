@@ -86,12 +86,10 @@ struct DataTable {
 	void onShow ()
 	{
 		m_wd->show();
-		//m_plot.onShowTables();
 	}
 	void onHide ()
 	{
 		m_wd->hide();
-		//m_plot.onHideTables();
 	}
 };
 
@@ -216,8 +214,8 @@ private:
 	bool handleShutdownCommand (DecodedCommand const & cmd);
 	bool handleDictionnaryCtx (DecodedCommand const & cmd);
 
-	void appendDataXY (QString const & tag, double x, double y);
-	void appendTableXY (QString const & tag, int x, int y);
+	void appendDataXY (double x, double y, QString const & tag);
+	void appendTableXY (int x, int y, QString const & tag);
 	bool appendToFilters (DecodedCommand const & cmd);
 	void appendToTIDFilters (std::string const & item);
 	void clearFilters (QStandardItem * node);

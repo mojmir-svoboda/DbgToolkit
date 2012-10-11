@@ -79,6 +79,7 @@ SET(trace_server_SOURCES
 	plottypes.cpp
 	basetable.cpp
 	tableconfig.cpp
+	tablemodelview.cpp
 	dock.cpp
 	)
 
@@ -123,6 +124,7 @@ SET(trace_server_HEADERS
 	basetable.h
 	tableconfig.h
 	tablectxmenu.h
+	tablemodelview.h
 	)
 
 SET(trace_server_UI 

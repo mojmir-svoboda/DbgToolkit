@@ -1,9 +1,11 @@
 #pragma once
 #include <QtGui/qwidget.h>
 #include <QColorDialog>
+#include <QTableView>
 #include "config.h"
 #include "tableconfig.h"
 #include "tablectxmenu.h"
+#include "tablemodelview.h"
 
 namespace table {
 
@@ -19,6 +21,8 @@ namespace table {
 
 		TableConfig & getConfig () { return m_config; }
 		TableConfig const & getConfig () const { return m_config; }
+
+		void appendTableXY (int x, int y, QString const & msg) { m_modelView->appendTableXY(x, y, msg); }
 
 	protected:
 		void timerEvent (QTimerEvent * e);
@@ -42,7 +46,8 @@ namespace table {
 		table::CtxTableConfig m_config_ui;
 		//QList<QColor> m_colors;
 		QString m_fname;
-		//std::vector<QwtPlotMarker *> m_markers;
+		TableModelView * m_modelView;
+		QTableView * m_widget;
 	};
 }
 

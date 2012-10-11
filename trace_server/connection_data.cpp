@@ -52,7 +52,7 @@ bool Connection::handleDataXYCommand (DecodedCommand const & cmd)
 			y = atof(cmd.tvs[i].m_val.c_str());
 	}
 
-	appendDataXY(QString::fromStdString(tag), x, y);
+	appendDataXY(x, y, QString::fromStdString(tag));
 	return true;
 }
 
@@ -77,7 +77,7 @@ bool Connection::saveConfigForPlot (plot::PlotConfig const & config, QString con
 	return saveConfig(config, fname);
 }
 
-void Connection::appendDataXY (QString const & msg_tag, double x, double y)
+void Connection::appendDataXY (double x, double y, QString const & msg_tag)
 {
 	QString tag = msg_tag;
 	int const slash_pos = tag.lastIndexOf(QChar('/'));

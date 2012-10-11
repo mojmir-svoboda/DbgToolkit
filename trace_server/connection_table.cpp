@@ -38,7 +38,7 @@ bool Connection::handleTableXYCommand (DecodedCommand const & cmd)
 			y = atoi(cmd.tvs[i].m_val.c_str());
 	}
 
-	appendTableXY(QString::fromStdString(tag), x, y);
+	appendTableXY(x, y, QString::fromStdString(tag));
 	return true;
 }
 
@@ -56,7 +56,7 @@ bool Connection::saveConfigForTable (table::TableConfig const & config, QString 
 	return saveConfig(config, fname);
 }
 
-void Connection::appendTableXY (QString const & msg_tag, int x, int y)
+void Connection::appendTableXY (int x, int y, QString const & msg_tag)
 {
 	QString tag = msg_tag;
 	int const slash_pos = tag.lastIndexOf(QChar('/'));
@@ -101,6 +101,7 @@ void Connection::appendTableXY (QString const & msg_tag, int x, int y)
 	}
 
 	DataTable & dp = **it;
+	dp.m_table.appendTableXY(x, y, subtag);
 
 }
 
