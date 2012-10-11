@@ -17,20 +17,15 @@ namespace table {
 		TableConfig & m_pcfg;
 		Ui::SettingsTable * ui_settingstable;
 		QDockWidget * m_settingstable;
-		QtColorPicker * m_curve_color;
-		QtColorPicker * m_symbol_color;
 
 		CtxTableConfig (TableConfig & cfg, QWidget * parent)
 			: m_pcfg(cfg)
 			, ui_settingstable(new Ui::SettingsTable)
 			, m_settingstable(new QDockWidget(parent))
-			, m_curve_color(new QtColorPicker(parent))
-			, m_symbol_color(new QtColorPicker(parent))
 		{
 			qDebug("%s this=0x%08x", __FUNCTION__, this);
 			m_settingstable->setVisible(false);
 			ui_settingstable->setupUi(m_settingstable);
-			//m_curve_color->setStandardColors();
 		}
 
 		~CtxTableConfig ()

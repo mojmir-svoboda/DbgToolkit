@@ -75,6 +75,19 @@
        </widget>
       </item>
       <item>
+       <widget class="QCheckBox" name="tablesCheckBox">
+        <property name="font">
+         <font>
+          <family>Verdana</family>
+          <pointsize>7</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>tbls</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QToolButton" name="plotsToolButton">
         <property name="toolTip">
          <string>show/hide plot and curve manager</string>

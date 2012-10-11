@@ -13,7 +13,7 @@ void Connection::onShowPlots ()
 	qDebug("%s", __FUNCTION__);
 	for (dataplots_t::iterator it = m_dataplots.begin(), ite = m_dataplots.end(); it != ite; ++it)
 	{
-		(*it)->onShowPlots();
+		(*it)->onShow();
 		m_main_window->restoreDockWidget((*it)->m_wd);
 	}
 	m_main_window->onPlotRestoreButton();
@@ -24,7 +24,7 @@ void Connection::onHidePlots ()
 	qDebug("%s", __FUNCTION__);
 	for (dataplots_t::iterator it = m_dataplots.begin(), ite = m_dataplots.end(); it != ite; ++it)
 	{
-		(*it)->onHidePlots();
+		(*it)->onHide();
 	}
 }
 
@@ -63,7 +63,7 @@ bool Connection::handleDataXYZCommand (DecodedCommand const & cmd)
  
 bool Connection::loadConfigForPlot (plot::PlotConfig & config, QString const & tag)
 {
-	QString const fname = getDataTagFileName(getConfig().m_appdir, sessionState().m_name, tag);
+	QString const fname = getDataTagFileName(getConfig().m_appdir, sessionState().m_name, "plot", tag);
 	qDebug("load tag file=%s", fname.toStdString().c_str());
 
 	return loadConfig(config, fname);
@@ -71,7 +71,7 @@ bool Connection::loadConfigForPlot (plot::PlotConfig & config, QString const & t
 
 bool Connection::saveConfigForPlot (plot::PlotConfig const & config, QString const & tag)
 {
-	QString const fname = getDataTagFileName(getConfig().m_appdir, sessionState().m_name, tag);
+	QString const fname = getDataTagFileName(getConfig().m_appdir, sessionState().m_name, "plot", tag);
 	qDebug("save tag file=%s", fname.toStdString().c_str());
 
 	return saveConfig(config, fname);
@@ -85,7 +85,7 @@ void Connection::appendDataXY (QString const & msg_tag, double x, double y)
 
 	QString subtag = msg_tag;
 	subtag.remove(0, slash_pos + 1);
-	QString const plot_name = sessionState().m_name + "/" + tag;
+	QString const plot_name = sessionState().m_name + "/plot/" + tag;
 
 	dataplots_t::iterator it = m_dataplots.find(tag);
 	if (it == m_dataplots.end())
@@ -93,7 +93,7 @@ void Connection::appendDataXY (QString const & msg_tag, double x, double y)
 		// new data plot
 		plot::PlotConfig template_config;
 		template_config.m_tag = tag;
-		QString const fname = getDataTagFileName(getConfig().m_appdir, sessionState().m_name, tag);
+		QString const fname = getDataTagFileName(getConfig().m_appdir, sessionState().m_name, "plot", tag);
 		if (loadConfigForPlot(template_config, tag))
 		{
 			qDebug("plot: loaded tag configuration from file=%s", fname.toStdString().c_str());
@@ -101,7 +101,7 @@ void Connection::appendDataXY (QString const & msg_tag, double x, double y)
 		
 		DataPlot * const dp = new DataPlot(this, template_config, fname);
 		it = m_dataplots.insert(tag, dp);
-		QModelIndex const item_idx = m_plots_model->insertItem(plot_name.toStdString());
+		QModelIndex const item_idx = m_data_model->insertItem(plot_name.toStdString());
 
 		dp->m_wd = m_main_window->m_dock_mgr.mkDockWidget(m_main_window, &dp->m_plot, plot_name);
 		if (m_main_window->plotEnabled())
@@ -128,7 +128,7 @@ void Connection::appendDataXY (QString const & msg_tag, double x, double y)
 	if (!curve)
 	{
 		curve = *dp.m_plot.mkCurve(subtag);
-		QModelIndex const item_idx = m_plots_model->insertItem(curve_name.toStdString());
+		QModelIndex const item_idx = m_data_model->insertItem(curve_name.toStdString());
 
 		plot::CurveConfig const * ccfg = 0;
 		dp.m_config.findCurveConfig(subtag, ccfg); // config is created by mkCurve
@@ -137,13 +137,13 @@ void Connection::appendDataXY (QString const & msg_tag, double x, double y)
 		{
 			bool const visible = ccfg ? ccfg->m_show : true;
 			dp.m_plot.showCurve(curve->m_curve, visible);
-			m_plots_model->setData(item_idx, QVariant(visible ? Qt::Checked : Qt::Unchecked), Qt::CheckStateRole);
+			m_data_model->setData(item_idx, QVariant(visible ? Qt::Checked : Qt::Unchecked), Qt::CheckStateRole);
 		}
 		else
 		{
 			bool const visible = ccfg ? ccfg->m_show : false;
 			dp.m_plot.showCurve(curve->m_curve, visible);
-			m_plots_model->setData(item_idx, QVariant(visible ? Qt::Checked : Qt::Unchecked), Qt::CheckStateRole);
+			m_data_model->setData(item_idx, QVariant(visible ? Qt::Checked : Qt::Unchecked), Qt::CheckStateRole);
 		}
 	}
 

@@ -160,6 +160,7 @@ void * do_something ( void * )
 		static size_t i = 0;
 		++i;
 		TRACE_MSG(trace::e_Info, trace::CTX_Default,  "Thread tick i=%u", i);
+		TRACE_TABLE(trace::e_Info, trace::CTX_Default, 0, -1, "hokus/%i|%i|%i", i, i*i, i*i*i);
 		something_useful();
 #if defined WIN32 || defined WIN64
 		Sleep(3000);

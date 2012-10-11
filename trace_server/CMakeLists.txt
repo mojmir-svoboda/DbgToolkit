@@ -56,6 +56,7 @@ SET(trace_server_SOURCES
 	connection_find.cpp
 	connection_stream.cpp
 	connection_data.cpp
+	connection_table.cpp
 	connection_setup.cpp
 	connection_filtering.cpp
 	sessionstate.cpp
@@ -76,6 +77,7 @@ SET(trace_server_SOURCES
 	config.cpp
 	plotconfig.cpp
 	plottypes.cpp
+	basetable.cpp
 	tableconfig.cpp
 	dock.cpp
 	)
@@ -127,6 +129,7 @@ SET(trace_server_UI
 	mainwindow.ui
 	settings.ui
 	settingsplot.ui
+	settingstable.ui
 	help.ui
 	profilermainwindow.ui
 	)

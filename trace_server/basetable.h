@@ -1,13 +1,13 @@
 #pragma once
 #include <QtGui/qwidget.h>
 #include <QColorDialog>
-#include "curves.h"
 #include "config.h"
-//#include "tablectxmenu.h"
+#include "tableconfig.h"
+#include "tablectxmenu.h"
 
 namespace table {
 
-	class BaseTable
+	class BaseTable : public QWidget
 	{
 		Q_OBJECT
 	public:
@@ -37,7 +37,7 @@ namespace table {
 		void onDefaultButton ();
 
 	protected:
-		//int m_timer;
+		int m_timer;
 		TableConfig & m_config;
 		table::CtxTableConfig m_config_ui;
 		//QList<QColor> m_colors;

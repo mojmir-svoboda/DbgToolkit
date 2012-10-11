@@ -79,7 +79,7 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode)
 
 	m_plot_tree_view = new TreeView(this);
 	m_plot_tree_view->setHidingLinearParents(false);
-	m_plots_dock = m_dock_mgr.mkDockWidget(this, m_plot_tree_view, QString("plot list"), Qt::LeftDockWidgetArea);
+	m_plots_dock = m_dock_mgr.mkDockWidget(this, m_plot_tree_view, QString("list"), Qt::LeftDockWidgetArea);
 	restoreDockWidget(m_plots_dock);
 	m_plots_dock->setVisible(false);
 	m_plots_dock->setFeatures(QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetFloatable);
@@ -163,6 +163,7 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode)
 	connect(ui->plotsCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onPlotStateChanged(int)));
 	connect(ui->plotSaveAllButton, SIGNAL(clicked()), this, SLOT(onPlotSaveAllButton()));
 	connect(ui->plotsToolButton, SIGNAL(clicked()), this, SLOT(onPlotsToolButton()));
+	connect(ui->tablesCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onTablesStateChanged(int)));
 	connect(m_plots_dock, SIGNAL(dockClosed()), this, SLOT(onPlotsClosed()));
 
 	connect(ui->buffCheckBox, SIGNAL(stateChanged(int)), m_server, SLOT(onBufferingStateChanged(int)));
@@ -349,6 +350,7 @@ int MainWindow::cutNamespaceLevel () const { return ui_settings->cutNamespaceSpi
 bool MainWindow::onTopEnabled () const { return ui_settings->onTopCheckBox->isChecked(); }
 bool MainWindow::filterEnabled () const { return ui->filterFileCheckBox->isEnabled() && ui->filterFileCheckBox->isChecked(); }
 bool MainWindow::plotEnabled () const { return ui->plotsCheckBox->isChecked(); }
+bool MainWindow::tableEnabled () const { return ui->plotsCheckBox->isChecked(); }
 bool MainWindow::reuseTabEnabled () const { return ui_settings->reuseTabCheckBox->isChecked(); }
 bool MainWindow::autoScrollEnabled () const { return !m_config.m_dump_mode && ui->autoScrollCheckBox->isChecked(); }
 bool MainWindow::buffEnabled () const { return ui->buffCheckBox->isChecked(); }
@@ -417,7 +419,7 @@ void MainWindow::onPlotsToolButton ()
 
 		if (Connection * conn = m_server->findCurrentConnection())
 		{
-			m_plot_tree_view->setModel(conn->m_plots_model);
+			m_plot_tree_view->setModel(conn->m_data_model);
 			connect(m_plot_tree_view, SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtPlotTree(QModelIndex)));
 		}
 	}
@@ -430,6 +432,18 @@ void MainWindow::onPlotsToolButton ()
 void MainWindow::onPlotsClosed ()
 {
 	ui->plotsToolButton->setChecked(false);
+}
+
+void MainWindow::onTablesStateChanged (int state)
+{
+	m_server->onHideTables();
+	if (state == Qt::Checked)
+	{
+		Connection * conn = m_server->findCurrentConnection();
+		if (!conn) return;
+
+		conn->onShowTables();
+	}
 }
 
 void MainWindow::onFilterFile (int state)

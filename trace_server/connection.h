@@ -77,11 +77,11 @@ typedef QMap<QString, DataPlot *> dataplots_t;
 struct DataTable {
 	Connection * m_parent;
 	QDockWidget * m_wd;
-	plot::TableConfig m_config;
+	table::TableConfig m_config;
 	QString m_fname;
-	plot::BaseTable m_table;
+	table::BaseTable m_table;
 
-	DataTable (Connection * parent, plot::TableConfig & config, QString const & fname);
+	DataTable (Connection * parent, table::TableConfig & config, QString const & fname);
 
 	void onShow ()
 	{
@@ -135,8 +135,8 @@ public:
 	void loadToRegexps (std::string const & filter_item, bool inclusive, bool enabled);
 	bool loadConfigForPlot (plot::PlotConfig & config, QString const & tag);
 	bool saveConfigForPlot (plot::PlotConfig const & config, QString const & tag);
-	bool loadConfigForTable (plot::TableConfig & config, QString const & tag);
-	bool saveConfigForTable (plot::TableConfig const & config, QString const & tag);
+	bool loadConfigForTable (table::TableConfig & config, QString const & tag);
+	bool saveConfigForTable (table::TableConfig const & config, QString const & tag);
 	bool filterEnabled () const { return m_main_window->filterEnabled(); }
 
 	QAbstractTableModel const * modelView () const { return static_cast<QAbstractTableModel const *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model()); }
@@ -216,6 +216,7 @@ private:
 	bool handleShutdownCommand (DecodedCommand const & cmd);
 	bool handleDictionnaryCtx (DecodedCommand const & cmd);
 
+	void appendDataXY (QString const & tag, double x, double y);
 	void appendTableXY (QString const & tag, int x, int y);
 	bool appendToFilters (DecodedCommand const & cmd);
 	void appendToTIDFilters (std::string const & item);
@@ -287,7 +288,8 @@ private:
 	QTcpSocket * m_tcpstream;
 	stats::StatsWindow * m_statswindow;
 	dataplots_t m_dataplots;
-	TreeModel * m_plots_model;
+	datatables_t m_datatables;
+	TreeModel * m_data_model;
 };
 
 inline DataPlot::DataPlot (Connection * parent, plot::PlotConfig & config, QString const & fname)
@@ -296,6 +298,16 @@ inline DataPlot::DataPlot (Connection * parent, plot::PlotConfig & config, QStri
 	, m_config(config)
 	, m_plot(parent, 0, m_config, fname)
 	, m_from(0)
+	, m_fname(fname)
+{
+	qDebug("%s this=0x%08x", __FUNCTION__, this);
+}
+
+inline DataTable::DataTable (Connection * parent, table::TableConfig & config, QString const & fname)
+	: m_parent(parent)
+	, m_wd(0)
+	, m_config(config)
+	, m_table(parent, 0, m_config, fname)
 	, m_fname(fname)
 {
 	qDebug("%s this=0x%08x", __FUNCTION__, this);

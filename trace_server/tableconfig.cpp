@@ -12,7 +12,7 @@
 #include <fstream>
 #include <sstream>
 
-namespace plot {
+namespace table {
 
 	bool loadConfig (TableConfig & config, QString const & fname)
 	{

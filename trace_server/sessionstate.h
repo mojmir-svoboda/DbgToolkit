@@ -200,8 +200,8 @@ private:
 	tid_filters_t m_tid_filters;
 	lvl_filters_t m_lvl_filters;
 
-	typedef tree_filter<TreeModelItem> plot_filters_t;
-	plot_filters_t m_plot_filters;
+	typedef tree_filter<TreeModelItem> data_filters_t;
+	data_filters_t m_data_filters;
 
 	QList<QColor> m_thread_colors;
 	QList<ColorizedText> m_colorized_texts;

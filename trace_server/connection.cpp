@@ -53,7 +53,7 @@ Connection::Connection (QObject * parent)
 	, m_datastream(0)
 	, m_tcpstream(0)
 	, m_statswindow(0)
-	, m_plots_model(0)
+	, m_data_model(0)
 {
 	qDebug("Connection::Connection() this=0x%08x", this);
 	m_copy_to_clipboard = new QAction("Copy", this);
@@ -63,7 +63,7 @@ Connection::Connection (QObject * parent)
     m_ctx_menu.addAction(m_toggle_ref);
     m_ctx_menu.addAction(m_exclude_fileline);
     m_ctx_menu.addAction(m_copy_to_clipboard);
-	m_plots_model = new TreeModel(this, &m_session_state.m_plot_filters);
+	m_data_model = new TreeModel(this, &m_session_state.m_data_filters);
 	m_lvl_delegate = new LevelDelegate(m_session_state, this);
 	m_ctx_delegate = new CtxDelegate(m_session_state, this);
 }

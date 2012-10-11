@@ -88,6 +88,8 @@ public slots:
 	void onShowPlots ();
 	void onClickedAtPlotTree (QModelIndex idx);
 	void onHidePlots ();
+	void onShowTables ();
+	void onHideTables ();
 
 	void onCloseMarkedTabs ();
 	void onCloseCurrentTab ();

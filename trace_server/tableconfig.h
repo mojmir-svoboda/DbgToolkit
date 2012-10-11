@@ -17,7 +17,7 @@ namespace table {
 
 		TableConfig ()
 			: m_tag()
-			: m_title()
+			, m_title()
 			, m_auto_scroll(true)
 			, m_show(true)
 			, m_unused_b1(false)
@@ -27,6 +27,7 @@ namespace table {
 		TableConfig (QString const & tag)
 			: m_tag(tag)
 			, m_auto_scroll(true)
+			, m_show(true)
 		{ }
 
 		template <class ArchiveT>

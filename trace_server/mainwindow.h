@@ -150,6 +150,7 @@ public:
 	bool reuseTabEnabled () const;
 	bool filterEnabled () const;
 	bool plotEnabled () const;
+	bool tableEnabled () const;
 	bool buffEnabled () const;
 	Qt::CheckState buffState () const;
 	bool clrFltEnabled () const;
@@ -222,6 +223,7 @@ private slots:
 	void onPlotsToolButton ();
 	void onPlotRestoreButton ();
 	void onPlotsClosed ();
+	void onTablesStateChanged (int state);
 	void onFilterFile (int state);
 	void onSettingsAppSelected (int idx, bool first_time = false);
 	void onClickedAtSettingPooftahButton ();

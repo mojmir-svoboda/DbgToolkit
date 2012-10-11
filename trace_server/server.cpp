@@ -183,16 +183,22 @@ void Server::incomingConnection (int socketDescriptor)
 void Server::onShowPlots ()
 {
 	for (connections_t::iterator it = m_connections.begin(), ite = m_connections.end(); it != ite; ++it)
-	{
 		it->second->onShowPlots();
-	}
 }
 void Server::onHidePlots ()
 {
 	for (connections_t::iterator it = m_connections.begin(), ite = m_connections.end(); it != ite; ++it)
-	{
 		it->second->onHidePlots();
-	}
+}
+void Server::onShowTables ()
+{
+	for (connections_t::iterator it = m_connections.begin(), ite = m_connections.end(); it != ite; ++it)
+		it->second->onShowTables();
+}
+void Server::onHideTables ()
+{
+	for (connections_t::iterator it = m_connections.begin(), ite = m_connections.end(); it != ite; ++it)
+		it->second->onHideTables();
 }
 
 // @TODO: hmm. this whole fn is.. unfortunately rushed. need to rethink
