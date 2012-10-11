@@ -302,6 +302,7 @@ bool Connection::tryHandleCommand (DecodedCommand const & cmd)
 		case tlv::cmd_log:			handleLogCommand(cmd); break;
 		case tlv::cmd_data_xy:		handleDataXYCommand(cmd); break;
 		case tlv::cmd_data_xyz:		handleDataXYZCommand(cmd); break;
+		case tlv::cmd_table_xy:		handleTableXYCommand(cmd); break;
 		case tlv::cmd_scope_entry:	handleLogCommand(cmd); break;
 		case tlv::cmd_scope_exit:	handleLogCommand(cmd); break;
 		case tlv::cmd_save_tlv:		handleSaveTLVCommand(cmd); break;

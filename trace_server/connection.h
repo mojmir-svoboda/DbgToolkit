@@ -32,6 +32,7 @@
 #include "filterproxy.h"
 #include "cmd.h"
 #include "baseplot.h"
+#include "basetable.h"
 #include "treeview.h"
 
 class Server;
@@ -44,6 +45,11 @@ class CtxDelegate;
 
 namespace stats { class StatsWindow; }
 
+template <class ConfigT, class ModelT>
+struct DockedData {
+	// TBD
+};
+
 struct DataPlot {
 	Connection * m_parent;
 	QDockWidget * m_wd;
@@ -54,12 +60,12 @@ struct DataPlot {
 
 	DataPlot (Connection * parent, plot::PlotConfig & config, QString const & fname);
 
-	void onShowPlots ()
+	void onShow ()
 	{
 		m_wd->show();
 		m_plot.onShowPlots();
 	}
-	void onHidePlots ()
+	void onHide ()
 	{
 		m_wd->hide();
 		m_plot.onHidePlots();
@@ -67,6 +73,29 @@ struct DataPlot {
 };
 
 typedef QMap<QString, DataPlot *> dataplots_t;
+
+struct DataTable {
+	Connection * m_parent;
+	QDockWidget * m_wd;
+	plot::TableConfig m_config;
+	QString m_fname;
+	plot::BaseTable m_table;
+
+	DataTable (Connection * parent, plot::TableConfig & config, QString const & fname);
+
+	void onShow ()
+	{
+		m_wd->show();
+		//m_plot.onShowTables();
+	}
+	void onHide ()
+	{
+		m_wd->hide();
+		//m_plot.onHideTables();
+	}
+};
+
+typedef QMap<QString, DataTable *> datatables_t;
 
 /**@class		Connection
  * @brief		represents incoming connection (or file stream)
@@ -106,6 +135,8 @@ public:
 	void loadToRegexps (std::string const & filter_item, bool inclusive, bool enabled);
 	bool loadConfigForPlot (plot::PlotConfig & config, QString const & tag);
 	bool saveConfigForPlot (plot::PlotConfig const & config, QString const & tag);
+	bool loadConfigForTable (plot::TableConfig & config, QString const & tag);
+	bool saveConfigForTable (plot::TableConfig const & config, QString const & tag);
 	bool filterEnabled () const { return m_main_window->filterEnabled(); }
 
 	QAbstractTableModel const * modelView () const { return static_cast<QAbstractTableModel const *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model()); }
@@ -143,6 +174,9 @@ public slots:
 	void onShowPlotContextMenu (QPoint const &);
 	void onShowPlots ();
 	void onHidePlots ();
+	void onShowTableContextMenu (QPoint const &);
+	void onShowTables ();
+	void onHideTables ();
 	void onExcludeFileLine ();
 	void onToggleRefFromRow ();
 	void onExcludeFileLine (QModelIndex const & row_index);
@@ -172,6 +206,7 @@ private:
 	int processStream (T *, T_Ret (T::*read_member_t)(T_Arg0, T_Arg1));
 	bool tryHandleCommand (DecodedCommand const & cmd);
 	bool handleLogCommand (DecodedCommand const & cmd);
+	bool handleTableXYCommand (DecodedCommand const & cmd);
 	bool handleDataXYCommand (DecodedCommand const & cmd);
 	bool handleDataXYZCommand (DecodedCommand const & cmd);
 	bool handleSetupCommand (DecodedCommand const & cmd);
@@ -181,7 +216,7 @@ private:
 	bool handleShutdownCommand (DecodedCommand const & cmd);
 	bool handleDictionnaryCtx (DecodedCommand const & cmd);
 
-	void appendDataXY (QString const & tag, double x, double y);
+	void appendTableXY (QString const & tag, int x, int y);
 	bool appendToFilters (DecodedCommand const & cmd);
 	void appendToTIDFilters (std::string const & item);
 	void clearFilters (QStandardItem * node);

@@ -51,7 +51,7 @@ namespace tlv {
 	static cmd_t const cmd_profile_end       = 0xEE;	/// send profiling end
 	static cmd_t const cmd_profile_frame_bgn = 0xED;	/// send profiling frame begin
 	static cmd_t const cmd_profile_frame_end = 0xEC;	/// send profiling frame end
-	static cmd_t const cmd_table             = 0xEB;	/// trace table
+	static cmd_t const cmd_table_xy          = 0xEB;	/// trace table xy
 
 	static cmd_t const cmd_shutdown          = 0xCF;	/// request to shut down server
 	static cmd_t const cmd_ping              = 0xCE;	/// ping
