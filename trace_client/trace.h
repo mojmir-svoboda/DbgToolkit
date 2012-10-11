@@ -29,7 +29,7 @@
 #		define TRACE_API __attribute__ ((__visibility__("default")))
 #	elif defined (WIN32)
 #		if defined TRACE_STATIC
-#			define TRACE_API 
+#			define TRACE_API
 #		elif defined TRACE_DLL
 #			define TRACE_API __declspec(dllexport)
 #		else
@@ -37,7 +37,7 @@
 #		endif
 #	elif defined (_XBOX)
 #		if defined TRACE_STATIC
-#			define TRACE_API 
+#			define TRACE_API:
 #		elif defined TRACE_DLL
 #			define TRACE_API __declspec(dllexport)
 #		else
@@ -126,6 +126,7 @@
 
 /**	@macro		TRACE_TABLE
  *	@brief		logging of tabular data
+ *	@see		trace::WriteTable
  **/
 #	define TRACE_TABLE	trace::WriteTable
 
@@ -212,6 +213,26 @@
 		TRACE_API void Write (level_t level, context_t context, char const * file, int line, char const * fn, char const * fmt, ...);
 #endif
 
+		/**@fn		WriteData
+		 * @brief	writes data to be plotted in server part
+		 *
+		 * @param[in]	x	float x-coordinate
+		 * @param[in]	y	float y-coordinate
+		 * @param[in]	fmt		message to server
+		 * @Note:
+		 *		the format determines how and where your data is plotted in the server
+		 *	counterpart. the message consists of two mandatory parts: plot_name and curve_name
+		 *	in the form
+		 *			plot_name/curve_name
+		 *
+		 * @Example:
+		 *		WriteData(lvl, ctx, 1.0f, 2.0f, "my_plot/curve1");
+		 *		WriteData(lvl, ctx, 1.0f, 6.0f, "my_plot/curve2");
+		 *		WriteData(lvl, ctx, 1.0f,-1.0f, "my_plot2/c");
+		 *		will add value 2 in curve1 and value in curve2, but they will be in the same
+		 *		plot "my_plot"
+		 *		third value of -1 will take place into another plot widget.
+		 */
 		TRACE_API void WriteData (level_t level, context_t context, float x, float y, char const * fmt, ...);
 		TRACE_API void WriteData (level_t level, context_t context, float x, float y, float z, char const * fmt, ...);
 
@@ -265,5 +286,8 @@
 #	define TRACE_SETBUFFERED(on)                    ((void)0)
 #	define TRACE_CODE(code)                         ((void)0)
 #	define TRACE_EXPORT_CSV(file)                   ((void)0)
-#	define TRACE_SET_CTX_DICT()						((void)0)
+#	define TRACE_SET_CTX_DICT()                     ((void)0)
+#	define TRACE_DATA_XY
+#	define TRACE_DATA_XYZ
+#	define TRACE_TABLE
 #endif // TRACE_ENABLED

@@ -54,8 +54,8 @@ namespace tlv {
 	static cmd_t const cmd_table             = 0xEB;	/// trace table
 
 	static cmd_t const cmd_shutdown          = 0xCF;	/// request to shut down server
-	static cmd_t const cmd_ping          	 = 0xCE;	/// ping
-	static cmd_t const cmd_pong          	 = 0xCD;	/// ping response
+	static cmd_t const cmd_ping              = 0xCE;	/// ping
+	static cmd_t const cmd_pong              = 0xCD;	/// ping response
 	static cmd_t const cmd_dict_ctx          = 0xCC;	/// context dictionnary (string, int)
 
 	enum e_Tags
