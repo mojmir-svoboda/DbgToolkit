@@ -204,6 +204,7 @@ void ModelView::appendCommand (QAbstractProxyModel * filter, tlv::StringCommand 
 	std::string line;
 	std::string func;
 	std::string time;
+	std::string msg;
 	for (size_t i = 0, ie = cmd.tvs.size(); i < ie; ++i)
 	{
 		tlv::tag_t const tag = cmd.tvs[i].m_tag;
@@ -220,6 +221,7 @@ void ModelView::appendCommand (QAbstractProxyModel * filter, tlv::StringCommand 
 		QString qval;
 		if (tag == tlv::tag_msg)
 		{
+			msg = val;
 			qval.append(qindent);
 		}
 
@@ -266,7 +268,7 @@ void ModelView::appendCommand (QAbstractProxyModel * filter, tlv::StringCommand 
 			if (indent > 1)
 				for(int j = 0; j < indent - 1; ++j)
 					qindent_old.append("  "); // @TODO: ugh
-			columns[column_index] = qindent_old + QString("{ ") + QString::fromStdString(func);
+			columns[column_index] = qindent_old + QString("{ ") + QString::fromStdString(msg);
 		}
 	}
 
@@ -275,7 +277,7 @@ void ModelView::appendCommand (QAbstractProxyModel * filter, tlv::StringCommand 
 		int column_index = m_session_state.findColumn4Tag(tlv::tag_msg);
 		if (column_index >= 0)
 		{
-			columns[column_index] = qindent + QString("} ") + QString::fromStdString(func);
+			columns[column_index] = qindent + QString("} ") + QString::fromStdString(msg);
 		}
 	}
 

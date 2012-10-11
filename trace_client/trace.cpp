@@ -42,9 +42,7 @@
 			va_end(args);
 		}
 
-		// scope logging
-		inline void WriteScope (ScopedLog::E_Type type, level_t level, context_t context, char const * file, int line, char const * fn);
-		
+		// plot-data logging
 		inline void WriteData_impl (level_t level, context_t context, float x, float y, char const * fmt, va_list args);
 		void WriteDataVA (level_t level, context_t context, float x, float y, char const * fmt, va_list args)
 		{
@@ -59,19 +57,33 @@
 			va_end(args);
 		}
 		
-		ScopedLog::ScopedLog (level_t level, context_t context, char const * file, int line, char const * fn)
-			: m_level(level), m_context(context), m_file(file), m_line(line), m_fn(fn)
+		// scope logging
+		inline void WriteScopeVA (ScopedLog::E_Type type, level_t level, context_t context, char const * file, int line, char const * fn, char const * fmt, va_list args);
+		inline void WriteScope (ScopedLog::E_Type type, level_t level, context_t context, char const * file, int line, char const * fn, char const * fmt, ...)
+		{
+			va_list args;
+			va_start(args, fmt);
+			WriteScopeVA(type, level, context, file, line, fn, fmt, args);
+			va_end(args);
+		}
+		ScopedLog::ScopedLog (level_t level, context_t context, char const * file, int line, char const * fn, char const * fmt, ...)
+			: m_level(level), m_context(context), m_file(file), m_line(line), m_fn(fn), m_start(sys::queryTime_ms())
 		{
 			if (RuntimeFilterPredicate(level, context))
-				WriteScope(e_Entry, level, context, file, line, fn);
+			{
+				va_list args;
+				va_start(args, fmt);
+				WriteScopeVA(e_Entry, level, context, file, line, fn, fmt, args);
+				va_end(args);
+			}
 		}
-		
 		ScopedLog::~ScopedLog ()
 		{
 			if (RuntimeFilterPredicate(m_level, m_context))
-				WriteScope(e_Exit, m_level, m_context, m_file, m_line, m_fn);
+				WriteScope(e_Exit, m_level, m_context, m_file, m_line, m_fn, "dt=%llu", sys::queryTime_ms() - m_start);
 		}
 
+		// context dictionnary
 		inline void SetCustomUserDictionnary (CtxDictPair const * ptr, size_t n);
 		void SetCustomUserDictionnary ()
 		{

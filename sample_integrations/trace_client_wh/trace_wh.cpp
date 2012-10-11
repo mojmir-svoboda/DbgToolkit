@@ -133,6 +133,7 @@ void my_custom_vaarg_fn (char const * fmt, ...)
 void something_useful_too ()
 {
 	TRACE_SCOPE(trace::e_Info, trace::CTX_Default);
+	TRACE_SCOPE_MSG(trace::e_Info, trace::CTX_Default, "%s %s", "nu", "pagadi");
 	TRACE_MSG(trace::e_Info, trace::CTX_Default,  "%s", "Worker thread issues some another annoying message");
 	for (int i = 0; i < 12; ++i)
 		TRACE_MSG(trace::e_Info, trace::CTX_Default,  "%s %i", "ble :)", i);

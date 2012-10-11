@@ -128,8 +128,14 @@
 /**	@macro		TRACE_SCOPE
  *	@brief		logs "entry to" and "exit from" scope
  **/
-#	define TRACE_SCOPE(level, context)	\
-		trace::ScopedLog UNIQUE(entry_guard_)(static_cast<trace::level_t>(level), context, __FILE__, __LINE__, __FUNCTION__)
+#	define TRACE_SCOPE_MSG(level, context, fmt, ...)	\
+		trace::ScopedLog UNIQUE(entry_guard_)(static_cast<trace::level_t>(level), context, __FILE__, __LINE__, __FUNCTION__, fmt, __VA_ARGS__)
+
+/**	@macro		TRACE_SCOPE
+ *	@brief		logs "entry to" and "exit from" scope
+ **/
+#	define TRACE_SCOPE(level, context)	TRACE_SCOPE_MSG(level, context, "%s", __FUNCTION__)
+
 
 /**	@macro		TRACE_CODE
  *	@brief		code that is executed only when trace is enabled
@@ -215,8 +221,9 @@
 			char const * m_file;
 			int m_line;
 			char const * m_fn;
+			unsigned long long m_start;
 
-			ScopedLog (level_t level, context_t context, char const * file, int line, char const * fn);
+			ScopedLog (level_t level, context_t context, char const * file, int line, char const * fn, char const * fmt, ...);
 			~ScopedLog ();
 		};
 	}

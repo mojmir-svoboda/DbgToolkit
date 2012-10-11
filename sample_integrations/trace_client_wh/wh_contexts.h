@@ -11,9 +11,27 @@ namespace trace {
 
 	typedef uint64_t context_t;
 
-	static context_t const CTX_Default = (1 << 0);
-	static context_t const CTX_Render  = (1 << 1);
-	static context_t const CTX_Other   = (1 << 2);
-	// ...
+	// @NOTE: all the context types have moved into TraceContexts.inc
+
+#define DRY(a,b) static context_t const a = b;
+#	include "TraceContexts.inc"
+#undef DRY
+
+	struct CtxDictPair {
+		char const * first;
+		context_t second;
+	};
+
+	inline size_t getContextDictionnary (CtxDictPair const * & out)
+	{
+		static CtxDictPair s_dict[] = {
+#define DRY(a,b) { #a , b },
+#	include "TraceContexts.inc"
+#undef DRY
+		};
+		out = s_dict;
+		return sizeof(s_dict) / sizeof(*s_dict);
+	}
 }
+
 
