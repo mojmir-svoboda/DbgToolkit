@@ -47,11 +47,11 @@ namespace tlv {
 	static cmd_t const cmd_setup_ack         = 0xF2;	/// acknowledge setup command
 	static cmd_t const cmd_data_xy           = 0xF1;	/// draw data xy
 	static cmd_t const cmd_data_xyz          = 0xF0;	/// draw data xyz
-                                             
 	static cmd_t const cmd_profile_bgn       = 0xEF;	/// send profiling begin
 	static cmd_t const cmd_profile_end       = 0xEE;	/// send profiling end
 	static cmd_t const cmd_profile_frame_bgn = 0xED;	/// send profiling frame begin
 	static cmd_t const cmd_profile_frame_end = 0xEC;	/// send profiling frame end
+	static cmd_t const cmd_table             = 0xEB;	/// trace table
 
 	static cmd_t const cmd_shutdown          = 0xCF;	/// request to shut down server
 	static cmd_t const cmd_ping          	 = 0xCE;	/// ping

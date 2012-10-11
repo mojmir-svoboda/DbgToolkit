@@ -84,12 +84,10 @@
  *	@brief		sets application name that will be sent to server to identify
  **/
 #	define TRACE_APPNAME(name) trace::SetAppName(name)
-
 /**	@macro		TRACE_CONNECT
  *	@brief		connects to server and sends application name to server
  **/
 #	define TRACE_CONNECT() trace::Connect()
-
 /**	@macro		TRACE_DISCONNECT
  *	@brief		disconnects from server
  **/
@@ -99,11 +97,11 @@
  *	@brief		switch level to another value
  **/
 #	define TRACE_SETLEVEL(n) trace::SetRuntimeLevel(n)
-
 /**	@macro		TRACE_SETBUFFERED
  *	@brief		switch between buffered/unbuffered
  **/
 #	define TRACE_SETBUFFERED(n) trace::SetRuntimeBuffering(n)
+
 
 /**	@macro		TRACE_MSG
  *	@brief		logging of the form TRACE_MSG(lvl, ctx, fmt, ...)
@@ -117,20 +115,27 @@
 		trace::WriteVA(static_cast<trace::level_t>(level), context, __FILE__, __LINE__, __FUNCTION__, fmt, vaargs)
 
 /**	@macro		TRACE_DATA_XY
- *	@brief		logging of the form 
+ *	@brief		logging of 2d xy data
  **/
 #	define TRACE_DATA_XY	trace::WriteData
 /**	@macro		TRACE_DATA_XYZ
- *	@brief		logging of the form TRACE_MSG_VA(lvl, ctx, fmt, va_list)
+ *	@brief		logging of 3d xyz data
  **/
 #	define TRACE_DATA_XYZ	trace::WriteData
 
-/**	@macro		TRACE_SCOPE
+
+/**	@macro		TRACE_TABLE
+ *	@brief		logging of tabular data
+ **/
+#	define TRACE_TABLE	trace::WriteTable
+
+
+/**	@macro		TRACE_SCOPE_MSG
  *	@brief		logs "entry to" and "exit from" scope
+ *	@param[in]	fmt			formatted message appended to the scope
  **/
 #	define TRACE_SCOPE_MSG(level, context, fmt, ...)	\
 		trace::ScopedLog UNIQUE(entry_guard_)(static_cast<trace::level_t>(level), context, __FILE__, __LINE__, __FUNCTION__, fmt, __VA_ARGS__)
-
 /**	@macro		TRACE_SCOPE
  *	@brief		logs "entry to" and "exit from" scope
  **/
@@ -226,6 +231,27 @@
 			ScopedLog (level_t level, context_t context, char const * file, int line, char const * fn, char const * fmt, ...);
 			~ScopedLog ();
 		};
+
+		/**@fn		Write table to log
+		 * @brief	writes tavle to log of the form (fmt, ...)
+		 *
+		 * @param[in]	x	x-coordinate of the table. -1, 0, ...X
+		 * @param[in]	y	y-coordinate of the table  -1, 0, ...Y
+		 * Note:
+		 *		-1 is special value of the x,y coordinates.
+		 *		-1 means append
+		 *	if x or y >= 0 appropriate cell is found (created if not found) and value
+		 *  is set onto that cell
+		 *
+		 * @param[in]	fmt format for the value to be written 
+		 * Note:
+		 *	Message can set values more cells at once separating them by the
+		 *	colum. For example:
+		 *		WriteTable(lvl, ctx, 0, -1, "%i|%i|%i|0", a, b, c);
+		 *	sets a,b,c to columns of new row and 0 to 4th column
+		 *
+		 **/
+		TRACE_API void WriteTable (level_t level, context_t context, int x, int y, char const * fmt, ...);
 	}
 
 #else // no tracing at all

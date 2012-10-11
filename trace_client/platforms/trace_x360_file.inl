@@ -57,25 +57,7 @@ namespace trace {
 	{
 		file::CloseFile();
 	}
-
-	inline void WriteLog (level_t level, context_t context, char const * file, int line, char const * fn, char const * fmt, va_list args)
-	{
-		msg_t msg;
-		encode_log(msg, level, context, file, line, fn, fmt, args);
-		file::WriteToFile(msg.m_data, msg.m_length);
-	}
-
-	inline void WriteStr (level_t level, context_t context, char const * file, int line, char const * fn, char const * str)
-	{
-		msg_t msg;
-		encode_str(msg, level, context, file, line, fn, str);
-		file::WriteToFile(msg.m_data, msg.m_length);
-	}
-
-	inline void WriteScope (ScopedLog::E_Type type, level_t level, context_t context, char const * file, int line, char const * fn)
-	{
-		msg_t msg;
-		encode_scope(msg, type == ScopedLog::e_Entry ? tlv::cmd_scope_entry : tlv::cmd_scope_exit , level, context, file, line, fn);
-		file::WriteToFile(msg.m_data, msg.m_length);
-	}
 }
+
+#include "write_fns.inl"
+

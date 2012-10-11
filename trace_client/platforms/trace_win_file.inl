@@ -137,24 +137,7 @@ namespace trace {
 		file::g_ThreadSend.WaitForTerminate();
 		file::g_ThreadSend.Close();
 	}
-
-	inline void WriteLog (level_t level, context_t context, char const * file, int line, char const * fn, char const * fmt, va_list args)
-	{
-		sys::Message & msg = file::acquire_msg_buffer();
-		msg.WriteLock();
-		{
-			encode_log(msg, level, context, file, line, fn, fmt, args);
-		}
-		msg.WriteUnlockAndDirty();
-	}
-
-	inline void WriteScope (ScopedLog::E_Type type, level_t level, context_t context, char const * file, int line, char const * fn)
-	{
-		sys::Message & msg = file::acquire_msg_buffer();
-		msg.WriteLock();
-		{
-			encode_scope(msg, type == ScopedLog::e_Entry ? tlv::cmd_scope_entry : tlv::cmd_scope_exit, level, context, file, line, fn);
-		}
-		msg.WriteUnlockAndDirty();
-	}
 }
+
+#include "write_fns.inl"
+

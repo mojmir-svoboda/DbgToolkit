@@ -10,7 +10,7 @@
 	namespace trace {
 
 		level_t      g_RuntimeLevel       = static_cast<level_t>(e_max_trace_level);
-		context_t    g_RuntimeContextMask = ~(0U);
+		context_t    g_RuntimeContextMask = ~(0ULL);
 		char const * g_AppName            = "trace_client";
 		bool         g_RuntimeBuffering   = true;
 
@@ -57,6 +57,21 @@
 			va_end(args);
 		}
 		
+		// table-data logging
+		inline void WriteTable_impl (level_t level, context_t context, int x, int y, char const * fmt, va_list args);
+		void WriteTableVA (level_t level, context_t context, int x, int y, char const * fmt, va_list args)
+		{
+			if (RuntimeFilterPredicate(level, context))
+				WriteTable_impl(level, context, x, y, fmt, args);
+		}
+		void WriteTable (level_t level, context_t context, int x, int y, char const * fmt, ...)
+		{
+			va_list args;
+			va_start(args, fmt);
+			WriteTableVA(level, context, x, y, fmt, args);
+			va_end(args);
+		}
+	
 		// scope logging
 		inline void WriteScopeVA (ScopedLog::E_Type type, level_t level, context_t context, char const * file, int line, char const * fn, char const * fmt, va_list args);
 		inline void WriteScope (ScopedLog::E_Type type, level_t level, context_t context, char const * file, int line, char const * fn, char const * fmt, ...)
