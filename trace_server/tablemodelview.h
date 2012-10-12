@@ -51,5 +51,6 @@ private:
 	typedef std::vector<QString> columns_t;
 	typedef std::vector<columns_t> rows_t;
 	rows_t m_rows;
+	int m_columnCount;
 };
 

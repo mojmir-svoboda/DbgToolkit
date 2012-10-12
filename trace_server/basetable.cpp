@@ -4,13 +4,12 @@
 namespace table {
 
 	BaseTable::BaseTable (QObject * oparent, QWidget * wparent, TableConfig & cfg, QString const & fname)
-		: QWidget(wparent)
+		: QTableView(wparent)
 		, m_timer(-1)
 		, m_config(cfg)
 		, m_config_ui(cfg, this)
 		, m_fname(fname)
 		, m_modelView(0)
-		, m_widget(0)
 	{
 		qDebug("%s this=0x%08x", __FUNCTION__, this);
 
@@ -18,10 +17,7 @@ namespace table {
 		connect(this, SIGNAL(customContextMenuRequested(QPoint const &)), this, SLOT(onShowTableContextMenu(QPoint const &)));
 
 		m_modelView = new TableModelView(this);
-		m_widget = new QTableView();
-		m_widget->setModel(m_modelView);
-		m_widget->show();
-
+		setModel(m_modelView);
 		setConfigValues(m_config);
 		QTimer::singleShot(0, this, SLOT(onApplyButton()));
 	}

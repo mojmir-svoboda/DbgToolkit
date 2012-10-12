@@ -92,6 +92,9 @@ void Connection::appendTableXY (int x, int y, QString const & msg_tag)
 				m_main_window->restoreDockWidget(dp->m_wd);
 				m_main_window->onPlotRestoreButton();
 			}
+			//@TODO: hotfix
+				dp->m_table.show();
+				dp->m_wd->show();
 		}
 		else
 		{
@@ -103,5 +106,7 @@ void Connection::appendTableXY (int x, int y, QString const & msg_tag)
 	DataTable & dp = **it;
 	dp.m_table.appendTableXY(x, y, subtag);
 
+				dp.m_table.show();
+				dp.m_wd->show();
 }
 

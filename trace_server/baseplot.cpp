@@ -125,12 +125,12 @@ namespace plot {
 		disconnect(this, SIGNAL(customContextMenuRequested(QPoint const &)), this, SLOT(onShowPlotContextMenu(QPoint const &)));
 	}
 
-	void BasePlot::onShowPlots ()
+	void BasePlot::onShow ()
 	{
 		show();
 	}
 
-	void BasePlot::onHidePlots ()
+	void BasePlot::onHide ()
 	{
 		hide();
 	}
@@ -228,12 +228,12 @@ namespace plot {
 		replot();
 	}
 
-	void BasePlot::onHidePlotContextMenu ()
+	void BasePlot::onHideContextMenu ()
 	{
 		m_config_ui.onHidePlotContextMenu();
 	}
 
-	void BasePlot::onShowPlotContextMenu (QPoint const & pos)
+	void BasePlot::onShowContextMenu (QPoint const & pos)
 	{
 		qDebug("%s this=0x%08x", __FUNCTION__, this);
 		QRect widgetRect = geometry();

@@ -44,10 +44,10 @@ namespace plot {
 	public Q_SLOTS:
 		void showCurve (QwtPlotItem * item, bool on);
 
-		void onShowPlots ();
-		void onHidePlots ();
-		void onHidePlotContextMenu ();
-		void onShowPlotContextMenu (QPoint const & pos);
+		void onShow ();
+		void onHide ();
+		void onHideContextMenu ();
+		void onShowContextMenu (QPoint const & pos);
 		void setConfigValues (PlotConfig const & pcfg);
 		void onXAutoScaleChanged (int state);
 		void onYAutoScaleChanged (int state);

@@ -10,7 +10,7 @@
 	namespace trace {
 
 		level_t      g_RuntimeLevel       = static_cast<level_t>(e_max_trace_level);
-		context_t    g_RuntimeContextMask = ~(0ULL);
+		context_t    g_RuntimeContextMask = ~(0U);
 		char const * g_AppName            = "trace_client";
 		bool         g_RuntimeBuffering   = true;
 

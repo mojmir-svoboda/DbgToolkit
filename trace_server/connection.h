@@ -63,12 +63,12 @@ struct DataPlot {
 	void onShow ()
 	{
 		m_wd->show();
-		m_plot.onShowPlots();
+		m_plot.onShow();
 	}
 	void onHide ()
 	{
 		m_wd->hide();
-		m_plot.onHidePlots();
+		m_plot.onHide();
 	}
 };
 
@@ -86,10 +86,12 @@ struct DataTable {
 	void onShow ()
 	{
 		m_wd->show();
+		m_table.onShow();
 	}
 	void onHide ()
 	{
 		m_wd->hide();
+		m_table.onHide();
 	}
 };
 

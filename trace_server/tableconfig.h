@@ -25,10 +25,10 @@ namespace table {
 			, m_unused_b1(false)
 			, m_unused_b2(false)
 		{
-			m_hhdr.reserve(32);
+	/*		m_hhdr.reserve(32);
 			m_hsize.reserve(32);
 			m_vhdr.reserve(32);
-			m_vsize.reserve(32);
+			m_vsize.reserve(32);*/
 		}
 
 		TableConfig (QString const & tag)

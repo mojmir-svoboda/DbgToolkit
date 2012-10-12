@@ -160,7 +160,6 @@ void * do_something ( void * )
 		static size_t i = 0;
 		++i;
 		TRACE_MSG(trace::e_Info, trace::CTX_Default,  "Thread tick i=%u", i);
-		TRACE_TABLE(trace::e_Info, trace::CTX_Default, 0, -1, "hokus/%i|%i|%i", i, i*i, i*i*i);
 		something_useful();
 #if defined WIN32 || defined WIN64
 		Sleep(3000);
@@ -246,6 +245,12 @@ int main ()
 		static size_t i = 0;
 		++i;
 		TRACE_MSG(trace::e_Info, trace::CTX_Default,  "Some another annoying message i=%u from main thread", i);
+		TRACE_TABLE(trace::e_Info, trace::CTX_Default, 0, -1, "hokus/%i|%i|%i", i, i*i, i*i*i);
+		//TRACE_TABLE(trace::e_Info, trace::CTX_Default, 1, -1, "hokus/%i|%i|%i", 2 * i, 2 * i*i, 2 * i*i*i);
+		TRACE_TABLE(trace::e_Info, trace::CTX_Default, 0, -1, "pokus/%i|%i", i, -i);
+		//TRACE_TABLE(trace::e_Info, trace::CTX_Default, 0, -1, "pokus/%i|%i", i, -i);
+		TRACE_TABLE(trace::e_Info, trace::CTX_Default,-1,  0, "fookus/%f", float(i) * 3.1415926f);
+
 
 	//	if (i == 4)
 	//		break;

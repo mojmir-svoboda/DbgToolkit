@@ -135,7 +135,7 @@ Connection * Server::createNewTableView ()
 	connection->m_table_view_src = model;
 	disconnect(model, SIGNAL(rowsInserted(QModelIndex,int,int)), tableView->verticalHeader(), SLOT(sectionsInserted(QModelIndex,int,int)));
     //tableView->verticalHeader()->setFont(QFont(""));		// @TODO: into config
-	tableView->verticalHeader()->setDefaultSectionSize(14);	// @TODO: into config
+	tableView->verticalHeader()->setDefaultSectionSize(18);	// @TODO: into config
 	tableView->verticalHeader()->hide();	// @NOTE: users want that //@NOTE2: they can't have it because of performance
 	tableView->setModel(model);
 	horizontalLayout->addWidget(tableView);
@@ -206,8 +206,6 @@ void Server::onClickedAtPlotTree (QModelIndex idx)
 {
 	MainWindow * main_window = static_cast<MainWindow *>(parent());
 	TreeModel * model = static_cast<TreeModel *>(main_window->getWidgetPlots()->model());
-	//QStandardItem * item = model->itemFromIndex(idx);
-	//Q_ASSERT(item);
 
 	QList<QString> path;
 	QList<bool> state;
@@ -221,67 +219,111 @@ void Server::onClickedAtPlotTree (QModelIndex idx)
 		parent = model->parent(parent);
 	}
 
+	//path[0]=WarHorse_App path[1]=table path[2]=pokus path[3]=--
+	qDebug("path[0]=%s", path.size() > 0 ? path.at(0).toStdString().c_str() : "--");
+	qDebug("path[1]=%s", path.size() > 1 ? path.at(1).toStdString().c_str() : "--");
+	qDebug("path[2]=%s", path.size() > 2 ? path.at(2).toStdString().c_str() : "--");
+	qDebug("path[3]=%s", path.size() > 3 ? path.at(3).toStdString().c_str() : "--");
+
 	Q_ASSERT(path.size());
 
 	if (Connection * conn = findConnectionByName(path.at(0)))
 	{
-		if (path.size() > 1)
+		if (path.size() >= 1)
 		{
-			for (dataplots_t::iterator it = conn->m_dataplots.begin(), ite = conn->m_dataplots.end(); it != ite; ++it)
+			QString class_type = path.at(1);
+			if (class_type == "table")
 			{
-				DataPlot * dp = (*it);
-				if (dp->m_config.m_tag == path.at(1))
+				if (path.size() >= 2)
 				{
-					bool apply = false;
-					bool const xchg = dp->m_plot.getConfig().m_show ^ state.at(1);
-					apply |= xchg;
-					if (xchg)
+					for (datatables_t::iterator it = conn->m_datatables.begin(), ite = conn->m_datatables.end(); it != ite; ++it)
 					{
-						dp->m_config.m_show = state.at(1);
-					}
-
-					if (path.size() > 2)
-					{
-						for (size_t cc = 0, cce = dp->m_config.m_ccfg.size(); cc < cce; ++cc)
+						DataTable * dp = (*it);
+						if (dp->m_config.m_tag == path.at(2))
 						{
-							plot::CurveConfig & cfg = dp->m_config.m_ccfg[cc];
-							if (cfg.m_tag == path.at(2))
+							bool apply = false;
+							bool const xchg = dp->m_table.getConfig().m_show ^ state.at(2);
+							apply |= xchg;
+							if (xchg)
 							{
-								apply |= cfg.m_show ^ state.at(2);
-								cfg.m_show = state.at(2);
-								break;
+								dp->m_config.m_show = state.at(2);
+							}
+						}
+
+							//if (apply)
+							//	dp->m_plot.applyConfig(dp->m_plot.getConfig());
+					}
+				}
+				else
+				{
+					if (state.at(1))
+						conn->onShowTables();
+					else
+						conn->onHideTables();
+				}
+			}
+			else
+			{
+				if (path.size() >= 2)
+				{
+					for (dataplots_t::iterator it = conn->m_dataplots.begin(), ite = conn->m_dataplots.end(); it != ite; ++it)
+					{
+						DataPlot * dp = (*it);
+						if (dp->m_config.m_tag == path.at(2))
+						{
+							bool apply = false;
+							bool const xchg = dp->m_plot.getConfig().m_show ^ state.at(2);
+							apply |= xchg;
+							if (xchg)
+							{
+								dp->m_config.m_show = state.at(2);
+							}
+
+							if (path.size() >= 3)
+							{
+								for (size_t cc = 0, cce = dp->m_config.m_ccfg.size(); cc < cce; ++cc)
+								{
+									plot::CurveConfig & cfg = dp->m_config.m_ccfg[cc];
+									if (cfg.m_tag == path.at(3))
+									{
+										apply |= cfg.m_show ^ state.at(3);
+										cfg.m_show = state.at(3);
+										break;
+									}
+								}
+							}
+							else if (path.size() >= 2)
+							{
+								for (size_t cc = 0, cce = dp->m_config.m_ccfg.size(); cc < cce; ++cc)
+								{
+									plot::CurveConfig & cfg = dp->m_config.m_ccfg[cc];
+									apply |= cfg.m_show ^ state.at(2);
+									cfg.m_show = state.at(2);
+								}
+
+								if (state.at(2))
+									dp->m_wd->show();
+								else
+									dp->m_wd->hide();
+							}
+
+							if (apply)
+							{
+								dp->m_plot.applyConfig(dp->m_plot.getConfig());
 							}
 						}
 					}
+				}
+				else
+				{
+					if (state.at(1))
+						conn->onShowPlots();
 					else
-					{
-						for (size_t cc = 0, cce = dp->m_config.m_ccfg.size(); cc < cce; ++cc)
-						{
-							plot::CurveConfig & cfg = dp->m_config.m_ccfg[cc];
-							apply |= cfg.m_show ^ state.at(1);
-							cfg.m_show = state.at(1);
-						}
-
-						if (state.at(1))
-							dp->m_wd->show();
-						else
-							dp->m_wd->hide();
-					}
-
-					if (apply)
-					{
-						dp->m_plot.applyConfig(dp->m_plot.getConfig());
-					}
+						conn->onHidePlots();
 				}
 			}
 		}
-		else
-		{
-			if (state.at(0))
-				conn->onShowPlots();
-			else
-				conn->onHidePlots();
-		}
+
 	}
 
 

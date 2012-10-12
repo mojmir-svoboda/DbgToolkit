@@ -9,7 +9,7 @@
 
 namespace table {
 
-	class BaseTable : public QWidget
+	class BaseTable : public QTableView
 	{
 		Q_OBJECT
 	public:
@@ -47,7 +47,6 @@ namespace table {
 		//QList<QColor> m_colors;
 		QString m_fname;
 		TableModelView * m_modelView;
-		QTableView * m_widget;
 	};
 }
 
