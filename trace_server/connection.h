@@ -70,6 +70,8 @@ struct DataPlot {
 		m_wd->hide();
 		m_plot.onHide();
 	}
+	
+	plot::BasePlot & getWidget () { return m_plot; }
 };
 
 typedef QMap<QString, DataPlot *> dataplots_t;
@@ -93,6 +95,8 @@ struct DataTable {
 		m_wd->hide();
 		m_table.onHide();
 	}
+
+	table::BaseTable & getWidget () { return m_table; }
 };
 
 typedef QMap<QString, DataTable *> datatables_t;

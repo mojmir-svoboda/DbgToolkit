@@ -58,6 +58,7 @@ bool TableModelView::setData (QModelIndex const & index, QVariant const & value,
 			int const x = index.column();
 			int const y = index.row();
 			m_rows.at(y).at(x) = value.toString();
+			emit dataChanged(index, index);
 		}
 	}
 	else if (role == Qt::UserRole)
@@ -69,7 +70,6 @@ bool TableModelView::setData (QModelIndex const & index, QVariant const & value,
 	else
 		return false;
 
-	emit dataChanged(index, index);
 	return true;
 }
 
@@ -87,13 +87,11 @@ void TableModelView::transactionStart (size_t n)
 {
 	int const row = rowCount();
 	beginInsertRows(QModelIndex(), row, row + n);
-	//emit layoutAboutToBeChanged();
 }
 
 void TableModelView::transactionCommit ()
 {
 	endInsertRows();
-	//emit layoutChanged();
 }
 
 void TableModelView::emitLayoutChanged ()
@@ -151,7 +149,7 @@ void TableModelView::appendTableXY (int x, int y, QString const & cmd)
 		beginInsertColumns(QModelIndex(), m_columnCount, n_cols - m_columnCount);
 		insertColumns(m_columnCount, n_cols - m_columnCount);
 		m_columnCount = n_cols;
-
+		endInsertColumns();
 		// @TODO: updatnout size kontejneru s predchozim poctem elementu
 	}
 
@@ -160,10 +158,5 @@ void TableModelView::appendTableXY (int x, int y, QString const & cmd)
 		QModelIndex const idx = index(y, ix, QModelIndex());
 		setData(idx, values.at(ix - x), Qt::EditRole);
 	}
-
-	//QModelIndex const idx0 = index(y, x, QModelIndex());
-	//QModelIndex const idx1 = index(y, x + n_cols, QModelIndex());
-	//emit dataChanged(idx0, idx1);
-	emit layoutChanged();
 }
 

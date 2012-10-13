@@ -68,6 +68,27 @@ Connection::Connection (QObject * parent)
 	m_ctx_delegate = new CtxDelegate(m_session_state, this);
 }
 
+namespace {
+
+	template <class ContainerT>
+	void destroyDockedWidgets (ContainerT & c, QMainWindow & mainwin)
+	{
+		for (typename ContainerT::iterator it = c.begin(), ite = c.end(); it != ite; ++it)
+		{
+			typename ContainerT::iterator::value_type ptr = *it;
+			if (ptr->m_wd)
+			{
+				mainwin.removeDockWidget(ptr->m_wd);
+				ptr->getWidget().setParent(0);
+				ptr->m_wd->setWidget(0);
+				delete ptr->m_wd;
+			}
+			delete ptr;
+		}
+		c.clear();
+	}
+}
+
 Connection::~Connection ()
 {
 	qDebug("Connection::~Connection() this=0x%08x", this);
@@ -77,20 +98,8 @@ Connection::~Connection ()
 		m_statswindow = 0;
 	}
 
-	for (dataplots_t::iterator it = m_dataplots.begin(), ite = m_dataplots.end(); it != ite; ++it)
-	{
-		DataPlot * dp = (*it);
-		if (dp->m_wd)
-		{
-			m_main_window->removeDockWidget(dp->m_wd);
-			dp->m_plot.setParent(0);
-			dp->m_wd->setWidget(0);
-			delete dp->m_wd;
-			dp->m_wd = 0;
-		}
-		delete dp;
-	}
-	m_dataplots.clear();
+	destroyDockedWidgets(m_dataplots, *m_main_window);
+	destroyDockedWidgets(m_datatables, *m_main_window);
 
 	if (m_tcpstream)
 	{
