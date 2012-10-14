@@ -106,7 +106,7 @@ void TableModelView::appendTableXY (int x, int y, QString const & cmd)
 
 	if (y < 0)
 	{
-		transactionStart(1);
+		transactionStart(0);
 		m_rows.push_back(columns_t());
 		transactionCommit();
 		if (x < 0)
@@ -125,15 +125,20 @@ void TableModelView::appendTableXY (int x, int y, QString const & cmd)
 	{
 		if (y >= m_rows.size())
 		{
-			transactionStart(y + 1);
+			transactionStart(y);
 			m_rows.resize(y + 1);
 			transactionCommit();
 		}
 
 		if (x < 0)
 		{
-			m_rows[y].resize(n_cols);
-			x = 0;
+			beginInsertColumns(QModelIndex(), m_columnCount, m_columnCount + n_cols);
+			++m_columnCount;
+			size_t const curr_sz = m_rows[y].size();
+			m_rows[y].resize(curr_sz + 1);
+			x = curr_sz;
+			endInsertColumns();
+			// @TODO: updatnout size kontejneru s predchozim poctem elementu
 		}
 		else
 		{
