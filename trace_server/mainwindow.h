@@ -181,6 +181,7 @@ public slots:
 private slots:
 	void loadState ();
 	void loadPresets ();
+	void storeGeometry ();
 	void storeState ();
 	void saveCurrentSession (QString const & preset_name);
 	void storePresets ();
@@ -219,7 +220,7 @@ private slots:
 	void onReuseTabChanged (int state);
 	void ondtToolButton ();
 	void onPlotStateChanged (int state);
-	void onPlotSaveAllButton ();
+	void onSaveAllButton ();
 	void onPlotsToolButton ();
 	void onPlotRestoreButton ();
 	void onPlotsClosed ();

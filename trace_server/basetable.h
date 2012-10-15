@@ -39,6 +39,7 @@ namespace table {
 		void onApplyButton ();
 		void onResetButton ();
 		void onDefaultButton ();
+		void onSectionResized (int idx, int /*old_size*/, int new_size);
 
 	protected:
 		int m_timer;

@@ -91,6 +91,8 @@ namespace {
 
 Connection::~Connection ()
 {
+	for (datatables_t::iterator it = m_datatables.begin(), ite = m_datatables.end(); it != ite; ++it)
+		QObject::disconnect((*it)->m_table.horizontalHeader(), SIGNAL(sectionResized(int, int, int)), &(*it)->m_table, SLOT(onSectionResized(int, int, int)));
 	qDebug("Connection::~Connection() this=0x%08x", this);
 	if (m_statswindow)
 	{
@@ -481,5 +483,21 @@ void Connection::onShowContextMenu (QPoint const & pos)
 	}
     else
     { }
+}
+
+void Connection::onSaveAll ()
+{
+	// @TODO: v hhdr bude 0 !
+	for (dataplots_t::iterator it = m_dataplots.begin(), ite = m_dataplots.end(); it != ite; ++it)
+	{
+		DataPlot * dp = (*it);
+		dp->getWidget().onSaveButton();
+	}
+
+	for (datatables_t::iterator it = m_datatables.begin(), ite = m_datatables.end(); it != ite; ++it)
+	{
+		DataTable * dt = (*it);
+		dt->getWidget().onSaveButton();
+	}	
 }
 

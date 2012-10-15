@@ -186,6 +186,7 @@ public slots:
 	void onExcludeFileLine (QModelIndex const & row_index);
 	void onApplyColumnSetup ();
 	void onColorRegexChanged();
+	void onSaveAll ();
 
 private slots:
 	void processReadyRead ();

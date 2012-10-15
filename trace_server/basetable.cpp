@@ -103,5 +103,11 @@ namespace table {
 		//defaults.partialLoadFrom(m_config);
 		setConfigValues(defaults);
 	}
+
+	void BaseTable::onSectionResized (int idx, int /*old_size*/, int new_size)
+	{
+		m_config.m_hsize.reserve(idx);
+		m_config.m_hsize[idx] = new_size;
+	}
 }
 
