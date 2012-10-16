@@ -248,10 +248,10 @@ void Server::onClickedAtPlotTree (QModelIndex idx)
 							{
 								dp->m_config.m_show = state.at(2);
 							}
-						}
 
-							//if (apply)
-							//	dp->m_plot.applyConfig(dp->m_plot.getConfig());
+							if (apply)
+								dp->getWidget().applyConfig(dp->getWidget().getConfig());
+						}
 					}
 				}
 				else

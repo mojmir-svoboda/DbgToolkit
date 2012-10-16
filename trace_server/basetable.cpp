@@ -19,7 +19,7 @@ namespace table {
 
 		setHorizontalHeader(new EditableHeaderView(Qt::Horizontal, this));
 
-		m_modelView = new TableModelView(this, m_config.m_hhdr);
+		m_modelView = new TableModelView(this, m_config.m_hhdr, m_config.m_hsize);
 		setModel(m_modelView);
 		setConfigValues(m_config);
 		QTimer::singleShot(0, this, SLOT(onApplyButton()));
@@ -48,6 +48,11 @@ namespace table {
 
 		killTimer(m_timer);
 		m_timer = startTimer(1000);
+		for (int i = 0, ie = model()->rowCount(); i < ie; ++i)
+		{
+			int const sz = m_config.m_hsize.size() > i ? m_config.m_hsize.at(i) : 32;
+			horizontalHeader()->resizeSection(i, sz);
+		}
 	}
 
 	void BaseTable::stopUpdate ()

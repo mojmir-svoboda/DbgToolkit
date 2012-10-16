@@ -29,7 +29,7 @@ class TableModelView : public QAbstractTableModel
 {
 	//Q_OBJECT
 public:
-	explicit TableModelView (QObject * parent, QList<QString> & hhdr);
+	explicit TableModelView (QObject * parent, QList<QString> & hhdr, QList<int> & hsize);
 	~TableModelView ();
 	int rowCount (const QModelIndex & parent = QModelIndex()) const;
 	int columnCount (const QModelIndex & parent = QModelIndex()) const;
@@ -54,5 +54,6 @@ private:
 	rows_t m_rows;
 	int m_columnCount;
 	QList<QString> & m_hhdr;
+	QList<int> & m_hsize;
 };
 

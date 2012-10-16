@@ -4,10 +4,11 @@
 #include <QAbstractProxyModel>
 #include <trace_client/trace.h>
 
-TableModelView::TableModelView (QObject * parent, QList<QString> & hhdr)
+TableModelView::TableModelView (QObject * parent, QList<QString> & hhdr, QList<int> & hsize)
 	: QAbstractTableModel(parent)
 	, m_columnCount(0)
 	, m_hhdr(hhdr)
+	, m_hsize(hsize)
 {
 	size_t const prealloc_size = 128;
 	m_rows.reserve(prealloc_size);
@@ -73,7 +74,7 @@ QVariant TableModelView::headerData (int section, Qt::Orientation orientation, i
 	{
 		if (section >= m_hhdr.size())
 			m_hhdr.insert(section, QString());
-		return m_hhdr[section];
+		return m_hhdr.at(section);
 	}
 	return QVariant();
 }
