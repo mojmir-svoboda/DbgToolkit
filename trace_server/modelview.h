@@ -60,6 +60,8 @@ public:
 	typedef std::vector<unsigned> row_types_t;
 	row_types_t const & rowTypes () const { return m_rowTypes; }
 
+	SessionState const & session () const { return m_session_state; }
+
 signals:
 	
 public slots:

@@ -247,8 +247,8 @@ int main ()
 		TRACE_MSG(trace::e_Info, trace::CTX_Default,  "Some another annoying message i=%u from main thread", i);
 		TRACE_TABLE(trace::e_Info, trace::CTX_Default, 0, 0, "hokus/%i|%i|%i", i, i*i, i*i*i);
 		TRACE_TABLE(trace::e_Info, trace::CTX_Default, 1, 1, "hokus/%i|%i|%i", 2 * i, 2 * i*i, 2 * i*i*i);
-		//TRACE_TABLE(trace::e_Info, trace::CTX_Default, 0, -1, "pokus/%i|%i", i, -i);
-		//TRACE_TABLE(trace::e_Info, trace::CTX_Default, 0, -1, "pokus/%i|%i", i, -i);
+		TRACE_TABLE(trace::e_Info, trace::CTX_Default, 0, -1, "pokus/%i|%i", i, -i);
+		TRACE_TABLE(trace::e_Info, trace::CTX_Default, 0, -1, "pokus/%i|%i", i, -2*i);
 		TRACE_TABLE(trace::e_Info, trace::CTX_Default,-1,  1, "fookus/%f", float(i) * 3.1415926f);
 
 

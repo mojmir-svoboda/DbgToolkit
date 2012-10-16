@@ -1,6 +1,8 @@
 #include "tableview.h"
 #include <QEvent>
 #include <QHelpEvent>
+#include <QHeaderView>
+#include "modelview.h"
 
 TableView::TableView (QWidget * parent)
 	: QTableView(parent)
@@ -34,3 +36,25 @@ void TableView::scrollTo (QModelIndex const & index, ScrollHint hint)
 {
 	QTableView::scrollTo(index, hint);
 }
+
+void TableView::setColumnOrder (QMap<int, int> const & columnOrderMap, SessionState const & session)
+{
+    ModelView * tableModel = static_cast<ModelView *>(model());
+    int currentIndex;
+    int indexMovingTo;
+
+    QMapIterator<int, int> iter(columnOrderMap);
+    while (iter.hasNext())
+    {
+        iter.next();
+        currentIndex  = horizontalHeader()->visualIndex(session.findColumn4Tag(iter.key()));
+        indexMovingTo = iter.value();
+
+        if(indexMovingTo <= 0)
+        	continue;
+
+       	horizontalHeader()->moveSection(currentIndex, indexMovingTo);
+    }
+}
+
+

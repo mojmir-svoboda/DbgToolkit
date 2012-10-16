@@ -19,6 +19,7 @@
 #include "types.h"
 #include "statswindow.h"
 #include "delegates.h"
+#include "tableview.h"
 
 Connection::Connection (QObject * parent)
 	: QThread(parent)
@@ -393,10 +394,22 @@ void Connection::onApplyColumnSetup ()
 		//qDebug("column: %s", m_table_view_widget->horizontalHeader()->text());
 	}
 
+	QMap<int, int> order;
+
 	if (sessionState().m_app_idx == -1)
 		sessionState().m_app_idx = m_main_window->m_config.m_columns_setup.size() - 1;
 	
 	columns_setup_t const & new_cs = m_main_window->getColumnSetup(sessionState().m_app_idx);
+
+	for (int i = 0, ie = new_cs.size(); i < ie; ++i)
+	{
+		tlv::tag_t const tag = tlv::tag_for_name(new_cs.at(i).toStdString().c_str());
+		if (tag != tlv::tag_invalid)
+		{
+			order[tag] = i;
+		}
+	}
+
 	if (0 == sessionState().m_columns_setup_current)
 	{
 	}
@@ -405,9 +418,7 @@ void Connection::onApplyColumnSetup ()
 		columns_setup_t const & old_cs = *sessionState().m_columns_setup_current;
 	}
 
-	//m_table_view_widget->horizontalHeader()->moveSection(from, to);
-	//m_table_view_widget->horizontalHeader()->swapSection(from, to);
-	//m_table_view_widget->horizontalHeader()->hideSection(from, to);
+	static_cast<TableView *>(m_table_view_widget)->setColumnOrder(order, m_session_state);
 }
 
 void Connection::onExcludeFileLine ()

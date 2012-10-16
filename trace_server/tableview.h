@@ -1,5 +1,7 @@
 #include <QTableView>
 
+struct SessionState;
+
 class TableView : public QTableView
 {
 public:
@@ -7,4 +9,5 @@ public:
 	virtual ~TableView ();
 	virtual bool viewportEvent (QEvent * event);
 	virtual void scrollTo (QModelIndex const & index, ScrollHint hint = EnsureVisible);
+	void setColumnOrder (QMap<int, int> const & columnOrderMap, SessionState const & s);
 };
