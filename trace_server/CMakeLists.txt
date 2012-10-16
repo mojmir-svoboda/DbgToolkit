@@ -81,6 +81,7 @@ SET(trace_server_SOURCES
 	tableconfig.cpp
 	tablemodelview.cpp
 	dock.cpp
+	editableheaderview.cpp
 	)
 
 SET(trace_server_HEADERS
@@ -125,6 +126,7 @@ SET(trace_server_HEADERS
 	tableconfig.h
 	tablectxmenu.h
 	tablemodelview.h
+	editableheaderview.h
 	)
 
 SET(trace_server_UI 

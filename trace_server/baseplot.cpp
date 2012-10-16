@@ -69,7 +69,7 @@ namespace plot {
 		}
 
 		setContextMenuPolicy(Qt::CustomContextMenu);
-		connect(this, SIGNAL(customContextMenuRequested(QPoint const &)), this, SLOT(onShowPlotContextMenu(QPoint const &)));
+		connect(this, SIGNAL(customContextMenuRequested(QPoint const &)), this, SLOT(onShowContextMenu(QPoint const &)));
 
 		m_colors.push_back(Qt::black);
 		m_colors.push_back(Qt::red);

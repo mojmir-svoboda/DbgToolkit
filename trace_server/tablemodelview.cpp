@@ -4,9 +4,10 @@
 #include <QAbstractProxyModel>
 #include <trace_client/trace.h>
 
-TableModelView::TableModelView (QObject * parent)
+TableModelView::TableModelView (QObject * parent, QList<QString> & hhdr)
 	: QAbstractTableModel(parent)
 	, m_columnCount(0)
+	, m_hhdr(hhdr)
 {
 	size_t const prealloc_size = 128;
 	m_rows.reserve(prealloc_size);
@@ -61,14 +62,6 @@ bool TableModelView::setData (QModelIndex const & index, QVariant const & value,
 			emit dataChanged(index, index);
 		}
 	}
-	else if (role == Qt::UserRole)
-	{
-	}
-	else if (role == Qt::CheckStateRole)
-	{
-	}
-	else
-		return false;
 
 	return true;
 }
@@ -76,11 +69,22 @@ bool TableModelView::setData (QModelIndex const & index, QVariant const & value,
 
 QVariant TableModelView::headerData (int section, Qt::Orientation orientation, int role) const
 {
-	if (role == Qt::DisplayRole) {
-		if (orientation == Qt::Horizontal) {
-		}
+	if (role == Qt::DisplayRole && orientation == Qt::Horizontal)
+	{
+		if (section >= m_hhdr.size())
+			m_hhdr.insert(section, QString());
+		return m_hhdr[section];
 	}
 	return QVariant();
+}
+
+bool  TableModelView::setHeaderData (int section, Qt::Orientation orientation, QVariant const & value, int role)
+{
+	if (role == Qt::EditRole && orientation == Qt::Horizontal)
+	{
+		m_hhdr.insert(section, value.toString());
+	}
+	return true;
 }
 
 void TableModelView::transactionStart (size_t n)

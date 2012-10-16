@@ -29,13 +29,14 @@ class TableModelView : public QAbstractTableModel
 {
 	//Q_OBJECT
 public:
-	explicit TableModelView (QObject * parent = 0);
+	explicit TableModelView (QObject * parent, QList<QString> & hhdr);
 	~TableModelView ();
 	int rowCount (const QModelIndex & parent = QModelIndex()) const;
 	int columnCount (const QModelIndex & parent = QModelIndex()) const;
 	QVariant data (const QModelIndex & index, int role = Qt::DisplayRole) const;
 	bool setData (QModelIndex const & index, QVariant const & value, int role = Qt::EditRole);
 	QVariant headerData (int section, Qt::Orientation orientation, int role) const;
+	bool  setHeaderData (int section, Qt::Orientation orientation, QVariant const & value, int role = Qt::EditRole);
 
 	void transactionStart (size_t n);
 	//void appendCommand (tlv::StringCommand const & cmd);
@@ -52,5 +53,6 @@ private:
 	typedef std::vector<columns_t> rows_t;
 	rows_t m_rows;
 	int m_columnCount;
+	QList<QString> & m_hhdr;
 };
 

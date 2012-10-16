@@ -1,5 +1,6 @@
 #include "basetable.h"
 #include <QTimer>
+#include "editableheaderview.h"
 
 namespace table {
 
@@ -14,9 +15,11 @@ namespace table {
 		qDebug("%s this=0x%08x", __FUNCTION__, this);
 
 		setContextMenuPolicy(Qt::CustomContextMenu);
-		connect(this, SIGNAL(customContextMenuRequested(QPoint const &)), this, SLOT(onShowTableContextMenu(QPoint const &)));
+		connect(this, SIGNAL(customContextMenuRequested(QPoint const &)), this, SLOT(onShowContextMenu(QPoint const &)));
 
-		m_modelView = new TableModelView(this);
+		setHorizontalHeader(new EditableHeaderView(Qt::Horizontal, this));
+
+		m_modelView = new TableModelView(this, m_config.m_hhdr);
 		setModel(m_modelView);
 		setConfigValues(m_config);
 		QTimer::singleShot(0, this, SLOT(onApplyButton()));
@@ -26,7 +29,7 @@ namespace table {
 	{
 		qDebug("%s this=0x%08x", __FUNCTION__, this);
 		stopUpdate();
-		disconnect(this, SIGNAL(customContextMenuRequested(QPoint const &)), this, SLOT(onShowTableContextMenu(QPoint const &)));
+		disconnect(this, SIGNAL(customContextMenuRequested(QPoint const &)), this, SLOT(onShowContextMenu(QPoint const &)));
 	}
 
 	void BaseTable::onShow ()

@@ -229,12 +229,12 @@ void Server::onClickedAtPlotTree (QModelIndex idx)
 
 	if (Connection * conn = findConnectionByName(path.at(0)))
 	{
-		if (path.size() >= 1)
+		if (path.size() > 1)
 		{
 			QString class_type = path.at(1);
 			if (class_type == "table")
 			{
-				if (path.size() >= 2)
+				if (path.size() > 2)
 				{
 					for (datatables_t::iterator it = conn->m_datatables.begin(), ite = conn->m_datatables.end(); it != ite; ++it)
 					{
@@ -264,7 +264,7 @@ void Server::onClickedAtPlotTree (QModelIndex idx)
 			}
 			else
 			{
-				if (path.size() >= 2)
+				if (path.size() > 2)
 				{
 					for (dataplots_t::iterator it = conn->m_dataplots.begin(), ite = conn->m_dataplots.end(); it != ite; ++it)
 					{
@@ -279,7 +279,7 @@ void Server::onClickedAtPlotTree (QModelIndex idx)
 								dp->m_config.m_show = state.at(2);
 							}
 
-							if (path.size() >= 3)
+							if (path.size() > 3)
 							{
 								for (size_t cc = 0, cce = dp->m_config.m_ccfg.size(); cc < cce; ++cc)
 								{
@@ -292,7 +292,7 @@ void Server::onClickedAtPlotTree (QModelIndex idx)
 									}
 								}
 							}
-							else if (path.size() >= 2)
+							else if (path.size() > 2)
 							{
 								for (size_t cc = 0, cce = dp->m_config.m_ccfg.size(); cc < cce; ++cc)
 								{
