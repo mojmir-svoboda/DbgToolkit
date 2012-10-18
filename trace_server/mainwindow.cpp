@@ -161,6 +161,7 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode)
 	connect(ui->levelSpinBox, SIGNAL(valueChanged(int)), m_server, SLOT(onLevelValueChanged(int)));
 	connect(ui->filterFileCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onFilterFile(int)));
 	connect(ui->plotsCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onPlotStateChanged(int)));
+	connect(ui->tablesCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onTablStateChanged(int)));
 	connect(ui->plotSaveAllButton, SIGNAL(clicked()), this, SLOT(onSaveAllButton()));
 	connect(ui->plotsToolButton, SIGNAL(clicked()), this, SLOT(onPlotsToolButton()));
 	connect(ui->tablesCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onTablesStateChanged(int)));

@@ -11,16 +11,30 @@
 void Connection::onShowTables ()
 {
 	qDebug("%s", __FUNCTION__);
+	for (datatables_t::iterator it = m_datatables.begin(), ite = m_datatables.end(); it != ite; ++it)
+	{
+		(*it)->onShow();
+		m_main_window->restoreDockWidget((*it)->m_wd);
+	}
+	//m_main_window->onTableRestoreButton();
 }
 
 void Connection::onHideTables ()
 {
 	qDebug("%s", __FUNCTION__);
+	for (datatables_t::iterator it = m_datatables.begin(), ite = m_datatables.end(); it != ite; ++it)
+	{
+		(*it)->onHide();
+	}
 }
 
 void Connection::onShowTableContextMenu (QPoint const &)
 {
 	qDebug("%s", __FUNCTION__);
+	for (datatables_t::iterator it = m_datatables.begin(), ite = m_datatables.end(); it != ite; ++it)
+	{
+		(*it)->getWidget().onHideContextMenu();
+	}
 }
 
 bool Connection::handleTableXYCommand (DecodedCommand const & cmd)
