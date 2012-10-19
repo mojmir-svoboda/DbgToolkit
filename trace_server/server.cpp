@@ -249,6 +249,11 @@ void Server::onClickedAtPlotTree (QModelIndex idx)
 								dp->m_config.m_show = state.at(2);
 							}
 
+							if (state.at(2))
+								dp->onShow();
+							else
+								dp->onHide();
+
 							if (apply)
 								dp->widget().applyConfig(dp->widget().getConfig());
 						}
@@ -302,9 +307,9 @@ void Server::onClickedAtPlotTree (QModelIndex idx)
 								}
 
 								if (state.at(2))
-									dp->m_wd->show();
+									dp->onShow();
 								else
-									dp->m_wd->hide();
+									dp->onHide();
 							}
 
 							if (apply)
