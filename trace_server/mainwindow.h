@@ -222,9 +222,9 @@ private slots:
 	void onPlotStateChanged (int state);
 	void onSaveAllButton ();
 	void onPlotsToolButton ();
-	void onPlotRestoreButton ();
 	void onPlotsClosed ();
 	void onTablesStateChanged (int state);
+	void onDockRestoreButton ();
 	void onFilterFile (int state);
 	void onSettingsAppSelected (int idx, bool first_time = false);
 	void onClickedAtSettingPooftahButton ();

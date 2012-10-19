@@ -981,7 +981,7 @@ void MainWindow::onSaveAllButton ()
 	}
 }
 
-void MainWindow::onPlotRestoreButton ()
+void MainWindow::onDockRestoreButton ()
 {
 	QSettings settings("MojoMir", "TraceServer");
 	restoreState(settings.value("MainWindow/State").toByteArray());

@@ -44,7 +44,7 @@ void Connection::onShowTables ()
 		(*it)->onShow();
 		m_main_window->restoreDockWidget((*it)->m_wd);
 	}
-	//m_main_window->onTableRestoreButton();
+	m_main_window->onDockRestoreButton();
 }
 
 void Connection::onHideTables ()
@@ -132,7 +132,7 @@ void Connection::appendTableXY (int x, int y, QString const & msg_tag)
 			{
 				dp->onShow();
 				m_main_window->restoreDockWidget(dp->m_wd);
-				m_main_window->onPlotRestoreButton();
+				m_main_window->onDockRestoreButton();
 			}
 		}
 		else
