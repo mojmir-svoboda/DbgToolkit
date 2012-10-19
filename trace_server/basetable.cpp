@@ -48,9 +48,20 @@ namespace table {
 
 		killTimer(m_timer);
 		m_timer = startTimer(1000);
-		for (int i = 0, ie = model()->rowCount(); i < ie; ++i)
+		m_config.m_hsize.reserve(model()->columnCount());
+		for (int i = 0, ie = model()->columnCount(); i < ie; ++i)
 		{
-			int const sz = m_config.m_hsize.size() > i ? m_config.m_hsize.at(i) : 32;
+			int sz = 32;
+			if (i < m_config.m_hsize.size())
+			{
+				sz = m_config.m_hsize.at(i);
+			}
+			else
+			{
+				m_config.m_hsize.resize(i + 1);
+				m_config.m_hsize[i] = sz;
+			}
+
 			horizontalHeader()->resizeSection(i, sz);
 		}
 	}

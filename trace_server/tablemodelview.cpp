@@ -4,7 +4,7 @@
 #include <QAbstractProxyModel>
 #include <trace_client/trace.h>
 
-TableModelView::TableModelView (QObject * parent, QList<QString> & hhdr, QList<int> & hsize)
+TableModelView::TableModelView (QObject * parent, QVector<QString> & hhdr, QVector<int> & hsize)
 	: QAbstractTableModel(parent)
 	, m_columnCount(0)
 	, m_hhdr(hhdr)
@@ -72,8 +72,10 @@ QVariant TableModelView::headerData (int section, Qt::Orientation orientation, i
 {
 	if (role == Qt::DisplayRole && orientation == Qt::Horizontal)
 	{
-		if (section >= m_hhdr.size())
-			m_hhdr.insert(section, QString());
+		if (section + 1 > m_hhdr.size())
+		{
+			m_hhdr.resize(section + 1);
+		}
 		return m_hhdr.at(section);
 	}
 	return QVariant();
@@ -83,7 +85,11 @@ bool  TableModelView::setHeaderData (int section, Qt::Orientation orientation, Q
 {
 	if (role == Qt::EditRole && orientation == Qt::Horizontal)
 	{
-		m_hhdr.insert(section, value.toString());
+		if (section + 1 > m_hhdr.size())
+		{
+			m_hhdr.resize(section);
+		}
+		m_hhdr[section] = value.toString();
 	}
 	return true;
 }

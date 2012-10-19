@@ -54,24 +54,16 @@ struct DataPlot {
 	Connection * m_parent;
 	QDockWidget * m_wd;
 	plot::PlotConfig m_config;
-	plot::BasePlot m_plot;
+	plot::BasePlot * m_plot;
 	int m_from;
 	QString m_fname;
 
 	DataPlot (Connection * parent, plot::PlotConfig & config, QString const & fname);
+	~DataPlot ();
 
-	void onShow ()
-	{
-		m_wd->show();
-		m_plot.onShow();
-	}
-	void onHide ()
-	{
-		m_wd->hide();
-		m_plot.onHide();
-	}
-	
-	plot::BasePlot & getWidget () { return m_plot; }
+	void onShow ();
+	void onHide ();
+	plot::BasePlot & widget () { return *m_plot; }
 };
 
 typedef QMap<QString, DataPlot *> dataplots_t;
@@ -81,22 +73,14 @@ struct DataTable {
 	QDockWidget * m_wd;
 	table::TableConfig m_config;
 	QString m_fname;
-	table::BaseTable m_table;
+	table::BaseTable * m_table;
 
 	DataTable (Connection * parent, table::TableConfig & config, QString const & fname);
+	~DataTable ();
 
-	void onShow ()
-	{
-		m_wd->show();
-		m_table.onShow();
-	}
-	void onHide ()
-	{
-		m_wd->hide();
-		m_table.onHide();
-	}
-
-	table::BaseTable & getWidget () { return m_table; }
+	void onShow ();
+	void onHide ();
+	table::BaseTable & widget () { return *m_table; }
 };
 
 typedef QMap<QString, DataTable *> datatables_t;
@@ -296,25 +280,4 @@ private:
 	datatables_t m_datatables;
 	TreeModel * m_data_model;
 };
-
-inline DataPlot::DataPlot (Connection * parent, plot::PlotConfig & config, QString const & fname)
-	: m_parent(parent)
-	, m_wd(0)
-	, m_config(config)
-	, m_plot(parent, 0, m_config, fname)
-	, m_from(0)
-	, m_fname(fname)
-{
-	qDebug("%s this=0x%08x", __FUNCTION__, this);
-}
-
-inline DataTable::DataTable (Connection * parent, table::TableConfig & config, QString const & fname)
-	: m_parent(parent)
-	, m_wd(0)
-	, m_config(config)
-	, m_table(parent, 0, m_config, fname)
-	, m_fname(fname)
-{
-	qDebug("%s this=0x%08x", __FUNCTION__, this);
-}
 

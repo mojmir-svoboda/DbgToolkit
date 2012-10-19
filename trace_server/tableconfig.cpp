@@ -5,6 +5,7 @@
 #include <boost/serialization/utility.hpp>
 #include <boost/serialization/serialization.hpp>
 #include <boost/serialization/vector.hpp>
+#include "serialize/ser_qvector.h"
 #include "serialize/ser_qlist.h"
 #include "serialize/ser_qcolor.h"
 #include "serialize/ser_qregexp.h"

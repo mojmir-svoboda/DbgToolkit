@@ -8,6 +8,34 @@
 #include "dock.h"
 #include <cstdlib>
 
+DataTable::DataTable (Connection * parent, table::TableConfig & config, QString const & fname)
+	: m_parent(parent)
+	, m_wd(0)
+	, m_config(config)
+	, m_table(0)
+	, m_fname(fname)
+{
+	qDebug("%s this=0x%08x", __FUNCTION__, this);
+	m_table = new table::BaseTable(parent, 0, m_config, fname);
+}
+DataTable::~DataTable ()
+{
+	qDebug("%s this=0x%08x", __FUNCTION__, this);
+	delete m_table;
+	m_table = 0;
+}
+void DataTable::onShow ()
+{
+	m_wd->show();
+	m_table->onShow();
+}
+void DataTable::onHide ()
+{
+	m_wd->hide();
+	m_table->onHide();
+}
+
+
 void Connection::onShowTables ()
 {
 	qDebug("%s", __FUNCTION__);
@@ -33,7 +61,7 @@ void Connection::onShowTableContextMenu (QPoint const &)
 	qDebug("%s", __FUNCTION__);
 	for (datatables_t::iterator it = m_datatables.begin(), ite = m_datatables.end(); it != ite; ++it)
 	{
-		(*it)->getWidget().onHideContextMenu();
+		(*it)->widget().onHideContextMenu();
 	}
 }
 
@@ -96,26 +124,24 @@ void Connection::appendTableXY (int x, int y, QString const & msg_tag)
 		it = m_datatables.insert(tag, dp);
 		QModelIndex const item_idx = m_data_model->insertItem(table_name.toStdString());
 
-		QObject::connect(dp->m_table.horizontalHeader(), SIGNAL(sectionResized(int, int, int)), &dp->m_table, SLOT(onSectionResized(int, int, int)));
-		dp->m_wd = m_main_window->m_dock_mgr.mkDockWidget(m_main_window, &dp->m_table, table_name);
+		QObject::connect(dp->widget().horizontalHeader(), SIGNAL(sectionResized(int, int, int)), &dp->widget(), SLOT(onSectionResized(int, int, int)));
+		dp->m_wd = m_main_window->m_dock_mgr.mkDockWidget(m_main_window, &dp->widget(), table_name);
 		if (m_main_window->tableEnabled())
 		{
 			if (template_config.m_show)
 			{
-				dp->m_table.show();
-				dp->m_wd->show();
+				dp->onShow();
 				m_main_window->restoreDockWidget(dp->m_wd);
 				m_main_window->onPlotRestoreButton();
 			}
 		}
 		else
 		{
-			dp->m_table.hide();
-			dp->m_wd->hide();
+			dp->onHide();
 		}
 	}
 
 	DataTable & dp = **it;
-	dp.m_table.appendTableXY(x, y, subtag);
+	dp.widget().appendTableXY(x, y, subtag);
 }
 

@@ -7,10 +7,10 @@ namespace table {
 	{
 		QString m_tag;
 		QString m_title;
-		QList<QString> m_hhdr;
-		QList<int> m_hsize;
-		QList<QString> m_vhdr;
-		QList<int> m_vsize;
+		QVector<QString> m_hhdr;
+		QVector<int> m_hsize;
+		QVector<QString> m_vhdr;
+		QVector<int> m_vsize;
 
 		bool m_auto_scroll;
 		bool m_show;

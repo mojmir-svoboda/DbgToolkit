@@ -1,5 +1,6 @@
 #pragma once
 #include <QList>
+#include <QVector>
 #include <QString>
 #include <QColor>
 #include <vector>

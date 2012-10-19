@@ -8,6 +8,35 @@
 #include "dock.h"
 #include <cstdlib>
 
+DataPlot::DataPlot (Connection * parent, plot::PlotConfig & config, QString const & fname)
+	: m_parent(parent)
+	, m_wd(0)
+	, m_config(config)
+	, m_plot(0)
+	, m_from(0)
+	, m_fname(fname)
+{
+	qDebug("%s this=0x%08x", __FUNCTION__, this);
+	m_plot = new plot::BasePlot(parent, 0, m_config, fname);
+}
+DataPlot::~DataPlot ()
+{
+	qDebug("%s this=0x%08x", __FUNCTION__, this);
+	delete m_plot;
+	m_plot = 0;
+}
+void DataPlot::onShow ()
+{
+	m_wd->show();
+	m_plot->onShow();
+}
+void DataPlot::onHide ()
+{
+	m_wd->hide();
+	m_plot->onHide();
+}
+
+
 void Connection::onShowPlots ()
 {
 	qDebug("%s", __FUNCTION__);
@@ -33,7 +62,7 @@ void Connection::onShowPlotContextMenu (QPoint const &)
 	qDebug("%s", __FUNCTION__);
 	for (dataplots_t::iterator it = m_dataplots.begin(), ite = m_dataplots.end(); it != ite; ++it)
 	{
-		(*it)->m_plot.onHideContextMenu();
+		(*it)->widget().onHideContextMenu();
 	}
 }
 
@@ -103,31 +132,29 @@ void Connection::appendDataXY (double x, double y, QString const & msg_tag)
 		it = m_dataplots.insert(tag, dp);
 		QModelIndex const item_idx = m_data_model->insertItem(plot_name.toStdString());
 
-		dp->m_wd = m_main_window->m_dock_mgr.mkDockWidget(m_main_window, &dp->m_plot, plot_name);
+		dp->m_wd = m_main_window->m_dock_mgr.mkDockWidget(m_main_window, &dp->widget(), plot_name);
 		if (m_main_window->plotEnabled())
 		{
 			if (template_config.m_show)
 			{
-				dp->m_plot.show();
-				dp->m_wd->show();
+				dp->onShow();
 				m_main_window->restoreDockWidget(dp->m_wd);
 				m_main_window->onPlotRestoreButton();
 			}
 		}
 		else
 		{
-			dp->m_plot.hide();
-			dp->m_wd->hide();
+			dp->onHide();
 		}
 	}
 
 	DataPlot & dp = **it;
 	QString const curve_name = plot_name + "/" + subtag;
-	plot::Curve * curve = dp.m_plot.findCurve(subtag);
+	plot::Curve * curve = dp.widget().findCurve(subtag);
 
 	if (!curve)
 	{
-		curve = *dp.m_plot.mkCurve(subtag);
+		curve = *dp.widget().mkCurve(subtag);
 		QModelIndex const item_idx = m_data_model->insertItem(curve_name.toStdString());
 
 		plot::CurveConfig const * ccfg = 0;
@@ -136,13 +163,13 @@ void Connection::appendDataXY (double x, double y, QString const & msg_tag)
 		if (dp.m_config.m_show)
 		{
 			bool const visible = ccfg ? ccfg->m_show : true;
-			dp.m_plot.showCurve(curve->m_curve, visible);
+			dp.widget().showCurve(curve->m_curve, visible);
 			m_data_model->setData(item_idx, QVariant(visible ? Qt::Checked : Qt::Unchecked), Qt::CheckStateRole);
 		}
 		else
 		{
 			bool const visible = ccfg ? ccfg->m_show : false;
-			dp.m_plot.showCurve(curve->m_curve, visible);
+			dp.widget().showCurve(curve->m_curve, visible);
 			m_data_model->setData(item_idx, QVariant(visible ? Qt::Checked : Qt::Unchecked), Qt::CheckStateRole);
 		}
 	}

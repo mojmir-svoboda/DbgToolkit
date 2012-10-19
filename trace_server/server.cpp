@@ -242,7 +242,7 @@ void Server::onClickedAtPlotTree (QModelIndex idx)
 						if (dp->m_config.m_tag == path.at(2))
 						{
 							bool apply = false;
-							bool const xchg = dp->m_table.getConfig().m_show ^ state.at(2);
+							bool const xchg = dp->widget().getConfig().m_show ^ state.at(2);
 							apply |= xchg;
 							if (xchg)
 							{
@@ -250,7 +250,7 @@ void Server::onClickedAtPlotTree (QModelIndex idx)
 							}
 
 							if (apply)
-								dp->getWidget().applyConfig(dp->getWidget().getConfig());
+								dp->widget().applyConfig(dp->widget().getConfig());
 						}
 					}
 				}
@@ -272,7 +272,7 @@ void Server::onClickedAtPlotTree (QModelIndex idx)
 						if (dp->m_config.m_tag == path.at(2))
 						{
 							bool apply = false;
-							bool const xchg = dp->m_plot.getConfig().m_show ^ state.at(2);
+							bool const xchg = dp->widget().getConfig().m_show ^ state.at(2);
 							apply |= xchg;
 							if (xchg)
 							{
@@ -309,7 +309,7 @@ void Server::onClickedAtPlotTree (QModelIndex idx)
 
 							if (apply)
 							{
-								dp->m_plot.applyConfig(dp->m_plot.getConfig());
+								dp->widget().applyConfig(dp->widget().getConfig());
 							}
 						}
 					}

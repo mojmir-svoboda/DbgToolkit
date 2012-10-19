@@ -80,7 +80,7 @@ namespace {
 			if (ptr->m_wd)
 			{
 				mainwin.removeDockWidget(ptr->m_wd);
-				ptr->getWidget().setParent(0);
+				ptr->widget().setParent(0);
 				ptr->m_wd->setWidget(0);
 				delete ptr->m_wd;
 			}
@@ -93,7 +93,7 @@ namespace {
 Connection::~Connection ()
 {
 	for (datatables_t::iterator it = m_datatables.begin(), ite = m_datatables.end(); it != ite; ++it)
-		QObject::disconnect((*it)->m_table.horizontalHeader(), SIGNAL(sectionResized(int, int, int)), &(*it)->m_table, SLOT(onSectionResized(int, int, int)));
+		QObject::disconnect((*it)->widget().horizontalHeader(), SIGNAL(sectionResized(int, int, int)), &(*it)->widget(), SLOT(onSectionResized(int, int, int)));
 	qDebug("Connection::~Connection() this=0x%08x", this);
 	if (m_statswindow)
 	{
@@ -177,7 +177,7 @@ void Connection::onDisconnected ()
 	for (dataplots_t::iterator it = m_dataplots.begin(), ite = m_dataplots.end(); it != ite; ++it)
 	{
 		DataPlot * dp = (*it);
-		dp->m_plot.stopUpdate();
+		dp->widget().stopUpdate();
 	}
 }
 
@@ -502,13 +502,13 @@ void Connection::onSaveAll ()
 	for (dataplots_t::iterator it = m_dataplots.begin(), ite = m_dataplots.end(); it != ite; ++it)
 	{
 		DataPlot * dp = (*it);
-		dp->getWidget().onSaveButton();
+		dp->widget().onSaveButton();
 	}
 
 	for (datatables_t::iterator it = m_datatables.begin(), ite = m_datatables.end(); it != ite; ++it)
 	{
 		DataTable * dt = (*it);
-		dt->getWidget().onSaveButton();
+		dt->widget().onSaveButton();
 	}	
 }
 
