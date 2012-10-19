@@ -307,9 +307,9 @@ void Server::onClickedAtPlotTree (QModelIndex idx)
 								}
 
 								if (state.at(2))
-									dp->onShow();
+									dp->m_wd->show();
 								else
-									dp->onHide();
+									dp->m_wd->hide();
 							}
 
 							if (apply)

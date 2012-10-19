@@ -242,7 +242,7 @@ int main ()
 		TRACE_MSG(trace::e_Info, trace::CTX_Default,	"%s", "This message should periodicaly appear too.");
 		
 		//for(size_t i = 0; i < 4; ++i)
-		static size_t i = 0;
+		static size_t i	 = 0;
 		++i;
 		TRACE_MSG(trace::e_Info, trace::CTX_Default,  "Some another annoying message i=%u from main thread", i);
 		TRACE_TABLE(trace::e_Info, trace::CTX_Default, 0, 0, "hokus/%i|%i|%i", i, i*i, i*i*i);

@@ -139,7 +139,7 @@ void Connection::appendDataXY (double x, double y, QString const & msg_tag)
 			{
 				dp->onShow();
 				m_main_window->restoreDockWidget(dp->m_wd);
-				m_main_window->onDockRestoreButton();
+				//m_main_window->onDockRestoreButton();
 			}
 		}
 		else

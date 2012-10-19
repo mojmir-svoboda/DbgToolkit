@@ -132,7 +132,6 @@ void Connection::appendTableXY (int x, int y, QString const & msg_tag)
 			{
 				dp->onShow();
 				m_main_window->restoreDockWidget(dp->m_wd);
-				m_main_window->onDockRestoreButton();
 			}
 		}
 		else
