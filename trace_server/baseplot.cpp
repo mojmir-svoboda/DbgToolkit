@@ -4,6 +4,7 @@
 #include "qwt/qwt_plot_zoomer.h"
 #include "qwt/qwt_plot_magnifier.h"
 #include "qwt/qwt_picker_machine.h"
+#include "qwt/qwt_plot_marker.h"
 #include <QTimer>
 
 namespace plot {
@@ -106,6 +107,8 @@ namespace plot {
 
 		QwtPlotPanner * panner = new QwtPlotPanner(canvas());
 		panner->setMouseButton(Qt::MidButton);
+
+		//QwtPlotMarker * marker = new QwtPlotMarker();
 
 		setConfigValues(m_config);
 		QTimer::singleShot(0, this, SLOT(onApplyButton()));

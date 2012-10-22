@@ -143,7 +143,7 @@ void TableModelView::appendTableXY (int x, int y, QString const & cmd)
 
 		if (x < 0)
 		{
-			beginInsertColumns(QModelIndex(), m_columnCount, m_columnCount + n_cols);
+			beginInsertColumns(QModelIndex(), m_columnCount, m_columnCount + n_cols - 1);
 			++m_columnCount;
 			size_t const curr_sz = m_rows[y].size();
 			m_rows[y].resize(curr_sz + 1);

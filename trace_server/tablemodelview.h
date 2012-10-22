@@ -33,13 +33,14 @@ public:
 	~TableModelView ();
 	int rowCount (const QModelIndex & parent = QModelIndex()) const;
 	int columnCount (const QModelIndex & parent = QModelIndex()) const;
+
 	QVariant data (const QModelIndex & index, int role = Qt::DisplayRole) const;
 	bool setData (QModelIndex const & index, QVariant const & value, int role = Qt::EditRole);
+
 	QVariant headerData (int section, Qt::Orientation orientation, int role) const;
 	bool  setHeaderData (int section, Qt::Orientation orientation, QVariant const & value, int role = Qt::EditRole);
 
 	void transactionStart (size_t n);
-	//void appendCommand (tlv::StringCommand const & cmd);
 	void appendTableXY (int x, int y, QString const & msg_tag);
 	void transactionCommit ();
 
@@ -48,7 +49,6 @@ public:
 	bool checkExistence (QModelIndex const & index) const;
 
 private:
-
 	typedef std::vector<QString> columns_t;
 	typedef std::vector<columns_t> rows_t;
 	rows_t m_rows;
