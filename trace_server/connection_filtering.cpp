@@ -40,12 +40,6 @@ void Connection::setFilterFile (int state)
 		onInvalidateFilter();
 	}
 
-	m_main_window->getWidgetFile()->setEnabled(m_main_window->filterEnabled());
-	m_main_window->getWidgetCtx()->setEnabled(m_main_window->filterEnabled());
-	m_main_window->getWidgetTID()->setEnabled(m_main_window->filterEnabled());
-	m_main_window->getWidgetColorRegex()->setEnabled(m_main_window->filterEnabled());
-	m_main_window->getWidgetRegex()->setEnabled(m_main_window->filterEnabled());
-	m_main_window->getWidgetLvl()->setEnabled(m_main_window->filterEnabled());
 	if (m_column_setup_done)
 		setupColumnSizes(true);
 }
@@ -326,6 +320,33 @@ void Connection::recompileRegexps ()
 		}
 	}
 
+	onInvalidateFilter();
+}
+
+void Connection::appendToStringWidgets (FilteredString const & flt)
+{
+	QStandardItem * root = m_string_model->invisibleRootItem();
+	QStandardItem * child = findChildByText(root, flt.m_string);
+	if (child == 0)
+	{
+		bool const mode = static_cast<bool>(flt.m_state);
+		QList<QStandardItem *> row_items = addTriRow(flt.m_string, flt.m_is_enabled ? Qt::Checked : Qt::Unchecked, mode);
+		row_items[0]->setCheckState(flt.m_is_enabled ? Qt::Checked : Qt::Unchecked);
+		root->appendRow(row_items);
+	}
+}
+void Connection::appendToStringFilters (QString const & str, bool checked, int state)
+{
+	m_session_state.appendToStringFilters(str, checked, state);
+}
+
+void Connection::removeFromStringFilters (QString const & val)
+{
+	m_session_state.removeFromStringFilters(val);
+}
+
+void Connection::recompileStrings ()
+{
 	onInvalidateFilter();
 }
 

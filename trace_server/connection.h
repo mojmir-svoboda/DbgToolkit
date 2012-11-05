@@ -105,12 +105,16 @@ public:
 	void appendToCtxWidgets (FilteredContext const & flt);
 	void appendToLvlFilters (std::string const & item);
 	void appendToLvlWidgets (FilteredLevel const & flt);
+	void appendToStringWidgets (FilteredString const & flt);
 
 	void clearFilters ();
 	void findText (QString const & text, tlv::tag_t tag);
 	void findText (QString const & text);
 	void findNext ();
 	void findPrev ();
+	void appendToStringFilters (QString const & str, bool checked, int state);
+	void removeFromStringFilters (QString const & item);
+	void recompileStrings ();
 	void appendToRegexFilters (std::string const & str, bool checked, bool inclusive);
 	void removeFromRegexFilters (std::string const & item);
 	void appendToColorRegexFilters (std::string const & item);
@@ -226,6 +230,7 @@ private:
 	void setupModelTID ();
 	void setupModelColorRegex ();
 	void setupModelRegex ();
+	void setupModelString ();
 	void setupModelLvl ();
 	void setupColumnSizes (bool force_setup = false);
 	QString findString4Tag (tlv::tag_t tag, QModelIndex const & row_index) const;
@@ -253,6 +258,7 @@ private:
 	QStandardItemModel * m_color_regex_model;
 	QStandardItemModel * m_regex_model;
 	QStandardItemModel * m_lvl_model;
+	QStandardItemModel * m_string_model;
 	LevelDelegate * m_lvl_delegate;
 	CtxDelegate * m_ctx_delegate;
 	QAbstractProxyModel * m_table_view_proxy;

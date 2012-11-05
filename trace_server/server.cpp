@@ -122,8 +122,8 @@ Connection * Server::createNewTableView ()
 	connection->setMainWindow(main_window);
 	QWidget * tab = new QWidget();
 	QHBoxLayout * horizontalLayout = new QHBoxLayout(tab);
-	horizontalLayout->setSpacing(6);
-	horizontalLayout->setContentsMargins(11, 11, 11, 11);
+	horizontalLayout->setSpacing(1);
+	horizontalLayout->setContentsMargins(0, 0, 0, 0);
 	horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
 	TableView * tableView = new TableView(tab);
 	
@@ -134,8 +134,8 @@ Connection * Server::createNewTableView ()
 	ModelView * model = new ModelView(tableView, connection);
 	connection->m_table_view_src = model;
 	disconnect(model, SIGNAL(rowsInserted(QModelIndex,int,int)), tableView->verticalHeader(), SLOT(sectionsInserted(QModelIndex,int,int)));
-    //tableView->verticalHeader()->setFont(QFont(""));		// @TODO: into config
-	tableView->verticalHeader()->setDefaultSectionSize(18);	// @TODO: into config
+    tableView->verticalHeader()->setFont(main_window->tableFont());
+	tableView->verticalHeader()->setDefaultSectionSize(main_window->tableRowSize());
 	tableView->verticalHeader()->hide();	// @NOTE: users want that //@NOTE2: they can't have it because of performance
 	tableView->setModel(model);
 	horizontalLayout->addWidget(tableView);

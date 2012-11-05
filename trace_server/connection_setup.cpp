@@ -44,6 +44,7 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 			this->setupModelTID();
 			this->setupModelColorRegex();
 			this->setupModelRegex();
+			this->setupModelString();
 
 			QString app_name = QString::fromStdString(cmd.tvs[i].m_val);
 			if (m_main_window->reuseTabEnabled())
@@ -58,8 +59,6 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 						loadSessionState(conn->sessionState(), m_session_state);
 					}
 
-					m_main_window->getWidgetFile()->setEnabled(m_main_window->filterEnabled());
-	
 					QWidget * w = conn->sessionState().m_tab_widget;
 					server->onCloseTab(w);	// close old one
 					// @TODO: delete persistent storage for the tab
@@ -130,6 +129,15 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 					{
 						FilteredContext & flt = sessionState().m_ctx_filters[i];
 						appendToCtxWidgets(flt);
+					}
+				}
+				{
+					QStandardItemModel * model = static_cast<QStandardItemModel *>(m_main_window->getWidgetString()->model());
+					QStandardItem * root = model->invisibleRootItem();
+					for (int i = 0; i < sessionState().m_filtered_strings.size(); ++i)
+					{
+						FilteredString & flt = sessionState().m_filtered_strings[i];
+						appendToStringWidgets(flt);
 					}
 				}
 
@@ -253,7 +261,6 @@ void Connection::setupModelFile ()
 	m_main_window->getWidgetFile()->syncExpandState();
 	m_main_window->getWidgetFile()->hideLinearParents();
 	connect(m_file_model, SIGNAL(invalidateFilter()), this, SLOT(onInvalidateFilter()));
-	m_main_window->getWidgetFile()->setEnabled(m_main_window->filterEnabled());
 }
 
 void Connection::destroyModelFile ()
@@ -277,7 +284,6 @@ void Connection::setupModelCtx ()
 	}
 	m_main_window->getWidgetCtx()->setModel(m_ctx_model);
 	m_main_window->getWidgetCtx()->expandAll();
-	m_main_window->getWidgetCtx()->setEnabled(m_main_window->filterEnabled());
 	m_main_window->getWidgetCtx()->setItemDelegate(m_ctx_delegate);
 }
 
@@ -286,7 +292,6 @@ void Connection::setupModelTID ()
 	if (!m_tid_model)
 		m_tid_model = new QStandardItemModel;
 	m_main_window->getWidgetTID()->setModel(m_tid_model);
-	m_main_window->getWidgetTID()->setEnabled(m_main_window->filterEnabled());
 }
 
 void Connection::setupModelColorRegex ()
@@ -294,7 +299,6 @@ void Connection::setupModelColorRegex ()
 	if (!m_color_regex_model)
 		m_color_regex_model = new QStandardItemModel;
 	m_main_window->getWidgetColorRegex()->setModel(m_color_regex_model);
-	m_main_window->getWidgetColorRegex()->setEnabled(m_main_window->filterEnabled());
 }
 
 void Connection::setupModelRegex ()
@@ -302,7 +306,13 @@ void Connection::setupModelRegex ()
 	if (!m_regex_model)
 		m_regex_model = new QStandardItemModel;
 	m_main_window->getWidgetRegex()->setModel(m_regex_model);
-	m_main_window->getWidgetRegex()->setEnabled(m_main_window->filterEnabled());
+}
+
+void Connection::setupModelString ()
+{
+	if (!m_string_model)
+		m_string_model = new QStandardItemModel;
+	m_main_window->getWidgetString()->setModel(m_string_model);
 }
 
 void Connection::setupModelLvl ()
@@ -310,7 +320,6 @@ void Connection::setupModelLvl ()
 	if (!m_lvl_model)
 		m_lvl_model = new QStandardItemModel;
 	m_main_window->getWidgetLvl()->setModel(m_lvl_model);
-	m_main_window->getWidgetLvl()->setEnabled(m_main_window->filterEnabled());
 	m_main_window->getWidgetLvl()->setSortingEnabled(true);
 	m_main_window->getWidgetLvl()->setItemDelegate(m_lvl_delegate);
 	m_main_window->getWidgetLvl()->setRootIndex(m_lvl_model->indexFromItem(m_lvl_model->invisibleRootItem()));

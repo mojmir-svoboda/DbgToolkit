@@ -62,7 +62,9 @@ namespace table {
 				m_config.m_hsize[i] = sz;
 			}
 
+			horizontalHeader()->blockSignals(1);
 			horizontalHeader()->resizeSection(i, sz);
+			horizontalHeader()->blockSignals(0);
 		}
 	}
 

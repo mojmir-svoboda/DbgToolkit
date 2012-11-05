@@ -180,7 +180,6 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode)
 
 	getWidgetRegex()->setEditTriggers(QAbstractItemView::NoEditTriggers);
 	getWidgetRegex()->header()->hide();
-	connect(getWidgetTID(), SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtTIDList(QModelIndex)));
 	connect(getWidgetRegex(), SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtRegexList(QModelIndex)));
 	connect(getWidgetRegex(), SIGNAL(doubleClicked(QModelIndex)), m_server, SLOT(onDoubleClickedAtRegexList(QModelIndex)));
 	connect(ui->comboBoxRegex, SIGNAL(activated(int)), this, SLOT(onRegexActivate(int)));
@@ -193,6 +192,14 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode)
 	connect(ui->comboBoxColorRegex, SIGNAL(activated(int)), this, SLOT(onColorRegexActivate(int)));
 	connect(ui->buttonAddColorRegex, SIGNAL(clicked()), this, SLOT(onColorRegexAdd()));
 	connect(ui->buttonRmColorRegex, SIGNAL(clicked()), this, SLOT(onColorRegexRm()));
+
+	getWidgetString()->setEditTriggers(QAbstractItemView::NoEditTriggers);
+	getWidgetString()->header()->hide();
+	connect(getWidgetString(), SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtStringList(QModelIndex)));
+	connect(getWidgetString(), SIGNAL(doubleClicked(QModelIndex)), m_server, SLOT(onDoubleClickedAtStringList(QModelIndex)));
+	//connect(ui->comboBoxString, SIGNAL(activated(int)), this, SLOT(onStringActivate(int)));
+	connect(ui->buttonAddString, SIGNAL(clicked()), this, SLOT(onStringAdd()));
+	connect(ui->buttonRmString, SIGNAL(clicked()), this, SLOT(onStringRm()));
 
 	if (m_config.m_dump_mode)
 	{
@@ -338,12 +345,15 @@ QListView * MainWindow::getWidgetTID () { return ui->listViewTID; }
 QListView const * MainWindow::getWidgetTID () const { return ui->listViewTID; }
 QTreeView * MainWindow::getWidgetLvl () { return ui->treeViewLvl; }
 QTreeView const * MainWindow::getWidgetLvl () const { return ui->treeViewLvl; }
-
+QTreeView * MainWindow::getWidgetString () { return ui->treeViewString; }
+QTreeView const * MainWindow::getWidgetString () const { return ui->treeViewString; }
 QTreeView const * MainWindow::getWidgetPlots () const { return m_plot_tree_view; }
 
 bool MainWindow::scopesEnabled () const { return ui_settings->scopesCheckBox->isChecked(); }
 bool MainWindow::indentEnabled () const { return ui_settings->indentCheckBox->isChecked(); }
 int MainWindow::indentLevel () const { return ui_settings->indentSpinBox->value(); }
+int MainWindow::tableRowSize () const { return ui_settings->tableRowSizeSpinBox->value(); }
+QFont MainWindow::tableFont () const { return ui_settings->tableFontComboBox->currentFont(); }
 bool MainWindow::cutPathEnabled () const { return ui_settings->cutPathCheckBox->isChecked(); }
 int MainWindow::cutPathLevel () const { return ui_settings->cutPathSpinBox->value(); }
 bool MainWindow::cutNamespaceEnabled () const { return ui_settings->cutNamespaceCheckBox->isChecked(); }
@@ -517,10 +527,8 @@ void MainWindow::onQFilterLineEditFinished ()
 	if (ui->qFilterLineEdit->text().size() == 0)
 		return;
 
-	QString text(".*");
-	text.append(ui->qFilterLineEdit->text());
-	text.append(".*");
-	conn->appendToRegexFilters(text.toStdString(), true, true); // @TODO: second true can use global incl/excl fmode
+	QString text = ui->qFilterLineEdit->text();
+	conn->appendToStringFilters(text, true, true);
 
 	QStandardItemModel * model = static_cast<QStandardItemModel *>(getWidgetRegex()->model());
 	QStandardItem * root = model->invisibleRootItem();
@@ -827,6 +835,40 @@ void MainWindow::onRegexRm ()
 	{
 		conn->removeFromRegexFilters(val.toStdString());
 		conn->recompileRegexps();
+	}
+}
+
+void MainWindow::onStringAdd ()
+{
+	Connection * conn = m_server->findCurrentConnection();
+	if (!conn) return;
+
+	QString qItem = ui->qFilterLineEdit->text();
+	QStandardItem * root = static_cast<QStandardItemModel *>(getWidgetString()->model())->invisibleRootItem();
+	QStandardItem * child = findChildByText(root, qItem);
+	if (child == 0)
+	{
+		QList<QStandardItem *> row_items = addTriRow(qItem, Qt::Unchecked, true);
+		root->appendRow(row_items);
+		conn->appendToStringFilters(qItem, true, true);
+		conn->recompileStrings();
+	}
+}
+
+void MainWindow::onStringRm ()
+{
+	QStandardItemModel * model = static_cast<QStandardItemModel *>(getWidgetString()->model());
+	QModelIndex const idx = getWidgetString()->currentIndex();
+	QStandardItem * item = model->itemFromIndex(idx);
+	if (!item)
+		return;
+	QString const & val = model->data(idx, Qt::DisplayRole).toString();
+	model->removeRow(idx.row());
+	Connection * conn = m_server->findCurrentConnection();
+	if (conn)
+	{
+		conn->removeFromStringFilters(val);
+		conn->recompileStrings();
 	}
 }
 
@@ -1232,6 +1274,8 @@ void MainWindow::storeState ()
 	settings.setValue("cutPathCheckBox", ui_settings->cutPathCheckBox->isChecked());
 	settings.setValue("cutNamespaceCheckBox", ui_settings->cutNamespaceCheckBox->isChecked());
 	settings.setValue("indentSpinBox", ui_settings->indentSpinBox->value());
+	settings.setValue("tableRowSizeSpinBox", ui_settings->tableRowSizeSpinBox->value());
+	settings.setValue("tableFontComboBox", ui_settings->tableFontComboBox->currentFont());
 	settings.setValue("cutPathSpinBox", ui_settings->cutPathSpinBox->value());
 	settings.setValue("cutNamespaceSpinBox", ui_settings->cutNamespaceSpinBox->value());
 	settings.setValue("onTopCheckBox", ui_settings->onTopCheckBox->isChecked());
@@ -1319,6 +1363,9 @@ void MainWindow::loadState ()
 	//@TODO: delete filterMode from registry if exists
 	ui->levelSpinBox->setValue(settings.value("levelSpinBox", 3).toInt());
 
+	ui_settings->tableRowSizeSpinBox->setValue(settings.value("tableRowSizeSpinBox", 18).toInt());
+	//ui_settings->tableFontComboBox->setValue(settings.value("tableFontComboBox", "Verdana 8").toInt());
+
 	read_list_of_strings(settings, "known-applications", "application", m_config.m_app_names);
 	for (size_t i = 0, ie = m_config.m_app_names.size(); i < ie; ++i)
 	{
@@ -1380,10 +1427,7 @@ void MainWindow::loadState ()
 #endif
 
 	loadPresets();
-	getWidgetFile()->setEnabled(filterEnabled());
 	ui->plotsToolButton->setChecked(m_plots_dock->isVisible());
-
-
 	qApp->installEventFilter(this);
 }
 

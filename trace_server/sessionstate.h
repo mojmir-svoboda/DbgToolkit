@@ -139,6 +139,13 @@ public:
 	void setRegexChecked (std::string const & s, bool checked);
 	void setRegexInclusive (std::string const & s, bool inclusive);
 
+	// string filtering
+	void appendToStringFilters (QString const & str, bool checked, int state);
+	void removeFromStringFilters (QString const & str);
+	bool isMatchedStringExcluded (QString str) const;
+	void setStringChecked (QString const & s, bool checked);
+	void setStringState (QString const & s, int state);
+
 	void excludeContentToRow (int row) { m_exclude_content_to_row = row; }
 	int excludeContentToRow () const { return m_exclude_content_to_row; }
 
@@ -218,5 +225,6 @@ private:
 	QList<CollapsedBlock> m_collapse_blocks;
 	unsigned m_recv_bytes;
 	Dict m_dict_ctx;
+	QList<FilteredString> m_filtered_strings;
 };
 

@@ -83,6 +83,27 @@ struct FilteredRegex {
 	}
 };
 
+struct FilteredString {
+	QString m_string;
+	bool m_is_enabled;
+	int m_state;
+
+	bool match (QString const & str) const { return str.contains(m_string, Qt::CaseInsensitive); }
+
+	FilteredString () { }
+	FilteredString (QString const & s, bool enabled, int state)
+        : m_string(s), m_is_enabled(enabled), m_state(state)
+	{ }
+
+	template <class ArchiveT>
+	void serialize (ArchiveT & ar, unsigned const version)
+	{
+		ar & m_string;
+		ar & m_is_enabled;
+		ar & m_state;
+	}
+};
+
 struct ColorizedText {
 	E_ColorRole m_role;
 	QColor m_qcolor;

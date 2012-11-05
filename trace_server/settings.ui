@@ -144,6 +144,47 @@
        </item>
       </layout>
      </widget>
+     <widget class="QWidget" name="tab_4">
+      <attribute name="title">
+       <string>Visual</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_10">
+       <item row="0" column="0">
+        <layout class="QGridLayout" name="gridLayout_9">
+         <item row="0" column="1">
+          <widget class="QSpinBox" name="tableRowSizeSpinBox">
+           <property name="value">
+            <number>18</number>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_17">
+           <property name="text">
+            <string>Table row size:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QFontComboBox" name="tableFontComboBox">
+           <property name="currentFont">
+            <font>
+             <family>Verdana</family>
+            </font>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="label_18">
+           <property name="text">
+            <string>Table font</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
      <widget class="QWidget" name="tabNetwork">
       <attribute name="title">
        <string>Network</string>
@@ -235,23 +276,6 @@
            </property>
           </widget>
          </item>
-         <item row="0" column="3">
-          <widget class="QCheckBox" name="traceStatsCheckBox">
-           <property name="text">
-            <string>show</string>
-           </property>
-           <property name="checked">
-            <bool>false</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="2">
-          <widget class="QLabel" name="label_11">
-           <property name="text">
-            <string>Stats Graph:</string>
-           </property>
-          </widget>
-         </item>
          <item row="3" column="2">
           <widget class="QLabel" name="label_12">
            <property name="enabled">
@@ -269,6 +293,29 @@
            </property>
            <property name="text">
             <string>show</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="2">
+          <widget class="QLabel" name="label_11">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="text">
+            <string>Stats Graph:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="3">
+          <widget class="QCheckBox" name="traceStatsCheckBox">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="text">
+            <string>show</string>
+           </property>
+           <property name="checked">
+            <bool>false</bool>
            </property>
           </widget>
          </item>
@@ -331,7 +378,7 @@
       <layout class="QGridLayout" name="gridLayout_4">
        <item row="0" column="0">
         <layout class="QGridLayout" name="gridLayout_2">
-         <item row="5" column="0">
+         <item row="4" column="0">
           <widget class="QCheckBox" name="clrFiltersCheckBox">
            <property name="font">
             <font>
@@ -344,7 +391,7 @@
            </property>
           </widget>
          </item>
-         <item row="6" column="0">
+         <item row="5" column="0">
           <widget class="QCheckBox" name="scopesCheckBox">
            <property name="font">
             <font>
@@ -360,7 +407,7 @@
            </property>
           </widget>
          </item>
-         <item row="7" column="0">
+         <item row="6" column="0">
           <widget class="QCheckBox" name="indentCheckBox">
            <property name="font">
             <font>
@@ -376,7 +423,7 @@
            </property>
           </widget>
          </item>
-         <item row="8" column="0">
+         <item row="7" column="0">
           <widget class="QCheckBox" name="cutPathCheckBox">
            <property name="font">
             <font>
@@ -392,7 +439,7 @@
            </property>
           </widget>
          </item>
-         <item row="9" column="0">
+         <item row="8" column="0">
           <widget class="QCheckBox" name="cutNamespaceCheckBox">
            <property name="font">
             <font>
@@ -408,7 +455,7 @@
            </property>
           </widget>
          </item>
-         <item row="8" column="1">
+         <item row="7" column="1">
           <widget class="QSpinBox" name="cutPathSpinBox">
            <property name="minimum">
             <number>1</number>
@@ -421,7 +468,7 @@
            </property>
           </widget>
          </item>
-         <item row="9" column="1">
+         <item row="8" column="1">
           <widget class="QSpinBox" name="cutNamespaceSpinBox">
            <property name="minimum">
             <number>1</number>
@@ -434,7 +481,7 @@
            </property>
           </widget>
          </item>
-         <item row="7" column="1">
+         <item row="6" column="1">
           <widget class="QSpinBox" name="indentSpinBox">
            <property name="minimum">
             <number>0</number>
@@ -445,30 +492,6 @@
            <property name="value">
             <number>4</number>
            </property>
-          </widget>
-         </item>
-         <item row="3" column="0">
-          <widget class="QLabel" name="label_15">
-           <property name="text">
-            <string>File filtering mode</string>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="1">
-          <widget class="QComboBox" name="filterModeComboBox">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <item>
-            <property name="text">
-             <string>Inclusive</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Exclusive</string>
-            </property>
-           </item>
           </widget>
          </item>
         </layout>

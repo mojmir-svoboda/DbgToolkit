@@ -37,6 +37,7 @@ Connection::Connection (QObject * parent)
 	, m_color_regex_model(0)
 	, m_regex_model(0)
 	, m_lvl_model(0)
+	, m_string_model(0)
 	, m_lvl_delegate(0)
 	, m_ctx_delegate(0)
 	, m_table_view_proxy(0)
@@ -143,6 +144,15 @@ Connection::~Connection ()
 	delete m_color_regex_model;
 	m_color_regex_model = 0;
 
+	if (m_main_window->getWidgetRegex()->model() == m_regex_model)
+		m_main_window->getWidgetRegex()->setModel(0);
+	delete m_regex_model;
+	m_regex_model = 0;
+
+	if (m_main_window->getWidgetRegex()->model() == m_string_model)
+		m_main_window->getWidgetRegex()->setModel(0);
+	delete m_string_model;
+	m_string_model = 0;
 
 	if (m_table_view_proxy)
 	{
@@ -189,6 +199,7 @@ void Connection::onTabTraceFocus ()
 	m_main_window->getWidgetTID()->setModel(m_tid_model);
 	m_main_window->getWidgetColorRegex()->setModel(m_color_regex_model);
 	m_main_window->getWidgetRegex()->setModel(m_regex_model);
+	m_main_window->getWidgetString()->setModel(m_string_model);
 }
 
 void Connection::onLevelValueChanged (int val)

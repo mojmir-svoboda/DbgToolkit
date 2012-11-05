@@ -126,6 +126,8 @@ public:
     QComboBox const * getFilterRegex () const;
 	QTreeView * getWidgetRegex ();
 	QTreeView const * getWidgetRegex () const;
+	QTreeView * getWidgetString ();
+	QTreeView const * getWidgetString () const;
     QComboBox * getFilterColorRegex ();
     QComboBox const * getFilterColorRegex () const;
 	QListView * getWidgetColorRegex ();
@@ -145,6 +147,8 @@ public:
 	int cutPathLevel () const;
 	int cutNamespaceLevel () const;
 	int indentLevel () const;
+	int tableRowSize () const;
+	QFont tableFont () const;
 	bool onTopEnabled () const;
 	bool autoScrollEnabled () const;
 	bool reuseTabEnabled () const;
@@ -215,6 +219,9 @@ private slots:
 	void onColorRegexActivate (int idx);
 	void onColorRegexAdd ();
 	void onColorRegexRm ();
+	//void onStringActivate (int idx);
+	void onStringAdd ();
+	void onStringRm ();
 	void onShowHelp ();
 	void onDumpFilters ();
 	void onReuseTabChanged (int state);
