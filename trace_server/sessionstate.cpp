@@ -102,7 +102,7 @@ int SessionState::insertColumn (tlv::tag_t tag)
 	m_tags2columns.insert(tag, column_index);
 
 	if (name)
-		m_columns_setup_current->operator[](column_index) = QString::fromStdString(name);
+		m_columns_setup_current->operator[](column_index) = name;
 	else
 		m_columns_setup_current->operator[](column_index) = QString("???");
 
@@ -137,9 +137,8 @@ bool SessionState::isFileLinePresent (QString const & fileline, TreeModelItem & 
 ///////// ctx filters
 bool SessionState::isCtxPresent (QString const & item, bool & enabled) const
 {
-	QString const qitem = QString::fromStdString(item);
 	for (int i = 0, ie = m_ctx_filters.size(); i < ie; ++i)
-		if (m_ctx_filters.at(i).m_ctx_str == qitem)
+		if (m_ctx_filters.at(i).m_ctx_str == item)
 		{
 			FilteredContext const & fc = m_ctx_filters.at(i);
 			enabled = fc.m_is_enabled;
@@ -149,22 +148,20 @@ bool SessionState::isCtxPresent (QString const & item, bool & enabled) const
 }
 void SessionState::appendCtxFilter (QString const & item)
 {
-	QString const qitem = QString::fromStdString(item);
 	for (int i = 0, ie = m_ctx_filters.size(); i < ie; ++i)
-		if (m_ctx_filters[i].m_ctx_str == qitem)
+		if (m_ctx_filters[i].m_ctx_str == item)
 		{
 			FilteredContext & fc = m_ctx_filters[i];
 			fc.m_is_enabled = true;
 			return;
 		}
-	m_ctx_filters.push_back(FilteredContext(qitem, true, 0));
+	m_ctx_filters.push_back(FilteredContext(item, true, 0));
 
 }
 void SessionState::removeCtxFilter (QString const & item)
 {
-	QString const qitem = QString::fromStdString(item);
 	for (int i = 0, ie = m_ctx_filters.size(); i < ie; ++i)
-		if (m_ctx_filters[i].m_ctx_str == qitem)
+		if (m_ctx_filters[i].m_ctx_str == item)
 		{
 			FilteredContext & fc = m_ctx_filters[i];
 			fc.m_is_enabled = false;
@@ -189,21 +186,19 @@ bool SessionState::isTIDExcluded (QString const & item) const
 ///////// lvl filters
 void SessionState::appendLvlFilter (QString const & item)
 {
-	QString const qitem = QString::fromStdString(item);
 	for (int i = 0, ie = m_lvl_filters.size(); i < ie; ++i)
-		if (m_lvl_filters[i].m_level_str == qitem)
+		if (m_lvl_filters[i].m_level_str == item)
 		{
 			FilteredLevel & l = m_lvl_filters[i];
 			l.m_is_enabled = true;
 			return;
 		}
-	m_lvl_filters.push_back(FilteredLevel(qitem, true, e_LvlInclude));
+	m_lvl_filters.push_back(FilteredLevel(item, true, e_LvlInclude));
 }
 void SessionState::removeLvlFilter (QString const & item)
 {
-	QString const qitem = QString::fromStdString(item);
 	for (int i = 0, ie = m_lvl_filters.size(); i < ie; ++i)
-		if (m_lvl_filters[i].m_level_str == qitem)
+		if (m_lvl_filters[i].m_level_str == item)
 		{
 			FilteredLevel & l = m_lvl_filters[i];
 			l.m_is_enabled = false;
@@ -212,9 +207,8 @@ void SessionState::removeLvlFilter (QString const & item)
 }
 bool SessionState::isLvlPresent (QString const & item, bool & enabled, E_LevelMode & lvlmode) const
 {
-	QString const qitem = QString::fromStdString(item);
 	for (int i = 0, ie = m_lvl_filters.size(); i < ie; ++i)
-		if (m_lvl_filters.at(i).m_level_str == qitem)
+		if (m_lvl_filters.at(i).m_level_str == item)
 		{
 			FilteredLevel const & l = m_lvl_filters.at(i);
 			lvlmode = static_cast<E_LevelMode>(l.m_state);
@@ -225,9 +219,8 @@ bool SessionState::isLvlPresent (QString const & item, bool & enabled, E_LevelMo
 }
 bool SessionState::setLvlMode (QString const & item, bool enabled, E_LevelMode lvlmode)
 {
-	QString const qitem = QString::fromStdString(item);
 	for (int i = 0, ie = m_lvl_filters.size(); i < ie; ++i)
-		if (m_lvl_filters.at(i).m_level_str == qitem)
+		if (m_lvl_filters.at(i).m_level_str == item)
 		{
 			FilteredLevel & l = m_lvl_filters[i];
 			l.m_state = lvlmode;

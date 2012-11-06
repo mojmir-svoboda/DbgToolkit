@@ -72,7 +72,7 @@ void ProfilerWindow::loadState ()
 	//loadSessionState(conn->sessionState(), m_session_state);
 }
 
-	boost::char_separator<char> sep(":/\\");
+	//boost::char_separator<char> sep(":/\\");
 
 void ProfilerWindow::appendToTagTree (std::string const & tagpath)
 {
@@ -120,7 +120,7 @@ void ProfilerWindow::onFileColOrExp (QModelIndex const & idx, bool collapsed)
 		parent_idx = model->indexFromItem(parent);
 	}
 
-	std::string file;
+	QString file;
 	for (std::vector<QString>::const_reverse_iterator it=s.rbegin(), ite=s.rend(); it != ite; ++it)
 		file += std::string("/") + (*it).toStdString();
 

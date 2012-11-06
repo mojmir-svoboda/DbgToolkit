@@ -73,7 +73,7 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 	printf("handle setup command\n");
 	for (size_t i=0, ie=cmd.tvs.size(); i < ie; ++i)
 		if (cmd.tvs[i].m_tag == tlv::tag_app)
-			printf("received setup command from application: %s\n", cmd.tvs[i].m_val.c_str());
+			printf("received setup command from application: %s\n", cmd.tvs[i].m_val.toStdString().c_str());
 
 	m_profileInfo.m_completed_frame_infos.push_back(new threadinfos_t()); // @TODO: reserve
 	return true;
@@ -97,8 +97,8 @@ void dumpCommand (DecodedCommand const & cmd)
 	for (size_t i = 0, ie = cmd.tvs.size(); i < ie; ++i)
 	{
 		tlv::tag_t const tag = cmd.tvs[i].m_tag;
-		std::string const & val = cmd.tvs[i].m_val;
-		printf(fmts[tag], val.c_str());
+		QString const & val = cmd.tvs[i].m_val;
+		//printf(fmts[tag], val.c_str());
 	}
 	printf("\n"); fflush(stdout);
 }
@@ -115,7 +115,7 @@ bool Connection::handleProfileCommand (DecodedCommand const & cmd)
 	for (size_t i = 0, ie = cmd.tvs.size(); i < ie; ++i)
 	{
 		tlv::tag_t const tag = cmd.tvs[i].m_tag;
-		std::string const & val = cmd.tvs[i].m_val;
+		QString const & val = cmd.tvs[i].m_val;
 
 		if (cmd.tvs[i].m_tag == tlv::tag_tid)
 		{

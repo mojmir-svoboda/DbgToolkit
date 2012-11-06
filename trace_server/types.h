@@ -64,7 +64,7 @@ inline E_Elide stringToElide (char c) {
 typedef QList<QString>			columns_align_t;
 typedef QList<QString>			columns_elide_t;
 
-typedef std::pair<std::string, std::string> fileline_t;
+typedef std::pair<QString, QString> fileline_t;
 typedef unsigned long long context_t;
 
 typedef std::vector<std::string> strings_t;

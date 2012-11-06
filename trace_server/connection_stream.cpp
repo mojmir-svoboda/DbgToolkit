@@ -364,7 +364,7 @@ bool Connection::handleSaveTLVCommand (DecodedCommand const & cmd)
 	{
 		if (cmd.tvs[i].m_tag == tlv::tag_file)
 		{
-			copyStorageTo(QString::fromStdString(cmd.tvs[i].m_val));
+			copyStorageTo(cmd.tvs[i].m_val);
 			return true;
 		}
 	}
@@ -411,7 +411,7 @@ bool Connection::handleExportCSVCommand (DecodedCommand const & cmd)
 	{
 		if (cmd.tvs[i].m_tag == tlv::tag_file)
 		{
-			exportStorageToCSV(QString::fromStdString(cmd.tvs[i].m_val));
+			exportStorageToCSV(cmd.tvs[i].m_val);
 			return true;
 		}
 	}
