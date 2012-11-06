@@ -20,8 +20,8 @@ namespace profiler {
 		float m_x;
 		float m_y;
 		float m_dt;
-		std::string m_msg;
-		std::string m_tag;
+		QString m_msg;
+		QString m_tag;
 		BlockInfo * m_parent;
 		QColor m_color;
 

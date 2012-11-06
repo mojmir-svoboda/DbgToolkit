@@ -74,16 +74,16 @@ void ProfilerWindow::loadState ()
 
 	//boost::char_separator<char> sep(":/\\");
 
-void ProfilerWindow::appendToTagTree (std::string const & tagpath)
+void ProfilerWindow::appendToTagTree (QString const & tagpath)
 {
 }
 
 
 void ProfilerWindow::registerTag (BlockInfo const & bi)
 {
-	std::string s;
+	QString s;
 	s.reserve(256);
-	static std::vector<std::string> tmp; // @TODO: hey piggy
+	static std::vector<QString> tmp; // @TODO: hey piggy
 	tmp.reserve(32);
 	tmp.clear();
 
@@ -95,8 +95,8 @@ void ProfilerWindow::registerTag (BlockInfo const & bi)
 		parent = parent->m_parent;
 	}
 
-	for (std::vector<std::string>::const_reverse_iterator it=tmp.rbegin(), ite=tmp.rend(); it != ite; ++it)
-		s += std::string("/") + (*it);
+	for (std::vector<QString>::const_reverse_iterator it=tmp.rbegin(), ite=tmp.rend(); it != ite; ++it)
+		s += QString("/") + (*it);
 
 	appendToTagTree(s);
 	//sessionState().m_tag_filters.set_to_state();
@@ -122,7 +122,7 @@ void ProfilerWindow::onFileColOrExp (QModelIndex const & idx, bool collapsed)
 
 	QString file;
 	for (std::vector<QString>::const_reverse_iterator it=s.rbegin(), ite=s.rend(); it != ite; ++it)
-		file += std::string("/") + (*it).toStdString();
+		file += QString("/") + *it;
 
 	sessionState().m_tag_filters.set_to_state(file, TagInfo(static_cast<E_NodeStates>(node->checkState()), collapsed));
 }
@@ -163,7 +163,7 @@ GfxView & ProfilerWindow::viewAt (size_t i)
 
 void ProfilerWindow::incomingProfilerData (profiler::profiler_rvp_t * rvp)
 {
-	qDebug("%s", __FUNCTION__);
+	/*qDebug("%s", __FUNCTION__);
 	threadinfos_t * node = 0;
 	while (rvp->consume(node))
 	{
@@ -287,7 +287,7 @@ void ProfilerWindow::incomingProfilerData (profiler::profiler_rvp_t * rvp)
 			GfxView & v = viewAt(t);
 			v.m_view->forceUpdate();
 		}
-	}
+	}*/
 }
 
 			/*	offs += max_layers[t] + 1;

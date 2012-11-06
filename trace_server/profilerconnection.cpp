@@ -107,7 +107,7 @@ bool Connection::handleProfileCommand (DecodedCommand const & cmd)
 {
 	long long time = 0;
 	long long tid = 0;
-	std::string text;
+	QString text;
 	unsigned tid_idx = 0;
 
 	//printf("incoming: "); dumpCommand(cmd);
@@ -120,9 +120,9 @@ bool Connection::handleProfileCommand (DecodedCommand const & cmd)
 		if (cmd.tvs[i].m_tag == tlv::tag_tid)
 		{
 #ifdef WIN32
-			tid  = _atol_l(val.c_str(), 0);
+			tid  = val.toULongLong();
 #else
-			tid  = atoll(val.c_str());
+			tid  = val.toUnsignedLongLong();
 #endif
 			std::vector<unsigned long long>::iterator it = std::find(m_profileInfo.m_tids.begin(), m_profileInfo.m_tids.end(), tid);
 			if (it == m_profileInfo.m_tids.end())
@@ -142,7 +142,7 @@ bool Connection::handleProfileCommand (DecodedCommand const & cmd)
 
 		if (cmd.tvs[i].m_tag == tlv::tag_time)
 #ifdef WIN32
-			time = _atol_l(val.c_str(), 0);
+			time = val.toULongLong();
 #else
 			time = atoll(val.c_str());
 #endif

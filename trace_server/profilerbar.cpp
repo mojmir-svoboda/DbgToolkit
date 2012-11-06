@@ -40,7 +40,7 @@ void BarText::paint (QPainter * painter, QStyleOptionGraphicsItem const * option
 			//QTransform identity;
 			font.setStyleStrategy(QFont::ForceOutline);
 			painter->save();
-			painter->drawText(4, 10, QString("%1 [ %2 ms]").arg(m_block.m_msg.c_str()).arg(m_block.m_delta_t / 1000.0f));
+			painter->drawText(4, 10, QString("%1 [ %2 ms]").arg(m_block.m_msg).arg(m_block.m_delta_t / 1000.0f));
 			painter->restore();
 		}
 	}
@@ -52,7 +52,7 @@ void BarText::paint (QPainter * painter, QStyleOptionGraphicsItem const * option
 			font.setStyleStrategy(QFont::ForceOutline);
 			painter->setFont(font);
 			painter->save();
-			painter->drawStaticText(4, g_heightValue/2, QString("%1").arg(m_block.m_msg.c_str()).arg(m_block.m_delta_t / 1000.0f));
+			painter->drawStaticText(4, g_heightValue/2, QString("%1").arg(m_block.m_msg).arg(m_block.m_delta_t / 1000.0f));
 			painter->restore();
 		}
 	}
