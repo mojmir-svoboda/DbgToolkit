@@ -88,6 +88,11 @@ void Connection::onClearCurrentRegexFilter ()
 	sessionState().onClearRegexFilter();
 	onInvalidateFilter();
 }
+void Connection::onClearCurrentStringFilter ()
+{
+	sessionState().onClearStringFilter();
+	onInvalidateFilter();
+}
 void Connection::onClearCurrentScopeFilter ()
 {
 	sessionState().onClearScopeFilter();

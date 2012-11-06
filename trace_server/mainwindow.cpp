@@ -113,7 +113,6 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode)
 	showServerStatus();
 	connect(ui->qSearchComboBox->lineEdit(), SIGNAL(editingFinished()), this, SLOT(onQSearchEditingFinished()));
 	connect(ui->qSearchComboBox, SIGNAL(activated(QString const &)), this, SLOT(onQSearchEditingFinished()));
-	connect(ui->qFilterLineEdit, SIGNAL(returnPressed()), this, SLOT(onQFilterLineEditFinished()));
 
 	size_t const n = tlv::get_tag_count();
 	QString msg_tag;
@@ -193,6 +192,7 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode)
 	connect(ui->buttonAddColorRegex, SIGNAL(clicked()), this, SLOT(onColorRegexAdd()));
 	connect(ui->buttonRmColorRegex, SIGNAL(clicked()), this, SLOT(onColorRegexRm()));
 
+	connect(ui->qFilterLineEdit, SIGNAL(returnPressed()), this, SLOT(onQFilterLineEditFinished()));
 	getWidgetString()->setEditTriggers(QAbstractItemView::NoEditTriggers);
 	getWidgetString()->header()->hide();
 	connect(getWidgetString(), SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtStringList(QModelIndex)));
@@ -530,7 +530,7 @@ void MainWindow::onQFilterLineEditFinished ()
 	QString text = ui->qFilterLineEdit->text();
 	conn->appendToStringFilters(text, true, true);
 
-	QStandardItemModel * model = static_cast<QStandardItemModel *>(getWidgetRegex()->model());
+	QStandardItemModel * model = static_cast<QStandardItemModel *>(getWidgetString()->model());
 	QStandardItem * root = model->invisibleRootItem();
 	QStandardItem * child = findChildByText(root, text);
 	if (!child)
@@ -543,15 +543,14 @@ void MainWindow::onQFilterLineEditFinished ()
 
 	for (int i = 0, ie = ui->tabFilters->count(); i < ie; ++i)
 	{
-		if (ui->tabFilters->tabText(i) == "RegExp")
+		if (ui->tabFilters->tabText(i) == "String")
 		{
 			ui->tabFilters->setCurrentIndex(i);
 			break;
 		}
 	}
 
-	conn->recompileRegexps();
-	conn->onInvalidateFilter();
+	conn->recompileStrings();
 }
 
 void MainWindow::appendToSearchHistory (QString const & str)
@@ -848,9 +847,10 @@ void MainWindow::onStringAdd ()
 	QStandardItem * child = findChildByText(root, qItem);
 	if (child == 0)
 	{
-		QList<QStandardItem *> row_items = addTriRow(qItem, Qt::Unchecked, true);
+		QList<QStandardItem *> row_items = addTriRow(qItem, Qt::Checked, true);
 		root->appendRow(row_items);
 		conn->appendToStringFilters(qItem, true, true);
+		row_items[0]->setCheckState(Qt::Checked);
 		conn->recompileStrings();
 	}
 }

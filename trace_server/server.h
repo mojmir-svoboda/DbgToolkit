@@ -67,6 +67,9 @@ public slots:
 	void onClickedAtColorRegexList (QModelIndex idx);
 	void onDoubleClickedAtColorRegexList (QModelIndex idx);
 
+	void onClickedAtStringList (QModelIndex idx);
+	void onDoubleClickedAtStringList (QModelIndex idx);
+
 	void onSectionResized (int logicalIndex, int oldSize, int newSize);
 	void onEditingFinished ();
 	void onCopyToClipboard ();
@@ -81,6 +84,7 @@ public slots:
 	void onClearCurrentTIDFilter ();
 	void onClearCurrentColorizedRegexFilter ();
 	void onClearCurrentRegexFilter ();
+	void onClearCurrentStringFilter ();
 	void onClearCurrentScopeFilter ();
 	void onClearCurrentRefTime ();
 	void onApplyColumnSetup ();

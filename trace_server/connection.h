@@ -160,6 +160,7 @@ public slots:
 	void onClearCurrentTIDFilter ();
 	void onClearCurrentColorizedRegexFilter ();
 	void onClearCurrentRegexFilter ();
+	void onClearCurrentStringFilter ();
 	void onClearCurrentScopeFilter ();
 	void onClearCurrentRefTime ();
 	void onShowContextMenu (QPoint const & pos);

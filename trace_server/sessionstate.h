@@ -158,7 +158,7 @@ public:
 	void clearFilters ();
 	void onClearFileFilter ()
 	{
-		m_file_filters.set_state_to_childs(m_file_filters.root, TreeModelItem());
+		m_file_filters.set_state_to_childs(m_file_filters.root, TreeModelItem(e_Checked, false));
 	}
 	void onClearCtxFilter () { m_ctx_filters.clear(); }
 	void onClearTIDFilter () { m_tid_filters.clear(); }
@@ -167,6 +167,7 @@ public:
 	void onClearLvlFilter () { m_lvl_filters.clear(); }
 	void onClearRegexFilter () { m_filtered_regexps.clear(); }
 	void onClearRefTime () { m_time_ref_row = 0; }
+	void onClearStringFilter () { m_filtered_strings.clear(); }
 
 	unsigned getRecvBytes () const { return m_recv_bytes; }
 

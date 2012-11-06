@@ -36,6 +36,11 @@ void Server::onClearCurrentRegexFilter ()
 	if (Connection * conn = findCurrentConnection())
 		conn->onClearCurrentRegexFilter();
 }
+void Server::onClearCurrentStringFilter ()
+{
+	if (Connection * conn = findCurrentConnection())
+		conn->onClearCurrentStringFilter();
+}
 void Server::onClearCurrentColorizedRegexFilter ()
 {
 	if (Connection * conn = findCurrentConnection())
@@ -284,4 +289,67 @@ void Server::onClickedAtColorRegexList (QModelIndex idx)
 void Server::onDoubleClickedAtColorRegexList (QModelIndex idx)
 {
 }
+
+void Server::onClickedAtStringList (QModelIndex idx)
+{
+	if (!idx.isValid())
+		return;
+	MainWindow * main_window = static_cast<MainWindow *>(parent());
+	QStandardItemModel * model = static_cast<QStandardItemModel *>(main_window->getWidgetString()->model());
+
+	QString const & val = model->data(idx, Qt::DisplayRole).toString();
+
+	if (idx.column() == 1)
+	{
+		QString const & reg = model->data(model->index(idx.row(), 0, QModelIndex()), Qt::DisplayRole).toString();
+		std::string filter_item(reg.toStdString());
+		bool is_inclusive = true;
+		if (val == "I")
+		{
+			model->setData(idx, QString("E"));
+			is_inclusive = false;
+		}
+		else
+		{
+			model->setData(idx, QString("I"));
+		}
+
+		QString const & val = model->data(idx, Qt::DisplayRole).toString();
+
+		if (Connection * conn = findCurrentConnection())
+		{
+			conn->sessionState().setStringState(reg, is_inclusive);
+			//conn->m_session_state.setRegexChecked(filter_item, checked);
+			conn->recompileStrings();
+		}
+	}
+	else
+	{
+		QString const & mod = model->data(model->index(idx.row(), 1, QModelIndex()), Qt::DisplayRole).toString();
+		bool is_inclusive = false;
+		if (mod == "I")
+		{
+			is_inclusive = true;
+		}
+		else
+		{ }
+
+		QStandardItem * item = model->itemFromIndex(idx);
+		Q_ASSERT(item);
+		bool const orig_checked = (item->checkState() == Qt::Checked);
+		Qt::CheckState const checked = orig_checked ? Qt::Unchecked : Qt::Checked;
+		item->setCheckState(checked);
+		if (Connection * conn = findCurrentConnection())
+		{
+			// @TODO: if state really changed
+			conn->sessionState().setStringState(val, is_inclusive);
+			conn->m_session_state.setStringChecked(val, checked);
+			conn->recompileStrings();
+		}
+
+	}
+}
+
+void Server::onDoubleClickedAtStringList (QModelIndex idx)
+{ }
 
