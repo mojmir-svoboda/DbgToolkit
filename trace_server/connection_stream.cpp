@@ -282,12 +282,12 @@ bool Connection::handleDictionnaryCtx (DecodedCommand const & cmd)
 	{
 		if (cmd.tvs[i].m_tag == tlv::tag_string)
 		{
-			name.append(QString::fromStdString(cmd.tvs[i].m_val));
+			name.append(cmd.tvs[i].m_val);
 		}
 
 		if (cmd.tvs[i+1].m_tag == tlv::tag_int)
 		{
-			value.append(QString::fromStdString(cmd.tvs[i+1].m_val));
+			value.append(cmd.tvs[i+1].m_val);
 		}
 	}
 	sessionState().addCtxDict(name, value);

@@ -36,16 +36,16 @@ public:
 
 	QModelIndex hideLinearParents () const;
 
-	QModelIndex insertItem (std::string const & s);
+	QModelIndex insertItem (QString const & s);
 
 	void beforeLoad ();
 	void afterLoad ();
 	QModelIndex rootIndex () const;
 
 	void syncExpandState (QTreeView *);
-	QModelIndex selectItem (QTreeView *, std::string const &);
-	QModelIndex stateToItem (std::string const & path, Qt::CheckState state);
-	QModelIndex stateToItem (std::string const & path, Qt::CheckState state, bool collapsed);
+	QModelIndex selectItem (QTreeView *, QString const &);
+	QModelIndex stateToItem (QString const & path, Qt::CheckState state);
+	QModelIndex stateToItem (QString const & path, Qt::CheckState state, bool collapsed);
 
 public Q_SLOTS:
 	

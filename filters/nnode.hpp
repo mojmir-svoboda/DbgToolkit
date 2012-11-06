@@ -39,7 +39,7 @@ struct NNode
 		: key(k), data(d), row(0), next(0), prev(0), parent(0), children(0)
 	{ }
 
-	explicit NNode (char const * k_left, char const * k_right, typename boost::call_traits<Data>::param_type d)
+	explicit NNode (QChar const * k_left, QChar const * k_right, typename boost::call_traits<Data>::param_type d)
 		: key(k_left, k_right - k_left), data(d), row(0), next(0), prev(0), parent(0), children(0)
 	{ }
 
@@ -121,7 +121,7 @@ struct NNode
 		return 0;
 	}
 
-	static NNode const * node_child_fast (NNode const * node, char const * left, char const * right)
+	static NNode const * node_child_fast (NNode const * node, QChar const * left, QChar const * right)
 	{     
 		node = node->children;
 		while (node)
@@ -133,7 +133,7 @@ struct NNode
 		return 0;
 	}
 
-	static NNode * node_child_fast (NNode * node, char const * left, char const * right)
+	static NNode * node_child_fast (NNode * node, QChar const * left, QChar const * right)
 	{     
 		node = node->children;
 		while (node)

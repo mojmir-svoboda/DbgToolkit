@@ -60,7 +60,7 @@ struct CollapsedBlock {
 };
 
 struct FilteredRegex {
-	std::string m_regex_str;
+	QString m_regex_str;
 	QRegExp m_regex;
 	bool m_is_enabled;
 	bool m_is_inclusive;
@@ -69,8 +69,8 @@ struct FilteredRegex {
 	bool exactMatch (QString str) const { return m_regex.exactMatch(str); }
 
 	FilteredRegex () { }
-	FilteredRegex (std::string const & rs, bool is_inclusive)
-        : m_regex_str(rs), m_regex(QString::fromStdString(rs)), m_is_enabled(0), m_is_inclusive(is_inclusive)
+	FilteredRegex (QString const & rs, bool is_inclusive)
+        : m_regex_str(rs), m_regex(rs), m_is_enabled(0), m_is_inclusive(is_inclusive)
 	{ }
 
 	template <class ArchiveT>
@@ -108,7 +108,7 @@ struct ColorizedText {
 	E_ColorRole m_role;
 	QColor m_qcolor;
 	QColor m_bgcolor;
-	std::string m_regex_str;
+	QString m_regex_str;
 	QRegExp m_regex;
 	bool m_is_enabled;
 
@@ -117,14 +117,14 @@ struct ColorizedText {
 
 	ColorizedText () { }
 
-	ColorizedText (std::string const & rs, E_ColorRole r)
+	ColorizedText (QString const & rs, E_ColorRole r)
         : m_role(r)
-        , m_qcolor(Qt::magenta), m_regex_str(rs), m_regex(QString::fromStdString(rs)), m_is_enabled(0)
+        , m_qcolor(Qt::magenta), m_regex_str(rs), m_regex(rs), m_is_enabled(0)
 	{ }
 
-	ColorizedText (std::string const & rs, QColor const & col, E_ColorRole r)
+	ColorizedText (QString const & rs, QColor const & col, E_ColorRole r)
         : m_role(r)
-        , m_qcolor(col), m_regex_str(rs), m_regex(QString::fromStdString(rs)), m_is_enabled(0)
+        , m_qcolor(col), m_regex_str(rs), m_regex(rs), m_is_enabled(0)
 	{ }
 
 	template <class ArchiveT>

@@ -68,7 +68,7 @@ void Connection::onShowPlotContextMenu (QPoint const &)
 
 bool Connection::handleDataXYCommand (DecodedCommand const & cmd)
 {
-	std::string tag;
+	QString tag;
 	double x = 0.0;
 	double y = 0.0;
 	for (size_t i=0, ie=cmd.tvs.size(); i < ie; ++i)
@@ -76,12 +76,12 @@ bool Connection::handleDataXYCommand (DecodedCommand const & cmd)
 		if (cmd.tvs[i].m_tag == tlv::tag_msg)
 			tag = cmd.tvs[i].m_val;
 		else if (cmd.tvs[i].m_tag == tlv::tag_x)
-			x = atof(cmd.tvs[i].m_val.c_str());
+			x = cmd.tvs[i].m_val.toDouble();
 		else if (cmd.tvs[i].m_tag == tlv::tag_y)
-			y = atof(cmd.tvs[i].m_val.c_str());
+			y = cmd.tvs[i].m_val.toDouble();
 	}
 
-	appendDataXY(x, y, QString::fromStdString(tag));
+	appendDataXY(x, y, tag);
 	return true;
 }
 
@@ -130,7 +130,7 @@ void Connection::appendDataXY (double x, double y, QString const & msg_tag)
 		
 		DataPlot * const dp = new DataPlot(this, template_config, fname);
 		it = m_dataplots.insert(tag, dp);
-		QModelIndex const item_idx = m_data_model->insertItem(plot_name.toStdString());
+		QModelIndex const item_idx = m_data_model->insertItem(plot_name);
 
 		dp->m_wd = m_main_window->m_dock_mgr.mkDockWidget(m_main_window, &dp->widget(), plot_name);
 		if (m_main_window->plotEnabled())
@@ -155,7 +155,7 @@ void Connection::appendDataXY (double x, double y, QString const & msg_tag)
 	if (!curve)
 	{
 		curve = *dp.widget().mkCurve(subtag);
-		QModelIndex const item_idx = m_data_model->insertItem(curve_name.toStdString());
+		QModelIndex const item_idx = m_data_model->insertItem(curve_name);
 
 		plot::CurveConfig const * ccfg = 0;
 		dp.m_config.findCurveConfig(subtag, ccfg); // config is created by mkCurve

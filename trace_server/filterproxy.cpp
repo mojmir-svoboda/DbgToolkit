@@ -170,7 +170,7 @@ bool FilterProxyModel::filterAcceptsRow (int sourceRow, QModelIndex const & /*so
 	
 	E_LevelMode lvlmode = e_LvlInclude;
 	bool lvl_enabled = true;
-	bool const lvl_present = m_session_state.isLvlPresent(lvl.toStdString(), lvl_enabled, lvlmode);
+	bool const lvl_present = m_session_state.isLvlPresent(lvl, lvl_enabled, lvlmode);
 
 	if (lvl_present)
 	{
@@ -269,10 +269,10 @@ bool FilterProxyModel::filterAcceptsRow (int sourceRow, QModelIndex const & /*so
 	if (inclusive_filters)
 		return false;
 
-	excluded |= m_session_state.isTIDExcluded(tid.toStdString());
+	excluded |= m_session_state.isTIDExcluded(tid);
 
 	bool ctx_enabled = true;
-	bool const ctx_present = m_session_state.isCtxPresent(ctx.toStdString(), ctx_enabled);
+	bool const ctx_present = m_session_state.isCtxPresent(ctx, ctx_enabled);
 	if (ctx_present)
 	{
 		excluded |= !ctx_enabled;

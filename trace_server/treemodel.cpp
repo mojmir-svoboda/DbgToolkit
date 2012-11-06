@@ -122,7 +122,7 @@ QVariant TreeModel::data (QModelIndex const & index, int role) const
 	node_t const * const item = itemFromIndex(index);
 	if (role == Qt::DisplayRole)
 	{
-		return QVariant(QString::fromStdString(item->key));
+		return QVariant(item->key);
 	}
 	else if (role == Qt::UserRole) // collapsed or expanded?
 	{
@@ -300,7 +300,7 @@ void TreeModel::syncExpandState (QTreeView * tv)
 	}
 }
 
-QModelIndex TreeModel::insertItem (std::string const & path)
+QModelIndex TreeModel::insertItem (QString const & path)
 {
 	TreeModelItem const * i = 0;
 	node_t const * node = m_tree_data->is_present(path, i);
@@ -337,7 +337,7 @@ QModelIndex TreeModel::insertItem (std::string const & path)
 	}
 }
 
-QModelIndex TreeModel::stateToItem (std::string const & path, Qt::CheckState state, bool collapsed)
+QModelIndex TreeModel::stateToItem (QString const & path, Qt::CheckState state, bool collapsed)
 {
 	TreeModelItem const * i;
 	node_t const * const node = m_tree_data->is_present(path, i);
@@ -350,7 +350,7 @@ QModelIndex TreeModel::stateToItem (std::string const & path, Qt::CheckState sta
 	return idx;
 }
 
-QModelIndex TreeModel::stateToItem (std::string const & path, Qt::CheckState state)
+QModelIndex TreeModel::stateToItem (QString const & path, Qt::CheckState state)
 {
 	TreeModelItem const * i;
 	node_t const * const node = m_tree_data->is_present(path, i);
@@ -362,7 +362,7 @@ QModelIndex TreeModel::stateToItem (std::string const & path, Qt::CheckState sta
 	return idx;
 }
 
-QModelIndex TreeModel::selectItem (QTreeView * tv, std::string const & path)
+QModelIndex TreeModel::selectItem (QTreeView * tv, QString const & path)
 {
 	TreeModelItem const * i = 0;
 	node_t const * const node = m_tree_data->is_present(path, i);

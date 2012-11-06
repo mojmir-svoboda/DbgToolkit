@@ -292,7 +292,7 @@ void Connection::onTableClicked (QModelIndex const & row_index)
 			QString const file = findString4Tag(tlv::tag_file, curr);
 			QString const line = findString4Tag(tlv::tag_line, curr);
 			QString const combined = file + "/" + line;
-			m_file_model->selectItem(m_main_window->getWidgetFile(), combined.toStdString());
+			m_file_model->selectItem(m_main_window->getWidgetFile(), combined);
 		}
 
 		{

@@ -99,7 +99,7 @@ QVariant ModelView::data (const QModelIndex &index, int role) const
 		if (checkColumnExistence(tlv::tag_tid, index))
 		{
 			QString const & tid = m_rows[index.row()][index.column()];
-			int const idx = m_session_state.getTLS().findThreadId(tid.toStdString());
+			int const idx = m_session_state.getTLS().findThreadId(tid);
 			if (idx >= 0)
 				return QBrush(m_session_state.getThreadColors()[idx]);
 		}
@@ -200,15 +200,15 @@ void ModelView::appendCommand (QAbstractProxyModel * filter, tlv::StringCommand 
 
 	columns.resize(n);
 
-	std::string file;
-	std::string line;
-	std::string func;
-	std::string time;
-	std::string msg;
+	QString file;
+	QString line;
+	QString func;
+	QString time;
+	QString msg;
 	for (size_t i = 0, ie = cmd.tvs.size(); i < ie; ++i)
 	{
 		tlv::tag_t const tag = cmd.tvs[i].m_tag;
-		std::string const & val = cmd.tvs[i].m_val;
+		QString const & val = cmd.tvs[i].m_val;
 		if (tag == tlv::tag_file)
 			file = val;
 		if (tag == tlv::tag_line)
@@ -225,7 +225,7 @@ void ModelView::appendCommand (QAbstractProxyModel * filter, tlv::StringCommand 
 			qval.append(qindent);
 		}
 
-		qval.append(QString::fromStdString(val));
+		qval.append(val);
 		column_index = m_session_state.findColumn4Tag(tag);
 		if (column_index < 0)
 		{
@@ -253,7 +253,7 @@ void ModelView::appendCommand (QAbstractProxyModel * filter, tlv::StringCommand 
 		}
 
 		unsigned long long const last_t = m_session_state.getTLS().lastTime(thread_idx);
-		unsigned long long const t = QString::fromStdString(time).toULongLong();
+		unsigned long long const t = time.toULongLong();
 		long long const dt = t - last_t;
 		columns[ci] = tr("%1").arg(dt);
 		m_session_state.getTLS().setLastTime(thread_idx, t);
@@ -268,7 +268,7 @@ void ModelView::appendCommand (QAbstractProxyModel * filter, tlv::StringCommand 
 			if (indent > 1)
 				for(int j = 0; j < indent - 1; ++j)
 					qindent_old.append("  "); // @TODO: ugh
-			columns[column_index] = qindent_old + QString("{ ") + QString::fromStdString(msg);
+			columns[column_index] = qindent_old + QString("{ ") + msg;
 		}
 	}
 
@@ -277,7 +277,7 @@ void ModelView::appendCommand (QAbstractProxyModel * filter, tlv::StringCommand 
 		int column_index = m_session_state.findColumn4Tag(tlv::tag_msg);
 		if (column_index >= 0)
 		{
-			columns[column_index] = qindent + QString("} ") + QString::fromStdString(msg);
+			columns[column_index] = qindent + QString("} ") + msg;
 		}
 	}
 

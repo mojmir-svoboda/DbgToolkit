@@ -5,7 +5,7 @@
 struct ThreadSpecific
 {
 	std::vector<unsigned long long> m_times;
-	std::vector<std::string> m_tids;
+	std::vector<QString> m_tids;
 	std::vector<unsigned> m_indents;
 
 	ThreadSpecific ()
@@ -15,14 +15,14 @@ struct ThreadSpecific
 		m_times.reserve(16);
 	}
 
-	int findThreadId (std::string const & str)
+	int findThreadId (QString const & str)
 	{
 		for (size_t i = 0, ie = m_tids.size(); i < ie; ++i)
 			if (m_tids[i] == str)
 				return i;
 		return registerThread(str);
 	}
-	int registerThread (std::string const & str)
+	int registerThread (QString const & str)
 	{
 		m_tids.push_back(str);
 		m_indents.push_back(0);

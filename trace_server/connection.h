@@ -101,9 +101,9 @@ public:
 	
 	SessionState & sessionState () { return m_session_state; }
 	SessionState const & sessionState () const { return m_session_state; }
-	void appendToCtxFilters (std::string const & item, bool checked);
+	void appendToCtxFilters (QString const & item, bool checked);
 	void appendToCtxWidgets (FilteredContext const & flt);
-	void appendToLvlFilters (std::string const & item);
+	void appendToLvlFilters (QString const & item);
 	void appendToLvlWidgets (FilteredLevel const & flt);
 	void appendToStringWidgets (FilteredString const & flt);
 
@@ -115,16 +115,16 @@ public:
 	void appendToStringFilters (QString const & str, bool checked, int state);
 	void removeFromStringFilters (QString const & item);
 	void recompileStrings ();
-	void appendToRegexFilters (std::string const & str, bool checked, bool inclusive);
-	void removeFromRegexFilters (std::string const & item);
-	void appendToColorRegexFilters (std::string const & item);
-	void removeFromColorRegexFilters (std::string const & item);
+	void appendToRegexFilters (QString const & str, bool checked, bool inclusive);
+	void removeFromRegexFilters (QString const & item);
+	void appendToColorRegexFilters (QString const & item);
+	void removeFromColorRegexFilters (QString const & item);
 	void recompileRegexps ();
 	void recompileColorRegexps ();
 	void flipFilterMode (E_FilterMode mode);
 	void run ();
-	void loadToColorRegexps (std::string const & filter_item, std::string const & color, bool enabled);
-	void loadToRegexps (std::string const & filter_item, bool inclusive, bool enabled);
+	void loadToColorRegexps (QString const & filter_item, QString const & color, bool enabled);
+	void loadToRegexps (QString const & filter_item, bool inclusive, bool enabled);
 	bool loadConfigForPlot (plot::PlotConfig & config, QString const & tag);
 	bool saveConfigForPlot (plot::PlotConfig const & config, QString const & tag);
 	bool loadConfigForTable (table::TableConfig & config, QString const & tag);
@@ -213,7 +213,7 @@ private:
 	void appendDataXY (double x, double y, QString const & tag);
 	void appendTableXY (int x, int y, QString const & tag);
 	bool appendToFilters (DecodedCommand const & cmd);
-	void appendToTIDFilters (std::string const & item);
+	void appendToTIDFilters (QString const & item);
 	void clearFilters (QStandardItem * node);
 
 	GlobalConfig const & getConfig () { return m_main_window->getConfig(); }

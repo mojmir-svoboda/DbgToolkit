@@ -109,7 +109,7 @@ void Connection::onExcludeFileLine (QModelIndex const & row_index)
 	QString file = findString4Tag(tlv::tag_file, row_index);
 	QString line = findString4Tag(tlv::tag_line, row_index);
 	qDebug("appending: %s:%s", file.toStdString().c_str(), line.toStdString().c_str());
-	std::string const fileline = file.toStdString() + "/" + line.toStdString();
+	QString const fileline = file + "/" + line;
 	QModelIndex const result = m_file_model->stateToItem(fileline, Qt::Unchecked);
 	if (!result.isValid())
 	{
@@ -136,9 +136,9 @@ void Connection::onFileColOrExp (QModelIndex const & idx, bool collapsed)
 		parent_idx = model->indexFromItem(parent);
 	}
 
-	std::string file;
+	QString file;
 	for (std::vector<QString>::const_reverse_iterator it=s.rbegin(), ite=s.rend(); it != ite; ++it)
-		file += std::string("/") + (*it).toStdString();
+		file += QString("/") + *it;
 
 	sessionState().m_file_filters.set_to_state(file, TreeModelItem(static_cast<E_NodeStates>(node->checkState()), collapsed));
 }
@@ -153,14 +153,13 @@ void Connection::onFileCollapsed (QModelIndex const & idx)
 	onFileColOrExp(idx, true);
 }
 
-void Connection::appendToTIDFilters (std::string const & item)
+void Connection::appendToTIDFilters (QString const & item)
 {
-	QString qItem = QString::fromStdString(item);
 	QStandardItem * root = m_tid_model->invisibleRootItem();
-	QStandardItem * child = findChildByText(root, qItem);
+	QStandardItem * child = findChildByText(root, item);
 	if (child == 0)
 	{
-		QList<QStandardItem *> row_items = addRow(qItem, true);
+		QList<QStandardItem *> row_items = addRow(item, true);
 		root->appendRow(row_items);
 	}
 }
@@ -179,24 +178,22 @@ void Connection::appendToLvlWidgets (FilteredLevel const & flt)
 	}
 }
 
-void Connection::appendToLvlFilters (std::string const & item)
+void Connection::appendToLvlFilters (QString const & item)
 {
 	bool enabled = false;
 	E_LevelMode lvlmode = e_LvlInclude;
 	if (sessionState().isLvlPresent(item, enabled, lvlmode))
 		return;
 
-	QString qItem = QString::fromStdString(item);
 	QStandardItem * root = m_lvl_model->invisibleRootItem();
-	QStandardItem * child = findChildByText(root, qItem);
+	QStandardItem * child = findChildByText(root, item);
 	if (child == 0)
 	{
-		QList<QStandardItem *> row_items = addTriRow(qItem, Qt::Checked, true);
+		QList<QStandardItem *> row_items = addTriRow(item, Qt::Checked, true);
 		row_items[0]->setCheckState(Qt::Checked);
 		root->appendRow(row_items);
 		m_main_window->getWidgetLvl()->sortByColumn(0, Qt::AscendingOrder);
-
-		sessionState().appendLvlFilter(qItem.toStdString());
+		sessionState().appendLvlFilter(item);
 	}
 }
 
@@ -213,27 +210,26 @@ void Connection::appendToCtxWidgets (FilteredContext const & flt)
 }
 
 
-void Connection::appendToCtxFilters (std::string const & item, bool checked)
+void Connection::appendToCtxFilters (QString const & item, bool checked)
 {
 	bool enabled = false;
 	if (sessionState().isCtxPresent(item, enabled))
 		return;
 
-	QString qItem = QString::fromStdString(item);
 	QStandardItem * root = m_ctx_model->invisibleRootItem();
-	QStandardItem * child = findChildByText(root, qItem);
+	QStandardItem * child = findChildByText(root, item);
 	if (child == 0)
 	{
-		QList<QStandardItem *> row_items = addRow(qItem, true);
+		QList<QStandardItem *> row_items = addRow(item, true);
 		row_items[0]->setCheckState(Qt::Checked);
 		root->appendRow(row_items);
-		sessionState().appendCtxFilter(qItem.toStdString());
+		sessionState().appendCtxFilter(item);
 	}
 }
 
 bool Connection::appendToFilters (DecodedCommand const & cmd)
 {
-	std::string line;
+	QString line;
 	for (size_t i=0, ie=cmd.tvs.size(); i < ie; ++i)
 	{
 		if (cmd.tvs[i].m_tag == tlv::tag_line)
@@ -262,13 +258,11 @@ bool Connection::appendToFilters (DecodedCommand const & cmd)
 		}
 	}
 
-	boost::char_separator<char> sep(":/\\");
-
 	for (size_t i=0, ie=cmd.tvs.size(); i < ie; ++i)
 	{
 		if (cmd.tvs[i].m_tag == tlv::tag_file)
 		{
-			std::string file(cmd.tvs[i].m_val);
+			QString file(cmd.tvs[i].m_val);
 			QModelIndex const ret = m_file_model->insertItem(file + "/" + line);
 			if (ret.isValid())
 				m_main_window->getWidgetFile()->hideLinearParents();
@@ -277,12 +271,12 @@ bool Connection::appendToFilters (DecodedCommand const & cmd)
 	return true;
 }
 
-void Connection::appendToRegexFilters (std::string const & str, bool checked, bool inclusive)
+void Connection::appendToRegexFilters (QString const & str, bool checked, bool inclusive)
 {
 	m_session_state.appendToRegexFilters(str, checked, inclusive);
 }
 
-void Connection::removeFromRegexFilters (std::string const & val)
+void Connection::removeFromRegexFilters (QString const & val)
 {
 	m_session_state.removeFromRegexFilters(val);
 }
@@ -293,7 +287,7 @@ void Connection::recompileRegexps ()
 	{
 		FilteredRegex & fr = sessionState().m_filtered_regexps[i];
 		QStandardItem * root = m_regex_model->invisibleRootItem();
-		QString const qregex = QString::fromStdString(fr.m_regex_str);
+		QString const qregex = fr.m_regex_str;
 		QStandardItem * child = findChildByText(root, qregex);
 		fr.m_is_enabled = false;
 		if (!child)
@@ -355,20 +349,20 @@ void Connection::recompileStrings ()
 	onInvalidateFilter();
 }
 
-void Connection::appendToColorRegexFilters (std::string const & val)
+void Connection::appendToColorRegexFilters (QString const & val)
 {
 	m_session_state.appendToColorRegexFilters(val);
 }
 
-void Connection::removeFromColorRegexFilters (std::string const & val)
+void Connection::removeFromColorRegexFilters (QString const & val)
 {
 	m_session_state.removeFromColorRegexFilters(val);
 }
 
-void Connection::loadToColorRegexps (std::string const & filter_item, std::string const & color, bool enabled)
+void Connection::loadToColorRegexps (QString const & filter_item, QString const & color, bool enabled)
 {
 	sessionState().appendToColorRegexFilters(filter_item);
-	sessionState().setRegexColor(filter_item, QColor(color.c_str()));
+	sessionState().setRegexColor(filter_item, QColor(color));
 	sessionState().setRegexChecked(filter_item, enabled);
 }
 
@@ -378,7 +372,7 @@ void Connection::onColorRegexChanged ()
 	{
 		ColorizedText & ct = sessionState().m_colorized_texts[i];
 		QStandardItem * root = m_color_regex_model->invisibleRootItem();
-		QString const qregex = QString::fromStdString(ct.m_regex_str);
+		QString const qregex = ct.m_regex_str;
 		QStandardItem * child = findChildByText(root, qregex);
 		QModelIndex const idx = m_color_regex_model->indexFromItem(child);
 		if (!child)
@@ -398,7 +392,7 @@ void Connection::recompileColorRegexps ()
 	{
 		ColorizedText & ct = sessionState().m_colorized_texts[i];
 		QStandardItem * root = m_color_regex_model->invisibleRootItem();
-		QString const qregex = QString::fromStdString(ct.m_regex_str);
+		QString const qregex = ct.m_regex_str;
 		QStandardItem * child = findChildByText(root, qregex);
 		QModelIndex const idx = m_color_regex_model->indexFromItem(child);
 		ct.m_is_enabled = false;
@@ -451,7 +445,7 @@ void Connection::recompileColorRegexps ()
 	onInvalidateFilter();
 }
 
-void Connection::loadToRegexps (std::string const & filter_item, bool inclusive, bool enabled)
+void Connection::loadToRegexps (QString const & filter_item, bool inclusive, bool enabled)
 {
 	sessionState().appendToRegexFilters(filter_item, inclusive, enabled);
 }

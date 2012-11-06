@@ -97,8 +97,7 @@ void Server::onClickedAtCtxTree (QModelIndex idx)
 	QStandardItem * item = model->itemFromIndex(idx);
 	Q_ASSERT(item);
 
-	QString const & val = model->data(idx, Qt::DisplayRole).toString();
-	std::string const ctx = val.toStdString();
+	QString const & ctx = model->data(idx, Qt::DisplayRole).toString();
 	bool const orig_checked = (item->checkState() == Qt::Checked);
 	if (Connection * conn = findCurrentConnection())
 	{
@@ -122,16 +121,15 @@ void Server::onClickedAtTIDList (QModelIndex idx)
 	Q_ASSERT(item);
 
 	QString const & val = model->data(idx, Qt::DisplayRole).toString();
-	std::string filter_item(val.toStdString());
 
 	bool const orig_checked = (item->checkState() == Qt::Checked);
 	if (Connection * conn = findCurrentConnection())
 	{
 		bool const checked = !orig_checked;
 		if (checked)
-			conn->sessionState().appendTIDFilter(filter_item);
+			conn->sessionState().appendTIDFilter(val);
 		else
-			conn->sessionState().removeTIDFilter(filter_item);
+			conn->sessionState().removeTIDFilter(val);
 		conn->onInvalidateFilter();
 	}
 }
@@ -172,14 +170,13 @@ void Server::onClickedAtLvlList (QModelIndex idx)
 
 		if (Connection * conn = findCurrentConnection())
 		{
-			conn->sessionState().setLvlMode(filter_item.toStdString(), !checked, act);
+			conn->sessionState().setLvlMode(filter_item, !checked, act);
 			conn->onInvalidateFilter();
 		}
 	}
 	else
 	{
-		QString const & val = model->data(idx, Qt::DisplayRole).toString();
-		std::string filter_item(val.toStdString());
+		QString const & filter_item = model->data(idx, Qt::DisplayRole).toString();
 		if (Connection * conn = findCurrentConnection())
 		{
 			item->setCheckState(!checked ? Qt::Checked : Qt::Unchecked);
@@ -225,7 +222,7 @@ void Server::onClickedAtRegexList (QModelIndex idx)
 
 		if (Connection * conn = findCurrentConnection())
 		{
-			conn->sessionState().setRegexInclusive(reg.toStdString(), is_inclusive);
+			conn->sessionState().setRegexInclusive(reg, is_inclusive);
 			//conn->m_session_state.setRegexChecked(filter_item, checked);
 			conn->recompileRegexps();
 			conn->onInvalidateFilter();
@@ -246,13 +243,12 @@ void Server::onClickedAtRegexList (QModelIndex idx)
 		Q_ASSERT(item);
 		bool const orig_checked = (item->checkState() == Qt::Checked);
 		Qt::CheckState const checked = orig_checked ? Qt::Unchecked : Qt::Checked;
-		std::string filter_item(val.toStdString());
 		item->setCheckState(checked);
 		if (Connection * conn = findCurrentConnection())
 		{
 			// @TODO: if state really changed
-			conn->sessionState().setRegexInclusive(val.toStdString(), is_inclusive);
-			conn->m_session_state.setRegexChecked(filter_item, checked);
+			conn->sessionState().setRegexInclusive(val, is_inclusive);
+			conn->m_session_state.setRegexChecked(val, checked);
 			conn->recompileRegexps();
 			conn->onInvalidateFilter();
 		}
@@ -272,15 +268,14 @@ void Server::onClickedAtColorRegexList (QModelIndex idx)
 	Q_ASSERT(item);
 
 	QString const & val = model->data(idx, Qt::DisplayRole).toString();
-	std::string filter_item(val.toStdString());
 	bool const orig_checked = (item->checkState() == Qt::Checked);
 	Qt::CheckState const checked = orig_checked ? Qt::Unchecked : Qt::Checked;
-	qDebug("color regex click! (checked=%u) %s ", checked, filter_item.c_str());
+	qDebug("color regex click! (checked=%u) %s ", checked, val.toStdString().c_str());
 	item->setCheckState(checked);
 	if (Connection * conn = findCurrentConnection())
 	{
 		// @TODO: if state really changed
-		conn->m_session_state.setColorRegexChecked(filter_item, checked);
+		conn->m_session_state.setColorRegexChecked(val, checked);
 		conn->recompileColorRegexps();
 		conn->onInvalidateFilter();
 	}

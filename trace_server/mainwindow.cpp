@@ -681,7 +681,7 @@ void MainWindow::onDumpFilters ()
 	if (Connection * conn = m_server->findCurrentConnection())
 	{
 		SessionState const & ss = conn->sessionState();
-		std::string ff;
+		QString ff;
 		ss.m_file_filters.dump_filter(ff);
 
 		QString cols;
@@ -689,7 +689,7 @@ void MainWindow::onDumpFilters ()
 		{
 			ColorizedText const & x = ss.m_colorized_texts.at(i);
 			cols += QString("%1 %2 %3\n")
-						.arg(QString::fromStdString(x.m_regex_str))
+						.arg(x.m_regex_str)
 						.arg(x.m_qcolor.name())
 						.arg(x.m_is_enabled ? " on" : "off");
 		}
@@ -698,7 +698,7 @@ void MainWindow::onDumpFilters ()
 		{
 			FilteredRegex const & x = ss.m_filtered_regexps.at(i);
 			regs += QString("%1 %2 %3\n")
-						.arg(QString::fromStdString(x.m_regex_str))
+						.arg(x.m_regex_str)
 						.arg(x.m_is_inclusive ? "incl" : "excl")
 						.arg(x.m_is_enabled ? " on" : "off");
 		}
@@ -722,7 +722,7 @@ void MainWindow::onDumpFilters ()
 		}
 
 		session_string = QString("Files:\n%1\n\nColors:\n%2\n\nRegExps:\n%3\n\nLevels:\n%4\n\nContexts:\n%5\n\n")
-				.arg(ff.c_str())
+				.arg(ff)
 				.arg(cols)
 				.arg(regs)
 				.arg(lvls)
@@ -815,7 +815,7 @@ void MainWindow::onRegexAdd ()
 	{
 		QList<QStandardItem *> row_items = addTriRow(qItem, Qt::Unchecked, true);
 		root->appendRow(row_items);
-		conn->appendToRegexFilters(qItem.toStdString(), false, true);
+		conn->appendToRegexFilters(qItem, false, true);
 		conn->recompileRegexps();
 	}
 }
@@ -832,7 +832,7 @@ void MainWindow::onRegexRm ()
 	Connection * conn = m_server->findCurrentConnection();
 	if (conn)
 	{
-		conn->removeFromRegexFilters(val.toStdString());
+		conn->removeFromRegexFilters(val);
 		conn->recompileRegexps();
 	}
 }
@@ -896,7 +896,7 @@ void MainWindow::onColorRegexAdd ()
 		QList<QStandardItem *> row_items = addRow(qItem, false);
 		root->appendRow(row_items);
 
-		conn->appendToColorRegexFilters(qItem.toStdString());
+		conn->appendToColorRegexFilters(qItem);
 	}
 	conn->recompileColorRegexps();
 }
@@ -914,7 +914,7 @@ void MainWindow::onColorRegexRm ()
 
 	if (conn)
 	{
-		conn->removeFromColorRegexFilters(val.toStdString());
+		conn->removeFromColorRegexFilters(val);
 		conn->recompileColorRegexps();
 	}
 }
@@ -1192,7 +1192,7 @@ void MainWindow::loadPresets ()
 
 					SessionState ss;
 					for (int f = 0, fe = m_file_filters.size(); f < fe; ++f)
-						ss.m_file_filters.set_to_state(m_file_filters.at(f).toStdString(), e_Checked);
+						ss.m_file_filters.set_to_state(m_file_filters.at(f), e_Checked);
 
 					saveSession(ss, m_config.m_preset_names.at(i));
 
@@ -1227,7 +1227,7 @@ void MainWindow::loadPresets ()
 
 				SessionState ss;
 				for (int f = 0, fe = m_file_filters.size(); f < fe; ++f)
-					ss.m_file_filters.set_to_state(m_file_filters.at(f).toStdString(), e_Checked);
+					ss.m_file_filters.set_to_state(m_file_filters.at(f), e_Checked);
 
 				saveSession(ss, m_config.m_preset_names.at(i));
 

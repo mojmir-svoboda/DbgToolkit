@@ -88,13 +88,13 @@ public:
 	// file
 	typedef tree_filter<TreeModelItem> file_filters_t;
 	bool isFileLinePresent (fileline_t const & p, TreeModelItem & state) const; /// checks for file:line existence in the tree
-	bool isFileLinePresent (std::string const & fileline, TreeModelItem & state) const; /// checks for file:line existence in the tree
+	bool isFileLinePresent (QString const & fileline, TreeModelItem & state) const; /// checks for file:line existence in the tree
 	
 	// ctx
 	typedef QList<FilteredContext> ctx_filters_t;
-	bool isCtxPresent (std::string const & item, bool & enabled) const;
-	void appendCtxFilter (std::string const & item);
-	void removeCtxFilter (std::string const & item);
+	bool isCtxPresent (QString const & item, bool & enabled) const;
+	void appendCtxFilter (QString const & item);
+	void removeCtxFilter (QString const & item);
 
 	void addCtxDict (QList<QString> const & names, QList<QString> const & strvalues)
 	{
@@ -106,17 +106,17 @@ public:
 	}
 
 	// tid
-	typedef std::vector<std::string> tid_filters_t;
-	void appendTIDFilter (std::string const & item);
-	void removeTIDFilter (std::string const & item);
-	bool isTIDExcluded (std::string const & item) const;
+	typedef std::vector<QString> tid_filters_t;
+	void appendTIDFilter (QString const & item);
+	void removeTIDFilter (QString const & item);
+	bool isTIDExcluded (QString const & item) const;
 
 	// lvl
 	typedef QList<FilteredLevel> lvl_filters_t;
-	void appendLvlFilter (std::string const & item);
-	void removeLvlFilter (std::string const & item);
-	bool isLvlPresent (std::string const & item, bool & enabled, E_LevelMode & lvlmode) const;
-	bool setLvlMode (std::string const & item, bool enabled, E_LevelMode lvlmode);
+	void appendLvlFilter (QString const & item);
+	void removeLvlFilter (QString const & item);
+	bool isLvlPresent (QString const & item, bool & enabled, E_LevelMode & lvlmode) const;
+	bool setLvlMode (QString const & item, bool enabled, E_LevelMode lvlmode);
 
 	// blocks
 	void appendCollapsedBlock (QString tid, int from, int to, QString file, QString line);
@@ -126,18 +126,18 @@ public:
 	bool isBlockCollapsedIncl (QString tid, int row) const;
 
 	// text colorization
-	void appendToColorRegexFilters (std::string const & str);
-	void removeFromColorRegexFilters (std::string const & str);
+	void appendToColorRegexFilters (QString const & str);
+	void removeFromColorRegexFilters (QString const & str);
 	bool isMatchedColorizedText (QString str, QColor & color, E_ColorRole & role) const;
-	void setRegexColor (std::string const & s, QColor col);
-	void setColorRegexChecked (std::string const & s, bool checked);
+	void setRegexColor (QString const & s, QColor col);
+	void setColorRegexChecked (QString const & s, bool checked);
 
 	// regex filtering
-	void appendToRegexFilters (std::string const & str, bool checked, bool inclusive);
-	void removeFromRegexFilters (std::string const & str);
+	void appendToRegexFilters (QString const & str, bool checked, bool inclusive);
+	void removeFromRegexFilters (QString const & str);
 	bool isMatchedRegexExcluded (QString str) const;
-	void setRegexChecked (std::string const & s, bool checked);
-	void setRegexInclusive (std::string const & s, bool inclusive);
+	void setRegexChecked (QString const & s, bool checked);
+	void setRegexInclusive (QString const & s, bool inclusive);
 
 	// string filtering
 	void appendToStringFilters (QString const & str, bool checked, int state);

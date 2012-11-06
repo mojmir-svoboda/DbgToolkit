@@ -129,13 +129,13 @@ bool SessionState::isFileLinePresent (fileline_t const & item, TreeModelItem & f
 		fi = *tmp_fi;
 	return exists;
 }
-bool SessionState::isFileLinePresent (std::string const & fileline, TreeModelItem & fi) const
+bool SessionState::isFileLinePresent (QString const & fileline, TreeModelItem & fi) const
 {
 	return m_file_filters.is_present(fileline, fi);
 }
 
 ///////// ctx filters
-bool SessionState::isCtxPresent (std::string const & item, bool & enabled) const
+bool SessionState::isCtxPresent (QString const & item, bool & enabled) const
 {
 	QString const qitem = QString::fromStdString(item);
 	for (int i = 0, ie = m_ctx_filters.size(); i < ie; ++i)
@@ -147,7 +147,7 @@ bool SessionState::isCtxPresent (std::string const & item, bool & enabled) const
 		}
 	return false;
 }
-void SessionState::appendCtxFilter (std::string const & item)
+void SessionState::appendCtxFilter (QString const & item)
 {
 	QString const qitem = QString::fromStdString(item);
 	for (int i = 0, ie = m_ctx_filters.size(); i < ie; ++i)
@@ -160,7 +160,7 @@ void SessionState::appendCtxFilter (std::string const & item)
 	m_ctx_filters.push_back(FilteredContext(qitem, true, 0));
 
 }
-void SessionState::removeCtxFilter (std::string const & item)
+void SessionState::removeCtxFilter (QString const & item)
 {
 	QString const qitem = QString::fromStdString(item);
 	for (int i = 0, ie = m_ctx_filters.size(); i < ie; ++i)
@@ -173,21 +173,21 @@ void SessionState::removeCtxFilter (std::string const & item)
 }
 
 ///////// tid filters
-void SessionState::appendTIDFilter (std::string const & item)
+void SessionState::appendTIDFilter (QString const & item)
 {
 	m_tid_filters.push_back(item);
 }
-void SessionState::removeTIDFilter (std::string const & item)
+void SessionState::removeTIDFilter (QString const & item)
 {
 	m_tid_filters.erase(std::remove(m_tid_filters.begin(), m_tid_filters.end(), item), m_tid_filters.end());
 }
-bool SessionState::isTIDExcluded (std::string const & item) const
+bool SessionState::isTIDExcluded (QString const & item) const
 {
 	return std::find(m_tid_filters.begin(), m_tid_filters.end(), item) != m_tid_filters.end();
 }
 
 ///////// lvl filters
-void SessionState::appendLvlFilter (std::string const & item)
+void SessionState::appendLvlFilter (QString const & item)
 {
 	QString const qitem = QString::fromStdString(item);
 	for (int i = 0, ie = m_lvl_filters.size(); i < ie; ++i)
@@ -199,7 +199,7 @@ void SessionState::appendLvlFilter (std::string const & item)
 		}
 	m_lvl_filters.push_back(FilteredLevel(qitem, true, e_LvlInclude));
 }
-void SessionState::removeLvlFilter (std::string const & item)
+void SessionState::removeLvlFilter (QString const & item)
 {
 	QString const qitem = QString::fromStdString(item);
 	for (int i = 0, ie = m_lvl_filters.size(); i < ie; ++i)
@@ -210,7 +210,7 @@ void SessionState::removeLvlFilter (std::string const & item)
 			return;
 		}
 }
-bool SessionState::isLvlPresent (std::string const & item, bool & enabled, E_LevelMode & lvlmode) const
+bool SessionState::isLvlPresent (QString const & item, bool & enabled, E_LevelMode & lvlmode) const
 {
 	QString const qitem = QString::fromStdString(item);
 	for (int i = 0, ie = m_lvl_filters.size(); i < ie; ++i)
@@ -223,7 +223,7 @@ bool SessionState::isLvlPresent (std::string const & item, bool & enabled, E_Lev
 		}
 	return false;
 }
-bool SessionState::setLvlMode (std::string const & item, bool enabled, E_LevelMode lvlmode)
+bool SessionState::setLvlMode (QString const & item, bool enabled, E_LevelMode lvlmode)
 {
 	QString const qitem = QString::fromStdString(item);
 	for (int i = 0, ie = m_lvl_filters.size(); i < ie; ++i)
@@ -308,7 +308,7 @@ bool SessionState::isMatchedColorizedText (QString str, QColor & color, E_ColorR
 	}
 	return false;
 }
-void SessionState::setRegexColor (std::string const & s, QColor col)
+void SessionState::setRegexColor (QString const & s, QColor col)
 {
 	for (int i = 0, ie = m_colorized_texts.size(); i < ie; ++i)
 	{
@@ -319,7 +319,7 @@ void SessionState::setRegexColor (std::string const & s, QColor col)
 		}
 	}
 }
-void SessionState::setColorRegexChecked (std::string const & s, bool checked)
+void SessionState::setColorRegexChecked (QString const & s, bool checked)
 {
 	for (int i = 0, ie = m_colorized_texts.size(); i < ie; ++i)
 	{
@@ -330,7 +330,7 @@ void SessionState::setColorRegexChecked (std::string const & s, bool checked)
 		}
 	}
 }
-void SessionState::removeFromColorRegexFilters (std::string const & s)
+void SessionState::removeFromColorRegexFilters (QString const & s)
 {
 	for (int i = 0, ie = m_colorized_texts.size(); i < ie; ++i)
 	{
@@ -342,7 +342,7 @@ void SessionState::removeFromColorRegexFilters (std::string const & s)
 		}
 	}
 }
-void SessionState::appendToColorRegexFilters (std::string const & s)
+void SessionState::appendToColorRegexFilters (QString const & s)
 {
 	for (int i = 0, ie = m_colorized_texts.size(); i < ie; ++i)
 	{
@@ -371,7 +371,7 @@ bool SessionState::isMatchedRegexExcluded (QString str) const
 	}
 	return false;
 }
-void SessionState::setRegexInclusive (std::string const & s, bool inclusive)
+void SessionState::setRegexInclusive (QString const & s, bool inclusive)
 {
 	for (int i = 0, ie = m_filtered_regexps.size(); i < ie; ++i)
 	{
@@ -382,7 +382,7 @@ void SessionState::setRegexInclusive (std::string const & s, bool inclusive)
 		}
 	}
 }
-void SessionState::setRegexChecked (std::string const & s, bool checked)
+void SessionState::setRegexChecked (QString const & s, bool checked)
 {
 	for (int i = 0, ie = m_filtered_regexps.size(); i < ie; ++i)
 	{
@@ -393,7 +393,7 @@ void SessionState::setRegexChecked (std::string const & s, bool checked)
 		}
 	}
 }
-void SessionState::removeFromRegexFilters (std::string const & s)
+void SessionState::removeFromRegexFilters (QString const & s)
 {
 	for (int i = 0, ie = m_filtered_regexps.size(); i < ie; ++i)
 	{
@@ -405,7 +405,7 @@ void SessionState::removeFromRegexFilters (std::string const & s)
 		}
 	}
 }
-void SessionState::appendToRegexFilters (std::string const & s, bool enabled, bool inclusive)
+void SessionState::appendToRegexFilters (QString const & s, bool enabled, bool inclusive)
 {
 	for (int i = 0, ie = m_filtered_regexps.size(); i < ie; ++i)
 		if (m_filtered_regexps[i].m_regex_str == s)

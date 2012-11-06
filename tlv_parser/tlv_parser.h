@@ -22,6 +22,7 @@
 #pragma once
 #include <cstring>
 #include <string>
+#include <QString>
 #include <vector>
 
 namespace tlv {
@@ -181,7 +182,7 @@ namespace tlv {
 	struct TV
 	{
 		tlv::tag_t        m_tag;	// 1 Byte tag
-		std::string       m_val;	// payload
+		QString			  m_val;	// payload
 
 		TV (tag_t t, char const * v) : m_tag(t) , m_val(v) { }
 		TV () : m_tag(0) , m_val() { }
