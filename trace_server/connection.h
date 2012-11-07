@@ -100,6 +100,7 @@ public:
 	MainWindow const * getMainWindow () const { return m_main_window; }
 	void setTableViewWidget (QTableView * w) { m_table_view_widget = w; }
 	QTableView const * getTableViewWidget () const { return m_table_view_widget; }
+	QTableView * getTableViewWidget () { return m_table_view_widget; }
 	
 	SessionState & sessionState () { return m_session_state; }
 	SessionState const & sessionState () const { return m_session_state; }

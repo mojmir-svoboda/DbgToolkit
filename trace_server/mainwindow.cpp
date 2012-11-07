@@ -411,7 +411,8 @@ void MainWindow::onTableFontToolButton ()
 {
     bool ok = false;
 	QFont curr_font;
-	if (Connection * conn = m_server->findCurrentConnection())
+	Connection * conn = m_server->findCurrentConnection();
+	if (conn)
 	{
 		curr_font = conn->getTableViewWidget()->font();
 		ui_settings->tableFontComboBox->addItem(curr_font.toString());
@@ -420,6 +421,9 @@ void MainWindow::onTableFontToolButton ()
     QFont f = QFontDialog::getFont(&ok, curr_font);
     if (ok)
 	{
+		ui_settings->tableFontComboBox->insertItem(0, curr_font.toString());
+		if (conn)
+			conn->getTableViewWidget()->verticalHeader()->setFont(f);
     }
 }
 
