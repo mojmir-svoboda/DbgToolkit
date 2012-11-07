@@ -13,35 +13,94 @@
 #include "serialize/ser_qstring.h"
 #include <fstream>
 #include <sstream>
+#include <QMessageBox>
+#include <QString>
 
 bool saveSessionState (SessionState const & s, char const * filename)
 {
-    std::ofstream ofs(filename);
-    if (!ofs) return false;
-    boost::archive::text_oarchive oa(ofs);
-    oa << BOOST_SERIALIZATION_NVP(s);
-    ofs.close();
-    return true;
+	try {
+		std::ofstream ofs(filename);
+		if (!ofs) return false;
+		boost::archive::text_oarchive oa(ofs);
+		oa << BOOST_SERIALIZATION_NVP(s);
+		ofs.close();
+		return true;
+	}
+	catch (std::out_of_range const & e)
+	{
+		QMessageBox::critical(0, QString(__FUNCTION__), QString("OOR exception during decoding: %1").arg(e.what()), QMessageBox::Ok, QMessageBox::Ok);	
+	}
+	catch (std::length_error const & e)
+	{
+		QMessageBox::critical(0, QString(__FUNCTION__), QString("LE exception during decoding: %1").arg(e.what()), QMessageBox::Ok, QMessageBox::Ok);
+	}
+	catch (std::exception const & e)
+	{
+		QMessageBox::critical(0, QString(__FUNCTION__), QString("generic exception during decoding: %1").arg(e.what()), QMessageBox::Ok, QMessageBox::Ok);
+	}
+	catch (...)
+	{
+		QMessageBox::critical(0, QString(__FUNCTION__), QString("... exception during decoding"), QMessageBox::Ok, QMessageBox::Ok);
+	}
+	return false;
 }
 
 bool loadSessionState (SessionState & s, char const * filename)
 {
-    std::ifstream ifs(filename);
-    if (!ifs) return false;
-    boost::archive::text_iarchive ia(ifs);
-    ia >> BOOST_SERIALIZATION_NVP(s);
-    ifs.close();
-	return true;
+	try {
+		std::ifstream ifs(filename);
+		if (!ifs) return false;
+		boost::archive::text_iarchive ia(ifs);
+		ia >> BOOST_SERIALIZATION_NVP(s);
+		ifs.close();
+		return true;
+	}
+	catch (std::out_of_range const & e)
+	{
+		QMessageBox::critical(0, QString(__FUNCTION__), QString("OOR exception during decoding: %1").arg(e.what()), QMessageBox::Ok, QMessageBox::Ok);	
+	}
+	catch (std::length_error const & e)
+	{
+		QMessageBox::critical(0, QString(__FUNCTION__), QString("LE exception during decoding: %1").arg(e.what()), QMessageBox::Ok, QMessageBox::Ok);
+	}
+	catch (std::exception const & e)
+	{
+		QMessageBox::critical(0, QString(__FUNCTION__), QString("generic exception during decoding: %1").arg(e.what()), QMessageBox::Ok, QMessageBox::Ok);
+	}
+	catch (...)
+	{
+		QMessageBox::critical(0, QString(__FUNCTION__), QString("... exception during decoding"), QMessageBox::Ok, QMessageBox::Ok);
+	}
+	return false;
 }
 
 bool loadSessionState (SessionState const & src, SessionState & target)
 {
-    std::stringstream s;
-    boost::archive::text_oarchive oa(s);
-    oa << BOOST_SERIALIZATION_NVP(src);
+	try {
+		std::stringstream s;
+		boost::archive::text_oarchive oa(s);
+		oa << BOOST_SERIALIZATION_NVP(src);
 
-    boost::archive::text_iarchive ia(s);
-    ia >> BOOST_SERIALIZATION_NVP(target);
-    return true;
+		boost::archive::text_iarchive ia(s);
+		ia >> BOOST_SERIALIZATION_NVP(target);
+		return true;
+	}
+	catch (std::out_of_range const & e)
+	{
+		QMessageBox::critical(0, QString(__FUNCTION__), QString("OOR exception during decoding: %1").arg(e.what()), QMessageBox::Ok, QMessageBox::Ok);	
+	}
+	catch (std::length_error const & e)
+	{
+		QMessageBox::critical(0, QString(__FUNCTION__), QString("LE exception during decoding: %1").arg(e.what()), QMessageBox::Ok, QMessageBox::Ok);
+	}
+	catch (std::exception const & e)
+	{
+		QMessageBox::critical(0, QString(__FUNCTION__), QString("generic exception during decoding: %1").arg(e.what()), QMessageBox::Ok, QMessageBox::Ok);
+	}
+	catch (...)
+	{
+		QMessageBox::critical(0, QString(__FUNCTION__), QString("... exception during decoding"), QMessageBox::Ok, QMessageBox::Ok);
+	}
+	return false;
 }
 

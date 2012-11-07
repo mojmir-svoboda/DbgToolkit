@@ -26,7 +26,8 @@
 #include <QTableView>
 #include <QThread>
 #include "mainwindow.h"
-#include <tlv_parser/tlv_parser.h>
+#include <tlv_parser/tlv.h>
+#include <tlv_parser/tlv_cmd_qstring.h>
 #include <boost/circular_buffer.hpp>
 #include "sessionstate.h"
 #include "filterproxy.h"

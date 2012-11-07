@@ -46,10 +46,10 @@ namespace profiler {
 
 		tag_filters_t const & getTagFilters () const { return m_tag_filters; }
 
-		bool isTagPresent (QString const & tag, TagInfo & fi) const
+		/*bool isTagPresent (QString const & tag, TagInfo & fi) const
 		{
 			return m_tag_filters.is_present(tag, fi);
-		}
+		}*/
 	};
 }
 

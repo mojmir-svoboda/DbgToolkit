@@ -25,7 +25,7 @@
 #include <QAbstractTableModel>
 #include <QString>
 #include <vector>
-#include "../tlv_parser/tlv_parser.h"
+#include <tlv_parser/tlv_cmd_qstring.h>
 #include "sessionstate.h"
 
 class Connection;

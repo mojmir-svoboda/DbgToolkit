@@ -131,7 +131,11 @@ bool SessionState::isFileLinePresent (fileline_t const & item, TreeModelItem & f
 }
 bool SessionState::isFileLinePresent (QString const & fileline, TreeModelItem & fi) const
 {
-	return m_file_filters.is_present(fileline, fi);
+	TreeModelItem const * tmp_fi = 0;
+	bool const exists = m_file_filters.is_present(fileline, tmp_fi);
+	if (exists)
+		fi = *tmp_fi;
+	return exists;
 }
 
 ///////// ctx filters

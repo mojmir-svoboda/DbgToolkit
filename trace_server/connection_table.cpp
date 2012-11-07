@@ -67,7 +67,7 @@ void Connection::onShowTableContextMenu (QPoint const &)
 
 bool Connection::handleTableXYCommand (DecodedCommand const & cmd)
 {
-	std::string tag;
+	QString tag;
 	int x = 0;
 	int y = 0;
 	for (size_t i=0, ie=cmd.tvs.size(); i < ie; ++i)
@@ -75,12 +75,12 @@ bool Connection::handleTableXYCommand (DecodedCommand const & cmd)
 		if (cmd.tvs[i].m_tag == tlv::tag_msg)
 			tag = cmd.tvs[i].m_val;
 		else if (cmd.tvs[i].m_tag == tlv::tag_x)
-			x = atoi(cmd.tvs[i].m_val.c_str());
+			x = cmd.tvs[i].m_val.toInt();
 		else if (cmd.tvs[i].m_tag == tlv::tag_y)
-			y = atoi(cmd.tvs[i].m_val.c_str());
+			y = cmd.tvs[i].m_val.toInt();
 	}
 
-	appendTableXY(x, y, QString::fromStdString(tag));
+	appendTableXY(x, y, tag);
 	return true;
 }
 
@@ -122,7 +122,7 @@ void Connection::appendTableXY (int x, int y, QString const & msg_tag)
 		
 		DataTable * const dp = new DataTable(this, template_config, fname);
 		it = m_datatables.insert(tag, dp);
-		QModelIndex const item_idx = m_data_model->insertItem(table_name.toStdString());
+		QModelIndex const item_idx = m_data_model->insertItem(table_name);
 
 		QObject::connect(dp->widget().horizontalHeader(), SIGNAL(sectionResized(int, int, int)), &dp->widget(), SLOT(onSectionResized(int, int, int)));
 		dp->m_wd = m_main_window->m_dock_mgr.mkDockWidget(m_main_window, &dp->widget(), table_name);

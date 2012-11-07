@@ -41,7 +41,7 @@ namespace profiler {
 	private:
 		void setupMatrix ();
 		void registerTag (BlockInfo const & bi);
-		void appendToTagTree (std::string const & tagpath);
+		void appendToTagTree (QString const & tagpath);
 		void loadState ();
 		void onFileColOrExp (QModelIndex const &, bool collapsed);
 		void onFileExpanded (QModelIndex const &);

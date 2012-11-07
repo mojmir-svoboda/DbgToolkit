@@ -121,7 +121,7 @@ struct NNode
 		return 0;
 	}
 
-	static NNode const * node_child_fast (NNode const * node, QChar const * left, QChar const * right)
+	static NNode const * node_child_fast (NNode const * node, char const * left, char const * right)
 	{     
 		node = node->children;
 		while (node)
@@ -133,17 +133,31 @@ struct NNode
 		return 0;
 	}
 
-	static NNode * node_child_fast (NNode * node, QChar const * left, QChar const * right)
+	static NNode const * node_child_fast (NNode const * node, QChar const * left, QChar const * right)
 	{     
+		QString const key = QString::fromRawData(left, right - left);
 		node = node->children;
 		while (node)
 		{
-			if (0 == strncmp(node->key.c_str(), left, right - left))
+			if (0 == QString::compare(node->key, key, Qt::CaseInsensitive))
 				return node;
 			node = node->next;
 		}
 		return 0;
 	}
+	static NNode * node_child_fast (NNode * node, QChar const * left, QChar const * right)
+	{     
+		QString const key = QString::fromRawData(left, right - left);
+		node = node->children;
+		while (node)
+		{
+			if (0 == QString::compare(node->key, key, Qt::CaseInsensitive))
+				return node;
+			node = node->next;
+		}
+		return 0;
+	}
+
 
 
 	static bool is_leaf (NNode * node) { return node->children == 0; }

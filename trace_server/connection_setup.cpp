@@ -20,14 +20,14 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 	{
 		for (size_t i=0, ie=cmd.tvs.size(); i < ie; ++i)
 			if (cmd.tvs[i].m_tag == tlv::tag_pid)
-				pid = QString::fromStdString(cmd.tvs[i].m_val);
+				pid = cmd.tvs[i].m_val;
 	}
 
 	for (size_t i=0, ie=cmd.tvs.size(); i < ie; ++i)
 	{
 		if (cmd.tvs[i].m_tag == tlv::tag_lvl)
 		{
-			int const client_level = QString::fromStdString(cmd.tvs[i].m_val).toInt();
+			int const client_level = cmd.tvs[i].m_val.toInt();
 			int const server_level = m_main_window->getLevel();
 			if (client_level != server_level)
 			{
@@ -46,7 +46,7 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 			this->setupModelRegex();
 			this->setupModelString();
 
-			QString app_name = QString::fromStdString(cmd.tvs[i].m_val);
+			QString app_name = cmd.tvs[i].m_val;
 			if (m_main_window->reuseTabEnabled())
 			{
 				Server * server = static_cast<Server *>(parent());
@@ -80,12 +80,12 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 					for (int i = 0; i < sessionState().m_colorized_texts.size(); ++i)
 					{
 						ColorizedText & ct = sessionState().m_colorized_texts[i];
-						ct.m_regex = QRegExp(QString::fromStdString(ct.m_regex_str));
+						ct.m_regex = QRegExp(ct.m_regex_str);
 
-						QStandardItem * child = findChildByText(root, QString::fromStdString(ct.m_regex_str));
+						QStandardItem * child = findChildByText(root, ct.m_regex_str);
 						if (child == 0)
 						{
-							QList<QStandardItem *> row_items = addRow(QString::fromStdString(ct.m_regex_str), ct.m_is_enabled);
+							QList<QStandardItem *> row_items = addRow(ct.m_regex_str, ct.m_is_enabled);
 							root->appendRow(row_items);
 						}
 					}
@@ -98,15 +98,15 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 					for (int i = 0; i < sessionState().m_filtered_regexps.size(); ++i)
 					{
 						FilteredRegex & flt = sessionState().m_filtered_regexps[i];
-						flt.m_regex = QRegExp(QString::fromStdString(flt.m_regex_str));
+						flt.m_regex = QRegExp(flt.m_regex_str);
 
-						QStandardItem * child = findChildByText(root, QString::fromStdString(flt.m_regex_str));
+						QStandardItem * child = findChildByText(root, flt.m_regex_str);
 						if (child == 0)
 						{
 							Qt::CheckState const state = flt.m_is_enabled ? Qt::Checked : Qt::Unchecked;
-							QList<QStandardItem *> row_items = addTriRow(QString::fromStdString(flt.m_regex_str), state, flt.m_is_inclusive);
+							QList<QStandardItem *> row_items = addTriRow(flt.m_regex_str, state, flt.m_is_inclusive);
 							root->appendRow(row_items);
-							child = findChildByText(root, QString::fromStdString(flt.m_regex_str));
+							child = findChildByText(root, flt.m_regex_str);
 							child->setCheckState(state);
 						}
 					}
