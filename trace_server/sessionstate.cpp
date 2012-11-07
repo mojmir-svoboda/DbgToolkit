@@ -362,20 +362,20 @@ bool SessionState::isMatchedRegexExcluded (QString str) const
 				return false;
 			else
 			{
-				return fr.m_is_inclusive ? false : true;
+				return fr.m_state ? false : true;
 			}
 		}
 	}
 	return false;
 }
-void SessionState::setRegexInclusive (QString const & s, bool inclusive)
+void SessionState::setRegexInclusive (QString const & s, bool state)
 {
 	for (int i = 0, ie = m_filtered_regexps.size(); i < ie; ++i)
 	{
 		FilteredRegex & fr = m_filtered_regexps[i];
 		if (fr.m_regex_str == s)
 		{
-			fr.m_is_inclusive = inclusive;
+			fr.m_state = state;
 		}
 	}
 }
@@ -402,13 +402,12 @@ void SessionState::removeFromRegexFilters (QString const & s)
 		}
 	}
 }
-void SessionState::appendToRegexFilters (QString const & s, bool enabled, bool inclusive)
+void SessionState::appendToRegexFilters (QString const & s, bool enabled, bool state)
 {
 	for (int i = 0, ie = m_filtered_regexps.size(); i < ie; ++i)
 		if (m_filtered_regexps[i].m_regex_str == s)
 			return;
-	m_filtered_regexps.push_back(FilteredRegex(s, enabled));
-	m_filtered_regexps.back().m_is_inclusive = inclusive;
+	m_filtered_regexps.push_back(FilteredRegex(s, enabled, state));
 }
 
 

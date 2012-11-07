@@ -104,7 +104,7 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 						if (child == 0)
 						{
 							Qt::CheckState const state = flt.m_is_enabled ? Qt::Checked : Qt::Unchecked;
-							QList<QStandardItem *> row_items = addTriRow(flt.m_regex_str, state, flt.m_is_inclusive);
+							QList<QStandardItem *> row_items = addTriRow(flt.m_regex_str, state, static_cast<bool>(flt.m_state));
 							root->appendRow(row_items);
 							child = findChildByText(root, flt.m_regex_str);
 							child->setCheckState(state);

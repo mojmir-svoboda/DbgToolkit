@@ -214,10 +214,6 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode)
 		ui->autoScrollCheckBox->setToolTip(tr("auto scrolls to bottom if checked"));
 		ui->filterFileCheckBox->setToolTip(tr("enables filtering via filter tabs"));
 	}
-	//ui_settings->reuseTabCheckBox->setToolTip(tr("reuses compatible tab instead of creating new one"));
-	//ui_settings->clrFiltersCheckBox->setToolTip(tr("force clearing of filters when reuseTab is checked"));
-	//ui_settings->scopesCheckBox->setToolTip(tr("hides scopes if checked"));
-	ui_settings->onTopCheckBox->setToolTip(tr("keeps window on top if checked. have to restart program, sorry"));
 
 	m_status_label = new QLabel(m_server->getStatus());
 	QString human_version(g_Version);
@@ -699,7 +695,7 @@ void MainWindow::onDumpFilters ()
 			FilteredRegex const & x = ss.m_filtered_regexps.at(i);
 			regs += QString("%1 %2 %3\n")
 						.arg(x.m_regex_str)
-						.arg(x.m_is_inclusive ? "incl" : "excl")
+						.arg(x.m_state ? "incl" : "excl")
 						.arg(x.m_is_enabled ? " on" : "off");
 		}
 		QString lvls;
@@ -709,7 +705,7 @@ void MainWindow::onDumpFilters ()
 			lvls += QString("%1 %2 %3\n")
 						.arg(x.m_level_str)
 						.arg(x.m_is_enabled ? " on" : "off")
-						.arg(x.m_state ? "forced" : "");
+						.arg(x.m_state ? "incl" : "excl");
 		}
 		QString ctxs;
 		for (int i = 0, ie = ss.m_ctx_filters.size(); i < ie; ++i)

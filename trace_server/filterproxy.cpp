@@ -187,7 +187,7 @@ bool FilterProxyModel::filterAcceptsRow (int sourceRow, QModelIndex const & /*so
 			continue;
 		else
 		{
-			if (fr.m_is_inclusive)
+			if (fr.m_state)
 			{
 				inclusive_filters = true;
 				break;
@@ -213,7 +213,7 @@ bool FilterProxyModel::filterAcceptsRow (int sourceRow, QModelIndex const & /*so
 					continue;
 				else
 				{
-					if (fr.m_is_inclusive)
+					if (fr.m_state)
 						return true;
 					else
 						return false;

@@ -63,14 +63,14 @@ struct FilteredRegex {
 	QString m_regex_str;
 	QRegExp m_regex;
 	bool m_is_enabled;
-	bool m_is_inclusive;
+	int m_state;
 
 	bool isValid () const { return m_regex.isValid(); }
 	bool exactMatch (QString str) const { return m_regex.exactMatch(str); }
 
 	FilteredRegex () { }
-	FilteredRegex (QString const & rs, bool is_inclusive)
-        : m_regex_str(rs), m_regex(rs), m_is_enabled(0), m_is_inclusive(is_inclusive)
+	FilteredRegex (QString const & rs, bool enabled, int state)
+        : m_regex_str(rs), m_regex(rs), m_is_enabled(enabled), m_state(state)
 	{ }
 
 	template <class ArchiveT>
@@ -79,7 +79,7 @@ struct FilteredRegex {
 		ar & m_regex_str;
 		ar & m_regex;
 		ar & m_is_enabled;
-		ar & m_is_inclusive;
+		ar & m_state;
 	}
 };
 
