@@ -236,7 +236,7 @@ int main ()
 #if defined WIN32 || defined WIN64
 		Sleep(1000);
 #elif defined __linux__
-		usleep(2000 * 1000);
+		usleep(2000 * 1000);	
 #endif
 
 		TRACE_MSG(trace::e_Info, trace::CTX_Default,	"%s", "This message should periodicaly appear too.");

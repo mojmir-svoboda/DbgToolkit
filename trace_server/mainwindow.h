@@ -148,7 +148,7 @@ public:
 	int cutNamespaceLevel () const;
 	int indentLevel () const;
 	int tableRowSize () const;
-	QFont tableFont () const;
+	QString tableFont () const;
 	bool onTopEnabled () const;
 	bool autoScrollEnabled () const;
 	bool reuseTabEnabled () const;
@@ -226,6 +226,7 @@ private slots:
 	void onDumpFilters ();
 	void onReuseTabChanged (int state);
 	void ondtToolButton ();
+	void onTableFontToolButton ();
 	void onPlotStateChanged (int state);
 	void onSaveAllButton ();
 	void onPlotsToolButton ();

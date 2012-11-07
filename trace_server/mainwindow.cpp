@@ -11,6 +11,7 @@
 #include <QShortcut>
 #include <QInputDialog>
 #include <QFileDialog>
+#include <QFontDialog>
 #include <QMessageBox>
 #include <QSettings>
 #include <QMetaType>
@@ -168,6 +169,7 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode)
 
 	connect(ui->buffCheckBox, SIGNAL(stateChanged(int)), m_server, SLOT(onBufferingStateChanged(int)));
 	
+	connect(ui_settings->tableFontToolButton, SIGNAL(clicked()), this, SLOT(onTableFontToolButton()));
 	connect(ui_settings->onTopCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onOnTop(int)));//@FIXME: this has some issues
 	connect(ui_settings->reuseTabCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onReuseTabChanged(int)));
 	//connect(ui->clrFiltersCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onClrFiltersStateChanged(int)));
@@ -349,7 +351,7 @@ bool MainWindow::scopesEnabled () const { return ui_settings->scopesCheckBox->is
 bool MainWindow::indentEnabled () const { return ui_settings->indentCheckBox->isChecked(); }
 int MainWindow::indentLevel () const { return ui_settings->indentSpinBox->value(); }
 int MainWindow::tableRowSize () const { return ui_settings->tableRowSizeSpinBox->value(); }
-QFont MainWindow::tableFont () const { return ui_settings->tableFontComboBox->currentFont(); }
+QString MainWindow::tableFont () const { return ui_settings->tableFontComboBox->currentText(); }
 bool MainWindow::cutPathEnabled () const { return ui_settings->cutPathCheckBox->isChecked(); }
 int MainWindow::cutPathLevel () const { return ui_settings->cutPathSpinBox->value(); }
 bool MainWindow::cutNamespaceEnabled () const { return ui_settings->cutNamespaceCheckBox->isChecked(); }
@@ -403,6 +405,22 @@ void MainWindow::ondtToolButton ()
 	{
 		conn->onInvalidateFilter();
 	}
+}
+
+void MainWindow::onTableFontToolButton ()
+{
+    bool ok = false;
+	QFont curr_font;
+	if (Connection * conn = m_server->findCurrentConnection())
+	{
+		curr_font = conn->getTableViewWidget()->font();
+		ui_settings->tableFontComboBox->addItem(curr_font.toString());
+	}
+
+    QFont f = QFontDialog::getFont(&ok, curr_font);
+    if (ok)
+	{
+    }
 }
 
 void MainWindow::onPlotStateChanged (int state)
@@ -1271,7 +1289,7 @@ void MainWindow::storeState ()
 	settings.setValue("cutNamespaceCheckBox", ui_settings->cutNamespaceCheckBox->isChecked());
 	settings.setValue("indentSpinBox", ui_settings->indentSpinBox->value());
 	settings.setValue("tableRowSizeSpinBox", ui_settings->tableRowSizeSpinBox->value());
-	settings.setValue("tableFontComboBox", ui_settings->tableFontComboBox->currentFont());
+	settings.setValue("tableFontComboBox", ui_settings->tableFontComboBox->currentText());
 	settings.setValue("cutPathSpinBox", ui_settings->cutPathSpinBox->value());
 	settings.setValue("cutNamespaceSpinBox", ui_settings->cutNamespaceSpinBox->value());
 	settings.setValue("onTopCheckBox", ui_settings->onTopCheckBox->isChecked());

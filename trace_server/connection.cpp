@@ -208,7 +208,7 @@ void Connection::onLevelValueChanged (int val)
 #ifdef __linux__
 	int const result = snprintf(tlv_buff, 16, "%u", val);
 #else
-	int const result = _snprintf(tlv_buff, 16, "%u", val);
+	int const result = _snprintf_s(tlv_buff, 16, "%u", val);
 #endif
 
 	if (result > 0)
@@ -230,7 +230,7 @@ void Connection::onBufferingStateChanged (int val)
 #ifdef __linux__
 	int const result = snprintf(tlv_buff, 16, "%u", buffering_enabled);
 #else
-	int const result = _snprintf(tlv_buff, 16, "%u", buffering_enabled);
+	int const result = _snprintf_s(tlv_buff, 16, "%u", buffering_enabled);
 #endif
 
 	if (result > 0)
@@ -352,7 +352,7 @@ void Connection::onTableDoubleClicked (QModelIndex const & row_index)
 				QString curr_tid = findString4Tag(tlv::tag_tid, curr_idx);
 				if (curr_tid == tid)
 				{
-					if (model->layers()[row_bgn] >= layer)
+					if (static_cast<int>(model->layers()[row_bgn]) >= layer)
 					{
 						from = row_bgn;
 					}
@@ -368,7 +368,7 @@ void Connection::onTableDoubleClicked (QModelIndex const & row_index)
 		int to = row_end;
 		if (model->rowTypes()[to] != tlv::cmd_scope_exit)
 		{
-			while (row_end < model->layers().size())
+			while (row_end < static_cast<int>(model->layers().size()))
 			{
 				QModelIndex const curr_idx = model->index(row_end, row_index.column(), QModelIndex());
 				QString next_tid = findString4Tag(tlv::tag_tid, curr_idx);

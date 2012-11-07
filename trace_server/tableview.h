@@ -1,6 +1,6 @@
 #include <QTableView>
 
-struct SessionState;
+class SessionState;
 
 class TableView : public QTableView
 {
