@@ -11,6 +11,140 @@
 #include "statswindow.h"
 #include "delegates.h"
 
+void Connection::handleCSVSetup (QString const & fname)
+{
+	qDebug("Connection::handleCSVSetup() this=0x%08x", this);
+
+	this->setupModelColorRegex();
+	this->setupModelRegex();
+	this->setupModelString();
+
+	QString app_name = fname;
+	if (m_main_window->reuseTabEnabled())
+	{
+		Server * server = static_cast<Server *>(parent());
+		Connection * conn = server->findConnectionByName(app_name);
+		if (conn)
+		{
+			if (!m_main_window->clrFltEnabled())
+			{
+				loadSessionState(conn->sessionState(), m_session_state);
+			}
+
+			QWidget * w = conn->sessionState().m_tab_widget;
+			server->onCloseTab(w);	// close old one
+			// @TODO: delete persistent storage for the tab
+		}
+		else
+		{
+			QString const pname = getPresetPath(app_name, g_defaultPresetName);
+			m_main_window->onPresetActivate(this, pname);
+		}
+
+		{
+			QStandardItemModel * model = static_cast<QStandardItemModel *>(m_main_window->getWidgetColorRegex()->model());
+			QStandardItem * root = model->invisibleRootItem();
+			for (int i = 0; i < sessionState().m_colorized_texts.size(); ++i)
+			{
+				ColorizedText & ct = sessionState().m_colorized_texts[i];
+				ct.m_regex = QRegExp(ct.m_regex_str);
+
+				QStandardItem * child = findChildByText(root, ct.m_regex_str);
+				if (child == 0)
+				{
+					QList<QStandardItem *> row_items = addRow(ct.m_regex_str, ct.m_is_enabled);
+					root->appendRow(row_items);
+				}
+			}
+			recompileColorRegexps();
+		}
+
+		{
+			QStandardItemModel * model = static_cast<QStandardItemModel *>(m_main_window->getWidgetRegex()->model());
+			QStandardItem * root = model->invisibleRootItem();
+			for (int i = 0; i < sessionState().m_filtered_regexps.size(); ++i)
+			{
+				FilteredRegex & flt = sessionState().m_filtered_regexps[i];
+				flt.m_regex = QRegExp(flt.m_regex_str);
+
+				QStandardItem * child = findChildByText(root, flt.m_regex_str);
+				if (child == 0)
+				{
+					Qt::CheckState const state = flt.m_is_enabled ? Qt::Checked : Qt::Unchecked;
+					QList<QStandardItem *> row_items = addTriRow(flt.m_regex_str, state, static_cast<bool>(flt.m_state));
+					root->appendRow(row_items);
+					child = findChildByText(root, flt.m_regex_str);
+					child->setCheckState(state);
+				}
+			}
+			recompileRegexps();
+		}
+		{
+			QStandardItemModel * model = static_cast<QStandardItemModel *>(m_main_window->getWidgetString()->model());
+			QStandardItem * root = model->invisibleRootItem();
+			for (int i = 0; i < sessionState().m_filtered_strings.size(); ++i)
+			{
+				FilteredString & flt = sessionState().m_filtered_strings[i];
+				appendToStringWidgets(flt);
+			}
+		}
+
+	}
+
+	sessionState().m_name = app_name;
+	//sessionState().m_pid = pid;
+
+	m_table_view_widget->setVisible(false);
+	int const tab_idx = m_main_window->getTabTrace()->indexOf(sessionState().m_tab_widget);
+	m_main_window->getTabTrace()->setTabText(tab_idx, app_name);
+
+	sessionState().m_app_idx = m_main_window->findAppName(app_name);
+
+	columns_setup_t & cs_setup = m_main_window->getColumnSetup(sessionState().m_app_idx);
+	columns_sizes_t & cs_sizes = m_main_window->getColumnSizes(sessionState().m_app_idx);
+	columns_align_t & cs_align = m_main_window->getColumnAlign(sessionState().m_app_idx);
+	columns_elide_t & cs_elide = m_main_window->getColumnElide(sessionState().m_app_idx);
+
+	if (cs_setup.empty() || cs_sizes.empty() || cs_align.empty() || cs_elide.empty())
+	{
+		m_main_window->onSetup(sessionState().m_app_idx, true, true);
+	}
+
+	sessionState().setupColumns(&cs_setup, &cs_sizes, &cs_align, &cs_elide); 
+
+	m_current_cmd.tvs.reserve(sessionState().getColumnsSetupCurrent()->size());
+	for (size_t i = 0, ie = sessionState().getColumnsSetupCurrent()->size(); i < ie; ++i)
+	{
+		m_table_view_widget->model()->insertColumn(i);
+	}
+
+	m_table_view_widget->horizontalHeader()->resizeSections(QHeaderView::Fixed);
+
+	columns_sizes_t const & sizes = *sessionState().m_columns_sizes;
+	for (size_t c = 0, ce = sizes.size(); c < ce; ++c)
+	{
+		m_table_view_widget->horizontalHeader()->resizeSection(c, sizes.at(c));
+		//qDebug("sizes: %u %u %u", sizes.at(0), sizes.at(1), sizes.at(2));
+	}
+
+	m_table_view_widget->horizontalHeader()->setResizeMode(QHeaderView::Fixed);
+	m_table_view_widget->verticalHeader()->setResizeMode(QHeaderView::Fixed);
+
+	//connect(m_table_view_widget, SIGNAL(clicked(QModelIndex const &)), this, SLOT(onTableClicked(QModelIndex const &)));
+	//connect(m_table_view_widget, SIGNAL(doubleClicked(QModelIndex const &)), this, SLOT(onTableDoubleClicked(QModelIndex const &)));
+	//m_table_view_widget->setContextMenuPolicy(Qt::CustomContextMenu);
+	//connect(m_table_view_widget, SIGNAL(customContextMenuRequested(QPoint const &)), this, SLOT(onShowContextMenu(QPoint const &)));
+
+	m_table_view_widget->setVisible(true);
+	//m_table_view_widget->setItemDelegate(new TableItemDelegate(sessionState(), this));
+
+	m_main_window->getTabTrace()->setCurrentIndex(tab_idx);
+	static_cast<ModelView *>(m_table_view_widget->model())->emitLayoutChanged();
+
+	qDebug("Server::incomingConnection buffering not enabled, notifying client\n");
+	onBufferingStateChanged(m_main_window->buffState());
+}
+
 bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 {
 	qDebug("Connection::handleSetupCommand() this=0x%08x", this);

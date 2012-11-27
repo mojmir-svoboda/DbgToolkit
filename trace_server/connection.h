@@ -39,6 +39,7 @@
 class Server;
 class QFile;
 class QDataStream;
+class QTextStream;
 class QStandardItemModel;
 class QStandardItem;
 class LevelDelegate;
@@ -85,6 +86,12 @@ struct DataTable {
 };
 
 typedef QMap<QString, DataTable *> datatables_t;
+
+enum E_SrcType {
+	e_TCP_TLV,
+	e_File_TLV,
+	e_File_CSV
+};
 
 /**@class		Connection
  * @brief		represents incoming connection (or file stream)
@@ -182,6 +189,8 @@ public slots:
 
 private slots:
 	void processReadyRead ();
+	void processTailCSVStream ();
+	void handleCSVSetup (QString const & fname);
 	void onDisconnected ();
 	void onTableClicked (QModelIndex const & index);
 	void onTableDoubleClicked (QModelIndex const & index);
@@ -212,6 +221,7 @@ private:
 	bool handlePingCommand (DecodedCommand const & cmd);
 	bool handleShutdownCommand (DecodedCommand const & cmd);
 	bool handleDictionnaryCtx (DecodedCommand const & cmd);
+	bool handleCSVStreamCommand (DecodedCommand const & cmd);
 
 	void appendDataXY (double x, double y, QString const & tag);
 	void appendTableXY (int x, int y, QString const & tag);
@@ -228,6 +238,7 @@ private:
 	void exportStorageToCSV (QString const & filename);
 	void closeStorage ();
 	void setSocketDescriptor (int sd);
+	void setTailFile (QString const & fname);
 	void setupModelFile ();
 	void destroyModelFile ();
 	void setupModelCtx ();
@@ -248,7 +259,7 @@ private:
 private:
 	MainWindow * m_main_window;
 	SessionState m_session_state;
-	int m_from_file;
+	E_SrcType m_data_src_type;
 	bool m_column_setup_done;
 	bool m_marked_for_close;
 	int m_last_search_row;
@@ -283,7 +294,8 @@ private:
 	boost::circular_buffer<DecodedCommand> m_decoded_cmds;
 	tlv::TVDecoder m_decoder;
 	QFile * m_storage;
-	QDataStream * m_datastream;
+	QDataStream * m_tcp_dump_stream;
+	QTextStream * m_file_csv_stream;
 	QTcpSocket * m_tcpstream;
 	stats::StatsWindow * m_statswindow;
 	dataplots_t m_dataplots;

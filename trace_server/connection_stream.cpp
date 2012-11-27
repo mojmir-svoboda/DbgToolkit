@@ -213,6 +213,21 @@ void Connection::setSocketDescriptor (int sd)
 	connect(this, SIGNAL(handleCommands()), this, SLOT(onHandleCommands()));
 }
 
+
+void Connection::setTailFile (QString const & fname)
+{
+	QFile * f = new QFile(fname);
+	if (!f->open(QIODevice::ReadOnly))
+	{
+		QMessageBox::critical(0, tr("Error"), tr("Could not open file"));
+		delete f;
+		return;
+	}
+
+	m_file_csv_stream = new QTextStream(f);
+	connect(this, SIGNAL(handleCommands()), this, SLOT(onHandleCommands()));
+}
+
 void Connection::run ()
 {
 	while (1)
@@ -227,7 +242,7 @@ void Connection::run ()
 
 void Connection::processDataStream (QDataStream & stream)
 {
-	m_from_file = true;
+	m_data_src_type = e_File_TLV;
 
 	connect(this, SIGNAL(handleCommands()), this, SLOT(onHandleCommands()));
 
@@ -251,6 +266,49 @@ void Connection::processDataStream (QDataStream & stream)
 		case e_data_decode_error:
 			qDebug("!!! exception duging decoding!");
 	}
+}
+
+void Connection::processTailCSVStream ()
+{
+	m_data_src_type = e_File_CSV;
+
+	if (!m_file_csv_stream->atEnd())
+		emit onHandleCommandsStart();
+
+	while (!m_file_csv_stream->atEnd())
+	{
+		QString const data = m_file_csv_stream->readLine(2048);
+		tlv::TV tv;
+		tv.m_tag = tlv::tag_msg;
+		tv.m_val = data;
+		m_current_cmd.tvs.push_back(tv);
+		m_decoded_cmds.push_back(m_current_cmd);
+		m_current_cmd.Reset(); // reset current command for another decoding pass
+	}
+
+	if (m_decoded_cmds.size() > 0)
+	{
+		ModelView * model = static_cast<ModelView *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
+		size_t const rows = m_decoded_cmds.size();
+		for (size_t i = 0; i < rows; ++i)
+		{
+			DecodedCommand & cmd = m_decoded_cmds.front();
+			handleCSVStreamCommand(cmd);
+			m_decoded_cmds.pop_front();
+		}
+
+		emit onHandleCommandsCommit();
+	}
+
+	QTimer::singleShot(250, this, SLOT(processTailCSVStream()));
+}
+
+bool Connection::handleCSVStreamCommand (DecodedCommand const & cmd)
+{
+	//appendToFilters(cmd);
+	ModelView * model = static_cast<ModelView *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
+	model->appendCommandCSV(m_table_view_proxy, cmd);
+	return true;
 }
 
 bool Connection::handlePingCommand (DecodedCommand const & cmd)
@@ -313,8 +371,8 @@ bool Connection::tryHandleCommand (DecodedCommand const & cmd)
 		default: qDebug("unknown command, ignoring\n"); break;
 	}
 
-	if (!m_from_file && m_datastream)
-		m_datastream->writeRawData(&cmd.orig_message[0], cmd.hdr.len + tlv::Header::e_Size);
+	if (m_data_src_type == e_TCP_TLV && m_tcp_dump_stream)
+		m_tcp_dump_stream->writeRawData(&cmd.orig_message[0], cmd.hdr.len + tlv::Header::e_Size);
 	return true;
 }
 
@@ -327,13 +385,13 @@ QString Connection::createStorageName () const
 
 bool Connection::setupStorage (QString const & name)
 {
-	if (!m_from_file && !m_storage)
+	if (m_data_src_type == e_TCP_TLV && !m_storage)
 	{
 		m_storage = new QFile(name + ".tlv_trace");
 		m_storage->open(QIODevice::WriteOnly);
-		m_datastream = new QDataStream(m_storage);
+		m_tcp_dump_stream = new QDataStream(m_storage);
 
-		if (!m_datastream)
+		if (!m_tcp_dump_stream)
 		{
 			return false;
 		}
@@ -422,7 +480,7 @@ void Connection::closeStorage ()
 {
 	if (m_storage)
 	{
-		delete m_datastream;
+		delete m_tcp_dump_stream;
 		m_storage->close();
 		m_storage->remove();
 		delete m_storage;

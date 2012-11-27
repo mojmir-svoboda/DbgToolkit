@@ -51,7 +51,7 @@ void MainWindow::loadNetworkSettings ()
 	m_config.m_profiler_port = settings.value("profiler_port", 13147).toInt();
 }
 
-MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode)
+MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QString const & log_name)
 	: QMainWindow(parent)
 	, ui(new Ui::MainWindow)
 	, ui_settings(0)
@@ -68,6 +68,7 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode)
 	, m_dock_mgr()
 	, m_plots_dock(0)
 	, m_plot_tree_view(0)
+	, m_log_name(log_name)
 {
 	//QDir::setSearchPaths("icons", QStringList(QDir::currentPath()));
 	ui->setupUi(this);
@@ -598,6 +599,29 @@ void MainWindow::onEditFindNext ()
 void MainWindow::onEditFindPrev ()
 { }
 
+void MainWindow::tailFiles (QStringList const & files)
+{
+	for (size_t i = 0, ie = files.size(); i < ie; ++i)
+	{
+		QString fname = files.at(i);
+		if (fname != "")
+			m_server->createTailDataStream(fname);
+	}
+}
+
+void MainWindow::onFileTail ()
+{
+	QString fname = QFileDialog::getOpenFileName(this, tr("Open File"), "", tr("*.*"));
+	QStringList files;
+	files << fname;
+	tailFiles(files);
+}
+
+void MainWindow::onLogTail ()
+{
+	m_server->createTailDataStream(m_log_name);
+}
+
 void MainWindow::openFiles (QStringList const & files)
 {
 	for (size_t i = 0, ie = files.size(); i < ie; ++i)
@@ -1064,6 +1088,7 @@ void MainWindow::setupMenuBar ()
 	// File
 	QMenu * fileMenu = menuBar()->addMenu(tr("&File"));
 	fileMenu->addAction(tr("File &Load..."), this, SLOT(onFileLoad()), QKeySequence(Qt::ControlModifier + Qt::Key_O));
+	fileMenu->addAction(tr("File &Tail..."), this, SLOT(onFileTail()), QKeySequence(Qt::ControlModifier + Qt::Key_T));
 	fileMenu->addAction(tr("File &Save..."), this, SLOT(onFileSave()), QKeySequence(Qt::ControlModifier + Qt::Key_S));
 	fileMenu->addAction(tr("File &Save As CSV format"), this, SLOT(onFileExportToCSV()), QKeySequence(Qt::ControlModifier + Qt::ShiftModifier + Qt::Key_S));
 	fileMenu->addSeparator();
@@ -1091,6 +1116,10 @@ void MainWindow::setupMenuBar ()
 	filterMenu->addAction(tr("Goto level filter"), this, SLOT(onGotoLevelFilter()), QKeySequence(Qt::ControlModifier + Qt::Key_F2));
 	filterMenu->addAction(tr("Goto regex filter"), this, SLOT(onGotoRegexFilter()), QKeySequence(Qt::ControlModifier + Qt::Key_F3));
 	filterMenu->addAction(tr("Goto color filter"), this, SLOT(onGotoColorFilter()), QKeySequence(Qt::ControlModifier + Qt::Key_F4));
+
+	QMenu * tailMenu = menuBar()->addMenu(tr("&Tail"));
+	tailMenu->addAction(tr("File &Tail..."), this, SLOT(onFileTail()), QKeySequence(Qt::ControlModifier + Qt::Key_T));
+	tailMenu->addAction(tr("Trace Server Log"), this, SLOT(onLogTail()), QKeySequence(Qt::ControlModifier + Qt::AltModifier + Qt::Key_L));
 		
 	// Clear
 	QMenu * clearMenu = menuBar()->addMenu(tr("&Clear"));

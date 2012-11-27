@@ -163,6 +163,17 @@ void Server::incomingDataStream (QDataStream & stream)
 	connection->processDataStream(stream);
 }
 
+void Server::createTailDataStream (QString const & fname)
+{
+	MainWindow * main_window = static_cast<MainWindow *>(parent());
+	Connection * connection = createNewTableView ();
+	connection->setTailFile(fname);
+	main_window->statusBar()->showMessage(tr("Tail!"));
+	connection->handleCSVSetup(fname);
+	connection->processTailCSVStream();
+	emit newConnection(connection);
+}
+
 void Server::incomingConnection (int socketDescriptor)
 {
 	MainWindow * main_window = static_cast<MainWindow *>(parent());

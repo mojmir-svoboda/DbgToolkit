@@ -293,3 +293,63 @@ void ModelView::appendCommand (QAbstractProxyModel * filter, tlv::StringCommand 
 	}
 }
 
+void ModelView::appendCommandCSV (QAbstractProxyModel * filter, tlv::StringCommand const & cmd)
+{
+	int column_index = -1;
+
+	m_rows.push_back(columns_t(cmd.tvs.size()));
+	//m_rowTypes.push_back(cmd.hdr.cmd);
+	columns_t & columns = m_rows.back();
+	columns.reserve(cmd.tvs.size());
+
+	columns.resize(cmd.tvs.size());
+
+	QString msg;
+	for (size_t i = 0, ie = cmd.tvs.size(); i < ie; ++i)
+	{
+		tlv::tag_t const tag = cmd.tvs[i].m_tag;
+		QString const & val = cmd.tvs[i].m_val;
+		if (tag == tlv::tag_msg)
+			msg = val;
+
+			//column_index = m_session_state.insertColumn(tag);
+
+			if (filter)
+			{
+				filter->insertColumn(column_index);
+			}
+		columns[i] = msg;
+	}
+
+	//if (m_main_window->dtEnabled())
+	/*{
+		int const tag = tlv::tag_max_value + 1;
+		int ci = m_session_state.findColumn4Tag(static_cast<tlv::tag_t>(tag));
+		if (ci < 0)
+		{
+			ci = m_session_state.insertColumn(tag);
+			if (filter)
+			{
+				filter->insertColumn(ci);
+			}
+		}
+
+		unsigned long long const last_t = m_session_state.getTLS().lastTime(thread_idx);
+		unsigned long long const t = time.toULongLong();
+		long long const dt = t - last_t;
+		columns[ci] = tr("%1").arg(dt);
+		m_session_state.getTLS().setLastTime(thread_idx, t);
+	}*/
+
+	if (filter)
+	{
+		int const row = filter->rowCount();
+		filter->insertRow(row);
+	}
+	else
+	{
+		int const row = rowCount();
+		insertRow(row);
+	}
+}
+

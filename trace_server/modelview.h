@@ -46,6 +46,7 @@ public:
 
 	void transactionStart (size_t n);
 	void appendCommand (QAbstractProxyModel * filter, tlv::StringCommand const & cmd);
+	void appendCommandCSV (QAbstractProxyModel * filter, tlv::StringCommand const & cmd);
 	void transactionCommit ();
 
 	void emitLayoutChanged ();

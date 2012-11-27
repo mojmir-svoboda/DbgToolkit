@@ -13,6 +13,8 @@
 #include "profilerblockinfo.h"
 #include "profilerserver.h"
 
+FILE * g_LogRedirect = 0;
+
 class ProfilerAcceptorThread : public QThread
 {
 	MainWindow * m_main_window;
@@ -102,8 +104,30 @@ void usage ()
 	printf("    -d    dump mode (csv by default)\n");
 }
 
-int main (int argc, char *argv[])
+void qDebugHandler (QtMsgType type, const char * msg)
 {
+	switch (type)
+	{
+		case QtDebugMsg:
+			fprintf(g_LogRedirect, "I|%s\n", msg);
+			break;
+		case QtWarningMsg:
+			fprintf(g_LogRedirect, "W|%s\n", msg);
+			break;
+		case QtCriticalMsg:
+			fprintf(g_LogRedirect, "E|%s\n", msg);
+			break;
+		case QtFatalMsg:
+			fprintf(g_LogRedirect, "F|%s\n", msg);
+			break;
+	}
+	fflush(g_LogRedirect);
+}
+
+int main (int argc, char * argv[])
+{
+	QString const log_name = QString("%1.%2").arg(argv[0]).arg("log");
+	g_LogRedirect = fopen(log_name.toAscii(), "a");
 	bool quit_delay = true;
 	bool start_hidden = false;
 	bool dump_mode = false;
@@ -141,6 +165,8 @@ int main (int argc, char *argv[])
 		}
     }
 
+	qInstallMsgHandler(qDebugHandler);
+
 	Application a(argc, argv);
 
 #ifdef WIN32
@@ -150,7 +176,7 @@ int main (int argc, char *argv[])
 	}
 #endif
 
-	MainWindow w(0, quit_delay, dump_mode);
+	MainWindow w(0, quit_delay, dump_mode, log_name);
 
 	if (!start_hidden)
 	{
@@ -160,5 +186,8 @@ int main (int argc, char *argv[])
 	a.setMainWindow(&w);
 	if (start_hidden)
 		w.onHotkeyShowOrHide();
-	return a.exec();
+	bool const retval = a.exec();
+	qInstallMsgHandler(0);
+	fclose(g_LogRedirect);
+	return retval;
 }

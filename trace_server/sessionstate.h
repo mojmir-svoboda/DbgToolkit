@@ -199,7 +199,6 @@ private:
 	int m_app_idx;
 	int m_storage_idx;
 	QWidget * m_tab_widget;
-	int m_from_file;
 	int m_exclude_content_to_row;
 	int m_time_ref_row;
 	unsigned long long m_time_ref_value;
