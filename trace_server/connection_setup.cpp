@@ -112,10 +112,10 @@ void Connection::handleCSVSetup (QString const & fname)
 
 	if (cs_setup.empty() || cs_sizes.empty() || cs_align.empty() || cs_elide.empty())
 	{
-		m_main_window->onSetup(sessionState().m_app_idx, true, true);
+		//m_main_window->onSetup(sessionState().m_app_idx, true, true);
 	}
 
-	sessionState().setupColumns(&cs_setup, &cs_sizes, &cs_align, &cs_elide); 
+	sessionState().setupColumnsCSV(&cs_setup, &cs_sizes, &cs_align, &cs_elide); 
 
 	m_current_cmd.tvs.reserve(sessionState().getColumnsSetupCurrent()->size());
 	for (size_t i = 0, ie = sessionState().getColumnsSetupCurrent()->size(); i < ie; ++i)

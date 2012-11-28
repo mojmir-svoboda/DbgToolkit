@@ -62,6 +62,27 @@ void SessionState::setupColumns (QList<QString> * cs_template, columns_sizes_t *
 	}
 }
 
+void SessionState::setupColumnsCSV (QList<QString> * cs_template, columns_sizes_t * sizes
+			, columns_align_t * ca_template, columns_elide_t * ce_template)
+{
+	m_columns_sizes = sizes;
+	m_columns_setup_template = cs_template;
+	m_columns_align_template = ca_template;
+	m_columns_elide_template = ce_template;
+
+	if (!m_columns_setup_current)
+	{
+		m_columns_setup_current = new QList<QString>();
+	}
+	else
+	{
+		m_columns_setup_current->clear();
+	}
+
+	m_tags2columns.clear();
+	*m_columns_setup_current = *m_columns_setup_template;
+}
+
 void SessionState::setupThreadColors (QList<QColor> const & tc)
 {
 	m_thread_colors = tc;

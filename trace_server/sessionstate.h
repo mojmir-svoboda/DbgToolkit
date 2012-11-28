@@ -62,6 +62,8 @@ public:
 	void setTabWidget (QWidget * w) { m_tab_widget = w; }
 	void setupColumns (QList<QString> * column_setup_template, columns_sizes_t * sizes
 			, columns_align_t * ca_template, columns_elide_t * ce_template);
+	void setupColumnsCSV (QList<QString> * column_setup_template, columns_sizes_t * sizes
+			, columns_align_t * ca_template, columns_elide_t * ce_template);
 	void setupThreadColors (QList<QColor> const & tc);
 
 	QString getAppName () const { return m_name; }

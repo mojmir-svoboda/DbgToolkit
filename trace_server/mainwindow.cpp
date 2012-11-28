@@ -1543,6 +1543,9 @@ int MainWindow::createAppName (QString const & appname, E_SrcProtocol const prot
 		m_config.m_columns_sizes.push_back(columns_sizes_t());
 		m_config.m_columns_align.push_back(columns_align_t());
 		m_config.m_columns_elide.push_back(columns_elide_t());
+
+		size_t const i = m_config.m_app_names.size() - 1;
+		return i;
 	}
 }
 

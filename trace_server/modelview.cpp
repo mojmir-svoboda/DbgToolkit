@@ -129,8 +129,21 @@ QVariant ModelView::data (const QModelIndex &index, int role) const
 }
 
 
-bool ModelView::setData (QModelIndex const & /*index*/, QVariant const & /*value*/, int /*role*/)
+bool ModelView::setData (QModelIndex const & index, QVariant const & value, int role)
 {
+	if (!index.isValid()) return false;
+	if (role == Qt::DisplayRole)
+		return false;
+	else if (role == Qt::EditRole)
+	{
+		if (checkExistence(index))
+		{
+			int const x = index.column();
+			int const y = index.row();
+			m_rows.at(y).at(x) = value.toString();
+			emit dataChanged(index, index);
+		}
+	}
 	return true;	
 }
 
@@ -295,14 +308,7 @@ void ModelView::appendCommand (QAbstractProxyModel * filter, tlv::StringCommand 
 
 void ModelView::appendCommandCSV (QAbstractProxyModel * filter, tlv::StringCommand const & cmd)
 {
-	int column_index = -1;
-
 	m_rows.push_back(columns_t(cmd.tvs.size()));
-	//m_rowTypes.push_back(cmd.hdr.cmd);
-	columns_t & columns = m_rows.back();
-	columns.reserve(cmd.tvs.size());
-
-	columns.resize(cmd.tvs.size());
 
 	QString msg;
 	for (size_t i = 0, ie = cmd.tvs.size(); i < ie; ++i)
@@ -311,35 +317,38 @@ void ModelView::appendCommandCSV (QAbstractProxyModel * filter, tlv::StringComma
 		QString const & val = cmd.tvs[i].m_val;
 		if (tag == tlv::tag_msg)
 			msg = val;
+	}
 
-			//column_index = m_session_state.insertColumn(tag);
+	//QStringList list = msg.split(QRegExp(separator), QString::SkipEmptyParts);
+	QString const separator("|");
+	QStringList const list = msg.split(separator);
+	columns_t & columns = m_rows.back();
+	columns.resize(list.size());
+	for (size_t i = 0, ie = list.size(); i < ie; ++i)
+	{
+		QString const & col_value = list.at(i);
+		int column_index = m_session_state.findColumn4Tag(i);
+		if (column_index < 0)
+		{
+			column_index = m_session_state.insertColumn(i);
+			beginInsertColumns(QModelIndex(), column_index, column_index);
+			endInsertColumns();
 
 			if (filter)
 			{
 				filter->insertColumn(column_index);
 			}
-		columns[i] = msg;
-	}
-
-	//if (m_main_window->dtEnabled())
-	/*{
-		int const tag = tlv::tag_max_value + 1;
-		int ci = m_session_state.findColumn4Tag(static_cast<tlv::tag_t>(tag));
-		if (ci < 0)
-		{
-			ci = m_session_state.insertColumn(tag);
-			if (filter)
-			{
-				filter->insertColumn(ci);
-			}
 		}
 
-		unsigned long long const last_t = m_session_state.getTLS().lastTime(thread_idx);
-		unsigned long long const t = time.toULongLong();
-		long long const dt = t - last_t;
-		columns[ci] = tr("%1").arg(dt);
-		m_session_state.getTLS().setLastTime(thread_idx, t);
-	}*/
+		QModelIndex const idx = index(m_rows.size(), column_index, QModelIndex());
+		setData(idx, col_value, Qt::EditRole);
+	}
+
+	/*m_table_view_widget->horizontalHeader()->resizeSections(QHeaderView::Fixed);
+	m_table_view_widget->horizontalHeader()->setResizeMode(QHeaderView::Fixed);
+	m_table_view_widget->verticalHeader()->setResizeMode(QHeaderView::Fixed);
+	m_table_view_widget->setVisible(true);*/
+
 
 	if (filter)
 	{
