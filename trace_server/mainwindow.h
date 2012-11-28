@@ -52,7 +52,7 @@ class MainWindow : public QMainWindow
 	Q_OBJECT
 
 public:
-	explicit MainWindow (QWidget * parent = 0, bool quit_delay = true, bool dump_mode = false);
+	explicit MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QString const & name);
 	~MainWindow ();
 
 	QTabWidget * getTabTrace ();
@@ -148,7 +148,7 @@ public:
 	int cutNamespaceLevel () const;
 	int indentLevel () const;
 	int tableRowSize () const;
-	QFont tableFont () const;
+	QString tableFont () const;
 	bool onTopEnabled () const;
 	bool autoScrollEnabled () const;
 	bool reuseTabEnabled () const;
@@ -197,6 +197,9 @@ private slots:
 	void onEditFindPrev ();
 	void onFileLoad ();
 	void openFiles (QStringList const & list);
+	void onFileTail ();
+	void onLogTail ();
+	void tailFiles (QStringList const & list);
 	void onFileSave ();
 	void onFileExportToCSV ();
 	void onSetupAction ();
@@ -226,6 +229,7 @@ private slots:
 	void onDumpFilters ();
 	void onReuseTabChanged (int state);
 	void ondtToolButton ();
+	void onTableFontToolButton ();
 	void onPlotStateChanged (int state);
 	void onSaveAllButton ();
 	void onPlotsToolButton ();
@@ -273,6 +277,7 @@ private:
 	DockManager m_dock_mgr;
 	DockWidget * m_plots_dock;
 	TreeView * m_plot_tree_view;
+	QString m_log_name;
 };
 
 #endif // MAINWINDOW_H

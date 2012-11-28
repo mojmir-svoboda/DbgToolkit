@@ -11,6 +11,7 @@
 #include <QShortcut>
 #include <QInputDialog>
 #include <QFileDialog>
+#include <QFontDialog>
 #include <QMessageBox>
 #include <QSettings>
 #include <QMetaType>
@@ -50,7 +51,7 @@ void MainWindow::loadNetworkSettings ()
 	m_config.m_profiler_port = settings.value("profiler_port", 13147).toInt();
 }
 
-MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode)
+MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QString const & log_name)
 	: QMainWindow(parent)
 	, ui(new Ui::MainWindow)
 	, ui_settings(0)
@@ -67,6 +68,7 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode)
 	, m_dock_mgr()
 	, m_plots_dock(0)
 	, m_plot_tree_view(0)
+	, m_log_name(log_name)
 {
 	//QDir::setSearchPaths("icons", QStringList(QDir::currentPath()));
 	ui->setupUi(this);
@@ -168,6 +170,7 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode)
 
 	connect(ui->buffCheckBox, SIGNAL(stateChanged(int)), m_server, SLOT(onBufferingStateChanged(int)));
 	
+	connect(ui_settings->tableFontToolButton, SIGNAL(clicked()), this, SLOT(onTableFontToolButton()));
 	connect(ui_settings->onTopCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onOnTop(int)));//@FIXME: this has some issues
 	connect(ui_settings->reuseTabCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onReuseTabChanged(int)));
 	//connect(ui->clrFiltersCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onClrFiltersStateChanged(int)));
@@ -349,7 +352,7 @@ bool MainWindow::scopesEnabled () const { return ui_settings->scopesCheckBox->is
 bool MainWindow::indentEnabled () const { return ui_settings->indentCheckBox->isChecked(); }
 int MainWindow::indentLevel () const { return ui_settings->indentSpinBox->value(); }
 int MainWindow::tableRowSize () const { return ui_settings->tableRowSizeSpinBox->value(); }
-QFont MainWindow::tableFont () const { return ui_settings->tableFontComboBox->currentFont(); }
+QString MainWindow::tableFont () const { return ui_settings->tableFontComboBox->currentText(); }
 bool MainWindow::cutPathEnabled () const { return ui_settings->cutPathCheckBox->isChecked(); }
 int MainWindow::cutPathLevel () const { return ui_settings->cutPathSpinBox->value(); }
 bool MainWindow::cutNamespaceEnabled () const { return ui_settings->cutNamespaceCheckBox->isChecked(); }
@@ -403,6 +406,26 @@ void MainWindow::ondtToolButton ()
 	{
 		conn->onInvalidateFilter();
 	}
+}
+
+void MainWindow::onTableFontToolButton ()
+{
+    bool ok = false;
+	QFont curr_font;
+	Connection * conn = m_server->findCurrentConnection();
+	if (conn)
+	{
+		curr_font = conn->getTableViewWidget()->font();
+		ui_settings->tableFontComboBox->addItem(curr_font.toString());
+	}
+
+    QFont f = QFontDialog::getFont(&ok, curr_font);
+    if (ok)
+	{
+		ui_settings->tableFontComboBox->insertItem(0, curr_font.toString());
+		if (conn)
+			conn->getTableViewWidget()->verticalHeader()->setFont(f);
+    }
 }
 
 void MainWindow::onPlotStateChanged (int state)
@@ -575,6 +598,29 @@ void MainWindow::onEditFindNext ()
 
 void MainWindow::onEditFindPrev ()
 { }
+
+void MainWindow::tailFiles (QStringList const & files)
+{
+	for (size_t i = 0, ie = files.size(); i < ie; ++i)
+	{
+		QString fname = files.at(i);
+		if (fname != "")
+			m_server->createTailDataStream(fname);
+	}
+}
+
+void MainWindow::onFileTail ()
+{
+	QString fname = QFileDialog::getOpenFileName(this, tr("Open File"), "", tr("*.*"));
+	QStringList files;
+	files << fname;
+	tailFiles(files);
+}
+
+void MainWindow::onLogTail ()
+{
+	m_server->createTailDataStream(m_log_name);
+}
 
 void MainWindow::openFiles (QStringList const & files)
 {
@@ -1042,6 +1088,7 @@ void MainWindow::setupMenuBar ()
 	// File
 	QMenu * fileMenu = menuBar()->addMenu(tr("&File"));
 	fileMenu->addAction(tr("File &Load..."), this, SLOT(onFileLoad()), QKeySequence(Qt::ControlModifier + Qt::Key_O));
+	fileMenu->addAction(tr("File &Tail..."), this, SLOT(onFileTail()), QKeySequence(Qt::ControlModifier + Qt::Key_T));
 	fileMenu->addAction(tr("File &Save..."), this, SLOT(onFileSave()), QKeySequence(Qt::ControlModifier + Qt::Key_S));
 	fileMenu->addAction(tr("File &Save As CSV format"), this, SLOT(onFileExportToCSV()), QKeySequence(Qt::ControlModifier + Qt::ShiftModifier + Qt::Key_S));
 	fileMenu->addSeparator();
@@ -1069,6 +1116,10 @@ void MainWindow::setupMenuBar ()
 	filterMenu->addAction(tr("Goto level filter"), this, SLOT(onGotoLevelFilter()), QKeySequence(Qt::ControlModifier + Qt::Key_F2));
 	filterMenu->addAction(tr("Goto regex filter"), this, SLOT(onGotoRegexFilter()), QKeySequence(Qt::ControlModifier + Qt::Key_F3));
 	filterMenu->addAction(tr("Goto color filter"), this, SLOT(onGotoColorFilter()), QKeySequence(Qt::ControlModifier + Qt::Key_F4));
+
+	QMenu * tailMenu = menuBar()->addMenu(tr("&Tail"));
+	tailMenu->addAction(tr("File &Tail..."), this, SLOT(onFileTail()), QKeySequence(Qt::ControlModifier + Qt::Key_T));
+	tailMenu->addAction(tr("Trace Server Log"), this, SLOT(onLogTail()), QKeySequence(Qt::ControlModifier + Qt::AltModifier + Qt::Key_L));
 		
 	// Clear
 	QMenu * clearMenu = menuBar()->addMenu(tr("&Clear"));
@@ -1271,7 +1322,7 @@ void MainWindow::storeState ()
 	settings.setValue("cutNamespaceCheckBox", ui_settings->cutNamespaceCheckBox->isChecked());
 	settings.setValue("indentSpinBox", ui_settings->indentSpinBox->value());
 	settings.setValue("tableRowSizeSpinBox", ui_settings->tableRowSizeSpinBox->value());
-	settings.setValue("tableFontComboBox", ui_settings->tableFontComboBox->currentFont());
+	settings.setValue("tableFontComboBox", ui_settings->tableFontComboBox->currentText());
 	settings.setValue("cutPathSpinBox", ui_settings->cutPathSpinBox->value());
 	settings.setValue("cutNamespaceSpinBox", ui_settings->cutNamespaceSpinBox->value());
 	settings.setValue("onTopCheckBox", ui_settings->onTopCheckBox->isChecked());

@@ -43,7 +43,11 @@ public:
 	explicit Server (QString addr, unsigned short port, QObject * parent = 0, bool quit_delay = true);
 
 	QString const & getStatus () const { return status; }
+
+	//void createTLVDataStream (QString const & fname);
 	void incomingDataStream (QDataStream & stream);
+	//void incomingTailDataStream (QDataStream & stream);
+	void createTailDataStream (QString const & fname);
 	void copyStorageTo (QString const & filename);
 	void exportStorageToCSV (QString const & filename);
 	Connection * findConnectionByName (QString const & app_name);
