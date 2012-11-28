@@ -97,8 +97,8 @@ void Server::onFilterFile (int state)
 
 void Server::onBufferingStateChanged (int state)
 {
-	if (Connection * conn = findCurrentConnection())
-		conn->onBufferingStateChanged(state);
+	for (connections_t::iterator it = m_connections.begin(), ite = m_connections.end(); it != ite; ++it)
+		it->second->onBufferingStateChanged(state);
 }
 
 void Server::onTabTraceFocus (int i)
