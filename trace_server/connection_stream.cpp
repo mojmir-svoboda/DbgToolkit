@@ -208,14 +208,25 @@ void Connection::processReadyRead ()
 
 void Connection::setSocketDescriptor (int sd)
 {
+	m_src_stream = e_Stream_TCP;
+	m_src_protocol = e_Proto_TLV;
+
 	m_tcpstream = new QTcpSocket(this);
 	m_tcpstream->setSocketDescriptor(sd);
 	connect(this, SIGNAL(handleCommands()), this, SLOT(onHandleCommands()));
 }
 
+void Connection::setImportFile (QString const & fname)
+{
+	m_src_stream = e_Stream_File;
+	m_src_protocol = e_Proto_TLV;
+}
 
 void Connection::setTailFile (QString const & fname)
 {
+	m_src_stream = e_Stream_File;
+	m_src_protocol = e_Proto_CSV;
+
 	QFile * f = new QFile(fname);
 	if (!f->open(QIODevice::ReadOnly))
 	{
@@ -242,8 +253,6 @@ void Connection::run ()
 
 void Connection::processDataStream (QDataStream & stream)
 {
-	m_data_src_type = e_File_TLV;
-
 	connect(this, SIGNAL(handleCommands()), this, SLOT(onHandleCommands()));
 
 	int const res = processStream(&stream, &QDataStream::readRawData);
@@ -270,8 +279,6 @@ void Connection::processDataStream (QDataStream & stream)
 
 void Connection::processTailCSVStream ()
 {
-	m_data_src_type = e_File_CSV;
-
 	if (!m_file_csv_stream->atEnd())
 		emit onHandleCommandsStart();
 
@@ -371,7 +378,7 @@ bool Connection::tryHandleCommand (DecodedCommand const & cmd)
 		default: qDebug("unknown command, ignoring\n"); break;
 	}
 
-	if (m_data_src_type == e_TCP_TLV && m_tcp_dump_stream)
+	if (m_src_stream == e_Stream_TCP && m_tcp_dump_stream)
 		m_tcp_dump_stream->writeRawData(&cmd.orig_message[0], cmd.hdr.len + tlv::Header::e_Size);
 	return true;
 }
@@ -385,7 +392,7 @@ QString Connection::createStorageName () const
 
 bool Connection::setupStorage (QString const & name)
 {
-	if (m_data_src_type == e_TCP_TLV && !m_storage)
+	if (m_src_stream == e_Stream_TCP && !m_storage)
 	{
 		m_storage = new QFile(name + ".tlv_trace");
 		m_storage->open(QIODevice::WriteOnly);

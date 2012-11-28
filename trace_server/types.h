@@ -69,3 +69,13 @@ typedef unsigned long long context_t;
 
 typedef std::vector<std::string> strings_t;
 
+enum E_SrcStream {
+	e_Stream_TCP,
+	e_Stream_File,
+};
+
+enum E_SrcProtocol {
+	e_Proto_TLV,
+	e_Proto_CSV
+};
+

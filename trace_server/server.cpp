@@ -155,12 +155,23 @@ Connection * Server::createNewTableView ()
 	return connection;
 }
 
-void Server::incomingDataStream (QDataStream & stream)
+void Server::importDataStream (QString const & fname)
 {
+	QFile file(fname);
+	if (!file.open(QIODevice::ReadOnly))
+	{
+		qWarning(QString(tr("Could not open file %1").arg(fname)).toAscii());
+		return;
+	}
+
 	MainWindow * main_window = static_cast<MainWindow *>(parent());
 	Connection * connection = createNewTableView ();
+	connection->setImportFile(fname);
 	main_window->statusBar()->showMessage(tr("Importing file!"));
-	connection->processDataStream(stream);
+
+	QDataStream import_stream(&file);
+	connection->processDataStream(import_stream);
+	file.close();
 }
 
 void Server::createTailDataStream (QString const & fname)
@@ -168,6 +179,7 @@ void Server::createTailDataStream (QString const & fname)
 	MainWindow * main_window = static_cast<MainWindow *>(parent());
 	Connection * connection = createNewTableView ();
 	connection->setTailFile(fname);
+
 	main_window->statusBar()->showMessage(tr("Tail!"));
 	connection->handleCSVSetup(fname);
 	connection->processTailCSVStream();
@@ -179,6 +191,7 @@ void Server::incomingConnection (int socketDescriptor)
 	MainWindow * main_window = static_cast<MainWindow *>(parent());
 	Connection * connection = createNewTableView ();
 	connection->setSocketDescriptor(socketDescriptor);
+
 	QObject::connect(connection->m_tcpstream, SIGNAL(readyRead()), connection, SLOT(processReadyRead()));
 	QObject::connect(connection->m_tcpstream, SIGNAL(disconnected()), connection, SLOT(onDisconnected()));
 	main_window->statusBar()->showMessage(tr("Incomming tcp connection!"));

@@ -47,6 +47,8 @@ class QLabel;
 class SessionState;
 class TreeView;
 
+enum E_ApiErrors { e_InvalidItem = -1 };
+
 class MainWindow : public QMainWindow
 {
 	Q_OBJECT
@@ -74,7 +76,7 @@ public:
 		for (size_t i = 0, ie = m_config.m_preset_names.size(); i < ie; ++i)
 			if (m_config.m_preset_names[i] == name)
 				return i;
-		return -1;
+		return e_InvalidItem;
 	}
 	
 	void saveSession (SessionState const & s, QString const & preset_name) const;
@@ -85,37 +87,13 @@ public:
 		return m_config.m_preset_names.size() - 1;
 	}
 
-	size_t findAppName (QString const & appname)
+	int createAppName (QString const & appname, E_SrcProtocol const proto);
+	int findAppName (QString const & appname)
 	{
 		for (int i = 0, ie = m_config.m_app_names.size(); i < ie; ++i)
 			if (m_config.m_app_names[i] == appname)
 				return i;
-		
-		m_config.m_app_names.push_back(appname);
-		m_config.m_columns_setup.reserve(16);
-		m_config.m_columns_setup.push_back(columns_setup_t());
-		m_config.m_columns_sizes.reserve(16);
-		m_config.m_columns_sizes.push_back(columns_sizes_t());
-		m_config.m_columns_align.reserve(16);
-		m_config.m_columns_align.push_back(columns_align_t());
-		m_config.m_columns_elide.reserve(16);
-		m_config.m_columns_elide.push_back(columns_elide_t());
-
-		size_t const n = tlv::tag_bool;
-		for (size_t i = tlv::tag_time; i < n; ++i)
-		{
-			char const * name = tlv::get_tag_name(i);
-			if (name)
-			{
-				m_config.m_columns_setup.back().push_back(QString::fromAscii(name));
-				m_config.m_columns_sizes.back().push_back(default_sizes[i]);
-				m_config.m_columns_align.back().push_back(QChar(alignToString(default_aligns[i])));
-				m_config.m_columns_elide.back().push_back(QChar(elideToString(default_elides[i])));
-			}
-		}
-		size_t const i = m_config.m_app_names.size() - 1;
-		onSetup(static_cast<int>(i), true, true);
-		return i;
+		return e_InvalidItem;
 	}
 	QList<QColor> const & getThreadColors () const { return m_config.m_thread_colors; }
 	TreeView * getWidgetFile ();

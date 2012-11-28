@@ -99,6 +99,11 @@ void Connection::handleCSVSetup (QString const & fname)
 	m_main_window->getTabTrace()->setTabText(tab_idx, app_name);
 
 	sessionState().m_app_idx = m_main_window->findAppName(app_name);
+	if (sessionState().m_app_idx == e_InvalidItem)
+	{
+		qDebug("Unknown application: requesting user input");
+		sessionState().m_app_idx = m_main_window->createAppName(app_name, e_Proto_CSV);
+	}
 
 	columns_setup_t & cs_setup = m_main_window->getColumnSetup(sessionState().m_app_idx);
 	columns_sizes_t & cs_sizes = m_main_window->getColumnSizes(sessionState().m_app_idx);
@@ -290,6 +295,10 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 			setupStorage(storage_name);
 
 			sessionState().m_app_idx = m_main_window->findAppName(app_name);
+			if (sessionState().m_app_idx == e_InvalidItem)
+			{
+				sessionState().m_app_idx = m_main_window->createAppName(app_name, e_Proto_TLV);
+			}
 
 			columns_setup_t & cs_setup = m_main_window->getColumnSetup(sessionState().m_app_idx);
 			columns_sizes_t & cs_sizes = m_main_window->getColumnSizes(sessionState().m_app_idx);

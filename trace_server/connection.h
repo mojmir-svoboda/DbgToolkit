@@ -87,12 +87,6 @@ struct DataTable {
 
 typedef QMap<QString, DataTable *> datatables_t;
 
-enum E_SrcType {
-	e_TCP_TLV,
-	e_File_TLV,
-	e_File_CSV
-};
-
 /**@class		Connection
  * @brief		represents incoming connection (or file stream)
  */
@@ -238,6 +232,7 @@ private:
 	void exportStorageToCSV (QString const & filename);
 	void closeStorage ();
 	void setSocketDescriptor (int sd);
+	void setImportFile (QString const & fname);
 	void setTailFile (QString const & fname);
 	void setupModelFile ();
 	void destroyModelFile ();
@@ -259,7 +254,8 @@ private:
 private:
 	MainWindow * m_main_window;
 	SessionState m_session_state;
-	E_SrcType m_data_src_type;
+	E_SrcStream m_src_stream;
+	E_SrcProtocol m_src_protocol;
 	bool m_column_setup_done;
 	bool m_marked_for_close;
 	int m_last_search_row;

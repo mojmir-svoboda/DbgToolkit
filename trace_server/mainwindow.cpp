@@ -90,6 +90,11 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QStri
 	m_config.m_appdir = homedir + "/.flogging";
 	m_config.m_dump_mode = dump_mode;
 
+	m_config.m_columns_setup.reserve(16);
+	m_config.m_columns_sizes.reserve(16);
+	m_config.m_columns_align.reserve(16);
+	m_config.m_columns_elide.reserve(16);
+
 	// tray stuff
 	createActions();
 	createTrayIcon();
@@ -629,15 +634,7 @@ void MainWindow::openFiles (QStringList const & files)
 		QString fname = files.at(i);
 		if (fname != "")
 		{
-			QFile file(fname);
-			if (!file.open(QIODevice::ReadOnly))
-			{
-				QMessageBox::critical(this, tr("Error"), tr("Could not open file"));
-				return;
-			}
-			QDataStream in(&file);
-			m_server->incomingDataStream(in);
-			file.close();
+			m_server->importDataStream(fname);
 		}
 	}
 }
@@ -1511,5 +1508,41 @@ bool MainWindow::eventFilter (QObject * target, QEvent * e)
 		}
 	}
 	return false;
+}
+
+int MainWindow::createAppName (QString const & appname, E_SrcProtocol const proto)
+{
+	if (proto == e_Proto_TLV)
+	{
+		m_config.m_app_names.push_back(appname);
+		m_config.m_columns_setup.push_back(columns_setup_t());
+		m_config.m_columns_sizes.push_back(columns_sizes_t());
+		m_config.m_columns_align.push_back(columns_align_t());
+		m_config.m_columns_elide.push_back(columns_elide_t());
+
+		size_t const n = tlv::tag_bool;
+		for (size_t i = tlv::tag_time; i < n; ++i)
+		{
+			char const * name = tlv::get_tag_name(i);
+			if (name)
+			{
+				m_config.m_columns_setup.back().push_back(QString::fromAscii(name));
+				m_config.m_columns_sizes.back().push_back(default_sizes[i]);
+				m_config.m_columns_align.back().push_back(QChar(alignToString(default_aligns[i])));
+				m_config.m_columns_elide.back().push_back(QChar(elideToString(default_elides[i])));
+			}
+		}
+		size_t const i = m_config.m_app_names.size() - 1;
+		onSetup(static_cast<int>(i), true, true);
+		return i;
+	}
+	else if (proto == e_Proto_CSV)
+	{
+		m_config.m_app_names.push_back(appname);
+		m_config.m_columns_setup.push_back(columns_setup_t());
+		m_config.m_columns_sizes.push_back(columns_sizes_t());
+		m_config.m_columns_align.push_back(columns_align_t());
+		m_config.m_columns_elide.push_back(columns_elide_t());
+	}
 }
 
