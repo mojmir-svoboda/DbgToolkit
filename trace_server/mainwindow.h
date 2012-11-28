@@ -87,7 +87,7 @@ public:
 
 	size_t findAppName (QString const & appname)
 	{
-		for (size_t i = 0, ie = m_config.m_app_names.size(); i < ie; ++i)
+		for (int i = 0, ie = m_config.m_app_names.size(); i < ie; ++i)
 			if (m_config.m_app_names[i] == appname)
 				return i;
 		
@@ -114,7 +114,7 @@ public:
 			}
 		}
 		size_t const i = m_config.m_app_names.size() - 1;
-		onSetup(i, true, true);
+		onSetup(static_cast<int>(i), true, true);
 		return i;
 	}
 	QList<QColor> const & getThreadColors () const { return m_config.m_thread_colors; }

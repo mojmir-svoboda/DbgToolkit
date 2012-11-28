@@ -28,6 +28,7 @@ add_definitions("-DTRACE_STATIC")
 
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/..)
 
+set(Boost_dir "c:/devel/boost/boost_1_52_0")
 set(Boost_DEBUG 1)
 set(Boost_USE_STATIC_LIBS 1)
 FIND_PACKAGE(Boost)

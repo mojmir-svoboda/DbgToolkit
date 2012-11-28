@@ -19,7 +19,7 @@ struct ThreadSpecific
 	{
 		for (size_t i = 0, ie = m_tids.size(); i < ie; ++i)
 			if (m_tids[i] == str)
-				return i;
+				return static_cast<int>(i);
 		return registerThread(str);
 	}
 	int registerThread (QString const & str)
