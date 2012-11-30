@@ -331,7 +331,8 @@ void ModelView::appendCommandCSV (QAbstractProxyModel * filter, tlv::StringComma
 		if (column_index < 0)
 		{
 			column_index = m_session_state.insertColumn(i);
-			beginInsertColumns(QModelIndex(), column_index, column_index);
+			beginInsertColumns(QModelIndex(), column_index, column_index + 3);
+			insertColumns(column_index, 3);
 			endInsertColumns();
 
 			if (filter)
@@ -340,7 +341,8 @@ void ModelView::appendCommandCSV (QAbstractProxyModel * filter, tlv::StringComma
 			}
 		}
 
-		QModelIndex const idx = index(m_rows.size(), column_index, QModelIndex());
+		//QModelIndex const idx = createIndex(m_rows.size() - 1, column_index, 0);
+		QModelIndex const idx = index(m_rows.size() - 1, column_index, QModelIndex());
 		setData(idx, col_value, Qt::EditRole);
 	}
 

@@ -279,32 +279,32 @@ void Connection::processDataStream (QDataStream & stream)
 
 void Connection::processTailCSVStream ()
 {
-	if (!m_file_csv_stream->atEnd())
-		emit onHandleCommandsStart();
-
 	while (!m_file_csv_stream->atEnd())
 	{
-		QString const data = m_file_csv_stream->readLine(2048);
-		tlv::TV tv;
-		tv.m_tag = tlv::tag_msg;
-		tv.m_val = data;
-		m_current_cmd.tvs.push_back(tv);
-		m_decoded_cmds.push_back(m_current_cmd);
-		m_current_cmd.Reset(); // reset current command for another decoding pass
-	}
-
-	if (m_decoded_cmds.size() > 0)
-	{
-		ModelView * model = static_cast<ModelView *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
-		size_t const rows = m_decoded_cmds.size();
-		for (size_t i = 0; i < rows; ++i)
+		while (!m_decoded_cmds.full() && !m_file_csv_stream->atEnd())
 		{
-			DecodedCommand & cmd = m_decoded_cmds.front();
-			handleCSVStreamCommand(cmd);
-			m_decoded_cmds.pop_front();
+			QString const data = m_file_csv_stream->readLine(2048);
+			tlv::TV tv;
+			tv.m_tag = tlv::tag_msg;
+			tv.m_val = data;
+			m_current_cmd.tvs.push_back(tv);
+			m_decoded_cmds.push_back(m_current_cmd);
+			m_current_cmd.Reset(); // reset current command for another decoding pass
 		}
 
-		emit onHandleCommandsCommit();
+		if (m_decoded_cmds.size() > 0)
+		{
+			emit onHandleCommandsStart();
+			ModelView * model = static_cast<ModelView *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
+			for (size_t i = 0, ie = m_decoded_cmds.size(); i < ie; ++i)
+			{
+				DecodedCommand & cmd = m_decoded_cmds.front();
+				handleCSVStreamCommand(cmd);
+				m_decoded_cmds.pop_front();
+			}
+
+			emit onHandleCommandsCommit();
+		}
 	}
 
 	QTimer::singleShot(250, this, SLOT(processTailCSVStream()));
@@ -320,7 +320,7 @@ bool Connection::handleCSVStreamCommand (DecodedCommand const & cmd)
 
 bool Connection::handlePingCommand (DecodedCommand const & cmd)
 {
-	qDebug("ping from client! (crash follows)");
+	qDebug("ping from client!");
 	QWidget * w = sessionState().m_tab_widget;
 	if (w)
 	{
