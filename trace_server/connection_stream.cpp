@@ -312,6 +312,11 @@ void Connection::processTailCSVStream ()
 
 bool Connection::handleCSVStreamCommand (DecodedCommand const & cmd)
 {
+	if (!m_session_state.isConfigured())
+	{
+		m_main_window->onSetup(e_Proto_CSV, m_session_state.getAppIdx(), true, true);
+	}
+
 	//appendToFilters(cmd);
 	ModelView * model = static_cast<ModelView *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
 	model->appendCommandCSV(m_table_view_proxy, cmd);

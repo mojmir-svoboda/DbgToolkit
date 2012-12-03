@@ -191,7 +191,7 @@ public:
 
 MyListModel::MyListModel (QObject * parent) : QStandardItemModel(parent) { }
 
-void MainWindow::onSettingsAppSelected (int const idx, bool const first_time)
+void MainWindow::onSettingsAppSelectedTLV (int const idx, bool const first_time)
 {
 	qDebug("settings, clicked idx=%i", idx);
 	clearListView(ui_settings->listViewColumnSetup);
@@ -255,19 +255,46 @@ void MainWindow::onSettingsAppSelected (int const idx, bool const first_time)
 	connect(ui_settings->cancelButton, SIGNAL(clicked()), this, SLOT(onClickedAtSettingCancelButton()));
 }
 
-void MainWindow::onSetupAction ()
+
+void MainWindow::onSettingsAppSelectedCSV (int const idx, bool const first_time)
 {
-	onSetup(-1);
 }
 
-void MainWindow::onSetup (int curr_app_idx, bool first_time, bool mac_user)
+void MainWindow::onSetupAction ()
+{
+	onSetup(e_Proto_TLV, -1);
+}
+
+void MainWindow::onSetup (E_SrcProtocol const proto, int curr_app_idx, bool first_time, bool mac_user)
+{
+	prepareSettingsWidgets(curr_app_idx, first_time);
+
+	if (proto == e_Proto_TLV)
+	{
+		ui_settings->separatorComboBox->setEnabled(true);
+		ui_settings->columnCountSpinBox->setEnabled(true);
+		ui_settings->protocolComboBox->addItem("TLV");
+		onSettingsAppSelectedTLV(curr_app_idx, first_time);
+	}
+	else
+		onSettingsAppSelectedCSV(curr_app_idx, first_time);
+
+	if (mac_user)
+		onClickedAtSettingPooftahButton();
+
+	m_settings_dialog->exec();
+
+	clearSettingWidgets();
+}
+
+void MainWindow::prepareSettingsWidgets (int curr_app_idx, bool first_time)
 {
 	if (curr_app_idx == -1)
 	{
-		ui_settings->comboBoxApp->setEnabled(true);
-		ui_settings->comboBoxApp->clear();
+		ui_settings->appNameComboBox->setEnabled(true);
+		ui_settings->appNameComboBox->clear();
 		for (int a = 0, ae = m_config.m_app_names.size(); a < ae; ++a)
-			ui_settings->comboBoxApp->addItem(m_config.m_app_names.at(a));
+			ui_settings->appNameComboBox->addItem(m_config.m_app_names.at(a));
 
 		Connection * conn = m_server->findCurrentConnection();
 		if (conn)
@@ -277,12 +304,12 @@ void MainWindow::onSetup (int curr_app_idx, bool first_time, bool mac_user)
 	}
 	else
 	{
-		ui_settings->comboBoxApp->clear();
-		ui_settings->comboBoxApp->addItem(m_config.m_app_names.at(curr_app_idx));
-		ui_settings->comboBoxApp->setEnabled(false);
+		ui_settings->appNameComboBox->clear();
+		ui_settings->appNameComboBox->addItem(m_config.m_app_names.at(curr_app_idx));
+		ui_settings->appNameComboBox->setEnabled(false);
 	}
 
-	connect(ui_settings->comboBoxApp, SIGNAL(activated(int)), this, SLOT(onSettingsAppSelected(int)));
+	connect(ui_settings->appNameComboBox, SIGNAL(activated(int)), this, SLOT(onSettingsAppSelected(int)));
 
 	MyListModel * model = new MyListModel(this);
 	ui_settings->listViewColumnSetup->setModel(model);
@@ -299,14 +326,25 @@ void MainWindow::onSetup (int curr_app_idx, bool first_time, bool mac_user)
 	ui_settings->listViewColumnSetup->setEditTriggers(QAbstractItemView::NoEditTriggers);
 	ui_settings->listViewColumnAlign->setEditTriggers(QAbstractItemView::NoEditTriggers);
 	ui_settings->listViewColumnElide->setEditTriggers(QAbstractItemView::NoEditTriggers);
+}
 
-	onSettingsAppSelected(curr_app_idx, first_time);
+void MainWindow::onSetupCSV (int curr_app_idx, int column_count, bool first_time, bool mac_user)
+{
+	prepareSettingsWidgets(curr_app_idx, first_time);
+	ui_settings->separatorComboBox->setEnabled(true);
+	ui_settings->columnCountSpinBox->setEnabled(true);
+	ui_settings->protocolComboBox->addItem("CSV");
 
-	if (mac_user)
-		onClickedAtSettingPooftahButton();
+	connect(ui_settings->separatorComboBox, SIGNAL(activated(int)), this, SLOT(onSeparatorSelected(int)));
+
+	onSettingsAppSelectedCSV(curr_app_idx, first_time);
 
 	m_settings_dialog->exec();
+	clearSettingWidgets();
+}
 
+void MainWindow::clearSettingWidgets()
+{
 	disconnect(ui_settings->listViewColumnSetup, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtSettingColumnSetup(QModelIndex)));
 	disconnect(ui_settings->listViewColumnSizes, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtSettingColumnSizes(QModelIndex)));
 	disconnect(ui_settings->listViewColumnAlign, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtSettingColumnAlign(QModelIndex)));
