@@ -180,6 +180,7 @@ void Server::createTailLogStream (QString const & fname, QString const & separat
 	Connection * connection = createNewTableView ();
 	connection->setTailFile(fname);
 	connection->m_session_state.m_csv_separator = separator;
+	
 	main_window->statusBar()->showMessage(tr("Tail!"));
 	connection->handleCSVSetup(fname);
 	connection->processTailCSVStream();

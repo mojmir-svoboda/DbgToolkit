@@ -333,6 +333,25 @@ bool Connection::handleCSVStreamCommand (DecodedCommand const & cmd)
 		QString const & val = cmd.tvs[0].m_val;
 		QStringList const list = val.split(m_session_state.separatorChar());
 		int const cols = list.size();
+
+		int const idx = m_session_state.m_app_idx;
+		if (m_main_window->m_config.m_columns_setup[idx].size() == 0)
+		{
+			m_main_window->m_config.m_columns_setup[idx].reserve(cols);
+			m_main_window->m_config.m_columns_sizes[idx].reserve(cols);
+			m_main_window->m_config.m_columns_align[idx].reserve(cols);
+			m_main_window->m_config.m_columns_elide[idx].reserve(cols);
+
+			if (idx >= 0 && idx < m_main_window->m_config.m_columns_setup.size())
+				for (int i = 0; i < cols; ++i)
+				{
+					m_main_window->m_config.m_columns_setup[idx].push_back(tr("Col_%1").arg(i));
+					m_main_window->m_config.m_columns_sizes[idx].push_back(127);
+					m_main_window->m_config.m_columns_align[idx].push_back(QString(alignToString(e_AlignLeft)));
+					m_main_window->m_config.m_columns_elide[idx].push_back(QString(elideToString(e_ElideRight)));
+				}
+		}
+
 		m_main_window->onSetupCSVColumns(m_session_state.getAppIdx(), cols, true);
 	}
 

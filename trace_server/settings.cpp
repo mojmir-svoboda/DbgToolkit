@@ -256,8 +256,70 @@ void MainWindow::onSettingsAppSelectedTLV (int const idx, bool const first_time)
 }
 
 
-void MainWindow::onSettingsAppSelectedCSV (int const idx, bool const first_time)
+void MainWindow::onSettingsAppSelectedCSV (int const idx, int const columns, bool const first_time)
 {
+	qDebug("settings, clicked idx=%i", idx);
+	clearListView(ui_settings->listViewColumnSetup);
+	clearListView(ui_settings->listViewColumnSizes);
+	clearListView(ui_settings->listViewColumnAlign);
+	clearListView(ui_settings->listViewColumnElide);
+
+	ui_settings->listViewColumnSetup->reset();
+	ui_settings->listViewColumnSizes->reset();
+	ui_settings->listViewColumnAlign->reset();
+	ui_settings->listViewColumnElide->reset();
+
+	QStandardItem * cs_root = static_cast<QStandardItemModel *>(ui_settings->listViewColumnSetup->model())->invisibleRootItem();
+	QStandardItem * csz_root = static_cast<QStandardItemModel *>(ui_settings->listViewColumnSizes->model())->invisibleRootItem();
+	QStandardItem * cal_root = static_cast<QStandardItemModel *>(ui_settings->listViewColumnAlign->model())->invisibleRootItem();
+	QStandardItem * cel_root = static_cast<QStandardItemModel *>(ui_settings->listViewColumnElide->model())->invisibleRootItem();
+	if (idx >= 0 && idx < m_config.m_columns_setup.size())
+		for (int i = 0, ie = m_config.m_columns_setup[idx].size(); i < ie; ++i)
+		{
+			cs_root->appendRow(addRow(m_config.m_columns_setup.at(idx).at(i), true));
+			csz_root->appendRow(addUncheckableRow(tr("%1").arg(m_config.m_columns_sizes.at(idx).at(i))));
+			cal_root->appendRow(addUncheckableRow(tr("%1").arg(m_config.m_columns_align.at(idx).at(i))));
+			cel_root->appendRow(addUncheckableRow(tr("%1").arg(m_config.m_columns_elide.at(idx).at(i))));
+		}
+
+	/*
+	//size_t const n = tlv::get_tag_count() - 1; // -1 is for the tag Bool
+	size_t const n = tlv::tag_bool;
+
+	size_t add_tag_count = 0;
+	size_t * const add_tag_indices = static_cast<size_t * const>(alloca(sizeof(size_t) * n));
+	for (size_t i = tlv::tag_time; i < n; ++i)
+	{
+		char const * name = tlv::get_tag_name(i);
+		if (name)
+		{
+			if (findChildByText(cs_root, QString::fromAscii(name)))
+				continue;
+
+			QList<QStandardItem *> row_items = addRow(QString::fromAscii(name), first_time);
+			cs_root->appendRow(row_items);
+			add_tag_indices[add_tag_count++] = i;
+
+			csz_root->appendRow(addUncheckableRow(QString("0")));
+			cal_root->appendRow(addUncheckableRow(QString(aligns[0])));
+			cel_root->appendRow(addUncheckableRow(QString(elides[0])));
+		}
+	}*/
+
+	disconnect(ui_settings->listViewColumnSetup, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtSettingColumnSetup(QModelIndex)));
+	disconnect(ui_settings->listViewColumnSizes, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtSettingColumnSizes(QModelIndex)));
+	disconnect(ui_settings->listViewColumnAlign, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtSettingColumnAlign(QModelIndex)));
+	disconnect(ui_settings->listViewColumnElide, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtSettingColumnElide(QModelIndex)));
+	connect(ui_settings->listViewColumnSetup, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtSettingColumnSetup(QModelIndex)));
+	connect(ui_settings->listViewColumnSizes, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtSettingColumnSizes(QModelIndex)));
+	connect(ui_settings->listViewColumnAlign, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtSettingColumnAlign(QModelIndex)));
+	connect(ui_settings->listViewColumnElide, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtSettingColumnElide(QModelIndex)));
+
+	/*connect(ui_settings->macUserButton, SIGNAL(clicked()), this, SLOT(onClickedAtSettingPooftahButton()));
+	connect(ui_settings->okButton, SIGNAL(clicked()), this, SLOT(onClickedAtSettingOkButton()));
+	connect(ui_settings->okSaveButton, SIGNAL(clicked()), this, SLOT(onClickedAtSettingOkSaveButton()));
+	connect(ui_settings->cancelButton, SIGNAL(clicked()), this, SLOT(onClickedAtSettingCancelButton()));*/
+
 	connect(ui_settings->okButton, SIGNAL(clicked()), this, SLOT(onClickedAtSettingOkButton()));
 	connect(ui_settings->okSaveButton, SIGNAL(clicked()), this, SLOT(onClickedAtSettingOkSaveButton()));
 	connect(ui_settings->cancelButton, SIGNAL(clicked()), this, SLOT(onClickedAtSettingCancelButton()));
@@ -318,7 +380,7 @@ void MainWindow::onSetupCSVColumns (int curr_app_idx, int columns, bool first_ti
 	// @TODO: fill widgets
 
 	connect(ui_settings->separatorComboBox, SIGNAL(activated(int)), this, SLOT(onSeparatorSelected(int)));
-	onSettingsAppSelectedCSV(curr_app_idx, first_time);
+	onSettingsAppSelectedCSV(curr_app_idx, columns, first_time);
 
 	m_settings_dialog->exec();
 	clearSettingWidgets();
