@@ -80,7 +80,8 @@ bool Connection::handleTableXYCommand (DecodedCommand const & cmd)
 			y = cmd.tvs[i].m_val.toInt();
 	}
 
-	appendTableXY(x, y, tag);
+	if (m_main_window->tableEnabled())
+		appendTableXY(x, y, tag);
 	return true;
 }
 
