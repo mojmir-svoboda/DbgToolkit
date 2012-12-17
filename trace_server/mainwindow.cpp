@@ -78,6 +78,8 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QStri
 	m_settings_dialog->setWindowFlags(Qt::Sheet);
 	ui_settings = new Ui::SettingsDialog();
 	ui_settings->setupUi(m_settings_dialog);
+	ui_settings->separatorComboBox->addItem("\\t");
+	ui_settings->separatorComboBox->addItem("\\n");
 
 	m_plot_tree_view = new TreeView(this);
 	m_plot_tree_view->setHidingLinearParents(false);
@@ -624,7 +626,8 @@ void MainWindow::onFileTail ()
 
 void MainWindow::onLogTail ()
 {
-	m_server->createTailDataStream(m_log_name);
+	setupSeparatorChar("|");
+	m_server->createTailLogStream(m_log_name, "|");
 }
 
 void MainWindow::openFiles (QStringList const & files)

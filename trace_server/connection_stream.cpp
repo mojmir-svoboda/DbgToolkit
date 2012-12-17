@@ -310,11 +310,30 @@ void Connection::processTailCSVStream ()
 	QTimer::singleShot(250, this, SLOT(processTailCSVStream()));
 }
 
+void item2separator (QString const & item, QString & sep)
+{
+	if (item == "\\t")
+		sep = "\t";
+	else if (item == "\\n")
+		sep = "\n";
+	else
+		sep = item;
+}
+
 bool Connection::handleCSVStreamCommand (DecodedCommand const & cmd)
 {
 	if (!m_session_state.isConfigured())
 	{
-		m_main_window->onSetup(e_Proto_CSV, m_session_state.getAppIdx(), true, true);
+		if (m_session_state.separatorChar().isEmpty())
+		{
+			m_main_window->onSetupCSVSeparator(m_session_state.getAppIdx(), true);
+			item2separator(m_main_window->separatorChar(), m_session_state.m_csv_separator);
+		}
+
+		QString const & val = cmd.tvs[0].m_val;
+		QStringList const list = val.split(m_session_state.separatorChar());
+		int const cols = list.size();
+		m_main_window->onSetupCSVColumns(m_session_state.getAppIdx(), cols, true);
 	}
 
 	//appendToFilters(cmd);

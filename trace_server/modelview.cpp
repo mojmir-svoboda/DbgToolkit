@@ -320,8 +320,7 @@ void ModelView::appendCommandCSV (QAbstractProxyModel * filter, tlv::StringComma
 	}
 
 	//QStringList list = msg.split(QRegExp(separator), QString::SkipEmptyParts);
-	QString const separator("|");
-	QStringList const list = msg.split(separator);
+	QStringList const list = msg.split(m_session_state.separatorChar());
 	columns_t & columns = m_rows.back();
 	columns.resize(list.size());
 	for (size_t i = 0, ie = list.size(); i < ie; ++i)

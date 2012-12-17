@@ -170,7 +170,11 @@
           </widget>
          </item>
          <item row="1" column="4">
-          <widget class="QComboBox" name="separatorComboBox"/>
+          <widget class="QComboBox" name="separatorComboBox">
+           <property name="editable">
+            <bool>true</bool>
+           </property>
+          </widget>
          </item>
          <item row="0" column="0">
           <widget class="QLabel" name="label_15">

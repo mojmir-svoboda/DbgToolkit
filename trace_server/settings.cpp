@@ -258,32 +258,98 @@ void MainWindow::onSettingsAppSelectedTLV (int const idx, bool const first_time)
 
 void MainWindow::onSettingsAppSelectedCSV (int const idx, bool const first_time)
 {
+	connect(ui_settings->okButton, SIGNAL(clicked()), this, SLOT(onClickedAtSettingOkButton()));
+	connect(ui_settings->okSaveButton, SIGNAL(clicked()), this, SLOT(onClickedAtSettingOkSaveButton()));
+	connect(ui_settings->cancelButton, SIGNAL(clicked()), this, SLOT(onClickedAtSettingCancelButton()));
 }
 
 void MainWindow::onSetupAction ()
 {
+	// TODO: protocol from current tab
 	onSetup(e_Proto_TLV, -1);
+}
+
+
+void MainWindow::setupSeparatorChar (QString const & c)
+{
+	ui_settings->separatorComboBox->addItem(c);
+	ui_settings->separatorComboBox->setCurrentIndex(ui_settings->separatorComboBox->findText(c));
+}
+
+QString MainWindow::separatorChar () const
+{
+	return ui_settings->protocolComboBox->currentText();
 }
 
 void MainWindow::onSetup (E_SrcProtocol const proto, int curr_app_idx, bool first_time, bool mac_user)
 {
+	settingsToDefault();
 	prepareSettingsWidgets(curr_app_idx, first_time);
 
 	if (proto == e_Proto_TLV)
 	{
-		ui_settings->separatorComboBox->setEnabled(true);
-		ui_settings->columnCountSpinBox->setEnabled(true);
-		ui_settings->protocolComboBox->addItem("TLV");
+		ui_settings->separatorComboBox->setEnabled(false);
+		ui_settings->columnCountSpinBox->setEnabled(false);
+		ui_settings->protocolComboBox->setCurrentIndex(ui_settings->protocolComboBox->findText("TLV"));
 		onSettingsAppSelectedTLV(curr_app_idx, first_time);
 	}
 	else
+	{
+		ui_settings->protocolComboBox->setCurrentIndex(ui_settings->protocolComboBox->findText("CSV"));
 		onSettingsAppSelectedCSV(curr_app_idx, first_time);
+	}
 
 	if (mac_user)
 		onClickedAtSettingPooftahButton();
 
 	m_settings_dialog->exec();
 
+	clearSettingWidgets();
+}
+
+void MainWindow::onSetupCSVColumns (int curr_app_idx, int columns, bool first_time)
+{
+	prepareSettingsWidgets(curr_app_idx, first_time);
+	ui_settings->separatorComboBox->setEnabled(false);
+	ui_settings->columnCountSpinBox->setEnabled(true);
+	ui_settings->columnCountSpinBox->setValue(columns);
+	ui_settings->protocolComboBox->setCurrentIndex(ui_settings->protocolComboBox->findText("CSV"));
+
+	// @TODO: fill widgets
+
+	connect(ui_settings->separatorComboBox, SIGNAL(activated(int)), this, SLOT(onSeparatorSelected(int)));
+	onSettingsAppSelectedCSV(curr_app_idx, first_time);
+
+	m_settings_dialog->exec();
+	clearSettingWidgets();
+}
+
+void MainWindow::settingsToDefault ()
+{
+	ui_settings->separatorComboBox->setDuplicatesEnabled(false);
+	ui_settings->protocolComboBox->setDuplicatesEnabled(false);
+	ui_settings->protocolComboBox->addItem("CSV");
+	ui_settings->protocolComboBox->addItem("TLV");
+	ui_settings->columnCountSpinBox->setEnabled(false);
+
+}
+
+void MainWindow::settingsDisableButSeparator ()
+{
+	ui_settings->separatorComboBox->setEnabled(true);
+	ui_settings->columnCountSpinBox->setEnabled(false);
+}
+
+void MainWindow::onSetupCSVSeparator (int curr_app_idx, bool first_time)
+{
+	settingsToDefault();
+	prepareSettingsWidgets(curr_app_idx, first_time);
+	settingsDisableButSeparator();
+
+	ui_settings->protocolComboBox->setCurrentIndex(ui_settings->protocolComboBox->findText("CSV"));
+	onSettingsAppSelectedCSV(curr_app_idx, first_time);
+
+	m_settings_dialog->exec();
 	clearSettingWidgets();
 }
 
@@ -326,21 +392,6 @@ void MainWindow::prepareSettingsWidgets (int curr_app_idx, bool first_time)
 	ui_settings->listViewColumnSetup->setEditTriggers(QAbstractItemView::NoEditTriggers);
 	ui_settings->listViewColumnAlign->setEditTriggers(QAbstractItemView::NoEditTriggers);
 	ui_settings->listViewColumnElide->setEditTriggers(QAbstractItemView::NoEditTriggers);
-}
-
-void MainWindow::onSetupCSV (int curr_app_idx, int column_count, bool first_time, bool mac_user)
-{
-	prepareSettingsWidgets(curr_app_idx, first_time);
-	ui_settings->separatorComboBox->setEnabled(true);
-	ui_settings->columnCountSpinBox->setEnabled(true);
-	ui_settings->protocolComboBox->addItem("CSV");
-
-	connect(ui_settings->separatorComboBox, SIGNAL(activated(int)), this, SLOT(onSeparatorSelected(int)));
-
-	onSettingsAppSelectedCSV(curr_app_idx, first_time);
-
-	m_settings_dialog->exec();
-	clearSettingWidgets();
 }
 
 void MainWindow::clearSettingWidgets()

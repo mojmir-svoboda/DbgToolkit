@@ -175,6 +175,8 @@ public:
 	unsigned getRecvBytes () const { return m_recv_bytes; }
 
 	Dict const & getDictCtx () const { return m_dict_ctx; }
+
+	QString const & separatorChar () const { return m_csv_separator; }
 	
 signals:
 	
@@ -229,5 +231,6 @@ private:
 	unsigned m_recv_bytes;
 	Dict m_dict_ctx;
 	QList<FilteredString> m_filtered_strings;
+	QString m_csv_separator;
 };
 

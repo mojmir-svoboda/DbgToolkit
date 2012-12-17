@@ -48,6 +48,7 @@ public:
 	//void incomingDataStream (QDataStream & stream);
 	//void incomingTailDataStream (QDataStream & stream);
 	void createTailDataStream (QString const & fname);
+	void createTailLogStream (QString const & fname, QString const & separator);
 	void importDataStream (QString const & fname);
 	void copyStorageTo (QString const & filename);
 	void exportStorageToCSV (QString const & filename);
