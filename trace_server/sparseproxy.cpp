@@ -105,13 +105,25 @@ bool SparseProxyModel::insertRows (int row, int count, QModelIndex const &parent
 bool SparseProxyModel::insertColumns (int column, int count, QModelIndex const & parent)
 {
 	if (column >= m_columns)
+	{
+		emit layoutAboutToBeChanged();
 		++m_columns;
+		emit layoutChanged();
+	}
 	return true;
 }
 
 bool SparseProxyModel::filterAcceptsColumn (int sourceColumn, QModelIndex const & source_parent) const
 {
-	return true;
+	bool is_empty = true;
+	for (int i = 0, ie = sourceModel()->rowCount(); i < ie; ++i)
+	{
+		QModelIndex const data_idx = sourceModel()->index(i, sourceColumn, QModelIndex());
+		QVariant const & var = sourceModel()->data(data_idx);
+		if (var.isValid() && !var.toString().isEmpty())
+			is_empty = false;
+	}
+	return !is_empty;
 }
 
 bool SparseProxyModel::filterAcceptsRow (int sourceRow, QModelIndex const & /*sourceParent*/) const
@@ -121,11 +133,8 @@ bool SparseProxyModel::filterAcceptsRow (int sourceRow, QModelIndex const & /*so
 	{
 		QModelIndex const data_idx = sourceModel()->index(sourceRow, i, QModelIndex());
 		QVariant const & var = sourceModel()->data(data_idx);
-		QString const & val = sourceModel()->data(data_idx).toString();
 		if (var.isValid() && !var.toString().isEmpty())
-		{
 			is_empty = false;
-		}
 	}
 	return !is_empty;
 }

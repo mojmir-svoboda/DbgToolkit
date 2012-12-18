@@ -79,6 +79,8 @@ QVariant TableModelView::headerData (int section, Qt::Orientation orientation, i
 {
 	if (role == Qt::DisplayRole && orientation == Qt::Horizontal)
 	{
+		if (section == -1)
+			return QVariant();
 		if (section + 1 > m_hhdr.size())
 		{
 			m_hhdr.resize(section + 1);
@@ -92,6 +94,8 @@ bool  TableModelView::setHeaderData (int section, Qt::Orientation orientation, Q
 {
 	if (role == Qt::EditRole && orientation == Qt::Horizontal)
 	{
+		if (section == -1)
+			return false;
 		if (section + 1 > m_hhdr.size())
 		{
 			m_hhdr.resize(section);
