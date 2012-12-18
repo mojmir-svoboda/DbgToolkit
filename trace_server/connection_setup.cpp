@@ -371,8 +371,7 @@ void Connection::setupColumnSizes (bool force_setup)
 				columns_sizes_t const & sizes = *sessionState().m_columns_sizes;
 				for (size_t c = 0, ce = sizes.size(); c < ce; ++c)
 				{
-					int const sz = sizes.at(c) == 0 ? 64 : sizes.at(c);
-					m_table_view_widget->horizontalHeader()->resizeSection(c, 64);
+					m_table_view_widget->horizontalHeader()->resizeSection(c, sizes.at(c));
 					qDebug("size: col[%i]=%u", c, sizes.at(c));
 				}
 
