@@ -58,8 +58,10 @@ protected:
 	bool filterAcceptsRow (int sourceRow, QModelIndex const & sourceParent) const;
 
 	std::vector<int> m_map_from_tgt;
-	int m_columns;
 	std::vector<int> m_map_from_src;
+
+	std::vector<int> m_cmap_from_tgt;
+	std::vector<int> m_cmap_from_src;
 	MainWindow const * m_main_window;
 };
 

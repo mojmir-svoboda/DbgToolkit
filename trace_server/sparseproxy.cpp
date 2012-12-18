@@ -8,7 +8,6 @@
 
 SparseProxyModel::SparseProxyModel (QObject * parent)
 	: QAbstractProxyModel(parent)
-	, m_columns(0)
 	, m_main_window(static_cast<Connection const *>(parent)->getMainWindow())
 { }
 
@@ -17,10 +16,9 @@ void SparseProxyModel::force_update ()
 	emit layoutAboutToBeChanged();
 
 	m_map_from_tgt.clear();
-	QAbstractTableModel const * src_model = static_cast<QAbstractTableModel const *>(sourceModel());
 	m_map_from_src.clear();
+	QAbstractTableModel const * src_model = static_cast<QAbstractTableModel const *>(sourceModel());
 	m_map_from_src.resize(src_model->rowCount());
-	m_columns = src_model->columnCount();
 	for (size_t src_idx = 0, se = src_model->rowCount(); src_idx < se; ++src_idx)
 	{
 		if (filterAcceptsRow(src_idx, QModelIndex()))
@@ -30,6 +28,21 @@ void SparseProxyModel::force_update ()
 			m_map_from_src[src_idx] = tgt_idx;
 		}
 	}
+
+	m_cmap_from_tgt.clear();
+	m_cmap_from_src.clear();
+	m_cmap_from_src.resize(src_model->columnCount());
+	for (size_t src_idx = 0, se = src_model->columnCount(); src_idx < se; ++src_idx)
+	{
+		if (filterAcceptsColumn(src_idx, QModelIndex()))
+		{
+			int const tgt_idx = m_cmap_from_tgt.size();
+			m_cmap_from_tgt.push_back(src_idx);
+			m_cmap_from_src[src_idx] = tgt_idx;
+		}
+	}
+
+
 	emit layoutChanged();
 }
 
@@ -46,7 +59,8 @@ Qt::ItemFlags SparseProxyModel::flags (QModelIndex const & index) const
 
 QModelIndex SparseProxyModel::index (int row, int column, QModelIndex const & parent) const
 {
-	if (row < static_cast<int>(m_map_from_tgt.size())) // && column == reasonable
+	if (row < static_cast<int>(m_map_from_tgt.size())
+		&& column < static_cast<int>(m_cmap_from_tgt.size()))
 		return QAbstractItemModel::createIndex(row, column, 0);
 	return QModelIndex();
 }
@@ -62,23 +76,25 @@ int SparseProxyModel::rowCount (QModelIndex const & parent) const
 
 int SparseProxyModel::columnCount (QModelIndex const & parent) const
 {
-	return m_columns;
+	return m_cmap_from_tgt.size();
 }
 
 QModelIndex SparseProxyModel::mapToSource (QModelIndex const & proxyIndex) const
 {
 	if (proxyIndex.isValid())
 		if (proxyIndex.row() < static_cast<int>(m_map_from_tgt.size()))
-			return QAbstractItemModel::createIndex(m_map_from_tgt[proxyIndex.row()], proxyIndex.column(), 0);
+			if (proxyIndex.column() < static_cast<int>(m_cmap_from_tgt.size()))
+			return QAbstractItemModel::createIndex(m_map_from_tgt[proxyIndex.row()], m_cmap_from_tgt[proxyIndex.column()], 0);
 	return QModelIndex();
 }
 
 QModelIndex SparseProxyModel::mapFromSource (QModelIndex const & sourceIndex) const
 {
-	if (sourceIndex.isValid() && sourceIndex.row() < static_cast<int>(m_map_from_src.size()))
+	if (sourceIndex.isValid() && sourceIndex.row() < static_cast<int>(m_map_from_src.size())
+			&& sourceIndex.column() < static_cast<int>(m_cmap_from_src.size()))
 	{
 		//qDebug("FPM: %s src.row=%i, src.sz=%u", __FUNCTION__, sourceIndex.row(), m_map_from_src.size());
-		return QAbstractItemModel::createIndex(m_map_from_src[sourceIndex.row()], sourceIndex.column(), 0);
+		return QAbstractItemModel::createIndex(m_cmap_from_src[sourceIndex.row()], m_cmap_from_src[sourceIndex.column()], 0);
 	}
 	return QModelIndex();
 }
@@ -104,10 +120,18 @@ bool SparseProxyModel::insertRows (int row, int count, QModelIndex const &parent
 
 bool SparseProxyModel::insertColumns (int column, int count, QModelIndex const & parent)
 {
-	if (column >= m_columns)
+	int const src_idx = m_cmap_from_src.size();
+	m_cmap_from_src.push_back(-1);
+
+	if (filterAcceptsColumn(src_idx, QModelIndex()))
 	{
 		emit layoutAboutToBeChanged();
-		++m_columns;
+
+		int const tgt_idx = m_cmap_from_tgt.size();
+
+		m_cmap_from_tgt.push_back(src_idx);
+		m_cmap_from_src[src_idx] = tgt_idx;
+		
 		emit layoutChanged();
 	}
 	return true;
