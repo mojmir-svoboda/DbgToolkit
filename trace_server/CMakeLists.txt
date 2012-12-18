@@ -83,6 +83,7 @@ SET(trace_server_SOURCES
 	tablemodelview.cpp
 	dock.cpp
 	editableheaderview.cpp
+	sparseproxy.cpp
 	)
 
 SET(trace_server_HEADERS
@@ -128,6 +129,7 @@ SET(trace_server_HEADERS
 	tablectxmenu.h
 	tablemodelview.h
 	editableheaderview.h
+	sparseproxy.h
 	)
 
 SET(trace_server_UI 

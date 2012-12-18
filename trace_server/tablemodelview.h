@@ -21,6 +21,7 @@
  **/
 #pragma once
 #include <QAbstractTableModel>
+#include <QAbstractProxyModel>
 #include <QString>
 #include <vector>
 #include <tlv_parser/tlv_parser.h>
@@ -48,6 +49,8 @@ public:
 
 	bool checkExistence (QModelIndex const & index) const;
 
+	void setProxy (QAbstractProxyModel * pxy) { m_proxy = pxy; }
+
 private:
 	typedef std::vector<QString> columns_t;
 	typedef std::vector<columns_t> rows_t;
@@ -55,5 +58,6 @@ private:
 	int m_columnCount;
 	QVector<QString> & m_hhdr;
 	QVector<int> & m_hsize;
+	QAbstractProxyModel * m_proxy;
 };
 

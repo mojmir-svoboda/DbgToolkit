@@ -2,6 +2,7 @@
 #include <QtGui/qwidget.h>
 #include <QColorDialog>
 #include <QTableView>
+#include <QAbstractProxyModel>
 #include "config.h"
 #include "tableconfig.h"
 #include "tablectxmenu.h"
@@ -48,6 +49,7 @@ namespace table {
 		//QList<QColor> m_colors;
 		QString m_fname;
 		TableModelView * m_modelView;
+		QAbstractProxyModel * m_table_view_proxy;
 	};
 }
 

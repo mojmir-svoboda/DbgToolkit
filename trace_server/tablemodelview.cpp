@@ -9,6 +9,7 @@ TableModelView::TableModelView (QObject * parent, QVector<QString> & hhdr, QVect
 	, m_columnCount(0)
 	, m_hhdr(hhdr)
 	, m_hsize(hsize)
+	, m_proxy(0)
 {
 	size_t const prealloc_size = 128;
 	m_rows.reserve(prealloc_size);
@@ -145,6 +146,8 @@ void TableModelView::appendTableXY (int x, int y, QString const & cmd)
 		{
 			//qDebug("  append: y>rows.sz resize %i -> %i", y, y);
 			beginInsertRows(QModelIndex(), m_rows.size(), y);
+			if (m_proxy)
+				m_proxy->insertRows(m_rows.size(), y);
 			m_rows.resize(y + 1);
 			transactionCommit();
 		}
@@ -175,9 +178,17 @@ void TableModelView::appendTableXY (int x, int y, QString const & cmd)
 	{
 		beginInsertColumns(QModelIndex(), m_columnCount, x + n_cols - 1);
 		insertColumns(m_columnCount, x + n_cols - 1);
+		if (m_proxy)
+			m_proxy->insertColumns(m_columnCount, x + n_cols - 1);
 		m_columnCount = x + n_cols;
 		endInsertColumns();
 		// @TODO: updatnout size kontejneru s predchozim poctem elementu
+	}
+
+	if (m_proxy)
+	{
+		int const row = rowCount();
+		m_proxy->insertRow(row);
 	}
 
 	for (int ix = x, ixe = x + n_cols; ix < ixe; ++ix)

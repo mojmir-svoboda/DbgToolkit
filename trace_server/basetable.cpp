@@ -1,6 +1,7 @@
 #include "basetable.h"
 #include <QTimer>
 #include "editableheaderview.h"
+#include "sparseproxy.h"
 
 namespace table {
 
@@ -11,6 +12,7 @@ namespace table {
 		, m_config_ui(cfg, this)
 		, m_fname(fname)
 		, m_modelView(0)
+		, m_table_view_proxy(0)
 	{
 		qDebug("%s this=0x%08x", __FUNCTION__, this);
 
@@ -27,6 +29,18 @@ namespace table {
 		//setSelectionMode(QAbstractItemView::SingleSelection);
 		//verticalHeader()->setResizeMode(QHeaderView::ResizeToContents);
 		//horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
+
+		if (!m_table_view_proxy)
+		{
+			m_table_view_proxy = new SparseProxyModel(this);
+			m_table_view_proxy->setSourceModel(m_modelView);
+		}
+
+		setModel(m_table_view_proxy);
+		m_modelView->setProxy(m_table_view_proxy);
+
+		//static_cast<SourceProxyModel *>(m_table_view_proxy)->force_update();
+		//onInvalidateFilter();
 
 
 		verticalHeader()->hide();	// @NOTE: users want that //@NOTE2: they can't have it because of performance
