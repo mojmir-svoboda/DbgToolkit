@@ -19,9 +19,9 @@ TableModelView::~TableModelView ()
 	qDebug("%s", __FUNCTION__);
 }
 
-int TableModelView::rowCount (const QModelIndex & /*parent*/) const { return m_rows.size(); }
+int TableModelView::rowCount (QModelIndex const & /*parent*/) const { return m_rows.size(); }
 
-int TableModelView::columnCount (const QModelIndex & /*parent*/) const
+int TableModelView::columnCount (QModelIndex const & /*parent*/) const
 {
 	return m_columnCount;
 }
@@ -31,28 +31,35 @@ inline bool TableModelView::checkExistence (QModelIndex const & index) const
 	return index.row() < (int)m_rows.size() && index.column() < (int)m_rows[index.row()].size();
 }
 
-QVariant TableModelView::data (const QModelIndex &index, int role) const
+QVariant TableModelView::data (QModelIndex const & index, int role) const
 {
 	if (!index.isValid())
 		return QVariant();
-	if (role == Qt::DisplayRole || role == Qt::ToolTipRole)
+
+	QVariant value;
+	if (checkExistence(index))
 	{
-		QString str("");
-		if (checkExistence(index))
-		{
-			return m_rows[index.row()][index.column()];
-		}
-		return str;
+		value = m_rows[index.row()][index.column()];
 	}
 
+	if (role == Qt::DisplayRole || role == Qt::ToolTipRole)
+	{
+		return value;
+	}
+	else if (role == Qt::BackgroundRole)
+	{
+		if (value.toString().isEmpty())
+		{
+			return Qt::gray;
+		}
+	}
 	return QVariant();
 }
 
 bool TableModelView::setData (QModelIndex const & index, QVariant const & value, int role)
 {
 	if (!index.isValid()) return false;
-	if (role == Qt::DisplayRole)
-		return false;
+	if (role == Qt::DisplayRole) return false;
 	else if (role == Qt::EditRole)
 	{
 		if (checkExistence(index))
@@ -63,7 +70,6 @@ bool TableModelView::setData (QModelIndex const & index, QVariant const & value,
 			emit dataChanged(index, index);
 		}
 	}
-
 	return true;
 }
 
@@ -115,6 +121,8 @@ void TableModelView::appendTableXY (int x, int y, QString const & cmd)
 	QStringList const values = cmd.split("|");
 	int const n_cols = values.size();
 
+	//qDebug("append: x=%i y=%i cols=%i val=%s", x, y, n_cols, cmd.toAscii());
+
 	if (y < 0)
 	{
 		transactionStart(0);
@@ -128,7 +136,6 @@ void TableModelView::appendTableXY (int x, int y, QString const & cmd)
 		else
 		{
 			m_rows.back().resize(x + n_cols);
-
 		}
 		y = m_rows.size() - 1;
 	}
@@ -136,7 +143,8 @@ void TableModelView::appendTableXY (int x, int y, QString const & cmd)
 	{
 		if (y >= m_rows.size())
 		{
-			transactionStart(y);
+			//qDebug("  append: y>rows.sz resize %i -> %i", y, y);
+			beginInsertRows(QModelIndex(), m_rows.size(), y);
 			m_rows.resize(y + 1);
 			transactionCommit();
 		}
@@ -153,24 +161,30 @@ void TableModelView::appendTableXY (int x, int y, QString const & cmd)
 		}
 		else
 		{
+			//qDebug("  append: x>=0 ", m_rows.back().size(), x + n_cols);
 			if (x + n_cols >= m_rows.back().size())
 			{
+				//qDebug("  append: x>=0  resize %i -> %i", m_rows.back().size(), x + n_cols);
 				m_rows.back().resize(x + n_cols);
 			}
 		}
 	}
 
-	if (m_columnCount < n_cols)
+	//qDebug("  m_columnCount < n_cols  %i < %i", m_columnCount, x + n_cols);
+	if (m_columnCount < x + n_cols)
 	{
-		beginInsertColumns(QModelIndex(), m_columnCount, n_cols - m_columnCount);
-		insertColumns(m_columnCount, n_cols - m_columnCount);
-		m_columnCount = n_cols;
+		beginInsertColumns(QModelIndex(), m_columnCount, x + n_cols - 1);
+		insertColumns(m_columnCount, x + n_cols - 1);
+		m_columnCount = x + n_cols;
 		endInsertColumns();
 		// @TODO: updatnout size kontejneru s predchozim poctem elementu
 	}
 
 	for (int ix = x, ixe = x + n_cols; ix < ixe; ++ix)
 	{
+		QModelIndex const idx0 = index(y, 0, QModelIndex());
+		setData(idx0, tr("%1").arg(y), Qt::EditRole);
+
 		QModelIndex const idx = index(y, ix, QModelIndex());
 		setData(idx, values.at(ix - x), Qt::EditRole);
 	}

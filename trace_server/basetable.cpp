@@ -21,8 +21,19 @@ namespace table {
 
 		m_modelView = new TableModelView(this, m_config.m_hhdr, m_config.m_hsize);
 		setModel(m_modelView);
+		// TMP!
+		//setEditTriggers(QAbstractItemView::NoEditTriggers);
+		//setSelectionBehavior(QAbstractItemView::SelectRows);
+		//setSelectionMode(QAbstractItemView::SingleSelection);
+		//verticalHeader()->setResizeMode(QHeaderView::ResizeToContents);
+		//horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
+
+
+		verticalHeader()->hide();	// @NOTE: users want that //@NOTE2: they can't have it because of performance
+
 		setConfigValues(m_config);
 		QTimer::singleShot(0, this, SLOT(onApplyButton()));
+
 	}
 
 	BaseTable::~BaseTable ()
@@ -48,7 +59,7 @@ namespace table {
 
 		killTimer(m_timer);
 		m_timer = startTimer(1000);
-		m_config.m_hsize.reserve(model()->columnCount());
+		m_config.m_hsize.resize(model()->columnCount());
 		for (int i = 0, ie = model()->columnCount(); i < ie; ++i)
 		{
 			int sz = 32;
@@ -125,10 +136,14 @@ namespace table {
 		setConfigValues(defaults);
 	}
 
-	void BaseTable::onSectionResized (int idx, int /*old_size*/, int new_size)
+	void BaseTable::onSectionResized (int idx, int old_size, int new_size)
 	{
-		m_config.m_hsize.reserve(idx);
-		m_config.m_hsize[idx] = new_size;
+		if (idx >= 0 && idx < m_config.m_hsize.size())
+		{
+			m_config.m_hsize.resize(idx + 1);
+			m_config.m_hsize[idx] = new_size;
+			//setColumnWidth(idx, new_size);
+		}
 	}
 }
 

@@ -146,6 +146,16 @@ void something_useful ()
 	something_useful_too();
 }
 
+
+char const * GetName () { return "aa"; }
+
+void TraceVal (int x, int y)
+{
+	TRACE_TABLE(trace::e_Info, trace::CTX_Default, x, y, "%s0/%.4f",GetName(), -3.1415926535897323f);
+	TRACE_TABLE(trace::e_Info, trace::CTX_Default, x, y, "%s1/%u",GetName(), x * y);
+	TRACE_TABLE(trace::e_Info, trace::CTX_Default, x, y, "%s2/Error: XXX",GetName());
+}
+
 unsigned g_Quit = 0;
 
 #if defined WIN32 || defined WIN64
@@ -155,12 +165,12 @@ void * do_something ( void * )
 #endif
 {
 	TRACE_SCOPE(trace::e_Info, trace::CTX_Default);
+		something_useful();
 	while (!g_Quit)
 	{
 		static size_t i = 0;
 		++i;
 		TRACE_MSG(trace::e_Info, trace::CTX_Default,  "Thread tick i=%u", i);
-		something_useful();
 #if defined WIN32 || defined WIN64
 		Sleep(3000);
 #elif defined __linux__
@@ -201,7 +211,7 @@ int main ()
 #endif
 	TRACE_APPNAME("WarHorse_App");
 	TRACE_CONNECT();
-	for (int i = 0; i < 128 * 16; ++i)
+	/*for (int i = 0; i < 128 * 16; ++i)
 	{
 		float x = 3.1415926535f * 2.0f / 128.0f * static_cast<float>(i);
 		TRACE_DATA_XY(trace::e_Info, trace::CTX_Default, x, sinf(x), "sample_plot/%s", "sin");
@@ -209,7 +219,7 @@ int main ()
 		TRACE_DATA_XY(trace::e_Info, trace::CTX_Default, x, sinf(x) * cosf(x), "sample_plot2/%s", "cos");
 		TRACE_DATA_XY(trace::e_Info, trace::CTX_Default, x, cosf(x) / x, "sample_plot3/%s", "hadej");
 		TRACE_DATA_XY(trace::e_Info, trace::CTX_Default, x, sinf(x) * sinf(x)/ x, "sample_plot4/%s", "hadej");
-	}
+	}*/
 	//TRACE_DISCONNECT();
 	//return 0;
 
@@ -243,13 +253,14 @@ int main ()
 		
 		//for(size_t i = 0; i < 4; ++i)
 		static size_t i	 = 0;
-		++i;
 		TRACE_MSG(trace::e_Info, trace::CTX_Default,  "Some another annoying message i=%u from main thread", i);
-		TRACE_TABLE(trace::e_Info, trace::CTX_Default, 0, 0, "hokus/%i|%i|%i", i, i*i, i*i*i);
-		TRACE_TABLE(trace::e_Info, trace::CTX_Default, 1, 1, "hokus/%i|%i|%i", 2 * i, 2 * i*i, 2 * i*i*i);
+		TraceVal(1, i);
+		++i;
+		//TRACE_TABLE(trace::e_Info, trace::CTX_Default, 0, 0, "hokus/%i|%i|%i", i, i*i, i*i*i);
+		//TRACE_TABLE(trace::e_Info, trace::CTX_Default, 1, 1, "hokus/%i|%i|%i", 2 * i, 2 * i*i, 2 * i*i*i);
 		//TRACE_TABLE(trace::e_Info, trace::CTX_Default, 0, -1, "pokus/%i|%i", i, -i);
 		//TRACE_TABLE(trace::e_Info, trace::CTX_Default, 0, -1, "pokus/%i|%i", i, -i);
-		TRACE_TABLE(trace::e_Info, trace::CTX_Default,-1,  1, "fookus/%f", float(i) * 3.1415926f);
+		//TRACE_TABLE(trace::e_Info, trace::CTX_Default,-1,  1, "fookus/%f", float(i) * 3.1415926f);
 
 
 	//	if (i == 4)
