@@ -78,6 +78,8 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QStri
 	m_settings_dialog->setWindowFlags(Qt::Sheet);
 	ui_settings = new Ui::SettingsDialog();
 	ui_settings->setupUi(m_settings_dialog);
+	ui_settings->separatorComboBox->addItem("\\t");
+	ui_settings->separatorComboBox->addItem("\\n");
 
 	m_plot_tree_view = new TreeView(this);
 	m_plot_tree_view->setHidingLinearParents(false);
@@ -624,7 +626,8 @@ void MainWindow::onFileTail ()
 
 void MainWindow::onLogTail ()
 {
-	m_server->createTailDataStream(m_log_name);
+	setupSeparatorChar("|");
+	m_server->createTailLogStream(m_log_name, "|");
 }
 
 void MainWindow::openFiles (QStringList const & files)
@@ -1510,16 +1513,22 @@ bool MainWindow::eventFilter (QObject * target, QEvent * e)
 	return false;
 }
 
+void MainWindow::addNewApplication (QString const & appname)
+{
+	m_config.m_app_names.push_back(appname);
+	m_config.m_columns_setup.push_back(columns_setup_t());
+	m_config.m_columns_sizes.push_back(columns_sizes_t());
+	m_config.m_columns_align.push_back(columns_align_t());
+	m_config.m_columns_elide.push_back(columns_elide_t());
+}
+
 int MainWindow::createAppName (QString const & appname, E_SrcProtocol const proto)
 {
+	addNewApplication(appname);
+	size_t const app_idx = m_config.m_app_names.size() - 1;
+
 	if (proto == e_Proto_TLV)
 	{
-		m_config.m_app_names.push_back(appname);
-		m_config.m_columns_setup.push_back(columns_setup_t());
-		m_config.m_columns_sizes.push_back(columns_sizes_t());
-		m_config.m_columns_align.push_back(columns_align_t());
-		m_config.m_columns_elide.push_back(columns_elide_t());
-
 		size_t const n = tlv::tag_bool;
 		for (size_t i = tlv::tag_time; i < n; ++i)
 		{
@@ -1532,20 +1541,12 @@ int MainWindow::createAppName (QString const & appname, E_SrcProtocol const prot
 				m_config.m_columns_elide.back().push_back(QChar(elideToString(default_elides[i])));
 			}
 		}
-		size_t const i = m_config.m_app_names.size() - 1;
-		onSetup(static_cast<int>(i), true, true);
-		return i;
+		onSetup(proto, static_cast<int>(app_idx), true, true);
 	}
 	else if (proto == e_Proto_CSV)
 	{
-		m_config.m_app_names.push_back(appname);
-		m_config.m_columns_setup.push_back(columns_setup_t());
-		m_config.m_columns_sizes.push_back(columns_sizes_t());
-		m_config.m_columns_align.push_back(columns_align_t());
-		m_config.m_columns_elide.push_back(columns_elide_t());
-
-		size_t const i = m_config.m_app_names.size() - 1;
-		return i;
 	}
+
+	return app_idx;
 }
 

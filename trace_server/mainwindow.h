@@ -88,6 +88,7 @@ public:
 	}
 
 	int createAppName (QString const & appname, E_SrcProtocol const proto);
+	void addNewApplication (QString const & appname);
 	int findAppName (QString const & appname)
 	{
 		for (int i = 0, ie = m_config.m_app_names.size(); i < ie; ++i)
@@ -180,8 +181,6 @@ private slots:
 	void tailFiles (QStringList const & list);
 	void onFileSave ();
 	void onFileExportToCSV ();
-	void onSetupAction ();
-	void onSetup (int curr_app_idx = -1, bool first_time = false, bool mac_user = false);
 	void closeEvent (QCloseEvent *event);
 	void iconActivated (QSystemTrayIcon::ActivationReason reason);
 	void onQSearch (QString const &);
@@ -215,7 +214,21 @@ private slots:
 	void onTablesStateChanged (int state);
 	void onDockRestoreButton ();
 	void onFilterFile (int state);
-	void onSettingsAppSelected (int idx, bool first_time = false);
+
+	void onSetupAction ();
+	void prepareSettingsWidgets (int idx, bool first_time = false);
+	void clearSettingWidgets ();
+	void setupSeparatorChar (QString const & c);
+	QString separatorChar () const;
+	void onSetup (E_SrcProtocol const proto, int curr_app_idx = -1, bool first_time = false, bool mac_user = false);
+	//void onSetupCSV (int curr_app_idx = -1, bool first_time = false, bool mac_user = false);
+	//void onSetupCSVSeparator (int curr_app_idx = -1, int column = -1, bool first_time = false);
+	void onSetupCSVColumns (int curr_app_idx, int columns, bool first_time);
+	void onSetupCSVSeparator (int curr_app_idx, bool first_time);
+	void onSettingsAppSelectedTLV (int idx, bool first_time = false);
+	void onSettingsAppSelectedCSV (int idx, int columns, bool first_time = false);
+	void settingsDisableButSeparator ();
+	void settingsToDefault ();
 	void onClickedAtSettingPooftahButton ();
 	void onClickedAtSettingOkButton ();
 	void onClickedAtSettingOkSaveButton ();

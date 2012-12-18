@@ -81,7 +81,8 @@ bool Connection::handleDataXYCommand (DecodedCommand const & cmd)
 			y = cmd.tvs[i].m_val.toDouble();
 	}
 
-	appendDataXY(x, y, tag);
+	if (m_main_window->plotEnabled())
+		appendDataXY(x, y, tag);
 	return true;
 }
 

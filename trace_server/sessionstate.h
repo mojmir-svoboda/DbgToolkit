@@ -67,14 +67,15 @@ public:
 	void setupThreadColors (QList<QColor> const & tc);
 
 	QString getAppName () const { return m_name; }
+	int getAppIdx () const { return m_app_idx; }
+
+	bool isConfigured () const { return m_columns_setup_current && m_columns_setup_current->size(); }
 
 	QList<QString> const * getColumnsSetupCurrent () const { return m_columns_setup_current; }
 	QList<QString> * getColumnsSetupCurrent () { return m_columns_setup_current; }
 	QList<QString> const * getColumnsSetupTemplate () const { return m_columns_setup_template; }
-
 	columns_sizes_t const * getColumnSizes () const { return m_columns_sizes; }
 	columns_sizes_t * getColumnSizes () { return m_columns_sizes; }
-
 	QList<QString> const * getColumnsAlignTemplate () const { return m_columns_align_template; }
 	QList<QString> const * getColumnsElideTemplate () const { return m_columns_elide_template; }
 
@@ -174,6 +175,8 @@ public:
 	unsigned getRecvBytes () const { return m_recv_bytes; }
 
 	Dict const & getDictCtx () const { return m_dict_ctx; }
+
+	QString const & separatorChar () const { return m_csv_separator; }
 	
 signals:
 	
@@ -228,5 +231,6 @@ private:
 	unsigned m_recv_bytes;
 	Dict m_dict_ctx;
 	QList<FilteredString> m_filtered_strings;
+	QString m_csv_separator;
 };
 

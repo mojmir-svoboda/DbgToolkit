@@ -174,6 +174,19 @@ void Server::importDataStream (QString const & fname)
 	file.close();
 }
 
+void Server::createTailLogStream (QString const & fname, QString const & separator)
+{
+	MainWindow * main_window = static_cast<MainWindow *>(parent());
+	Connection * connection = createNewTableView ();
+	connection->setTailFile(fname);
+	connection->m_session_state.m_csv_separator = separator;
+	
+	main_window->statusBar()->showMessage(tr("Tail!"));
+	connection->handleCSVSetup(fname);
+	connection->processTailCSVStream();
+	emit newConnection(connection);
+}
+
 void Server::createTailDataStream (QString const & fname)
 {
 	MainWindow * main_window = static_cast<MainWindow *>(parent());

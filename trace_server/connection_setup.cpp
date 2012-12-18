@@ -307,7 +307,7 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 
 			if (cs_setup.empty() || cs_sizes.empty() || cs_align.empty() || cs_elide.empty())
 			{
-				m_main_window->onSetup(sessionState().m_app_idx, true, true);
+				m_main_window->onSetup(e_Proto_TLV, sessionState().m_app_idx, true, true);
 			}
 
 			sessionState().setupColumns(&cs_setup, &cs_sizes, &cs_align, &cs_elide); 
