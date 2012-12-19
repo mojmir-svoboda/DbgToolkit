@@ -162,7 +162,15 @@ void Connection::appendTableXY (int x, int y, QString const & msg_tag)
 	DataTable & dp = **it;
 	dp.widget().appendTableXY(x, y, subtag);
 
+
+	onInvalidateFilter();
+
 	//dp.m_table->resizeColumnsToContents();
 	//dp.m_table->resizeRowsToContents();
 }
 
+
+void Connection::requestTableSynchronization ()
+{
+
+}

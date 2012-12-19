@@ -185,5 +185,23 @@ namespace table {
 	{
 		QTableView::scrollTo(index, hint);
 	}
+
+	bool BaseTable::isModelProxy () const
+	{
+		if (0 == model())
+			return false;
+		return model() == m_table_view_proxy;
+	}
+
+	void BaseTable::onInvalidateFilter ()
+	{
+		if (isModelProxy())
+			static_cast<SparseProxyModel *>(m_table_view_proxy)->force_update();
+		else
+		{
+			m_modelView->emitLayoutChanged();
+		}
+	}
+
 }
 

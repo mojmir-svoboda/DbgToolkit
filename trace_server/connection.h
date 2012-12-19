@@ -135,6 +135,8 @@ public:
 	bool saveConfigForTable (table::TableConfig const & config, QString const & tag);
 	bool filterEnabled () const { return m_main_window->filterEnabled(); }
 
+	void requestTableSynchronization ();
+
 	QAbstractTableModel const * modelView () const { return static_cast<QAbstractTableModel const *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model()); }
 	QAbstractProxyModel const * proxyView () const { return static_cast<QAbstractProxyModel const *>(m_table_view_proxy); }
 

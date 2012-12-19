@@ -25,6 +25,9 @@ namespace table {
 
 		void appendTableXY (int x, int y, QString const & msg);
 
+		bool isModelProxy () const;
+		void onInvalidateFilter ();
+
 	protected:
 		void timerEvent (QTimerEvent * e);
 		virtual void update ();
