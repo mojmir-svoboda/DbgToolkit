@@ -8,13 +8,15 @@
 #include "tablectxmenu.h"
 #include "tablemodelview.h"
 
+class Connection;
+
 namespace table {
 
 	class BaseTable : public QTableView
 	{
 		Q_OBJECT
 	public:
-		BaseTable (QObject * oparent, QWidget * wparent, TableConfig & cfg, QString const & fname);
+		BaseTable (Connection * oparent, QWidget * wparent, TableConfig & cfg, QString const & fname);
 
 		void applyConfig (TableConfig const & pcfg);
 		virtual ~BaseTable ();
@@ -23,10 +25,11 @@ namespace table {
 		TableConfig & getConfig () { return m_config; }
 		TableConfig const & getConfig () const { return m_config; }
 
-		void appendTableXY (int x, int y, QString const & msg);
+		void appendTableXY (int x, int y, QString const & time, QString const & msg);
 
 		bool isModelProxy () const;
 		void onInvalidateFilter ();
+		void findNearestTimeRow (unsigned long long t);
 
 	protected:
 		void timerEvent (QTimerEvent * e);
@@ -45,6 +48,7 @@ namespace table {
 		void onDefaultButton ();
 		void onSectionResized (int idx, int old_size, int new_size);
 		void scrollTo (QModelIndex const & index, ScrollHint hint);
+		void onTableDoubleClicked (QModelIndex const & row_index);
 
 	protected:
 		int m_timer;
@@ -54,6 +58,7 @@ namespace table {
 		QString m_fname;
 		TableModelView * m_modelView;
 		QAbstractProxyModel * m_table_view_proxy;
+		Connection * m_connection;
 	};
 }
 

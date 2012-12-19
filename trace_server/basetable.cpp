@@ -2,10 +2,11 @@
 #include <QTimer>
 #include "editableheaderview.h"
 #include "sparseproxy.h"
+#include "connection.h"
 
 namespace table {
 
-	BaseTable::BaseTable (QObject * oparent, QWidget * wparent, TableConfig & cfg, QString const & fname)
+	BaseTable::BaseTable (Connection * oparent, QWidget * wparent, TableConfig & cfg, QString const & fname)
 		: QTableView(wparent)
 		, m_timer(-1)
 		, m_config(cfg)
@@ -13,11 +14,13 @@ namespace table {
 		, m_fname(fname)
 		, m_modelView(0)
 		, m_table_view_proxy(0)
+		, m_connection(oparent)
 	{
 		qDebug("%s this=0x%08x", __FUNCTION__, this);
 
 		setContextMenuPolicy(Qt::CustomContextMenu);
 		connect(this, SIGNAL(customContextMenuRequested(QPoint const &)), this, SLOT(onShowContextMenu(QPoint const &)));
+		connect(this, SIGNAL(doubleClicked(QModelIndex const &)), this, SLOT(onTableDoubleClicked(QModelIndex const &)));
 
 		//setHorizontalHeader(new EditableHeaderView(Qt::Horizontal, this));
 
@@ -30,7 +33,9 @@ namespace table {
 		//verticalHeader()->setResizeMode(QHeaderView::ResizeToContents);
 		horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
 
-		verticalHeader()->setDefaultSectionSize(10);
+		verticalHeader()->setDefaultSectionSize(8);
+		horizontalHeader()->setResizeMode(QHeaderView::Interactive);
+		verticalHeader()->setResizeMode(QHeaderView::Interactive);
 
 		if (!m_table_view_proxy)
 		{
@@ -38,7 +43,7 @@ namespace table {
 			m_table_view_proxy->setSourceModel(m_modelView);
 		}
 
-		//verticalHeader()->hide();	// @NOTE: users want that //@NOTE2: they can't have it because of performance
+		verticalHeader()->hide();	// @NOTE: users want that //@NOTE2: they can't have it because of performance
 
 		setConfigValues(m_config);
 		QTimer::singleShot(0, this, SLOT(onApplyButton()));
@@ -174,9 +179,9 @@ namespace table {
 		}
 	}
 
-	void BaseTable::appendTableXY (int x, int y, QString const & msg)
+	void BaseTable::appendTableXY (int x, int y, QString const & time, QString const & msg)
 	{
-		m_modelView->appendTableXY(x, y, msg);
+		m_modelView->appendTableXY(x, y, time, msg);
 		if (m_config.m_auto_scroll)
 			scrollToBottom();
 	}
@@ -201,6 +206,41 @@ namespace table {
 		{
 			m_modelView->emitLayoutChanged();
 		}
+	}
+
+	void BaseTable::onTableDoubleClicked (QModelIndex const & row_index)
+	{
+		if (isModelProxy())
+		{
+			QModelIndex const curr = m_table_view_proxy->mapToSource(row_index);
+			unsigned long long const time = m_modelView->row_time(curr.row());
+			m_connection->requestTableSynchronization(m_config.m_sync_group, time);
+		}
+		else
+		{
+			QModelIndex const curr = row_index;
+			unsigned long long const time = m_modelView->row_time(curr.row());
+			m_connection->requestTableSynchronization(m_config.m_sync_group, time);
+		}
+	}
+
+	void BaseTable::findNearestTimeRow (unsigned long long t)
+	{
+		size_t closest_i = 0;
+		int closest_dist = 1024 * 1024;
+		for (size_t i = 0; i < m_modelView->rowCount(); ++i)
+		{
+			int const diff = m_modelView->row_time(i) - t;
+			int const d = abs(diff);
+			if (d < closest_dist)
+			{
+				closest_i = i;
+				closest_dist = d;
+			}
+		}
+
+		QModelIndex const idx = m_modelView->index(closest_i, 0, QModelIndex());
+		scrollTo(idx, QAbstractItemView::PositionAtCenter);
 	}
 
 }

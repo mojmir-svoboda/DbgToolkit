@@ -151,9 +151,11 @@ char const * GetName () { return "aa"; }
 
 void TraceVal (int x, int y)
 {
-	TRACE_TABLE(trace::e_Info, trace::CTX_Default, x, y, "%s0/%.4f",GetName(), -3.1415926535897323f);
-	TRACE_TABLE(trace::e_Info, trace::CTX_Default, x, y, "%s1/%u",GetName(), x * y);
-	TRACE_TABLE(trace::e_Info, trace::CTX_Default, x, y, "%s2/Error: XXX",GetName());
+	static int n = 0;
+	TRACE_TABLE(trace::e_Info, trace::CTX_Default, x, y, "%s0/%i",GetName(), n);
+	TRACE_TABLE(trace::e_Info, trace::CTX_Default, x, y, "%s1/%i",GetName(), n);
+	TRACE_TABLE(trace::e_Info, trace::CTX_Default, x, y, "%s2/Error: %i",GetName(), n);
+	++n;
 }
 
 unsigned g_Quit = 0;
@@ -254,7 +256,7 @@ int main ()
 		//for(size_t i = 0; i < 4; ++i)
 		static size_t i	 = 0;
 		TRACE_MSG(trace::e_Info, trace::CTX_Default,  "Some another annoying message i=%u from main thread", i);
-		TraceVal(2*i, 2*i);
+		TraceVal(2 * i, i);
 		++i;
 		//TRACE_TABLE(trace::e_Info, trace::CTX_Default, 0, 0, "hokus/%i|%i|%i", i, i*i, i*i*i);
 		//TRACE_TABLE(trace::e_Info, trace::CTX_Default, 1, 1, "hokus/%i|%i|%i", 2 * i, 2 * i*i, 2 * i*i*i);

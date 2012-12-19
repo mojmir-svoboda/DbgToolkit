@@ -42,7 +42,7 @@ public:
 	bool  setHeaderData (int section, Qt::Orientation orientation, QVariant const & value, int role = Qt::EditRole);
 
 	void transactionStart (size_t n);
-	void appendTableXY (int x, int y, QString const & msg_tag);
+	void appendTableXY (int x, int y, QString const &, QString const & msg_tag);
 	void transactionCommit ();
 
 	void emitLayoutChanged ();
@@ -50,10 +50,16 @@ public:
 	bool checkExistence (QModelIndex const & index) const;
 
 	void setProxy (QAbstractProxyModel * pxy) { m_proxy = pxy; }
+	int row_time (int const row) const { return m_row_times[row]; }
+	int col_time (int const col) const { return m_col_times[col]; }
 
 private:
 	typedef std::vector<QString> columns_t;
 	typedef std::vector<columns_t> rows_t;
+
+	typedef std::vector<unsigned long long> times_t;
+	times_t m_row_times;
+	times_t m_col_times;
 	rows_t m_rows;
 	int m_columnCount;
 	QVector<QString> & m_hhdr;

@@ -21,6 +21,7 @@ namespace table {
 		TableConfig ()
 			: m_tag()
 			, m_title()
+			, m_sync_group(0)
 			, m_auto_scroll(true)
 			, m_show(true)
 			, m_hide_empty(false)

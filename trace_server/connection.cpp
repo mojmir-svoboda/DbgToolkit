@@ -61,7 +61,6 @@ Connection::Connection (QObject * parent)
 	, m_tcpstream(0)
 	, m_statswindow(0)
 	, m_data_model(0)
-	, m_mapper(0)
 {
 	qDebug("Connection::Connection() this=0x%08x", this);
 	m_copy_to_clipboard = new QAction("Copy", this);
@@ -74,7 +73,6 @@ Connection::Connection (QObject * parent)
 	m_data_model = new TreeModel(this, &m_session_state.m_data_filters);
 	m_lvl_delegate = new LevelDelegate(m_session_state, this);
 	m_ctx_delegate = new CtxDelegate(m_session_state, this);
-	m_mapper = new QDataWidgetMapper(this);
 }
 
 namespace {

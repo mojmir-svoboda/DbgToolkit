@@ -68,6 +68,7 @@ void Connection::onShowTableContextMenu (QPoint const &)
 bool Connection::handleTableXYCommand (DecodedCommand const & cmd)
 {
 	QString tag;
+	QString time;
 	int x = 0;
 	int y = 0;
 	for (size_t i=0, ie=cmd.tvs.size(); i < ie; ++i)
@@ -78,10 +79,12 @@ bool Connection::handleTableXYCommand (DecodedCommand const & cmd)
 			x = cmd.tvs[i].m_val.toInt();
 		else if (cmd.tvs[i].m_tag == tlv::tag_y)
 			y = cmd.tvs[i].m_val.toInt();
+		else if (cmd.tvs[i].m_tag == tlv::tag_time)
+			time = cmd.tvs[i].m_val;
 	}
 
 	if (m_main_window->tableEnabled())
-		appendTableXY(x, y, tag);
+		appendTableXY(x, y, time, tag);
 	return true;
 }
 
@@ -99,7 +102,7 @@ bool Connection::saveConfigForTable (table::TableConfig const & config, QString 
 	return saveConfig(config, fname);
 }
 
-void Connection::appendTableXY (int x, int y, QString const & msg_tag)
+void Connection::appendTableXY (int x, int y, QString const & time, QString const & msg_tag)
 {
 	QString tag = msg_tag;
 	int const slash_pos = tag.lastIndexOf(QChar('/'));
@@ -129,18 +132,12 @@ void Connection::appendTableXY (int x, int y, QString const & msg_tag)
 /*		dp->m_table->setEditTriggers(QAbstractItemView::NoEditTriggers);
 		dp->m_table->setSelectionBehavior(QAbstractItemView::SelectRows);
 		dp->m_table->setSelectionMode(QAbstractItemView::SingleSelection);*/
-		///dp->m_table->resizeColumnsToContents();
-		//dp->m_table->resizeRowsToContents();
-		//dp->m_table->verticalHeader()->setResizeMode(QHeaderView::ResizeToContents);
-		//dp->m_table->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
-
-		//dp->m_table->horizontalHeader()->resizeColumnsToContents();
-
 		dp->m_table->verticalHeader()->setFont(m_main_window->tableFont());
-		dp->m_table->verticalHeader()->setDefaultSectionSize(m_main_window->tableRowSize());
+		//dp->m_table->verticalHeader()->setDefaultSectionSize(m_main_window->tableRowSize());
+		dp->m_table->verticalHeader()->setDefaultSectionSize(16);
 		dp->m_table->verticalHeader()->hide();	// @NOTE: users want that //@NOTE2: they can't have it because of performance
 
-		//QObject::connect(dp->widget().horizontalHeader(), SIGNAL(sectionResized(int, int, int)), &dp->widget(), SLOT(onSectionResized(int, int, int)));
+		QObject::connect(dp->widget().horizontalHeader(), SIGNAL(sectionResized(int, int, int)), &dp->widget(), SLOT(onSectionResized(int, int, int)));
 		dp->m_wd = m_main_window->m_dock_mgr.mkDockWidget(m_main_window, &dp->widget(), table_name);
 		if (m_main_window->tableEnabled())
 		{
@@ -154,23 +151,23 @@ void Connection::appendTableXY (int x, int y, QString const & msg_tag)
 		{
 			dp->onHide();
 		}
-		///////////////
-		//grrr
-		//dp->model()->in
 	}
 
 	DataTable & dp = **it;
-	dp.widget().appendTableXY(x, y, subtag);
-
-
-	onInvalidateFilter();
-
-	//dp.m_table->resizeColumnsToContents();
-	//dp.m_table->resizeRowsToContents();
+	dp.widget().appendTableXY(x, y, time, subtag);
 }
 
 
-void Connection::requestTableSynchronization ()
+void Connection::requestTableSynchronization (int sync_group, unsigned long long time)
 {
+	for (datatables_t::iterator it = m_datatables.begin(), ite = m_datatables.end(); it != ite; ++it)
+	{
+		DataTable * const tbl = *it;
 
+		//@TODO: skip zero. zero == do not sync
+		if (tbl->widget().getConfig().m_sync_group == sync_group)
+		{
+			tbl->widget().findNearestTimeRow(time);
+		}
+	}
 }
