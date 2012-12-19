@@ -150,10 +150,11 @@ void TableModelView::appendTableXY (int x, int y, QString const & cmd)
 		{
 			//qDebug("  append: y>rows.sz resize %i -> %i", y, y);
 			beginInsertRows(QModelIndex(), m_rows.size(), y);
-			if (m_proxy)
-				m_proxy->insertRows(m_rows.size(), y);
 			m_rows.resize(y + 1);
 			transactionCommit();
+
+			if (m_proxy)
+				m_proxy->insertRows(m_rows.size(), y);
 		}
 
 		if (x < 0)
@@ -182,23 +183,18 @@ void TableModelView::appendTableXY (int x, int y, QString const & cmd)
 	{
 		beginInsertColumns(QModelIndex(), m_columnCount, x + n_cols - 1);
 		insertColumns(m_columnCount, x + n_cols - 1);
-		if (m_proxy)
-			m_proxy->insertColumns(m_columnCount, x + n_cols - 1);
 		m_columnCount = x + n_cols;
 		endInsertColumns();
-		// @TODO: updatnout size kontejneru s predchozim poctem elementu
-	}
 
-	if (m_proxy)
-	{
-		int const row = rowCount();
-		m_proxy->insertRow(row);
+		if (m_proxy)
+			m_proxy->insertColumns(m_columnCount, x + n_cols - 1);
+		// @TODO: updatnout size kontejneru s predchozim poctem elementu
 	}
 
 	for (int ix = x, ixe = x + n_cols; ix < ixe; ++ix)
 	{
-		QModelIndex const idx0 = index(y, 0, QModelIndex());
-		setData(idx0, tr("%1").arg(y), Qt::EditRole);
+		//QModelIndex const idx0 = index(y, 0, QModelIndex());
+		//setHeaderData(idx0, tr("%1").arg(y), Qt::EditRole);
 
 		QModelIndex const idx = index(y, ix, QModelIndex());
 		setData(idx, values.at(ix - x), Qt::EditRole);

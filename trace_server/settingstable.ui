@@ -6,14 +6,135 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>304</width>
-    <height>141</height>
+    <width>397</width>
+    <height>238</height>
    </rect>
+  </property>
+  <property name="floating">
+   <bool>true</bool>
   </property>
   <property name="windowTitle">
    <string>DockWidget</string>
   </property>
-  <widget class="QWidget" name="dockWidgetContents"/>
+  <widget class="QWidget" name="dockWidgetContents">
+   <layout class="QGridLayout" name="gridLayout_2">
+    <item row="5" column="0">
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="0" column="0" rowspan="4">
+       <widget class="QListView" name="columnView">
+        <property name="toolTip">
+         <string>Select columns to show/hide</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1" rowspan="4">
+       <widget class="QListView" name="rowView">
+        <property name="toolTip">
+         <string>Selects rows to hide</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2">
+       <widget class="QCheckBox" name="hideEmptyCheckBox">
+        <property name="toolTip">
+         <string>Auto-hiding of empty columns/rows</string>
+        </property>
+        <property name="text">
+         <string>Hide Empty Cols/Rows</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="2">
+       <widget class="QSpinBox" name="syncGroupSpinBox">
+        <property name="toolTip">
+         <string>Identifier of the synchronization group.
+All tables with the same number will have inputs synchronized.
+0 means no synchronization with other tables.</string>
+        </property>
+        <property name="prefix">
+         <string> </string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="2">
+       <widget class="QCheckBox" name="autoScrollCheckBox">
+        <property name="text">
+         <string>AutoScroll</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item row="0" column="0">
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
+       <widget class="QPushButton" name="applyButton">
+        <property name="maximumSize">
+         <size>
+          <width>50</width>
+          <height>15</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <family>Lucida Console</family>
+          <pointsize>7</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>Apply</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QPushButton" name="saveButton">
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>15</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <family>Lucida Console</family>
+          <pointsize>7</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>Save</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer_2">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
  </widget>
  <resources/>
  <connections/>

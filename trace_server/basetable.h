@@ -23,7 +23,7 @@ namespace table {
 		TableConfig & getConfig () { return m_config; }
 		TableConfig const & getConfig () const { return m_config; }
 
-		void appendTableXY (int x, int y, QString const & msg) { m_modelView->appendTableXY(x, y, msg); }
+		void appendTableXY (int x, int y, QString const & msg);
 
 	protected:
 		void timerEvent (QTimerEvent * e);
@@ -40,7 +40,8 @@ namespace table {
 		void onApplyButton ();
 		void onResetButton ();
 		void onDefaultButton ();
-		void onSectionResized (int idx, int /*old_size*/, int new_size);
+		void onSectionResized (int idx, int old_size, int new_size);
+		void scrollTo (QModelIndex const & index, ScrollHint hint);
 
 	protected:
 		int m_timer;

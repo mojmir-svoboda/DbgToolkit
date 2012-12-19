@@ -19,7 +19,7 @@ namespace table {
 		setContextMenuPolicy(Qt::CustomContextMenu);
 		connect(this, SIGNAL(customContextMenuRequested(QPoint const &)), this, SLOT(onShowContextMenu(QPoint const &)));
 
-		setHorizontalHeader(new EditableHeaderView(Qt::Horizontal, this));
+		//setHorizontalHeader(new EditableHeaderView(Qt::Horizontal, this));
 
 		m_modelView = new TableModelView(this, m_config.m_hhdr, m_config.m_hsize);
 		setModel(m_modelView);
@@ -28,7 +28,9 @@ namespace table {
 		//setSelectionBehavior(QAbstractItemView::SelectRows);
 		//setSelectionMode(QAbstractItemView::SingleSelection);
 		//verticalHeader()->setResizeMode(QHeaderView::ResizeToContents);
-		//horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
+		horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
+
+		verticalHeader()->setDefaultSectionSize(10);
 
 		if (!m_table_view_proxy)
 		{
@@ -36,14 +38,7 @@ namespace table {
 			m_table_view_proxy->setSourceModel(m_modelView);
 		}
 
-		setModel(m_table_view_proxy);
-		m_modelView->setProxy(m_table_view_proxy);
-
-		//static_cast<SourceProxyModel *>(m_table_view_proxy)->force_update();
-		//onInvalidateFilter();
-
-
-		verticalHeader()->hide();	// @NOTE: users want that //@NOTE2: they can't have it because of performance
+		//verticalHeader()->hide();	// @NOTE: users want that //@NOTE2: they can't have it because of performance
 
 		setConfigValues(m_config);
 		QTimer::singleShot(0, this, SLOT(onApplyButton()));
@@ -91,6 +86,19 @@ namespace table {
 			horizontalHeader()->resizeSection(i, sz);
 			horizontalHeader()->blockSignals(0);
 		}
+
+		if (m_config.m_hide_empty)
+		{
+			setModel(m_table_view_proxy);
+			m_modelView->setProxy(m_table_view_proxy);
+			static_cast<SparseProxyModel *>(m_table_view_proxy)->force_update();
+		}
+		else
+		{
+			setModel(m_modelView);
+			m_modelView->setProxy(0);
+		}
+		m_modelView->emitLayoutChanged();
 	}
 
 	void BaseTable::stopUpdate ()
@@ -121,8 +129,8 @@ namespace table {
 		Ui::SettingsTable * ui = m_config_ui.ui();
 
 		setConfigValues(m_config);
-		//connect(ui->applyButton, SIGNAL(clicked()), this, SLOT(onApplyButton()));
-		//connect(ui->saveButton, SIGNAL(clicked()), this, SLOT(onSaveButton()));
+		connect(ui->applyButton, SIGNAL(clicked()), this, SLOT(onApplyButton()));
+		connect(ui->saveButton, SIGNAL(clicked()), this, SLOT(onSaveButton()));
 		//connect(ui->resetButton, SIGNAL(clicked()), this, SLOT(onResetButton()));
 		//connect(ui->defaultButton, SIGNAL(clicked()), this, SLOT(onDefaultButton()));
 	}
@@ -131,13 +139,19 @@ namespace table {
 	{
 		qDebug("%s this=0x%08x", __FUNCTION__, this);
 		Ui::SettingsTable * ui = m_config_ui.ui();
+		
+		ui->hideEmptyCheckBox->setCheckState(m_config.m_hide_empty ? Qt::Checked : Qt::Unchecked);
+		ui->autoScrollCheckBox->setCheckState(m_config.m_auto_scroll ? Qt::Checked : Qt::Unchecked);
 	}
 
 	void BaseTable::onApplyButton ()
 	{
 		qDebug("%s this=0x%08x", __FUNCTION__, this);
 		Ui::SettingsTable * ui = m_config_ui.ui();
-		// ...
+
+		m_config.m_hide_empty = ui->hideEmptyCheckBox->checkState() == Qt::Checked;
+		m_config.m_auto_scroll = ui->autoScrollCheckBox->checkState() == Qt::Checked;
+
 		applyConfig(m_config);
 	}
 
@@ -158,6 +172,18 @@ namespace table {
 			m_config.m_hsize[idx] = new_size;
 			//setColumnWidth(idx, new_size);
 		}
+	}
+
+	void BaseTable::appendTableXY (int x, int y, QString const & msg)
+	{
+		m_modelView->appendTableXY(x, y, msg);
+		if (m_config.m_auto_scroll)
+			scrollToBottom();
+	}
+
+	void BaseTable::scrollTo (QModelIndex const & index, ScrollHint hint)
+	{
+		QTableView::scrollTo(index, hint);
 	}
 }
 

@@ -41,8 +41,8 @@ namespace table {
 
 		void onShowContextMenu (QPoint const & pos)
 		{
-			qDebug("%s", __FUNCTION__);
 			bool const visible = m_settingstable->isVisible();
+			qDebug("%s visible=%u", __FUNCTION__, visible);
 			m_settingstable->setVisible(!visible);
 
 			if (m_settingstable->isVisible())

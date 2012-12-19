@@ -131,8 +131,8 @@ void Connection::appendTableXY (int x, int y, QString const & msg_tag)
 		dp->m_table->setSelectionMode(QAbstractItemView::SingleSelection);*/
 		///dp->m_table->resizeColumnsToContents();
 		//dp->m_table->resizeRowsToContents();
-		dp->m_table->verticalHeader()->setResizeMode(QHeaderView::ResizeToContents);
-		dp->m_table->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
+		//dp->m_table->verticalHeader()->setResizeMode(QHeaderView::ResizeToContents);
+		//dp->m_table->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
 
 		//dp->m_table->horizontalHeader()->resizeColumnsToContents();
 
@@ -140,7 +140,7 @@ void Connection::appendTableXY (int x, int y, QString const & msg_tag)
 		dp->m_table->verticalHeader()->setDefaultSectionSize(m_main_window->tableRowSize());
 		dp->m_table->verticalHeader()->hide();	// @NOTE: users want that //@NOTE2: they can't have it because of performance
 
-		QObject::connect(dp->widget().horizontalHeader(), SIGNAL(sectionResized(int, int, int)), &dp->widget(), SLOT(onSectionResized(int, int, int)));
+		//QObject::connect(dp->widget().horizontalHeader(), SIGNAL(sectionResized(int, int, int)), &dp->widget(), SLOT(onSectionResized(int, int, int)));
 		dp->m_wd = m_main_window->m_dock_mgr.mkDockWidget(m_main_window, &dp->widget(), table_name);
 		if (m_main_window->tableEnabled())
 		{
@@ -161,8 +161,6 @@ void Connection::appendTableXY (int x, int y, QString const & msg_tag)
 
 	DataTable & dp = **it;
 	dp.widget().appendTableXY(x, y, subtag);
-
-	//compactSparseTable(x, y);
 
 	//dp.m_table->resizeColumnsToContents();
 	//dp.m_table->resizeRowsToContents();

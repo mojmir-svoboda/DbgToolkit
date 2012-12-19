@@ -11,10 +11,11 @@ namespace table {
 		QVector<int> m_hsize;
 		QVector<QString> m_vhdr;
 		QVector<int> m_vsize;
+		int m_sync_group;
 
 		bool m_auto_scroll;
 		bool m_show;
-		bool m_unused_b1;
+		bool m_hide_empty;
 		bool m_unused_b2;
 
 		TableConfig ()
@@ -22,7 +23,7 @@ namespace table {
 			, m_title()
 			, m_auto_scroll(true)
 			, m_show(true)
-			, m_unused_b1(false)
+			, m_hide_empty(false)
 			, m_unused_b2(false)
 		{
 	/*		m_hhdr.reserve(32);
@@ -48,7 +49,7 @@ namespace table {
 			// flags
 			ar & boost::serialization::make_nvp("autoscroll", m_auto_scroll);
 			ar & boost::serialization::make_nvp("show", m_show);
-			ar & boost::serialization::make_nvp("flag1", m_unused_b1);
+			ar & boost::serialization::make_nvp("hide_empty", m_hide_empty);
 			ar & boost::serialization::make_nvp("flag2", m_unused_b2);
 		}
 	};
