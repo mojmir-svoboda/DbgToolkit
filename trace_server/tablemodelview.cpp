@@ -104,7 +104,7 @@ QVariant TableModelView::headerData (int section, Qt::Orientation orientation, i
 
 		if (!m_hhdr[section].isEmpty())
 		{
-			qDebug("hdr[%i] ret name=%s", section, m_hhdr[section].toStdString().c_str());
+			//qDebug("hdr[%i] ret name=%s", section, m_hhdr[section].toStdString().c_str());
 		}
 		return m_hhdr.at(section);
 	}
