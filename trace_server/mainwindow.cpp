@@ -1308,6 +1308,8 @@ void MainWindow::storeState ()
 	//settings.setValue("splitter", ui->splitter->saveState());
 	settings.setValue("autoScrollCheckBox", ui->autoScrollCheckBox->isChecked());
 	settings.setValue("filterFileCheckBox", ui->filterFileCheckBox->isChecked());
+	settings.setValue("tablesCheckBox", ui->tablesCheckBox->isChecked());
+	settings.setValue("plotsCheckBox", ui->plotsCheckBox->isChecked());
 	settings.setValue("buffCheckBox", ui->buffCheckBox->isChecked());
 	settings.setValue("clrFiltersCheckBox", ui_settings->clrFiltersCheckBox->isChecked());
 	//settings.setValue("filterModeComboBox", ui->filterModeComboBox->currentIndex());
@@ -1403,6 +1405,8 @@ void MainWindow::loadState ()
 	ui_settings->cutPathSpinBox->setValue(settings.value("cutPathSpinBox", 1).toInt());
 	ui_settings->cutNamespaceSpinBox->setValue(settings.value("cutNamespaceSpinBox", 1).toInt());
 
+	ui->tablesCheckBox->setChecked(settings.value("tablesCheckBox", false).toBool());
+	ui->plotsCheckBox->setChecked(settings.value("plotsCheckBox", false).toBool());
 	ui->filterFileCheckBox->setChecked(settings.value("filterFileCheckBox", true).toBool());
 	ui->buffCheckBox->setChecked(settings.value("buffCheckBox", true).toBool());
 	ui_settings->clrFiltersCheckBox->setChecked(settings.value("clrFiltersCheckBox", false).toBool());
