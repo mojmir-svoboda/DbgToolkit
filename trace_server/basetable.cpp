@@ -80,7 +80,7 @@ namespace table {
 		{
 			horizontalHeader()->blockSignals(1);
 			horizontalHeader()->resizeSection(i, m_config.m_hsize.at(i));
-			qDebug("table: hdr[%i]=%i", i, m_config.m_hsize.at(i));
+			//qDebug("table: hdr[%i]=%i", i, m_config.m_hsize.at(i));
 			horizontalHeader()->blockSignals(0);
 		}
 
@@ -203,7 +203,7 @@ namespace table {
 					// @FIXME: tmp hack to force resize of columns
 					horizontalHeader()->blockSignals(1);
 					horizontalHeader()->resizeSection(i, m_config.m_hsize.at(i));
-					qDebug("table: rsz hdr[%i]=%i", i, m_config.m_hsize.at(i));
+					//qDebug("table: rsz hdr[%i]=%i", i, m_config.m_hsize.at(i));
 					horizontalHeader()->blockSignals(0);
 				}
 			}
@@ -215,6 +215,7 @@ namespace table {
 		if (!hhdr.isEmpty() && x > -1)
 		{
 			//m_modelView->createColumns(t, x, x, QModelIndex());
+			//qDebug("table: setup hdr: x=%i name=%s", x, hhdr.toStdString().c_str());
 			m_modelView->setHeaderData(x, Qt::Horizontal, hhdr, Qt::EditRole);
 		}
 
@@ -223,6 +224,7 @@ namespace table {
 			m_modelView->createRows(t, y, y, QModelIndex());
 			m_modelView->createColumns(t, x, x, QModelIndex());
 			QModelIndex const & idx = m_modelView->index(y, x, QModelIndex());
+			//qDebug("table: setup col: (%i, %i) (%i, %i) color=%s", x, y, idx.column(), idx.row(), fgc.toStdString().c_str());
 			m_modelView->setData(idx, QColor(fgc), Qt::ForegroundRole);
 		}
 
@@ -231,6 +233,7 @@ namespace table {
 			m_modelView->createRows(t, y, y, QModelIndex());
 			m_modelView->createColumns(t, x, x, QModelIndex());
 			QModelIndex const & idx = m_modelView->index(y, x, QModelIndex());
+			//qDebug("table: setup col: (%i, %i) color=%s", x, y, bgc.toStdString().c_str());
 			m_modelView->setData(idx, QColor(bgc), Qt::BackgroundRole);
 		}
 	}

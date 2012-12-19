@@ -29,8 +29,9 @@
 
 struct Cell
 {
-	Cell () : m_value(), m_fgc(Qt::black), m_bgc(Qt::white) { }
-	Cell (QVariant const & v) : m_value(v), m_fgc(Qt::black), m_bgc(Qt::white) { }
+	Cell () : m_value(), m_fgc(), m_bgc() { }
+	Cell (QVariant const & v) : m_value(v), m_fgc(), m_bgc() { }
+	Cell (QVariant const & v, QVariant const & fgc) : m_value(v), m_fgc(fgc), m_bgc() { }
 	Cell (QVariant const & v, QVariant const & fgc, QVariant const & bgc) : m_value(v), m_fgc(fgc), m_bgc(bgc) { }
 	QVariant m_value;
 	QVariant m_fgc;

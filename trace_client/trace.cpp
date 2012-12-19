@@ -107,7 +107,7 @@
 			if (RuntimeFilterPredicate(level, context))
 				WriteTableSetColor_impl(level, context, x, y, fg, bg, fmt, args);
 		}
-		void WriteTableSetColorVA (level_t level, context_t context, int x, int y, Color fg, Color bg, char const * fmt, ...)
+		void WriteTableSetColor (level_t level, context_t context, int x, int y, Color fg, Color bg, char const * fmt, ...)
 		{
 			va_list args;
 			va_start(args, fmt);

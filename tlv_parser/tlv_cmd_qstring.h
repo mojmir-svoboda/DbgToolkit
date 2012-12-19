@@ -88,7 +88,7 @@ namespace tlv {
 			if (!stream.read(local_buffer, len))
 				return false;
 			tv.m_val = QString::fromAscii(local_buffer, len);
-			//qDebug("DEC: len=%u str.ln=%u strl.val=%s ", len, tv.val.length(), tv.val.c_str());
+			//qDebug("DEC: len=%u str.ln=%u strl.val=%s ", len, tv.m_val.toStdString().length(), tv.m_val.toStdString().c_str());
 			return true;
 		}
 

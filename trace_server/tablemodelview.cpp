@@ -52,13 +52,14 @@ QVariant TableModelView::data (QModelIndex const & index, int role) const
 	}
 	else if (role == Qt::BackgroundRole)
 	{
+		if (c->m_bgc.value<QColor>().isValid())
+			return c->m_bgc;
 		if (c->m_value.toString().isEmpty())
-			return Qt::black;
-		return c->m_bgc;
+			return Qt::gray;
 	}
 	else if (role == Qt::ForegroundRole)
 	{
-		return c->m_fgc;
+		return c->m_fgc.value<QColor>().isValid() ? c->m_fgc : QVariant();
 	}
 	return QVariant();
 }
@@ -100,6 +101,11 @@ QVariant TableModelView::headerData (int section, Qt::Orientation orientation, i
 		{
 			m_hhdr.resize(section + 1);
 		}
+
+		if (!m_hhdr[section].isEmpty())
+		{
+			qDebug("hdr[%i] ret name=%s", section, m_hhdr[section].toStdString().c_str());
+		}
 		return m_hhdr.at(section);
 	}
 	return QVariant();
@@ -116,6 +122,10 @@ bool  TableModelView::setHeaderData (int section, Qt::Orientation orientation, Q
 			m_hhdr.resize(section + 1);
 		}
 		m_hhdr[section] = value.toString();
+		if (!m_hhdr[section].isEmpty())
+		{
+			qDebug("hdr[%i] setting name=%s", section, m_hhdr[section].toStdString().c_str());
+		}
 	}
 	return true;
 }
@@ -142,7 +152,7 @@ void TableModelView::appendTableXY (int x, int y, QString const & time, QString 
 	QStringList const values = cmd.split("|");
 	int const n_cols = values.size();
 
-	//qDebug("append: x=%i y=%i cols=%i val=%s", x, y, n_cols, cmd.toAscii());
+	//qDebug("append: x=%i y=%i cols=%i val=%s", x, y, n_cols, cmd.toStdString().c_str());
 	//
 	bool pxy_rows = false;
 	size_t rows_first = 0;
@@ -168,7 +178,7 @@ void TableModelView::appendTableXY (int x, int y, QString const & time, QString 
 	{
 		if (y >= m_rows.size())
 		{
-			qDebug("+ model: y>rows.sz resize m_rows.sz=%i y=%i", m_rows.size(), y);
+			//qDebug("+ model: y>rows.sz resize m_rows.sz=%i y=%i", m_rows.size(), y);
 			beginInsertRows(QModelIndex(), m_rows.size(), y);
 			size_t const curr_sz = m_rows.size();
 			m_rows.resize(y + 1);
@@ -240,7 +250,7 @@ void TableModelView::createRows (unsigned long long time, int first, int last, Q
 {
 	if (first >= m_rows.size())
 	{
-		qDebug("+ model: y>rows.sz resize m_rows.sz=%i y=%i", m_rows.size(), first);
+		//qDebug("+ model: y>rows.sz resize m_rows.sz=%i y=%i", m_rows.size(), first);
 		beginInsertRows(QModelIndex(), m_rows.size(), first);
 		size_t const curr_sz = m_rows.size();
 		m_rows.resize(last + 1);
@@ -264,9 +274,9 @@ void TableModelView::createColumns (unsigned long long time, int first, int last
 	//qDebug("  m_columnCount < n_cols  %i < %i", m_columnCount, x + n_cols);
 	if (m_columnCount < last)
 	{
-		beginInsertColumns(QModelIndex(), m_columnCount, last - 1);
-		insertColumns(m_columnCount, last - 1);
-		m_columnCount = last;
+		beginInsertColumns(QModelIndex(), m_columnCount, last);
+		insertColumns(m_columnCount, last);
+		m_columnCount = last + 1;
 		endInsertColumns();
 
 		//if (m_proxy)

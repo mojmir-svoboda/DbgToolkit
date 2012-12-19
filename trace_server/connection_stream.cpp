@@ -9,14 +9,12 @@
 #include "dock.h"
 #include <cstdlib>
 
-/*inline void Dump (DecodedCommand const & c)
+inline void Dump (DecodedCommand const & c)
 {
-#ifdef _DEBUG
 	qDebug("command.hdr.cmd = 0x%x command.hdr.len = 0x%x", c.hdr.cmd, c.hdr.len);
 	for (size_t i = 0; i < c.tvs.size(); ++i)
-		qDebug("tlv[%u] t=%02x val=%s", i, c.tvs[i].m_tag, c.tvs[i].m_val.c_str());
-#endif
-}*/
+		qDebug("tlv[%u] t=%02x val=%s", i, c.tvs[i].m_tag, c.tvs[i].m_val.toStdString().c_str());
+}
 
 bool Connection::handleLogCommand (DecodedCommand const & cmd)
 {

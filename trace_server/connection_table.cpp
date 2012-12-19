@@ -114,6 +114,8 @@ bool Connection::handleTableSetupCommand (DecodedCommand const & cmd)
 			bgc = cmd.tvs[i].m_val;
 	}
 
+	//qDebug("table: setup hdr: x=%i y=%i hhdr=%s fg=%s bg=%s", x, y, hhdr.toStdString().c_str(), fgc.toStdString().c_str(), bgc.toStdString().c_str());
+
 	if (m_main_window->tableEnabled())
 		appendTableSetup(x, y, time, fgc, bgc, hhdr, tag);
 	return true;
@@ -141,6 +143,7 @@ datatables_t::iterator Connection::findOrCreateTable (QString const & tag)
 	datatables_t::iterator it = m_datatables.find(tag);
 	if (it == m_datatables.end())
 	{
+		qDebug("table: creating table %s", tag.toStdString().c_str());
 		// new data table
 		table::TableConfig template_config;
 		template_config.m_tag = tag;

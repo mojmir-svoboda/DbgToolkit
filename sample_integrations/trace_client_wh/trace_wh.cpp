@@ -140,7 +140,7 @@ void something_useful_too ()
 
 }
 
-void something_useful ()
+void something_useful ()	
 {
 	TRACE_SCOPE(trace::e_Info, trace::CTX_Default);
 	something_useful_too();
@@ -154,8 +154,10 @@ void TraceVal (int x, int y)
 	static int n = 0;
 	TRACE_TABLE(trace::e_Info, trace::CTX_Default, x, y, "%s0/%i",GetName(), n);
 	TRACE_TABLE(trace::e_Info, trace::CTX_Default, x, y, "%s1/%i",GetName(), n);
-	TRACE_TABLE(trace::e_Info, trace::CTX_Default, x, y, "%s2/Error: %i",GetName(), n);
-	TRACE_TABLE_COLOR(trace::e_Info, trace::CTX_Default, x, y, trace::Color(255,0,255), "%s0", GetName());
+	TRACE_TABLE(trace::e_Info, trace::CTX_Default, x, y, trace::Color(255,0,0,255), "%s2/Error: %i",GetName(), n);
+	TRACE_TABLE_COLOR(trace::e_Info, trace::CTX_Default, x	, y, trace::Color(0,0,255,255), "%s0/", GetName());
+	TRACE_TABLE_COLOR(trace::e_Info, trace::CTX_Default, x	, y, trace::Color(255,0,0,255), "%s2/", GetName());
+	TRACE_TABLE_COLOR(trace::e_Info, trace::CTX_Default, x	, y, trace::Color(0,0,255,255), trace::Color(0,0,0,0), "%s0/", GetName());
 	++n;
 }
 
@@ -228,18 +230,20 @@ int main ()
 
 
 	//TRACE_MSG(trace::e_Info, trace::CTX_Default,	"first message"); // not sure if this is a valid case!
-	TRACE_MSG(trace::e_Info, trace::CTX_Default,	"this is %s", "first message");
+	/*TRACE_MSG(trace::e_Info, trace::CTX_Default,	"this is %s", "first message");
 	TRACE_MSG(trace::e_Info, trace::CTX_Default,  "args: %s and %s", "first arg", "second arg");
 	TRACE_MSG(trace::e_Fatal, trace::CTX_Default,  "First fatal error, errno=%08x", 0xDEAFDAD);
 	TRACE_MSG(trace::e_Error, trace::CTX_Default,  "First error, errno=%08x", 0xBADBEEF);
 	TRACE_MSG(trace::e_Warning, trace::CTX_Default,  "First warning, errno=%x", 0xFEEDDEAD);
 	TRACE_MSG(trace::e_Detail, trace::CTX_Default,	"%s%s", "This message should not appear", ".");
 	TRACE_MSG(trace::e_Info, trace::CTX_Default,  "%s", "This message should appear.");
-	TRACE_MSG(trace::e_Info, trace::CTX_Default,  "%s", "This message should partially appear too, but it's much longer in time and space so that it's very annoying and everyone will hate it as i do hate it now during typing as approaching to some 256 bytes boundary on which this message will be clipped and therefore it does not make any sense at all as all it does do is to show you in a rather graphomaniac light like Robert Smith or this Rowling bitch");
+	TRACE_MSG(trace::e_Info, trace::CTX_Default,  "%s", "This message should partially appear too, but it's much longer in time and space so that it's very annoying and everyone will hate it as i do hate it now during typing as approaching to some 256 bytes boundary on which this message will be clipped and therefore it does not make any sense at all as all it does do is to show you in a rather graphomaniac light like Robert Smith or this Rowling bitch");*/
 	my_custom_vaarg_fn("using va_arg macro %s and %s", "with some argument", "another one");
 
-	TRACE_TABLE_HHEADER(trace::e_Info, trace::CTX_Default, 1, "hdr1", "%s0","aa");
-	TRACE_TABLE_HHEADER(trace::e_Info, trace::CTX_Default, 2, "hdr2", "%s0","aa");
+	TRACE_TABLE_HHEADER(trace::e_Info, trace::CTX_Default, 1, "hdr1", "%s0/","aa");
+	TRACE_TABLE_HHEADER(trace::e_Info, trace::CTX_Default, 2, "hdr2", "%s0/","aa");
+	TRACE_TABLE_HHEADER(trace::e_Info, trace::CTX_Default, 3, "hdr3", "%s1/","aa");
+	TRACE_TABLE_HHEADER(trace::e_Info, trace::CTX_Default, 4, "hdr4", "%s2/","aa");
 	foo();	
 	Bar bar;
 

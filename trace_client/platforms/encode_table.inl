@@ -51,8 +51,9 @@ namespace trace {
 		e.Encode(TLV(tag_time, sys::trc_vsnprintf(tlv_buff, tlv_buff_sz, "%llu", sys::queryTime_ms()), tlv_buff));
 		e.Encode(TLV(tag_lvl,  sys::trc_vsnprintf(tlv_buff, tlv_buff_sz,   "%u", level), tlv_buff));
 		e.Encode(TLV(tag_ctx,  sys::trc_vsnprintf(tlv_buff, tlv_buff_sz,   "%x", context), tlv_buff));
+		e.Encode(TLV(tag_x,    sys::trc_vsnprintf(tlv_buff, tlv_buff_sz,   "%i", x), tlv_buff));
 		encode_str(e, tag_hhdr, name);
-		encode_va_fields(e, tag_hhdr, fmt, args);
+		encode_va_fields(e, tag_msg, fmt, args);
 		if (e.Commit())
 		{
 			msg.m_length = e.total_len;
@@ -96,8 +97,5 @@ namespace trace {
 			msg.m_length = e.total_len;
 		}
 	}
-
-
-
 }
 

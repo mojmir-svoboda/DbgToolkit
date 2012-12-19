@@ -102,7 +102,7 @@ bool SparseProxyModel::insertRows (int first, int last, QModelIndex const & pare
 
 	if (filterAcceptsRow(src_idx, QModelIndex()))
 	{
-		qDebug("+ pxy  |  first=%i last=%i", first, last);
+		//qDebug("+ pxy  |  first=%i last=%i", first, last);
 		beginInsertRows(QModelIndex(), first, last);
 		//emit layoutAboutToBeChanged();
 
