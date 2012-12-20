@@ -144,13 +144,16 @@ void Connection::appendTableXY (int x, int y, QString const & time, QString cons
 			if (template_config.m_show)
 			{
 				dp->onShow();
-				m_main_window->restoreDockWidget(dp->m_wd);
 			}
 		}
 		else
 		{
 			dp->onHide();
 		}
+
+		dp->onHide();
+		m_main_window->restoreDockWidget(dp->m_wd);
+		dp->onShow();
 	}
 
 	DataTable & dp = **it;

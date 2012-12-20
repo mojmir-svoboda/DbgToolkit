@@ -70,6 +70,7 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QStri
 	, m_plot_tree_view(0)
 	, m_log_name(log_name)
 {
+	qDebug("%s", __FUNCTION__);
 	//QDir::setSearchPaths("icons", QStringList(QDir::currentPath()));
 	ui->setupUi(this);
 	ui->tabTrace->setTabsClosable(true);
@@ -239,6 +240,7 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QStri
 
 MainWindow::~MainWindow()
 {
+	qDebug("%s", __FUNCTION__);
 #ifdef WIN32
 	UnregisterHotKey(winId(), 0);
 #endif
@@ -253,24 +255,28 @@ MainWindow::~MainWindow()
 
 void MainWindow::hide ()
 {
+	qDebug("%s", __FUNCTION__);
 	m_config.m_hidden = true;
 	QMainWindow::hide();
 }
 
 void MainWindow::showNormal ()
 {
+	qDebug("%s", __FUNCTION__);
 	m_config.m_hidden = false;
 	QMainWindow::showNormal();
 }
 
 void MainWindow::showMaximized ()
 {
+	qDebug("%s", __FUNCTION__);
 	m_config.m_hidden = false;
 	QMainWindow::showMaximized();
 }
 
 void MainWindow::createActions ()
 {
+	qDebug("%s", __FUNCTION__);
 	m_minimize_action = new QAction(tr("Mi&nimize"), this);
 	connect(m_minimize_action, SIGNAL(triggered()), this, SLOT(hide()));
 
@@ -286,6 +292,7 @@ void MainWindow::createActions ()
 
 void MainWindow::createTrayIcon ()
 {
+	qDebug("%s", __FUNCTION__);
 	m_tray_menu = new QMenu(this);
 	m_tray_menu->addAction(m_minimize_action);
 	m_tray_menu->addAction(m_maximize_action);
@@ -789,11 +796,13 @@ void MainWindow::onShowHelp ()
 
 void MainWindow::onPresetActivate (QString const & pname)
 {
+	qDebug("%s", __FUNCTION__);
 	onPresetActivate(ui->presetComboBox->findText(pname));
 }
 
 void MainWindow::onPresetActivate (Connection * conn, QString const & pname)
 {
+	qDebug("%s", __FUNCTION__);
 	if (!conn) return;
 
 	SessionState dummy;
@@ -826,6 +835,7 @@ void MainWindow::onPresetActivate (Connection * conn, QString const & pname)
 
 void MainWindow::onPresetActivate (int idx)
 {
+	qDebug("%s", __FUNCTION__);
 	if (idx == -1) return;
 	if (Connection * conn = m_server->findCurrentConnection())
 	{
@@ -972,6 +982,7 @@ void MainWindow::onSaveCurrentFileFilter ()
 
 void MainWindow::onSaveCurrentFileFilterTo (QString const & preset_name)
 {
+	qDebug("%s", __FUNCTION__);
 	if (!getTabTrace()->currentWidget()) return;
 	Connection * conn = m_server->findCurrentConnection();
 	if (!conn) return;
@@ -1000,6 +1011,7 @@ void MainWindow::setPresetNameIntoComboBox (QString const & pname)
 
 void MainWindow::onAddCurrentFileFilter ()
 {
+	qDebug("%s", __FUNCTION__);
 	if (!getTabTrace()->currentWidget()) return;
 	Connection * conn = m_server->findCurrentConnection();
 	if (!conn) return;
@@ -1018,6 +1030,7 @@ void MainWindow::onAddCurrentFileFilter ()
 
 void MainWindow::onRmCurrentFileFilter ()
 {
+	qDebug("%s", __FUNCTION__);
 	QString const preset_name = ui->presetComboBox->currentText();
 	int idx = findPresetName(preset_name);
 	if (idx == -1)
@@ -1049,6 +1062,7 @@ void MainWindow::onRmCurrentFileFilter ()
 
 void MainWindow::storeGeometry ()
 {
+	qDebug("%s", __FUNCTION__);
 	QSettings settings("MojoMir", "TraceServer");
 	settings.setValue("MainWindow/State", saveState());
 	settings.setValue("MainWindow/Geometry", saveGeometry());
@@ -1057,6 +1071,7 @@ void MainWindow::storeGeometry ()
 
 void MainWindow::onSaveAllButton ()
 {
+	qDebug("%s", __FUNCTION__);
 	storeGeometry();
 
 	if (Connection * conn = m_server->findCurrentConnection())
@@ -1067,6 +1082,7 @@ void MainWindow::onSaveAllButton ()
 
 void MainWindow::onDockRestoreButton ()
 {
+	qDebug("%s", __FUNCTION__);
 	QSettings settings("MojoMir", "TraceServer");
 	restoreState(settings.value("MainWindow/State").toByteArray());
 	restoreGeometry(settings.value("MainWindow/Geometry").toByteArray());
@@ -1074,6 +1090,7 @@ void MainWindow::onDockRestoreButton ()
 
 void MainWindow::storePresetNames ()
 {
+	qDebug("%s", __FUNCTION__);
 	QSettings settings("MojoMir", "TraceServer");
 	write_list_of_strings(settings, "known-presets", "preset", m_config.m_preset_names);
 }
@@ -1085,6 +1102,7 @@ void MainWindow::onGotoRegexFilter () { ui->tabFilters->setCurrentIndex(4); }
 
 void MainWindow::setupMenuBar ()
 {
+	qDebug("%s", __FUNCTION__);
 	// File
 	QMenu * fileMenu = menuBar()->addMenu(tr("&File"));
 	fileMenu->addAction(tr("File &Load..."), this, SLOT(onFileLoad()), QKeySequence(Qt::ControlModifier + Qt::Key_O));
@@ -1148,6 +1166,7 @@ void MainWindow::setupMenuBar ()
 
 void MainWindow::saveSession (SessionState const & s, QString const & preset_name) const
 {
+	qDebug("%s", __FUNCTION__);
 	QString fname = getPresetFileName(m_config.m_appdir, preset_name);
 	qDebug("store file=%s", fname.toStdString().c_str());
 	saveSessionState(s, fname.toAscii());
@@ -1155,7 +1174,7 @@ void MainWindow::saveSession (SessionState const & s, QString const & preset_nam
 
 void MainWindow::storePresets ()
 {
-	qDebug("storePresets()");
+	qDebug("%s", __FUNCTION__);
 	if (!getTabTrace()->currentWidget()) return;
 	Connection * conn = m_server->findCurrentConnection();
 	if (!conn) return;
@@ -1181,6 +1200,7 @@ void MainWindow::saveCurrentSession (QString const & preset_name)
 
 bool MainWindow::loadSession (SessionState & s, QString const & preset_name)
 {
+	qDebug("%s", __FUNCTION__);
 	QString fname = getPresetFileName(m_config.m_appdir, preset_name);
 	qDebug("load file=%s", fname.toStdString().c_str());
 	s.m_file_filters.clear();
@@ -1189,6 +1209,7 @@ bool MainWindow::loadSession (SessionState & s, QString const & preset_name)
 
 void MainWindow::loadPresets ()
 {
+	qDebug("%s", __FUNCTION__);
 	m_config.m_preset_names.clear();
 
 	QSettings settings("MojoMir", "TraceServer");
@@ -1296,6 +1317,7 @@ void MainWindow::loadPresets ()
 
 void MainWindow::storeState ()
 {
+	qDebug("%s", __FUNCTION__);
 	QSettings settings("MojoMir", "TraceServer");
 
 	settings.setValue("trace_addr", m_config.m_trace_addr);
@@ -1375,6 +1397,7 @@ void MainWindow::storeState ()
 
 void MainWindow::loadState ()
 {
+	qDebug("%s", __FUNCTION__);
 	m_config.m_app_names.clear();
 	m_config.m_columns_setup.clear();
 	m_config.m_columns_sizes.clear();

@@ -532,6 +532,7 @@ void Connection::onShowContextMenu (QPoint const & pos)
 
 void Connection::onSaveAll ()
 {
+	qDebug("%s", __FUNCTION__);
 	// @TODO: v hhdr bude 0 !
 	for (dataplots_t::iterator it = m_dataplots.begin(), ite = m_dataplots.end(); it != ite; ++it)
 	{

@@ -47,6 +47,7 @@ namespace table {
 			ar & boost::serialization::make_nvp("hsz", m_hsize);
 			ar & boost::serialization::make_nvp("vhdr", m_vhdr);
 			ar & boost::serialization::make_nvp("vsz", m_vsize);
+			ar & boost::serialization::make_nvp("sync_group", m_sync_group);
 			// flags
 			ar & boost::serialization::make_nvp("autoscroll", m_auto_scroll);
 			ar & boost::serialization::make_nvp("show", m_show);

@@ -25,15 +25,16 @@ namespace table {
 		//setHorizontalHeader(new EditableHeaderView(Qt::Horizontal, this));
 
 		m_modelView = new TableModelView(this, m_config.m_hhdr, m_config.m_hsize);
-		setModel(m_modelView);
+		//setModel(m_modelView);
 		// TMP!
 		//setEditTriggers(QAbstractItemView::NoEditTriggers);
 		//setSelectionBehavior(QAbstractItemView::SelectRows);
 		//setSelectionMode(QAbstractItemView::SingleSelection);
 		//verticalHeader()->setResizeMode(QHeaderView::ResizeToContents);
-		horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
+		//horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
 
-		verticalHeader()->setDefaultSectionSize(8);
+		verticalHeader()->setDefaultSectionSize(16);
+		horizontalHeader()->setDefaultSectionSize(32);
 		horizontalHeader()->setResizeMode(QHeaderView::Interactive);
 		verticalHeader()->setResizeMode(QHeaderView::Interactive);
 
@@ -71,35 +72,29 @@ namespace table {
 	{
 		qDebug("%s this=0x%08x", __FUNCTION__, this);
 
-		killTimer(m_timer);
-		m_timer = startTimer(1000);
-		m_config.m_hsize.resize(model()->columnCount());
-		for (int i = 0, ie = model()->columnCount(); i < ie; ++i)
+		//killTimer(m_timer);
+		//m_timer = startTimer(1000);
+		setModel(m_modelView);
+		qDebug("table: m_hsize.sz=%i model.sz=%i", m_config.m_hsize.size(), model()->columnCount());
+		for (int i = 0, ie = m_config.m_hsize.size(); i < ie; ++i)
 		{
-			int sz = 32;
-			if (i < m_config.m_hsize.size())
-			{
-				sz = m_config.m_hsize.at(i);
-			}
-			else
-			{
-				m_config.m_hsize.resize(i + 1);
-				m_config.m_hsize[i] = sz;
-			}
-
 			horizontalHeader()->blockSignals(1);
-			horizontalHeader()->resizeSection(i, sz);
+			horizontalHeader()->resizeSection(i, m_config.m_hsize.at(i));
+			qDebug("table: hdr[%i]=%i", i, m_config.m_hsize.at(i));
 			horizontalHeader()->blockSignals(0);
 		}
 
 		if (m_config.m_hide_empty)
 		{
-			setModel(m_table_view_proxy);
-			m_modelView->setProxy(m_table_view_proxy);
+			qDebug("table: +++ proxy");
+			//onInvalidateFilter();
 			static_cast<SparseProxyModel *>(m_table_view_proxy)->force_update();
+			m_modelView->setProxy(m_table_view_proxy);
+			setModel(m_table_view_proxy);
 		}
 		else
 		{
+			qDebug("table: --- proxy");
 			setModel(m_modelView);
 			m_modelView->setProxy(0);
 		}
@@ -147,6 +142,7 @@ namespace table {
 		
 		ui->hideEmptyCheckBox->setCheckState(m_config.m_hide_empty ? Qt::Checked : Qt::Unchecked);
 		ui->autoScrollCheckBox->setCheckState(m_config.m_auto_scroll ? Qt::Checked : Qt::Unchecked);
+		ui->syncGroupSpinBox->setValue(m_config.m_sync_group);
 	}
 
 	void BaseTable::onApplyButton ()
@@ -156,11 +152,24 @@ namespace table {
 
 		m_config.m_hide_empty = ui->hideEmptyCheckBox->checkState() == Qt::Checked;
 		m_config.m_auto_scroll = ui->autoScrollCheckBox->checkState() == Qt::Checked;
+		m_config.m_sync_group = ui->syncGroupSpinBox->value();
 
 		applyConfig(m_config);
 	}
 
-	void BaseTable::onSaveButton () { saveConfig(m_config, m_fname); }
+	void BaseTable::onSaveButton ()
+	{
+		qDebug("%s this=0x%08x", __FUNCTION__, this);
+
+		m_config.m_hsize.clear();
+		m_config.m_hsize.resize(m_modelView->columnCount());
+		qDebug("table: m_hsize.sz=%i model.sz=%i", m_config.m_hsize.size(), m_modelView->columnCount());
+		for (int i = 0, ie = m_modelView->columnCount(); i < ie; ++i)
+		{
+			m_config.m_hsize[i] = horizontalHeader()->sectionSize(i);
+		}
+		saveConfig(m_config, m_fname);
+	}
 	void BaseTable::onResetButton () { setConfigValues(m_config); }
 	void BaseTable::onDefaultButton ()
 	{
@@ -175,6 +184,7 @@ namespace table {
 		{
 			m_config.m_hsize.resize(idx + 1);
 			m_config.m_hsize[idx] = new_size;
+			qDebug("%s this=0x%08x hsize[%i]=%i", __FUNCTION__, this, idx, new_size);
 			//setColumnWidth(idx, new_size);
 		}
 	}
@@ -184,6 +194,8 @@ namespace table {
 		m_modelView->appendTableXY(x, y, time, msg);
 		if (m_config.m_auto_scroll)
 			scrollToBottom();
+		if (m_modelView->columnCount() < m_config.m_hsize.size())
+			applyConfig(m_config);	// @FIXME: tmp hack to force resize of columns
 	}
 
 	void BaseTable::scrollTo (QModelIndex const & index, ScrollHint hint)
@@ -210,22 +222,30 @@ namespace table {
 
 	void BaseTable::onTableDoubleClicked (QModelIndex const & row_index)
 	{
+		qDebug("%s this=0x%08x", __FUNCTION__, this);
+		if (m_config.m_sync_group == 0)
+			return;	// do not sync groups with zero
+
 		if (isModelProxy())
 		{
 			QModelIndex const curr = m_table_view_proxy->mapToSource(row_index);
 			unsigned long long const time = m_modelView->row_time(curr.row());
+
+			qDebug("table: dblClick (pxy) curr=(%i, %i)  time=%llu", curr.row(), curr.column(), time);
 			m_connection->requestTableSynchronization(m_config.m_sync_group, time);
 		}
 		else
 		{
 			QModelIndex const curr = row_index;
 			unsigned long long const time = m_modelView->row_time(curr.row());
+			qDebug("table: dblClick curr=(%i, %i)  time=%llu", curr.row(), curr.column(), time);
 			m_connection->requestTableSynchronization(m_config.m_sync_group, time);
 		}
 	}
 
 	void BaseTable::findNearestTimeRow (unsigned long long t)
 	{
+		qDebug("%s this=0x%08x", __FUNCTION__, this);
 		size_t closest_i = 0;
 		int closest_dist = 1024 * 1024;
 		for (size_t i = 0; i < m_modelView->rowCount(); ++i)
@@ -239,7 +259,10 @@ namespace table {
 			}
 		}
 
-		QModelIndex const idx = m_modelView->index(closest_i, 0, QModelIndex());
+
+		QModelIndex const curr = currentIndex();
+		QModelIndex const idx = model()->index(closest_i, curr.column(), QModelIndex());
+		qDebug("table: findNearestTime curr=(%i, %i)  new=(%i, %i)", curr.row(), curr.column(), idx.row(), idx.column());
 		scrollTo(idx, QAbstractItemView::PositionAtCenter);
 	}
 

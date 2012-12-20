@@ -27,8 +27,8 @@ DockWidget * DockManager::mkDockWidget (QMainWindow * const window, QWidget * co
 DockWidget * DockManager::mkDockWidget (QMainWindow * const window, QWidget * const docked_widget, QString const & name, Qt::DockWidgetArea area)
 {
 	DockWidget * const dock = new DockWidget(*this, name, window);
-	dock->setAllowedAreas(Qt::AllDockWidgetAreas);
 	dock->setObjectName(name);
+	dock->setAllowedAreas(Qt::AllDockWidgetAreas);
 	dock->setWidget(docked_widget);
 	window->addDockWidget(area, dock);
 	m_widgets.insert(name, dock);
