@@ -1,8 +1,4 @@
 #include "sparseproxy.h"
-#include <QMessageBox>
-#include <QHeaderView>
-#include <QStandardItemModel>
-#include <QListView>
 #include "connection.h"
 #include "mainwindow.h"
 
@@ -99,15 +95,15 @@ QModelIndex SparseProxyModel::mapFromSource (QModelIndex const & sourceIndex) co
 	return QModelIndex();
 }
 
-bool SparseProxyModel::insertRows (int row, int count, QModelIndex const &parent)
+bool SparseProxyModel::insertRows (int first, int last, QModelIndex const & parent)
 {
 	int const src_idx = m_map_from_src.size();
 	m_map_from_src.push_back(-1);
 
 	if (filterAcceptsRow(src_idx, QModelIndex()))
 	{
-		qDebug("+ pxy  |  first=%i last=%i", row, count);
-		beginInsertRows(QModelIndex(), row, count);
+		qDebug("+ pxy  |  first=%i last=%i", first, last);
+		beginInsertRows(QModelIndex(), first, last);
 		//emit layoutAboutToBeChanged();
 
 		int const tgt_idx = m_map_from_tgt.size();
@@ -121,7 +117,7 @@ bool SparseProxyModel::insertRows (int row, int count, QModelIndex const &parent
 	return true;
 }
 
-bool SparseProxyModel::insertColumns (int column, int count, QModelIndex const & parent)
+bool SparseProxyModel::insertColumns (int first, int last, QModelIndex const & parent)
 {
 	int const src_idx = m_cmap_from_src.size();
 	m_cmap_from_src.push_back(-1);

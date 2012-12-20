@@ -26,6 +26,7 @@ namespace table {
 		TableConfig const & getConfig () const { return m_config; }
 
 		void appendTableXY (int x, int y, QString const & time, QString const & msg);
+		void appendTableSetup (int x, int y, QString const & time, QString const & fgc, QString const & bgc, QString const & hhdr, QString const & tag);
 
 		bool isModelProxy () const;
 		void onInvalidateFilter ();

@@ -20,11 +20,8 @@
  * SOFTWARE.
  **/
 #pragma once
-#include <QString>
 #include <QAbstractProxyModel>
-#include <QRegExp>
 #include <vector>
-//#include "sessionstate.h"
 
 class MainWindow;
 
@@ -44,8 +41,8 @@ public:
 	virtual QModelIndex mapToSource (QModelIndex const & proxyIndex) const;
 	virtual QModelIndex mapFromSource (QModelIndex const & sourceIndex) const;
 
-	virtual bool insertRows (int row, int count, QModelIndex const &);
-	virtual bool insertColumns (int column, int count, QModelIndex const & parent = QModelIndex());
+	virtual bool insertRows (int first, int last, QModelIndex const &);
+	virtual bool insertColumns (int first, int last, QModelIndex const & parent = QModelIndex());
 	QVariant data (QModelIndex const & index, int role) const;
 	Qt::ItemFlags flags (QModelIndex const & index) const;
 

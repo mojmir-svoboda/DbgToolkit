@@ -88,6 +88,38 @@ bool Connection::handleTableXYCommand (DecodedCommand const & cmd)
 	return true;
 }
 
+bool Connection::handleTableSetupCommand (DecodedCommand const & cmd)
+{
+	QString tag;
+	QString time;
+	int x = 0;
+	int y = 0;
+	QString fgc, bgc;
+	QString hhdr;
+	for (size_t i=0, ie=cmd.tvs.size(); i < ie; ++i)
+	{
+		if (cmd.tvs[i].m_tag == tlv::tag_msg)
+			tag = cmd.tvs[i].m_val;
+		else if (cmd.tvs[i].m_tag == tlv::tag_x)
+			x = cmd.tvs[i].m_val.toInt();
+		else if (cmd.tvs[i].m_tag == tlv::tag_y)
+			y = cmd.tvs[i].m_val.toInt();
+		else if (cmd.tvs[i].m_tag == tlv::tag_time)
+			time = cmd.tvs[i].m_val;
+		else if (cmd.tvs[i].m_tag == tlv::tag_hhdr)
+			hhdr = cmd.tvs[i].m_val;
+		else if (cmd.tvs[i].m_tag == tlv::tag_fgc)
+			fgc = cmd.tvs[i].m_val;
+		else if (cmd.tvs[i].m_tag == tlv::tag_bgc)
+			bgc = cmd.tvs[i].m_val;
+	}
+
+	if (m_main_window->tableEnabled())
+		appendTableSetup(x, y, time, fgc, bgc, hhdr, tag);
+	return true;
+}
+
+
 bool Connection::loadConfigForTable (table::TableConfig & config, QString const & tag)
 {
 	QString const fname = getDataTagFileName(getConfig().m_appdir, sessionState().m_name, "table", tag);
@@ -102,14 +134,8 @@ bool Connection::saveConfigForTable (table::TableConfig const & config, QString 
 	return saveConfig(config, fname);
 }
 
-void Connection::appendTableXY (int x, int y, QString const & time, QString const & msg_tag)
+datatables_t::iterator Connection::findOrCreateTable (QString const & tag)
 {
-	QString tag = msg_tag;
-	int const slash_pos = tag.lastIndexOf(QChar('/'));
-	tag.chop(msg_tag.size() - slash_pos);
-
-	QString subtag = msg_tag;
-	subtag.remove(0, slash_pos + 1);
 	QString const table_name = sessionState().m_name + "/table/" + tag;
 
 	datatables_t::iterator it = m_datatables.find(tag);
@@ -155,11 +181,40 @@ void Connection::appendTableXY (int x, int y, QString const & time, QString cons
 		m_main_window->restoreDockWidget(dp->m_wd);
 		dp->onShow();
 	}
+	return it;
+}
+
+void Connection::appendTableXY (int x, int y, QString const & time, QString const & msg_tag)
+{
+	QString tag = msg_tag;
+	int const slash_pos = tag.lastIndexOf(QChar('/'));
+	tag.chop(msg_tag.size() - slash_pos);
+
+	QString subtag = msg_tag;
+	subtag.remove(0, slash_pos + 1);
+
+	datatables_t::iterator it = findOrCreateTable(tag);
 
 	DataTable & dp = **it;
 	dp.widget().appendTableXY(x, y, time, subtag);
 }
 
+
+void Connection::appendTableSetup (int x, int y, QString const & time, QString const & fgc, QString const & bgc, QString const & hhdr, QString const & msg_tag)
+{
+	QString tag = msg_tag;
+	int const slash_pos = tag.lastIndexOf(QChar('/'));
+	tag.chop(msg_tag.size() - slash_pos);
+
+	QString subtag = msg_tag;
+	subtag.remove(0, slash_pos + 1);
+
+	datatables_t::iterator it = findOrCreateTable(tag);
+
+	DataTable & dp = **it;
+	dp.widget().appendTableSetup(x, y, time, fgc, bgc, hhdr, subtag);
+
+}
 
 void Connection::requestTableSynchronization (int sync_group, unsigned long long time)
 {

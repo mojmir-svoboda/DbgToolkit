@@ -192,6 +192,7 @@ namespace table {
 	void BaseTable::appendTableXY (int x, int y, QString const & time, QString const & msg)
 	{
 		m_modelView->appendTableXY(x, y, time, msg);
+
 		if (m_config.m_auto_scroll)
 			scrollToBottom();
 		if (m_modelView->columnCount() < m_config.m_hsize.size())
@@ -206,7 +207,32 @@ namespace table {
 					horizontalHeader()->blockSignals(0);
 				}
 			}
+	}
 
+	void BaseTable::appendTableSetup (int x, int y, QString const & time, QString const & fgc, QString const & bgc, QString const & hhdr, QString const & tag)
+	{
+		unsigned long long t = time.toULongLong();
+		if (!hhdr.isEmpty() && x > -1)
+		{
+			//m_modelView->createColumns(t, x, x, QModelIndex());
+			m_modelView->setHeaderData(x, Qt::Horizontal, hhdr, Qt::EditRole);
+		}
+
+		if (!fgc.isEmpty() && x >= 0 && y >= 0)
+		{
+			m_modelView->createRows(t, y, y, QModelIndex());
+			m_modelView->createColumns(t, x, x, QModelIndex());
+			QModelIndex const & idx = m_modelView->index(y, x, QModelIndex());
+			m_modelView->setData(idx, QColor(fgc), Qt::ForegroundRole);
+		}
+
+		if (!bgc.isEmpty() && x >= 0 && y >= 0)
+		{
+			m_modelView->createRows(t, y, y, QModelIndex());
+			m_modelView->createColumns(t, x, x, QModelIndex());
+			QModelIndex const & idx = m_modelView->index(y, x, QModelIndex());
+			m_modelView->setData(idx, QColor(bgc), Qt::BackgroundRole);
+		}
 	}
 
 	void BaseTable::scrollTo (QModelIndex const & index, ScrollHint hint)

@@ -23,8 +23,19 @@
 #include <QAbstractTableModel>
 #include <QAbstractProxyModel>
 #include <QString>
+#include <QColor>
 #include <vector>
 #include <tlv_parser/tlv_parser.h>
+
+struct Cell
+{
+	Cell () : m_value(), m_fgc(Qt::black), m_bgc(Qt::white) { }
+	Cell (QVariant const & v) : m_value(v), m_fgc(Qt::black), m_bgc(Qt::white) { }
+	Cell (QVariant const & v, QVariant const & fgc, QVariant const & bgc) : m_value(v), m_fgc(fgc), m_bgc(bgc) { }
+	QVariant m_value;
+	QVariant m_fgc;
+	QVariant m_bgc;
+};
 
 class TableModelView : public QAbstractTableModel
 {
@@ -43,7 +54,12 @@ public:
 
 	void transactionStart (size_t n);
 	void appendTableXY (int x, int y, QString const &, QString const & msg_tag);
+	void appendTableSetup (int x, int y, QString const & time, QString const & fgc, QString const & bgc, QString const & hhdr, QString const & tag);
 	void transactionCommit ();
+
+	void createCell (unsigned long long time, int x, int y);
+	void createRows (unsigned long long time, int first, int last, QModelIndex const &);
+	void createColumns (unsigned long long time, int first, int last, QModelIndex const & parent = QModelIndex());
 
 	void emitLayoutChanged ();
 
@@ -54,7 +70,7 @@ public:
 	int col_time (int const col) const { return m_col_times[col]; }
 
 private:
-	typedef std::vector<QString> columns_t;
+	typedef std::vector<Cell> columns_t;
 	typedef std::vector<columns_t> rows_t;
 
 	typedef std::vector<unsigned long long> times_t;
