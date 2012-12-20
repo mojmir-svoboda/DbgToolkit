@@ -128,6 +128,10 @@ void TableModelView::appendTableXY (int x, int y, QString const & time, QString 
 	int const n_cols = values.size();
 
 	//qDebug("append: x=%i y=%i cols=%i val=%s", x, y, n_cols, cmd.toAscii());
+	//
+	bool pxy_rows = false;
+	size_t rows_first = 0;
+	size_t rows_last = 0;
 
 	if (y < 0)
 	{
@@ -149,7 +153,7 @@ void TableModelView::appendTableXY (int x, int y, QString const & time, QString 
 	{
 		if (y >= m_rows.size())
 		{
-			//qDebug("  append: y>rows.sz resize %i -> %i", y, y);
+			qDebug("+ model: y>rows.sz resize m_rows.sz=%i y=%i", m_rows.size(), y);
 			beginInsertRows(QModelIndex(), m_rows.size(), y);
 			size_t const curr_sz = m_rows.size();
 			m_rows.resize(y + 1);
@@ -158,8 +162,9 @@ void TableModelView::appendTableXY (int x, int y, QString const & time, QString 
 				m_row_times[r] = t + r * 10;
 			transactionCommit();
 
-			if (m_proxy)
-				m_proxy->insertRows(m_rows.size(), y);
+			pxy_rows = true;
+			rows_first = curr_sz;
+			rows_last = y;
 		}
 
 		if (x < 0)
@@ -207,5 +212,8 @@ void TableModelView::appendTableXY (int x, int y, QString const & time, QString 
 		setData(idx, s, Qt::EditRole);
 		m_col_times[ix] = t;
 	}
+
+	if (m_proxy && pxy_rows)
+		m_proxy->insertRows(rows_first, rows_last);
 }
 

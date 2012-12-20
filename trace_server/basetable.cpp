@@ -195,7 +195,18 @@ namespace table {
 		if (m_config.m_auto_scroll)
 			scrollToBottom();
 		if (m_modelView->columnCount() < m_config.m_hsize.size())
-			applyConfig(m_config);	// @FIXME: tmp hack to force resize of columns
+			for (int i = 0, ie = m_config.m_hsize.size(); i < ie; ++i)
+			{
+				if (m_config.m_hsize[i] != horizontalHeader()->sectionSize(i))
+				{
+					// @FIXME: tmp hack to force resize of columns
+					horizontalHeader()->blockSignals(1);
+					horizontalHeader()->resizeSection(i, m_config.m_hsize.at(i));
+					qDebug("table: rsz hdr[%i]=%i", i, m_config.m_hsize.at(i));
+					horizontalHeader()->blockSignals(0);
+				}
+			}
+
 	}
 
 	void BaseTable::scrollTo (QModelIndex const & index, ScrollHint hint)

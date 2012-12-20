@@ -94,7 +94,7 @@ QModelIndex SparseProxyModel::mapFromSource (QModelIndex const & sourceIndex) co
 			&& sourceIndex.column() < static_cast<int>(m_cmap_from_src.size()))
 	{
 		//qDebug("FPM: %s src.row=%i, src.sz=%u", __FUNCTION__, sourceIndex.row(), m_map_from_src.size());
-		return QAbstractItemModel::createIndex(m_cmap_from_src[sourceIndex.row()], m_cmap_from_src[sourceIndex.column()], 0);
+		return QAbstractItemModel::createIndex(m_map_from_src[sourceIndex.row()], m_cmap_from_src[sourceIndex.column()], 0);
 	}
 	return QModelIndex();
 }
@@ -106,14 +106,17 @@ bool SparseProxyModel::insertRows (int row, int count, QModelIndex const &parent
 
 	if (filterAcceptsRow(src_idx, QModelIndex()))
 	{
-		emit layoutAboutToBeChanged();
+		qDebug("+ pxy  |  first=%i last=%i", row, count);
+		beginInsertRows(QModelIndex(), row, count);
+		//emit layoutAboutToBeChanged();
 
 		int const tgt_idx = m_map_from_tgt.size();
 
 		m_map_from_tgt.push_back(src_idx);
 		m_map_from_src[src_idx] = tgt_idx;
 		
-		emit layoutChanged();
+		endInsertRows();
+		//emit layoutChanged();
 	}
 	return true;
 }
