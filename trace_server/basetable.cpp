@@ -259,11 +259,21 @@ namespace table {
 			}
 		}
 
+		qDebug("table: nearest index= %i/%i", closest_i, m_modelView->rowCount());
 
 		QModelIndex const curr = currentIndex();
-		QModelIndex const idx = model()->index(closest_i, curr.column(), QModelIndex());
+		QModelIndex const idx = m_modelView->index(closest_i, curr.column() < 0 ? 0 : curr.column(), QModelIndex());
 		qDebug("table: findNearestTime curr=(%i, %i)  new=(%i, %i)", curr.row(), curr.column(), idx.row(), idx.column());
-		scrollTo(idx, QAbstractItemView::PositionAtCenter);
+		if (isModelProxy())
+		{
+			scrollTo(m_table_view_proxy->mapFromSource(idx), QAbstractItemView::PositionAtCenter);
+			selectionModel()->select(m_table_view_proxy->mapFromSource(idx), QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+		}
+		else
+		{
+			scrollTo(idx, QAbstractItemView::PositionAtCenter);
+			selectionModel()->select(idx, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+		}
 	}
 
 }

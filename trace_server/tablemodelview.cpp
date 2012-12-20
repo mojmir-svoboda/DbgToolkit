@@ -123,6 +123,7 @@ void TableModelView::emitLayoutChanged ()
 
 void TableModelView::appendTableXY (int x, int y, QString const & time, QString const & cmd)
 {
+	unsigned long long t = time.toULongLong();
 	QStringList const values = cmd.split("|");
 	int const n_cols = values.size();
 
@@ -150,8 +151,11 @@ void TableModelView::appendTableXY (int x, int y, QString const & time, QString 
 		{
 			//qDebug("  append: y>rows.sz resize %i -> %i", y, y);
 			beginInsertRows(QModelIndex(), m_rows.size(), y);
+			size_t const curr_sz = m_rows.size();
 			m_rows.resize(y + 1);
 			m_row_times.resize(y + 1);
+			for (size_t r = curr_sz; r < y + 1; ++r)
+				m_row_times[r] = t + r * 10;
 			transactionCommit();
 
 			if (m_proxy)
@@ -201,8 +205,7 @@ void TableModelView::appendTableXY (int x, int y, QString const & time, QString 
 		QModelIndex const idx = index(y, ix, QModelIndex());
 		QString const & s = values.at(ix - x);
 		setData(idx, s, Qt::EditRole);
-		m_row_times[y] = time.toULongLong();
-		m_col_times[ix] = time.toULongLong();
+		m_col_times[ix] = t;
 	}
 }
 
