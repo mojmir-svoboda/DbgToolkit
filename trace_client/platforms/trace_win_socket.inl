@@ -3,7 +3,7 @@
 #include <sysfn/socket_win.h>
 #include "trace_win_common.inl"
 #include "encode_log.inl"
-#include "encode_data.inl"
+#include "encode_plot.inl"
 #include "encode_table.inl"
 #include "encode_scope.inl"
 #include "encode_setup.inl"

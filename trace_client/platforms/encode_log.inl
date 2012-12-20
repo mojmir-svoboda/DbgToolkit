@@ -23,7 +23,7 @@ namespace trace {
 		using namespace tlv;
 		tlv::Encoder e(tlv::cmd_log, msg.m_data, msg_t::e_data_sz);
 		encode_common_fields(e, level, context, file, line, fn);
-		encode_str(e, str);
+		encode_str(e, tag_msg, str);
 		if (e.Commit())
 		{
 			msg.m_length = e.total_len;

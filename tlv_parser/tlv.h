@@ -43,13 +43,14 @@ namespace tlv {
 	static cmd_t const cmd_export_csv        = 0xF4;	/// export as csv
 	static cmd_t const cmd_save_tlv          = 0xF3;	/// save as tlv (native format)
 	static cmd_t const cmd_setup_ack         = 0xF2;	/// acknowledge setup command
-	static cmd_t const cmd_data_xy           = 0xF1;	/// draw data xy
-	static cmd_t const cmd_data_xyz          = 0xF0;	/// draw data xyz
+	static cmd_t const cmd_plot_xy           = 0xF1;	/// draw data xy
+	static cmd_t const cmd_plot_xyz          = 0xF0;	/// draw data xyz
 	static cmd_t const cmd_profile_bgn       = 0xEF;	/// send profiling begin
 	static cmd_t const cmd_profile_end       = 0xEE;	/// send profiling end
 	static cmd_t const cmd_profile_frame_bgn = 0xED;	/// send profiling frame begin
 	static cmd_t const cmd_profile_frame_end = 0xEC;	/// send profiling frame end
 	static cmd_t const cmd_table_xy          = 0xEB;	/// trace table xy
+	static cmd_t const cmd_table_setup       = 0xEA;	/// trace table setup (color, headers)
 
 	static cmd_t const cmd_shutdown          = 0xCF;	/// request to shut down server
 	static cmd_t const cmd_ping              = 0xCE;	/// ping
@@ -78,6 +79,10 @@ namespace tlv {
 		tag_x,            /// x
 		tag_y,            /// y
 		tag_z,            /// z
+		tag_fgc,          /// fg color
+		tag_bgc,          /// bg color
+		tag_hhdr,         /// horizontal header
+		tag_vhdr,         /// vertical header
 
 		tag_max_value     /** this should be last line of enum **/
 	};
@@ -103,7 +108,10 @@ namespace tlv {
 		"Flt",
 		"x",
 		"y",
-		"z"
+		"FgCol"
+		"BgCol"
+		"HHdr"
+		"VHdr"
 	};
 
 	inline size_t get_tag_count () { return tag_max_value; }

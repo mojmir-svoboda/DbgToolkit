@@ -40,6 +40,7 @@ namespace trace {
 		}
 	}
 
+
 	// Scopes
 	inline void WriteScopeVA (ScopedLog::E_Type type, level_t level, context_t context, char const * file, int line, char const * fn, char const * fmt, va_list args)
 	{
@@ -60,31 +61,33 @@ namespace trace {
 		}
 	}
 
-	// Data
-	inline void WriteData_impl (level_t level, context_t context, float x, float y, char const * fmt, va_list args)
+
+	// Plot
+	inline void WritePlot_impl (level_t level, context_t context, float x, float y, char const * fmt, va_list args)
 	{
 		if (GetRuntimeBuffering())
 		{
 			msg_t & msg = socks::acquire_msg_buffer();
 			msg.WriteLock();
 			{
-				encode_data(msg, level, context, x, y, fmt, args);
+				encode_plot(msg, level, context, x, y, fmt, args);
 			}
 			msg.WriteUnlockAndDirty();
 		}
 	}
-	inline void WriteDataXYZ (level_t level, context_t context, float x, float y, float z, char const * fmt, va_list args)
+	inline void WritePlotXYZ (level_t level, context_t context, float x, float y, float z, char const * fmt, va_list args)
 	{
 		if (GetRuntimeBuffering())
 		{
 			msg_t & msg = socks::acquire_msg_buffer();
 			msg.WriteLock();
 			{
-				encode_data(msg, level, context, x, y, z, fmt, args);
+				encode_plot(msg, level, context, x, y, z, fmt, args);
 			}
 			msg.WriteUnlockAndDirty();
 		}
 	}
+
 
 	// Table
 	inline void WriteTable_impl (level_t level, context_t context, int x, int y, char const * fmt, va_list args)
@@ -99,7 +102,57 @@ namespace trace {
 			msg.WriteUnlockAndDirty();
 		}
 	}
+	inline void WriteTable_impl (level_t level, context_t context, int x, int y, Color c, char const * fmt, va_list args)
+	{
+		if (GetRuntimeBuffering())
+		{
+			msg_t & msg = socks::acquire_msg_buffer();
+			msg.WriteLock();
+			{
+				encode_table(msg, level, context, x, y, c, fmt, args);
+			}
+			msg.WriteUnlockAndDirty();
+		}
+	}
+	inline void WriteTableSetColor_impl (level_t level, context_t context, int x, int y, Color fg, char const * fmt, va_list args)
+	{
+		if (GetRuntimeBuffering())
+		{
+			msg_t & msg = socks::acquire_msg_buffer();
+			msg.WriteLock();
+			{
+				encode_table_setup_color(msg, level, context, x, y, fg, fmt, args);
+			}
+			msg.WriteUnlockAndDirty();
+		}
+	}
+	inline void WriteTableSetColor_impl (level_t level, context_t context, int x, int y, Color fg, Color bg, char const * fmt, va_list args)
+	{
+		if (GetRuntimeBuffering())
+		{
+			msg_t & msg = socks::acquire_msg_buffer();
+			msg.WriteLock();
+			{
+				encode_table_setup_color(msg, level, context, x, y, fg, bg, fmt, args);
+			}
+			msg.WriteUnlockAndDirty();
+		}
+	}
+	inline void WriteTableSetHHeader_impl (level_t level, context_t context, int x, char const * name, char const * fmt, va_list args)
+	{
+		if (GetRuntimeBuffering())
+		{
+			msg_t & msg = socks::acquire_msg_buffer();
+			msg.WriteLock();
+			{
+				encode_table_setup_hhdr(msg, level, context, x, name, fmt, args);
+			}
+			msg.WriteUnlockAndDirty();
+		}
+	}
 
+
+	// Dict
 	inline void SetCustomUserDictionnary (CtxDictPair const * ptr, size_t n)
 	{
 		if (GetRuntimeBuffering())
@@ -120,6 +173,7 @@ namespace trace {
 	}
 
 
+	// csv
 	inline void ExportToCSV (char const * file)
 	{
 		if (GetRuntimeBuffering())

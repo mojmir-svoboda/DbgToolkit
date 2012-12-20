@@ -155,6 +155,7 @@ void TraceVal (int x, int y)
 	TRACE_TABLE(trace::e_Info, trace::CTX_Default, x, y, "%s0/%i",GetName(), n);
 	TRACE_TABLE(trace::e_Info, trace::CTX_Default, x, y, "%s1/%i",GetName(), n);
 	TRACE_TABLE(trace::e_Info, trace::CTX_Default, x, y, "%s2/Error: %i",GetName(), n);
+	TRACE_TABLE_COLOR(trace::e_Info, trace::CTX_Default, x, y, trace::Color(255,0,255), "%s0", GetName());
 	++n;
 }
 
@@ -237,6 +238,8 @@ int main ()
 	TRACE_MSG(trace::e_Info, trace::CTX_Default,  "%s", "This message should partially appear too, but it's much longer in time and space so that it's very annoying and everyone will hate it as i do hate it now during typing as approaching to some 256 bytes boundary on which this message will be clipped and therefore it does not make any sense at all as all it does do is to show you in a rather graphomaniac light like Robert Smith or this Rowling bitch");
 	my_custom_vaarg_fn("using va_arg macro %s and %s", "with some argument", "another one");
 
+	TRACE_TABLE_HHEADER(trace::e_Info, trace::CTX_Default, 1, "hdr1", "%s0","aa");
+	TRACE_TABLE_HHEADER(trace::e_Info, trace::CTX_Default, 2, "hdr2", "%s0","aa");
 	foo();	
 	Bar bar;
 

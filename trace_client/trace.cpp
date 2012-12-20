@@ -43,20 +43,21 @@
 		}
 
 		// plot-data logging
-		inline void WriteData_impl (level_t level, context_t context, float x, float y, char const * fmt, va_list args);
-		void WriteDataVA (level_t level, context_t context, float x, float y, char const * fmt, va_list args)
+		inline void WritePlot_impl (level_t level, context_t context, float x, float y, char const * fmt, va_list args);
+		void WritePlotVA (level_t level, context_t context, float x, float y, char const * fmt, va_list args)
 		{
 			if (RuntimeFilterPredicate(level, context))
-				WriteData_impl(level, context, x, y, fmt, args);
+				WritePlot_impl(level, context, x, y, fmt, args);
 		}
-		void WriteData (level_t level, context_t context, float x, float y, char const * fmt, ...)
+		void WritePlot (level_t level, context_t context, float x, float y, char const * fmt, ...)
 		{
 			va_list args;
 			va_start(args, fmt);
-			WriteDataVA(level, context, x, y, fmt, args);
+			WritePlotVA(level, context, x, y, fmt, args);
 			va_end(args);
 		}
 		
+	
 		// table-data logging
 		inline void WriteTable_impl (level_t level, context_t context, int x, int y, char const * fmt, va_list args);
 		void WriteTableVA (level_t level, context_t context, int x, int y, char const * fmt, va_list args)
@@ -71,6 +72,63 @@
 			WriteTableVA(level, context, x, y, fmt, args);
 			va_end(args);
 		}
+
+		inline void WriteTable_impl (level_t level, context_t context, int x, int y, Color c, char const * fmt, va_list args);
+		void WriteTableVA (level_t level, context_t context, int x, int y, Color c, char const * fmt, va_list args)
+		{
+			if (RuntimeFilterPredicate(level, context))
+				WriteTable_impl(level, context, x, y, c, fmt, args);
+		}
+		void WriteTable (level_t level, context_t context, int x, int y, Color c, char const * fmt, ...)
+		{
+			va_list args;
+			va_start(args, fmt);
+			WriteTableVA(level, context, x, y, c, fmt, args);
+			va_end(args);
+		}
+
+		inline void WriteTableSetColor_impl (level_t level, context_t context, int x, int y, Color fg, char const * fmt, va_list args);
+		void WriteTableSetColorVA (level_t level, context_t context, int x, int y, Color fg, char const * fmt, va_list args)
+		{
+			if (RuntimeFilterPredicate(level, context))
+				WriteTableSetColor_impl(level, context, x, y, fg, fmt, args);
+		}
+		void WriteTableSetColor (level_t level, context_t context, int x, int y, Color fg, char const * fmt, ...)
+		{
+			va_list args;
+			va_start(args, fmt);
+			WriteTableSetColorVA(level, context, x, y, fg, fmt, args);
+			va_end(args);
+		}
+
+		inline void WriteTableSetColor_impl (level_t level, context_t context, int x, int y, Color fg, Color bg, char const * fmt, va_list args);
+		void WriteTableSetColorVA (level_t level, context_t context, int x, int y, Color fg, Color bg, char const * fmt, va_list args)
+		{
+			if (RuntimeFilterPredicate(level, context))
+				WriteTableSetColor_impl(level, context, x, y, fg, bg, fmt, args);
+		}
+		void WriteTableSetColorVA (level_t level, context_t context, int x, int y, Color fg, Color bg, char const * fmt, ...)
+		{
+			va_list args;
+			va_start(args, fmt);
+			WriteTableSetColorVA(level, context, x, y, fg, bg, fmt, args);
+			va_end(args);
+		}
+
+		inline void WriteTableSetHHeader_impl (level_t level, context_t context, int x, char const * name, char const * fmt, va_list args);
+		void WriteTableSetHHeaderVA (level_t level, context_t context, int x, char const * name, char const * fmt, va_list args)
+		{
+			if (RuntimeFilterPredicate(level, context))
+				WriteTableSetHHeader_impl(level, context, x, name, fmt, args);
+		}
+		void WriteTableSetHHeader (level_t level, context_t context, int x,  char const * name, char const * fmt, ...)
+		{
+			va_list args;
+			va_start(args, fmt);
+			WriteTableSetHHeaderVA(level, context, x, name, fmt, args);
+			va_end(args);
+		}
+
 	
 		// scope logging
 		inline void WriteScopeVA (ScopedLog::E_Type type, level_t level, context_t context, char const * file, int line, char const * fn, char const * fmt, va_list args);

@@ -114,14 +114,14 @@
 #	define TRACE_MSG_VA(level, context, fmt, vaargs)	\
 		trace::WriteVA(static_cast<trace::level_t>(level), context, __FILE__, __LINE__, __FUNCTION__, fmt, vaargs)
 
-/**	@macro		TRACE_DATA_XY
- *	@brief		logging of 2d xy data
+/**	@macro		TRACE_PLOT_XY
+ *	@brief		logging of 2d xy data in the form of 2d plot
  **/
-#	define TRACE_DATA_XY	trace::WriteData
-/**	@macro		TRACE_DATA_XYZ
+#	define TRACE_PLOT_XY	trace::WritePlot
+/**	@macro		TRACE_PLOT_XYZ
  *	@brief		logging of 3d xyz data
  **/
-#	define TRACE_DATA_XYZ	trace::WriteData
+#	define TRACE_PLOT_XYZ	trace::WritePlot
 
 
 /**	@macro		TRACE_TABLE
@@ -129,6 +129,8 @@
  *	@see		trace::WriteTable
  **/
 #	define TRACE_TABLE	trace::WriteTable
+#	define TRACE_TABLE_HHEADER	trace::WriteTableSetHHeader
+#	define TRACE_TABLE_COLOR	trace::WriteTableSetColor
 
 
 /**	@macro		TRACE_SCOPE_MSG
@@ -213,7 +215,7 @@
 		TRACE_API void Write (level_t level, context_t context, char const * file, int line, char const * fn, char const * fmt, ...);
 #endif
 
-		/**@fn		WriteData
+		/**@fn		WritePlot
 		 * @brief	writes data to be plotted in server part
 		 *
 		 * @param[in]	x	float x-coordinate
@@ -233,8 +235,8 @@
 		 *		plot "my_plot"
 		 *		third value of -1 will take place into another plot widget.
 		 */
-		TRACE_API void WriteData (level_t level, context_t context, float x, float y, char const * fmt, ...);
-		TRACE_API void WriteData (level_t level, context_t context, float x, float y, float z, char const * fmt, ...);
+		TRACE_API void WritePlot (level_t level, context_t context, float x, float y, char const * fmt, ...);
+		TRACE_API void WritePlot (level_t level, context_t context, float x, float y, float z, char const * fmt, ...);
 
 		/**@class	ScopedLog
 		 * @brief	RAII class for logging entry on construction and exit on destruction
@@ -273,6 +275,14 @@
 		 *
 		 **/
 		TRACE_API void WriteTable (level_t level, context_t context, int x, int y, char const * fmt, ...);
+		struct Color {
+			unsigned char r,g,b,a;
+			Color (unsigned char red, unsigned char green, unsigned char blue, unsigned char alpha = 0xff) : r(red), g(green), b(blue), a(alpha) {  }
+		};
+		TRACE_API void WriteTable (level_t level, context_t context, int x, int y, Color c, char const * fmt, ...);
+		TRACE_API void WriteTableSetColor (level_t level, context_t context, int x, int y, Color fg, char const * fmt, ...);
+		TRACE_API void WriteTableSetColor (level_t level, context_t context, int x, int y, Color fg, Color bg, char const * fmt, ...);
+		TRACE_API void WriteTableSetHHeader (level_t level, context_t context, int x, char const * name, char const * fmt, ...);
 	}
 
 #else // no tracing at all
@@ -287,7 +297,10 @@
 #	define TRACE_CODE(code)                         ((void)0)
 #	define TRACE_EXPORT_CSV(file)                   ((void)0)
 #	define TRACE_SET_CTX_DICT()                     ((void)0)
-#	define TRACE_DATA_XY
-#	define TRACE_DATA_XYZ
+#	define TRACE_PLOT_XY
+#	define TRACE_PLOT_XYZ
 #	define TRACE_TABLE
+#	define TRACE_TABLE
+#	define TRACE_TABLE_HHEADER
+#	define TRACE_TABLE_COLOR
 #endif // TRACE_ENABLED
