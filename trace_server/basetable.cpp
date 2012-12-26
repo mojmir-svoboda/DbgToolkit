@@ -195,9 +195,9 @@ namespace table {
 		m_config.m_hsize[idx] = new_size;
 	}
 
-	void BaseTable::appendTableXY (int x, int y, QString const & time, QString const & msg)
+	void BaseTable::appendTableXY (int x, int y, QString const & time, QString const & fgc, QString const & bgc, QString const & msg)
 	{
-		m_modelView->appendTableXY(x, y, time, msg);
+		m_modelView->appendTableXY(x, y, time, fgc, bgc, msg);
 
 		if (m_config.m_auto_scroll)
 			scrollToBottom();

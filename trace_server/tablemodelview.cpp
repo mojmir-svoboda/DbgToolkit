@@ -122,7 +122,7 @@ void TableModelView::emitLayoutChanged ()
 	emit layoutChanged();
 }
 
-void TableModelView::appendTableXY (int x, int y, QString const & time, QString const & cmd)
+void TableModelView::appendTableXY (int x, int y, QString const & time, QString const & fgc, QString const & bgc, QString const & cmd)
 {
 	unsigned long long t = time.toULongLong();
 	QStringList const values = cmd.split("|");
@@ -200,6 +200,8 @@ void TableModelView::appendTableXY (int x, int y, QString const & time, QString 
 	for (int ix = x, ixe = x + n_cols; ix < ixe; ++ix)
 	{
 		m_rows[y][ix].m_value = values.at(ix - x);
+		m_rows[y][ix].m_fgc = fgc;
+		m_rows[y][ix].m_bgc = bgc;
 		m_col_times[ix] = t;
 	}
 

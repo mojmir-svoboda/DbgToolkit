@@ -223,7 +223,7 @@ private:
 
 	void appendDataXY (double x, double y, QString const & tag);
 	datatables_t::iterator findOrCreateTable (QString const & tag);
-	void appendTableXY (int x, int y, QString const & time, QString const & tag);
+	void appendTableXY (int x, int y, QString const & time, QString const & fgc, QString const & bgc, QString const & tag);
 	void appendTableSetup (int x, int y, QString const & time, QString const & fgc, QString const & bgc, QString const & hhdr, QString const & tag);
 	bool appendToFilters (DecodedCommand const & cmd);
 	void appendToTIDFilters (QString const & item);

@@ -153,10 +153,11 @@ void TraceVal (int x, int y)
 {
 	static int n = 0;
 	TRACE_TABLE(trace::e_Info, trace::CTX_Default, x, y, "%s0/%i",GetName(), n);
-	TRACE_TABLE(trace::e_Info, trace::CTX_Default, x, y, "%s1/%i|row=%i|col=%i",GetName(), n, y, x);
-	TRACE_TABLE(trace::e_Info, trace::CTX_Default, x, y, trace::Color(255,0,0,255), trace::Color(155,155,155,255), "%s2/Error: %i",GetName(), n);
+	TRACE_TABLE(trace::e_Info, trace::CTX_Default, x, y, "%s1/%i",GetName(), n);
+	//TRACE_TABLE(trace::e_Info, trace::CTX_Default, x, y, "%s1/%i|row=%i|col=%i",GetName(), n, y, x);
+	TRACE_TABLE(trace::e_Info, trace::CTX_Default, x, y, trace::Color(255,0,0,255), trace::Color(75,75,75,75), "%s2/Error: %i",GetName(), n);
 	TRACE_TABLE_COLOR(trace::e_Info, trace::CTX_Default, x	, y, trace::Color(0,0,255,255), "%s0/", GetName());
-	TRACE_TABLE_COLOR(trace::e_Info, trace::CTX_Default, x	, y, trace::Color(255,0,0,255), "%s2/", GetName());
+	//TRACE_TABLE_COLOR(trace::e_Info, trace::CTX_Default, x	, y, trace::Color(255,0,0,255), "%s2/", GetName());
 	TRACE_TABLE_COLOR(trace::e_Info, trace::CTX_Default, x	, y, trace::Color(255,0,255,255), trace::Color(0,0,0,0), "%s0/", GetName());
 	++n;
 }

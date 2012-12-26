@@ -53,7 +53,7 @@ public:
 	QVariant headerData (int section, Qt::Orientation orientation, int role) const;
 	bool  setHeaderData (int section, Qt::Orientation orientation, QVariant const & value, int role = Qt::EditRole);
 
-	void appendTableXY (int x, int y, QString const &, QString const & msg_tag);
+	void appendTableXY (int x, int y, QString const &, QString const & fgc, QString const & bgc, QString const & msg_tag);
 	void appendTableSetup (int x, int y, QString const & time, QString const & fgc, QString const & bgc, QString const & hhdr, QString const & tag);
 
 	void createCell (unsigned long long time, int x, int y);

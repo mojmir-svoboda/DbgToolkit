@@ -70,6 +70,8 @@ bool Connection::handleTableXYCommand (DecodedCommand const & cmd)
 	QString time;
 	int x = 0;
 	int y = 0;
+	QString fgc;
+	QString bgc;
 	for (size_t i=0, ie=cmd.tvs.size(); i < ie; ++i)
 	{
 		if (cmd.tvs[i].m_tag == tlv::tag_msg)
@@ -80,10 +82,16 @@ bool Connection::handleTableXYCommand (DecodedCommand const & cmd)
 			y = cmd.tvs[i].m_val.toInt();
 		else if (cmd.tvs[i].m_tag == tlv::tag_time)
 			time = cmd.tvs[i].m_val;
+		else if (cmd.tvs[i].m_tag == tlv::tag_fgc)
+			fgc = cmd.tvs[i].m_val;
+		else if (cmd.tvs[i].m_tag == tlv::tag_bgc)
+			bgc = cmd.tvs[i].m_val;
 	}
 
 	if (m_main_window->tableEnabled())
-		appendTableXY(x, y, time, tag);
+	{
+		appendTableXY(x, y, time, fgc, bgc, tag);
+	}
 	return true;
 }
 
@@ -187,7 +195,7 @@ datatables_t::iterator Connection::findOrCreateTable (QString const & tag)
 	return it;
 }
 
-void Connection::appendTableXY (int x, int y, QString const & time, QString const & msg_tag)
+void Connection::appendTableXY (int x, int y, QString const & time, QString const & fgc, QString const & bgc, QString const & msg_tag)
 {
 	QString tag = msg_tag;
 	int const slash_pos = tag.lastIndexOf(QChar('/'));
@@ -199,7 +207,7 @@ void Connection::appendTableXY (int x, int y, QString const & time, QString cons
 	datatables_t::iterator it = findOrCreateTable(tag);
 
 	DataTable & dp = **it;
-	dp.widget().appendTableXY(x, y, time, subtag);
+	dp.widget().appendTableXY(x, y, time, fgc, bgc, subtag);
 }
 
 
