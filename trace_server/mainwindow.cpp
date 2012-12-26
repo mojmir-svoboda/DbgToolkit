@@ -70,6 +70,7 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QStri
 	, m_plot_tree_view(0)
 	, m_log_name(log_name)
 {
+	qDebug("================================================================================");
 	qDebug("%s", __FUNCTION__);
 	//QDir::setSearchPaths("icons", QStringList(QDir::currentPath()));
 	ui->setupUi(this);
