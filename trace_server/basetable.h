@@ -34,7 +34,6 @@ namespace table {
 
 	protected:
 		void timerEvent (QTimerEvent * e);
-		virtual void update ();
 
 	public Q_SLOTS:
 

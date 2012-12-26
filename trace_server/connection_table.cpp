@@ -15,7 +15,7 @@ DataTable::DataTable (Connection * parent, table::TableConfig & config, QString 
 	, m_table(0)
 	, m_fname(fname)
 {
-	qDebug("%s this=0x%08x", __FUNCTION__, this);
+	qDebug("%s this=0x%08x name=%s", __FUNCTION__, this, fname.toStdString().c_str());
 	m_table = new table::BaseTable(parent, 0, m_config, fname);
 }
 DataTable::~DataTable ()
@@ -34,7 +34,6 @@ void DataTable::onHide ()
 	m_wd->hide();
 	m_table->onHide();
 }
-
 
 void Connection::onShowTables ()
 {
@@ -159,12 +158,12 @@ datatables_t::iterator Connection::findOrCreateTable (QString const & tag)
 
 		// TMP!
 /*		dp->m_table->setEditTriggers(QAbstractItemView::NoEditTriggers);
-		dp->m_table->setSelectionBehavior(QAbstractItemView::SelectRows);
-		dp->m_table->setSelectionMode(QAbstractItemView::SingleSelection);*/
-		dp->m_table->verticalHeader()->setFont(m_main_window->tableFont());
+		dp->m_table->verticalHeader()->setFont(m_main_window->tableFont());*/
 		//dp->m_table->verticalHeader()->setDefaultSectionSize(m_main_window->tableRowSize());
 		dp->m_table->verticalHeader()->setDefaultSectionSize(16);
 		dp->m_table->verticalHeader()->hide();	// @NOTE: users want that //@NOTE2: they can't have it because of performance
+		dp->m_table->setSelectionBehavior(QAbstractItemView::SelectRows);
+		dp->m_table->setSelectionMode(QAbstractItemView::SingleSelection);
 
 		QObject::connect(dp->widget().horizontalHeader(), SIGNAL(sectionResized(int, int, int)), &dp->widget(), SLOT(onSectionResized(int, int, int)));
 		dp->m_wd = m_main_window->m_dock_mgr.mkDockWidget(m_main_window, &dp->widget(), table_name);
@@ -182,6 +181,7 @@ datatables_t::iterator Connection::findOrCreateTable (QString const & tag)
 
 		dp->onHide();
 		m_main_window->restoreDockWidget(dp->m_wd);
+		m_main_window->onDockRestoreButton();
 		dp->onShow();
 	}
 	return it;
@@ -216,7 +216,6 @@ void Connection::appendTableSetup (int x, int y, QString const & time, QString c
 
 	DataTable & dp = **it;
 	dp.widget().appendTableSetup(x, y, time, fgc, bgc, hhdr, subtag);
-
 }
 
 void Connection::requestTableSynchronization (int sync_group, unsigned long long time)
@@ -224,11 +223,7 @@ void Connection::requestTableSynchronization (int sync_group, unsigned long long
 	for (datatables_t::iterator it = m_datatables.begin(), ite = m_datatables.end(); it != ite; ++it)
 	{
 		DataTable * const tbl = *it;
-
-		//@TODO: skip zero. zero == do not sync
 		if (tbl->widget().getConfig().m_sync_group == sync_group)
-		{
 			tbl->widget().findNearestTimeRow(time);
-		}
 	}
 }

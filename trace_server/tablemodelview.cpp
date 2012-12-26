@@ -52,14 +52,13 @@ QVariant TableModelView::data (QModelIndex const & index, int role) const
 	}
 	else if (role == Qt::BackgroundRole)
 	{
-		if (c->m_bgc.value<QColor>().isValid())
-			return c->m_bgc;
 		if (c->m_value.toString().isEmpty())
-			return Qt::gray;
+			return Qt::black;
+		return c->m_bgc;
 	}
 	else if (role == Qt::ForegroundRole)
 	{
-		return c->m_fgc.value<QColor>().isValid() ? c->m_fgc : QVariant();
+		return c->m_fgc;
 	}
 	return QVariant();
 }
@@ -94,20 +93,8 @@ bool TableModelView::setData (QModelIndex const & index, QVariant const & value,
 QVariant TableModelView::headerData (int section, Qt::Orientation orientation, int role) const
 {
 	if (role == Qt::DisplayRole && orientation == Qt::Horizontal)
-	{
-		if (section == -1)
-			return QVariant();
-		if (section + 1 > m_hhdr.size())
-		{
-			m_hhdr.resize(section + 1);
-		}
-
-		if (!m_hhdr[section].isEmpty())
-		{
-			//qDebug("hdr[%i] ret name=%s", section, m_hhdr[section].toStdString().c_str());
-		}
-		return m_hhdr.at(section);
-	}
+		if (section > -1 && section < m_hhdr.size())
+			return m_hhdr.at(section);
 	return QVariant();
 }
 
@@ -122,23 +109,8 @@ bool  TableModelView::setHeaderData (int section, Qt::Orientation orientation, Q
 			m_hhdr.resize(section + 1);
 		}
 		m_hhdr[section] = value.toString();
-		if (!m_hhdr[section].isEmpty())
-		{
-			qDebug("hdr[%i] setting name=%s", section, m_hhdr[section].toStdString().c_str());
-		}
 	}
 	return true;
-}
-
-void TableModelView::transactionStart (size_t n)
-{
-	int const row = rowCount();
-	beginInsertRows(QModelIndex(), row, row + n);
-}
-
-void TableModelView::transactionCommit ()
-{
-	endInsertRows();
 }
 
 void TableModelView::emitLayoutChanged ()
@@ -152,13 +124,16 @@ void TableModelView::appendTableXY (int x, int y, QString const & time, QString 
 	QStringList const values = cmd.split("|");
 	int const n_cols = values.size();
 
-	//qDebug("append: x=%i y=%i cols=%i val=%s", x, y, n_cols, cmd.toStdString().c_str());
-	//
-	bool pxy_rows = false;
-	size_t rows_first = 0;
-	size_t rows_last = 0;
+	bool new_rows = false;
+	int rows_first = 0;
+	int rows_last = 0;
 
-	if (y < 0)
+	bool new_cols = false;
+	int cols_first = 0;
+	int cols_last = 0;
+
+
+/*	if (y < 0)
 	{
 		transactionStart(0);
 		m_rows.push_back(columns_t());
@@ -174,35 +149,31 @@ void TableModelView::appendTableXY (int x, int y, QString const & time, QString 
 		}
 		y = m_rows.size() - 1;
 	}
-	else
+	else*/
 	{
 		if (y >= m_rows.size())
 		{
-			//qDebug("+ model: y>rows.sz resize m_rows.sz=%i y=%i", m_rows.size(), y);
-			beginInsertRows(QModelIndex(), m_rows.size(), y);
 			size_t const curr_sz = m_rows.size();
 			m_rows.resize(y + 1);
 			m_row_times.resize(y + 1);
 			for (size_t r = curr_sz; r < y + 1; ++r)
 				m_row_times[r] = t + r * 10;
-			transactionCommit();
 
-			pxy_rows = true;
+			new_rows = true;
 			rows_first = curr_sz;
 			rows_last = y;
 		}
 
-		if (x < 0)
+/*		if (x < 0)
 		{
-			beginInsertColumns(QModelIndex(), m_columnCount, m_columnCount + n_cols - 1);
 			++m_columnCount;
 			size_t const curr_sz = m_rows[y].size();
 			m_rows[y].resize(curr_sz + 1);
 			x = curr_sz;
-			endInsertColumns();
 			// @TODO: updatnout size kontejneru s predchozim poctem elementu
+			//
 		}
-		else
+		else*/
 		{
 			//qDebug("  append: x>=0 ", m_rows.back().size(), x + n_cols);
 			if (x + n_cols >= m_rows.back().size())
@@ -210,36 +181,55 @@ void TableModelView::appendTableXY (int x, int y, QString const & time, QString 
 				//qDebug("  append: x>=0  resize %i -> %i", m_rows.back().size(), x + n_cols);
 				m_rows.back().resize(x + n_cols);
 				m_col_times.resize(x + n_cols);
+
 			}
 		}
 	}
 
-	//qDebug("  m_columnCount < n_cols  %i < %i", m_columnCount, x + n_cols);
 	if (m_columnCount < x + n_cols)
 	{
-		beginInsertColumns(QModelIndex(), m_columnCount, x + n_cols - 1);
-		insertColumns(m_columnCount, x + n_cols - 1);
-		m_columnCount = x + n_cols;
-		endInsertColumns();
-
-		if (m_proxy)
-			m_proxy->insertColumns(m_columnCount, x + n_cols - 1);
-		// @TODO: updatnout size kontejneru s predchozim poctem elementu
+		new_cols = true;
+		cols_first = m_columnCount;
+		cols_last = x + n_cols - 1;
 	}
 
 	for (int ix = x, ixe = x + n_cols; ix < ixe; ++ix)
 	{
-		//QModelIndex const idx0 = index(y, 0, QModelIndex());
-		//setHeaderData(idx0, tr("%1").arg(y), Qt::EditRole);
-
-		QModelIndex const idx = index(y, ix, QModelIndex());
-		QString const & s = values.at(ix - x);
-		setData(idx, s, Qt::EditRole);
+		m_rows[y][ix].m_value = values.at(ix - x);
 		m_col_times[ix] = t;
 	}
 
-	if (m_proxy && pxy_rows)
+	if (new_rows)
+	{
+		beginInsertRows(QModelIndex(), rows_first, rows_last);
+		//qDebug("mod  -  beginInsertRows(%02i, %02i) ", rows_first, rows_last);
+		endInsertRows();
+
+	}
+
+	if (new_cols)
+	{
+		beginInsertColumns(QModelIndex(), cols_first, cols_last);
+		//qDebug("mod  |  beginInsertCols(%02i, %02i) ", cols_first, cols_last);
+		insertColumns(cols_first, cols_last);
+		if (m_columnCount < cols_last + 1)
+			m_columnCount = cols_last + 1;
+		endInsertColumns();
+	}
+
+	if (m_proxy && new_rows)
 		m_proxy->insertRows(rows_first, rows_last);
+
+	if (m_proxy && new_cols)
+		m_proxy->insertColumns(cols_first, cols_last);
+
+	for (int ix = x, ixe = x + n_cols; ix < ixe; ++ix)
+	{
+		QModelIndex const idx = index(y, ix, QModelIndex());
+		emit dataChanged(idx, idx);
+		if (m_proxy)
+			m_proxy->setData(idx, QVariant(), Qt::EditRole);
+	}
 }
 
 void TableModelView::createCell (unsigned long long time, int x, int y)
@@ -257,31 +247,24 @@ void TableModelView::createRows (unsigned long long time, int first, int last, Q
 		m_row_times.resize(last + 1);
 		for (size_t r = curr_sz; r < last + 1; ++r)
 			m_row_times[r] = time + r * 10;
-		transactionCommit();
+		endInsertRows();
 	}
 }
 
 void TableModelView::createColumns (unsigned long long time, int first, int last, QModelIndex const & )
 {
-	//qDebug("  append: x>=0 ", m_rows.back().size(), x + n_cols);
 	if (last >= m_rows.back().size())
 	{
-		//qDebug("  append: x>=0  resize %i -> %i", m_rows.back().size(), x + n_cols);
 		m_rows.back().resize(last);
 		m_col_times.resize(last);
 	}
 
-	//qDebug("  m_columnCount < n_cols  %i < %i", m_columnCount, x + n_cols);
 	if (m_columnCount < last)
 	{
-		beginInsertColumns(QModelIndex(), m_columnCount, last);
-		insertColumns(m_columnCount, last);
-		m_columnCount = last + 1;
+		beginInsertColumns(QModelIndex(), m_columnCount, last - 1);
+		insertColumns(m_columnCount, last - 1);
+		m_columnCount = last;
 		endInsertColumns();
-
-		//if (m_proxy)
-		//	m_proxy->insertColumns(m_columnCount, last - 1);
-		// @TODO: updatnout size kontejneru s predchozim poctem elementu
 	}
 
 }

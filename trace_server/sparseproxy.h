@@ -43,7 +43,10 @@ public:
 
 	virtual bool insertRows (int first, int last, QModelIndex const &);
 	virtual bool insertColumns (int first, int last, QModelIndex const & parent = QModelIndex());
+
 	QVariant data (QModelIndex const & index, int role) const;
+	bool setData (QModelIndex const & index, QVariant const & value, int role);
+
 	Qt::ItemFlags flags (QModelIndex const & index) const;
 
 public slots:

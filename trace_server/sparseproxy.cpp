@@ -48,6 +48,15 @@ QVariant SparseProxyModel::data (QModelIndex const & index, int role) const
 	return sourceModel()->data(src_idx, role);
 }
 
+bool SparseProxyModel::setData (QModelIndex const & src_index, QVariant const & value, int role)
+{
+	QModelIndex const index = mapFromSource(src_index);
+	if (!index.isValid()) return false;
+
+	emit dataChanged(index, index);
+	return true;
+}
+
 Qt::ItemFlags SparseProxyModel::flags (QModelIndex const & index) const
 {
 	return sourceModel()->flags(index) | Qt::ItemIsEnabled | Qt::ItemIsSelectable;
@@ -97,41 +106,58 @@ QModelIndex SparseProxyModel::mapFromSource (QModelIndex const & sourceIndex) co
 
 bool SparseProxyModel::insertRows (int first, int last, QModelIndex const & parent)
 {
-	int const src_idx = m_map_from_src.size();
-	m_map_from_src.push_back(-1);
-
-	if (filterAcceptsRow(src_idx, QModelIndex()))
+	int src_first = -1;
+	int src_last = -1;
+	for (int r = first; r < last + 1; ++r)
 	{
-		//qDebug("+ pxy  |  first=%i last=%i", first, last);
-		beginInsertRows(QModelIndex(), first, last);
-		//emit layoutAboutToBeChanged();
-
+		int const src_idx = m_map_from_src.size();
 		int const tgt_idx = m_map_from_tgt.size();
+		m_map_from_src.push_back(-1);
+		if (filterAcceptsRow(r, QModelIndex()))
+		{
+			if (src_first == -1)
+				src_first = src_idx;
+			src_last = src_idx;
+			m_map_from_tgt.push_back(r);
+			m_map_from_src[src_idx] = tgt_idx;
+			//qDebug("  pxy-  src(%02i, %02i)     pxy(%02i, %02i)", first, last, src_first, src_last);
+		}
+	}
 
-		m_map_from_tgt.push_back(src_idx);
-		m_map_from_src[src_idx] = tgt_idx;
-		
+	if (src_first != -1)
+	{
+		//qDebug("  pxy-  beginInsertRows^^^(%02i, %02i)", src_first, src_last);
+		beginInsertRows(QModelIndex(), src_first, src_last);
 		endInsertRows();
-		//emit layoutChanged();
 	}
 	return true;
 }
 
 bool SparseProxyModel::insertColumns (int first, int last, QModelIndex const & parent)
 {
-	int const src_idx = m_cmap_from_src.size();
-	m_cmap_from_src.push_back(-1);
-
-	if (filterAcceptsColumn(src_idx, QModelIndex()))
+	int src_first = -1;
+	int src_last = -1;
+	for (int c = first; c < last + 1; ++c)
 	{
-		emit layoutAboutToBeChanged();
-
+		int const src_idx = m_cmap_from_src.size();
 		int const tgt_idx = m_cmap_from_tgt.size();
+		m_cmap_from_src.push_back(-1);
+		if (filterAcceptsColumn(c, QModelIndex()))
+		{
+			if (src_first == -1)
+				src_first = src_idx;
+			src_last = src_idx;
+			m_cmap_from_tgt.push_back(src_idx);
+			m_cmap_from_src[src_idx] = tgt_idx;
+			//qDebug("  pxy|  src(%02i, %02i)     pxy(%02i, %02i)", first, last, src_first, src_last);
+		}
+	}
 
-		m_cmap_from_tgt.push_back(src_idx);
-		m_cmap_from_src[src_idx] = tgt_idx;
-		
-		emit layoutChanged();
+	if (src_first != -1)
+	{
+		//qDebug("  pxy|  beginInsertCols^^^(%02i, %02i)", src_first, src_last);
+		beginInsertColumns(QModelIndex(), src_first, src_last);
+		endInsertColumns();
 	}
 	return true;
 }

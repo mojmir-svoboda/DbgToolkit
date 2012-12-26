@@ -48,7 +48,7 @@ namespace table {
 
 		setConfigValues(m_config);
 		QTimer::singleShot(0, this, SLOT(onApplyButton()));
-
+		setUpdatesEnabled(true);
 	}
 
 	BaseTable::~BaseTable ()
@@ -70,6 +70,7 @@ namespace table {
 
 	void BaseTable::applyConfig (TableConfig const & pcfg)
 	{
+		// FIXME: for unknown reasons this fn is called multiple times (from onApplyButton)
 		qDebug("%s this=0x%08x", __FUNCTION__, this);
 
 		//killTimer(m_timer);
@@ -80,14 +81,13 @@ namespace table {
 		{
 			horizontalHeader()->blockSignals(1);
 			horizontalHeader()->resizeSection(i, m_config.m_hsize.at(i));
-			//qDebug("table: hdr[%i]=%i", i, m_config.m_hsize.at(i));
+			qDebug("table: hdr[%i]=%i", i, m_config.m_hsize.at(i));
 			horizontalHeader()->blockSignals(0);
 		}
 
 		if (m_config.m_hide_empty)
 		{
 			qDebug("table: +++ proxy");
-			//onInvalidateFilter();
 			static_cast<SparseProxyModel *>(m_table_view_proxy)->force_update();
 			m_modelView->setProxy(m_table_view_proxy);
 			setModel(m_table_view_proxy);
@@ -112,12 +112,11 @@ namespace table {
 		update();
 	}
 
-	void BaseTable::update ()
-	{
-	}
-
 	void BaseTable::onHideContextMenu ()
 	{
+		Ui::SettingsTable * ui = m_config_ui.ui();
+		disconnect(ui->applyButton, SIGNAL(clicked()), this, SLOT(onApplyButton()));
+		disconnect(ui->saveButton, SIGNAL(clicked()), this, SLOT(onSaveButton()));
 		m_config_ui.onHideContextMenu();
 	}
 
@@ -180,13 +179,20 @@ namespace table {
 
 	void BaseTable::onSectionResized (int idx, int old_size, int new_size)
 	{
-		if (idx >= 0 && idx < m_config.m_hsize.size())
+		if (idx < 0) return;
+		size_t const curr_sz = m_config.m_hsize.size();
+		if (idx < curr_sz)
 		{
-			m_config.m_hsize.resize(idx + 1);
-			m_config.m_hsize[idx] = new_size;
 			qDebug("%s this=0x%08x hsize[%i]=%i", __FUNCTION__, this, idx, new_size);
 			//setColumnWidth(idx, new_size);
 		}
+		else
+		{
+			m_config.m_hsize.resize(idx + 1);
+			for (size_t i = curr_sz; i < idx + 1; ++i)
+				m_config.m_hsize[i] = 32;
+		}
+		m_config.m_hsize[idx] = new_size;
 	}
 
 	void BaseTable::appendTableXY (int x, int y, QString const & time, QString const & msg)
@@ -195,6 +201,7 @@ namespace table {
 
 		if (m_config.m_auto_scroll)
 			scrollToBottom();
+
 		if (m_modelView->columnCount() < m_config.m_hsize.size())
 			for (int i = 0, ie = m_config.m_hsize.size(); i < ie; ++i)
 			{
@@ -214,8 +221,6 @@ namespace table {
 		unsigned long long t = time.toULongLong();
 		if (!hhdr.isEmpty() && x > -1)
 		{
-			//m_modelView->createColumns(t, x, x, QModelIndex());
-			//qDebug("table: setup hdr: x=%i name=%s", x, hhdr.toStdString().c_str());
 			m_modelView->setHeaderData(x, Qt::Horizontal, hhdr, Qt::EditRole);
 		}
 
@@ -224,7 +229,6 @@ namespace table {
 			m_modelView->createRows(t, y, y, QModelIndex());
 			m_modelView->createColumns(t, x, x, QModelIndex());
 			QModelIndex const & idx = m_modelView->index(y, x, QModelIndex());
-			//qDebug("table: setup col: (%i, %i) (%i, %i) color=%s", x, y, idx.column(), idx.row(), fgc.toStdString().c_str());
 			m_modelView->setData(idx, QColor(fgc), Qt::ForegroundRole);
 		}
 
@@ -233,7 +237,6 @@ namespace table {
 			m_modelView->createRows(t, y, y, QModelIndex());
 			m_modelView->createColumns(t, x, x, QModelIndex());
 			QModelIndex const & idx = m_modelView->index(y, x, QModelIndex());
-			//qDebug("table: setup col: (%i, %i) color=%s", x, y, bgc.toStdString().c_str());
 			m_modelView->setData(idx, QColor(bgc), Qt::BackgroundRole);
 		}
 	}
@@ -252,6 +255,7 @@ namespace table {
 
 	void BaseTable::onInvalidateFilter ()
 	{
+		qDebug("%s this=0x%08x", __FUNCTION__, this);
 		if (isModelProxy())
 			static_cast<SparseProxyModel *>(m_table_view_proxy)->force_update();
 		else
