@@ -44,7 +44,11 @@ QVariant TableModelView::data (QModelIndex const & index, int role) const
 	}
 
 	if (c == 0)
+	{
+		if (role == Qt::BackgroundRole)
+			return Qt::gray;
 		return QVariant();
+	}
 
 	if (c && (role == Qt::DisplayRole || role == Qt::ToolTipRole))
 	{
@@ -53,7 +57,7 @@ QVariant TableModelView::data (QModelIndex const & index, int role) const
 	else if (role == Qt::BackgroundRole)
 	{
 		if (c->m_value.toString().isEmpty())
-			return Qt::black;
+			return Qt::gray;
 		return c->m_bgc;
 	}
 	else if (role == Qt::ForegroundRole)
