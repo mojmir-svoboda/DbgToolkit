@@ -114,6 +114,18 @@ namespace trace {
 			msg.WriteUnlockAndDirty();
 		}
 	}
+	inline void WriteTable_impl (level_t level, context_t context, int x, int y, Color fg, Color bg, char const * fmt, va_list args)
+	{
+		if (GetRuntimeBuffering())
+		{
+			msg_t & msg = socks::acquire_msg_buffer();
+			msg.WriteLock();
+			{
+				encode_table(msg, level, context, x, y, fg, bg, fmt, args);
+			}
+			msg.WriteUnlockAndDirty();
+		}
+	}
 	inline void WriteTableSetColor_impl (level_t level, context_t context, int x, int y, Color fg, char const * fmt, va_list args)
 	{
 		if (GetRuntimeBuffering())

@@ -27,6 +27,7 @@
 		void SetRuntimeContextMask (context_t mask) { g_RuntimeContextMask = mask; }
 		context_t GetRuntimeContextMask () { return g_RuntimeContextMask; }
 
+
 		// message logging
 		void WriteLog (level_t level, context_t context, char const * file, int, char const *, char const *, va_list);
 		void WriteVA (level_t level, context_t context, char const * file, int line, char const * fn, char const * fmt, va_list args)
@@ -41,6 +42,7 @@
 			WriteVA(level, context, file, line, fn, fmt, args);
 			va_end(args);
 		}
+
 
 		// plot-data logging
 		inline void WritePlot_impl (level_t level, context_t context, float x, float y, char const * fmt, va_list args);
@@ -84,6 +86,20 @@
 			va_list args;
 			va_start(args, fmt);
 			WriteTableVA(level, context, x, y, c, fmt, args);
+			va_end(args);
+		}
+
+		inline void WriteTable_impl (level_t level, context_t context, int x, int y, Color fg, Color bg, char const * fmt, va_list args);
+		void WriteTableVA (level_t level, context_t context, int x, int y, Color fg, Color bg, char const * fmt, va_list args)
+		{
+			if (RuntimeFilterPredicate(level, context))
+				WriteTable_impl(level, context, x, y, fg, bg, fmt, args);
+		}
+		void WriteTable (level_t level, context_t context, int x, int y, Color fg, Color bg, char const * fmt, ...)
+		{
+			va_list args;
+			va_start(args, fmt);
+			WriteTableVA(level, context, x, y, fg, bg, fmt, args);
 			va_end(args);
 		}
 
@@ -155,6 +171,7 @@
 			if (RuntimeFilterPredicate(m_level, m_context))
 				WriteScope(e_Exit, m_level, m_context, m_file, m_line, m_fn, "dt=%llu", sys::queryTime_ms() - m_start);
 		}
+
 
 		// context dictionnary
 		inline void SetCustomUserDictionnary (CtxDictPair const * ptr, size_t n);

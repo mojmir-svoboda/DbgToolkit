@@ -32,8 +32,11 @@ namespace table {
 		void onInvalidateFilter ();
 		void findNearestTimeRow (unsigned long long t);
 
+		void requestTableWheelEventSync (QWheelEvent * ev, QTableView const * source);
+
 	protected:
 		void timerEvent (QTimerEvent * e);
+		virtual void wheelEvent (QWheelEvent * event);
 
 	public Q_SLOTS:
 

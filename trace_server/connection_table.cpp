@@ -227,3 +227,14 @@ void Connection::requestTableSynchronization (int sync_group, unsigned long long
 			tbl->widget().findNearestTimeRow(time);
 	}
 }
+
+void Connection::requestTableWheelEventSync (int sync_group, QWheelEvent * ev, QTableView const * source)
+{
+	for (datatables_t::iterator it = m_datatables.begin(), ite = m_datatables.end(); it != ite; ++it)
+	{
+		DataTable * const tbl = *it;
+		if (tbl->widget().getConfig().m_sync_group == sync_group)
+			// && tbl->widget() != source
+			tbl->widget().requestTableWheelEventSync(ev, source);
+	}
+}

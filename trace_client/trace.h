@@ -280,6 +280,7 @@
 			Color (unsigned char red, unsigned char green, unsigned char blue, unsigned char alpha = 0xff) : r(red), g(green), b(blue), a(alpha) {  }
 		};
 		TRACE_API void WriteTable (level_t level, context_t context, int x, int y, Color c, char const * fmt, ...);
+		TRACE_API void WriteTable (level_t level, context_t context, int x, int y, Color fg, Color bg, char const * fmt, ...);
 		TRACE_API void WriteTableSetColor (level_t level, context_t context, int x, int y, Color fg, char const * fmt, ...);
 		TRACE_API void WriteTableSetColor (level_t level, context_t context, int x, int y, Color fg, Color bg, char const * fmt, ...);
 		TRACE_API void WriteTableSetHHeader (level_t level, context_t context, int x, char const * name, char const * fmt, ...);
