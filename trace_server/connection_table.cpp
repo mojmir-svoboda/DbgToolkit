@@ -1,6 +1,7 @@
 #include "connection.h"
 #include <QtNetwork>
 #include <QHeaderView>
+#include <QScrollBar>
 #include <tlv_parser/tlv_encoder.h>
 #include "modelview.h"
 #include "cmd.h"
@@ -210,7 +211,6 @@ void Connection::appendTableXY (int x, int y, QString const & time, QString cons
 	dp.widget().appendTableXY(x, y, time, fgc, bgc, subtag);
 }
 
-
 void Connection::appendTableSetup (int x, int y, QString const & time, QString const & fgc, QString const & bgc, QString const & hhdr, QString const & msg_tag)
 {
 	QString tag = msg_tag;
@@ -242,7 +242,15 @@ void Connection::requestTableWheelEventSync (int sync_group, QWheelEvent * ev, Q
 	{
 		DataTable * const tbl = *it;
 		if (tbl->widget().getConfig().m_sync_group == sync_group)
-			// && tbl->widget() != source
 			tbl->widget().requestTableWheelEventSync(ev, source);
+
+		int const hmin = tbl->widget().horizontalScrollBar()->minimum();
+		int const hval = tbl->widget().horizontalScrollBar()->value();
+		int const hmax = tbl->widget().horizontalScrollBar()->maximum();
+		int const vmin = tbl->widget().verticalScrollBar()->minimum();
+		int const vval = tbl->widget().verticalScrollBar()->value();
+		int const vmax = tbl->widget().verticalScrollBar()->maximum();
+		qDebug("conn wh sync: min=%i val=%i max=%i", vmin, vval, vmax);
 	}
 }
+

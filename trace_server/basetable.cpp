@@ -1,5 +1,6 @@
 #include "basetable.h"
 #include <QTimer>
+#include <QScrollBar>
 #include "editableheaderview.h"
 #include "sparseproxy.h"
 #include "connection.h"
@@ -325,7 +326,9 @@ namespace table {
 		qDebug("%s this=0x%08x", __FUNCTION__, this);
 		bool const shift = event->modifiers() & Qt::ALT;
 
+		QTableView::wheelEvent(event);
 		m_connection->requestTableWheelEventSync(m_config.m_sync_group, event, this);
+
 
 		/*if (shift)
 		{
@@ -363,7 +366,25 @@ namespace table {
 
 	void BaseTable::requestTableWheelEventSync (QWheelEvent * ev, QTableView const * source)
 	{
-		QTableView::wheelEvent(ev);
+
+		//int const hmin = tbl->widget().horizontalScrollBar()->minimum();
+		//int const hval = tbl->widget().horizontalScrollBar()->value();
+		//int const hmax = tbl->widget().horizontalScrollBar()->maximum();
+		int const src_pgs = source->verticalScrollBar()->pageStep();
+		int const src_vval = source->verticalScrollBar()->value();
+		int const src_vmax = source->verticalScrollBar()->maximum();
+
+		float const src_rng = src_vmax;
+		if (this != source)
+		{
+			float grr = src_vval / src_rng;
+
+			qDebug(" tbl wh sync: pgs=%i val=%i max=%i  src_val=%3.2f new=%i", src_pgs, src_vval, src_vmax, grr, int(grr * (verticalScrollBar()->maximum() + verticalScrollBar()->pageStep())));
+			verticalScrollBar()->setValue(int(grr * (verticalScrollBar()->maximum())));
+		}
+		else
+		{
+		}
 	}
 }
 
