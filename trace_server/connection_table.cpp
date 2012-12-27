@@ -214,11 +214,13 @@ void Connection::appendTableXY (int x, int y, QString const & time, QString cons
 void Connection::appendTableSetup (int x, int y, QString const & time, QString const & fgc, QString const & bgc, QString const & hhdr, QString const & msg_tag)
 {
 	QString tag = msg_tag;
-	int const slash_pos = tag.lastIndexOf(QChar('/'));
-	tag.chop(msg_tag.size() - slash_pos);
-
 	QString subtag = msg_tag;
-	subtag.remove(0, slash_pos + 1);
+	int const slash_pos = tag.lastIndexOf(QChar('/'));
+	if (slash_pos >= 0)
+	{
+		tag.chop(msg_tag.size() - slash_pos);
+		subtag.remove(0, slash_pos + 1);
+	}
 
 	datatables_t::iterator it = findOrCreateTable(tag);
 
