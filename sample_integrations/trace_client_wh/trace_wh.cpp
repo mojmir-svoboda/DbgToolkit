@@ -274,7 +274,7 @@ int main ()
 		//TRACE_TABLE(trace::e_Info, trace::CTX_Default,-1,  1, "fookus/%f", float(i) * 3.1415926f);
 
 
-		if (i == 160)
+		if (i == 50)
 			break;
 
 		TRACE_MSG(trace::e_Info, trace::CTX_Default,  "Some warning message i=%u from main thread", i);

@@ -237,6 +237,7 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QStri
 	connect(ui->tabTrace, SIGNAL(tabCloseRequested(int)), m_server, SLOT(onCloseTabWithIndex(int)));
 	QTimer::singleShot(0, this, SLOT(loadState()));	// trigger lazy load of settings
 	setWindowTitle("trace_server");
+	setObjectName("trace_server");
 }
 
 MainWindow::~MainWindow()
@@ -1065,13 +1066,14 @@ void MainWindow::storeGeometry ()
 {
 	qDebug("%s", __FUNCTION__);
 	QSettings settings("MojoMir", "TraceServer");
-	settings.setValue("MainWindow/State", saveState());
-	settings.setValue("MainWindow/Geometry", saveGeometry());
+	settings.setValue("geometry", saveGeometry());
+	settings.setValue("windowState", saveState());
 }
 	
 
 void MainWindow::onSaveAllButton ()
 {
+	storeState();
 	qDebug("%s", __FUNCTION__);
 	storeGeometry();
 
@@ -1085,8 +1087,8 @@ void MainWindow::onDockRestoreButton ()
 {
 	qDebug("%s", __FUNCTION__);
 	QSettings settings("MojoMir", "TraceServer");
-	restoreState(settings.value("MainWindow/State").toByteArray());
-	restoreGeometry(settings.value("MainWindow/Geometry").toByteArray());
+	restoreState(settings.value("windowState").toByteArray());
+	restoreGeometry(settings.value("geometry").toByteArray());
 }
 
 void MainWindow::storePresetNames ()

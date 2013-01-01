@@ -28,11 +28,18 @@ DockWidget * DockManager::mkDockWidget (QMainWindow * const window, QWidget * co
 {
 	DockWidget * const dock = new DockWidget(*this, name, window);
 	dock->setObjectName(name);
+	dock->setWindowTitle(name);
 	dock->setAllowedAreas(Qt::AllDockWidgetAreas);
 	dock->setWidget(docked_widget);
 	window->addDockWidget(area, dock);
 	m_widgets.insert(name, dock);
 	dock->setAttribute(Qt::WA_DeleteOnClose, false);
+
+	if (!window->restoreDockWidget(dock))
+	{
+		qWarning("cannot restore widget!");
+	}
+
 	return dock;
 }
 

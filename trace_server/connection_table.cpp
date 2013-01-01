@@ -187,11 +187,7 @@ datatables_t::iterator Connection::findOrCreateTable (QString const & tag)
 		{
 			dp->onHide();
 		}
-
-		dp->onHide();
-		m_main_window->restoreDockWidget(dp->m_wd);
 		m_main_window->onDockRestoreButton();
-		dp->onShow();
 	}
 	return it;
 }
