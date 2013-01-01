@@ -37,6 +37,7 @@ namespace table {
 	protected:
 		void timerEvent (QTimerEvent * e);
 		virtual void wheelEvent (QWheelEvent * event);
+		virtual QModelIndex	moveCursor (CursorAction cursorAction, Qt::KeyboardModifiers modifiers);
 
 	public Q_SLOTS:
 
