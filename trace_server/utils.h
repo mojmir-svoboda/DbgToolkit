@@ -27,6 +27,15 @@
 #include "sessionstate.h"
 #include "constants.h"
 
+template<class C>
+void clearListView (C * v)
+{
+	if (v && v->model())
+	{
+		static_cast<QStandardItemModel *>(v->model())->clear();
+	}
+}
+
 inline void write_list_of_strings (QSettings & settings, char const * groupname, char const * groupvaluename, QList<QString> const & lst)
 {
 	settings.beginWriteArray(groupname);

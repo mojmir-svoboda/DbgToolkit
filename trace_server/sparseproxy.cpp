@@ -91,6 +91,13 @@ bool SparseProxyModel::rowInProxy (int row) const
 	return false;
 }
 
+bool SparseProxyModel::colInProxy (int col) const
+{
+	if (col < static_cast<int>(m_cmap_from_src.size()))
+			return m_cmap_from_src[col] >= 0;
+	return false;
+}
+
 QModelIndex SparseProxyModel::mapToSource (QModelIndex const & proxyIndex) const
 {
 	if (proxyIndex.isValid())
@@ -169,17 +176,32 @@ bool SparseProxyModel::insertColumns (int first, int last, QModelIndex const & p
 	return true;
 }
 
+void SparseProxyModel::insertAllowedColumn (int src_col)
+{
+	if (src_col < m_allowed_src_cols.size())
+		m_allowed_src_cols.resize(src_col + 1);
+	m_allowed_src_cols[src_col] = 1;
+}
+
 bool SparseProxyModel::filterAcceptsColumn (int sourceColumn, QModelIndex const & source_parent) const
 {
-	bool is_empty = true;
+	bool drop = true;
 	for (int i = 0, ie = sourceModel()->rowCount(); i < ie; ++i)
 	{
 		QModelIndex const data_idx = sourceModel()->index(i, sourceColumn, QModelIndex());
 		QVariant const & var = sourceModel()->data(data_idx);
+		if (sourceColumn < m_allowed_src_cols.size() && m_allowed_src_cols[sourceColumn] == 0)
+		{
+			drop = false;
+			break;
+		}
+
 		if (var.isValid() && !var.toString().isEmpty())
-			is_empty = false;
+		{
+			drop = false;
+		}
 	}
-	return !is_empty;
+	return !drop;
 }
 
 bool SparseProxyModel::filterAcceptsRow (int sourceRow, QModelIndex const & /*sourceParent*/) const

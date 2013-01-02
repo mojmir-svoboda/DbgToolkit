@@ -4,6 +4,9 @@
 #include "editableheaderview.h"
 #include "sparseproxy.h"
 #include "connection.h"
+#include "utils.h"
+#include "utils_qstandarditem.h"
+#include "movablelistmodel.h"
 
 namespace table {
 
@@ -18,6 +21,19 @@ namespace table {
 		, m_connection(oparent)
 	{
 		qDebug("%s this=0x%08x", __FUNCTION__, this);
+
+		MyListModel * model = new MyListModel(this);
+		m_config_ui.ui()->columnView->setModel(model);
+		m_config_ui.ui()->columnView->model()->setSupportedDragActions(Qt::MoveAction);
+		m_config_ui.ui()->columnView->setDropIndicatorShown(true);
+		m_config_ui.ui()->columnView->setMovement(QListView::Snap);
+		m_config_ui.ui()->columnView->setDragDropMode(QAbstractItemView::InternalMove);
+
+		connect(m_config_ui.ui()->columnView, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtColumnSetup(QModelIndex)));
+
+		//model->addObserver(ui_settings->listViewColumnSizes->model());
+		m_config_ui.ui()->columnView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+
 
 		setContextMenuPolicy(Qt::CustomContextMenu);
 		connect(this, SIGNAL(customContextMenuRequested(QPoint const &)), this, SLOT(onShowContextMenu(QPoint const &)));
@@ -50,6 +66,8 @@ namespace table {
 		setConfigValues(m_config);
 		QTimer::singleShot(0, this, SLOT(onApplyButton()));
 		setUpdatesEnabled(true);
+		horizontalHeader()->setMovable(true);
+
 	}
 
 	BaseTable::~BaseTable ()
@@ -73,29 +91,59 @@ namespace table {
 	{
 		// FIXME: for unknown reasons this fn is called multiple times (from onApplyButton)
 		qDebug("%s this=0x%08x", __FUNCTION__, this);
+		Ui::SettingsTable * ui = m_config_ui.ui();
 
 		//killTimer(m_timer);
 		//m_timer = startTimer(1000);
 		setModel(m_modelView);
-		qDebug("table: m_hsize.sz=%i model.sz=%i", m_config.m_hsize.size(), model()->columnCount());
+		m_modelView->setProxy(0);
+		//qDebug("table: m_hsize.sz=%i model.sz=%i", m_config.m_hsize.size(), model()->columnCount());
+
+		QStandardItem * name_root = static_cast<QStandardItemModel *>(ui->columnView->model())->invisibleRootItem();
+		int const n_cols = name_root->rowCount();
+		if (m_config.m_hhdr.size() < n_cols)
+			m_config.m_hhdr.resize(n_cols);
+		if (m_config.m_hsize.size() < n_cols)
+			m_config.m_hsize.resize(n_cols);
+
+		for (int i = 0, ie = name_root->rowCount(); i < ie; ++i)
+		{
+			QStandardItem * ch = name_root->child(i);
+			if (ch && ch->checkState() == Qt::Checked)
+			{
+				m_config.m_hhdr[i] = ch->text();
+				if (m_config.m_hsize[i] == 0)
+					m_config.m_hsize[i] = 32;
+			}
+			else
+			{
+				m_config.m_hsize[i] = 0;
+			}
+			if (m_table_view_proxy)
+				static_cast<SparseProxyModel *>(m_table_view_proxy)->insertAllowedColumn(i);
+		}
+
 		for (int i = 0, ie = m_config.m_hsize.size(); i < ie; ++i)
 		{
 			horizontalHeader()->blockSignals(1);
 			horizontalHeader()->resizeSection(i, m_config.m_hsize.at(i));
-			qDebug("table: hdr[%i]=%i", i, m_config.m_hsize.at(i));
+			//qDebug("table: hdr[%i]=%i", i, m_config.m_hsize.at(i));
 			horizontalHeader()->blockSignals(0);
+
+			m_modelView->setProxy(0);
+
 		}
 
 		if (m_config.m_hide_empty)
 		{
-			qDebug("table: +++ proxy");
+			qDebug("table: +proxy");
 			static_cast<SparseProxyModel *>(m_table_view_proxy)->force_update();
 			m_modelView->setProxy(m_table_view_proxy);
 			setModel(m_table_view_proxy);
 		}
 		else
 		{
-			qDebug("table: --- proxy");
+			qDebug("table: -proxy");
 			setModel(m_modelView);
 			m_modelView->setProxy(0);
 		}
@@ -143,6 +191,46 @@ namespace table {
 		ui->hideEmptyCheckBox->setCheckState(m_config.m_hide_empty ? Qt::Checked : Qt::Unchecked);
 		ui->autoScrollCheckBox->setCheckState(m_config.m_auto_scroll ? Qt::Checked : Qt::Unchecked);
 		ui->syncGroupSpinBox->setValue(m_config.m_sync_group);
+
+		clearListView(ui->columnView);
+		QStandardItem * name_root = static_cast<QStandardItemModel *>(ui->columnView->model())->invisibleRootItem();
+		
+		for (int i = 0, ie = m_modelView->columnCount(); i < ie; ++i)
+		{
+			Qt::CheckState state = Qt::Checked;
+			QString name;
+			if (i < m_config.m_hhdr.size() && !m_config.m_hhdr.at(i).isEmpty())
+			{
+				name = m_config.m_hhdr.at(i);
+			}
+			else
+			{
+				name = tr("%0").arg(i);
+			}
+
+			if (isModelProxy())
+			{
+				if (static_cast<SparseProxyModel const *>(m_table_view_proxy)->colInProxy(i))
+				{
+					state = Qt::Unchecked;
+				}
+			}
+			else
+			{
+				if (horizontalHeader()->sectionSize(i) == 0)
+					state = Qt::Unchecked;
+			}
+
+			QList<QStandardItem *> lst = addTriRow(name, state);
+			name_root->appendRow(lst);
+		}
+	}
+
+	void BaseTable::onClickedAtColumnSetup (QModelIndex const idx)
+	{
+		QStandardItem * const item = static_cast<QStandardItemModel *>(m_config_ui.ui()->columnView->model())->itemFromIndex(idx);
+		Qt::CheckState const curr = item->checkState();
+		item->setCheckState(curr == Qt::Checked ? Qt::Unchecked : Qt::Checked);
 	}
 
 	void BaseTable::onApplyButton ()

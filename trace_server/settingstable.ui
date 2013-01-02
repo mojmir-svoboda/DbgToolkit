@@ -25,6 +25,18 @@
         <property name="toolTip">
          <string>Select columns to show/hide</string>
         </property>
+        <property name="alternatingRowColors">
+         <bool>false</bool>
+        </property>
+        <property name="textElideMode">
+         <enum>Qt::ElideMiddle</enum>
+        </property>
+        <property name="spacing">
+         <number>0</number>
+        </property>
+        <property name="uniformItemSizes">
+         <bool>true</bool>
+        </property>
        </widget>
       </item>
       <item row="0" column="1" rowspan="4">
@@ -52,7 +64,7 @@ All tables with the same number will have inputs synchronized.
 0 means no synchronization with other tables.</string>
         </property>
         <property name="prefix">
-         <string> </string>
+         <string/>
         </property>
        </widget>
       </item>

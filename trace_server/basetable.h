@@ -55,6 +55,7 @@ namespace table {
 		void onSectionResized (int idx, int old_size, int new_size);
 		void scrollTo (QModelIndex const & index, ScrollHint hint);
 		void onTableDoubleClicked (QModelIndex const & row_index);
+		void onClickedAtColumnSetup (QModelIndex const idx);
 
 	protected:
 		int m_timer;

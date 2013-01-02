@@ -41,9 +41,12 @@ public:
 	virtual QModelIndex mapToSource (QModelIndex const & proxyIndex) const;
 	virtual QModelIndex mapFromSource (QModelIndex const & sourceIndex) const;
 	bool rowInProxy (int row) const;
+	bool colInProxy (int col) const;
 
 	virtual bool insertRows (int first, int last, QModelIndex const &);
 	virtual bool insertColumns (int first, int last, QModelIndex const & parent = QModelIndex());
+
+	void insertAllowedColumn (int src_col);
 
 	QVariant data (QModelIndex const & index, int role) const;
 	bool setData (QModelIndex const & index, QVariant const & value, int role);
@@ -64,6 +67,7 @@ protected:
 	std::vector<int> m_cmap_from_tgt;
 	std::vector<int> m_cmap_from_src;
 	MainWindow const * m_main_window;
+	std::vector<int> m_allowed_src_cols;
 };
 
 
