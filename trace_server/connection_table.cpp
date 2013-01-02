@@ -242,22 +242,22 @@ void Connection::requestTableWheelEventSync (int sync_group, QWheelEvent * ev, Q
 		if (tbl->widget().getConfig().m_sync_group == sync_group)
 			tbl->widget().requestTableWheelEventSync(ev, source);
 
-		int const hmin = tbl->widget().horizontalScrollBar()->minimum();
+		/*int const hmin = tbl->widget().horizontalScrollBar()->minimum();
 		int const hval = tbl->widget().horizontalScrollBar()->value();
 		int const hmax = tbl->widget().horizontalScrollBar()->maximum();
 		int const vmin = tbl->widget().verticalScrollBar()->minimum();
 		int const vval = tbl->widget().verticalScrollBar()->value();
 		int const vmax = tbl->widget().verticalScrollBar()->maximum();
-		qDebug("conn wh sync: min=%i val=%i max=%i", vmin, vval, vmax);
+		qDebug("conn wh sync: min=%i val=%i max=%i", vmin, vval, vmax);*/
 	}
 }
 
-void Connection::requestTableActionSync (int sync_group, int cursorAction, Qt::KeyboardModifiers modifiers, QTableView const * source)
+void Connection::requestTableActionSync (int sync_group, unsigned long long t, int cursorAction, Qt::KeyboardModifiers modifiers, QTableView const * source)
 {
 	for (datatables_t::iterator it = m_datatables.begin(), ite = m_datatables.end(); it != ite; ++it)
 	{
 		DataTable * const tbl = *it;
 		if (tbl->widget().getConfig().m_sync_group == sync_group)
-			tbl->widget().requestTableActionSync(cursorAction, modifiers, source);
+			tbl->widget().requestTableActionSync(t, cursorAction, modifiers, source);
 	}
 }

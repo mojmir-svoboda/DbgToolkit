@@ -40,6 +40,7 @@ public:
 
 	virtual QModelIndex mapToSource (QModelIndex const & proxyIndex) const;
 	virtual QModelIndex mapFromSource (QModelIndex const & sourceIndex) const;
+	bool rowInProxy (int row) const;
 
 	virtual bool insertRows (int first, int last, QModelIndex const &);
 	virtual bool insertColumns (int first, int last, QModelIndex const & parent = QModelIndex());

@@ -34,7 +34,7 @@ namespace table {
 		void findNearestTimeRow (unsigned long long t);
 
 		void requestTableWheelEventSync (QWheelEvent * ev, QTableView const * source);
-		void requestTableActionSync (QWheelEvent * ev, int cursorAction, Qt::KeyboardModifiers modifiers, QTableView const * source);
+		void requestTableActionSync (unsigned long long t, int cursorAction, Qt::KeyboardModifiers modifiers, QTableView const * source);
 
 	protected:
 		void timerEvent (QTimerEvent * e);

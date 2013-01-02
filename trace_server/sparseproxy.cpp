@@ -84,6 +84,13 @@ int SparseProxyModel::columnCount (QModelIndex const & parent) const
 	return m_cmap_from_tgt.size();
 }
 
+bool SparseProxyModel::rowInProxy (int row) const
+{
+	if (row < static_cast<int>(m_map_from_src.size()))
+			return m_map_from_src[row] >= 0;
+	return false;
+}
+
 QModelIndex SparseProxyModel::mapToSource (QModelIndex const & proxyIndex) const
 {
 	if (proxyIndex.isValid())

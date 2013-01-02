@@ -291,31 +291,38 @@ namespace table {
 	void BaseTable::findNearestTimeRow (unsigned long long t)
 	{
 		qDebug("%s this=0x%08x", __FUNCTION__, this);
+		bool const is_proxy = isModelProxy();
 		size_t closest_i = 0;
 		int closest_dist = 1024 * 1024;
 		for (size_t i = 0; i < m_modelView->rowCount(); ++i)
 		{
 			int const diff = m_modelView->row_time(i) - t;
 			int const d = abs(diff);
-			if (d < closest_dist)
+			bool const row_exists = is_proxy ? static_cast<SparseProxyModel const *>(m_table_view_proxy)->rowInProxy(i) : true;
+			if (row_exists && d < closest_dist)
 			{
 				closest_i = i;
 				closest_dist = d;
 			}
 		}
 
-		qDebug("table: nearest index= %i/%i", closest_i, m_modelView->rowCount());
-
-		QModelIndex const curr = currentIndex();
-		QModelIndex const idx = m_modelView->index(closest_i, curr.column() < 0 ? 0 : curr.column(), QModelIndex());
-		qDebug("table: findNearestTime curr=(%i, %i)  new=(%i, %i)", curr.column(), curr.row(), idx.column(), idx.row());
-		if (isModelProxy())
+		if (is_proxy)
 		{
+			qDebug("table: pxy nearest index= %i/%i", closest_i, m_modelView->rowCount());
+			QModelIndex const curr = currentIndex();
+			QModelIndex const idx = m_modelView->index(closest_i, curr.column() < 0 ? 0 : curr.column(), QModelIndex());
+			qDebug("table: pxy findNearestTime curr=(%i, %i)  new=(%i, %i)", curr.column(), curr.row(), idx.column(), idx.row());
+
 			scrollTo(m_table_view_proxy->mapFromSource(idx), QAbstractItemView::PositionAtCenter);
 			selectionModel()->select(m_table_view_proxy->mapFromSource(idx), QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
 		}
 		else
 		{
+			qDebug("table: nearest index= %i/%i", closest_i, m_modelView->rowCount());
+			QModelIndex const curr = currentIndex();
+			QModelIndex const idx = m_modelView->index(closest_i, curr.column() < 0 ? 0 : curr.column(), QModelIndex());
+			qDebug("table: findNearestTime curr=(%i, %i)  new=(%i, %i)", curr.column(), curr.row(), idx.column(), idx.row());
+
 			scrollTo(idx, QAbstractItemView::PositionAtCenter);
 			selectionModel()->select(idx, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
 		}
@@ -323,45 +330,11 @@ namespace table {
 
 	void BaseTable::wheelEvent (QWheelEvent * event)
 	{
-		qDebug("%s this=0x%08x", __FUNCTION__, this);
+		//qDebug("%s this=0x%08x", __FUNCTION__, this);
 		bool const shift = event->modifiers() & Qt::ALT;
 
 		QTableView::wheelEvent(event);
 		m_connection->requestTableWheelEventSync(m_config.m_sync_group, event, this);
-
-
-		/*if (shift)
-		{
-			m_frameSpinBox.setValue(m_frameSpinBox.value() + event->delta());
-		}
-		else
-		{
-			//Get the position of the mouse before scaling, in scene coords
-			QPointF pointBeforeScale(mapToScene(event->pos()));
-
-			//Get the original screen centerpoint
-			QPointF screenCenter = GetCenter(); //CurrentCenterPoint; //(visRect.center());
-
-			//Scale the view ie. do the zoom
-			double scaleFactor = 1.15; //How fast we zoom
-			if (event->delta() > 0) {
-				//Zoom in
-				scale(scaleFactor, scaleFactor);
-			} else {
-				//Zooming out
-				scale(1.0 / scaleFactor, 1.0 / scaleFactor);
-			}
-		 
-			//Get the position after scaling, in scene coords
-			QPointF pointAfterScale(mapToScene(event->pos()));
-		 
-			//Get the offset of how the screen moved
-			QPointF offset = pointBeforeScale - pointAfterScale;
-		 
-			//Adjust to the new center for correct zooming
-			QPointF newCenter = screenCenter + offset;
-			SetCenter(newCenter);
-	}*/
 	}
 
 	void BaseTable::requestTableWheelEventSync (QWheelEvent * ev, QTableView const * source)
@@ -379,7 +352,7 @@ namespace table {
 		{
 			float grr = src_vval / src_rng;
 
-			qDebug(" tbl wh sync: pgs=%i val=%i max=%i  src_val=%3.2f new=%i", src_pgs, src_vval, src_vmax, grr, int(grr * (verticalScrollBar()->maximum() + verticalScrollBar()->pageStep())));
+			//qDebug(" tbl wh sync: pgs=%i val=%i max=%i  src_val=%3.2f new=%i", src_pgs, src_vval, src_vmax, grr, int(grr * (verticalScrollBar()->maximum() + verticalScrollBar()->pageStep())));
 			verticalScrollBar()->setValue(int(grr * (verticalScrollBar()->maximum())));
 		}
 		else
@@ -387,12 +360,56 @@ namespace table {
 		}
 	}
 
-	QModelIndex	BaseTable::moveCursor (CursorAction cursorAction, Qt::KeyboardModifiers modifiers)
+	QModelIndex	BaseTable::moveCursor (CursorAction cursor_action, Qt::KeyboardModifiers modifiers)
 	{
 		bool const alt = modifiers & Qt::ALT;
 		if (alt)
-			m_connection->requestTableActionSync(m_config.m_sync_group, cursorAction, modifiers, this);
-		return QTableView::moveCursor(cursorAction, modifiers);
+		{
+			QModelIndex const & curr_idx = selectionModel()->currentIndex();
+			QModelIndex mod_idx = curr_idx;
+			if (isModelProxy())
+				mod_idx = m_table_view_proxy->mapToSource(curr_idx);
+
+			unsigned long long const t = m_modelView->row_time(mod_idx.row());
+			m_connection->requestTableActionSync(m_config.m_sync_group, t, cursor_action, modifiers, this);
+		}
+		return QTableView::moveCursor(cursor_action, modifiers);
+	}
+
+	void BaseTable::requestTableActionSync (unsigned long long t, int cursor_action, Qt::KeyboardModifiers modifiers, QTableView const * source)
+	{
+		if (this != source)
+		{
+			findNearestTimeRow(t);
+/*			QTableView::moveCursor(static_cast<CursorAction>(cursor_action), modifiers);
+			QModelIndexList const & lst = selectionModel()->selectedIndexes();
+			if (!lst.isEmpty())
+			{
+				int row_step = 0;
+				int col_step = 0;
+				switch (cursor_action)
+				{
+					case MoveUp:    row_step = -1; break;
+					case MoveDown:  row_step = +1; break;
+					case MoveLeft:  col_step = -1; break;
+					case MoveRight: col_step = +1; break;
+				}
+
+				bool const is_proxy = isModelProxy();
+
+				if (is_proxy)
+				{
+				}
+				else
+				{
+				}
+
+				QModelIndex const & curr = lst.at(0);
+				QModelIndex const idx = model()->index(curr.row() + row_step, curr.column() + col_step, curr.parent());
+				qDebug("table: requestTableActionSync curr=(%i, %i)  new=(%i, %i)", curr.column(), curr.row(), idx.column(), idx.row());
+				selectionModel()->select(idx, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+			}*/
+		}
 	}
 }
 
