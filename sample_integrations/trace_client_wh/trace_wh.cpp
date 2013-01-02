@@ -159,6 +159,7 @@ void TraceVal (int x, int y)
 	TRACE_TABLE_COLOR(trace::e_Info, trace::CTX_Default, x	, y, trace::Color(0,0,255,255), "%s0", GetName());
 	//TRACE_TABLE_COLOR(trace::e_Info, trace::CTX_Default, x	, y, trace::Color(255,0,0,255), "%s2/", GetName());
 	TRACE_TABLE_COLOR(trace::e_Info, trace::CTX_Default, x	, y, trace::Color(255,0,255,255), trace::Color(0,0,0,0), "%s0", GetName());
+	TRACE_TABLE_COLOR(trace::e_Info, trace::CTX_Default, 0	, y, trace::Color(255,0,255,255), trace::Color(0,255,0,0), "%s0", GetName());
 	++n;
 }
 
