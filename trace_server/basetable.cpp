@@ -390,8 +390,8 @@ namespace table {
 	QModelIndex	BaseTable::moveCursor (CursorAction cursorAction, Qt::KeyboardModifiers modifiers)
 	{
 		bool const alt = modifiers & Qt::ALT;
-		//if (alt)
-		//	qDebug("alt + action=%i", cursorAction);
+		if (alt)
+			m_connection->requestTableActionSync(m_config.m_sync_group, cursorAction, modifiers, this);
 		return QTableView::moveCursor(cursorAction, modifiers);
 	}
 }

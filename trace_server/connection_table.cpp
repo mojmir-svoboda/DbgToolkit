@@ -252,7 +252,7 @@ void Connection::requestTableWheelEventSync (int sync_group, QWheelEvent * ev, Q
 	}
 }
 
-void Connection::requestTableActionSync (int sync_group, CursorAction cursorAction, Qt::KeyboardModifiers modifiers, QTableView const * source)
+void Connection::requestTableActionSync (int sync_group, int cursorAction, Qt::KeyboardModifiers modifiers, QTableView const * source)
 {
 	for (datatables_t::iterator it = m_datatables.begin(), ite = m_datatables.end(); it != ite; ++it)
 	{
