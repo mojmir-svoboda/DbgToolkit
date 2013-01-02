@@ -339,7 +339,6 @@ namespace table {
 
 	void BaseTable::requestTableWheelEventSync (QWheelEvent * ev, QTableView const * source)
 	{
-
 		//int const hmin = tbl->widget().horizontalScrollBar()->minimum();
 		//int const hval = tbl->widget().horizontalScrollBar()->value();
 		//int const hmax = tbl->widget().horizontalScrollBar()->maximum();
@@ -362,8 +361,8 @@ namespace table {
 
 	QModelIndex	BaseTable::moveCursor (CursorAction cursor_action, Qt::KeyboardModifiers modifiers)
 	{
-		bool const alt = modifiers & Qt::ALT;
-		if (alt)
+		bool const mod = modifiers & Qt::CTRL;
+		if (mod)
 		{
 			QModelIndex const & curr_idx = selectionModel()->currentIndex();
 			QModelIndex mod_idx = curr_idx;
@@ -379,37 +378,7 @@ namespace table {
 	void BaseTable::requestTableActionSync (unsigned long long t, int cursor_action, Qt::KeyboardModifiers modifiers, QTableView const * source)
 	{
 		if (this != source)
-		{
 			findNearestTimeRow(t);
-/*			QTableView::moveCursor(static_cast<CursorAction>(cursor_action), modifiers);
-			QModelIndexList const & lst = selectionModel()->selectedIndexes();
-			if (!lst.isEmpty())
-			{
-				int row_step = 0;
-				int col_step = 0;
-				switch (cursor_action)
-				{
-					case MoveUp:    row_step = -1; break;
-					case MoveDown:  row_step = +1; break;
-					case MoveLeft:  col_step = -1; break;
-					case MoveRight: col_step = +1; break;
-				}
-
-				bool const is_proxy = isModelProxy();
-
-				if (is_proxy)
-				{
-				}
-				else
-				{
-				}
-
-				QModelIndex const & curr = lst.at(0);
-				QModelIndex const idx = model()->index(curr.row() + row_step, curr.column() + col_step, curr.parent());
-				qDebug("table: requestTableActionSync curr=(%i, %i)  new=(%i, %i)", curr.column(), curr.row(), idx.column(), idx.row());
-				selectionModel()->select(idx, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
-			}*/
-		}
 	}
 }
 
