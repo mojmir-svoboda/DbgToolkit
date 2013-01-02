@@ -25,6 +25,7 @@
 #include <QTcpSocket>
 #include <QTableView>
 #include <QThread>
+#include <QAbstractItemView>
 #include "mainwindow.h"
 #include <tlv_parser/tlv.h>
 #include <tlv_parser/tlv_cmd_qstring.h>
@@ -137,6 +138,7 @@ public:
 
 	void requestTableSynchronization (int sync_group, unsigned long long time);
 	void requestTableWheelEventSync (int sync_group, QWheelEvent * ev, QTableView const * source);
+	void requestTableActionbSync (int sync_group, CursorAction cursorAction, Qt::KeyboardModifiers modifiers, QTableView const * source);
 
 	QAbstractTableModel const * modelView () const { return static_cast<QAbstractTableModel const *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model()); }
 	QAbstractProxyModel const * proxyView () const { return static_cast<QAbstractProxyModel const *>(m_table_view_proxy); }

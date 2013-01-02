@@ -308,7 +308,7 @@ namespace table {
 
 		QModelIndex const curr = currentIndex();
 		QModelIndex const idx = m_modelView->index(closest_i, curr.column() < 0 ? 0 : curr.column(), QModelIndex());
-		qDebug("table: findNearestTime curr=(%i, %i)  new=(%i, %i)", curr.row(), curr.column(), idx.row(), idx.column());
+		qDebug("table: findNearestTime curr=(%i, %i)  new=(%i, %i)", curr.column(), curr.row(), idx.column(), idx.row());
 		if (isModelProxy())
 		{
 			scrollTo(m_table_view_proxy->mapFromSource(idx), QAbstractItemView::PositionAtCenter);
