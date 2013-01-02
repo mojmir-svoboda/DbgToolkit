@@ -15,6 +15,9 @@ void SparseProxyModel::force_update ()
 	m_map_from_src.clear();
 	QAbstractTableModel const * src_model = static_cast<QAbstractTableModel const *>(sourceModel());
 	m_map_from_src.resize(src_model->rowCount());
+	for (size_t i = 0; i < src_model->rowCount(); ++i)
+		m_map_from_src[i] = -1;
+
 	for (size_t src_idx = 0, se = src_model->rowCount(); src_idx < se; ++src_idx)
 	{
 		if (filterAcceptsRow(src_idx, QModelIndex()))
@@ -28,6 +31,8 @@ void SparseProxyModel::force_update ()
 	m_cmap_from_tgt.clear();
 	m_cmap_from_src.clear();
 	m_cmap_from_src.resize(src_model->columnCount());
+	for (size_t i = 0; i < src_model->columnCount(); ++i)
+		m_cmap_from_src[i] = -1;
 	for (size_t src_idx = 0, se = src_model->columnCount(); src_idx < se; ++src_idx)
 	{
 		if (filterAcceptsColumn(src_idx, QModelIndex()))
@@ -56,6 +61,20 @@ bool SparseProxyModel::setData (QModelIndex const & src_index, QVariant const & 
 	emit dataChanged(index, index);
 	return true;
 }
+
+
+QVariant SparseProxyModel::headerData (int section, Qt::Orientation orientation, int role) const
+{
+	int const tgt_idx = colFromSource(section);
+	return sourceModel()->headerData(tgt_idx, orientation, role);
+}
+
+bool  SparseProxyModel::setHeaderData (int section, Qt::Orientation orientation, QVariant const & value, int role)
+{
+	int const tgt_idx = colFromSource(section);
+	return sourceModel()->setHeaderData(tgt_idx, orientation, value, role);
+}
+
 
 Qt::ItemFlags SparseProxyModel::flags (QModelIndex const & index) const
 {
@@ -93,9 +112,23 @@ bool SparseProxyModel::rowInProxy (int row) const
 
 bool SparseProxyModel::colInProxy (int col) const
 {
+	return colToSource(col) > -1;
+}
+
+int SparseProxyModel::colToSource (int col) const
+{
+	int val = -1;
 	if (col < static_cast<int>(m_cmap_from_src.size()))
-			return m_cmap_from_src[col] >= 0;
-	return false;
+			return m_cmap_from_src[col];
+	return val;
+}
+
+int SparseProxyModel::colFromSource (int col) const
+{
+	int val = -1;
+	if (col < static_cast<int>(m_cmap_from_tgt.size()))
+			return m_cmap_from_tgt[col];
+	return val;
 }
 
 QModelIndex SparseProxyModel::mapToSource (QModelIndex const & proxyIndex) const
@@ -178,7 +211,7 @@ bool SparseProxyModel::insertColumns (int first, int last, QModelIndex const & p
 
 void SparseProxyModel::insertAllowedColumn (int src_col)
 {
-	if (src_col < m_allowed_src_cols.size())
+	if (src_col >= m_allowed_src_cols.size())
 		m_allowed_src_cols.resize(src_col + 1);
 	m_allowed_src_cols[src_col] = 1;
 }

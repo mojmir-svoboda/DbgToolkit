@@ -48,6 +48,7 @@ namespace table {
 		void onHideContextMenu ();
 		void onShowContextMenu (QPoint const & pos);
 		void setConfigValues (TableConfig const & pcfg);
+		void filteringStateChanged (int);
 		void onSaveButton ();
 		void onApplyButton ();
 		void onResetButton ();

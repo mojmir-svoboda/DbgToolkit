@@ -47,12 +47,12 @@
        </widget>
       </item>
       <item row="0" column="2">
-       <widget class="QCheckBox" name="hideEmptyCheckBox">
+       <widget class="QCheckBox" name="filteringCheckBox">
         <property name="toolTip">
          <string>Auto-hiding of empty columns/rows</string>
         </property>
         <property name="text">
-         <string>Hide Empty Cols/Rows</string>
+         <string>Filtering</string>
         </property>
        </widget>
       </item>

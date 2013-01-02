@@ -98,23 +98,45 @@ bool TableModelView::setData (QModelIndex const & index, QVariant const & value,
 
 QVariant TableModelView::headerData (int section, Qt::Orientation orientation, int role) const
 {
-	if (role == Qt::DisplayRole && orientation == Qt::Horizontal)
-		if (section > -1 && section < m_hhdr.size())
-			return m_hhdr.at(section);
+	//if (orientation == Qt::Horizontal)
+	{
+		if (role == Qt::DisplayRole)
+			if (section > -1 && section < m_hhdr.size())
+			{
+				qDebug("table: hdr[%i]=%s", section, m_hhdr.at(section).toStdString().c_str());
+				return m_hhdr.at(section);
+			}
+		if (role == Qt::SizeHintRole)
+			if (section > -1 && section < m_hsize.size())
+				return m_hsize.at(section);
+	}
 	return QVariant();
 }
 
 bool  TableModelView::setHeaderData (int section, Qt::Orientation orientation, QVariant const & value, int role)
 {
-	if (role == Qt::EditRole && orientation == Qt::Horizontal)
+	if (section == -1)
+		return false;
+	if (orientation == Qt::Horizontal)
 	{
-		if (section == -1)
-			return false;
-		if (section + 1 > m_hhdr.size())
+		if (role == Qt::EditRole)
 		{
-			m_hhdr.resize(section + 1);
+			if (section + 1 > m_hhdr.size())
+			{
+				m_hhdr.resize(section + 1);
+			}
+			m_hhdr[section] = value.toString();
+			emit headerDataChanged(orientation, section, section);
 		}
-		m_hhdr[section] = value.toString();
+		else if (role == Qt::SizeHintRole)
+		{
+			if (section + 1 > m_hsize.size())
+			{
+				m_hsize.resize(section + 1);
+			}
+			m_hsize[section] = value.toInt();
+			emit headerDataChanged(orientation, section, section);
+		}
 	}
 	return true;
 }
