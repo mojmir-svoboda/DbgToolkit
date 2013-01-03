@@ -63,7 +63,7 @@ bool SparseProxyModel::setData (QModelIndex const & src_index, QVariant const & 
 }
 
 
-QVariant SparseProxyModel::headerData (int section, Qt::Orientation orientation, int role) const
+/*QVariant SparseProxyModel::headerData (int section, Qt::Orientation orientation, int role) const
 {
 	int const tgt_idx = colFromSource(section);
 	return sourceModel()->headerData(tgt_idx, orientation, role);
@@ -73,7 +73,7 @@ bool  SparseProxyModel::setHeaderData (int section, Qt::Orientation orientation,
 {
 	int const tgt_idx = colFromSource(section);
 	return sourceModel()->setHeaderData(tgt_idx, orientation, value, role);
-}
+}*/
 
 
 Qt::ItemFlags SparseProxyModel::flags (QModelIndex const & index) const

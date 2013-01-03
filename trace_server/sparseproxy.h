@@ -45,8 +45,8 @@ public:
 	int colToSource (int col) const;
 	int colFromSource (int col) const;
 
-	QVariant headerData (int section, Qt::Orientation orientation, int role) const;
-	bool  setHeaderData (int section, Qt::Orientation orientation, QVariant const & value, int role = Qt::EditRole);
+	//QVariant headerData (int section, Qt::Orientation orientation, int role) const;
+	//bool  setHeaderData (int section, Qt::Orientation orientation, QVariant const & value, int role = Qt::EditRole);
 
 	virtual bool insertRows (int first, int last, QModelIndex const &);
 	virtual bool insertColumns (int first, int last, QModelIndex const & parent = QModelIndex());

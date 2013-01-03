@@ -98,17 +98,21 @@ bool TableModelView::setData (QModelIndex const & index, QVariant const & value,
 
 QVariant TableModelView::headerData (int section, Qt::Orientation orientation, int role) const
 {
-	//if (orientation == Qt::Horizontal)
+	if (orientation == Qt::Horizontal)
 	{
-		if (role == Qt::DisplayRole)
-			if (section > -1 && section < m_hhdr.size())
-			{
-				qDebug("table: hdr[%i]=%s", section, m_hhdr.at(section).toStdString().c_str());
-				return m_hhdr.at(section);
-			}
-		if (role == Qt::SizeHintRole)
-			if (section > -1 && section < m_hsize.size())
-				return m_hsize.at(section);
+		switch (role)
+		{
+			case Qt::DisplayRole:
+				if (section > -1 && section < m_hhdr.size())
+					return m_hhdr.at(section);
+				break;
+
+			// BLOODY HELL, Y U NO WORK?
+			/*case Qt::SizeHintRole:
+				if (section > -1 && section < m_hsize.size())
+					return m_hsize.at(section);
+				break;*/
+		}
 	}
 	return QVariant();
 }
