@@ -256,18 +256,26 @@ namespace table {
 		applyConfig(m_config);
 	}
 
-	void BaseTable::onSaveButton ()
+	void BaseTable::saveConfig (QString const & preset_name)
 	{
-		//qDebug("%s this=0x%08x", __FUNCTION__, this);
+		qDebug("%s this=0x%08x", __FUNCTION__, this);
+
+		QString const fname = getDataTagFileName(m_connection->getMainWindow().getConfig().m_appdir, m_connection->sessionState().m_name, preset_name, "table", tag);
 
 		m_config.m_hsize.clear();
 		m_config.m_hsize.resize(m_modelView->columnCount());
-		qDebug("table: m_hsize.sz=%i model.sz=%i", m_config.m_hsize.size(), m_modelView->columnCount());
+		//qDebug("table: m_hsize.sz=%i model.sz=%i", m_config.m_hsize.size(), m_modelView->columnCount());
 		for (int i = 0, ie = m_modelView->columnCount(); i < ie; ++i)
 		{
 			m_config.m_hsize[i] = horizontalHeader()->sectionSize(i);
 		}
-		saveConfig(m_config, m_fname);
+		saveConfig(m_config, fname);
+	}
+
+	void BaseTable::onSaveButton ()
+	{
+		QString preset_name = m_main_window->getValidCurrentPresetName();
+		saveConfig(preset_name);
 	}
 	void BaseTable::onResetButton () { setConfigValues(m_config); }
 	void BaseTable::onDefaultButton ()
@@ -473,7 +481,7 @@ namespace table {
 		}
 		else
 		{
-		}
+		}	
 	}
 
 	QModelIndex	BaseTable::moveCursor (CursorAction cursor_action, Qt::KeyboardModifiers modifiers)

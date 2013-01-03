@@ -91,17 +91,17 @@ bool Connection::handleDataXYZCommand (DecodedCommand const & cmd)
 	return true;
 }
  
-bool Connection::loadConfigForPlot (plot::PlotConfig & config, QString const & tag)
+bool Connection::loadConfigForPlot (QString const & preset_name, plot::PlotConfig & config, QString const & tag)
 {
-	QString const fname = getDataTagFileName(getConfig().m_appdir, sessionState().m_name, "plot", tag);
+	QString const fname = getDataTagFileName(getConfig().m_appdir, sessionState().m_name, preset_name, "plot", tag);
 	qDebug("load tag file=%s", fname.toStdString().c_str());
 
 	return loadConfig(config, fname);
 }
 
-bool Connection::saveConfigForPlot (plot::PlotConfig const & config, QString const & tag)
+bool Connection::saveConfigForPlot (QString const & preset_name, plot::PlotConfig const & config, QString const & tag)
 {
-	QString const fname = getDataTagFileName(getConfig().m_appdir, sessionState().m_name, "plot", tag);
+	QString const fname = getDataTagFileName(getConfig().m_appdir, sessionState().m_name, preset_name, "plot", tag);
 	qDebug("save tag file=%s", fname.toStdString().c_str());
 
 	return saveConfig(config, fname);
@@ -123,8 +123,9 @@ void Connection::appendDataXY (double x, double y, QString const & msg_tag)
 		// new data plot
 		plot::PlotConfig template_config;
 		template_config.m_tag = tag;
-		QString const fname = getDataTagFileName(getConfig().m_appdir, sessionState().m_name, "plot", tag);
-		if (loadConfigForPlot(template_config, tag))
+		QString preset_name = m_main_window->getValidCurrentPresetName();
+		QString const fname = getDataTagFileName(getConfig().m_appdir, sessionState().m_name, preset_name, "plot", tag);
+		if (loadConfigForPlot(preset_name, template_config, tag))
 		{
 			qDebug("plot: loaded tag configuration from file=%s", fname.toStdString().c_str());
 		}

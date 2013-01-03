@@ -36,6 +36,8 @@ namespace table {
 		void requestTableWheelEventSync (QWheelEvent * ev, QTableView const * source);
 		void requestTableActionSync (unsigned long long t, int cursorAction, Qt::KeyboardModifiers modifiers, QTableView const * source);
 
+		void saveConfig (QString const & preset_name);
+
 	protected:
 		void timerEvent (QTimerEvent * e);
 		virtual void wheelEvent (QWheelEvent * event);

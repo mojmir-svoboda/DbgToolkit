@@ -130,16 +130,16 @@ bool Connection::handleTableSetupCommand (DecodedCommand const & cmd)
 }
 
 
-bool Connection::loadConfigForTable (table::TableConfig & config, QString const & tag)
+bool Connection::loadConfigForTable (QString const & preset_name, table::TableConfig & config, QString const & tag)
 {
-	QString const fname = getDataTagFileName(getConfig().m_appdir, sessionState().m_name, "table", tag);
+	QString const fname = getDataTagFileName(getConfig().m_appdir, sessionState().m_name, preset_name, "table", tag);
 	qDebug("load tag file=%s", fname.toStdString().c_str());
 	return loadConfig(config, fname);
 }
 
-bool Connection::saveConfigForTable (table::TableConfig const & config, QString const & tag)
+bool Connection::saveConfigForTable (QString const & preset_name, table::TableConfig const & config, QString const & tag)
 {
-	QString const fname = getDataTagFileName(getConfig().m_appdir, sessionState().m_name, "table", tag);
+	QString const fname = getDataTagFileName(getConfig().m_appdir, sessionState().m_name, preset_name, "table", tag);
 	qDebug("save tag file=%s", fname.toStdString().c_str());
 	return saveConfig(config, fname);
 }
@@ -155,10 +155,16 @@ datatables_t::iterator Connection::findOrCreateTable (QString const & tag)
 		// new data table
 		table::TableConfig template_config;
 		template_config.m_tag = tag;
-		QString const fname = getDataTagFileName(getConfig().m_appdir, sessionState().m_name, "table", tag);
-		if (loadConfigForTable(template_config, tag))
+
+		QString preset_name = m_main_window->getCurrentPresetName();
+		QString fname;
+		if (preset_name.size() == 0)
 		{
-			qDebug("table: loaded tag configuration from file=%s", fname.toStdString().c_str());
+			fname = getDataTagFileName(getConfig().m_appdir, sessionState().m_name, preset_name, "table", tag);
+			if (loadConfigForTable(preset_name, template_config, tag))
+			{
+				qDebug("table: loaded tag configuration from file=%s", fname.toStdString().c_str());
+			}
 		}
 		
 		DataTable * const dp = new DataTable(this, template_config, fname);

@@ -79,6 +79,9 @@ public:
 		return e_InvalidItem;
 	}
 	
+
+	void saveLayout (QString const & preset_name);
+	void loadLayout (QString const & preset_name);
 	void saveSession (SessionState const & s, QString const & preset_name) const;
 	bool loadSession (SessionState & s, QString const & preset_name);
 	size_t addPresetName (QString const & name)
@@ -148,10 +151,14 @@ public:
 	void onPresetActivate (QString const & pname);
 	void onPresetActivate (Connection * conn, QString const & pname);
 
+	QString getCurrentPresetName () const;
+	QString promptAndCreatePresetName ();
+	QString getValidCurrentPresetName ();
+
 	unsigned getHotKey () const;
 	Server const * getServer () const { return m_server; }
 	Server * getServer () { return m_server; }
-	GlobalConfig const & getConfig () { return m_config; }
+	GlobalConfig const & getConfig () const { return m_config; }
 
 public slots:
 	void onHotkeyShowOrHide ();
@@ -188,10 +195,10 @@ private slots:
 	void onQFilterLineEditFinished ();
 	void appendToSearchHistory (QString const & str);
 	void updateSearchHistory ();
-	void onSaveCurrentFileFilter ();
-	void onSaveCurrentFileFilterTo (QString const & name);
-	void onAddCurrentFileFilter ();
-	void onRmCurrentFileFilter ();
+	void onSaveCurrentState ();
+	void onSaveCurrentStateTo (QString const & name);
+	void onAddCurrentState ();
+	void onRmCurrentState ();
 	void onPresetActivate (int idx);
 	void onRegexActivate (int idx);
 	void onRegexAdd ();

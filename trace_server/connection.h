@@ -130,10 +130,10 @@ public:
 	void run ();
 	void loadToColorRegexps (QString const & filter_item, QString const & color, bool enabled);
 	void loadToRegexps (QString const & filter_item, bool inclusive, bool enabled);
-	bool loadConfigForPlot (plot::PlotConfig & config, QString const & tag);
-	bool saveConfigForPlot (plot::PlotConfig const & config, QString const & tag);
-	bool loadConfigForTable (table::TableConfig & config, QString const & tag);
-	bool saveConfigForTable (table::TableConfig const & config, QString const & tag);
+	bool loadConfigForPlot (QString const & preset_name, plot::PlotConfig & config, QString const & tag);
+	bool saveConfigForPlot (QString const & preset_name, plot::PlotConfig const & config, QString const & tag);
+	bool loadConfigForTable (QString const & preset_name, table::TableConfig & config, QString const & tag);
+	bool saveConfigForTable (QString const & preset_name, table::TableConfig const & config, QString const & tag);
 	bool filterEnabled () const { return m_main_window->filterEnabled(); }
 
 	void requestTableSynchronization (int sync_group, unsigned long long time);

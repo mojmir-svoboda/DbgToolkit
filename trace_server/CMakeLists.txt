@@ -45,6 +45,7 @@ SET(trace_server_SOURCES
 	main.cpp
 	../version.cpp
 	mainwindow.cpp
+	mainwindow_presets.cpp
 	treeview.cpp
 	treemodel.cpp
 	modelview.cpp
