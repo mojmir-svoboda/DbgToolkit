@@ -149,12 +149,13 @@ void Connection::appendDataXY (double x, double y, QString const & msg_tag)
 		// new data plot
 		plot::PlotConfig template_config;
 		template_config.m_tag = tag;
-		QString preset_name = m_main_window->getValidCurrentPresetName();
+		QString const preset_name = m_curr_preset.isEmpty() ? m_main_window->getValidCurrentPresetName() : m_curr_preset;
 		QString const fname = getDataTagFileName(getConfig().m_appdir, preset_name, g_presetPlotTag, tag);
-		if (loadConfigForPlot(preset_name, template_config, tag))
-		{
-			qDebug("plot: loaded tag configuration from file=%s", fname.toStdString().c_str());
-		}
+		if (!preset_name.isEmpty())
+			if (loadConfigForPlot(preset_name, template_config, tag))
+			{
+				qDebug("plot: loaded tag configuration from file=%s", fname.toStdString().c_str());
+			}
 		
 		DataPlot * const dp = new DataPlot(this, template_config, fname);
 		it = m_dataplots.insert(tag, dp);
