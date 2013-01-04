@@ -59,9 +59,7 @@ void TableItemDelegate::paintTime (QPainter * painter, QStyleOptionViewItemV4 & 
 
 					if (value.isValid())
 					{
-						QString const val = value.toString();
-						float const t = val.toFloat() * 1000.0f / conn->getMainWindow()->getTimeUnits();
-						option4.text = tr("%1").arg(t);
+						option4.text = value.toString();
 					}
 				}
 			}
@@ -70,6 +68,14 @@ void TableItemDelegate::paintTime (QPainter * painter, QStyleOptionViewItemV4 & 
 		{
 			if (ref_dt >= 0)
 				option4.text = tr("%1").arg(ref_dt);
+		}
+
+		if (value.isValid())
+		{
+			QString const & val = option4.text;
+			float const t_ms = val.toFloat();
+			float const t = t_ms / 1000.0f / conn->getMainWindow()->getTimeUnits();
+			option4.text = QString::number(t, 'f', 3);
 		}
 
 		QWidget const * widget = option4.widget;
@@ -136,8 +142,7 @@ void TableItemDelegate::paint (QPainter * painter, QStyleOptionViewItem const & 
 	{
 		paintContext(painter, option4, index);
 	}
-	else if ((conn->sessionState().timeRefFromRow() > 0 || conn->getMainWindow()->dtEnabled())
-			&& index.column() == m_session_state.findColumn4Tag(tlv::tag_time))
+	else if (index.column() == m_session_state.findColumn4Tag(tlv::tag_time))
 	{
 		paintTime(painter, option4, index);
 	}
