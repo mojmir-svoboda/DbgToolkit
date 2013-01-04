@@ -429,7 +429,7 @@ bool Connection::tryHandleCommand (DecodedCommand const & cmd)
 //////////////////// storage stuff //////////////////////////////
 QString Connection::createStorageName () const
 {
-	return sessionState().m_name + QString::number(sessionState().m_storage_idx);
+	return sessionState().m_app_name + QString::number(sessionState().m_storage_idx);
 }
 
 bool Connection::setupStorage (QString const & name)

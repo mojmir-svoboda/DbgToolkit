@@ -74,6 +74,9 @@ void MainWindow::onSaveCurrentStateTo (QString const & preset_name)
 		saveCurrentSession(preset_name);
 		saveLayout(preset_name);
 
+		conn->saveConfigForTables(preset_name);
+		conn->saveConfigForPlots(preset_name);
+
 		ui->presetComboBox->clear();
 		for (size_t i = 0, ie = m_config.m_preset_names.size(); i < ie; ++i)
 			ui->presetComboBox->addItem(m_config.m_preset_names.at(i));
@@ -139,7 +142,6 @@ void MainWindow::onRmCurrentState ()
 }
 
 
-
 void MainWindow::onPresetActivate (QString const & pname)
 {
 	qDebug("%s", __FUNCTION__);
@@ -161,6 +163,7 @@ void MainWindow::onPresetActivate (Connection * conn, QString const & pname)
 		conn->m_session_state.m_colorized_texts = dummy.m_colorized_texts;
 		conn->m_session_state.m_lvl_filters = dummy.m_lvl_filters;
 		conn->m_session_state.m_ctx_filters = dummy.m_ctx_filters;
+		conn->m_curr_preset = pname;
 		//@TODO: this blows under linux, i wonder why?
 		//conn->m_session_state.m_filtered_regexps.swap(dummy.m_filtered_regexps);
 		//conn->m_session_state.m_colorized_texts.swap(dummy.m_colorized_texts);
@@ -193,7 +196,7 @@ void MainWindow::onPresetActivate (int idx)
 
 void MainWindow::saveLayout (QString const & preset_name)
 {
-	QString fname = getPresetPath(m_config.m_appdir, preset_name) + "layout";
+	QString fname = getPresetPath(m_config.m_appdir, preset_name) + "/" + g_presetLayoutName;
 	QFile file(fname);
 	if (!file.open(QFile::WriteOnly))
 	{
@@ -221,12 +224,12 @@ void MainWindow::saveLayout (QString const & preset_name)
 
 void MainWindow::loadLayout (QString const & preset_name)
 {
-	QString fname = getPresetPath(m_config.m_appdir, preset_name) + "layout";
+	QString fname = getPresetPath(m_config.m_appdir, preset_name) + "/" + g_presetLayoutName;
 	QFile file(fname);
 	if (!file.open(QFile::ReadOnly))
 	{
-		QString msg = tr("Failed to open %1\n%2").arg(fname).arg(file.errorString());
-		QMessageBox::warning(this, tr("Error"), msg);
+		//QString msg = tr("Failed to open %1\n%2").arg(fname).arg(file.errorString());
+		//QMessageBox::warning(this, tr("Error"), msg);
 		return;
 	}
 

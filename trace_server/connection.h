@@ -131,9 +131,13 @@ public:
 	void loadToColorRegexps (QString const & filter_item, QString const & color, bool enabled);
 	void loadToRegexps (QString const & filter_item, bool inclusive, bool enabled);
 	bool loadConfigForPlot (QString const & preset_name, plot::PlotConfig & config, QString const & tag);
-	bool saveConfigForPlot (QString const & preset_name, plot::PlotConfig const & config, QString const & tag);
+	bool saveConfigForPlot (plot::PlotConfig const & config, QString const & tag);
+	bool loadConfigForPlots (QString const & preset_name);
+	bool saveConfigForPlots (QString const & preset_name);
 	bool loadConfigForTable (QString const & preset_name, table::TableConfig & config, QString const & tag);
-	bool saveConfigForTable (QString const & preset_name, table::TableConfig const & config, QString const & tag);
+	bool saveConfigForTable (table::TableConfig const & config, QString const & tag);
+	bool loadConfigForTables (QString const & preset_name);
+	bool saveConfigForTables (QString const & preset_name);
 	bool filterEnabled () const { return m_main_window->filterEnabled(); }
 
 	void requestTableSynchronization (int sync_group, unsigned long long time);
@@ -269,6 +273,7 @@ private:
 	int m_last_search_row;
 	int m_last_search_col;
 	QString m_last_search;
+	QString m_curr_preset;
 	QTableView * m_table_view_widget;
 	TreeModel * m_file_model;
 	QStandardItemModel * m_ctx_model;

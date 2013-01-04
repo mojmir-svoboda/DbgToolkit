@@ -89,6 +89,17 @@ inline QString getDataTagFileName (QString const & appdir, QString const & app_n
 	return fname;
 }
 
+inline QString getDataTagFileName (QString const & appdir, QString const & preset_name, QString const & class_name, QString const & tag)
+{
+	QString presetdir = appdir + "/" + preset_name + "/" + class_name;
+	QDir d;
+	d.mkpath(presetdir);
+	QString const fname = presetdir + "/" + tag;
+	return fname;
+}
+
+
+
 inline bool existsFile (char const * fname)
 {
 	QFile file(fname);

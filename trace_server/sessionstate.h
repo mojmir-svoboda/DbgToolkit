@@ -66,7 +66,7 @@ public:
 			, columns_align_t * ca_template, columns_elide_t * ce_template);
 	void setupThreadColors (QList<QColor> const & tc);
 
-	QString getAppName () const { return m_name; }
+	QString getAppName () const { return m_app_name; }
 	int getAppIdx () const { return m_app_idx; }
 
 	bool isConfigured () const { return m_columns_setup_current && m_columns_setup_current->size(); }
@@ -225,7 +225,7 @@ private:
 	columns_sizes_t * m_columns_sizes;
 	QMap<tlv::tag_t, int> m_tags2columns;
 	ThreadSpecific m_tls;
-	QString m_name;
+	QString m_app_name;
 	QString m_pid;
 	QList<CollapsedBlock> m_collapse_blocks;
 	unsigned m_recv_bytes;

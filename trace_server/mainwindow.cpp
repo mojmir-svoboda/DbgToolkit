@@ -184,10 +184,10 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QStri
 	connect(ui_settings->reuseTabCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onReuseTabChanged(int)));
 	//connect(ui->clrFiltersCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onClrFiltersStateChanged(int)));
 	connect(ui->presetComboBox, SIGNAL(activated(int)), this, SLOT(onPresetActivate(int)));
-	connect(ui->presetAddButton, SIGNAL(clicked()), this, SLOT(onAddCurrentFileFilter()));
-	connect(ui->presetRmButton, SIGNAL(clicked()), this, SLOT(onRmCurrentFileFilter()));
-	connect(ui->presetSaveButton, SIGNAL(clicked()), this, SLOT(onSaveCurrentFileFilter()));
-	connect(ui->presetResetButton, SIGNAL(clicked()), m_server, SLOT(onClearCurrentFileFilter()));
+	connect(ui->presetAddButton, SIGNAL(clicked()), this, SLOT(onAddCurrentState()));
+	connect(ui->presetRmButton, SIGNAL(clicked()), this, SLOT(onRmCurrentState()));
+	connect(ui->presetSaveButton, SIGNAL(clicked()), this, SLOT(onSaveCurrentState()));
+	connect(ui->presetResetButton, SIGNAL(clicked()), m_server, SLOT(onClearCurrentState()));
 
 	getWidgetRegex()->setEditTriggers(QAbstractItemView::NoEditTriggers);
 	getWidgetRegex()->header()->hide();

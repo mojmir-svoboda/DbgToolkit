@@ -45,7 +45,7 @@ Connection * Server::findConnectionByName (QString const & app_name)
 	Q_ASSERT(parent());
 
 	for (connections_t::const_iterator it = m_connections.begin(), ite = m_connections.end(); it != ite; ++it)
-		if (it->second->sessionState().m_name == app_name)
+		if (it->second->sessionState().getAppName() == app_name)
 			return it->second;
 	return 0;
 }

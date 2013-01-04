@@ -91,7 +91,7 @@ void Connection::handleCSVSetup (QString const & fname)
 
 	}
 
-	sessionState().m_name = app_name;
+	sessionState().m_app_name = app_name;
 	//sessionState().m_pid = pid;
 
 	m_table_view_widget->setVisible(false);
@@ -285,7 +285,7 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 			this->setupModelFile();
 			this->setupModelLvl();
 
-			sessionState().m_name = app_name;
+			sessionState().m_app_name = app_name;
 			sessionState().m_pid = pid;
 
 			m_table_view_widget->setVisible(false);

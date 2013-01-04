@@ -14,7 +14,7 @@ SessionState::SessionState (QObject * parent)
 	, m_columns_align_template(0)
 	, m_columns_elide_template(0)
 	, m_columns_sizes(0)
-	, m_name()
+	, m_app_name()
 	, m_recv_bytes(0)
 	, m_csv_separator("")
 {
