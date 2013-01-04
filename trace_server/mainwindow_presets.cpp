@@ -148,13 +148,13 @@ void MainWindow::onPresetActivate (QString const & pname)
 	onPresetActivate(ui->presetComboBox->findText(pname));
 }
 
-void MainWindow::onPresetActivate (Connection * conn, QString const & pname)
+void MainWindow::onPresetActivate (Connection * conn, QString const & preset_name)
 {
 	qDebug("%s", __FUNCTION__);
 	if (!conn) return;
 
 	SessionState dummy;
-	if (loadSession(dummy, pname))
+	if (loadSession(dummy, preset_name))
 	{
 		conn->destroyModelFile();
 		std::swap(conn->m_session_state.m_file_filters.root, dummy.m_file_filters.root);
@@ -163,7 +163,7 @@ void MainWindow::onPresetActivate (Connection * conn, QString const & pname)
 		conn->m_session_state.m_colorized_texts = dummy.m_colorized_texts;
 		conn->m_session_state.m_lvl_filters = dummy.m_lvl_filters;
 		conn->m_session_state.m_ctx_filters = dummy.m_ctx_filters;
-		conn->m_curr_preset = pname;
+		conn->m_curr_preset = preset_name;
 		//@TODO: this blows under linux, i wonder why?
 		//conn->m_session_state.m_filtered_regexps.swap(dummy.m_filtered_regexps);
 		//conn->m_session_state.m_colorized_texts.swap(dummy.m_colorized_texts);
@@ -172,13 +172,15 @@ void MainWindow::onPresetActivate (Connection * conn, QString const & pname)
 		getWidgetFile()->syncExpandState();
 
 		conn->onInvalidateFilter();
-		setPresetNameIntoComboBox(pname);
-		loadLayout(pname);
+		setPresetNameIntoComboBox(preset_name);
+		loadLayout(preset_name);
+		conn->loadConfigForTables(preset_name);
+		conn->loadConfigForPlots(preset_name);
 	}
 	else
 	{
-		ui->presetComboBox->removeItem(ui->presetComboBox->findText(pname));
-		m_config.m_preset_names.removeAll(pname);
+		ui->presetComboBox->removeItem(ui->presetComboBox->findText(preset_name));
+		m_config.m_preset_names.removeAll(preset_name);
 		storePresetNames();
 	}
 }

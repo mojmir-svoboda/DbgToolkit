@@ -165,7 +165,7 @@ bool Connection::saveConfigForTables (QString const & preset_name)
 	{
 		DataTable * const tbl = *it;
 		QString const fname = getDataTagFileName(getConfig().m_appdir, preset_name, g_presetTableTag, tbl->m_config.m_tag);
-		saveConfig(tbl->m_config, fname);
+		tbl->widget().onSaveButton();
 	}
 	return true;
 }
