@@ -190,6 +190,18 @@ void MainWindow::onPresetActivate ()
 	onPresetActivate(ui->presetComboBox->currentIndex());
 }
 
+void MainWindow::onPresetChanged (int idx)
+{
+	qDebug("%s", __FUNCTION__);
+	if (idx == -1) return;
+	if (Connection * conn = m_server->findCurrentConnection())
+	{
+		conn->onClearCurrentFileFilter();
+		QString const & preset_name = m_config.m_preset_names.at(idx);
+		conn->m_curr_preset = preset_name;
+	}
+}
+
 void MainWindow::onPresetActivate (int idx)
 {
 	qDebug("%s", __FUNCTION__);
@@ -197,7 +209,8 @@ void MainWindow::onPresetActivate (int idx)
 	if (Connection * conn = m_server->findCurrentConnection())
 	{
 		conn->onClearCurrentFileFilter();
-		onPresetActivate(conn, m_config.m_preset_names.at(idx));
+		QString const & preset_name = m_config.m_preset_names.at(idx);
+		onPresetActivate(conn, preset_name);
 	}
 }
 
@@ -290,19 +303,17 @@ void MainWindow::storePresets ()
 
 void MainWindow::saveCurrentSession (QString const & preset_name)
 {
-	qDebug("MainWindow::saveCurrentSession(), name=%s", preset_name.toStdString().c_str());
+	qDebug("%s name=%s", __FUNCTION__, preset_name.toStdString().c_str());
 	if (!getTabTrace()->currentWidget()) return;
 	Connection * conn = m_server->findCurrentConnection();
 	if (!conn) return;
-
-	QSettings settings("MojoMir", "TraceServer");
 
 	saveSession(conn->sessionState(), preset_name);
 }
 
 bool MainWindow::loadSession (SessionState & s, QString const & preset_name)
 {
-	qDebug("%s", __FUNCTION__);
+	qDebug("%s name=%s", __FUNCTION__, preset_name.toStdString().c_str());
 	QString fname = getPresetFileName(m_config.m_appdir, preset_name);
 	qDebug("load file=%s", fname.toStdString().c_str());
 	s.m_file_filters.clear();

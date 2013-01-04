@@ -53,6 +53,7 @@ void MainWindow::loadNetworkSettings ()
 
 MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QString const & log_name)
 	: QMainWindow(parent)
+	, m_time_units(0.001f)
 	, ui(new Ui::MainWindow)
 	, ui_settings(0)
 	, m_help(new Ui::HelpDialog)
@@ -168,6 +169,7 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QStri
 	getWidgetLvl()->header()->hide();
 
 	connect(ui->dtToolButton, SIGNAL(clicked()), this, SLOT(ondtToolButton()));
+	connect(ui->timeComboBox, SIGNAL(activated(int)), this, SLOT(onTimeUnitsChanged(int)));
 	connect(ui->levelSpinBox, SIGNAL(valueChanged(int)), m_server, SLOT(onLevelValueChanged(int)));
 	connect(ui->filterFileCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onFilterFile(int)));
 	connect(ui->plotsCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onPlotStateChanged(int)));
@@ -183,6 +185,7 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QStri
 	connect(ui_settings->reuseTabCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onReuseTabChanged(int)));
 	//connect(ui->clrFiltersCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onClrFiltersStateChanged(int)));
 	connect(ui->activatePresetButton, SIGNAL(clicked()), this, SLOT(onPresetActivate()));
+	connect(ui->presetComboBox, SIGNAL(activated(int)), this, SLOT(onPresetChanged(int)));
 	connect(ui->presetAddButton, SIGNAL(clicked()), this, SLOT(onAddCurrentState()));
 	connect(ui->presetRmButton, SIGNAL(clicked()), this, SLOT(onRmCurrentState()));
 	connect(ui->presetSaveButton, SIGNAL(clicked()), this, SLOT(onSaveCurrentState()));
@@ -421,6 +424,20 @@ void MainWindow::ondtToolButton ()
 	{
 		conn->onInvalidateFilter();
 	}
+}
+
+void MainWindow::onTimeUnitsChanged (int i)
+{
+	QString unit = ui->timeComboBox->currentText();
+	qDebug("%s unit=%s", __FUNCTION__, unit.toStdString().c_str());
+	if (unit == "ms")
+		m_time_units = 0.001f;
+	if (unit == "us")
+		m_time_units = 0.000001f;
+	if (unit == "s")
+		m_time_units = 1.0f;
+	if (unit == "m")
+		m_time_units = 60.0f;
 }
 
 void MainWindow::onTableFontToolButton ()

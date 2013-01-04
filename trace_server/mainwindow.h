@@ -121,6 +121,7 @@ public:
 	QTreeView const * getWidgetPlots () const;
 	void setLevel (int i);
 	int getLevel () const;
+	float getTimeUnits () const { return m_time_units; }
 	bool dumpModeEnabled () const { return m_config.m_dump_mode; }
 	bool scopesEnabled () const;
 	bool indentEnabled () const;
@@ -200,6 +201,7 @@ private slots:
 	void onAddCurrentState ();
 	void onRmCurrentState ();
 	void onPresetActivate (int idx);
+	void onPresetChanged (int idx);
 	void onPresetActivate ();
 	void onRegexActivate (int idx);
 	void onRegexAdd ();
@@ -214,6 +216,7 @@ private slots:
 	void onDumpFilters ();
 	void onReuseTabChanged (int state);
 	void ondtToolButton ();
+	void onTimeUnitsChanged (int i);
 	void onTableFontToolButton ();
 	void onPlotStateChanged (int state);
 	void onSaveAllButton ();
@@ -258,6 +261,7 @@ private:
 	void createActions ();
 	void createTrayIcon ();
 
+	float m_time_units;
 	Ui::MainWindow * ui;
 	Ui::SettingsDialog * ui_settings;
 	Ui::HelpDialog * m_help;

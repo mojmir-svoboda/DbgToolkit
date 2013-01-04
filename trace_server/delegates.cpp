@@ -59,7 +59,9 @@ void TableItemDelegate::paintTime (QPainter * painter, QStyleOptionViewItemV4 & 
 
 					if (value.isValid())
 					{
-						option4.text = value.toString();
+						QString const val = value.toString();
+						float const t = val.toFloat() * 1000.0f / conn->getMainWindow()->getTimeUnits();
+						option4.text = tr("%1").arg(t);
 					}
 				}
 			}
