@@ -259,10 +259,10 @@ namespace table {
 	void BaseTable::onSaveButton ()
 	{
 		qDebug("%s this=0x%08x", __FUNCTION__, this);
-		m_config.m_hsize.clear();
+		/*m_config.m_hsize.clear();
 		m_config.m_hsize.resize(m_modelView->columnCount());
 		for (int i = 0, ie = m_modelView->columnCount(); i < ie; ++i)
-			m_config.m_hsize[i] = horizontalHeader()->sectionSize(i);
+			m_config.m_hsize[i] = horizontalHeader()->sectionSize(i);*/
 		m_connection->saveConfigForTable(m_config, m_config.m_tag);
 
 	}

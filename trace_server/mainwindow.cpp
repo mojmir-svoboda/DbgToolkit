@@ -172,7 +172,6 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QStri
 	connect(ui->filterFileCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onFilterFile(int)));
 	connect(ui->plotsCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onPlotStateChanged(int)));
 	connect(ui->tablesCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onTablStateChanged(int)));
-	connect(ui->plotSaveAllButton, SIGNAL(clicked()), this, SLOT(onSaveAllButton()));
 	connect(ui->plotsToolButton, SIGNAL(clicked()), this, SLOT(onPlotsToolButton()));
 	connect(ui->tablesCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onTablesStateChanged(int)));
 	connect(m_plots_dock, SIGNAL(dockClosed()), this, SLOT(onPlotsClosed()));
@@ -183,7 +182,7 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QStri
 	connect(ui_settings->onTopCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onOnTop(int)));//@FIXME: this has some issues
 	connect(ui_settings->reuseTabCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onReuseTabChanged(int)));
 	//connect(ui->clrFiltersCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onClrFiltersStateChanged(int)));
-	connect(ui->presetComboBox, SIGNAL(activated(int)), this, SLOT(onPresetActivate(int)));
+	connect(ui->activatePresetButton, SIGNAL(clicked()), this, SLOT(onPresetActivate()));
 	connect(ui->presetAddButton, SIGNAL(clicked()), this, SLOT(onAddCurrentState()));
 	connect(ui->presetRmButton, SIGNAL(clicked()), this, SLOT(onRmCurrentState()));
 	connect(ui->presetSaveButton, SIGNAL(clicked()), this, SLOT(onSaveCurrentState()));

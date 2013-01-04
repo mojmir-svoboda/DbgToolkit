@@ -185,6 +185,11 @@ void MainWindow::onPresetActivate (Connection * conn, QString const & preset_nam
 	}
 }
 
+void MainWindow::onPresetActivate ()
+{
+	onPresetActivate(ui->presetComboBox->currentIndex());
+}
+
 void MainWindow::onPresetActivate (int idx)
 {
 	qDebug("%s", __FUNCTION__);

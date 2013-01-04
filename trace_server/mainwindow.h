@@ -200,6 +200,7 @@ private slots:
 	void onAddCurrentState ();
 	void onRmCurrentState ();
 	void onPresetActivate (int idx);
+	void onPresetActivate ();
 	void onRegexActivate (int idx);
 	void onRegexAdd ();
 	void onRegexRm ();
