@@ -202,14 +202,14 @@ struct tree_filter
 	inline void save (ArchiveT & a, unsigned const /*version*/) const
 	{
 		a.register_type(static_cast<node_t *>(NULL));
-		a & root;
+		a & boost::serialization::make_nvp("root", root);
 	}
 	 
 	template <class ArchiveT>
 	inline void load (ArchiveT & a, unsigned const /*version*/)
 	{
 		a.register_type(static_cast<node_t *>(NULL));
-		a & root;
+		a & boost::serialization::make_nvp("root", root);
 	}
 
 	BOOST_SERIALIZATION_SPLIT_MEMBER()

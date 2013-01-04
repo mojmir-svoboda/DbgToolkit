@@ -1,8 +1,8 @@
 #include "serialization.h"
 #include "sessionstate.h"
 #include <boost/serialization/type_info_implementation.hpp>
-#include <boost/archive/text_iarchive.hpp>
-#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/xml_iarchive.hpp>
+#include <boost/archive/xml_oarchive.hpp>
 #include <boost/serialization/utility.hpp>
 #include <boost/serialization/serialization.hpp>
 #include <boost/serialization/vector.hpp>
@@ -21,7 +21,7 @@ bool saveSessionState (SessionState const & s, char const * filename)
 	try {
 		std::ofstream ofs(filename);
 		if (!ofs) return false;
-		boost::archive::text_oarchive oa(ofs);
+		boost::archive::xml_oarchive oa(ofs);
 		oa << BOOST_SERIALIZATION_NVP(s);
 		ofs.close();
 		return true;
@@ -50,7 +50,7 @@ bool loadSessionState (SessionState & s, char const * filename)
 	try {
 		std::ifstream ifs(filename);
 		if (!ifs) return false;
-		boost::archive::text_iarchive ia(ifs);
+		boost::archive::xml_iarchive ia(ifs);
 		ia >> BOOST_SERIALIZATION_NVP(s);
 		ifs.close();
 		return true;
@@ -78,10 +78,10 @@ bool loadSessionState (SessionState const & src, SessionState & target)
 {
 	try {
 		std::stringstream s;
-		boost::archive::text_oarchive oa(s);
+		boost::archive::xml_oarchive oa(s);
 		oa << BOOST_SERIALIZATION_NVP(src);
 
-		boost::archive::text_iarchive ia(s);
+		boost::archive::xml_iarchive ia(s);
 		ia >> BOOST_SERIALIZATION_NVP(target);
 		return true;
 	}

@@ -22,8 +22,8 @@ namespace profiler {
 		template <class ArchiveT>
 		void serialize (ArchiveT & ar, unsigned const version)
 		{
-			ar & m_state;
-			ar & m_collapsed;
+			ar & boost::serialization::make_nvp("state", m_state);
+			ar & boost::serialization::make_nvp("collapsed", m_collapsed);
 		}
 	};
 
@@ -41,7 +41,7 @@ namespace profiler {
 		template <class ArchiveT>
 		void serialize (ArchiveT & ar, unsigned const version)
 		{
-			ar & m_tag_filters;
+			ar & boost::serialization::make_nvp("tag_filters", m_tag_filters);
 		}
 
 		tag_filters_t const & getTagFilters () const { return m_tag_filters; }

@@ -27,6 +27,7 @@
 #include <tlv_parser/tlv_parser.h>
 #include <tlv_parser/tlv_decoder.h> // htons!
 #include <filters/file_filter.hpp>
+#include <boost/serialization/nvp.hpp>
 #include "tls.h"
 #include "config.h"
 
@@ -186,13 +187,13 @@ public:
 	template <class ArchiveT>
 	void serialize (ArchiveT & ar, unsigned const version)
 	{
-		ar & m_file_filters;
-		ar & m_ctx_filters;
-		ar & m_lvl_filters;
-		ar & m_colorized_texts;
-		ar & m_filtered_regexps;
-		ar & m_collapse_blocks;
-		ar & m_thread_colors;
+		ar & boost::serialization::make_nvp("file_filters", m_file_filters);
+		ar & boost::serialization::make_nvp("ctx_filters", m_ctx_filters);
+		ar & boost::serialization::make_nvp("lvl_filters", m_lvl_filters);
+		ar & boost::serialization::make_nvp("colorized_texts", m_colorized_texts);
+		ar & boost::serialization::make_nvp("filtered_regexps", m_filtered_regexps);
+		ar & boost::serialization::make_nvp("collapse_blocks", m_collapse_blocks);
+		ar & boost::serialization::make_nvp("thread_colors", m_thread_colors);
 	}
 
 	friend class Connection;

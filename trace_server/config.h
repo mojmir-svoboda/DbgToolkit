@@ -1,6 +1,7 @@
 #pragma once
 #include "types.h"
 #include "history.h"
+#include <boost/serialization/nvp.hpp>
 
 struct GlobalConfig {
 	unsigned m_hotkey;
@@ -51,11 +52,11 @@ struct CollapsedBlock {
 	template <class ArchiveT>
 	void serialize (ArchiveT & ar, unsigned const version)
 	{
-		ar & m_tid;
-		ar & m_from;
-		ar & m_to;
-		ar & m_file;
-		ar & m_line;
+		ar & boost::serialization::make_nvp("tid", m_tid);
+		ar & boost::serialization::make_nvp("from", m_from);
+		ar & boost::serialization::make_nvp("to", m_to);
+		ar & boost::serialization::make_nvp("file", m_file);
+		ar & boost::serialization::make_nvp("line", m_line);
 	}
 };
 
@@ -76,10 +77,10 @@ struct FilteredRegex {
 	template <class ArchiveT>
 	void serialize (ArchiveT & ar, unsigned const version)
 	{
-		ar & m_regex_str;
-		ar & m_regex;
-		ar & m_is_enabled;
-		ar & m_state;
+		ar & boost::serialization::make_nvp("regex_str", m_regex_str);
+		ar & boost::serialization::make_nvp("regex", m_regex);
+		ar & boost::serialization::make_nvp("is_enabled", m_is_enabled);
+		ar & boost::serialization::make_nvp("state", m_state);
 	}
 };
 
@@ -98,9 +99,9 @@ struct FilteredString {
 	template <class ArchiveT>
 	void serialize (ArchiveT & ar, unsigned const version)
 	{
-		ar & m_string;
-		ar & m_is_enabled;
-		ar & m_state;
+		ar & boost::serialization::make_nvp("string", m_string);
+		ar & boost::serialization::make_nvp("is_enabled", m_is_enabled);
+		ar & boost::serialization::make_nvp("state", m_state);
 	}
 };
 
@@ -130,13 +131,13 @@ struct ColorizedText {
 	template <class ArchiveT>
 	void serialize (ArchiveT & ar, unsigned const version)
 	{
-		ar & m_role;
-		ar & m_regex_str;
-		ar & m_qcolor;
-		ar & m_bgcolor;
-		ar & m_regex_str;
-		ar & m_regex;
-		ar & m_is_enabled;
+		ar & boost::serialization::make_nvp("role", m_role);
+		ar & boost::serialization::make_nvp("regex_str", m_regex_str);
+		ar & boost::serialization::make_nvp("qcolor", m_qcolor);
+		ar & boost::serialization::make_nvp("bgcolor", m_bgcolor);
+		ar & boost::serialization::make_nvp("regex_str", m_regex_str);
+		ar & boost::serialization::make_nvp("regex", m_regex);
+		ar & boost::serialization::make_nvp("is_enabled", m_is_enabled);
 	}
 };
 
@@ -154,10 +155,10 @@ struct FilteredLevel {
 	template <class ArchiveT>
 	void serialize (ArchiveT & ar, unsigned const version)
 	{
-		ar & m_level_str;
-		ar & m_level;
-		ar & m_is_enabled;
-		ar & m_state;
+		ar & boost::serialization::make_nvp("level_str", m_level_str);
+		ar & boost::serialization::make_nvp("level", m_level);
+		ar & boost::serialization::make_nvp("is_enabled", m_is_enabled);
+		ar & boost::serialization::make_nvp("state", m_state);
 	}
 };
 
@@ -175,10 +176,10 @@ struct FilteredContext {
 	template <class ArchiveT>
 	void serialize (ArchiveT & ar, unsigned const version)
 	{
-		ar & m_ctx_str;
-		ar & m_ctx;
-		ar & m_is_enabled;
-		ar & m_state;
+		ar & boost::serialization::make_nvp("ctx_str", m_ctx_str);
+		ar & boost::serialization::make_nvp("ctx", m_ctx);
+		ar & boost::serialization::make_nvp("is_enabled", m_is_enabled);
+		ar & boost::serialization::make_nvp("state", m_state);
 	}
 };
 
@@ -199,8 +200,8 @@ struct TreeModelItem {
 	template <class ArchiveT>
 	void serialize (ArchiveT & ar, unsigned const version)
 	{
-		ar & m_state;
-		ar & m_collapsed;
+		ar & boost::serialization::make_nvp("state", m_state);
+		ar & boost::serialization::make_nvp("collapsed", m_collapsed);
 	}
 };
 

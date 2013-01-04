@@ -213,15 +213,15 @@ struct NNode
 	void save (ArchiveT & a, unsigned const) const
 	{
 		a.register_type(static_cast<NNode *>(NULL));
-		a & key;
-		a & data;
+		a & boost::serialization::make_nvp("key", key);
+		a & boost::serialization::make_nvp("data", data);
 		unsigned count = count_childs();
-		a & count;
+		a & boost::serialization::make_nvp("count", count);
 
 		NNode * child = children;
 		for (size_t i = 0; i < count; ++i)
 		{
-			a & child;
+			a & boost::serialization::make_nvp("child", child);
 			child = child->next;
 		}
 	}
@@ -230,16 +230,16 @@ struct NNode
 	void load (ArchiveT & a, unsigned const)
 	{
 		a.register_type(static_cast<NNode *>(NULL));
-		a & key;
-		a & data;
+		a & boost::serialization::make_nvp("key", key);
+		a & boost::serialization::make_nvp("data", data);
 		unsigned count = 0;
-		a & count;
+		a & boost::serialization::make_nvp("count", count);
 
 		NNode * * child = &children;
 		NNode * prev = 0;
 		for (size_t i = 0; i < count; ++i)
 		{
-			a & (*child);
+			a & boost::serialization::make_nvp("child", *child);
 			(*child)->parent = this;
 			(*child)->prev = prev;
 			prev = *child;
