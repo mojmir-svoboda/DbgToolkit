@@ -136,7 +136,7 @@ bool FilterProxyModel::filterAcceptsRow (int sourceRow, QModelIndex const & /*so
 	}
 
 	bool excluded = false;
-	if (!file.isNull() && !line.isNull() && !file.isEmpty() && line.isEmpty())
+	if (!file.isNull() && !line.isNull() && !file.isEmpty() && !line.isEmpty())
 	{
 		TreeModelItem ff;
 		bool const ff_present = m_session_state.isFileLinePresent(std::make_pair(file, line), ff);
