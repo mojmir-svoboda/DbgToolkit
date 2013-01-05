@@ -114,7 +114,7 @@ bool Connection::loadConfigForPlot (QString const & preset_name, plot::PlotConfi
 
 bool Connection::saveConfigForPlot (plot::PlotConfig const & config, QString const & tag)
 {
-	QString const preset_name = m_curr_preset.isEmpty() ? m_main_window->getValidCurrentPresetName() : m_curr_preset;
+	QString const preset_name = m_curr_preset.isEmpty() ? m_main_window->getCurrentPresetName() : m_curr_preset;
 	QString const fname = getDataTagFileName(getConfig().m_appdir, preset_name, g_presetPlotTag, tag);
 	qDebug("save tag file=%s", fname.toStdString().c_str());
 

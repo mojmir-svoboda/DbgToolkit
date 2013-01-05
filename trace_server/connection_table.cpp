@@ -182,7 +182,7 @@ datatables_t::iterator Connection::findOrCreateTable (QString const & tag)
 		table::TableConfig template_config;
 		template_config.m_tag = tag;
 
-		QString const preset_name = m_curr_preset.isEmpty() ? m_main_window->getValidCurrentPresetName() : m_curr_preset;
+		QString const preset_name = m_curr_preset.isEmpty() ? m_main_window->getCurrentPresetName() : m_curr_preset;
 		QString fname;
 		if (!preset_name.isEmpty())
 		{

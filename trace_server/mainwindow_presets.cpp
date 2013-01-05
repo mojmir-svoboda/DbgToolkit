@@ -53,6 +53,8 @@ void MainWindow::onSaveCurrentState ()
 	if (0 == txt.size())
 		if (Connection * conn = m_server->findCurrentConnection())
 			txt = getPresetPath(conn->sessionState().getAppName(), g_defaultPresetName);
+
+	setPresetNameIntoComboBox(txt);
 	onSaveCurrentStateTo(txt);
 }
 
@@ -70,18 +72,17 @@ void MainWindow::onSaveCurrentStateTo (QString const & preset_name)
 			idx = addPresetName(preset_name);
 		createPresetPath(m_config.m_appdir, preset_name);
 
-		qDebug("new preset_name[%i]=%s", idx, preset_name.toStdString().c_str());
-		saveCurrentSession(preset_name);
-		saveLayout(preset_name);
-
-		conn->saveConfigForTables(preset_name);
-		conn->saveConfigForPlots(preset_name);
-
 		ui->presetComboBox->clear();
 		for (size_t i = 0, ie = m_config.m_preset_names.size(); i < ie; ++i)
 			ui->presetComboBox->addItem(m_config.m_preset_names.at(i));
 		setPresetNameIntoComboBox(preset_name);
 		storePresetNames();
+		qDebug("new preset_name[%i]=%s", idx, preset_name.toStdString().c_str());
+
+		saveCurrentSession(preset_name);
+		saveLayout(preset_name);
+		conn->saveConfigForTables(preset_name);
+		conn->saveConfigForPlots(preset_name);
 	}
 }
 
