@@ -220,7 +220,7 @@ private slots:
 	void onTableFontToolButton ();
 	void onPlotStateChanged (int state);
 	void onSaveAllButton ();
-	void onPlotsToolButton ();
+	void onDockedWidgetsToolButton ();
 	void onPlotsClosed ();
 	void onTablesStateChanged (int state);
 	void onDockRestoreButton ();
@@ -278,8 +278,8 @@ private:
 	QLabel * m_status_label;
 	QDialog * m_settings_dialog;
 	DockManager m_dock_mgr;
-	DockWidget * m_plots_dock;
-	TreeView * m_plot_tree_view;
+	DockWidget * m_docked_widgets;
+	TreeView * m_docked_widgets_tree_view;
 	QString m_log_name;
 };
 

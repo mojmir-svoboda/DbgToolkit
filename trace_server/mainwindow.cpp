@@ -67,8 +67,8 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QStri
 	, m_tray_icon(0)
 	, m_settings_dialog(0)
 	, m_dock_mgr()
-	, m_plots_dock(0)
-	, m_plot_tree_view(0)
+	, m_docked_widgets(0)
+	, m_docked_widgets_tree_view(0)
 	, m_log_name(log_name)
 {
 	qDebug("================================================================================");
@@ -84,12 +84,12 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QStri
 	ui_settings->separatorComboBox->addItem("\\t");
 	ui_settings->separatorComboBox->addItem("\\n");
 
-	m_plot_tree_view = new TreeView(this);
-	m_plot_tree_view->setHidingLinearParents(false);
-	m_plots_dock = m_dock_mgr.mkDockWidget(this, m_plot_tree_view, QString("list"), Qt::LeftDockWidgetArea);
-	restoreDockWidget(m_plots_dock);
-	m_plots_dock->setVisible(false);
-	m_plots_dock->setFeatures(QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetFloatable);
+	m_docked_widgets_tree_view = new TreeView(this);
+	m_docked_widgets_tree_view->setHidingLinearParents(false);
+	m_docked_widgets = m_dock_mgr.mkDockWidget(this, m_docked_widgets_tree_view, QString("list"), Qt::LeftDockWidgetArea);
+	restoreDockWidget(m_docked_widgets);
+	m_docked_widgets->setVisible(false);
+	m_docked_widgets->setFeatures(QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetFloatable);
 
 	QString const homedir = QDir::homePath();
 	m_config.m_appdir = homedir + "/.flogging";
@@ -174,9 +174,9 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QStri
 	connect(ui->filterFileCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onFilterFile(int)));
 	connect(ui->plotsCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onPlotStateChanged(int)));
 	connect(ui->tablesCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onTablStateChanged(int)));
-	connect(ui->plotsToolButton, SIGNAL(clicked()), this, SLOT(onPlotsToolButton()));
+	connect(ui->dockedWidgetsToolButton, SIGNAL(clicked()), this, SLOT(onDockedWidgetsToolButton()));
 	connect(ui->tablesCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onTablesStateChanged(int)));
-	connect(m_plots_dock, SIGNAL(dockClosed()), this, SLOT(onPlotsClosed()));
+	connect(m_docked_widgets, SIGNAL(dockClosed()), this, SLOT(onPlotsClosed()));
 
 	connect(ui->buffCheckBox, SIGNAL(stateChanged(int)), m_server, SLOT(onBufferingStateChanged(int)));
 	
@@ -364,7 +364,7 @@ QTreeView * MainWindow::getWidgetLvl () { return ui->treeViewLvl; }
 QTreeView const * MainWindow::getWidgetLvl () const { return ui->treeViewLvl; }
 QTreeView * MainWindow::getWidgetString () { return ui->treeViewString; }
 QTreeView const * MainWindow::getWidgetString () const { return ui->treeViewString; }
-QTreeView const * MainWindow::getWidgetPlots () const { return m_plot_tree_view; }
+QTreeView const * MainWindow::getWidgetPlots () const { return m_docked_widgets_tree_view; }
 
 bool MainWindow::scopesEnabled () const { return ui_settings->scopesCheckBox->isChecked(); }
 bool MainWindow::indentEnabled () const { return ui_settings->indentCheckBox->isChecked(); }
@@ -472,28 +472,28 @@ void MainWindow::onPlotStateChanged (int state)
 	}
 }
 
-void MainWindow::onPlotsToolButton ()
+void MainWindow::onDockedWidgetsToolButton ()
 {
-	if (ui->plotsToolButton->isChecked())
+	if (ui->dockedWidgetsToolButton->isChecked())
 	{
-		m_plots_dock->show();
-		restoreDockWidget(m_plots_dock);
+		m_docked_widgets->show();
+		restoreDockWidget(m_docked_widgets);
 
 		if (Connection * conn = m_server->findCurrentConnection())
 		{
-			m_plot_tree_view->setModel(conn->m_data_model);
-			connect(m_plot_tree_view, SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtPlotTree(QModelIndex)));
+			m_docked_widgets_tree_view->setModel(conn->m_data_model);
+			connect(m_docked_widgets_tree_view, SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtPlotTree(QModelIndex)));
 		}
 	}
 	else
 	{
-		m_plots_dock->hide();
+		m_docked_widgets->hide();
 	}
 }
 
 void MainWindow::onPlotsClosed ()
 {
-	ui->plotsToolButton->setChecked(false);
+	ui->dockedWidgetsToolButton->setChecked(false);
 }
 
 void MainWindow::onTablesStateChanged (int state)
@@ -1222,7 +1222,7 @@ void MainWindow::loadState ()
 #endif
 
 	loadPresets();
-	ui->plotsToolButton->setChecked(m_plots_dock->isVisible());
+	ui->dockedWidgetsToolButton->setChecked(m_docked_widgets->isVisible());
 	qApp->installEventFilter(this);
 }
 

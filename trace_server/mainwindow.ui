@@ -163,7 +163,7 @@ p, li { white-space: pre-wrap; }
        </widget>
       </item>
       <item>
-       <widget class="QToolButton" name="plotsToolButton">
+       <widget class="QToolButton" name="dockedWidgetsToolButton">
         <property name="font">
          <font>
           <family>Verdana</family>
@@ -171,7 +171,7 @@ p, li { white-space: pre-wrap; }
          </font>
         </property>
         <property name="toolTip">
-         <string>show/hide plot and curve manager</string>
+         <string>management of docked data widgets</string>
         </property>
         <property name="text">
          <string>...</string>
