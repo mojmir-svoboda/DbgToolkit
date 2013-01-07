@@ -114,6 +114,7 @@ void Connection::onExcludeFileLine (QModelIndex const & row_index)
 	if (!result.isValid())
 	{
 		Q_ASSERT("nonexistent index");
+		qWarning("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 	}
 	onInvalidateFilter();
 }

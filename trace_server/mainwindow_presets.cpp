@@ -53,8 +53,6 @@ void MainWindow::onSaveCurrentState ()
 	if (0 == txt.size())
 		if (Connection * conn = m_server->findCurrentConnection())
 			txt = getPresetPath(conn->sessionState().getAppName(), g_defaultPresetName);
-
-	setPresetNameIntoComboBox(txt);
 	onSaveCurrentStateTo(txt);
 }
 
@@ -72,17 +70,18 @@ void MainWindow::onSaveCurrentStateTo (QString const & preset_name)
 			idx = addPresetName(preset_name);
 		createPresetPath(m_config.m_appdir, preset_name);
 
+		qDebug("new preset_name[%i]=%s", idx, preset_name.toStdString().c_str());
+		saveCurrentSession(preset_name);
+		saveLayout(preset_name);
+
+		conn->saveConfigForTables(preset_name);
+		conn->saveConfigForPlots(preset_name);
+
 		ui->presetComboBox->clear();
 		for (size_t i = 0, ie = m_config.m_preset_names.size(); i < ie; ++i)
 			ui->presetComboBox->addItem(m_config.m_preset_names.at(i));
 		setPresetNameIntoComboBox(preset_name);
 		storePresetNames();
-		qDebug("new preset_name[%i]=%s", idx, preset_name.toStdString().c_str());
-
-		saveCurrentSession(preset_name);
-		saveLayout(preset_name);
-		conn->saveConfigForTables(preset_name);
-		conn->saveConfigForPlots(preset_name);
 	}
 }
 
@@ -199,7 +198,7 @@ void MainWindow::onPresetChanged (int idx)
 	{
 		conn->onClearCurrentFileFilter();
 		QString const & preset_name = m_config.m_preset_names.at(idx);
-		conn->m_curr_preset = preset_name;
+		onPresetActivate(conn, preset_name);
 	}
 }
 
@@ -333,7 +332,6 @@ void MainWindow::loadPresets ()
 		ui->presetComboBox->addItem(m_config.m_preset_names.at(i));
 	}
 
-	// @NOTE: this is only for smooth transition only
 	for (size_t i = 0, ie = m_config.m_preset_names.size(); i < ie; ++i)
 	{
 		qDebug("reading preset: %s", m_config.m_preset_names.at(i).toStdString().c_str());
@@ -382,49 +380,7 @@ void MainWindow::loadPresets ()
 					settings.endGroup();
 				}
 				settings.endGroup();
-		}
-		else
-		{
-			if (settings.childGroups().contains(prs_name))
-			{
-				settings.beginGroup(prs_name);
-				typedef QList<QString>			filter_regexs_t;
-				typedef QList<QString>			filter_preset_t;
-
-				filter_preset_t m_file_filters;
-				filter_preset_t m_colortext_regexs;
-				filter_preset_t m_colortext_colors;
-				filter_preset_t m_colortext_enabled;
-				filter_preset_t m_regex_filters;
-				filter_preset_t m_regex_fmode;
-				filter_preset_t m_regex_enabled;
-
-				read_list_of_strings(settings, "items", "item", m_file_filters);
-				read_list_of_strings(settings, "cregexps", "item", m_colortext_regexs);
-				read_list_of_strings(settings, "cregexps_colors", "item", m_colortext_colors);
-				read_list_of_strings(settings, "cregexps_enabled", "item", m_colortext_enabled);
-				read_list_of_strings(settings, "regexps", "item", m_regex_filters);
-				read_list_of_strings(settings, "regexps_fmode", "item", m_regex_fmode);
-				read_list_of_strings(settings, "regexps_enabled", "item", m_regex_enabled);
-
-				SessionState ss;
-				for (int f = 0, fe = m_file_filters.size(); f < fe; ++f)
-					ss.m_file_filters.set_to_state(m_file_filters.at(f), e_Checked);
-
-				saveSession(ss, m_config.m_preset_names.at(i));
-
-				settings.remove("");
-				settings.endGroup();
 			}
-		}
-
-
-		}
-		else
-		{
-			// @TODO
-			// check if on disk
-			// and if not, clear name from combobox
 		}
 	}
 }
@@ -435,6 +391,4 @@ void MainWindow::storePresetNames ()
 	QSettings settings("MojoMir", "TraceServer");
 	write_list_of_strings(settings, "known-presets", "preset", m_config.m_preset_names);
 }
-
-
 
