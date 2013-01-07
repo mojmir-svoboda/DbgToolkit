@@ -224,7 +224,8 @@ void Connection::onTabTraceFocus ()
 	m_main_window->getWidgetColorRegex()->setModel(m_color_regex_model);
 	m_main_window->getWidgetRegex()->setModel(m_regex_model);
 	m_main_window->getWidgetString()->setModel(m_string_model);
-	// @TODO: profile into presetComboBox
+	if (!m_curr_preset.isEmpty())
+		m_main_window->setPresetNameIntoComboBox(m_curr_preset);
 }
 
 void Connection::onLevelValueChanged (int val)
