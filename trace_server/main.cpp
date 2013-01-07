@@ -4,6 +4,9 @@
 #include <QMessageBox>
 #include <QThread>
 #include "mainwindow.h"
+#include <sysfn/os.h>
+#include <sysfn/time_query.h>
+
 #ifdef WIN32
 #	define WIN32_LEAN_AND_MEAN
 //#	define NOMINMAX
@@ -106,19 +109,20 @@ void usage ()
 
 void qDebugHandler (QtMsgType type, const char * msg)
 {
+	time_t t = time(NULL);
 	switch (type)
 	{
 		case QtDebugMsg:
-			fprintf(g_LogRedirect, "I|%s\n", msg);
+			fprintf(g_LogRedirect, "%llu|I|%x|%s\n", t, sys::get_tid(), msg);
 			break;
 		case QtWarningMsg:
-			fprintf(g_LogRedirect, "W|%s\n", msg);
+			fprintf(g_LogRedirect, "%llu|W|%x|%s\n", t, sys::get_tid(), msg);
 			break;
 		case QtCriticalMsg:
-			fprintf(g_LogRedirect, "E|%s\n", msg);
+			fprintf(g_LogRedirect, "%llu|E|%x|%s\n", t, sys::get_tid(), msg);
 			break;
 		case QtFatalMsg:
-			fprintf(g_LogRedirect, "F|%s\n", msg);
+			fprintf(g_LogRedirect, "%llu|F|%x|%s\n", t, sys::get_tid(), msg);
 			break;
 	}
 	fflush(g_LogRedirect);
