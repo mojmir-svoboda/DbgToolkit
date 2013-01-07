@@ -57,7 +57,7 @@ SET(trace_server_SOURCES
 	connection.cpp
 	connection_find.cpp
 	connection_stream.cpp
-	connection_data.cpp
+	connection_plot.cpp
 	connection_table.cpp
 	connection_setup.cpp
 	connection_filtering.cpp
