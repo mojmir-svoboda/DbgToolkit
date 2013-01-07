@@ -190,6 +190,7 @@ public:
 		ar & boost::serialization::make_nvp("file_filters", m_file_filters);
 		ar & boost::serialization::make_nvp("ctx_filters", m_ctx_filters);
 		ar & boost::serialization::make_nvp("lvl_filters", m_lvl_filters);
+		ar & boost::serialization::make_nvp("data_filters", m_data_filters);
 		ar & boost::serialization::make_nvp("colorized_texts", m_colorized_texts);
 		ar & boost::serialization::make_nvp("filtered_regexps", m_filtered_regexps);
 		ar & boost::serialization::make_nvp("collapse_blocks", m_collapse_blocks);
