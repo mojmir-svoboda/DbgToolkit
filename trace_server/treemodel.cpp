@@ -306,12 +306,14 @@ QModelIndex TreeModel::insertItem (QString const & path)
 	node_t const * node = m_tree_data->is_present(path, i);
 	if (node)
 	{
+		qDebug("%s path=%s already present", __FUNCTION__, path.toStdString().c_str());
 		//QModelIndex const idx = indexFromItem(node);
 		//emit dataChanged(idx, idx);
 		return QModelIndex();
 	}
 	else
 	{
+		qDebug("%s path=%s not present, adding", __FUNCTION__, path.toStdString().c_str());
 		TreeModelItem i;
 		i.m_state = Qt::Checked;
 		i.m_collapsed = false;

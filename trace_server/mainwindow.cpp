@@ -364,7 +364,7 @@ QTreeView * MainWindow::getWidgetLvl () { return ui->treeViewLvl; }
 QTreeView const * MainWindow::getWidgetLvl () const { return ui->treeViewLvl; }
 QTreeView * MainWindow::getWidgetString () { return ui->treeViewString; }
 QTreeView const * MainWindow::getWidgetString () const { return ui->treeViewString; }
-QTreeView const * MainWindow::getWidgetPlots () const { return m_docked_widgets_tree_view; }
+QTreeView const * MainWindow::getDockedWidgetsTreeView () const { return m_docked_widgets_tree_view; }
 
 bool MainWindow::scopesEnabled () const { return ui_settings->scopesCheckBox->isChecked(); }
 bool MainWindow::indentEnabled () const { return ui_settings->indentCheckBox->isChecked(); }
@@ -462,14 +462,14 @@ void MainWindow::onTableFontToolButton ()
 
 void MainWindow::onPlotStateChanged (int state)
 {
-	m_server->onHidePlots();
+	/*m_server->onHidePlots();
 	if (state == Qt::Checked)
 	{
 		Connection * conn = m_server->findCurrentConnection();
 		if (!conn) return;
 
 		conn->onShowPlots();
-	}
+	}*/
 }
 
 void MainWindow::onDockedWidgetsToolButton ()
@@ -482,11 +482,12 @@ void MainWindow::onDockedWidgetsToolButton ()
 		if (Connection * conn = m_server->findCurrentConnection())
 		{
 			m_docked_widgets_tree_view->setModel(conn->m_data_model);
-			connect(m_docked_widgets_tree_view, SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtPlotTree(QModelIndex)));
+			connect(m_docked_widgets_tree_view, SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtDockedWidgets(QModelIndex)));
 		}
 	}
 	else
 	{
+		disconnect(m_docked_widgets_tree_view, SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtDockedWidgets(QModelIndex)));
 		m_docked_widgets->hide();
 	}
 }
@@ -496,23 +497,12 @@ void MainWindow::onPlotsClosed ()
 	ui->dockedWidgetsToolButton->setChecked(false);
 }
 
-void MainWindow::onTablesStateChanged (int state)
-{
-	m_server->onHideTables();
-	if (state == Qt::Checked)
-	{
-		Connection * conn = m_server->findCurrentConnection();
-		if (!conn) return;
-
-		conn->onShowTables();
-	}
-}
+void MainWindow::onTablesStateChanged (int state) { }
 
 void MainWindow::onFilterFile (int state)
 {
 	m_server->onFilterFile(state);
 }
-
 
 void MainWindow::onEditFind ()
 {
@@ -628,7 +618,11 @@ void MainWindow::onEditFindNext ()
 }
 
 void MainWindow::onEditFindPrev ()
-{ }
+{
+	if (!getTabTrace()->currentWidget()) return;
+	if (Connection * conn = m_server->findCurrentConnection())
+		conn->findPrev();
+}
 
 void MainWindow::tailFiles (QStringList const & files)
 {

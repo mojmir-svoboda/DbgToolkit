@@ -96,7 +96,7 @@ public slots:
 	void onApplyColumnSetup ();
 
 	void onShowPlots ();
-	void onClickedAtPlotTree (QModelIndex idx);
+	void onClickedAtDockedWidgets (QModelIndex idx);
 	void onHidePlots ();
 	void onShowTables ();
 	void onHideTables ();

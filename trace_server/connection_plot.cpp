@@ -167,14 +167,14 @@ void Connection::appendDataXY (double x, double y, QString const & msg_tag)
 			if (template_config.m_show)
 			{
 				dp->onShow();
-				m_main_window->restoreDockWidget(dp->m_wd);
-				//m_main_window->onDockRestoreButton();
+				//m_main_window->restoreDockWidget(dp->m_wd);
 			}
 		}
 		else
 		{
 			dp->onHide();
 		}
+		m_main_window->onDockRestoreButton();
 	}
 
 	DataPlot & dp = **it;

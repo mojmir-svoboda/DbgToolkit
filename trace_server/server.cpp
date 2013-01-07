@@ -239,10 +239,10 @@ void Server::onHideTables ()
 }
 
 // @TODO: hmm. this whole fn is.. unfortunately rushed. need to rethink
-void Server::onClickedAtPlotTree (QModelIndex idx)
+void Server::onClickedAtDockedWidgets (QModelIndex idx)
 {
 	MainWindow * main_window = static_cast<MainWindow *>(parent());
-	TreeModel * model = static_cast<TreeModel *>(main_window->getWidgetPlots()->model());
+	TreeModel * model = static_cast<TreeModel *>(main_window->getDockedWidgetsTreeView()->model());
 
 	QList<QString> path;
 	QList<bool> state;

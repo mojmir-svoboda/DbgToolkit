@@ -99,6 +99,16 @@ All tables with the same number will have inputs synchronized.
        </widget>
       </item>
       <item>
+       <widget class="QCheckBox" name="tableShowCheckBox">
+        <property name="text">
+         <string>show</string>
+        </property>
+        <property name="checked">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
        <spacer name="horizontalSpacer">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>

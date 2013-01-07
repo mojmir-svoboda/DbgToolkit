@@ -93,11 +93,10 @@ namespace table {
 		qDebug("%s this=0x%08x", __FUNCTION__, this);
 		Ui::SettingsTable * ui = m_config_ui.ui();
 
-		//killTimer(m_timer);
-		//m_timer = startTimer(1000);
+		m_config.m_show = ui->tableShowCheckBox->checkState() == Qt::Checked;
+
 		setModel(m_modelView);
 		m_modelView->setProxy(0);
-		qDebug("table: m_hsize.sz=%i model.sz=%i", m_config.m_hsize.size(), model()->columnCount());
 
 		QStandardItem * name_root = static_cast<QStandardItemModel *>(ui->columnView->model())->invisibleRootItem();
 		int const n_cols = name_root->rowCount();
@@ -125,14 +124,12 @@ namespace table {
 
 		if (m_config.m_hide_empty)
 		{
-			qDebug("table: +proxy");
 			static_cast<SparseProxyModel *>(m_table_view_proxy)->force_update();
 			m_modelView->setProxy(m_table_view_proxy);
 			setModel(m_table_view_proxy);
 		}
 		else
 		{
-			qDebug("table: -proxy");
 			setModel(m_modelView);
 			m_modelView->setProxy(0);
 		}
@@ -199,9 +196,10 @@ namespace table {
 		qDebug("%s this=0x%08x", __FUNCTION__, this);
 		Ui::SettingsTable * ui = m_config_ui.ui();
 		
-		ui->filteringCheckBox->setCheckState(m_config.m_hide_empty ? Qt::Checked : Qt::Unchecked);
-		ui->autoScrollCheckBox->setCheckState(m_config.m_auto_scroll ? Qt::Checked : Qt::Unchecked);
-		ui->syncGroupSpinBox->setValue(m_config.m_sync_group);
+		ui->tableShowCheckBox->setCheckState(pcfg.m_show ? Qt::Checked : Qt::Unchecked);
+		ui->filteringCheckBox->setCheckState(pcfg.m_hide_empty ? Qt::Checked : Qt::Unchecked);
+		ui->autoScrollCheckBox->setCheckState(pcfg.m_auto_scroll ? Qt::Checked : Qt::Unchecked);
+		ui->syncGroupSpinBox->setValue(pcfg.m_sync_group);
 
 		clearListView(ui->columnView);
 		QStandardItem * name_root = static_cast<QStandardItemModel *>(ui->columnView->model())->invisibleRootItem();
@@ -210,9 +208,9 @@ namespace table {
 		{
 			Qt::CheckState state = Qt::Checked;
 			QString name;
-			if (i < m_config.m_hhdr.size() && !m_config.m_hhdr.at(i).isEmpty())
+			if (i < pcfg.m_hhdr.size() && !pcfg.m_hhdr.at(i).isEmpty())
 			{
-				name = m_config.m_hhdr.at(i);
+				name = pcfg.m_hhdr.at(i);
 			}
 			else
 			{

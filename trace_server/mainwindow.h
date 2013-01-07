@@ -118,7 +118,7 @@ public:
 	QListView const * getWidgetTID () const;
 	QTreeView * getWidgetLvl ();
 	QTreeView const * getWidgetLvl () const;
-	QTreeView const * getWidgetPlots () const;
+	QTreeView const * getDockedWidgetsTreeView () const;
 	void setLevel (int i);
 	int getLevel () const;
 	float getTimeUnits () const { return m_time_units; }
