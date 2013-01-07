@@ -195,7 +195,7 @@ datatables_t::iterator Connection::findOrCreateTable (QString const & tag)
 		
 		DataTable * const dp = new DataTable(this, template_config, fname);
 		it = m_datatables.insert(tag, dp);
-		QModelIndex const item_idx = m_data_model->insertItem(table_name);
+		QModelIndex const item_idx = m_data_model->insertItemWithHint(table_name, template_config.m_show);
 
 		// TMP!
 /*		dp->m_table->setEditTriggers(QAbstractItemView::NoEditTriggers);
@@ -208,13 +208,8 @@ datatables_t::iterator Connection::findOrCreateTable (QString const & tag)
 
 		QObject::connect(dp->widget().horizontalHeader(), SIGNAL(sectionResized(int, int, int)), &dp->widget(), SLOT(onSectionResized(int, int, int)));
 		dp->m_wd = m_main_window->m_dock_mgr.mkDockWidget(m_main_window, &dp->widget(), table_name);
-		if (m_main_window->tableEnabled())
-		{
-			if (template_config.m_show)
-			{
+		if (m_main_window->tableEnabled() && template_config.m_show)
 				dp->onShow();
-			}
-		}
 		else
 		{
 			dp->onHide();

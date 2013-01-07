@@ -300,20 +300,57 @@ void TreeModel::syncExpandState (QTreeView * tv)
 	}
 }
 
-QModelIndex TreeModel::insertItem (QString const & path)
+QModelIndex TreeModel::insertItemWithHint (QString const & path, bool checked)
 {
 	TreeModelItem const * i = 0;
 	node_t const * node = m_tree_data->is_present(path, i);
 	if (node)
 	{
 		qDebug("%s path=%s already present", __FUNCTION__, path.toStdString().c_str());
+		return QModelIndex();
+	}
+	else
+	{
+		qDebug("%s path=%s not present, adding", __FUNCTION__, path.toStdString().c_str());
+		TreeModelItem i;
+		i.m_state = checked ? Qt::Checked : Qt::Unchecked;
+		i.m_collapsed = false;
+	
+		node_t * const n = m_tree_data->set_to_state(path, i);
+
+		if (n->parent)
+		{
+			if (n->parent->data.m_state == Qt::Unchecked || n->parent->data.m_state == Qt::PartiallyChecked)
+				n->data.m_state = Qt::Unchecked;
+		}
+
+		QModelIndex const idx = indexFromItem(n);
+		emit dataChanged(idx, idx);
+
+		node_t * parent = n->parent;
+		while (parent)
+		{
+			QModelIndex pi = indexFromItem(parent);
+			emit dataChanged(pi, pi);
+			parent = parent->parent;
+		}
+
+		return idx;
+	}
+}
+
+QModelIndex TreeModel::insertItem (QString const & path)
+{
+	TreeModelItem const * i = 0;
+	node_t const * node = m_tree_data->is_present(path, i);
+	if (node)
+	{
 		//QModelIndex const idx = indexFromItem(node);
 		//emit dataChanged(idx, idx);
 		return QModelIndex();
 	}
 	else
 	{
-		qDebug("%s path=%s not present, adding", __FUNCTION__, path.toStdString().c_str());
 		TreeModelItem i;
 		i.m_state = Qt::Checked;
 		i.m_collapsed = false;

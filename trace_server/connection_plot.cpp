@@ -159,17 +159,11 @@ void Connection::appendDataXY (double x, double y, QString const & msg_tag)
 		
 		DataPlot * const dp = new DataPlot(this, template_config, fname);
 		it = m_dataplots.insert(tag, dp);
-		QModelIndex const item_idx = m_data_model->insertItem(plot_name);
+		QModelIndex const item_idx = m_data_model->insertItemWithHint(plot_name, template_config.m_show);
 
 		dp->m_wd = m_main_window->m_dock_mgr.mkDockWidget(m_main_window, &dp->widget(), plot_name);
-		if (m_main_window->plotEnabled())
-		{
-			if (template_config.m_show)
-			{
-				dp->onShow();
-				//m_main_window->restoreDockWidget(dp->m_wd);
-			}
-		}
+		if (m_main_window->plotEnabled() && template_config.m_show)
+			dp->onShow();
 		else
 		{
 			dp->onHide();
@@ -184,10 +178,11 @@ void Connection::appendDataXY (double x, double y, QString const & msg_tag)
 	if (!curve)
 	{
 		curve = *dp.widget().mkCurve(subtag);
-		QModelIndex const item_idx = m_data_model->insertItem(curve_name);
 
 		plot::CurveConfig const * ccfg = 0;
 		dp.m_config.findCurveConfig(subtag, ccfg); // config is created by mkCurve
+
+		QModelIndex const item_idx = m_data_model->insertItemWithHint(curve_name, ccfg ? ccfg->m_show : true);
 
 		if (dp.m_config.m_show)
 		{

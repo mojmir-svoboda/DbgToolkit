@@ -93,7 +93,7 @@ namespace table {
 		qDebug("%s this=0x%08x", __FUNCTION__, this);
 		Ui::SettingsTable * ui = m_config_ui.ui();
 
-		m_config.m_show = ui->tableShowCheckBox->checkState() == Qt::Checked;
+		m_config.m_show = pcfg.m_show;
 
 		setModel(m_modelView);
 		m_modelView->setProxy(0);

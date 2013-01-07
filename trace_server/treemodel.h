@@ -37,6 +37,7 @@ public:
 	QModelIndex hideLinearParents () const;
 
 	QModelIndex insertItem (QString const & s);
+	QModelIndex insertItemWithHint (QString const & s, bool checked);
 
 	void beforeLoad ();
 	void afterLoad ();
