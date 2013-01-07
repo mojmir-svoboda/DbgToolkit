@@ -209,12 +209,14 @@ datatables_t::iterator Connection::findOrCreateTable (QString const & tag)
 		QObject::connect(dp->widget().horizontalHeader(), SIGNAL(sectionResized(int, int, int)), &dp->widget(), SLOT(onSectionResized(int, int, int)));
 		dp->m_wd = m_main_window->m_dock_mgr.mkDockWidget(m_main_window, &dp->widget(), table_name);
 		if (m_main_window->tableEnabled() && template_config.m_show)
-				dp->onShow();
+		{
+			dp->onShow();
+			m_main_window->onDockRestoreButton();
+		}
 		else
 		{
 			dp->onHide();
 		}
-		m_main_window->onDockRestoreButton();
 	}
 	return it;
 }

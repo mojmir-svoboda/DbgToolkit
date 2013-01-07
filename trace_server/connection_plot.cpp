@@ -163,12 +163,14 @@ void Connection::appendDataXY (double x, double y, QString const & msg_tag)
 
 		dp->m_wd = m_main_window->m_dock_mgr.mkDockWidget(m_main_window, &dp->widget(), plot_name);
 		if (m_main_window->plotEnabled() && template_config.m_show)
+		{
 			dp->onShow();
+			m_main_window->onDockRestoreButton();
+		}
 		else
 		{
 			dp->onHide();
 		}
-		m_main_window->onDockRestoreButton();
 	}
 
 	DataPlot & dp = **it;
