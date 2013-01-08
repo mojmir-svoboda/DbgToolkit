@@ -22,10 +22,11 @@ void Connection::onInvalidateFilter ()
 
 void Connection::setFilterFile (int state)
 {
+	QItemSelectionModel const * selection = m_table_view_widget->selectionModel();
+	QModelIndexList indexes = selection->selectedIndexes();
+
 	if (state == Qt::Unchecked)
 	{
-		QItemSelectionModel const * selection = m_table_view_widget->selectionModel();
-		QModelIndexList indexes = selection->selectedIndexes();
 		if (indexes.size() < 1)
 			return;
 		QModelIndexList srcs;
@@ -38,7 +39,7 @@ void Connection::setFilterFile (int state)
 
 		m_table_view_widget->setModel(m_table_view_proxy->sourceModel());
 
-		for (int i = 0, ie = indexes.size(); i < ie; ++i)
+		for (int i = 0, ie = srcs.size(); i < ie; ++i)
 			m_table_view_widget->selectionModel()->setCurrentIndex(srcs.at(i), QItemSelectionModel::Select);
 	}
 	else if (state == Qt::Checked)
@@ -53,6 +54,22 @@ void Connection::setFilterFile (int state)
 
 		static_cast<FilterProxyModel *>(m_table_view_proxy)->force_update();
 		onInvalidateFilter();
+
+		QModelIndexList pxys;
+		for (int i = 0, ie = indexes.size(); i < ie; ++i)
+		{
+			QModelIndex const & src_idx = indexes.at(i);
+			QModelIndex const pxy_idx = m_table_view_proxy->mapFromSource(src_idx);
+			qDebug("on: src(r=%i c=%i) -> pxy(r=%i c=%i)", src_idx.row(), src_idx.column(), pxy_idx.row(), pxy_idx.column());
+			if (pxy_idx.isValid())
+				pxys.push_back(pxy_idx);
+		}
+
+		for (int i = 0, ie = pxys.size(); i < ie; ++i)
+		{
+			qDebug("on: pxy r=%i c=%i", pxys.at(i).row(), pxys.at(i).column());
+			m_table_view_widget->selectionModel()->setCurrentIndex(pxys.at(i), QItemSelectionModel::Select);
+		}
 	}
 
 	if (m_column_setup_done)

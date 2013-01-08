@@ -10,7 +10,7 @@ void Connection::findTextInAllColumns (QString const & text, int from_row, int t
 	{
 		for (int j = 0, je = model->columnCount(); j < je; ++j)
 		{
-			if (isModelProxy())
+			if (isModelProxy()) // @TODO: dedup!
 			{
 				QModelIndex const idx = model->index(i, j, QModelIndex());
 				QModelIndex const curr = m_table_view_proxy->mapFromSource(idx);
