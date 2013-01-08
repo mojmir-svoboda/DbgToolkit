@@ -173,7 +173,8 @@ namespace plot {
 			showCurve(curve->getCurve(), cc.m_show);
 		}
 
-		killTimer(m_timer);
+		if (m_timer != -1)
+			killTimer(m_timer);
 		m_timer = startTimer(pcfg.m_timer_delay_ms);
 
 		applyAxis(pcfg.m_acfg[0]);
@@ -209,6 +210,9 @@ namespace plot {
 
 	void BasePlot::update ()
 	{
+		if (!m_config.m_show)
+			return;
+
 		for (curves_t::iterator it = m_curves.begin(), ite = m_curves.end(); it != ite; ++it)
 		{
 			Curve & curve = **it;

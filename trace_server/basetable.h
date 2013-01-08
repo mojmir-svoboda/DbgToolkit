@@ -19,7 +19,7 @@ namespace table {
 	public:
 		BaseTable (Connection * oparent, QWidget * wparent, TableConfig & cfg, QString const & fname);
 
-		void applyConfig (TableConfig const & pcfg);
+		void applyConfig (TableConfig & pcfg);
 		virtual ~BaseTable ();
 		void stopUpdate ();
 
@@ -47,7 +47,8 @@ namespace table {
 		void onHide ();
 		void onHideContextMenu ();
 		void onShowContextMenu (QPoint const & pos);
-		void setConfigValues (TableConfig const & pcfg);
+		void setConfigValuesToUI (TableConfig const & cfg);
+		void setUIValuesToConfig (TableConfig & cfg);
 		void filteringStateChanged (int);
 		void onSaveButton ();
 		void onApplyButton ();

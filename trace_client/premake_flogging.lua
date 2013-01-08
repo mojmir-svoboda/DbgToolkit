@@ -6,6 +6,9 @@ project "flogging"
 
 	is3rdProject = true; -- must be before projectIncludeFunction()
 	is3rdLoggingProject = true;
+	
+	-- it can't be excluded, because it causes crash of VisualStudio on the builder
+	--excludeConfigurations = "Master*"; -- must be before projectIncludeFunction()
 
 	projectIncludeFunction() -- some common settings (we can't use "dofile" here - it is inefficient and it runs in different folder)
 	

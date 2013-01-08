@@ -147,6 +147,10 @@ bool Connection::loadConfigForTables (QString const & preset_name)
 		QString const fname = getDataTagFileName(getConfig().m_appdir, preset_name, g_presetTableTag, tbl->m_config.m_tag);
 		loadConfig(tbl->m_config, fname);
 		tbl->widget().applyConfig(tbl->m_config);
+		if (tbl->m_config.m_show)
+			tbl->onShow();
+		else
+			tbl->onHide();
 	}
 	return true;
 }
@@ -209,7 +213,7 @@ datatables_t::iterator Connection::findOrCreateTable (QString const & tag)
 		if (m_main_window->tableEnabled() && template_config.m_show)
 		{
 			dp->onShow();
-			//m_main_window->onDockRestoreButton();
+			m_main_window->onDockRestoreButton();
 		}
 		else
 		{

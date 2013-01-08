@@ -271,6 +271,9 @@ void Server::onClickedAtDockedWidgets (QModelIndex idx)
 			QString class_type = path.at(1);
 			if (class_type == "table")
 			{
+				//path.pop_front(); // drop app name
+				//path.pop_front(); // drop widget identifier
+
 				if (path.size() > 2)
 				{
 					for (datatables_t::iterator it = conn->m_datatables.begin(), ite = conn->m_datatables.end(); it != ite; ++it)
@@ -344,9 +347,9 @@ void Server::onClickedAtDockedWidgets (QModelIndex idx)
 								}
 
 								if (state.at(2))
-									dp->m_wd->show();
+									dp->onShow();
 								else
-									dp->m_wd->hide();
+									dp->onHide();
 							}
 
 							if (apply)

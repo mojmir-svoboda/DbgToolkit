@@ -32,8 +32,9 @@ void DataPlot::onShow ()
 }
 void DataPlot::onHide ()
 {
-	m_wd->hide();
+	//m_wd->hide();
 	m_plot->onHide();
+	QTimer::singleShot(0, m_wd, SLOT(hide()));
 }
 
 
@@ -100,6 +101,10 @@ bool Connection::loadConfigForPlots (QString const & preset_name)
 		QString const fname = getDataTagFileName(getConfig().m_appdir, preset_name, g_presetPlotTag, plt->m_config.m_tag);
 		loadConfig(plt->m_config, fname);
 		plt->widget().applyConfig(plt->m_config);
+		if (plt->m_config.m_show)
+			plt->onShow();
+		else
+			plt->onHide();
 	}
 	return true;
 }
