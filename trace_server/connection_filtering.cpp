@@ -60,14 +60,14 @@ void Connection::setFilterFile (int state)
 		{
 			QModelIndex const & src_idx = indexes.at(i);
 			QModelIndex const pxy_idx = m_table_view_proxy->mapFromSource(src_idx);
-			qDebug("on: src(r=%i c=%i) -> pxy(r=%i c=%i)", src_idx.row(), src_idx.column(), pxy_idx.row(), pxy_idx.column());
+			//qDebug("on: src(r=%i c=%i) -> pxy(r=%i c=%i)", src_idx.row(), src_idx.column(), pxy_idx.row(), pxy_idx.column());
 			if (pxy_idx.isValid())
 				pxys.push_back(pxy_idx);
 		}
 
 		for (int i = 0, ie = pxys.size(); i < ie; ++i)
 		{
-			qDebug("on: pxy r=%i c=%i", pxys.at(i).row(), pxys.at(i).column());
+			//qDebug("on: pxy r=%i c=%i", pxys.at(i).row(), pxys.at(i).column());
 			m_table_view_widget->selectionModel()->setCurrentIndex(pxys.at(i), QItemSelectionModel::Select);
 		}
 	}
