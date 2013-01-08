@@ -19,12 +19,12 @@ void DockWidget::closeEvent (QCloseEvent * event)
 	event->accept();
 }
 
-DockWidget * DockManager::mkDockWidget (QMainWindow * const window, QWidget * const docked_widget, QString const & name)
+DockWidget * DockManager::mkDockWidget (QMainWindow * const window, QWidget * const docked_widget, bool visible, QString const & name)
 {
-	return mkDockWidget(window, docked_widget, name, Qt::BottomDockWidgetArea);
+	return mkDockWidget(window, docked_widget, visible, name, Qt::BottomDockWidgetArea);
 }
 
-DockWidget * DockManager::mkDockWidget (QMainWindow * const window, QWidget * const docked_widget, QString const & name, Qt::DockWidgetArea area)
+DockWidget * DockManager::mkDockWidget (QMainWindow * const window, QWidget * const docked_widget, bool visible, QString const & name, Qt::DockWidgetArea area)
 {
 	DockWidget * const dock = new DockWidget(*this, name, window);
 	dock->setObjectName(name);
@@ -35,11 +35,8 @@ DockWidget * DockManager::mkDockWidget (QMainWindow * const window, QWidget * co
 	m_widgets.insert(name, dock);
 	dock->setAttribute(Qt::WA_DeleteOnClose, false);
 
-	if (!window->restoreDockWidget(dock))
-	{
-		qWarning("cannot restore widget!");
-	}
-
+	if (visible) 
+		window->restoreDockWidget(dock);
 	return dock;
 }
 

@@ -32,8 +32,9 @@ void DataTable::onShow ()
 }
 void DataTable::onHide ()
 {
-	m_wd->hide();
 	m_table->onHide();
+	QTimer::singleShot(0, m_wd, SLOT(hide()));
+	//m_parent->getMainWindow()->removeDockWidget(m_wd);
 }
 
 void Connection::onShowTables ()
@@ -133,7 +134,7 @@ bool Connection::handleTableSetupCommand (DecodedCommand const & cmd)
 bool Connection::loadConfigForTable (QString const & preset_name, table::TableConfig & config, QString const & tag)
 {
 	QString const fname = getDataTagFileName(getConfig().m_appdir, preset_name, g_presetTableTag, tag);
-	qDebug("table load cfg file=%s", fname.toStdString().c_str());
+	qDebug("table: load cfg file=%s", fname.toStdString().c_str());
 	return loadConfig(config, fname);
 }
 
@@ -187,10 +188,7 @@ datatables_t::iterator Connection::findOrCreateTable (QString const & tag)
 		if (!preset_name.isEmpty())
 		{
 			fname = getDataTagFileName(getConfig().m_appdir, preset_name, g_presetTableTag, tag);
-			if (loadConfigForTable(preset_name, template_config, tag))
-			{
-				qDebug("table: loaded tag configuration from file=%s", fname.toStdString().c_str());
-			}
+			loadConfigForTable(preset_name, template_config, tag);
 		}
 		
 		DataTable * const dp = new DataTable(this, template_config, fname);
@@ -207,11 +205,11 @@ datatables_t::iterator Connection::findOrCreateTable (QString const & tag)
 		dp->m_table->setSelectionMode(QAbstractItemView::SingleSelection);
 
 		QObject::connect(dp->widget().horizontalHeader(), SIGNAL(sectionResized(int, int, int)), &dp->widget(), SLOT(onSectionResized(int, int, int)));
-		dp->m_wd = m_main_window->m_dock_mgr.mkDockWidget(m_main_window, &dp->widget(), table_name);
+		dp->m_wd = m_main_window->m_dock_mgr.mkDockWidget(m_main_window, &dp->widget(), template_config.m_show, table_name);
 		if (m_main_window->tableEnabled() && template_config.m_show)
 		{
 			dp->onShow();
-			m_main_window->onDockRestoreButton();
+			//m_main_window->onDockRestoreButton();
 		}
 		else
 		{

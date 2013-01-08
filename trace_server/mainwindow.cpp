@@ -86,7 +86,7 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QStri
 
 	m_docked_widgets_tree_view = new TreeView(this);
 	m_docked_widgets_tree_view->setHidingLinearParents(false);
-	m_docked_widgets = m_dock_mgr.mkDockWidget(this, m_docked_widgets_tree_view, QString("list"), Qt::LeftDockWidgetArea);
+	m_docked_widgets = m_dock_mgr.mkDockWidget(this, m_docked_widgets_tree_view, false, QString("list"), Qt::LeftDockWidgetArea);
 	restoreDockWidget(m_docked_widgets);
 	m_docked_widgets->setVisible(false);
 	m_docked_widgets->setFeatures(QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetFloatable);

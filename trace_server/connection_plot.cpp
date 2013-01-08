@@ -161,7 +161,7 @@ void Connection::appendDataXY (double x, double y, QString const & msg_tag)
 		it = m_dataplots.insert(tag, dp);
 		QModelIndex const item_idx = m_data_model->insertItemWithHint(plot_name, template_config.m_show);
 
-		dp->m_wd = m_main_window->m_dock_mgr.mkDockWidget(m_main_window, &dp->widget(), plot_name);
+		dp->m_wd = m_main_window->m_dock_mgr.mkDockWidget(m_main_window, &dp->widget(), template_config.m_show, plot_name);
 		if (m_main_window->plotEnabled() && template_config.m_show)
 		{
 			dp->onShow();
@@ -170,6 +170,7 @@ void Connection::appendDataXY (double x, double y, QString const & msg_tag)
 		else
 		{
 			dp->onHide();
+		m_main_window->onDockRestoreButton();
 		}
 	}
 

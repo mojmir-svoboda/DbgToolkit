@@ -33,8 +33,8 @@ public:
 
 	explicit DockManager (QObject * parent = 0) { }
 
-	DockWidget * mkDockWidget (QMainWindow * const window, QWidget * const docked_widget, QString const & name);
-	DockWidget * mkDockWidget (QMainWindow * const window, QWidget * const docked_widget, QString const & name, Qt::DockWidgetArea area);
+	DockWidget * mkDockWidget (QMainWindow * const window, QWidget * const docked_widget, bool visible, QString const & name);
+	DockWidget * mkDockWidget (QMainWindow * const window, QWidget * const docked_widget, bool visible, QString const & name, Qt::DockWidgetArea area);
 
 public slots:
 	void onPlotClosed (DockWidget * w);

@@ -29,14 +29,14 @@ ProfilerWindow::ProfilerWindow (QMainWindow * window, QObject * parent, profiler
 	m_tag_model = new TreeModel(this, &m_prof_filters);
 
 	BasePlot * plot = new BasePlot(this, 0, m_config, QString("tmp")); // @FIXME untmp
-	m_docks.mkDockWidget(m_window, plot, QString("prof_frames"));
+	m_docks.mkDockWidget(m_window, plot, true, QString("prof_frames"));
 
 	m_tagWidget = new QTreeView();
 	m_tagWidget->setModel(new QStandardItemModel);
 	connect(m_tagWidget, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtTagTree(QModelIndex)));
 	QObject::connect(m_tagWidget, SIGNAL(expanded(QModelIndex const &)), this, SLOT(onFileExpanded(QModelIndex const &)));
 	QObject::connect(m_tagWidget, SIGNAL(collapsed(QModelIndex const &)), this, SLOT(onFileCollapsed(QModelIndex const &)));
-	m_docks.mkDockWidget(m_window, m_tagWidget, QString("tags"));
+	m_docks.mkDockWidget(m_window, m_tagWidget, true, QString("tags"));
 
 	connect(rvp->m_Source.get(), SIGNAL(incomingProfilerData(profiler::profiler_rvp_t *)), this, SLOT(incomingProfilerData(profiler::profiler_rvp_t *)), Qt::QueuedConnection);
 
@@ -143,7 +143,7 @@ GfxView ProfilerWindow::mkGfxView (int i)
 	tmp.m_scene = new QGraphicsScene();
 	tmp.m_view = new View(this, "View 0");
 	tmp.m_view->view()->setScene(tmp.m_scene);
-	tmp.m_wd = m_docks.mkDockWidget(m_window, tmp.m_view, QString("prof_detail"));
+	tmp.m_wd = m_docks.mkDockWidget(m_window, tmp.m_view, true, QString("prof_detail"));
 	return tmp;
 }
 
