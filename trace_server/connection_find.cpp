@@ -3,21 +3,38 @@
 #include "modelview.h"
 #include "utils.h"
 
-void Connection::findTextInAllColumns (QString const & text, int from_row, int to_row)
+void Connection::findTextInAllColumns (QString const & text, int from_row, int to_row, bool only_first)
 {
 	ModelView * model = static_cast<ModelView *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
 	for (int i = from_row, ie = to_row; i < ie; ++i)
 	{
 		for (int j = 0, je = model->columnCount(); j < je; ++j)
 		{
-			// TODO: proxymodel 
-			QModelIndex const idx = model->index(i, j, QModelIndex());
-			if (idx.isValid() && model->data(idx).toString().contains(text, Qt::CaseInsensitive))
+			if (isModelProxy())
 			{
-				m_table_view_widget->selectionModel()->setCurrentIndex(idx, QItemSelectionModel::Select);
-				m_last_search_row = idx.row();
-				m_last_search_col = idx.column();
-				return;
+				QModelIndex const idx = model->index(i, j, QModelIndex());
+				QModelIndex const curr = m_table_view_proxy->mapFromSource(idx);
+
+				if (idx.isValid() && model->data(idx).toString().contains(text, Qt::CaseInsensitive))
+				{
+					m_table_view_widget->selectionModel()->setCurrentIndex(curr, QItemSelectionModel::Select);
+					m_last_search_row = idx.row();
+					m_last_search_col = idx.column();
+					if (only_first)
+						return;
+				}
+			}
+			else
+			{
+				QModelIndex const idx = model->index(i, j, QModelIndex());
+				if (idx.isValid() && model->data(idx).toString().contains(text, Qt::CaseInsensitive))
+				{
+					m_table_view_widget->selectionModel()->setCurrentIndex(idx, QItemSelectionModel::Select);
+					m_last_search_row = idx.row();
+					m_last_search_col = idx.column();
+					if (only_first)
+						return;
+				}
 			}
 		}
 	}
@@ -70,6 +87,15 @@ void Connection::selectionFromTo (int & from, int & to) const
 	from = indexes.first().row();
 }
 
+void Connection::findAllTexts (QString const & text)
+{
+	m_last_search = text;
+	int from = 0;
+	ModelView const * model = static_cast<ModelView *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
+	int to = model->rowCount();
+	findTextInAllColumns(text, from, to, false);
+}
+
 void Connection::findText (QString const & text, tlv::tag_t tag)
 {
 	if (m_last_search != text)
@@ -113,7 +139,7 @@ void Connection::findText (QString const & text)
 
 	int from, to;
 	selectionFromTo(from, to);
-	findTextInAllColumns(m_last_search, from, to);
+	findTextInAllColumns(m_last_search, from, to, true);
 }
 
 void Connection::findNext ()

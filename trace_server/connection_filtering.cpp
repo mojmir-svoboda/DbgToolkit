@@ -24,7 +24,22 @@ void Connection::setFilterFile (int state)
 {
 	if (state == Qt::Unchecked)
 	{
+		QItemSelectionModel const * selection = m_table_view_widget->selectionModel();
+		QModelIndexList indexes = selection->selectedIndexes();
+		if (indexes.size() < 1)
+			return;
+		QModelIndexList srcs;
+		for (int i = 0, ie = indexes.size(); i < ie; ++i)
+		{
+			QModelIndex const & pxy_idx = indexes.at(i);
+			QModelIndex const src_idx = m_table_view_proxy->mapToSource(pxy_idx);
+			srcs.push_back(src_idx);
+		}
+
 		m_table_view_widget->setModel(m_table_view_proxy->sourceModel());
+
+		for (int i = 0, ie = indexes.size(); i < ie; ++i)
+			m_table_view_widget->selectionModel()->setCurrentIndex(srcs.at(i), QItemSelectionModel::Select);
 	}
 	else if (state == Qt::Checked)
 	{

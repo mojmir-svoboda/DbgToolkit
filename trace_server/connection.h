@@ -116,6 +116,7 @@ public:
 	void clearFilters ();
 	void findText (QString const & text, tlv::tag_t tag);
 	void findText (QString const & text);
+	void findAllTexts (QString const & text);
 	void findNext ();
 	void findPrev ();
 	void appendToStringFilters (QString const & str, bool checked, int state);
@@ -259,7 +260,7 @@ private:
 	QString findString4Tag (tlv::tag_t tag, QModelIndex const & row_index) const;
 	QVariant findVariant4Tag (tlv::tag_t tag, QModelIndex const & row_index) const;
 	void selectionFromTo (int & from, int & to) const;
-	void findTextInAllColumns (QString const & text, int from_row, int to_row);
+	void findTextInAllColumns (QString const & text, int from_row, int to_row, bool only_first);
 	void findTextInColumn (QString const & text, int col, int from_row, int to_row);
 
 	bool isModelProxy () const;

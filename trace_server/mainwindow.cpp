@@ -169,6 +169,7 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QStri
 	getWidgetLvl()->header()->hide();
 
 	connect(ui->dtToolButton, SIGNAL(clicked()), this, SLOT(ondtToolButton()));
+	connect(ui->findAllButton, SIGNAL(clicked()), this, SLOT(onFindAllButton()));
 	connect(ui->timeComboBox, SIGNAL(activated(int)), this, SLOT(onTimeUnitsChanged(int)));
 	connect(ui->levelSpinBox, SIGNAL(valueChanged(int)), m_server, SLOT(onLevelValueChanged(int)));
 	connect(ui->filterFileCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onFilterFile(int)));
@@ -555,6 +556,21 @@ void MainWindow::onQSearchEditingFinished ()
 
 	QString text = ui->qSearchComboBox->currentText();
 	onQSearch(text);
+}
+
+void MainWindow::setLastSearchIntoCombobox (QString const & txt)
+{
+	ui->qSearchComboBox->addItem(txt);
+	ui->qSearchComboBox->setCurrentIndex(ui->qSearchComboBox->findText(txt));
+}
+
+void MainWindow::onFindAllButton ()
+{
+	if (!getTabTrace()->currentWidget()) return;
+
+	QString const text = ui->qSearchComboBox->currentText();
+	if (Connection * conn = m_server->findCurrentConnection())
+	conn->findAllTexts(text);
 }
 
 void MainWindow::onQFilterLineEditFinished ()
@@ -983,6 +999,8 @@ void MainWindow::setupMenuBar ()
 	editMenu->addAction(tr("Find"), this, SLOT(onEditFind()), QKeySequence::Find);
 	editMenu->addAction(tr("Find Next"), this, SLOT(onEditFindNext()), QKeySequence::FindNext);
 	editMenu->addAction(tr("Find Prev"), this, SLOT(onEditFindPrev()), QKeySequence::FindPrevious);
+	editMenu->addAction(tr("Find and Select All"), this, SLOT(onFindAllButton()));
+
 	new QShortcut(QKeySequence(Qt::Key_Slash), this, SLOT(onEditFind()));
 	editMenu->addSeparator();
 	editMenu->addAction(tr("Copy"), m_server, SLOT(onCopyToClipboard()), QKeySequence::Copy);

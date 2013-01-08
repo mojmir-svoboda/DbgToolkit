@@ -226,6 +226,7 @@ void Connection::onTabTraceFocus ()
 	m_main_window->getWidgetString()->setModel(m_string_model);
 	if (!m_curr_preset.isEmpty())
 		m_main_window->setPresetNameIntoComboBox(m_curr_preset);
+	m_main_window->setLastSearchIntoCombobox(m_last_search);
 }
 
 void Connection::onLevelValueChanged (int val)

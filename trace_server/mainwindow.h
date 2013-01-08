@@ -149,6 +149,7 @@ public:
 	void dragEnterEvent (QDragEnterEvent *event);
 	bool eventFilter (QObject * o, QEvent * e);
 	void setPresetNameIntoComboBox (QString const & pname);
+	void setLastSearchIntoCombobox (QString const & txt);
 	void onPresetActivate (QString const & pname);
 	void onPresetActivate (Connection * conn, QString const & pname);
 
@@ -194,6 +195,7 @@ private slots:
 	void onQSearch (QString const &);
 	void onQSearchEditingFinished ();
 	void onQFilterLineEditFinished ();
+	void onFindAllButton ();
 	void appendToSearchHistory (QString const & str);
 	void updateSearchHistory ();
 	void onSaveCurrentState ();
