@@ -45,7 +45,7 @@ void Connection::onShowTables ()
 		(*it)->onShow();
 		m_main_window->restoreDockWidget((*it)->m_wd);
 	}
-	m_main_window->onDockRestoreButton();
+	//m_main_window->onDockRestoreButton();
 }
 
 void Connection::onHideTables ()
@@ -213,7 +213,7 @@ datatables_t::iterator Connection::findOrCreateTable (QString const & tag)
 		if (m_main_window->tableEnabled() && template_config.m_show)
 		{
 			dp->onShow();
-			m_main_window->onDockRestoreButton();
+			//m_main_window->onDockRestoreButton();
 		}
 		else
 		{

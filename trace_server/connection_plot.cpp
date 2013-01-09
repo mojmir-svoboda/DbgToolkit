@@ -46,7 +46,7 @@ void Connection::onShowPlots ()
 		(*it)->onShow();
 		m_main_window->restoreDockWidget((*it)->m_wd);
 	}
-	m_main_window->onDockRestoreButton();
+	//m_main_window->onDockRestoreButton();
 }
 
 void Connection::onHidePlots ()
@@ -170,12 +170,12 @@ void Connection::appendDataXY (double x, double y, QString const & msg_tag)
 		if (m_main_window->plotEnabled() && template_config.m_show)
 		{
 			dp->onShow();
-			m_main_window->onDockRestoreButton();
+			//m_main_window->onDockRestoreButton();
 		}
 		else
 		{
 			dp->onHide();
-		m_main_window->onDockRestoreButton();
+		//m_main_window->onDockRestoreButton();
 		}
 	}
 
