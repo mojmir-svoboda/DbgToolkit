@@ -25,7 +25,7 @@ namespace plot {
 			, m_color(Qt::red)
 			, m_symbolcolor(Qt::red)
 			, m_symbolsize(6)
-			, m_show(true)
+			, m_show(false)
 			, m_unused_b0(true)
 			, m_unused_b1(true)
 			, m_unused_b2(true)
