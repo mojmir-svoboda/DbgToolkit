@@ -51,7 +51,7 @@ namespace plot {
 		, m_timer(-1)
 		, m_fname(fname)
 	{
-		qDebug("%s this=0x%08x", __FUNCTION__, this);
+		//qDebug("%s this=0x%08x", __FUNCTION__, this);
 		setAutoReplot(false);
 		canvas()->setBorderRadius(0);
 		plotLayout()->setAlignCanvasToScales(true);
@@ -116,7 +116,7 @@ namespace plot {
 
 	BasePlot::~BasePlot ()
 	{
-		qDebug("%s this=0x%08x", __FUNCTION__, this);
+		//qDebug("%s this=0x%08x", __FUNCTION__, this);
 		stopUpdate();
 		for (curves_t::iterator it = m_curves.begin(), ite = m_curves.end(); it != ite; ++it)
 		{
@@ -153,7 +153,7 @@ namespace plot {
 
 	void BasePlot::applyConfig (PlotConfig const & pcfg)
 	{
-		qDebug("%s this=0x%08x", __FUNCTION__, this);
+		//qDebug("%s this=0x%08x", __FUNCTION__, this);
 		setTitle(pcfg.m_title);
 		for (size_t c = 0, ce = pcfg.m_ccfg.size(); c < ce; ++c)
 		{
@@ -261,7 +261,7 @@ namespace plot {
 
 	void BasePlot::setConfigValues (PlotConfig const & pcfg)
 	{
-		qDebug("%s this=0x%08x", __FUNCTION__, this);
+		//qDebug("%s this=0x%08x", __FUNCTION__, this);
 		Ui::SettingsPlot * ui = m_config_ui.ui();
 		ui->curveComboBox->clear();
 		for (size_t i = 0, ie = pcfg.m_ccfg.size(); i < ie; ++i)
@@ -303,7 +303,7 @@ namespace plot {
 
 	void BasePlot::onApplyButton ()
 	{
-		qDebug("%s this=0x%08x", __FUNCTION__, this);
+		//qDebug("%s this=0x%08x", __FUNCTION__, this);
 		Ui::SettingsPlot * ui = m_config_ui.ui();
 		m_config.m_auto_scroll = ui->autoScrollCheckBox->checkState() == Qt::Checked;
 		m_config.m_timer_delay_ms = ui->updateTimerSpinBox->value();
