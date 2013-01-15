@@ -91,8 +91,13 @@ public:
 
 	// file
 	typedef tree_filter<TreeModelItem> file_filters_t;
+	typedef file_filters_t::node_t node_t;
 	bool isFileLinePresent (fileline_t const & p, TreeModelItem & state) const; /// checks for file:line existence in the tree
 	bool isFileLinePresent (QString const & fileline, TreeModelItem & state) const; /// checks for file:line existence in the tree
+	void merge_with (file_filters_t const & rhs);
+	void merge (node_t * lhs, node_t const * rhs);
+	void merge_state (node_t * lhs, node_t const * rhs);
+	void merge_rhs (node_t * lhs, node_t const * rhs);
 	
 	// ctx
 	typedef QList<FilteredContext> ctx_filters_t;

@@ -57,4 +57,9 @@ void TableView::setColumnOrder (QMap<int, int> const & columnOrderMap, SessionSt
     }
 }
 
+void TableView::keyPressEvent (QKeyEvent * event)
+{
+	QTableView::keyPressEvent(event);
+}
+
 

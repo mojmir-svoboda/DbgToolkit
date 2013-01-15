@@ -157,7 +157,9 @@ void MainWindow::onPresetActivate (Connection * conn, QString const & preset_nam
 	if (loadSession(dummy, preset_name))
 	{
 		conn->destroyModelFile();
-		std::swap(conn->m_session_state.m_file_filters.root, dummy.m_file_filters.root);
+		conn->m_session_state.merge_with(dummy.m_file_filters);
+		//std::swap(conn->m_session_state.m_file_filters.root, dummy.m_file_filters.root);
+
 		conn->setupModelFile();
 		conn->m_session_state.m_filtered_regexps = dummy.m_filtered_regexps;
 		conn->m_session_state.m_colorized_texts = dummy.m_colorized_texts;

@@ -10,4 +10,5 @@ public:
 	virtual bool viewportEvent (QEvent * event);
 	virtual void scrollTo (QModelIndex const & index, ScrollHint hint = EnsureVisible);
 	void setColumnOrder (QMap<int, int> const & columnOrderMap, SessionState const & s);
+	void TableView::keyPressEvent (QKeyEvent * event);
 };

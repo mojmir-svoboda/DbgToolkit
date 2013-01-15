@@ -1,5 +1,6 @@
 #include "wh_trace.h"
 #include <cmath>
+#include "folder/some_header.h"
 
 #if defined WIN32 || defined WIN64
 #	define WIN32_LEAN_AND_MEAN
@@ -162,7 +163,7 @@ void TraceVal (int x, int y)
 	TRACE_TABLE_COLOR(trace::e_Info, trace::CTX_Default, 0	, y, trace::Color(255,0,255,255), trace::Color(0,255,0,0), "%s0", GetName());
 	++n;
 }
-
+	
 unsigned g_Quit = 0;
 
 #if defined WIN32 || defined WIN64
@@ -279,6 +280,9 @@ int main ()
 			break;
 
 		TRACE_MSG(trace::e_Info, trace::CTX_Default,  "Some warning message i=%u from main thread", i);
+		//folder::some_fn(i);
+		//TRACE_MSG(trace::e_Info, trace::CTX_Default,  "grr284 i=%u ", i);
+		//TRACE_MSG(trace::e_Info, trace::CTX_Default,  "grr285 i=%u ", i);
 	}
 
 	g_Quit = 1;
