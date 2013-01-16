@@ -20,16 +20,33 @@
  * SOFTWARE.
  **/
 #pragma once
-#include <QString>
+
+//#define USE_STD_STRING 1
+#define USE_QT_STRING 1
+
+#if (USE_QT_STRING == 1)
+#	include <QString>
+	typedef QString string_type_t;
+	typedef QChar char_type_t;
+	inline char_type_t const * get_raw_cstring (string_type_t const & str) { return str.constData(); }
+#endif
+#if (USE_STD_STRING == 1)
+#	include <string>
+	typedef std::string string_type_t;
+	typedef char char_type_t;
+	inline char_type_t const * get_raw_cstring (string_type_t const & str) { return str.c_str(); }
+#endif
+
 #include <vector>
 #include <boost/serialization/split_member.hpp>
+#include <boost/serialization/nvp.hpp>
 #include "nnode.hpp"
 
 template <class FilterT>
 struct tree_filter
 {
 	typedef FilterT filter_t;
-	typedef NNode<QString, filter_t> node_t;
+	typedef NNode<string_type_t, filter_t> node_t;
 	node_t * root;
 
 	tree_filter ()
@@ -52,17 +69,19 @@ struct tree_filter
 
 	bool empty () const { return !(root && root->children); }
 
-	node_t * set_to_state (QString const & path, filter_t const & data)
-	{
-		QChar const * const bgn = path.constData();
-		QChar const * const end = bgn + path.size() + 1;
 
-		QChar const * left = bgn;
-		QChar const * right = bgn;
+	node_t * set_to_state (string_type_t const & path, filter_t const & data)
+	{
+		char_type_t const * const bgn = get_raw_cstring(path);
+		//char_type_t const * const bgn = path.constData();
+		char_type_t const * const end = bgn + path.size() + 1;
+
+		char_type_t const * left = bgn;
+		char_type_t const * right = bgn;
 		node_t * level = root;
 		for (; right < end; ++right)
 		{
-			QChar const c = *right;
+			char_type_t const c = *right;
 			if (c == ':' || c == '/' || c == '\\' || c == '\0' || right + 1 == end)
 			{
 				if (right - left > 0)
@@ -85,7 +104,7 @@ struct tree_filter
 		return level;
 	}
 
-/*	bool is_present (QString const & path, filter_t & data) const
+/*	bool is_present (string_type_t const & path, filter_t & data) const
 	{
 		tokenizer_t tok(path, separator);
 		node_t const * level = root;
@@ -99,18 +118,18 @@ struct tree_filter
 		return true;
 	}*/
 
-	node_t const * is_present (QString const & path, filter_t const * & fi) const
+	node_t const * is_present (string_type_t const & path, filter_t const * & fi) const
 	{
 		fi = 0;
-		QChar const * const bgn = path.constData();
-		QChar const * const end = bgn + path.size() + 1;
+		char_type_t const * const bgn = path.constData();
+		char_type_t const * const end = bgn + path.size() + 1;
 
-		QChar const * left = bgn;
-		QChar const * right = bgn;
+		char_type_t const * left = bgn;
+		char_type_t const * right = bgn;
 		node_t const * level = root;
 		for (; right < end; ++right)
 		{
-			QChar const c = *right;
+			char_type_t const c = *right;
 			if (c == ':' || c == '/' || c == '\\' || c == '\0' || right + 1 == end)
 			{
 				if (right - left > 0)
@@ -188,7 +207,7 @@ struct tree_filter
 		}
 	}
 */
-	void reassemble_path (std::vector<node_t *> const & nodes, QString & path) const
+	void reassemble_path (std::vector<node_t *> const & nodes, string_type_t & path) const
 	{
 		for (size_t i = 0, ie = nodes.size(); i < ie; ++i)
 		{
@@ -214,7 +233,7 @@ struct tree_filter
 
 	BOOST_SERIALIZATION_SPLIT_MEMBER()
 	 
-	void dump_filter_impl (node_t const * node, std::vector<node_t *> & nodes, QString & output) const
+	void dump_filter_impl (node_t const * node, std::vector<node_t *> & nodes, string_type_t & output) const
 	{
 		if (node && node->children)
 		{
@@ -226,7 +245,7 @@ struct tree_filter
 				nodes.push_back(current);
 				{
 
-					QString path;
+					string_type_t path;
 					path.reserve(128);
 					reassemble_path(nodes, path);
 					output.append("\n");
@@ -252,7 +271,7 @@ struct tree_filter
 		}
 	}
 
-	void dump_filter (QString & output) const
+	void dump_filter (string_type_t & output) const
 	{
 		output.reserve(128);
 		std::vector<node_t *> path;

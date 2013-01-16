@@ -493,3 +493,100 @@ void SessionState::appendToStringFilters (QString const & s, bool enabled, int s
 	m_filtered_strings.push_back(FilteredString(s, enabled, state));
 }
 
+void SessionState::merge_rhs (node_t * lhs, node_t const * rhs)
+{
+	//printf("%s\n", __FUNCTION__);
+	node_t const * rhs_child = rhs->children;
+	while (rhs_child)
+	{
+		node_t * lhs_child = lhs->children;
+		bool found = false;
+		while (lhs_child)
+		{
+			if (lhs_child->key == rhs_child->key)
+			{
+				found = true;
+				break;
+			}
+			lhs_child = lhs_child->next;
+		}
+
+		if (!found)
+		{
+			lhs_child = new node_t(*rhs_child);
+			node_t::node_append(lhs, lhs_child);
+		}
+		else
+			lhs_child->data = rhs_child->data;
+
+		merge(lhs_child, rhs_child);
+
+		rhs_child = rhs_child->next;
+	}
+}
+
+void SessionState::merge_state (node_t * lhs, node_t const * rhs)
+{
+	printf("%s\n", __FUNCTION__);
+	node_t * lhs_child = lhs->children;
+
+	while (lhs_child)
+	{
+		node_t * rhs_child = rhs->children;
+		bool found = false;
+		while (rhs_child)
+		{
+			if (rhs_child->key == lhs_child->key)
+			{
+				found = true;
+				// assert na state
+				break;
+			}
+			rhs_child = rhs_child->next;
+		}
+
+		if (found)
+		{
+			lhs_child->data = rhs_child->data;
+			merge_state(lhs_child, rhs_child);
+		}
+		else
+		{
+			node_t * parent = lhs_child->parent;
+			if (parent)
+			{
+				switch (parent->data.m_state)
+				{
+					case e_Unchecked:
+						m_file_filters.set_state_to_childs(parent, parent->data);
+						break;
+					case e_PartialCheck:
+						m_file_filters.set_state_to_childs(parent, TreeModelItem(e_Unchecked, 1));
+						break;
+					case e_Checked:
+						m_file_filters.set_state_to_childs(parent, parent->data);
+						break;
+				}
+			}
+		}
+
+		lhs_child = lhs_child->next;
+	}
+}
+
+void SessionState::merge (node_t * lhs, node_t const * rhs)
+{
+	//printf("merge: %x %x\n", lhs, rhs);
+
+	merge_rhs(lhs, rhs);
+	merge_state(lhs, rhs);
+}
+
+void SessionState::merge_with (file_filters_t const & rhs)
+{   
+	node_t * const rhs_root = rhs.root;
+	if (m_file_filters.root && rhs_root)
+		m_file_filters.root->data = rhs_root->data;
+	merge(m_file_filters.root, rhs_root);
+} 
+
