@@ -558,13 +558,13 @@ void SessionState::merge_state (node_t * lhs, node_t const * rhs)
 				switch (parent->data.m_state)
 				{
 					case e_Unchecked:
-						m_file_filters.set_state_to_childs(parent, parent->data);
+						m_file_filters.set_state_to_childs(lhs_child, parent->data);
 						break;
 					case e_PartialCheck:
-						m_file_filters.set_state_to_childs(parent, TreeModelItem(e_Unchecked, 1));
+						m_file_filters.set_state_to_childs(lhs_child, TreeModelItem(e_Unchecked, 1));
 						break;
 					case e_Checked:
-						m_file_filters.set_state_to_childs(parent, parent->data);
+						m_file_filters.set_state_to_childs(lhs_child, parent->data);
 						break;
 				}
 			}

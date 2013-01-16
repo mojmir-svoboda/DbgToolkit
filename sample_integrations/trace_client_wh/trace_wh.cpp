@@ -279,10 +279,12 @@ int main ()
 		if (i == 10)
 			break;
 
-		TRACE_MSG(trace::e_Info, trace::CTX_Default,  "Some warning message i=%u from main thread", i);
-		//folder::some_fn(i);
+		//TRACE_MSG(trace::e_Info, trace::CTX_Default,  "Some warning message i=%u from main thread", i);
+		folder::some_fn(i);
 		//TRACE_MSG(trace::e_Info, trace::CTX_Default,  "grr284 i=%u ", i);
 		//TRACE_MSG(trace::e_Info, trace::CTX_Default,  "grr285 i=%u ", i);
+		TRACE_MSG(trace::e_Info, trace::CTX_Default,  "grr286 i=%u ", i);
+		TRACE_MSG(trace::e_Info, trace::CTX_Default,  "grr286 i=%u ", i);
 	}
 
 	g_Quit = 1;
