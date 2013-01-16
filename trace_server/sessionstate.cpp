@@ -495,7 +495,6 @@ void SessionState::appendToStringFilters (QString const & s, bool enabled, int s
 
 void SessionState::merge_rhs (node_t * lhs, node_t const * rhs)
 {
-	//printf("%s\n", __FUNCTION__);
 	node_t const * rhs_child = rhs->children;
 	while (rhs_child)
 	{
@@ -527,7 +526,6 @@ void SessionState::merge_rhs (node_t * lhs, node_t const * rhs)
 
 void SessionState::merge_state (node_t * lhs, node_t const * rhs)
 {
-	printf("%s\n", __FUNCTION__);
 	node_t * lhs_child = lhs->children;
 
 	while (lhs_child)
@@ -576,8 +574,6 @@ void SessionState::merge_state (node_t * lhs, node_t const * rhs)
 
 void SessionState::merge (node_t * lhs, node_t const * rhs)
 {
-	//printf("merge: %x %x\n", lhs, rhs);
-
 	merge_rhs(lhs, rhs);
 	merge_state(lhs, rhs);
 }
