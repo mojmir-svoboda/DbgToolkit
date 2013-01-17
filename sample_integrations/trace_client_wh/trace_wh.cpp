@@ -219,15 +219,16 @@ int main ()
 #endif
 	TRACE_APPNAME("WarHorse_App");
 	TRACE_CONNECT();
-	for (int i = 0; i < 16 * 16; ++i)
-	{
-		float x = 3.1415926535f * 2.0f / 128.0f * static_cast<float>(i);
-		TRACE_PLOT_XY(trace::e_Info, trace::CTX_Default, x, sinf(x), "sample_plot/%s", "sin");
-		TRACE_PLOT_XY(trace::e_Info, trace::CTX_Default, x, cosf(x), "sample_plot/%s", "cos");
-		TRACE_PLOT_XY(trace::e_Info, trace::CTX_Default, x, sinf(x) * cosf(x), "sample_plot2/%s", "cos");
-		TRACE_PLOT_XY(trace::e_Info, trace::CTX_Default, x, cosf(x) / x, "sample_plot3/%s", "hadej");
-		TRACE_PLOT_XY(trace::e_Info, trace::CTX_Default, x, sinf(x) * sinf(x)/ x, "sample_plot4/%s", "hadej");
-	}
+	for (int k = 0; k < 32; ++k)
+		for (int i = 0; i < 16 * 16; ++i)
+		{
+			float x = 3.1415926535f * 2.0f / 128.0f * static_cast<float>(i);
+			TRACE_PLOT_XY(trace::e_Info, trace::CTX_Default, x, sinf(x), "sample_plot%i/%s", k, "sin");
+			TRACE_PLOT_XY(trace::e_Info, trace::CTX_Default, x, cosf(x), "sample_plot%i/%s", k, "cos");
+			TRACE_PLOT_XY(trace::e_Info, trace::CTX_Default, x, sinf(x) * cosf(x), "sample_plot2%i/%s", k, "cos");
+			TRACE_PLOT_XY(trace::e_Info, trace::CTX_Default, x, cosf(x) / x, "sample_plot3%i/%s", k, "hadej");
+			TRACE_PLOT_XY(trace::e_Info, trace::CTX_Default, x, sinf(x) * sinf(x)/ x, "sample_plot4%i/%s", k, "hadej");
+		}
 	//TRACE_DISCONNECT();
 	//return 0;
 
@@ -279,10 +280,17 @@ int main ()
 		if (i == 10)
 			break;
 
-		TRACE_MSG(trace::e_Info, trace::CTX_Default,  "Some warning message i=%u from main thread", i);
-		//folder::some_fn(i);
+
+
+
+
+
+		//TRACE_MSG(trace::e_Info, trace::CTX_Default,  "Some warning message i=%u from main thread", i);
+		folder::some_fn(i);
 		//TRACE_MSG(trace::e_Info, trace::CTX_Default,  "grr284 i=%u ", i);
 		//TRACE_MSG(trace::e_Info, trace::CTX_Default,  "grr285 i=%u ", i);
+		TRACE_MSG(trace::e_Info, trace::CTX_Default,  "grr286 i=%u ", i);
+		TRACE_MSG(trace::e_Info, trace::CTX_Default,  "grr286 i=%u ", i);
 	}
 
 	g_Quit = 1;
