@@ -92,7 +92,7 @@ struct Application : QApplication
 				if (m_main_window)
 					m_main_window->onHotkeyShowOrHide();
 		}
-		return QApplication::winEventFilter(msg, result);
+		return QApplication::installNativeEventFilter(msg, result);
 	}
 #endif
 };
