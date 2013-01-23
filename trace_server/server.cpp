@@ -160,7 +160,7 @@ void Server::importDataStream (QString const & fname)
 	QFile file(fname);
 	if (!file.open(QIODevice::ReadOnly))
 	{
-		qWarning(QString(tr("Could not open file %1").arg(fname)).toAscii());
+		qWarning(QString(tr("Could not open file %1").arg(fname)).toLatin1());
 		return;
 	}
 

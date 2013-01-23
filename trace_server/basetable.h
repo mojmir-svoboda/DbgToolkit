@@ -1,5 +1,5 @@
 #pragma once
-#include <QtGui/qwidget.h>
+#include <QWidget>
 #include <QColorDialog>
 #include <QTableView>
 #include <QAbstractProxyModel>

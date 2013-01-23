@@ -121,10 +121,10 @@ void TableItemDelegate::paint (QPainter * painter, QStyleOptionViewItem const & 
     QStyleOptionViewItemV4 option4 = option;
     initStyleOption(&option4, index);
 	columns_align_t const & column_aligns = *m_session_state.getColumnsAlignTemplate();
-	E_Align const align = stringToAlign(column_aligns[index.column()].at(0).toAscii());
+	E_Align const align = stringToAlign(column_aligns[index.column()].at(0).toLatin1());
 	option4.displayAlignment = static_cast<Qt::Alignment>(1 << align);
 	columns_elide_t const & column_elides = *m_session_state.getColumnsElideTemplate();
-	E_Elide const elide = stringToElide(column_elides[index.column()].at(0).toAscii());
+	E_Elide const elide = stringToElide(column_elides[index.column()].at(0).toLatin1());
 	option4.textElideMode = static_cast<Qt::TextElideMode>(elide);
 
 	Connection const * conn = static_cast<Connection const *>(parent());
@@ -177,7 +177,7 @@ void LevelDelegate::paint (QPainter * painter, QStyleOptionViewItem const & opti
 			// @TODO: this should be exchanged via dictionnary in future
 			if (lvl >= 0 && lvl < trace::e_max_trace_level)
 			{
-				option4.text = QString::fromAscii(trace::enumToString(static_cast<trace::E_TraceLevel>(lvl)));
+				option4.text = QString::fromLatin1(trace::enumToString(static_cast<trace::E_TraceLevel>(lvl)));
 			}
 
 			if (QWidget const * widget = option4.widget)

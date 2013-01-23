@@ -286,7 +286,7 @@ void MainWindow::saveSession (SessionState const & s, QString const & preset_nam
 	qDebug("%s", __FUNCTION__);
 	QString fname = getPresetFileName(m_config.m_appdir, preset_name);
 	qDebug("store file=%s", fname.toStdString().c_str());
-	saveSessionState(s, fname.toAscii());
+	saveSessionState(s, fname.toLatin1());
 }
 
 void MainWindow::storePresets ()
@@ -319,7 +319,7 @@ bool MainWindow::loadSession (SessionState & s, QString const & preset_name)
 	QString fname = getPresetFileName(m_config.m_appdir, preset_name);
 	qDebug("load file=%s", fname.toStdString().c_str());
 	s.m_file_filters.clear();
-	return loadSessionState(s, fname.toAscii());
+	return loadSessionState(s, fname.toLatin1());
 }
 
 void MainWindow::loadPresets ()

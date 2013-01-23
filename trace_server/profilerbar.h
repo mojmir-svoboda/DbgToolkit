@@ -1,6 +1,6 @@
 #pragma once
-#include <QtGui/QColor>
-#include <QtGui/QGraphicsItem>
+#include <QColor>
+#include <QGraphicsItem>
 #include "profilerblockinfo.h"
 
 namespace profiler {

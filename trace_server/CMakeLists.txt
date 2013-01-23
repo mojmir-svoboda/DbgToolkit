@@ -1,7 +1,10 @@
 cmake_minimum_required(VERSION 2.8)
 PROJECT(trace_server)
 set (CMAKE_VERBOSE_MAKEFILE on)
-FIND_PACKAGE(Qt4 REQUIRED)
+find_package(Qt5Widgets REQUIRED)
+find_package(Qt5Core REQUIRED)
+find_package(Qt5Network REQUIRED)
+set(CMAKE_AUTOMOC ON)
 
 include("${CMAKE_CURRENT_SOURCE_DIR}/FindReleaseAndDebug.cmake")
 
@@ -149,10 +152,10 @@ IF (WIN32)
 	SET (QT_USE_QTMAIN TRUE)
 ENDIF (WIN32) 
 
-QT4_WRAP_UI(trace_server_UI_HDRS ${trace_server_UI})
-QT4_WRAP_CPP(trace_server_MOC ${trace_server_HEADERS})
-QT4_ADD_RESOURCES(trace_server_RESOURCES_RCC ${trace_server_RESOURCES})
-INCLUDE(${QT_USE_FILE})
+QT5_WRAP_UI(trace_server_UI_HDRS ${trace_server_UI})
+QT5_WRAP_CPP(trace_server_MOC ${trace_server_HEADERS})
+QT5_ADD_RESOURCES(trace_server_RESOURCES_RCC ${trace_server_RESOURCES})
+INCLUDE_DIRECTORIES(${QT_USE_FILE})
 ADD_DEFINITIONS(${QT_DEFINITIONS})
 INCLUDE_DIRECTORIES(${CMAKE_BINARY_DIR})
 
@@ -211,3 +214,4 @@ QT_ADD_IMG_PLUGINS(trace_server)
 #TARGET_LINK_LIBRARIES(trace_server ${QT_LIBRARIES} ${QICO} ${QSVG} ${Boost_LIBRARIES} qwt)
 TARGET_LINK_LIBRARIES(trace_server ${QT_LIBRARIES} ${QICO} ${Boost_LIBRARIES} qwt qtsln)
 
+qt5_use_modules(trace_server Widgets Core Gui Network)

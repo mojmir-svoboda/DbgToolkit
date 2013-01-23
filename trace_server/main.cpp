@@ -1,4 +1,4 @@
-#include <QtGui/QApplication>
+#include <QApplication>
 //#include <QtGui/QTableWidget.h>
 #include <QSystemTrayIcon>
 #include <QMessageBox>
@@ -131,7 +131,7 @@ void qDebugHandler (QtMsgType type, const char * msg)
 int main (int argc, char * argv[])
 {
 	QString const log_name = QString("%1.%2").arg(argv[0]).arg("log");
-	g_LogRedirect = fopen(log_name.toAscii(), "a");
+	g_LogRedirect = fopen(log_name.toLatin1(), "a");
 	bool quit_delay = true;
 	bool start_hidden = false;
 	bool dump_mode = false;
@@ -169,7 +169,7 @@ int main (int argc, char * argv[])
 		}
     }
 
-	qInstallMsgHandler(qDebugHandler);
+	qInstallMessageHandler(qDebugHandler);
 
 	Application a(argc, argv);
 

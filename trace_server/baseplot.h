@@ -1,5 +1,5 @@
 #pragma once
-#include <QtGui/qwidget.h>
+#include <qwidget.h>
 #include <QColorDialog>
 #include "qwt/qwt_plot.h"
 #include "qwt/qwt_plot_canvas.h"

@@ -16,7 +16,7 @@ namespace plot {
 
 	bool loadConfig (PlotConfig & config, QString const & fname)
 	{
-		std::ifstream ifs(fname.toAscii());
+		std::ifstream ifs(fname.toLatin1());
 		if (!ifs) return false;
 		boost::archive::xml_iarchive ia(ifs);
 		ia >> BOOST_SERIALIZATION_NVP(config);
@@ -26,7 +26,7 @@ namespace plot {
 
 	bool saveConfig (PlotConfig const & config, QString const & fname)
 	{
-		std::ofstream ofs(fname.toAscii());
+		std::ofstream ofs(fname.toLatin1());
 		if (!ofs) return false;
 		boost::archive::xml_oarchive oa(ofs);
 		oa << BOOST_SERIALIZATION_NVP(config);

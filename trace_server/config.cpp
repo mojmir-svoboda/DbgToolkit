@@ -36,13 +36,13 @@ bool loadHistory (History<QString> & h, char const * filename)
 void GlobalConfig::loadSearchHistory ()
 {
 	QString const filename = m_appdir + "/search_history.xml";
-	loadHistory(m_search_history, filename.toAscii());
+	loadHistory(m_search_history, filename.toLatin1());
 }
 
 void GlobalConfig::saveSearchHistory () const
 {
 	QString const filename = m_appdir + "/search_history.xml";
-	saveHistory(m_search_history, filename.toAscii());
+	saveHistory(m_search_history, filename.toLatin1());
 }
 
 

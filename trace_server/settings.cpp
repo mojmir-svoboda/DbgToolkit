@@ -123,10 +123,10 @@ void MainWindow::onSettingsAppSelectedTLV (int const idx, bool const first_time)
 		char const * name = tlv::get_tag_name(i);
 		if (name)
 		{
-			if (findChildByText(cs_root, QString::fromAscii(name)))
+			if (findChildByText(cs_root, QString::fromLatin1(name)))
 				continue;
 
-			QList<QStandardItem *> row_items = addRow(QString::fromAscii(name), first_time);
+			QList<QStandardItem *> row_items = addRow(QString::fromLatin1(name), first_time);
 			cs_root->appendRow(row_items);
 			add_tag_indices[add_tag_count++] = i;
 
@@ -376,7 +376,7 @@ void MainWindow::onClickedAtSettingPooftahButton ()
 		QString const tag = qVariantValue<QString>(ui_settings->listViewColumnSetup->model()->data(tag_idx));
 
 		QModelIndex const row_idx = ui_settings->listViewColumnAlign->model()->index(j, 0, QModelIndex());
-		size_t const tag_val = tlv::tag_for_name(tag.toAscii());
+		size_t const tag_val = tlv::tag_for_name(tag.toLatin1());
 		ui_settings->listViewColumnAlign->model()->setData(row_idx, QString(alignToString(default_aligns[tag_val])));
 
 		QModelIndex const erow_idx = ui_settings->listViewColumnElide->model()->index(j, 0, QModelIndex());

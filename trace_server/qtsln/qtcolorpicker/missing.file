@@ -1,2 +1,0 @@
-/flog/trace_server/qtsln/qtcolorpicker $ /c/devel/QtSDK/QtSources/4.8.2/bin/moc.exe qtcolorpicker.h > qtcolorpicker.moc
-/flog/trace_server/qtsln/qtcolorpicker $ /c/devel/QtSDK/QtSources/4.8.2/bin/moc.exe qtcolorpicker.cpp >> qtcolorpicker.moc

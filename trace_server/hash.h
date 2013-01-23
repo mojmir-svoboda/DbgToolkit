@@ -60,6 +60,6 @@ struct hash<QString>
 {      
 	std::size_t operator() (QString const & __s) const
 	{
-		return FnvHash<>::hash(__s.toAscii(), __s.length());
+		return FnvHash<>::hash(__s.toLatin1(), __s.length());
 	}
 };

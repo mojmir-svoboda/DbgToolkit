@@ -1,4 +1,7 @@
 #pragma once
+#include <QMimeData>
+#include <QString>
+#include <QVariant>
 
 class MyListModel : public QStandardItemModel
 {

@@ -15,6 +15,7 @@
 #include <QMessageBox>
 #include <QSettings>
 #include <QMetaType>
+#include <QMimeData>
 #include <QVariant>
 #include <QDropEvent>
 #include <QDragEnterEvent>
@@ -31,6 +32,30 @@
 #include "constants.h"
 #include "dock.h"
 #include "utils_qstandarditem.h"
+
+///////////  qt5 stuff
+#include <QWindow>
+#include <QtGui/5.0.1/QtGui/qpa/qplatformnativeinterface.h>
+static QWindow * windowForWidget(const QWidget* widget)
+{
+	if (QWindow* window = widget->windowHandle()) { return window; }
+	if (const QWidget* nativeParent = widget->nativeParentWidget()) { return nativeParent->windowHandle(); } 
+	return 0; 
+}
+HWND getHWNDForWidget (QWidget const * widget)
+{
+	if (QWindow* window = ::windowForWidget(widget))
+	{
+		if (window->handle()) 
+		{
+			return static_cast<HWND>(QGuiApplication::platformNativeInterface()->nativeResourceForWindow(QByteArrayLiteral("handle"), window));
+		}
+	}
+	return 0;
+} 
+/////////// 
+
+
 
 #ifdef WIN32
 #	define WIN32_LEAN_AND_MEAN
@@ -1295,7 +1320,7 @@ int MainWindow::createAppName (QString const & appname, E_SrcProtocol const prot
 			char const * name = tlv::get_tag_name(i);
 			if (name)
 			{
-				m_config.m_columns_setup.back().push_back(QString::fromAscii(name));
+				m_config.m_columns_setup.back().push_back(QString::fromLatin1(name));
 				m_config.m_columns_sizes.back().push_back(default_sizes[i]);
 				m_config.m_columns_align.back().push_back(QChar(alignToString(default_aligns[i])));
 				m_config.m_columns_elide.back().push_back(QChar(elideToString(default_elides[i])));

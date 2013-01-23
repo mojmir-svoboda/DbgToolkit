@@ -23,7 +23,9 @@
 #include <qpainter.h>
 #include <qpaintengine.h>
 #include <qtransform.h>
-#include <qprinter.h>
+#ifndef QT_NO_PRINTER
+	#include <qprinter.h>
+#endif
 #include <qstyle.h>
 #include <qstyleoption.h>
 #include <qimagewriter.h>

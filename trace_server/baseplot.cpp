@@ -158,7 +158,7 @@ namespace plot {
 		for (size_t c = 0, ce = pcfg.m_ccfg.size(); c < ce; ++c)
 		{
 			CurveConfig const & cc = pcfg.m_ccfg[c];
-			Curve * const curve = m_curves[cc.m_tag];
+			Curve * const curve = findOrCreateCurve(cc.m_tag);
 			curve->m_curve->setPen(QPen(cc.m_color));
 			//curve->m_curve->setBrush(QBrush(cc.m_color));
 			curve->m_curve->setTitle(cc.m_tag);
@@ -284,10 +284,10 @@ namespace plot {
 		//m_config_ui.ui()->curveComboBox->setCurrentIndex(0);
 		ui->symbolComboBox->clear();
 		for (size_t i = 0; i < enum_to_string_ln_E_PlotSymbol(); ++i)
-			ui->symbolComboBox->addItem(QString::fromAscii(enum_to_string_E_PlotSymbol[i]));
+			ui->symbolComboBox->addItem(QString::fromLatin1(enum_to_string_E_PlotSymbol[i]));
 		ui->styleComboBox->clear();
 		for (size_t i = 0; i < enum_to_string_ln_E_CurveStyle(); ++i)
-			ui->styleComboBox->addItem(QString::fromAscii(enum_to_string_E_CurveStyle[i]));
+			ui->styleComboBox->addItem(QString::fromLatin1(enum_to_string_E_CurveStyle[i]));
 
 		m_config.m_title = ui->titleLineEdit->text();
 		ui->plotShowCheckBox->setCheckState(pcfg.m_show ? Qt::Checked : Qt::Unchecked);

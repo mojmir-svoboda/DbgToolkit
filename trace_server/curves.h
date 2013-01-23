@@ -1,5 +1,5 @@
 #pragma once
-#include <QtGui/qwidget.h>
+#include <qwidget>
 #include "qwt/qwt_plot.h"
 #include "qwt/qwt_plot_curve.h"
 #include "plotconfig.h"
