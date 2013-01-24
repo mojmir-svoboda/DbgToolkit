@@ -4,6 +4,8 @@
 #include <QApplication>
 #include <QClipboard>
 #include <QtGui>
+#include <QMessageBox>
+#include <QStatusBar>
 #include <QtNetwork/QtNetwork>
 #include <stdlib.h>
 #include "server.h"

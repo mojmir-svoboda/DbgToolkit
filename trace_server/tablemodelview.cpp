@@ -46,7 +46,7 @@ QVariant TableModelView::data (QModelIndex const & index, int role) const
 	if (c == 0)
 	{
 		if (role == Qt::BackgroundRole)
-			return Qt::gray;
+			return QVariant::fromValue<QColor>(Qt::gray);
 		return QVariant();
 	}
 
@@ -59,7 +59,7 @@ QVariant TableModelView::data (QModelIndex const & index, int role) const
 		if (c->m_bgc.isValid())
 			return c->m_bgc;
 		if (c->m_value.toString().isEmpty())
-			return Qt::gray;
+			return QVariant::fromValue<QColor>(Qt::gray);
 		return QVariant();
 	}
 	else if (role == Qt::ForegroundRole)

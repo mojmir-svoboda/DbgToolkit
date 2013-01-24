@@ -4,6 +4,7 @@ set (CMAKE_VERBOSE_MAKEFILE on)
 find_package(Qt5Widgets REQUIRED)
 find_package(Qt5Core REQUIRED)
 find_package(Qt5Network REQUIRED)
+find_package(Qt5OpenGL REQUIRED)
 set(CMAKE_AUTOMOC ON)
 
 include("${CMAKE_CURRENT_SOURCE_DIR}/FindReleaseAndDebug.cmake")
@@ -216,4 +217,4 @@ QT_ADD_IMG_PLUGINS(trace_server)
 #TARGET_LINK_LIBRARIES(trace_server ${QT_LIBRARIES} ${QICO} ${QSVG} ${Boost_LIBRARIES} qwt)
 TARGET_LINK_LIBRARIES(trace_server ${QT_LIBRARIES} ${QICO} ${Boost_LIBRARIES} qwt qtsln)
 
-qt5_use_modules(trace_server Widgets Core Gui Network)
+qt5_use_modules(trace_server Widgets Core Gui Network OpenGL)

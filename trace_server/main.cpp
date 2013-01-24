@@ -86,7 +86,7 @@ struct Application : QApplication
 	//bool winEventFilter ( MSG * msg, long * result )
 	{
 		DWORD const hotkey = VK_SCROLL;
-		MSG * msg = reinterpret_cast<void *>(message);
+		MSG * msg = static_cast<MSG *>(message);
 		if (msg->message == WM_HOTKEY)
 		{
 			qDebug("wineventfilter hotkey");

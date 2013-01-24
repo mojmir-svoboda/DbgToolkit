@@ -1,6 +1,7 @@
 #include "profilerbar.h"
 #include "profilerview.h"
 #include <QtGui>
+#include <QStyleOption>
 
 namespace profiler {
 
