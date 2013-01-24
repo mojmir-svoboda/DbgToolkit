@@ -6,6 +6,7 @@ set(CMAKE_AUTOMOC ON)
 #FIND_PACKAGE(Qt4 REQUIRED)
 find_package(Qt5Widgets REQUIRED)
 FIND_PACKAGE(Qt5Core REQUIRED)
+FIND_PACKAGE(Qt5Concurrent REQUIRED)
 
 SET(qwt_SOURCES
 		qwt_abstract_scale_draw.cpp 
@@ -178,4 +179,4 @@ ADD_DEFINITIONS(-DSTATIC)
 ADD_DEFINITIONS(-DQT_NO_PRINTER)
 
 add_library (qwt STATIC ${qwt_SOURCES})
-qt5_use_modules(qwt Widgets Core Gui)
+qt5_use_modules(qwt Widgets Core Gui Concurrent)

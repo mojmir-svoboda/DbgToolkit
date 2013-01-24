@@ -54,7 +54,7 @@ public:
 
 			for (size_t i = 0, ie = m_observers.size(); i < ie; ++i)
 			{
-				QString txt = qVariantValue<QString>(m_observers.at(i)->data(m_observers.at(i)->index(orig_row, 0, QModelIndex())));
+				QString txt = m_observers.at(i)->data(m_observers.at(i)->index(orig_row, 0, QModelIndex())).toString();
 				m_observers.at(i)->removeRows(orig_row, 1);
 				int const target_row = endRow > orig_row ? endRow - 1 : endRow;
 				static_cast<QStandardItemModel *>(m_observers.at(i))->insertRow(target_row, addUncheckableRow(txt));
@@ -73,7 +73,7 @@ public:
 		{
 			if (index.isValid())
 			{
-				QString tlvname = qVariantValue<QString>(data(index, Qt::DisplayRole));
+				QString tlvname = data(index, Qt::DisplayRole).toString();
 				QStandardItem const * const item = itemFromIndex(index);
 				stream << tlvname << index.row() << static_cast<int>(item->checkState());
 				//qDebug("drag: %s, %i", tlvname.toStdString().c_str(), index.row());

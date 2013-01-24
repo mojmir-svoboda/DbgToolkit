@@ -68,7 +68,7 @@ void MainWindow::onClickedAtSettingColumnSizes (QModelIndex const idx)
 }
 void MainWindow::onClickedAtSettingColumnAlign (QModelIndex const idx)
 {
-	QString const txt = qVariantValue<QString>(ui_settings->listViewColumnAlign->model()->data(idx));
+	QString const txt = ui_settings->listViewColumnAlign->model()->data(idx).toString();
 	E_Align const curr = stringToAlign(txt.toStdString().c_str()[0]);
 	size_t i = (curr + 1) % e_max_align_enum_value;
 	E_Align const act = static_cast<E_Align>(i);
@@ -78,7 +78,7 @@ void MainWindow::onClickedAtSettingColumnAlign (QModelIndex const idx)
 }
 void MainWindow::onClickedAtSettingColumnElide (QModelIndex const idx)
 {
-	QString const txt = qVariantValue<QString>(ui_settings->listViewColumnElide->model()->data(idx));
+	QString const txt = ui_settings->listViewColumnElide->model()->data(idx).toString();
 	E_Elide const curr = stringToElide(txt.toStdString().c_str()[0]);
 	size_t i = (curr + 1) % e_max_elide_enum_value;
 	E_Elide const act = static_cast<E_Elide>(i);
@@ -373,7 +373,7 @@ void MainWindow::onClickedAtSettingPooftahButton ()
 	for (size_t j = 0, je = ui_settings->listViewColumnAlign->model()->rowCount(); j < je; ++j)
 	{
 		QModelIndex const tag_idx = ui_settings->listViewColumnSetup->model()->index(j, 0, QModelIndex());
-		QString const tag = qVariantValue<QString>(ui_settings->listViewColumnSetup->model()->data(tag_idx));
+		QString const tag = ui_settings->listViewColumnSetup->model()->data(tag_idx).toString();
 
 		QModelIndex const row_idx = ui_settings->listViewColumnAlign->model()->index(j, 0, QModelIndex());
 		size_t const tag_val = tlv::tag_for_name(tag.toLatin1());
@@ -403,24 +403,24 @@ void MainWindow::onClickedAtSettingOkButton ()
 			QStandardItem * const item = static_cast<QStandardItemModel *>(ui_settings->listViewColumnSetup->model())->itemFromIndex(row_idx);
 			if (item->checkState() == Qt::Checked)
 			{
-				QString const & d = qVariantValue<QString>(ui_settings->listViewColumnSetup->model()->data(row_idx));
+				QString const & d = ui_settings->listViewColumnSetup->model()->data(row_idx).toString();
 				m_config.m_columns_setup[app_idx].append(d);
 			}
 		}
 		for (size_t j = 0, je = ui_settings->listViewColumnSizes->model()->rowCount(); j < je; ++j)
 		{
 			QModelIndex const row_idx = ui_settings->listViewColumnSizes->model()->index(j, 0, QModelIndex());
-			m_config.m_columns_sizes[app_idx].append(qVariantValue<QString>(ui_settings->listViewColumnSizes->model()->data(row_idx)).toInt());
+			m_config.m_columns_sizes[app_idx].append(ui_settings->listViewColumnSizes->model()->data(row_idx).toString().toInt());
 		}
 		for (size_t j = 0, je = ui_settings->listViewColumnAlign->model()->rowCount(); j < je; ++j)
 		{
 			QModelIndex const row_idx = ui_settings->listViewColumnAlign->model()->index(j, 0, QModelIndex());
-			m_config.m_columns_align[app_idx].append(qVariantValue<QString>(ui_settings->listViewColumnAlign->model()->data(row_idx)));
+			m_config.m_columns_align[app_idx].append(ui_settings->listViewColumnAlign->model()->data(row_idx).toString());
 		}
 		for (size_t j = 0, je = ui_settings->listViewColumnElide->model()->rowCount(); j < je; ++j)
 		{
 			QModelIndex const row_idx = ui_settings->listViewColumnElide->model()->index(j, 0, QModelIndex());
-			m_config.m_columns_elide[app_idx].append(qVariantValue<QString>(ui_settings->listViewColumnElide->model()->data(row_idx)));
+			m_config.m_columns_elide[app_idx].append(ui_settings->listViewColumnElide->model()->data(row_idx).toString());
 		}
 	}
 

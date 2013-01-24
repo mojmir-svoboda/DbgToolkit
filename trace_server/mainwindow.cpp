@@ -1260,7 +1260,7 @@ void MainWindow::loadState ()
 
 	loadPresets();
 	ui->dockedWidgetsToolButton->setChecked(m_docked_widgets->isVisible());
-	qApp->installEventFilter(this);
+	qApp->installNativeEventFilter(this);
 }
 
 

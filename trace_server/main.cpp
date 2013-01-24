@@ -82,9 +82,11 @@ struct Application : QApplication
 	}
 
 #ifdef WIN32
-	bool winEventFilter ( MSG * msg, long * result )
+	virtual bool nativeEventFilter(QByteArray const & eventType, void * message, long * result)
+	//bool winEventFilter ( MSG * msg, long * result )
 	{
 		DWORD const hotkey = VK_SCROLL;
+		MSG * msg = reinterpret_cast<void *>(message);
 		if (msg->message == WM_HOTKEY)
 		{
 			qDebug("wineventfilter hotkey");
@@ -92,7 +94,7 @@ struct Application : QApplication
 				if (m_main_window)
 					m_main_window->onHotkeyShowOrHide();
 		}
-		return QApplication::installNativeEventFilter(msg, result);
+		return QApplication::nativeEventFilter(eventType, message, result);
 	}
 #endif
 };
@@ -107,22 +109,23 @@ void usage ()
 	printf("    -d    dump mode (csv by default)\n");
 }
 
-void qDebugHandler (QtMsgType type, const char * msg)
+void qDebugHandler (QtMsgType type, QMessageLogContext const & ctx, QString const & msg)
 {
+	//@TODO: dump context info
 	time_t t = time(NULL);
 	switch (type)
 	{
 		case QtDebugMsg:
-			fprintf(g_LogRedirect, "%llu|I|%x|%s\n", t, sys::get_tid(), msg);
+			fprintf(g_LogRedirect, "%llu|I|%x|%s\n", t, sys::get_tid(), msg.toLatin1());
 			break;
 		case QtWarningMsg:
-			fprintf(g_LogRedirect, "%llu|W|%x|%s\n", t, sys::get_tid(), msg);
+			fprintf(g_LogRedirect, "%llu|W|%x|%s\n", t, sys::get_tid(), msg.toLatin1());
 			break;
 		case QtCriticalMsg:
-			fprintf(g_LogRedirect, "%llu|E|%x|%s\n", t, sys::get_tid(), msg);
+			fprintf(g_LogRedirect, "%llu|E|%x|%s\n", t, sys::get_tid(), msg.toLatin1());
 			break;
 		case QtFatalMsg:
-			fprintf(g_LogRedirect, "%llu|F|%x|%s\n", t, sys::get_tid(), msg);
+			fprintf(g_LogRedirect, "%llu|F|%x|%s\n", t, sys::get_tid(), msg.toLatin1());
 			break;
 	}
 	fflush(g_LogRedirect);
@@ -191,7 +194,7 @@ int main (int argc, char * argv[])
 	if (start_hidden)
 		w.onHotkeyShowOrHide();
 	bool const retval = a.exec();
-	qInstallMsgHandler(0);
+	qInstallMessageHandler(0);
 	fclose(g_LogRedirect);
 	return retval;
 }
