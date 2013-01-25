@@ -192,9 +192,10 @@ void QwtPlotDirectPainter::drawSeries(
         }
     }
 
+#pragma message ("state WA_PaintOutsidePaintEvent removed from Qt5?")
     bool immediatePaint = true;
-    if ( !canvas->testAttribute( Qt::WA_WState_InPaintEvent ) &&
-        !canvas->testAttribute( Qt::WA_PaintOutsidePaintEvent ) )
+    if ( !canvas->testAttribute( Qt::WA_WState_InPaintEvent )) 
+			//&& !canvas->testAttribute( Qt::WA_PaintOutsidePaintEvent ) )
     {
         immediatePaint = false;
     }

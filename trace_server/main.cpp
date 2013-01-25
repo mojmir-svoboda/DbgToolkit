@@ -3,6 +3,7 @@
 #include <QSystemTrayIcon>
 #include <QMessageBox>
 #include <QThread>
+#include <QAbstractNativeEventFilter>
 #include "mainwindow.h"
 #include <sysfn/os.h>
 #include <sysfn/time_query.h>
@@ -58,7 +59,7 @@ void ProfilerAcceptorThread::run ()
 	qDebug("profiler: server quitting...\n");
 }
 
-struct Application : QApplication
+struct Application : QApplication, public QAbstractNativeEventFilter
 {
 	MainWindow * m_main_window;
 	ProfilerAcceptorThread m_prof_acceptor_thread;
@@ -83,7 +84,6 @@ struct Application : QApplication
 
 #ifdef WIN32
 	virtual bool nativeEventFilter(QByteArray const & eventType, void * message, long * result)
-	//bool winEventFilter ( MSG * msg, long * result )
 	{
 		DWORD const hotkey = VK_SCROLL;
 		MSG * msg = static_cast<MSG *>(message);
@@ -93,8 +93,9 @@ struct Application : QApplication
 			//if (GetKeyState(hotkey))
 				if (m_main_window)
 					m_main_window->onHotkeyShowOrHide();
+			return true;
 		}
-		return QApplication::nativeEventFilter(eventType, message, result);
+		return false; //QApplication::nativeEventFilter(eventType, message, result);
 	}
 #endif
 };

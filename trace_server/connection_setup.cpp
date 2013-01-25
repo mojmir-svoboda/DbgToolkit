@@ -132,8 +132,8 @@ void Connection::handleCSVSetup (QString const & fname)
 		//qDebug("sizes: %u %u %u", sizes.at(0), sizes.at(1), sizes.at(2));
 	}
 
-	m_table_view_widget->horizontalHeader()->setResizeMode(QHeaderView::Fixed);
-	m_table_view_widget->verticalHeader()->setResizeMode(QHeaderView::Fixed);
+	m_table_view_widget->horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
+	m_table_view_widget->verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
 
 	//connect(m_table_view_widget, SIGNAL(clicked(QModelIndex const &)), this, SLOT(onTableClicked(QModelIndex const &)));
 	//connect(m_table_view_widget, SIGNAL(doubleClicked(QModelIndex const &)), this, SLOT(onTableDoubleClicked(QModelIndex const &)));
@@ -327,8 +327,8 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 				//qDebug("sizes: %u %u %u", sizes.at(0), sizes.at(1), sizes.at(2));
 			}
 
-			m_table_view_widget->horizontalHeader()->setResizeMode(QHeaderView::Fixed);
-			m_table_view_widget->verticalHeader()->setResizeMode(QHeaderView::Fixed);
+			m_table_view_widget->horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
+			m_table_view_widget->verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
 
 			connect(m_table_view_widget, SIGNAL(clicked(QModelIndex const &)), this, SLOT(onTableClicked(QModelIndex const &)));
 			connect(m_table_view_widget, SIGNAL(doubleClicked(QModelIndex const &)), this, SLOT(onTableDoubleClicked(QModelIndex const &)));
@@ -375,8 +375,8 @@ void Connection::setupColumnSizes (bool force_setup)
 					qDebug("size: col[%i]=%u", c, sizes.at(c));
 				}
 
-				m_table_view_widget->horizontalHeader()->setResizeMode(QHeaderView::Interactive);
-				m_table_view_widget->verticalHeader()->setResizeMode(QHeaderView::Interactive);
+				m_table_view_widget->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
+				m_table_view_widget->verticalHeader()->setSectionResizeMode(QHeaderView::Interactive);
 
 				columns_setup_t const & global_template = m_main_window->getColumnSetup(sessionState().m_app_idx);
 				for (size_t c = 0, ce = sizes.size(); c < ce; ++c)

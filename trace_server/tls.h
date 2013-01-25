@@ -27,7 +27,7 @@ struct ThreadSpecific
 		m_tids.push_back(str);
 		m_indents.push_back(0);
 		m_times.push_back(0);
-		return m_tids.size() - 1;
+		return static_cast<int>(m_tids.size()) - 1;
 	}
 
 	int incrIndent (int idx)

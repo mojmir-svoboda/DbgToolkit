@@ -337,7 +337,7 @@ void MainWindow::prepareSettingsWidgets (int curr_app_idx, bool first_time)
 
 	MyListModel * model = new MyListModel(this);
 	ui_settings->listViewColumnSetup->setModel(model);
-	ui_settings->listViewColumnSetup->model()->setSupportedDragActions(Qt::MoveAction);
+	//ui_settings->listViewColumnSetup->model()->setSupportedDragActions(Qt::MoveAction);
 	ui_settings->listViewColumnSizes->setModel(new QStandardItemModel(this));
 	ui_settings->listViewColumnAlign->setModel(new QStandardItemModel(this));
 	ui_settings->listViewColumnElide->setModel(new QStandardItemModel(this));

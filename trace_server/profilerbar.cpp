@@ -11,7 +11,7 @@ BarText::BarText (BlockInfo & bi, QColor const & color, int x, int y, int w, int
 	, m_tid(tid), m_tid_offs(tid_offs)
 {
 	setZValue((x + y) % 2);
-	setAcceptsHoverEvents(true);
+	setAcceptHoverEvents(true);
 }
 
 QRectF BarText::boundingRect () const
@@ -73,7 +73,7 @@ Bar::Bar (BlockInfo & bi, QColor const & color, int x, int y, int w, int h, int 
 	setZValue((x + y) % 2);
 	//setFlags(ItemIsSelectable | ItemIsMovable);
 	setFlags(ItemIsSelectable);
-	setAcceptsHoverEvents(true);
+	setAcceptHoverEvents(true);
 }
 
 QRectF Bar::boundingRect () const

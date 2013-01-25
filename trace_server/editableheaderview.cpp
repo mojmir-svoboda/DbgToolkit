@@ -6,8 +6,8 @@ EditableHeaderView::EditableHeaderView (Qt::Orientation orientation, QWidget * p
 	, m_lineEdit(0)
 	, m_idx(0)
 { 
-	setMovable(true);
-	setClickable(true);
+	setSectionsMovable(true);
+	setSectionsClickable(true);
 	m_lineEdit = new QLineEdit(viewport());
 	m_lineEdit->setAlignment(Qt::AlignTop);
 	m_lineEdit->setHidden(1);

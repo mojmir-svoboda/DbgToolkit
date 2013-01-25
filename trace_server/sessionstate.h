@@ -47,7 +47,7 @@ struct Dict {
 
 	QString findNameFor (QString const & strval) const
 	{
-		for (size_t i = 0, ie = m_strvalues.size(); i < ie; ++i)
+		for (int i = 0, ie = m_strvalues.size(); i < ie; ++i)
 			if (m_strvalues.at(i) == strval)
 				return m_names.at(i);
 		return QString();

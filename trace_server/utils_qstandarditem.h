@@ -30,7 +30,7 @@
 
 inline QStandardItem * findChildByText (QStandardItem * parent, QString const & txt)
 {
-	for (size_t i = 0, ie = parent->rowCount(); i < ie; ++i)
+	for (int i = 0, ie = parent->rowCount(); i < ie; ++i)
 	{
 		if (parent->child(i)->text() == txt)
 			return parent->child(i);

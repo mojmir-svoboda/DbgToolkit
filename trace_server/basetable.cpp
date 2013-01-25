@@ -53,8 +53,8 @@ namespace table {
 
 		verticalHeader()->setDefaultSectionSize(16);
 		horizontalHeader()->setDefaultSectionSize(32);
-		horizontalHeader()->setResizeMode(QHeaderView::Interactive);
-		verticalHeader()->setResizeMode(QHeaderView::Interactive);
+		horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
+		verticalHeader()->setSectionResizeMode(QHeaderView::Interactive);
 
 		if (!m_table_view_proxy)
 		{
@@ -67,7 +67,7 @@ namespace table {
 		setConfigValuesToUI(m_config);
 		QTimer::singleShot(0, this, SLOT(onApplyButton()));
 		setUpdatesEnabled(true);
-		horizontalHeader()->setMovable(true);
+		horizontalHeader()->setSectionsMovable(true);
 	}
 
 	BaseTable::~BaseTable ()
@@ -405,9 +405,9 @@ namespace table {
 	{
 		qDebug("%s this=0x%08x", __FUNCTION__, this);
 		bool const is_proxy = isModelProxy();
-		size_t closest_i = 0;
+		int closest_i = 0;
 		int closest_dist = 1024 * 1024;
-		for (size_t i = 0; i < m_modelView->rowCount(); ++i)
+		for (int i = 0; i < m_modelView->rowCount(); ++i)
 		{
 			int const diff = m_modelView->row_time(i) - t;
 			int const d = abs(diff);

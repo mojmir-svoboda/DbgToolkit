@@ -52,7 +52,7 @@ public:
 			//qDebug("drop: %s, %i -> %i", tlvname.toStdString().c_str(), orig_row, endRow);
 			insertRow(endRow, addRow(tlvname, check_state == Qt::Checked));
 
-			for (size_t i = 0, ie = m_observers.size(); i < ie; ++i)
+			for (int i = 0, ie = m_observers.size(); i < ie; ++i)
 			{
 				QString txt = m_observers.at(i)->data(m_observers.at(i)->index(orig_row, 0, QModelIndex())).toString();
 				m_observers.at(i)->removeRows(orig_row, 1);

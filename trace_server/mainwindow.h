@@ -62,18 +62,18 @@ public:
 
 	QString getAppDir () const { return m_config.m_appdir; }
 
-	columns_setup_t const & getColumnSetup (size_t i) const { return m_config.m_columns_setup.at(i); }
-	columns_setup_t & getColumnSetup (size_t i) { return m_config.m_columns_setup[i]; }
-	columns_sizes_t const & getColumnSizes (size_t i) const { return m_config.m_columns_sizes.at(i); }
-	columns_sizes_t & getColumnSizes (size_t i) { return m_config.m_columns_sizes[i]; }
-	columns_align_t const & getColumnAlign (size_t i) const { return m_config.m_columns_align.at(i); }
-	columns_align_t & getColumnAlign (size_t i) { return m_config.m_columns_align[i]; }
-	columns_elide_t const & getColumnElide (size_t i) const { return m_config.m_columns_elide.at(i); }
-	columns_align_t & getColumnElide (size_t i) { return m_config.m_columns_elide[i]; }
+	columns_setup_t const & getColumnSetup (int i) const { return m_config.m_columns_setup.at(i); }
+	columns_setup_t & getColumnSetup (int i) { return m_config.m_columns_setup[i]; }
+	columns_sizes_t const & getColumnSizes (int i) const { return m_config.m_columns_sizes.at(i); }
+	columns_sizes_t & getColumnSizes (int i) { return m_config.m_columns_sizes[i]; }
+	columns_align_t const & getColumnAlign (int i) const { return m_config.m_columns_align.at(i); }
+	columns_align_t & getColumnAlign (int i) { return m_config.m_columns_align[i]; }
+	columns_elide_t const & getColumnElide (int i) const { return m_config.m_columns_elide.at(i); }
+	columns_align_t & getColumnElide (int i) { return m_config.m_columns_elide[i]; }
 
 	int findPresetName (QString const & name)
 	{
-		for (size_t i = 0, ie = m_config.m_preset_names.size(); i < ie; ++i)
+		for (int i = 0, ie = m_config.m_preset_names.size(); i < ie; ++i)
 			if (m_config.m_preset_names[i] == name)
 				return i;
 		return e_InvalidItem;

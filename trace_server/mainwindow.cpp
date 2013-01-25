@@ -272,7 +272,7 @@ MainWindow::~MainWindow()
 {
 	qDebug("%s", __FUNCTION__);
 #ifdef WIN32
-	UnregisterHotKey(winId(), 0);
+	UnregisterHotKey(getHWNDForWidget(this), 0);
 #endif
 	m_server->setParent(0);
 	delete m_server;
@@ -667,7 +667,7 @@ void MainWindow::onEditFindPrev ()
 
 void MainWindow::tailFiles (QStringList const & files)
 {
-	for (size_t i = 0, ie = files.size(); i < ie; ++i)
+	for (int i = 0, ie = files.size(); i < ie; ++i)
 	{
 		QString fname = files.at(i);
 		if (fname != "")
@@ -691,7 +691,7 @@ void MainWindow::onLogTail ()
 
 void MainWindow::openFiles (QStringList const & files)
 {
-	for (size_t i = 0, ie = files.size(); i < ie; ++i)
+	for (int i = 0, ie = files.size(); i < ie; ++i)
 	{
 		QString fname = files.at(i);
 		if (fname != "")
@@ -1110,7 +1110,7 @@ void MainWindow::storeState ()
 	settings.setValue("onTopCheckBox", ui_settings->onTopCheckBox->isChecked());
 
 	write_list_of_strings(settings, "known-applications", "application", m_config.m_app_names);
-	for (size_t i = 0, ie = m_config.m_app_names.size(); i < ie; ++i)
+	for (int i = 0, ie = m_config.m_app_names.size(); i < ie; ++i)
 	{
 		settings.beginGroup(tr("column_order_%1").arg(m_config.m_app_names[i]));
 		{
@@ -1199,7 +1199,7 @@ void MainWindow::loadState ()
 	//ui_settings->tableFontComboBox->setValue(settings.value("tableFontComboBox", "Verdana 8").toInt());
 
 	read_list_of_strings(settings, "known-applications", "application", m_config.m_app_names);
-	for (size_t i = 0, ie = m_config.m_app_names.size(); i < ie; ++i)
+	for (int i = 0, ie = m_config.m_app_names.size(); i < ie; ++i)
 	{
 		m_config.m_columns_setup.push_back(columns_setup_t());
 		settings.beginGroup(tr("column_order_%1").arg(m_config.m_app_names[i]));
@@ -1254,13 +1254,13 @@ void MainWindow::loadState ()
 	m_config.m_hotkey = hotkeyCode ? hotkeyCode : VK_SCROLL;
 	DWORD const hotkey = m_config.m_hotkey;
 	int mod = 0;
-	UnregisterHotKey(winId(), 0);
-	RegisterHotKey(winId(), 0, mod, LOBYTE(hotkey));
+	UnregisterHotKey(getHWNDForWidget(this), 0);
+	RegisterHotKey(getHWNDForWidget(this), 0, mod, LOBYTE(hotkey));
 #endif
 
 	loadPresets();
 	ui->dockedWidgetsToolButton->setChecked(m_docked_widgets->isVisible());
-	qApp->installNativeEventFilter(this);
+	qApp->installEventFilter(this);
 }
 
 
@@ -1310,12 +1310,12 @@ void MainWindow::addNewApplication (QString const & appname)
 int MainWindow::createAppName (QString const & appname, E_SrcProtocol const proto)
 {
 	addNewApplication(appname);
-	size_t const app_idx = m_config.m_app_names.size() - 1;
+	int const app_idx = static_cast<int>(m_config.m_app_names.size()) - 1;
 
 	if (proto == e_Proto_TLV)
 	{
 		size_t const n = tlv::tag_bool;
-		for (size_t i = tlv::tag_time; i < n; ++i)
+		for (int i = tlv::tag_time; i < n; ++i)
 		{
 			char const * name = tlv::get_tag_name(i);
 			if (name)
