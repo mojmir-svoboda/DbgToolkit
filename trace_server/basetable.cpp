@@ -277,7 +277,7 @@ namespace table {
 	{
 		int const idx = !isModelProxy() ? c : static_cast<SparseProxyModel *>(m_table_view_proxy)->colFromSource(c);
 		if (idx < 0) return;
-		size_t const curr_sz = m_config.m_hsize.size();
+		int const curr_sz = m_config.m_hsize.size();
 		if (idx < curr_sz)
 		{
 			//qDebug("%s this=0x%08x hsize[%i]=%i", __FUNCTION__, this, idx, new_size);
@@ -285,7 +285,7 @@ namespace table {
 		else
 		{
 			m_config.m_hsize.resize(idx + 1);
-			for (size_t i = curr_sz; i < idx + 1; ++i)
+			for (int i = curr_sz; i < idx + 1; ++i)
 				m_config.m_hsize[i] = 32;
 			//m_modelView->setHeaderData(c, Qt::Horizontal, m_config.m_hsize[i], 
 		}

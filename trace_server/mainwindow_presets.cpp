@@ -78,7 +78,7 @@ void MainWindow::onSaveCurrentStateTo (QString const & preset_name)
 		conn->saveConfigForPlots(preset_name);
 
 		ui->presetComboBox->clear();
-		for (size_t i = 0, ie = m_config.m_preset_names.size(); i < ie; ++i)
+		for (int i = 0, ie = m_config.m_preset_names.size(); i < ie; ++i)
 			ui->presetComboBox->addItem(m_config.m_preset_names.at(i));
 		setPresetNameIntoComboBox(preset_name);
 		storePresetNames();
@@ -135,7 +135,7 @@ void MainWindow::onRmCurrentState ()
 	ui->presetComboBox->clear();
 
 	m_config.m_preset_names.erase(std::remove(m_config.m_preset_names.begin(), m_config.m_preset_names.end(), preset_name), m_config.m_preset_names.end());
-	for (size_t i = 0, ie = m_config.m_preset_names.size(); i < ie; ++i)
+	for (int i = 0, ie = m_config.m_preset_names.size(); i < ie; ++i)
 		ui->presetComboBox->addItem(m_config.m_preset_names.at(i));
 	//setPresetNameIntoComboBox(preset_name);
 	storePresetNames();
@@ -298,7 +298,7 @@ void MainWindow::storePresets ()
 
 	storePresetNames();
 
-	for (size_t i = 0, ie = m_config.m_preset_names.size(); i < ie; ++i)
+	for (int i = 0, ie = m_config.m_preset_names.size(); i < ie; ++i)
 		if (!m_config.m_preset_names.at(i).isEmpty())
 			saveSession(conn->sessionState(), m_config.m_preset_names.at(i));
 }
@@ -329,12 +329,12 @@ void MainWindow::loadPresets ()
 
 	QSettings settings("MojoMir", "TraceServer");
 	read_list_of_strings(settings, "known-presets", "preset", m_config.m_preset_names);
-	for (size_t i = 0, ie = m_config.m_preset_names.size(); i < ie; ++i)
+	for (int  i = 0, ie = m_config.m_preset_names.size(); i < ie; ++i)
 	{
 		ui->presetComboBox->addItem(m_config.m_preset_names.at(i));
 	}
 
-	for (size_t i = 0, ie = m_config.m_preset_names.size(); i < ie; ++i)
+	for (int  i = 0, ie = m_config.m_preset_names.size(); i < ie; ++i)
 	{
 		qDebug("reading preset: %s", m_config.m_preset_names.at(i).toStdString().c_str());
 		QString const prs_name = tr("preset_%1").arg(m_config.m_preset_names[i]);

@@ -97,7 +97,7 @@ void TableItemDelegate::paintTokenized (QPainter * painter, QStyleOptionViewItem
 		if (level < list.size())
 		{
 			QString p;
-			for (size_t i = list.size() - level, ie = list.size(); i < ie; ++i)
+			for (int i = list.size() - level, ie = list.size(); i < ie; ++i)
 			{
 				if (i > 0)
 					p.append(out_separator);

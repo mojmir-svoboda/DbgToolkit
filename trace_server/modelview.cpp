@@ -19,7 +19,7 @@ ModelView::~ModelView ()
 	qDebug("%s", __FUNCTION__);
 }
 
-int ModelView::rowCount (const QModelIndex & /*parent*/) const { return m_rows.size(); }
+int ModelView::rowCount (const QModelIndex & /*parent*/) const { return static_cast<int>(m_rows.size()); }
 
 int ModelView::columnCount (const QModelIndex & /*parent*/) const
 {
@@ -159,7 +159,7 @@ QVariant ModelView::headerData (int section, Qt::Orientation orientation, int ro
 	return QVariant();
 }
 
-void ModelView::transactionStart (size_t n)
+void ModelView::transactionStart (int n)
 {
 	int const row = rowCount();
 	beginInsertRows(QModelIndex(), row, row + n);
@@ -323,7 +323,7 @@ void ModelView::appendCommandCSV (QAbstractProxyModel * filter, tlv::StringComma
 	QStringList const list = msg.split(m_session_state.separatorChar());
 	columns_t & columns = m_rows.back();
 	columns.resize(list.size());
-	for (size_t i = 0, ie = list.size(); i < ie; ++i)
+	for (int i = 0, ie = list.size(); i < ie; ++i)
 	{
 		QString const & col_value = list.at(i);
 		int column_index = m_session_state.findColumn4Tag(i);

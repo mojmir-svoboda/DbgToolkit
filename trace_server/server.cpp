@@ -331,7 +331,7 @@ void Server::onClickedAtDockedWidgets (QModelIndex idx)
 
 							if (path.size() > 3)
 							{
-								for (size_t cc = 0, cce = dp->m_config.m_ccfg.size(); cc < cce; ++cc)
+								for (int cc = 0, cce = dp->m_config.m_ccfg.size(); cc < cce; ++cc)
 								{
 									plot::CurveConfig & cfg = dp->m_config.m_ccfg[cc];
 									if (cfg.m_tag == path.at(3))
@@ -344,7 +344,7 @@ void Server::onClickedAtDockedWidgets (QModelIndex idx)
 							}
 							else if (path.size() > 2)
 							{
-								for (size_t cc = 0, cce = dp->m_config.m_ccfg.size(); cc < cce; ++cc)
+								for (int cc = 0, cce = dp->m_config.m_ccfg.size(); cc < cce; ++cc)
 								{
 									plot::CurveConfig & cfg = dp->m_config.m_ccfg[cc];
 									apply |= cfg.m_show ^ state.at(2);

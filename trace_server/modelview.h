@@ -44,7 +44,7 @@ public:
 	bool setData (QModelIndex const & index, QVariant const & value, int role = Qt::EditRole);
 	QVariant headerData (int section, Qt::Orientation orientation, int role) const;
 
-	void transactionStart (size_t n);
+	void transactionStart (int n);
 	void appendCommand (QAbstractProxyModel * filter, tlv::StringCommand const & cmd);
 	void appendCommandCSV (QAbstractProxyModel * filter, tlv::StringCommand const & cmd);
 	void transactionCommit ();

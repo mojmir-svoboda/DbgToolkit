@@ -84,10 +84,10 @@ public:
 	void loadLayout (QString const & preset_name);
 	void saveSession (SessionState const & s, QString const & preset_name) const;
 	bool loadSession (SessionState & s, QString const & preset_name);
-	size_t addPresetName (QString const & name)
+	int addPresetName (QString const & name)
 	{
 		m_config.m_preset_names.push_back(name);
-		return m_config.m_preset_names.size() - 1;
+		return static_cast<int>(m_config.m_preset_names.size()) - 1;
 	}
 
 	int createAppName (QString const & appname, E_SrcProtocol const proto);

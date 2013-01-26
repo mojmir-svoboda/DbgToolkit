@@ -53,7 +53,7 @@ void Connection::onHandleCommandsStart ()
 {
 	ModelView * model = static_cast<ModelView *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
 	size_t const rows = m_decoded_cmds.size();
-	model->transactionStart(rows);
+	model->transactionStart(static_cast<int>(rows));
 }
 
 void Connection::onHandleCommands ()
@@ -100,7 +100,7 @@ int Connection::processStream (T * t, T_Ret (T::*read_member_fn)(T_Arg0, T_Arg1)
 				size_t const free_space = m_buffer.reserve();
 				size_t const to_read = free_space < local_buff_sz ? free_space : local_buff_sz;
 
-				qint64 const count = (t->*read_member_fn)(local_buff, to_read);
+				qint64 const count = (t->*read_member_fn)(local_buff, static_cast<int>(to_read));
 				sessionState().m_recv_bytes += count;			
 
 				if (count <= 0)
@@ -109,7 +109,7 @@ int Connection::processStream (T * t, T_Ret (T::*read_member_fn)(T_Arg0, T_Arg1)
 					break;	// no more data in stream
 				}
 
-				for (size_t i = 0; i < count; ++i)
+				for (int i = 0; i < count; ++i)
 					m_buffer.push_back(local_buff[i]);
 			}
 
@@ -261,7 +261,7 @@ void Connection::processDataStream (QDataStream & stream)
 			// update column sizes
 			columns_sizes_t const & sizes = *sessionState().m_columns_sizes;
 			bool const old = m_table_view_widget->blockSignals(true);
-			for (size_t c = 0, ce = sizes.size(); c < ce; ++c)
+			for (int c = 0, ce = sizes.size(); c < ce; ++c)
 				m_table_view_widget->horizontalHeader()->resizeSection(c, sizes.at(c));
 			m_table_view_widget->blockSignals(old);
 			return;
@@ -487,7 +487,7 @@ void Connection::exportStorageToCSV (QString const & filename)
 	csv.open(QIODevice::WriteOnly);
 	QTextStream str(&csv);
 
-	for (size_t c = 0, ce = m_session_state.m_columns_setup_current->size(); c < ce; ++c)
+	for (int c = 0, ce = m_session_state.m_columns_setup_current->size(); c < ce; ++c)
 	{
 		str << "\"" << m_session_state.m_columns_setup_current->at(c) << "\"";
 		if (c < ce - 1)
@@ -495,9 +495,9 @@ void Connection::exportStorageToCSV (QString const & filename)
 	}
 	str << "\n";
 
-	for (size_t r = 0, re = m_table_view_widget->model()->rowCount(); r < re; ++r)
+	for (int r = 0, re = m_table_view_widget->model()->rowCount(); r < re; ++r)
 	{
-		for (size_t c = 0, ce = m_table_view_widget->model()->columnCount(); c < ce; ++c)
+		for (int c = 0, ce = m_table_view_widget->model()->columnCount(); c < ce; ++c)
 		{
 			QModelIndex current = m_table_view_widget->model()->index(r, c, QModelIndex());
 			// csv nedumpovat pres proxy

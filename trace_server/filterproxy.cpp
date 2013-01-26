@@ -25,11 +25,11 @@ void FilterProxyModel::force_update ()
 	m_map_from_src.clear();
 	m_map_from_src.resize(src_model->rowCount());
 	m_columns = src_model->columnCount();
-	for (size_t src_idx = 0, se = src_model->rowCount(); src_idx < se; ++src_idx)
+	for (int src_idx = 0, se = src_model->rowCount(); src_idx < se; ++src_idx)
 	{
 		if (filterAcceptsRow(src_idx, QModelIndex()))
 		{
-			int const tgt_idx = m_map_from_tgt.size();
+			int const tgt_idx = static_cast<int>(m_map_from_tgt.size());
 			m_map_from_tgt.push_back(src_idx);
 			m_map_from_src[src_idx] = tgt_idx;
 		}
@@ -61,7 +61,7 @@ QModelIndex FilterProxyModel::parent (QModelIndex const & child) const
 
 int FilterProxyModel::rowCount (QModelIndex const & parent) const
 {
-	return m_map_from_tgt.size();
+	return static_cast<int>(m_map_from_tgt.size());
 }
 
 int FilterProxyModel::columnCount (QModelIndex const & parent) const
@@ -91,14 +91,14 @@ bool FilterProxyModel::insertRows (int row, int count, QModelIndex const &parent
 {
 	// @TODO: count == n
 
-	int const src_idx = m_map_from_src.size();
+	int const src_idx = static_cast<int>(m_map_from_src.size());
 	m_map_from_src.push_back(-1);
 
 	if (filterAcceptsRow(src_idx, QModelIndex()))
 	{
 		emit layoutAboutToBeChanged();
 
-		int const tgt_idx = m_map_from_tgt.size();
+		int const tgt_idx = static_cast<int>(m_map_from_tgt.size());
 		//beginInsertRows(parent, tgt_idx, tgt_idx);
 
 		m_map_from_tgt.push_back(src_idx);
