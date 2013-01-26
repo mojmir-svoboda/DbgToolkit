@@ -32,7 +32,6 @@ add_definitions("-DTRACE_STATIC")
 
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/..)
 
-set(Boost_dir "c:/devel/boost/boost_1_52_0")
 set(Boost_DEBUG 1)
 set(Boost_USE_STATIC_LIBS 1)
 FIND_PACKAGE(Boost)
@@ -207,7 +206,6 @@ message("Generated files trace_server_SOURCES ${trace_server_SOURCES}")
 
 
 ADD_EXECUTABLE(trace_server WIN32
-		${trace_server_MOC}
 		${trace_server_UI_HDRS}
 		${trace_server_UI_SRCS}
 		${trace_server_RESOURCES_RCC}
