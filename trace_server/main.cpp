@@ -116,7 +116,7 @@ void qDebugHandler (QtMsgType type, QMessageLogContext const & ctx, QString cons
 	time_t t = time(NULL);
 	switch (type)
 	{
-		case QtDebugMsg:
+		case QtDebugMsg:	
 			fprintf(g_LogRedirect, "%llu|I|%x|%s\n", t, sys::get_tid(), msg.toLatin1());
 			break;
 		case QtWarningMsg:

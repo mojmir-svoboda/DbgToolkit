@@ -146,8 +146,6 @@ SET(trace_server_UI
 	)
 
 SET(trace_server_RESOURCES resources.qrc)
-SET(QT_USE_QTNETWORK true)
-SET(QT_USE_QTOPENGL true)
 IF (WIN32)
 	SET (QT_USE_QTMAIN TRUE)
 	ADD_DEFINITIONS(-DNOMINMAX)
@@ -178,7 +176,7 @@ macro(QT_ADD_IMG_PLUGINS target)
 	#FIND_RELEASE_AND_DEBUG(QJPEG qjpeg qjpegd "${QT_PLUGINS_DIR}/imageformats")
 	#FIND_RELEASE_AND_DEBUG(QGIF qgif qgifd "${QT_PLUGINS_DIR}/imageformats")
 	#FIND_RELEASE_AND_DEBUG(QMNG qmng qmngd "${QT_PLUGINS_DIR}/imageformats")
-	FIND_RELEASE_AND_DEBUG(QICO qico qicod "${QT_PLUGINS_DIR}/imageformats")
+	#FIND_RELEASE_AND_DEBUG(QICO qico qicod "${QT_PLUGINS_DIR}/imageformats")
 	#FIND_RELEASE_AND_DEBUG(QSVG qsvg qsvgd "${QT_PLUGINS_DIR}/imageformats")
 	#FIND_RELEASE_AND_DEBUG(QTIFF qtiff qtiffd "${QT_PLUGINS_DIR}/imageformats")
 	#FIND_RELEASE_AND_DEBUG(QSVGR QtSvg QtSvgd "C:/devel/QtSDK/QtSources/4.7.4/lib")		# @TODO: fixed path
@@ -189,7 +187,7 @@ macro(QT_ADD_IMG_PLUGINS target)
 	message("boost: ${Boost_LIBRARIES}")
   
 	target_link_libraries(${target} ${QJPEG_LIBRARY} ${QGIF_LIBRARY}
-	  ${QMNG_LIBRARY} ${QICO_LIBRARY} ${QTIFF_LIBRARY})
+	  ${QMNG_LIBRARY} ${QTIFF_LIBRARY})
 	#	 ${QSVG_LIBRARY} ${QSVGR_LIBRARY})
   
   endif(QT_CONFIG MATCHES "static")
@@ -213,6 +211,6 @@ ADD_EXECUTABLE(trace_server WIN32
 
 QT_ADD_IMG_PLUGINS(trace_server)
 #TARGET_LINK_LIBRARIES(trace_server ${QT_LIBRARIES} ${QICO} ${QSVG} ${Boost_LIBRARIES} qwt)
-TARGET_LINK_LIBRARIES(trace_server ${QT_LIBRARIES} ${QICO} ${Boost_LIBRARIES} qwt qtsln)
+TARGET_LINK_LIBRARIES(trace_server ${Boost_LIBRARIES} qwt qtsln Qt5::WinMain)
 
 qt5_use_modules(trace_server Widgets Core Gui Network OpenGL)

@@ -24,7 +24,10 @@ namespace table {
 
 		MyListModel * model = new MyListModel(this);
 		m_config_ui.ui()->columnView->setModel(model);
-		m_config_ui.ui()->columnView->model()->setSupportedDragActions(Qt::MoveAction);
+		/*******************************************************************************************/
+		// QT5 deprecated stuff
+		/*m_config_ui.ui()->columnView->model()->setSupportedDragActions(Qt::MoveAction);*/
+		/*******************************************************************************************/
 		m_config_ui.ui()->columnView->setDropIndicatorShown(true);
 		m_config_ui.ui()->columnView->setMovement(QListView::Snap);
 		m_config_ui.ui()->columnView->setDragDropMode(QAbstractItemView::InternalMove);

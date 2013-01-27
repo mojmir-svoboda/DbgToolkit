@@ -63,7 +63,7 @@ HWND getHWNDForWidget (QWidget const * widget)
 #endif
 
 #if (defined WIN32) && (defined STATIC)
-	Q_IMPORT_PLUGIN(qico);
+//	Q_IMPORT_PLUGIN(qico);
 //	Q_IMPORT_PLUGIN(qsvg); //@TODO: NEZAPOMENOUT ODKOMENTOVAT!
 #endif
 
