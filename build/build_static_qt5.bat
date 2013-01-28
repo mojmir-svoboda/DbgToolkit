@@ -11,7 +11,7 @@ rem perl init-repository --no-webkit
 rem configure.bat -debug-and-release -opensource -platform win32-msvc2012 -static -ltcg -no-accessibility -no-openvg -no-gif -no-dbus -no-audio-backend -no-sql-sqlite -no-qml-debug -nomake demos -nomake examples -nomake tests
 
 rem profile
-rem configure -force-debug-info -debug-and-release -opensource -platform win32-msvc2012 -static -no-ltcg -no-accessibility -no-gif -no-dbus -no-audio-backend -no-sql-sqlite -nomake demos -nomake examples -nomake tests -no-nis -angle -directwrite -no-qml-debug 
+rem configure -force-debug-info -debug-and-release -opensource -platform win32-msvc2012 -static -no-ltcg -no-accessibility -no-gif -no-dbus -no-audio-backend -no-sql-sqlite -nomake demos -nomake examples -nomake tests -no-nis -angle -directwrite -no-qml-debug -no-opengl
 
 rem release
 rem configure -force-debug-info -debug-and-release -opensource -platform win32-msvc2012 -static -ltcg -no-accessibility -no-openvg -no-libtiff -no-libmng -no-gif -no-dbus -no-audio-backend -no-sql-sqlite -no-phonon -no-multimedia -no-webkit -nomake demos -nomake examples -nomake tests
