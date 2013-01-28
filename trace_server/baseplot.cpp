@@ -1,5 +1,6 @@
 #include "baseplot.h"
-#include "qwt/qwt_legend_item.h"
+#include "qwt/qwt_plot_legenditem.h"
+#include "qwt/qwt_legend.h"
 #include "qwt/qwt_plot_panner.h"
 #include "qwt/qwt_plot_zoomer.h"
 #include "qwt/qwt_plot_magnifier.h"
@@ -53,7 +54,7 @@ namespace plot {
 	{
 		//qDebug("%s this=0x%08x", __FUNCTION__, this);
 		setAutoReplot(false);
-		canvas()->setBorderRadius(0);
+		//canvas()->setBorderRadius(0);
 		plotLayout()->setAlignCanvasToScales(true);
 		insertLegend(new QwtLegend(this), QwtPlot::BottomLegend);
 
@@ -230,8 +231,9 @@ namespace plot {
 	void BasePlot::showCurve (QwtPlotItem * item, bool on)
 	{
 		item->setVisible(on);
-		if (QwtLegendItem * legendItem = qobject_cast<QwtLegendItem *>( legend()->find(item)))
-			legendItem->setChecked(on);
+	#pragma message(__LOC__"!!! Qt5 incompatibility !!!")
+	/*	if (QwtPlotLegendItem * legendItem = qobject_cast<QwtPlotLegendItem *>( legend()->find(item)))
+			legendItem->setChecked(on);*/
 		replot();
 	}
 

@@ -7,7 +7,7 @@
 #include "qwt/qwt_scale_draw.h"
 #include "qwt/qwt_scale_widget.h"
 #include "qwt/qwt_legend.h"
-#include "qwt/qwt_legend_item.h"
+#include "qwt/qwt_plot_legenditem.h"
 #include "qwt/qwt_plot_canvas.h"
 
 namespace stats {
@@ -59,7 +59,7 @@ StatsPlot::StatsPlot (QObject * oparent, QWidget * parent, SessionState & state,
 	//m_curves.resize(e_max_statsdata_enum_value);
 
 	setAutoReplot(false);
-	canvas()->setBorderRadius(10);
+	//canvas()->setBorderRadius(10);
 	plotLayout()->setAlignCanvasToScales(true);
 
     setAxisTitle(QwtPlot::xBottom, "t");
