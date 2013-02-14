@@ -120,7 +120,7 @@ public slots:
 
 protected:
 	friend class MainWindow;
-	void incomingConnection (int socketDescriptor);
+	void incomingConnection (qintptr socketDescriptor);
 	Connection * createNewTableView ();
 	Connection * findCurrentConnection ();
 	

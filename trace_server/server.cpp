@@ -204,7 +204,7 @@ void Server::createTailDataStream (QString const & fname)
 	emit newConnection(connection);
 }
 
-void Server::incomingConnection (int socketDescriptor)
+void Server::incomingConnection (qintptr socketDescriptor)
 {
 	MainWindow * main_window = static_cast<MainWindow *>(parent());
 	Connection * connection = createNewTableView ();
