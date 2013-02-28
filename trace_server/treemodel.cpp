@@ -259,7 +259,7 @@ bool TreeModel::insertRows (int position, int rows, QModelIndex const & parent)
 QModelIndex TreeModel::hideLinearParents () const
 {
 	node_t const * node = m_tree_data->root;
-	node_t const * child = node->children;
+	node_t const * child = node;
 	if (!child)
 		return QModelIndex();
 	node_t const * last_linear = child;
