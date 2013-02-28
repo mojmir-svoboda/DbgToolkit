@@ -7,6 +7,7 @@
 #include <QIODevice>
 #include <QDataStream>
 #include <QMenu>
+#include <QClipboard>
 #include <QTime>
 #include <QTimer>
 #include <QStandardItemModel>
@@ -528,7 +529,8 @@ void Connection::onShowContextMenu (QPoint const & pos)
 	}
     else if (selectedItem == m_copy_to_clipboard)
 	{
-		onCopyToClipboard();
+		QString const & selection = onCopyToClipboard();
+		qApp->clipboard()->setText(selection);
 	}
     else
     { }
