@@ -514,8 +514,8 @@ void MainWindow::onDockedWidgetsToolButton ()
 	}
 	else
 	{
-		//disconnect(m_docked_widgets_tree_view, SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtDockedWidgets(QModelIndex)));
-		//m_docked_widgets->hide();
+		disconnect(m_docked_widgets_tree_view, SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtDockedWidgets(QModelIndex)));
+		m_docked_widgets->hide();
 	}
 }
 
