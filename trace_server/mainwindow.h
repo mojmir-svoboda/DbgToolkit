@@ -180,6 +180,7 @@ private slots:
 	void storePresetNames ();
 	void timerHit ();
 	void onQuit ();
+	void onQuitReally ();
 	void onEditFind ();
 	void onEditFindNext ();
 	void onEditFindPrev ();

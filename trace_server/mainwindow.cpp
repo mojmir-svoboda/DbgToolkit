@@ -434,9 +434,18 @@ int MainWindow::getLevel () const
 
 void MainWindow::onQuit ()
 {
+	qDebug("onQuit: hide systray, store state, qApp->quit");
+
 	m_tray_icon->setVisible(false);
 	m_tray_icon->hide();
 	storeState();
+
+	QTimer::singleShot(0, this, SLOT(onQuitReally()));	// trigger lazy quit
+}
+
+void MainWindow::onQuitReally ()
+{
+	qDebug("%s", __FUNCTION__);
 	qApp->quit();
 }
 
