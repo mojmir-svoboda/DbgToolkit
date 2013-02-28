@@ -117,16 +117,16 @@ void qDebugHandler (QtMsgType type, QMessageLogContext const & ctx, QString cons
 	switch (type)
 	{
 		case QtDebugMsg:	
-			fprintf(g_LogRedirect, "%llu|I|%x|%s\n", t, sys::get_tid(), msg.toLatin1());
+			fprintf(g_LogRedirect, "%llu|I|%x|%s\n", t, sys::get_tid(), msg.toLatin1().data());
 			break;
 		case QtWarningMsg:
-			fprintf(g_LogRedirect, "%llu|W|%x|%s\n", t, sys::get_tid(), msg.toLatin1());
+			fprintf(g_LogRedirect, "%llu|W|%x|%s\n", t, sys::get_tid(), msg.toLatin1().data());
 			break;
 		case QtCriticalMsg:
-			fprintf(g_LogRedirect, "%llu|E|%x|%s\n", t, sys::get_tid(), msg.toLatin1());
+			fprintf(g_LogRedirect, "%llu|E|%x|%s\n", t, sys::get_tid(), msg.toLatin1().data());
 			break;
 		case QtFatalMsg:
-			fprintf(g_LogRedirect, "%llu|F|%x|%s\n", t, sys::get_tid(), msg.toLatin1());
+			fprintf(g_LogRedirect, "%llu|F|%x|%s\n", t, sys::get_tid(), msg.toLatin1().data());
 			break;
 	}
 	fflush(g_LogRedirect);
