@@ -159,19 +159,21 @@ namespace plot {
 		for (size_t c = 0, ce = pcfg.m_ccfg.size(); c < ce; ++c)
 		{
 			CurveConfig const & cc = pcfg.m_ccfg[c];
-			Curve * const curve = findOrCreateCurve(cc.m_tag);
-			curve->m_curve->setPen(QPen(cc.m_color));
-			//curve->m_curve->setBrush(QBrush(cc.m_color));
-			curve->m_curve->setTitle(cc.m_tag);
-			curve->m_curve->setStyle(static_cast<QwtPlotCurve::CurveStyle>(cc.m_style - 1));
-			QwtSymbol * symbol = new QwtSymbol(static_cast<QwtSymbol::Style>(cc.m_symbol - 1));
-			symbol->setSize(cc.m_symbolsize);
-			symbol->setPen(QPen(cc.m_symbolcolor));
-			curve->m_curve->setSymbol(symbol);
-			curve->m_curve->setBaseline(cc.m_pen_width);
-			curve->m_curve->setLegendAttribute(QwtPlotCurve::LegendShowLine);
-			curve->m_curve->setLegendAttribute(QwtPlotCurve::LegendShowSymbol);
-			showCurve(curve->getCurve(), cc.m_show);
+			if (Curve * const curve = findOrCreateCurve(cc.m_tag))
+			{
+				curve->m_curve->setPen(QPen(cc.m_color));
+				//curve->m_curve->setBrush(QBrush(cc.m_color));
+				curve->m_curve->setTitle(cc.m_tag);
+				curve->m_curve->setStyle(static_cast<QwtPlotCurve::CurveStyle>(cc.m_style - 1));
+				QwtSymbol * symbol = new QwtSymbol(static_cast<QwtSymbol::Style>(cc.m_symbol - 1));
+				symbol->setSize(cc.m_symbolsize);
+				symbol->setPen(QPen(cc.m_symbolcolor));
+				curve->m_curve->setSymbol(symbol);
+				curve->m_curve->setBaseline(cc.m_pen_width);
+				curve->m_curve->setLegendAttribute(QwtPlotCurve::LegendShowLine);
+				curve->m_curve->setLegendAttribute(QwtPlotCurve::LegendShowSymbol);
+				showCurve(curve->getCurve(), cc.m_show);
+			}
 		}
 
 		if (m_timer != -1)

@@ -762,7 +762,7 @@ void MainWindow::onHotkeyShowOrHide ()
 	bool const not_on_top = !isActiveWindow();
 	qDebug("onHotkeyShowOrHide() isActive=%u", not_on_top);
 	m_config.m_hidden = !m_config.m_hidden;
-
+		
 	if (m_config.m_hidden)
 	{
 		m_config.m_was_maximized = isMaximized();

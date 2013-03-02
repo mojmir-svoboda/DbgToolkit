@@ -96,7 +96,7 @@ struct Application : QApplication, public QAbstractNativeEventFilter
 					m_main_window->onHotkeyShowOrHide();
 			return true;
 		}
-		return false; //QApplication::nativeEventFilter(eventType, message, result);
+		return false;	
 	}
 #endif
 };
