@@ -227,6 +227,7 @@ private slots:
 	void onPlotsClosed ();
 	void onTablesStateChanged (int state);
 	void onDockRestoreButton ();
+	void onListVisibilityChanged (bool);
 	void onFilterFile (int state);
 
 	void onSetupAction ();

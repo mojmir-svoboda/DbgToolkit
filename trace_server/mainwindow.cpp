@@ -116,6 +116,7 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QStri
 	restoreDockWidget(m_docked_widgets);
 	m_docked_widgets->setVisible(false);
 	m_docked_widgets->setFeatures(QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetFloatable);
+	connect(m_docked_widgets, SIGNAL(visibilityChanged(bool)), this, SLOT(onListVisibilityChanged(bool)));
 
 	QString const homedir = QDir::homePath();
 	m_config.m_appdir = homedir + "/.flogging";
@@ -526,6 +527,11 @@ void MainWindow::onDockedWidgetsToolButton ()
 		disconnect(m_docked_widgets_tree_view, SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtDockedWidgets(QModelIndex)));
 		m_docked_widgets->hide();
 	}
+}
+
+void MainWindow::onListVisibilityChanged (bool visible)
+{
+	ui->dockedWidgetsToolButton->setChecked(visible);
 }
 
 void MainWindow::onPlotsClosed ()
