@@ -109,9 +109,9 @@ namespace tlv {
 		"x",
 		"y",
 		"z",
-		"FgCol"
-		"BgCol"
-		"HHdr"
+		"FgCol",
+		"BgCol",
+		"HHdr",
 		"VHdr"
 	};
 
