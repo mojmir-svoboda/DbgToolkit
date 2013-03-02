@@ -77,6 +77,7 @@ struct Application : QApplication, public QAbstractNativeEventFilter
 
 	void setMainWindow (MainWindow * mw)
 	{
+		installNativeEventFilter(this);
 		m_main_window = mw;
 		m_prof_acceptor_thread.setMainWindow(mw);
 		m_prof_acceptor_thread.start();
