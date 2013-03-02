@@ -108,6 +108,7 @@ namespace tlv {
 		"Flt",
 		"x",
 		"y",
+		"z",
 		"FgCol"
 		"BgCol"
 		"HHdr"
