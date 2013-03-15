@@ -25,9 +25,9 @@ namespace sys {
 	}
 
 
-	inline atomic32_t atomic_cas32 (atomic32_t volatile * mem, atomic32_t with, atomic32_t cmp)
+	inline atomic32_t atomic_cas32 (atomic32_t volatile * mem, atomic32_t oldv, atomic32_t newv)
 	{
-		return InterlockedCompareExchange(mem, with, cmp);
+		return InterlockedCompareExchange(mem, newv, oldv);
 	}
 
 	inline atomic32_t atomic_faa32 (atomic32_t volatile * mem, atomic32_t val)

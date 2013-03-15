@@ -34,14 +34,14 @@ namespace sys {
 
 		void WriteUnlockAndDirty ()
 		{
-			atomic_cas32(&m_lock, e_dirty, e_writing);
+			atomic_cas32(&m_lock, e_writing, e_dirty);
 		}
 
 		void WriteLock ()
 		{
 			for (;;)
 			{
-				atomic32_t prev_lock = atomic_cas32(&m_lock, e_writing, e_clean);
+				atomic32_t prev_lock = atomic_cas32(&m_lock, e_clean, e_writing);
 				if (m_lock == e_writing && prev_lock == e_clean)
 					break;
 				else
@@ -53,7 +53,7 @@ namespace sys {
 		{
 			for (;;)
 			{
-				atomic32_t prev_lock = atomic_cas32(&m_lock, e_flushing, e_dirty);
+				atomic32_t prev_lock = atomic_cas32(&m_lock, e_dirty, e_flushing);
 				if (m_lock == e_flushing && prev_lock == e_dirty)
 					break;
 				else
@@ -63,7 +63,7 @@ namespace sys {
 
 		void ReadUnlockAndClean ()
 		{
-			atomic_cas32(&m_lock, e_clean, e_flushing);
+			atomic_cas32(&m_lock, e_flushing, e_clean);
 		}
 	};
 }

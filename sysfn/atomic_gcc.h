@@ -10,9 +10,9 @@ namespace sys {
 		return *val;
 	}
 
-	inline atomic32_t atomic_cas32 (atomic32_t volatile * mem, atomic32_t with, atomic32_t cmp)
+	inline atomic32_t atomic_cas32 (atomic32_t volatile * mem, atomic32_t oldv, atomic32_t newv)
 	{
-		return __sync_val_compare_and_swap(const_cast<atomic32_t *>(mem), cmp, with);
+		return __sync_val_compare_and_swap(const_cast<atomic32_t *>(mem), oldv, newv);
 	}
 
 	inline atomic32_t atomic_faa32 (atomic32_t volatile * mem, atomic32_t val)
