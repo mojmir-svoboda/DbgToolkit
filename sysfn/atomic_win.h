@@ -10,6 +10,12 @@ namespace sys {
 
 	typedef LONG atomic32_t;
 
+#define write_barrier()      _WriteBarrier()
+#define read_barrier()       _ReadBarrier()
+#define read_write_barrier() _ReadWriteBarrier()
+#define compiler_barrier()   _ReadWriteBarrier()
+
+
 	inline atomic32_t atomic_get32 (atomic32_t volatile const * val)
 	{
 #if defined __MINGW32__
