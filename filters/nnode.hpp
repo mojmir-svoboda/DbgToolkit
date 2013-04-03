@@ -151,7 +151,7 @@ struct NNode
 		return 0;
 	}
 
-
+#if defined USE_QT_STRING
 	static NNode const * node_child_fast (NNode const * node, char_type_t const * left, char_type_t const * right)
 	{     
 		QString const key = QString::fromRawData(left, right - left);
@@ -176,6 +176,7 @@ struct NNode
 		}
 		return 0;
 	}
+#endif
 
 
 	static bool is_leaf (NNode * node) { return node->children == 0; }

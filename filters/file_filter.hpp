@@ -22,7 +22,9 @@
 #pragma once
 
 //#define USE_STD_STRING 1
-#define USE_QT_STRING 1
+#if !defined USE_STD_STRING
+#	define USE_QT_STRING 1
+#endif
 
 #if (USE_QT_STRING == 1)
 #	include <QString>
