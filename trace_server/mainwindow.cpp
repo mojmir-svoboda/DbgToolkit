@@ -243,19 +243,8 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QStri
 	connect(ui->buttonAddString, SIGNAL(clicked()), this, SLOT(onStringAdd()));
 	connect(ui->buttonRmString, SIGNAL(clicked()), this, SLOT(onStringRm()));
 
-	if (m_config.m_dump_mode)
-	{
-		ui->filterFileCheckBox->setEnabled(false);
-		ui->autoScrollCheckBox->setEnabled(false);
-		char const reason[] = "disabled due to -d option";
-		ui->autoScrollCheckBox->setToolTip(tr(reason));
-		ui->filterFileCheckBox->setToolTip(tr(reason));
-	}
-	else
-	{
-		ui->autoScrollCheckBox->setToolTip(tr("auto scrolls to bottom if checked"));
-		ui->filterFileCheckBox->setToolTip(tr("enables filtering via filter tabs"));
-	}
+	ui->autoScrollCheckBox->setToolTip(tr("auto scrolls to bottom if checked"));
+	ui->filterFileCheckBox->setToolTip(tr("enables filtering via filter tabs"));
 
 	m_status_label = new QLabel(m_server->getStatus());
 	QString human_version(g_Version);
@@ -408,7 +397,7 @@ bool MainWindow::filterEnabled () const { return ui->filterFileCheckBox->isEnabl
 bool MainWindow::plotEnabled () const { return ui->plotsCheckBox->isChecked(); }
 bool MainWindow::tableEnabled () const { return ui->tablesCheckBox->isChecked(); }
 bool MainWindow::reuseTabEnabled () const { return ui_settings->reuseTabCheckBox->isChecked(); }
-bool MainWindow::autoScrollEnabled () const { return !m_config.m_dump_mode && ui->autoScrollCheckBox->isChecked(); }
+bool MainWindow::autoScrollEnabled () const { return ui->autoScrollCheckBox->isChecked(); }
 bool MainWindow::buffEnabled () const { return ui->buffCheckBox->isChecked(); }
 Qt::CheckState MainWindow::buffState () const { return ui->buffCheckBox->checkState(); }
 bool MainWindow::clrFltEnabled () const { return ui_settings->clrFiltersCheckBox->isChecked(); }
