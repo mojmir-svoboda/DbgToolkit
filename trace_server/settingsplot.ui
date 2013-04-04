@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>472</width>
-    <height>187</height>
+    <height>208</height>
    </rect>
   </property>
   <property name="font">
@@ -32,7 +32,7 @@
     </property>
     <item>
      <layout class="QGridLayout" name="gridLayout_5">
-      <item row="0" column="0">
+      <item row="1" column="0">
        <widget class="QPushButton" name="applyButton">
         <property name="maximumSize">
          <size>
@@ -45,33 +45,7 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="5">
-       <widget class="QPushButton" name="resetButton">
-        <property name="maximumSize">
-         <size>
-          <width>40</width>
-          <height>15</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>Rst</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="6">
-       <widget class="QPushButton" name="defaultButton">
-        <property name="maximumSize">
-         <size>
-          <width>40</width>
-          <height>15</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>Dflt</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="2">
+      <item row="1" column="2">
        <spacer name="horizontalSpacer">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
@@ -84,7 +58,43 @@
         </property>
        </spacer>
       </item>
-      <item row="0" column="7">
+      <item row="1" column="6">
+       <widget class="QPushButton" name="defaultButton">
+        <property name="maximumSize">
+         <size>
+          <width>40</width>
+          <height>15</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>Dflt</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="5">
+       <widget class="QPushButton" name="resetButton">
+        <property name="maximumSize">
+         <size>
+          <width>40</width>
+          <height>15</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>Rst</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QCheckBox" name="plotShowCheckBox">
+        <property name="text">
+         <string>show</string>
+        </property>
+        <property name="checked">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="7">
        <widget class="QPushButton" name="autoButton">
         <property name="maximumSize">
          <size>
@@ -97,7 +107,7 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="3">
+      <item row="1" column="3">
        <widget class="QPushButton" name="saveButton">
         <property name="maximumSize">
          <size>
@@ -110,7 +120,7 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="4">
+      <item row="1" column="4">
        <spacer name="horizontalSpacer_2">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
@@ -123,13 +133,16 @@
         </property>
        </spacer>
       </item>
-      <item row="0" column="1">
-       <widget class="QCheckBox" name="plotShowCheckBox">
-        <property name="text">
-         <string>show</string>
+      <item row="2" column="0">
+       <widget class="QPushButton" name="clearDataButton">
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>15</height>
+         </size>
         </property>
-        <property name="checked">
-         <bool>false</bool>
+        <property name="text">
+         <string>ClearData</string>
         </property>
        </widget>
       </item>
@@ -167,17 +180,27 @@
          <layout class="QVBoxLayout" name="verticalLayout_3">
           <item>
            <layout class="QGridLayout" name="gridLayout_4">
+            <item row="0" column="3">
+             <widget class="QCheckBox" name="legendShowCheckBox">
+              <property name="text">
+               <string/>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="2">
+             <widget class="QLabel" name="label_16">
+              <property name="text">
+               <string>Legend show</string>
+              </property>
+             </widget>
+            </item>
             <item row="1" column="0">
              <widget class="QLabel" name="label_14">
               <property name="text">
                <string>AutoScroll</string>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="0">
-             <widget class="QLabel" name="label_15">
-              <property name="text">
-               <string>Update [ms]</string>
               </property>
              </widget>
             </item>
@@ -190,6 +213,16 @@
                <bool>true</bool>
               </property>
              </widget>
+            </item>
+            <item row="2" column="0">
+             <widget class="QLabel" name="label_15">
+              <property name="text">
+               <string>Update [ms]</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="1">
+             <widget class="QLineEdit" name="titleLineEdit"/>
             </item>
             <item row="2" column="1">
              <widget class="QSpinBox" name="updateTimerSpinBox">
@@ -205,26 +238,6 @@
              <widget class="QLabel" name="label_18">
               <property name="text">
                <string>Label</string>
-              </property>
-             </widget>
-            </item>
-            <item row="3" column="1">
-             <widget class="QLineEdit" name="titleLineEdit"/>
-            </item>
-            <item row="0" column="2">
-             <widget class="QLabel" name="label_16">
-              <property name="text">
-               <string>Legend show</string>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="3">
-             <widget class="QCheckBox" name="legendShowCheckBox">
-              <property name="text">
-               <string/>
-              </property>
-              <property name="checked">
-               <bool>true</bool>
               </property>
              </widget>
             </item>

@@ -253,6 +253,7 @@ namespace plot {
 
 		setConfigValues(m_config);
 		connect(ui->applyButton, SIGNAL(clicked()), this, SLOT(onApplyButton()));
+		connect(ui->clearDataButton, SIGNAL(clicked()), this, SLOT(onClearAllDataButton()));
 		connect(ui->saveButton, SIGNAL(clicked()), this, SLOT(onSaveButton()));
 		connect(ui->resetButton, SIGNAL(clicked()), this, SLOT(onResetButton()));
 		connect(ui->defaultButton, SIGNAL(clicked()), this, SLOT(onDefaultButton()));
@@ -401,6 +402,17 @@ namespace plot {
 				break;
 			}
 		}
+	}
+
+	void BasePlot::onClearAllDataButton ()
+	{
+		for (curves_t::iterator it = m_curves.begin(), ite = m_curves.end(); it != ite; ++it)
+		{
+			Curve * curve = *it;
+			if (curve->m_data)
+				curve->m_data->clear();
+		}
+		m_curves.clear();
 	}
 }
 
