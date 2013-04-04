@@ -84,7 +84,11 @@ namespace tlv {
 			char local_buffer[512]; // @#%!@%@%@#$%!@$%@#$%  assert len < e_buff_sz
 			if (!stream.read(local_buffer, len))
 				return false;
+#if defined USE_QT_STRING
 			tv.m_val = QString::fromAscii(local_buffer, len);
+#else
+			tv.m_val = std::string(local_buffer, len);
+#endif
 			//qDebug("DEC: len=%u str.ln=%u strl.val=%s ", len, tv.val.length(), tv.val.c_str());
 			return true;
 		}
