@@ -14,14 +14,24 @@ enum E_NodeStates {
 enum E_FilterMode {
 	  e_Include
 	, e_Exclude
+	, e_max_fltmod_enum_value
 };
+static char fltmods[e_max_fltmod_enum_value] = { 'I', 'E' };
+static char const * fltmodsStr[e_max_fltmod_enum_value] = { "Include", "Exclude" };
+inline char fltModToString (E_FilterMode l) { return fltmods[l]; }
+inline E_FilterMode stringToFltMod (char c) {
+	for (size_t i = 0; i < e_max_fltmod_enum_value; ++i)
+		if (fltmods[i] == c)
+			return static_cast<E_FilterMode>(i);
+	return e_Include;
+}
+
 
 enum E_LevelMode {
 	  e_LvlInclude = 0
 	, e_LvlForceInclude = 1
 	, e_max_lvlmod_enum_value
 };
-
 static char lvlmods[e_max_lvlmod_enum_value] = { 'I', 'F' };
 static char const * lvlmodsStr[e_max_lvlmod_enum_value] = { "Include", "Force" };
 inline char lvlModToString (E_LevelMode l) { return lvlmods[l]; }
