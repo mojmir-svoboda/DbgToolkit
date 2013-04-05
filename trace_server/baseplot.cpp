@@ -410,9 +410,16 @@ namespace plot {
 		{
 			Curve * curve = *it;
 			if (curve->m_data)
+			{
 				curve->m_data->clear();
+				curve->m_curve->setRawSamples(0, 0, 0);
+			}
 		}
-		m_curves.clear();
+		update();
+	}
+
+	void BasePlot::onClearCurveDataButton ()
+	{
 	}
 }
 
