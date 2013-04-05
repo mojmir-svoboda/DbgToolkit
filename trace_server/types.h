@@ -23,6 +23,7 @@ enum E_LevelMode {
 };
 
 static char lvlmods[e_max_lvlmod_enum_value] = { 'I', 'F' };
+static char const * lvlmodsStr[e_max_lvlmod_enum_value] = { "Include", "Force" };
 inline char lvlModToString (E_LevelMode l) { return lvlmods[l]; }
 inline E_LevelMode stringToLvlMod (char c) {
 	for (size_t i = 0; i < e_max_lvlmod_enum_value; ++i)
@@ -41,9 +42,11 @@ typedef QList<int>				columns_sizes_t;
 enum E_Align { e_AlignLeft, e_AlignRight, E_AlignMid, e_max_align_enum_value };
 typedef char T_Aligns[e_max_align_enum_value];
 static T_Aligns aligns = { 'L', 'R', 'M' };
+static char const * alignsStr[e_max_align_enum_value] = { "Left", "Right", "Middle" };
 enum E_Elide { e_ElideLeft = 0, e_ElideRight, e_ElideMiddle, e_ElideNone, e_max_elide_enum_value }; // synchronized with Qt::TextElideMode
 typedef char T_Elides[e_max_elide_enum_value];
 static T_Elides elides = { 'L', 'R', 'M', '-' };
+static char const * elidesStr[e_max_elide_enum_value] = { "Left", "Right", "Middle", "-" };
 
 inline char alignToString (E_Align a) { return aligns[a]; }
 inline E_Align stringToAlign (char c) {

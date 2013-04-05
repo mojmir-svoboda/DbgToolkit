@@ -187,6 +187,25 @@ void LevelDelegate::paint (QPainter * painter, QStyleOptionViewItem const & opti
 			}
 		}
 	}
+	else if (index.column() == 1)
+	{
+		QVariant value = index.data(Qt::DisplayRole);
+		if (value.isValid() && !value.isNull())
+		{
+			QString const qs = value.toString();
+
+			E_LevelMode const lm = stringToLvlMod(qs.at(0).toLatin1());
+			QString const verbose = lvlmodsStr[lm];
+			option4.text = verbose;
+
+			if (QWidget const * widget = option4.widget)
+			{
+				QStyle * style = widget->style();
+				style->drawControl(QStyle::CE_ItemViewItem, &option4, painter, widget);
+			}
+		}
+
+	}
 	else
 		QStyledItemDelegate::paint(painter, option4, index);
 	painter->restore();
