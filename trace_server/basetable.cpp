@@ -450,19 +450,23 @@ namespace table {
 
 	void BaseTable::wheelEvent (QWheelEvent * event)
 	{
-		//qDebug("%s this=0x%08x", __FUNCTION__, this);
-		bool const shift = event->modifiers() & Qt::ALT;
+		bool const mod = event->modifiers() & Qt::CTRL;
 
-		QTableView::wheelEvent(event);
-		m_connection->requestTableWheelEventSync(m_config.m_sync_group, event, this);
+		if (mod)
+		{
+			CursorAction const a = event->delta() < 0 ? MoveDown : MoveUp;
+			moveCursor(a, Qt::ControlModifier);
+			event->accept();
+		}
+		else
+		{
+			QTableView::wheelEvent(event);
+		}
 	}
 
 	void BaseTable::requestTableWheelEventSync (QWheelEvent * ev, QTableView const * source)
 	{
-		//int const hmin = tbl->widget().horizontalScrollBar()->minimum();
-		//int const hval = tbl->widget().horizontalScrollBar()->value();
-		//int const hmax = tbl->widget().horizontalScrollBar()->maximum();
-		int const src_pgs = source->verticalScrollBar()->pageStep();
+		/*int const src_pgs = source->verticalScrollBar()->pageStep();
 		int const src_vval = source->verticalScrollBar()->value();
 		int const src_vmax = source->verticalScrollBar()->maximum();
 
@@ -471,12 +475,12 @@ namespace table {
 		{
 			float grr = src_vval / src_rng;
 
-			//qDebug(" tbl wh sync: pgs=%i val=%i max=%i  src_val=%3.2f new=%i", src_pgs, src_vval, src_vmax, grr, int(grr * (verticalScrollBar()->maximum() + verticalScrollBar()->pageStep())));
+			qDebug(" tbl wh sync: pgs=%i val=%i max=%i  src_val=%3.2f new=%i", src_pgs, src_vval, src_vmax, grr, int(grr * (verticalScrollBar()->maximum() + verticalScrollBar()->pageStep())));
 			verticalScrollBar()->setValue(int(grr * (verticalScrollBar()->maximum())));
 		}
 		else
 		{
-		}	
+		}*/	
 	}
 
 	QModelIndex	BaseTable::moveCursor (CursorAction cursor_action, Qt::KeyboardModifiers modifiers)
@@ -487,6 +491,8 @@ namespace table {
 		else
 		{
 			QModelIndex const curr_idx = QTableView::moveCursor(cursor_action, modifiers);
+			if (curr_idx.isValid())
+				setCurrentIndex(curr_idx);
 			QModelIndex mod_idx = curr_idx;
 			if (isModelProxy())
 				mod_idx = m_table_view_proxy->mapToSource(curr_idx);
