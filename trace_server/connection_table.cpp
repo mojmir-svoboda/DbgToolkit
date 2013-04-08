@@ -213,13 +213,12 @@ datatables_t::iterator Connection::findOrCreateTable (QString const & tag)
 		if (m_main_window->tableEnabled() && template_config.m_show)
 		{
 			dp->onShow();
+			m_main_window->onDockRestoreButton();
 		}
 		else
 		{
 			dp->onHide();
 		}
-
-		m_main_window->onDockRestoreButton();
 	}
 	return it;
 }

@@ -39,6 +39,8 @@ public:
 	virtual int columnCount (QModelIndex const & parent = QModelIndex()) const;
 
 	virtual QModelIndex mapToSource (QModelIndex const & proxyIndex) const;
+
+	QModelIndex mapNearestFromSource (QModelIndex const & sourceIndex) const;
 	virtual QModelIndex mapFromSource (QModelIndex const & sourceIndex) const;
 	bool rowInProxy (int row) const;
 	bool colInProxy (int col) const;

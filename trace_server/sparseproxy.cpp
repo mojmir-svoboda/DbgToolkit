@@ -151,6 +151,42 @@ QModelIndex SparseProxyModel::mapFromSource (QModelIndex const & sourceIndex) co
 	return QModelIndex();
 }
 
+QModelIndex SparseProxyModel::mapNearestFromSource (QModelIndex const & sourceIndex) const
+{
+	if (sourceIndex.isValid() && sourceIndex.row() < static_cast<int>(m_map_from_src.size())
+			&& sourceIndex.column() < static_cast<int>(m_cmap_from_src.size()))
+	{
+		if (m_cmap_from_src[sourceIndex.column()] == -1) // column is not in filtered view, finding nearest
+		{
+			int nearest_bwd_col = -1;
+			int dist_bwd = 0;
+			for (int d = 0, c = sourceIndex.column(); c --> 0; ++d)
+				if (m_cmap_from_src[c] != -1)
+				{
+					nearest_bwd_col = c;
+					dist_bwd = d;
+				}
+
+			int nearest_fwd_col = -1;
+			int dist_fwd = 0;
+			for (int d = 0, c = sourceIndex.column(); c < m_cmap_from_src.size(); ++c, ++d)
+				if (m_cmap_from_src[c] != -1)
+				{
+					nearest_fwd_col = c;
+					dist_fwd = d;
+				}
+
+			int const res[] = { dist_bwd, dist_fwd };
+			int const better_idx = dist_bwd < dist_fwd ? 0 : 1;
+			return QAbstractItemModel::createIndex(m_map_from_src[sourceIndex.row()], res[better_idx]);
+		}
+		//qDebug("FPM: %s src.row=%i, src.sz=%u", __FUNCTION__, sourceIndex.row(), m_map_from_src.size());
+		return QAbstractItemModel::createIndex(m_map_from_src[sourceIndex.row()], m_cmap_from_src[sourceIndex.column()]);
+	}
+	return QModelIndex();
+}
+
+
 bool SparseProxyModel::insertRows (int first, int last, QModelIndex const & parent)
 {
 	int src_first = -1;

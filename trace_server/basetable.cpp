@@ -426,8 +426,15 @@ namespace table {
 			QModelIndex const idx = m_modelView->index(closest_i, curr.column() < 0 ? 0 : curr.column(), QModelIndex());
 			qDebug("table: pxy findNearestTime curr=(%i, %i)  new=(%i, %i)", curr.column(), curr.row(), idx.column(), idx.row());
 
-			scrollTo(m_table_view_proxy->mapFromSource(idx), QAbstractItemView::PositionAtCenter);
-			selectionModel()->select(m_table_view_proxy->mapFromSource(idx), QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+			QModelIndex const pxy_idx = m_table_view_proxy->mapFromSource(idx);
+			QModelIndex valid_pxy_idx = pxy_idx;
+			if (!pxy_idx.isValid())
+			{
+				valid_pxy_idx = static_cast<SparseProxyModel const *>(m_table_view_proxy)->mapNearestFromSource(idx);
+			}
+			qDebug("table: pxy findNearestTime pxy_new=(%i, %i) valid_pxy_new=(%i, %i)", pxy_idx.column(), pxy_idx.row(), valid_pxy_idx.column(), valid_pxy_idx.row());
+			scrollTo(valid_pxy_idx, QAbstractItemView::PositionAtCenter);
+			selectionModel()->select(valid_pxy_idx, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
 		}
 		else
 		{
