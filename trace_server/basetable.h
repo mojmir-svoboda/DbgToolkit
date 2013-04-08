@@ -21,7 +21,6 @@ namespace table {
 
 		void applyConfig (TableConfig & pcfg);
 		virtual ~BaseTable ();
-		void stopUpdate ();
 
 		TableConfig & getConfig () { return m_config; }
 		TableConfig const & getConfig () const { return m_config; }
@@ -37,7 +36,6 @@ namespace table {
 		void requestTableActionSync (unsigned long long t, int cursorAction, Qt::KeyboardModifiers modifiers, QTableView const * source);
 
 	protected:
-		void timerEvent (QTimerEvent * e);
 		virtual void wheelEvent (QWheelEvent * event);
 		virtual QModelIndex	moveCursor (CursorAction cursorAction, Qt::KeyboardModifiers modifiers);
 
@@ -60,7 +58,6 @@ namespace table {
 		void onClickedAtColumnSetup (QModelIndex const idx);
 
 	protected:
-		int m_timer;
 		TableConfig & m_config;
 		table::CtxTableConfig m_config_ui;
 		//QList<QColor> m_colors;

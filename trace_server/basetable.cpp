@@ -1,5 +1,4 @@
 #include "basetable.h"
-#include <QTimer>
 #include <QScrollBar>
 #include "editableheaderview.h"
 #include "sparseproxy.h"
@@ -12,7 +11,6 @@ namespace table {
 
 	BaseTable::BaseTable (Connection * oparent, QWidget * wparent, TableConfig & cfg, QString const & fname)
 		: QTableView(wparent)
-		, m_timer(-1)
 		, m_config(cfg)
 		, m_config_ui(cfg, this)
 		, m_fname(fname)
@@ -76,7 +74,6 @@ namespace table {
 	BaseTable::~BaseTable ()
 	{
 		qDebug("%s this=0x%08x", __FUNCTION__, this);
-		stopUpdate();
 		disconnect(this, SIGNAL(customContextMenuRequested(QPoint const &)), this, SLOT(onShowContextMenu(QPoint const &)));
 	}
 
@@ -147,17 +144,6 @@ namespace table {
 		horizontalHeader()->setVisible(true);
 
 		m_modelView->emitLayoutChanged();
-	}
-
-	void BaseTable::stopUpdate ()
-	{
-		if (m_timer != -1)
-			killTimer(m_timer);
-	}
-
-	void BaseTable::timerEvent (QTimerEvent * e)
-	{
-		update();
 	}
 
 	void BaseTable::onHideContextMenu ()
