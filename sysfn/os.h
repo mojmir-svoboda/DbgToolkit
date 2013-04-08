@@ -21,7 +21,7 @@
 		/**@brief	yields core to other thread **/
 		inline void thread_yield () { Sleep(1); }
 
-		inline tlv::len_t trc_vsnprintf (char * buff, size_t ln, char const * fmt, ...)
+		inline int trc_vsnprintf (char * buff, size_t ln, char const * fmt, ...)
 		{
 			va_list args;
 			va_start(args, fmt);
@@ -31,17 +31,17 @@
 			int const n = vsnprintf_s(buff, ln, _TRUNCATE, fmt, args);
 #endif
 			va_end(args);
-			return static_cast<tlv::len_t>(n < 0 ? ln : n);
+			return n < 0 ? ln : n;
 		}
 
-		inline tlv::len_t va_trc_vsnprintf (char * buff, size_t ln, char const * fmt, va_list args)
+		inline int va_trc_vsnprintf (char * buff, size_t ln, char const * fmt, va_list args)
 		{
 #if defined __MINGW32__
 			int const n = vsnprintf(buff, ln, fmt, args);
 #else
 			int const n = vsnprintf_s(buff, ln, _TRUNCATE, fmt, args);
 #endif
-			return static_cast<tlv::len_t>(n < 0 ? ln : n);
+			return n < 0 ? ln : n;
 		}
 
 		/**@brief	simple encapsulation of CreateThread **/
