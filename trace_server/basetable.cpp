@@ -184,10 +184,21 @@ namespace table {
 		qDebug("%s this=0x%08x", __FUNCTION__, this);
 		Ui::SettingsTable * ui = m_config_ui.ui();
 		
+		ui->tableShowCheckBox->blockSignals(true);
 		ui->tableShowCheckBox->setCheckState(cfg.m_show ? Qt::Checked : Qt::Unchecked);
+		ui->tableShowCheckBox->blockSignals(false);
+
+		ui->filteringCheckBox->blockSignals(true);
 		ui->filteringCheckBox->setCheckState(cfg.m_hide_empty ? Qt::Checked : Qt::Unchecked);
+		ui->filteringCheckBox->blockSignals(false);
+
+		ui->autoScrollCheckBox->blockSignals(true);
 		ui->autoScrollCheckBox->setCheckState(cfg.m_auto_scroll ? Qt::Checked : Qt::Unchecked);
+		ui->autoScrollCheckBox->blockSignals(false);
+
+		ui->syncGroupSpinBox->blockSignals(true);
 		ui->syncGroupSpinBox->setValue(cfg.m_sync_group);
+		ui->syncGroupSpinBox->blockSignals(false);
 
 		clearListView(ui->columnView);
 		QStandardItem * name_root = static_cast<QStandardItemModel *>(ui->columnView->model())->invisibleRootItem();

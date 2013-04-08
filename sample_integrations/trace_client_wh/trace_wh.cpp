@@ -277,7 +277,7 @@ int main ()
 		//TRACE_TABLE(trace::e_Info, trace::CTX_Default,-1,  1, "fookus/%f", float(i) * 3.1415926f);
 
 
-		if (i == 10)
+		if (i == 100)
 			break;
 
 
