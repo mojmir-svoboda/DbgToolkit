@@ -482,17 +482,21 @@ namespace table {
 	QModelIndex	BaseTable::moveCursor (CursorAction cursor_action, Qt::KeyboardModifiers modifiers)
 	{
 		bool const mod = modifiers & Qt::CTRL;
-		if (mod)
+		if (!mod)
+			return QTableView::moveCursor(cursor_action, modifiers);
+		else
 		{
-			QModelIndex const & curr_idx = selectionModel()->currentIndex();
+			QModelIndex const curr_idx = QTableView::moveCursor(cursor_action, modifiers);
 			QModelIndex mod_idx = curr_idx;
 			if (isModelProxy())
 				mod_idx = m_table_view_proxy->mapToSource(curr_idx);
 
 			unsigned long long const t = m_modelView->row_time(mod_idx.row());
 			m_connection->requestTableActionSync(m_config.m_sync_group, t, cursor_action, modifiers, this);
+			scrollTo(curr_idx, QAbstractItemView::PositionAtCenter);
+			//qDebug("table: pxy findNearestTime curr_idx=(%i, %i)  mod_idx=(%i, %i)", curr_idx.column(), curr_idx.row(), mod_idx.column(), mod_idx.row());
+			return curr_idx;
 		}
-		return QTableView::moveCursor(cursor_action, modifiers);
 	}
 
 	void BaseTable::requestTableActionSync (unsigned long long t, int cursor_action, Qt::KeyboardModifiers modifiers, QTableView const * source)
