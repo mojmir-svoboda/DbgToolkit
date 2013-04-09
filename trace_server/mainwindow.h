@@ -168,6 +168,7 @@ public slots:
 	void showNormal ();
 	void showMaximized ();
 	void onOnTop (int);
+	void onDockRestoreButton ();
 
 	friend class Connection;
 private slots:
@@ -226,7 +227,6 @@ private slots:
 	void onDockedWidgetsToolButton ();
 	void onPlotsClosed ();
 	void onTablesStateChanged (int state);
-	void onDockRestoreButton ();
 	void onListVisibilityChanged (bool);
 	void onFilterFile (int state);
 

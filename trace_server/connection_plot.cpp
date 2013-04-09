@@ -46,7 +46,6 @@ void Connection::onShowPlots ()
 		(*it)->onShow();
 		m_main_window->restoreDockWidget((*it)->m_wd);
 	}
-	//m_main_window->onDockRestoreButton();
 }
 
 void Connection::onHidePlots ()
@@ -169,13 +168,12 @@ void Connection::appendDataXY (double x, double y, QString const & msg_tag)
 		dp->m_wd = m_main_window->m_dock_mgr.mkDockWidget(m_main_window, &dp->widget(), template_config.m_show, plot_name);
 		if (m_main_window->plotState() == e_FtrEnabled && template_config.m_show)
 		{
+			m_main_window->loadLayout(preset_name);
 			dp->onShow();
-			//m_main_window->onDockRestoreButton();
 		}
 		else
 		{
 			dp->onHide();
-		//m_main_window->onDockRestoreButton();
 		}
 	}
 

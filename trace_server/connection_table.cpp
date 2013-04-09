@@ -27,14 +27,15 @@ DataTable::~DataTable ()
 }
 void DataTable::onShow ()
 {
-	m_wd->show();
 	m_table->onShow();
+	m_wd->show();
+	m_parent->getMainWindow()->restoreDockWidget(m_wd);
+	//QTimer::singleShot(0, m_parent, SLOT(onShowTables()));
 }
 void DataTable::onHide ()
 {
 	m_table->onHide();
 	QTimer::singleShot(0, m_wd, SLOT(hide()));
-	//m_parent->getMainWindow()->removeDockWidget(m_wd);
 }
 
 void Connection::onShowTables ()
@@ -45,7 +46,6 @@ void Connection::onShowTables ()
 		(*it)->onShow();
 		m_main_window->restoreDockWidget((*it)->m_wd);
 	}
-	//m_main_window->onDockRestoreButton();
 }
 
 void Connection::onHideTables ()
@@ -175,6 +175,7 @@ bool Connection::saveConfigForTables (QString const & preset_name)
 	return true;
 }
 
+
 datatables_t::iterator Connection::findOrCreateTable (QString const & tag)
 {
 	QString const table_name = sessionState().getAppName() + "/" + g_presetTableTag + "/" + tag;
@@ -210,10 +211,12 @@ datatables_t::iterator Connection::findOrCreateTable (QString const & tag)
 
 		QObject::connect(dp->widget().horizontalHeader(), SIGNAL(sectionResized(int, int, int)), &dp->widget(), SLOT(onSectionResized(int, int, int)));
 		dp->m_wd = m_main_window->m_dock_mgr.mkDockWidget(m_main_window, &dp->widget(), template_config.m_show, table_name);
-		if (m_main_window->tableState() == e_FtrEnabled && template_config.m_show)
+		bool const visible = template_config.m_show;
+		m_data_model->setData(item_idx, QVariant(visible ? Qt::Checked : Qt::Unchecked), Qt::CheckStateRole);
+		if (m_main_window->tableState() == e_FtrEnabled && visible)
 		{
+			m_main_window->loadLayout(preset_name);
 			dp->onShow();
-			m_main_window->onDockRestoreButton();
 		}
 		else
 		{
