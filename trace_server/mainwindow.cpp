@@ -200,10 +200,9 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QStri
 	connect(ui->timeComboBox, SIGNAL(activated(int)), this, SLOT(onTimeUnitsChanged(int)));
 	connect(ui->levelSpinBox, SIGNAL(valueChanged(int)), m_server, SLOT(onLevelValueChanged(int)));
 	connect(ui->filterFileCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onFilterFile(int)));
-	connect(ui->plotsCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onPlotStateChanged(int)));
-	connect(ui->tablesCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onTablStateChanged(int)));
+	connect(ui->plotSlider, SIGNAL(valueChanged(int)), this, SLOT(onPlotStateChanged(int)));
+	connect(ui->tableSlider, SIGNAL(valueChanged(int)), this, SLOT(onTablesStateChanged(int)));
 	connect(ui->dockedWidgetsToolButton, SIGNAL(clicked()), this, SLOT(onDockedWidgetsToolButton()));
-	connect(ui->tablesCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onTablesStateChanged(int)));
 	connect(m_docked_widgets, SIGNAL(dockClosed()), this, SLOT(onPlotsClosed()));
 
 	connect(ui->buffCheckBox, SIGNAL(stateChanged(int)), m_server, SLOT(onBufferingStateChanged(int)));
@@ -394,8 +393,8 @@ bool MainWindow::cutNamespaceEnabled () const { return ui_settings->cutNamespace
 int MainWindow::cutNamespaceLevel () const { return ui_settings->cutNamespaceSpinBox->value(); }
 bool MainWindow::onTopEnabled () const { return ui_settings->onTopCheckBox->isChecked(); }
 bool MainWindow::filterEnabled () const { return ui->filterFileCheckBox->isEnabled() && ui->filterFileCheckBox->isChecked(); }
-bool MainWindow::plotEnabled () const { return ui->plotsCheckBox->isChecked(); }
-bool MainWindow::tableEnabled () const { return ui->tablesCheckBox->isChecked(); }
+int MainWindow::plotState () const { return ui->plotSlider->value(); }
+int MainWindow::tableState () const { return ui->tableSlider->value(); }
 bool MainWindow::reuseTabEnabled () const { return ui_settings->reuseTabCheckBox->isChecked(); }
 bool MainWindow::autoScrollEnabled () const { return ui->autoScrollCheckBox->isChecked(); }
 bool MainWindow::buffEnabled () const { return ui->buffCheckBox->isChecked(); }
@@ -1093,8 +1092,8 @@ void MainWindow::storeState ()
 	//settings.setValue("splitter", ui->splitter->saveState());
 	settings.setValue("autoScrollCheckBox", ui->autoScrollCheckBox->isChecked());
 	settings.setValue("filterFileCheckBox", ui->filterFileCheckBox->isChecked());
-	settings.setValue("tablesCheckBox", ui->tablesCheckBox->isChecked());
-	settings.setValue("plotsCheckBox", ui->plotsCheckBox->isChecked());
+	settings.setValue("tableSlider", ui->tableSlider->value());
+	settings.setValue("plotsSlider", ui->plotSlider->value());
 	settings.setValue("buffCheckBox", ui->buffCheckBox->isChecked());
 	settings.setValue("clrFiltersCheckBox", ui_settings->clrFiltersCheckBox->isChecked());
 	//settings.setValue("filterModeComboBox", ui->filterModeComboBox->currentIndex());
@@ -1191,8 +1190,8 @@ void MainWindow::loadState ()
 	ui_settings->cutPathSpinBox->setValue(settings.value("cutPathSpinBox", 1).toInt());
 	ui_settings->cutNamespaceSpinBox->setValue(settings.value("cutNamespaceSpinBox", 1).toInt());
 
-	ui->tablesCheckBox->setChecked(settings.value("tablesCheckBox", false).toBool());
-	ui->plotsCheckBox->setChecked(settings.value("plotsCheckBox", false).toBool());
+	ui->tableSlider->setValue(settings.value("tableSlider", 0).toInt());
+	ui->plotSlider->setValue(settings.value("plotSlider", 0).toInt());
 	ui->filterFileCheckBox->setChecked(settings.value("filterFileCheckBox", true).toBool());
 	ui->buffCheckBox->setChecked(settings.value("buffCheckBox", true).toBool());
 	ui_settings->clrFiltersCheckBox->setChecked(settings.value("clrFiltersCheckBox", false).toBool());

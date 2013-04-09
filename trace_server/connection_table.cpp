@@ -90,7 +90,7 @@ bool Connection::handleTableXYCommand (DecodedCommand const & cmd)
 			bgc = cmd.tvs[i].m_val;
 	}
 
-	if (m_main_window->tableEnabled())
+	if (m_main_window->tableState() != e_FtrDisabled)
 	{
 		appendTableXY(x, y, time, fgc, bgc, tag);
 	}
@@ -125,7 +125,7 @@ bool Connection::handleTableSetupCommand (DecodedCommand const & cmd)
 
 	//qDebug("table: setup hdr: x=%i y=%i hhdr=%s fg=%s bg=%s", x, y, hhdr.toStdString().c_str(), fgc.toStdString().c_str(), bgc.toStdString().c_str());
 
-	if (m_main_window->tableEnabled())
+	if (m_main_window->tableState() != e_FtrDisabled)
 		appendTableSetup(x, y, time, fgc, bgc, hhdr, tag);
 	return true;
 }
@@ -210,7 +210,7 @@ datatables_t::iterator Connection::findOrCreateTable (QString const & tag)
 
 		QObject::connect(dp->widget().horizontalHeader(), SIGNAL(sectionResized(int, int, int)), &dp->widget(), SLOT(onSectionResized(int, int, int)));
 		dp->m_wd = m_main_window->m_dock_mgr.mkDockWidget(m_main_window, &dp->widget(), template_config.m_show, table_name);
-		if (m_main_window->tableEnabled() && template_config.m_show)
+		if (m_main_window->tableState() == e_FtrEnabled && template_config.m_show)
 		{
 			dp->onShow();
 			m_main_window->onDockRestoreButton();

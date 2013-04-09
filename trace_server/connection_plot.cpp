@@ -82,7 +82,7 @@ bool Connection::handleDataXYCommand (DecodedCommand const & cmd)
 			y = cmd.tvs[i].m_val.toDouble();
 	}
 
-	if (m_main_window->plotEnabled())
+	if (m_main_window->plotState() != e_FtrDisabled)
 		appendDataXY(x, y, tag);
 	return true;
 }
@@ -167,7 +167,7 @@ void Connection::appendDataXY (double x, double y, QString const & msg_tag)
 		QModelIndex const item_idx = m_data_model->insertItemWithHint(plot_name, template_config.m_show);
 
 		dp->m_wd = m_main_window->m_dock_mgr.mkDockWidget(m_main_window, &dp->widget(), template_config.m_show, plot_name);
-		if (m_main_window->plotEnabled() && template_config.m_show)
+		if (m_main_window->plotState() == e_FtrEnabled && template_config.m_show)
 		{
 			dp->onShow();
 			//m_main_window->onDockRestoreButton();

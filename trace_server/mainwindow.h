@@ -136,8 +136,8 @@ public:
 	bool autoScrollEnabled () const;
 	bool reuseTabEnabled () const;
 	bool filterEnabled () const;
-	bool plotEnabled () const;
-	bool tableEnabled () const;
+	int plotState () const;
+	int tableState () const;
 	bool buffEnabled () const;
 	Qt::CheckState buffState () const;
 	bool clrFltEnabled () const;

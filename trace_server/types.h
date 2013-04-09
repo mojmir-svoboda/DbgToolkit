@@ -5,6 +5,12 @@
 #include <QColor>
 #include <vector>
 
+enum E_FeatureStates {
+	  e_FtrDisabled		= 0
+	, e_FtrDataOnly		= 1
+	, e_FtrEnabled		= 2
+};
+
 enum E_NodeStates {
 	  e_Unchecked
 	, e_PartialCheck
