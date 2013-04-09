@@ -149,6 +149,8 @@ public:
 	QAbstractTableModel const * modelView () const { return static_cast<QAbstractTableModel const *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model()); }
 	QAbstractProxyModel const * proxyView () const { return static_cast<QAbstractProxyModel const *>(m_table_view_proxy); }
 
+	bool isModelProxy () const;
+
 signals:
 	void readyForUse();
 	void newMessage (QString const & from, QString const & message);
@@ -187,6 +189,7 @@ public slots:
 	void onHideTables ();
 	void onExcludeFileLine ();
 	void onToggleRefFromRow ();
+	void onColorTagRow (int row);
 	void onExcludeFileLine (QModelIndex const & row_index);
 	void onApplyColumnSetup ();
 	void onColorRegexChanged();
@@ -263,8 +266,6 @@ private:
 	void findTextInAllColumns (QString const & text, int from_row, int to_row, bool only_first);
 	void findTextInColumn (QString const & text, int col, int from_row, int to_row);
 
-	bool isModelProxy () const;
-
 private:
 	MainWindow * m_main_window;
 	SessionState m_session_state;
@@ -295,6 +296,7 @@ private:
 	QAction * m_hide_prev;
 	QAction * m_exclude_fileline;
 	QAction * m_copy_to_clipboard;
+	QAction * m_color_tag_row;
 	QModelIndex m_last_clicked;
 
 	// data receiving stuff

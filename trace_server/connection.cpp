@@ -50,6 +50,7 @@ Connection::Connection (QObject * parent)
 	, m_toggle_ref(0)
 	, m_hide_prev(0)
 	, m_exclude_fileline(0)
+	, m_color_tag_row(0)
 	, m_copy_to_clipboard(0)
 	, m_last_clicked()
 	, m_buffer(e_ringbuff_size)
@@ -65,13 +66,16 @@ Connection::Connection (QObject * parent)
 	, m_data_model(0)
 {
 	qDebug("Connection::Connection() this=0x%08x", this);
-	m_copy_to_clipboard = new QAction("Copy", this);
-	m_hide_prev = new QAction("Hide prev rows", this);
 	m_toggle_ref = new QAction("Set as reference time", this);
+	m_copy_to_clipboard = new QAction("Copy", this);
 	m_exclude_fileline = new QAction("Exclude File:Line", this);
+	m_hide_prev = new QAction("Hide prev rows", this);
+	m_color_tag_row = new QAction("Tag row with color", this);
     m_ctx_menu.addAction(m_toggle_ref);
-    m_ctx_menu.addAction(m_exclude_fileline);
     m_ctx_menu.addAction(m_copy_to_clipboard);
+    m_ctx_menu.addAction(m_exclude_fileline);
+    m_ctx_menu.addAction(m_hide_prev);
+    m_ctx_menu.addAction(m_color_tag_row);
 	m_data_model = new TreeModel(this, &m_session_state.m_data_filters);
 	m_lvl_delegate = new LevelDelegate(m_session_state, this);
 	m_ctx_delegate = new CtxDelegate(m_session_state, this);
@@ -478,9 +482,26 @@ void Connection::onToggleRefFromRow ()
 		qDebug("Toggle Ref from row=%i", current.row());
 		m_session_state.setTimeRefFromRow(current.row());
 
-		ModelView * model = static_cast<ModelView *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
+		//ModelView * model = static_cast<ModelView *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
 		QString const & strtime = findString4Tag(tlv::tag_time, current);
 		m_session_state.setTimeRefValue(strtime.toULongLong());
+		onInvalidateFilter();
+	}
+}
+
+void Connection::onColorTagRow (int)
+{
+	QModelIndex current = m_table_view_widget->currentIndex();
+	if (isModelProxy())
+	{
+		current = m_table_view_proxy->mapToSource(current);
+	}
+
+	int const row = current.row(); // set search from this line
+	if (current.isValid())
+	{
+		qDebug("Color tag on row=%i", current.row());
+		m_session_state.addColorTagRow(current.row());
 		onInvalidateFilter();
 	}
 }
@@ -531,6 +552,10 @@ void Connection::onShowContextMenu (QPoint const & pos)
 	{
 		QString const & selection = onCopyToClipboard();
 		qApp->clipboard()->setText(selection);
+	}
+    else if (selectedItem == m_color_tag_row)
+	{
+		onColorTagRow(m_last_clicked.row());
 	}
     else
     { }

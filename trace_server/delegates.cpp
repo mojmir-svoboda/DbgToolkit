@@ -115,6 +115,20 @@ void TableItemDelegate::paintTokenized (QPainter * painter, QStyleOptionViewItem
 	}
 }
 
+
+void TableItemDelegate::paintHilited (QPainter * painter, QStyleOptionViewItemV4 & option, QModelIndex const & index) const
+{
+    if (option.showDecorationSelected && (option.state & QStyle::State_Selected))
+	{
+    	option.font.setBold(true);
+    }
+	else
+	{
+    	option.font.setBold(false);
+    }
+    QApplication::style()->drawControl(QStyle::CE_ItemViewItem, &option, painter);
+}
+
 void TableItemDelegate::paint (QPainter * painter, QStyleOptionViewItem const & option, QModelIndex const & index) const
 {
     painter->save();
@@ -128,6 +142,22 @@ void TableItemDelegate::paint (QPainter * painter, QStyleOptionViewItem const & 
 	option4.textElideMode = static_cast<Qt::TextElideMode>(elide);
 
 	Connection const * conn = static_cast<Connection const *>(parent());
+
+	{	// color tagged line?
+		int row = index.row();
+		if (conn->isModelProxy())
+			if (QAbstractProxyModel const * proxy = conn->proxyView())
+			{
+				QModelIndex const curr = proxy->mapToSource(index);
+				row = curr.row();
+			}
+
+		if (m_session_state.findColorTagRow(row))
+		{
+			painter->fillRect(option.rect, Qt::cyan);
+		}
+	}
+
 	if (conn->getMainWindow()->cutPathEnabled() && index.column() == m_session_state.findColumn4Tag(tlv::tag_file))
 	{
 		int level = conn->getMainWindow()->cutPathLevel();

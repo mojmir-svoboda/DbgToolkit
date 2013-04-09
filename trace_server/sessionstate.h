@@ -161,6 +161,10 @@ public:
 	void setTimeRefFromRow (int row) { m_time_ref_row = row; }
 	int timeRefFromRow () const { return m_time_ref_row; }
 
+	void addColorTagRow (int row);
+	bool findColorTagRow (int row) const;
+	void removeColorTagRow (int row);
+
 	unsigned long long timeRefValue () const { return m_time_ref_value; }
 	void setTimeRefValue (unsigned long long t) { m_time_ref_value = t; }
 
@@ -213,6 +217,7 @@ private:
 	QWidget * m_tab_widget;
 	int m_exclude_content_to_row;
 	int m_time_ref_row;
+	QVector<int> m_color_tag_rows;
 	unsigned long long m_time_ref_value;
 	file_filters_t m_file_filters;
 	ctx_filters_t m_ctx_filters;

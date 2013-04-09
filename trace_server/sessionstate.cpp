@@ -586,3 +586,26 @@ void SessionState::merge_with (file_filters_t const & rhs)
 	merge(m_file_filters.root, rhs_root);
 } 
 
+void SessionState::addColorTagRow (int row)
+{
+	for (int i = 0, ie = m_color_tag_rows.size(); i < ie; ++i)
+		if (m_color_tag_rows.at(i) == row)
+		{
+			removeColorTagRow(row);
+			return;
+		}
+	m_color_tag_rows.push_back(row);
+}
+
+bool SessionState::findColorTagRow (int row) const
+{
+	for (int i = 0, ie = m_color_tag_rows.size(); i < ie; ++i)
+		if (m_color_tag_rows.at(i) == row)
+			return true;
+	return false;
+}
+
+void SessionState::removeColorTagRow (int row)
+{
+	m_color_tag_rows.erase(std::remove(m_color_tag_rows.begin(), m_color_tag_rows.end(), row), m_color_tag_rows.end());
+}
