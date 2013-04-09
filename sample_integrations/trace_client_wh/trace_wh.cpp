@@ -153,14 +153,14 @@ char const * GetName () { return "aa"; }
 void TraceVal (int x, int y)
 {
 	static int n = 0;
-	//TRACE_TABLE(trace::e_Info, trace::CTX_Default, x, y, "%s0/%i",GetName(), n);
-	//TRACE_TABLE(trace::e_Info, trace::CTX_Default, x, y, "%s1/%i",GetName(), n);		
-	//TRACE_TABLE(trace::e_Info, trace::CTX_Default, x, y, "%s1/%i|row=%i|col=%i",GetName(), n, y, x);
-	//TRACE_TABLE(trace::e_Info, trace::CTX_Default, x, y, trace::Color(255,0,0,255), trace::Color(75,75,75,75), "%s2/Error: %i",GetName(), n);
-	//TRACE_TABLE_COLOR(trace::e_Info, trace::CTX_Default, x + 1	, y, trace::Color(0,0,255,255), "%s0", GetName());
-	//TRACE_TABLE_COLOR(trace::e_Info, trace::CTX_Default, x	, y, trace::Color(255,0,0,255), "%s2/", GetName());
-	TRACE_TABLE_COLOR(trace::e_Info, trace::CTX_Default, x + 1	, y, trace::Color(255,0,255,255), trace::Color(0,0,0,0), "%s0", GetName());
-	//TRACE_TABLE_COLOR(trace::e_Info, trace::CTX_Default, 0	, y, trace::Color(255,0,255,255), trace::Color(0,255,0,0), "%s0", GetName());
+	TRACE_TABLE(trace::e_Info, trace::CTX_Default, x, y, "%s0/%i",GetName(), n);
+	TRACE_TABLE(trace::e_Info, trace::CTX_Default, x, y, "%s1/%i",GetName(), n);		
+	TRACE_TABLE(trace::e_Info, trace::CTX_Default, x, y, "%s1/%i|row=%i|col=%i",GetName(), n, y, x);
+	TRACE_TABLE(trace::e_Info, trace::CTX_Default, x, y, trace::Color(255,0,0,255), trace::Color(75,75,75,75), "%s2/Error: %i",GetName(), n);
+	TRACE_TABLE_COLOR(trace::e_Info, trace::CTX_Default, x + 1	, y, trace::Color(0,0,255,255), "%s0", GetName());
+	TRACE_TABLE_COLOR(trace::e_Info, trace::CTX_Default, x	, y, trace::Color(255,0,0,255), "%s2/", GetName());
+	TRACE_TABLE_COLOR(trace::e_Info, trace::CTX_Default, x	, y, trace::Color(255,0,255,255), trace::Color(0,0,0,0), "%s0", GetName());
+	TRACE_TABLE_COLOR(trace::e_Info, trace::CTX_Default, x + 1	, y, trace::Color(255,0,255,255), trace::Color(0,255,0,0), "%s0", GetName());
 	++n;
 }
 	
@@ -267,7 +267,7 @@ int main ()
 		//for(size_t i = 0; i < 4; ++i)
 		static size_t i	 = 0;
 		TRACE_MSG(trace::e_Info, trace::CTX_Default,  "Some another annoying message i=%u from main thread", i);
-		TraceVal((2 * i) % 16, i * 3);
+		TraceVal((2 * i) % 16, i * 2);
 		++i;
 
 		//TRACE_TABLE(trace::e_Info, trace::CTX_Default, 0, 0, "hokus/%i|%i|%i", i, i*i, i*i*i);
@@ -277,7 +277,7 @@ int main ()
 		//TRACE_TABLE(trace::e_Info, trace::CTX_Default,-1,  1, "fookus/%f", float(i) * 3.1415926f);
 
 
-		if (i == 16)
+		if (i == 64)
 			break;
 
 

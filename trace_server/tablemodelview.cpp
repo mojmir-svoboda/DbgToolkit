@@ -297,15 +297,15 @@ void TableModelView::createColumns (unsigned long long time, int first, int last
 {
 	if (last >= m_rows.back().size())
 	{
-		m_rows.back().resize(last);
-		m_col_times.resize(last);
+		m_rows.back().resize(last + 1);
+		m_col_times.resize(last + 1);
 	}
 
-	if (m_columnCount < last)
+	if (m_columnCount < last + 1)
 	{
-		beginInsertColumns(QModelIndex(), m_columnCount, last - 1);
-		insertColumns(m_columnCount, last - 1);
-		m_columnCount = last;
+		beginInsertColumns(QModelIndex(), m_columnCount, last);
+		insertColumns(m_columnCount, last);
+		m_columnCount = last + 1;
 		endInsertColumns();
 	}
 
