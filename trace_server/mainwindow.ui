@@ -205,6 +205,9 @@ p, li { white-space: pre-wrap; }
       </item>
       <item>
        <widget class="QSlider" name="plotSlider">
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Left&lt;/span&gt;   = data not received, no widget visible&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Mid&lt;/span&gt;    = data received, but no widget visible&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Right&lt;/span&gt; = data received, widget visible according to saved config&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
         <property name="maximum">
          <number>2</number>
         </property>
@@ -237,6 +240,9 @@ p, li { white-space: pre-wrap; }
       </item>
       <item>
        <widget class="QSlider" name="tableSlider">
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Left&lt;/span&gt; = data not received, no widget visible&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Mid&lt;/span&gt; = data received, but no widget visible&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Right&lt;/span&gt; = data received, widget visible according to saved config&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
         <property name="maximum">
          <number>2</number>
         </property>
