@@ -7,6 +7,7 @@
 #include "cmd.h"
 #include "utils.h"
 #include "dock.h"
+#include "delegates.h"
 #include <cstdlib>
 
 DataTable::DataTable (Connection * parent, table::TableConfig & config, QString const & fname)
@@ -18,6 +19,7 @@ DataTable::DataTable (Connection * parent, table::TableConfig & config, QString 
 {
 	qDebug("%s this=0x%08x name=%s", __FUNCTION__, this, fname.toStdString().c_str());
 	m_table = new table::BaseTable(parent, 0, m_config, fname);
+	m_table->setItemDelegate(new SyncedTableItemDelegate(m_table));
 }
 DataTable::~DataTable ()
 {

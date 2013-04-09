@@ -20,6 +20,20 @@ public:
 private slots:
 };
 
+
+class SyncedTableItemDelegate : public QStyledItemDelegate
+{
+public: 
+    SyncedTableItemDelegate (QObject *parent = 0) : QStyledItemDelegate(parent) { }
+
+    void paint (QPainter * painter, QStyleOptionViewItem const & option, QModelIndex const & index) const;
+	void paintHilited (QPainter * painter, QStyleOptionViewItemV4 & option, QModelIndex const & index) const;
+    
+private slots:
+};
+
+
+
 class LevelDelegate : public QStyledItemDelegate
 {
 	SessionState const & m_session_state;

@@ -183,6 +183,32 @@ void TableItemDelegate::paint (QPainter * painter, QStyleOptionViewItem const & 
 	painter->restore();
 }
 
+void SyncedTableItemDelegate::paintHilited (QPainter * painter, QStyleOptionViewItemV4 & option, QModelIndex const & index) const
+{
+    if (option.state & QStyle::State_Selected)
+	{
+		option.state &= ~ QStyle::State_Selected;
+		option.backgroundBrush = QBrush(QColor(244,154,193,255));
+    	option.font.setBold(true);
+		QApplication::style()->drawControl(QStyle::CE_ItemViewItem, &option, painter);
+    }
+	else
+	{
+    	option.font.setBold(false);
+		QStyledItemDelegate::paint(painter, option, index);
+    }
+}
+
+void SyncedTableItemDelegate::paint (QPainter * painter, QStyleOptionViewItem const & option, QModelIndex const & index) const
+{
+    painter->save();
+    QStyleOptionViewItemV4 option4 = option;
+    initStyleOption(&option4, index);
+	paintHilited(painter, option4, index);
+	//QStyledItemDelegate::paint(painter, option4, index);
+	painter->restore();
+}
+
 
 // @TODO: tmp, via dictionnary in future
 #include <trace_client/default_levels.h>
