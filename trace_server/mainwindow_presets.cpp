@@ -175,9 +175,9 @@ void MainWindow::onPresetActivate (Connection * conn, QString const & preset_nam
 
 		conn->onInvalidateFilter();
 		setPresetNameIntoComboBox(preset_name);
-		loadLayout(preset_name);
 		conn->loadConfigForTables(preset_name);
 		conn->loadConfigForPlots(preset_name);
+		loadLayout(preset_name);
 	}
 	else
 	{

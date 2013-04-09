@@ -219,8 +219,8 @@ int main ()
 #endif
 	TRACE_APPNAME("WarHorse_App");
 	TRACE_CONNECT();
-	for (int k = 0; k < 4; ++k)
-		for (int i = 0; i < 16; ++i)
+	for (int k = 0; k < 1; ++k)
+		for (int i = 0; i < 3; ++i)
 		{
 			float x = 3.1415926535f * 2.0f / 128.0f * static_cast<float>(i);
 			TRACE_PLOT_XY(trace::e_Info, trace::CTX_Default, x, sinf(x), "sample_plot%i/%s", k, "sin");
