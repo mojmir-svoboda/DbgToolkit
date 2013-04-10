@@ -155,7 +155,7 @@ void TableItemDelegate::paint (QPainter * painter, QStyleOptionViewItem const & 
 		if (m_session_state.findColorTagRow(row))
 		{
 			painter->fillRect(option.rect, Qt::cyan);
-		}
+		}	
 	}
 
 	if (conn->getMainWindow()->cutPathEnabled() && index.column() == m_session_state.findColumn4Tag(tlv::tag_file))

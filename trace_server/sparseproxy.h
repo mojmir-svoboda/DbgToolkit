@@ -22,6 +22,7 @@
 #pragma once
 #include <QAbstractProxyModel>
 #include <vector>
+#include <3rd/assocvector.h>
 
 class MainWindow;
 
@@ -68,11 +69,15 @@ protected:
 	bool filterAcceptsColumn (int sourceColumn, QModelIndex const & source_parent) const;
 	bool filterAcceptsRow (int sourceRow, QModelIndex const & sourceParent) const;
 
-	std::vector<int> m_map_from_tgt;
-	std::vector<int> m_map_from_src;
+	typedef Loki::AssocVector<int, int> map_t;
 
+	void insertCol (int c);
+	void insertRow (int c);
+
+	map_t m_cmap_from_src;
 	std::vector<int> m_cmap_from_tgt;
-	std::vector<int> m_cmap_from_src;
+	map_t m_map_from_src;
+	std::vector<int> m_map_from_tgt;
 	MainWindow const * m_main_window;
 	std::vector<int> m_allowed_src_cols;
 };

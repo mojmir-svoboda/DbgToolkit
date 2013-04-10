@@ -259,18 +259,12 @@ void TableModelView::appendTableXY (int x, int y, QString const & time, QString 
 		endInsertColumns();
 	}
 
-	if (m_proxy && new_rows)
-		m_proxy->insertRows(rows_first, rows_last);
-
-	if (m_proxy && new_cols)
-		m_proxy->insertColumns(cols_first, cols_last);
-
 	for (int ix = x, ixe = x + n_cols; ix < ixe; ++ix)
 	{
 		QModelIndex const idx = index(y, ix, QModelIndex());
 		emit dataChanged(idx, idx);
 		if (m_proxy)
-			m_proxy->setData(idx, QVariant(), Qt::EditRole);
+			m_proxy->setData(idx, m_rows[y][ix].m_value, Qt::EditRole);
 	}
 }
 

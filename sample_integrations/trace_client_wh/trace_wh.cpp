@@ -154,12 +154,12 @@ void TraceVal (int x, int y)
 {
 	static int n = 0;
 	TRACE_TABLE(trace::e_Info, trace::CTX_Default, x, y, "%s0/%i",GetName(), n);
-	//TRACE_TABLE(trace::e_Info, trace::CTX_Default, x, y, "%s1/%i",GetName(), n);		
-	//TRACE_TABLE(trace::e_Info, trace::CTX_Default, x, y, "%s1/%i|row=%i|col=%i",GetName(), n, y, x);
-	//TRACE_TABLE(trace::e_Info, trace::CTX_Default, x, y, trace::Color(255,0,0,255), trace::Color(75,75,75,75), "%s2/Error: %i",GetName(), n);
+	TRACE_TABLE(trace::e_Info, trace::CTX_Default, x, y, "%s1/%i",GetName(), n);		
+	TRACE_TABLE(trace::e_Info, trace::CTX_Default, x, y, "%s1/%i|row=%i|col=%i",GetName(), n, y, x);
+	TRACE_TABLE(trace::e_Info, trace::CTX_Default, x, y, trace::Color(255,0,0,255), trace::Color(75,75,75,75), "%s2/Error: %i",GetName(), n);
 	//TRACE_TABLE_COLOR(trace::e_Info, trace::CTX_Default, x + 1	, y, trace::Color(0,0,255,255), "%s0", GetName());
-	//TRACE_TABLE_COLOR(trace::e_Info, trace::CTX_Default, x	, y, trace::Color(255,0,0,255), "%s2/", GetName());
-	//TRACE_TABLE_COLOR(trace::e_Info, trace::CTX_Default, x	, y, trace::Color(255,0,255,255), trace::Color(0,0,0,0), "%s0", GetName());
+	TRACE_TABLE_COLOR(trace::e_Info, trace::CTX_Default, x	, y, trace::Color(255,0,0,255), "%s2/", GetName());
+	TRACE_TABLE_COLOR(trace::e_Info, trace::CTX_Default, x	, y, trace::Color(255,0,255,255), trace::Color(0,0,0,0), "%s0", GetName());
 	TRACE_TABLE_COLOR(trace::e_Info, trace::CTX_Default, x + 1	, y, trace::Color(255,0,255,255), trace::Color(0,255,0,0), "%s0", GetName());
 	++n;
 }
@@ -248,8 +248,8 @@ int main ()
 
 	TRACE_TABLE_HHEADER(trace::e_Info, trace::CTX_Default, 1, "hdr1", "%s0","aa");
 	TRACE_TABLE_HHEADER(trace::e_Info, trace::CTX_Default, 2, "hdr2", "%s0","aa");
-	//TRACE_TABLE_HHEADER(trace::e_Info, trace::CTX_Default, 3, "hdr3", "%s1","aa");
-	//	TRACE_TABLE_HHEADER(trace::e_Info, trace::CTX_Default, 4, "hdr4", "%s2","aa");
+	TRACE_TABLE_HHEADER(trace::e_Info, trace::CTX_Default, 3, "hdr3", "%s1","aa");
+	TRACE_TABLE_HHEADER(trace::e_Info, trace::CTX_Default, 4, "hdr4", "%s2","aa");
 	foo();	
 	Bar bar;
 
@@ -278,14 +278,22 @@ int main ()
 		//TRACE_TABLE(trace::e_Info, trace::CTX_Default, 0, -1, "pokus/%i|%i", i, -i);
 		//TRACE_TABLE(trace::e_Info, trace::CTX_Default,-1,  1, "fookus/%f", float(i) * 3.1415926f);
 
+		if (i == 5)
+		{
+			TRACE_TABLE(trace::e_Info, trace::CTX_Default, 3, 3, "%s0/%i",GetName(), 555);
+		}
+
 
 		if (i == 6)
-			break;
-
-		if (i == 4)
+		{
 			TRACE_TABLE(trace::e_Info, trace::CTX_Default, 1, 1, "%s0/%i",GetName(), 666);
+		}
 
-
+		if (i == 6)
+		{
+			Sleep(100);
+			break;
+		}
 
 
 
