@@ -64,7 +64,7 @@ void SparseProxyModel::insertCol (int c)
 	map_t::iterator it0 = m_cmap_from_src.lower_bound(c);
 	map_t::iterator it1 = m_cmap_from_src.upper_bound(c);
 
-	if (it0 != m_cmap_from_src.end() && (it1 != m_cmap_from_src.end() && it0->first == c))
+	if (it0 != m_cmap_from_src.end() && it1 != m_cmap_from_src.end() && it0->first == c)
 		return;
 
 	if (it0 != m_cmap_from_src.end())
