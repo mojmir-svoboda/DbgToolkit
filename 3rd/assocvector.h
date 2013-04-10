@@ -162,6 +162,8 @@ namespace Loki
             ::std::copy( temp.begin(), temp.end(), myInserter );
         }
 
+		void reserve (size_t n) { Base::reserve(n); }
+
         AssocVector& operator=(const AssocVector& rhs)
         {
             AssocVector(rhs).swap(*this);
