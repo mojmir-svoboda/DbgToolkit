@@ -35,7 +35,7 @@ namespace tlv {
 
 		TLV () : m_tag(tag_invalid), m_len(0), m_val(0) { }
 		TLV (tag_t t, char const * v) : m_tag(t) , m_len(static_cast<len_t>(strlen(v))) , m_val(v) { } // constructor requires 0 terminated string
-		TLV (tag_t t, len_t l, char const * v) : m_tag(t) , m_len(l) , m_val(v) { }
+		TLV (tag_t t, size_t l, char const * v) : m_tag(t) , m_len(static_cast<len_t>(l)) , m_val(v) { }
 
 		len_t len () const { return m_len; }
 	};

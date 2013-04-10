@@ -21,7 +21,7 @@
 		/**@brief	yields core to other thread **/
 		inline void thread_yield () { Sleep(1); }
 
-		inline int trc_vsnprintf (char * buff, size_t ln, char const * fmt, ...)
+		inline size_t trc_vsnprintf (char * buff, size_t ln, char const * fmt, ...)
 		{
 			va_list args;
 			va_start(args, fmt);
@@ -34,7 +34,7 @@
 			return n < 0 ? ln : n;
 		}
 
-		inline int va_trc_vsnprintf (char * buff, size_t ln, char const * fmt, va_list args)
+		inline size_t va_trc_vsnprintf (char * buff, size_t ln, char const * fmt, va_list args)
 		{
 #if defined __MINGW32__
 			int const n = vsnprintf(buff, ln, fmt, args);
