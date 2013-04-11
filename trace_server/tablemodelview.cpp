@@ -108,6 +108,7 @@ QVariant TableModelView::headerData (int section, Qt::Orientation orientation, i
 				break;
 		}
 	}
+	return QVariant();
 }
 
 bool  TableModelView::setHeaderData (int section, Qt::Orientation orientation, QVariant const & value, int role)

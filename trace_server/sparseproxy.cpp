@@ -134,7 +134,7 @@ bool SparseProxyModel::setData (QModelIndex const & src_index, QVariant const & 
 	if (filterAcceptsColumn(src_index.column(), QModelIndex()))
 		insertCol(src_index.column());
 
-	if (filterAcceptsRow(src_index.row(), QModelIndex()))
+	//if (filterAcceptsRow(src_index.row(), QModelIndex()))
 		insertRow(src_index.row());
 
 	QModelIndex const index = mapFromSource(src_index);
@@ -145,11 +145,11 @@ bool SparseProxyModel::setData (QModelIndex const & src_index, QVariant const & 
 }
 
 
-QVariant SparseProxyModel::headerData (int section, Qt::Orientation orientation, int role) const
+/*QVariant SparseProxyModel::headerData (int section, Qt::Orientation orientation, int role) const
 {
 	//int const tgt_idx = colFromSource(section);
-	return 12;
-}
+	return QVariant();
+}*/
 
 /*bool  SparseProxyModel::setHeaderData (int section, Qt::Orientation orientation, QVariant const & value, int role)
 {

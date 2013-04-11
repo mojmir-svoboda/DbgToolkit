@@ -58,8 +58,6 @@ namespace table {
 		horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
 		verticalHeader()->setSectionResizeMode(QHeaderView::Interactive);
 
-		setItemDelegate(new SizeDelegate(m_config.m_hsize));
-
 		if (!m_table_view_proxy)
 		{
 			m_table_view_proxy = new SparseProxyModel(this);
@@ -407,7 +405,7 @@ namespace table {
 
 	void BaseTable::findNearestTimeRow (unsigned long long t)
 	{
-		qDebug("%s this=0x%08x", __FUNCTION__, this);
+		//qDebug("%s this=0x%08x", __FUNCTION__, this);
 		bool const is_proxy = isModelProxy();
 		int closest_i = 0;
 		int closest_dist = 1024 * 1024;
