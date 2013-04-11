@@ -99,6 +99,7 @@ namespace table {
 		m_modelView->setProxy(0);
 
 		QStandardItem * name_root = static_cast<QStandardItemModel *>(ui->columnView->model())->invisibleRootItem();
+		QStandardItem * size_root = static_cast<QStandardItemModel *>(ui->columnView->model())->invisibleRootItem();
 		int const n_cols = name_root->rowCount();
 		if (cfg.m_hhdr.size() < n_cols)
 			cfg.m_hhdr.resize(n_cols);
@@ -113,13 +114,25 @@ namespace table {
 				cfg.m_hhdr[i] = ch->text();
 				if (cfg.m_hsize[i] == 0)
 					cfg.m_hsize[i] = 32;
+
+				bool const in_pxy = static_cast<SparseProxyModel const *>(m_table_view_proxy)->colFromSource(i) != -1;
+				if (m_table_view_proxy && !in_pxy)
+				{
+					qDebug("col %i not in pxy, adding", i);
+					static_cast<SparseProxyModel *>(m_table_view_proxy)->insertAllowedColumn(i);
+				}
 			}
 			else
 			{
 				cfg.m_hsize[i] = 0;
+				if (m_table_view_proxy)
+				{
+					static_cast<SparseProxyModel *>(m_table_view_proxy)->removeAllowedColumn(i);
+				}
+
 			}
-			if (m_table_view_proxy)
-				static_cast<SparseProxyModel *>(m_table_view_proxy)->insertAllowedColumn(i);
+
+			qDebug("ui->cfg [%i]: %s sz=%d", i, ch->text(), cfg.m_hsize[i]);
 		}
 
 		if (cfg.m_hide_empty)
@@ -134,17 +147,30 @@ namespace table {
 			m_modelView->setProxy(0);
 		}
 
+		static_cast<SparseProxyModel *>(m_table_view_proxy)->force_update();
+
+		qDebug("hHeader.size=%i", horizontalHeader()->count());
 		for (int i = 0, ie = cfg.m_hsize.size(); i < ie; ++i)
 		{
+			qDebug("appl table: hdr[%i]=%i", i, cfg.m_hsize.at(i));
 			horizontalHeader()->blockSignals(1);
-			int const src_i = !isModelProxy() ? i : static_cast<SparseProxyModel *>(m_table_view_proxy)->colFromSource(i);
-			horizontalHeader()->resizeSection(i, cfg.m_hsize.at(src_i));
-			//qDebug("table: hdr[%i]=%i", i, cfg.m_hsize.at(i));
+			if (isModelProxy())
+			{
+				int const src_i = static_cast<SparseProxyModel *>(m_table_view_proxy)->colToSource(i);
+				if (src_i != -1)
+				{
+					horizontalHeader()->resizeSection(src_i, cfg.m_hsize.at(src_i));
+					qDebug("\tappl   pxy: hdr[%i]=%i", src_i, cfg.m_hsize.at(src_i));
+				}
+			}
+			else
+			{
+				horizontalHeader()->resizeSection(i, cfg.m_hsize.at(i));
+			}
 			horizontalHeader()->blockSignals(0);
 		}
 
 		horizontalHeader()->setVisible(true);
-
 		m_modelView->emitLayoutChanged();
 	}
 
@@ -207,7 +233,6 @@ namespace table {
 		
 		for (int i = 0, ie = m_modelView->columnCount(); i < ie; ++i)
 		{
-			Qt::CheckState state = Qt::Checked;
 			QString name;
 			if (i < cfg.m_hhdr.size() && !cfg.m_hhdr.at(i).isEmpty())
 			{
@@ -218,12 +243,16 @@ namespace table {
 				name = tr("%0").arg(i);
 			}
 
+			Qt::CheckState state = Qt::Checked;
 			if (isModelProxy())
 			{
-				if (!static_cast<SparseProxyModel const *>(m_table_view_proxy)->colInProxy(i))
+				if (static_cast<SparseProxyModel const *>(m_table_view_proxy)->colFromSource(i) == -1)
 				{
+					qDebug("cfg->ui pxy col=%i NOT in pxy", i);
 					state = Qt::Unchecked;
 				}
+				else
+					qDebug("cfg->ui pxy col=%i     in pxy", i);
 			}
 			else
 			{

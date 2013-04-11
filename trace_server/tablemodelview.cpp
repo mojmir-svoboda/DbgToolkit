@@ -217,13 +217,13 @@ void TableModelView::appendTableXY (int x, int y, QString const & time, QString 
 		new_cols = true;
 		cols_first = m_columnCount;
 		cols_last = x + n_cols - 1;
-		for (int iy = 0, iye = m_rows.size(); iy < iye; ++iy)
+	}
+	for (int iy = 0, iye = m_rows.size(); iy < iye; ++iy)
+	{
+		int const new_size =  x + n_cols;
+		if (m_rows[iy].size() < new_size)
 		{
-			int const new_size = cols_last + 1;
-			if (m_rows[iy].size() < new_size)
-			{
-				m_rows[iy].resize(new_size);
-			}
+			m_rows[iy].resize(new_size);
 		}
 	}
 

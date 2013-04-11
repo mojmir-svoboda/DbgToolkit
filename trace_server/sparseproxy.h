@@ -55,6 +55,7 @@ public:
 	virtual bool insertColumns (int first, int last, QModelIndex const & parent = QModelIndex());
 
 	void insertAllowedColumn (int src_col);
+	void removeAllowedColumn (int src_col);
 
 	QVariant data (QModelIndex const & index, int role) const;
 	bool setData (QModelIndex const & index, QVariant const & value, int role);

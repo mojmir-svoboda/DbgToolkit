@@ -200,18 +200,17 @@ bool SparseProxyModel::colInProxy (int col) const
 
 int SparseProxyModel::colToSource (int col) const
 {
-	int val = -1;
 	if (col < static_cast<int>(m_cmap_from_tgt.size()))
 		return m_cmap_from_tgt[col];
-	return val;
+	return -1;
 }
 
 int SparseProxyModel::colFromSource (int col) const
 {
-	int val = -1;
-	if (col < static_cast<int>(m_cmap_from_tgt.size()))
-			return m_cmap_from_tgt[col];
-	return val;
+	map_t::const_iterator cit = m_cmap_from_src.find(col);
+	if (cit != m_cmap_from_src.end())
+		return cit->second;
+	return -1;
 }
 
 QModelIndex SparseProxyModel::mapToSource (QModelIndex const & proxyIndex) const
@@ -275,6 +274,14 @@ void SparseProxyModel::insertAllowedColumn (int src_col)
 	m_allowed_src_cols[src_col] = 1;
 }
 
+void SparseProxyModel::removeAllowedColumn (int src_col)
+{
+	if (src_col >= m_allowed_src_cols.size())
+		m_allowed_src_cols.resize(src_col + 1);
+	m_allowed_src_cols[src_col] = 0;
+}
+
+
 bool SparseProxyModel::filterAcceptsColumn (int sourceColumn, QModelIndex const & source_parent) const
 {
 	bool drop = true;
@@ -282,7 +289,7 @@ bool SparseProxyModel::filterAcceptsColumn (int sourceColumn, QModelIndex const 
 	{
 		QModelIndex const data_idx = sourceModel()->index(i, sourceColumn, QModelIndex());
 		QVariant const & var = sourceModel()->data(data_idx);
-		if (sourceColumn < m_allowed_src_cols.size() && m_allowed_src_cols[sourceColumn] == 0)
+		if (sourceColumn < m_allowed_src_cols.size() && m_allowed_src_cols[sourceColumn] == 1)
 		{
 			drop = false;
 			break;

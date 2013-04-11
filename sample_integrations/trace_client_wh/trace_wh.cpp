@@ -289,7 +289,7 @@ int main ()
 			TRACE_TABLE(trace::e_Info, trace::CTX_Default, 1, 1, "%s1/%i|1|2|3|4|5|6",GetName(), 666);
 		}
 
-		if (i == 128)
+		if (i == 32)
 		{
 			Sleep(100);
 			break;
