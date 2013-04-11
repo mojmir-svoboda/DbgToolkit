@@ -108,13 +108,13 @@ QVariant TableModelView::headerData (int section, Qt::Orientation orientation, i
 				break;
 
 			// BLOODY HELL, Y U NO WORK?
-			/*case Qt::SizeHintRole:
+			case Qt::SizeHintRole:
 				if (section > -1 && section < m_hsize.size())
 					return m_hsize.at(section);
-				break;*/
+				break;
 		}
 	}
-	return QVariant();
+	return 128;
 }
 
 bool  TableModelView::setHeaderData (int section, Qt::Orientation orientation, QVariant const & value, int role)
@@ -252,7 +252,7 @@ void TableModelView::appendTableXY (int x, int y, QString const & time, QString 
 	if (new_cols)
 	{
 		beginInsertColumns(QModelIndex(), cols_first, cols_last);
-		//qDebug("mod  |  beginInsertCols(%02i, %02i) ", cols_first, cols_last);
+		qDebug("mod  |  beginInsertCols(%02i, %02i) ", cols_first, cols_last);
 		insertColumns(cols_first, cols_last);
 		if (m_columnCount < cols_last + 1)
 			m_columnCount = cols_last + 1;

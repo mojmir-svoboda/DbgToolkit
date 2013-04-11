@@ -140,7 +140,7 @@ void something_useful_too ()
 		TRACE_MSG(trace::e_Info, trace::CTX_Default,  "%s %i", "ble :)", i);
 
 }
-
+	
 void something_useful ()	
 {
 	TRACE_SCOPE(trace::e_Info, trace::CTX_Default);
@@ -155,7 +155,7 @@ void TraceVal (int x, int y)
 	static int n = 0;
 	TRACE_TABLE(trace::e_Info, trace::CTX_Default, x, y, "%s0/%i",GetName(), n);
 	TRACE_TABLE(trace::e_Info, trace::CTX_Default, x, y, "%s1/%i",GetName(), n);		
-	//TRACE_TABLE(trace::e_Info, trace::CTX_Default, x, y, "%s1/%i|row=%i|col=%i",GetName(), n, y, x);
+	TRACE_TABLE(trace::e_Info, trace::CTX_Default, x, y, "%s1/%i|row=%i|col=%i|11|22|33|44|55|66",GetName(), n, y, x);
 	TRACE_TABLE(trace::e_Info, trace::CTX_Default, x, y, trace::Color(255,0,0,255), trace::Color(75,75,75,75), "%s2/Error: %i",GetName(), n);
 	//TRACE_TABLE_COLOR(trace::e_Info, trace::CTX_Default, x + 1	, y, trace::Color(0,0,255,255), "%s0", GetName());
 	//TRACE_TABLE_COLOR(trace::e_Info, trace::CTX_Default, x	, y, trace::Color(255,0,0,255), "%s2/", GetName());
@@ -286,10 +286,10 @@ int main ()
 
 		if (i == 6)
 		{
-			TRACE_TABLE(trace::e_Info, trace::CTX_Default, 1, 1, "%s0/%i",GetName(), 666);
+			TRACE_TABLE(trace::e_Info, trace::CTX_Default, 1, 1, "%s1/%i|1|2|3|4|5|6",GetName(), 666);
 		}
 
-		if (i == 64)
+		if (i == 128)
 		{
 			Sleep(100);
 			break;

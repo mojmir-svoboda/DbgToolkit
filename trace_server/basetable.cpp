@@ -6,6 +6,7 @@
 #include "utils.h"
 #include "utils_qstandarditem.h"
 #include "movablelistmodel.h"
+#include "delegates.h"
 
 namespace table {
 
@@ -57,6 +58,8 @@ namespace table {
 		horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
 		verticalHeader()->setSectionResizeMode(QHeaderView::Interactive);
 
+		setItemDelegate(new SizeDelegate(m_config.m_hsize));
+
 		if (!m_table_view_proxy)
 		{
 			m_table_view_proxy = new SparseProxyModel(this);
@@ -69,6 +72,7 @@ namespace table {
 		QTimer::singleShot(0, this, SLOT(onApplyButton()));
 		setUpdatesEnabled(true);
 		horizontalHeader()->setSectionsMovable(true);
+		setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 	}
 
 	BaseTable::~BaseTable ()
@@ -305,7 +309,7 @@ namespace table {
 			for (int i = 0, ie = model()->columnCount(); i < ie; ++i)
 			{
 				int const idx = static_cast<SparseProxyModel *>(m_table_view_proxy)->colFromSource(i);
-				if (idx > -1 && m_config.m_hsize[idx] != horizontalHeader()->sectionSize(i))
+				if (idx > -1 && idx < m_config.m_hsize.size() && m_config.m_hsize[idx] != horizontalHeader()->sectionSize(i))
 				{
 					horizontalHeader()->blockSignals(1);
 					horizontalHeader()->resizeSection(i, m_config.m_hsize.at(idx));

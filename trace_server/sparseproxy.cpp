@@ -46,7 +46,9 @@ void SparseProxyModel::force_update ()
 
 	m_cmap_from_tgt.resize(m_cmap_from_src.size());
 	for (map_t::const_iterator it = m_cmap_from_src.begin(), ite = m_cmap_from_src.end(); it != ite; ++it)
+	{
 		m_cmap_from_tgt[it->second] = it->first;
+	}
 
 	emit layoutChanged();
 }
@@ -64,7 +66,7 @@ void SparseProxyModel::insertCol (int c)
 	map_t::iterator it0 = m_cmap_from_src.lower_bound(c);
 	map_t::iterator it1 = m_cmap_from_src.upper_bound(c);
 
-	if (it0 != m_cmap_from_src.end() && it1 != m_cmap_from_src.end() && it0->first == c)
+	if (it0 != m_cmap_from_src.end() && it0->first == c)
 		return;
 
 	if (it0 != m_cmap_from_src.end())
@@ -83,7 +85,9 @@ void SparseProxyModel::insertCol (int c)
 
 	m_cmap_from_tgt.resize(m_cmap_from_src.size()); // ugh
 	for (map_t::const_iterator it = m_cmap_from_src.begin(), ite = m_cmap_from_src.end(); it != ite; ++it)
+	{
 		m_cmap_from_tgt[it->second] = it->first;
+	}
 	endInsertColumns();
 }
 
@@ -94,8 +98,11 @@ void SparseProxyModel::insertRow (int c)
 	map_t::iterator it0 = m_map_from_src.lower_bound(c);
 	map_t::iterator it1 = m_map_from_src.upper_bound(c);
 
-	if (it0 != m_map_from_src.end() && (it1 != m_map_from_src.end() && it0->first == c))
+	if (it0 != m_map_from_src.end() && it0->first == c)
+	{
+		//qDebug("row %i already present", c);
 		return;
+	}
 
 	if (it0 != m_map_from_src.end())
 		pos0 = it0->second;
@@ -108,22 +115,26 @@ void SparseProxyModel::insertRow (int c)
 		}
 	}
 
+	//qDebug("  pxy-  beginInsertRows===(%02i, %02i)", pos0, pos1);
 	beginInsertRows(QModelIndex(), pos0, pos0);
 	m_map_from_src.insert(std::make_pair(c, pos1));
 
 	m_map_from_tgt.resize(m_map_from_src.size()); // ugh
 	for (map_t::const_iterator it = m_map_from_src.begin(), ite = m_map_from_src.end(); it != ite; ++it)
+	{
 		m_map_from_tgt[it->second] = it->first;
+	}
 	endInsertRows();
 }
 
 
 bool SparseProxyModel::setData (QModelIndex const & src_index, QVariant const & value, int role)
 {
+	//qDebug("proxy setData: r=%i, c=%i", src_index.row(), src_index.column());
 	if (filterAcceptsColumn(src_index.column(), QModelIndex()))
 		insertCol(src_index.column());
 
-	if (filterAcceptsRow(src_index.row(), QModelIndex()))
+	//if (filterAcceptsRow(src_index.row(), QModelIndex()))
 		insertRow(src_index.row());
 
 	QModelIndex const index = mapFromSource(src_index);
@@ -134,13 +145,13 @@ bool SparseProxyModel::setData (QModelIndex const & src_index, QVariant const & 
 }
 
 
-/*QVariant SparseProxyModel::headerData (int section, Qt::Orientation orientation, int role) const
+QVariant SparseProxyModel::headerData (int section, Qt::Orientation orientation, int role) const
 {
-	int const tgt_idx = colFromSource(section);
-	return sourceModel()->headerData(tgt_idx, orientation, role);
+	//int const tgt_idx = colFromSource(section);
+	return 12;
 }
 
-bool  SparseProxyModel::setHeaderData (int section, Qt::Orientation orientation, QVariant const & value, int role)
+/*bool  SparseProxyModel::setHeaderData (int section, Qt::Orientation orientation, QVariant const & value, int role)
 {
 	int const tgt_idx = colFromSource(section);
 	return sourceModel()->setHeaderData(tgt_idx, orientation, value, role);
@@ -226,35 +237,22 @@ QModelIndex SparseProxyModel::mapFromSource (QModelIndex const & sourceIndex) co
 
 QModelIndex SparseProxyModel::mapNearestFromSource (QModelIndex const & sourceIndex) const
 {
-	if (sourceIndex.isValid() && sourceIndex.row() < static_cast<int>(m_map_from_src.size())
-			&& sourceIndex.column() < static_cast<int>(m_cmap_from_src.size()))
+	map_t::const_iterator const row_it = m_map_from_src.find(sourceIndex.row());
+	int d = std::numeric_limits<int>::max();
+	map_t::const_iterator nearest = m_cmap_from_src.end();
+	for (map_t::const_iterator it = m_cmap_from_src.begin(), ite = m_cmap_from_src.end(); it != ite; ++it)
 	{
-		/*if (m_cmap_from_src[sourceIndex.column()] == -1) // column is not in filtered view, finding nearest
+		int dist = abs(it->first - sourceIndex.column());
+		if (dist < d)
 		{
-			int nearest_bwd_col = -1;
-			int dist_bwd = 0;
-			for (int d = 0, c = sourceIndex.column(); c --> 0; ++d)
-				if (m_cmap_from_src[c] != -1)
-				{
-					nearest_bwd_col = c;
-					dist_bwd = d;
-				}
-
-			int nearest_fwd_col = -1;
-			int dist_fwd = 0;
-			for (int d = 0, c = sourceIndex.column(); c < m_cmap_from_src.size(); ++c, ++d)
-				if (m_cmap_from_src[c] != -1)
-				{
-					nearest_fwd_col = c;
-					dist_fwd = d;
-				}
-
-			int const res[] = { dist_bwd, dist_fwd };
-			int const better_idx = dist_bwd < dist_fwd ? 0 : 1;
-			return QAbstractItemModel::createIndex(m_map_from_src[sourceIndex.row()], res[better_idx]);
+			d = dist;
+			nearest = it;
 		}
-		//qDebug("FPM: %s src.row=%i, src.sz=%u", __FUNCTION__, sourceIndex.row(), m_map_from_src.size());
-		return QAbstractItemModel::createIndex(m_map_from_src[sourceIndex.row()], m_cmap_from_src[sourceIndex.column()]);*/
+	}
+
+	if (nearest != m_cmap_from_src.end() && row_it != m_map_from_src.end())
+	{
+		return QAbstractItemModel::createIndex(row_it->second, nearest->second);
 	}
 	return QModelIndex();
 }

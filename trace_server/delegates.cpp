@@ -294,3 +294,7 @@ void CtxDelegate::paint (QPainter * painter, QStyleOptionViewItem const & option
 	painter->restore();
 }
 
+QSize SizeDelegate::sizeHint (QStyleOptionViewItem const & option, QModelIndex const & index) const
+{
+	return QSize(128,128);
+}

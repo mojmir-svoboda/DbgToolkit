@@ -1,5 +1,6 @@
 #pragma once
 #include <QStyledItemDelegate>
+#include <QItemDelegate>
 #include "sessionstate.h"
 
 class TableItemDelegate : public QStyledItemDelegate
@@ -56,4 +57,12 @@ public:
 private slots:
 };
 
+class SizeDelegate : public QItemDelegate
+{
+	QVector<int> & m_sizes;
+public:
+
+	SizeDelegate (QVector<int> & s) : m_sizes(s) { }
+	QSize sizeHint (QStyleOptionViewItem const & option, QModelIndex const & index) const;
+};
 
