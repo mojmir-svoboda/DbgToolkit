@@ -106,15 +106,8 @@ QVariant TableModelView::headerData (int section, Qt::Orientation orientation, i
 				if (section > -1 && section < m_hhdr.size())
 					return m_hhdr.at(section);
 				break;
-
-			// BLOODY HELL, Y U NO WORK?
-			case Qt::SizeHintRole:
-				if (section > -1 && section < m_hsize.size())
-					return m_hsize.at(section);
-				break;
 		}
 	}
-	return 128;
 }
 
 bool  TableModelView::setHeaderData (int section, Qt::Orientation orientation, QVariant const & value, int role)
