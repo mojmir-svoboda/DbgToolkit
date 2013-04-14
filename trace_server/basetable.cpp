@@ -342,31 +342,31 @@ namespace table {
 		// @FIXME: tmp hack to force resize of columns
 		if (isModelProxy())
 		{
+			horizontalHeader()->blockSignals(1);
 			for (int i = 0, ie = model()->columnCount(); i < ie; ++i)
 			{
 				int const idx = static_cast<SparseProxyModel *>(m_table_view_proxy)->colToSource(i);
 				if (idx > -1 && idx < m_config.m_hsize.size() && m_config.m_hsize[idx] != horizontalHeader()->sectionSize(i))
 				{
-					horizontalHeader()->blockSignals(1);
 					horizontalHeader()->resizeSection(i, m_config.m_hsize.at(idx));
 					qDebug("table: appnd pxy hdr[%i -> src=%02i ]=%2i\t\t%s", i, idx, m_config.m_hsize.at(idx), m_config.m_hhdr.at(idx).toStdString().c_str());
-					horizontalHeader()->blockSignals(0);
 				}
 			}
+			horizontalHeader()->blockSignals(0);
 		}
 		else
 		{
-			if (m_modelView->columnCount() < m_config.m_hsize.size())
-				for (int i = 0, ie = m_config.m_hsize.size(); i < ie; ++i)
-				{
+			horizontalHeader()->blockSignals(1);
+			for (int i = 0, ie = m_config.m_hsize.size(); i < ie; ++i)
+			{
+				if (i < m_modelView->columnCount())
 					if (m_config.m_hsize[i] != horizontalHeader()->sectionSize(i))
 					{
-						horizontalHeader()->blockSignals(1);
 						horizontalHeader()->resizeSection(i, m_config.m_hsize.at(i));
 						qDebug("table: rsz hdr[%i]=%i", i, m_config.m_hsize.at(i));
-						horizontalHeader()->blockSignals(0);
 					}
-				}
+			}
+			horizontalHeader()->blockSignals(0);
 		}
 	}
 
