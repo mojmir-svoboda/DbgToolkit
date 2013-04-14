@@ -111,22 +111,22 @@ namespace table {
 			if (ch && ch->checkState() == Qt::Checked)
 			{
 				cfg.m_hhdr[i] = ch->text();
-				//if (cfg.m_hsize[i] == 0)
-				//	cfg.m_hsize[i] = 32;
 
 				bool const in_pxy = static_cast<SparseProxyModel const *>(m_table_view_proxy)->colFromSource(i) != -1;
-				if (m_table_view_proxy && !in_pxy)
-				{
-					qDebug("col %i not in pxy, adding", i);
-					static_cast<SparseProxyModel *>(m_table_view_proxy)->insertAllowedColumn(i);
+				if (m_table_view_proxy)
+					if (!in_pxy)
+					{
+						qDebug("col %i not in pxy, adding", i);
+						static_cast<SparseProxyModel *>(m_table_view_proxy)->insertAllowedColumn(i);
 
-					if (cfg.m_hsize[i] == 0)
-						cfg.m_hsize[i] = 64;
-				}
+					}
+
+				if (cfg.m_hsize[i] == 0)
+					cfg.m_hsize[i] = 64;
 			}
 			else
 			{
-				//cfg.m_hsize[i] = 0;
+				cfg.m_hsize[i] = 0;
 				if (m_table_view_proxy)
 				{
 					static_cast<SparseProxyModel *>(m_table_view_proxy)->removeAllowedColumn(i);
