@@ -67,7 +67,7 @@ namespace table {
 		verticalHeader()->hide();	// @NOTE: users want that //@NOTE2: they can't have it because of performance
 
 		setConfigValuesToUI(m_config);
-		QTimer::singleShot(0, this, SLOT(onApplyButton()));
+		onApplyButton();
 		setUpdatesEnabled(true);
 		horizontalHeader()->setSectionsMovable(true);
 		setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
@@ -91,7 +91,6 @@ namespace table {
 
 	void BaseTable::applyConfig (TableConfig & cfg)
 	{
-		// FIXME: for unknown reasons this fn is called multiple times (from onApplyButton)
 		qDebug("%s this=0x%08x", __FUNCTION__, this);
 		Ui::SettingsTable * ui = m_config_ui.ui();
 
@@ -112,27 +111,29 @@ namespace table {
 			if (ch && ch->checkState() == Qt::Checked)
 			{
 				cfg.m_hhdr[i] = ch->text();
-				if (cfg.m_hsize[i] == 0)
-					cfg.m_hsize[i] = 32;
+				//if (cfg.m_hsize[i] == 0)
+				//	cfg.m_hsize[i] = 32;
 
 				bool const in_pxy = static_cast<SparseProxyModel const *>(m_table_view_proxy)->colFromSource(i) != -1;
 				if (m_table_view_proxy && !in_pxy)
 				{
 					qDebug("col %i not in pxy, adding", i);
 					static_cast<SparseProxyModel *>(m_table_view_proxy)->insertAllowedColumn(i);
+
+					if (cfg.m_hsize[i] == 0)
+						cfg.m_hsize[i] = 64;
 				}
 			}
 			else
 			{
-				cfg.m_hsize[i] = 0;
+				//cfg.m_hsize[i] = 0;
 				if (m_table_view_proxy)
 				{
 					static_cast<SparseProxyModel *>(m_table_view_proxy)->removeAllowedColumn(i);
 				}
-
 			}
 
-			qDebug("ui->cfg [%i]: %s sz=%d", i, ch->text(), cfg.m_hsize[i]);
+			//qDebug("apply ui->cfg [%i]: %s sz=%d", i, ch->text(), cfg.m_hsize[i]);
 		}
 
 		if (cfg.m_hide_empty)
@@ -152,15 +153,15 @@ namespace table {
 		qDebug("hHeader.size=%i", horizontalHeader()->count());
 		for (int i = 0, ie = cfg.m_hsize.size(); i < ie; ++i)
 		{
-			qDebug("appl table: hdr[%i]=%i", i, cfg.m_hsize.at(i));
+			//qDebug("appl table: hdr[%i]=%i", i, cfg.m_hsize.at(i));
 			horizontalHeader()->blockSignals(1);
 			if (isModelProxy())
 			{
 				int const src_i = static_cast<SparseProxyModel *>(m_table_view_proxy)->colToSource(i);
 				if (src_i != -1)
 				{
-					horizontalHeader()->resizeSection(src_i, cfg.m_hsize.at(src_i));
-					qDebug("\tappl   pxy: hdr[%i]=%i", src_i, cfg.m_hsize.at(src_i));
+					horizontalHeader()->resizeSection(i, cfg.m_hsize.at(src_i));
+					//qDebug("appl   pxy: hdr[%i -> src=%i]=%2i\t\t%s", i, src_i, cfg.m_hsize.at(src_i), cfg.m_hhdr.at(src_i).toStdString().c_str());
 				}
 			}
 			else
@@ -252,7 +253,15 @@ namespace table {
 					state = Qt::Unchecked;
 				}
 				else
-					qDebug("cfg->ui pxy col=%i     in pxy", i);
+				{
+					if (cfg.m_hsize[i] == 0)
+					{
+						qDebug("cfg->ui pxy col=%i     in pxy, but 0 size", i);
+						state = Qt::Unchecked;
+					}
+					else
+						qDebug("cfg->ui pxy col=%i     in pxy", i);
+				}
 			}
 			else
 			{
@@ -306,7 +315,8 @@ namespace table {
 
 	void BaseTable::onSectionResized (int c, int old_size, int new_size)
 	{
-		int const idx = !isModelProxy() ? c : static_cast<SparseProxyModel *>(m_table_view_proxy)->colFromSource(c);
+		int const idx = !isModelProxy() ? c : static_cast<SparseProxyModel *>(m_table_view_proxy)->colToSource(c);
+		qDebug("table: on rsz hdr[%i -> src=%02i ]  %i->%i\t\t%s", c, idx, old_size, new_size, m_config.m_hhdr.at(idx).toStdString().c_str());
 		if (idx < 0) return;
 		int const curr_sz = m_config.m_hsize.size();
 		if (idx < curr_sz)
@@ -318,7 +328,6 @@ namespace table {
 			m_config.m_hsize.resize(idx + 1);
 			for (int i = curr_sz; i < idx + 1; ++i)
 				m_config.m_hsize[i] = 32;
-			//m_modelView->setHeaderData(c, Qt::Horizontal, m_config.m_hsize[i], 
 		}
 		m_config.m_hsize[idx] = new_size;
 	}
@@ -335,12 +344,12 @@ namespace table {
 		{
 			for (int i = 0, ie = model()->columnCount(); i < ie; ++i)
 			{
-				int const idx = static_cast<SparseProxyModel *>(m_table_view_proxy)->colFromSource(i);
+				int const idx = static_cast<SparseProxyModel *>(m_table_view_proxy)->colToSource(i);
 				if (idx > -1 && idx < m_config.m_hsize.size() && m_config.m_hsize[idx] != horizontalHeader()->sectionSize(i))
 				{
 					horizontalHeader()->blockSignals(1);
 					horizontalHeader()->resizeSection(i, m_config.m_hsize.at(idx));
-					//qDebug("table: rsz pxy col=%i hdr[%i]=%i", i, idx, m_config.m_hsize.at(idx));
+					qDebug("table: appnd pxy hdr[%i -> src=%02i ]=%2i\t\t%s", i, idx, m_config.m_hsize.at(idx), m_config.m_hhdr.at(idx).toStdString().c_str());
 					horizontalHeader()->blockSignals(0);
 				}
 			}
@@ -354,7 +363,7 @@ namespace table {
 					{
 						horizontalHeader()->blockSignals(1);
 						horizontalHeader()->resizeSection(i, m_config.m_hsize.at(i));
-						//qDebug("table: rsz hdr[%i]=%i", i, m_config.m_hsize.at(i));
+						qDebug("table: rsz hdr[%i]=%i", i, m_config.m_hsize.at(i));
 						horizontalHeader()->blockSignals(0);
 					}
 				}
@@ -367,6 +376,7 @@ namespace table {
 		if (!hhdr.isEmpty() && x > -1)
 		{
 			m_modelView->setHeaderData(x, Qt::Horizontal, hhdr, Qt::EditRole);
+			qDebug("header h[x=%2i, y=%2i] = %s", x, y, hhdr.toStdString().c_str());
 		}
 
 		if (!fgc.isEmpty() && x >= 0 && y >= 0)
