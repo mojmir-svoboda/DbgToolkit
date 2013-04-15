@@ -156,6 +156,7 @@ public:
 	QString getCurrentPresetName () const;
 	QString promptAndCreatePresetName ();
 	QString getValidCurrentPresetName ();
+	QString matchClosestPresetName (QString const & appname);
 
 	unsigned getHotKey () const;
 	Server const * getServer () const { return m_server; }

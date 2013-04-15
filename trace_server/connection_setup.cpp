@@ -150,6 +150,14 @@ void Connection::handleCSVSetup (QString const & fname)
 	onBufferingStateChanged(m_main_window->buffState());
 }
 
+void Connection::tryLoadMatchingPreset (QString const & app_name)
+{
+	m_file_model->beforeLoad();
+	QString const preset_name = m_main_window->matchClosestPresetName(app_name);
+	m_main_window->onPresetActivate(this, preset_name);
+	m_file_model->afterLoad();
+}
+
 bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 {
 	qDebug("Connection::handleSetupCommand() this=0x%08x", this);
@@ -280,6 +288,10 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 					}
 				}
 
+			}
+			else
+			{
+				tryLoadMatchingPreset(app_name);
 			}
 
 			this->setupModelFile();

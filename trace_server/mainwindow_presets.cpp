@@ -36,6 +36,25 @@ QString MainWindow::promptAndCreatePresetName ()
 	return "unknown";
 }
 
+QString MainWindow::matchClosestPresetName (QString const & app_name)
+{
+	QString const saved_preset = getCurrentPresetName();
+	QString preset_appname = saved_preset;
+	if (int const slash_pos = preset_appname.lastIndexOf(QChar('/')) != -1)
+		preset_appname.chop(preset_appname.size() - slash_pos);
+	if (preset_appname.contains(app_name))
+	{
+		qDebug("got correct preset name appname/.* from combobox");
+		return saved_preset;
+	}
+	else
+	{
+		qDebug("got nonmatching preset name appname/.* from combobox, loading default");
+		QString const pname = getPresetPath(app_name, g_defaultPresetName);
+		return pname;
+	}
+}
+
 QString MainWindow::getValidCurrentPresetName ()
 {
 	QString txt = getCurrentPresetName();

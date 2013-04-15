@@ -242,6 +242,7 @@ private:
 
 	GlobalConfig const & getConfig () { return m_main_window->getConfig(); }
 
+	void tryLoadMatchingPreset (QString const & appname);
 	bool setupStorage (QString const & name);
 	QString createStorageName () const;
 	void processDataStream (QDataStream & stream);
