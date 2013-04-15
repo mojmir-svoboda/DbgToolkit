@@ -175,23 +175,58 @@ QVariant Connection::findVariant4Tag (tlv::tag_t tag, QModelIndex const & row_in
 	return QVariant();
 }
 
+
+void Connection::scrollToCurrentTag ()
+{
+	if (sessionState().m_current_tag != -1 && sessionState().m_current_tag < sessionState().m_color_tag_rows.size())
+	{
+		int const tag_row = sessionState().m_color_tag_rows[sessionState().m_current_tag];
+		QModelIndex const tag_idx = m_table_view_widget->model()->index(tag_row, 0);
+
+		qDebug("scrollToCurrentTag: current=%2i src row=%2i ", sessionState().m_current_tag, tag_row);
+
+		if (isModelProxy())
+			m_table_view_widget->scrollTo(m_table_view_proxy->mapFromSource(tag_idx), QAbstractItemView::PositionAtCenter);
+		else
+			m_table_view_widget->scrollTo(tag_idx, QAbstractItemView::PositionAtCenter);
+	}
+}
+
 void Connection::nextToView ()
 {
 	bool const any_tags = sessionState().m_color_tag_rows.size() > 0;
 
-	QModelIndex const idx_in_center = m_table_view_widget->indexAt(m_table_view_widget->rect().center());
+	if (any_tags)
+	{
+		++sessionState().m_current_tag;
+
+		if (sessionState().m_current_tag >= sessionState().m_color_tag_rows.size())
+			sessionState().m_current_tag = 0;
+
+		scrollToCurrentTag();
+	}
+	else
+	{
+		// get selection
+		//scrollToCurrentSelection();
+	}
+
+	//int const tag_row = sessionState().m_color_tag_rows[sessionState().m_current_tag];
+	//QModelIndex const tag_idx = model()->index(tag_row
+	//QModelIndex const idx_in_center = m_table_view_widget->indexAt(m_table_view_widget->rect().center());
 
 	//aindexAt( table->rect.topLeft() ) and indexAt( table->rect().bottomRight() ) 	
 	//rowAt,columnAt 
-	
-	int row = idx_in_center.row();
-	if (isModelProxy())
-		if (QAbstractProxyModel const * proxy = proxyView())
-		{
-			QModelIndex const curr = proxy->mapToSource(idx_in_center);
-			row = curr.row();
-		}
 
-	qDebug("nextToView: idx=(r=%2i, c=%2i) src_row=%2i", idx_in_center.row(), idx_in_center.column(), row);
+	//int row = idx_in_center.row();
+	//if (isModelProxy())
+	//if (QAbstractProxyModel const * proxy = proxyView())
+	//{
+	//	QModelIndex const curr = proxy->mapToSource(idx_in_center);
+	//	row = curr.row();
+	//	}
+
+	//qDebug("nextToView: idx=(r=%2i, c=%2i) src_row=%2i", idx_in_center.row(), idx_in_center.column(), row);
 	//scrollTo();
 }
+

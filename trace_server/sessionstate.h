@@ -218,6 +218,7 @@ private:
 	int m_exclude_content_to_row;
 	int m_time_ref_row;
 	QVector<int> m_color_tag_rows;
+	int m_current_tag;
 	unsigned long long m_time_ref_value;
 	file_filters_t m_file_filters;
 	ctx_filters_t m_ctx_filters;
