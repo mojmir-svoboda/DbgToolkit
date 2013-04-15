@@ -134,6 +134,7 @@ public:
 	QString tableFont () const;
 	bool onTopEnabled () const;
 	bool autoScrollEnabled () const;
+	bool inViewEnabled () const;
 	bool reuseTabEnabled () const;
 	bool filterEnabled () const;
 	int plotState () const;
@@ -185,6 +186,9 @@ private slots:
 	void onQuitReally ();
 	void onEditFind ();
 	void onEditFindNext ();
+	void onNextToView ();
+	void onAutoScrollHotkey();
+	void turnOffAutoScroll();
 	void onEditFindPrev ();
 	void onFileLoad ();
 	void openFiles (QStringList const & list);

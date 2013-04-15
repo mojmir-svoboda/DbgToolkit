@@ -119,6 +119,7 @@ public:
 	void findAllTexts (QString const & text);
 	void findNext ();
 	void findPrev ();
+	void nextToView ();
 	void appendToStringFilters (QString const & str, bool checked, int state);
 	void removeFromStringFilters (QString const & item);
 	void recompileStrings ();

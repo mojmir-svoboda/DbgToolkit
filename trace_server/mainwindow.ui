@@ -50,6 +50,44 @@ p, li { white-space: pre-wrap; }
        </widget>
       </item>
       <item>
+       <widget class="QCheckBox" name="inViewCheckBox">
+        <property name="font">
+         <font>
+          <family>Verdana</family>
+          <pointsize>7</pointsize>
+         </font>
+        </property>
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Tries to keep 1) color tag or 2) selection in view. Tag has precedence over selection.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="text">
+         <string>inView</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="gotoNextButton">
+        <property name="maximumSize">
+         <size>
+          <width>24</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <family>Verdana</family>
+          <pointsize>7</pointsize>
+         </font>
+        </property>
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Goto next color tag or selection&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="text">
+         <string>=|&gt;</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QCheckBox" name="buffCheckBox">
         <property name="font">
          <font>
@@ -205,6 +243,18 @@ p, li { white-space: pre-wrap; }
       </item>
       <item>
        <widget class="QSlider" name="plotSlider">
+        <property name="minimumSize">
+         <size>
+          <width>32</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>48</width>
+          <height>16777215</height>
+         </size>
+        </property>
         <property name="toolTip">
          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Left&lt;/span&gt;   = data not received, no widget visible&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Mid&lt;/span&gt;    = data received, but no widget visible&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Right&lt;/span&gt; = data received, widget visible according to saved config&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
@@ -240,6 +290,18 @@ p, li { white-space: pre-wrap; }
       </item>
       <item>
        <widget class="QSlider" name="tableSlider">
+        <property name="minimumSize">
+         <size>
+          <width>32</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>64</width>
+          <height>16777215</height>
+         </size>
+        </property>
         <property name="toolTip">
          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Left&lt;/span&gt; = data not received, no widget visible&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Mid&lt;/span&gt; = data received, but no widget visible&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Right&lt;/span&gt; = data received, widget visible according to saved config&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>

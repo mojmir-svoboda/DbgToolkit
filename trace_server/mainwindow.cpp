@@ -242,9 +242,6 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QStri
 	connect(ui->buttonAddString, SIGNAL(clicked()), this, SLOT(onStringAdd()));
 	connect(ui->buttonRmString, SIGNAL(clicked()), this, SLOT(onStringRm()));
 
-	ui->autoScrollCheckBox->setToolTip(tr("auto scrolls to bottom if checked"));
-	ui->filterFileCheckBox->setToolTip(tr("enables filtering via filter tabs"));
-
 	m_status_label = new QLabel(m_server->getStatus());
 	QString human_version(g_Version);
 	human_version.chop(human_version.lastIndexOf(QChar('-')));
@@ -397,6 +394,7 @@ int MainWindow::plotState () const { return ui->plotSlider->value(); }
 int MainWindow::tableState () const { return ui->tableSlider->value(); }
 bool MainWindow::reuseTabEnabled () const { return ui_settings->reuseTabCheckBox->isChecked(); }
 bool MainWindow::autoScrollEnabled () const { return ui->autoScrollCheckBox->isChecked(); }
+bool MainWindow::inViewEnabled () const { return ui->inViewCheckBox->isChecked(); }
 bool MainWindow::buffEnabled () const { return ui->buffCheckBox->isChecked(); }
 Qt::CheckState MainWindow::buffState () const { return ui->buffCheckBox->checkState(); }
 bool MainWindow::clrFltEnabled () const { return ui_settings->clrFiltersCheckBox->isChecked(); }
@@ -667,6 +665,26 @@ void MainWindow::onEditFindPrev ()
 	if (!getTabTrace()->currentWidget()) return;
 	if (Connection * conn = m_server->findCurrentConnection())
 		conn->findPrev();
+}
+
+void MainWindow::onNextToView ()
+{
+	if (!getTabTrace()->currentWidget()) return;
+	if (Connection * conn = m_server->findCurrentConnection())
+		conn->nextToView();
+}
+
+void MainWindow::turnOffAutoScroll ()
+{
+	ui->autoScrollCheckBox->setCheckState(Qt::Unchecked);
+}
+
+void MainWindow::onAutoScrollHotkey ()
+{
+	if (ui->autoScrollCheckBox->checkState() == Qt::Checked)
+		turnOffAutoScroll();
+	else
+		ui->autoScrollCheckBox->setCheckState(Qt::Checked);
 }
 
 void MainWindow::tailFiles (QStringList const & files)
@@ -1029,6 +1047,7 @@ void MainWindow::setupMenuBar ()
 	editMenu->addAction(tr("Find Next"), this, SLOT(onEditFindNext()), QKeySequence::FindNext);
 	editMenu->addAction(tr("Find Prev"), this, SLOT(onEditFindPrev()), QKeySequence::FindPrevious);
 	editMenu->addAction(tr("Find and Select All"), this, SLOT(onFindAllButton()));
+	editMenu->addAction(tr("Goto Next Tag or Selection"), this, SLOT(onNextToView()));
 
 	new QShortcut(QKeySequence(Qt::Key_Slash), this, SLOT(onEditFind()));
 	editMenu->addSeparator();
@@ -1075,6 +1094,8 @@ void MainWindow::setupMenuBar ()
 	QMenu * helpMenu = menuBar()->addMenu(tr("&Help"));
 	helpMenu->addAction(tr("Help"), this, SLOT(onShowHelp()));
 	helpMenu->addAction(tr("Dump filters"), this, SLOT(onDumpFilters()));
+
+	new QShortcut(QKeySequence(Qt::AltModifier + Qt::Key_Space), this, SLOT(onAutoScrollHotkey()));
 }
 
 void MainWindow::storeState ()
@@ -1091,6 +1112,7 @@ void MainWindow::storeState ()
 	settings.setValue("windowState", saveState());
 	//settings.setValue("splitter", ui->splitter->saveState());
 	settings.setValue("autoScrollCheckBox", ui->autoScrollCheckBox->isChecked());
+	settings.setValue("inViewCheckBox", ui->inViewCheckBox->isChecked());
 	settings.setValue("filterFileCheckBox", ui->filterFileCheckBox->isChecked());
 	settings.setValue("tableSlider", ui->tableSlider->value());
 	settings.setValue("plotsSlider", ui->plotSlider->value());
@@ -1180,6 +1202,7 @@ void MainWindow::loadState ()
 	ui_settings->traceStatsCheckBox->setChecked(settings.value("trace_stats", true).toBool());
 
 	ui->autoScrollCheckBox->setChecked(settings.value("autoScrollCheckBox", true).toBool());
+	ui->inViewCheckBox->setChecked(settings.value("inViewCheckBox", true).toBool());
 	ui_settings->reuseTabCheckBox->setChecked(settings.value("reuseTabCheckBox", true).toBool());
 	ui_settings->scopesCheckBox->setChecked(settings.value("scopesCheckBox1", true).toBool());
 	ui_settings->indentCheckBox->setChecked(settings.value("indentCheckBox", true).toBool());

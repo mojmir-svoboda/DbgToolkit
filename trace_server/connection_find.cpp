@@ -175,3 +175,23 @@ QVariant Connection::findVariant4Tag (tlv::tag_t tag, QModelIndex const & row_in
 	return QVariant();
 }
 
+void Connection::nextToView ()
+{
+	bool const any_tags = sessionState().m_color_tag_rows.size() > 0;
+
+	QModelIndex const idx_in_center = m_table_view_widget->indexAt(m_table_view_widget->rect().center());
+
+	//aindexAt( table->rect.topLeft() ) and indexAt( table->rect().bottomRight() ) 	
+	//rowAt,columnAt 
+	
+	int row = idx_in_center.row();
+	if (isModelProxy())
+		if (QAbstractProxyModel const * proxy = proxyView())
+		{
+			QModelIndex const curr = proxy->mapToSource(idx_in_center);
+			row = curr.row();
+		}
+
+	qDebug("nextToView: idx=(r=%2i, c=%2i) src_row=%2i", idx_in_center.row(), idx_in_center.column(), row);
+	//scrollTo();
+}
