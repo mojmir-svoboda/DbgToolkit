@@ -330,20 +330,29 @@ void Connection::onTableClicked (QModelIndex const & row_index)
 		{
 			QString tid = findString4Tag(tlv::tag_tid, curr);
 			QModelIndexList indexList = m_tid_model->match(m_tid_model->index(0, 0), Qt::DisplayRole, tid);
-			QModelIndex const selectedIndex(indexList.first());
-			m_main_window->getWidgetTID()->setCurrentIndex(selectedIndex);
+			if (!indexList.empty())
+			{
+				QModelIndex const selectedIndex(indexList.first());
+				m_main_window->getWidgetTID()->setCurrentIndex(selectedIndex);
+			}
 		}
 		{
 			QString lvl = findString4Tag(tlv::tag_lvl, curr);
 			QModelIndexList indexList = m_lvl_model->match(m_lvl_model->index(0, 0), Qt::DisplayRole, lvl);
-			QModelIndex const selectedIndex(indexList.first());
-			m_main_window->getWidgetLvl()->setCurrentIndex(selectedIndex);
+			if (!indexList.empty())
+			{
+				QModelIndex const selectedIndex(indexList.first());
+				m_main_window->getWidgetLvl()->setCurrentIndex(selectedIndex);
+			}
 		}
 		{
 			QString ctx = findString4Tag(tlv::tag_ctx, curr);
 			QModelIndexList indexList = m_ctx_model->match(m_ctx_model->index(0, 0), Qt::DisplayRole, ctx);
-			QModelIndex const selectedIndex(indexList.first());
-			m_main_window->getWidgetCtx()->setCurrentIndex(selectedIndex);
+			if (!indexList.empty())
+			{
+				QModelIndex const selectedIndex(indexList.first());
+				m_main_window->getWidgetCtx()->setCurrentIndex(selectedIndex);
+			}
 		}
 
 		m_last_search_row = curr.row(); // set search from this line
