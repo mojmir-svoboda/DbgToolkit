@@ -220,6 +220,7 @@ void SessionState::appendLvlFilter (QString const & item)
 			return;
 		}
 	m_lvl_filters.push_back(FilteredLevel(item, true, e_LvlInclude));
+	std::sort(m_lvl_filters.begin(), m_lvl_filters.end());
 }
 void SessionState::removeLvlFilter (QString const & item)
 {

@@ -162,6 +162,11 @@ struct FilteredLevel {
 	}
 };
 
+inline bool operator< (FilteredLevel const & lhs, FilteredLevel const & rhs)
+{
+	return lhs.m_level < rhs.m_level;
+}
+
 struct FilteredContext {
 	QString m_ctx_str;
 	unsigned long long m_ctx;

@@ -269,6 +269,7 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 			{
 				QStandardItemModel * model = static_cast<QStandardItemModel *>(m_main_window->getWidgetLvl()->model());
 				QStandardItem * root = model->invisibleRootItem();
+				std::sort(sessionState().m_lvl_filters.begin(), sessionState().m_lvl_filters.end());
 				for (int i = 0; i < sessionState().m_lvl_filters.size(); ++i)
 				{
 					FilteredLevel & flt = sessionState().m_lvl_filters[i];
