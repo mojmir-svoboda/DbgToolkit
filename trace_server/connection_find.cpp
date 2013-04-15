@@ -178,12 +178,21 @@ QVariant Connection::findVariant4Tag (tlv::tag_t tag, QModelIndex const & row_in
 
 void Connection::scrollToCurrentTag ()
 {
-	if (sessionState().m_current_tag != -1 && sessionState().m_current_tag < sessionState().m_color_tag_rows.size())
+	if (m_main_window->autoScrollEnabled())
+		return;
+
+	if (sessionState().m_color_tag_rows.size() == 0)
+		return;
+
+	if (sessionState().m_current_tag == -1)
+		sessionState().m_current_tag = 0;
+
+	if (sessionState().m_current_tag < sessionState().m_color_tag_rows.size())
 	{
 		int const tag_row = sessionState().m_color_tag_rows[sessionState().m_current_tag];
 		QModelIndex const tag_idx = m_table_view_widget->model()->index(tag_row, 0);
 
-		qDebug("scrollToCurrentTag: current=%2i src row=%2i ", sessionState().m_current_tag, tag_row);
+		//qDebug("scrollToCurrentTag: current=%2i src row=%2i ", sessionState().m_current_tag, tag_row);
 
 		if (isModelProxy())
 			m_table_view_widget->scrollTo(m_table_view_proxy->mapFromSource(tag_idx), QAbstractItemView::PositionAtCenter);

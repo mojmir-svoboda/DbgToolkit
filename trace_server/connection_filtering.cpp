@@ -18,6 +18,7 @@ void Connection::onInvalidateFilter ()
 		ModelView * model = static_cast<ModelView *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
 		model->emitLayoutChanged();
 	}
+	scrollToCurrentTag();
 }
 
 void Connection::setFilterFile (int state)
