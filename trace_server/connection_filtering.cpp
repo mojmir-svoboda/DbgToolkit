@@ -75,6 +75,9 @@ void Connection::setFilterFile (int state)
 
 	if (m_column_setup_done)
 		setupColumnSizes(true);
+
+	if (m_main_window->inViewEnabled())
+		QTimer::singleShot(0, this, SLOT(nextToView()));
 }
 
 void Connection::clearFilters (QStandardItem * node)

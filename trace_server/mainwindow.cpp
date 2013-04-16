@@ -413,7 +413,10 @@ void MainWindow::onAutoScrollStateChanged (int state)
 void MainWindow::onInViewStateChanged (int state)
 {
 	if (state == Qt::Checked)
+	{
 		ui->autoScrollCheckBox->setCheckState(Qt::Unchecked);
+		onNextToView();
+	}
 }
 
 bool MainWindow::filterPaneVertical () const

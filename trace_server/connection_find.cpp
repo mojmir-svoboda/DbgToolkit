@@ -222,6 +222,7 @@ void Connection::scrollToCurrentSelection ()
 		sessionState().m_current_selection = 0;
 
 	QModelIndex const & idx = indexes.at(sessionState().m_current_selection);
+	qDebug("scrollToSelection curr=%i row=%i", sessionState().m_current_selection, idx.row());
 	m_table_view_widget->scrollTo(idx, QAbstractItemView::PositionAtCenter);
 }
 
@@ -236,7 +237,7 @@ void Connection::nextToView ()
 	}
 	else
 	{
-		++sessionState().m_current_tag;
+		++sessionState().m_current_selection;
 		scrollToCurrentSelection();
 	}
 }

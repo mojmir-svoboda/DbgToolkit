@@ -119,7 +119,6 @@ public:
 	void findAllTexts (QString const & text);
 	void findNext ();
 	void findPrev ();
-	void nextToView ();
 	void scrollToCurrentTag ();
 	void scrollToCurrentSelection ();
 	void appendToStringFilters (QString const & str, bool checked, int state);
@@ -166,6 +165,7 @@ public slots:
 	void onFileCollapsed (QModelIndex const &);
 	void onLevelValueChanged (int i);
 	QString onCopyToClipboard ();
+	void nextToView ();
 	void setFilterFile (int state);
 	void onBufferingStateChanged (int state);
 	void onHandleCommands ();
