@@ -12,21 +12,23 @@
 void Connection::onInvalidateFilter ()
 {
 	QItemSelectionModel const * selection = m_table_view_widget->selectionModel();
-	QModelIndexList old_selection = selection->selectedIndexes();
+	QModelIndexList const old_selection = selection->selectedIndexes();
 
 	//  fantomas ended here
 	QModelIndexList srcs;
-
 	if (isModelProxy())
 	{
 		for (int i = 0, ie = old_selection.size(); i < ie; ++i)
 		{
 			QModelIndex const & pxy_idx = old_selection.at(i);
 			QModelIndex const src_idx = m_table_view_proxy->mapToSource(pxy_idx);
+
+			qDebug("update filter: pxy=(%2i, %2i) src=(%2i, %2i)", pxy_idx.row(), pxy_idx.column(), src_idx.row(), src_idx.column());
 			srcs.push_back(src_idx);
 		}
 	}
-
+	else
+		srcs = old_selection;
 
 	if (isModelProxy())
 		static_cast<FilterProxyModel *>(m_table_view_proxy)->force_update();
@@ -36,14 +38,29 @@ void Connection::onInvalidateFilter ()
 		model->emitLayoutChanged();
 	}
 
-	syncSelection(old_selection);
+	syncSelection(srcs);
 
 	scrollToCurrentTagOrSelection();
 }
 
-void Connection::syncSelection (QModelIndexList & sel)
+void Connection::syncSelection (QModelIndexList const & sel)
 {
+	m_table_view_widget->selectionModel()->clearSelection();
 
+	for (int i = 0, ie = sel.size(); i < ie; ++i)
+	{
+		QModelIndex idx = sel.at(i);
+		if (isModelProxy())
+		{
+			idx = m_table_view_proxy->mapFromSource(sel.at(i));
+			qDebug("syncSelection: pxy src=(%2i, %2i)", idx.row(), idx.column());
+		}
+		else
+			qDebug("syncSelection: src=(%2i, %2i)", idx.row(), idx.column());
+
+		if (idx.isValid())
+			m_table_view_widget->selectionModel()->setCurrentIndex(idx, QItemSelectionModel::Select);
+	}
 }
 
 void Connection::setFilterFile (int state)

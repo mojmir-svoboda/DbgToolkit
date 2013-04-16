@@ -270,7 +270,7 @@ int main ()
 		static size_t i	 = 0;
 		TRACE_MSG(trace::e_Info, trace::CTX_Default,  "Some another annoying message i=%u from main thread", i);
 		TraceVal((2 * i) % 16, i * 2);
-		++i;
+		++i;	
 
 		//TRACE_TABLE(trace::e_Info, trace::CTX_Default, 0, 0, "hokus/%i|%i|%i", i, i*i, i*i*i);
 		//TRACE_TABLE(trace::e_Info, trace::CTX_Default, 1, 1, "hokus/%i|%i|%i", 2 * i, 2 * i*i, 2 * i*i*i);
@@ -282,7 +282,7 @@ int main ()
 		{
 			TRACE_TABLE(trace::e_Info, trace::CTX_Default, 3, 3, "%s0/%i",GetName(), 555);
 		}
-
+			
 
 		if (i == 6)
 		{

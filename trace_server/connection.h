@@ -167,7 +167,7 @@ public slots:
 	QString onCopyToClipboard ();
 	void nextToView ();
 	void scrollToCurrentTagOrSelection ();
-	void syncSelection (QModelIndexList & from, QModelIndexList & to);
+	void syncSelection (QModelIndexList const & from);
 	void setFilterFile (int state);
 	void onBufferingStateChanged (int state);
 	void onHandleCommands ();
