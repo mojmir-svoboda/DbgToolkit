@@ -50,6 +50,7 @@ Connection::Connection (QObject * parent)
 	, m_toggle_ref(0)
 	, m_hide_prev(0)
 	, m_exclude_fileline(0)
+	, m_find_fileline(0)
 	, m_color_tag_row(0)
 	, m_copy_to_clipboard(0)
 	, m_last_clicked()
@@ -68,14 +69,17 @@ Connection::Connection (QObject * parent)
 	qDebug("Connection::Connection() this=0x%08x", this);
 	m_toggle_ref = new QAction("Set as reference time", this);
 	m_copy_to_clipboard = new QAction("Copy", this);
-	m_exclude_fileline = new QAction("Exclude File:Line", this);
+	m_exclude_fileline = new QAction("Exclude File:Line (x)", this);
+	m_find_fileline = new QAction("Find File:Line in filters", this);
 	m_hide_prev = new QAction("Hide prev rows", this);
 	m_color_tag_row = new QAction("Tag row with color", this);
-    m_ctx_menu.addAction(m_toggle_ref);
+    m_ctx_menu.addAction(m_find_fileline);
     m_ctx_menu.addAction(m_copy_to_clipboard);
-    m_ctx_menu.addAction(m_exclude_fileline);
+    m_ctx_menu.addAction(m_toggle_ref);
     m_ctx_menu.addAction(m_hide_prev);
     m_ctx_menu.addAction(m_color_tag_row);
+    m_ctx_menu.addSeparator();
+    m_ctx_menu.addAction(m_exclude_fileline);
 	m_data_model = new TreeModel(this, &m_session_state.m_data_filters);
 	m_lvl_delegate = new LevelDelegate(m_session_state, this);
 	m_ctx_delegate = new CtxDelegate(m_session_state, this);
@@ -312,19 +316,18 @@ bool Connection::isModelProxy () const
 
 void Connection::onTableClicked (QModelIndex const & row_index)
 {
-	if (m_table_view_proxy)
+	if (isModelProxy())
 	{
 		QModelIndex const curr = m_table_view_proxy->mapToSource(row_index);
-
-		//qDebug("1c curr: (%i,col) -> (%i,col)", row_index.row(), curr.row());
-
 		m_last_clicked = curr;
 
+		// @TODO duplicate!
+		//qDebug("1c curr: (%i,col) -> (%i,col)", row_index.row(), curr.row());
 		{
 			QString const file = findString4Tag(tlv::tag_file, curr);
 			QString const line = findString4Tag(tlv::tag_line, curr);
 			QString const combined = file + "/" + line;
-			m_file_model->selectItem(m_main_window->getWidgetFile(), combined);
+			m_file_model->selectItem(m_main_window->getWidgetFile(), combined, false);
 		}
 
 		{
@@ -358,7 +361,10 @@ void Connection::onTableClicked (QModelIndex const & row_index)
 		m_last_search_row = curr.row(); // set search from this line
 	}
 	else
+	{
+		m_last_clicked = row_index;
 		m_last_search_row = row_index.row(); // set search from this line
+	}
 }
 
 void Connection::onTableDoubleClicked (QModelIndex const & row_index)
@@ -556,6 +562,10 @@ void Connection::onShowContextMenu (QPoint const & pos)
     else if (selectedItem == m_exclude_fileline)
 	{
 		onExcludeFileLine(m_last_clicked);
+	}
+    else if (selectedItem == m_find_fileline)
+	{
+		onFindFileLine(m_last_clicked);
 	}
     else if (selectedItem == m_copy_to_clipboard)
 	{

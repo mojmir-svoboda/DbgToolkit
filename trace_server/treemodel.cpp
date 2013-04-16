@@ -386,7 +386,7 @@ QModelIndex TreeModel::stateToItem (QString const & path, Qt::CheckState state)
 	return idx;
 }
 
-QModelIndex TreeModel::selectItem (QTreeView * tv, QString const & path)
+QModelIndex TreeModel::selectItem (QTreeView * tv, QString const & path, bool scroll_to)
 {
 	TreeModelItem const * i = 0;
 	node_t const * const node = m_tree_data->is_present(path, i);
@@ -395,7 +395,38 @@ QModelIndex TreeModel::selectItem (QTreeView * tv, QString const & path)
 
 	QModelIndex const idx = indexFromItem(node);
 	tv->setCurrentIndex(idx);
+	if (scroll_to)
+		tv->scrollTo(idx, QAbstractItemView::PositionAtCenter);
 	return idx;
 }
 
+void TreeModel::expandParents (QTreeView * tv, node_t * item, bool state)
+{
+	node_t * parent = item->parent;
+	while (parent)
+	{
+		parent->data.m_collapsed = !state;
+		QModelIndex pi = indexFromItem(parent);
+		//emit dataChanged(pi, pi);
+		tv->setExpanded(pi, state);
+		
+		parent = parent->parent;
+	}
+}
+
+QModelIndex TreeModel::expandItem (QTreeView * tv, QString const & path)
+{
+	TreeModelItem const * i = 0;
+	node_t const * const node = m_tree_data->is_present(path, i);
+	if (!node)
+		return QModelIndex();
+
+	QModelIndex const idx = indexFromItem(node);
+	tv->setExpanded(idx, true);
+
+	node_t * const grr = const_cast<node_t *>(node); // @FIXME is_present does not have mutable version
+	expandParents(tv, grr, true);
+
+	return idx;
+}
 

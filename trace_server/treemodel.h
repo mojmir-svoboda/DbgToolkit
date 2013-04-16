@@ -44,7 +44,8 @@ public:
 	QModelIndex rootIndex () const;
 
 	void syncExpandState (QTreeView *);
-	QModelIndex selectItem (QTreeView *, QString const &);
+	QModelIndex selectItem (QTreeView *, QString const &, bool scroll_to);
+	QModelIndex expandItem (QTreeView *, QString const &);
 	QModelIndex stateToItem (QString const & path, Qt::CheckState state);
 	QModelIndex stateToItem (QString const & path, Qt::CheckState state, bool collapsed);
 
@@ -63,6 +64,7 @@ protected:
 
 	void stateToChildren (node_t * item, Qt::CheckState state);
 	void stateToParents (node_t * item, Qt::CheckState state);
+	void expandParents (QTreeView * tv, node_t * item, bool state);
 	void syncParents (node_t * const item, Qt::CheckState state);
 
 	tree_data_t * m_tree_data;

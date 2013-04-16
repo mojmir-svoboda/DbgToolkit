@@ -1044,6 +1044,11 @@ void MainWindow::onGotoLevelFilter () { ui->tabFilters->setCurrentIndex(1); }
 void MainWindow::onGotoColorFilter () { ui->tabFilters->setCurrentIndex(5); }
 void MainWindow::onGotoRegexFilter () { ui->tabFilters->setCurrentIndex(4); }
 
+void MainWindow::onCopyToClipboard ()
+{
+	m_server->onCopyToClipboard();
+}
+
 void MainWindow::setupMenuBar ()
 {
 	qDebug("%s", __FUNCTION__);
@@ -1067,7 +1072,7 @@ void MainWindow::setupMenuBar ()
 	new QShortcut(QKeySequence(Qt::Key_Slash), this, SLOT(onEditFind()));
 	editMenu->addSeparator();
 	editMenu->addAction(tr("Copy"), m_server, SLOT(onCopyToClipboard()), QKeySequence::Copy);
-	new QShortcut(QKeySequence(Qt::ControlModifier + Qt::Key_Insert), m_server, SLOT(onCopyToClipboard()));
+	new QShortcut(QKeySequence(Qt::ControlModifier + Qt::Key_Insert), this, SLOT(onCopyToClipboard()));
 	editMenu->addSeparator();
 	editMenu->addAction(tr("Close Tab"), m_server, SLOT(onCloseCurrentTab()), QKeySequence(Qt::ControlModifier + Qt::Key_W));
 

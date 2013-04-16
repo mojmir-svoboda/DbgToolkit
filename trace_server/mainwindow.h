@@ -236,6 +236,7 @@ private slots:
 	void onInViewStateChanged (int state);
 	void onListVisibilityChanged (bool);
 	void onFilterFile (int state);
+	void onCopyToClipboard ();
 
 	void onSetupAction ();
 	void prepareSettingsWidgets (int idx, bool first_time = false);

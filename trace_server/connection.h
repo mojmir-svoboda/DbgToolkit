@@ -121,6 +121,7 @@ public:
 	void findPrev ();
 	void nextToView ();
 	void scrollToCurrentTag ();
+	void scrollToCurrentSelection ();
 	void appendToStringFilters (QString const & str, bool checked, int state);
 	void removeFromStringFilters (QString const & item);
 	void recompileStrings ();
@@ -193,6 +194,7 @@ public slots:
 	void onToggleRefFromRow ();
 	void onColorTagRow (int row);
 	void onExcludeFileLine (QModelIndex const & row_index);
+	void onFindFileLine (QModelIndex const & row_index);
 	void onApplyColumnSetup ();
 	void onColorRegexChanged();
 	void onSaveAll ();
@@ -298,6 +300,7 @@ private:
 	QAction * m_toggle_ref;
 	QAction * m_hide_prev;
 	QAction * m_exclude_fileline;
+	QAction * m_find_fileline;
 	QAction * m_copy_to_clipboard;
 	QAction * m_color_tag_row;
 	QModelIndex m_last_clicked;

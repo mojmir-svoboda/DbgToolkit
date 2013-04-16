@@ -187,6 +187,9 @@ void Connection::scrollToCurrentTag ()
 	if (sessionState().m_current_tag == -1)
 		sessionState().m_current_tag = 0;
 
+	if (sessionState().m_current_tag >= sessionState().m_color_tag_rows.size())
+		sessionState().m_current_tag = 0;
+
 	if (sessionState().m_current_tag < sessionState().m_color_tag_rows.size())
 	{
 		int const tag_row = sessionState().m_color_tag_rows[sessionState().m_current_tag];
@@ -201,6 +204,27 @@ void Connection::scrollToCurrentTag ()
 	}
 }
 
+void Connection::scrollToCurrentSelection ()
+{
+	if (m_main_window->autoScrollEnabled())
+		return;
+
+	QItemSelectionModel const * selection = m_table_view_widget->selectionModel();
+	QModelIndexList indexes = selection->selectedIndexes();
+
+	if (indexes.size() == 0)
+		return;
+
+	if (sessionState().m_current_selection == -1)
+		sessionState().m_current_selection = 0;
+
+	if (sessionState().m_current_selection >= indexes.size())
+		sessionState().m_current_selection = 0;
+
+	QModelIndex const & idx = indexes.at(sessionState().m_current_selection);
+	m_table_view_widget->scrollTo(idx, QAbstractItemView::PositionAtCenter);
+}
+
 void Connection::nextToView ()
 {
 	bool const any_tags = sessionState().m_color_tag_rows.size() > 0;
@@ -208,34 +232,63 @@ void Connection::nextToView ()
 	if (any_tags)
 	{
 		++sessionState().m_current_tag;
-
-		if (sessionState().m_current_tag >= sessionState().m_color_tag_rows.size())
-			sessionState().m_current_tag = 0;
-
 		scrollToCurrentTag();
 	}
 	else
 	{
-		// get selection
-		//scrollToCurrentSelection();
+		++sessionState().m_current_tag;
+		scrollToCurrentSelection();
+	}
+}
+
+void Connection::onFindFileLine (QModelIndex const & row_index)
+{
+	QModelIndex src_idx = row_index;
+
+	if (isModelProxy())
+	{
+		//src_idx = m_table_view_proxy->mapFromSource(row_index);
+	}
+	else
+	{
 	}
 
-	//int const tag_row = sessionState().m_color_tag_rows[sessionState().m_current_tag];
-	//QModelIndex const tag_idx = model()->index(tag_row
-	//QModelIndex const idx_in_center = m_table_view_widget->indexAt(m_table_view_widget->rect().center());
-
-	//aindexAt( table->rect.topLeft() ) and indexAt( table->rect().bottomRight() ) 	
-	//rowAt,columnAt 
-
-	//int row = idx_in_center.row();
-	//if (isModelProxy())
-	//if (QAbstractProxyModel const * proxy = proxyView())
-	//{
-	//	QModelIndex const curr = proxy->mapToSource(idx_in_center);
-	//	row = curr.row();
-	//	}
-
-	//qDebug("nextToView: idx=(r=%2i, c=%2i) src_row=%2i", idx_in_center.row(), idx_in_center.column(), row);
-	//scrollTo();
+	qDebug("find file:line for idx=(%i,col) -> src=(%i,col)", row_index.row(), src_idx.row());
+	{
+		QString const file = findString4Tag(tlv::tag_file, src_idx);
+		QString const line = findString4Tag(tlv::tag_line, src_idx);
+		QString const combined = file + "/" + line;
+		qDebug("find %s in tree", combined.toStdString().c_str());
+		bool const scroll_to_item = true;
+		m_file_model->selectItem(m_main_window->getWidgetFile(), combined, scroll_to_item);
+		QModelIndex const tree_idx = m_file_model->expandItem(m_main_window->getWidgetFile(), combined);
+	}
+	{
+		QString tid = findString4Tag(tlv::tag_tid, src_idx);
+		QModelIndexList indexList = m_tid_model->match(m_tid_model->index(0, 0), Qt::DisplayRole, tid);
+		if (!indexList.empty())
+		{
+			QModelIndex const selectedIndex(indexList.first());
+			m_main_window->getWidgetTID()->setCurrentIndex(selectedIndex);
+		}
+	}
+	{
+		QString lvl = findString4Tag(tlv::tag_lvl, src_idx);
+		QModelIndexList indexList = m_lvl_model->match(m_lvl_model->index(0, 0), Qt::DisplayRole, lvl);
+		if (!indexList.empty())
+		{
+			QModelIndex const selectedIndex(indexList.first());
+			m_main_window->getWidgetLvl()->setCurrentIndex(selectedIndex);
+		}
+	}
+	{
+		QString ctx = findString4Tag(tlv::tag_ctx, src_idx);
+		QModelIndexList indexList = m_ctx_model->match(m_ctx_model->index(0, 0), Qt::DisplayRole, ctx);
+		if (!indexList.empty())
+		{
+			QModelIndex const selectedIndex(indexList.first());
+			m_main_window->getWidgetCtx()->setCurrentIndex(selectedIndex);
+		}
+	}
 }
 
