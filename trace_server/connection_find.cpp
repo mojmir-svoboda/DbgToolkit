@@ -241,54 +241,13 @@ void Connection::nextToView ()
 	}
 }
 
-void Connection::onFindFileLine (QModelIndex const & row_index)
+void Connection::onFindFileLine (QModelIndex const &)
 {
-	QModelIndex src_idx = row_index;
+	//@FIXME: unused args
+	qDebug("find file:line for idx=(%i,col) -> src=(%i,col)", m_last_clicked.row());
 
-	if (isModelProxy())
-	{
-		//src_idx = m_table_view_proxy->mapFromSource(row_index);
-	}
-	else
-	{
-	}
-
-	qDebug("find file:line for idx=(%i,col) -> src=(%i,col)", row_index.row(), src_idx.row());
-	{
-		QString const file = findString4Tag(tlv::tag_file, src_idx);
-		QString const line = findString4Tag(tlv::tag_line, src_idx);
-		QString const combined = file + "/" + line;
-		qDebug("find %s in tree", combined.toStdString().c_str());
-		bool const scroll_to_item = true;
-		m_file_model->selectItem(m_main_window->getWidgetFile(), combined, scroll_to_item);
-		QModelIndex const tree_idx = m_file_model->expandItem(m_main_window->getWidgetFile(), combined);
-	}
-	{
-		QString tid = findString4Tag(tlv::tag_tid, src_idx);
-		QModelIndexList indexList = m_tid_model->match(m_tid_model->index(0, 0), Qt::DisplayRole, tid);
-		if (!indexList.empty())
-		{
-			QModelIndex const selectedIndex(indexList.first());
-			m_main_window->getWidgetTID()->setCurrentIndex(selectedIndex);
-		}
-	}
-	{
-		QString lvl = findString4Tag(tlv::tag_lvl, src_idx);
-		QModelIndexList indexList = m_lvl_model->match(m_lvl_model->index(0, 0), Qt::DisplayRole, lvl);
-		if (!indexList.empty())
-		{
-			QModelIndex const selectedIndex(indexList.first());
-			m_main_window->getWidgetLvl()->setCurrentIndex(selectedIndex);
-		}
-	}
-	{
-		QString ctx = findString4Tag(tlv::tag_ctx, src_idx);
-		QModelIndexList indexList = m_ctx_model->match(m_ctx_model->index(0, 0), Qt::DisplayRole, ctx);
-		if (!indexList.empty())
-		{
-			QModelIndex const selectedIndex(indexList.first());
-			m_main_window->getWidgetCtx()->setCurrentIndex(selectedIndex);
-		}
-	}
+	bool const scroll_to_item = true;
+	bool const expand = true;
+	findTableIndexInFilters(m_last_clicked, scroll_to_item, expand);
 }
 

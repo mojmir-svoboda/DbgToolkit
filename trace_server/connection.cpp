@@ -314,57 +314,57 @@ bool Connection::isModelProxy () const
 	return m_table_view_widget->model() == m_table_view_proxy;
 }
 
+void Connection::findTableIndexInFilters (QModelIndex const & src_idx, bool scroll_to_item, bool expand)
+{
+	{
+		QString const file = findString4Tag(tlv::tag_file, src_idx);
+		QString const line = findString4Tag(tlv::tag_line, src_idx);
+		QString const combined = file + "/" + line;
+		qDebug("findTableIndexInFilters %s in tree", combined.toStdString().c_str());
+		m_file_model->selectItem(m_main_window->getWidgetFile(), combined, scroll_to_item);
+		if (expand)
+			m_file_model->expandItem(m_main_window->getWidgetFile(), combined);
+	}
+	{
+		QString tid = findString4Tag(tlv::tag_tid, src_idx);
+		QModelIndexList indexList = m_tid_model->match(m_tid_model->index(0, 0), Qt::DisplayRole, tid);
+		if (!indexList.empty())
+		{
+			QModelIndex const selectedIndex(indexList.first());
+			m_main_window->getWidgetTID()->setCurrentIndex(selectedIndex);
+		}
+	}
+	{
+		QString lvl = findString4Tag(tlv::tag_lvl, src_idx);
+		QModelIndexList indexList = m_lvl_model->match(m_lvl_model->index(0, 0), Qt::DisplayRole, lvl);
+		if (!indexList.empty())
+		{
+			QModelIndex const selectedIndex(indexList.first());
+			m_main_window->getWidgetLvl()->setCurrentIndex(selectedIndex);
+		}
+	}
+	{
+		QString ctx = findString4Tag(tlv::tag_ctx, src_idx);
+		QModelIndexList indexList = m_ctx_model->match(m_ctx_model->index(0, 0), Qt::DisplayRole, ctx);
+		if (!indexList.empty())
+		{
+			QModelIndex const selectedIndex(indexList.first());
+			m_main_window->getWidgetCtx()->setCurrentIndex(selectedIndex);
+		}
+	}
+}
+
 void Connection::onTableClicked (QModelIndex const & row_index)
 {
+	m_last_clicked = row_index;
 	if (isModelProxy())
-	{
-		QModelIndex const curr = m_table_view_proxy->mapToSource(row_index);
-		m_last_clicked = curr;
+		m_last_clicked = m_table_view_proxy->mapToSource(row_index);
 
-		// @TODO duplicate!
-		//qDebug("1c curr: (%i,col) -> (%i,col)", row_index.row(), curr.row());
-		{
-			QString const file = findString4Tag(tlv::tag_file, curr);
-			QString const line = findString4Tag(tlv::tag_line, curr);
-			QString const combined = file + "/" + line;
-			m_file_model->selectItem(m_main_window->getWidgetFile(), combined, false);
-		}
+	m_last_search_row = m_last_clicked.row(); // set search from this line
 
-		{
-			QString tid = findString4Tag(tlv::tag_tid, curr);
-			QModelIndexList indexList = m_tid_model->match(m_tid_model->index(0, 0), Qt::DisplayRole, tid);
-			if (!indexList.empty())
-			{
-				QModelIndex const selectedIndex(indexList.first());
-				m_main_window->getWidgetTID()->setCurrentIndex(selectedIndex);
-			}
-		}
-		{
-			QString lvl = findString4Tag(tlv::tag_lvl, curr);
-			QModelIndexList indexList = m_lvl_model->match(m_lvl_model->index(0, 0), Qt::DisplayRole, lvl);
-			if (!indexList.empty())
-			{
-				QModelIndex const selectedIndex(indexList.first());
-				m_main_window->getWidgetLvl()->setCurrentIndex(selectedIndex);
-			}
-		}
-		{
-			QString ctx = findString4Tag(tlv::tag_ctx, curr);
-			QModelIndexList indexList = m_ctx_model->match(m_ctx_model->index(0, 0), Qt::DisplayRole, ctx);
-			if (!indexList.empty())
-			{
-				QModelIndex const selectedIndex(indexList.first());
-				m_main_window->getWidgetCtx()->setCurrentIndex(selectedIndex);
-			}
-		}
-
-		m_last_search_row = curr.row(); // set search from this line
-	}
-	else
-	{
-		m_last_clicked = row_index;
-		m_last_search_row = row_index.row(); // set search from this line
-	}
+	bool const scroll_to_item = false;
+	bool const expand = false;
+	findTableIndexInFilters(m_last_clicked, scroll_to_item, expand);
 }
 
 void Connection::onTableDoubleClicked (QModelIndex const & row_index)

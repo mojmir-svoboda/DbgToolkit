@@ -206,6 +206,7 @@ private slots:
 	void onDisconnected ();
 	void onTableClicked (QModelIndex const & index);
 	void onTableDoubleClicked (QModelIndex const & index);
+	void findTableIndexInFilters (QModelIndex const & row_index, bool scroll_to_item, bool expand);
 
 private:
 	friend class Server;
