@@ -528,8 +528,10 @@ void MainWindow::onDockedWidgetsToolButton ()
 	}
 	else
 	{
-		disconnect(m_docked_widgets_tree_view, SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtDockedWidgets(QModelIndex)));
-		m_docked_widgets->hide();
+		if (m_server)
+			disconnect(m_docked_widgets_tree_view, SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtDockedWidgets(QModelIndex)));
+		if (m_docked_widgets)
+			m_docked_widgets->hide();
 	}
 }
 
@@ -1138,7 +1140,7 @@ void MainWindow::storeState ()
 	settings.setValue("inViewCheckBox", ui->inViewCheckBox->isChecked());
 	settings.setValue("filterFileCheckBox", ui->filterFileCheckBox->isChecked());
 	settings.setValue("tableSlider", ui->tableSlider->value());
-	settings.setValue("plotsSlider", ui->plotSlider->value());
+	settings.setValue("plotSlider", ui->plotSlider->value());
 	settings.setValue("buffCheckBox", ui->buffCheckBox->isChecked());
 	settings.setValue("clrFiltersCheckBox", ui_settings->clrFiltersCheckBox->isChecked());
 	//settings.setValue("filterModeComboBox", ui->filterModeComboBox->currentIndex());

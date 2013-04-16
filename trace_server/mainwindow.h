@@ -171,6 +171,7 @@ public slots:
 	void showMaximized ();
 	void onOnTop (int);
 	void onDockRestoreButton ();
+	void onDockedWidgetsToolButton ();
 
 	friend class Connection;
 private slots:
@@ -229,7 +230,6 @@ private slots:
 	void onTableFontToolButton ();
 	void onPlotStateChanged (int state);
 	void onSaveAllButton ();
-	void onDockedWidgetsToolButton ();
 	void onPlotsClosed ();
 	void onTablesStateChanged (int state);
 	void onAutoScrollStateChanged (int state);

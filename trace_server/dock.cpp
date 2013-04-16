@@ -5,6 +5,7 @@
 #include <QMultiMap>
 #include <QCloseEvent>
 #include <QMainWindow>
+#include "mainwindow.h"
 
 DockWidget::DockWidget (DockManager & mgr, QString const & name, QMainWindow * const window)
 	: QDockWidget(name, window)
@@ -37,6 +38,7 @@ DockWidget * DockManager::mkDockWidget (QMainWindow * const window, QWidget * co
 
 	if (visible) 
 		window->restoreDockWidget(dock);
+	static_cast<MainWindow *>(window)->onDockedWidgetsToolButton();
 	return dock;
 }
 
