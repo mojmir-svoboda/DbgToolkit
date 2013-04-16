@@ -207,6 +207,8 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QStri
 	connect(m_docked_widgets, SIGNAL(dockClosed()), this, SLOT(onPlotsClosed()));
 
 	connect(ui->buffCheckBox, SIGNAL(stateChanged(int)), m_server, SLOT(onBufferingStateChanged(int)));
+	connect(ui->autoScrollCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onAutoScrollStateChanged(int)));
+	connect(ui->inViewCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onInViewStateChanged(int)));
 	
 	connect(ui_settings->tableFontToolButton, SIGNAL(clicked()), this, SLOT(onTableFontToolButton()));
 	connect(ui_settings->onTopCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onOnTop(int)));//@FIXME: this has some issues
@@ -401,6 +403,18 @@ Qt::CheckState MainWindow::buffState () const { return ui->buffCheckBox->checkSt
 bool MainWindow::clrFltEnabled () const { return ui_settings->clrFiltersCheckBox->isChecked(); }
 bool MainWindow::statsEnabled () const { return ui_settings->traceStatsCheckBox->isChecked(); }
 bool MainWindow::dtEnabled () const { return ui->dtToolButton->isChecked(); }
+
+void MainWindow::onAutoScrollStateChanged (int state)
+{
+	if (state == Qt::Checked)
+		ui->inViewCheckBox->setCheckState(Qt::Unchecked);
+}
+
+void MainWindow::onInViewStateChanged (int state)
+{
+	if (state == Qt::Checked)
+		ui->autoScrollCheckBox->setCheckState(Qt::Unchecked);
+}
 
 bool MainWindow::filterPaneVertical () const
 {
@@ -1203,7 +1217,10 @@ void MainWindow::loadState ()
 	ui_settings->traceStatsCheckBox->setChecked(settings.value("trace_stats", true).toBool());
 
 	ui->autoScrollCheckBox->setChecked(settings.value("autoScrollCheckBox", true).toBool());
-	ui->inViewCheckBox->setChecked(settings.value("inViewCheckBox", true).toBool());
+
+	if (ui->autoScrollCheckBox->checkState() != Qt::Checked)
+		ui->inViewCheckBox->setChecked(settings.value("inViewCheckBox", true).toBool());
+
 	ui_settings->reuseTabCheckBox->setChecked(settings.value("reuseTabCheckBox", true).toBool());
 	ui_settings->scopesCheckBox->setChecked(settings.value("scopesCheckBox1", true).toBool());
 	ui_settings->indentCheckBox->setChecked(settings.value("indentCheckBox", true).toBool());

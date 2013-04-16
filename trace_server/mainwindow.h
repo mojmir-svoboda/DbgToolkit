@@ -232,6 +232,8 @@ private slots:
 	void onDockedWidgetsToolButton ();
 	void onPlotsClosed ();
 	void onTablesStateChanged (int state);
+	void onAutoScrollStateChanged (int state);
+	void onInViewStateChanged (int state);
 	void onListVisibilityChanged (bool);
 	void onFilterFile (int state);
 
