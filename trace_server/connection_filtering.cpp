@@ -80,6 +80,7 @@ void Connection::setFilterFile (int state)
 		}
 
 		m_table_view_widget->setModel(m_table_view_proxy->sourceModel());
+		//m_table_view_widget->setSelectionModel(m_table_view_proxy->selectionModel());
 
 		for (int i = 0, ie = srcs.size(); i < ie; ++i)
 			m_table_view_widget->selectionModel()->setCurrentIndex(srcs.at(i), QItemSelectionModel::Select);
@@ -93,6 +94,7 @@ void Connection::setFilterFile (int state)
 		}
 
 		m_table_view_widget->setModel(m_table_view_proxy);
+		//m_table_view_widget->setSelectionModel(m_table_view_proxy->selectionModel());
 
 		static_cast<FilterProxyModel *>(m_table_view_proxy)->force_update();
 		onInvalidateFilter();

@@ -221,9 +221,18 @@ void Connection::scrollToCurrentSelection ()
 	if (sessionState().m_current_selection >= indexes.size())
 		sessionState().m_current_selection = 0;
 
-	QModelIndex const & idx = indexes.at(sessionState().m_current_selection);
-	qDebug("scrollToSelection curr=%i row=%i", sessionState().m_current_selection, idx.row());
-	m_table_view_widget->scrollTo(idx, QAbstractItemView::PositionAtCenter);
+	QModelIndex const idx = indexes.at(sessionState().m_current_selection);
+	qDebug("scrollToSelection[%i] row=%i", sessionState().m_current_selection, idx.row());
+	if (isModelProxy())
+	{
+		QModelIndex const own_idx = m_table_view_proxy->index(idx.row(), idx.column());
+		m_table_view_widget->scrollTo(own_idx, QAbstractItemView::PositionAtCenter);
+	}
+	else
+	{
+		QModelIndex const own_idx = m_table_view_widget->model()->index(idx.row(), idx.column());
+		m_table_view_widget->scrollTo(own_idx, QAbstractItemView::PositionAtCenter);
+	}
 }
 
 void Connection::scrollToCurrentTagOrSelection ()
