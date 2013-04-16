@@ -23,7 +23,7 @@ void Connection::onInvalidateFilter ()
 			QModelIndex const & pxy_idx = old_selection.at(i);
 			QModelIndex const src_idx = m_table_view_proxy->mapToSource(pxy_idx);
 
-			qDebug("update filter: pxy=(%2i, %2i) src=(%2i, %2i)", pxy_idx.row(), pxy_idx.column(), src_idx.row(), src_idx.column());
+			//qDebug("update filter: pxy=(%2i, %2i) src=(%2i, %2i)", pxy_idx.row(), pxy_idx.column(), src_idx.row(), src_idx.column());
 			srcs.push_back(src_idx);
 		}
 	}
@@ -53,10 +53,9 @@ void Connection::syncSelection (QModelIndexList const & sel)
 		if (isModelProxy())
 		{
 			idx = m_table_view_proxy->mapFromSource(sel.at(i));
-			qDebug("syncSelection: pxy src=(%2i, %2i)", idx.row(), idx.column());
+			//qDebug("syncSelection: pxy src=(%2i, %2i)", idx.row(), idx.column());
 		}
-		else
-			qDebug("syncSelection: src=(%2i, %2i)", idx.row(), idx.column());
+		//else qDebug("syncSelection: src=(%2i, %2i)", idx.row(), idx.column());
 
 		if (idx.isValid())
 			m_table_view_widget->selectionModel()->setCurrentIndex(idx, QItemSelectionModel::Select);
