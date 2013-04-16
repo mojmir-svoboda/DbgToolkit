@@ -1,4 +1,5 @@
 #include "launcher.h"
+#include "test_server.h"
 #include <cstring>
 #include <cstdint>
 #include <cstddef>
@@ -75,10 +76,31 @@ bool tryCopyTraceServer (char const * origname, char const * runname)
 	return false;
 }
 
+bool tryShutdownRunningServer (unsigned max_count)
+{
+	unsigned count = 0;
+	while (isTraceServerRunning())
+	{
+		tryTraceServerShutdown();
+		Sleep(250);
+		if (count >= max_count / 2)
+		{
+			printf("launcher: old version not responding. never give up & never surrender!\n");
+			Sleep(1000);
+		}
+		if (count >= max_count)
+		{
+			printf("launcher: old version not responding. d'oh i give up!\n");
+			return false;
+		}
+		++count;
+	}
+	return true;
+}
+
 bool tryUpdateTraceServer (char const * origname, char const * runname)
 {
-	bool const orig_exists = fileExists(origname);
-	if (!orig_exists)
+	if (!fileExists(origname))
 	{
 		printf("launcher: Error: source file not present, nothing to do\n");
 		return false;
