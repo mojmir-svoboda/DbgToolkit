@@ -551,6 +551,11 @@ void Connection::onShowContextMenu (QPoint const & pos)
     QPoint globalPos = m_table_view_widget->mapToGlobal(pos);
 
     QAction * selectedItem = m_ctx_menu.exec(globalPos); // @TODO: rather async
+
+	//poas = ui->tableView->viewport()->mapFromGlobal(e->globalPos());
+	QModelIndex const idx = m_table_view_widget->indexAt(pos);
+	qDebug("left click at r=%2i,c=%2i", idx.row(), idx.column());
+
     if (selectedItem == m_hide_prev)
     {
 		onHidePrevFromRow();

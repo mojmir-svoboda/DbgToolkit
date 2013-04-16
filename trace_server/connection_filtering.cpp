@@ -11,6 +11,23 @@
 
 void Connection::onInvalidateFilter ()
 {
+	QItemSelectionModel const * selection = m_table_view_widget->selectionModel();
+	QModelIndexList old_selection = selection->selectedIndexes();
+
+	//  fantomas ended here
+	QModelIndexList srcs;
+
+	if (isModelProxy())
+	{
+		for (int i = 0, ie = old_selection.size(); i < ie; ++i)
+		{
+			QModelIndex const & pxy_idx = old_selection.at(i);
+			QModelIndex const src_idx = m_table_view_proxy->mapToSource(pxy_idx);
+			srcs.push_back(src_idx);
+		}
+	}
+
+
 	if (isModelProxy())
 		static_cast<FilterProxyModel *>(m_table_view_proxy)->force_update();
 	else
@@ -18,7 +35,15 @@ void Connection::onInvalidateFilter ()
 		ModelView * model = static_cast<ModelView *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
 		model->emitLayoutChanged();
 	}
-	scrollToCurrentTag();
+
+	syncSelection(old_selection);
+
+	scrollToCurrentTagOrSelection();
+}
+
+void Connection::syncSelection (QModelIndexList & sel)
+{
+
 }
 
 void Connection::setFilterFile (int state)
@@ -77,7 +102,8 @@ void Connection::setFilterFile (int state)
 		setupColumnSizes(true);
 
 	if (m_main_window->inViewEnabled())
-		QTimer::singleShot(0, this, SLOT(nextToView()));
+		scrollToCurrentTagOrSelection();
+		//QTimer::singleShot(1000, this, SLOT(scrollToCurrentTagOrSelection()));
 }
 
 void Connection::clearFilters (QStandardItem * node)

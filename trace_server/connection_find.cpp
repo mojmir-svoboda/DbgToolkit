@@ -226,11 +226,17 @@ void Connection::scrollToCurrentSelection ()
 	m_table_view_widget->scrollTo(idx, QAbstractItemView::PositionAtCenter);
 }
 
+void Connection::scrollToCurrentTagOrSelection ()
+{
+	if (sessionState().m_color_tag_rows.size() > 0)
+		scrollToCurrentTag();
+	else
+		scrollToCurrentSelection();
+}
+
 void Connection::nextToView ()
 {
-	bool const any_tags = sessionState().m_color_tag_rows.size() > 0;
-
-	if (any_tags)
+	if (sessionState().m_color_tag_rows.size() > 0)
 	{
 		++sessionState().m_current_tag;
 		scrollToCurrentTag();
@@ -245,7 +251,7 @@ void Connection::nextToView ()
 void Connection::onFindFileLine (QModelIndex const &)
 {
 	//@FIXME: unused args
-	qDebug("find file:line for idx=(%i,col) -> src=(%i,col)", m_last_clicked.row());
+	qDebug("find file:line for idx=(%i,col)", m_last_clicked.row());
 
 	bool const scroll_to_item = true;
 	bool const expand = true;
