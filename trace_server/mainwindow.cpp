@@ -163,11 +163,11 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QStri
 			QString qname = QString::fromStdString(name);
 			if (i == tlv::tag_msg)
 				msg_tag = qname;
-			ui->qSearchColumnComboBox->addItem(qname);
+			//ui->qSearchColumnComboBox->addItem(qname);
 		}
 	}
-	ui->qSearchColumnComboBox->addItem("trace_server");
-	ui->qSearchColumnComboBox->setCurrentIndex(ui->qSearchColumnComboBox->findText(msg_tag));
+	//ui->qSearchColumnComboBox->addItem("trace_server");
+	//ui->qSearchColumnComboBox->setCurrentIndex(ui->qSearchColumnComboBox->findText(msg_tag));
 
 	m_timer->setInterval(5000);
 	connect(m_timer, SIGNAL(timeout()) , this, SLOT(timerHit()));
@@ -580,21 +580,22 @@ void MainWindow::onQSearch (QString const & text)
 	if (!conn) return;
 
 	appendToSearchHistory(text);
-	QString qcolumn = ui->qSearchColumnComboBox->currentText();
-	qDebug("onQSearch: col=%s text=%s", qcolumn.toStdString().c_str(), text.toStdString().c_str());
-	bool const search_all = (qcolumn == ".*");
+	//QString qcolumn = ui->qSearchColumnComboBox->currentText();
+	//qDebug("onQSearch: col=%s text=%s", qcolumn.toStdString().c_str(), text.toStdString().c_str());
+	//bool const search_all = (qcolumn == ".*");
+	bool const search_all = true;
 	if (search_all)
 	{
 		conn->findText(text);
 	}
-	else
+	/*else
 	{
 		size_t const tag_idx = tlv::tag_for_name(qcolumn.toStdString().c_str());
 		if (tag_idx != tlv::tag_invalid)
 		{
 			conn->findText(text, tag_idx);
 		}
-	}
+	}*/
 }
 
 void MainWindow::onQSearchEditingFinished ()

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>949</width>
-    <height>372</height>
+    <width>1024</width>
+    <height>344</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -245,13 +245,13 @@ p, li { white-space: pre-wrap; }
        <widget class="QSlider" name="plotSlider">
         <property name="minimumSize">
          <size>
-          <width>32</width>
+          <width>24</width>
           <height>0</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>48</width>
+          <width>24</width>
           <height>16777215</height>
          </size>
         </property>
@@ -292,13 +292,13 @@ p, li { white-space: pre-wrap; }
        <widget class="QSlider" name="tableSlider">
         <property name="minimumSize">
          <size>
-          <width>32</width>
+          <width>24</width>
           <height>0</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>64</width>
+          <width>24</width>
           <height>16777215</height>
          </size>
         </property>
@@ -310,6 +310,44 @@ p, li { white-space: pre-wrap; }
         </property>
         <property name="pageStep">
          <number>1</number>
+        </property>
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="tickPosition">
+         <enum>QSlider::TicksBothSides</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="label_4">
+        <property name="font">
+         <font>
+          <family>Verdana</family>
+          <pointsize>7</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>gant</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QSlider" name="ganttSlider">
+        <property name="minimumSize">
+         <size>
+          <width>24</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>24</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="maximum">
+         <number>2</number>
         </property>
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
@@ -375,6 +413,12 @@ p, li { white-space: pre-wrap; }
          <size>
           <width>64</width>
           <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>128</width>
+          <height>16777215</height>
          </size>
         </property>
         <property name="font">
@@ -593,6 +637,12 @@ p, li { white-space: pre-wrap; }
           <height>0</height>
          </size>
         </property>
+        <property name="maximumSize">
+         <size>
+          <width>96</width>
+          <height>16777215</height>
+         </size>
+        </property>
         <property name="font">
          <font>
           <family>Verdana</family>
@@ -635,37 +685,6 @@ p, li { white-space: pre-wrap; }
         </property>
        </widget>
       </item>
-      <item>
-       <widget class="QComboBox" name="qSearchColumnComboBox">
-        <property name="minimumSize">
-         <size>
-          <width>48</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="font">
-         <font>
-          <family>Verdana</family>
-          <pointsize>7</pointsize>
-         </font>
-        </property>
-        <property name="toolTip">
-         <string extracomment="hello3">specifies column to search</string>
-        </property>
-        <property name="statusTip">
-         <string extracomment="hello2"/>
-        </property>
-        <property name="whatsThis">
-         <string extracomment="hello1"/>
-        </property>
-        <property name="maxVisibleItems">
-         <number>16</number>
-        </property>
-        <property name="frame">
-         <bool>false</bool>
-        </property>
-       </widget>
-      </item>
      </layout>
     </item>
     <item>
@@ -688,7 +707,7 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>949</width>
+     <width>1024</width>
      <height>18</height>
     </rect>
    </property>
