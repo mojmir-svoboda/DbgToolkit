@@ -5,6 +5,7 @@
 #include "encode_log.inl"
 #include "encode_plot.inl"
 #include "encode_table.inl"
+#include "encode_gantt.inl"
 #include "encode_scope.inl"
 #include "encode_setup.inl"
 #include "encode_exportcsv.inl"

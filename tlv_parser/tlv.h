@@ -51,11 +51,20 @@ namespace tlv {
 	static cmd_t const cmd_profile_frame_end = 0xEC;	/// send profiling frame end
 	static cmd_t const cmd_table_xy          = 0xEB;	/// trace table xy
 	static cmd_t const cmd_table_setup       = 0xEA;	/// trace table setup (color, headers)
+	static cmd_t const cmd_gantt_bgn         = 0xE9;	/// trace table setup (color, headers)
+	static cmd_t const cmd_gantt_end         = 0xE8;	/// trace table setup (color, headers)
+	static cmd_t const cmd_gantt_frame_bgn   = 0xE7;	/// trace table setup (color, headers)
+	static cmd_t const cmd_gantt_frame_end   = 0xE6;	/// trace table setup (color, headers)
 
+	///////////////////////////////////////////////////////
 	static cmd_t const cmd_shutdown          = 0xCF;	/// request to shut down server
 	static cmd_t const cmd_ping              = 0xCE;	/// ping
 	static cmd_t const cmd_pong              = 0xCD;	/// ping response
 	static cmd_t const cmd_dict_ctx          = 0xCC;	/// context dictionnary (string, int)
+	static cmd_t const cmd_version           = 0xCB;	/// get version
+	static cmd_t const cmd_version_ack       = 0xCA;	/// version ack
+	static cmd_t const cmd_set_proto_version = 0xC9;	/// switch protocol version
+	static cmd_t const cmd_set_proto_version_ack = 0xC8;	/// switch protocol version ack
 
 	enum e_Tags
 	{
