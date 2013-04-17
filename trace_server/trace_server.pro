@@ -99,7 +99,8 @@ FORMS    += mainwindow.ui \
     help.ui \
     profilermainwindow.ui \
     settingsplot.ui \
-    settingstable.ui
+    settingstable.ui \
+    settingsgantt.ui
 
 RESOURCES += \
     resources.qrc

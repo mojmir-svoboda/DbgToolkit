@@ -14,29 +14,29 @@ DataTable::DataTable (Connection * parent, table::TableConfig & config, QString 
 	: m_parent(parent)
 	, m_wd(0)
 	, m_config(config)
-	, m_table(0)
+	, m_widget(0)
 	, m_fname(fname)
 {
 	qDebug("%s this=0x%08x name=%s", __FUNCTION__, this, fname.toStdString().c_str());
-	m_table = new table::BaseTable(parent, 0, m_config, fname);
-	m_table->setItemDelegate(new SyncedTableItemDelegate(m_table));
+	m_widget = new table::BaseTable(parent, 0, m_config, fname);
+	m_widget->setItemDelegate(new SyncedTableItemDelegate(m_widget));
 }
 DataTable::~DataTable ()
 {
 	qDebug("%s this=0x%08x", __FUNCTION__, this);
-	delete m_table;
-	m_table = 0;
+	delete m_widget;
+	m_widget = 0;
 }
 void DataTable::onShow ()
 {
-	m_table->onShow();
+	m_widget->onShow();
 	m_wd->show();
 	m_parent->getMainWindow()->restoreDockWidget(m_wd);
 	//QTimer::singleShot(0, m_parent, SLOT(onShowTables()));
 }
 void DataTable::onHide ()
 {
-	m_table->onHide();
+	m_widget->onHide();
 	QTimer::singleShot(0, m_wd, SLOT(hide()));
 }
 
@@ -203,13 +203,13 @@ datatables_t::iterator Connection::findOrCreateTable (QString const & tag)
 		QModelIndex const item_idx = m_data_model->insertItemWithHint(table_name, template_config.m_show);
 
 		// TMP!
-/*		dp->m_table->setEditTriggers(QAbstractItemView::NoEditTriggers);
-		dp->m_table->verticalHeader()->setFont(m_main_window->tableFont());*/
-		//dp->m_table->verticalHeader()->setDefaultSectionSize(m_main_window->tableRowSize());
-		dp->m_table->verticalHeader()->setDefaultSectionSize(16);
-		dp->m_table->verticalHeader()->hide();	// @NOTE: users want that //@NOTE2: they can't have it because of performance
-		dp->m_table->setSelectionBehavior(QAbstractItemView::SelectRows);
-		dp->m_table->setSelectionMode(QAbstractItemView::SingleSelection);
+/*		dp->m_widget->setEditTriggers(QAbstractItemView::NoEditTriggers);
+		dp->m_widget->verticalHeader()->setFont(m_main_window->tableFont());*/
+		//dp->m_widget->verticalHeader()->setDefaultSectionSize(m_main_window->tableRowSize());
+		dp->m_widget->verticalHeader()->setDefaultSectionSize(16);
+		dp->m_widget->verticalHeader()->hide();	// @NOTE: users want that //@NOTE2: they can't have it because of performance
+		dp->m_widget->setSelectionBehavior(QAbstractItemView::SelectRows);
+		dp->m_widget->setSelectionMode(QAbstractItemView::SingleSelection);
 
 		QObject::connect(dp->widget().horizontalHeader(), SIGNAL(sectionResized(int, int, int)), &dp->widget(), SLOT(onSectionResized(int, int, int)));
 		dp->m_wd = m_main_window->m_dock_mgr.mkDockWidget(m_main_window, &dp->widget(), template_config.m_show, table_name);

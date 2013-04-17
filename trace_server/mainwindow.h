@@ -139,6 +139,7 @@ public:
 	bool filterEnabled () const;
 	int plotState () const;
 	int tableState () const;
+	int ganttState () const;
 	bool buffEnabled () const;
 	Qt::CheckState buffState () const;
 	bool clrFltEnabled () const;

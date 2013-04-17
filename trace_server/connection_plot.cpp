@@ -11,29 +11,28 @@
 DataPlot::DataPlot (Connection * parent, plot::PlotConfig & config, QString const & fname)
 	: m_parent(parent)
 	, m_wd(0)
+	, m_widget(0)
 	, m_config(config)
-	, m_plot(0)
-	, m_from(0)
 	, m_fname(fname)
 {
 	qDebug("%s this=0x%08x", __FUNCTION__, this);
-	m_plot = new plot::BasePlot(parent, 0, m_config, fname);
+	m_widget = new plot::BasePlot(parent, 0, m_config, fname);
 }
 DataPlot::~DataPlot ()
 {
 	qDebug("%s this=0x%08x", __FUNCTION__, this);
-	delete m_plot;
-	m_plot = 0;
+	delete m_widget;
+	m_widget = 0;
 }
 void DataPlot::onShow ()
 {
 	m_wd->show();
-	m_plot->onShow();
+	m_widget->onShow();
 }
 void DataPlot::onHide ()
 {
 	//m_wd->hide();
-	m_plot->onHide();
+	m_widget->onHide();
 	QTimer::singleShot(0, m_wd, SLOT(hide()));
 }
 

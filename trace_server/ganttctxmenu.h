@@ -7,20 +7,20 @@
 #include <QLineEdit>
 #include <QLabel>
 #include "config.h"
-#include "ui_settingstable.h"
+#include "ui_settingsgantt.h"
 #include "qtsln/qtcolorpicker/qtcolorpicker.h"
 
-namespace table {
+namespace gantt {
 
-	struct CtxTableConfig : QObject
+	struct CtxGanttConfig : QObject
 	{
-		TableConfig & m_pcfg;
-		Ui::SettingsTable * m_ui;
+		GanttConfig & m_pcfg;
+		Ui::SettingsGantt * m_ui;
 		QDockWidget * m_widget;
 
-		CtxTableConfig (TableConfig & cfg, QWidget * parent)
+		CtxGanttConfig (GanttConfig & cfg, QWidget * parent)
 			: m_pcfg(cfg)
-			, m_ui(new Ui::SettingsTable)
+			, m_ui(new Ui::SettingsGantt)
 			, m_widget(new QDockWidget(parent))
 		{
 			qDebug("%s this=0x%08x", __FUNCTION__, this);
@@ -28,7 +28,7 @@ namespace table {
 			m_ui->setupUi(m_widget);
 		}
 
-		~CtxTableConfig ()
+		~CtxGanttConfig ()
 		{
 			qDebug("%s this=0x%08x", __FUNCTION__, this);
 
@@ -55,7 +55,7 @@ namespace table {
 			m_widget->setVisible(false);
 		}
 
-		Ui::SettingsTable * ui () { return m_ui; }
+		Ui::SettingsGantt * ui () { return m_ui; }
 	};
 
 }

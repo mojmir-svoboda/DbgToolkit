@@ -35,6 +35,7 @@
 #include "cmd.h"
 #include "baseplot.h"
 #include "basetable.h"
+#include "basegantt.h"
 #include "treeview.h"
 
 class Server;
@@ -56,9 +57,8 @@ struct DockedData {
 struct DataPlot {
 	Connection * m_parent;
 	QDockWidget * m_wd;
+	plot::BasePlot * m_widget;
 	plot::PlotConfig m_config;
-	plot::BasePlot * m_plot;
-	int m_from;
 	QString m_fname;
 
 	DataPlot (Connection * parent, plot::PlotConfig & config, QString const & fname);
@@ -66,7 +66,7 @@ struct DataPlot {
 
 	void onShow ();
 	void onHide ();
-	plot::BasePlot & widget () { return *m_plot; }
+	plot::BasePlot & widget () { return *m_widget; }
 };
 
 typedef QMap<QString, DataPlot *> dataplots_t;
@@ -74,19 +74,37 @@ typedef QMap<QString, DataPlot *> dataplots_t;
 struct DataTable {
 	Connection * m_parent;
 	QDockWidget * m_wd;
+	table::BaseTable * m_widget;
 	table::TableConfig m_config;
 	QString m_fname;
-	table::BaseTable * m_table;
 
 	DataTable (Connection * parent, table::TableConfig & config, QString const & fname);
 	~DataTable ();
 
 	void onShow ();
 	void onHide ();
-	table::BaseTable & widget () { return *m_table; }
+	table::BaseTable & widget () { return *m_widget; }
 };
 
 typedef QMap<QString, DataTable *> datatables_t;
+
+struct DataGantt {
+	Connection * m_parent;
+	QDockWidget * m_wd;
+	gantt::BaseGantt * m_widget;
+	gantt::GanttConfig m_config;
+	QString m_fname;
+
+	DataGantt (Connection * parent, gantt::GanttConfig & config, QString const & fname);
+	~DataGantt ();
+
+	void onShow ();
+	void onHide ();
+	gantt::BaseGantt & widget () { return *m_widget; }
+};
+
+typedef QMap<QString, DataGantt *> datagantts_t;
+
 
 /**@class		Connection
  * @brief		represents incoming connection (or file stream)
@@ -142,6 +160,11 @@ public:
 	bool saveConfigForTable (table::TableConfig const & config, QString const & tag);
 	bool loadConfigForTables (QString const & preset_name);
 	bool saveConfigForTables (QString const & preset_name);
+	bool loadConfigForGantt (QString const & preset_name, gantt::GanttConfig & config, QString const & tag);
+	bool saveConfigForGantt (gantt::GanttConfig const & config, QString const & tag);
+	bool loadConfigForGantts (QString const & preset_name);
+	bool saveConfigForGantts (QString const & preset_name);
+
 	bool filterEnabled () const { return m_main_window->filterEnabled(); }
 
 	void requestTableSynchronization (int sync_group, unsigned long long time);
@@ -192,6 +215,9 @@ public slots:
 	void onShowTableContextMenu (QPoint const &);
 	void onShowTables ();
 	void onHideTables ();
+	void onShowGanttContextMenu (QPoint const &);
+	void onShowGantts ();
+	void onHideGantts ();
 	void onExcludeFileLine ();
 	void onToggleRefFromRow ();
 	void onColorTagRow (int row);
@@ -238,11 +264,19 @@ private:
 	bool handleShutdownCommand (DecodedCommand const & cmd);
 	bool handleDictionnaryCtx (DecodedCommand const & cmd);
 	bool handleCSVStreamCommand (DecodedCommand const & cmd);
+	bool handleGanttBgnCommand (DecodedCommand const & cmd);
+	bool handleGanttEndCommand (DecodedCommand const & cmd);
+	bool handleGanttFrameBgnCommand (DecodedCommand const & cmd);
+	bool handleGanttFrameEndCommand (DecodedCommand const & cmd);
 
 	void appendDataXY (double x, double y, QString const & tag);
 	datatables_t::iterator findOrCreateTable (QString const & tag);
 	void appendTableXY (int x, int y, QString const & time, QString const & fgc, QString const & bgc, QString const & tag);
 	void appendTableSetup (int x, int y, QString const & time, QString const & fgc, QString const & bgc, QString const & hhdr, QString const & tag);
+
+	datagantts_t::iterator findOrCreateGantt (QString const & tag);
+	void appendGanttBgn (QString const & time, QString const & tid, QString const & fgc, QString const & bgc, QString const & tag);
+
 	bool appendToFilters (DecodedCommand const & cmd);
 	void appendToTIDFilters (QString const & item);
 	void clearFilters (QStandardItem * node);
@@ -322,6 +356,7 @@ private:
 	stats::StatsWindow * m_statswindow;
 	dataplots_t m_dataplots;
 	datatables_t m_datatables;
+	datagantts_t m_datagantts;
 	TreeModel * m_data_model;
 };
 

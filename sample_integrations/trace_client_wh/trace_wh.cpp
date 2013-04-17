@@ -176,7 +176,7 @@ void * do_something ( void * )
 		something_useful();
 	while (!g_Quit)
 	{
-		static size_t i = 0;
+		static int i = 0;
 		++i;
 		TRACE_MSG(trace::e_Info, trace::CTX_Default,  "Thread tick i=%u", i);
 #if defined WIN32 || defined WIN64
@@ -221,6 +221,7 @@ int main ()
 #endif
 	TRACE_APPNAME("WarHorse_App");
 	TRACE_CONNECT();
+	TRACE_GANTT_SCOPE(trace::e_Info, trace::CTX_Default, "gantt0/Entered %s...", __FUNCTION__);
 	for (int k = 0; k < 1; ++k)
 		for (int i = 0; i < 64; ++i)
 		{
@@ -258,6 +259,9 @@ int main ()
 
 	for (;;)
 	{
+		static int i	 = 0;
+
+		TRACE_GANTT_SCOPE(trace::e_Info, trace::CTX_Default, "gantt0/main loop[tick=%i]", i);
 #if defined WIN32 || defined WIN64
 		Sleep(200);	
 #elif defined __linux__
@@ -267,7 +271,7 @@ int main ()
 		TRACE_MSG(trace::e_Info, trace::CTX_Default,	"%s", "This message should periodicaly appear too.");
 		
 		//for(size_t i = 0; i < 4; ++i)
-		static size_t i	 = 0;
+
 		TRACE_MSG(trace::e_Info, trace::CTX_Default,  "Some another annoying message i=%u from main thread", i);
 		TraceVal((2 * i) % 16, i * 2);
 		++i;	

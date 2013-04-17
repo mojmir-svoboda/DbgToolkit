@@ -396,6 +396,7 @@ bool MainWindow::onTopEnabled () const { return ui_settings->onTopCheckBox->isCh
 bool MainWindow::filterEnabled () const { return ui->filterFileCheckBox->isEnabled() && ui->filterFileCheckBox->isChecked(); }
 int MainWindow::plotState () const { return ui->plotSlider->value(); }
 int MainWindow::tableState () const { return ui->tableSlider->value(); }
+int MainWindow::ganttState () const { return ui->ganttSlider->value(); }
 bool MainWindow::reuseTabEnabled () const { return ui_settings->reuseTabCheckBox->isChecked(); }
 bool MainWindow::autoScrollEnabled () const { return ui->autoScrollCheckBox->isChecked(); }
 bool MainWindow::inViewEnabled () const { return ui->inViewCheckBox->isChecked(); }

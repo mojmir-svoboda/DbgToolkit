@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>397</width>
-    <height>238</height>
+    <width>433</width>
+    <height>229</height>
    </rect>
   </property>
   <property name="floating">
@@ -18,65 +18,6 @@
   </property>
   <widget class="QWidget" name="dockWidgetContents">
    <layout class="QGridLayout" name="gridLayout_2">
-    <item row="5" column="0">
-     <layout class="QGridLayout" name="gridLayout">
-      <item row="0" column="0" rowspan="4">
-       <widget class="QListView" name="columnView">
-        <property name="toolTip">
-         <string>Select columns to show/hide</string>
-        </property>
-        <property name="alternatingRowColors">
-         <bool>false</bool>
-        </property>
-        <property name="textElideMode">
-         <enum>Qt::ElideMiddle</enum>
-        </property>
-        <property name="spacing">
-         <number>0</number>
-        </property>
-        <property name="uniformItemSizes">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1" rowspan="4">
-       <widget class="QListView" name="rowView">
-        <property name="toolTip">
-         <string>Selects rows to hide</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="2">
-       <widget class="QCheckBox" name="filteringCheckBox">
-        <property name="toolTip">
-         <string>Auto-hiding of empty columns/rows</string>
-        </property>
-        <property name="text">
-         <string>Filtering</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="2">
-       <widget class="QSpinBox" name="syncGroupSpinBox">
-        <property name="toolTip">
-         <string>Identifier of the synchronization group.
-All tables with the same number will have inputs synchronized.
-0 means no synchronization with other tables.</string>
-        </property>
-        <property name="prefix">
-         <string/>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="2">
-       <widget class="QCheckBox" name="autoScrollCheckBox">
-        <property name="text">
-         <string>AutoScroll</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </item>
     <item row="0" column="0">
      <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
@@ -135,6 +76,9 @@ All tables with the same number will have inputs synchronized.
           <pointsize>7</pointsize>
          </font>
         </property>
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Saves ONLY settings of THIS table. Does not save widget screen position, this information is stored in Preset.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
         <property name="text">
          <string>Save</string>
         </property>
@@ -152,6 +96,104 @@ All tables with the same number will have inputs synchronized.
          </size>
         </property>
        </spacer>
+      </item>
+     </layout>
+    </item>
+    <item row="5" column="0">
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="2" column="2">
+       <widget class="QLabel" name="label">
+        <property name="font">
+         <font>
+          <family>Verdana</family>
+          <pointsize>7</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>Sync Group</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0" rowspan="5">
+       <widget class="QListView" name="columnView">
+        <property name="toolTip">
+         <string>Select columns to show/hide</string>
+        </property>
+        <property name="alternatingRowColors">
+         <bool>false</bool>
+        </property>
+        <property name="textElideMode">
+         <enum>Qt::ElideMiddle</enum>
+        </property>
+        <property name="spacing">
+         <number>0</number>
+        </property>
+        <property name="uniformItemSizes">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1" rowspan="5">
+       <widget class="QListView" name="rowView">
+        <property name="toolTip">
+         <string>Selects rows to hide</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="3">
+       <widget class="QSpinBox" name="syncGroupSpinBox">
+        <property name="toolTip">
+         <string>Identifier of the synchronization group.
+All tables with the same number will have inputs synchronized.
+0 means no synchronization with other tables.</string>
+        </property>
+        <property name="prefix">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="3">
+       <widget class="QCheckBox" name="filteringCheckBox">
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enables proxy mode that performs auto-hiding of empty columns/rows&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="3">
+       <widget class="QCheckBox" name="autoScrollCheckBox">
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2">
+       <widget class="QLabel" name="label_2">
+        <property name="font">
+         <font>
+          <family>Verdana</family>
+          <pointsize>7</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>Hide empty</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="2">
+       <widget class="QLabel" name="label_3">
+        <property name="font">
+         <font>
+          <family>Verdana</family>
+          <pointsize>7</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>Autoscroll</string>
+        </property>
+       </widget>
       </item>
      </layout>
     </item>
