@@ -362,7 +362,7 @@
 			level_t m_level;
 			context_t m_context;
 
-			TRACE_API ScopedGantt (char const * fmt, ...);
+			TRACE_API ScopedGantt (level_t level, context_t context, char const * fmt, ...);
 			TRACE_API ~ScopedGantt ();
 		};
 		/**@class	ScopedGanttFrame
@@ -372,7 +372,7 @@
 			level_t m_level;
 			context_t m_context;
 
-			TRACE_API ScopedGanttFrame (char const * fmt, ...);
+			TRACE_API ScopedGanttFrame (level_t level, context_t context, char const * fmt, ...);
 			TRACE_API ~ScopedGanttFrame ();
 		};
 	}

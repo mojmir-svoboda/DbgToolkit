@@ -223,7 +223,7 @@
 			va_end(args);
 		}
 		void WriteGanttFrameEnd_Impl (level_t level, context_t context);
-		void WriteGanttFrameEnd (level_t level, context_t context) { WriteGanttFrameEnd_Impl(level_t level, context_t context); }
+		void WriteGanttFrameEnd (level_t level, context_t context) { WriteGanttFrameEnd_Impl(level, context); }
 
 		ScopedGantt::ScopedGantt (level_t level, context_t context, char const * fmt, ...)
 		{
@@ -247,7 +247,7 @@
 			va_end(args);
 		}
 
-		ScopedFrame::~ScopedFrame()
+		ScopedGanttFrame::~ScopedGanttFrame()
 		{
 			WriteGanttEnd(m_level, m_context);
 			WriteGanttFrameEnd(m_level, m_context);
