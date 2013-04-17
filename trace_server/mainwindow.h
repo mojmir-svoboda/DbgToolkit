@@ -54,7 +54,7 @@ class MainWindow : public QMainWindow
 	Q_OBJECT
 
 public:
-	explicit MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QString const & name);
+	explicit MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QString const & log_name, int level);
 	~MainWindow ();
 
 	QTabWidget * getTabTrace ();
@@ -293,6 +293,7 @@ private:
 	DockWidget * m_docked_widgets;
 	TreeView * m_docked_widgets_tree_view;
 	QString m_log_name;
+	int m_start_level;
 };
 
 #endif // MAINWINDOW_H

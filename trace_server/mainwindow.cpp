@@ -77,7 +77,7 @@ void MainWindow::loadNetworkSettings ()
 	m_config.m_profiler_port = settings.value("profiler_port", 13147).toInt();
 }
 
-MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QString const & log_name)
+MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QString const & log_name, int level)
 	: QMainWindow(parent)
 	, m_time_units(0.001f)
 	, ui(new Ui::MainWindow)
@@ -96,6 +96,7 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QStri
 	, m_docked_widgets(0)
 	, m_docked_widgets_tree_view(0)
 	, m_log_name(log_name)
+	, m_start_level(level)
 {
 	qDebug("================================================================================");
 	qDebug("%s", __FUNCTION__);
@@ -1249,7 +1250,16 @@ void MainWindow::loadState ()
 	ui_settings->clrFiltersCheckBox->setChecked(settings.value("clrFiltersCheckBox", false).toBool());
 	//ui->filterModeComboBox->setCurrentIndex(settings.value("filterModeComboBox").toInt());
 	//@TODO: delete filterMode from registry if exists
-	ui->levelSpinBox->setValue(settings.value("levelSpinBox", 3).toInt());
+	if (m_start_level == -1)
+	{
+		qDebug("reading saved level from cfg");
+		ui->levelSpinBox->setValue(settings.value("levelSpinBox", 3).toInt());
+	}
+	else
+	{
+		qDebug("reading level from command line");
+		ui->levelSpinBox->setValue(m_start_level);
+	}
 
 	ui_settings->tableRowSizeSpinBox->setValue(settings.value("tableRowSizeSpinBox", 18).toInt());
 	//ui_settings->tableFontComboBox->setValue(settings.value("tableFontComboBox", "Verdana 8").toInt());
