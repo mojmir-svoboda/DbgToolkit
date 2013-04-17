@@ -17,7 +17,7 @@ namespace sys {
 	 *	d) e_flushing --> e_clean
 	 *		data are flushed and buffer can be reused
 	 */
-	template <unsigned N = 192>
+	template <unsigned N>
 	struct Message
 	{
 		CACHE_ALIGN 		atomic32_t mutable volatile m_lock;

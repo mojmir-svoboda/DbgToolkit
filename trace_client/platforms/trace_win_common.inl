@@ -15,10 +15,10 @@ namespace trace {
 		_snprintf_s(filename, buff_sz, buff_sz - 1, "%s_%u.tlv_trace", app_name, ::GetCurrentProcessId());
 	}
 
-	typedef sys::Message<1024> msg_t;
+	typedef sys::Message<1536> msg_t;
 
 	/**@brief	simple pool of messages to be logged **/
-	template <class T, unsigned N = 512>
+	template <class T, unsigned N>
 	struct MessagePool
 	{
 		enum { e_size = N };

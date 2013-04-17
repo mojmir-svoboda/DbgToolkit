@@ -7,7 +7,7 @@ namespace trace {
 
 	inline void encode_va_fields (tlv::Encoder & e, char const * fmt, va_list args)
 	{
-		size_t const tlv_buff_sz = 256;
+		size_t const tlv_buff_sz = 1024;
 		char tlv_buff[tlv_buff_sz];
 		using namespace tlv;
 		e.Encode(TLV(tag_msg, sys::va_trc_vsnprintf(tlv_buff, tlv_buff_sz, fmt, args), tlv_buff));
@@ -15,7 +15,7 @@ namespace trace {
 
 	inline void encode_va_fields (tlv::Encoder & e, tlv::tag_t tag, char const * fmt, va_list args)
 	{
-		size_t const tlv_buff_sz = 256;
+		size_t const tlv_buff_sz = 1024;
 		char tlv_buff[tlv_buff_sz];
 		using namespace tlv;
 		e.Encode(TLV(tag, sys::va_trc_vsnprintf(tlv_buff, tlv_buff_sz, fmt, args), tlv_buff));
@@ -23,7 +23,7 @@ namespace trace {
 
 	inline void encode_str (tlv::Encoder & e, tlv::tag_t tag, char const * str)
 	{
-		size_t const tlv_buff_sz = 256;
+		size_t const tlv_buff_sz = 1024;
 		char tlv_buff[tlv_buff_sz];
 		using namespace tlv;
 		e.Encode(TLV(tag, sys::trc_vsnprintf(tlv_buff, tlv_buff_sz, "%s", str), tlv_buff)); // @TODO: use snprintf
