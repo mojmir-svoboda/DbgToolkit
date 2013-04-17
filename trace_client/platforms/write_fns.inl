@@ -2,6 +2,47 @@
 
 namespace trace {
 
+	// setup and utils
+	inline void SetCustomUserDictionnary (CtxDictPair const * ptr, size_t n)
+	{
+		if (GetRuntimeBuffering())
+		{
+			msg_t & msg = socks::acquire_msg_buffer();
+			msg.WriteLock();
+			{
+				encode_ctx_dict(msg, ptr, n);
+			}
+			msg.WriteUnlockAndDirty();
+		}
+		else
+		{
+			msg_t msg;
+			encode_ctx_dict(msg, ptr, n);
+			socks::WriteToSocket(msg.m_data, msg.m_length);
+		}
+	}
+
+	inline void ExportToCSV (char const * file)
+	{
+		if (GetRuntimeBuffering())
+		{
+			msg_t & msg = socks::acquire_msg_buffer();
+			msg.WriteLock();
+			{
+				encode_exportCSV(msg, file);
+			}
+			msg.WriteUnlockAndDirty();
+		}
+		else
+		{
+			msg_t msg;
+			encode_exportCSV(msg, file);
+			socks::WriteToSocket(msg.m_data, msg.m_length);
+		}
+	}
+
+
+	// message logging
 	inline void WriteLog (level_t level, context_t context, char const * file, int line, char const * fn, char const * fmt, va_list args)
 	{
 		if (GetRuntimeBuffering())
@@ -40,8 +81,6 @@ namespace trace {
 		}
 	}
 
-
-	// Scopes
 	inline void WriteScopeVA (ScopedLog::E_Type type, level_t level, context_t context, char const * file, int line, char const * fn, char const * fmt, va_list args)
 	{
 		if (GetRuntimeBuffering())
@@ -62,7 +101,7 @@ namespace trace {
 	}
 
 
-	// Plot
+	// Plotting
 	inline void WritePlot_impl (level_t level, context_t context, float x, float y, char const * fmt, va_list args)
 	{
 		if (GetRuntimeBuffering())
@@ -89,7 +128,7 @@ namespace trace {
 	}
 
 
-	// Table
+	// Table data logging
 	inline void WriteTable_impl (level_t level, context_t context, int x, int y, char const * fmt, va_list args)
 	{
 		if (GetRuntimeBuffering())
@@ -164,45 +203,111 @@ namespace trace {
 	}
 
 
-	// Dict
-	inline void SetCustomUserDictionnary (CtxDictPair const * ptr, size_t n)
+	// gantt write functions
+	void WriteGanttBgnVA (level_t level, context_t context, char const * fmt, va_list args)
 	{
 		if (GetRuntimeBuffering())
 		{
 			msg_t & msg = socks::acquire_msg_buffer();
 			msg.WriteLock();
 			{
-				encode_ctx_dict(msg, ptr, n);
+				encode_gantt_bgn(msg, level, context, fmt, args);
 			}
 			msg.WriteUnlockAndDirty();
 		}
-		else
-		{
-			msg_t msg;
-			encode_ctx_dict(msg, ptr, n);
-			socks::WriteToSocket(msg.m_data, msg.m_length);
-		}
 	}
 
-
-	// csv
-	inline void ExportToCSV (char const * file)
+	void WriteGanttBgn_Impl (level_t level, context_t context)
 	{
 		if (GetRuntimeBuffering())
 		{
 			msg_t & msg = socks::acquire_msg_buffer();
 			msg.WriteLock();
 			{
-				encode_exportCSV(msg, file);
+				encode_gantt_bgn(msg, level, context);
 			}
 			msg.WriteUnlockAndDirty();
 		}
-		else
+	}
+
+	void WriteGanttEndVA (level_t level, context_t context, char const * fmt, va_list args)
+	{
+		if (GetRuntimeBuffering())
 		{
-			msg_t msg;
-			encode_exportCSV(msg, file);
-			socks::WriteToSocket(msg.m_data, msg.m_length);
+			msg_t & msg = socks::acquire_msg_buffer();
+			msg.WriteLock();
+			{
+				encode_gantt_end(msg, level, context, fmt, args);
+			}
+			msg.WriteUnlockAndDirty();
 		}
 	}
+
+	void WriteGanttEnd_Impl (level_t level, context_t context)
+	{
+		if (GetRuntimeBuffering())
+		{
+			msg_t & msg = socks::acquire_msg_buffer();
+			msg.WriteLock();
+			{
+				encode_gantt_bgn(msg, level, context);
+			}
+			msg.WriteUnlockAndDirty();
+		}
+	}
+
+	void WriteGanttFrameBgnVA (level_t level, context_t context, char const * fmt, va_list args)
+	{
+		if (GetRuntimeBuffering())
+		{
+			msg_t & msg = socks::acquire_msg_buffer();
+			msg.WriteLock();
+			{
+				encode_gantt_frame_bgn(msg, level, context, fmt, args);
+			}
+			msg.WriteUnlockAndDirty();
+		}
+	}
+
+	void WriteGanttFrameBgn_Impl(level_t level, context_t context)
+	{
+		if (GetRuntimeBuffering())
+		{
+			msg_t & msg = socks::acquire_msg_buffer();
+			msg.WriteLock();
+			{
+				encode_gantt_frame_bgn(msg, level, context);
+			}
+			msg.WriteUnlockAndDirty();
+		}
+	}
+
+	void WriteGanttFrameEndVA (level_t level, context_t context, char const * fmt, va_list args)
+	{
+		if (GetRuntimeBuffering())
+		{
+			msg_t & msg = socks::acquire_msg_buffer();
+			msg.WriteLock();
+			{
+				encode_gantt_frame_end(msg, level, context, fmt, args);
+			}
+			msg.WriteUnlockAndDirty();
+		}
+	}
+
+	void WriteGanttFrameEnd_Impl (level_t level, context_t context)
+	{
+		if (GetRuntimeBuffering())
+		{
+			msg_t & msg = socks::acquire_msg_buffer();
+			msg.WriteLock();
+			{
+				encode_gantt_frame_end(msg, level, context);
+			}
+			msg.WriteUnlockAndDirty();
+		}
+	}
+
+
 }
 

@@ -80,6 +80,98 @@
 #	include TRACE_CONTEXTS_INCLUDE
 #	endif
 
+/*****************************************************************************/
+/* Text logging macros                                                       */
+/*****************************************************************************/
+
+/**	@macro		TRACE_MSG
+ *	@brief		logging of the form TRACE_MSG(lvl, ctx, fmt, ...)
+ **/
+#	define TRACE_MSG(level, context, fmt, ... )	\
+		trace::Write(static_cast<trace::level_t>(level), context, __FILE__, __LINE__, __FUNCTION__, fmt, __VA_ARGS__)
+/**	@macro		TRACE_MSG_VA
+ *	@brief		logging of the form TRACE_MSG_VA(lvl, ctx, fmt, va_list)
+ **/
+#	define TRACE_MSG_VA(level, context, fmt, vaargs)	\
+		trace::WriteVA(static_cast<trace::level_t>(level), context, __FILE__, __LINE__, __FUNCTION__, fmt, vaargs)
+
+/**	@macro		TRACE_SCOPE_MSG
+ *	@brief		logs "entry to" and "exit from" scope
+ *	@param[in]	fmt			formatted message appended to the scope
+ **/
+#	define TRACE_SCOPE_MSG(level, context, fmt, ...)	\
+		trace::ScopedLog UNIQUE(entry_guard_)(static_cast<trace::level_t>(level), context, __FILE__, __LINE__, __FUNCTION__, fmt, __VA_ARGS__)
+/**	@macro		TRACE_SCOPE
+ *	@brief		logs "entry to" and "exit from" scope
+ **/
+#	define TRACE_SCOPE(level, context)	TRACE_SCOPE_MSG(level, context, "%s", __FUNCTION__)
+
+/**	@macro		TRACE_CODE
+ *	@brief		code that is executed only when trace is enabled
+ **/
+#	define TRACE_CODE(code) code
+
+
+/*****************************************************************************/
+/* Plot logging macros                                                       */
+/*****************************************************************************/
+
+/**	@macro		TRACE_PLOT_XY
+ *	@brief		logging of 2d xy data in the form of 2d plot
+ **/
+#	define TRACE_PLOT_XY	trace::WritePlot
+/**	@macro		TRACE_PLOT_XYZ
+ *	@brief		logging of 3d xyz data
+ **/
+#	define TRACE_PLOT_XYZ	trace::WritePlot
+
+
+/*****************************************************************************/
+/* Table logging macros                                                      */
+/*****************************************************************************/
+
+/**	@macro		TRACE_TABLE
+ *	@brief		logging of tabular data
+ *	@see		trace::WriteTable
+ **/
+#	define TRACE_TABLE	trace::WriteTable
+#	define TRACE_TABLE_HHEADER	trace::WriteTableSetHHeader
+#	define TRACE_TABLE_COLOR	trace::WriteTableSetColor
+
+
+/*****************************************************************************/
+/* Gantt logging macros                                                      */
+/*****************************************************************************/
+
+/**	@macro		TRACE_GANTT_.*
+ *	@brief		logging of the form TRACE_GANTT_MSG(lvl, ctx, fmt, ...)
+ **/
+#	define TRACE_GANTT_BGN                  trace::WriteGanttBgn
+#	define TRACE_GANTT_END                  trace::WriteGanttEnd
+
+#	define TRACE_GANTT_FRAME_BGN            trace::WriteGanttFrameBgn
+#	define TRACE_GANTT_FRAME_END            trace::WriteGanttFrameEnd
+
+/**	@macro		TRACE_GANTT_MSG_VA
+ *	@brief		traces event into gantt chart  of the form TRACE_GANTT_MSG_VA(lvl, ctx, fmt, va_list)
+ **/
+#	define TRACE_GANTT_MSG_VA(fmt, vaargs)	trace::WriteGanttVA(fmt, vaargs);
+
+/**	@macro		TRACE_GANTT_SCOPE
+ *	@brief		traces event into gantt chart
+ **/
+#	define TRACE_GANTT_SCOPE                trace::ScopedGantt UNIQUE(profile_entry_guard_)
+
+/**	@macro		TRACE_GANTT_FRAME_SCOPE
+ *	@brief		traces frame into gantt chart
+ **/
+#	define TRACE_GANTT_FRAME_SCOPE          trace::ScopedGanttFrame UNIQUE(profile_entry_guard_)
+
+
+/*****************************************************************************/
+/* Basic setup and utilitary macros                                          */
+/*****************************************************************************/
+
 /**	@macro		TRACE_APPNAME
  *	@brief		sets application name that will be sent to server to identify
  **/
@@ -102,54 +194,6 @@
  **/
 #	define TRACE_SETBUFFERED(n) trace::SetRuntimeBuffering(n)
 
-
-/**	@macro		TRACE_MSG
- *	@brief		logging of the form TRACE_MSG(lvl, ctx, fmt, ...)
- **/
-#	define TRACE_MSG(level, context, fmt, ... )	\
-		trace::Write(static_cast<trace::level_t>(level), context, __FILE__, __LINE__, __FUNCTION__, fmt, __VA_ARGS__)
-/**	@macro		TRACE_MSG_VA
- *	@brief		logging of the form TRACE_MSG_VA(lvl, ctx, fmt, va_list)
- **/
-#	define TRACE_MSG_VA(level, context, fmt, vaargs)	\
-		trace::WriteVA(static_cast<trace::level_t>(level), context, __FILE__, __LINE__, __FUNCTION__, fmt, vaargs)
-
-/**	@macro		TRACE_PLOT_XY
- *	@brief		logging of 2d xy data in the form of 2d plot
- **/
-#	define TRACE_PLOT_XY	trace::WritePlot
-/**	@macro		TRACE_PLOT_XYZ
- *	@brief		logging of 3d xyz data
- **/
-#	define TRACE_PLOT_XYZ	trace::WritePlot
-
-
-/**	@macro		TRACE_TABLE
- *	@brief		logging of tabular data
- *	@see		trace::WriteTable
- **/
-#	define TRACE_TABLE	trace::WriteTable
-#	define TRACE_TABLE_HHEADER	trace::WriteTableSetHHeader
-#	define TRACE_TABLE_COLOR	trace::WriteTableSetColor
-
-
-/**	@macro		TRACE_SCOPE_MSG
- *	@brief		logs "entry to" and "exit from" scope
- *	@param[in]	fmt			formatted message appended to the scope
- **/
-#	define TRACE_SCOPE_MSG(level, context, fmt, ...)	\
-		trace::ScopedLog UNIQUE(entry_guard_)(static_cast<trace::level_t>(level), context, __FILE__, __LINE__, __FUNCTION__, fmt, __VA_ARGS__)
-/**	@macro		TRACE_SCOPE
- *	@brief		logs "entry to" and "exit from" scope
- **/
-#	define TRACE_SCOPE(level, context)	TRACE_SCOPE_MSG(level, context, "%s", __FUNCTION__)
-
-
-/**	@macro		TRACE_CODE
- *	@brief		code that is executed only when trace is enabled
- **/
-#	define TRACE_CODE(code) code
-
 /** @macro		TRACE_EXPORT_CSV
  *  @brief      causes export of current server content as csv format
  */
@@ -159,6 +203,7 @@
  *  @brief      causes export of current server content as csv format
  */
 #	define TRACE_SET_CTX_DICT()		trace::SetCustomUserDictionnary()
+
 
 	namespace trace {
 
@@ -228,9 +273,9 @@
 		 *			plot_name/curve_name
 		 *
 		 * @Example:
-		 *		WriteData(lvl, ctx, 1.0f, 2.0f, "my_plot/curve1");
-		 *		WriteData(lvl, ctx, 1.0f, 6.0f, "my_plot/curve2");
-		 *		WriteData(lvl, ctx, 1.0f,-1.0f, "my_plot2/c");
+		 *		WritePlot(lvl, ctx, 1.0f, 2.0f, "my_plot/curve1");
+		 *		WritePlot(lvl, ctx, 1.0f, 6.0f, "my_plot/curve2");
+		 *		WritePlot(lvl, ctx, 1.0f,-1.0f, "my_plot2/c");
 		 *		will add value 2 in curve1 and value in curve2, but they will be in the same
 		 *		plot "my_plot"
 		 *		third value of -1 will take place into another plot widget.
@@ -239,8 +284,7 @@
 		TRACE_API void WritePlot (level_t level, context_t context, float x, float y, float z, char const * fmt, ...);
 
 		/**@class	ScopedLog
-		 * @brief	RAII class for logging entry on construction and exit on destruction
-		 **/
+		 * @brief	RAII class for logging entry on construction and exit on destruction **/
 		struct TRACE_API ScopedLog
 		{
 			enum E_Type { e_Entry = 0, e_Exit = 1 };
@@ -254,6 +298,7 @@
 			ScopedLog (level_t level, context_t context, char const * file, int line, char const * fn, char const * fmt, ...);
 			~ScopedLog ();
 		};
+
 
 		/**@fn		Write table to log
 		 * @brief	writes tavle to log of the form (fmt, ...)
@@ -284,6 +329,52 @@
 		TRACE_API void WriteTableSetColor (level_t level, context_t context, int x, int y, Color fg, char const * fmt, ...);
 		TRACE_API void WriteTableSetColor (level_t level, context_t context, int x, int y, Color fg, Color bg, char const * fmt, ...);
 		TRACE_API void WriteTableSetHHeader (level_t level, context_t context, int x, char const * name, char const * fmt, ...);
+
+
+		/**@fn		WriteBgnGanttVA
+		 * @brief	write begin to gantt event in form (fmt, va_list) **/
+		TRACE_API void WriteGanttBgnVA (level_t level, context_t context, char const * fmt, va_list);
+
+		/**@fn		WriteGanttBgn
+		 * @brief	write begin to gantt evet in form (fmt, ...) **/
+#if defined __GCC__ || defined __MINGW32__ || defined __linux__
+		TRACE_API void WriteGanttBgn (level_t level, context_t context, char const * fmt, ...) __attribute__ ((format(printf, 1, 2) ));
+#elif defined _MSC_VER
+		TRACE_API void WriteGanttBgn (level_t level, context_t context, char const * fmt, ...);
+#endif
+		TRACE_API void WriteGanttBgn (level_t level, context_t context);
+		TRACE_API void WriteGanttEnd (level_t level, context_t context);
+		TRACE_API void WriteGanttEnd (level_t level, context_t context, char const * fmt, ...);
+
+#if defined __GCC__ || defined __MINGW32__ || defined __linux__
+		TRACE_API void WriteGanttFrameBgn (level_t level, context_t context, char const * fmt, ...) __attribute__ ((format(printf, 1, 2) ));
+#elif defined _MSC_VER
+		TRACE_API void WriteGanttFrameBgn (level_t level, context_t context, char const * fmt, ...);
+#endif
+		TRACE_API void WriteGanttFrameBgn (level_t level, context_t context);
+		TRACE_API void WriteGanttFrameEnd (level_t level, context_t context);
+		TRACE_API void WriteGanttFrameEnd (level_t level, context_t context, char const * fmt, ...);
+
+		/**@class	ScopedGantt
+		 * @brief	RAII class for gantt begin on construction and gantt end on destruction **/
+		struct ScopedGantt
+		{
+			level_t m_level;
+			context_t m_context;
+
+			TRACE_API ScopedGantt (char const * fmt, ...);
+			TRACE_API ~ScopedGantt ();
+		};
+		/**@class	ScopedGanttFrame
+		 * @brief	RAII class for gantt begin on construction and gantt end on destruction **/
+		struct ScopedGanttFrame
+		{
+			level_t m_level;
+			context_t m_context;
+
+			TRACE_API ScopedGanttFrame (char const * fmt, ...);
+			TRACE_API ~ScopedGanttFrame ();
+		};
 	}
 
 #else // no tracing at all
@@ -306,4 +397,9 @@
 #	define TRACE_TABLE_COLOR(...)											((void)0)
 #	define TRACE_SCOPE_MSG(level, context, fmt, ...)	((void)0)
 #	define TRACE_SCOPE(level, context)								((void)0)
+#	define TRACE_GANTT_BGN(fmt, ... )                     ((void)0)
+#	define TRACE_GANTT_BGN_VA(fmt, va)                    ((void)0)
+#	define TRACE_GANTT_SCOPE(fmt, ...)                    ((void)0)
+#	define TRACE_GANTT_FRAME_SCOPE(fmt, ...)              ((void)0)
 #endif // !TRACE_ENABLED
+

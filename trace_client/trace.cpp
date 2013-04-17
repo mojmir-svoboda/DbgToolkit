@@ -14,7 +14,8 @@
 		char const * g_AppName            = "trace_client";
 		bool         g_RuntimeBuffering   = true;
 
-		// setup
+
+		// setup and utils
 		void SetAppName (char const * name) { g_AppName = name; }
 		char const * GetAppName () { return g_AppName; }
 
@@ -26,6 +27,14 @@
 
 		void SetRuntimeContextMask (context_t mask) { g_RuntimeContextMask = mask; }
 		context_t GetRuntimeContextMask () { return g_RuntimeContextMask; }
+
+		inline void SetCustomUserDictionnary (CtxDictPair const * ptr, size_t n);
+		void SetCustomUserDictionnary ()
+		{
+			CtxDictPair const * ptr = 0;
+			size_t const n = getContextDictionnary(ptr);
+			SetCustomUserDictionnary(ptr, n);
+		}
 
 
 		// message logging
@@ -43,6 +52,31 @@
 			va_end(args);
 		}
 
+		inline void WriteScopeVA (ScopedLog::E_Type type, level_t level, context_t context, char const * file, int line, char const * fn, char const * fmt, va_list args);
+		inline void WriteScope (ScopedLog::E_Type type, level_t level, context_t context, char const * file, int line, char const * fn, char const * fmt, ...)
+		{
+			va_list args;
+			va_start(args, fmt);
+			WriteScopeVA(type, level, context, file, line, fn, fmt, args);
+			va_end(args);
+		}
+		ScopedLog::ScopedLog (level_t level, context_t context, char const * file, int line, char const * fn, char const * fmt, ...)
+			: m_level(level), m_context(context), m_file(file), m_line(line), m_fn(fn), m_start(sys::queryTime_ms())
+		{
+			if (RuntimeFilterPredicate(level, context))
+			{
+				va_list args;
+				va_start(args, fmt);
+				WriteScopeVA(e_Entry, level, context, file, line, fn, fmt, args);
+				va_end(args);
+			}
+		}
+		ScopedLog::~ScopedLog ()
+		{
+			if (RuntimeFilterPredicate(m_level, m_context))
+				WriteScope(e_Exit, m_level, m_context, m_file, m_line, m_fn, "dt=%llu", sys::queryTime_ms() - m_start);
+		}
+
 
 		// plot-data logging
 		inline void WritePlot_impl (level_t level, context_t context, float x, float y, char const * fmt, va_list args);
@@ -58,8 +92,8 @@
 			WritePlotVA(level, context, x, y, fmt, args);
 			va_end(args);
 		}
-		
-	
+
+
 		// table-data logging
 		inline void WriteTable_impl (level_t level, context_t context, int x, int y, char const * fmt, va_list args);
 		void WriteTableVA (level_t level, context_t context, int x, int y, char const * fmt, va_list args)
@@ -145,42 +179,80 @@
 			va_end(args);
 		}
 
-	
-		// scope logging
-		inline void WriteScopeVA (ScopedLog::E_Type type, level_t level, context_t context, char const * file, int line, char const * fn, char const * fmt, va_list args);
-		inline void WriteScope (ScopedLog::E_Type type, level_t level, context_t context, char const * file, int line, char const * fn, char const * fmt, ...)
+
+		// gantt chart event logging
+		void WriteGanttBgnVA (level_t level, context_t context, char const * fmt, va_list args);
+		void WriteGanttBgn (level_t level, context_t context, char const * fmt, ...)
 		{
 			va_list args;
 			va_start(args, fmt);
-			WriteScopeVA(type, level, context, file, line, fn, fmt, args);
+			WriteGanttBgnVA(level, context, fmt, args);
 			va_end(args);
 		}
-		ScopedLog::ScopedLog (level_t level, context_t context, char const * file, int line, char const * fn, char const * fmt, ...)
-			: m_level(level), m_context(context), m_file(file), m_line(line), m_fn(fn), m_start(sys::queryTime_ms())
+		void WriteGanttBgn_Impl (level_t level, context_t context);
+		void WriteGanttBgn (level_t level, context_t context) { WriteGanttBgn_Impl(level, context); }
+
+		void WriteGanttEndVA (level_t level, context_t context, char const * fmt, va_list args);
+		void WriteGanttEnd (level_t level, context_t context, char const * fmt, ...)
 		{
-			if (RuntimeFilterPredicate(level, context))
-			{
-				va_list args;
-				va_start(args, fmt);
-				WriteScopeVA(e_Entry, level, context, file, line, fn, fmt, args);
-				va_end(args);
-			}
+			va_list args;
+			va_start(args, fmt);
+			WriteGanttEndVA(level, context, fmt, args);
+			va_end(args);
 		}
-		ScopedLog::~ScopedLog ()
+		void WriteGanttEnd_Impl (level_t level, context_t context);
+		void WriteGanttEnd (level_t level, context_t context) { WriteGanttEnd_Impl(level, context); }
+
+		void WriteGanttFrameBgnVA (level_t level, context_t context, char const * fmt, va_list args);
+		void WriteGanttFrameBgn (level_t level, context_t context, char const * fmt, ...)
 		{
-			if (RuntimeFilterPredicate(m_level, m_context))
-				WriteScope(e_Exit, m_level, m_context, m_file, m_line, m_fn, "dt=%llu", sys::queryTime_ms() - m_start);
+			va_list args;
+			va_start(args, fmt);
+			WriteGanttFrameBgnVA(level, context, fmt, args);
+			va_end(args);
+		}
+		void WriteGanttFrameBgn_Impl(level_t level, context_t context);
+		void WriteGanttFrameBgn (level_t level, context_t context) { WriteGanttFrameBgn_Impl(level, context); }
+
+		void WriteGanttFrameEndVA (level_t level, context_t context, char const * fmt, va_list args);
+		void WriteGanttFrameEnd (level_t level, context_t context, char const * fmt, ...)
+		{
+			va_list args;
+			va_start(args, fmt);
+			WriteGanttFrameEndVA(level, context, fmt, args);
+			va_end(args);
+		}
+		void WriteGanttFrameEnd_Impl (level_t level, context_t context);
+		void WriteGanttFrameEnd (level_t level, context_t context) { WriteGanttFrameEnd_Impl(level_t level, context_t context); }
+
+		ScopedGantt::ScopedGantt (level_t level, context_t context, char const * fmt, ...)
+		{
+			va_list args;
+			va_start(args, fmt);
+			WriteGanttBgnVA(level, context, fmt, args);
+			va_end(args);
+		}
+		
+		ScopedGantt::~ScopedGantt ()
+		{
+			WriteGanttEnd(m_level, m_context);
 		}
 
-
-		// context dictionnary
-		inline void SetCustomUserDictionnary (CtxDictPair const * ptr, size_t n);
-		void SetCustomUserDictionnary ()
+		ScopedGanttFrame::ScopedGanttFrame (level_t level, context_t context, char const * fmt, ...)
 		{
-			CtxDictPair const * ptr = 0;
-			size_t const n = getContextDictionnary(ptr);
-			SetCustomUserDictionnary(ptr, n);
+			va_list args;
+			va_start(args, fmt);
+			WriteGanttFrameBgnVA(level, context, fmt, args);
+			WriteGanttBgnVA(level, context, fmt, args);
+			va_end(args);
 		}
+
+		ScopedFrame::~ScopedFrame()
+		{
+			WriteGanttEnd(m_level, m_context);
+			WriteGanttFrameEnd(m_level, m_context);
+		}
+
 	}
 #	include "platforms/select_platform.inl"
 
