@@ -152,7 +152,7 @@ char const * GetName () { return "aa"; }
 
 void TraceVal (int x, int y)
 {
-	TRACE_GANTT_SCOPE(trace::e_Info, trace::CTX_Default, "aa0/filling table[x=%i, y=%i]", x,y);
+	TRACE_GANTT_SCOPE(trace::e_Info, trace::CTX_Default, "aa0/g1/filling table[x=%i, y=%i]", x,y);
 	static int n = 0;
 	TRACE_TABLE(trace::e_Info, trace::CTX_Default, x, y, "%s0/%i",GetName(), n);
 	TRACE_TABLE(trace::e_Info, trace::CTX_Default, x, y, "%s1/%i",GetName(), n);		
