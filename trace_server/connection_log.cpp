@@ -322,20 +322,3 @@ void Connection::onShowContextMenu (QPoint const & pos)
     { }
 }
 
-void Connection::onSaveAll ()
-{
-	qDebug("%s", __FUNCTION__);
-	// @TODO: v hhdr bude 0 !
-	for (dataplots_t::iterator it = m_dataplots.begin(), ite = m_dataplots.end(); it != ite; ++it)
-	{
-		DataPlot * dp = (*it);
-		dp->widget().onSaveButton();
-	}
-
-	for (datatables_t::iterator it = m_datatables.begin(), ite = m_datatables.end(); it != ite; ++it)
-	{
-		DataTable * dt = (*it);
-		dt->widget().onSaveButton();
-	}	
-}
-

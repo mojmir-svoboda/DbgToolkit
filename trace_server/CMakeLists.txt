@@ -56,42 +56,49 @@ SET(trace_server_SOURCES
 	delegates.cpp
 	server.cpp
 	server_filtering.cpp
-	filterproxy.cpp
 	connection.cpp
 	connection_find.cpp
-	connection_log.cpp
 	connection_stream.cpp
-	connection_plot.cpp
-	connection_table.cpp
 	connection_setup.cpp
 	connection_filtering.cpp
 	sessionstate.cpp
 	settings.cpp
-	rvps.cpp
+	serialization.cpp
 	statswindow.cpp
+	constants.cpp
+	config.cpp
+	dock.cpp
+
+	connection_log.cpp
+	filterproxy.cpp
+
+	rvps.cpp
 	profilerconnection.cpp
 	profilerbar.cpp
 	profilergraphicsview.cpp
 	profilerview.cpp
 	profilerwindow.cpp
 	profilermainwindow.cpp
-	serialization.cpp
-	constants.cpp
-	config.cpp
-	dock.cpp
+
+	connection_plot.cpp
 	baseplot.cpp
 	simpleplot.cpp
 	pickableplot.cpp
 	plotconfig.cpp
 	plottypes.cpp
+
+	connection_table.cpp
 	basetable.cpp
 	tableconfig.cpp
 	tablemodelview.cpp
 	editableheaderview.cpp
 	sparseproxy.cpp
+
 	connection_gantt.cpp
 	ganttconfig.cpp
 	basegantt.cpp
+	ganttview.cpp
+	ganttitem.cpp
 	)
 
 SET(trace_server_HEADERS
@@ -138,9 +145,13 @@ SET(trace_server_HEADERS
 	tablemodelview.h
 	editableheaderview.h
 	sparseproxy.h
+
 	basegantt.h
 	ganttconfig.h
 	ganttctxmenu.h
+	ganttview.h
+	ganttdata.h
+	ganttitem.h
 	)
 
 SET(trace_server_UI 

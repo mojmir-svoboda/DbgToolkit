@@ -5,6 +5,7 @@
 #include "utils.h"
 #include "dock.h"
 #include "delegates.h"
+#include "ganttview.h"
 //#include <cstdlib>
 
 DataGantt::DataGantt (Connection * parent, gantt::GanttConfig & config, QString const & fname)
@@ -69,7 +70,7 @@ void Connection::onShowGanttContextMenu (QPoint const &)
 bool Connection::handleGanttBgnCommand (DecodedCommand const & cmd)
 {
 	QString tag;
-	QString tid;
+	QString ctx;
 	QString time;
 	QString fgc;
 	QString bgc;
@@ -79,8 +80,8 @@ bool Connection::handleGanttBgnCommand (DecodedCommand const & cmd)
 			tag = cmd.tvs[i].m_val;
 		else if (cmd.tvs[i].m_tag == tlv::tag_time)
 			time = cmd.tvs[i].m_val;
-		else if (cmd.tvs[i].m_tag == tlv::tag_tid)
-			tid = cmd.tvs[i].m_val;
+		else if (cmd.tvs[i].m_tag == tlv::tag_ctx)
+			ctx = cmd.tvs[i].m_val;
 		else if (cmd.tvs[i].m_tag == tlv::tag_fgc)
 			fgc = cmd.tvs[i].m_val;
 		else if (cmd.tvs[i].m_tag == tlv::tag_bgc)
@@ -89,19 +90,22 @@ bool Connection::handleGanttBgnCommand (DecodedCommand const & cmd)
 
 	if (m_main_window->ganttState() != e_FtrDisabled)
 	{
-		appendGanttBgn(time, tid, fgc, bgc, tag);
+		appendGanttBgn(time, ctx, fgc, bgc, tag);
 	}
 	return true;
 
 }
 bool Connection::handleGanttEndCommand (DecodedCommand const & cmd)
 {
+	return true;
 }
 bool Connection::handleGanttFrameBgnCommand (DecodedCommand const & cmd)
 {
+	return true;
 }
 bool Connection::handleGanttFrameEndCommand (DecodedCommand const & cmd)
 {
+	return true;
 }
 
 bool Connection::loadConfigForGantt (QString const & preset_name, gantt::GanttConfig & config, QString const & tag)
@@ -189,7 +193,7 @@ datagantts_t::iterator Connection::findOrCreateGantt (QString const & tag)
 	return it;
 }
 
-void Connection::appendGanttBgn (QString const & time, QString const & tid, QString const & fgc, QString const & bgc, QString const & msg_tag)
+void Connection::appendGanttBgn (QString const & time, QString const & ctx, QString const & fgc, QString const & bgc, QString const & msg_tag)
 {
 	QString tag = msg_tag;
 	int const slash_pos = tag.lastIndexOf(QChar('/'));
@@ -198,10 +202,14 @@ void Connection::appendGanttBgn (QString const & time, QString const & tid, QStr
 	QString subtag = msg_tag;
 	subtag.remove(0, slash_pos + 1);
 
+	qDebug("appendGanttBgn tag=%s subtag=%s", tag.toStdString().c_str(), subtag.toStdString().c_str());
+
 	datagantts_t::iterator it = findOrCreateGantt(tag);
 
 	DataGantt & dp = **it;
-	//dp.widget().appendGanttXY(x, y, time, fgc, bgc, subtag);
+
+	gantt::GanttView * gv = dp.widget().findOrCreateGanttView(subtag);
+	gv->appendGanttBgn(time, ctx, fgc, bgc, subtag);
 }
 
 /*void Connection::requestGanttSynchronization (int sync_group, unsigned long long time)

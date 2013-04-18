@@ -152,6 +152,7 @@ char const * GetName () { return "aa"; }
 
 void TraceVal (int x, int y)
 {
+	TRACE_GANTT_SCOPE(trace::e_Info, trace::CTX_Default, "gantt1/filling table[x=%i, y=%i]", x,y);
 	static int n = 0;
 	TRACE_TABLE(trace::e_Info, trace::CTX_Default, x, y, "%s0/%i",GetName(), n);
 	TRACE_TABLE(trace::e_Info, trace::CTX_Default, x, y, "%s1/%i",GetName(), n);		
@@ -268,6 +269,7 @@ int main ()
 		usleep(2000 * 1000);	
 #endif
 
+		TRACE_GANTT_SCOPE(trace::e_Info, trace::CTX_Default, "gantt0/tracing table[tick=%i]", i);
 		TRACE_MSG(trace::e_Info, trace::CTX_Default,	"%s", "This message should periodicaly appear too.");
 		
 		//for(size_t i = 0; i < 4; ++i)

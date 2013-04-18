@@ -4,6 +4,7 @@
 #include "utils.h"
 #include "utils_qstandarditem.h"
 #include "delegates.h"
+#include "ganttview.h"
 
 namespace gantt {
 
@@ -29,6 +30,13 @@ namespace gantt {
 	BaseGantt::~BaseGantt ()
 	{
 		qDebug("%s this=0x%08x", __FUNCTION__, this);
+		for (ganttviews_t::iterator it = m_ganttviews.begin(), ite = m_ganttviews.end(); it != ite; ++it)
+		{
+			GanttView * ganttview = *it;
+			//ganttview->m_ganttview->detach();
+			delete ganttview;
+		}
+		m_ganttviews.clear();
 		disconnect(this, SIGNAL(customContextMenuRequested(QPoint const &)), this, SLOT(onShowContextMenu(QPoint const &)));
 	}
 
@@ -42,11 +50,65 @@ namespace gantt {
 		hide();
 	}
 
+	BaseGantt::ganttviews_t::iterator BaseGantt::mkGanttView (QString const & subtag)
+	{
+		GanttViewConfig * c = 0;
+		bool found = false;
+		for (size_t i = 0, ie = m_config.m_gvcfg.size(); i < ie; ++i)
+			if (m_config.m_gvcfg[i].m_tag == subtag)
+			{
+				c = &m_config.m_gvcfg[i];
+				found = true;
+			}
+		if (!found)
+		{
+			GanttViewConfig c2;
+			c2.m_tag = subtag;
+			//c2.m_label = subtag;
+			//c2.m_color = allocColor();
+			m_config.m_gvcfg.push_back(c2);
+			c = &m_config.m_gvcfg.back();
+		}
+
+		GanttView * gv = new GanttView(m_connection, this, *c, subtag);
+		return m_ganttviews.insert(subtag, gv);
+	}
+
+
+	GanttView * BaseGantt::findGanttView (QString const & subtag)
+	{
+		ganttviews_t::const_iterator it = m_ganttviews.find(subtag);
+		if (it == m_ganttviews.end())
+			return 0;
+		return *it;
+	}
+	GanttView * BaseGantt::findOrCreateGanttView (QString const & subtag)
+	{
+		ganttviews_t::const_iterator it = m_ganttviews.find(subtag);
+		if (it == m_ganttviews.end())
+			it = mkGanttView(subtag);
+		return *it;
+	}
+
+
 	void BaseGantt::applyConfig (GanttConfig & cfg)
 	{
 		qDebug("%s this=0x%08x", __FUNCTION__, this);
 		Ui::SettingsGantt * ui = m_config_ui.ui();
 
+		for (size_t i = 0, ie = m_config.m_gvcfg.size(); i < ie; ++i)
+		{
+			GanttViewConfig const & gvc = cfg.m_gvcfg[i];
+			if (GanttView * const gv = findOrCreateGanttView(gvc.m_tag))
+			{
+				// gvc -> gv
+				showGanttView(gv, gvc.m_show);
+			}
+		}
+	}
+
+	void BaseGantt::showGanttView (GanttView * item, bool on)
+	{
 	}
 
 	void BaseGantt::onHideContextMenu ()
@@ -67,9 +129,10 @@ namespace gantt {
 		setConfigValuesToUI(m_config);
 		connect(ui->applyButton, SIGNAL(clicked()), this, SLOT(onApplyButton()));
 		connect(ui->saveButton, SIGNAL(clicked()), this, SLOT(onSaveButton()));
+		connect(ui->ganttViewComboBox, SIGNAL(activated(int)), this, SLOT(onGanttViewActivate(int)));
 	}
 
-	void BaseGantt::filteringStateChanged (int state)
+	/*void BaseGantt::filteringStateChanged (int state)
 	{
 		if (m_config.m_hide_empty ^ state)
 		{
@@ -78,16 +141,23 @@ namespace gantt {
 			applyConfig(m_config);
 			setConfigValuesToUI(m_config);
 		}
-	}
+	}*/
 
 	void BaseGantt::setConfigValuesToUI (GanttConfig const & cfg)
 	{
 		qDebug("%s this=0x%08x", __FUNCTION__, this);
 		Ui::SettingsGantt * ui = m_config_ui.ui();
 		
-		ui->ganttShowCheckBox->blockSignals(true);
-		ui->ganttShowCheckBox->setCheckState(cfg.m_show ? Qt::Checked : Qt::Unchecked);
-		ui->ganttShowCheckBox->blockSignals(false);
+		ui->viewShowCheckBox->blockSignals(true);
+		ui->viewShowCheckBox->setCheckState(cfg.m_show ? Qt::Checked : Qt::Unchecked);
+		ui->viewShowCheckBox->blockSignals(false);
+
+		ui->ganttViewComboBox->clear();
+		for (size_t i = 0, ie = cfg.m_gvcfg.size(); i < ie; ++i)
+		{
+			GanttViewConfig const & gvcfg = cfg.m_gvcfg[i];
+			ui->ganttViewComboBox->addItem(gvcfg.m_tag);
+		}
 
 		/*ui->filteringCheckBox->blockSignals(true);
 		ui->filteringCheckBox->setCheckState(cfg.m_hide_empty ? Qt::Checked : Qt::Unchecked);
@@ -150,9 +220,8 @@ namespace gantt {
 	{
 		qDebug("%s this=0x%08x", __FUNCTION__, this);
 		Ui::SettingsGantt * ui = m_config_ui.ui();
-		m_config.m_hide_empty = ui->filteringCheckBox->checkState() == Qt::Checked;
-		m_config.m_auto_scroll = ui->autoScrollCheckBox->checkState() == Qt::Checked;
-		m_config.m_sync_group = ui->syncGroupSpinBox->value();
+		//m_config.m_auto_scroll = ui->autoScrollCheckBox->checkState() == Qt::Checked;
+		//m_config.m_sync_group = ui->syncGroupSpinBox->value();
 	}
 
 	void BaseGantt::onApplyButton ()
@@ -178,7 +247,38 @@ namespace gantt {
 		setConfigValuesToUI(defaults);
 	}
 
-	void BaseGantt::appendGanttXY (QString const & msg)
+	void BaseGantt::onGanttViewActivate (int idx)
+	{
+		Ui::SettingsGantt * ui = m_config_ui.ui();
+		QString const & gvname = ui->ganttViewComboBox->currentText();
+		for (size_t i = 0, ie = m_config.m_gvcfg.size(); i < ie; ++i)
+		{
+			GanttViewConfig const & gvcfg = m_config.m_gvcfg[i];
+			if (gvcfg.m_tag == gvname)
+			{
+				ui->showGanttViewCheckBox->setCheckState(gvcfg.m_show ? Qt::Checked : Qt::Unchecked);
+				//m_config_ui.m_curve_color->setCurrentColor(ccfg.m_color);
+				//m_config_ui.m_symbol_color->setCurrentColor(ccfg.m_color);
+				break;
+			}
+		}
+	}
+
+	void BaseGantt::onClearAllDataButton ()
+	{
+		for (ganttviews_t::iterator it = m_ganttviews.begin(), ite = m_ganttviews.end(); it != ite; ++it)
+		{
+			GanttView * ganttview = *it;
+			//if (ganttview->m_data)
+			{
+				//ganttview->m_data->clear();
+				//ganttview->m_ganttview->setRawSamples(0, 0, 0);
+			}
+		}
+		//update();
+	}
+
+	void BaseGantt::onClearGanttViewDataButton ()
 	{
 	}
 

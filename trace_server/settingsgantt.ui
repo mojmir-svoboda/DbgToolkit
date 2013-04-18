@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>328</width>
-    <height>184</height>
+    <height>239</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -22,9 +22,9 @@
      <number>0</number>
     </property>
     <item row="0" column="1">
-     <layout class="QGridLayout" name="gridLayout">
+     <layout class="QGridLayout" name="gL">
       <item row="0" column="1">
-       <widget class="QCheckBox" name="showCheckBox">
+       <widget class="QCheckBox" name="viewShowCheckBox">
         <property name="font">
          <font>
           <family>Verdana</family>
@@ -66,7 +66,7 @@
        </widget>
       </item>
       <item row="0" column="2">
-       <spacer name="horizontalSpacer">
+       <spacer name="hS">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>
@@ -78,10 +78,17 @@
         </property>
        </spacer>
       </item>
-      <item row="1" column="1">
+      <item row="2" column="1">
        <widget class="Line" name="line">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QPushButton" name="clearAllButton">
+        <property name="text">
+         <string>ClearAllData</string>
         </property>
        </widget>
       </item>
@@ -104,11 +111,11 @@
        </attribute>
        <layout class="QGridLayout" name="gridLayout_4">
         <item row="0" column="0">
-         <layout class="QGridLayout" name="gridLayout_3">
+         <layout class="QGridLayout" name="gL_3">
           <property name="spacing">
            <number>0</number>
           </property>
-          <item row="1" column="1">
+          <item row="5" column="1">
            <widget class="QSpinBox" name="syncGroupCheckBox">
             <property name="font">
              <font>
@@ -118,7 +125,7 @@
             </property>
            </widget>
           </item>
-          <item row="1" column="0">
+          <item row="5" column="0">
            <widget class="QLabel" name="label_2">
             <property name="font">
              <font>
@@ -131,8 +138,22 @@
             </property>
            </widget>
           </item>
+          <item row="1" column="0">
+           <widget class="QSlider" name="scaleSlider">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
+          <item row="6" column="0">
+           <widget class="QPushButton" name="clearGanttViewDataButton">
+            <property name="text">
+             <string>Clear Graph Data</string>
+            </property>
+           </widget>
+          </item>
           <item row="0" column="0">
-           <widget class="QCheckBox" name="graphShowCheckBox">
+           <widget class="QCheckBox" name="showGanttViewCheckBox">
             <property name="text">
              <string>show</string>
             </property>
@@ -145,19 +166,19 @@
      </widget>
     </item>
     <item row="2" column="1">
-     <layout class="QHBoxLayout" name="horizontalLayout">
+     <layout class="QHBoxLayout" name="hL">
       <property name="topMargin">
        <number>0</number>
       </property>
       <item>
-       <widget class="QLabel" name="label">
+       <widget class="QLabel" name="l0">
         <property name="text">
          <string>Graph:</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QComboBox" name="grapgComboBox">
+       <widget class="QComboBox" name="ganttViewComboBox">
         <property name="minimumSize">
          <size>
           <width>128</width>
@@ -167,7 +188,7 @@
        </widget>
       </item>
       <item>
-       <spacer name="horizontalSpacer_2">
+       <spacer name="hS_2">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>
