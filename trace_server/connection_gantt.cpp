@@ -195,21 +195,25 @@ datagantts_t::iterator Connection::findOrCreateGantt (QString const & tag)
 
 void Connection::appendGanttBgn (QString const & time, QString const & ctx, QString const & fgc, QString const & bgc, QString const & msg_tag)
 {
-	QString tag = msg_tag;
-	int const slash_pos = tag.lastIndexOf(QChar('/'));
-	tag.chop(msg_tag.size() - slash_pos);
-
 	QString subtag = msg_tag;
-	subtag.remove(0, slash_pos + 1);
+	int const slash_pos0 = subtag.lastIndexOf(QChar('/'));
+	subtag.chop(msg_tag.size() - slash_pos0);
 
-	qDebug("appendGanttBgn tag=%s subtag=%s", tag.toStdString().c_str(), subtag.toStdString().c_str());
+	QString tag = subtag;
+	int const slash_pos1 = tag.lastIndexOf(QChar('/'));
+	tag.chop(tag.size() - slash_pos1);
+
+	subtag.remove(0, slash_pos1);
+
+	QString msg = msg_tag;
+	msg.remove(0, slash_pos0 + 1);
+
+	qDebug("appendGanttBgn tag=%s subtag=%s msg=%s", tag.toStdString().c_str(), subtag.toStdString().c_str(), msg.toStdString().c_str());
 
 	datagantts_t::iterator it = findOrCreateGantt(tag);
-
 	DataGantt & dp = **it;
-
 	gantt::GanttView * gv = dp.widget().findOrCreateGanttView(subtag);
-	gv->appendGanttBgn(time, ctx, fgc, bgc, subtag);
+	gv->appendGanttBgn(time, ctx, fgc, bgc, msg);
 }
 
 /*void Connection::requestGanttSynchronization (int sync_group, unsigned long long time)

@@ -152,7 +152,7 @@ char const * GetName () { return "aa"; }
 
 void TraceVal (int x, int y)
 {
-	TRACE_GANTT_SCOPE(trace::e_Info, trace::CTX_Default, "gantt1/filling table[x=%i, y=%i]", x,y);
+	TRACE_GANTT_SCOPE(trace::e_Info, trace::CTX_Default, "aa0/filling table[x=%i, y=%i]", x,y);
 	static int n = 0;
 	TRACE_TABLE(trace::e_Info, trace::CTX_Default, x, y, "%s0/%i",GetName(), n);
 	TRACE_TABLE(trace::e_Info, trace::CTX_Default, x, y, "%s1/%i",GetName(), n);		
@@ -222,7 +222,7 @@ int main ()
 #endif
 	TRACE_APPNAME("WarHorse_App");
 	TRACE_CONNECT();
-	TRACE_GANTT_SCOPE(trace::e_Info, trace::CTX_Default, "gantt0/Entered %s...", __FUNCTION__);
+	TRACE_GANTT_SCOPE(trace::e_Info, trace::CTX_Default, "aa0/g0/Entered %s...", __FUNCTION__);
 	for (int k = 0; k < 1; ++k)
 		for (int i = 0; i < 64; ++i)
 		{
@@ -262,14 +262,14 @@ int main ()
 	{
 		static int i	 = 0;
 
-		TRACE_GANTT_SCOPE(trace::e_Info, trace::CTX_Default, "gantt0/main loop[tick=%i]", i);
+		TRACE_GANTT_SCOPE(trace::e_Info, trace::CTX_Default, "aa0/g0/main loop[tick=%i]", i);
 #if defined WIN32 || defined WIN64
 		Sleep(200);	
 #elif defined __linux__
 		usleep(2000 * 1000);	
 #endif
 
-		TRACE_GANTT_SCOPE(trace::e_Info, trace::CTX_Default, "gantt0/tracing table[tick=%i]", i);
+		TRACE_GANTT_SCOPE(trace::e_Info, trace::CTX_Default, "aa0/g1/tracing table[tick=%i]", i);
 		TRACE_MSG(trace::e_Info, trace::CTX_Default,	"%s", "This message should periodicaly appear too.");
 		
 		//for(size_t i = 0; i < 4; ++i)
