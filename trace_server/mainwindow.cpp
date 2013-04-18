@@ -1144,6 +1144,7 @@ void MainWindow::storeState ()
 	settings.setValue("filterFileCheckBox", ui->filterFileCheckBox->isChecked());
 	settings.setValue("tableSlider", ui->tableSlider->value());
 	settings.setValue("plotSlider", ui->plotSlider->value());
+	settings.setValue("ganttSlider", ui->ganttSlider->value());
 	settings.setValue("buffCheckBox", ui->buffCheckBox->isChecked());
 	settings.setValue("clrFiltersCheckBox", ui_settings->clrFiltersCheckBox->isChecked());
 	//settings.setValue("filterModeComboBox", ui->filterModeComboBox->currentIndex());
@@ -1246,6 +1247,7 @@ void MainWindow::loadState ()
 
 	ui->tableSlider->setValue(settings.value("tableSlider", 0).toInt());
 	ui->plotSlider->setValue(settings.value("plotSlider", 0).toInt());
+	ui->ganttSlider->setValue(settings.value("ganttSlider", 0).toInt());
 	ui->filterFileCheckBox->setChecked(settings.value("filterFileCheckBox", true).toBool());
 	ui->buffCheckBox->setChecked(settings.value("buffCheckBox", true).toBool());
 	ui_settings->clrFiltersCheckBox->setChecked(settings.value("clrFiltersCheckBox", false).toBool());
