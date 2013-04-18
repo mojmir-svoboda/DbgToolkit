@@ -203,7 +203,7 @@ void Connection::appendGanttBgn (QString const & time, QString const & ctx, QStr
 	int const slash_pos1 = tag.lastIndexOf(QChar('/'));
 	tag.chop(tag.size() - slash_pos1);
 
-	subtag.remove(0, slash_pos1);
+	subtag.remove(0, slash_pos1 + 1);
 
 	QString msg = msg_tag;
 	msg.remove(0, slash_pos0 + 1);
