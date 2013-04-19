@@ -250,7 +250,7 @@ namespace trace {
 			msg_t & msg = socks::acquire_msg_buffer();
 			msg.WriteLock();
 			{
-				encode_gantt_bgn(msg, level, context);
+				encode_gantt_end(msg, level, context);
 			}
 			msg.WriteUnlockAndDirty();
 		}
