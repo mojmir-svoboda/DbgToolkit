@@ -20,6 +20,9 @@ namespace gantt {
 		setContextMenuPolicy(Qt::CustomContextMenu);
 		connect(this, SIGNAL(customContextMenuRequested(QPoint const &)), this, SLOT(onShowContextMenu(QPoint const &)));
 
+		m_layout = new QGridLayout;
+		setLayout(m_layout);
+
 		setConfigValuesToUI(m_config);
 		onApplyButton();
 		//setUpdatesEnabled(true);
@@ -71,6 +74,8 @@ namespace gantt {
 		}
 
 		GanttView * gv = new GanttView(m_connection, this, *c, subtag);
+
+		m_layout->addWidget(gv, 0, 0);
 		return m_ganttviews.insert(subtag, gv);
 	}
 

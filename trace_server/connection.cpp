@@ -104,6 +104,7 @@ Connection::~Connection ()
 
 	destroyDockedWidgets(m_dataplots, *m_main_window);
 	destroyDockedWidgets(m_datatables, *m_main_window);
+	destroyDockedWidgets(m_datagantts, *m_main_window);
 
 	if (m_tcpstream)
 	{

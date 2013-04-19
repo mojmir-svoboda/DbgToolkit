@@ -36,6 +36,7 @@
 #include "baseplot.h"
 #include "basetable.h"
 #include "basegantt.h"
+#include "ganttdata.h"
 #include "treeview.h"
 
 class Server;
@@ -275,7 +276,7 @@ private:
 	void appendTableSetup (int x, int y, QString const & time, QString const & fgc, QString const & bgc, QString const & hhdr, QString const & tag);
 
 	datagantts_t::iterator findOrCreateGantt (QString const & tag);
-	void appendGanttBgn (QString const & time, QString const & tid, QString const & fgc, QString const & bgc, QString const & tag);
+	void appendGantt (gantt::DecodedData &);
 
 	bool appendToFilters (DecodedCommand const & cmd);
 	void appendToTIDFilters (QString const & item);

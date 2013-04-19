@@ -24,7 +24,7 @@ namespace gantt {
 			, m_symbolcolor(Qt::red)
 			, m_symbolsize(6)
 			, m_fontsize(6)
-			, m_timescale(6)
+			, m_timescale(1.0f)
 			, m_show(true)
 			, m_auto_scroll(true)
 		{ }

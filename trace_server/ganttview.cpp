@@ -5,107 +5,294 @@
 #	include <QtOpenGL>
 #endif
 #include <qmath.h>
+#include "ganttitem.h"
+#include "hsv.h"
 
 namespace gantt {
 
 int g_heightValue = 38;
 int g_spaceValue = 15;
-float g_scaleValue = 1.0f;
 
-void GanttView::appendGanttBgn (QString const & time, QString const & tid, QString const & fgc, QString const & bgc, QString const & tag)
+void GanttView::initColors ()
 {
+	// pick colors for unique clusters
+	m_unique_colors.reserve(m_max_unique_colors);
+	for (size_t hi = 0; hi < 360; hi += 360 / m_max_unique_colors)
+	{
+		HSV hsv;
+		hsv.h = hi / 360.0f;
+		hsv.s = 0.70f + tmp_randf() * 0.2f - 0.05f;
+		hsv.v = 0.85f + tmp_randf() * 0.2f - 0.05f;
+		QColor qcolor;
+		qcolor.setHsvF(hsv.h, hsv.s, hsv.v);
+		m_unique_colors.push_back(qcolor);
+	}
 }
+
+GfxView & GanttView::createViewForContext (unsigned long long ctx, QGraphicsScene * s)
+{
+	contextviews_t::iterator it = m_contextviews.find(ctx);
+	if (it == m_contextviews.end())		
+	{
+		GraphicsView * view = new GraphicsView();
+		view->setRenderHint(QPainter::Antialiasing, false);
+		view->setDragMode(QGraphicsView::RubberBandDrag);
+		view->setOptimizationFlags(QGraphicsView::DontSavePainterState);
+		view->setViewportUpdateMode(QGraphicsView::SmartViewportUpdate);
+		m_layout->addWidget(view, 0, 0);
+
+		QGraphicsScene * scene = (s == 0) ? new QGraphicsScene() : s;
+		GfxView g;
+		g.m_view = view;
+		g.m_scene = scene;
+
+		it = m_contextviews.insert(ctx, g);
+		return *it;
+	}
+	return *it;
+}
+
+GfxView & GanttView::viewAt (unsigned long long ctx)
+{
+	contextviews_t::iterator it = m_contextviews.find(ctx);
+	if (it == m_contextviews.end())
+		return createViewForContext(ctx, NULL);
+	return *it;
+}
+
+void GanttView::appendFrameBgn (DecodedData & dd)
+{
+	m_ganttData.m_frame_begin = dd.m_time;
+	m_ganttData.m_completed_frame_data.push_back(new contextdata_t()); // @TODO: reserve
+
+	for(size_t i = 0, ie = m_ganttData.m_contexts.size(); i < ie; ++i)
+	{
+		m_ganttData.m_completed_frame_data.back()->push_back(data_t()); // @TODO: reserve
+	}
+
+	++m_ganttData.m_frame;
+}
+
+void GanttView::appendFrameEnd (DecodedData & dd)
+{
+	float const scale = m_gvcfg.m_timescale;
+	m_ganttData.m_frames.push_back(std::make_pair(m_ganttData.m_frame_begin / scale, dd.m_time / scale));
+
+	size_t const from = m_last_flush_end_idx;
+	size_t const to = m_ganttData.m_completed_frame_data.size();
+	//qDebug("flushing from %i to %i", from, to);
+
+	for (size_t i = from; i < to; ++i)
+	{
+		//qDebug("producing item=0x%016x %i, sz=%u", m_ganttData.m_completed_frame_infos[i], i, m_ganttData.m_completed_frame_infos[i]->size());
+		consumeData(m_ganttData.m_completed_frame_data[i]);
+	}
+
+	//dump
+	/*for (size_t i = from; i < to; ++i)
+		for (size_t j = 0, je = m_ganttData.m_completed_frame_infos[i]->size(); j < je; ++j)
+			qDebug("producing item[%i]=0x%016x, contexts=%u bis_sz=%u", i, m_ganttData.m_completed_frame_infos[i], m_ganttData.m_completed_frame_infos[i]->size(),  m_ganttData.m_completed_frame_infos[i]->operator[](j).size());
+*/
+	m_last_flush_end_idx = to;
+	//emit incomingProfilerData(&m_rvp);
+
+}
+void GanttView::appendBgn (DecodedData & dd)
+{
+	Data * prev = 0;
+	if (m_ganttData.m_pending_data[dd.m_ctx_idx].size())
+		prev = m_ganttData.m_pending_data[dd.m_ctx_idx].back();
+	m_ganttData.m_data_ptrs.push_back(new Data());
+	m_ganttData.m_pending_data[dd.m_ctx_idx].push_back(m_ganttData.m_data_ptrs.back());
+	Data & d = *m_ganttData.m_pending_data[dd.m_ctx_idx].back();
+	d.m_time_bgn = dd.m_time;
+	d.m_ctx = dd.m_ctx;
+	d.m_ctx_idx = dd.m_ctx_idx;
+	d.m_msg = dd.m_text;
+	d.m_layer = m_ganttData.m_pending_data[dd.m_ctx_idx].size() - 1;
+	d.m_frame = m_ganttData.m_frame;
+	d.m_parent = prev;
+}
+
+void GanttView::appendEnd (DecodedData & dd)
+{
+	unsigned const frame_idx = m_ganttData.m_frame;
+	Data * d = m_ganttData.m_pending_data[dd.m_ctx_idx].back();
+	m_ganttData.m_pending_data[dd.m_ctx_idx].pop_back();
+
+	d->m_time_end = dd.m_time;
+	d->m_msg.append(dd.m_text);
+	d->complete();
+
+	(*m_ganttData.m_completed_frame_data[d->m_frame])[dd.m_ctx_idx].push_back(d);
+}
+
+void GanttView::appendGantt (DecodedData & dd)
+{
+	std::vector<unsigned long long>::iterator it = std::find(m_ganttData.m_contexts.begin(), m_ganttData.m_contexts.end(), dd.m_ctx);
+	if (it == m_ganttData.m_contexts.end())
+	{
+		dd.m_ctx_idx = m_ganttData.m_contexts.size();
+		m_ganttData.m_contexts.push_back(dd.m_ctx);
+		m_ganttData.m_completed_frame_data[m_ganttData.m_frame]->push_back(data_t()); // @TODO: reserve
+		m_ganttData.m_pending_data.push_back(data_t());
+	}
+	else
+	{
+		dd.m_ctx_idx = std::distance(m_ganttData.m_contexts.begin(), it);
+	}
+
+
+	typedef void (GanttView::*ptr) (DecodedData & dd);
+	ptr ptrs[] = { &GanttView::appendBgn, &GanttView::appendEnd, &GanttView::appendFrameBgn, &GanttView::appendFrameEnd };
+
+	if (dd.m_type < e_max_ganttcmd_enum_value)
+	{
+		(this->*ptrs[dd.m_type])(dd);
+	}
+}
+
+void GanttView::consumeData (contextdata_t * c)
+{
+	contextdata_t & contexts = *c;
+	qDebug("consumed node: contexts_sz=%u", contexts.size());
+	for (size_t ci = 0, te = contexts.size(); ci < te; ++ci)
+	{
+		GfxView & v = viewAt(ci);
+		data_t const & datas = contexts[ci];
+		qDebug("processing data:, contexts_sz=%u datas_sz=%u", contexts.size(), datas.size());
+		for (size_t di = 0, die = datas.size(); di < die; ++di)
+		{
+			Data & d = *datas[di];
+			d.m_tag = d.m_msg;
+			int const l = d.m_tag.lastIndexOf('[');
+			int const r = d.m_tag.lastIndexOf(']');
+			if (l != -1 && r != -1)
+				d.m_tag.chop(l);
+			qDebug("consumed data: contexts_sz=%u datas_sz=%u di=%u d_msg=%s d_tag=%s", contexts.size(), datas.size(), di, d.m_msg.toStdString().c_str(), d.m_tag.toStdString().c_str());
+
+			colormap_t::iterator it = m_tagcolors.find(d.m_tag);
+			if (it == m_tagcolors.end())
+			{
+				if (m_unique_colors.size() > 0)
+				{
+					d.m_color = m_unique_colors.back();
+					m_unique_colors.pop_back();
+				}
+				m_tagcolors[d.m_tag] = d.m_color;
+			}
+
+			if (d.m_layer >= m_max_layers[ci])
+				m_max_layers[ci] = d.m_layer;
+		}
+
+		int max_y = 0;
+		int max_x = 0;
+
+		int const h = g_heightValue;
+		int const space = g_spaceValue;
+		unsigned offs = 1;
+
+		for (size_t di = 0, be = datas.size(); di < be; ++di)
+		{
+			Data & d = *datas[di];
+
+			//registerTag(d);
+
+			int w = d.m_dt;
+			qreal x = d.m_time_bgn;
+			qreal y = (offs) * (h + space)  + d.m_layer * (h + space);
+			d.m_x = x / m_gvcfg.m_timescale;
+			d.m_y = y;
+			qDebug("f=%2u ci=%2u di=%2u  %s   (%3.2f, %3.2f) (x=%6.1f y=%6.1f w=%4i h=%4i dt=%3.3f)\n", d.m_frame, ci, di, d.m_tag.toStdString().c_str(), d.m_msg.toStdString().c_str(), d.m_x, d.m_y, x, y, w, h, d.m_dt);
+			//fflush(stdout);
+
+			if (y > max_y)
+				max_y = y;
+
+			if (x > max_x)
+				max_x = x;
+
+			QGraphicsItem * item = new BarItem(d, d.m_color, 0, 0, w, h, ci, offs);
+			item->setPos(QPointF(d.m_x, y));
+			v.m_scene->addItem(item);
+			item->setToolTip(QString("frame=%1 thread=%2 %3 [%4 ms]").arg(d.m_frame).arg(ci).arg(d.m_msg).arg(d.m_dt / 1000.0f));
+
+			QGraphicsItem * titem = new BarTextItem(d, d.m_color, 0, 0, w, h, ci, offs);
+			titem->setPos(QPointF(d.m_x, y));
+			v.m_scene->addItem(titem);
+		}
+
+		offs += m_max_layers[ci];
+	}
+
+	int const h = g_heightValue;
+	int const space = g_spaceValue;
+	for (size_t ci = 0, te = contexts.size(); ci < te; ++ci)
+	{
+		GfxView & v = viewAt(ci);
+		data_t const & datas = contexts[ci];
+
+		for (size_t di = 0, be = datas.size(); di < be; ++di)
+		{
+			Data const & d = *datas[di];
+			if (d.m_parent)
+			{
+				if (d.m_parent->m_x < 100.0f || d.m_parent->m_y < 100.0f)
+				{
+					// incomplete parent!
+				}
+				else
+				{
+					QPen p1;
+					p1.setColor(Qt::blue);
+					p1.setWidth(0);
+					QGraphicsLineItem * ln_bg = new QGraphicsLineItem(d.m_x, d.m_y, d.m_parent->m_x, d.m_parent->m_y + g_heightValue);
+					ln_bg->setPen(p1);
+					v.m_scene->addItem(ln_bg);
+					QGraphicsLineItem * ln_nd = new QGraphicsLineItem(d.m_x + d.m_dt, d.m_y, d.m_parent->m_x + d.m_parent->m_dt, d.m_parent->m_y + g_heightValue);
+					p1.setColor(Qt::cyan);
+					ln_nd->setPen(p1);
+					v.m_scene->addItem(ln_nd);
+				}
+			}
+
+			QPen p1;
+			p1.setColor(Qt::gray);
+			QGraphicsLineItem * ln_end = new QGraphicsLineItem(d.m_x + d.m_dt, d.m_y, d.m_x + d.m_dt, d.m_y + g_heightValue);
+			ln_end->setPen(p1);
+			p1.setWidth(4);
+			v.m_scene->addItem(ln_end);
+		}
+	} 
+
+	for (size_t ci = 0, cie = contexts.size(); ci < cie; ++ci)
+	{
+		GfxView & v = viewAt(ci);
+		//v.m_view->forceUpdate();
+	}
+}
+
+
+
 
 GanttView::GanttView (Connection * conn, QWidget * parent, gantt::GanttViewConfig & config, QString const & fname)
 	: QFrame(parent)
 	, m_connection(conn)
+	, m_gvcfg(config)
+	, m_last_flush_end_idx(0)
 {
+	qDebug("%s", __FUNCTION__);
+
 	setFrameStyle(Sunken | StyledPanel);
-	m_frameSpinBox = new QSpinBox;
-	m_graphicsView = new GraphicsView();
-	m_graphicsView->setRenderHint(QPainter::Antialiasing, false);
-	m_graphicsView->setDragMode(QGraphicsView::RubberBandDrag);
-	m_graphicsView->setOptimizationFlags(QGraphicsView::DontSavePainterState);
-	m_graphicsView->setViewportUpdateMode(QGraphicsView::SmartViewportUpdate);
 
-	int size = style()->pixelMetric(QStyle::PM_ToolBarIconSize);
-	QSize iconSize(size, size);
-
-/*	QToolButton * zoomInIcon = new QToolButton;
-	zoomInIcon->setAutoRepeat(true);
-	zoomInIcon->setAutoRepeatInterval(33);
-	zoomInIcon->setAutoRepeatDelay(0);
-	zoomInIcon->setIcon(QPixmap(":/zoomin.png"));
-	zoomInIcon->setIconSize(iconSize);
-	QToolButton * zoomOutIcon = new QToolButton;
-	zoomOutIcon->setAutoRepeat(true);
-	zoomOutIcon->setAutoRepeatInterval(33);
-	zoomOutIcon->setAutoRepeatDelay(0);
-	zoomOutIcon->setIcon(QPixmap(":/zoomout.png"));
-	zoomOutIcon->setIconSize(iconSize);*/
-	m_zoomSlider = new QSlider;
-	m_zoomSlider->setMinimum(0);
-	m_zoomSlider->setMaximum(500);
-	m_zoomSlider->setValue(250);
-	m_zoomSlider->setTickPosition(QSlider::TicksRight);
-
-	// Zoom slider layout
-	QVBoxLayout *zoomSliderLayout = new QVBoxLayout;
-	//zoomSliderLayout->addWidget(zoomInIcon);
-	zoomSliderLayout->addWidget(m_zoomSlider);
-	//zoomSliderLayout->addWidget(zoomOutIcon);
-/*
-	m_resetButton = new QToolButton;
-	m_resetButton->setText(tr("0"));
-	m_resetButton->setEnabled(false);
-
-	// Label layout
-	QHBoxLayout *labelLayout = new QHBoxLayout;
-	m_label = new QLabel(name);
-	m_antialiasButton = new QToolButton;
-	m_antialiasButton->setText(tr("Antialiasing"));
-	m_antialiasButton->setCheckable(true);
-	m_antialiasButton->setChecked(false);
-	m_openGlButton = new QToolButton;
-	m_openGlButton->setText(tr("OpenGL"));
-	m_openGlButton->setCheckable(true);
-#ifndef QT_NO_OPENGL
-	m_openGlButton->setEnabled(QGLFormat::hasOpenGL());
-#else
-	m_openGlButton->setEnabled(false);
-#endif
-
-	labelLayout->addWidget(m_label);
-	labelLayout->addStretch();
-	labelLayout->addWidget(m_antialiasButton);
-	labelLayout->addWidget(m_openGlButton);
-*/
-	QGridLayout *topLayout = new QGridLayout;
-	//topLayout->addLayout(labelLayout, 0, 0);
-	topLayout->addWidget(m_graphicsView, 1, 0);
-	topLayout->addLayout(zoomSliderLayout, 1, 1);
-
-	//QSlider * m_heightSlider = new QSlider;
-	//m_heightSlider->setMinimum(0);
-	//m_heightSlider->setMaximum(400);
-	//m_heightSlider->setValue(g_heightValue);
-	//topLayout->addWidget(m_heightSlider, 1, 2);
-	//m_heightSlider->setTickPosition(QSlider::TicksRight);
-	//
-	m_frameSpinBox->setMinimum(0);
-	m_frameSpinBox->setValue(0);
-
-	//int const max = m_mainWindow->getProfileInfo(0).m_frames.size();
-	//m_frameSpinBox->setMaximum(max);
-	//topLayout->addWidget(m_frameSpinBox, 0, 1);
-
-	//topLayout->addWidget(m_resetButton, 2, 1);
-	setLayout(topLayout);
+	m_layout = new QGridLayout;
+	setLayout(m_layout);
 
 	//connect(m_resetButton, SIGNAL(clicked()), this, SLOT(resetView()));
 	//connect(m_zoomSlider, SIGNAL(valueChanged(int)), this, SLOT(setupMatrix()));
-	connect(m_graphicsView->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(setResetButtonEnabled()));
-	connect(m_graphicsView->horizontalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(setResetButtonEnabled()));
+	//connect(m_graphicsView->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(setResetButtonEnabled()));
+	//connect(m_graphicsView->horizontalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(setResetButtonEnabled()));
 	//connect(m_antialiasButton, SIGNAL(toggled(bool)), this, SLOT(toggleAntialiasing()));
 	//connect(m_openGlButton, SIGNAL(toggled(bool)), this, SLOT(toggleOpenGL()));
 	//connect(zoomInIcon, SIGNAL(clicked()), this, SLOT(zoomIn()));
@@ -114,9 +301,8 @@ GanttView::GanttView (Connection * conn, QWidget * parent, gantt::GanttViewConfi
 	//connect(m_heightSlider, SIGNAL(valueChanged(int)), this, SLOT(changeHeight(int)));
 
 	setupMatrix();
+	m_ganttData.m_completed_frame_data.push_back(new contextdata_t()); // @TODO: reserve
 }
-
-QGraphicsView * GanttView::view() const { return m_graphicsView; }
 
 void GanttView::resetView()
 {
@@ -129,11 +315,11 @@ void GanttView::resetView()
 
 void GanttView::changeHeight (int n)
 {
-	g_heightValue = n;
+/*	g_heightValue = n;
 	QGraphicsScene * scene = view()->scene();
 	view()->setScene(0);
 
-	scene->clear();
+	scene->clear();*/
 	//m_mainWindow->populateScene();
 	//view()->setScene(scene);
 	//m_graphicsView->viewport()->update();

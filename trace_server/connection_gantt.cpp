@@ -66,10 +66,9 @@ void Connection::onShowGanttContextMenu (QPoint const &)
 	}
 }
 
-
-bool Connection::handleGanttBgnCommand (DecodedCommand const & cmd)
+void parseCommand (DecodedCommand const & cmd, gantt::DecodedData & dd)
 {
-	QString tag;
+	QString msg;
 	QString ctx;
 	QString time;
 	QString fgc;
@@ -77,7 +76,7 @@ bool Connection::handleGanttBgnCommand (DecodedCommand const & cmd)
 	for (size_t i=0, ie=cmd.tvs.size(); i < ie; ++i)
 	{
 		if (cmd.tvs[i].m_tag == tlv::tag_msg)
-			tag = cmd.tvs[i].m_val;
+			msg = cmd.tvs[i].m_val;
 		else if (cmd.tvs[i].m_tag == tlv::tag_time)
 			time = cmd.tvs[i].m_val;
 		else if (cmd.tvs[i].m_tag == tlv::tag_ctx)
@@ -88,23 +87,67 @@ bool Connection::handleGanttBgnCommand (DecodedCommand const & cmd)
 			bgc = cmd.tvs[i].m_val;
 	}
 
-	if (m_main_window->ganttState() != e_FtrDisabled)
-	{
-		appendGanttBgn(time, ctx, fgc, bgc, tag);
-	}
-	return true;
+	QString subtag = msg;
+	int const slash_pos0 = subtag.lastIndexOf(QChar('/'));
+	subtag.chop(msg.size() - slash_pos0);
 
+	QString tag = subtag;
+	int const slash_pos1 = tag.lastIndexOf(QChar('/'));
+	tag.chop(tag.size() - slash_pos1);
+
+	subtag.remove(0, slash_pos1 + 1);
+	msg.remove(0, slash_pos0 + 1);
+
+	dd.m_time = time.toULongLong();
+	dd.m_ctx = ctx.toULongLong();
+	dd.m_tag = tag;
+	dd.m_subtag = subtag;
+	dd.m_text = msg;
+}
+
+bool Connection::handleGanttBgnCommand (DecodedCommand const & cmd)
+{
+	if (m_main_window->ganttState() == e_FtrDisabled)
+		return true;
+
+	gantt::DecodedData dd;
+	parseCommand(cmd, dd);
+	dd.m_type = gantt::e_GanttBgn;
+	appendGantt(dd);
+	return true;
 }
 bool Connection::handleGanttEndCommand (DecodedCommand const & cmd)
 {
+	if (m_main_window->ganttState() == e_FtrDisabled)
+		return true;
+
+	gantt::DecodedData dd;
+	parseCommand(cmd, dd);
+	dd.m_type = gantt::e_GanttEnd;
+	appendGantt(dd);
 	return true;
 }
 bool Connection::handleGanttFrameBgnCommand (DecodedCommand const & cmd)
 {
+	if (m_main_window->ganttState() == e_FtrDisabled)
+		return true;
+
+	gantt::DecodedData dd;
+	parseCommand(cmd, dd);
+	dd.m_type = gantt::e_GanttFrameBgn;
+	appendGantt(dd);
 	return true;
+
 }
 bool Connection::handleGanttFrameEndCommand (DecodedCommand const & cmd)
 {
+	if (m_main_window->ganttState() == e_FtrDisabled)
+		return true;
+
+	gantt::DecodedData dd;
+	parseCommand(cmd, dd);
+	dd.m_type = gantt::e_GanttFrameEnd;
+	appendGantt(dd);
 	return true;
 }
 
@@ -193,27 +236,14 @@ datagantts_t::iterator Connection::findOrCreateGantt (QString const & tag)
 	return it;
 }
 
-void Connection::appendGanttBgn (QString const & time, QString const & ctx, QString const & fgc, QString const & bgc, QString const & msg_tag)
+void Connection::appendGantt (gantt::DecodedData & dd)
 {
-	QString subtag = msg_tag;
-	int const slash_pos0 = subtag.lastIndexOf(QChar('/'));
-	subtag.chop(msg_tag.size() - slash_pos0);
+	qDebug("appendGanttBgn tag=%s subtag=%s text=%s", dd.m_tag.toStdString().c_str(), dd.m_subtag.toStdString().c_str(), dd.m_text.toStdString().c_str());
 
-	QString tag = subtag;
-	int const slash_pos1 = tag.lastIndexOf(QChar('/'));
-	tag.chop(tag.size() - slash_pos1);
-
-	subtag.remove(0, slash_pos1 + 1);
-
-	QString msg = msg_tag;
-	msg.remove(0, slash_pos0 + 1);
-
-	qDebug("appendGanttBgn tag=%s subtag=%s msg=%s", tag.toStdString().c_str(), subtag.toStdString().c_str(), msg.toStdString().c_str());
-
-	datagantts_t::iterator it = findOrCreateGantt(tag);
+	datagantts_t::iterator it = findOrCreateGantt(dd.m_tag);
 	DataGantt & dp = **it;
-	gantt::GanttView * gv = dp.widget().findOrCreateGanttView(subtag);
-	gv->appendGanttBgn(time, ctx, fgc, bgc, msg);
+	gantt::GanttView * gv = dp.widget().findOrCreateGanttView(dd.m_subtag);
+	gv->appendGantt(dd);
 }
 
 /*void Connection::requestGanttSynchronization (int sync_group, unsigned long long time)

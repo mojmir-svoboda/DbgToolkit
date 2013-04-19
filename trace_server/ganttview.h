@@ -1,11 +1,14 @@
 #pragma once
 #include <QWidget>
+#include <QMap>
 #include "config.h"
 #include "ganttconfig.h"
+#include "ganttdata.h"
 //#include "ganttctxmenu.h"
 
 #include <QFrame>
 #include <QGraphicsView>
+#include <QGridLayout>
 //#include <cstdio>
 
 class Connection;
@@ -44,6 +47,12 @@ namespace gantt {
 	};
 
 
+	struct GfxView {
+		QGraphicsScene * m_scene;
+		GraphicsView *   m_view;
+
+		GfxView () { memset(this, 0, sizeof(*this)); }
+	};
 
 	class GanttView : public QFrame
 	{
@@ -52,10 +61,10 @@ namespace gantt {
 
 		GanttView (Connection * oparent, QWidget * parent, GanttViewConfig & gvcfg, QString const & fname);
 
-		QGraphicsView * view () const;
+		//QGraphicsView * view () const;
 		void forceUpdate ();
 
-		void appendGanttBgn (QString const & time, QString const & tid, QString const & fgc, QString const & bgc, QString const & tag);
+		void appendGantt (DecodedData & data);
 
 	private slots:
 		void resetView ();
@@ -67,20 +76,35 @@ namespace gantt {
 		void zoomIn ();
 		void zoomOut ();
 		void changeHeight (int n);
-
-
-
 		
 	private:
-		GraphicsView * m_graphicsView;
-		QGraphicsScene * m_graphicsScene;
-		//QLabel * m_label;
-		//QToolButton * m_openGlButton;
-		//QToolButton * m_antialiasButton;
-		//QToolButton * m_resetButton;
-		QSlider * m_zoomSlider;
-		QSpinBox * m_frameSpinBox;
+
+		void initColors ();
+		void appendBgn (DecodedData & data);
+		void appendEnd (DecodedData & data);
+		void appendFrameBgn (DecodedData & data);
+		void appendFrameEnd (DecodedData & data);
+		void consumeData (contextdata_t *);
+
+		typedef QMap<unsigned long long, GfxView> contextviews_t;
+		contextviews_t m_contextviews;
+		GfxView & createViewForContext (unsigned long long ctx, QGraphicsScene * scene = 0);
+
+		GfxView & viewAt (unsigned long long ctx);
+
+		QGridLayout * m_layout;
 		Connection * m_connection;
+		GanttViewConfig & m_gvcfg;
+		GanttData m_ganttData;
+		unsigned m_last_flush_end_idx;
+
+		static size_t const m_max_unique_colors = 256;
+		std::vector<QColor> m_unique_colors;
+		std::vector<QString> m_tags;
+
+		typedef QMap<QString, QColor> colormap_t;
+		colormap_t m_tagcolors;
+		std::map<unsigned, unsigned> m_max_layers;
 	};
 }
 

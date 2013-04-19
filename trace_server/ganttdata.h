@@ -6,6 +6,26 @@
 
 namespace gantt {
 
+	enum E_GanttCmd {
+		e_GanttBgn,
+		e_GanttEnd,
+		e_GanttFrameBgn,
+		e_GanttFrameEnd,
+		e_max_ganttcmd_enum_value
+	};
+
+	struct DecodedData {
+		unsigned m_type;
+		unsigned long long m_time;
+		unsigned long long m_ctx;
+		unsigned m_ctx_idx;
+		QString m_tag;
+		QString m_subtag;
+		QString m_text;
+
+		DecodedData () : m_type(0), m_time(0), m_ctx(0), m_ctx_idx(0), m_text() { }
+	};
+
 	struct Data
 	{
 		Data * m_parent;
@@ -20,8 +40,8 @@ namespace gantt {
 		float m_y;
 		double m_dt;
 		QColor m_color;
-		QString m_msg;
 		QString m_tag;
+		QString m_msg;
 
 		Data () 
 			: m_parent(0)
@@ -50,11 +70,11 @@ namespace gantt {
 	typedef std::vector<contextdata_t> framedata_t;
 	typedef std::vector<contextdata_t *> ptrframedata_t;
 
-	struct ReceivedData
+	struct GanttData
 	{
-		ReceivedData () : m_frame(0), m_frame_begin(0) { }
+		GanttData () : m_frame(0), m_frame_begin(0) { }
 
-		data_t m_bi_ptrs;
+		data_t m_data_ptrs;
 
 		pendingdata_t m_pending_data;
 

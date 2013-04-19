@@ -25,33 +25,6 @@ ProfilerWindow::ProfilerWindow (QMainWindow * window, QObject * parent, profiler
 	, m_tagWidget(0)
 {
 	qDebug("%s", __FUNCTION__);
-
-	m_tag_model = new TreeModel(this, &m_prof_filters);
-
-	BasePlot * plot = new BasePlot(this, 0, m_config, QString("tmp")); // @FIXME untmp
-	m_docks.mkDockWidget(m_window, plot, true, QString("prof_frames"));
-
-	m_tagWidget = new QTreeView();
-	m_tagWidget->setModel(new QStandardItemModel);
-	connect(m_tagWidget, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtTagTree(QModelIndex)));
-	QObject::connect(m_tagWidget, SIGNAL(expanded(QModelIndex const &)), this, SLOT(onFileExpanded(QModelIndex const &)));
-	QObject::connect(m_tagWidget, SIGNAL(collapsed(QModelIndex const &)), this, SLOT(onFileCollapsed(QModelIndex const &)));
-	m_docks.mkDockWidget(m_window, m_tagWidget, true, QString("tags"));
-
-	connect(rvp->m_Source.get(), SIGNAL(incomingProfilerData(profiler::profiler_rvp_t *)), this, SLOT(incomingProfilerData(profiler::profiler_rvp_t *)), Qt::QueuedConnection);
-
-	// pick colors for unique clusters
-	m_unique_colors.reserve(m_max_unique_colors);
-	for (size_t hi = 0; hi < 360; hi += 360 / m_max_unique_colors)
-	{
-		HSV hsv;
-		hsv.h = hi / 360.0f;
-		hsv.s = 0.70f + tmp_randf() * 0.2f - 0.05f;
-		hsv.v = 0.85f + tmp_randf() * 0.2f - 0.05f;
-		QColor qcolor;
-		qcolor.setHsvF(hsv.h, hsv.s, hsv.v);
-		m_unique_colors.push_back(qcolor);
-	}
 }
 
 ProfilerWindow::~ProfilerWindow ()
@@ -60,24 +33,6 @@ ProfilerWindow::~ProfilerWindow ()
 	qDebug("%s", __FUNCTION__);
 	delete m_rvp;
 }
-
-	std::vector<QString> s;	// @TODO: hey piggy, to member variables
-
-void ProfilerWindow::onClickedAtTagTree (QModelIndex idx)
-{
-}
-
-void ProfilerWindow::loadState ()
-{
-	//loadSessionState(conn->sessionState(), m_session_state);
-}
-
-	//boost::char_separator<char> sep(":/\\");
-
-void ProfilerWindow::appendToTagTree (QString const & tagpath)
-{
-}
-
 
 void ProfilerWindow::registerTag (BlockInfo const & bi)
 {
@@ -100,41 +55,6 @@ void ProfilerWindow::registerTag (BlockInfo const & bi)
 
 	appendToTagTree(s);
 	//sessionState().m_tag_filters.set_to_state();
-}
-
-void ProfilerWindow::onFileColOrExp (QModelIndex const & idx, bool collapsed)
-{
-	QStandardItemModel const * const model = static_cast<QStandardItemModel *>(m_tagWidget->model());
-	QStandardItem * const node = model->itemFromIndex(idx);
-
-	std::vector<QString> s;	// @TODO: hey piggy, to member variables
-	s.clear();
-	s.reserve(16);
-	QStandardItem * parent = node;
-	QModelIndex parent_idx = model->indexFromItem(parent);
-	while (parent_idx.isValid())
-	{
-		QString const & val = model->data(parent_idx, Qt::DisplayRole).toString();
-		s.push_back(val);
-		parent = parent->parent();
-		parent_idx = model->indexFromItem(parent);
-	}
-
-	QString file;
-	for (std::vector<QString>::const_reverse_iterator it=s.rbegin(), ite=s.rend(); it != ite; ++it)
-		file += QString("/") + *it;
-
-	sessionState().m_tag_filters.set_to_state(file, TagInfo(static_cast<E_NodeStates>(node->checkState()), collapsed));
-}
-
-void ProfilerWindow::onFileExpanded (QModelIndex const & idx)
-{
-	onFileColOrExp(idx, false);
-}
-
-void ProfilerWindow::onFileCollapsed (QModelIndex const & idx)
-{
-	onFileColOrExp(idx, true);
 }
 
 GfxView ProfilerWindow::mkGfxView (int i)

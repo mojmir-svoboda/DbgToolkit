@@ -67,6 +67,7 @@ namespace gantt {
 		gantt::CtxGanttConfig m_config_ui;
 		QString m_fname;
 		Connection * m_connection;
+		QGridLayout * m_layout;
 		ganttviews_t m_ganttviews;
 	};
 }
