@@ -115,7 +115,7 @@ void GanttView::appendBgn (DecodedData & dd)
 
 	if (d.m_msg.isEmpty())
 		qDebug("wtf");
-	qDebug("+++ t=%llu  ctx=%llu  msg=%s", d.m_time_bgn, d.m_ctx, d.m_msg.toStdString().c_str());
+	qDebug("+++ f=%i t=%8llu  ctx=%llu  msg=%s", d.m_frame, d.m_time_bgn, d.m_ctx, d.m_msg.toStdString().c_str());
 }
 
 void GanttView::appendEnd (DecodedData & dd)
@@ -130,7 +130,7 @@ void GanttView::appendEnd (DecodedData & dd)
 
 	(*m_ganttData.m_completed_frame_data[d->m_frame])[dd.m_ctx_idx].push_back(d);
 
-	qDebug("--- t=%llu  ctx=%llu  msg=%s", d.m_time_bgn, d.m_ctx, d.m_msg.toStdString().c_str());
+	qDebug("--- f=%i t=%8llu  ctx=%llu  msg=%s", d->m_frame, d->m_time_bgn, d->m_ctx, d->m_msg.toStdString().c_str());
 }
 
 void GanttView::appendGantt (DecodedData & dd)
