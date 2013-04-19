@@ -53,7 +53,7 @@ void ProfilerWindow::registerTag (BlockInfo const & bi)
 	for (std::vector<QString>::const_reverse_iterator it=tmp.rbegin(), ite=tmp.rend(); it != ite; ++it)
 		s += QString("/") + (*it);
 
-	appendToTagTree(s);
+	//appendToTagTree(s);
 	//sessionState().m_tag_filters.set_to_state();
 }
 

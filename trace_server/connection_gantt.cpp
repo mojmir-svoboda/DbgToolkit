@@ -238,8 +238,7 @@ datagantts_t::iterator Connection::findOrCreateGantt (QString const & tag)
 
 void Connection::appendGantt (gantt::DecodedData & dd)
 {
-	qDebug("appendGanttBgn tag=%s subtag=%s text=%s", dd.m_tag.toStdString().c_str(), dd.m_subtag.toStdString().c_str(), dd.m_text.toStdString().c_str());
-
+	//qDebug("appendGantt tag=%s subtag=%s text=%s", dd.m_tag.toStdString().c_str(), dd.m_subtag.toStdString().c_str(), dd.m_text.toStdString().c_str());
 	datagantts_t::iterator it = findOrCreateGantt(dd.m_tag);
 	DataGantt & dp = **it;
 	gantt::GanttView * gv = dp.widget().findOrCreateGanttView(dd.m_subtag);

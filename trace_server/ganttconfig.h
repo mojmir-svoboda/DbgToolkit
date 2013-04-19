@@ -14,6 +14,7 @@ namespace gantt {
 		int m_symbolsize;
 		int m_fontsize;
 		float m_timescale;
+		float m_zoom;
 		bool m_show;
 		bool m_auto_scroll;
 
@@ -25,6 +26,7 @@ namespace gantt {
 			, m_symbolsize(6)
 			, m_fontsize(6)
 			, m_timescale(1.0f)
+			, m_zoom(1.0f)
 			, m_show(true)
 			, m_auto_scroll(true)
 		{ }
@@ -41,6 +43,7 @@ namespace gantt {
 			ar & boost::serialization::make_nvp("symsize", m_symbolsize);
 			ar & boost::serialization::make_nvp("fontsize", m_fontsize);
 			ar & boost::serialization::make_nvp("timescale", m_timescale);
+			ar & boost::serialization::make_nvp("zoom", m_zoom);
 			ar & boost::serialization::make_nvp("show", m_show);
 			ar & boost::serialization::make_nvp("autoscroll", m_auto_scroll);
 		}

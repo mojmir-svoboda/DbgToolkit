@@ -80,11 +80,11 @@ void GanttView::appendFrameEnd (DecodedData & dd)
 
 	size_t const from = m_last_flush_end_idx;
 	size_t const to = m_ganttData.m_completed_frame_data.size();
-	//qDebug("flushing from %i to %i", from, to);
+	qDebug("flushing from %i to %i", from, to);
 
 	for (size_t i = from; i < to; ++i)
 	{
-		//qDebug("producing item=0x%016x %i, sz=%u", m_ganttData.m_completed_frame_infos[i], i, m_ganttData.m_completed_frame_infos[i]->size());
+		qDebug("producing[%i], sz=%u", i, m_ganttData.m_completed_frame_data[i]->size());
 		consumeData(m_ganttData.m_completed_frame_data[i]);
 	}
 
@@ -112,6 +112,10 @@ void GanttView::appendBgn (DecodedData & dd)
 	d.m_layer = m_ganttData.m_pending_data[dd.m_ctx_idx].size() - 1;
 	d.m_frame = m_ganttData.m_frame;
 	d.m_parent = prev;
+
+	if (d.m_msg.isEmpty())
+		qDebug("wtf");
+	qDebug("+++ t=%llu  ctx=%llu  msg=%s", d.m_time_bgn, d.m_ctx, d.m_msg.toStdString().c_str());
 }
 
 void GanttView::appendEnd (DecodedData & dd)
@@ -125,6 +129,8 @@ void GanttView::appendEnd (DecodedData & dd)
 	d->complete();
 
 	(*m_ganttData.m_completed_frame_data[d->m_frame])[dd.m_ctx_idx].push_back(d);
+
+	qDebug("--- t=%llu  ctx=%llu  msg=%s", d.m_time_bgn, d.m_ctx, d.m_msg.toStdString().c_str());
 }
 
 void GanttView::appendGantt (DecodedData & dd)
@@ -308,7 +314,9 @@ void GanttView::resetView()
 {
 	//m_zoomSlider->setValue(250);
 	setupMatrix();
-	m_graphicsView->ensureVisible(QRectF(0, 0, 0, 0));
+
+	for (contextviews_t::iterator it = m_contextviews.begin(), ite = m_contextviews.end(); it != ite; ++it)
+		(*it).m_view->ensureVisible(QRectF(0, 0, 0, 0));
 
 	//m_resetButton->setEnabled(false);
 }
@@ -332,12 +340,14 @@ void GanttView::setResetButtonEnabled()
 
 void GanttView::setupMatrix()
 {
-	qreal scale = qPow(qreal(2), (m_zoomSlider->value() - 250) / qreal(50));
+	qreal scale = qPow(qreal(2), (m_gvcfg.m_zoom - 250.0f) / qreal(50));
 
 	QMatrix matrix;
 	matrix.scale(scale, scale);
 
-	m_graphicsView->setMatrix(matrix);
+	for (contextviews_t::iterator it = m_contextviews.begin(), ite = m_contextviews.end(); it != ite; ++it)
+		(*it).m_view->setMatrix(matrix);
+
 	setResetButtonEnabled();
 }
 
@@ -355,17 +365,18 @@ void GanttView::toggleAntialiasing()
 
 void GanttView::zoomIn()
 {
-	m_zoomSlider->setValue(m_zoomSlider->value() + 1);
+	m_gvcfg.m_zoom += 1.0f;
 }
 
 void GanttView::zoomOut()
 {
-	m_zoomSlider->setValue(m_zoomSlider->value() - 1);
+	m_gvcfg.m_zoom -= 1.0f;
 }
 
 void GanttView::forceUpdate ()
 {
-	m_graphicsView->viewport()->update();
+	for (contextviews_t::iterator it = m_contextviews.begin(), ite = m_contextviews.end(); it != ite; ++it)
+		(*it).m_view->viewport()->update();
 }
 
 GraphicsView::GraphicsView (QWidget * parent)

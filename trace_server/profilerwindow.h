@@ -36,7 +36,6 @@ namespace profiler {
 	
 	public slots:
 		void incomingProfilerData (profiler::profiler_rvp_t * rvp);
-		void onClickedAtTagTree (QModelIndex idx);
 
 	private:
 		void setupMatrix ();
