@@ -42,6 +42,7 @@ namespace gantt {
 		QColor m_color;
 		QString m_tag;
 		QString m_msg;
+		QString m_endmsg;
 
 		Data () 
 			: m_parent(0)

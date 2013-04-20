@@ -45,6 +45,7 @@ GfxView & GanttView::createViewForContext (unsigned long long ctx, QGraphicsScen
 		GfxView g;
 		g.m_view = view;
 		g.m_scene = scene;
+		g.m_view->setScene(g.m_scene);
 
 		it = m_contextviews.insert(ctx, g);
 		return *it;
@@ -71,6 +72,8 @@ void GanttView::appendFrameBgn (DecodedData & dd)
 	}
 
 	++m_ganttData.m_frame;
+	//qDebug("--{ +++ f=%i t=%8llu  ctxi=%u  msg=%s", m_ganttData.m_frame, m_ganttData.m_frame_begin, dd.m_ctx_idx, dd.m_text.toStdString().c_str());
+	qDebug("{{{{{{{{{{{{{{{{{{{{{ f=%i", m_ganttData.m_frame);
 }
 
 void GanttView::appendFrameEnd (DecodedData & dd)
@@ -80,13 +83,16 @@ void GanttView::appendFrameEnd (DecodedData & dd)
 
 	size_t const from = m_last_flush_end_idx;
 	size_t const to = m_ganttData.m_completed_frame_data.size();
-	qDebug("flushing from %i to %i", from, to);
+	//qDebug("flushing from %i to %i", from, to);
 
 	for (size_t i = from; i < to; ++i)
 	{
-		qDebug("producing[%i], sz=%u", i, m_ganttData.m_completed_frame_data[i]->size());
+		//qDebug("producing[%i], sz=%u", i, m_ganttData.m_completed_frame_data[i]->size());
 		consumeData(m_ganttData.m_completed_frame_data[i]);
 	}
+
+	qDebug("}}}}}}}}}}}}}}}}}}}}} f=%i", m_ganttData.m_frame);
+	//qDebug("}-- --- f=%i t=%8llu  ctxi=%u  msg=%s", m_ganttData.m_frame, m_ganttData.m_frame_begin, dd.m_ctx_idx, dd.m_text.toStdString().c_str());
 
 	//dump
 	/*for (size_t i = from; i < to; ++i)
@@ -108,14 +114,22 @@ void GanttView::appendBgn (DecodedData & dd)
 	d.m_time_bgn = dd.m_time;
 	d.m_ctx = dd.m_ctx;
 	d.m_ctx_idx = dd.m_ctx_idx;
-	d.m_msg = dd.m_text;
+
+
+	d.m_tag = dd.m_text;
+	int const l = d.m_tag.indexOf('[');
+	int const r = d.m_tag.indexOf(']');
+	if (l != -1 && r != -1)
+	{
+		d.m_msg = dd.m_text.mid(l + 1, r - l - 1);
+		d.m_tag.truncate(l);
+	}
+
 	d.m_layer = m_ganttData.m_pending_data[dd.m_ctx_idx].size() - 1;
 	d.m_frame = m_ganttData.m_frame;
 	d.m_parent = prev;
 
-	if (d.m_msg.isEmpty())
-		qDebug("wtf");
-	qDebug("+++ f=%i t=%8llu  ctx=%llu  msg=%s", d.m_frame, d.m_time_bgn, d.m_ctx, d.m_msg.toStdString().c_str());
+	//qDebug("    +++ f=%i t=%8llu  ctxi=%u  msg=%s", d.m_frame, d.m_time_bgn, d.m_ctx_idx, d.m_msg.toStdString().c_str());
 }
 
 void GanttView::appendEnd (DecodedData & dd)
@@ -125,12 +139,12 @@ void GanttView::appendEnd (DecodedData & dd)
 	m_ganttData.m_pending_data[dd.m_ctx_idx].pop_back();
 
 	d->m_time_end = dd.m_time;
-	d->m_msg.append(dd.m_text);
+	d->m_endmsg = dd.m_text;
 	d->complete();
 
 	(*m_ganttData.m_completed_frame_data[d->m_frame])[dd.m_ctx_idx].push_back(d);
 
-	qDebug("--- f=%i t=%8llu  ctx=%llu  msg=%s", d->m_frame, d->m_time_bgn, d->m_ctx, d->m_msg.toStdString().c_str());
+	//qDebug("    --- f=%i t=%8llu  ctxi=%u  msg=%s", d->m_frame, d->m_time_bgn, d->m_ctx_idx, d->m_msg.toStdString().c_str());
 }
 
 void GanttView::appendGantt (DecodedData & dd)
@@ -161,32 +175,30 @@ void GanttView::appendGantt (DecodedData & dd)
 void GanttView::consumeData (contextdata_t * c)
 {
 	contextdata_t & contexts = *c;
-	qDebug("consumed node: contexts_sz=%u", contexts.size());
+	//qDebug("+++ DATA consumed node: contexts_sz=%u", contexts.size());
 	for (size_t ci = 0, te = contexts.size(); ci < te; ++ci)
 	{
 		GfxView & v = viewAt(ci);
 		data_t const & datas = contexts[ci];
-		qDebug("processing data:, contexts_sz=%u datas_sz=%u", contexts.size(), datas.size());
+		//qDebug("processing data:, contexts_sz=%u datas_sz=%u", contexts.size(), datas.size());
 		for (size_t di = 0, die = datas.size(); di < die; ++di)
 		{
 			Data & d = *datas[di];
-			d.m_tag = d.m_msg;
-			int const l = d.m_tag.lastIndexOf('[');
-			int const r = d.m_tag.lastIndexOf(']');
-			if (l != -1 && r != -1)
-				d.m_tag.chop(l);
-			qDebug("consumed data: contexts_sz=%u datas_sz=%u di=%u d_msg=%s d_tag=%s", contexts.size(), datas.size(), di, d.m_msg.toStdString().c_str(), d.m_tag.toStdString().c_str());
-
 			colormap_t::iterator it = m_tagcolors.find(d.m_tag);
+
 			if (it == m_tagcolors.end())
 			{
+				//qDebug("new tag d_tag=\"%s\" d_msg=\"%s\"", d.m_tag.toStdString().c_str(), d.m_msg.toStdString().c_str());
 				if (m_unique_colors.size() > 0)
 				{
 					d.m_color = m_unique_colors.back();
 					m_unique_colors.pop_back();
 				}
+				//qDebug("COL= %s tag=%s", d.m_color.name().toStdString().c_str(), d.m_tag.toStdString().c_str());
 				m_tagcolors[d.m_tag] = d.m_color;
 			}
+			else
+				d.m_color = *it;
 
 			if (d.m_layer >= m_max_layers[ci])
 				m_max_layers[ci] = d.m_layer;
@@ -203,15 +215,12 @@ void GanttView::consumeData (contextdata_t * c)
 		{
 			Data & d = *datas[di];
 
-			//registerTag(d);
-
 			int w = d.m_dt;
 			qreal x = d.m_time_bgn;
 			qreal y = (offs) * (h + space)  + d.m_layer * (h + space);
 			d.m_x = x / m_gvcfg.m_timescale;
 			d.m_y = y;
-			qDebug("f=%2u ci=%2u di=%2u  %s   (%3.2f, %3.2f) (x=%6.1f y=%6.1f w=%4i h=%4i dt=%3.3f)\n", d.m_frame, ci, di, d.m_tag.toStdString().c_str(), d.m_msg.toStdString().c_str(), d.m_x, d.m_y, x, y, w, h, d.m_dt);
-			//fflush(stdout);
+			qDebug("    f=%2u ci=%2u di=%2u  %s  (x=%6.1f y=%6.1f w=%4i h=%4i dt=%3.1f) col=%s", d.m_frame, ci, di, d.m_tag.toStdString().c_str(), x, y, w, h, d.m_dt, d.m_color.name().toStdString().c_str());
 
 			if (y > max_y)
 				max_y = y;
@@ -222,7 +231,7 @@ void GanttView::consumeData (contextdata_t * c)
 			QGraphicsItem * item = new BarItem(d, d.m_color, 0, 0, w, h, ci, offs);
 			item->setPos(QPointF(d.m_x, y));
 			v.m_scene->addItem(item);
-			item->setToolTip(QString("frame=%1 thread=%2 %3 [%4 ms]").arg(d.m_frame).arg(ci).arg(d.m_msg).arg(d.m_dt / 1000.0f));
+			item->setToolTip(QString("frame=%1 ctx=%2 %3 [%4 ms]").arg(d.m_frame).arg(ci).arg(d.m_msg).arg(d.m_dt / 1000.0f));
 
 			QGraphicsItem * titem = new BarTextItem(d, d.m_color, 0, 0, w, h, ci, offs);
 			titem->setPos(QPointF(d.m_x, y));
@@ -272,9 +281,10 @@ void GanttView::consumeData (contextdata_t * c)
 		}
 	} 
 
-	for (size_t ci = 0, cie = contexts.size(); ci < cie; ++ci)
+	//for (size_t ci = 0, cie = contexts.size(); ci < cie; ++ci)
 	{
-		GfxView & v = viewAt(ci);
+		//GfxView & v = viewAt(ci);
+		//v.m_view->setScene(v.m_scene);
 		//v.m_view->forceUpdate();
 	}
 }
@@ -291,6 +301,7 @@ GanttView::GanttView (Connection * conn, QWidget * parent, gantt::GanttViewConfi
 	qDebug("%s", __FUNCTION__);
 
 	setFrameStyle(Sunken | StyledPanel);
+	initColors();
 
 	m_layout = new QGridLayout;
 	setLayout(m_layout);
