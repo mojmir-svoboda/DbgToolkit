@@ -278,7 +278,7 @@ int main ()
 		//for(size_t i = 0; i < 4; ++i)
 
 		TRACE_MSG(trace::e_Info, trace::CTX_Default,  "Some another annoying message i=%u from main thread", i);
-			TraceVal((2 * i) % 16, i * 2);
+				TraceVal((2 * i) % 16, i * 2);
 		++i;	
 
 		//TRACE_TABLE(trace::e_Info, trace::CTX_Default, 0, 0, "hokus/%i|%i|%i", i, i*i, i*i*i);

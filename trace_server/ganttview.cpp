@@ -5,6 +5,11 @@
 #	include <QtOpenGL>
 #endif
 #include <qmath.h>
+#include "qwt/qwt_scale_widget.h"
+#include "qwt/qwt_scale_draw.h"
+#include "qwt/qwt_color_map.h"
+#include "qwt/qwt_scale_engine.h"
+#include "qwt/qwt_transform.h"
 #include "ganttitem.h"
 #include "hsv.h"
 
@@ -39,7 +44,7 @@ GfxView & GanttView::createViewForContext (unsigned long long ctx, QGraphicsScen
 		view->setDragMode(QGraphicsView::RubberBandDrag);
 		view->setOptimizationFlags(QGraphicsView::DontSavePainterState);
 		view->setViewportUpdateMode(QGraphicsView::SmartViewportUpdate);
-		m_layout->addWidget(view, 0, 0);
+		m_layout->addWidget(view, ctx + 1, 0);
 
 		QGraphicsScene * scene = (s == 0) ? new QGraphicsScene() : s;
 		GfxView g;
@@ -230,12 +235,12 @@ void GanttView::consumeData (contextdata_t * c)
 
 			QGraphicsItem * item = new BarItem(d, d.m_color, 0, 0, w, h, ci, offs);
 			item->setPos(QPointF(d.m_x, y));
+			item->setToolTip(QString("frame=%1 ctx=%2\n%3\n%4\n[%5 ms]").arg(d.m_frame).arg(ci).arg(d.m_tag).arg(d.m_msg).arg(d.m_dt / 1000.0f));
 			v.m_scene->addItem(item);
-			item->setToolTip(QString("frame=%1 ctx=%2 %3 [%4 ms]").arg(d.m_frame).arg(ci).arg(d.m_msg).arg(d.m_dt / 1000.0f));
 
-			QGraphicsItem * titem = new BarTextItem(d, d.m_color, 0, 0, w, h, ci, offs);
-			titem->setPos(QPointF(d.m_x, y));
-			v.m_scene->addItem(titem);
+			//QGraphicsItem * titem = new BarTextItem(d, d.m_color, 0, 0, w, h, ci, offs);
+			//titem->setPos(QPointF(d.m_x, y));
+			//v.m_scene->addItem(titem);
 		}
 
 		offs += m_max_layers[ci];
@@ -289,6 +294,23 @@ void GanttView::consumeData (contextdata_t * c)
 	}
 }
 
+class QwtScaleWidgetX : public QwtScaleWidget
+{
+	
+public:
+	explicit QwtScaleWidgetX(QwtScaleDraw::Alignment alignment, QWidget *parent
+		= NULL)
+		: QwtScaleWidget(alignment, parent)
+	{}
+	int scaleMargin() const
+	{
+		int y1,y2;
+		scaleDraw()->getBorderDistHint(font(), y1, y2);
+		int y = qMax(y1,y2);
+		return y;
+	}
+};
+
 
 
 
@@ -304,7 +326,34 @@ GanttView::GanttView (Connection * conn, QWidget * parent, gantt::GanttViewConfi
 	initColors();
 
 	m_layout = new QGridLayout;
+	//QwtLinearColorMap * colormap = new QwtLinearColorMap(Qt::darkCyan, Qt::red);
+	//colormap->addColorStop(0.1, Qt::cyan);
+	//colormap->addColorStop(0.6, Qt::green);
+	//colormap->addColorStop(0.95, Qt::yellow);
+
+	QwtInterval interval(0., 10.);
+	// Qwt scale widget and stuff
+	QwtScaleWidgetX * scale = new QwtScaleWidgetX(QwtScaleDraw::TopScale, this);
+	QwtLinearScaleEngine se;
+	QwtTransform * t = se.transformation();
+	QwtScaleDiv d = se.divideScale(interval.minValue(), interval.maxValue(), 8, 5);
+	scale->setScaleDiv(d); // as in QwtPlot::Axis
+
+	scale->setColorBarEnabled(true);
+	//scale->setColorMap(interval, colormap);
+	//scale->setTitle("Intensity");
+	scale->setMargin(2);
+
+	// layout to adjust scale
+	int const margin = scale->scaleMargin();
+	scale->setMinimumSize(QSize(48, 170-2*margin));
+	//qd->setContentsMargins(0, margin, 0, margin);
+	m_layout->addWidget(scale, 0, 0);
 	setLayout(m_layout);
+
+
+
+
 
 	//connect(m_resetButton, SIGNAL(clicked()), this, SLOT(resetView()));
 	//connect(m_zoomSlider, SIGNAL(valueChanged(int)), this, SLOT(setupMatrix()));
@@ -413,7 +462,7 @@ void GraphicsView::SetCenter (QPointF const & centerPoint)
 	double const boundWidth = sceneBounds.width() - 2.0 * boundX;
 	double const boundHeight = sceneBounds.height() - 2.0 * boundY;
 
-	//qDebug("setcenter: x=%f y=%f w=%f h=%f", boundX, boundY, boundWidth, boundHeight);
+	qDebug("setcenter: x=%f y=%f w=%f h=%f", boundX, boundY, boundWidth, boundHeight);
 	// The max boundary that the centerPoint can be to
 	QRectF bounds(boundX, boundY, boundWidth, boundHeight);
 	if (bounds.contains(centerPoint))
@@ -478,7 +527,7 @@ void GraphicsView::mouseMoveEvent (QMouseEvent * event)
  
 		//Update the center ie. do the pan
 		//SetCenter(GetCenter() + delta);
-		//qDebug("new center: %f %f", GetCenter().x(), GetCenter().y()); 
+		qDebug("new center: %f %f", GetCenter().x(), GetCenter().y()); 
 	}
 	else
 	{

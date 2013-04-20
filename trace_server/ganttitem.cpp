@@ -102,6 +102,33 @@ void BarItem::paint (QPainter * painter, QStyleOptionGraphicsItem const * option
 
 	qreal const lod = option->levelOfDetailFromTransform(painter->worldTransform());
 
+	if (lod > 0.7f)
+	{
+		if (m_w > 10)
+		{
+			setFlag(QGraphicsItem::ItemIgnoresTransformations);
+			QFont font("Times", 10);
+			//QTransform identity;
+			font.setStyleStrategy(QFont::ForceOutline);
+			painter->save();
+			painter->drawText(4, 10, QString("%1 [ %2 ms]").arg(m_data.m_msg).arg(m_data.m_delta_t / 1000.0f));
+			painter->restore();
+		}
+	}
+	else if (0.4f < lod && lod < 0.7f)
+	{
+		if (m_w > 20)
+		{
+			QFont font("Times", 8);
+			font.setStyleStrategy(QFont::ForceOutline);
+			painter->setFont(font);
+			painter->save();
+			painter->drawStaticText(4, m_h/2, QString("%1").arg(m_data.m_msg).arg(m_data.m_delta_t / 1000.0f));
+			painter->restore();
+		}
+	}
+
+
 /*	if (lod > 0.4f)
 	{
 		QFont font("Times", 8);
