@@ -10,8 +10,17 @@
     <height>239</height>
    </rect>
   </property>
+  <property name="floating">
+   <bool>true</bool>
+  </property>
+  <property name="features">
+   <set>QDockWidget::AllDockWidgetFeatures</set>
+  </property>
+  <property name="allowedAreas">
+   <set>Qt::NoDockWidgetArea</set>
+  </property>
   <property name="windowTitle">
-   <string>DockWidget</string>
+   <string>Gantt Settings</string>
   </property>
   <widget class="QWidget" name="dockWidgetContents">
    <layout class="QGridLayout" name="gridLayout_2">

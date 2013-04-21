@@ -4,7 +4,8 @@
 #include "config.h"
 #include "ganttconfig.h"
 #include "ganttdata.h"
-//#include "ganttctxmenu.h"
+#include "scalewidget.h"
+#include "qwt/qwt_transform.h"
 
 #include <QFrame>
 #include <QGraphicsView>
@@ -66,6 +67,8 @@ namespace gantt {
 
 		void appendGantt (DecodedData & data);
 
+		void updateTimeWidget (GraphicsView * v);
+
 	private slots:
 		void resetView ();
 		void setResetButtonEnabled ();
@@ -105,6 +108,7 @@ namespace gantt {
 		typedef QMap<QString, QColor> colormap_t;
 		colormap_t m_tagcolors;
 		std::map<unsigned, unsigned> m_max_layers;
+		ScaleWidget * m_timewidget;
 	};
 }
 

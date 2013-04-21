@@ -5,6 +5,7 @@
 #	include <QtOpenGL>
 #endif
 #include <qmath.h>
+#include "scalewidget.h"
 #include "qwt/qwt_scale_widget.h"
 #include "qwt/qwt_scale_draw.h"
 #include "qwt/qwt_color_map.h"
@@ -32,6 +33,7 @@ void GanttView::initColors ()
 		qcolor.setHsvF(hsv.h, hsv.s, hsv.v);
 		m_unique_colors.push_back(qcolor);
 	}
+	std::random_shuffle(m_unique_colors.begin(), m_unique_colors.end());
 }
 
 GfxView & GanttView::createViewForContext (unsigned long long ctx, QGraphicsScene * s)
@@ -39,7 +41,7 @@ GfxView & GanttView::createViewForContext (unsigned long long ctx, QGraphicsScen
 	contextviews_t::iterator it = m_contextviews.find(ctx);
 	if (it == m_contextviews.end())		
 	{
-		GraphicsView * view = new GraphicsView();
+		GraphicsView * view = new GraphicsView(this);
 		view->setRenderHint(QPainter::Antialiasing, false);
 		view->setDragMode(QGraphicsView::RubberBandDrag);
 		view->setOptimizationFlags(QGraphicsView::DontSavePainterState);
@@ -284,6 +286,9 @@ void GanttView::consumeData (contextdata_t * c)
 			p1.setWidth(4);
 			v.m_scene->addItem(ln_end);
 		}
+
+		QRectF const r = v.m_view->mapToScene(v.m_view->rect()).boundingRect();
+		qDebug("view: w=%f h=%f ", r.width(), r.height());
 	} 
 
 	//for (size_t ci = 0, cie = contexts.size(); ci < cie; ++ci)
@@ -294,24 +299,40 @@ void GanttView::consumeData (contextdata_t * c)
 	}
 }
 
-class QwtScaleWidgetX : public QwtScaleWidget
+
+void GanttView::updateTimeWidget (GraphicsView * v)
 {
+	///QRectF r = v->scene()->sceneRect();
+
+    QPointF tl(v->horizontalScrollBar()->value(), v->verticalScrollBar()->value());
+	QPointF br = tl + v->viewport()->rect().bottomRight();
+	QMatrix mat = v->matrix().inverted();
+	QRectF rr = mat.mapRect(QRectF(tl,br));
+
+	QPointF tl1 = rr.topLeft();
+	QPointF br1 = rr.bottomRight();
 	
-public:
-	explicit QwtScaleWidgetX(QwtScaleDraw::Alignment alignment, QWidget *parent
-		= NULL)
-		: QwtScaleWidget(alignment, parent)
-	{}
-	int scaleMargin() const
-	{
-		int y1,y2;
-		scaleDraw()->getBorderDistHint(font(), y1, y2);
-		int y = qMax(y1,y2);
-		return y;
-	}
-};
+	QPointF c = v->mapToScene(0, 0).toPoint();
+	//QRect exposedRect(v->mapToScene(0,0).toPoint(), v->viewport()->rect().size());
+	//QPoint c = v->viewport()->rect().center();
+	//QPointF r3 = v->mapToScene(c);
+	//QPointF r4 = v->mapToGlobal(c);
 
+	QwtLinearScaleEngine se;
+	QwtTransform * t = se.transformation();
+	QwtInterval interval(tl1.x(), br1.x());
+	QwtScaleDiv d = se.divideScale(interval.minValue(), interval.maxValue(), 8, 5);
+	m_timewidget->setScaleDiv(d); // as in QwtPlot::Axis
+	m_timewidget->setColorBarEnabled(true);
+	//m_timewidget->setColorMap(interval, colormap);
+	m_timewidget->setTitle("t [ms]");
+	m_timewidget->setMargin(2);
 
+	// layout to adjust scale
+	int const margin = m_timewidget->scaleMargin();
+	m_timewidget->setMinimumSize(QSize(48, 27-2*margin));
+	//m_timewidget->setMinimumSize(QSize(48, 170-2*margin));
+}
 
 
 GanttView::GanttView (Connection * conn, QWidget * parent, gantt::GanttViewConfig & config, QString const & fname)
@@ -319,6 +340,7 @@ GanttView::GanttView (Connection * conn, QWidget * parent, gantt::GanttViewConfi
 	, m_connection(conn)
 	, m_gvcfg(config)
 	, m_last_flush_end_idx(0)
+	, m_timewidget(0)
 {
 	qDebug("%s", __FUNCTION__);
 
@@ -331,24 +353,24 @@ GanttView::GanttView (Connection * conn, QWidget * parent, gantt::GanttViewConfi
 	//colormap->addColorStop(0.6, Qt::green);
 	//colormap->addColorStop(0.95, Qt::yellow);
 
-	QwtInterval interval(0., 10.);
 	// Qwt scale widget and stuff
-	QwtScaleWidgetX * scale = new QwtScaleWidgetX(QwtScaleDraw::TopScale, this);
-	QwtLinearScaleEngine se;
-	QwtTransform * t = se.transformation();
-	QwtScaleDiv d = se.divideScale(interval.minValue(), interval.maxValue(), 8, 5);
-	scale->setScaleDiv(d); // as in QwtPlot::Axis
+	m_timewidget = new ScaleWidget(QwtScaleDraw::TopScale, this);
 
-	scale->setColorBarEnabled(true);
-	//scale->setColorMap(interval, colormap);
-	//scale->setTitle("Intensity");
-	scale->setMargin(2);
+	//QwtLinearScaleEngine se;
+	///QwtTransform * t = se.transformation();
+	//QwtInterval interval(0., 10.);
+	//QwtScaleDiv d = se.divideScale(interval.minValue(), interval.maxValue(), 8, 5);
+	//m_timewidget->setScaleDiv(d); // as in QwtPlot::Axis
+	//m_timewidget->setColorBarEnabled(true);
+	//m_timewidget->setColorMap(interval, colormap);
+	//m_timewidget->setTitle("Intensity");
+	//m_timewidget->setMargin(2);
 
 	// layout to adjust scale
-	int const margin = scale->scaleMargin();
-	scale->setMinimumSize(QSize(48, 170-2*margin));
+	int const margin = m_timewidget->scaleMargin();
+	m_timewidget->setMinimumSize(QSize(48, 170-2*margin));
 	//qd->setContentsMargins(0, margin, 0, margin);
-	m_layout->addWidget(scale, 0, 0);
+	m_layout->addWidget(m_timewidget, 0, 0);
 	setLayout(m_layout);
 
 
@@ -499,6 +521,8 @@ void GraphicsView::SetCenter (QPointF const & centerPoint)
 	}
 	// Update the scrollbars
 	centerOn(CurrentCenterPoint);
+
+	static_cast<GanttView *>(parent())->updateTimeWidget(this);
 }
  
 void GraphicsView::mousePressEvent (QMouseEvent * event)
@@ -573,6 +597,8 @@ void GraphicsView::wheelEvent (QWheelEvent* event)
 		//Adjust to the new center for correct zooming
 		QPointF newCenter = screenCenter + offset;
 		SetCenter(newCenter);
+
+		static_cast<GanttView *>(parent())->updateTimeWidget(this);
 	}
 }
  
@@ -588,6 +614,8 @@ void GraphicsView::resizeEvent (QResizeEvent * event)
  
 	//Call the subclass resize so the scrollbars are updated correctly
 	QGraphicsView::resizeEvent(event);
+
+		static_cast<GanttView *>(parent())->updateTimeWidget(this);
 }
 
 }

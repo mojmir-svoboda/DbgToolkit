@@ -127,7 +127,6 @@ namespace gantt {
 	void BaseGantt::onShowContextMenu (QPoint const & pos)
 	{
 		qDebug("%s this=0x%08x", __FUNCTION__, this);
-		QRect widgetRect = geometry();
 		m_config_ui.onShowContextMenu(QCursor::pos());
 		Ui::SettingsGantt * ui = m_config_ui.ui();
 

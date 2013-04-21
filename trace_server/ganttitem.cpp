@@ -99,8 +99,9 @@ void BarItem::paint (QPainter * painter, QStyleOptionGraphicsItem const * option
 	}
 
 	painter->fillRect(QRectF(0, 0, m_w, m_h), fillColor);
+	painter->drawText(4, 10, QString("%1 [ %2 ms]").arg(m_data.m_msg).arg(m_data.m_delta_t / 1000.0f));
 
-	qreal const lod = option->levelOfDetailFromTransform(painter->worldTransform());
+/*	qreal const lod = option->levelOfDetailFromTransform(painter->worldTransform());
 
 	if (lod > 0.7f)
 	{
@@ -126,7 +127,7 @@ void BarItem::paint (QPainter * painter, QStyleOptionGraphicsItem const * option
 			painter->drawStaticText(4, m_h/2, QString("%1").arg(m_data.m_msg).arg(m_data.m_delta_t / 1000.0f));
 			painter->restore();
 		}
-	}
+	}*/
 
 
 /*	if (lod > 0.4f)

@@ -163,6 +163,7 @@ void TraceVal (int x, int y)
 	//TRACE_TABLE_COLOR(trace::e_Info, trace::CTX_Default, x	, y, trace::Color(255,0,0,255), "%s2/", GetName());
 	//TRACE_TABLE_COLOR(trace::e_Info, trace::CTX_Default, x	, y, trace::Color(255,0,255,255), trace::Color(0,0,0,0), "%s0", GetName());
 	TRACE_TABLE_COLOR(trace::e_Info, trace::CTX_Default, x + 1	, y, trace::Color(255,0,255,255), trace::Color(0,255,0,0), "%s0", GetName());
+	Sleep(500);
 	++n;
 	TRACE_GANTT_END(trace::e_Info, trace::CTX_Default, "aa0/g0/table");
 }
@@ -319,7 +320,7 @@ int main ()
 		if (i==3)
 		{
 			break;
-		}
+		}	
 	}
 
 	TRACE_GANTT_END(trace::e_Info, trace::CTX_Default, "aa0/g0/Entered %s...", __FUNCTION__);

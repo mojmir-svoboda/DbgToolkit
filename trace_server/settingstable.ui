@@ -13,8 +13,11 @@
   <property name="floating">
    <bool>true</bool>
   </property>
+  <property name="allowedAreas">
+   <set>Qt::NoDockWidgetArea</set>
+  </property>
   <property name="windowTitle">
-   <string>DockWidget</string>
+   <string>Gantt Settings</string>
   </property>
   <widget class="QWidget" name="dockWidgetContents">
    <layout class="QGridLayout" name="gridLayout_2">
