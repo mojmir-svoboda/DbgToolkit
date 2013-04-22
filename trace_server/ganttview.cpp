@@ -253,6 +253,7 @@ void GanttView::consumeData (contextdata_t * c)
 			item->setPos(QPointF(d.m_x, y));
 			item->setToolTip(QString("bgn=<%1..%2>\nframe=%3 ctx=%4\n%5\n%6\n[%7 ms]").arg(d.m_time_bgn).arg(d.m_time_end).arg(d.m_frame).arg(ci).arg(d.m_tag).arg(d.m_msg).arg(d.m_dt / 1000.0f));
 			v.m_scene->addItem(item);
+			d.m_item = item;
 
 			//QGraphicsItem * titem = new BarTextItem(d, d.m_color, 0, 0, w, h, ci, offs);
 			//titem->setPos(QPointF(d.m_x, y));
@@ -301,8 +302,8 @@ void GanttView::consumeData (contextdata_t * c)
 			v.m_scene->addItem(ln_end);
 		}
 
-		QRectF const r = v.m_view->mapToScene(v.m_view->rect()).boundingRect();
-		qDebug("view: w=%f h=%f ", r.width(), r.height());
+		//QRectF const r = v.m_view->mapToScene(v.m_view->rect()).boundingRect();
+		//qDebug("view: w=%f h=%f ", r.width(), r.height());
 	} 
 
 	//for (size_t ci = 0, cie = contexts.size(); ci < cie; ++ci)
@@ -322,6 +323,27 @@ void GanttView::applyConfig (GanttViewConfig & gvcfg)
 		updateTimeWidget((*it).m_view);
 		break;
 	}
+
+	if (m_curr_strtime_units != gvcfg.m_strtimeunits)
+	{
+		for (contextviews_t::iterator it = m_contextviews.begin(), ite = m_contextviews.end(); it != ite; ++it)
+		{
+			it->m_scene->clear();
+
+			double scale = m_curr_timeunits / gvcfg.m_timeunits;
+			qDebug("scaling %f", scale);
+			for (size_t f = 0, fe = m_ganttData.m_completed_frame_data.size(); f < fe; ++f)
+				for (size_t c = 0, ce = m_ganttData.m_completed_frame_data[f]->size(); c < ce; ++c)
+					for (size_t i = 0, ie = m_ganttData.m_completed_frame_data[f][c].size(); i < ie; ++i)
+					{
+						Data * d = (*m_ganttData.m_completed_frame_data[f])[c][i];
+						d->scale(scale);
+						BarItem * item = static_cast<BarItem *>(d->m_item);
+						it->m_scene->addItem(item);
+					}
+		}
+		m_curr_strtime_units = gvcfg.m_strtimeunits;
+	}
 }
 
 void GanttView::updateTimeWidget (GraphicsView * v)
@@ -336,7 +358,12 @@ void GanttView::updateTimeWidget (GraphicsView * v)
 	QPointF tl1 = rr.topLeft();
 	QPointF br1 = rr.bottomRight();
 	
-	QPointF c = v->mapToScene(0, 0).toPoint();
+	//QPointF c = v->mapToScene(0, 0).toPoint();
+
+	//QRectF const bound = v->mapToScene(v->rect()).boundingRect();
+	//qDebug("view: w=%f h=%f ", r.width(), r.height());
+	//QRectF rr2 = mat.mapRect(bound);
+	//QPointF d = v->mapToView(0, 0).toPoint();
 	//QRect exposedRect(v->mapToScene(0,0).toPoint(), v->viewport()->rect().size());
 	//QPoint c = v->viewport()->rect().center();
 	//QPointF r3 = v->mapToScene(c);
@@ -364,6 +391,7 @@ void GanttView::updateTimeWidget (GraphicsView * v)
 GanttView::GanttView (Connection * conn, QWidget * parent, gantt::GanttViewConfig & config, QString const & fname)
 	: QFrame(parent)
 	, m_connection(conn)
+	, m_curr_timeunits(1.0f)
 	, m_gvcfg(config)
 	, m_last_flush_end_idx(0)
 	, m_timewidget(0)
@@ -399,9 +427,9 @@ GanttView::GanttView (Connection * conn, QWidget * parent, gantt::GanttViewConfi
 	m_layout->addWidget(m_timewidget, 0, 0);
 	setLayout(m_layout);
 
-
-
-
+	config.setTimeUnits(config.m_strtimeunits);
+	m_curr_strtime_units = config.m_strtimeunits;
+	m_curr_timeunits = config.m_timeunits;
 
 	//connect(m_resetButton, SIGNAL(clicked()), this, SLOT(resetView()));
 	//connect(m_zoomSlider, SIGNAL(valueChanged(int)), this, SLOT(setupMatrix()));

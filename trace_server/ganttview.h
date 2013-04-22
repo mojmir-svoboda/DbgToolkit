@@ -99,7 +99,8 @@ namespace gantt {
 		QGridLayout * m_layout;
 		Connection * m_connection;
 		GanttViewConfig & m_gvcfg;
-		QString m_time_units;
+		QString m_curr_strtime_units;
+		double m_curr_timeunits;
 		GanttData m_ganttData;
 		unsigned m_last_flush_end_idx;
 

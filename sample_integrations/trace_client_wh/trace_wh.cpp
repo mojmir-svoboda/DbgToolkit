@@ -152,8 +152,9 @@ char const * GetName () { return "aa"; }
 
 void TraceVal (int x, int y)
 {
-	TRACE_GANTT_SCOPE(trace::e_Info, trace::CTX_Default, "aa0/g0/filling table[x=%i, y=%i]", x,y);
-	TRACE_GANTT_BGN(trace::e_Info, trace::CTX_Default, "aa0/g0/table[x=%i y=%i]", x, y);
+	//TRACE_GANTT_SCOPE(trace::e_Info, trace::CTX_Default, "aa0/g0/filling table[x=%i, y=%i]", x,y);
+	//TRACE_GANTT_SCOPE(trace::e_Info, trace::CTX_Default, "aa0/g0/filling table%i", x);
+	//TRACE_GANTT_BGN(trace::e_Info, trace::CTX_Default, "aa0/g0/table[x=%i y=%i]", x, y);
 	static int n = 0;
 	TRACE_TABLE(trace::e_Info, trace::CTX_Default, x, y, "%s0/%i",GetName(), n);
 	TRACE_TABLE(trace::e_Info, trace::CTX_Default, x, y, "%s1/%i",GetName(), n);		
@@ -165,7 +166,7 @@ void TraceVal (int x, int y)
 	TRACE_TABLE_COLOR(trace::e_Info, trace::CTX_Default, x + 1	, y, trace::Color(255,0,255,255), trace::Color(0,255,0,0), "%s0", GetName());
 	Sleep(500);
 	++n;
-	TRACE_GANTT_END(trace::e_Info, trace::CTX_Default, "aa0/g0/table");
+	//TRACE_GANTT_END(trace::e_Info, trace::CTX_Default, "aa0/g0/table");
 }
 	
 unsigned g_Quit = 0;
@@ -225,7 +226,8 @@ int main ()
 #endif
 	TRACE_APPNAME("WarHorse_App");
 	TRACE_CONNECT();
-	TRACE_GANTT_SCOPE(trace::e_Info, trace::CTX_Default, "aa0/g0/Entered %s...", __FUNCTION__);
+	//TRACE_GANTT_SCOPE(trace::e_Info, trace::CTX_Default, "aa0/g0/Entered %s...", __FUNCTION__);
+	TRACE_GANTT_BGN(trace::e_Info, trace::CTX_Default, "aa0/g0/%s", __FUNCTION__);
 	for (int k = 0; k < 1; ++k)
 		for (int i = 0; i < 64; ++i)
 		{
@@ -323,6 +325,7 @@ int main ()
 		}	
 	}
 
+	TRACE_GANTT_END(trace::e_Info, trace::CTX_Default, "aa0/g0/%s", __FUNCTION__);
 	//TRACE_GANTT_END(trace::e_Info, trace::CTX_Default, "aa0/g0/Entered %s...", __FUNCTION__);
 	g_Quit = 1;
 	thr_pool.WaitForTerminate();

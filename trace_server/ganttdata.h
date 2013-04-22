@@ -3,6 +3,7 @@
 #include <string>
 #include <cstdio>
 #include <QColor>
+#include <QGraphicsItem>
 
 namespace gantt {
 
@@ -29,6 +30,7 @@ namespace gantt {
 	struct Data
 	{
 		Data * m_parent;
+		QGraphicsItem * m_item;
 		unsigned long long m_time_bgn_orig;
 		unsigned long long m_time_end_orig;
 		unsigned long long m_time_bgn;
@@ -47,7 +49,7 @@ namespace gantt {
 		QString m_endmsg;
 
 		Data () 
-			: m_parent(0)
+			: m_parent(0), m_item(0)
 			, m_time_bgn(0), m_time_end(0), m_delta_t(0)
 			, m_layer(0)
 			, m_ctx(0) , m_ctx_idx(0)
@@ -62,6 +64,16 @@ namespace gantt {
 			//m_dt = static_cast<float>(m_delta_t) / g_scaleValue;
 			m_dt = static_cast<float>(m_delta_t);
 			//printf("completed: tid=%10llu delta_t=%10llu msg=%s\n", m_tid, m_delta_t, m_msg.c_str());
+		}
+
+		void scale (double s)
+		{
+			m_time_bgn *= s;
+			m_time_end *= s;
+			m_delta_t *= s;
+			m_x *= s;
+			m_y *= s;
+			m_dt *= s;
 		}
 	};
 
