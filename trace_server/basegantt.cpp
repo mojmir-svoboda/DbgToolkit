@@ -166,12 +166,7 @@ namespace gantt {
 		for (size_t i = 0, ie = cfg.m_gvcfg.size(); i < ie; ++i)
 		{
 			GanttViewConfig const & gvcfg = cfg.m_gvcfg[i];
-
-			if (gvcfg.m_tag == ui->ganttViewComboBox->currentText())
-			{
-				ui->ganttViewComboBox->addItem(gvcfg.m_tag);
-				break;
-			}
+			ui->ganttViewComboBox->addItem(gvcfg.m_tag);
 		}
 		if (cfg.m_gvcfg.size())
 			setViewConfigValuesToUI(cfg.m_gvcfg[0]);
@@ -212,16 +207,6 @@ namespace gantt {
 		//defaults.partialLoadFrom(m_config);
 		setConfigValuesToUI(defaults);
 	}
-
-		QString m_tag;
-		QString m_label;
-		QString m_strtimeunits;
-		int m_sync_group;
-		int m_fontsize;
-		float m_timeunits;
-		float m_scale;
-		bool m_show;
-		bool m_auto_scroll;
 
 	void BaseGantt::setViewConfigValuesToUI (GanttViewConfig const & gvcfg)
 	{

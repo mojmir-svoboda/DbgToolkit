@@ -86,7 +86,7 @@ void GanttView::appendFrameBgn (DecodedData & dd)
 void GanttView::appendFrameEnd (DecodedData & dd)
 {
 	float const scale = m_gvcfg.m_timeunits;
-	m_ganttData.m_frames.push_back(std::make_pair(m_ganttData.m_frame_begin / scale, dd.m_time / scale));
+	m_ganttData.m_frames.push_back(std::make_pair(m_ganttData.m_frame_begin * scale, dd.m_time * scale));
 
 	//size_t const from = m_last_flush_end_idx;
 	//size_t const to = m_ganttData.m_completed_frame_data.size();
@@ -117,7 +117,8 @@ void GanttView::appendBgn (DecodedData & dd)
 	m_ganttData.m_data_ptrs.push_back(new Data());
 	m_ganttData.m_pending_data[dd.m_ctx_idx].push_back(m_ganttData.m_data_ptrs.back());
 	Data & d = *m_ganttData.m_pending_data[dd.m_ctx_idx].back();
-	d.m_time_bgn = dd.m_time;
+	d.m_time_bgn_orig = dd.m_time;
+	d.m_time_bgn = dd.m_time * m_gvcfg.m_timeunits;
 	d.m_ctx = dd.m_ctx;
 	d.m_ctx_idx = dd.m_ctx_idx;
 
@@ -141,20 +142,26 @@ void GanttView::appendBgn (DecodedData & dd)
 void GanttView::appendEnd (DecodedData & dd)
 {
 	unsigned const frame_idx = m_ganttData.m_frame;
-	Data * d = m_ganttData.m_pending_data[dd.m_ctx_idx].back();
-	m_ganttData.m_pending_data[dd.m_ctx_idx].pop_back();
+	if (m_ganttData.m_pending_data[dd.m_ctx_idx].size())
+	{
+		Data * d = m_ganttData.m_pending_data[dd.m_ctx_idx].back();
+		m_ganttData.m_pending_data[dd.m_ctx_idx].pop_back();
 
-	d->m_time_end = dd.m_time;
-	d->m_endmsg = dd.m_text;
-	d->complete();
+		d->m_time_end_orig = dd.m_time;
+		d->m_time_end = dd.m_time * m_gvcfg.m_timeunits;
+		d->m_endmsg = dd.m_text;
+		d->complete();
 
-	(*m_ganttData.m_completed_frame_data[d->m_frame])[dd.m_ctx_idx].push_back(d);
+		(*m_ganttData.m_completed_frame_data[d->m_frame])[dd.m_ctx_idx].push_back(d);
 
-	qDebug("end flushing f=%i", d->m_frame);
-	consumeData(m_ganttData.m_completed_frame_data[d->m_frame]);
+		//qDebug("end flushing f=%i", d->m_frame);
+		consumeData(m_ganttData.m_completed_frame_data[d->m_frame]);
 
 
-	qDebug("    } f=%i t=%8llu  ctxi=%u  msg=%s", d->m_frame, d->m_time_bgn, d->m_ctx_idx, d->m_msg.toStdString().c_str());
+		qDebug("    } f=%i t=%8llu  ctxi=%u  msg=%s", d->m_frame, d->m_time_bgn, d->m_ctx_idx, d->m_msg.toStdString().c_str());
+	}
+	else
+		qWarning("Mismatched end! tag=%s subtag=%s text=%s", dd.m_tag.toStdString().c_str(), dd.m_subtag.toStdString().c_str(), dd.m_text.toStdString().c_str());
 }
 
 void GanttView::appendGantt (DecodedData & dd)
@@ -171,7 +178,6 @@ void GanttView::appendGantt (DecodedData & dd)
 	{
 		dd.m_ctx_idx = std::distance(m_ganttData.m_contexts.begin(), it);
 	}
-
 
 	typedef void (GanttView::*ptr) (DecodedData & dd);
 	ptr ptrs[] = { &GanttView::appendBgn, &GanttView::appendEnd, &GanttView::appendFrameBgn, &GanttView::appendFrameEnd };
@@ -233,7 +239,7 @@ void GanttView::consumeData (contextdata_t * c)
 			int w = d.m_dt;
 			qreal x = d.m_time_bgn;
 			qreal y = (offs) * (h + space)  + d.m_layer * (h + space);
-			d.m_x = x / m_gvcfg.m_timeunits;
+			d.m_x = x;
 			d.m_y = y;
 			qDebug("++++ f=%2u ci=%2u di=%2u  %s  (x=%6.1f y=%6.1f w=%4i h=%4i dt=%3.1f) col=%s", d.m_frame, ci, di, d.m_tag.toStdString().c_str(), x, y, w, h, d.m_dt, d.m_color.name().toStdString().c_str());
 
@@ -245,7 +251,7 @@ void GanttView::consumeData (contextdata_t * c)
 
 			QGraphicsItem * item = new BarItem(d, d.m_color, 0, 0, w, h, ci, offs);
 			item->setPos(QPointF(d.m_x, y));
-			item->setToolTip(QString("frame=%1 ctx=%2\n%3\n%4\n[%5 ms]").arg(d.m_frame).arg(ci).arg(d.m_tag).arg(d.m_msg).arg(d.m_dt / 1000.0f));
+			item->setToolTip(QString("bgn=<%1..%2>\nframe=%3 ctx=%4\n%5\n%6\n[%7 ms]").arg(d.m_time_bgn).arg(d.m_time_end).arg(d.m_frame).arg(ci).arg(d.m_tag).arg(d.m_msg).arg(d.m_dt / 1000.0f));
 			v.m_scene->addItem(item);
 
 			//QGraphicsItem * titem = new BarTextItem(d, d.m_color, 0, 0, w, h, ci, offs);
@@ -442,7 +448,7 @@ void GanttView::setResetButtonEnabled()
 
 void GanttView::setupMatrix()
 {
-	qreal scale = qPow(qreal(2), (m_gvcfg.m_scale - 250.0f) / qreal(50));
+	qreal scale = qPow(qreal(2), (250.0f - 250.0f) / qreal(50));
 
 	QMatrix matrix;
 	matrix.scale(scale, scale);
@@ -505,7 +511,7 @@ void GraphicsView::SetCenter (QPointF const & centerPoint)
 	double const boundWidth = sceneBounds.width() - 2.0 * boundX;
 	double const boundHeight = sceneBounds.height() - 2.0 * boundY;
 
-	qDebug("setcenter: x=%f y=%f w=%f h=%f", boundX, boundY, boundWidth, boundHeight);
+	//qDebug("setcenter: x=%f y=%f w=%f h=%f", boundX, boundY, boundWidth, boundHeight);
 	// The max boundary that the centerPoint can be to
 	QRectF bounds(boundX, boundY, boundWidth, boundHeight);
 	if (bounds.contains(centerPoint))
@@ -572,7 +578,7 @@ void GraphicsView::mouseMoveEvent (QMouseEvent * event)
  
 		//Update the center ie. do the pan
 		//SetCenter(GetCenter() + delta);
-		qDebug("new center: %f %f", GetCenter().x(), GetCenter().y()); 
+		//qDebug("new center: %f %f", GetCenter().x(), GetCenter().y()); 
 	}
 	else
 	{

@@ -29,6 +29,8 @@ namespace gantt {
 	struct Data
 	{
 		Data * m_parent;
+		unsigned long long m_time_bgn_orig;
+		unsigned long long m_time_end_orig;
 		unsigned long long m_time_bgn;
 		unsigned long long m_time_end;
 		unsigned long long m_delta_t;
