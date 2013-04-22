@@ -68,6 +68,7 @@ namespace gantt {
 		void appendGantt (DecodedData & data);
 
 		void updateTimeWidget (GraphicsView * v);
+		void applyConfig (GanttViewConfig & gvcfg);
 
 	private slots:
 		void resetView ();
@@ -98,6 +99,7 @@ namespace gantt {
 		QGridLayout * m_layout;
 		Connection * m_connection;
 		GanttViewConfig & m_gvcfg;
+		QString m_time_units;
 		GanttData m_ganttData;
 		unsigned m_last_flush_end_idx;
 
@@ -109,6 +111,7 @@ namespace gantt {
 		colormap_t m_tagcolors;
 		std::map<unsigned, unsigned> m_max_layers;
 		ScaleWidget * m_timewidget;
+
 	};
 }
 

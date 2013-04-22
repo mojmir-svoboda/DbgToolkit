@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>328</width>
-    <height>239</height>
+    <width>357</width>
+    <height>275</height>
    </rect>
   </property>
   <property name="floating">
@@ -30,79 +30,6 @@
     <property name="spacing">
      <number>0</number>
     </property>
-    <item row="0" column="1">
-     <layout class="QGridLayout" name="gL">
-      <item row="0" column="1">
-       <widget class="QCheckBox" name="viewShowCheckBox">
-        <property name="font">
-         <font>
-          <family>Verdana</family>
-          <pointsize>7</pointsize>
-         </font>
-        </property>
-        <property name="text">
-         <string>show</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="0">
-       <widget class="QPushButton" name="applyButton">
-        <property name="font">
-         <font>
-          <family>Verdana</family>
-          <pointsize>7</pointsize>
-         </font>
-        </property>
-        <property name="text">
-         <string>Apply</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="3">
-       <widget class="QPushButton" name="saveButton">
-        <property name="font">
-         <font>
-          <family>Verdana</family>
-          <pointsize>7</pointsize>
-         </font>
-        </property>
-        <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Saves ONLY settings of THIS gantt. Does not save widget screen position, this information is stored in Preset.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-        <property name="text">
-         <string>Save</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="2">
-       <spacer name="hS">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item row="2" column="1">
-       <widget class="Line" name="line">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QPushButton" name="clearAllButton">
-        <property name="text">
-         <string>ClearAllData</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </item>
     <item row="4" column="1">
      <widget class="QTabWidget" name="tabWidget">
       <property name="font">
@@ -124,22 +51,29 @@
           <property name="spacing">
            <number>0</number>
           </property>
-          <item row="5" column="1">
-           <widget class="QSpinBox" name="syncGroupCheckBox">
+          <item row="11" column="0">
+           <widget class="QPushButton" name="clearGanttViewDataButton">
+            <property name="text">
+             <string>Clear Graph Data</string>
+            </property>
+           </widget>
+          </item>
+          <item row="10" column="1">
+           <widget class="QSpinBox" name="syncGroupSpinBox">
             <property name="font">
              <font>
               <family>Verdana</family>
-              <pointsize>7</pointsize>
+              <pointsize>8</pointsize>
              </font>
             </property>
            </widget>
           </item>
-          <item row="5" column="0">
+          <item row="10" column="0">
            <widget class="QLabel" name="label_2">
             <property name="font">
              <font>
               <family>Verdana</family>
-              <pointsize>7</pointsize>
+              <pointsize>8</pointsize>
              </font>
             </property>
             <property name="text">
@@ -147,24 +81,127 @@
             </property>
            </widget>
           </item>
-          <item row="1" column="0">
-           <widget class="QSlider" name="scaleSlider">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
+          <item row="5" column="0">
+           <widget class="QLabel" name="label_4">
+            <property name="font">
+             <font>
+              <pointsize>8</pointsize>
+             </font>
+            </property>
+            <property name="text">
+             <string>Tag auto coloring</string>
             </property>
            </widget>
           </item>
-          <item row="6" column="0">
-           <widget class="QPushButton" name="clearGanttViewDataButton">
+          <item row="5" column="1">
+           <widget class="QCheckBox" name="autoColorCheckBox">
             <property name="text">
-             <string>Clear Graph Data</string>
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="label_3">
+            <property name="font">
+             <font>
+              <family>Verdana</family>
+              <pointsize>8</pointsize>
+             </font>
+            </property>
+            <property name="text">
+             <string>Scale</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QComboBox" name="timeUnitsComboBox">
+            <property name="font">
+             <font>
+              <pointsize>8</pointsize>
+             </font>
+            </property>
+            <property name="currentIndex">
+             <number>1</number>
+            </property>
+            <item>
+             <property name="text">
+              <string>us</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>ms</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>s</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>min</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QLabel" name="label_6">
+            <property name="text">
+             <string>Font</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="label">
+            <property name="font">
+             <font>
+              <family>Verdana</family>
+              <pointsize>8</pointsize>
+             </font>
+            </property>
+            <property name="text">
+             <string>Time Units</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="QFontComboBox" name="fontComboBox">
+            <property name="font">
+             <font>
+              <pointsize>8</pointsize>
+             </font>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QDoubleSpinBox" name="scaleDoubleSpinBox"/>
+          </item>
+          <item row="3" column="2">
+           <widget class="QSpinBox" name="fontSizeSpinBox">
+            <property name="font">
+             <font>
+              <pointsize>8</pointsize>
+             </font>
             </property>
            </widget>
           </item>
           <item row="0" column="0">
+           <widget class="QLabel" name="label_5">
+            <property name="font">
+             <font>
+              <pointsize>8</pointsize>
+             </font>
+            </property>
+            <property name="text">
+             <string>Show graph</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
            <widget class="QCheckBox" name="showGanttViewCheckBox">
             <property name="text">
-             <string>show</string>
+             <string/>
             </property>
            </widget>
           </item>
@@ -181,6 +218,11 @@
       </property>
       <item>
        <widget class="QLabel" name="l0">
+        <property name="font">
+         <font>
+          <family>Verdana</family>
+         </font>
+        </property>
         <property name="text">
          <string>Graph:</string>
         </property>
@@ -208,6 +250,85 @@
          </size>
         </property>
        </spacer>
+      </item>
+     </layout>
+    </item>
+    <item row="0" column="1">
+     <layout class="QGridLayout" name="gL">
+      <item row="0" column="1">
+       <widget class="QCheckBox" name="globalShowCheckBox">
+        <property name="font">
+         <font>
+          <family>Verdana</family>
+          <pointsize>8</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>show</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QPushButton" name="applyButton">
+        <property name="font">
+         <font>
+          <family>Verdana</family>
+          <pointsize>8</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>Apply</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="3">
+       <widget class="QPushButton" name="saveButton">
+        <property name="font">
+         <font>
+          <family>Verdana</family>
+          <pointsize>8</pointsize>
+         </font>
+        </property>
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Saves ONLY settings of THIS gantt. Does not save widget screen position, this information is stored in Preset.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="text">
+         <string>Save</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2">
+       <spacer name="hS">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="7" column="0">
+       <spacer name="vS_0">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>40</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="1" column="3">
+       <widget class="QPushButton" name="clearAllButton">
+        <property name="text">
+         <string>ClearAllData</string>
+        </property>
+       </widget>
       </item>
      </layout>
     </item>

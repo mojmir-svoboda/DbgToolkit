@@ -51,6 +51,8 @@ namespace gantt {
 		void onShowContextMenu (QPoint const & pos);
 		void setConfigValuesToUI (GanttConfig const & cfg);
 		void setUIValuesToConfig (GanttConfig & cfg);
+		void setViewConfigValuesToUI (GanttViewConfig const & gvcfg);
+		void setUIValuesToViewConfig (GanttViewConfig & cfg);
 		void onSaveButton ();
 		void onApplyButton ();
 		void onResetButton ();

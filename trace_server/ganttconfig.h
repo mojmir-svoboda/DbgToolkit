@@ -7,28 +7,31 @@ namespace gantt {
 	{
 		QString m_tag;
 		QString m_label;
+		QString m_strtimeunits;
 		int m_sync_group;
 		QColor m_fgcolor;
 		QColor m_bgcolor;
 		QColor m_symbolcolor;
 		int m_symbolsize;
 		int m_fontsize;
-		float m_timescale;
-		float m_zoom;
+		float m_timeunits;
+		float m_scale;
 		bool m_show;
 		bool m_auto_scroll;
+		bool m_auto_color;
 
 		GanttViewConfig ()
-			: m_sync_group(0)
+			: m_strtimeunits(QString("ms"))
 			, m_fgcolor(Qt::yellow)
 			, m_bgcolor(Qt::black)
 			, m_symbolcolor(Qt::red)
 			, m_symbolsize(6)
-			, m_fontsize(6)
-			, m_timescale(1.0f)
-			, m_zoom(1.0f)
+			, m_fontsize(10)
+			, m_timeunits(0.001f)
+			, m_scale(1.0f)
 			, m_show(true)
 			, m_auto_scroll(true)
+			, m_auto_color(true)
 		{ }
 
 		template <class ArchiveT>
@@ -36,17 +39,34 @@ namespace gantt {
 		{
 			ar & boost::serialization::make_nvp("tag", m_tag);
 			ar & boost::serialization::make_nvp("label", m_label);
+			ar & boost::serialization::make_nvp("strtimeunits", m_strtimeunits);
 			ar & boost::serialization::make_nvp("sync_group", m_sync_group);
 			ar & boost::serialization::make_nvp("fgcol", m_fgcolor);
 			ar & boost::serialization::make_nvp("bgcol", m_bgcolor);
 			ar & boost::serialization::make_nvp("symcol", m_symbolcolor);
 			ar & boost::serialization::make_nvp("symsize", m_symbolsize);
 			ar & boost::serialization::make_nvp("fontsize", m_fontsize);
-			ar & boost::serialization::make_nvp("timescale", m_timescale);
-			ar & boost::serialization::make_nvp("zoom", m_zoom);
+			ar & boost::serialization::make_nvp("timeunits", m_timeunits);
+			ar & boost::serialization::make_nvp("scale", m_scale);
 			ar & boost::serialization::make_nvp("show", m_show);
 			ar & boost::serialization::make_nvp("autoscroll", m_auto_scroll);
+			ar & boost::serialization::make_nvp("autocolor", m_auto_color);
 		}
+
+		void setTimeUnits (QString const & unit)
+		{
+			if (unit == "ms")
+				m_timeunits = 0.001f;
+			if (unit == "us")
+				m_timeunits = 0.000001f;
+			if (unit == "s")
+				m_timeunits = 1.0f;
+			if (unit == "m")
+				m_timeunits = 60.0f;
+			else
+				m_timeunits = 0.001f;
+		}
+
 	};
 
 	struct GanttConfig

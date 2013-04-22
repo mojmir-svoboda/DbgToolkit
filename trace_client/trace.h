@@ -361,6 +361,7 @@
 		{
 			level_t m_level;
 			context_t m_context;
+			char m_tag[256];
 
 			TRACE_API ScopedGantt (level_t level, context_t context, char const * fmt, ...);
 			TRACE_API ~ScopedGantt ();
@@ -371,6 +372,7 @@
 		{
 			level_t m_level;
 			context_t m_context;
+			char m_tag[256];
 
 			TRACE_API ScopedGanttFrame (level_t level, context_t context, char const * fmt, ...);
 			TRACE_API ~ScopedGanttFrame ();

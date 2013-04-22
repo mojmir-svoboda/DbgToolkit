@@ -204,7 +204,7 @@ namespace trace {
 
 
 	// gantt write functions
-	void WriteGanttBgnVA (level_t level, context_t context, char const * fmt, va_list args)
+	inline void WriteGanttBgnVA (level_t level, context_t context, char const * fmt, va_list args)
 	{
 		if (GetRuntimeBuffering())
 		{
@@ -216,6 +216,20 @@ namespace trace {
 			msg.WriteUnlockAndDirty();
 		}
 	}
+
+	inline void WriteGanttScopeBgnVA (level_t level, context_t context, char * tag_buff, size_t tag_max_sz, char const * fmt, va_list args)
+	{
+		if (GetRuntimeBuffering())
+		{
+			msg_t & msg = socks::acquire_msg_buffer();
+			msg.WriteLock();
+			{
+				encode_gantt_scope_bgn(msg, level, context, tag_buff, tag_max_sz, fmt, args);
+			}
+			msg.WriteUnlockAndDirty();
+		}
+	}
+
 
 	void WriteGanttBgn_Impl (level_t level, context_t context)
 	{
@@ -230,7 +244,7 @@ namespace trace {
 		}
 	}
 
-	void WriteGanttEndVA (level_t level, context_t context, char const * fmt, va_list args)
+	inline void WriteGanttEndVA (level_t level, context_t context, char const * fmt, va_list args)
 	{
 		if (GetRuntimeBuffering())
 		{
@@ -243,7 +257,7 @@ namespace trace {
 		}
 	}
 
-	void WriteGanttEnd_Impl (level_t level, context_t context)
+	inline void WriteGanttEnd_Impl (level_t level, context_t context)
 	{
 		if (GetRuntimeBuffering())
 		{
@@ -256,7 +270,7 @@ namespace trace {
 		}
 	}
 
-	void WriteGanttFrameBgnVA (level_t level, context_t context, char const * fmt, va_list args)
+	inline void WriteGanttFrameBgnVA (level_t level, context_t context, char const * fmt, va_list args)
 	{
 		if (GetRuntimeBuffering())
 		{
@@ -269,7 +283,7 @@ namespace trace {
 		}
 	}
 
-	void WriteGanttFrameBgn_Impl(level_t level, context_t context)
+	inline void WriteGanttFrameBgn_Impl(level_t level, context_t context)
 	{
 		if (GetRuntimeBuffering())
 		{
@@ -282,7 +296,7 @@ namespace trace {
 		}
 	}
 
-	void WriteGanttFrameEndVA (level_t level, context_t context, char const * fmt, va_list args)
+	inline void WriteGanttFrameEndVA (level_t level, context_t context, char const * fmt, va_list args)
 	{
 		if (GetRuntimeBuffering())
 		{
@@ -295,7 +309,7 @@ namespace trace {
 		}
 	}
 
-	void WriteGanttFrameEnd_Impl (level_t level, context_t context)
+	inline void WriteGanttFrameEnd_Impl (level_t level, context_t context)
 	{
 		if (GetRuntimeBuffering())
 		{

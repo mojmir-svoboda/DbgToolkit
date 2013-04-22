@@ -225,17 +225,18 @@
 		void WriteGanttFrameEnd_Impl (level_t level, context_t context);
 		void WriteGanttFrameEnd (level_t level, context_t context) { WriteGanttFrameEnd_Impl(level, context); }
 
+		void WriteGanttScopeBgnVA (level_t level, context_t context, char * tag_buff, size_t max_size, char const * fmt, va_list args);
 		ScopedGantt::ScopedGantt (level_t level, context_t context, char const * fmt, ...)
 		{
 			va_list args;
 			va_start(args, fmt);
-			WriteGanttBgnVA(level, context, fmt, args);
+			WriteGanttScopeBgnVA(level, context, m_tag, 256, fmt, args);
 			va_end(args);
 		}
 		
 		ScopedGantt::~ScopedGantt ()
 		{
-			WriteGanttEnd(m_level, m_context);
+			WriteGanttEnd(m_level, m_context, "%s", m_tag);
 		}
 
 		ScopedGanttFrame::ScopedGanttFrame (level_t level, context_t context, char const * fmt, ...)
@@ -243,13 +244,13 @@
 			va_list args;
 			va_start(args, fmt);
 			WriteGanttFrameBgnVA(level, context, fmt, args);
-			WriteGanttBgnVA(level, context, fmt, args);
+			//WriteGanttBgnVA(level, context, fmt, args);
 			va_end(args);
 		}
 
 		ScopedGanttFrame::~ScopedGanttFrame()
 		{
-			WriteGanttEnd(m_level, m_context);
+			//WriteGanttEnd(m_level, m_context);
 			WriteGanttFrameEnd(m_level, m_context);
 		}
 

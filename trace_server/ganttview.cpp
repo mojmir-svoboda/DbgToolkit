@@ -85,7 +85,7 @@ void GanttView::appendFrameBgn (DecodedData & dd)
 
 void GanttView::appendFrameEnd (DecodedData & dd)
 {
-	float const scale = m_gvcfg.m_timescale;
+	float const scale = m_gvcfg.m_timeunits;
 	m_ganttData.m_frames.push_back(std::make_pair(m_ganttData.m_frame_begin / scale, dd.m_time / scale));
 
 	//size_t const from = m_last_flush_end_idx;
@@ -194,21 +194,26 @@ void GanttView::consumeData (contextdata_t * c)
 		for (size_t di = 0, die = datas.size(); di < die; ++di)
 		{
 			Data & d = *datas[di];
-			colormap_t::iterator it = m_tagcolors.find(d.m_tag);
 
-			if (it == m_tagcolors.end())
+			if (m_gvcfg.m_auto_color)
 			{
-				//qDebug("new tag d_tag=\"%s\" d_msg=\"%s\"", d.m_tag.toStdString().c_str(), d.m_msg.toStdString().c_str());
-				if (m_unique_colors.size() > 0)
+				colormap_t::iterator it = m_tagcolors.find(d.m_tag);
+				if (it == m_tagcolors.end())
 				{
-					d.m_color = m_unique_colors.back();
-					m_unique_colors.pop_back();
+					//qDebug("new tag d_tag=\"%s\" d_msg=\"%s\"", d.m_tag.toStdString().c_str(), d.m_msg.toStdString().c_str());
+					if (m_unique_colors.size() > 0)
+					{
+						d.m_color = m_unique_colors.back();
+						m_unique_colors.pop_back();
+					}
+					//qDebug("COL= %s tag=%s", d.m_color.name().toStdString().c_str(), d.m_tag.toStdString().c_str());
+					m_tagcolors[d.m_tag] = d.m_color;
 				}
-				//qDebug("COL= %s tag=%s", d.m_color.name().toStdString().c_str(), d.m_tag.toStdString().c_str());
-				m_tagcolors[d.m_tag] = d.m_color;
+				else
+					d.m_color = *it;
 			}
 			else
-				d.m_color = *it;
+				d.m_color = Qt::white;
 
 			if (d.m_layer >= m_max_layers[ci])
 				m_max_layers[ci] = d.m_layer;
@@ -228,7 +233,7 @@ void GanttView::consumeData (contextdata_t * c)
 			int w = d.m_dt;
 			qreal x = d.m_time_bgn;
 			qreal y = (offs) * (h + space)  + d.m_layer * (h + space);
-			d.m_x = x / m_gvcfg.m_timescale;
+			d.m_x = x / m_gvcfg.m_timeunits;
 			d.m_y = y;
 			qDebug("++++ f=%2u ci=%2u di=%2u  %s  (x=%6.1f y=%6.1f w=%4i h=%4i dt=%3.1f) col=%s", d.m_frame, ci, di, d.m_tag.toStdString().c_str(), x, y, w, h, d.m_dt, d.m_color.name().toStdString().c_str());
 
@@ -303,6 +308,16 @@ void GanttView::consumeData (contextdata_t * c)
 }
 
 
+void GanttView::applyConfig (GanttViewConfig & gvcfg)
+{
+	for (contextviews_t::iterator it = m_contextviews.begin(), ite = m_contextviews.end(); it != ite; ++it)
+	{
+		// set view scale into matrix
+		updateTimeWidget((*it).m_view);
+		break;
+	}
+}
+
 void GanttView::updateTimeWidget (GraphicsView * v)
 {
 	///QRectF r = v->scene()->sceneRect();
@@ -328,12 +343,14 @@ void GanttView::updateTimeWidget (GraphicsView * v)
 	m_timewidget->setScaleDiv(d); // as in QwtPlot::Axis
 	m_timewidget->setColorBarEnabled(true);
 	//m_timewidget->setColorMap(interval, colormap);
-	m_timewidget->setTitle("t [ms]");
+	//m_timewidget->setTitle("t [ms]");
+	//m_timewidget->setToolTip("t [ms]");
+	m_timewidget->setToolTip(QString("t [%1]").arg(m_gvcfg.m_strtimeunits));
 	m_timewidget->setMargin(2);
 
 	// layout to adjust scale
-	int const margin = m_timewidget->scaleMargin();
-	m_timewidget->setMinimumSize(QSize(48, 27-2*margin));
+	//int const margin = m_timewidget->scaleMargin();
+	//m_timewidget->setMinimumSize(QSize(48, 27-2*margin));
 	//m_timewidget->setMinimumSize(QSize(48, 170-2*margin));
 }
 
@@ -425,10 +442,11 @@ void GanttView::setResetButtonEnabled()
 
 void GanttView::setupMatrix()
 {
-	qreal scale = qPow(qreal(2), (m_gvcfg.m_zoom - 250.0f) / qreal(50));
+	qreal scale = qPow(qreal(2), (m_gvcfg.m_scale - 250.0f) / qreal(50));
 
 	QMatrix matrix;
 	matrix.scale(scale, scale);
+	m_gvcfg.m_scale = scale;
 
 	for (contextviews_t::iterator it = m_contextviews.begin(), ite = m_contextviews.end(); it != ite; ++it)
 		(*it).m_view->setMatrix(matrix);
@@ -450,12 +468,12 @@ void GanttView::toggleAntialiasing()
 
 void GanttView::zoomIn()
 {
-	m_gvcfg.m_zoom += 1.0f;
+	m_gvcfg.m_scale += 1.0f;
 }
 
 void GanttView::zoomOut()
 {
-	m_gvcfg.m_zoom -= 1.0f;
+	m_gvcfg.m_scale -= 1.0f;
 }
 
 void GanttView::forceUpdate ()
