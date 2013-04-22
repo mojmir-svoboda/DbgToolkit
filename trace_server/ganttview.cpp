@@ -88,27 +88,26 @@ void GanttView::appendFrameEnd (DecodedData & dd)
 	float const scale = m_gvcfg.m_timescale;
 	m_ganttData.m_frames.push_back(std::make_pair(m_ganttData.m_frame_begin / scale, dd.m_time / scale));
 
-	size_t const from = m_last_flush_end_idx;
-	size_t const to = m_ganttData.m_completed_frame_data.size();
+	//size_t const from = m_last_flush_end_idx;
+	//size_t const to = m_ganttData.m_completed_frame_data.size();
+	//qDebug("frame flushing from %i to %i", from, to);
 	//qDebug("flushing from %i to %i", from, to);
 
-	for (size_t i = from; i < to; ++i)
-	{
+	//for (size_t i = from; i < to; ++i)
+	//{
 		//qDebug("producing[%i], sz=%u", i, m_ganttData.m_completed_frame_data[i]->size());
-		consumeData(m_ganttData.m_completed_frame_data[i]);
-	}
+		//consumeData(m_ganttData.m_completed_frame_data[i]);
+	//}
+
+	//m_last_flush_end_idx = to;
 
 	qDebug("}}}}}}}}}}}}}}}}}}}}} f=%i", m_ganttData.m_frame);
 	//qDebug("}-- --- f=%i t=%8llu  ctxi=%u  msg=%s", m_ganttData.m_frame, m_ganttData.m_frame_begin, dd.m_ctx_idx, dd.m_text.toStdString().c_str());
-
 	//dump
 	/*for (size_t i = from; i < to; ++i)
 		for (size_t j = 0, je = m_ganttData.m_completed_frame_infos[i]->size(); j < je; ++j)
 			qDebug("producing item[%i]=0x%016x, contexts=%u bis_sz=%u", i, m_ganttData.m_completed_frame_infos[i], m_ganttData.m_completed_frame_infos[i]->size(),  m_ganttData.m_completed_frame_infos[i]->operator[](j).size());
 */
-	m_last_flush_end_idx = to;
-	//emit incomingProfilerData(&m_rvp);
-
 }
 void GanttView::appendBgn (DecodedData & dd)
 {
@@ -136,7 +135,7 @@ void GanttView::appendBgn (DecodedData & dd)
 	d.m_frame = m_ganttData.m_frame;
 	d.m_parent = prev;
 
-	//qDebug("    +++ f=%i t=%8llu  ctxi=%u  msg=%s", d.m_frame, d.m_time_bgn, d.m_ctx_idx, d.m_msg.toStdString().c_str());
+	qDebug("    { f=%i t=%8llu  ctxi=%u  msg=%s", d.m_frame, d.m_time_bgn, d.m_ctx_idx, d.m_msg.toStdString().c_str());
 }
 
 void GanttView::appendEnd (DecodedData & dd)
@@ -151,7 +150,11 @@ void GanttView::appendEnd (DecodedData & dd)
 
 	(*m_ganttData.m_completed_frame_data[d->m_frame])[dd.m_ctx_idx].push_back(d);
 
-	//qDebug("    --- f=%i t=%8llu  ctxi=%u  msg=%s", d->m_frame, d->m_time_bgn, d->m_ctx_idx, d->m_msg.toStdString().c_str());
+	qDebug("end flushing f=%i", d->m_frame);
+	consumeData(m_ganttData.m_completed_frame_data[d->m_frame]);
+
+
+	qDebug("    } f=%i t=%8llu  ctxi=%u  msg=%s", d->m_frame, d->m_time_bgn, d->m_ctx_idx, d->m_msg.toStdString().c_str());
 }
 
 void GanttView::appendGantt (DecodedData & dd)
@@ -227,7 +230,7 @@ void GanttView::consumeData (contextdata_t * c)
 			qreal y = (offs) * (h + space)  + d.m_layer * (h + space);
 			d.m_x = x / m_gvcfg.m_timescale;
 			d.m_y = y;
-			qDebug("    f=%2u ci=%2u di=%2u  %s  (x=%6.1f y=%6.1f w=%4i h=%4i dt=%3.1f) col=%s", d.m_frame, ci, di, d.m_tag.toStdString().c_str(), x, y, w, h, d.m_dt, d.m_color.name().toStdString().c_str());
+			qDebug("++++ f=%2u ci=%2u di=%2u  %s  (x=%6.1f y=%6.1f w=%4i h=%4i dt=%3.1f) col=%s", d.m_frame, ci, di, d.m_tag.toStdString().c_str(), x, y, w, h, d.m_dt, d.m_color.name().toStdString().c_str());
 
 			if (y > max_y)
 				max_y = y;
