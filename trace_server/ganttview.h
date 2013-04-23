@@ -9,7 +9,7 @@
 
 #include <QFrame>
 #include <QGraphicsView>
-#include <QGridLayout>
+//#include <QGridLayout>
 //#include <cstdio>
 
 class Connection;
@@ -19,15 +19,17 @@ QT_FORWARD_DECLARE_CLASS(QLabel)
 QT_FORWARD_DECLARE_CLASS(QSlider)
 QT_FORWARD_DECLARE_CLASS(QToolButton)
 QT_FORWARD_DECLARE_CLASS(QSpinBox)
+QT_FORWARD_DECLARE_CLASS(QSplitter)
 
 namespace gantt {
 
+	class GanttView;
 
 	class GraphicsView : public QGraphicsView
 	{
 		Q_OBJECT;
 	public:
-		GraphicsView (GanttViewConfig & gvcfg, QWidget* parent = NULL);
+		GraphicsView (GanttView & gv, GanttViewConfig & gvcfg, QWidget* parent = NULL);
 
 		//Set the current centerpoint in the view
 		void SetCenter (QPointF const & centerPoint);
@@ -46,6 +48,7 @@ namespace gantt {
 		virtual void wheelEvent (QWheelEvent * event);
 		virtual void resizeEvent (QResizeEvent * event);
 
+		GanttView & m_gv;
 		GanttViewConfig & m_gvcfg;
 
 	private slots:
@@ -103,7 +106,8 @@ namespace gantt {
 
 		GfxView & viewAt (unsigned long long ctx);
 
-		QGridLayout * m_layout;
+		QSplitter * m_layout;
+		ScaleWidget * m_timewidget;
 		Connection * m_connection;
 		GanttViewConfig & m_gvcfg;
 		QString m_curr_strtime_units;
@@ -118,7 +122,6 @@ namespace gantt {
 		typedef QMap<QString, QColor> colormap_t;
 		colormap_t m_tagcolors;
 		std::map<unsigned, unsigned> m_max_layers;
-		ScaleWidget * m_timewidget;
 
 	};
 }

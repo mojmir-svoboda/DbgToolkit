@@ -1,6 +1,7 @@
 #include "ganttview.h"
 #include <QtGui>
 #include <QSpinBox>
+#include <QSplitter>
 #ifndef QT_NO_OPENGL
 #	include <QtOpenGL>
 #endif
@@ -42,14 +43,17 @@ GfxView & GanttView::createViewForContext (unsigned long long ctx, QGraphicsScen
 	contextviews_t::iterator it = m_contextviews.find(ctx);
 	if (it == m_contextviews.end())		
 	{
-		GraphicsView * view = new GraphicsView(m_gvcfg, this);
+		GraphicsView * view = new GraphicsView(*this, m_gvcfg, this);
 		view->setRenderHint(QPainter::Antialiasing, false);
 		view->setDragMode(QGraphicsView::RubberBandDrag);
 		view->setOptimizationFlags(QGraphicsView::DontSavePainterState);
 		view->setViewportUpdateMode(QGraphicsView::SmartViewportUpdate);
-		m_layout->addWidget(view, ctx + 1, 0);
+		m_layout->addWidget(view);
 		connect(view->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(verticalScroll(int)));
 		connect(view->horizontalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(horizontalScroll(int)));
+
+		//view->verticalScrollBar()->setStyleSheet("QScrollBar:vertical { width: 6px; }");
+		view->horizontalScrollBar()->setStyleSheet("QScrollBar:horizontal { height: 6px; }");
 
 		QGraphicsScene * scene = (s == 0) ? new QGraphicsScene() : s;
 		GfxView g;
@@ -393,12 +397,19 @@ GanttView::GanttView (Connection * conn, QWidget * parent, gantt::GanttViewConfi
 	setFrameStyle(Sunken | StyledPanel);
 	initColors();
 
-	m_layout = new QGridLayout;
+	m_timewidget = new ScaleWidget(QwtScaleDraw::TopScale, this);
+
+	m_layout = new QSplitter(Qt::Vertical);
+	m_layout->setContentsMargins(QMargins(0, 0, 0, 0));
+	QGridLayout * grid = new QGridLayout(this);
+	grid->setContentsMargins(QMargins(0, 0, 0, 0));
+	grid->addWidget(m_layout, 0, 0);
+	grid->setVerticalSpacing(0);
+	grid->setHorizontalSpacing(0);
 
 	// Qwt scale widget and stuff
-	m_timewidget = new ScaleWidget(QwtScaleDraw::TopScale, this);
-	m_layout->addWidget(m_timewidget, 0, 0);
-	setLayout(m_layout);
+	m_layout->addWidget(m_timewidget);
+	setLayout(grid);
 
 	config.setTimeUnits(config.m_strtimeunits);
 	m_curr_strtime_units = config.m_strtimeunits;
@@ -471,19 +482,20 @@ void GanttView::forceUpdate ()
 		(*it).m_view->viewport()->update();
 }
 
-GraphicsView::GraphicsView (GanttViewConfig & gvcfg, QWidget * parent)
+GraphicsView::GraphicsView (GanttView & gv, GanttViewConfig & gvcfg, QWidget * parent)
 	: QGraphicsView(parent)
+	, m_gv(gv)
     , m_gvcfg(gvcfg)
 { }
 
 void GraphicsView::verticalScroll (int n)
 {
-	static_cast<GanttView *>(parent())->updateTimeWidget(this);
+	m_gv.updateTimeWidget(this);
 }
 
 void GraphicsView::horizontalScroll (int n)
 {
-	static_cast<GanttView *>(parent())->updateTimeWidget(this);
+	m_gv.updateTimeWidget(this);
 }
 
 /**
@@ -543,7 +555,7 @@ void GraphicsView::SetCenter (QPointF const & centerPoint)
 	// Update the scrollbars
 	centerOn(CurrentCenterPoint);
 
-	static_cast<GanttView *>(parent())->updateTimeWidget(this);
+	m_gv.updateTimeWidget(this);
 }
  
 void GraphicsView::mousePressEvent (QMouseEvent * event)
@@ -604,7 +616,7 @@ void GraphicsView::wheelEvent (QWheelEvent* event)
 		QPointF const newCenter = screenCenter + offset; // adjust to the new center for correct zooming
 		SetCenter(newCenter);
 
-		static_cast<GanttView *>(parent())->updateTimeWidget(this);
+		m_gv.updateTimeWidget(this);
 	}
 }
  

@@ -1,5 +1,6 @@
 #include "basegantt.h"
 #include <QScrollBar>
+#include <QSplitter>
 #include "connection.h"
 #include "utils.h"
 #include "utils_qstandarditem.h"
@@ -20,8 +21,14 @@ namespace gantt {
 		setContextMenuPolicy(Qt::CustomContextMenu);
 		connect(this, SIGNAL(customContextMenuRequested(QPoint const &)), this, SLOT(onShowContextMenu(QPoint const &)));
 
-		m_layout = new QGridLayout;
-		setLayout(m_layout);
+		m_layout = new QSplitter(Qt::Vertical);
+		m_layout->setContentsMargins(QMargins(0, 0, 0, 0));
+		QGridLayout * grid = new QGridLayout(this);
+		grid->setContentsMargins(QMargins(0, 0, 0, 0));
+		grid->addWidget(m_layout, 0, 0);
+		grid->setVerticalSpacing(0);
+		grid->setHorizontalSpacing(0);
+		setLayout(grid);
 
 		setConfigValuesToUI(m_config);
 		onApplyButton();
@@ -78,7 +85,8 @@ namespace gantt {
 
 		size_t const n = m_subtags.size();
 		m_subtags.push_back(subtag);
-		m_layout->addWidget(gv, n, 0);
+		m_layout->addWidget(gv);
+
 		return m_ganttviews.insert(subtag, gv);
 	}
 

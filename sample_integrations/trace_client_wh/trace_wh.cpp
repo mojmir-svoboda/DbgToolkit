@@ -24,7 +24,10 @@ void something_useful_too ()
 	for (int i = 0; i < 12; ++i)
 	{
 		TRACE_GANTT_SCOPE(trace::e_Info, trace::CTX_Default, "aa0/g0/ble [%i]", i);
+
+		TRACE_GANTT_SCOPE(trace::e_Info, trace::CTX_Default, "aa0/g0/ble2 [%i]", -i);
 		TRACE_MSG(trace::e_Info, trace::CTX_Default,  "%s %i", "ble :)", i);
+		Sleep(70);
 	}
 }
 	

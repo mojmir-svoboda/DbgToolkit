@@ -7,6 +7,7 @@
 #include <cstdio>
 
 class Connection;
+QT_FORWARD_DECLARE_CLASS(QSplitter)
 
 namespace gantt {
 	QT_FORWARD_DECLARE_CLASS(GanttView)
@@ -69,7 +70,7 @@ namespace gantt {
 		gantt::CtxGanttConfig m_config_ui;
 		QString m_fname;
 		Connection * m_connection;
-		QGridLayout * m_layout;
+		QSplitter * m_layout;
 		ganttviews_t m_ganttviews;
 		QVector<QString> m_subtags;
 	};
