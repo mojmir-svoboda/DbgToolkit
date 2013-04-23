@@ -15,6 +15,7 @@ BarTextItem::BarTextItem (QGraphicsItem * parent, GanttViewConfig const & gvcfg,
 	setParentItem(parent);
 	//setFlags(ItemIsSelectable);
 	//setAcceptHoverEvents(true);
+	setFlag(QGraphicsItem::ItemIgnoresTransformations, true);
 }
 
 QRectF BarTextItem::boundingRect () const
@@ -33,6 +34,7 @@ void BarTextItem::paint (QPainter * painter, QStyleOptionGraphicsItem const * op
 {
 	Q_UNUSED(widget);
 
+
 	BarItem const * b = static_cast<BarItem const *>(parentItem());
 	qreal const lod = b ? b->lod() : 1.0f;
 
@@ -45,9 +47,7 @@ void BarTextItem::paint (QPainter * painter, QStyleOptionGraphicsItem const * op
 	if (lod > 0.7f)
 	{
 		painter->save();
-		setFlag(QGraphicsItem::ItemIgnoresTransformations, true);
 		QFont font(m_gvcfg.m_font, m_gvcfg.m_fontsize);
-		//QTransform identity;
 		font.setStyleStrategy(QFont::ForceOutline);
 		QString text = QString("%1 %2\n[ %3 ms]").arg(m_data.m_tag).arg(m_data.m_msg).arg(m_data.m_delta_t);
 		painter->setFont(font);
@@ -80,10 +80,6 @@ void BarTextItem::paint (QPainter * painter, QStyleOptionGraphicsItem const * op
 	{
 	}
 }
-
-
-
-
 
 
 BarItem::BarItem (GanttViewConfig const & cfg, Data & d, QColor const & color, int x, int y, int w, int h, int ctx, int ctx_offs)
