@@ -38,74 +38,47 @@ void BarTextItem::paint (QPainter * painter, QStyleOptionGraphicsItem const * op
 
 	if (lod < 0.2f)
 		return;
+
+	QRectF const rect = boundingRect();
+	QPointF const pt = rect.translated(+1, +1).topLeft();
 	
-	painter->save();
-	setFlag(QGraphicsItem::ItemIgnoresTransformations, true);
-	QFont font(m_gvcfg.m_font, m_gvcfg.m_fontsize);
-	//QTransform identity;
-	font.setStyleStrategy(QFont::ForceOutline);
-	QString text = QString("%1 %2\n[ %3 ms]").arg(m_data.m_tag).arg(m_data.m_msg).arg(m_data.m_delta_t);
-	painter->setFont(font);
-	painter->setPen(Qt::black);
-	QRectF rect = boundingRect();
-	painter->drawStaticText(rect.translated(+1, +1).topLeft(), text);
-	painter->restore();
-
-	//painter->drawText(4, 10, QString("%1 [ %2 ms]").arg(m_data.m_msg).arg(m_data.m_delta_t / 1000.0f));
-/*
-
-
-
-
-
-
-
-	Q_UNUSED(widget);
-
-	QColor fillColor = (option->state & QStyle::State_Selected) ? m_color.dark(150) : m_color;
-	if (option->state & QStyle::State_MouseOver)
+	if (lod > 0.7f)
 	{
-		fillColor = fillColor.light(125);
-	}
-	else
-
-	painter->fillRect(QRectF(1, 1, m_w - 1, m_h - 1), fillColor);
-
-	qreal const lod = option->levelOfDetailFromTransform(painter->worldTransform());*/
-
-/*	if (lod > 0.7f)
-	{
-		setFlag(QGraphicsItem::ItemIgnoresTransformations);
+		painter->save();
+		setFlag(QGraphicsItem::ItemIgnoresTransformations, true);
 		QFont font(m_gvcfg.m_font, m_gvcfg.m_fontsize);
 		//QTransform identity;
 		font.setStyleStrategy(QFont::ForceOutline);
-		painter->save();
 		QString text = QString("%1 %2\n[ %3 ms]").arg(m_data.m_tag).arg(m_data.m_msg).arg(m_data.m_delta_t);
-		painter->drawText(4, 10, text);
+		painter->setFont(font);
+		painter->setPen(Qt::black);
+		painter->drawStaticText(pt, text);
 		painter->restore();
 	}
 	else if (0.4f <= lod && lod < 0.7f)
 	{
-		//if (m_w > 20)
-		{
-			QFont font(m_gvcfg.m_font, m_gvcfg.m_fontsize - 1);
-			font.setStyleStrategy(QFont::ForceOutline);
-			painter->setFont(font);
-			painter->save();
-			painter->drawStaticText(4, 10, QString("%1 %2").arg(m_data.m_tag).arg(m_data.m_msg));
-			painter->restore();
-		}
+		painter->save();
+		QFont font(m_gvcfg.m_font, m_gvcfg.m_fontsize - 1);
+		font.setStyleStrategy(QFont::ForceOutline);
+		painter->setFont(font);
+		painter->setPen(Qt::black);
+		painter->drawStaticText(pt, QString("%1 %2").arg(m_data.m_tag).arg(m_data.m_msg));
+		painter->restore();
 	}
-	else if (0.1f <= lod && lod < 0.4f)
+	else if (0.2f <= lod && lod < 0.4f)
 	{
+		painter->save();
+		QFont font(m_gvcfg.m_font, m_gvcfg.m_fontsize - 2);
+		font.setStyleStrategy(QFont::ForceOutline);
 		QString text = QString("%1").arg(m_data.m_tag);
-		painter->drawText(4, 10, text);
+		painter->setFont(font);
+		painter->setPen(Qt::black);
+		painter->drawText(pt, text);
+		painter->restore();
 	}
 	else
 	{
-	}*/
-
-
+	}
 }
 
 
