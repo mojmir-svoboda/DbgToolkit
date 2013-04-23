@@ -283,24 +283,24 @@ void GanttView::consumeData (contextdata_t * c)
 				else
 				{
 					QPen p1;
-					p1.setColor(Qt::blue);
+					p1.setColor(Qt::black);
 					p1.setWidth(0);
-					QGraphicsLineItem * ln_bg = new QGraphicsLineItem(d.m_x, d.m_y, d.m_parent->m_x, d.m_parent->m_y + g_heightValue);
+					QGraphicsLineItem * ln_bg = new QGraphicsLineItem(d.m_x, d.m_parent->m_y + g_heightValue, d.m_x, d.m_y);
 					ln_bg->setPen(p1);
 					v.m_scene->addItem(ln_bg);
 					QGraphicsLineItem * ln_nd = new QGraphicsLineItem(d.m_x + d.m_dt, d.m_y, d.m_parent->m_x + d.m_parent->m_dt, d.m_parent->m_y + g_heightValue);
-					p1.setColor(Qt::cyan);
+					p1.setColor(Qt::black);
 					ln_nd->setPen(p1);
 					v.m_scene->addItem(ln_nd);
 				}
 			}
 
-			QPen p1;
+			/*QPen p1;
 			p1.setColor(Qt::gray);
 			QGraphicsLineItem * ln_end = new QGraphicsLineItem(d.m_x + d.m_dt, d.m_y, d.m_x + d.m_dt, d.m_y + g_heightValue);
 			ln_end->setPen(p1);
 			p1.setWidth(4);
-			v.m_scene->addItem(ln_end);
+			v.m_scene->addItem(ln_end);*/
 		}
 
 		//QRectF const r = v.m_view->mapToScene(v.m_view->rect()).boundingRect();
