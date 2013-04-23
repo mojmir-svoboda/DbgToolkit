@@ -76,7 +76,9 @@ namespace gantt {
 		c->setTimeUnits(c->m_strtimeunits);
 		GanttView * gv = new GanttView(m_connection, this, *c, subtag);
 
-		m_layout->addWidget(gv, 0, 0);
+		size_t const n = m_subtags.size();
+		m_subtags.push_back(subtag);
+		m_layout->addWidget(gv, n, 0);
 		return m_ganttviews.insert(subtag, gv);
 	}
 

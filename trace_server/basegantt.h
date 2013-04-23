@@ -71,6 +71,7 @@ namespace gantt {
 		Connection * m_connection;
 		QGridLayout * m_layout;
 		ganttviews_t m_ganttviews;
+		QVector<QString> m_subtags;
 	};
 }
 
