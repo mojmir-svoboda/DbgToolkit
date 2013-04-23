@@ -44,16 +44,16 @@ GfxView & GanttView::createViewForContext (unsigned long long ctx, QGraphicsScen
 	if (it == m_contextviews.end())		
 	{
 		GraphicsView * view = new GraphicsView(*this, m_gvcfg, this);
+		connect(view->verticalScrollBar(), SIGNAL(valueChanged(int)), view, SLOT(verticalScroll(int)));
+		connect(view->horizontalScrollBar(), SIGNAL(valueChanged(int)), view, SLOT(horizontalScroll(int)));
 		view->setRenderHint(QPainter::Antialiasing, false);
 		view->setDragMode(QGraphicsView::RubberBandDrag);
 		view->setOptimizationFlags(QGraphicsView::DontSavePainterState);
 		view->setViewportUpdateMode(QGraphicsView::SmartViewportUpdate);
 		m_layout->addWidget(view);
-		connect(view->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(verticalScroll(int)));
-		connect(view->horizontalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(horizontalScroll(int)));
 
 		//view->verticalScrollBar()->setStyleSheet("QScrollBar:vertical { width: 6px; }");
-		view->horizontalScrollBar()->setStyleSheet("QScrollBar:horizontal { height: 6px; }");
+		view->horizontalScrollBar()->setStyleSheet("QScrollBar:horizontal { height: 10px; }");
 
 		QGraphicsScene * scene = (s == 0) ? new QGraphicsScene() : s;
 		GfxView g;
