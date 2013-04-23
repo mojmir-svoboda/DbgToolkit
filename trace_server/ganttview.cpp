@@ -306,24 +306,19 @@ void GanttView::consumeData (contextdata_t * c)
 				}
 			}
 
-			/*QPen p1;
-			p1.setColor(Qt::gray);
+			QPen p1;
+			p1.setColor(Qt::black);
+			p1.setWidth(0);
+
+			QGraphicsLineItem * ln_bgn = new QGraphicsLineItem(d.m_x, d.m_y, d.m_x, d.m_y + g_heightValue);
+			ln_bgn->setPen(p1);
+			v.m_scene->addItem(ln_bgn);
+
 			QGraphicsLineItem * ln_end = new QGraphicsLineItem(d.m_x + d.m_dt, d.m_y, d.m_x + d.m_dt, d.m_y + g_heightValue);
 			ln_end->setPen(p1);
-			p1.setWidth(4);
-			v.m_scene->addItem(ln_end);*/
+			v.m_scene->addItem(ln_end);
 		}
-
-		//QRectF const r = v.m_view->mapToScene(v.m_view->rect()).boundingRect();
-		//qDebug("view: w=%f h=%f ", r.width(), r.height());
 	} 
-
-	//for (size_t ci = 0, cie = contexts.size(); ci < cie; ++ci)
-	{
-		//GfxView & v = viewAt(ci);
-		//v.m_view->setScene(v.m_scene);
-		//v.m_view->forceUpdate();
-	}
 }
 
 
@@ -331,7 +326,7 @@ void GanttView::applyConfig (GanttViewConfig & gvcfg)
 {
 	for (contextviews_t::iterator it = m_contextviews.begin(), ite = m_contextviews.end(); it != ite; ++it)
 	{
-		// set view scale into matrix
+		// @TODO: only the first one, the others will be synced
 		updateTimeWidget((*it).m_view);
 		break;
 	}
@@ -399,28 +394,9 @@ GanttView::GanttView (Connection * conn, QWidget * parent, gantt::GanttViewConfi
 	initColors();
 
 	m_layout = new QGridLayout;
-	//QwtLinearColorMap * colormap = new QwtLinearColorMap(Qt::darkCyan, Qt::red);
-	//colormap->addColorStop(0.1, Qt::cyan);
-	//colormap->addColorStop(0.6, Qt::green);
-	//colormap->addColorStop(0.95, Qt::yellow);
 
 	// Qwt scale widget and stuff
 	m_timewidget = new ScaleWidget(QwtScaleDraw::TopScale, this);
-
-	//QwtLinearScaleEngine se;
-	///QwtTransform * t = se.transformation();
-	//QwtInterval interval(0., 10.);
-	//QwtScaleDiv d = se.divideScale(interval.minValue(), interval.maxValue(), 8, 5);
-	//m_timewidget->setScaleDiv(d); // as in QwtPlot::Axis
-	//m_timewidget->setColorBarEnabled(true);
-	//m_timewidget->setColorMap(interval, colormap);
-	//m_timewidget->setTitle("Intensity");
-	//m_timewidget->setMargin(2);
-
-	// layout to adjust scale
-	//int const margin = m_timewidget->scaleMargin();
-	//m_timewidget->setMinimumSize(QSize(0, 27));
-	//qd->setContentsMargins(0, margin, 0, margin);
 	m_layout->addWidget(m_timewidget, 0, 0);
 	setLayout(m_layout);
 
@@ -446,25 +422,11 @@ void GanttView::resetView()
 
 	for (contextviews_t::iterator it = m_contextviews.begin(), ite = m_contextviews.end(); it != ite; ++it)
 		(*it).m_view->ensureVisible(QRectF(0, 0, 0, 0));
-
-	//m_resetButton->setEnabled(false);
-}
-
-void GanttView::changeHeight (int n)
-{
-/*	g_heightValue = n;
-	QGraphicsScene * scene = view()->scene();
-	view()->setScene(0);
-
-	scene->clear();*/
-	//m_mainWindow->populateScene();
-	//view()->setScene(scene);
-	//m_graphicsView->viewport()->update();
 }
 
 void GanttView::setupMatrix ()
 {
-	qreal scale = qPow(qreal(2), (250.0f - 250.0f) / qreal(50));
+	qreal scale = qPow(qreal(2), (1.0f - 1.0f) / qreal(50));
 
 	QMatrix matrix;
 	if (m_gvcfg.m_y_scaling)

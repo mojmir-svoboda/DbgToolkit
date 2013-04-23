@@ -87,7 +87,6 @@ namespace gantt {
 
 		void zoomIn ();
 		void zoomOut ();
-		void changeHeight (int n);
 		
 	private:
 
