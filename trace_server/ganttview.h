@@ -47,6 +47,11 @@ namespace gantt {
 		virtual void resizeEvent (QResizeEvent * event);
 
 		GanttViewConfig & m_gvcfg;
+
+	private slots:
+		void verticalScroll (int n);
+		void horizontalScroll (int n);
+
 	};
 
 
@@ -74,7 +79,8 @@ namespace gantt {
 
 	private slots:
 		void resetView ();
-		void setResetButtonEnabled ();
+		//void verticalScroll (int);
+		//void horizontalScroll (int);
 		void setupMatrix ();
 		void toggleOpenGL ();
 		void toggleAntialiasing ();

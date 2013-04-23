@@ -48,6 +48,8 @@ GfxView & GanttView::createViewForContext (unsigned long long ctx, QGraphicsScen
 		view->setOptimizationFlags(QGraphicsView::DontSavePainterState);
 		view->setViewportUpdateMode(QGraphicsView::SmartViewportUpdate);
 		m_layout->addWidget(view, ctx + 1, 0);
+		connect(view->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(verticalScroll(int)));
+		connect(view->horizontalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(horizontalScroll(int)));
 
 		QGraphicsScene * scene = (s == 0) ? new QGraphicsScene() : s;
 		GfxView g;
@@ -428,14 +430,10 @@ GanttView::GanttView (Connection * conn, QWidget * parent, gantt::GanttViewConfi
 
 	//connect(m_resetButton, SIGNAL(clicked()), this, SLOT(resetView()));
 	//connect(m_zoomSlider, SIGNAL(valueChanged(int)), this, SLOT(setupMatrix()));
-	//connect(m_graphicsView->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(setResetButtonEnabled()));
-	//connect(m_graphicsView->horizontalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(setResetButtonEnabled()));
 	//connect(m_antialiasButton, SIGNAL(toggled(bool)), this, SLOT(toggleAntialiasing()));
 	//connect(m_openGlButton, SIGNAL(toggled(bool)), this, SLOT(toggleOpenGL()));
 	//connect(zoomInIcon, SIGNAL(clicked()), this, SLOT(zoomIn()));
 	//connect(zoomOutIcon, SIGNAL(clicked()), this, SLOT(zoomOut()));
-
-	//connect(m_heightSlider, SIGNAL(valueChanged(int)), this, SLOT(changeHeight(int)));
 
 	setupMatrix();
 	m_ganttData.m_completed_frame_data.push_back(new contextdata_t()); // @TODO: reserve
@@ -464,20 +462,14 @@ void GanttView::changeHeight (int n)
 	//m_graphicsView->viewport()->update();
 }
 
-void GanttView::setResetButtonEnabled()
-{
-	//m_resetButton->setEnabled(true);
-}
-
-void GanttView::setupMatrix()
+void GanttView::setupMatrix ()
 {
 	qreal scale = qPow(qreal(2), (250.0f - 250.0f) / qreal(50));
 
 	QMatrix matrix;
 	if (m_gvcfg.m_y_scaling)
 	{
-		matrix.scale(scale, 1.0f);
-		//matrix.scale(scale, scale);
+		matrix.scale(scale, scale);
 	}
 	else
 	{
@@ -487,18 +479,16 @@ void GanttView::setupMatrix()
 
 	for (contextviews_t::iterator it = m_contextviews.begin(), ite = m_contextviews.end(); it != ite; ++it)
 		(*it).m_view->setMatrix(matrix);
-
-	setResetButtonEnabled();
 }
 
-void GanttView::toggleOpenGL()
+void GanttView::toggleOpenGL ()
 {
 #ifndef QT_NO_OPENGL
 	//m_graphicsView->setViewport(m_openGlButton->isChecked() ? new QGLWidget(QGLFormat(QGL::SampleBuffers)) : new QWidget);
 #endif
 }
 
-void GanttView::toggleAntialiasing()
+void GanttView::toggleAntialiasing ()
 {
 	//m_graphicsView->setRenderHint(QPainter::Antialiasing, m_antialiasButton->isChecked());
 }
@@ -524,6 +514,16 @@ GraphicsView::GraphicsView (GanttViewConfig & gvcfg, QWidget * parent)
     , m_gvcfg(gvcfg)
 { }
 
+void GraphicsView::verticalScroll (int n)
+{
+	static_cast<GanttView *>(parent())->updateTimeWidget(this);
+}
+
+void GraphicsView::horizontalScroll (int n)
+{
+	static_cast<GanttView *>(parent())->updateTimeWidget(this);
+}
+
 /**
   * Sets the current centerpoint.  Also updates the scene's center point.
   * Unlike centerOn, which has no way of getting the floating point center
@@ -534,9 +534,9 @@ GraphicsView::GraphicsView (GanttViewConfig & gvcfg, QWidget * parent)
 void GraphicsView::SetCenter (QPointF const & centerPoint)
 {
 	// Get the rectangle of the visible area in scene coords
-	QRectF visibleArea = mapToScene(rect()).boundingRect();
+	QRectF const visibleArea = mapToScene(rect()).boundingRect();
 	// Get the scene area
-	QRectF sceneBounds = sceneRect();
+	QRectF const sceneBounds = sceneRect();
 
 	double const boundX = visibleArea.width() / 2.0;
 	double const boundY = visibleArea.height() / 2.0;
@@ -545,7 +545,7 @@ void GraphicsView::SetCenter (QPointF const & centerPoint)
 
 	//qDebug("setcenter: x=%f y=%f w=%f h=%f", boundX, boundY, boundWidth, boundHeight);
 	// The max boundary that the centerPoint can be to
-	QRectF bounds(boundX, boundY, boundWidth, boundHeight);
+	QRectF const bounds(boundX, boundY, boundWidth, boundHeight);
 	if (bounds.contains(centerPoint))
 	{
 		// We are within the bounds
@@ -586,8 +586,7 @@ void GraphicsView::SetCenter (QPointF const & centerPoint)
  
 void GraphicsView::mousePressEvent (QMouseEvent * event)
 {
-	// For panning the view
-	LastPanPoint = event->pos();
+	LastPanPoint = event->pos(); // For panning the view
 	setCursor(Qt::ClosedHandCursor);
 }
  
@@ -601,13 +600,12 @@ void GraphicsView::mouseMoveEvent (QMouseEvent * event)
 {
 	if (!LastPanPoint.isNull())
 	{
-		//Get how much we panned
-		QPointF delta = mapToScene(LastPanPoint) - mapToScene(event->pos());
+		// get how much user panned
+		QPointF const delta = mapToScene(LastPanPoint) - mapToScene(event->pos());
 		LastPanPoint = event->pos();
 
-		QPointF cen = mapToScene(viewport()->rect()).boundingRect().center();
+		QPointF const cen = mapToScene(viewport()->rect()).boundingRect().center();
 		SetCenter(cen + delta);
- 
 		//Update the center ie. do the pan
 		//SetCenter(GetCenter() + delta);
 		//qDebug("new center: %f %f", GetCenter().x(), GetCenter().y()); 
@@ -618,9 +616,6 @@ void GraphicsView::mouseMoveEvent (QMouseEvent * event)
 	}
 }
  
-/**
-  * Zoom the view in and out.
-  */
 void GraphicsView::wheelEvent (QWheelEvent* event)
 {
 	bool const shift = event->modifiers() & Qt::SHIFT;
@@ -633,7 +628,7 @@ void GraphicsView::wheelEvent (QWheelEvent* event)
 	{
 		QPointF pointBeforeScale(mapToScene(event->pos())); // get the position of the mouse before scaling, in scene coords
 		// get the original screen centerpoint
-		QPointF screenCenter = GetCenter(); //CurrentCenterPoint; //(visRect.center());
+		QPointF const screenCenter = GetCenter(); //CurrentCenterPoint; //(visRect.center());
 
 		double const scaleFactor = 1.15; // how fast we zoom
 		double const scaleYFactor = (m_gvcfg.m_y_scaling) ? scaleFactor : 1.0f;
@@ -642,9 +637,9 @@ void GraphicsView::wheelEvent (QWheelEvent* event)
 		else
 			scale(1.0 / scaleFactor, 1.0 / scaleYFactor); // zooming out
 		
-		QPointF pointAfterScale(mapToScene(event->pos())); // position after scaling, in scene coords
-		QPointF offset = pointBeforeScale - pointAfterScale; // offset of how the screen moved
-		QPointF newCenter = screenCenter + offset; // adjust to the new center for correct zooming
+		QPointF const pointAfterScale(mapToScene(event->pos())); // position after scaling, in scene coords
+		QPointF const offset = pointBeforeScale - pointAfterScale; // offset of how the screen moved
+		QPointF const newCenter = screenCenter + offset; // adjust to the new center for correct zooming
 		SetCenter(newCenter);
 
 		static_cast<GanttView *>(parent())->updateTimeWidget(this);
@@ -657,14 +652,12 @@ void GraphicsView::wheelEvent (QWheelEvent* event)
   */
 void GraphicsView::resizeEvent (QResizeEvent * event)
 {
-	//Get the rectangle of the visible area in scene coords
-	QRectF visibleArea = mapToScene(rect()).boundingRect();
+	QRectF const visibleArea = mapToScene(rect()).boundingRect();//Get the rectangle of the visible area in scene coords
 	SetCenter(visibleArea.center());
- 
-	//Call the subclass resize so the scrollbars are updated correctly
 	QGraphicsView::resizeEvent(event);
 
-		static_cast<GanttView *>(parent())->updateTimeWidget(this);
+	//@FIXME: onAfterResizeEvent or something like that
+	//static_cast<GanttView *>(parent())->updateTimeWidget(this);
 }
 
 }

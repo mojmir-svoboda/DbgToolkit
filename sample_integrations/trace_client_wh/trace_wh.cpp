@@ -186,7 +186,7 @@ void * do_something ( void * )
 	{
 		static int i = 0;
 		++i;
-		TRACE_GANTT_SCOPE(trace::e_Info, trace::CTX_Default, "aa0/g1/thread tick %x[tick=%i]", GetCurrentThreadId(), i);
+		TRACE_GANTT_SCOPE(trace::e_Info, trace::CTX_Default, "aa0/g1/thread tick %x[tick=%i]", GetCurrentThreadId	(), i);
 		TRACE_MSG(trace::e_Info, trace::CTX_Default,  "Thread tick i=%u", i);
 #if defined WIN32 || defined WIN64
 		Sleep(3000);
