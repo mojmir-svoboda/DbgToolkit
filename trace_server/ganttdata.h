@@ -63,7 +63,7 @@ namespace gantt {
 		void complete (double timeunits)
 		{
 			m_timeunits = timeunits;
-			m_delta_t = (m_time_end - m_time_bgn) * timeunits;
+			m_delta_t = (m_time_end - m_time_bgn);
 			//m_dt = static_cast<float>(m_delta_t) / g_scaleValue;
 			m_dt = static_cast<float>(m_delta_t);
 			//printf("completed: tid=%10llu delta_t=%10llu msg=%s\n", m_tid, m_delta_t, m_msg.c_str());
