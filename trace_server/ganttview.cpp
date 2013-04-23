@@ -249,15 +249,16 @@ void GanttView::consumeData (contextdata_t * c)
 			if (x > max_x)
 				max_x = x;
 
-			QGraphicsItem * item = new BarItem(d, d.m_color, 0, 0, w, h, ci, offs);
+			QGraphicsItem * item = new BarItem(m_gvcfg, d, d.m_color, 0, 0, w, h, ci, offs);
 			item->setPos(QPointF(d.m_x, y));
 			item->setToolTip(QString("bgn=<%1..%2>\nframe=%3 ctx=%4\n%5\n%6\n[%7 ms]").arg(d.m_time_bgn).arg(d.m_time_end).arg(d.m_frame).arg(ci).arg(d.m_tag).arg(d.m_msg).arg(d.m_dt / 1000.0f));
 			v.m_scene->addItem(item);
 			d.m_item = item;
 
-			//QGraphicsItem * titem = new BarTextItem(d, d.m_color, 0, 0, w, h, ci, offs);
-			//titem->setPos(QPointF(d.m_x, y));
-			//v.m_scene->addItem(titem);
+			QGraphicsItem * titem = new BarTextItem(item, m_gvcfg, d, d.m_color, 0, 0, w, h, ci, offs);
+			titem->setPos(QPointF(0, 0));
+			v.m_scene->addItem(titem);
+			d.m_textitem = titem;
 		}
 
 		offs += m_max_layers[ci];
@@ -364,14 +365,12 @@ void GanttView::updateTimeWidget (GraphicsView * v)
 	m_timewidget->setScaleDiv(d); // as in QwtPlot::Axis
 	m_timewidget->setColorBarEnabled(true);
 	//m_timewidget->setColorMap(interval, colormap);
-	//m_timewidget->setTitle("t [ms]");
-	//m_timewidget->setToolTip("t [ms]");
-	m_timewidget->setToolTip(QString("t [%1]").arg(m_gvcfg.m_strtimeunits));
-	m_timewidget->setMargin(2);
+	m_timewidget->setToolTip(QString("time [%1]").arg(m_gvcfg.m_strtimeunits));
+	//m_timewidget->setMargin(2);
 
 	// layout to adjust scale
-	int const margin = m_timewidget->scaleMargin();
-	m_timewidget->setMinimumSize(QSize(0, 27 - 2 * margin));
+	//int const margin = m_timewidget->scaleMargin();
+	//m_timewidget->setMinimumSize(QSize(0, 27 - 2 * margin));
 }
 
 
@@ -408,8 +407,8 @@ GanttView::GanttView (Connection * conn, QWidget * parent, gantt::GanttViewConfi
 	//m_timewidget->setMargin(2);
 
 	// layout to adjust scale
-	int const margin = m_timewidget->scaleMargin();
-	m_timewidget->setMinimumSize(QSize(0, 27 - 2 * margin));
+	//int const margin = m_timewidget->scaleMargin();
+	//m_timewidget->setMinimumSize(QSize(0, 27));
 	//qd->setContentsMargins(0, margin, 0, margin);
 	m_layout->addWidget(m_timewidget, 0, 0);
 	setLayout(m_layout);

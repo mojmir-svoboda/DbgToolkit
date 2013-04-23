@@ -31,6 +31,7 @@ namespace gantt {
 	{
 		Data * m_parent;
 		QGraphicsItem * m_item;
+		QGraphicsItem * m_textitem;
 		unsigned long long m_time_bgn_orig;
 		unsigned long long m_time_end_orig;
 		unsigned long long m_time_bgn;
@@ -49,7 +50,7 @@ namespace gantt {
 		QString m_endmsg;
 
 		Data () 
-			: m_parent(0), m_item(0)
+			: m_parent(0), m_item(0), m_textitem(0)
 			, m_time_bgn(0), m_time_end(0), m_delta_t(0)
 			, m_layer(0)
 			, m_ctx(0) , m_ctx_idx(0)

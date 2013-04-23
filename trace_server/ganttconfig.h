@@ -13,6 +13,7 @@ namespace gantt {
 		QColor m_bgcolor;
 		QColor m_symbolcolor;
 		int m_symbolsize;
+		QString m_font;
 		int m_fontsize;
 		float m_timeunits;
 		float m_scale;
@@ -26,6 +27,7 @@ namespace gantt {
 			, m_bgcolor(Qt::black)
 			, m_symbolcolor(Qt::red)
 			, m_symbolsize(6)
+			, m_font("Verdana")
 			, m_fontsize(10)
 			, m_timeunits(0.001f)
 			, m_scale(1.0f)
