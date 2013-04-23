@@ -348,31 +348,19 @@ void GanttView::applyConfig (GanttViewConfig & gvcfg)
 
 void GanttView::updateTimeWidget (GraphicsView * v)
 {
-	///QRectF r = v->scene()->sceneRect();
+    //QPointF tl(v->horizontalScrollBar()->value(), v->verticalScrollBar()->value());
+	//QPointF br = tl + v->viewport()->rect().bottomRight();
+	//QMatrix invmat = v->matrix().inverted();
+	//QRectF rr = invmat.mapRect(QRectF(tl,br));
 
-    QPointF tl(v->horizontalScrollBar()->value(), v->verticalScrollBar()->value());
-	QPointF br = tl + v->viewport()->rect().bottomRight();
-	QMatrix mat = v->matrix().inverted();
-	QRectF rr = mat.mapRect(QRectF(tl,br));
-
-	QPointF tl1 = rr.topLeft();
-	QPointF br1 = rr.bottomRight();
-	
-	//QPointF c = v->mapToScene(0, 0).toPoint();
-
-	//QRectF const bound = v->mapToScene(v->rect()).boundingRect();
-	//qDebug("view: w=%f h=%f ", r.width(), r.height());
-	//QRectF rr2 = mat.mapRect(bound);
-	//QPointF d = v->mapToView(0, 0).toPoint();
-	//QRect exposedRect(v->mapToScene(0,0).toPoint(), v->viewport()->rect().size());
-	//QPoint c = v->viewport()->rect().center();
-	//QPointF r3 = v->mapToScene(c);
-	//QPointF r4 = v->mapToGlobal(c);
+	QRectF const vscenerect = v->mapToScene(v->rect()).boundingRect();
+	QPointF tl1 = vscenerect.topLeft();
+	QPointF br1 = vscenerect.bottomRight();
 
 	QwtLinearScaleEngine se;
 	QwtTransform * t = se.transformation();
 	QwtInterval interval(tl1.x(), br1.x());
-	QwtScaleDiv d = se.divideScale(interval.minValue(), interval.maxValue(), 8, 5);
+	QwtScaleDiv d = se.divideScale(interval.minValue(), interval.maxValue(), 20, 20);
 	m_timewidget->setScaleDiv(d); // as in QwtPlot::Axis
 	m_timewidget->setColorBarEnabled(true);
 	//m_timewidget->setColorMap(interval, colormap);
@@ -382,9 +370,8 @@ void GanttView::updateTimeWidget (GraphicsView * v)
 	m_timewidget->setMargin(2);
 
 	// layout to adjust scale
-	//int const margin = m_timewidget->scaleMargin();
-	//m_timewidget->setMinimumSize(QSize(48, 27-2*margin));
-	//m_timewidget->setMinimumSize(QSize(48, 170-2*margin));
+	int const margin = m_timewidget->scaleMargin();
+	m_timewidget->setMinimumSize(QSize(0, 27 - 2 * margin));
 }
 
 
@@ -422,7 +409,7 @@ GanttView::GanttView (Connection * conn, QWidget * parent, gantt::GanttViewConfi
 
 	// layout to adjust scale
 	int const margin = m_timewidget->scaleMargin();
-	m_timewidget->setMinimumSize(QSize(48, 170-2*margin));
+	m_timewidget->setMinimumSize(QSize(0, 27 - 2 * margin));
 	//qd->setContentsMargins(0, margin, 0, margin);
 	m_layout->addWidget(m_timewidget, 0, 0);
 	setLayout(m_layout);
