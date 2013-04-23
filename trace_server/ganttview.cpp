@@ -136,7 +136,7 @@ void GanttView::appendBgn (DecodedData & dd)
 	d.m_frame = m_ganttData.m_frame;
 	d.m_parent = prev;
 
-	qDebug("    { f=%i t=%8llu  ctxi=%u  msg=%s", d.m_frame, d.m_time_bgn, d.m_ctx_idx, d.m_msg.toStdString().c_str());
+	qDebug("    { f=%i t=%8llu  ctxi=%u  tag=%s  msg=%s", d.m_frame, d.m_time_bgn, d.m_ctx_idx, d.m_tag.toStdString().c_str(), d.m_msg.toStdString().c_str());
 }
 
 void GanttView::appendEnd (DecodedData & dd)
@@ -252,13 +252,13 @@ void GanttView::consumeData (contextdata_t * c)
 			QGraphicsItem * item = new BarItem(m_gvcfg, d, d.m_color, 0, 0, w, h, ci, offs);
 			item->setPos(QPointF(d.m_x, y));
 			item->setToolTip(QString("bgn=<%1..%2>\nframe=%3 ctx=%4\n%5\n%6\n[%7 ms]").arg(d.m_time_bgn).arg(d.m_time_end).arg(d.m_frame).arg(ci).arg(d.m_tag).arg(d.m_msg).arg(d.m_dt / 1000.0f));
-			v.m_scene->addItem(item);
 			d.m_item = item;
 
 			QGraphicsItem * titem = new BarTextItem(item, m_gvcfg, d, d.m_color, 0, 0, w, h, ci, offs);
 			titem->setPos(QPointF(0, 0));
-			v.m_scene->addItem(titem);
 			d.m_textitem = titem;
+
+			v.m_scene->addItem(item);
 		}
 
 		offs += m_max_layers[ci];

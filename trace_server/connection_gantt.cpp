@@ -69,7 +69,7 @@ void Connection::onShowGanttContextMenu (QPoint const &)
 void parseCommand (DecodedCommand const & cmd, gantt::DecodedData & dd)
 {
 	QString msg;
-	QString ctx;
+	QString tid;
 	QString time;
 	QString fgc;
 	QString bgc;
@@ -79,8 +79,8 @@ void parseCommand (DecodedCommand const & cmd, gantt::DecodedData & dd)
 			msg = cmd.tvs[i].m_val;
 		else if (cmd.tvs[i].m_tag == tlv::tag_time)
 			time = cmd.tvs[i].m_val;
-		else if (cmd.tvs[i].m_tag == tlv::tag_ctx)
-			ctx = cmd.tvs[i].m_val;
+		else if (cmd.tvs[i].m_tag == tlv::tag_tid)
+			tid = cmd.tvs[i].m_val;
 		else if (cmd.tvs[i].m_tag == tlv::tag_fgc)
 			fgc = cmd.tvs[i].m_val;
 		else if (cmd.tvs[i].m_tag == tlv::tag_bgc)
@@ -99,7 +99,7 @@ void parseCommand (DecodedCommand const & cmd, gantt::DecodedData & dd)
 	msg.remove(0, slash_pos0 + 1);
 
 	dd.m_time = time.toULongLong();
-	dd.m_ctx = ctx.toULongLong();
+	dd.m_ctx = tid.toULongLong();
 	dd.m_tag = tag;
 	dd.m_subtag = subtag;
 	dd.m_text = msg;
