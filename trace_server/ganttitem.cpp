@@ -49,7 +49,7 @@ void BarTextItem::paint (QPainter * painter, QStyleOptionGraphicsItem const * op
 		painter->save();
 		QFont font(m_gvcfg.m_font, m_gvcfg.m_fontsize);
 		font.setStyleStrategy(QFont::ForceOutline);
-		QString text = QString("%1 %2\n[ %3 ms]").arg(m_data.m_tag).arg(m_data.m_msg).arg(m_data.m_delta_t);
+		QString text = QString("%1 %2\n%3\n[ %4 ms]").arg(m_data.m_tag).arg(m_data.m_msg).arg(m_data.m_endmsg).arg(m_data.m_delta_t);
 		painter->setFont(font);
 		painter->setPen(Qt::black);
 		painter->drawStaticText(pt, text);
@@ -73,7 +73,7 @@ void BarTextItem::paint (QPainter * painter, QStyleOptionGraphicsItem const * op
 		QString text = QString("%1").arg(m_data.m_tag);
 		painter->setFont(font);
 		painter->setPen(Qt::black);
-		painter->drawText(pt, text);
+		painter->drawStaticText(pt, text);
 		painter->restore();
 	}
 	else

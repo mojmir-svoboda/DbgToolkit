@@ -44,6 +44,7 @@ namespace gantt {
 		float m_x;
 		float m_y;
 		double m_dt;
+		double m_timeunits;
 		QColor m_color;
 		QString m_tag;
 		QString m_msg;
@@ -55,13 +56,14 @@ namespace gantt {
 			, m_layer(0)
 			, m_ctx(0) , m_ctx_idx(0)
 			, m_frame(0)
-			, m_x(0.0f), m_y(0.0f), m_dt(0.0)
+			, m_x(0.0f), m_y(0.0f), m_dt(0.0), m_timeunits(0.0)
 			, m_color(Qt::gray)
 		{ }
 		
-		void complete ()
+		void complete (double timeunits)
 		{
-			m_delta_t = m_time_end - m_time_bgn;
+			m_timeunits = timeunits;
+			m_delta_t = (m_time_end - m_time_bgn) * timeunits;
 			//m_dt = static_cast<float>(m_delta_t) / g_scaleValue;
 			m_dt = static_cast<float>(m_delta_t);
 			//printf("completed: tid=%10llu delta_t=%10llu msg=%s\n", m_tid, m_delta_t, m_msg.c_str());

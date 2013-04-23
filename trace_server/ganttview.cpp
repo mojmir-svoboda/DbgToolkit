@@ -139,7 +139,7 @@ void GanttView::appendBgn (DecodedData & dd)
 	d.m_frame = m_ganttData.m_frame;
 	d.m_parent = prev;
 
-	qDebug("    { f=%i t=%8llu  ctxi=%u  tag=%s  msg=%s", d.m_frame, d.m_time_bgn, d.m_ctx_idx, d.m_tag.toStdString().c_str(), d.m_msg.toStdString().c_str());
+	qDebug("    { f=%i t=%8llu  ctxi=%u  tag=%s  [%s]", d.m_frame, d.m_time_bgn, d.m_ctx_idx, d.m_tag.toStdString().c_str(), d.m_msg.toStdString().c_str());
 }
 
 void GanttView::appendEnd (DecodedData & dd)
@@ -153,7 +153,7 @@ void GanttView::appendEnd (DecodedData & dd)
 		d->m_time_end_orig = dd.m_time;
 		d->m_time_end = dd.m_time * m_gvcfg.m_timeunits;
 		d->m_endmsg = dd.m_text;
-		d->complete();
+		d->complete(m_gvcfg.m_timeunits);
 
 		(*m_ganttData.m_completed_frame_data[d->m_frame])[dd.m_ctx_idx].push_back(d);
 
@@ -161,7 +161,7 @@ void GanttView::appendEnd (DecodedData & dd)
 		consumeData(m_ganttData.m_completed_frame_data[d->m_frame]);
 
 
-		qDebug("    } f=%i t=%8llu  ctxi=%u  msg=%s", d->m_frame, d->m_time_bgn, d->m_ctx_idx, d->m_msg.toStdString().c_str());
+		qDebug("    } f=%i t=%8llu  ctxi=%u  tag=%s [%s]", d->m_frame, d->m_time_bgn, d->m_ctx_idx, d->m_tag.toStdString().c_str(), d->m_msg.toStdString().c_str());
 	}
 	else
 		qWarning("Mismatched end! tag=%s subtag=%s text=%s", dd.m_tag.toStdString().c_str(), dd.m_subtag.toStdString().c_str(), dd.m_text.toStdString().c_str());
@@ -254,7 +254,7 @@ void GanttView::consumeData (contextdata_t * c)
 
 			QGraphicsItem * item = new BarItem(m_gvcfg, d, d.m_color, 0, 0, w, h, ci, offs);
 			item->setPos(QPointF(d.m_x, y));
-			item->setToolTip(QString("bgn=<%1..%2>\nframe=%3 ctx=%4\n%5\n%6\n[%7 ms]").arg(d.m_time_bgn).arg(d.m_time_end).arg(d.m_frame).arg(ci).arg(d.m_tag).arg(d.m_msg).arg(d.m_dt / 1000.0f));
+			item->setToolTip(QString("timing=<%1..%2>\nframe=%3 ctx=%4\n%5 %6\n%7\n[%8 ms]").arg(d.m_time_bgn).arg(d.m_time_end).arg(d.m_frame).arg(ci).arg(d.m_tag).arg(d.m_msg).arg(d.m_endmsg).arg(d.m_dt));
 			d.m_item = item;
 
 			QGraphicsItem * titem = new BarTextItem(item, m_gvcfg, d, d.m_color, 0, 0, w, h, ci, offs);

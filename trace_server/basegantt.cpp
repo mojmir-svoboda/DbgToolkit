@@ -15,7 +15,7 @@ namespace gantt {
 		, m_fname(fname)
 		, m_connection(oparent)
 	{
-		qDebug("%s this=0x%08x", __FUNCTION__, this);
+		//qDebug("%s this=0x%08x", __FUNCTION__, this);
 
 		setContextMenuPolicy(Qt::CustomContextMenu);
 		connect(this, SIGNAL(customContextMenuRequested(QPoint const &)), this, SLOT(onShowContextMenu(QPoint const &)));
@@ -32,7 +32,7 @@ namespace gantt {
 
 	BaseGantt::~BaseGantt ()
 	{
-		qDebug("%s this=0x%08x", __FUNCTION__, this);
+		//qDebug("%s this=0x%08x", __FUNCTION__, this);
 		for (ganttviews_t::iterator it = m_ganttviews.begin(), ite = m_ganttviews.end(); it != ite; ++it)
 		{
 			GanttView * ganttview = *it;
@@ -108,7 +108,7 @@ namespace gantt {
 
 	void BaseGantt::onShowContextMenu (QPoint const & pos)
 	{
-		qDebug("%s this=0x%08x", __FUNCTION__, this);
+		//qDebug("%s this=0x%08x", __FUNCTION__, this);
 		m_config_ui.onShowContextMenu(QCursor::pos());
 		Ui::SettingsGantt * ui = m_config_ui.ui();
 
@@ -120,7 +120,7 @@ namespace gantt {
 
 	void BaseGantt::applyConfig (GanttConfig & cfg)
 	{
-		qDebug("%s this=0x%08x", __FUNCTION__, this);
+		//qDebug("%s this=0x%08x", __FUNCTION__, this);
 		Ui::SettingsGantt * ui = m_config_ui.ui();
 
 		for (size_t i = 0, ie = m_config.m_gvcfg.size(); i < ie; ++i)
@@ -157,7 +157,7 @@ namespace gantt {
 
 	void BaseGantt::setConfigValuesToUI (GanttConfig const & cfg)
 	{
-		qDebug("%s this=0x%08x", __FUNCTION__, this);
+		//qDebug("%s this=0x%08x", __FUNCTION__, this);
 		Ui::SettingsGantt * ui = m_config_ui.ui();
 		
 		ui->globalShowCheckBox->blockSignals(true);
@@ -176,7 +176,7 @@ namespace gantt {
 
 	void BaseGantt::setUIValuesToConfig (GanttConfig & cfg)
 	{
-		qDebug("%s this=0x%08x", __FUNCTION__, this);
+		//qDebug("%s this=0x%08x", __FUNCTION__, this);
 		Ui::SettingsGantt * ui = m_config_ui.ui();
 		m_config.m_show = ui->globalShowCheckBox->checkState() == Qt::Checked;
 

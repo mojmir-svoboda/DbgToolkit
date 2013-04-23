@@ -66,7 +66,7 @@ void Connection::onShowGanttContextMenu (QPoint const &)
 	}
 }
 
-void parseCommand (DecodedCommand const & cmd, gantt::DecodedData & dd)
+bool parseCommand (DecodedCommand const & cmd, gantt::DecodedData & dd)
 {
 	QString msg;
 	QString tid;
@@ -98,11 +98,15 @@ void parseCommand (DecodedCommand const & cmd, gantt::DecodedData & dd)
 	subtag.remove(0, slash_pos1 + 1);
 	msg.remove(0, slash_pos0 + 1);
 
+	//if (!subtag.contains("Dude"))
+	//	return false;
+
 	dd.m_time = time.toULongLong();
 	dd.m_ctx = tid.toULongLong();
 	dd.m_tag = tag;
 	dd.m_subtag = subtag;
 	dd.m_text = msg;
+	return true;
 }
 
 bool Connection::handleGanttBgnCommand (DecodedCommand const & cmd)
@@ -111,8 +115,11 @@ bool Connection::handleGanttBgnCommand (DecodedCommand const & cmd)
 		return true;
 
 	gantt::DecodedData dd;
-	parseCommand(cmd, dd);
+	if (!parseCommand(cmd, dd))
+		return true;
 	dd.m_type = gantt::e_GanttBgn;
+
+	qDebug("+decoded Gantt type=%i tag=%s subtag=%s text=%s", dd.m_type, dd.m_tag.toStdString().c_str(), dd.m_subtag.toStdString().c_str(), dd.m_text.toStdString().c_str());
 	appendGantt(dd);
 	return true;
 }
@@ -122,8 +129,10 @@ bool Connection::handleGanttEndCommand (DecodedCommand const & cmd)
 		return true;
 
 	gantt::DecodedData dd;
-	parseCommand(cmd, dd);
+	if (!parseCommand(cmd, dd))
+		return true;
 	dd.m_type = gantt::e_GanttEnd;
+	qDebug("+decoded Gantt type=%i tag=%s subtag=%s text=%s", dd.m_type, dd.m_tag.toStdString().c_str(), dd.m_subtag.toStdString().c_str(), dd.m_text.toStdString().c_str());
 	appendGantt(dd);
 	return true;
 }
@@ -133,7 +142,8 @@ bool Connection::handleGanttFrameBgnCommand (DecodedCommand const & cmd)
 		return true;
 
 	gantt::DecodedData dd;
-	parseCommand(cmd, dd);
+	if (!parseCommand(cmd, dd))
+		return true;
 	dd.m_type = gantt::e_GanttFrameBgn;
 	appendGantt(dd);
 	return true;
@@ -145,7 +155,8 @@ bool Connection::handleGanttFrameEndCommand (DecodedCommand const & cmd)
 		return true;
 
 	gantt::DecodedData dd;
-	parseCommand(cmd, dd);
+	if (!parseCommand(cmd, dd))
+		return true;
 	dd.m_type = gantt::e_GanttFrameEnd;
 	appendGantt(dd);
 	return true;
@@ -238,7 +249,7 @@ datagantts_t::iterator Connection::findOrCreateGantt (QString const & tag)
 
 void Connection::appendGantt (gantt::DecodedData & dd)
 {
-	qDebug("appendGantt tag=%s subtag=%s text=%s", dd.m_tag.toStdString().c_str(), dd.m_subtag.toStdString().c_str(), dd.m_text.toStdString().c_str());
+	//qDebug("appendGantt type=%i tag=%s subtag=%s text=%s", dd.m_type, dd.m_tag.toStdString().c_str(), dd.m_subtag.toStdString().c_str(), dd.m_text.toStdString().c_str());
 	datagantts_t::iterator it = findOrCreateGantt(dd.m_tag);
 	DataGantt & dp = **it;
 	gantt::GanttView * gv = dp.widget().findOrCreateGanttView(dd.m_subtag);
