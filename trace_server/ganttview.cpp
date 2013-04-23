@@ -517,13 +517,13 @@ void GraphicsView::SetCenter (QPointF const & centerPoint)
 	double const boundWidth = sceneBounds.width() - 2.0 * boundX;
 	double const boundHeight = sceneBounds.height() - 2.0 * boundY;
 
-	//qDebug("setcenter: x=%f y=%f w=%f h=%f", boundX, boundY, boundWidth, boundHeight);
+	qDebug("setcenter: x=%f y=%f w=%f h=%f", boundX, boundY, boundWidth, boundHeight);
 	// The max boundary that the centerPoint can be to
 	QRectF const bounds(boundX, boundY, boundWidth, boundHeight);
 	if (bounds.contains(centerPoint))
 	{
 		// We are within the bounds
-		CurrentCenterPoint = centerPoint;
+		m_current_center = centerPoint;
 	}
 	else
 	{
@@ -531,29 +531,30 @@ void GraphicsView::SetCenter (QPointF const & centerPoint)
 		if (visibleArea.contains(sceneBounds))
 		{
 			// Use the center of scene ie. we can see the whole scene
-			CurrentCenterPoint = centerPoint;
-			//CurrentCenterPoint = sceneBounds.center();
+			m_current_center = centerPoint;
+			//m_current_center = sceneBounds.center();
 		}
 		else
 		{
-			CurrentCenterPoint = centerPoint;
+			m_current_center = centerPoint;
  
 			//We need to clamp the center. The centerPoint is too large
-			/*if (centerPoint.x() > bounds.x() + bounds.width()) {
-				CurrentCenterPoint.setX(bounds.x() + bounds.width());
+			if (centerPoint.x() > bounds.x() + bounds.width()) {
+				m_current_center.setX(bounds.x() + bounds.width());
 			} else if (centerPoint.x() < bounds.x()) {
-				CurrentCenterPoint.setX(bounds.x());
+				m_current_center.setX(bounds.x());
 			}
  
 			if (centerPoint.y() > bounds.y() + bounds.height()) {
-				CurrentCenterPoint.setY(bounds.y() + bounds.height());
+				m_current_center.setY(bounds.y() + bounds.height());
 			} else if (centerPoint.y() < bounds.y()) {
-				CurrentCenterPoint.setY(bounds.y());
-			}*/
+				m_current_center.setY(bounds.y());
+			}
 		}
 	}
 	// Update the scrollbars
-	centerOn(CurrentCenterPoint);
+	centerOn(m_current_center);
+	qDebug("setcenter: curr=%f y=%f", boundX, boundY, boundWidth, boundHeight);
 
 	m_gv.updateTimeWidget(this);
 }
@@ -582,7 +583,7 @@ void GraphicsView::mouseMoveEvent (QMouseEvent * event)
 		SetCenter(cen + delta);
 		//Update the center ie. do the pan
 		//SetCenter(GetCenter() + delta);
-		//qDebug("new center: %f %f", GetCenter().x(), GetCenter().y()); 
+		qDebug("new center: %f %f", GetCenter().x(), GetCenter().y()); 
 	}
 	else
 	{
@@ -600,9 +601,12 @@ void GraphicsView::wheelEvent (QWheelEvent* event)
 	}
 	else
 	{
+		qDebug("wheelEvent: x=%i y=%i", event->pos().x(), event->pos().y());
 		QPointF pointBeforeScale(mapToScene(event->pos())); // get the position of the mouse before scaling, in scene coords
 		// get the original screen centerpoint
-		QPointF const screenCenter = GetCenter(); //CurrentCenterPoint; //(visRect.center());
+		//QPointF const screenCenter = GetCenter(); //m_current_center; //(visRect.center());
+		SetCenter(pointBeforeScale);
+		QPointF const screenCenter = m_current_center; //(visRect.center());
 
 		double const scaleFactor = 1.15; // how fast we zoom
 		double const scaleYFactor = (m_gvcfg.m_y_scaling) ? scaleFactor : 1.0f;

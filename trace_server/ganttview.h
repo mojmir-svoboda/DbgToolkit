@@ -33,12 +33,12 @@ namespace gantt {
 
 		//Set the current centerpoint in the view
 		void SetCenter (QPointF const & centerPoint);
-		void ForceCenter (QPointF const & center) { CurrentCenterPoint = center; }
+		void ForceCenter (QPointF const & center) { m_current_center = center; }
 	 
 	protected:
 		
-		QPointF CurrentCenterPoint; ///Holds the current centerpoint for the view, used for panning and zooming
-		QPointF GetCenter () { return CurrentCenterPoint; }
+		QPointF m_current_center; ///Holds the current centerpoint for the view, used for panning and zooming
+		QPointF GetCenter () { return m_current_center; }
 	 
 		QPoint LastPanPoint;		///From panning the view
 	 
