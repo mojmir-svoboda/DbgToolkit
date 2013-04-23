@@ -12,6 +12,7 @@
 #include "qwt/qwt_scale_engine.h"
 #include "qwt/qwt_transform.h"
 #include "ganttitem.h"
+#include "arrow.h"
 #include "hsv.h"
 
 namespace gantt {
@@ -282,16 +283,24 @@ void GanttView::consumeData (contextdata_t * c)
 				}
 				else
 				{
-					QPen p1;
-					p1.setColor(Qt::black);
-					p1.setWidth(0);
-					QGraphicsLineItem * ln_bg = new QGraphicsLineItem(d.m_x, d.m_parent->m_y + g_heightValue, d.m_x, d.m_y);
-					ln_bg->setPen(p1);
-					v.m_scene->addItem(ln_bg);
-					QGraphicsLineItem * ln_nd = new QGraphicsLineItem(d.m_x + d.m_dt, d.m_y, d.m_parent->m_x + d.m_parent->m_dt, d.m_parent->m_y + g_heightValue);
-					p1.setColor(Qt::black);
-					ln_nd->setPen(p1);
-					v.m_scene->addItem(ln_nd);
+					QPointF bg_p0(d.m_x, d.m_parent->m_y + g_heightValue);
+					QPointF bg_p1(d.m_x, d.m_y);
+					Arrow * arrow_bg = new Arrow(d.m_parent->m_item, d.m_item, bg_p0, bg_p1, 0, 0);
+					v.m_scene->addItem(arrow_bg);
+
+					QPointF nd_p0(d.m_x + d.m_dt, d.m_y);
+					QPointF nd_p1(d.m_parent->m_x + d.m_parent->m_dt, d.m_parent->m_y + g_heightValue);
+					Arrow * arrow_nd = new Arrow(d.m_parent->m_item, d.m_item, nd_p0, nd_p1, 0, 0);
+					v.m_scene->addItem(arrow_nd);
+
+
+					//QGraphicsLineItem * ln_bg = new QGraphicsLineItem(d.m_x, d.m_parent->m_y + g_heightValue, d.m_x, d.m_y);
+					//ln_bg->setPen(p1);
+					//v.m_scene->addItem(ln_bg);
+					//QGraphicsLineItem * ln_nd = new QGraphicsLineItem(d.m_x + d.m_dt, d.m_y, d.m_parent->m_x + d.m_parent->m_dt, d.m_parent->m_y + g_heightValue);
+					//p1.setColor(Qt::black);
+					//ln_nd->setPen(p1);
+					//v.m_scene->addItem(ln_nd);
 				}
 			}
 

@@ -99,6 +99,7 @@ SET(trace_server_SOURCES
 	basegantt.cpp
 	ganttview.cpp
 	ganttitem.cpp
+	arrow.cpp
 	)
 
 SET(trace_server_HEADERS
@@ -152,6 +153,7 @@ SET(trace_server_HEADERS
 	ganttview.h
 	ganttdata.h
 	ganttitem.h
+	arrow.h
 	)
 
 SET(trace_server_UI 
