@@ -217,6 +217,7 @@ namespace gantt {
 		ui->syncGroupSpinBox->setValue(gvcfg.m_sync_group);
 		ui->fontSizeSpinBox->setValue(gvcfg.m_fontsize);
 		ui->autoColorCheckBox->setCheckState(gvcfg.m_auto_color ? Qt::Checked : Qt::Unchecked);
+		ui->yScalingCheckBox->setCheckState(gvcfg.m_y_scaling ? Qt::Checked : Qt::Unchecked);
 		//gvcfg.m_curve_color->setCurrentColor(ccfg.m_color);
 		//m_config_ui.m_symbol_color->setCurrentColor(ccfg.m_color);
 	}
@@ -231,6 +232,7 @@ namespace gantt {
 		gvcfg.m_sync_group = ui->syncGroupSpinBox->value();
 		gvcfg.m_fontsize = ui->fontSizeSpinBox->value();
 		gvcfg.m_auto_color = ui->autoColorCheckBox->isChecked();
+		gvcfg.m_y_scaling = ui->yScalingCheckBox->isChecked();
 	}
 
 

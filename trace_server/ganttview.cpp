@@ -41,7 +41,7 @@ GfxView & GanttView::createViewForContext (unsigned long long ctx, QGraphicsScen
 	contextviews_t::iterator it = m_contextviews.find(ctx);
 	if (it == m_contextviews.end())		
 	{
-		GraphicsView * view = new GraphicsView(this);
+		GraphicsView * view = new GraphicsView(m_gvcfg, this);
 		view->setRenderHint(QPainter::Antialiasing, false);
 		view->setDragMode(QGraphicsView::RubberBandDrag);
 		view->setOptimizationFlags(QGraphicsView::DontSavePainterState);
@@ -465,7 +465,15 @@ void GanttView::setupMatrix()
 	qreal scale = qPow(qreal(2), (250.0f - 250.0f) / qreal(50));
 
 	QMatrix matrix;
-	matrix.scale(scale, scale);
+	if (m_gvcfg.m_y_scaling)
+	{
+		matrix.scale(scale, 1.0f);
+		//matrix.scale(scale, scale);
+	}
+	else
+	{
+		matrix.scale(scale, 1.0f);
+	}
 	m_gvcfg.m_scale = scale;
 
 	for (contextviews_t::iterator it = m_contextviews.begin(), ite = m_contextviews.end(); it != ite; ++it)
@@ -502,8 +510,9 @@ void GanttView::forceUpdate ()
 		(*it).m_view->viewport()->update();
 }
 
-GraphicsView::GraphicsView (QWidget * parent)
+GraphicsView::GraphicsView (GanttViewConfig & gvcfg, QWidget * parent)
 	: QGraphicsView(parent)
+    , m_gvcfg(gvcfg)
 { }
 
 /**
@@ -613,30 +622,20 @@ void GraphicsView::wheelEvent (QWheelEvent* event)
 	}
 	else
 	{
-		//Get the position of the mouse before scaling, in scene coords
-		QPointF pointBeforeScale(mapToScene(event->pos()));
-
-		//Get the original screen centerpoint
+		QPointF pointBeforeScale(mapToScene(event->pos())); // get the position of the mouse before scaling, in scene coords
+		// get the original screen centerpoint
 		QPointF screenCenter = GetCenter(); //CurrentCenterPoint; //(visRect.center());
 
-		//Scale the view ie. do the zoom
-		double scaleFactor = 1.15; //How fast we zoom
-		if (event->delta() > 0) {
-			//Zoom in
-			scale(scaleFactor, scaleFactor);
-		} else {
-			//Zooming out
-			scale(1.0 / scaleFactor, 1.0 / scaleFactor);
-		}
-	 
-		//Get the position after scaling, in scene coords
-		QPointF pointAfterScale(mapToScene(event->pos()));
-	 
-		//Get the offset of how the screen moved
-		QPointF offset = pointBeforeScale - pointAfterScale;
-	 
-		//Adjust to the new center for correct zooming
-		QPointF newCenter = screenCenter + offset;
+		double const scaleFactor = 1.15; // how fast we zoom
+		double const scaleYFactor = (m_gvcfg.m_y_scaling) ? scaleFactor : 1.0f;
+		if (event->delta() > 0)
+			scale(scaleFactor, scaleYFactor); // zoom in
+		else
+			scale(1.0 / scaleFactor, 1.0 / scaleYFactor); // zooming out
+		
+		QPointF pointAfterScale(mapToScene(event->pos())); // position after scaling, in scene coords
+		QPointF offset = pointBeforeScale - pointAfterScale; // offset of how the screen moved
+		QPointF newCenter = screenCenter + offset; // adjust to the new center for correct zooming
 		SetCenter(newCenter);
 
 		static_cast<GanttView *>(parent())->updateTimeWidget(this);

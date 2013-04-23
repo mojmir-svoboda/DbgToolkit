@@ -20,6 +20,7 @@ namespace gantt {
 		bool m_show;
 		bool m_auto_scroll;
 		bool m_auto_color;
+		bool m_y_scaling;
 
 		GanttViewConfig ()
 			: m_strtimeunits(QString("ms"))
@@ -34,6 +35,7 @@ namespace gantt {
 			, m_show(true)
 			, m_auto_scroll(true)
 			, m_auto_color(true)
+			, m_y_scaling(false)
 		{ }
 
 		template <class ArchiveT>
@@ -53,6 +55,7 @@ namespace gantt {
 			ar & boost::serialization::make_nvp("show", m_show);
 			ar & boost::serialization::make_nvp("autoscroll", m_auto_scroll);
 			ar & boost::serialization::make_nvp("autocolor", m_auto_color);
+			ar & boost::serialization::make_nvp("y_scaling", m_y_scaling);
 		}
 
 		void setTimeUnits (QString const & unit)

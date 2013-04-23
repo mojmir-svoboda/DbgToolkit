@@ -153,7 +153,8 @@ char const * GetName () { return "aa"; }
 void TraceVal (int x, int y)
 {
 	TRACE_GANTT_SCOPE(trace::e_Info, trace::CTX_Default, "aa0/g0/filling table[x=%i, y=%i]", x,y);
-	//TRACE_GANTT_SCOPE(trace::e_Info, trace::CTX_Default, "aa0/g0/filling table%i", x);
+	Sleep(100);
+	
 	//TRACE_GANTT_BGN(trace::e_Info, trace::CTX_Default, "aa0/g0/table[x=%i y=%i]", x, y);
 	static int n = 0;
 	TRACE_TABLE(trace::e_Info, trace::CTX_Default, x, y, "%s0/%i",GetName(), n);
@@ -163,8 +164,9 @@ void TraceVal (int x, int y)
 	//TRACE_TABLE_COLOR(trace::e_Info, trace::CTX_Default, x + 1	, y, trace::Color(0,0,255,255), "%s0", GetName());
 	//TRACE_TABLE_COLOR(trace::e_Info, trace::CTX_Default, x	, y, trace::Color(255,0,0,255), "%s2/", GetName());
 	//TRACE_TABLE_COLOR(trace::e_Info, trace::CTX_Default, x	, y, trace::Color(255,0,255,255), trace::Color(0,0,0,0), "%s0", GetName());
+	TRACE_GANTT_SCOPE(trace::e_Info, trace::CTX_Default, "aa0/g0/tblcolor%i", x);
 	TRACE_TABLE_COLOR(trace::e_Info, trace::CTX_Default, x + 1	, y, trace::Color(255,0,255,255), trace::Color(0,255,0,0), "%s0", GetName());
-	Sleep(500);
+	Sleep(50);
 	++n;
 	//TRACE_GANTT_END(trace::e_Info, trace::CTX_Default, "aa0/g0/table");
 }

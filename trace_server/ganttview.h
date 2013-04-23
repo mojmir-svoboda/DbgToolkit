@@ -27,7 +27,7 @@ namespace gantt {
 	{
 		Q_OBJECT;
 	public:
-		GraphicsView (QWidget* parent = NULL);
+		GraphicsView (GanttViewConfig & gvcfg, QWidget* parent = NULL);
 
 		//Set the current centerpoint in the view
 		void SetCenter (QPointF const & centerPoint);
@@ -40,11 +40,13 @@ namespace gantt {
 	 
 		QPoint LastPanPoint;		///From panning the view
 	 
-		virtual void mousePressEvent (QMouseEvent* event);
-		virtual void mouseReleaseEvent (QMouseEvent* event);
-		virtual void mouseMoveEvent (QMouseEvent* event);
-		virtual void wheelEvent (QWheelEvent* event);
-		virtual void resizeEvent (QResizeEvent* event);
+		virtual void mousePressEvent (QMouseEvent * event);
+		virtual void mouseReleaseEvent (QMouseEvent * event);
+		virtual void mouseMoveEvent (QMouseEvent * event);
+		virtual void wheelEvent (QWheelEvent * event);
+		virtual void resizeEvent (QResizeEvent * event);
+
+		GanttViewConfig & m_gvcfg;
 	};
 
 
