@@ -56,6 +56,9 @@ namespace plot {
 		setAutoReplot(false);
 		//canvas()->setBorderRadius(0);
 		plotLayout()->setAlignCanvasToScales(true);
+
+		setContentsMargins(QMargins(0, 0, 0, 0));
+		setMinimumSize(64,64);
 		insertLegend(new QwtLegend(this), QwtPlot::BottomLegend);
 
 		for (size_t c = 0, ce = cfg.m_ccfg.size(); c < ce; ++c)
