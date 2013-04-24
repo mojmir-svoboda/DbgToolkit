@@ -51,10 +51,14 @@ namespace tlv {
 	static cmd_t const cmd_profile_frame_end = 0xEC;	/// send profiling frame end
 	static cmd_t const cmd_table_xy          = 0xEB;	/// trace table xy
 	static cmd_t const cmd_table_setup       = 0xEA;	/// trace table setup (color, headers)
-	static cmd_t const cmd_gantt_bgn         = 0xE9;	/// trace table setup (color, headers)
-	static cmd_t const cmd_gantt_end         = 0xE8;	/// trace table setup (color, headers)
-	static cmd_t const cmd_gantt_frame_bgn   = 0xE7;	/// trace table setup (color, headers)
-	static cmd_t const cmd_gantt_frame_end   = 0xE6;	/// trace table setup (color, headers)
+	static cmd_t const cmd_gantt_bgn         = 0xE9;	/// log event begin
+	static cmd_t const cmd_gantt_end         = 0xE8;	/// log event end
+	static cmd_t const cmd_gantt_frame_bgn   = 0xE7;	/// log frame begin
+	static cmd_t const cmd_gantt_frame_end   = 0xE6;	/// log frame end
+	static cmd_t const cmd_gantt_clear       = 0xE5;	/// clear gantt chart
+	static cmd_t const cmd_plot_clear        = 0xE4;	/// clear plot
+	static cmd_t const cmd_table_clear       = 0xE3;	/// clear table
+	static cmd_t const cmd_log_clear         = 0xE2;	/// clear log
 
 	///////////////////////////////////////////////////////
 	static cmd_t const cmd_shutdown          = 0xCF;	/// request to shut down server

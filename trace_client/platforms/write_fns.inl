@@ -126,6 +126,18 @@ namespace trace {
 			msg.WriteUnlockAndDirty();
 		}
 	}
+	inline void WritePlotClear_impl (level_t level, context_t context, char const * fmt, va_list args)
+	{
+		if (GetRuntimeBuffering())
+		{
+			msg_t & msg = socks::acquire_msg_buffer();
+			msg.WriteLock();
+			{
+				encode_plot_clear(msg, level, context, fmt, args);
+			}
+			msg.WriteUnlockAndDirty();
+		}
+	}
 
 
 	// Table data logging

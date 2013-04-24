@@ -124,7 +124,10 @@
  *	@brief		logging of 3d xyz data
  **/
 #	define TRACE_PLOT_XYZ	trace::WritePlot
-
+/**	@macro		TRACE_PLOT_CLEAR
+ *	@brief		clear curve data identified by "tag/curve" or clear all plot using "tag" only
+ **/
+#	define TRACE_PLOT_CLEAR	trace::WritePlot
 
 /*****************************************************************************/
 /* Table logging macros                                                      */
@@ -282,6 +285,7 @@
 		 */
 		TRACE_API void WritePlot (level_t level, context_t context, float x, float y, char const * fmt, ...);
 		TRACE_API void WritePlot (level_t level, context_t context, float x, float y, float z, char const * fmt, ...);
+		TRACE_API void WritePlotClear (level_t level, context_t context, char const * fmt, ...);
 
 		/**@class	ScopedLog
 		 * @brief	RAII class for logging entry on construction and exit on destruction **/

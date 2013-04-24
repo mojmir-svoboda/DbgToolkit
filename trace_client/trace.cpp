@@ -93,6 +93,20 @@
 			va_end(args);
 		}
 
+		inline void WritePlotClear_impl (level_t level, context_t context, char const * fmt, va_list args);
+		void WritePlotClearVA (level_t level, context_t context, char const * fmt, va_list args)
+		{
+			if (RuntimeFilterPredicate(level, context))
+				WritePlotClear_impl(level, context, fmt, args);
+		}
+		void WritePlotClear (level_t level, context_t context, char const * fmt, ...)
+		{
+			va_list args;
+			va_start(args, fmt);
+			WritePlotClearVA(level, context, fmt, args);
+			va_end(args);
+		}
+
 
 		// table-data logging
 		inline void WriteTable_impl (level_t level, context_t context, int x, int y, char const * fmt, va_list args);
