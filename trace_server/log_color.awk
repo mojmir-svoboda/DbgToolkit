@@ -87,6 +87,13 @@ function replaceText(text, tmp)
 
 	if (match($3, "[[:digit:]]+"))
 	{
+		ignore_line = 0;
+		if (match($4, ".*got nonmatching preset name.*")) ignore_line = 1;
+		if (match($4, ".*gantt: load cfg.*")) ignore_line = 1;
+		if (match($4, ".*DataGantt::DataGantt.*")) ignore_line = 1;
+		if (match($4, ".*gantt::CtxGanttConfig::CtxGanttConfig this.*")) ignore_line = 1;
+		if (match($4, ".*gantt::GanttView::GanttView.*")) ignore_line = 1;
+
 		found = -1;
 		for (i=0; i<m_last_thread; ++i)
 		{
@@ -104,46 +111,51 @@ function replaceText(text, tmp)
 		}
 
 		#printf("colormap = %d for threadid=%d \n", m_colormap[found], m_threadid[found]);
-		scope_detected = 0
 
-		if (index($4,"}"))
+		if (ignore_line == 0)
 		{
-			decrIndent(found);
-			scope_detected = 1;
-		}
-		if (index($4,"{"))
-		{
-			scope_detected = 1;
-		}
+			scope_detected = 0
 
-		strout = "";
-
-		fill = indentText(found);
-
-		if (match($2, "E"))
-			prefix = m_fg[1]
-		if (match($2, "W"))
-			prefix = m_fg[3]
-		if (match($2, "I"))
-			prefix = m_fg_def
-		msg = replaceText($4);
-
-		date = $1;
-		gsub("[0-9]*-[a-zA-Z]*-[0-9]* ", "", date)
-
-		if (scope_detected)
-		{
-			if (m_scope_print)
+			if (index($4,"}"))
 			{
-				printf("%s%s%s|%s%s%s|%s%s%s|%s%s\n", m_fg_def, date, m_fg_def, m_colormap[found], $3, m_fg_def, prefix, $2, m_fg_def, fill, msg);
+				decrIndent(found);
+				scope_detected = 1;
 			}
-		}
-		else
-			printf("%s%s%s|%s%s%s|%s%s%s|%s%s\n", m_fg_def, date, m_fg_def, m_colormap[found], $3, m_fg_def, prefix, $2, m_fg_def, fill, msg);
-			#printf("%s%s%s|%s|%s%s%s%s\n", m_colormap[found], date, m_fg_def, $2, prefix, fill, msg, m_fg_def);
+			if (index($4,"{"))
+			{
+				scope_detected = 1;
+			}
 
-		if (index($4,"{"))
-			incrIndent(found);
+			strout = "";
+
+			fill = indentText(found);
+
+			if (match($2, "E"))
+				prefix = m_fg[1]
+			if (match($2, "W"))
+				prefix = m_fg[3]
+			if (match($2, "I"))
+				prefix = m_fg_def
+			msg = replaceText($4);
+
+			date = $1;
+			gsub("[0-9]*-[a-zA-Z]*-[0-9]* ", "", date)
+
+			if (scope_detected)
+			{
+				if (m_scope_print)
+				{
+					printf("%s%.0f%s|%s%s%s|%s%s%s|%s%s\n", m_fg_def, date / 1000, m_fg_def, m_colormap[found], $3, m_fg_def, prefix, $2, m_fg_def, fill, msg);
+				}
+			}
+			else
+				#printf("%s%s%s|%s%s%s|%s%s%s|%s%s\n", m_fg_def, date / 1000, m_fg_def, m_colormap[found], $3, m_fg_def, prefix, $2, m_fg_def, fill, msg);
+				printf("%s%.0f%s|%s%s%s|%s%s%s|%s%s\n", m_fg_def, date / 1000, m_fg_def, m_colormap[found], $3, m_fg_def, prefix, $2, m_fg_def, fill, msg);
+				#printf("%s%s%s|%s|%s%s%s%s\n", m_colormap[found], date, m_fg_def, $2, prefix, fill, msg, m_fg_def);
+
+			if (index($4,"{"))
+				incrIndent(found);
+		}
 	}
 	else
 	{

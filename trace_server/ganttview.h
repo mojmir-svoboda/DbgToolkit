@@ -99,6 +99,7 @@ namespace gantt {
 		void appendFrameBgn (DecodedData & data);
 		void appendFrameEnd (DecodedData & data);
 		void consumeData (contextdata_t *);
+		void consumeEnd (Data * end_data);
 
 		typedef QMap<unsigned long long, GfxView> contextviews_t;
 		contextviews_t m_contextviews;

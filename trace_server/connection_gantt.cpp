@@ -119,7 +119,7 @@ bool Connection::handleGanttBgnCommand (DecodedCommand const & cmd)
 		return true;
 	dd.m_type = gantt::e_GanttBgn;
 
-	qDebug("+decoded Gantt type=%i tag=%s subtag=%s text=%s", dd.m_type, dd.m_tag.toStdString().c_str(), dd.m_subtag.toStdString().c_str(), dd.m_text.toStdString().c_str());
+	//qDebug("+decoded Gantt type=%i tag='%s' subtag='%s' text='%s'", dd.m_type, dd.m_tag.toStdString().c_str(), dd.m_subtag.toStdString().c_str(), dd.m_text.toStdString().c_str());
 	appendGantt(dd);
 	return true;
 }
@@ -132,7 +132,7 @@ bool Connection::handleGanttEndCommand (DecodedCommand const & cmd)
 	if (!parseCommand(cmd, dd))
 		return true;
 	dd.m_type = gantt::e_GanttEnd;
-	qDebug("+decoded Gantt type=%i tag=%s subtag=%s text=%s", dd.m_type, dd.m_tag.toStdString().c_str(), dd.m_subtag.toStdString().c_str(), dd.m_text.toStdString().c_str());
+	qDebug("+decoded Gantt type=%i tag='%s' subtag='%s' text='%s'", dd.m_type, dd.m_tag.toStdString().c_str(), dd.m_subtag.toStdString().c_str(), dd.m_text.toStdString().c_str());
 	appendGantt(dd);
 	return true;
 }
