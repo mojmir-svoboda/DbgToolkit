@@ -85,6 +85,38 @@ bool Connection::handleDataXYCommand (DecodedCommand const & cmd)
 	return true;
 }
 
+bool Connection::handlePlotClearCommand (DecodedCommand const & cmd)
+{
+	QString msg;
+	for (size_t i=0, ie=cmd.tvs.size(); i < ie; ++i)
+	{
+		if (cmd.tvs[i].m_tag == tlv::tag_msg)
+			msg = cmd.tvs[i].m_val;
+	}
+
+	if (m_main_window->plotState() != e_FtrDisabled)
+	{
+		QString tag = msg;
+		int const slash_pos = tag.lastIndexOf(QChar('/'));
+		tag.chop(msg.size() - slash_pos);
+
+		QString subtag = msg;
+		subtag.remove(0, slash_pos + 1);
+		
+		qDebug("clear plot: tag='%s' subtag='%s'", tag.toStdString().c_str(), subtag.toStdString().c_str());
+
+		dataplots_t::iterator it = m_dataplots.find(tag);
+		if (it != m_dataplots.end())
+		{
+			if (!subtag.isEmpty())
+				(*it)->widget().clearCurveData(subtag);
+			else
+				(*it)->widget().clearAllData();
+		}
+	}
+	return true;
+}
+
 bool Connection::handleDataXYZCommand (DecodedCommand const & cmd)
 {
 	return true;

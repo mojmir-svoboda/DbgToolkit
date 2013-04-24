@@ -261,6 +261,8 @@ namespace plot {
 		connect(ui->resetButton, SIGNAL(clicked()), this, SLOT(onResetButton()));
 		connect(ui->defaultButton, SIGNAL(clicked()), this, SLOT(onDefaultButton()));
 		connect(ui->curveComboBox, SIGNAL(activated(int)), this, SLOT(onCurveActivate(int)));
+		connect(ui->clearCurveDataButton, SIGNAL(clicked()), this, SLOT(onClearCurveDataButton()));
+
 
 		connect(ui->xAutoScaleCheckBox, SIGNAL(stateChanged(int)), SLOT(onXAutoScaleChanged(int)));
 		connect(ui->yAutoScaleCheckBox, SIGNAL(stateChanged(int)), SLOT(onYAutoScaleChanged(int)));
@@ -407,7 +409,26 @@ namespace plot {
 		}
 	}
 
+	void BasePlot::clearCurveData (QString const & subtag)
+	{
+		for (curves_t::iterator it = m_curves.begin(), ite = m_curves.end(); it != ite; ++it)
+		{
+			Curve * curve = *it;
+			if (curve && curve->getName() == subtag && curve->m_data)
+			{
+				curve->m_data->clear();
+				curve->m_curve->setRawSamples(0, 0, 0);
+			}
+		}
+		update();
+	}
+
 	void BasePlot::onClearAllDataButton ()
+	{
+		clearAllData();
+	}
+
+	void BasePlot::clearAllData ()
 	{
 		for (curves_t::iterator it = m_curves.begin(), ite = m_curves.end(); it != ite; ++it)
 		{
@@ -423,6 +444,8 @@ namespace plot {
 
 	void BasePlot::onClearCurveDataButton ()
 	{
+		Ui::SettingsPlot * ui = m_config_ui.ui();
+		clearCurveData(ui->curveComboBox->currentText());
 	}
 }
 

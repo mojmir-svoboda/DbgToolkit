@@ -37,6 +37,9 @@ namespace plot {
 		PlotConfig & getConfig () { return m_config; }
 		PlotConfig const & getConfig () const { return m_config; }
 
+		void clearAllData ();
+		void clearCurveData (QString const & subtag);
+
 	protected:
 		void timerEvent (QTimerEvent * e);
 		virtual void update ();

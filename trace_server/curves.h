@@ -48,6 +48,8 @@ namespace plot {
 
 		QwtPlotCurve const * getCurve () const { return m_curve; }
 		QwtPlotCurve * getCurve () { return m_curve; }
+
+		QString const & getName () { return m_config.m_tag; }
 		
 		~Curve ()
 		{

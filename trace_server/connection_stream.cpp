@@ -421,6 +421,10 @@ bool Connection::tryHandleCommand (DecodedCommand const & cmd)
 		case tlv::cmd_gantt_end:		handleGanttEndCommand(cmd); break;
 		case tlv::cmd_gantt_frame_bgn:	handleGanttFrameBgnCommand(cmd); break;
 		case tlv::cmd_gantt_frame_end:	handleGanttFrameEndCommand(cmd); break;
+		case tlv::cmd_plot_clear:		handlePlotClearCommand(cmd); break;
+		case tlv::cmd_table_clear:		handleTableClearCommand(cmd); break;
+		case tlv::cmd_gantt_clear:		handleGanttClearCommand(cmd); break;
+		case tlv::cmd_log_clear:		handleLogClearCommand(cmd); break;
 
 		default: qDebug("unknown command, ignoring\n"); break;
 	}

@@ -269,6 +269,10 @@ private:
 	bool handleGanttEndCommand (DecodedCommand const & cmd);
 	bool handleGanttFrameBgnCommand (DecodedCommand const & cmd);
 	bool handleGanttFrameEndCommand (DecodedCommand const & cmd);
+	bool handleGanttClearCommand (DecodedCommand const & cmd);
+	bool handlePlotClearCommand (DecodedCommand const & cmd);
+	bool handleTableClearCommand (DecodedCommand const & cmd);
+	bool handleLogClearCommand (DecodedCommand const & cmd);
 
 	void appendDataXY (double x, double y, QString const & tag);
 	datatables_t::iterator findOrCreateTable (QString const & tag);

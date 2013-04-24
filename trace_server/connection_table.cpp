@@ -260,6 +260,32 @@ void Connection::appendTableSetup (int x, int y, QString const & time, QString c
 	dp.widget().appendTableSetup(x, y, time, fgc, bgc, hhdr, subtag);
 }
 
+bool Connection::handleTableClearCommand (DecodedCommand const & cmd)
+{
+	QString msg;
+	for (size_t i=0, ie=cmd.tvs.size(); i < ie; ++i)
+	{
+		if (cmd.tvs[i].m_tag == tlv::tag_msg)
+			msg = cmd.tvs[i].m_val;
+	}
+
+	if (m_main_window->plotState() != e_FtrDisabled)
+	{
+		QString tag = msg;
+		int const slash_pos = tag.lastIndexOf(QChar('/'));
+		tag.chop(msg.size() - slash_pos);
+
+		QString subtag = msg;
+		subtag.remove(0, slash_pos + 1);
+
+		//dataplots_t::iterator it = m_dataplots.find(tag);
+		//if (it != m_dataplots.end())
+		//{
+		//	(*it)->widget().clearCurveData(subtag);
+		//}
+	}
+	return true;
+}
 void Connection::requestTableSynchronization (int sync_group, unsigned long long time)
 {
 	for (datatables_t::iterator it = m_datatables.begin(), ite = m_datatables.end(); it != ite; ++it)
