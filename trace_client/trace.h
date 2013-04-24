@@ -127,7 +127,7 @@
 /**	@macro		TRACE_PLOT_CLEAR
  *	@brief		clear curve data identified by "tag/curve" or clear all plot using "tag" only
  **/
-#	define TRACE_PLOT_CLEAR	trace::WritePlot
+#	define TRACE_PLOT_CLEAR	trace::WritePlotClear
 
 /*****************************************************************************/
 /* Table logging macros                                                      */
@@ -137,9 +137,10 @@
  *	@brief		logging of tabular data
  *	@see		trace::WriteTable
  **/
-#	define TRACE_TABLE	trace::WriteTable
+#	define TRACE_TABLE          trace::WriteTable
 #	define TRACE_TABLE_HHEADER	trace::WriteTableSetHHeader
 #	define TRACE_TABLE_COLOR	trace::WriteTableSetColor
+#	define TRACE_TABLE_CLEAR	trace::WriteTableClear
 
 
 /*****************************************************************************/
@@ -169,6 +170,8 @@
  *	@brief		traces frame into gantt chart
  **/
 #	define TRACE_GANTT_FRAME_SCOPE          trace::ScopedGanttFrame UNIQUE(profile_entry_guard_)
+
+#	define TRACE_GANTT_CLEAR                trace::WriteGanttClear
 
 
 /*****************************************************************************/
@@ -333,6 +336,7 @@
 		TRACE_API void WriteTableSetColor (level_t level, context_t context, int x, int y, Color fg, char const * fmt, ...);
 		TRACE_API void WriteTableSetColor (level_t level, context_t context, int x, int y, Color fg, Color bg, char const * fmt, ...);
 		TRACE_API void WriteTableSetHHeader (level_t level, context_t context, int x, char const * name, char const * fmt, ...);
+		TRACE_API void WriteTableClear (level_t level, context_t context, char const * fmt, ...);
 
 
 		/**@fn		WriteBgnGanttVA
@@ -358,6 +362,7 @@
 		TRACE_API void WriteGanttFrameBgn (level_t level, context_t context);
 		TRACE_API void WriteGanttFrameEnd (level_t level, context_t context);
 		TRACE_API void WriteGanttFrameEnd (level_t level, context_t context, char const * fmt, ...);
+		TRACE_API void WriteGanttClear (level_t level, context_t context, char const * fmt, ...);
 
 		/**@class	ScopedGantt
 		 * @brief	RAII class for gantt begin on construction and gantt end on destruction **/

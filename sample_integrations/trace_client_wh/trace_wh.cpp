@@ -217,6 +217,9 @@ int main ()
 
 			if (i==3)
 			{
+				TRACE_PLOT_CLEAR(trace::e_Info, trace::CTX_Default, "sample_plot%i/%s", 0, "sin");
+				TRACE_TABLE_CLEAR(trace::e_Info, trace::CTX_Default, "aa0");
+				TRACE_GANTT_CLEAR(trace::e_Info, trace::CTX_Default, "aa0/g0");
 				break;
 			}		
 		}

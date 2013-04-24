@@ -192,10 +192,30 @@
 			WriteTableSetHHeaderVA(level, context, x, name, fmt, args);
 			va_end(args);
 		}
+		inline void WriteTableClear_impl (level_t level, context_t context, char const * fmt, va_list args);
+		void WriteTableClearVA (level_t level, context_t context, char const * fmt, va_list args)
+		{
+			if (RuntimeFilterPredicate(level, context))
+				WriteTableClear_impl(level, context, fmt, args);
+		}
+		void WriteTableClear (level_t level, context_t context, char const * fmt, ...)
+		{
+			va_list args;
+			va_start(args, fmt);
+			WriteTableClearVA(level, context, fmt, args);
+			va_end(args);
+		}
+
+
 
 
 		// gantt chart event logging
-		void WriteGanttBgnVA (level_t level, context_t context, char const * fmt, va_list args);
+		void WriteGanttBgnVA_Impl (level_t level, context_t context, char const * fmt, va_list args);
+		void WriteGanttBgnVA (level_t level, context_t context, char const * fmt, va_list args)
+		{
+			if (RuntimeFilterPredicate(level, context))
+				WriteGanttBgnVA_Impl(level, context, fmt, args);
+		}
 		void WriteGanttBgn (level_t level, context_t context, char const * fmt, ...)
 		{
 			va_list args;
@@ -203,10 +223,20 @@
 			WriteGanttBgnVA(level, context, fmt, args);
 			va_end(args);
 		}
-		void WriteGanttBgn_Impl (level_t level, context_t context);
-		void WriteGanttBgn (level_t level, context_t context) { WriteGanttBgn_Impl(level, context); }
 
-		void WriteGanttEndVA (level_t level, context_t context, char const * fmt, va_list args);
+		void WriteGanttBgn_Impl (level_t level, context_t context);
+		void WriteGanttBgn (level_t level, context_t context)
+		{
+			if (RuntimeFilterPredicate(level, context))
+				WriteGanttBgn_Impl(level, context);
+		}
+
+		void WriteGanttEndVA_Impl (level_t level, context_t context, char const * fmt, va_list args);
+		void WriteGanttEndVA (level_t level, context_t context, char const * fmt, va_list args)
+		{
+			if (RuntimeFilterPredicate(level, context))
+				WriteGanttEndVA_Impl(level, context, fmt, args);
+		}
 		void WriteGanttEnd (level_t level, context_t context, char const * fmt, ...)
 		{
 			va_list args;
@@ -214,10 +244,20 @@
 			WriteGanttEndVA(level, context, fmt, args);
 			va_end(args);
 		}
-		void WriteGanttEnd_Impl (level_t level, context_t context);
-		void WriteGanttEnd (level_t level, context_t context) { WriteGanttEnd_Impl(level, context); }
 
-		void WriteGanttFrameBgnVA (level_t level, context_t context, char const * fmt, va_list args);
+		void WriteGanttEnd_Impl (level_t level, context_t context);
+		void WriteGanttEnd (level_t level, context_t context)
+		{
+			if (RuntimeFilterPredicate(level, context))
+				WriteGanttEnd_Impl(level, context);
+		}
+
+		void WriteGanttFrameBgnVA_Impl (level_t level, context_t context, char const * fmt, va_list args);
+		void WriteGanttFrameBgnVA (level_t level, context_t context, char const * fmt, va_list args)
+		{
+			if (RuntimeFilterPredicate(level, context))
+				WriteGanttFrameBgnVA_Impl(level, context, fmt, args);
+		}
 		void WriteGanttFrameBgn (level_t level, context_t context, char const * fmt, ...)
 		{
 			va_list args;
@@ -226,9 +266,18 @@
 			va_end(args);
 		}
 		void WriteGanttFrameBgn_Impl(level_t level, context_t context);
-		void WriteGanttFrameBgn (level_t level, context_t context) { WriteGanttFrameBgn_Impl(level, context); }
+		void WriteGanttFrameBgn (level_t level, context_t context)
+		{
+			if (RuntimeFilterPredicate(level, context))
+				WriteGanttFrameBgn_Impl(level, context);
+		}
 
-		void WriteGanttFrameEndVA (level_t level, context_t context, char const * fmt, va_list args);
+		void WriteGanttFrameEndVA_Impl (level_t level, context_t context, char const * fmt, va_list args);
+		void WriteGanttFrameEndVA (level_t level, context_t context, char const * fmt, va_list args)
+		{
+			if (RuntimeFilterPredicate(level, context))
+				WriteGanttFrameEndVA_Impl(level, context, fmt, args);
+		}
 		void WriteGanttFrameEnd (level_t level, context_t context, char const * fmt, ...)
 		{
 			va_list args;
@@ -237,9 +286,32 @@
 			va_end(args);
 		}
 		void WriteGanttFrameEnd_Impl (level_t level, context_t context);
-		void WriteGanttFrameEnd (level_t level, context_t context) { WriteGanttFrameEnd_Impl(level, context); }
+		void WriteGanttFrameEnd (level_t level, context_t context)
+		{
+			if (RuntimeFilterPredicate(level, context))
+				WriteGanttFrameEnd_Impl(level, context);
+		}
 
-		void WriteGanttScopeBgnVA (level_t level, context_t context, char * tag_buff, size_t max_size, char const * fmt, va_list args);
+		void WriteGanttClearVA_Impl (level_t level, context_t context, char const * fmt, va_list args);
+		void WriteGanttClearVA (level_t level, context_t context, char const * fmt, va_list args)
+		{
+			if (RuntimeFilterPredicate(level, context))
+				WriteGanttClearVA_Impl(level, context, fmt, args);
+		}
+		void WriteGanttClear (level_t level, context_t context, char const * fmt, ...)
+		{
+			va_list args;
+			va_start(args, fmt);
+			WriteGanttClearVA(level, context, fmt, args);
+			va_end(args);
+		}
+
+		void WriteGanttScopeBgnVA_Impl (level_t level, context_t context, char * tag_buff, size_t max_size, char const * fmt, va_list args);
+		void WriteGanttScopeBgnVA (level_t level, context_t context, char * tag_buff, size_t max_size, char const * fmt, va_list args)
+		{
+			if (RuntimeFilterPredicate(level, context))
+				WriteGanttScopeBgnVA_Impl(level, context, tag_buff, max_size, fmt, args);
+		}
 		ScopedGantt::ScopedGantt (level_t level, context_t context, char const * fmt, ...)
 		{
 			va_list args;
@@ -258,13 +330,11 @@
 			va_list args;
 			va_start(args, fmt);
 			WriteGanttFrameBgnVA(level, context, fmt, args);
-			//WriteGanttBgnVA(level, context, fmt, args);
 			va_end(args);
 		}
 
 		ScopedGanttFrame::~ScopedGanttFrame()
 		{
-			//WriteGanttEnd(m_level, m_context);
 			WriteGanttFrameEnd(m_level, m_context);
 		}
 
