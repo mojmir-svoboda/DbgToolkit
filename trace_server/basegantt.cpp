@@ -124,6 +124,12 @@ namespace gantt {
 		connect(ui->applyButton, SIGNAL(clicked()), this, SLOT(onApplyButton()));
 		connect(ui->saveButton, SIGNAL(clicked()), this, SLOT(onSaveButton()));
 		connect(ui->ganttViewComboBox, SIGNAL(activated(int)), this, SLOT(onGanttViewActivate(int)));
+		connect(ui->fitSelectionButton, SIGNAL(clicked()), this, SLOT(onFitSelectionButton()));
+		connect(ui->fitAllButton, SIGNAL(clicked()), this, SLOT(onFitAllButton()));
+		connect(ui->fitFrameButton, SIGNAL(clicked()), this, SLOT(onFitFrameButton()));
+		connect(ui->prevFrameButton, SIGNAL(clicked()), this, SLOT(onPrevFrameButton()));
+		connect(ui->nextFrameButton, SIGNAL(clicked()), this, SLOT(onNextFrameButton()));
+		connect(ui->nextFrameButton, SIGNAL(valueChanged(int)), this, SLOT(onFrameValueChanged(int)));
 	}
 
 	void BaseGantt::applyConfig (GanttConfig & cfg)
@@ -277,6 +283,69 @@ namespace gantt {
 
 	void BaseGantt::onClearGanttViewDataButton ()
 	{
+	}
+
+	void BaseGantt::onFitAllButton ()
+	{
+		Ui::SettingsGantt * ui = m_config_ui.ui();
+		QString const & gvname = ui->ganttViewComboBox->currentText();
+		for (size_t i = 0, ie = m_config.m_gvcfg.size(); i < ie; ++i)
+		{
+			GanttViewConfig const & gvcfg = m_config.m_gvcfg[i];
+			if (gvcfg.m_tag == gvname)
+			{
+			}
+		}
+	}
+	void BaseGantt::onFitFrameButton ()
+	{
+		Ui::SettingsGantt * ui = m_config_ui.ui();
+		QString const & gvname = ui->ganttViewComboBox->currentText();
+		for (size_t i = 0, ie = m_config.m_gvcfg.size(); i < ie; ++i)
+		{
+			GanttViewConfig const & gvcfg = m_config.m_gvcfg[i];
+			if (gvcfg.m_tag == gvname)
+			{
+			}
+		}
+	}
+	void BaseGantt::onPrevFrameButton ()
+	{
+		Ui::SettingsGantt * ui = m_config_ui.ui();
+		QString const & gvname = ui->ganttViewComboBox->currentText();
+		for (size_t i = 0, ie = m_config.m_gvcfg.size(); i < ie; ++i)
+		{
+			GanttViewConfig const & gvcfg = m_config.m_gvcfg[i];
+			if (gvcfg.m_tag == gvname)
+			{
+			}
+		}
+	}
+	void BaseGantt::onNextFrameButton ()
+	{
+		Ui::SettingsGantt * ui = m_config_ui.ui();
+		QString const & gvname = ui->ganttViewComboBox->currentText();
+		for (size_t i = 0, ie = m_config.m_gvcfg.size(); i < ie; ++i)
+		{
+			GanttViewConfig const & gvcfg = m_config.m_gvcfg[i];
+			if (gvcfg.m_tag == gvname)
+			{
+			}
+		}
+	}
+	void BaseGantt::onFrameValueChanged (int f)
+	{
+		Ui::SettingsGantt * ui = m_config_ui.ui();
+		QString const & gvname = ui->ganttViewComboBox->currentText();
+		for (size_t i = 0, ie = m_config.m_gvcfg.size(); i < ie; ++i)
+		{
+			GanttViewConfig const & gvcfg = m_config.m_gvcfg[i];
+			if (gvcfg.m_tag == gvname)
+			{
+				qDebug("set frame %i", f);
+				m_ganttviews[gvname]->gotoFrame(f);
+			}
+		}
 	}
 
 	/*void BaseGantt::scrollTo (QModelIndex const & index, ScrollHint hint)

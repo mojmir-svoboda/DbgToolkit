@@ -80,6 +80,8 @@ namespace gantt {
 		void updateTimeWidget (GraphicsView * v);
 		void applyConfig (GanttViewConfig & gvcfg);
 
+		void gotoFrame (unsigned n);
+
 	private slots:
 		void resetView ();
 		//void verticalScroll (int);

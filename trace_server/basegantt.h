@@ -58,6 +58,11 @@ namespace gantt {
 		void onApplyButton ();
 		void onResetButton ();
 		void onDefaultButton ();
+		void onFitAllButton ();
+		void onFitFrameButton ();
+		void onPrevFrameButton ();
+		void onNextFrameButton ();
+		void onFrameValueChanged (int);
 		//void scrollTo (QModelIndex const & index, ScrollHint hint);
 		
 		void onGanttViewActivate (int idx);

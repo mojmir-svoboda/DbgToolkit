@@ -531,6 +531,24 @@ void GanttView::updateTimeWidget (GraphicsView * v)
 }
 
 
+void GanttView::gotoFrame (unsigned n)
+{
+	if (n < m_ganttData.m_frames.size())
+	{
+		float const begin = m_ganttData.m_frames[n].first;
+		float const end = m_ganttData.m_frames[n].second;
+		qDebug("frame %u <%.2f..%.2f>", n, begin, end);
+
+		
+		for (contextviews_t::iterator it = m_contextviews.begin(), ite = m_contextviews.end(); it != ite; ++it)
+		{
+			QRectF const r = (*it).m_view->mapToScene((*it).m_view->rect()).boundingRect();
+			qDebug("view: w=%f h=%f ", r.width(), r.height());
+			(*it).m_view->ensureVisible(QRectF(0, 0, 0, 0));
+		}
+	}	
+}
+
 GanttView::GanttView (Connection * conn, QWidget * parent, gantt::GanttViewConfig & config, QString const & fname)
 	: QFrame(parent)
 	, m_connection(conn)

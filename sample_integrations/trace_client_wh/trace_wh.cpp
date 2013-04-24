@@ -163,7 +163,7 @@ int main ()
 		{
 		
 			static int i	 = 0;
-			//TRACE_GANTT_FRAME_BGN(trace::e_Info, trace::CTX_Default, "aa0/g0/frame %i...", i);
+			TRACE_GANTT_FRAME_BGN(trace::e_Info, trace::CTX_Default, "aa0/g0/frame %i...", i);
 			//TRACE_GANTT_SCOPE(trace::e_Info, trace::CTX_Default, "aa0/g0/main loop[tick=%i]", i);
 	#if defined WIN32 || defined WIN64
 			Sleep(200);	
@@ -213,7 +213,7 @@ int main ()
 			TRACE_MSG(trace::e_Info, trace::CTX_Default,  "grr286 i=%u ", i);
 		
 			//TRACE_GANTT_END(trace::e_Info, trace::CTX_Default, "aa0/g0/end", i);
-			//TRACE_GANTT_FRAME_END(trace::e_Info, trace::CTX_Default, "aa0/g0/end of frame %i...", i);
+			TRACE_GANTT_FRAME_END(trace::e_Info, trace::CTX_Default, "aa0/g0/frame %i", i);
 
 			if (i==3)
 			{
