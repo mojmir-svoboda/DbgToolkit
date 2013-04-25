@@ -409,6 +409,7 @@
 #	define TRACE_SCOPE_MSG(level, context, fmt, ...)	((void)0)
 #	define TRACE_SCOPE(level, context)								((void)0)
 #	define TRACE_GANTT_BGN(fmt, ... )                     ((void)0)
+#	define TRACE_GANTT_END(fmt, ... )                     ((void)0)
 #	define TRACE_GANTT_BGN_VA(fmt, va)                    ((void)0)
 #	define TRACE_GANTT_SCOPE(fmt, ...)                    ((void)0)
 #	define TRACE_GANTT_FRAME_SCOPE(fmt, ...)              ((void)0)
