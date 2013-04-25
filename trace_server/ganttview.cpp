@@ -542,9 +542,10 @@ void GanttView::gotoFrame (unsigned n)
 		
 		for (contextviews_t::iterator it = m_contextviews.begin(), ite = m_contextviews.end(); it != ite; ++it)
 		{
-			QRectF const r = (*it).m_view->mapToScene((*it).m_view->rect()).boundingRect();
+			int const margin = 2;
+			QRectF const r = (*it).m_view->viewport()->rect().adjusted(margin, margin, -margin, -margin);
 			qDebug("view: w=%f h=%f ", r.width(), r.height());
-			(*it).m_view->ensureVisible(QRectF(0, 0, 0, 0));
+			(*it).m_view->fitInView(QRectF(begin, 0, end, r.height()), Qt::IgnoreAspectRatio);
 		}
 	}	
 }
@@ -647,6 +648,34 @@ void GanttView::forceUpdate ()
 		(*it).m_view->viewport()->update();
 }
 
+
+void GraphicsView::fitInView (QRectF const & rect, Qt::AspectRatioMode aspectRatioMode)
+{
+    if (!scene() || rect.isNull())
+        return;
+
+    QRectF const unity = matrix().mapRect(QRectF(0, 0, 1, 1));
+    if (unity.isEmpty())
+        return;
+    scale(1 / unity.width(), m_gvcfg.m_y_scaling ? 1 / unity.height() : 1.0f);
+
+    int const margin = 2;
+    QRectF const viewRect = viewport()->rect().adjusted(margin, margin, -margin, -margin);
+    if (viewRect.isEmpty())
+        return;
+    QRectF sceneRect = matrix().mapRect(rect);
+    if (sceneRect.isEmpty())
+        return;
+    qreal xratio = viewRect.width() / sceneRect.width();
+    qreal yratio = m_gvcfg.m_y_scaling ? viewRect.height() / sceneRect.height() : 1.0f;
+
+    scale(xratio, yratio);
+    centerOn(rect.center());
+}
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
 GraphicsView::GraphicsView (GanttView & gv, GanttViewConfig & gvcfg, QWidget * parent)
 	: QGraphicsView(parent)
 	, m_gv(gv)
@@ -666,11 +695,11 @@ void GraphicsView::horizontalScroll (int n)
 /**
   * Sets the current centerpoint.  Also updates the scene's center point.
   * Unlike centerOn, which has no way of getting the floating point center
-  * back, SetCenter() stores the center point.	It also handles the special
+  * back, setCenter() stores the center point.	It also handles the special
   * sidebar case.  This function will claim the centerPoint to sceneRec ie.
   * the centerPoint must be within the sceneRec.
   */
-void GraphicsView::SetCenter (QPointF const & centerPoint)
+void GraphicsView::setCenter (QPointF const & centerPoint)
 {
 	// Get the rectangle of the visible area in scene coords
 	QRectF const visibleArea = mapToScene(rect()).boundingRect();
@@ -745,9 +774,9 @@ void GraphicsView::mouseMoveEvent (QMouseEvent * event)
 		LastPanPoint = event->pos();
 
 		QPointF const cen = mapToScene(viewport()->rect()).boundingRect().center();
-		SetCenter(cen + delta);
+		setCenter(cen + delta);
 		//Update the center ie. do the pan
-		//SetCenter(GetCenter() + delta);
+		//setCenter(GetCenter() + delta);
 		//qDebug("new center: %f %f", GetCenter().x(), GetCenter().y()); 
 	}
 	else
@@ -770,7 +799,7 @@ void GraphicsView::wheelEvent (QWheelEvent* event)
 		QPointF pointBeforeScale(mapToScene(event->pos())); // get the position of the mouse before scaling, in scene coords
 		// get the original screen centerpoint
 		//QPointF const screenCenter = GetCenter(); //m_current_center; //(visRect.center());
-		SetCenter(pointBeforeScale);
+		setCenter(pointBeforeScale);
 		QPointF const screenCenter = m_current_center; //(visRect.center());
 
 		double const scaleFactor = 1.15; // how fast we zoom
@@ -783,7 +812,7 @@ void GraphicsView::wheelEvent (QWheelEvent* event)
 		QPointF const pointAfterScale(mapToScene(event->pos())); // position after scaling, in scene coords
 		QPointF const offset = pointBeforeScale - pointAfterScale; // offset of how the screen moved
 		QPointF const newCenter = screenCenter + offset; // adjust to the new center for correct zooming
-		SetCenter(newCenter);
+		setCenter(newCenter);
 
 		m_gv.updateTimeWidget(this);
 	}
@@ -796,7 +825,7 @@ void GraphicsView::wheelEvent (QWheelEvent* event)
 void GraphicsView::resizeEvent (QResizeEvent * event)
 {
 	QRectF const visibleArea = mapToScene(rect()).boundingRect();//Get the rectangle of the visible area in scene coords
-	SetCenter(visibleArea.center());
+	setCenter(visibleArea.center());
 	QGraphicsView::resizeEvent(event);
 
 	//@FIXME: onAfterResizeEvent or something like that

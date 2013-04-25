@@ -32,13 +32,14 @@ namespace gantt {
 		GraphicsView (GanttView & gv, GanttViewConfig & gvcfg, QWidget* parent = NULL);
 
 		//Set the current centerpoint in the view
-		void SetCenter (QPointF const & centerPoint);
-		void ForceCenter (QPointF const & center) { m_current_center = center; }
+		void setCenter (QPointF const & centerPoint);
+		void forceCenter (QPointF const & center) { m_current_center = center; }
+		void fitInView (QRectF const & rect, Qt::AspectRatioMode aspectRatioMode);
 	 
 	protected:
 		
 		QPointF m_current_center; ///Holds the current centerpoint for the view, used for panning and zooming
-		QPointF GetCenter () { return m_current_center; }
+		QPointF getCenter () { return m_current_center; }
 	 
 		QPoint LastPanPoint;		///From panning the view
 	 
