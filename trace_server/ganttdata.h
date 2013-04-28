@@ -99,7 +99,7 @@ namespace gantt {
 		std::vector<std::pair<float, float> > m_frames;
 		std::vector<unsigned> m_critical_paths;
 		unsigned m_frame;
-		unsigned m_frame_begin;
+		unsigned long long m_frame_begin;
 		ptrframedata_t m_completed_frame_data;
 	};
 } // namespace gantt

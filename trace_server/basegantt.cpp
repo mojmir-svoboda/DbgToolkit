@@ -25,7 +25,8 @@ namespace gantt {
 		m_layout->setContentsMargins(QMargins(0, 0, 0, 0));
 		QGridLayout * grid = new QGridLayout(this);
 		grid->setContentsMargins(QMargins(0, 0, 0, 0));
-		grid->addWidget(m_layout, 0, 0);
+		grid->addWidget(m_layout, 1, 0);
+		grid->addWidget(new VerticalLabel(this), 0, 0);
 		grid->setVerticalSpacing(0);
 		grid->setHorizontalSpacing(0);
 		setLayout(grid);

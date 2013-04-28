@@ -158,8 +158,52 @@ bool Connection::handleGanttFrameEndCommand (DecodedCommand const & cmd)
 	if (!parseCommand(cmd, dd))
 		return true;
 	dd.m_type = gantt::e_GanttFrameEnd;
-	appendGantt(dd);
+
+	datagantts_t::iterator it = findOrCreateGantt(dd.m_tag);
+	DataGantt & dp = **it;
+	gantt::GanttView * gv = dp.widget().findOrCreateGanttView(dd.m_subtag);
+
+	dataframeviews_t::iterator fv_it = findOrCreateFrameView(gv->config().m_sync_group);
+
+	(*fv_it)->widget().appendFrame(dd);
+
+	gv->appendGantt(dd);
+
 	return true;
+}
+
+dataframeviews_t::iterator Connection::findOrCreateFrameView (int sync_group)
+{
+	char tmp[] = "frames";
+	QString const gantt_name = sessionState().getAppName() + "/" + tmp + "/" + tag;
+
+	dataframeviews_t::iterator it = m_dataframeviews.find(sync_group);
+	if (it == m_datagantts.end())
+	{
+		qDebug("gantt: creating gantt %s", tag.toStdString().c_str());
+		// new data gantt
+		FrameViewConfig template_config;
+		//template_config.m_tag = tag;
+
+		QString fname;
+		DataFrameView * const fv = new DataFrameView(this, template_config, fname);
+		it = m_dataframeviews.insert(tag, fv);
+		QModelIndex const item_idx = m_data_model->insertItemWithHint(gantt_name, template_config.m_show);
+
+		dp->m_wd = m_main_window->m_dock_mgr.mkDockWidget(m_main_window, &fv->widget(), template_config.m_show, gantt_name);
+		bool const visible = template_config.m_show;
+		m_data_model->setData(item_idx, QVariant(visible ? Qt::Checked : Qt::Unchecked), Qt::CheckStateRole);
+		if (m_main_window->ganttState() == e_FtrEnabled && visible)
+		{
+			//m_main_window->loadLayout(preset_name);
+			dp->onShow();
+		}
+		else
+		{
+			dp->onHide();
+		}
+	}
+	return it;
 }
 
 bool Connection::loadConfigForGantt (QString const & preset_name, gantt::GanttConfig & config, QString const & tag)

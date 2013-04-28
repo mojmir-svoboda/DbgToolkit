@@ -82,6 +82,7 @@ namespace gantt {
 		void applyConfig (GanttViewConfig & gvcfg);
 
 		void gotoFrame (unsigned n);
+		GanttViewConfig const & config () const { return m_gvcfg; }
 
 	private slots:
 		void resetView ();
@@ -101,6 +102,7 @@ namespace gantt {
 		void appendEnd (DecodedData & data);
 		void appendFrameBgn (DecodedData & data);
 		void appendFrameEnd (DecodedData & data);
+		void appendFrameEnd (DecodedData & data, unsigned long long & from, unsigned long long & to);
 		void consumeData (contextdata_t *);
 		void consumeEnd (Data * end_data);
 

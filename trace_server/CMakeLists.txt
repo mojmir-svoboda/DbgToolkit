@@ -94,6 +94,11 @@ SET(trace_server_SOURCES
 	editableheaderview.cpp
 	sparseproxy.cpp
 
+	histogram.cpp
+	frameview.cpp
+	frameviewconfig.cpp
+	syncwidgets.cpp
+
 	connection_gantt.cpp
 	ganttconfig.cpp
 	basegantt.cpp
@@ -146,6 +151,11 @@ SET(trace_server_HEADERS
 	tablemodelview.h
 	editableheaderview.h
 	sparseproxy.h
+
+	histogram.h
+	frameview.h
+	frameviewconfig.h
+	syncwidgets.h
 
 	basegantt.h
 	ganttconfig.h

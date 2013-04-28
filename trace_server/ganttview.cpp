@@ -13,6 +13,7 @@
 #include "qwt/qwt_scale_engine.h"
 #include "qwt/qwt_transform.h"
 #include "ganttitem.h"
+#include "label.h"
 #include "arrow.h"
 #include "hsv.h"
 
@@ -88,6 +89,13 @@ void GanttView::appendFrameBgn (DecodedData & dd)
 	++m_ganttData.m_frame;
 	//qDebug("--{ +++ f=%i t=%8llu  ctxi=%u  msg=%s", m_ganttData.m_frame, m_ganttData.m_frame_begin, dd.m_ctx_idx, dd.m_text.toStdString().c_str());
 	qDebug("{ FRAME %3i", m_ganttData.m_frame);
+}
+
+void GanttView::appendFrameEnd (DecodedData & dd, double & dt)
+{
+	float const scale = m_gvcfg.m_timeunits;
+	m_ganttData.m_frames.push_back(std::make_pair(m_ganttData.m_frame_begin * scale, dd.m_time * scale));
+	qDebug("} FRAME=%3i", m_ganttData.m_frame);
 }
 
 void GanttView::appendFrameEnd (DecodedData & dd)
