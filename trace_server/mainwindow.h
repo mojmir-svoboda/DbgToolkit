@@ -165,6 +165,9 @@ public:
 	Server * getServer () { return m_server; }
 	GlobalConfig const & getConfig () const { return m_config; }
 
+	DockManager const & dockManager () const { return m_dock_mgr; }
+	DockManager & dockManager () { return m_dock_mgr; }
+
 public slots:
 	void onHotkeyShowOrHide ();
 	void hide ();

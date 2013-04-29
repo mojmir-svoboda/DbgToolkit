@@ -6,6 +6,39 @@
 #include "utils_qstandarditem.h"
 #include "delegates.h"
 #include "ganttview.h"
+#include "label.h"
+#include "frameview.h"
+
+
+DataFrameView::DataFrameView (Connection * parent, FrameViewConfig & config, QString const & fname)
+	: m_parent(parent)
+	, m_wd(0)
+	, m_widget(0)
+	, m_config(config)
+	, m_fname(fname)
+{
+	qDebug("%s this=0x%08x", __FUNCTION__, this);
+	m_widget = new FrameView(parent, 0, m_config, fname);
+}
+DataFrameView::~DataFrameView ()
+{
+	qDebug("%s this=0x%08x", __FUNCTION__, this);
+	delete m_widget;
+	m_widget = 0;
+}
+void DataFrameView::onShow ()
+{
+	m_wd->show();
+	m_widget->onShow();
+}
+void DataFrameView::onHide ()
+{
+	//m_wd->hide();
+	m_widget->onHide();
+	QTimer::singleShot(0, m_wd, SLOT(hide()));
+}
+
+
 
 namespace gantt {
 
@@ -25,8 +58,7 @@ namespace gantt {
 		m_layout->setContentsMargins(QMargins(0, 0, 0, 0));
 		QGridLayout * grid = new QGridLayout(this);
 		grid->setContentsMargins(QMargins(0, 0, 0, 0));
-		grid->addWidget(m_layout, 1, 0);
-		grid->addWidget(new VerticalLabel(this), 0, 0);
+		grid->addWidget(m_layout, 0, 0);
 		grid->setVerticalSpacing(0);
 		grid->setHorizontalSpacing(0);
 		setLayout(grid);
@@ -371,6 +403,56 @@ namespace gantt {
 		if (this != source)
 			findNearestTimeRow(t);
 	}*/
+
+
+	
+
+
+
+	void BaseGantt::appendFrameEnd (DecodedData & dd)
+	{
+		gantt::GanttView * gv = findOrCreateGanttView(dd.m_subtag);
+		dataframeviews_t::iterator fv_it = findOrCreateFrameView(gv->config().m_sync_group);
+
+		unsigned long long from, to;
+		gv->appendFrameEnd(dd, from, to);
+		(*fv_it)->widget().appendFrame(from, to);
+	}
+
+	dataframeviews_t::iterator BaseGantt::findOrCreateFrameView (int sync_group)
+	{
+		char tmp[] = "frames";
+		QString const name = m_connection->sessionState().getAppName() + "/" + tmp + "/" + QString("%1").arg(sync_group);
+
+		dataframeviews_t::iterator it = m_dataframeviews.find(sync_group);
+		if (it == m_dataframeviews.end())
+		{
+			qDebug("gantt: creating frameview %i", name.toStdString().c_str());
+			// new data gantt
+			FrameViewConfig template_config;
+
+			QString fname;
+			DataFrameView * const fv = new DataFrameView(m_connection, template_config, fname);
+			it = m_dataframeviews.insert(sync_group, fv);
+			//QModelIndex const item_idx = m_data_model->insertItemWithHint(name, template_config.m_show);
+
+			fv->m_wd = m_connection->getMainWindow()->dockManager().mkDockWidget(m_connection->getMainWindow(), &fv->widget(), template_config.m_show, name);
+			bool const visible = template_config.m_show;
+			//m_data_model->setData(item_idx, QVariant(visible ? Qt::Checked : Qt::Unchecked), Qt::CheckStateRole);
+			if (m_connection->getMainWindow()->ganttState() == e_FtrEnabled && visible)
+			{
+				//m_main_window->loadLayout(preset_name);
+				fv->onShow();
+			}
+			else
+			{
+				fv->onHide();
+			}
+		}
+		return it;
+	}
+
+
 }
 
 

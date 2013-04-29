@@ -1,10 +1,12 @@
 #pragma once
 #include <QWidget>
+#include <QDockWidget>
+#include <QFrame>
 #include "config.h"
 #include "ganttconfig.h"
+#include "ganttdata.h"
 #include "ganttctxmenu.h"
-#include <QFrame>
-#include <cstdio>
+#include "frameview.h"
 
 class Connection;
 QT_FORWARD_DECLARE_CLASS(QSplitter)
@@ -12,6 +14,25 @@ QT_FORWARD_DECLARE_CLASS(QSplitter)
 namespace gantt {
 	QT_FORWARD_DECLARE_CLASS(GanttView)
 }
+
+struct DataFrameView {
+	Connection * m_parent;
+	QDockWidget * m_wd;
+	FrameView * m_widget;
+	FrameViewConfig m_config;
+	QString m_fname;
+
+	DataFrameView (Connection * parent, FrameViewConfig & config, QString const & fname);
+	~DataFrameView ();
+
+	void onShow ();
+	void onHide ();
+	FrameView & widget () { return *m_widget; }
+};
+
+typedef QMap<int, DataFrameView *> dataframeviews_t;
+
+
 
 namespace gantt {
 
@@ -32,7 +53,11 @@ namespace gantt {
 		GanttView * findOrCreateGanttView (QString const & subtag);
 		ganttviews_t::iterator mkGanttView (QString const & subtag);
 
+		dataframeviews_t::iterator findOrCreateFrameView (int sync_group);
+
+
 		//void appendGantt (QString const & time, QString const & tid, QString const & fgc, QString const & bgc, QString const & msg);
+		void appendFrameEnd (DecodedData & data);
 
 		//void findNearestTimeRow (unsigned long long t);
 		//void requestWheelEventSync (QWheelEvent * ev, QGanttView const * source);
@@ -78,6 +103,7 @@ namespace gantt {
 		QSplitter * m_layout;
 		ganttviews_t m_ganttviews;
 		QVector<QString> m_subtags;
+		dataframeviews_t m_dataframeviews;
 	};
 }
 

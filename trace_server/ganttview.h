@@ -96,6 +96,7 @@ namespace gantt {
 		void zoomOut ();
 		
 	private:
+		friend class BaseGantt;
 
 		void initColors ();
 		void appendBgn (DecodedData & data);

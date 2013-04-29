@@ -91,7 +91,7 @@ void GanttView::appendFrameBgn (DecodedData & dd)
 	qDebug("{ FRAME %3i", m_ganttData.m_frame);
 }
 
-void GanttView::appendFrameEnd (DecodedData & dd, double & dt)
+void GanttView::appendFrameEnd (DecodedData & dd, unsigned long long & from, unsigned long long & to)
 {
 	float const scale = m_gvcfg.m_timeunits;
 	m_ganttData.m_frames.push_back(std::make_pair(m_ganttData.m_frame_begin * scale, dd.m_time * scale));
@@ -577,7 +577,16 @@ GanttView::GanttView (Connection * conn, QWidget * parent, gantt::GanttViewConfi
 	m_layout->setContentsMargins(QMargins(0, 0, 0, 0));
 	QGridLayout * grid = new QGridLayout(this);
 	grid->setContentsMargins(QMargins(0, 0, 0, 0));
-	grid->addWidget(m_layout, 0, 0);
+
+	VerticalLabel * label = new VerticalLabel(this);
+	label->setText(m_gvcfg.m_tag);
+	//label->setAlignment(Qt::Align);
+	//grid->addWidget(label, 0, 0);
+	//grid->addWidget(label, 0, 0, -1, -1, Qt::AlignCenter);
+	//grid->addWidget(label, 0, 0, 3, 1, Qt::AlignCenter);
+	grid->addWidget(label, 0, 0, 3, 1);
+
+	grid->addWidget(m_layout, 0, 1);
 	grid->setVerticalSpacing(0);
 	grid->setHorizontalSpacing(0);
 

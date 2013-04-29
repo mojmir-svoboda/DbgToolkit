@@ -38,7 +38,6 @@
 #include "basegantt.h"
 #include "ganttdata.h"
 #include "treeview.h"
-#include "frameview.h"
 
 class Server;
 class QFile;
@@ -106,24 +105,6 @@ struct DataGantt {
 };
 
 typedef QMap<QString, DataGantt *> datagantts_t;
-
-struct DataFrameView {
-	Connection * m_parent;
-	QDockWidget * m_wd;
-	FrameView * m_widget;
-	FrameViewConfig m_config;
-	QString m_fname;
-
-	DataFrameView (Connection * parent, FrameViewConfig & config, QString const & fname);
-	~DataFrameView ();
-
-	void onShow ();
-	void onHide ();
-	FrameView & widget () { return *m_widget; }
-};
-
-typedef QMap<int, DataFrameView *> dataframeviews_t;
-
 
 /**@class		Connection
  * @brief		represents incoming connection (or file stream)
@@ -300,8 +281,6 @@ private:
 	datagantts_t::iterator findOrCreateGantt (QString const & tag);
 	void appendGantt (gantt::DecodedData &);
 
-	dataframeviews_t::iterator findOrCreateFrameView (int sync_group);
-
 	bool appendToFilters (DecodedCommand const & cmd);
 	void appendToTIDFilters (QString const & item);
 	void clearFilters (QStandardItem * node);
@@ -382,7 +361,6 @@ private:
 	dataplots_t m_dataplots;
 	datatables_t m_datatables;
 	datagantts_t m_datagantts;
-	dataframeviews_t m_dataframeviews;
 	TreeModel * m_data_model;
 };
 

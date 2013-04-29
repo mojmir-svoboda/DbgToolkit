@@ -24,6 +24,7 @@ namespace gantt {
 
 		GanttViewConfig ()
 			: m_strtimeunits(QString("ms"))
+			, m_sync_group(0)
 			, m_fgcolor(Qt::yellow)
 			, m_bgcolor(Qt::black)
 			, m_symbolcolor(Qt::red)
