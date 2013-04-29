@@ -271,7 +271,7 @@ void GanttView::consumeEnd (Data * end_data)
 				qreal y = (offs) * (h + space)  + d.m_layer * (h + space);
 				d.m_x = x;
 				d.m_y = y;
-				qDebug("+++ f=%2u ci=%2u di=%2u  %s  (x=%6.1f y=%6.1f w=%4i h=%4i dt=%3.1f) col=%s", d.m_frame, ci, di, d.m_tag.toStdString().c_str(), x, y, w, h, d.m_dt, d.m_color.name().toStdString().c_str());
+				//qDebug("+++ f=%2u ci=%2u di=%2u  %s  (x=%6.1f y=%6.1f w=%4i h=%4i dt=%3.1f) col=%s", d.m_frame, ci, di, d.m_tag.toStdString().c_str(), x, y, w, h, d.m_dt, d.m_color.name().toStdString().c_str());
 
 				if (y > max_y)
 					max_y = y;

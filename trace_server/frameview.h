@@ -20,9 +20,19 @@ struct BarPlot : QwtPlotBarChart
 
 struct FrameView : QwtPlot
 {
+	Q_OBJECT
+public:
+
 	FrameView (Connection * oparent, QWidget * wparent, FrameViewConfig & cfg, QString const & fname);
 
 	void appendFrame (unsigned long long from, unsigned long long to);
+
+public slots:
+
+	void selected (QRectF const & r);
+	void selected (QVector<QPointF> const & pa);
+	void selected (QPointF const & pos);
+	void appended (QPointF const & pos);
 
 	void onShow ();
 	void onHide ();

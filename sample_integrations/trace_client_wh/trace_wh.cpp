@@ -3,6 +3,7 @@
 #include "folder/some_header.h"
 
 #include <cstdio>
+#include <cstdlib>
 #include "thrpool.h"
 
 
@@ -211,11 +212,13 @@ int main ()
 			//TRACE_MSG(trace::e_Info, trace::CTX_Default,  "grr285 i=%u ", i);
 			TRACE_MSG(trace::e_Info, trace::CTX_Default,  "grr286 i=%u ", i);
 			TRACE_MSG(trace::e_Info, trace::CTX_Default,  "grr286 i=%u ", i);
+
+			Sleep ((rand() % 256));
 		
 			//TRACE_GANTT_END(trace::e_Info, trace::CTX_Default, "aa0/g0/end", i);
 			TRACE_GANTT_FRAME_END(trace::e_Info, trace::CTX_Default, "aa0/g0/frame %i", i);
 
-			if (i==3)
+			if (i==5)
 			{
 				TRACE_PLOT_CLEAR(trace::e_Info, trace::CTX_Default, "sample_plot%i/%s", 0, "sin");
 				TRACE_TABLE_CLEAR(trace::e_Info, trace::CTX_Default, "aa0");	
