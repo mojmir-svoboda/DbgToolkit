@@ -94,6 +94,8 @@ void GanttView::appendFrameBgn (DecodedData & dd)
 void GanttView::appendFrameEnd (DecodedData & dd, unsigned long long & from, unsigned long long & to)
 {
 	float const scale = m_gvcfg.m_timeunits;
+	from = m_ganttData.m_frame_begin * scale;
+	to = dd.m_time * scale;
 	m_ganttData.m_frames.push_back(std::make_pair(m_ganttData.m_frame_begin * scale, dd.m_time * scale));
 	qDebug("} FRAME=%3i", m_ganttData.m_frame);
 }

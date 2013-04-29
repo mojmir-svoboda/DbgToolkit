@@ -1,23 +1,28 @@
 #pragma once
 #include <QFrame>
+#include "qwt/qwt_plot.h"
 #include "qwt/qwt_plot_barchart.h"
 #include "frameviewconfig.h"
 
 class Connection;
 
-struct FrameView : QFrame, QwtPlotBarChart
+struct BarPlot : QwtPlotBarChart
+{
+	BarPlot ();
+
+    virtual QwtColumnSymbol * specialSymbol (int index, QPointF const &) const;
+	virtual QwtText barTitle (int idx) const;
+
+	QVector<double> m_values;
+	std::vector<QString> m_strvalues;
+	std::vector<QColor> m_colors;
+};
+
+struct FrameView : QwtPlot
 {
 	FrameView (Connection * oparent, QWidget * wparent, FrameViewConfig & cfg, QString const & fname);
 
 	void appendFrame (unsigned long long from, unsigned long long to);
-
-	virtual QwtText barTitle (int idx) const
-	{
-		QwtText title;
-		if (idx >= 0 && idx < m_strvalues.size())
-			title = m_strvalues[idx];
-		return title;
-	}
 
 	void onShow ();
 	void onHide ();
@@ -26,8 +31,6 @@ struct FrameView : QFrame, QwtPlotBarChart
 
 public:
 
-	QVector<double> m_values;
-	std::vector<QString> m_strvalues;
-	std::vector<QColor> m_colors;
+	BarPlot * m_bars;
 };
 
