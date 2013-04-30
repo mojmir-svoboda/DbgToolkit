@@ -9,22 +9,58 @@
 		QString m_tag;
 		QString m_title;
 		QList<FrameViewConfig> m_gvcfg;
-		int m_timer_delay_ms;
-		int m_history_ln;
+		float m_begin;
+		float m_end;
+		float m_val1;
+		float m_val2;
+		float m_val3;
+		float m_val4;
+		QColor m_color1;
+		QColor m_color2;
+		QColor m_color3;
+		QColor m_color4;
 		bool m_show;
+		bool m_on1;
+		bool m_on2;
+		bool m_on3;
+		bool m_on4;
 
 		FrameViewConfig ()
 			: m_tag()
-			, m_timer_delay_ms(50)
-			, m_history_ln(2048)
+			, m_begin(0)
+			, m_end(30)
+			, m_val1(0.0f)
+			, m_val2(0.5f)
+			, m_val3(0.75f)
+			, m_val4(0.95f)
+			, m_color1(Qt::black)
+			, m_color2(Qt::green)
+			, m_color3(Qt::yellow)
+			, m_color4(Qt::red)
 			, m_show(true)
+			, m_on1(true)
+			, m_on2(true)
+			, m_on3(true)
+			, m_on4(true)
 		{ }
 
 		FrameViewConfig (QString const & tag)
 			: m_tag(tag)
-			, m_timer_delay_ms(50)
-			, m_history_ln(2048)
+			, m_begin(0)
+			, m_end(30)
+			, m_val1(0.0f)
+			, m_val2(0.5f)
+			, m_val3(0.75f)
+			, m_val4(0.95f)
+			, m_color1(Qt::black)
+			, m_color2(Qt::green)
+			, m_color3(Qt::yellow)
+			, m_color4(Qt::red)
 			, m_show(true)
+			, m_on1(true)
+			, m_on2(true)
+			, m_on3(true)
+			, m_on4(true)
 		{ }
 
 		template <class ArchiveT>
@@ -32,21 +68,19 @@
 		{
 			ar & boost::serialization::make_nvp("tag", m_tag);
 			ar & boost::serialization::make_nvp("title", m_title);
-			ar & boost::serialization::make_nvp("gfcfg", m_gvcfg);
-			ar & boost::serialization::make_nvp("timer", m_timer_delay_ms);
-			ar & boost::serialization::make_nvp("length", m_history_ln);
+			ar & boost::serialization::make_nvp("val1", m_val1);
+			ar & boost::serialization::make_nvp("val2", m_val2);
+			ar & boost::serialization::make_nvp("val3", m_val3);
+			ar & boost::serialization::make_nvp("val4", m_val4);
+			ar & boost::serialization::make_nvp("color1", m_color1);
+			ar & boost::serialization::make_nvp("color2", m_color2);
+			ar & boost::serialization::make_nvp("color3", m_color3);
+			ar & boost::serialization::make_nvp("color4", m_color4);
 			ar & boost::serialization::make_nvp("show", m_show);
-		}
-
-		bool findFrameViewConfig (QString const & tag, FrameViewConfig const * & ccfg)
-		{
-			for (int i = 0, ie = m_gvcfg.size(); i < ie; ++i)
-				if (m_gvcfg.at(i).m_tag == tag)
-				{
-					ccfg = &m_gvcfg.at(i);
-					return true;
-				}
-			return false;
+			ar & boost::serialization::make_nvp("on1", m_on1);
+			ar & boost::serialization::make_nvp("on2", m_on2);
+			ar & boost::serialization::make_nvp("on3", m_on3);
+			ar & boost::serialization::make_nvp("on4", m_on4);
 		}
 	};
 

@@ -172,6 +172,7 @@ SET(trace_server_UI
 	settingsplot.ui
 	settingstable.ui
 	settingsgantt.ui
+	settingsframeview.ui
 	help.ui
 	profilermainwindow.ui
 	)

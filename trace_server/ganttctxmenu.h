@@ -23,15 +23,12 @@ namespace gantt {
 			, m_ui(new Ui::SettingsGantt)
 			, m_widget(new QDockWidget(parent))
 		{
-			qDebug("%s this=0x%08x", __FUNCTION__, this);
 			m_widget->setVisible(false);
 			m_ui->setupUi(m_widget);
 		}
 
 		~CtxGanttConfig ()
 		{
-			qDebug("%s this=0x%08x", __FUNCTION__, this);
-
 			m_widget->setVisible(false);
 			delete m_ui;
 			m_ui = 0;
@@ -42,7 +39,6 @@ namespace gantt {
 		void onShowContextMenu (QPoint const & pos)
 		{
 			bool const visible = m_widget->isVisible();
-			qDebug("%s visible=%u", __FUNCTION__, visible);
 			m_widget->setVisible(!visible);
 
 			if (m_widget->isVisible())
@@ -51,7 +47,6 @@ namespace gantt {
 
 		void onHideContextMenu ()
 		{
-			qDebug("%s", __FUNCTION__);
 			m_widget->setVisible(false);
 		}
 

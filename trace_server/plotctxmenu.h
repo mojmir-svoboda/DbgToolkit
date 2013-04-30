@@ -27,7 +27,6 @@ namespace plot {
 			, m_curve_color(new QtColorPicker(parent))
 			, m_symbol_color(new QtColorPicker(parent))
 		{
-			qDebug("%s this=0x%08x", __FUNCTION__, this);
 			m_settingsplot->setVisible(false);
 			ui_settingsplot->setupUi(m_settingsplot);
 			ui_settingsplot->curveColorLayout->addWidget(m_curve_color);
@@ -47,8 +46,6 @@ namespace plot {
 
 		~CtxPlotConfig ()
 		{
-			qDebug("%s this=0x%08x", __FUNCTION__, this);
-
 			m_settingsplot->setVisible(false);
 			delete ui_settingsplot;
 			ui_settingsplot = 0;
@@ -58,7 +55,6 @@ namespace plot {
 
 		void onShowPlotContextMenu (QPoint const & pos)
 		{
-			qDebug("%s", __FUNCTION__);
 			bool const visible = m_settingsplot->isVisible();
 			m_settingsplot->setVisible(!visible);
 
@@ -68,7 +64,6 @@ namespace plot {
 
 		void onHidePlotContextMenu ()
 		{
-			qDebug("%s", __FUNCTION__);
 			m_settingsplot->setVisible(false);
 		}
 

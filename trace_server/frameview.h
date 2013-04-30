@@ -3,6 +3,7 @@
 #include "qwt/qwt_plot.h"
 #include "qwt/qwt_plot_barchart.h"
 #include "frameviewconfig.h"
+#include "frameviewctxmenu.h"
 
 class Connection;
 
@@ -36,11 +37,20 @@ public slots:
 
 	void onShow ();
 	void onHide ();
-	//void onHideContextMenu ();
-	//void onShowContextMenu (QPoint const & pos);
+	void onHideContextMenu ();
+	void onShowContextMenu (QPoint const & pos);
+	void setConfigValuesToUI (FrameViewConfig const & cfg);
+	void setUIValuesToConfig (FrameViewConfig & cfg);
+	void applyConfig (FrameViewConfig & cfg);
+	void onApplyButton ();
+	void onSaveButton ();
+	void onResetViewButton ();
+	void onDefaultButton ();
 
 public:
 
 	BarPlot * m_bars;
+	FrameViewConfig & m_config;
+	frameview::CtxFrameViewConfig m_config_ui;
 };
 

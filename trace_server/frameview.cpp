@@ -43,6 +43,8 @@ QwtText BarPlot::barTitle (int idx) const
 
 FrameView::FrameView (Connection * oparent, QWidget * wparent, FrameViewConfig & cfg, QString const & fname)
 	: m_bars(0)
+	, m_config(cfg)
+	, m_config_ui(cfg, this)
 {
 
 	setContextMenuPolicy(Qt::CustomContextMenu);
@@ -98,16 +100,16 @@ void FrameView::selected (QRectF const & r)
 
 void FrameView::selected (QVector<QPointF> const & pa)
 {
-	qDebug("selected: pts");
+	qDebug("selected vector of pts");
 }
 
 void FrameView::selected (QPointF const & pa)
 {
-	qDebug("selected: pts");
+	qDebug("selected 1 pt");
 }
 void FrameView::appended (QPointF const & pa)
 {
-	qDebug("selected: pts");
+	qDebug("appended 1 pt");
 }
 
 
@@ -129,6 +131,9 @@ void FrameView::appendFrame (unsigned long long from, unsigned long long to)
 {
 	qDebug("frame: dt=%f", to - from);
 
+
+	//QFontMetrics fm(myFont);
+	//int width=fm.width(str);
 	QwtInterval interval(0.0f, 500.0f);
 	QwtLinearColorMap colormap(Qt::darkCyan, Qt::red);
 	colormap.addColorStop(0.1, Qt::cyan);
@@ -155,5 +160,99 @@ void FrameView::onHide ()
 {
 	m_bars->hide();
 }
+
+void FrameView::onHideContextMenu ()
+{
+	m_config_ui.onHideContextMenu();
+}
+
+void FrameView::onShowContextMenu (QPoint const & pos)
+{
+	qDebug("%s this=0x%08x", __FUNCTION__, this);
+	QRect widgetRect = geometry();
+	m_config_ui.onShowContextMenu(QCursor::pos());
+	Ui::SettingsFrameView * ui = m_config_ui.ui();
+
+	setConfigValuesToUI(m_config);
+
+	connect(ui->applyButton, SIGNAL(clicked()), this, SLOT(onApplyButton()));
+	connect(ui->clearDataButton, SIGNAL(clicked()), this, SLOT(onClearAllDataButton()));
+	connect(ui->saveButton, SIGNAL(clicked()), this, SLOT(onSaveButton()));
+	connect(ui->resetButton, SIGNAL(clicked()), this, SLOT(onResetViewButton()));
+	//connect(ui->defaultButton, SIGNAL(clicked()), this, SLOT(onDefaultButton()));
+}
+
+void FrameView::setConfigValuesToUI (FrameViewConfig const & cfg)
+{
+	//qDebug("%s this=0x%08x", __FUNCTION__, this);
+	Ui::SettingsFrameView * ui = m_config_ui.ui();
+	
+	ui->showCheckBox->blockSignals(true);
+	ui->showCheckBox->setCheckState(cfg.m_show ? Qt::Checked : Qt::Unchecked);
+	ui->showCheckBox->blockSignals(false);
+
+	double sum = 0.0f;
+	for (int i = 0, ie = m_bars->m_values.size(); i < ie; ++i)
+	{
+		sum += m_bars->m_values[i];
+	}
+	sum /= m_bars->m_values.size();
+
+	ui->beginSpinBox->setValue(0.0f);
+	ui->endSpinBox->setValue(sum);
+
+	ui->color1Button->setCurrentColor(cfg.m_color1);
+	ui->color2Button->setCurrentColor(cfg.m_color2);
+	ui->color3Button->setCurrentColor(cfg.m_color3);
+	ui->color4Button->setCurrentColor(cfg.m_color4);
+
+	ui->color1CheckBox->setChecked(cfg.m_on1);
+	ui->color2CheckBox->setChecked(cfg.m_on2);
+	ui->color3CheckBox->setChecked(cfg.m_on3);
+	ui->color4CheckBox->setChecked(cfg.m_on4);
+
+	ui->color1SpinBox->setValue(cfg.m_val1);
+	ui->color2SpinBox->setValue(cfg.m_val2);
+	ui->color3SpinBox->setValue(cfg.m_val3);
+	ui->color4SpinBox->setValue(cfg.m_val4);
+}
+
+void FrameView::setUIValuesToConfig (FrameViewConfig & cfg)
+{
+	//qDebug("%s this=0x%08x", __FUNCTION__, this);
+	Ui::SettingsFrameView * ui = m_config_ui.ui();
+
+	m_config.m_show = ui->showCheckBox->checkState() == Qt::Checked;
+}
+
+void FrameView::onApplyButton ()
+{
+	setUIValuesToConfig(m_config);
+	applyConfig(m_config);
+}
+
+void FrameView::applyConfig (FrameViewConfig & cfg)
+{
+	//qDebug("%s this=0x%08x", __FUNCTION__, this);
+	Ui::SettingsFrameView * ui = m_config_ui.ui();
+}
+
+void FrameView::onSaveButton ()
+{
+	//m_connection->saveConfigForFrameView(m_config, m_config.m_tag);
+}
+
+void FrameView::onResetViewButton ()
+{
+	setAxisAutoScale(QwtPlot::yLeft, true);
+	setAxisAutoScale(QwtPlot::xBottom, true);
+}
+void FrameView::onDefaultButton ()
+{
+	FrameViewConfig defaults;
+	//defaults.partialLoadFrom(m_config);
+	setConfigValuesToUI(defaults);
+}
+
 
 

@@ -100,7 +100,8 @@ FORMS    += mainwindow.ui \
     profilermainwindow.ui \
     settingsplot.ui \
     settingstable.ui \
-    settingsgantt.ui
+    settingsgantt.ui \
+    settingsframeview.ui
 
 RESOURCES += \
     resources.qrc
