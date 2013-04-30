@@ -13,6 +13,7 @@
 #include "utils.h"
 #include "delegates.h"
 #include "tableview.h"
+#include "utils_qstandarditem.h"
 
 void Server::onClearCurrentView ()
 {
@@ -90,6 +91,52 @@ void Server::onApplyColumnSetup ()
 	foreach (connections_t::value_type item, m_connections)
 	{
 		item.second->onApplyColumnSetup();
+	}
+}
+
+void Server::onSelectAllLevels ()
+{
+}
+void Server::onSelectNoLevels ()
+{
+}
+void Server::onSelectAllCtxs ()
+{
+	MainWindow * main_window = static_cast<MainWindow *>(parent());
+	QStandardItemModel * model = static_cast<QStandardItemModel *>(main_window->getWidgetCtx()->model());
+
+	QStandardItem * root = model->invisibleRootItem();
+	QList<QStandardItem *> l = listChildren(root);
+
+	if (Connection * conn = findCurrentConnection())
+	{
+		for (int i = 0, ie = l.size(); i < ie; ++i)
+		{
+			l.at(i)->setCheckState(Qt::Checked);
+			QString const & ctx = model->data(l.at(i)->index(), Qt::DisplayRole).toString();
+			conn->sessionState().addCtxFilter(ctx);
+		}
+		conn->onInvalidateFilter();
+	}
+}
+
+void Server::onSelectNoCtxs ()
+{
+	MainWindow * main_window = static_cast<MainWindow *>(parent());
+	QStandardItemModel * model = static_cast<QStandardItemModel *>(main_window->getWidgetCtx()->model());
+
+	QStandardItem * root = model->invisibleRootItem();
+	QList<QStandardItem *> l = listChildren(root);
+
+	if (Connection * conn = findCurrentConnection())
+	{
+		for (int i = 0, ie = l.size(); i < ie; ++i)
+		{
+			l.at(i)->setCheckState(Qt::Unchecked);
+			QString const & ctx = model->data(l.at(i)->index(), Qt::DisplayRole).toString();
+			conn->sessionState().removeCtxFilter(ctx);
+		}
+		conn->onInvalidateFilter();
 	}
 }
 

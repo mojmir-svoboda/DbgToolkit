@@ -183,6 +183,8 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QStri
 	getWidgetCtx()->setEditTriggers(QAbstractItemView::NoEditTriggers);
 	connect(getWidgetCtx(), SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtCtxTree(QModelIndex)));
 	connect(getWidgetCtx(), SIGNAL(doubleClicked(QModelIndex)), m_server, SLOT(onDoubleClickedAtCtxTree(QModelIndex)));
+	connect(ui->allCtxButton, SIGNAL(clicked()), m_server, SLOT(onSelectAllCtxs()));
+	connect(ui->noCtxButton, SIGNAL(clicked()), m_server, SLOT(onSelectNoCtxs()));
 	getWidgetCtx()->header()->hide();
 
 	getWidgetTID()->setEditTriggers(QAbstractItemView::NoEditTriggers);
@@ -194,6 +196,8 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QStri
 	getWidgetLvl()->setEditTriggers(QAbstractItemView::NoEditTriggers);
 	connect(getWidgetLvl(), SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtLvlList(QModelIndex)));
 	connect(getWidgetLvl(), SIGNAL(doubleClicked(QModelIndex)), m_server, SLOT(onDoubleClickedAtLvlList(QModelIndex)));
+	connect(ui->allLevelButton, SIGNAL(clicked()), m_server, SLOT(onSelectAllLevels()));
+	connect(ui->noLevelButton, SIGNAL(clicked()), m_server, SLOT(onSelectNoLevels()));
 	getWidgetLvl()->header()->hide();
 
 	connect(ui->dtToolButton, SIGNAL(clicked()), this, SLOT(ondtToolButton()));

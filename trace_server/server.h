@@ -95,6 +95,11 @@ public slots:
 	void onClearCurrentRefTime ();
 	void onApplyColumnSetup ();
 
+	void onSelectAllLevels ();
+	void onSelectNoLevels ();
+	void onSelectAllCtxs ();
+	void onSelectNoCtxs ();
+
 	void onShowPlots ();
 	void onClickedAtDockedWidgets (QModelIndex idx);
 	void onHidePlots ();

@@ -34,6 +34,8 @@ void BarTextItem::paint (QPainter * painter, QStyleOptionGraphicsItem const * op
 {
 	Q_UNUSED(widget);
 
+	painter->setClipRect( option->exposedRect );
+
 
 	BarItem const * b = static_cast<BarItem const *>(parentItem());
 	qreal const lod = b ? b->lod() : 1.0f;
@@ -109,6 +111,9 @@ QPainterPath BarItem::shape () const
 
 void BarItem::paint (QPainter * painter, QStyleOptionGraphicsItem const * option, QWidget * widget)
 {
+	// @NOTE: should have positive impact on performace
+	painter->setClipRect(option->exposedRect);
+
 	QColor fillColor = (option->state & QStyle::State_Selected) ? m_color.dark(150) : m_color;
 	if (option->state & QStyle::State_MouseOver)
 	{

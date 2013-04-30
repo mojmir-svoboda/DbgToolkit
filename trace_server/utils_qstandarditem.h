@@ -38,6 +38,29 @@ inline QStandardItem * findChildByText (QStandardItem * parent, QString const & 
 	return 0;
 }
 
+QList<QStandardItem *> listChildren (QStandardItem * item)
+{
+	QStandardItemModel * model = item->model();
+	QList<QStandardItem *> children;
+	QModelIndex const idx = item->index();
+	//if (!idx.isValid()) @FIXME: BUT not root
+	//	return children;
+
+	if (item->rowCount() == 0)
+	{
+		return children;
+	}
+
+	for (int r = 0; r < item->rowCount(); ++r)
+	{
+		QModelIndex const si = model->index(r, 0, idx);
+		QStandardItem * child = model->itemFromIndex(si);
+		if (child)
+			children.push_back(child);
+	}
+	return children;
+}
+
 inline QList<QStandardItem *> addRow (QString const & str, bool checked )
 {
 	QList<QStandardItem *> row_items;
