@@ -132,8 +132,6 @@ void FrameView::appendFrame (unsigned long long from, unsigned long long to)
 	qDebug("frame: dt=%f", to - from);
 
 
-	//QFontMetrics fm(myFont);
-	//int width=fm.width(str);
 	QwtInterval interval(0.0f, 500.0f);
 	QwtLinearColorMap colormap(Qt::darkCyan, Qt::red);
 	colormap.addColorStop(0.1, Qt::cyan);
