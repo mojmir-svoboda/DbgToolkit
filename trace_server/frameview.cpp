@@ -107,7 +107,8 @@ FrameView::FrameView (Connection * oparent, QWidget * wparent, FrameViewConfig &
 	QwtPlotPicker * picker = new QwtPlotPicker(QwtPlot::xBottom, QwtPlot::yLeft,
 										QwtPlotPicker::CrossRubberBand, QwtPicker::AlwaysOn,
 										canvas());
-	picker->setStateMachine(new QwtPickerDragPointMachine());
+	//picker->setStateMachine(new QwtPickerDragPointMachine());
+	picker->setStateMachine(new QwtPickerClickPointMachine());
 	picker->setRubberBandPen(QColor(Qt::green));
 	picker->setRubberBand(QwtPicker::CrossRubberBand);
 	picker->setTrackerPen(QColor(Qt::white));
@@ -126,7 +127,11 @@ FrameView::FrameView (Connection * oparent, QWidget * wparent, FrameViewConfig &
     connect(&getSyncWidgets(), SIGNAL( requestTimeSynchronization(int, unsigned long long, void *) ),
 						 this, SLOT( performTimeSynchronization(int, unsigned long long, void *) ));
     connect(this, SIGNAL( requestTimeSynchronization(int, unsigned long long, void *) ),
-						 &getSyncWidgets(), SLOT( requestTimeSynchronization(int, unsigned long long, void *) ));
+						 &getSyncWidgets(), SLOT( performTimeSynchronization(int, unsigned long long, void *) ));
+    connect(&getSyncWidgets(), SIGNAL( requestFrameSynchronization(int, unsigned long long, void *) ),
+						 this, SLOT( performFrameSynchronization(int, unsigned long long, void *) ));
+    connect(this, SIGNAL( requestFrameSynchronization(int, unsigned long long, void *) ),
+						 &getSyncWidgets(), SLOT( performFrameSynchronization(int, unsigned long long, void *) ));
 }
 
 void FrameView::selected (QRectF const & r)
@@ -153,18 +158,23 @@ void FrameView::appended (QPointF const & pa)
 
 	if (index >= 0 && index < m_bars->m_values.size())
 	{
-		qDebug("clicked at frame=%i bgn=%s", index, m_bars->m_strvalues[index].toStdString().c_str());
+		qDebug("clicked at frame=%i label=%s", index, m_bars->m_strvalues[index].toStdString().c_str());
+		//unsigned long long n =  m_bars->m_begins[index];
+		//emit requestTimeSynchronization(m_config.m_sync_group, n, this);
+		emit requestFrameSynchronization(m_config.m_sync_group, index, this);
 	}
-	emit requestFrameSynchronization(m_config.m_sync_group, index, this);
 }
 
 
 void FrameView::performTimeSynchronization (int sync_group, unsigned long long time, void * source)
 {
+	qDebug("%s syncgrp=%i time=%i", __FUNCTION__, sync_group, time);
+	// center on index
 }
 
 void FrameView::performFrameSynchronization (int sync_group, unsigned long long frame, void * source)
 {
+	qDebug("%s syncgrp=%i frame=%i", __FUNCTION__, sync_group, frame);
 }
 
 /*void Histogram::setValues (uint numValues, double const * values)
@@ -196,8 +206,10 @@ void FrameView::appendFrame (unsigned long long from, unsigned long long to)
 	QColor const c = colormap.color(interval, to - from);
 
 	m_bars->m_values.push_back(to - from);
-	m_bars->m_strvalues.push_back(QString("aa=%1").arg(from));
+	m_bars->m_begins.push_back(from);
+	m_bars->m_ends.push_back(to);
 	m_bars->m_colors.push_back(c);
+	m_bars->m_strvalues.push_back(QString("%1").arg(m_bars->m_values.size()));
 
 	m_bars->setSamples(m_bars->m_values);
 

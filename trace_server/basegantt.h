@@ -97,6 +97,10 @@ namespace gantt {
 		void performTimeSynchronization (int sync_group, unsigned long long time, void * source);
 		void performFrameSynchronization (int sync_group, unsigned long long frame, void * source);
 
+	signals:
+		void requestTimeSynchronization (int sync_group, unsigned long long time, void * source);
+		void requestFrameSynchronization (int sync_group, unsigned long long frame, void * source);
+
 	protected:
 		GanttConfig & m_config;
 		gantt::CtxGanttConfig m_config_ui;

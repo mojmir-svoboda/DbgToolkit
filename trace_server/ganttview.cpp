@@ -153,8 +153,7 @@ void GanttView::appendBgn (DecodedData & dd)
 	d.m_layer = m_ganttData.m_pending_data[dd.m_ctx_idx].size() - 1;
 	d.m_frame = m_ganttData.m_frame;
 	d.m_parent = prev;
-
-	qDebug("{ f=%i t=%8llu  ctxi=%u  tag='%s'  ['%s']", d.m_frame, d.m_time_bgn, d.m_ctx_idx, d.m_tag.toStdString().c_str(), d.m_msg.toStdString().c_str());
+	//qDebug("{ f=%i t=%8llu  ctxi=%u  tag='%s'  ['%s']", d.m_frame, d.m_time_bgn, d.m_ctx_idx, d.m_tag.toStdString().c_str(), d.m_msg.toStdString().c_str());
 }
 
 void GanttView::appendEnd (DecodedData & dd)
@@ -175,9 +174,7 @@ void GanttView::appendEnd (DecodedData & dd)
 		//qDebug("end flushing f=%i", d->m_frame);
 		//consumeData(m_ganttData.m_completed_frame_data[d->m_frame]);
 		consumeEnd(d);
-
-
-		qDebug("} f=%i t=%8llu  ctxi=%u  tag='%s' ['%s']", d->m_frame, d->m_time_bgn, d->m_ctx_idx, d->m_tag.toStdString().c_str(), d->m_msg.toStdString().c_str());
+		//qDebug("} f=%i t=%8llu  ctxi=%u  tag='%s' ['%s']", d->m_frame, d->m_time_bgn, d->m_ctx_idx, d->m_tag.toStdString().c_str(), d->m_msg.toStdString().c_str());
 	}
 	else
 		qWarning("Mismatched end! tag='%s' subtag='%s' text='%s'", dd.m_tag.toStdString().c_str(), dd.m_subtag.toStdString().c_str(), dd.m_text.toStdString().c_str());
@@ -543,6 +540,7 @@ void GanttView::updateTimeWidget (GraphicsView * v)
 
 void GanttView::gotoFrame (unsigned n)
 {
+	qDebug("%s n=%i", __FUNCTION__, n);
 	if (n < m_ganttData.m_frames.size())
 	{
 		float const begin = m_ganttData.m_frames[n].first;

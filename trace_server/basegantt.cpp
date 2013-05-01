@@ -8,6 +8,7 @@
 #include "ganttview.h"
 #include "label.h"
 #include "frameview.h"
+#include "syncwidgets.h"
 
 
 DataFrameView::DataFrameView (Connection * parent, FrameViewConfig & config, QString const & fname)
@@ -72,7 +73,11 @@ namespace gantt {
 		connect(&getSyncWidgets(), SIGNAL( requestTimeSynchronization(int, unsigned long long, void *) ),
 							 this, SLOT( performTimeSynchronization(int, unsigned long long, void *) ));
 		connect(this, SIGNAL( requestTimeSynchronization(int, unsigned long long, void *) ),
-							 &getSyncWidgets(), SLOT( requestTimeSynchronization(int, unsigned long long, void *) ));
+							 &getSyncWidgets(), SLOT( performTimeSynchronization(int, unsigned long long, void *) ));
+		connect(&getSyncWidgets(), SIGNAL( requestFrameSynchronization(int, unsigned long long, void *) ),
+							 this, SLOT( performFrameSynchronization(int, unsigned long long, void *) ));
+		connect(this, SIGNAL( requestFrameSynchronization(int, unsigned long long, void *) ),
+							 &getSyncWidgets(), SLOT( performFrameSynchronization(int, unsigned long long, void *) ));
 	}
 
 	BaseGantt::~BaseGantt ()
@@ -390,12 +395,22 @@ namespace gantt {
 
 	void BaseGantt::performTimeSynchronization (int sync_group, unsigned long long time, void * source)
 	{
-		qDebug("yeeeeeeeeEEEEES?");
+		qDebug("%s syncgrp=%i time=%i", __FUNCTION__, sync_group, time);
+		/*for (ganttviews_t::iterator it = m_ganttviews.begin(), ite = m_ganttviews.end(); it != ite; ++it)
+		{
+			GanttView * ganttview = *it;
+			ganttview->gotoFrame(frame);
+		}*/
 	}
 
 	void BaseGantt::performFrameSynchronization (int sync_group, unsigned long long frame, void * source)
 	{
-		qDebug("yeeeeeeeeEEEEES? 2");
+		qDebug("%s syncgrp=%i frame=%i", __FUNCTION__, sync_group, frame);
+		for (ganttviews_t::iterator it = m_ganttviews.begin(), ite = m_ganttviews.end(); it != ite; ++it)
+		{
+			GanttView * ganttview = *it;
+			ganttview->gotoFrame(frame);
+		}
 	}
 
 	/*void BaseGantt::requestFrameSynchronization (int sync_group, unsigned long long time, void * source)

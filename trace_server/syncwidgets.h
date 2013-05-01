@@ -17,6 +17,17 @@ signals:
 	void requestTimeSynchronization (int sync_group, unsigned long long time, void * source);
 	void requestFrameSynchronization (int sync_group, unsigned long long frame, void * source);
 
+public slots:
+	void performTimeSynchronization (int sync_group, unsigned long long time, void * source)
+	{
+		emit requestTimeSynchronization(sync_group, time, source);
+	}
+
+	void performFrameSynchronization (int sync_group, unsigned long long frame, void * source)
+	{
+		emit requestFrameSynchronization(sync_group, frame, source);
+	}
+
 private:
 	bool m_terminate;
 	Q_OBJECT

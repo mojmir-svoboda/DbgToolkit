@@ -16,6 +16,8 @@ struct BarPlot : QwtPlotBarChart
 
 	QVector<double> m_values;
 	std::vector<QString> m_strvalues;
+	std::vector<unsigned long long> m_begins;
+	std::vector<unsigned long long> m_ends;
 	std::vector<QColor> m_colors;
 };
 
