@@ -570,12 +570,14 @@ void GanttView::gotoFrame (unsigned n)
 		qDebug("frame %u <%.2f..%.2f>", n, begin, end);
 
 		
-		for (contextviews_t::iterator it = m_contextviews.begin(), ite = m_contextviews.end(); it != ite; ++it)
+		for (size_t ci = 0, cie = m_ganttData.m_contexts.size(); ci < cie; ++ci)
 		{
+			GfxView & v = viewAt(ci);
 			int const margin = 2;
-			QRectF const r = (*it).m_view->viewport()->rect().adjusted(margin, margin, -margin, -margin);
-			qDebug("view: w=%f h=%f ", r.width(), r.height());
-			(*it).m_view->fitInView(QRectF(begin, 0, end, r.height()), Qt::IgnoreAspectRatio);
+			QRectF const r = v.m_view->viewport()->rect().adjusted(margin, margin, -margin, -margin);
+			QRectF const vr = QRectF(begin, 0, end, r.height());
+			qDebug("view %i: bg=%.2f 0, end=%.2f h=%f ", ci, begin, end, r.height());
+			v.m_view->fitInView(vr, Qt::IgnoreAspectRatio);
 		}
 	}	
 }
@@ -702,13 +704,17 @@ void GraphicsView::fitInView (QRectF const & rect, Qt::AspectRatioMode aspectRat
     QRectF const viewRect = viewport()->rect().adjusted(margin, margin, -margin, -margin);
     if (viewRect.isEmpty())
         return;
+
+	qDebug("vrect x=%.2f y=%.2f w=%.2f h=%.2f", viewRect.x(), viewRect.y(), viewRect.width(), viewRect.height());
     QRectF sceneRect = matrix().mapRect(rect);
     if (sceneRect.isEmpty())
         return;
     qreal xratio = viewRect.width() / sceneRect.width();
     qreal yratio = m_gvcfg.m_y_scaling ? viewRect.height() / sceneRect.height() : 1.0f;
 
+	qDebug("scale x=%.2f y=%.2ff", xratio, yratio);
     scale(xratio, yratio);
+	//ensureVisible(rect);
     centerOn(rect.center());
 }
 

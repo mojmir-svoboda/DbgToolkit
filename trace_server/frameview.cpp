@@ -29,7 +29,7 @@ public:
         if (orientation == Qt::Vertical)
             setLabelRotation( -90.0 );
         else
-            setLabelRotation( -20.0 );
+            setLabelRotation( -90.0 );
 
         setLabelAlignment(Qt::AlignLeft | Qt::AlignVCenter);
     }
@@ -89,6 +89,7 @@ FrameView::FrameView (Connection * oparent, QWidget * wparent, FrameViewConfig &
 	m_bars->attach(this);
 
 	plotLayout()->setAlignCanvasToScales(true);
+	plotLayout()->setCanvasMargin(0);
 	setContentsMargins(QMargins(0, 0, 0, 0));
 	setMinimumSize(64,64);
 
