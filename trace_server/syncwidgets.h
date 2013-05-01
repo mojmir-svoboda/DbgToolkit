@@ -15,7 +15,7 @@ struct SyncWidgets : QObject
 
 signals:
 	void requestTimeSynchronization (int sync_group, unsigned long long time, void * source);
-	void requestFrameSynchronization (int sync_group, unsigned long long time, void * source);
+	void requestFrameSynchronization (int sync_group, unsigned long long frame, void * source);
 
 private:
 	bool m_terminate;

@@ -28,7 +28,14 @@ public:
 
 	void appendFrame (unsigned long long from, unsigned long long to);
 
+signals:
+	void requestTimeSynchronization (int sync_group, unsigned long long time, void * source);
+	void requestFrameSynchronization (int sync_group, unsigned long long frame, void * source);
+
 public slots:
+
+	void performTimeSynchronization (int sync_group, unsigned long long time, void * source);
+	void performFrameSynchronization (int sync_group, unsigned long long frame, void * source);
 
 	void selected (QRectF const & r);
 	void selected (QVector<QPointF> const & pa);

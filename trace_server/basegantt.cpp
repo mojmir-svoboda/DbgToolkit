@@ -68,6 +68,11 @@ namespace gantt {
 		//setUpdatesEnabled(true);
 		//horizontalHeader()->setSectionsMovable(true);
 		//setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+
+		connect(&getSyncWidgets(), SIGNAL( requestTimeSynchronization(int, unsigned long long, void *) ),
+							 this, SLOT( performTimeSynchronization(int, unsigned long long, void *) ));
+		connect(this, SIGNAL( requestTimeSynchronization(int, unsigned long long, void *) ),
+							 &getSyncWidgets(), SLOT( requestTimeSynchronization(int, unsigned long long, void *) ));
 	}
 
 	BaseGantt::~BaseGantt ()
@@ -380,6 +385,22 @@ namespace gantt {
 			}
 		}
 	}
+
+
+
+	void BaseGantt::performTimeSynchronization (int sync_group, unsigned long long time, void * source)
+	{
+		qDebug("yeeeeeeeeEEEEES?");
+	}
+
+	void BaseGantt::performFrameSynchronization (int sync_group, unsigned long long frame, void * source)
+	{
+		qDebug("yeeeeeeeeEEEEES? 2");
+	}
+
+	/*void BaseGantt::requestFrameSynchronization (int sync_group, unsigned long long time, void * source)
+	{
+	}*/
 
 	/*void BaseGantt::scrollTo (QModelIndex const & index, ScrollHint hint)
 	{

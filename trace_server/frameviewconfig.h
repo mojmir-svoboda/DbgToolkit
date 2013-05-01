@@ -9,6 +9,7 @@
 		QString m_tag;
 		QString m_title;
 		QList<FrameViewConfig> m_gvcfg;
+		int m_sync_group;
 		float m_begin;
 		float m_end;
 		float m_val1;
@@ -27,6 +28,7 @@
 
 		FrameViewConfig ()
 			: m_tag()
+			, m_sync_group(0)
 			, m_begin(0)
 			, m_end(30)
 			, m_val1(0.0f)
@@ -46,6 +48,7 @@
 
 		FrameViewConfig (QString const & tag)
 			: m_tag(tag)
+			, m_sync_group(0)
 			, m_begin(0)
 			, m_end(30)
 			, m_val1(0.0f)
@@ -68,6 +71,7 @@
 		{
 			ar & boost::serialization::make_nvp("tag", m_tag);
 			ar & boost::serialization::make_nvp("title", m_title);
+			ar & boost::serialization::make_nvp("sync_group", m_sync_group);
 			ar & boost::serialization::make_nvp("val1", m_val1);
 			ar & boost::serialization::make_nvp("val2", m_val2);
 			ar & boost::serialization::make_nvp("val3", m_val3);

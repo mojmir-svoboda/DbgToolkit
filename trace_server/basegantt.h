@@ -94,6 +94,8 @@ namespace gantt {
 		void onClearAllDataButton ();
 		void onClearGanttViewDataButton ();
 
+		void performTimeSynchronization (int sync_group, unsigned long long time, void * source);
+		void performFrameSynchronization (int sync_group, unsigned long long frame, void * source);
 
 	protected:
 		GanttConfig & m_config;

@@ -11,11 +11,46 @@
 #include "qwt/qwt_color_map.h"
 #include "qwt/qwt_interval.h"
 #include "qwt/qwt_plot.h"
+#include "qwt/qwt_scale_draw.h"
+#include "syncwidgets.h"
+
+struct FrameScaleDraw : public QwtScaleDraw
+{
+public:
+    FrameScaleDraw (Qt::Orientation orientation, std::vector<QString> const & labels)
+		: m_labels( labels )
+    {
+        setTickLength(QwtScaleDiv::MinorTick, 0);
+        setTickLength(QwtScaleDiv::MediumTick, 0);
+        setTickLength(QwtScaleDiv::MajorTick, 2);
+
+        enableComponent(QwtScaleDraw::Backbone, false);
+
+        if (orientation == Qt::Vertical)
+            setLabelRotation( -90.0 );
+        else
+            setLabelRotation( -20.0 );
+
+        setLabelAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+    }
+
+    virtual QwtText label (double value) const
+    {
+        QwtText lbl;
+        int const index = qRound(value);
+		//@TODO: zde je v examplu chyba
+        if (index >= 0 && index < m_labels.size())
+            lbl = m_labels[index];
+        return lbl;
+    }
+
+private:
+	std::vector<QString> const & m_labels;
+};
+
 
 BarPlot::BarPlot () : QwtPlotBarChart()
 {
-	setLegendMode(QwtPlotBarChart::LegendBarTitles);
-    setLegendIconSize(QSize(10, 14));
 }
 
 QwtColumnSymbol * BarPlot::specialSymbol (int index, QPointF const &) const
@@ -60,9 +95,6 @@ FrameView::FrameView (Connection * oparent, QWidget * wparent, FrameViewConfig &
 	setAutoReplot(true);
 	//qDebug("%s this=0x%08x", __FUNCTION__, this);
 
-	//insertLegend(new QwtLegend(this), QwtPlot::BottomLegend);
-	insertLegend(new QwtLegend(this));
-
 	QwtPlotMagnifier * lookglass = new QwtPlotMagnifier(canvas());
 	canvas()->setFocusPolicy(Qt::WheelFocus);
 
@@ -83,10 +115,18 @@ FrameView::FrameView (Connection * oparent, QWidget * wparent, FrameViewConfig &
 	QwtPlotPanner * panner = new QwtPlotPanner(canvas());
 	panner->setMouseButton(Qt::MidButton);
 
+    setAxisMaxMinor(QwtPlot::xBottom, 3);
+    setAxisScaleDraw(QwtPlot::xBottom, new FrameScaleDraw(Qt::Horizontal, m_bars->m_strvalues));
+
     connect(picker, SIGNAL(selected(QRectF const &) ), this, SLOT(selected(QRectF const &)));
     connect(picker, SIGNAL(selected(QPointF const &) ), this, SLOT(selected(QPointF const &)));
     connect(picker, SIGNAL(appended(QPointF const &) ), this, SLOT(appended(QPointF const &)));
     connect(picker, SIGNAL(selected(QVector<QPointF> const &) ), this, SLOT(selected(QVector<QPointF> const &)));
+
+    connect(&getSyncWidgets(), SIGNAL( requestTimeSynchronization(int, unsigned long long, void *) ),
+						 this, SLOT( performTimeSynchronization(int, unsigned long long, void *) ));
+    connect(this, SIGNAL( requestTimeSynchronization(int, unsigned long long, void *) ),
+						 &getSyncWidgets(), SLOT( requestTimeSynchronization(int, unsigned long long, void *) ));
 }
 
 void FrameView::selected (QRectF const & r)
@@ -109,9 +149,23 @@ void FrameView::selected (QPointF const & pa)
 }
 void FrameView::appended (QPointF const & pa)
 {
-	qDebug("appended 1 pt");
+	int const index = qRound(pa.x());
+
+	if (index >= 0 && index < m_bars->m_values.size())
+	{
+		qDebug("clicked at frame=%i bgn=%s", index, m_bars->m_strvalues[index].toStdString().c_str());
+	}
+	emit requestFrameSynchronization(m_config.m_sync_group, index, this);
 }
 
+
+void FrameView::performTimeSynchronization (int sync_group, unsigned long long time, void * source)
+{
+}
+
+void FrameView::performFrameSynchronization (int sync_group, unsigned long long frame, void * source)
+{
+}
 
 /*void Histogram::setValues (uint numValues, double const * values)
 {
@@ -146,6 +200,9 @@ void FrameView::appendFrame (unsigned long long from, unsigned long long to)
 	m_bars->m_colors.push_back(c);
 
 	m_bars->setSamples(m_bars->m_values);
+
+	m_bars->itemChanged();
+	m_bars->legendChanged();
 }
 
 
