@@ -17,7 +17,9 @@
 
 Server::Server (QString ip, unsigned short port, QObject * parent, bool quit_delay)
 	: QTcpServer(parent)
+	, m_main_window(0)
 {
+		m_main_window = static_cast<MainWindow *>(parent);
 	QHostAddress addr(ip);
 	if (!listen(addr, port)) {
 		status = tr("Unable to start server! Reason: %1").arg(errorString());
@@ -40,7 +42,7 @@ Server::Server (QString ip, unsigned short port, QObject * parent, bool quit_del
 Connection * Server::findCurrentConnection ()
 {
 	Q_ASSERT(parent());
-	QWidget * w = static_cast<MainWindow *>(parent())->getTabTrace()->currentWidget();
+	QWidget * w = m_main_window->getTabTrace()->currentWidget();
 	connections_t::iterator it = m_connections.find(w);
 	return (it != m_connections.end()) ? it->second : 0;
 }
@@ -108,8 +110,7 @@ void Server::onBufferingStateChanged (int state)
 
 void Server::onTabTraceFocus (int i)
 {
-	MainWindow * main_window = static_cast<MainWindow *>(parent());
-	QWidget * w = main_window->getTabTrace()->widget(i);
+	QWidget * w = m_main_window->getTabTrace()->widget(i);
 	for (connections_t::iterator it = m_connections.begin(), ite = m_connections.end(); it != ite; ++it)
 	{
 		if (it->second->sessionState().m_tab_widget == w)
@@ -122,9 +123,8 @@ void Server::onTabTraceFocus (int i)
 
 Connection * Server::createNewTableView ()
 {
-	MainWindow * main_window = static_cast<MainWindow *>(parent());
 	Connection * connection = new Connection(this);
-	connection->setMainWindow(main_window);
+	connection->setMainWindow(m_main_window);
 	QWidget * tab = new QWidget();
 	QHBoxLayout * horizontalLayout = new QHBoxLayout(tab);
 	horizontalLayout->setSpacing(1);
@@ -139,19 +139,19 @@ Connection * Server::createNewTableView ()
 	ModelView * model = new ModelView(tableView, connection);
 	connection->m_table_view_src = model;
 	disconnect(model, SIGNAL(rowsInserted(QModelIndex,int,int)), tableView->verticalHeader(), SLOT(sectionsInserted(QModelIndex,int,int)));
-    tableView->verticalHeader()->setFont(main_window->tableFont());
-	tableView->verticalHeader()->setDefaultSectionSize(main_window->tableRowSize());
+    tableView->verticalHeader()->setFont(m_main_window->tableFont());
+	tableView->verticalHeader()->setDefaultSectionSize(m_main_window->tableRowSize());
 	tableView->verticalHeader()->hide();	// @NOTE: users want that //@NOTE2: they can't have it because of performance
 	tableView->setModel(model);
 	horizontalLayout->addWidget(tableView);
 	connection->setTableViewWidget(tableView);
-	connection->sessionState().setupThreadColors(main_window->getThreadColors());
-	int const n = main_window->getTabTrace()->addTab(tab, QString::fromUtf8("???"));
+	connection->sessionState().setupThreadColors(m_main_window->getThreadColors());
+	int const n = m_main_window->getTabTrace()->addTab(tab, QString::fromUtf8("???"));
 	qDebug("created new tab at %u for connection @ 0x%08x", n, connection);
 
 	connection->sessionState().setTabWidget(tab);
 
-	if (main_window->filterEnabled())
+	if (m_main_window->filterEnabled())
 	{
 		connection->setFilterFile(Qt::Checked);
 	}
@@ -169,10 +169,9 @@ void Server::importDataStream (QString const & fname)
 		return;
 	}
 
-	MainWindow * main_window = static_cast<MainWindow *>(parent());
 	Connection * connection = createNewTableView ();
 	connection->setImportFile(fname);
-	main_window->statusBar()->showMessage(tr("Importing file!"));
+	m_main_window->statusBar()->showMessage(tr("Importing file!"));
 
 	QDataStream import_stream(&file);
 	connection->processDataStream(import_stream);
@@ -181,12 +180,11 @@ void Server::importDataStream (QString const & fname)
 
 void Server::createTailLogStream (QString const & fname, QString const & separator)
 {
-	MainWindow * main_window = static_cast<MainWindow *>(parent());
 	Connection * connection = createNewTableView ();
 	connection->setTailFile(fname);
 	connection->m_session_state.m_csv_separator = separator;
 	
-	main_window->statusBar()->showMessage(tr("Tail!"));
+	m_main_window->statusBar()->showMessage(tr("Tail!"));
 	connection->handleCSVSetup(fname);
 	connection->processTailCSVStream();
 	emit newConnection(connection);
@@ -194,11 +192,10 @@ void Server::createTailLogStream (QString const & fname, QString const & separat
 
 void Server::createTailDataStream (QString const & fname)
 {
-	MainWindow * main_window = static_cast<MainWindow *>(parent());
 	Connection * connection = createNewTableView ();
 	connection->setTailFile(fname);
 
-	main_window->statusBar()->showMessage(tr("Tail!"));
+	m_main_window->statusBar()->showMessage(tr("Tail!"));
 	connection->handleCSVSetup(fname);
 	connection->processTailCSVStream();
 	emit newConnection(connection);
@@ -206,13 +203,12 @@ void Server::createTailDataStream (QString const & fname)
 
 void Server::incomingConnection (qintptr socketDescriptor)
 {
-	MainWindow * main_window = static_cast<MainWindow *>(parent());
 	Connection * connection = createNewTableView ();
 	connection->setSocketDescriptor(socketDescriptor);
 
 	QObject::connect(connection->m_tcpstream, SIGNAL(readyRead()), connection, SLOT(processReadyRead()));
 	QObject::connect(connection->m_tcpstream, SIGNAL(disconnected()), connection, SLOT(onDisconnected()));
-	main_window->statusBar()->showMessage(tr("Incomming tcp connection!"));
+	m_main_window->statusBar()->showMessage(tr("Incomming tcp connection!"));
 	emit newConnection(connection);
 	
 	// this is supposed to use blocking reads in own thread
@@ -246,8 +242,7 @@ void Server::onHideTables ()
 // @TODO: hmm. this whole fn is.. unfortunately rushed. need to rethink
 void Server::onClickedAtDockedWidgets (QModelIndex idx)
 {
-	MainWindow * main_window = static_cast<MainWindow *>(parent());
-	TreeModel * model = static_cast<TreeModel *>(main_window->getDockedWidgetsTreeView()->model());
+	TreeModel * model = static_cast<TreeModel *>(m_main_window->getDockedWidgetsTreeView()->model());
 
 	QList<QString> path;
 	QList<bool> state;
@@ -383,8 +378,7 @@ void Server::onCloseTab (QWidget * w)
 {
 	if (w)
 	{
-		MainWindow * main_window = static_cast<MainWindow *>(parent());
-		int const idx = main_window->getTabTrace()->indexOf(w);
+		int const idx = m_main_window->getTabTrace()->indexOf(w);
 		if (idx != -1)
 		{
 			qDebug("Server::onCloseTab(QWidget *) idx=%i", idx);
@@ -394,10 +388,9 @@ void Server::onCloseTab (QWidget * w)
 }
 void Server::onCloseTabWithIndex (int idx)
 {
-	MainWindow * main_window = static_cast<MainWindow *>(parent());
 	if (idx != -1)
 	{
-		if (QWidget * w = main_window->getTabTrace()->widget(idx))
+		if (QWidget * w = m_main_window->getTabTrace()->widget(idx))
 		{
 			qDebug("Server::onCloseTabWithIndex(int) idx=%i widget=0x%08x", idx, w);
 			onCloseTab(idx, w);
@@ -407,8 +400,7 @@ void Server::onCloseTabWithIndex (int idx)
 void Server::onCloseCurrentTab ()
 {
 	qDebug("%s", __FUNCTION__);
-	MainWindow * main_window = static_cast<MainWindow *>(parent());
-	QWidget * w = main_window->getTabTrace()->currentWidget();
+	QWidget * w = m_main_window->getTabTrace()->currentWidget();
 	onCloseTab(w);
 }
 
@@ -424,8 +416,7 @@ void Server::destroyConnection (Connection * connection)
 void Server::onCloseTab (int idx, QWidget * w)
 {
 	qDebug("Server::onCloseTab(idx=%i, QWidget *=0x%08x) idx=%i", idx, w, idx);
-	MainWindow * main_window = static_cast<MainWindow *>(parent());
-	main_window->getTabTrace()->removeTab(idx);
+	m_main_window->getTabTrace()->removeTab(idx);
 	connections_t::iterator it = m_connections.find(w);
 	if (it != m_connections.end())
 	{
@@ -433,8 +424,8 @@ void Server::onCloseTab (int idx, QWidget * w)
 		m_connections.erase(it);
 		destroyConnection(connection);
 	}
-	qDebug("Server::onCloseTab(idx=%i, QWidget *=0x%08x) curr idx=%i", idx, w, main_window->getTabTrace()->currentIndex());
-	onTabTraceFocus(main_window->getTabTrace()->currentIndex());
+	qDebug("Server::onCloseTab(idx=%i, QWidget *=0x%08x) curr idx=%i", idx, w, m_main_window->getTabTrace()->currentIndex());
+	onTabTraceFocus(m_main_window->getTabTrace()->currentIndex());
 }
 void Server::onCloseMarkedTabs ()
 {
@@ -463,11 +454,10 @@ profiler::ProfilerWindow * Server::createNewProfilerView ()
 
 void Server::incomingProfilerConnection (profiler::profiler_rvp_t * rvp)
 {
-	MainWindow * main_window = static_cast<MainWindow *>(parent());
 
 	using namespace profiler;
-	ProfilerWindow * w = new ProfilerWindow(main_window, this, rvp);
+	ProfilerWindow * w = new ProfilerWindow(m_main_window, this, rvp);
 	qDebug("Incoming profiler rendez-vous point!");
-	main_window->statusBar()->showMessage(tr("Incoming profiler rendez-vous point!"));
+	m_main_window->statusBar()->showMessage(tr("Incoming profiler rendez-vous point!"));
 }
 

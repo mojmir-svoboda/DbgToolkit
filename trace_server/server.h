@@ -33,6 +33,7 @@ class Connection;
 class QTcpServer;
 class QNetworkSession;
 class QFile;
+class QStandardItem;
 class MainWindow;
 
 class Server : public QTcpServer
@@ -129,7 +130,11 @@ protected:
 	Connection * createNewTableView ();
 	Connection * findCurrentConnection ();
 	
+	template <typename T>
+	void applyFnOnAllChildren (T fn, QAbstractItemModel * model, Qt::CheckState state);
+
 private:
+	MainWindow * m_main_window;
 	QString status;
 	typedef std::map<QWidget *, Connection *> connections_t;
 	connections_t m_connections;

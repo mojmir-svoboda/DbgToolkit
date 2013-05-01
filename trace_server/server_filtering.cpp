@@ -14,6 +14,7 @@
 #include "delegates.h"
 #include "tableview.h"
 #include "utils_qstandarditem.h"
+#include <boost/function.hpp>
 
 void Server::onClearCurrentView ()
 {
@@ -94,17 +95,10 @@ void Server::onApplyColumnSetup ()
 	}
 }
 
-void Server::onSelectAllLevels ()
+template <typename T>
+void Server::applyFnOnAllChildren (T fn, QAbstractItemModel * abs_model, Qt::CheckState state)
 {
-}
-void Server::onSelectNoLevels ()
-{
-}
-void Server::onSelectAllCtxs ()
-{
-	MainWindow * main_window = static_cast<MainWindow *>(parent());
-	QStandardItemModel * model = static_cast<QStandardItemModel *>(main_window->getWidgetCtx()->model());
-
+	QStandardItemModel * model = static_cast<QStandardItemModel *>(abs_model);
 	QStandardItem * root = model->invisibleRootItem();
 	QList<QStandardItem *> l = listChildren(root);
 
@@ -112,38 +106,40 @@ void Server::onSelectAllCtxs ()
 	{
 		for (int i = 0, ie = l.size(); i < ie; ++i)
 		{
-			l.at(i)->setCheckState(Qt::Checked);
-			QString const & ctx = model->data(l.at(i)->index(), Qt::DisplayRole).toString();
-			conn->sessionState().addCtxFilter(ctx);
+			l.at(i)->setCheckState(state);
+			QString const & data = model->data(l.at(i)->index(), Qt::DisplayRole).toString();
+			fn(&conn->sessionState(), data);
 		}
 		conn->onInvalidateFilter();
 	}
+}
+
+void Server::onSelectAllLevels ()
+{
+	boost::function<void (SessionState*, QString const &)> f = &SessionState::appendLvlFilter;
+	applyFnOnAllChildren(f, m_main_window->getWidgetLvl()->model(), Qt::Checked);
+}
+void Server::onSelectNoLevels ()
+{
+	boost::function<void (SessionState*, QString)> f = &SessionState::removeLvlFilter;
+	applyFnOnAllChildren(f, m_main_window->getWidgetLvl()->model(), Qt::Unchecked);
+}
+
+void Server::onSelectAllCtxs ()
+{
+	boost::function<void (SessionState*, QString)> f = &SessionState::appendCtxFilter;
+	applyFnOnAllChildren(f, m_main_window->getWidgetCtx()->model(), Qt::Checked);
 }
 
 void Server::onSelectNoCtxs ()
 {
-	MainWindow * main_window = static_cast<MainWindow *>(parent());
-	QStandardItemModel * model = static_cast<QStandardItemModel *>(main_window->getWidgetCtx()->model());
-
-	QStandardItem * root = model->invisibleRootItem();
-	QList<QStandardItem *> l = listChildren(root);
-
-	if (Connection * conn = findCurrentConnection())
-	{
-		for (int i = 0, ie = l.size(); i < ie; ++i)
-		{
-			l.at(i)->setCheckState(Qt::Unchecked);
-			QString const & ctx = model->data(l.at(i)->index(), Qt::DisplayRole).toString();
-			conn->sessionState().removeCtxFilter(ctx);
-		}
-		conn->onInvalidateFilter();
-	}
+	boost::function<void (SessionState*, QString)> f = &SessionState::removeCtxFilter;
+	applyFnOnAllChildren(f, m_main_window->getWidgetCtx()->model(), Qt::Unchecked);
 }
 
 void Server::onClickedAtCtxTree (QModelIndex idx)
 {
-	MainWindow * main_window = static_cast<MainWindow *>(parent());
-	QStandardItemModel * model = static_cast<QStandardItemModel *>(main_window->getWidgetCtx()->model());
+	QStandardItemModel * model = static_cast<QStandardItemModel *>(m_main_window->getWidgetCtx()->model());
 	QStandardItem * item = model->itemFromIndex(idx);
 	Q_ASSERT(item);
 
@@ -165,8 +161,7 @@ void Server::onClickedAtTIDList (QModelIndex idx)
 {
 	if (!idx.isValid())
 		return;
-	MainWindow * main_window = static_cast<MainWindow *>(parent());
-	QStandardItemModel * model = static_cast<QStandardItemModel *>(main_window->getWidgetTID()->model());
+	QStandardItemModel * model = static_cast<QStandardItemModel *>(m_main_window->getWidgetTID()->model());
 	QStandardItem * item = model->itemFromIndex(idx);
 	Q_ASSERT(item);
 
@@ -188,8 +183,7 @@ void Server::onClickedAtLvlList (QModelIndex idx)
 {
 	if (!idx.isValid())
 		return;
-	MainWindow * main_window = static_cast<MainWindow *>(parent());
-	QStandardItemModel * model = static_cast<QStandardItemModel *>(main_window->getWidgetLvl()->model());
+	QStandardItemModel * model = static_cast<QStandardItemModel *>(m_main_window->getWidgetLvl()->model());
 	QStandardItem * item = model->itemFromIndex(idx);
 	Q_ASSERT(item);
 
@@ -248,8 +242,7 @@ void Server::onClickedAtRegexList (QModelIndex idx)
 {
 	if (!idx.isValid())
 		return;
-	MainWindow * main_window = static_cast<MainWindow *>(parent());
-	QStandardItemModel * model = static_cast<QStandardItemModel *>(main_window->getWidgetRegex()->model());
+	QStandardItemModel * model = static_cast<QStandardItemModel *>(m_main_window->getWidgetRegex()->model());
 
 	QString const & val = model->data(idx, Qt::DisplayRole).toString();
 
@@ -312,8 +305,7 @@ void Server::onDoubleClickedAtRegexList (QModelIndex idx)
 void Server::onClickedAtColorRegexList (QModelIndex idx)
 {
 	if (!idx.isValid()) return;
-	MainWindow * main_window = static_cast<MainWindow *>(parent());
-	QStandardItemModel * model = static_cast<QStandardItemModel *>(main_window->getWidgetColorRegex()->model());
+	QStandardItemModel * model = static_cast<QStandardItemModel *>(m_main_window->getWidgetColorRegex()->model());
 	QStandardItem * item = model->itemFromIndex(idx);
 	Q_ASSERT(item);
 
@@ -339,8 +331,7 @@ void Server::onClickedAtStringList (QModelIndex idx)
 {
 	if (!idx.isValid())
 		return;
-	MainWindow * main_window = static_cast<MainWindow *>(parent());
-	QStandardItemModel * model = static_cast<QStandardItemModel *>(main_window->getWidgetString()->model());
+	QStandardItemModel * model = static_cast<QStandardItemModel *>(m_main_window->getWidgetString()->model());
 
 	QString const & val = model->data(idx, Qt::DisplayRole).toString();
 

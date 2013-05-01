@@ -38,7 +38,7 @@ inline QStandardItem * findChildByText (QStandardItem * parent, QString const & 
 	return 0;
 }
 
-QList<QStandardItem *> listChildren (QStandardItem * item)
+inline QList<QStandardItem *> listChildren (QStandardItem * item)
 {
 	QStandardItemModel * model = item->model();
 	QList<QStandardItem *> children;
