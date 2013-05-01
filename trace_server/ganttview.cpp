@@ -98,10 +98,35 @@ void GanttView::appendFrameEnd (DecodedData & dd, unsigned long long & from, uns
 	to = dd.m_time * scale;
 	m_ganttData.m_frames.push_back(std::make_pair(m_ganttData.m_frame_begin * scale, dd.m_time * scale));
 	qDebug("} FRAME=%3i", m_ganttData.m_frame);
+
+
+	for (size_t ci = 0, cie = m_ganttData.m_contexts.size(); ci < cie; ++ci)
+	{
+		GfxView & v = viewAt(ci);
+
+		QPen p1;
+		p1.setColor(Qt::gray);
+		p1.setWidth(8);
+		QGraphicsLineItem * line1 = new QGraphicsLineItem(from, 0, from, 200);
+		line1->setPen(p1);
+		v.m_scene->addItem(line1);
+
+		QGraphicsTextItem * txt = new QGraphicsTextItem(QString("%1").arg(m_ganttData.m_frames.size()));
+		txt->setFlag(QGraphicsItem::ItemIgnoresTransformations);
+		txt->setPos(from, 7);
+		v.m_scene->addItem(txt);
+	}
+
+/*	QPen p2;
+	p2.setColor(Qt::yellow);
+	QGraphicsLineItem * line2 = new QGraphicsLineItem(pi.m_frames[f].second, 0, pi.m_frames[f].second, max_y);
+	line2->setPen(p2);
+	m_scene->addItem(line2);*/
 }
 
 void GanttView::appendFrameEnd (DecodedData & dd)
 {
+	// NOTE: not called now..
 	float const scale = m_gvcfg.m_timeunits;
 	m_ganttData.m_frames.push_back(std::make_pair(m_ganttData.m_frame_begin * scale, dd.m_time * scale));
 
@@ -121,11 +146,8 @@ void GanttView::appendFrameEnd (DecodedData & dd)
 	qDebug("} FRAME=%3i", m_ganttData.m_frame);
 	//qDebug("}-- --- f=%i t=%8llu  ctxi=%u  msg=%s", m_ganttData.m_frame, m_ganttData.m_frame_begin, dd.m_ctx_idx, dd.m_text.toStdString().c_str());
 	//dump
-	/*for (size_t i = from; i < to; ++i)
-		for (size_t j = 0, je = m_ganttData.m_completed_frame_infos[i]->size(); j < je; ++j)
-			qDebug("producing item[%i]=0x%016x, contexts=%u bis_sz=%u", i, m_ganttData.m_completed_frame_infos[i], m_ganttData.m_completed_frame_infos[i]->size(),  m_ganttData.m_completed_frame_infos[i]->operator[](j).size());
-*/
 }
+
 void GanttView::appendBgn (DecodedData & dd)
 {
 	Data * prev = 0;
