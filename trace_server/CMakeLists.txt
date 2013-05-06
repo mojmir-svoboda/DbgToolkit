@@ -51,6 +51,7 @@ SET(trace_server_SOURCES
 	mainwindow_presets.cpp
 	treeview.cpp
 	treemodel.cpp
+	treeproxy.cpp
 	modelview.cpp
 	tableview.cpp
 	delegates.cpp
@@ -111,6 +112,7 @@ SET(trace_server_HEADERS
 	mainwindow.h 
 	treeview.h
 	treemodel.h
+	treeproxy.h
 	modelview.h
 	tableview.h
 	server.h

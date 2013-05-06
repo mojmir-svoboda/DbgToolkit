@@ -179,6 +179,12 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QStri
 	connect(getWidgetFile(), SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtFileTree(QModelIndex)));
 	connect(getWidgetFile(), SIGNAL(doubleClicked(QModelIndex)), m_server, SLOT(onDoubleClickedAtFileTree(QModelIndex)));
 	getWidgetFile()->header()->hide();
+	connect(ui->filterFileComboBox, SIGNAL(editTextChanged(QString)), this, SLOT(onFilterFileComboChanged(QString)));
+	bool const cancel_on = !ui->filterFileComboBox->currentText().isEmpty();
+	ui->cancelFilterButton->setEnabled(cancel_on);
+	connect(ui->cancelFilterButton, SIGNAL(clicked()), this, SLOT(onCancelFilterFileButton()));
+
+	//connect(ui->filterFileComboBox, SIGNAL(activated(int)), this, SLOT(onTimeUnitsChanged(int)));
 
 	getWidgetCtx()->setEditTriggers(QAbstractItemView::NoEditTriggers);
 	connect(getWidgetCtx(), SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtCtxTree(QModelIndex)));
@@ -1040,6 +1046,27 @@ void MainWindow::onSaveAllButton ()
 	if (Connection * conn = m_server->findCurrentConnection())
 	{
 		conn->onSaveAll();
+	}
+}
+
+void MainWindow::onCancelFilterFileButton ()
+{
+	ui->filterFileComboBox->clearEditText();
+	ui->cancelFilterButton->setEnabled(false);
+	if (Connection * conn = m_server->findCurrentConnection())
+	{
+		conn->onCancelFilterFileButton();
+	}
+}
+
+void MainWindow::onFilterFileComboChanged (QString str)
+{
+	bool cancel_on = !str.isEmpty();
+	ui->cancelFilterButton->setEnabled(cancel_on);
+
+	if (Connection * conn = m_server->findCurrentConnection())
+	{
+		conn->onFilterFileComboChanged(str);
 	}
 }
 

@@ -226,6 +226,8 @@ public slots:
 	void onApplyColumnSetup ();
 	void onColorRegexChanged();
 	void onSaveAll ();
+	void onFilterFileComboChanged (QString str);
+	void onCancelFilterFileButton ();
 
 private slots:
 	void processReadyRead ();

@@ -531,3 +531,11 @@ void Connection::loadToRegexps (QString const & filter_item, bool inclusive, boo
 	sessionState().appendToRegexFilters(filter_item, inclusive, enabled);
 }
 
+void Connection::onFilterFileComboChanged (QString str)
+{
+}
+
+void Connection::onCancelFilterFileButton ()
+{
+}
+

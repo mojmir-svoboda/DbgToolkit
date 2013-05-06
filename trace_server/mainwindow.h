@@ -269,6 +269,8 @@ private slots:
 	void onGotoRegexFilter ();
 	void onGotoLevelFilter ();
 	void syncSettingsViews (QListView const * const invoker, QModelIndex const idx);
+	void onFilterFileComboChanged (QString str);
+	void onCancelFilterFileButton ();
 
 private:
 	void showServerStatus ();
