@@ -7,11 +7,13 @@ c:\devel\qt5\qtbase\lib\libGLESv2d.lib
 c:\devel\qt5\qtbase\lib\Qt5PlatformSupportd.lib
 c:\devel\qt5\qtbase\lib\translator_commond.lib
 c:\devel\qt5\qtbase\lib\preprocessord.lib
-c:\devel\qt5\qtbase\lib\translator_hlsld.lib
-d3dcompiler.lib
 d3d9.lib
 dxguid.lib 
 
+c:\devel\qt5\qtbase\lib\translator_hlsld.lib
+d3dcompiler.lib
+
+=========================================
 
 C:\devel\qt5\qtbase\lib\Qt5OpenGL.lib
 imm32.lib
@@ -22,7 +24,8 @@ c:\devel\qt5\qtbase\lib\libGLESv2.lib
 c:\devel\qt5\qtbase\lib\Qt5PlatformSupport.lib
 c:\devel\qt5\qtbase\lib\translator_common.lib
 c:\devel\qt5\qtbase\lib\preprocessor.lib
-c:\devel\qt5\qtbase\lib\translator_hlsl.lib
-d3dcompiler.lib
 d3d9.lib
 dxguid.lib 
+
+c:\devel\qt5\qtbase\lib\translator_hlsl.lib
+d3dcompiler.lib

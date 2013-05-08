@@ -70,6 +70,9 @@ SET(trace_server_SOURCES
 	config.cpp
 	dock.cpp
 
+	kde/kselectionproxymodel.cpp
+	kde/kmodelindexproxymapper.cpp
+
 	connection_log.cpp
 	filterproxy.cpp
 
@@ -141,12 +144,19 @@ SET(trace_server_HEADERS
 	dock.h
 	constants.h
 	config.h
+
+	kde/kbihash_p.h
+	kde/kmodelindexproxymapper.h
+	kde/kselectionproxymodel.h
+	kde/kvoidpointerfactory_p.h
+
 	curves.h
 	baseplot.h
 	simpleplot.h
 	pickableplot.h
 	plotconfig.h
 	plotctxmenu.h
+
 	basetable.h
 	tableconfig.h
 	tablectxmenu.h
