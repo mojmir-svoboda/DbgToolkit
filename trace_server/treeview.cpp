@@ -7,7 +7,7 @@ TreeView::TreeView (QWidget * parent)
 	setEditTriggers(QAbstractItemView::NoEditTriggers);
 }
 
-void TreeView::setModel (TreeModel * model)
+void TreeView::setModel (QAbstractItemModel * model)
 {
 	if (m_current == model) return;
 
@@ -29,7 +29,7 @@ void TreeView::setModel (TreeModel * model)
 	hideLinearParents();
 }
 
-void TreeView::unsetModel (TreeModel * model)
+void TreeView::unsetModel (QAbstractItemModel * model)
 {
 	if (m_current == model)
 	{
@@ -49,11 +49,15 @@ void TreeView::unsetModel (TreeModel * model)
 void TreeView::hideLinearParents ()
 {
 	if (m_hiding && m_current)
-		setRootIndex(m_current->hideLinearParents());
+	{
+		if (TreeModel * model = qobject_cast<TreeModel *>(m_current))
+			setRootIndex(static_cast<TreeModel *>(m_current)->hideLinearParents());
+	}
 }
 
 void TreeView::syncExpandState ()
 {
-	m_current->syncExpandState(this);
+	if (TreeModel * model = qobject_cast<TreeModel *>(m_current))
+		static_cast<TreeModel *>(m_current)->syncExpandState(this);
 }
 

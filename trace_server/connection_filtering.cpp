@@ -533,6 +533,19 @@ void Connection::loadToRegexps (QString const & filter_item, bool inclusive, boo
 
 void Connection::onFilterFileComboChanged (QString str)
 {
+	if (str.isEmpty())
+	{
+		m_main_window->getWidgetFile()->setModel(m_file_model);
+	}
+	else
+	{
+		if (m_main_window->getWidgetFile()->model() != m_file_proxy)
+		{
+			m_main_window->getWidgetFile()->setModel(m_file_proxy);
+			m_file_proxy->setSourceModel(m_file_model);
+		}
+		m_file_proxy->addString(str);
+	}
 }
 
 void Connection::onCancelFilterFileButton ()

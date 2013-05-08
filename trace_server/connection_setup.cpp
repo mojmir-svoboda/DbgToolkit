@@ -457,6 +457,7 @@ void Connection::setupModelFile ()
 	{
 		qDebug("new tree view file model");
 		m_file_model = new TreeModel(this, &m_session_state.m_file_filters);
+		m_file_proxy = new TreeProxyModel(m_main_window->getWidgetFile());
 	}
 	m_main_window->getWidgetFile()->setModel(m_file_model);
 	m_main_window->getWidgetFile()->syncExpandState();
@@ -473,6 +474,8 @@ void Connection::destroyModelFile ()
 		m_main_window->getWidgetFile()->unsetModel(m_file_model);
 		delete m_file_model;
 		m_file_model = 0;
+		delete m_file_proxy;
+		m_file_proxy = 0;
 	}
 }
 

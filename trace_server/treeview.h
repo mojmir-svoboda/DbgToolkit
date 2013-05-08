@@ -11,16 +11,16 @@ public:
 
 	TreeView (QWidget * parent = 0);
 
-	void setModel (TreeModel * m);
-	void unsetModel (TreeModel * m);
+	void setModel (QAbstractItemModel * m);
+	void unsetModel (QAbstractItemModel * m);
 	void setHidingLinearParents (bool state) { m_hiding = state; }
 
 	void hideLinearParents ();
 	void syncExpandState ();
 
 protected:
-	QList<TreeModel *> m_models;
-	TreeModel * m_current;
+	QList<QAbstractItemModel *> m_models;
+	QAbstractItemModel * m_current;
 	bool m_hiding;
 };
 
