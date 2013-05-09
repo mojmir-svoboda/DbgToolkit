@@ -544,7 +544,7 @@ void Connection::onFilterFileComboChanged (QString str)
 			m_main_window->getWidgetFile()->setModel(m_file_proxy);
 			m_file_proxy->setSourceModel(m_file_model);
 		}
-		m_file_proxy->addString(str);
+		m_file_proxy->setFindString(str);
 	}
 }
 

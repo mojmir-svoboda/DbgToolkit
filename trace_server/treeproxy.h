@@ -37,8 +37,11 @@ public:
 
 public slots:
 	//void force_update();
+	void setFindString (QString const & s);
 
 protected:
+
+	QString m_find;
 };
 
 

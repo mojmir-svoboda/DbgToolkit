@@ -6,3 +6,11 @@ TreeProxyModel::TreeProxyModel (QTreeView * parent)
 	: KSelectionProxyModel(parent->selectionModel())
 {
 }
+
+
+void TreeProxyModel::setFindString (QString const & s)
+{
+	m_find = s;
+	beginResetModel();
+	endResetModel();
+}
