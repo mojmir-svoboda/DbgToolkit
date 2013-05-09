@@ -457,7 +457,10 @@ void Connection::setupModelFile ()
 	{
 		qDebug("new tree view file model");
 		m_file_model = new TreeModel(this, &m_session_state.m_file_filters);
-		m_file_proxy = new TreeProxyModel(m_main_window->getWidgetFile());
+
+		  //->setFilterBehavior( KSelectionProxyModel::ExactSelection );
+		m_proxy_selection = new QItemSelectionModel(m_file_model, this);
+		m_file_proxy = new TreeProxyModel(m_file_model, m_proxy_selection);
 	}
 	m_main_window->getWidgetFile()->setModel(m_file_model);
 	m_main_window->getWidgetFile()->syncExpandState();
@@ -476,6 +479,8 @@ void Connection::destroyModelFile ()
 		m_file_model = 0;
 		delete m_file_proxy;
 		m_file_proxy = 0;
+		delete m_proxy_selection;
+		m_proxy_selection = 0;
 	}
 }
 

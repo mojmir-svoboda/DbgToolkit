@@ -329,6 +329,7 @@ private:
 	QTableView * m_table_view_widget;
 	TreeModel * m_file_model;
 	TreeProxyModel * m_file_proxy;
+	QItemSelectionModel * m_proxy_selection;
 	QStandardItemModel * m_ctx_model;
 	QStandardItemModel * m_func_model;
 	QStandardItemModel * m_tid_model;

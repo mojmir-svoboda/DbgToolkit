@@ -49,6 +49,8 @@ public:
 	QModelIndex stateToItem (QString const & path, Qt::CheckState state);
 	QModelIndex stateToItem (QString const & path, Qt::CheckState state, bool collapsed);
 
+	QModelIndexList find (QString const & s) const;
+
 public Q_SLOTS:
 	
 	void onExpanded (QModelIndex const & idx);

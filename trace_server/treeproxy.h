@@ -24,6 +24,7 @@
 #include <QTreeView>
 #include <vector>
 #include <3rd/assocvector.h>
+#include "treemodel.h"
 #include "kde/kselectionproxymodel.h"
 
 class MainWindow;
@@ -33,7 +34,7 @@ class TreeProxyModel : public KSelectionProxyModel
 	Q_OBJECT
 
 public:
-	explicit TreeProxyModel (QTreeView * parent);
+	explicit TreeProxyModel (TreeModel * src, QItemSelectionModel * selection);
 
 public slots:
 	//void force_update();
@@ -42,6 +43,8 @@ public slots:
 protected:
 
 	QString m_find;
+	QItemSelectionModel * m_selection;
+	TreeModel * m_src;
 };
 
 
