@@ -16,8 +16,9 @@ void TreeProxyModel::setFindString (QString const & s)
 
 	QModelIndexList const children = m_src->find(s);
 
+	m_selection->clear();
 	for (int i = 0, ie = children.size(); i < ie; ++i)
-		m_selection->select(children.at(i));
+		m_selection->select(children.at(i), QItemSelectionModel::Select);
 	//beginResetModel();
 	//endResetModel();
 }

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>951</width>
-    <height>332</height>
+    <width>1015</width>
+    <height>355</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -752,7 +752,7 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>951</width>
+     <width>1015</width>
      <height>18</height>
     </rect>
    </property>
@@ -764,6 +764,12 @@ p, li { white-space: pre-wrap; }
      <horstretch>0</horstretch>
      <verstretch>0</verstretch>
     </sizepolicy>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>192</width>
+     <height>132</height>
+    </size>
    </property>
    <property name="features">
     <set>QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable</set>
@@ -858,6 +864,12 @@ p, li { white-space: pre-wrap; }
            </item>
            <item row="0" column="0">
             <widget class="QComboBox" name="filterFileComboBox">
+             <property name="minimumSize">
+              <size>
+               <width>48</width>
+               <height>0</height>
+              </size>
+             </property>
              <property name="toolTip">
               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Find string in the file filter view&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
              </property>

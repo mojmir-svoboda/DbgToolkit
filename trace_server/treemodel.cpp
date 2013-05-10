@@ -435,16 +435,17 @@ QModelIndexList TreeModel::find (QString const & s) const
 	QModelIndexList children;
 
 	for (int r = 0; r < rowCount(); ++r )
-	{
-		for (int c = 0; c < columnCount(); ++c)
-		children << index(r, c);  //  Use whatever column you are interested in.
-	}
+		children << index(r, 0);
 
-	// Now descend through the generations.
 	for ( int i = 0; i < children.size(); ++i ) {
-		for ( int j = 0; j < rowCount( children[i] ); ++j ) {
-			children << children[i].child( j, 0 );
+		for ( int j = 0; j < rowCount(children[i]); ++j ) {
+			children << children[i].child(j, 0);
 		}
 	}
-	return children;
+
+	QModelIndexList matches;
+	for ( int i = 0; i < children.size(); ++i )
+		matches << match(children[i], Qt::DisplayRole, s);
+
+	return matches;
 }
