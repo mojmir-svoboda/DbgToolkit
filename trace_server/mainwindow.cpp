@@ -1053,6 +1053,7 @@ void MainWindow::onCancelFilterFileButton ()
 {
 	ui->filterFileComboBox->clearEditText();
 	ui->cancelFilterButton->setEnabled(false);
+	ui->cancelFilterButton->setStyleSheet("color: rgb(128, 128, 128)"); 
 	if (Connection * conn = m_server->findCurrentConnection())
 	{
 		conn->onCancelFilterFileButton();
@@ -1063,6 +1064,10 @@ void MainWindow::onFilterFileComboChanged (QString str)
 {
 	bool cancel_on = !str.isEmpty();
 	ui->cancelFilterButton->setEnabled(cancel_on);
+	if (cancel_on)
+		ui->cancelFilterButton->setStyleSheet("color: rgb(255, 0, 0)"); 
+	else
+		ui->cancelFilterButton->setStyleSheet("color: rgb(128, 128, 128)"); 
 
 	if (Connection * conn = m_server->findCurrentConnection())
 	{
