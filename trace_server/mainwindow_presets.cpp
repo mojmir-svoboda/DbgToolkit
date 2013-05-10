@@ -40,8 +40,10 @@ QString MainWindow::matchClosestPresetName (QString const & app_name)
 {
 	QString const saved_preset = getCurrentPresetName();
 	QString preset_appname = saved_preset;
-	if (int const slash_pos = preset_appname.lastIndexOf(QChar('/')) != -1)
+	int const slash_pos = preset_appname.lastIndexOf(QChar('/'));
+	if (slash_pos != -1)
 		preset_appname.chop(preset_appname.size() - slash_pos);
+	qDebug("match preset name: curr=%s app_name=%s", preset_appname.toStdString().c_str(), app_name.toStdString().c_str());
 	if (preset_appname.contains(app_name))
 	{
 		qDebug("got correct preset name appname/.* from combobox");
@@ -73,6 +75,7 @@ void MainWindow::onSaveCurrentState ()
 		if (Connection * conn = m_server->findCurrentConnection())
 			txt = getPresetPath(conn->sessionState().getAppName(), g_defaultPresetName);
 	onSaveCurrentStateTo(txt);
+	storeState();
 }
 
 void MainWindow::onSaveCurrentStateTo (QString const & preset_name)

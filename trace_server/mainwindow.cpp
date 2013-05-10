@@ -1194,6 +1194,7 @@ void MainWindow::storeState ()
 	settings.setValue("cutPathSpinBox", ui_settings->cutPathSpinBox->value());
 	settings.setValue("cutNamespaceSpinBox", ui_settings->cutNamespaceSpinBox->value());
 	settings.setValue("onTopCheckBox", ui_settings->onTopCheckBox->isChecked());
+	settings.setValue("presetComboBox", ui->presetComboBox->currentText());
 
 	write_list_of_strings(settings, "known-applications", "application", m_config.m_app_names);
 	for (int i = 0, ie = m_config.m_app_names.size(); i < ie; ++i)
@@ -1359,6 +1360,9 @@ void MainWindow::loadState ()
 #endif
 
 	loadPresets();
+	QString const pname = settings.value("presetComboBox").toString();
+	ui->presetComboBox->setCurrentIndex(ui->presetComboBox->findText(pname));
+
 	ui->dockedWidgetsToolButton->setChecked(m_docked_widgets->isVisible());
 	qApp->installEventFilter(this);
 }

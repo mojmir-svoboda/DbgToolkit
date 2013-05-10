@@ -37,7 +37,7 @@ void Connection::handleCSVSetup (QString const & fname)
 		}
 		else
 		{
-			QString const pname = getPresetPath(app_name, g_defaultPresetName);
+			QString const pname = m_main_window->matchClosestPresetName(app_name);
 			m_main_window->onPresetActivate(this, pname);
 		}
 
@@ -215,7 +215,7 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 				else
 				{
 					m_file_model->beforeLoad();
-					QString const pname = getPresetPath(app_name, g_defaultPresetName);
+					QString const pname = m_main_window->matchClosestPresetName(app_name);
 					m_main_window->onPresetActivate(this, pname);
 					m_file_model->afterLoad();
 				}
