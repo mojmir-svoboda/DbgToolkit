@@ -33,6 +33,8 @@ bool Connection::handleLogCommand (DecodedCommand const & cmd)
 		LogTableModel * model = static_cast<LogTableModel *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
 		model->appendCommand(m_table_view_proxy, cmd);
 	}
+
+	m_main_window->getWidgetFile()->hideLinearParents();
 	return true;
 }
 

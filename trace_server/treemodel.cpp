@@ -324,7 +324,7 @@ QModelIndex TreeModel::insertItemWithHint (QString const & path, bool checked)
 	}
 }
 
-QModelIndex TreeModel::insertItem (QString const & path)
+void const * TreeModel::insertItem (QString const & path)
 {
 	TreeModelItem const * i = 0;
 	node_t const * node = m_tree_data->is_present(path, i);
@@ -332,7 +332,8 @@ QModelIndex TreeModel::insertItem (QString const & path)
 	{
 		//QModelIndex const idx = indexFromItem(node);
 		//emit dataChanged(idx, idx);
-		return QModelIndex();
+		//return QModelIndex();
+		return 0;
 	}
 	else
 	{
@@ -357,7 +358,7 @@ QModelIndex TreeModel::insertItem (QString const & path)
 			n->data.m_state = Qt::Checked;
 		QModelIndex const idx = indexFromItem(n);
 		emit dataChanged(idx, idx);
-		return idx;
+		return n;
 	}
 }
 

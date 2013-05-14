@@ -176,6 +176,8 @@ public:
 	QAbstractProxyModel const * proxyView () const { return static_cast<QAbstractProxyModel const *>(m_table_view_proxy); }
 
 	bool isModelProxy () const;
+	TreeModel * fileModel () { return m_file_model; }
+	TreeModel const * fileModel () const { return m_file_model; }
 
 signals:
 	void readyForUse();

@@ -339,7 +339,7 @@ bool Connection::appendToFilters (DecodedCommand const & cmd)
 		}
 	}
 
-	for (size_t i=0, ie=cmd.tvs.size(); i < ie; ++i)
+	/*for (size_t i=0, ie=cmd.tvs.size(); i < ie; ++i)
 	{
 		if (cmd.tvs[i].m_tag == tlv::tag_file)
 		{
@@ -348,7 +348,7 @@ bool Connection::appendToFilters (DecodedCommand const & cmd)
 			if (ret.isValid())
 				m_main_window->getWidgetFile()->hideLinearParents();
 		}
-	}
+	}*/
 	return true;
 }
 

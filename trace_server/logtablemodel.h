@@ -73,8 +73,8 @@ private:
 	typedef std::vector<QString> columns_t;
 	typedef std::vector<columns_t> rows_t;
 	rows_t m_rows;
-	typedef std::vector<void *> tree_item_ptrs_t;
-	tree_item_ptrs_t m_tree_item_ptrs;
+	typedef std::vector<void const *> tree_node_ptrs_t;
+	tree_node_ptrs_t m_tree_node_ptrs;
 
 	layers_t m_layers;
 	row_types_t m_rowTypes;

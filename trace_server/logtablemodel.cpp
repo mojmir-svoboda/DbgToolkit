@@ -199,6 +199,7 @@ void LogTableModel::appendCommand (QAbstractProxyModel * filter, tlv::StringComm
 	}
 
 	m_rows.push_back(columns_t(cmd.tvs.size()));
+	m_tree_node_ptrs.push_back(0);
 	m_layers.push_back(indent);
 	m_rowTypes.push_back(cmd.hdr.cmd);
 	columns_t & columns = m_rows.back();
@@ -304,6 +305,9 @@ void LogTableModel::appendCommand (QAbstractProxyModel * filter, tlv::StringComm
 		int const row = rowCount();
 		insertRow(row);
 	}
+
+	void const * node = m_connection->fileModel()->insertItem(file + "/" + line);
+	m_tree_node_ptrs.back() = node;
 }
 
 void LogTableModel::appendCommandCSV (QAbstractProxyModel * filter, tlv::StringCommand const & cmd)
