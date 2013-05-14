@@ -84,10 +84,23 @@ namespace tlv {
 			if (!stream.read(reinterpret_cast<char * >(&len), sizeof(len_t)))
 				return false;
 
-			char local_buffer[512]; // @#%!@%@%@#$%!@$%@#$%  assert len < e_buff_sz
-			if (!stream.read(local_buffer, len))
-				return false;
-			tv.m_val = QString::fromLatin1(local_buffer, len);
+			size_t const buffsize = 512;
+			QString val;
+			val.reserve(2 * buffsize);
+			size_t rd = 0;
+			while (rd < len)
+			{
+				char local_buffer[buffsize];
+				size_t const remaining = len - rd;
+				size_t const to_read = std::min(remaining, buffsize);
+				size_t const consumed = stream.read(local_buffer, to_read);
+				if (consumed == 0)
+					return false;
+				val += QString::fromLatin1(local_buffer, consumed);
+				rd += to_read;
+			}
+			val.squeeze();
+			tv.m_val = val;
 			//qDebug("DEC: len=%u str.ln=%u strl.val=%s ", len, tv.m_val.toStdString().length(), tv.m_val.toStdString().c_str());
 			return true;
 		}
