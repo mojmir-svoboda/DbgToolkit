@@ -6,8 +6,10 @@
 
 TableView::TableView (QWidget * parent)
 	: QTableView(parent)
+	, m_visualCursor(QPoint())
 {
 	qDebug("%s this=0x%08x", __FUNCTION__, this);
+	setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
 }
 
 TableView::~TableView () 
@@ -62,4 +64,25 @@ void TableView::keyPressEvent (QKeyEvent * event)
 	QTableView::keyPressEvent(event);
 }
 
+
+QModelIndex TableView::moveCursor (CursorAction cursorAction, Qt::KeyboardModifiers modifiers)
+{
+	if (modifiers & Qt::ControlModifier)
+	{
+		if (cursorAction == MoveHome)
+		{
+			scrollToTop();
+			return QModelIndex(); // @FIXME: should return valid value
+		}
+		else if (cursorAction == MoveEnd)
+		{
+			scrollToBottom();
+			return QModelIndex();	// @FIXME too
+		}
+		else
+			return QTableView::moveCursor(cursorAction, modifiers);
+	}
+	else
+		return QTableView::moveCursor(cursorAction, modifiers);
+}
 
