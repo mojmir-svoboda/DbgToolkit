@@ -21,6 +21,7 @@ namespace trace {
 		using namespace sys::socks;
 
 		sys::atomic32_t volatile g_Quit = 0;			/// request to quit
+		sys::atomic32_t volatile g_Flushed = 0;			/// request to quit
 		CACHE_ALIGN sys::atomic32_t volatile m_wr_idx = 0;		// write index
 		MessagePool<msg_t, 1024> g_MessagePool;					// pool of messages
 		CACHE_ALIGN sys::atomic32_t volatile m_rd_idx = 0;		// read index
@@ -161,9 +162,11 @@ namespace trace {
 
 		bool try_connect ();
 
+
 		/**@brief	function consuming and sending items from MessagePool **/
 		DWORD WINAPI consumer_thread ( LPVOID )
 		{
+			unsigned counter = 0;
 			while (!g_Quit)
 			{
 				if (g_ReconnectTimer.enabled() && g_ReconnectTimer.expired())
@@ -171,13 +174,14 @@ namespace trace {
 					if (try_connect())
 						g_ReconnectTimer.reset();
 					else
-						g_ReconnectTimer.set_delay_ms(1000);
+						g_ReconnectTimer.set_delay_ms(250);
 				}
 				sys::atomic32_t wr_idx = sys::atomic_get32(&m_wr_idx);
 				sys::atomic32_t rd_idx = m_rd_idx;
 				// @TODO: wraparound
 				if (rd_idx < wr_idx)
 				{
+
 					//DBG_OUT("rd_idx=%10i, wr_idx=%10i, diff=%10i \n", rd_idx, wr_idx, wr_idx - rd_idx);
 					msg_t & msg = socks::msg_buffer_at(rd_idx % MessagePool<msg_t, 1024>::e_size);
 					msg.ReadLock();
@@ -185,18 +189,33 @@ namespace trace {
 					bool const write_ok = socks::WriteToSocket(msg.m_data, msg.m_length);
 					msg.m_length = 0;
 					msg.ReadUnlockAndClean();
-					++m_rd_idx;
+					sys::atomic_faa32(&m_rd_idx, 1);
 
 					if (!write_ok)
 					{
-						g_ReconnectTimer.set_delay_ms(1000);
+						g_ReconnectTimer.set_delay_ms(250);
 						//break;
 					}
+					counter = 0;
 				}
-				else
-					sys::thread_yield();
+
+				sys::delay_execution(counter);
 			}
 			return 0;
+		}
+
+		void Flush ()
+		{
+			unsigned counter = 0;
+			for (;;)
+			{
+				sys::atomic32_t const wr_idx = sys::atomic_get32(&m_wr_idx);
+				sys::atomic32_t const rd_idx = sys::atomic_get32(&m_rd_idx);
+				if (rd_idx < wr_idx)
+					sys::delay_execution(counter);
+				else
+					break;
+			}
 		}
 	}
 
@@ -262,6 +281,8 @@ namespace trace {
 		CloseHandle(socks::g_LogFile);
 #	endif
 	}
+
+	void Flush () { socks::Flush(); }
 }
 
 #include "write_fns.inl"

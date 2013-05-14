@@ -36,7 +36,6 @@
 			SetCustomUserDictionnary(ptr, n);
 		}
 
-
 		// message logging
 		void WriteLog (level_t level, context_t context, char const * file, int, char const *, char const *, va_list);
 		void WriteVA (level_t level, context_t context, char const * file, int line, char const * fn, char const * fmt, va_list args)

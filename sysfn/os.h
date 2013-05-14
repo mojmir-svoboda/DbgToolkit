@@ -21,6 +21,26 @@
 		/**@brief	yields core to other thread **/
 		inline void thread_yield () { Sleep(1); }
 
+
+        inline void delay_execution (unsigned & counter)
+        {
+            if (counter < 10)
+                _mm_pause();
+            else if (counter < 20)
+                for (int i = 0; i < 50; ++i)
+                    _mm_pause();
+            else if (counter < 22)
+                SwitchToThread();
+            else if (counter < 24)
+                Sleep(0);
+            else if (counter < 26)
+                Sleep(1);
+            else
+                Sleep(10);
+
+            counter += 1;
+        }
+
 		inline size_t trc_vsnprintf (char * buff, size_t ln, char const * fmt, ...)
 		{
 			va_list args;
