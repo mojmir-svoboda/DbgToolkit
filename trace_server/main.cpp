@@ -44,7 +44,7 @@ void ProfilerAcceptorThread::run ()
 	}*/
 	using boost::asio::ip::tcp;
 
-	qDebug("profiler: server listening...\n");
+	qDebug("profiler: server listening...");
 	boost::asio::io_service io_service;
 
 	int const port = 13147; // std::atoi(argv[1])
@@ -56,7 +56,7 @@ void ProfilerAcceptorThread::run ()
 		io_service.run();
 	}
 
-	qDebug("profiler: server quitting...\n");
+	qDebug("profiler: server quitting...");
 }
 
 struct Application : QApplication, public QAbstractNativeEventFilter
