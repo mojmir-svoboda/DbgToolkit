@@ -16,6 +16,4 @@ protected:
 	virtual void keyPressEvent (QKeyEvent * event);
     virtual QModelIndex moveCursor (CursorAction cursorAction, Qt::KeyboardModifiers modifiers);
 	virtual bool viewportEvent (QEvent * event);
-
-	QPoint m_visualCursor;
 };

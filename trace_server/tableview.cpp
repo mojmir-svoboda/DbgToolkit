@@ -2,14 +2,14 @@
 #include <QEvent>
 #include <QHelpEvent>
 #include <QHeaderView>
+#include <QScrollBar>
 #include "modelview.h"
 
 TableView::TableView (QWidget * parent)
 	: QTableView(parent)
-	, m_visualCursor(QPoint())
 {
 	qDebug("%s this=0x%08x", __FUNCTION__, this);
-	setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
+	//setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
 }
 
 TableView::~TableView () 
@@ -84,5 +84,10 @@ QModelIndex TableView::moveCursor (CursorAction cursorAction, Qt::KeyboardModifi
 	}
 	else
 		return QTableView::moveCursor(cursorAction, modifiers);
+
+	/*int const value = horizontalScrollBar()->value();
+	QModelIndex const ret = QTableView::moveCursor(cursorAction, modifiers);
+	horizontalScrollBar()->setValue(value);
+	return ret;*/
 }
 
