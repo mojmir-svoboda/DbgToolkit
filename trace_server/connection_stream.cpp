@@ -3,7 +3,7 @@
 #include <QMessageBox>
 #include <QHeaderView>
 #include <tlv_parser/tlv_encoder.h>
-#include "modelview.h"
+#include "logtablemodel.h"
 #include "cmd.h"
 #include "utils.h"
 #include "dock.h"
@@ -24,13 +24,13 @@ bool Connection::handleLogCommand (DecodedCommand const & cmd)
 	{
 		if (m_main_window->scopesEnabled())
 		{
-			ModelView * model = static_cast<ModelView *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
+			LogTableModel * model = static_cast<LogTableModel *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
 			model->appendCommand(m_table_view_proxy, cmd);
 		}
 	}
 	else if (cmd.hdr.cmd == tlv::cmd_log)
 	{
-		ModelView * model = static_cast<ModelView *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
+		LogTableModel * model = static_cast<LogTableModel *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
 		model->appendCommand(m_table_view_proxy, cmd);
 	}
 	return true;
@@ -51,14 +51,14 @@ inline size_t read_min (boost::circular_buffer<char> & ring, char * dst, size_t 
 
 void Connection::onHandleCommandsStart ()
 {
-	ModelView * model = static_cast<ModelView *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
+	LogTableModel * model = static_cast<LogTableModel *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
 	size_t const rows = m_decoded_cmds.size();
 	model->transactionStart(static_cast<int>(rows));
 }
 
 void Connection::onHandleCommands ()
 {
-	ModelView * model = static_cast<ModelView *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
+	LogTableModel * model = static_cast<LogTableModel *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
 	size_t const rows = m_decoded_cmds.size();
 	for (size_t i = 0; i < rows; ++i)
 	{
@@ -70,7 +70,7 @@ void Connection::onHandleCommands ()
 
 void Connection::onHandleCommandsCommit ()
 {
-	ModelView * model = static_cast<ModelView *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
+	LogTableModel * model = static_cast<LogTableModel *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
 
 	setupColumnSizes(false);
 	model->transactionCommit();
@@ -293,7 +293,7 @@ void Connection::processTailCSVStream ()
 		if (m_decoded_cmds.size() > 0)
 		{
 			emit onHandleCommandsStart();
-			ModelView * model = static_cast<ModelView *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
+			LogTableModel * model = static_cast<LogTableModel *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
 			for (size_t i = 0, ie = m_decoded_cmds.size(); i < ie; ++i)
 			{
 				DecodedCommand & cmd = m_decoded_cmds.front();
@@ -354,7 +354,7 @@ bool Connection::handleCSVStreamCommand (DecodedCommand const & cmd)
 	}
 
 	//appendToFilters(cmd);
-	ModelView * model = static_cast<ModelView *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
+	LogTableModel * model = static_cast<LogTableModel *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
 	model->appendCommandCSV(m_table_view_proxy, cmd);
 	return true;
 }

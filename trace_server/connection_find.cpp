@@ -1,11 +1,11 @@
 #include "connection.h"
 #include <QStatusBar>
-#include "modelview.h"
+#include "logtablemodel.h"
 #include "utils.h"
 
 void Connection::findTextInAllColumns (QString const & text, int from_row, int to_row, bool only_first)
 {
-	ModelView * model = static_cast<ModelView *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
+	LogTableModel * model = static_cast<LogTableModel *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
 	for (int i = from_row, ie = to_row; i < ie; ++i)
 	{
 		for (int j = 0, je = model->columnCount(); j < je; ++j)
@@ -42,7 +42,7 @@ void Connection::findTextInAllColumns (QString const & text, int from_row, int t
 
 void Connection::findTextInColumn (QString const & text, int col, int from_row, int to_row)
 {
-	ModelView * model = static_cast<ModelView *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
+	LogTableModel * model = static_cast<LogTableModel *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
 	for (int i = from_row, ie = to_row; i < ie; ++i)
 	{
 		QModelIndex const idx = model->index(i, col, QModelIndex());
@@ -76,7 +76,7 @@ void Connection::findTextInColumn (QString const & text, int col, int from_row, 
 void Connection::selectionFromTo (int & from, int & to) const
 {
 	from = 0;
-	ModelView const * model = static_cast<ModelView *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
+	LogTableModel const * model = static_cast<LogTableModel *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
 	to = model->rowCount();
 	QItemSelectionModel const * selection = m_table_view_widget->selectionModel();
 	QModelIndexList indexes = selection->selectedIndexes();
@@ -91,7 +91,7 @@ void Connection::findAllTexts (QString const & text)
 {
 	m_last_search = text;
 	int from = 0;
-	ModelView const * model = static_cast<ModelView *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
+	LogTableModel const * model = static_cast<LogTableModel *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
 	int to = model->rowCount();
 	findTextInAllColumns(text, from, to, false);
 }
@@ -119,7 +119,7 @@ void Connection::findText (QString const & text, tlv::tag_t tag)
 	}
 	else
 	{
-		ModelView const * model = static_cast<ModelView *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
+		LogTableModel const * model = static_cast<LogTableModel *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
 		int const to = model->rowCount();
 		findTextInColumn(m_last_search, m_last_search_col, m_last_search_row + 1, to);
 	}
@@ -164,7 +164,7 @@ QVariant Connection::findVariant4Tag (tlv::tag_t tag, QModelIndex const & row_in
 	if (idx == -1)
 		return QVariant();
 
-	ModelView * model = static_cast<ModelView *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
+	LogTableModel * model = static_cast<LogTableModel *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
 
 	QModelIndex const model_idx = model->index(row_index.row(), idx, QModelIndex());
 	if (model_idx.isValid())

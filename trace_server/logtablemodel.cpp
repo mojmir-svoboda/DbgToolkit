@@ -1,11 +1,11 @@
-#include "modelview.h"
+#include "logtablemodel.h"
 #include <QBrush>
 #include <QColor>
 #include <QAbstractProxyModel>
 #include "connection.h"
 #include <trace_client/trace.h>
 
-ModelView::ModelView (QObject * parent, Connection * c)
+LogTableModel::LogTableModel (QObject * parent, Connection * c)
 	: QAbstractTableModel(parent)
 	, m_connection(c)
 	, m_session_state(c->sessionState())
@@ -14,38 +14,38 @@ ModelView::ModelView (QObject * parent, Connection * c)
 	m_rows.reserve(prealloc_size); // @TODO: magic const!
 }
 
-ModelView::~ModelView ()
+LogTableModel::~LogTableModel ()
 {
 	qDebug("%s", __FUNCTION__);
 }
 
-int ModelView::rowCount (const QModelIndex & /*parent*/) const { return static_cast<int>(m_rows.size()); }
+int LogTableModel::rowCount (const QModelIndex & /*parent*/) const { return static_cast<int>(m_rows.size()); }
 
-int ModelView::columnCount (const QModelIndex & /*parent*/) const
+int LogTableModel::columnCount (const QModelIndex & /*parent*/) const
 {
 	if (m_session_state.getColumnsSetupCurrent())
 		return m_session_state.getColumnsSetupCurrent()->size();
 	return 0;
 }
 
-inline bool ModelView::checkExistence (QModelIndex const & index) const
+inline bool LogTableModel::checkExistence (QModelIndex const & index) const
 {
 	return index.row() < (int)m_rows.size() && index.column() < (int)m_rows[index.row()].size();
 }
 
-inline bool ModelView::checkTagExistence (tlv::tag_t tag, QModelIndex const & index) const
+inline bool LogTableModel::checkTagExistence (tlv::tag_t tag, QModelIndex const & index) const
 {
 	int const column_idx = m_session_state.findColumn4Tag(tag);
 	return column_idx != -1 && column_idx == index.column();
 }
 
-inline bool ModelView::checkColumnExistence (tlv::tag_t tag, QModelIndex const & index) const
+inline bool LogTableModel::checkColumnExistence (tlv::tag_t tag, QModelIndex const & index) const
 {
 	int const column_idx = m_session_state.findColumn4Tag(tag);
 	return column_idx != -1 && column_idx == index.column() && checkExistence(index);
 }
 
-QVariant ModelView::data (const QModelIndex &index, int role) const
+QVariant LogTableModel::data (const QModelIndex &index, int role) const
 {
 	if (!index.isValid())
 		return QVariant();
@@ -129,7 +129,7 @@ QVariant ModelView::data (const QModelIndex &index, int role) const
 }
 
 
-bool ModelView::setData (QModelIndex const & index, QVariant const & value, int role)
+bool LogTableModel::setData (QModelIndex const & index, QVariant const & value, int role)
 {
 	if (!index.isValid()) return false;
 	if (role == Qt::DisplayRole)
@@ -147,7 +147,7 @@ bool ModelView::setData (QModelIndex const & index, QVariant const & value, int 
 	return true;	
 }
 
-QVariant ModelView::headerData (int section, Qt::Orientation orientation, int role) const
+QVariant LogTableModel::headerData (int section, Qt::Orientation orientation, int role) const
 {
 	if (role == Qt::DisplayRole) {
 		if (orientation == Qt::Horizontal) {
@@ -159,7 +159,7 @@ QVariant ModelView::headerData (int section, Qt::Orientation orientation, int ro
 	return QVariant();
 }
 
-void ModelView::transactionStart (int n)
+void LogTableModel::transactionStart (int n)
 {
 	int const row = rowCount();
 	beginInsertRows(QModelIndex(), row, row + n);
@@ -167,18 +167,18 @@ void ModelView::transactionStart (int n)
 	//emit layoutAboutToBeChanged();
 }
 
-void ModelView::transactionCommit ()
+void LogTableModel::transactionCommit ()
 {
 	endInsertRows();
 	//emit layoutChanged();
 }
 
-void ModelView::emitLayoutChanged ()
+void LogTableModel::emitLayoutChanged ()
 {
 	emit layoutChanged();
 }
 
-void ModelView::appendCommand (QAbstractProxyModel * filter, tlv::StringCommand const & cmd)
+void LogTableModel::appendCommand (QAbstractProxyModel * filter, tlv::StringCommand const & cmd)
 {
 	int column_index = -1;
 	int thread_idx = -1;
@@ -306,7 +306,7 @@ void ModelView::appendCommand (QAbstractProxyModel * filter, tlv::StringCommand 
 	}
 }
 
-void ModelView::appendCommandCSV (QAbstractProxyModel * filter, tlv::StringCommand const & cmd)
+void LogTableModel::appendCommandCSV (QAbstractProxyModel * filter, tlv::StringCommand const & cmd)
 {
 	m_rows.push_back(columns_t(cmd.tvs.size()));
 

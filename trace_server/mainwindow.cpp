@@ -2,7 +2,6 @@
 #include "ui_mainwindow.h"
 #include "ui_settings.h"
 #include "ui_help.h"
-#include "modelview.h"
 #include "server.h"
 #include "connection.h"
 #include <QTime>

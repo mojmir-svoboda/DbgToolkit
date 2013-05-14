@@ -52,7 +52,7 @@ SET(trace_server_SOURCES
 	treeview.cpp
 	treemodel.cpp
 	treeproxy.cpp
-	modelview.cpp
+	logtablemodel.cpp
 	tableview.cpp
 	delegates.cpp
 	server.cpp
@@ -116,7 +116,7 @@ SET(trace_server_HEADERS
 	treeview.h
 	treemodel.h
 	treeproxy.h
-	modelview.h
+	logtablemodel.h
 	tableview.h
 	server.h
 	connection.h

@@ -1,6 +1,6 @@
 #include "connection.h"
 #include <QClipboard>
-#include "modelview.h"
+#include "logtablemodel.h"
 #include "tableview.h"
 
 bool Connection::handleLogClearCommand (DecodedCommand const & cmd)
@@ -135,7 +135,7 @@ void Connection::onTableDoubleClicked (QModelIndex const & row_index)
 	if (m_table_view_proxy)
 	{
 		QModelIndex const curr = m_table_view_proxy->mapToSource(row_index);
-		ModelView * model = static_cast<ModelView *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
+		LogTableModel * model = static_cast<LogTableModel *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
 		qDebug("2c curr: (%i,col) -> (%i,col)", row_index.row(), curr.row());
 
 		int row_bgn = curr.row();
@@ -260,7 +260,7 @@ void Connection::onToggleRefFromRow ()
 		qDebug("Toggle Ref from row=%i", current.row());
 		m_session_state.setTimeRefFromRow(current.row());
 
-		//ModelView * model = static_cast<ModelView *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
+		//LogTableModel * model = static_cast<LogTableModel *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
 		QString const & strtime = findString4Tag(tlv::tag_time, current);
 		m_session_state.setTimeRefValue(strtime.toULongLong());
 		onInvalidateFilter();
@@ -287,7 +287,7 @@ void Connection::onColorTagRow (int)
 void Connection::onClearCurrentView ()
 {
 	//QModelIndex const curr = m_table_view_proxy->mapToSource(row_index);
-	ModelView * model = static_cast<ModelView *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
+	LogTableModel * model = static_cast<LogTableModel *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
 	m_session_state.excludeContentToRow(model->rowCount());
 	onInvalidateFilter();
 }

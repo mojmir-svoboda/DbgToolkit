@@ -6,7 +6,7 @@
 #include "utils.h"
 #include "utils_qstandarditem.h"
 #include "filterproxy.h"
-#include "modelview.h"
+#include "logtablemodel.h"
 #include "qtsln/qtcolorpicker/qtcolorpicker.h"
 
 void Connection::onInvalidateFilter ()
@@ -34,7 +34,7 @@ void Connection::onInvalidateFilter ()
 		static_cast<FilterProxyModel *>(m_table_view_proxy)->force_update();
 	else
 	{
-		ModelView * model = static_cast<ModelView *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
+		LogTableModel * model = static_cast<LogTableModel *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
 		model->emitLayoutChanged();
 	}
 

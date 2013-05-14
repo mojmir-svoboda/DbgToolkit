@@ -19,9 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  **/
-#ifndef MODELVIEW_H
-#define MODELVIEW_H
-
+#pragma once
 #include <QAbstractTableModel>
 #include <QString>
 #include <vector>
@@ -32,12 +30,13 @@ class Connection;
 class SessionState;
 class QAbstractProxyModel;
 
-class ModelView : public QAbstractTableModel
+class LogTableModel : public QAbstractTableModel
 {
 	Q_OBJECT
 public:
-	explicit ModelView (QObject * parent = 0, Connection * c = 0);
-	~ModelView ();
+	explicit LogTableModel (QObject * parent = 0, Connection * c = 0);
+	~LogTableModel ();
+
 	int rowCount (const QModelIndex & parent = QModelIndex()) const;
 	int columnCount (const QModelIndex & parent = QModelIndex()) const;
 	QVariant data (const QModelIndex & index, int role = Qt::DisplayRole) const;
@@ -74,8 +73,11 @@ private:
 	typedef std::vector<QString> columns_t;
 	typedef std::vector<columns_t> rows_t;
 	rows_t m_rows;
+	typedef std::vector<void *> tree_item_ptrs_t;
+	tree_item_ptrs_t m_tree_item_ptrs;
+
 	layers_t m_layers;
 	row_types_t m_rowTypes;
 };
 
-#endif // MODELVIEW_H
+

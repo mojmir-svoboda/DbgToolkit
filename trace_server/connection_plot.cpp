@@ -2,7 +2,6 @@
 #include <QtNetwork>
 #include <QHeaderView>
 #include <tlv_parser/tlv_encoder.h>
-#include "modelview.h"
 #include "cmd.h"
 #include "utils.h"
 #include "dock.h"

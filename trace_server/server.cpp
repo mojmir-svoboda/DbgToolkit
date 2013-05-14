@@ -11,7 +11,7 @@
 #include "server.h"
 #include "connection.h"
 #include "mainwindow.h"
-#include "modelview.h"
+#include "logtablemodel.h"
 #include "utils.h"
 #include "tableview.h"
 
@@ -136,7 +136,7 @@ Connection * Server::createNewTableView ()
 	disconnect(tableView->horizontalHeader(), SIGNAL(sectionHandleDoubleClicked(int)), tableView, SLOT(resizeColumnToContents(int)));
 
 	tableView->setObjectName(QString::fromUtf8("tableView"));
-	ModelView * model = new ModelView(tableView, connection);
+	LogTableModel * model = new LogTableModel(tableView, connection);
 	connection->m_table_view_src = model;
 	disconnect(model, SIGNAL(rowsInserted(QModelIndex,int,int)), tableView->verticalHeader(), SLOT(sectionsInserted(QModelIndex,int,int)));
     tableView->verticalHeader()->setFont(m_main_window->tableFont());

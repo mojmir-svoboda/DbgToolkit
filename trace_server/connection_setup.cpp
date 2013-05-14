@@ -3,7 +3,7 @@
 #include <QListView>
 #include <QHeaderView>
 #include <tlv_parser/tlv_encoder.h>
-#include "modelview.h"
+#include "logtablemodel.h"
 #include "utils.h"
 #include "utils_qstandarditem.h"
 #include "serialization.h"
@@ -144,7 +144,7 @@ void Connection::handleCSVSetup (QString const & fname)
 	//m_table_view_widget->setItemDelegate(new TableItemDelegate(sessionState(), this));
 
 	m_main_window->getTabTrace()->setCurrentIndex(tab_idx);
-	static_cast<ModelView *>(m_table_view_widget->model())->emitLayoutChanged();
+	static_cast<LogTableModel *>(m_table_view_widget->model())->emitLayoutChanged();
 
 	qDebug("Server::incomingConnection buffering not enabled, notifying client");
 	onBufferingStateChanged(m_main_window->buffState());
@@ -403,7 +403,7 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 			/* m_table_view_widget->horizontalHeader()->setStretchLastSection(true); */
 //////////////// PERF!!!!! //////////////////
 
-			static_cast<ModelView *>(m_table_view_widget->model())->emitLayoutChanged();
+			static_cast<LogTableModel *>(m_table_view_widget->model())->emitLayoutChanged();
 		}
 	}
 

@@ -3,7 +3,7 @@
 #include <QHelpEvent>
 #include <QHeaderView>
 #include <QScrollBar>
-#include "modelview.h"
+#include "logtablemodel.h"
 
 TableView::TableView (QWidget * parent)
 	: QTableView(parent)
@@ -41,7 +41,7 @@ void TableView::scrollTo (QModelIndex const & index, ScrollHint hint)
 
 void TableView::setColumnOrder (QMap<int, int> const & columnOrderMap, SessionState const & session)
 {
-    ModelView * tableModel = static_cast<ModelView *>(model());
+    LogTableModel * tableModel = static_cast<LogTableModel *>(model());
     int currentIndex;
     int indexMovingTo;
 
