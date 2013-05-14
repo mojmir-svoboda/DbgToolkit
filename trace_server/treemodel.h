@@ -4,6 +4,7 @@
 #include <filters/file_filter.hpp>
 
 class QTreeView;
+class Connection;
 typedef tree_filter<TreeModelItem> tree_data_t;
 
 class TreeModel : public QAbstractItemModel
@@ -14,7 +15,7 @@ public:
 	typedef QAbstractItemModel parent_t;
 	typedef tree_data_t::node_t node_t;
 
-	explicit TreeModel (QObject * parent = 0, tree_data_t * data = 0);
+	explicit TreeModel (Connection * parent = 0, tree_data_t * data = 0);
 	~TreeModel ();
 
 	virtual QVariant data (const QModelIndex & index, int role = Qt::DisplayRole) const;
@@ -70,5 +71,6 @@ protected:
 	void syncParents (node_t * const item, Qt::CheckState state);
 
 	tree_data_t * m_tree_data;
+	Connection * m_connection;
 };
 

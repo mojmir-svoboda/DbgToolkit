@@ -1,9 +1,11 @@
 #include "treemodel.h"
+#include "connection.h"
 #include <QTreeView>
 
-TreeModel::TreeModel (QObject * parent, tree_data_t * data)
+TreeModel::TreeModel (Connection * parent, tree_data_t * data)
 	: QAbstractItemModel(parent)
 	, m_tree_data(data)
+	, m_connection(parent)
 {
 	qDebug("%s", __FUNCTION__);
 }
