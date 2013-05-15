@@ -154,7 +154,7 @@ void TableItemDelegate::paint (QPainter * painter, QStyleOptionViewItem const & 
 
 		if (m_session_state.findColorTagRow(row))
 		{
-			painter->fillRect(option.rect, Qt::cyan);
+			painter->fillRect(option.rect, QColor(202, 225, 255));
 		}	
 	}
 
