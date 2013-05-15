@@ -131,6 +131,7 @@ Connection * Server::createNewTableView ()
 	horizontalLayout->setContentsMargins(0, 0, 0, 0);
 	horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
 	TableView * tableView = new TableView(tab);
+	tableView->setStyleSheet("QTableView::item{ selection-background-color:	#F5DEB3  } QTableView::item{ selection-color:	#000000 }");
 	
 	// to ignore 'resizeColumnToContents' when accidentaly double-clicked on header handle
 	disconnect(tableView->horizontalHeader(), SIGNAL(sectionHandleDoubleClicked(int)), tableView, SLOT(resizeColumnToContents(int)));

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1015</width>
-    <height>355</height>
+    <width>1204</width>
+    <height>401</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -662,6 +662,28 @@ p, li { white-space: pre-wrap; }
        </spacer>
       </item>
       <item>
+       <widget class="QPushButton" name="findPrevButton">
+        <property name="maximumSize">
+         <size>
+          <width>24</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <family>Verdana</family>
+          <pointsize>7</pointsize>
+         </font>
+        </property>
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Find previous occurence of the string&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="text">
+         <string>&lt;|</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QLabel" name="label_3">
         <property name="font">
          <font>
@@ -678,13 +700,13 @@ p, li { white-space: pre-wrap; }
        <widget class="QComboBox" name="qSearchComboBox">
         <property name="minimumSize">
          <size>
-          <width>64</width>
+          <width>96</width>
           <height>0</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>96</width>
+          <width>128</width>
           <height>16777215</height>
          </size>
         </property>
@@ -705,6 +727,28 @@ p, li { white-space: pre-wrap; }
         </property>
         <property name="frame">
          <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="findNextButton">
+        <property name="maximumSize">
+         <size>
+          <width>24</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <family>Verdana</family>
+          <pointsize>7</pointsize>
+         </font>
+        </property>
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Find next occurence of the string&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="text">
+         <string>|&gt;</string>
         </property>
        </widget>
       </item>
@@ -752,7 +796,7 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1015</width>
+     <width>1204</width>
      <height>18</height>
     </rect>
    </property>

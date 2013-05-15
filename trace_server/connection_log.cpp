@@ -124,6 +124,7 @@ void Connection::onTableClicked (QModelIndex const & row_index)
 		m_last_clicked = m_table_view_proxy->mapToSource(row_index);
 
 	m_last_search_row = m_last_clicked.row(); // set search from this line
+	m_last_search_col = m_last_clicked.column();
 
 	bool const scroll_to_item = false;
 	bool const expand = false;

@@ -167,9 +167,15 @@ void Connection::findNext (QString const & text)
 		m_last_search = text;
 	}
 
+	if (!m_last_clicked.isValid())
+	{
+		int const col_idx = sessionState().findColumn4Tag(tlv::tag_msg);
+		m_last_search_col = col_idx < 0 ? 0 : col_idx;
+	}
+
 	if (m_last_search.isEmpty())
 	{
-		m_last_search_row = m_last_search_col = 0;
+		m_last_search_row = 0;
 		return;
 	}
 	findTextInColumn(m_last_search, m_last_search_col, m_last_search_row + 1, to);
@@ -179,6 +185,12 @@ void Connection::findPrev (QString const & text)
 {
 	int from, to;
 	selectionFromTo(from, to);
+	if (!m_last_clicked.isValid())
+	{
+		int const col_idx = sessionState().findColumn4Tag(tlv::tag_msg);
+		m_last_search_col = col_idx < 0 ? 0 : col_idx;
+	}
+
 	if (text != m_last_search)
 	{
 		m_last_search = text;
@@ -186,10 +198,10 @@ void Connection::findPrev (QString const & text)
 
 	if (m_last_search.isEmpty())
 	{
-		m_last_search_row = m_last_search_col = 0;
+		m_last_search_row = to;
 		return;
 	}
-	int const last = m_last_search_row > 0 ? m_last_search_row - 1 : from;
+	int const last = m_last_search_row > 0 ? m_last_search_row - 1 : to;
 	findTextInColumnRev(m_last_search, m_last_search_col, last, 0);
 }
 
