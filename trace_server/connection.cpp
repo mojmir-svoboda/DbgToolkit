@@ -31,6 +31,8 @@ Connection::Connection (QObject * parent)
 	, m_string_model(0)
 	, m_lvl_delegate(0)
 	, m_ctx_delegate(0)
+	, m_string_delegate(0)
+	, m_regex_delegate(0)
 	, m_table_view_proxy(0)
 	, m_table_view_src(0)
 	, m_toggle_ref(0)
@@ -69,6 +71,8 @@ Connection::Connection (QObject * parent)
 	m_data_model = new TreeModel(this, &m_session_state.m_data_filters);
 	m_lvl_delegate = new LevelDelegate(m_session_state, this);
 	m_ctx_delegate = new CtxDelegate(m_session_state, this);
+	m_string_delegate = new StringDelegate(m_session_state, this);
+	m_regex_delegate = new RegexDelegate(m_session_state, this);
 }
 
 namespace {
@@ -164,15 +168,23 @@ Connection::~Connection ()
 	delete m_color_regex_model;
 	m_color_regex_model = 0;
 
+	if (m_main_window->getWidgetRegex()->itemDelegate() == m_regex_delegate)
+		m_main_window->getWidgetRegex()->setItemDelegate(0);
 	if (m_main_window->getWidgetRegex()->model() == m_regex_model)
 		m_main_window->getWidgetRegex()->setModel(0);
 	delete m_regex_model;
 	m_regex_model = 0;
+	delete m_regex_delegate;
+	m_regex_delegate = 0;
 
-	if (m_main_window->getWidgetRegex()->model() == m_string_model)
-		m_main_window->getWidgetRegex()->setModel(0);
+	if (m_main_window->getWidgetString()->itemDelegate() == m_string_delegate)
+		m_main_window->getWidgetString()->setItemDelegate(0);
+	if (m_main_window->getWidgetString()->model() == m_string_model)
+		m_main_window->getWidgetString()->setModel(0);
 	delete m_string_model;
 	m_string_model = 0;
+	delete m_string_delegate;
+	m_string_delegate = 0;
 
 	if (m_table_view_proxy)
 	{

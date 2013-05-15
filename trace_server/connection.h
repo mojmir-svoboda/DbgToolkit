@@ -48,6 +48,8 @@ class QStandardItemModel;
 class QStandardItem;
 class LevelDelegate;
 class CtxDelegate;
+class StringDelegate;
+class RegexDelegate;
 
 namespace stats { class StatsWindow; }
 
@@ -106,6 +108,7 @@ struct DataGantt {
 };
 
 typedef QMap<QString, DataGantt *> datagantts_t;
+
 
 /**@class		Connection
  * @brief		represents incoming connection (or file stream)
@@ -341,6 +344,10 @@ private:
 	QStandardItemModel * m_string_model;
 	LevelDelegate * m_lvl_delegate;
 	CtxDelegate * m_ctx_delegate;
+	StringDelegate * m_string_delegate;
+	RegexDelegate * m_regex_delegate;
+	//enum { e_Delegate_Level, e_Delegate_Context, e_
+	//std::vector<QAbstractItemDelegate *> m_delegates;
 	QAbstractProxyModel * m_table_view_proxy;
 	QAbstractItemModel * m_table_view_src;
 
@@ -351,6 +358,8 @@ private:
 	QAction * m_find_fileline;
 	QAction * m_copy_to_clipboard;
 	QAction * m_color_tag_row;
+	//enum { e_Action_ToggleRef, e_Action_HidePrev, e_Action_ExcludeFileLine, e_Action_Find, e_Action_Copy, e_Action_ColorTag };
+	//std::vector<QAction *> m_actions;
 	QModelIndex m_last_clicked;
 
 	// data receiving stuff

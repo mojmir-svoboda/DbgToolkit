@@ -57,6 +57,28 @@ public:
 private slots:
 };
 
+class StringDelegate : public QStyledItemDelegate
+{
+	SessionState const & m_session_state;
+public: 
+    StringDelegate (SessionState & ss, QObject *parent = 0) : QStyledItemDelegate(parent), m_session_state(ss) { }
+
+    void paint (QPainter * painter, QStyleOptionViewItem const & option, QModelIndex const & index) const;
+    
+private slots:
+};
+class RegexDelegate : public QStyledItemDelegate
+{
+	SessionState const & m_session_state;
+public: 
+    RegexDelegate (SessionState & ss, QObject *parent = 0) : QStyledItemDelegate(parent), m_session_state(ss) { }
+
+    void paint (QPainter * painter, QStyleOptionViewItem const & option, QModelIndex const & index) const;
+    
+private slots:
+};
+
+
 class SizeDelegate : public QItemDelegate
 {
 	QVector<int> & m_sizes;

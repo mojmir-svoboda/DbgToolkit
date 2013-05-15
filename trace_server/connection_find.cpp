@@ -64,7 +64,7 @@ void Connection::findTextInColumn (QString const & text, int col, int from_row, 
 
 			return;
 		}
-	}
+		}
 	{
 		qDebug("end of search");
 		// flash icon

@@ -515,6 +515,7 @@ void Connection::setupModelRegex ()
 	if (!m_regex_model)
 		m_regex_model = new QStandardItemModel;
 	m_main_window->getWidgetRegex()->setModel(m_regex_model);
+	m_main_window->getWidgetRegex()->setItemDelegate(m_regex_delegate);
 }
 
 void Connection::setupModelString ()
@@ -522,6 +523,7 @@ void Connection::setupModelString ()
 	if (!m_string_model)
 		m_string_model = new QStandardItemModel;
 	m_main_window->getWidgetString()->setModel(m_string_model);
+	m_main_window->getWidgetString()->setItemDelegate(m_string_delegate);
 }
 
 void Connection::setupModelLvl ()

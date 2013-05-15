@@ -164,11 +164,10 @@ void Server::onClickedAtTIDList (QModelIndex idx)
 	QStandardItem * item = model->itemFromIndex(idx);
 	Q_ASSERT(item);
 
-	QString const & val = model->data(idx, Qt::DisplayRole).toString();
-
 	bool const orig_checked = (item->checkState() == Qt::Checked);
 	if (Connection * conn = findCurrentConnection())
 	{
+		QString const & val = model->data(idx, Qt::DisplayRole).toString();
 		bool const checked = !orig_checked;
 		if (checked)
 			conn->sessionState().appendTIDFilter(val);
@@ -191,29 +190,16 @@ void Server::onClickedAtLvlList (QModelIndex idx)
 	if (idx.column() == 1)
 	{
 		QString const & filter_item = model->data(model->index(idx.row(), 0, QModelIndex()), Qt::DisplayRole).toString();
-		bool is_inclusive = true;
 		QString const & mod = model->data(idx, Qt::DisplayRole).toString();
 
 		E_LevelMode const curr = stringToLvlMod(mod.toStdString().c_str()[0]);
-		size_t i = (curr + 1) % e_max_lvlmod_enum_value;
-		E_LevelMode const act = static_cast<E_LevelMode>(i);
-		//ui_settings->listViewColumnAlign->model()->setData(idx, QString(alignToString(act)));
-		
-		model->setData(idx, QString(lvlModToString(act)));
-
-		if (mod == "I")
-		{
-			//model->setData(idx, QString("E"));
-			is_inclusive = false;
-		}
-		else
-		{
-			//model->setData(idx, QString("I"));
-		}
+		size_t const i = (curr + 1) % e_max_lvlmod_enum_value;
+		E_LevelMode const new_mode = static_cast<E_LevelMode>(i);
+		model->setData(idx, QString(lvlModToString(new_mode)));
 
 		if (Connection * conn = findCurrentConnection())
 		{
-			conn->sessionState().setLvlMode(filter_item, !checked, act);
+			conn->sessionState().setLvlMode(filter_item, !checked, new_mode);
 			conn->onInvalidateFilter();
 		}
 	}
@@ -243,29 +229,19 @@ void Server::onClickedAtRegexList (QModelIndex idx)
 		return;
 	QStandardItemModel * model = static_cast<QStandardItemModel *>(m_main_window->getWidgetRegex()->model());
 
-	QString const & val = model->data(idx, Qt::DisplayRole).toString();
-
 	if (idx.column() == 1)
 	{
-		QString const & reg = model->data(model->index(idx.row(), 0, QModelIndex()), Qt::DisplayRole).toString();
-		std::string filter_item(reg.toStdString());
-		bool is_inclusive = true;
-		if (val == "I")
-		{
-			model->setData(idx, QString("E"));
-			is_inclusive = false;
-		}
-		else
-		{
-			model->setData(idx, QString("I"));
-		}
-
-		QString const & val = model->data(idx, Qt::DisplayRole).toString();
+		QString const & mod = model->data(idx, Qt::DisplayRole).toString();
+		E_FilterMode const curr = stringToFltMod(mod.toStdString().c_str()[0]);
+		size_t const i = (curr + 1) % e_max_fltmod_enum_value;
+		E_FilterMode const new_mode = static_cast<E_FilterMode>(i);
+		model->setData(idx, QString(fltModToString(new_mode)));
 
 		if (Connection * conn = findCurrentConnection())
 		{
+			QString const & reg = model->data(model->index(idx.row(), 0, QModelIndex()), Qt::DisplayRole).toString();
+			bool const is_inclusive = new_mode == e_Include;
 			conn->sessionState().setRegexInclusive(reg, is_inclusive);
-			//conn->m_session_state.setRegexChecked(filter_item, checked);
 			conn->recompileRegexps();
 			conn->onInvalidateFilter();
 		}
@@ -273,13 +249,7 @@ void Server::onClickedAtRegexList (QModelIndex idx)
 	else
 	{
 		QString const & mod = model->data(model->index(idx.row(), 1, QModelIndex()), Qt::DisplayRole).toString();
-		bool is_inclusive = false;
-		if (mod == "I")
-		{
-			is_inclusive = true;
-		}
-		else
-		{ }
+		E_FilterMode const curr = stringToFltMod(mod.toStdString().c_str()[0]);
 
 		QStandardItem * item = model->itemFromIndex(idx);
 		Q_ASSERT(item);
@@ -289,12 +259,13 @@ void Server::onClickedAtRegexList (QModelIndex idx)
 		if (Connection * conn = findCurrentConnection())
 		{
 			// @TODO: if state really changed
+			QString const & val = model->data(idx, Qt::DisplayRole).toString();
+			bool const is_inclusive = curr == e_Include;
 			conn->sessionState().setRegexInclusive(val, is_inclusive);
 			conn->m_session_state.setRegexChecked(val, checked);
 			conn->recompileRegexps();
 			conn->onInvalidateFilter();
 		}
-
 	}
 }
 
@@ -332,43 +303,24 @@ void Server::onClickedAtStringList (QModelIndex idx)
 		return;
 	QStandardItemModel * model = static_cast<QStandardItemModel *>(m_main_window->getWidgetString()->model());
 
-	QString const & val = model->data(idx, Qt::DisplayRole).toString();
-
 	if (idx.column() == 1)
 	{
-		QString const & reg = model->data(model->index(idx.row(), 0, QModelIndex()), Qt::DisplayRole).toString();
-		std::string filter_item(reg.toStdString());
-		bool is_inclusive = true;
-		if (val == "I")
-		{
-			model->setData(idx, QString("E"));
-			is_inclusive = false;
-		}
-		else
-		{
-			model->setData(idx, QString("I"));
-		}
-
-		QString const & val = model->data(idx, Qt::DisplayRole).toString();
+		QString const & filter_item = model->data(model->index(idx.row(), 0, QModelIndex()), Qt::DisplayRole).toString();
+		QString const & mod = model->data(idx, Qt::DisplayRole).toString();
+		E_FilterMode const curr = stringToFltMod(mod.toStdString().c_str()[0]);
+		size_t const i = (curr + 1) % e_max_fltmod_enum_value;
+		E_FilterMode const new_mode = static_cast<E_FilterMode>(i);
+		model->setData(idx, QString(fltModToString(new_mode)));
 
 		if (Connection * conn = findCurrentConnection())
 		{
-			conn->sessionState().setStringState(reg, is_inclusive);
-			//conn->m_session_state.setRegexChecked(filter_item, checked);
+			bool const is_inclusive = new_mode == e_Include;
+			conn->sessionState().setStringState(filter_item, is_inclusive);
 			conn->recompileStrings();
 		}
 	}
 	else
 	{
-		QString const & mod = model->data(model->index(idx.row(), 1, QModelIndex()), Qt::DisplayRole).toString();
-		bool is_inclusive = false;
-		if (mod == "I")
-		{
-			is_inclusive = true;
-		}
-		else
-		{ }
-
 		QStandardItem * item = model->itemFromIndex(idx);
 		Q_ASSERT(item);
 		bool const orig_checked = (item->checkState() == Qt::Checked);
@@ -376,6 +328,10 @@ void Server::onClickedAtStringList (QModelIndex idx)
 		item->setCheckState(checked);
 		if (Connection * conn = findCurrentConnection())
 		{
+			QString const & mod = model->data(model->index(idx.row(), 1, QModelIndex()), Qt::DisplayRole).toString();
+			E_FilterMode const curr = stringToFltMod(mod.toStdString().c_str()[0]);
+			bool const is_inclusive = curr == e_Include;
+			QString const & val = model->data(idx, Qt::DisplayRole).toString();
 			// @TODO: if state really changed
 			conn->sessionState().setStringState(val, is_inclusive);
 			conn->m_session_state.setStringChecked(val, checked);

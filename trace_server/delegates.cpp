@@ -250,8 +250,8 @@ void LevelDelegate::paint (QPainter * painter, QStyleOptionViewItem const & opti
 		{
 			QString const qs = value.toString();
 
-			E_LevelMode const lm = stringToLvlMod(qs.at(0).toLatin1());
-			QString const verbose = lvlmodsStr[lm];
+			E_LevelMode const mode = stringToLvlMod(qs.at(0).toLatin1());
+			QString const verbose = lvlmodsStr[mode];
 			option4.text = verbose;
 
 			if (QWidget const * widget = option4.widget)
@@ -260,7 +260,6 @@ void LevelDelegate::paint (QPainter * painter, QStyleOptionViewItem const & opti
 				style->drawControl(QStyle::CE_ItemViewItem, &option4, painter, widget);
 			}
 		}
-
 	}
 	else
 		QStyledItemDelegate::paint(painter, option4, index);
@@ -298,3 +297,64 @@ QSize SizeDelegate::sizeHint (QStyleOptionViewItem const & option, QModelIndex c
 {
 	return QSize(128,128);
 }
+
+void StringDelegate::paint (QPainter * painter, QStyleOptionViewItem const & option, QModelIndex const & index) const
+{
+    painter->save();
+    QStyleOptionViewItemV4 option4 = option;
+    initStyleOption(&option4, index);
+
+	if (index.column() == 1)
+	{
+		QVariant value = index.data(Qt::DisplayRole);
+		if (value.isValid() && !value.isNull())
+		{
+			QString const qs = value.toString();
+
+			E_FilterMode const mode = stringToFltMod(qs.at(0).toLatin1());
+			QString const verbose = fltmodsStr[mode];
+			option4.text = verbose;
+
+			if (QWidget const * widget = option4.widget)
+			{
+				QStyle * style = widget->style();
+				style->drawControl(QStyle::CE_ItemViewItem, &option4, painter, widget);
+			}
+		}
+
+	}
+	else
+		QStyledItemDelegate::paint(painter, option4, index);
+	painter->restore();
+}
+
+void RegexDelegate::paint (QPainter * painter, QStyleOptionViewItem const & option, QModelIndex const & index) const
+{
+    painter->save();
+    QStyleOptionViewItemV4 option4 = option;
+    initStyleOption(&option4, index);
+
+	if (index.column() == 1)
+	{
+		QVariant value = index.data(Qt::DisplayRole);
+		if (value.isValid() && !value.isNull())
+		{
+			QString const qs = value.toString();
+
+			E_FilterMode const mode = stringToFltMod(qs.at(0).toLatin1());
+			QString const verbose = fltmodsStr[mode];
+			option4.text = verbose;
+
+			if (QWidget const * widget = option4.widget)
+			{
+				QStyle * style = widget->style();
+				style->drawControl(QStyle::CE_ItemViewItem, &option4, painter, widget);
+			}
+		}
+
+	}
+	else
+		QStyledItemDelegate::paint(painter, option4, index);
+	painter->restore();
+}
+

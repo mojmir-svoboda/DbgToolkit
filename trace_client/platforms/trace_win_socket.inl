@@ -269,6 +269,7 @@ namespace trace {
 
 	void Disconnect ()
 	{
+		Flush();
 		socks::g_Quit = 1; // @TODO: atomic_store?
 		if (socks::is_connected(socks::g_Socket))
 			sys::socks::disconnect(socks::g_Socket);
