@@ -613,7 +613,7 @@ void MainWindow::onQSearchEditingFinished ()
 {
 	if (!getTabTrace()->currentWidget()) return;
 
-	QString text = ui->qSearchComboBox->currentText();
+	QString const text = ui->qSearchComboBox->currentText();
 	onQSearch(text);
 }
 
@@ -689,14 +689,14 @@ void MainWindow::onEditFindNext ()
 {
 	if (!getTabTrace()->currentWidget()) return;
 	if (Connection * conn = m_server->findCurrentConnection())
-		conn->findNext();
+		conn->findNext(ui->qSearchComboBox->currentText());
 }
 
 void MainWindow::onEditFindPrev ()
 {
 	if (!getTabTrace()->currentWidget()) return;
 	if (Connection * conn = m_server->findCurrentConnection())
-		conn->findPrev();
+		conn->findPrev(ui->qSearchComboBox->currentText());
 }
 
 void MainWindow::onNextToView ()

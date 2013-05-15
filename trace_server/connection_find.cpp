@@ -64,7 +64,7 @@ void Connection::findTextInColumn (QString const & text, int col, int from_row, 
 
 			return;
 		}
-		}
+	}
 	{
 		qDebug("end of search");
 		// flash icon
@@ -142,14 +142,24 @@ void Connection::findText (QString const & text)
 	findTextInAllColumns(m_last_search, from, to, true);
 }
 
-void Connection::findNext ()
+void Connection::findNext (QString const & text)
 {
 	int from, to;
 	selectionFromTo(from, to);
+	if (text != m_last_search)
+	{
+		m_last_search = text;
+	}
+
+	if (m_last_search.isEmpty())
+	{
+		m_last_search_row = m_last_search_col = 0;
+		return;
+	}
 	findTextInColumn(m_last_search, m_last_search_col, m_last_search_row + 1, to);
 }
 
-void Connection::findPrev ()
+void Connection::findPrev (QString const & text)
 {
 }
 

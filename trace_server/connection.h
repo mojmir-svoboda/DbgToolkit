@@ -139,8 +139,8 @@ public:
 	void findText (QString const & text, tlv::tag_t tag);
 	void findText (QString const & text);
 	void findAllTexts (QString const & text);
-	void findNext ();
-	void findPrev ();
+	void findNext (QString const & text);
+	void findPrev (QString const & text);
 	void scrollToCurrentTag ();
 	void scrollToCurrentSelection ();
 	void appendToStringFilters (QString const & str, bool checked, int state);
