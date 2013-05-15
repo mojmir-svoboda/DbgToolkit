@@ -679,7 +679,7 @@ p, li { white-space: pre-wrap; }
          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Find previous occurence of the string&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="text">
-         <string>&lt;|</string>
+         <string/>
         </property>
        </widget>
       </item>
@@ -748,7 +748,7 @@ p, li { white-space: pre-wrap; }
          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Find next occurence of the string&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="text">
-         <string>|&gt;</string>
+         <string/>
         </property>
        </widget>
       </item>

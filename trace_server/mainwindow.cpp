@@ -209,6 +209,12 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QStri
 	connect(ui->findAllButton, SIGNAL(clicked()), this, SLOT(onFindAllButton()));
 	connect(ui->findNextButton, SIGNAL(clicked()), this, SLOT(onEditFindNext()));
 	connect(ui->findPrevButton, SIGNAL(clicked()), this, SLOT(onEditFindPrev()));
+
+	QStyle * style = QApplication::style();
+	
+	ui->findNextButton->setIcon(style->standardIcon(QStyle::SP_ArrowForward));
+	ui->findPrevButton->setIcon(style->standardIcon(QStyle::SP_ArrowBack));
+
 	connect(ui->gotoNextButton, SIGNAL(clicked()), this, SLOT(onNextToView()));
 	connect(ui->timeComboBox, SIGNAL(activated(int)), this, SLOT(onTimeUnitsChanged(int)));
 	connect(ui->levelSpinBox, SIGNAL(valueChanged(int)), m_server, SLOT(onLevelValueChanged(int)));
