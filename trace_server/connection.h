@@ -319,6 +319,9 @@ private:
 	void selectionFromTo (int & from, int & to) const;
 	void findTextInAllColumns (QString const & text, int from_row, int to_row, bool only_first);
 	void findTextInColumn (QString const & text, int col, int from_row, int to_row);
+	void findTextInColumnRev (QString const & text, int col, int from_row, int to_row);
+	bool matchTextInCell (QString const & text, int row, int col);
+	void endOfSearch ();
 
 private:
 	MainWindow * m_main_window;

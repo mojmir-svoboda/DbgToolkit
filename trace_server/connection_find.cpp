@@ -40,38 +40,54 @@ void Connection::findTextInAllColumns (QString const & text, int from_row, int t
 	}
 }
 
-void Connection::findTextInColumn (QString const & text, int col, int from_row, int to_row)
+bool Connection::matchTextInCell (QString const & text, int row, int col)
 {
 	LogTableModel * model = static_cast<LogTableModel *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
-	for (int i = from_row, ie = to_row; i < ie; ++i)
+	QModelIndex const idx = model->index(row, col, QModelIndex());
+	if (idx.isValid() && model->data(idx).toString().contains(text, Qt::CaseInsensitive))
 	{
-		QModelIndex const idx = model->index(i, col, QModelIndex());
-		if (idx.isValid() && model->data(idx).toString().contains(text, Qt::CaseInsensitive))
+		if (m_table_view_proxy)
 		{
-
-			if (m_table_view_proxy)
-			{
-				QModelIndex const curr = m_table_view_proxy->mapFromSource(idx);
-				m_table_view_widget->selectionModel()->setCurrentIndex(curr, QItemSelectionModel::Select);
-				m_table_view_widget->scrollTo(m_table_view_proxy->mapFromSource(idx), QTableView::PositionAtCenter);
-			}
-			else
-			{
-				m_table_view_widget->selectionModel()->setCurrentIndex(idx, QItemSelectionModel::Select);
-				m_table_view_widget->scrollTo(idx, QTableView::PositionAtCenter);
-			}
-			m_last_search_row = idx.row();
-
-			return;
+			QModelIndex const curr = m_table_view_proxy->mapFromSource(idx);
+			m_table_view_widget->selectionModel()->setCurrentIndex(curr, QItemSelectionModel::Select);
+			m_table_view_widget->scrollTo(m_table_view_proxy->mapFromSource(idx), QTableView::PositionAtCenter);
 		}
+		else
+		{
+			m_table_view_widget->selectionModel()->setCurrentIndex(idx, QItemSelectionModel::Select);
+			m_table_view_widget->scrollTo(idx, QTableView::PositionAtCenter);
+		}
+		m_last_search_row = idx.row();
+		return true;
 	}
-	{
-		qDebug("end of search");
-		// flash icon
-		m_main_window->statusBar()->showMessage(tr("End of document!"));
-		m_last_search_row = 0;
-	}
+	return false;
 }
+
+void Connection::endOfSearch ()
+{
+	qDebug("end of search");
+	// flash icon
+	m_main_window->statusBar()->showMessage(tr("End of document!"));
+	m_last_search_row = 0;
+}
+
+void Connection::findTextInColumn (QString const & text, int col, int from_row, int to_row)
+{
+	for (int i = from_row, ie = to_row; i < ie; ++i)
+		if (matchTextInCell(text, i, col))
+			return;
+	endOfSearch();
+}
+void Connection::findTextInColumnRev (QString const & text, int col, int from_row, int to_row)
+{
+	bool found = false;
+	for (int i = from_row, ie = to_row; i --> ie; )
+		if (matchTextInCell(text, i, col))
+			return;
+
+	endOfSearch();
+}
+
 
 void Connection::selectionFromTo (int & from, int & to) const
 {
@@ -161,6 +177,20 @@ void Connection::findNext (QString const & text)
 
 void Connection::findPrev (QString const & text)
 {
+	int from, to;
+	selectionFromTo(from, to);
+	if (text != m_last_search)
+	{
+		m_last_search = text;
+	}
+
+	if (m_last_search.isEmpty())
+	{
+		m_last_search_row = m_last_search_col = 0;
+		return;
+	}
+	int const last = m_last_search_row > 0 ? m_last_search_row - 1 : from;
+	findTextInColumnRev(m_last_search, m_last_search_col, last, 0);
 }
 
 QString Connection::findString4Tag (tlv::tag_t tag, QModelIndex const & row_index) const

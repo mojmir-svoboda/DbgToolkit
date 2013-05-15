@@ -101,7 +101,8 @@ FORMS    += mainwindow.ui \
     settingsplot.ui \
     settingstable.ui \
     settingsgantt.ui \
-    settingsframeview.ui
+    settingsframeview.ui \
+    settingslog.ui
 
 RESOURCES += \
     resources.qrc
