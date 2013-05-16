@@ -10,7 +10,7 @@
 #include "ui_settingslog.h"
 #include "qtsln/qtcolorpicker/qtcolorpicker.h"
 
-namespace log {
+namespace logs {
 
 	struct CtxLogConfig : QObject
 	{

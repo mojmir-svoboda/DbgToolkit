@@ -113,16 +113,16 @@ typedef QMap<QString, DataGantt *> datagantts_t;
 struct DataLog {
 	Connection * m_parent;
 	QDockWidget * m_wd;
-	log::BaseLog * m_widget;
-	log::LogConfig m_config;
+	logs::BaseLog * m_widget;
+	logs::LogConfig m_config;
 	QString m_fname;
 
-	DataLog (Connection * parent, log::LogConfig & config, QString const & fname);
+	DataLog (Connection * parent, logs::LogConfig & config, QString const & fname);
 	~DataLog ();
 
 	void onShow ();
 	void onHide ();
-	log::BaseLog & widget () { return *m_widget; }
+	logs::BaseLog & widget () { return *m_widget; }
 };
 
 typedef QMap<QString, DataLog *> datalogs_t;
@@ -186,8 +186,8 @@ public:
 	bool saveConfigForGantt (gantt::GanttConfig const & config, QString const & tag);
 	bool loadConfigForGantts (QString const & preset_name);
 	bool saveConfigForGantts (QString const & preset_name);
-	bool loadConfigForLog (QString const & preset_name, log::LogConfig & config, QString const & tag);
-	bool saveConfigForLog (log::LogConfig const & config, QString const & tag);
+	bool loadConfigForLog (QString const & preset_name, logs::LogConfig & config, QString const & tag);
+	bool saveConfigForLog (logs::LogConfig const & config, QString const & tag);
 	bool loadConfigForLogs (QString const & preset_name);
 	bool saveConfigForLogs (QString const & preset_name);
 
@@ -317,7 +317,7 @@ private:
 	void appendGantt (gantt::DecodedData &);
 
 	datalogs_t::iterator findOrCreateLog (QString const & tag);
-	void appendLog (log::DecodedData &);
+	void appendLog (logs::DecodedData &);
 
 	bool appendToFilters (DecodedCommand const & cmd);
 	void appendToTIDFilters (QString const & item);

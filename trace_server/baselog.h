@@ -7,7 +7,7 @@
 
 class Connection;
 
-namespace log {
+namespace logs {
 
 	class BaseLog : public TableView
 	{
@@ -48,7 +48,7 @@ namespace log {
 
 	protected:
 		LogConfig & m_config;
-		log::CtxLogConfig m_config_ui;
+		logs::CtxLogConfig m_config_ui;
 		QString m_fname;
 		Connection * m_connection;
 	};

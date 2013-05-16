@@ -1,58 +1,58 @@
 #pragma once
 #include "types.h"
 
-namespace log {
+namespace logs {
 
 	struct LogConfig
 	{
 		QString m_tag;
-		QString m_title;
 		int m_history_ln;
+		int m_sync_group;
+		QString m_font;
+		int m_fontsize;
+		QVector<columns_setup_t> m_columns_setup;		/// column setup for each registered application
+		QVector<columns_sizes_t> m_columns_sizes;		/// column sizes for each registered application
+		QVector<columns_align_t> m_columns_align;		/// column align for each registered application
+		QVector<columns_elide_t> m_columns_elide;		/// column elide for each registered application
+		QVector<QColor> m_thread_colors;				/// predefined coloring of threads
 		bool m_show;
-	/*unsigned m_hotkey;
-	bool m_hidden;
-	bool m_was_maximized;
-	bool m_dump_mode;
-	QList<QString> m_app_names;					/// registered applications
-	QList<columns_setup_t> m_columns_setup;		/// column setup for each registered application
-	QList<columns_sizes_t> m_columns_sizes;		/// column sizes for each registered application
-	QList<columns_align_t> m_columns_align;		/// column align for each registered application
-	QList<columns_elide_t> m_columns_elide;		/// column elide for each registered application
-	QList<QColor> m_thread_colors;				/// predefined coloring of threads
-	QList<QString> m_preset_names;				/// registered presets
-	QString m_last_search;
-	History<QString> m_search_history;
-
-	QString m_trace_addr;
-	unsigned short m_trace_port;
-	QString m_profiler_addr;
-	unsigned short m_profiler_port;
-	QString m_appdir;*/
-
+		bool m_auto_scroll;
 
 		LogConfig ()
 			: m_tag()
-			, m_timer_delay_ms(50)
 			, m_history_ln(128*128)
+			, m_sync_group(0)
+			, m_font("Verdana")
+			, m_fontsize(10)
 			, m_show(true)
+			, m_auto_scroll(true)
 		{ }
 
 		LogConfig (QString const & tag)
 			: m_tag(tag)
-			, m_timer_delay_ms(50)
 			, m_history_ln(128*128)
+			, m_sync_group(0)
+			, m_font("Verdana")
+			, m_fontsize(10)
 			, m_show(true)
+			, m_auto_scroll(true)
 		{ }
 
 		template <class ArchiveT>
 		void serialize (ArchiveT & ar, unsigned const version)
 		{
 			ar & boost::serialization::make_nvp("tag", m_tag);
-			ar & boost::serialization::make_nvp("title", m_title);
-			ar & boost::serialization::make_nvp("gfcfg", m_gvcfg);
-			ar & boost::serialization::make_nvp("timer", m_timer_delay_ms);
 			ar & boost::serialization::make_nvp("length", m_history_ln);
+			ar & boost::serialization::make_nvp("sync_group", m_sync_group);
+			ar & boost::serialization::make_nvp("font", m_font);
+			ar & boost::serialization::make_nvp("fontsize", m_fontsize);
+			ar & boost::serialization::make_nvp("columns_setup", m_columns_setup);
+			ar & boost::serialization::make_nvp("columns_sizes", m_columns_sizes);
+			ar & boost::serialization::make_nvp("columns_align", m_columns_align);
+			ar & boost::serialization::make_nvp("columns_elide", m_columns_elide);
+			ar & boost::serialization::make_nvp("thread_colors", m_thread_colors);
 			ar & boost::serialization::make_nvp("show", m_show);
+			ar & boost::serialization::make_nvp("autoscroll", m_auto_scroll);
 		}
 	};
 

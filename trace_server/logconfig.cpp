@@ -13,7 +13,7 @@
 #include <fstream>
 #include <sstream>
 
-namespace log {
+namespace logs {
 
 	bool loadConfig (LogConfig & config, QString const & fname)
 	{

@@ -3,7 +3,7 @@
 #include "logtablemodel.h"
 #include "tableview.h"
 
-DataLog::DataLog (Connection * parent, log::LogConfig & config, QString const & fname)
+DataLog::DataLog (Connection * parent, logs::LogConfig & config, QString const & fname)
 	: m_parent(parent)
 	, m_wd(0)
 	, m_config(config)
@@ -11,7 +11,7 @@ DataLog::DataLog (Connection * parent, log::LogConfig & config, QString const & 
 	, m_fname(fname)
 {
 	qDebug("%s this=0x%08x name=%s", __FUNCTION__, this, fname.toStdString().c_str());
-	m_widget = new log::BaseLog(parent, 0, m_config, fname);
+	m_widget = new logs::BaseLog(parent, 0, m_config, fname);
 }
 DataLog::~DataLog ()
 {
@@ -60,49 +60,6 @@ void Connection::onShowLogContextMenu (QPoint const &)
 	}
 }
 
-bool parseCommand (DecodedCommand const & cmd, log::DecodedData & dd)
-{
-	QString msg;
-	QString tid;
-	QString time;
-	QString fgc;
-	QString bgc;
-	for (size_t i=0, ie=cmd.tvs.size(); i < ie; ++i)
-	{
-		if (cmd.tvs[i].m_tag == tlv::tag_msg)
-			msg = cmd.tvs[i].m_val;
-		else if (cmd.tvs[i].m_tag == tlv::tag_time)
-			time = cmd.tvs[i].m_val;
-		else if (cmd.tvs[i].m_tag == tlv::tag_tid)
-			tid = cmd.tvs[i].m_val;
-		else if (cmd.tvs[i].m_tag == tlv::tag_fgc)
-			fgc = cmd.tvs[i].m_val;
-		else if (cmd.tvs[i].m_tag == tlv::tag_bgc)
-			bgc = cmd.tvs[i].m_val;
-	}
-
-	QString subtag = msg;
-	int const slash_pos0 = subtag.lastIndexOf(QChar('/'));
-	subtag.chop(msg.size() - slash_pos0);
-
-	QString tag = subtag;
-	int const slash_pos1 = tag.lastIndexOf(QChar('/'));
-	tag.chop(tag.size() - slash_pos1);
-
-	subtag.remove(0, slash_pos1 + 1);
-	msg.remove(0, slash_pos0 + 1);
-
-	//if (!subtag.contains("Dude"))
-	//	return false;
-
-	dd.m_time = time.toULongLong();
-	dd.m_ctx = tid.toULongLong();
-	dd.m_tag = tag;
-	dd.m_subtag = subtag;
-	dd.m_text = msg;
-	return true;
-}
-
 bool Connection::loadConfigForLogs (QString const & preset_name)
 {
 	qDebug("%s this=0x%08x", __FUNCTION__, this);
@@ -120,7 +77,7 @@ bool Connection::loadConfigForLogs (QString const & preset_name)
 	return true;
 }
 
-bool Connection::saveConfigForLog (log::LogConfig const & config, QString const & tag)
+bool Connection::saveConfigForLog (logs::LogConfig const & config, QString const & tag)
 {
 	QString const preset_name = m_curr_preset.isEmpty() ? m_main_window->getValidCurrentPresetName() : m_curr_preset;
 	QString const fname = getDataTagFileName(getConfig().m_appdir, preset_name, g_presetLogTag, tag);
@@ -150,7 +107,7 @@ datalogs_t::iterator Connection::findOrCreateLog (QString const & tag)
 	{
 		qDebug("log: creating log %s", tag.toStdString().c_str());
 		// new data log
-		log::LogConfig template_config;
+		logs::LogConfig template_config;
 		template_config.m_tag = tag;
 
 		QString const preset_name = m_main_window->matchClosestPresetName(sessionState().getAppName());
@@ -181,14 +138,14 @@ datalogs_t::iterator Connection::findOrCreateLog (QString const & tag)
 	return it;
 }
 
-void Connection::appendLog (log::DecodedData & dd)
+/*void Connection::appendLog (log::DecodedData & dd)
 {
 	//qDebug("appendLog type=%i tag=%s subtag=%s text=%s", dd.m_type, dd.m_tag.toStdString().c_str(), dd.m_subtag.toStdString().c_str(), dd.m_text.toStdString().c_str());
 	datalogs_t::iterator it = findOrCreateLog(dd.m_tag);
 	DataLog & dp = **it;
 	log::LogView * gv = dp.widget().findOrCreateLogView(dd.m_subtag);
 	gv->appendLog(dd);
-}
+}*/
 
 void Connection::onTabTraceFocus ()
 {

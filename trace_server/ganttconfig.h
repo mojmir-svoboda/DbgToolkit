@@ -50,6 +50,7 @@ namespace gantt {
 			ar & boost::serialization::make_nvp("bgcol", m_bgcolor);
 			ar & boost::serialization::make_nvp("symcol", m_symbolcolor);
 			ar & boost::serialization::make_nvp("symsize", m_symbolsize);
+			ar & boost::serialization::make_nvp("font", m_font);
 			ar & boost::serialization::make_nvp("fontsize", m_fontsize);
 			ar & boost::serialization::make_nvp("timeunits", m_timeunits);
 			ar & boost::serialization::make_nvp("scale", m_scale);
