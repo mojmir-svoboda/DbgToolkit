@@ -344,3 +344,15 @@ void Server::onClickedAtStringList (QModelIndex idx)
 void Server::onDoubleClickedAtStringList (QModelIndex idx)
 { }
 
+void Server::onCutParentValueChanged (int i)
+{
+	if (Connection * conn = findCurrentConnection())
+		conn->onCutParentValueChanged(i);
+}
+
+void Server::onCollapseChildsValueChanged (int i)
+{
+	if (Connection * conn = findCurrentConnection())
+		conn->onCollapseChildsValueChanged(i);
+}
+

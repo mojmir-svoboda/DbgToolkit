@@ -52,6 +52,10 @@ public:
 
 	QModelIndexList find (QString const & s) const;
 
+	void onCutParentValueChanged (int i);
+	void onCollapseChildsValueChanged (int i);
+	void collapseChilds ();
+
 public Q_SLOTS:
 	
 	void onExpanded (QModelIndex const & idx);
@@ -72,5 +76,7 @@ protected:
 
 	tree_data_t * m_tree_data;
 	Connection * m_connection;
+	int m_cut_parent_lvl;
+	int m_collapse_childs_lvl;
 };
 

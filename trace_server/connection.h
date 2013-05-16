@@ -234,6 +234,8 @@ public slots:
 	void onSaveAll ();
 	void onFilterFileComboChanged (QString str);
 	void onCancelFilterFileButton ();
+	void onCutParentValueChanged (int i);
+	void onCollapseChildsValueChanged (int i);
 
 private slots:
 	void processReadyRead ();

@@ -6,6 +6,8 @@ TreeModel::TreeModel (Connection * parent, tree_data_t * data)
 	: QAbstractItemModel(parent)
 	, m_tree_data(data)
 	, m_connection(parent)
+	, m_cut_parent_lvl(0)
+	, m_collapse_childs_lvl(0)
 {
 	qDebug("%s", __FUNCTION__);
 }
@@ -258,6 +260,16 @@ bool TreeModel::insertRows (int position, int rows, QModelIndex const & parent)
     return success;
 }
 
+void TreeModel::onCutParentValueChanged (int i)
+{
+	m_cut_parent_lvl = i;
+}
+
+void TreeModel::onCollapseChildsValueChanged (int i)
+{
+	m_collapse_childs_lvl = i;
+}
+
 QModelIndex TreeModel::hideLinearParents () const
 {
 	node_t const * node = m_tree_data->root;
@@ -265,6 +277,7 @@ QModelIndex TreeModel::hideLinearParents () const
 	if (!child)
 		return QModelIndex();
 	node_t const * last_linear = child;
+	unsigned level = 0;
 	while (child)
 	{
 		size_t const child_count = child->count_childs();
@@ -272,10 +285,27 @@ QModelIndex TreeModel::hideLinearParents () const
 		{
 			last_linear = child;
 			child = child->children;
-			continue;
+
+			if (m_cut_parent_lvl > 0 && ++level >= m_cut_parent_lvl)
+				break;
+			else
+				continue;
 		}
 		else
-			break;
+		{
+			if (m_cut_parent_lvl > 0)
+			{
+				last_linear = child;
+				child = child->children;
+
+				if (++level >= m_cut_parent_lvl)
+					break;
+				else
+					continue;
+			}
+			else
+				break;
+		}
 	}
 	return indexFromItem(last_linear);
 }
@@ -452,3 +482,34 @@ QModelIndexList TreeModel::find (QString const & s) const
 
 	return matches;
 }
+
+void TreeModel::collapseChilds ()
+{
+	QModelIndexList children;
+	for (int r = 0; r < rowCount(); ++r)
+		children << index(r, 0);
+
+	for (int i = 0; i < children.size(); ++i) {
+		for (int j = 0; j < rowCount(children[i]); ++j) {
+			children << children[i].child(j, 0);
+		}
+	}
+
+	for (int i = 0; i < children.size(); ++i )
+	{
+		int const rows = rowCount(children.at(i));
+		QModelIndex const & parent = children.at(i);
+		bool has_children = false;
+		for (int r = 0; r < rows; ++r)
+		{
+			QModelIndex const & children_idx = parent.child(r, 0);
+			has_children |= hasChildren(children_idx);
+		}
+
+		if (!has_children)
+		{
+			setData(parent, true,   Qt::UserRole);
+		}
+	}
+}
+

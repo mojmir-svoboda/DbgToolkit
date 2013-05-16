@@ -61,19 +61,14 @@ signals:
 public slots:
 	void onClickedAtCtxTree (QModelIndex idx);
 	void onDoubleClickedAtCtxTree (QModelIndex idx);
-
 	void onClickedAtTIDList (QModelIndex idx);
 	void onDoubleClickedAtTIDList (QModelIndex idx);
-
 	void onClickedAtLvlList (QModelIndex idx);
 	void onDoubleClickedAtLvlList (QModelIndex idx);
-
 	void onClickedAtRegexList (QModelIndex idx);
 	void onDoubleClickedAtRegexList (QModelIndex idx);
-
 	void onClickedAtColorRegexList (QModelIndex idx);
 	void onDoubleClickedAtColorRegexList (QModelIndex idx);
-
 	void onClickedAtStringList (QModelIndex idx);
 	void onDoubleClickedAtStringList (QModelIndex idx);
 
@@ -95,31 +90,28 @@ public slots:
 	void onClearCurrentScopeFilter ();
 	void onClearCurrentRefTime ();
 	void onApplyColumnSetup ();
-
 	void onSelectAllLevels ();
 	void onSelectNoLevels ();
 	void onSelectAllCtxs ();
 	void onSelectNoCtxs ();
-
 	void onShowPlots ();
 	void onClickedAtDockedWidgets (QModelIndex idx);
 	void onHidePlots ();
 	void onShowTables ();
 	void onHideTables ();
-
 	void onCloseMarkedTabs ();
 	void onCloseCurrentTab ();
 	void onCloseTab (QWidget * w);
 	void onCloseTab (int idx, QWidget * w);
 	void onCloseTabWithIndex (int);
-
 	void onTabTraceFocus (int i);
-
-	void destroyConnection (Connection * c);
-
 	void onFilterFile (int state);
 	void onLevelValueChanged (int val);
 	void onBufferingStateChanged (int state);
+	void onCutParentValueChanged (int state);
+	void onCollapseChildsValueChanged (int state);
+
+	void destroyConnection (Connection * c);
 
 	profiler::ProfilerWindow * createNewProfilerView ();
 	void incomingProfilerConnection (profiler::profiler_rvp_t * rvp);

@@ -181,6 +181,7 @@ SET(trace_server_HEADERS
 SET(trace_server_UI 
 	mainwindow.ui
 	settings.ui
+	settingslog.ui
 	settingsplot.ui
 	settingstable.ui
 	settingsgantt.ui
