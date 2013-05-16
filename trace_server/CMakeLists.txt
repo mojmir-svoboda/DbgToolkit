@@ -75,6 +75,8 @@ SET(trace_server_SOURCES
 
 	connection_log.cpp
 	filterproxy.cpp
+	baselog.cpp
+	logconfig.cpp
 
 	rvps.cpp
 	profilerconnection.cpp
@@ -144,6 +146,10 @@ SET(trace_server_HEADERS
 	dock.h
 	constants.h
 	config.h
+
+	baselog.h
+	logconfig.h
+	logctxmenu.h
 
 	kde/kbihash_p.h
 	kde/kmodelindexproxymapper.h

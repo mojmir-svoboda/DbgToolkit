@@ -3,31 +3,191 @@
 #include "logtablemodel.h"
 #include "tableview.h"
 
-bool Connection::handleLogClearCommand (DecodedCommand const & cmd)
+DataLog::DataLog (Connection * parent, log::LogConfig & config, QString const & fname)
+	: m_parent(parent)
+	, m_wd(0)
+	, m_config(config)
+	, m_widget(0)
+	, m_fname(fname)
+{
+	qDebug("%s this=0x%08x name=%s", __FUNCTION__, this, fname.toStdString().c_str());
+	m_widget = new log::BaseLog(parent, 0, m_config, fname);
+}
+DataLog::~DataLog ()
+{
+	qDebug("%s this=0x%08x", __FUNCTION__, this);
+	delete m_widget;
+	m_widget = 0;
+}
+void DataLog::onShow ()
+{
+	m_widget->onShow();
+	m_wd->show();
+	m_parent->getMainWindow()->restoreDockWidget(m_wd);
+	//QTimer::singleShot(0, m_parent, SLOT(onShowLogs()));
+}
+void DataLog::onHide ()
+{
+	m_widget->onHide();
+	QTimer::singleShot(0, m_wd, SLOT(hide()));
+}
+
+void Connection::onShowLogs ()
+{
+	qDebug("%s", __FUNCTION__);
+	for (datalogs_t::iterator it = m_datalogs.begin(), ite = m_datalogs.end(); it != ite; ++it)
+	{
+		(*it)->onShow();
+		m_main_window->restoreDockWidget((*it)->m_wd);
+	}
+}
+
+void Connection::onHideLogs ()
+{
+	qDebug("%s", __FUNCTION__);
+	for (datalogs_t::iterator it = m_datalogs.begin(), ite = m_datalogs.end(); it != ite; ++it)
+	{
+		(*it)->onHide();
+	}
+}
+
+void Connection::onShowLogContextMenu (QPoint const &)
+{
+	qDebug("%s", __FUNCTION__);
+	for (datalogs_t::iterator it = m_datalogs.begin(), ite = m_datalogs.end(); it != ite; ++it)
+	{
+		(*it)->widget().onHideContextMenu();
+	}
+}
+
+bool parseCommand (DecodedCommand const & cmd, log::DecodedData & dd)
 {
 	QString msg;
+	QString tid;
+	QString time;
+	QString fgc;
+	QString bgc;
 	for (size_t i=0, ie=cmd.tvs.size(); i < ie; ++i)
 	{
 		if (cmd.tvs[i].m_tag == tlv::tag_msg)
 			msg = cmd.tvs[i].m_val;
+		else if (cmd.tvs[i].m_tag == tlv::tag_time)
+			time = cmd.tvs[i].m_val;
+		else if (cmd.tvs[i].m_tag == tlv::tag_tid)
+			tid = cmd.tvs[i].m_val;
+		else if (cmd.tvs[i].m_tag == tlv::tag_fgc)
+			fgc = cmd.tvs[i].m_val;
+		else if (cmd.tvs[i].m_tag == tlv::tag_bgc)
+			bgc = cmd.tvs[i].m_val;
 	}
 
-	if (m_main_window->plotState() != e_FtrDisabled)
+	QString subtag = msg;
+	int const slash_pos0 = subtag.lastIndexOf(QChar('/'));
+	subtag.chop(msg.size() - slash_pos0);
+
+	QString tag = subtag;
+	int const slash_pos1 = tag.lastIndexOf(QChar('/'));
+	tag.chop(tag.size() - slash_pos1);
+
+	subtag.remove(0, slash_pos1 + 1);
+	msg.remove(0, slash_pos0 + 1);
+
+	//if (!subtag.contains("Dude"))
+	//	return false;
+
+	dd.m_time = time.toULongLong();
+	dd.m_ctx = tid.toULongLong();
+	dd.m_tag = tag;
+	dd.m_subtag = subtag;
+	dd.m_text = msg;
+	return true;
+}
+
+bool Connection::loadConfigForLogs (QString const & preset_name)
+{
+	qDebug("%s this=0x%08x", __FUNCTION__, this);
+	for (datalogs_t::iterator it = m_datalogs.begin(), ite = m_datalogs.end(); it != ite; ++it)
 	{
-		QString tag = msg;
-		int const slash_pos = tag.lastIndexOf(QChar('/'));
-		tag.chop(msg.size() - slash_pos);
-
-		QString subtag = msg;
-		subtag.remove(0, slash_pos + 1);
-
-		//dataplots_t::iterator it = m_dataplots.find(tag);
-		//if (it != m_dataplots.end())
-		//{
-		//	(*it)->widget().clearCurveData(subtag);
-		//}
+		DataLog * const tbl = *it;
+		QString const fname = getDataTagFileName(getConfig().m_appdir, preset_name, g_presetLogTag, tbl->m_config.m_tag);
+		loadConfig(tbl->m_config, fname);
+		tbl->widget().applyConfig(tbl->m_config);
+		if (tbl->m_config.m_show)
+			tbl->onShow();
+		else
+			tbl->onHide();
 	}
 	return true;
+}
+
+bool Connection::saveConfigForLog (log::LogConfig const & config, QString const & tag)
+{
+	QString const preset_name = m_curr_preset.isEmpty() ? m_main_window->getValidCurrentPresetName() : m_curr_preset;
+	QString const fname = getDataTagFileName(getConfig().m_appdir, preset_name, g_presetLogTag, tag);
+	qDebug("log save cfg file=%s", fname.toStdString().c_str());
+	return saveConfig(config, fname);
+}
+
+bool Connection::saveConfigForLogs (QString const & preset_name)
+{
+	qDebug("%s this=0x%08x", __FUNCTION__, this);
+	for (datalogs_t::iterator it = m_datalogs.begin(), ite = m_datalogs.end(); it != ite; ++it)
+	{
+		DataLog * const tbl = *it;
+		QString const fname = getDataTagFileName(getConfig().m_appdir, preset_name, g_presetLogTag, tbl->m_config.m_tag);
+		tbl->widget().onSaveButton();
+	}
+	return true;
+}
+
+
+datalogs_t::iterator Connection::findOrCreateLog (QString const & tag)
+{
+	QString const log_name = sessionState().getAppName() + "/" + g_presetLogTag + "/" + tag;
+
+	datalogs_t::iterator it = m_datalogs.find(tag);
+	if (it == m_datalogs.end())
+	{
+		qDebug("log: creating log %s", tag.toStdString().c_str());
+		// new data log
+		log::LogConfig template_config;
+		template_config.m_tag = tag;
+
+		QString const preset_name = m_main_window->matchClosestPresetName(sessionState().getAppName());
+		QString fname;
+		if (!preset_name.isEmpty())
+		{
+			fname = getDataTagFileName(getConfig().m_appdir, preset_name, g_presetLogTag, tag);
+			loadConfigForLog(preset_name, template_config, tag);
+		}
+		
+		DataLog * const dp = new DataLog(this, template_config, fname);
+		it = m_datalogs.insert(tag, dp);
+		QModelIndex const item_idx = m_data_model->insertItemWithHint(log_name, template_config.m_show);
+
+		dp->m_wd = m_main_window->m_dock_mgr.mkDockWidget(m_main_window, &dp->widget(), template_config.m_show, log_name);
+		bool const visible = template_config.m_show;
+		m_data_model->setData(item_idx, QVariant(visible ? Qt::Checked : Qt::Unchecked), Qt::CheckStateRole);
+		if (m_main_window->logState() == e_FtrEnabled && visible)
+		{
+			m_main_window->loadLayout(preset_name);
+			dp->onShow();
+		}
+		else
+		{
+			dp->onHide();
+		}
+	}
+	return it;
+}
+
+void Connection::appendLog (log::DecodedData & dd)
+{
+	//qDebug("appendLog type=%i tag=%s subtag=%s text=%s", dd.m_type, dd.m_tag.toStdString().c_str(), dd.m_subtag.toStdString().c_str(), dd.m_text.toStdString().c_str());
+	datalogs_t::iterator it = findOrCreateLog(dd.m_tag);
+	DataLog & dp = **it;
+	log::LogView * gv = dp.widget().findOrCreateLogView(dd.m_subtag);
+	gv->appendLog(dd);
 }
 
 void Connection::onTabTraceFocus ()

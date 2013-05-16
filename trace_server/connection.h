@@ -39,6 +39,7 @@
 #include "ganttdata.h"
 #include "treeview.h"
 #include "treeproxy.h"
+#include "baselog.h"
 
 class Server;
 class QFile;
@@ -109,6 +110,23 @@ struct DataGantt {
 
 typedef QMap<QString, DataGantt *> datagantts_t;
 
+struct DataLog {
+	Connection * m_parent;
+	QDockWidget * m_wd;
+	log::BaseLog * m_widget;
+	log::LogConfig m_config;
+	QString m_fname;
+
+	DataLog (Connection * parent, log::LogConfig & config, QString const & fname);
+	~DataLog ();
+
+	void onShow ();
+	void onHide ();
+	log::BaseLog & widget () { return *m_widget; }
+};
+
+typedef QMap<QString, DataLog *> datalogs_t;
+
 
 /**@class		Connection
  * @brief		represents incoming connection (or file stream)
@@ -168,6 +186,10 @@ public:
 	bool saveConfigForGantt (gantt::GanttConfig const & config, QString const & tag);
 	bool loadConfigForGantts (QString const & preset_name);
 	bool saveConfigForGantts (QString const & preset_name);
+	bool loadConfigForLog (QString const & preset_name, log::LogConfig & config, QString const & tag);
+	bool saveConfigForLog (log::LogConfig const & config, QString const & tag);
+	bool loadConfigForLogs (QString const & preset_name);
+	bool saveConfigForLogs (QString const & preset_name);
 
 	bool filterEnabled () const { return m_main_window->filterEnabled(); }
 
@@ -224,6 +246,9 @@ public slots:
 	void onShowGanttContextMenu (QPoint const &);
 	void onShowGantts ();
 	void onHideGantts ();
+	void onShowLogContextMenu (QPoint const &);
+	void onShowLogs ();
+	void onHideLogs ();
 	void onExcludeFileLine ();
 	void onToggleRefFromRow ();
 	void onColorTagRow (int row);
@@ -290,6 +315,9 @@ private:
 
 	datagantts_t::iterator findOrCreateGantt (QString const & tag);
 	void appendGantt (gantt::DecodedData &);
+
+	datalogs_t::iterator findOrCreateLog (QString const & tag);
+	void appendLog (log::DecodedData &);
 
 	bool appendToFilters (DecodedCommand const & cmd);
 	void appendToTIDFilters (QString const & item);
