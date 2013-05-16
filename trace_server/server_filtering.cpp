@@ -350,9 +350,9 @@ void Server::onCutParentValueChanged (int i)
 		conn->onCutParentValueChanged(i);
 }
 
-void Server::onCollapseChildsValueChanged (int i)
+void Server::onCollapseChilds ()
 {
 	if (Connection * conn = findCurrentConnection())
-		conn->onCollapseChildsValueChanged(i);
+		conn->onCollapseChilds();
 }
 

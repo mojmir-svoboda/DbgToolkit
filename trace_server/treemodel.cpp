@@ -7,7 +7,6 @@ TreeModel::TreeModel (Connection * parent, tree_data_t * data)
 	, m_tree_data(data)
 	, m_connection(parent)
 	, m_cut_parent_lvl(0)
-	, m_collapse_childs_lvl(0)
 {
 	qDebug("%s", __FUNCTION__);
 }
@@ -265,11 +264,6 @@ void TreeModel::onCutParentValueChanged (int i)
 	m_cut_parent_lvl = i;
 }
 
-void TreeModel::onCollapseChildsValueChanged (int i)
-{
-	m_collapse_childs_lvl = i;
-}
-
 QModelIndex TreeModel::hideLinearParents () const
 {
 	node_t const * node = m_tree_data->root;
@@ -483,7 +477,7 @@ QModelIndexList TreeModel::find (QString const & s) const
 	return matches;
 }
 
-void TreeModel::collapseChilds ()
+void TreeModel::collapseChilds (QTreeView * tv)
 {
 	QModelIndexList children;
 	for (int r = 0; r < rowCount(); ++r)
@@ -506,9 +500,12 @@ void TreeModel::collapseChilds ()
 			has_children |= hasChildren(children_idx);
 		}
 
-		if (!has_children)
+		if (!has_children && rows > 0)
 		{
+			QString aa = data(parent, Qt::DisplayRole).toString();
+			qDebug("collapse: %s", aa.toStdString().c_str());
 			setData(parent, true,   Qt::UserRole);
+			tv->setExpanded(parent, false);
 		}
 	}
 }

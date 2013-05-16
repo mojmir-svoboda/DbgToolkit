@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1204</width>
-    <height>401</height>
+    <width>1100</width>
+    <height>347</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -381,7 +381,7 @@ p, li { white-space: pre-wrap; }
         </property>
         <property name="minimumSize">
          <size>
-          <width>64</width>
+          <width>96</width>
           <height>0</height>
          </size>
         </property>
@@ -618,6 +618,12 @@ p, li { white-space: pre-wrap; }
       </item>
       <item>
        <widget class="QSpinBox" name="levelSpinBox">
+        <property name="minimumSize">
+         <size>
+          <width>32</width>
+          <height>0</height>
+         </size>
+        </property>
         <property name="font">
          <font>
           <family>Verdana</family>
@@ -796,7 +802,7 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1204</width>
+     <width>1100</width>
      <height>18</height>
     </rect>
    </property>
@@ -867,7 +873,7 @@ p, li { white-space: pre-wrap; }
           <number>0</number>
          </property>
          <item>
-          <layout class="QGridLayout" name="gL_2" columnminimumwidth="0,0,0,0,0">
+          <layout class="QGridLayout" name="gL_2">
            <property name="topMargin">
             <number>0</number>
            </property>
@@ -910,7 +916,7 @@ p, li { white-space: pre-wrap; }
             <widget class="QComboBox" name="filterFileComboBox">
              <property name="minimumSize">
               <size>
-               <width>48</width>
+               <width>64</width>
                <height>0</height>
               </size>
              </property>
@@ -919,16 +925,6 @@ p, li { white-space: pre-wrap; }
              </property>
              <property name="editable">
               <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="3">
-            <widget class="QSpinBox" name="collapseChildsSpinBox">
-             <property name="maximumSize">
-              <size>
-               <width>36</width>
-               <height>16777215</height>
-              </size>
              </property>
             </widget>
            </item>
@@ -952,6 +948,22 @@ p, li { white-space: pre-wrap; }
              </property>
              <property name="flat">
               <bool>false</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="3">
+            <widget class="QPushButton" name="collapseChildsButton">
+             <property name="maximumSize">
+              <size>
+               <width>24</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="toolTip">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Collapses parents with leaves only&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+             <property name="text">
+              <string>CC</string>
              </property>
             </widget>
            </item>

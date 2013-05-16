@@ -109,7 +109,7 @@ public slots:
 	void onLevelValueChanged (int val);
 	void onBufferingStateChanged (int state);
 	void onCutParentValueChanged (int state);
-	void onCollapseChildsValueChanged (int state);
+	void onCollapseChilds ();
 
 	void destroyConnection (Connection * c);
 

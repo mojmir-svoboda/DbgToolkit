@@ -557,8 +557,7 @@ void Connection::onCutParentValueChanged (int i)
 	fileModel()->onCutParentValueChanged(i);
 	m_main_window->getWidgetFile()->hideLinearParents();
 }
-void Connection::onCollapseChildsValueChanged (int i)
+void Connection::onCollapseChilds ()
 {
-	fileModel()->onCollapseChildsValueChanged(i);
-	fileModel()->collapseChilds();
+	fileModel()->collapseChilds(m_main_window->getWidgetFile());
 }

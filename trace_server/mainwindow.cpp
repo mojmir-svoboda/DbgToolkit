@@ -256,7 +256,7 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QStri
 	connect(ui->buttonRmColorRegex, SIGNAL(clicked()), this, SLOT(onColorRegexRm()));
 
 	connect(ui->cutParentSpinBox, SIGNAL(valueChanged(int)), m_server, SLOT(onCutParentValueChanged(int)));
-	connect(ui->collapseChildsSpinBox, SIGNAL(valueChanged(int)), m_server, SLOT(onCollapseChildsValueChanged(int)));
+	connect(ui->collapseChildsButton, SIGNAL(clicked()), m_server, SLOT(onCollapseChilds()));
 	connect(ui->qFilterLineEdit, SIGNAL(returnPressed()), this, SLOT(onQFilterLineEditFinished()));
 	getWidgetString()->setEditTriggers(QAbstractItemView::NoEditTriggers);
 	getWidgetString()->header()->hide();
