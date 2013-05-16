@@ -46,6 +46,7 @@ bool Connection::matchTextInCell (QString const & text, int row, int col)
 	QModelIndex const idx = model->index(row, col, QModelIndex());
 	if (idx.isValid() && model->data(idx).toString().contains(text, Qt::CaseInsensitive))
 	{
+		qDebug("found string %s: src=%i,%i", text.toStdString(), row, col);
 		if (m_table_view_proxy)
 		{
 			QModelIndex const curr = m_table_view_proxy->mapFromSource(idx);

@@ -210,12 +210,13 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QStri
 	connect(ui->findNextButton, SIGNAL(clicked()), this, SLOT(onEditFindNext()));
 	connect(ui->findPrevButton, SIGNAL(clicked()), this, SLOT(onEditFindPrev()));
 
-	QStyle * style = QApplication::style();
+	QStyle const * const style = QApplication::style();
 	
 	ui->findNextButton->setIcon(style->standardIcon(QStyle::SP_ArrowForward));
 	ui->findPrevButton->setIcon(style->standardIcon(QStyle::SP_ArrowBack));
 
 	connect(ui->gotoNextButton, SIGNAL(clicked()), this, SLOT(onNextToView()));
+	ui->gotoNextButton->setIcon(style->standardIcon(QStyle::SP_ArrowDown));
 	connect(ui->timeComboBox, SIGNAL(activated(int)), this, SLOT(onTimeUnitsChanged(int)));
 	connect(ui->levelSpinBox, SIGNAL(valueChanged(int)), m_server, SLOT(onLevelValueChanged(int)));
 	connect(ui->filterFileCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onFilterFile(int)));

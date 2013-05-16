@@ -83,7 +83,7 @@ p, li { white-space: pre-wrap; }
          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Goto next color tag or selection&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="text">
-         <string>=|&gt;</string>
+         <string/>
         </property>
        </widget>
       </item>
@@ -662,6 +662,19 @@ p, li { white-space: pre-wrap; }
        </spacer>
       </item>
       <item>
+       <widget class="QLabel" name="label_3">
+        <property name="font">
+         <font>
+          <family>Verdana</family>
+          <pointsize>7</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>Find</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QPushButton" name="findPrevButton">
         <property name="maximumSize">
          <size>
@@ -680,19 +693,6 @@ p, li { white-space: pre-wrap; }
         </property>
         <property name="text">
          <string/>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLabel" name="label_3">
-        <property name="font">
-         <font>
-          <family>Verdana</family>
-          <pointsize>7</pointsize>
-         </font>
-        </property>
-        <property name="text">
-         <string>Fnd</string>
         </property>
        </widget>
       </item>
