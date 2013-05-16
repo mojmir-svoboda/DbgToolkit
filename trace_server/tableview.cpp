@@ -27,6 +27,11 @@ bool TableView::viewportEvent (QEvent * event)
 		QSize shr = itemDelegate(index)->sizeHint(viewOptions(), index);
 		if (shr.width() > vr.width())
 			return QTableView::viewportEvent(event);
+
+		LogTableModel const * const tableModel = static_cast<LogTableModel *>(model());
+		QString const & data = tableModel->data(index).toString();
+		if (data.contains(QChar('\n')))
+			return QTableView::viewportEvent(event);
 		else
 			return false;
 	}
