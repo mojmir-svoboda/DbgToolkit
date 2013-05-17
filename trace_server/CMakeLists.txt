@@ -65,7 +65,6 @@ SET(trace_server_SOURCES
 	sessionstate.cpp
 	settings.cpp
 	serialization.cpp
-	statswindow.cpp
 	constants.cpp
 	config.cpp
 	dock.cpp
@@ -75,26 +74,18 @@ SET(trace_server_SOURCES
 
 	connection_log.cpp
 	filterproxy.cpp
-	baselog.cpp
+	logwidget.cpp
 	logconfig.cpp
 
 	rvps.cpp
-	profilerconnection.cpp
-	profilerbar.cpp
-	profilergraphicsview.cpp
-	profilerview.cpp
-	profilerwindow.cpp
-	profilermainwindow.cpp
 
 	connection_plot.cpp
-	baseplot.cpp
-	simpleplot.cpp
-	pickableplot.cpp
+	plotwidget.cpp
 	plotconfig.cpp
 	plottypes.cpp
 
 	connection_table.cpp
-	basetable.cpp
+	tablewidget.cpp
 	tableconfig.cpp
 	tablemodelview.cpp
 	editableheaderview.cpp
@@ -107,7 +98,7 @@ SET(trace_server_SOURCES
 
 	connection_gantt.cpp
 	ganttconfig.cpp
-	basegantt.cpp
+	ganttwidget.cpp
 	ganttview.cpp
 	ganttitem.cpp
 	arrow.cpp
@@ -130,15 +121,7 @@ SET(trace_server_HEADERS
 	../filters/file_filter.hpp
 	sessionstate.h
 	settings.h
-	statswindow.h
 	delegates.h
-	profilerconnection.h
-	profilerbar.h
-	profilerconnection.h
-	profilergraphicsview.h
-	profilerview.h
-	profilerwindow.h
-	profilermainwindow.h
 	rvps.h
 	rendezvous.h
 	serialization.h
@@ -147,7 +130,7 @@ SET(trace_server_HEADERS
 	constants.h
 	config.h
 
-	baselog.h
+	logwidget.h
 	logconfig.h
 	logctxmenu.h
 
@@ -157,13 +140,11 @@ SET(trace_server_HEADERS
 	kde/kvoidpointerfactory_p.h
 
 	curves.h
-	baseplot.h
-	simpleplot.h
-	pickableplot.h
+	plotwidget.h
 	plotconfig.h
 	plotctxmenu.h
 
-	basetable.h
+	tablewidget.h
 	tableconfig.h
 	tablectxmenu.h
 	tablemodelview.h
@@ -175,7 +156,7 @@ SET(trace_server_HEADERS
 	frameviewconfig.h
 	syncwidgets.h
 
-	basegantt.h
+	ganttwidget.h
 	ganttconfig.h
 	ganttctxmenu.h
 	ganttview.h
@@ -193,7 +174,6 @@ SET(trace_server_UI
 	settingsgantt.ui
 	settingsframeview.ui
 	help.ui
-	profilermainwindow.ui
 	)
 
 SET(trace_server_RESOURCES resources.qrc)
