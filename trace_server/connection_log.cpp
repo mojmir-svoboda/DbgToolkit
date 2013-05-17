@@ -2,6 +2,8 @@
 #include <QClipboard>
 #include "logtablemodel.h"
 #include "tableview.h"
+#include "constants.h"
+#include "utils.h"
 
 DataLog::DataLog (Connection * parent, logs::LogConfig & config, QString const & fname)
 	: m_parent(parent)
@@ -32,6 +34,35 @@ void DataLog::onHide ()
 	QTimer::singleShot(0, m_wd, SLOT(hide()));
 }
 
+bool Connection::handleLogCommand (DecodedCommand const & cmd)
+{
+	appendToFilters(cmd);
+
+	if (cmd.hdr.cmd == tlv::cmd_scope_entry || (cmd.hdr.cmd == tlv::cmd_scope_exit))
+	{
+		if (m_main_window->scopesEnabled())
+		{
+			LogTableModel * model = static_cast<LogTableModel *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
+			model->appendCommand(m_table_view_proxy, cmd);
+		}
+	}
+	else if (cmd.hdr.cmd == tlv::cmd_log)
+	{
+		LogTableModel * model = static_cast<LogTableModel *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
+		model->appendCommand(m_table_view_proxy, cmd);
+	}
+
+	m_main_window->getWidgetFile()->hideLinearParents();
+	return true;
+}
+
+
+bool Connection::handleLogClearCommand (DecodedCommand const & cmd)
+{
+	return true;
+}
+
+
 void Connection::onShowLogs ()
 {
 	qDebug("%s", __FUNCTION__);
@@ -59,6 +90,14 @@ void Connection::onShowLogContextMenu (QPoint const &)
 		(*it)->widget().onHideContextMenu();
 	}
 }
+
+bool Connection::loadConfigForLog (QString const & preset_name, logs::LogConfig & config, QString const & tag)
+{
+	QString const fname = getDataTagFileName(getConfig().m_appdir, preset_name, g_presetGanttTag, tag);
+	qDebug("logs: load cfg file=%s", fname.toStdString().c_str());
+	return loadConfig(config, fname);
+}
+
 
 bool Connection::loadConfigForLogs (QString const & preset_name)
 {
@@ -125,15 +164,15 @@ datalogs_t::iterator Connection::findOrCreateLog (QString const & tag)
 		dp->m_wd = m_main_window->m_dock_mgr.mkDockWidget(m_main_window, &dp->widget(), template_config.m_show, log_name);
 		bool const visible = template_config.m_show;
 		m_data_model->setData(item_idx, QVariant(visible ? Qt::Checked : Qt::Unchecked), Qt::CheckStateRole);
-		if (m_main_window->logState() == e_FtrEnabled && visible)
+		//if (m_main_window->logState() == e_FtrEnabled && visible)
 		{
 			m_main_window->loadLayout(preset_name);
 			dp->onShow();
 		}
-		else
+		/*else
 		{
 			dp->onHide();
-		}
+		}*/
 	}
 	return it;
 }

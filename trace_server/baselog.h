@@ -31,8 +31,6 @@ namespace logs {
 		void onShowContextMenu (QPoint const & pos);
 		void setConfigValuesToUI (LogConfig const & cfg);
 		void setUIValuesToConfig (LogConfig & cfg);
-		void setViewConfigValuesToUI (LogViewConfig const & gvcfg);
-		void setUIValuesToViewConfig (LogViewConfig & cfg);
 		void onSaveButton ();
 		void onApplyButton ();
 		void onResetButton ();
@@ -41,6 +39,8 @@ namespace logs {
 		
 		//void performTimeSynchronization (int sync_group, unsigned long long time, void * source);
 		//void performFrameSynchronization (int sync_group, unsigned long long frame, void * source);
+
+		void onClearAllDataButton ();
 
 	signals:
 		//void requestTimeSynchronization (int sync_group, unsigned long long time, void * source);

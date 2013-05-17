@@ -317,7 +317,7 @@ private:
 	void appendGantt (gantt::DecodedData &);
 
 	datalogs_t::iterator findOrCreateLog (QString const & tag);
-	void appendLog (logs::DecodedData &);
+	//void appendLog (logs::DecodedData &);
 
 	bool appendToFilters (DecodedCommand const & cmd);
 	void appendToTIDFilters (QString const & item);
@@ -410,6 +410,7 @@ private:
 	dataplots_t m_dataplots;
 	datatables_t m_datatables;
 	datagantts_t m_datagantts;
+	datalogs_t m_datalogs;
 	TreeModel * m_data_model;
 };
 

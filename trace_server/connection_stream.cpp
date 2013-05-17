@@ -16,28 +16,6 @@ inline void Dump (DecodedCommand const & c)
 		qDebug("tlv[%u] t=%02x val=%s", i, c.tvs[i].m_tag, c.tvs[i].m_val.toStdString().c_str());
 }
 
-bool Connection::handleLogCommand (DecodedCommand const & cmd)
-{
-	appendToFilters(cmd);
-
-	if (cmd.hdr.cmd == tlv::cmd_scope_entry || (cmd.hdr.cmd == tlv::cmd_scope_exit))
-	{
-		if (m_main_window->scopesEnabled())
-		{
-			LogTableModel * model = static_cast<LogTableModel *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
-			model->appendCommand(m_table_view_proxy, cmd);
-		}
-	}
-	else if (cmd.hdr.cmd == tlv::cmd_log)
-	{
-		LogTableModel * model = static_cast<LogTableModel *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
-		model->appendCommand(m_table_view_proxy, cmd);
-	}
-
-	m_main_window->getWidgetFile()->hideLinearParents();
-	return true;
-}
-
 inline size_t read_min (boost::circular_buffer<char> & ring, char * dst, size_t min)
 {
 	if (ring.size() < min)
@@ -408,6 +386,7 @@ bool Connection::tryHandleCommand (DecodedCommand const & cmd)
 	{
 		case tlv::cmd_setup:			handleSetupCommand(cmd); break;
 		case tlv::cmd_log:				handleLogCommand(cmd); break;
+		case tlv::cmd_log_clear:		handleLogClearCommand(cmd); break;
 		case tlv::cmd_plot_xy:			handleDataXYCommand(cmd); break;
 		case tlv::cmd_plot_xyz:			handleDataXYZCommand(cmd); break;
 		case tlv::cmd_table_xy:			handleTableXYCommand(cmd); break;
@@ -426,7 +405,6 @@ bool Connection::tryHandleCommand (DecodedCommand const & cmd)
 		case tlv::cmd_plot_clear:		handlePlotClearCommand(cmd); break;
 		case tlv::cmd_table_clear:		handleTableClearCommand(cmd); break;
 		case tlv::cmd_gantt_clear:		handleGanttClearCommand(cmd); break;
-		case tlv::cmd_log_clear:		handleLogClearCommand(cmd); break;
 
 		default: qDebug("unknown command, ignoring\n"); break;
 	}
