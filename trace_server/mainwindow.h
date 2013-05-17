@@ -46,6 +46,7 @@ class QStandardItemModel;
 class QLabel;
 class SessionState;
 class TreeView;
+class QTreeView;
 
 enum E_ApiErrors { e_InvalidItem = -1 };
 

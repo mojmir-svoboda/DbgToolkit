@@ -33,13 +33,13 @@
 #include "sessionstate.h"
 #include "filterproxy.h"
 #include "cmd.h"
-#include "baseplot.h"
-#include "basetable.h"
-#include "basegantt.h"
+#include "plotwidget.h"
+#include "tablewidget.h"
+#include "ganttwidget.h"
 #include "ganttdata.h"
 #include "treeview.h"
 #include "treeproxy.h"
-#include "baselog.h"
+#include "logwidget.h"
 
 class Server;
 class QFile;

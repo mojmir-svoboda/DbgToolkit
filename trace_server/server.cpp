@@ -448,7 +448,7 @@ void Server::onCloseMarkedTabs ()
 	}
 }
 
-profiler::ProfilerWindow * Server::createNewProfilerView ()
+/*profiler::ProfilerWindow * Server::createNewProfilerView ()
 {
 	return 0;
 }
@@ -460,5 +460,5 @@ void Server::incomingProfilerConnection (profiler::profiler_rvp_t * rvp)
 	ProfilerWindow * w = new ProfilerWindow(m_main_window, this, rvp);
 	qDebug("Incoming profiler rendez-vous point!");
 	m_main_window->statusBar()->showMessage(tr("Incoming profiler rendez-vous point!"));
-}
+}*/
 

@@ -1,4 +1,4 @@
-#include "basetable.h"
+#include "tablewidget.h"
 #include <QScrollBar>
 #include "editableheaderview.h"
 #include "sparseproxy.h"

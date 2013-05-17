@@ -26,8 +26,6 @@
 #include <QAbstractSocket>
 #include <QTcpServer>
 #include <QModelIndex>
-#include "rvps.h"
-#include "profilerwindow.h"
 
 class Connection;
 class QTcpServer;
@@ -113,8 +111,8 @@ public slots:
 
 	void destroyConnection (Connection * c);
 
-	profiler::ProfilerWindow * createNewProfilerView ();
-	void incomingProfilerConnection (profiler::profiler_rvp_t * rvp);
+	//profiler::ProfilerWindow * createNewProfilerView ();
+	//void incomingProfilerConnection (profiler::profiler_rvp_t * rvp);
 
 protected:
 	friend class MainWindow;

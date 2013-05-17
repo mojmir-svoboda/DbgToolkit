@@ -7,6 +7,7 @@
 #include "mainwindow.h"
 #include <sysfn/os.h>
 #include <sysfn/time_query.h>
+#include <time.h>
 
 #ifdef WIN32
 #	define WIN32_LEAN_AND_MEAN
@@ -14,55 +15,11 @@
 #	include <windows.h>
 #endif
 
-#include "profilerblockinfo.h"
-#include "profilerserver.h"
-
 FILE * g_LogRedirect = 0;
-
-class ProfilerAcceptorThread : public QThread
-{
-	MainWindow * m_main_window;
-	bool m_terminate;
-	
-public:
-	void run ();
-
-	ProfilerAcceptorThread () : m_main_window(0), m_terminate(0) { }
-	
-	void setMainWindow (MainWindow * mw)
-	{
-		m_main_window = mw;
-	}
-};
-
-void ProfilerAcceptorThread::run ()
-{
-	/*if (argc < 2)
-	{
-		printf("Usage: server <port>\n");
-		return;
-	}*/
-	using boost::asio::ip::tcp;
-
-	qDebug("profiler: server listening...");
-	boost::asio::io_service io_service;
-
-	int const port = 13147; // std::atoi(argv[1])
-	tcp::endpoint endpoint(tcp::v4(), port);
-	profiler::server_ptr_t tcp_server(new profiler::Server(io_service, endpoint, *m_main_window));
-
-	while (!m_terminate)
-	{
-		io_service.run();
-	}
-
-	qDebug("profiler: server quitting...");
-}
 
 struct Application : QApplication, public QAbstractNativeEventFilter
 {
 	MainWindow * m_main_window;
-	ProfilerAcceptorThread m_prof_acceptor_thread;
 
 	Application (int & argc, char *argv[])
 		: QApplication(argc, argv)
@@ -71,16 +28,12 @@ struct Application : QApplication, public QAbstractNativeEventFilter
 
 	~Application ()
 	{
-		m_prof_acceptor_thread.terminate();
-		m_prof_acceptor_thread.wait();
 	}
 
 	void setMainWindow (MainWindow * mw)
 	{
 		installNativeEventFilter(this);
 		m_main_window = mw;
-		m_prof_acceptor_thread.setMainWindow(mw);
-		m_prof_acceptor_thread.start();
 	}
 
 #ifdef WIN32
@@ -113,21 +66,27 @@ void usage ()
 
 void qDebugHandler (QtMsgType type, QMessageLogContext const & ctx, QString const & msg)
 {
+	time_t timer;
+	tm * tm_info;
+	time(&timer);
+	tm_info = localtime(&timer);
+	char t[48];
+	strftime(t, 25, "%Y:%m:%d%H:%M:%S", tm_info);
+
 	//@TODO: dump context info
-	time_t t = time(NULL);
 	switch (type)
 	{
 		case QtDebugMsg:	
-			fprintf(g_LogRedirect, "%llu|I|%x|%s\n", t, sys::get_tid(), msg.toLatin1().data());
+			fprintf(g_LogRedirect, "%s|I|%x|%s\n", t, sys::get_tid(), msg.toLatin1().data());
 			break;
 		case QtWarningMsg:
-			fprintf(g_LogRedirect, "%llu|W|%x|%s\n", t, sys::get_tid(), msg.toLatin1().data());
+			fprintf(g_LogRedirect, "%s|W|%x|%s\n", t, sys::get_tid(), msg.toLatin1().data());
 			break;
 		case QtCriticalMsg:
-			fprintf(g_LogRedirect, "%llu|E|%x|%s\n", t, sys::get_tid(), msg.toLatin1().data());
+			fprintf(g_LogRedirect, "%s|E|%x|%s\n", t, sys::get_tid(), msg.toLatin1().data());
 			break;
 		case QtFatalMsg:
-			fprintf(g_LogRedirect, "%llu|F|%x|%s\n", t, sys::get_tid(), msg.toLatin1().data());
+			fprintf(g_LogRedirect, "%s|F|%x|%s\n", t, sys::get_tid(), msg.toLatin1().data());
 			break;
 	}
 	fflush(g_LogRedirect);

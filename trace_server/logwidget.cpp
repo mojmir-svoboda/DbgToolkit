@@ -1,4 +1,4 @@
-#include "baselog.h"
+#include "logwidget.h"
 //#include <QScrollBar>
 //#include <QSplitter>
 #include "connection.h"

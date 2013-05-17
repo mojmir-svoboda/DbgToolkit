@@ -1,4 +1,4 @@
-#include "baseplot.h"
+#include "plotwidget.h"
 #include "qwt/qwt_plot_legenditem.h"
 #include "qwt/qwt_legend.h"
 #include "qwt/qwt_plot_panner.h"

@@ -1,4 +1,4 @@
-#include "basegantt.h"
+#include "ganttwidget.h"
 #include <QScrollBar>
 #include <QSplitter>
 #include "connection.h"
