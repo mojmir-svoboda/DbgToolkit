@@ -1,6 +1,6 @@
 #include "connection.h"
 #include <QStatusBar>
-#include "logtablemodel.h"
+#include "logs/logtablemodel.h"
 #include "utils.h"
 
 void Connection::findTextInAllColumns (QString const & text, int from_row, int to_row, bool only_first)

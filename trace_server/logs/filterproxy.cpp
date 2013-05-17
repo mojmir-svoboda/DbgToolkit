@@ -5,8 +5,8 @@
 #include <QListView>
 #include <tlv_parser/tlv_encoder.h>
 #include <trace_client/trace.h>
-#include "connection.h"
-#include "mainwindow.h"
+#include "../connection.h"
+#include "../mainwindow.h"
 
 FilterProxyModel::FilterProxyModel (QObject * parent, SessionState & ss)
 	: QAbstractProxyModel(parent)

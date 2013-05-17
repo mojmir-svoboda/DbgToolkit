@@ -23,8 +23,8 @@
 #include <QString>
 #include <QAbstractProxyModel>
 #include <QRegExp>
-#include "../filters/file_filter.hpp"
-#include "sessionstate.h"
+#include <filters/file_filter.hpp>
+#include "../sessionstate.h"
 
 class MainWindow;
 

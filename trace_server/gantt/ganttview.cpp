@@ -7,15 +7,15 @@
 #endif
 #include <qmath.h>
 #include "scalewidget.h"
-#include "qwt/qwt_scale_widget.h"
-#include "qwt/qwt_scale_draw.h"
-#include "qwt/qwt_color_map.h"
-#include "qwt/qwt_scale_engine.h"
-#include "qwt/qwt_transform.h"
+#include "../qwt/qwt_scale_widget.h"
+#include "../qwt/qwt_scale_draw.h"
+#include "../qwt/qwt_color_map.h"
+#include "../qwt/qwt_scale_engine.h"
+#include "../qwt/qwt_transform.h"
 #include "ganttitem.h"
-#include "label.h"
+#include "../label.h"
 #include "arrow.h"
-#include "hsv.h"
+#include "../hsv.h"
 
 namespace gantt {
 

@@ -1,5 +1,6 @@
 #pragma once
-#include "types.h"
+#include <QString>
+#include <QColor>
 
 namespace gantt {
 

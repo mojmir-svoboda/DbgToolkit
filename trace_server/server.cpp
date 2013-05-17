@@ -11,7 +11,7 @@
 #include "server.h"
 #include "connection.h"
 #include "mainwindow.h"
-#include "logtablemodel.h"
+#include "logs/logtablemodel.h"
 #include "utils.h"
 #include "tableview.h"
 

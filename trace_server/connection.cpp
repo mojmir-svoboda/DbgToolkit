@@ -5,7 +5,7 @@
 #include "utils.h"
 #include "utils_qstandarditem.h"
 #include "types.h"
-#include "statswindow.h"
+//#include "statswindow.h"
 #include "delegates.h"
 #include "tableview.h"
 

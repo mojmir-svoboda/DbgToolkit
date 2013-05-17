@@ -3,7 +3,7 @@
 #include <QMessageBox>
 #include <QHeaderView>
 #include <tlv_parser/tlv_encoder.h>
-#include "logtablemodel.h"
+#include "logs/logtablemodel.h"
 #include "cmd.h"
 #include "utils.h"
 #include "dock.h"

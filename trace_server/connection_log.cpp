@@ -1,6 +1,6 @@
 #include "connection.h"
 #include <QClipboard>
-#include "logtablemodel.h"
+#include "logs/logtablemodel.h"
 #include "tableview.h"
 #include "constants.h"
 #include "utils.h"

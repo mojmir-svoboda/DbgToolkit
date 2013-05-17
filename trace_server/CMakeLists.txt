@@ -49,11 +49,10 @@ SET(trace_server_SOURCES
 	../version.cpp
 	mainwindow.cpp
 	mainwindow_presets.cpp
+	tableview.cpp
 	treeview.cpp
 	treemodel.cpp
 	treeproxy.cpp
-	logtablemodel.cpp
-	tableview.cpp
 	delegates.cpp
 	server.cpp
 	server_filtering.cpp
@@ -68,50 +67,48 @@ SET(trace_server_SOURCES
 	constants.cpp
 	config.cpp
 	dock.cpp
+	syncwidgets.cpp
 
 	kde/kselectionproxymodel.cpp
 	kde/kmodelindexproxymapper.cpp
 
 	connection_log.cpp
-	filterproxy.cpp
-	logwidget.cpp
-	logconfig.cpp
+	logs/logtablemodel.cpp
+	logs/filterproxy.cpp
+	logs/logwidget.cpp
+	logs/logconfig.cpp
 
 	connection_plot.cpp
-	plotwidget.cpp
-	plotconfig.cpp
-	plottypes.cpp
+	plot/plotwidget.cpp
+	plot/plotconfig.cpp
+	plot/plottypes.cpp
 
 	connection_table.cpp
-	tablewidget.cpp
-	tableconfig.cpp
-	tablemodelview.cpp
-	editableheaderview.cpp
-	sparseproxy.cpp
-
-	histogram.cpp
-	frameview.cpp
-	frameviewconfig.cpp
-	syncwidgets.cpp
+	table/editableheaderview.cpp
+	table/sparseproxy.cpp
+	table/tableconfig.cpp
+	table/tablemodelview.cpp
+	table/tablewidget.cpp
 
 	connection_gantt.cpp
-	ganttconfig.cpp
-	ganttwidget.cpp
-	ganttview.cpp
-	ganttitem.cpp
-	arrow.cpp
+	gantt/arrow.cpp
+	gantt/frameview.cpp
+	gantt/frameviewconfig.cpp
+	gantt/ganttconfig.cpp
+	gantt/ganttitem.cpp
+	gantt/ganttview.cpp
+	gantt/ganttwidget.cpp
+	gantt/histogram.cpp
 	)
 
 SET(trace_server_HEADERS
 	mainwindow.h 
+	tableview.h
 	treeview.h
 	treemodel.h
 	treeproxy.h
-	logtablemodel.h
-	tableview.h
 	server.h
 	connection.h
-	filterproxy.h
 	../tlv_parser/tlv_parser.h
 	../tlv_parser/tlv_encoder.h
 	../tlv_parser/tlv_decoder.h
@@ -125,41 +122,44 @@ SET(trace_server_HEADERS
 	utils.h
 	dock.h
 	constants.h
+	syncwidgets.h
 	config.h
 
-	logwidget.h
-	logconfig.h
-	logctxmenu.h
+	logs/logtablemodel.h
+	logs/logwidget.h
+	logs/logconfig.h
+	logs/logctxmenu.h
+	logs/filterproxy.h
 
 	kde/kbihash_p.h
 	kde/kmodelindexproxymapper.h
 	kde/kselectionproxymodel.h
 	kde/kvoidpointerfactory_p.h
 
-	curves.h
-	plotwidget.h
-	plotconfig.h
-	plotctxmenu.h
+	plot/curves.h
+	plot/plotwidget.h
+	plot/plotconfig.h
+	plot/plotctxmenu.h
 
-	tablewidget.h
-	tableconfig.h
-	tablectxmenu.h
-	tablemodelview.h
-	editableheaderview.h
-	sparseproxy.h
+	table/editableheaderview.h
+	table/sparseproxy.h
+	table/tableconfig.h
+	table/tablectxmenu.h
+	table/tablemodelview.h
+	table/tablewidget.h
 
-	histogram.h
-	frameview.h
-	frameviewconfig.h
-	syncwidgets.h
-
-	ganttwidget.h
-	ganttconfig.h
-	ganttctxmenu.h
-	ganttview.h
-	ganttdata.h
-	ganttitem.h
-	arrow.h
+	gantt/arrow.h
+	gantt/frameview.h
+	gantt/frameviewconfig.h
+	gantt/frameviewctxmenu.h
+	gantt/ganttconfig.h
+	gantt/ganttctxmenu.h
+	gantt/ganttdata.h
+	gantt/ganttitem.h
+	gantt/ganttview.h
+	gantt/ganttwidget.h
+	gantt/histogram.h
+	gantt/scalewidget.h
 	)
 
 SET(trace_server_UI 

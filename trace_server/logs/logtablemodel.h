@@ -24,7 +24,7 @@
 #include <QString>
 #include <vector>
 #include <tlv_parser/tlv_cmd_qstring.h>
-#include "sessionstate.h"
+#include "../sessionstate.h"
 
 class Connection;
 class SessionState;

@@ -5,8 +5,8 @@
 #include <tlv_parser/tlv_encoder.h>
 #include "utils.h"
 #include "utils_qstandarditem.h"
-#include "filterproxy.h"
-#include "logtablemodel.h"
+#include "logs/filterproxy.h"
+#include "logs/logtablemodel.h"
 #include "qtsln/qtcolorpicker/qtcolorpicker.h"
 
 void Connection::onInvalidateFilter ()

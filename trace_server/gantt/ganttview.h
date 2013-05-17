@@ -1,11 +1,11 @@
 #pragma once
 #include <QWidget>
 #include <QMap>
-#include "config.h"
+//#include "config.h"
 #include "ganttconfig.h"
 #include "ganttdata.h"
 #include "scalewidget.h"
-#include "qwt/qwt_transform.h"
+#include "../qwt/qwt_transform.h"
 
 #include <QFrame>
 #include <QGraphicsView>

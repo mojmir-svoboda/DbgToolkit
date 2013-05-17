@@ -5,7 +5,7 @@
 #include "utils.h"
 #include "dock.h"
 #include "delegates.h"
-#include "ganttview.h"
+#include "gantt/ganttview.h"
 //#include <cstdlib>
 
 DataGantt::DataGantt (Connection * parent, gantt::GanttConfig & config, QString const & fname)

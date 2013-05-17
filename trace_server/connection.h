@@ -31,15 +31,15 @@
 #include <tlv_parser/tlv_cmd_qstring.h>
 #include <boost/circular_buffer.hpp>
 #include "sessionstate.h"
-#include "filterproxy.h"
+#include "logs/filterproxy.h"
 #include "cmd.h"
-#include "plotwidget.h"
-#include "tablewidget.h"
-#include "ganttwidget.h"
-#include "ganttdata.h"
+#include "plot/plotwidget.h"
+#include "table/tablewidget.h"
+#include "gantt/ganttwidget.h"
+#include "gantt/ganttdata.h"
 #include "treeview.h"
 #include "treeproxy.h"
-#include "logwidget.h"
+#include "logs/logwidget.h"
 
 class Server;
 class QFile;

@@ -3,12 +3,12 @@
 #include <QListView>
 #include <QHeaderView>
 #include <tlv_parser/tlv_encoder.h>
-#include "logtablemodel.h"
+#include "logs/logtablemodel.h"
 #include "utils.h"
 #include "utils_qstandarditem.h"
 #include "serialization.h"
 #include "constants.h"
-#include "statswindow.h"
+//#include "statswindow.h"
 #include "delegates.h"
 
 void Connection::handleCSVSetup (QString const & fname)

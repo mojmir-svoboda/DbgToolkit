@@ -1,5 +1,5 @@
 #pragma once
-#include "qwt/qwt_scale_widget.h"
+#include "../qwt/qwt_scale_widget.h"
 
 class ScaleWidget : public QwtScaleWidget
 {

@@ -2,7 +2,7 @@
 #include <QBrush>
 #include <QColor>
 #include <QAbstractProxyModel>
-#include "connection.h"
+#include "../connection.h"
 #include <trace_client/trace.h>
 
 LogTableModel::LogTableModel (QObject * parent, Connection * c)
