@@ -77,8 +77,6 @@ SET(trace_server_SOURCES
 	logwidget.cpp
 	logconfig.cpp
 
-	rvps.cpp
-
 	connection_plot.cpp
 	plotwidget.cpp
 	plotconfig.cpp
@@ -122,7 +120,6 @@ SET(trace_server_HEADERS
 	sessionstate.h
 	settings.h
 	delegates.h
-	rvps.h
 	rendezvous.h
 	serialization.h
 	utils.h
