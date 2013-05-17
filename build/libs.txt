@@ -9,6 +9,7 @@ c:\devel\qt5\qtbase\lib\translator_commond.lib
 c:\devel\qt5\qtbase\lib\preprocessord.lib
 d3d9.lib
 dxguid.lib 
+Ws2_32.lib
 
 c:\devel\qt5\qtbase\lib\translator_hlsld.lib
 d3dcompiler.lib
@@ -26,6 +27,7 @@ c:\devel\qt5\qtbase\lib\translator_common.lib
 c:\devel\qt5\qtbase\lib\preprocessor.lib
 d3d9.lib
 dxguid.lib 
+Ws2_32.lib
 
 c:\devel\qt5\qtbase\lib\translator_hlsl.lib
 d3dcompiler.lib
