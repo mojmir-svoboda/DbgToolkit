@@ -43,7 +43,7 @@ void DataFrameView::onHide ()
 
 namespace gantt {
 
-	BaseGantt::BaseGantt (Connection * oparent, QWidget * wparent, GanttConfig & cfg, QString const & fname)
+	GanttWidget::GanttWidget (Connection * oparent, QWidget * wparent, GanttConfig & cfg, QString const & fname)
 		: QFrame(wparent)
 		, m_config(cfg)
 		, m_config_ui(cfg, this)
@@ -80,7 +80,7 @@ namespace gantt {
 							 &getSyncWidgets(), SLOT( performFrameSynchronization(int, unsigned long long, void *) ));
 	}
 
-	BaseGantt::~BaseGantt ()
+	GanttWidget::~GanttWidget ()
 	{
 		//qDebug("%s this=0x%08x", __FUNCTION__, this);
 		for (ganttviews_t::iterator it = m_ganttviews.begin(), ite = m_ganttviews.end(); it != ite; ++it)
@@ -93,17 +93,17 @@ namespace gantt {
 		disconnect(this, SIGNAL(customContextMenuRequested(QPoint const &)), this, SLOT(onShowContextMenu(QPoint const &)));
 	}
 
-	void BaseGantt::onShow ()
+	void GanttWidget::onShow ()
 	{
 		show();
 	}
 
-	void BaseGantt::onHide ()
+	void GanttWidget::onHide ()
 	{
 		hide();
 	}
 
-	BaseGantt::ganttviews_t::iterator BaseGantt::mkGanttView (QString const & subtag)
+	GanttWidget::ganttviews_t::iterator GanttWidget::mkGanttView (QString const & subtag)
 	{
 		GanttViewConfig * c = 0;
 		bool found = false;
@@ -134,14 +134,14 @@ namespace gantt {
 	}
 
 
-	GanttView * BaseGantt::findGanttView (QString const & subtag)
+	GanttView * GanttWidget::findGanttView (QString const & subtag)
 	{
 		ganttviews_t::const_iterator it = m_ganttviews.find(subtag);
 		if (it == m_ganttviews.end())
 			return 0;
 		return *it;
 	}
-	GanttView * BaseGantt::findOrCreateGanttView (QString const & subtag)
+	GanttView * GanttWidget::findOrCreateGanttView (QString const & subtag)
 	{
 		ganttviews_t::const_iterator it = m_ganttviews.find(subtag);
 		if (it == m_ganttviews.end())
@@ -149,7 +149,7 @@ namespace gantt {
 		return *it;
 	}
 
-	void BaseGantt::onHideContextMenu ()
+	void GanttWidget::onHideContextMenu ()
 	{
 		Ui::SettingsGantt * ui = m_config_ui.ui();
 		disconnect(ui->applyButton, SIGNAL(clicked()), this, SLOT(onApplyButton()));
@@ -157,7 +157,7 @@ namespace gantt {
 		m_config_ui.onHideContextMenu();
 	}
 
-	void BaseGantt::onShowContextMenu (QPoint const & pos)
+	void GanttWidget::onShowContextMenu (QPoint const & pos)
 	{
 		//qDebug("%s this=0x%08x", __FUNCTION__, this);
 		m_config_ui.onShowContextMenu(QCursor::pos());
@@ -175,7 +175,7 @@ namespace gantt {
 		connect(ui->nextFrameButton, SIGNAL(valueChanged(int)), this, SLOT(onFrameValueChanged(int)));
 	}
 
-	void BaseGantt::applyConfig (GanttConfig & cfg)
+	void GanttWidget::applyConfig (GanttConfig & cfg)
 	{
 		//qDebug("%s this=0x%08x", __FUNCTION__, this);
 		Ui::SettingsGantt * ui = m_config_ui.ui();
@@ -193,7 +193,7 @@ namespace gantt {
 		}
 	}
 
-	void BaseGantt::showGanttView (GanttView * item, bool on)
+	void GanttWidget::showGanttView (GanttView * item, bool on)
 	{
 		if (on)
 			item->show();
@@ -212,7 +212,7 @@ namespace gantt {
 		}
 	}*/
 
-	void BaseGantt::setConfigValuesToUI (GanttConfig const & cfg)
+	void GanttWidget::setConfigValuesToUI (GanttConfig const & cfg)
 	{
 		//qDebug("%s this=0x%08x", __FUNCTION__, this);
 		Ui::SettingsGantt * ui = m_config_ui.ui();
@@ -231,7 +231,7 @@ namespace gantt {
 			setViewConfigValuesToUI(cfg.m_gvcfg[0]);
 	}
 
-	void BaseGantt::setUIValuesToConfig (GanttConfig & cfg)
+	void GanttWidget::setUIValuesToConfig (GanttConfig & cfg)
 	{
 		//qDebug("%s this=0x%08x", __FUNCTION__, this);
 		Ui::SettingsGantt * ui = m_config_ui.ui();
@@ -244,13 +244,13 @@ namespace gantt {
 		}
 	}
 
-	void BaseGantt::onApplyButton ()
+	void GanttWidget::onApplyButton ()
 	{
 		setUIValuesToConfig(m_config);
 		applyConfig(m_config);
 	}
 
-	void BaseGantt::onSaveButton ()
+	void GanttWidget::onSaveButton ()
 	{
 		/*m_config.m_hsize.clear();
 		m_config.m_hsize.resize(m_modelView->columnCount());
@@ -259,15 +259,15 @@ namespace gantt {
 		m_connection->saveConfigForGantt(m_config, m_config.m_tag);
 
 	}
-	void BaseGantt::onResetButton () { setConfigValuesToUI(m_config); }
-	void BaseGantt::onDefaultButton ()
+	void GanttWidget::onResetButton () { setConfigValuesToUI(m_config); }
+	void GanttWidget::onDefaultButton ()
 	{
 		GanttConfig defaults;
 		//defaults.partialLoadFrom(m_config);
 		setConfigValuesToUI(defaults);
 	}
 
-	void BaseGantt::setViewConfigValuesToUI (GanttViewConfig const & gvcfg)
+	void GanttWidget::setViewConfigValuesToUI (GanttViewConfig const & gvcfg)
 	{
 		Ui::SettingsGantt * ui = m_config_ui.ui();
 		ui->showGanttViewCheckBox->setCheckState(gvcfg.m_show ? Qt::Checked : Qt::Unchecked);
@@ -281,7 +281,7 @@ namespace gantt {
 		//m_config_ui.m_symbol_color->setCurrentColor(ccfg.m_color);
 	}
 
-	void BaseGantt::setUIValuesToViewConfig (GanttViewConfig & gvcfg)
+	void GanttWidget::setUIValuesToViewConfig (GanttViewConfig & gvcfg)
 	{
 		Ui::SettingsGantt * ui = m_config_ui.ui();
 		gvcfg.m_show = ui->showGanttViewCheckBox->isChecked();
@@ -295,7 +295,7 @@ namespace gantt {
 	}
 
 
-	void BaseGantt::onGanttViewActivate (int idx)
+	void GanttWidget::onGanttViewActivate (int idx)
 	{
 		Ui::SettingsGantt * ui = m_config_ui.ui();
 		QString const & gvname = ui->ganttViewComboBox->currentText();
@@ -310,7 +310,7 @@ namespace gantt {
 		}
 	}
 
-	void BaseGantt::onClearAllDataButton ()
+	void GanttWidget::onClearAllDataButton ()
 	{
 		for (ganttviews_t::iterator it = m_ganttviews.begin(), ite = m_ganttviews.end(); it != ite; ++it)
 		{
@@ -324,11 +324,11 @@ namespace gantt {
 		//update();
 	}
 
-	void BaseGantt::onClearGanttViewDataButton ()
+	void GanttWidget::onClearGanttViewDataButton ()
 	{
 	}
 
-	void BaseGantt::onFitAllButton ()
+	void GanttWidget::onFitAllButton ()
 	{
 		Ui::SettingsGantt * ui = m_config_ui.ui();
 		QString const & gvname = ui->ganttViewComboBox->currentText();
@@ -340,7 +340,7 @@ namespace gantt {
 			}
 		}
 	}
-	void BaseGantt::onFitFrameButton ()
+	void GanttWidget::onFitFrameButton ()
 	{
 		Ui::SettingsGantt * ui = m_config_ui.ui();
 		QString const & gvname = ui->ganttViewComboBox->currentText();
@@ -352,7 +352,7 @@ namespace gantt {
 			}
 		}
 	}
-	void BaseGantt::onPrevFrameButton ()
+	void GanttWidget::onPrevFrameButton ()
 	{
 		Ui::SettingsGantt * ui = m_config_ui.ui();
 		QString const & gvname = ui->ganttViewComboBox->currentText();
@@ -364,7 +364,7 @@ namespace gantt {
 			}
 		}
 	}
-	void BaseGantt::onNextFrameButton ()
+	void GanttWidget::onNextFrameButton ()
 	{
 		Ui::SettingsGantt * ui = m_config_ui.ui();
 		QString const & gvname = ui->ganttViewComboBox->currentText();
@@ -376,7 +376,7 @@ namespace gantt {
 			}
 		}
 	}
-	void BaseGantt::onFrameValueChanged (int f)
+	void GanttWidget::onFrameValueChanged (int f)
 	{
 		Ui::SettingsGantt * ui = m_config_ui.ui();
 		QString const & gvname = ui->ganttViewComboBox->currentText();
@@ -393,7 +393,7 @@ namespace gantt {
 
 
 
-	void BaseGantt::performTimeSynchronization (int sync_group, unsigned long long time, void * source)
+	void GanttWidget::performTimeSynchronization (int sync_group, unsigned long long time, void * source)
 	{
 		qDebug("%s syncgrp=%i time=%i", __FUNCTION__, sync_group, time);
 		/*for (ganttviews_t::iterator it = m_ganttviews.begin(), ite = m_ganttviews.end(); it != ite; ++it)
@@ -403,7 +403,7 @@ namespace gantt {
 		}*/
 	}
 
-	void BaseGantt::performFrameSynchronization (int sync_group, unsigned long long frame, void * source)
+	void GanttWidget::performFrameSynchronization (int sync_group, unsigned long long frame, void * source)
 	{
 		qDebug("%s syncgrp=%i frame=%i", __FUNCTION__, sync_group, frame);
 		for (ganttviews_t::iterator it = m_ganttviews.begin(), ite = m_ganttviews.end(); it != ite; ++it)
@@ -445,7 +445,7 @@ namespace gantt {
 
 
 
-	void BaseGantt::appendFrameEnd (DecodedData & dd)
+	void GanttWidget::appendFrameEnd (DecodedData & dd)
 	{
 		gantt::GanttView * gv = findOrCreateGanttView(dd.m_subtag);
 		dataframeviews_t::iterator fv_it = findOrCreateFrameView(gv->config().m_sync_group);
@@ -455,7 +455,7 @@ namespace gantt {
 		(*fv_it)->widget().appendFrame(from, to);
 	}
 
-	dataframeviews_t::iterator BaseGantt::findOrCreateFrameView (int sync_group)
+	dataframeviews_t::iterator GanttWidget::findOrCreateFrameView (int sync_group)
 	{
 		char tmp[] = "frames";
 		QString const name = m_connection->sessionState().getAppName() + "/" + tmp + "/" + QString("%1").arg(sync_group);

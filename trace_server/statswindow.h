@@ -1,5 +1,5 @@
 #pragma once
-#include <QWidget>
+/*#include <QWidget>
 #include "baseplot.h"
 #include "sessionstate.h"
 
@@ -50,5 +50,5 @@ namespace stats {
 		SessionState & m_state;
 	};
 
-}
+}*/
 

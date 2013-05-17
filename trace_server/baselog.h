@@ -9,14 +9,14 @@ class Connection;
 
 namespace logs {
 
-	class BaseLog : public TableView
+	class LogWidget : public TableView
 	{
 		Q_OBJECT
 	public:
-		BaseLog (Connection * oparent, QWidget * wparent, LogConfig & cfg, QString const & fname);
+		LogWidget (Connection * oparent, QWidget * wparent, LogConfig & cfg, QString const & fname);
 
 		void applyConfig (LogConfig & pcfg);
-		virtual ~BaseLog ();
+		virtual ~LogWidget ();
 
 		LogConfig & getConfig () { return m_config; }
 		LogConfig const & getConfig () const { return m_config; }

@@ -1,5 +1,5 @@
 #include "statswindow.h"
-#include <QtGui>
+/*#include <QtGui>
 #include <QMainWindow>
 #include <QColor>
 #include "qwt/qwt_plot_curve.h"
@@ -53,7 +53,7 @@ StatsWindow::~StatsWindow ()
 
 
 StatsPlot::StatsPlot (QObject * oparent, QWidget * parent, SessionState & state, plot::PlotConfig & pcfg, QString const & fname)
-	: plot::BasePlot(oparent, parent, pcfg, fname)
+	: plot::PlotWidget(oparent, parent, pcfg, fname)
 	, m_state(state)
 {
 	//m_curves.resize(e_max_statsdata_enum_value);
@@ -78,7 +78,7 @@ StatsPlot::~StatsPlot () { qDebug("%s", __FUNCTION__); }
 
 void StatsPlot::update ()
 {
-/*	unsigned const diff = m_state.getRecvBytes() - m_curves[e_ReadBytes].m_last;
+	unsigned const diff = m_state.getRecvBytes() - m_curves[e_ReadBytes].m_last;
 	m_curves[e_ReadBytes].m_data.push_back(diff);
 	m_curves[e_ReadBytes].m_last = m_state.getRecvBytes();
 	m_curves[e_ReadBytes].m_time_data.push_back(m_curves[e_ReadBytes].m_time_data.size() / 2.0f);
@@ -97,9 +97,9 @@ void StatsPlot::update ()
 			m_curves[c].m_curve->setRawSamples(&m_curves[c].m_time_data[0], &m_curves[c].m_data[0], m_curves[c].m_data.size());
 		}
     }
-*/
 	replot();
 }
 
 }
 
+*/

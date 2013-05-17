@@ -62,7 +62,7 @@ struct DockedData {
 struct DataPlot {
 	Connection * m_parent;
 	QDockWidget * m_wd;
-	plot::BasePlot * m_widget;
+	plot::PlotWidget * m_widget;
 	plot::PlotConfig m_config;
 	QString m_fname;
 
@@ -71,7 +71,7 @@ struct DataPlot {
 
 	void onShow ();
 	void onHide ();
-	plot::BasePlot & widget () { return *m_widget; }
+	plot::PlotWidget & widget () { return *m_widget; }
 };
 
 typedef QMap<QString, DataPlot *> dataplots_t;
@@ -79,7 +79,7 @@ typedef QMap<QString, DataPlot *> dataplots_t;
 struct DataTable {
 	Connection * m_parent;
 	QDockWidget * m_wd;
-	table::BaseTable * m_widget;
+	table::TableWidget * m_widget;
 	table::TableConfig m_config;
 	QString m_fname;
 
@@ -88,7 +88,7 @@ struct DataTable {
 
 	void onShow ();
 	void onHide ();
-	table::BaseTable & widget () { return *m_widget; }
+	table::TableWidget & widget () { return *m_widget; }
 };
 
 typedef QMap<QString, DataTable *> datatables_t;
@@ -96,7 +96,7 @@ typedef QMap<QString, DataTable *> datatables_t;
 struct DataGantt {
 	Connection * m_parent;
 	QDockWidget * m_wd;
-	gantt::BaseGantt * m_widget;
+	gantt::GanttWidget * m_widget;
 	gantt::GanttConfig m_config;
 	QString m_fname;
 
@@ -105,7 +105,7 @@ struct DataGantt {
 
 	void onShow ();
 	void onHide ();
-	gantt::BaseGantt & widget () { return *m_widget; }
+	gantt::GanttWidget & widget () { return *m_widget; }
 };
 
 typedef QMap<QString, DataGantt *> datagantts_t;
@@ -113,7 +113,7 @@ typedef QMap<QString, DataGantt *> datagantts_t;
 struct DataLog {
 	Connection * m_parent;
 	QDockWidget * m_wd;
-	logs::BaseLog * m_widget;
+	logs::LogWidget * m_widget;
 	logs::LogConfig m_config;
 	QString m_fname;
 
@@ -122,7 +122,7 @@ struct DataLog {
 
 	void onShow ();
 	void onHide ();
-	logs::BaseLog & widget () { return *m_widget; }
+	logs::LogWidget & widget () { return *m_widget; }
 };
 
 typedef QMap<QString, DataLog *> datalogs_t;

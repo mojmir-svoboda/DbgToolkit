@@ -10,7 +10,7 @@
 
 namespace table {
 
-	BaseTable::BaseTable (Connection * oparent, QWidget * wparent, TableConfig & cfg, QString const & fname)
+	TableWidget::TableWidget (Connection * oparent, QWidget * wparent, TableConfig & cfg, QString const & fname)
 		: QTableView(wparent)
 		, m_config(cfg)
 		, m_config_ui(cfg, this)
@@ -73,23 +73,23 @@ namespace table {
 		setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 	}
 
-	BaseTable::~BaseTable ()
+	TableWidget::~TableWidget ()
 	{
 		qDebug("%s this=0x%08x", __FUNCTION__, this);
 		disconnect(this, SIGNAL(customContextMenuRequested(QPoint const &)), this, SLOT(onShowContextMenu(QPoint const &)));
 	}
 
-	void BaseTable::onShow ()
+	void TableWidget::onShow ()
 	{
 		show();
 	}
 
-	void BaseTable::onHide ()
+	void TableWidget::onHide ()
 	{
 		hide();
 	}
 
-	void BaseTable::applyConfig (TableConfig & cfg)
+	void TableWidget::applyConfig (TableConfig & cfg)
 	{
 		qDebug("%s this=0x%08x", __FUNCTION__, this);
 		Ui::SettingsTable * ui = m_config_ui.ui();
@@ -175,7 +175,7 @@ namespace table {
 		m_modelView->emitLayoutChanged();
 	}
 
-	void BaseTable::onHideContextMenu ()
+	void TableWidget::onHideContextMenu ()
 	{
 		Ui::SettingsTable * ui = m_config_ui.ui();
 		disconnect(ui->applyButton, SIGNAL(clicked()), this, SLOT(onApplyButton()));
@@ -183,7 +183,7 @@ namespace table {
 		m_config_ui.onHideContextMenu();
 	}
 
-	void BaseTable::onShowContextMenu (QPoint const & pos)
+	void TableWidget::onShowContextMenu (QPoint const & pos)
 	{
 		qDebug("%s this=0x%08x", __FUNCTION__, this);
 		QRect widgetRect = geometry();
@@ -197,7 +197,7 @@ namespace table {
 		//connect(ui->defaultButton, SIGNAL(clicked()), this, SLOT(onDefaultButton()));
 	}
 
-	void BaseTable::filteringStateChanged (int state)
+	void TableWidget::filteringStateChanged (int state)
 	{
 		if (m_config.m_hide_empty ^ state)
 		{
@@ -208,7 +208,7 @@ namespace table {
 		}
 	}
 
-	void BaseTable::setConfigValuesToUI (TableConfig const & cfg)
+	void TableWidget::setConfigValuesToUI (TableConfig const & cfg)
 	{
 		qDebug("%s this=0x%08x", __FUNCTION__, this);
 		Ui::SettingsTable * ui = m_config_ui.ui();
@@ -274,14 +274,14 @@ namespace table {
 		}
 	}
 
-	void BaseTable::onClickedAtColumnSetup (QModelIndex const idx)
+	void TableWidget::onClickedAtColumnSetup (QModelIndex const idx)
 	{
 		QStandardItem * const item = static_cast<QStandardItemModel *>(m_config_ui.ui()->columnView->model())->itemFromIndex(idx);
 		Qt::CheckState const curr = item->checkState();
 		item->setCheckState(curr == Qt::Checked ? Qt::Unchecked : Qt::Checked);
 	}
 
-	void BaseTable::setUIValuesToConfig (TableConfig & cfg)
+	void TableWidget::setUIValuesToConfig (TableConfig & cfg)
 	{
 		qDebug("%s this=0x%08x", __FUNCTION__, this);
 		Ui::SettingsTable * ui = m_config_ui.ui();
@@ -290,13 +290,13 @@ namespace table {
 		m_config.m_sync_group = ui->syncGroupSpinBox->value();
 	}
 
-	void BaseTable::onApplyButton ()
+	void TableWidget::onApplyButton ()
 	{
 		setUIValuesToConfig(m_config);
 		applyConfig(m_config);
 	}
 
-	void BaseTable::onSaveButton ()
+	void TableWidget::onSaveButton ()
 	{
 		/*m_config.m_hsize.clear();
 		m_config.m_hsize.resize(m_modelView->columnCount());
@@ -305,15 +305,15 @@ namespace table {
 		m_connection->saveConfigForTable(m_config, m_config.m_tag);
 
 	}
-	void BaseTable::onResetButton () { setConfigValuesToUI(m_config); }
-	void BaseTable::onDefaultButton ()
+	void TableWidget::onResetButton () { setConfigValuesToUI(m_config); }
+	void TableWidget::onDefaultButton ()
 	{
 		TableConfig defaults;
 		//defaults.partialLoadFrom(m_config);
 		setConfigValuesToUI(defaults);
 	}
 
-	void BaseTable::onSectionResized (int c, int old_size, int new_size)
+	void TableWidget::onSectionResized (int c, int old_size, int new_size)
 	{
 		int const idx = !isModelProxy() ? c : static_cast<SparseProxyModel *>(m_table_view_proxy)->colToSource(c);
 		qDebug("table: on rsz hdr[%i -> src=%02i ]  %i->%i\t\t%s", c, idx, old_size, new_size, m_config.m_hhdr.at(idx).toStdString().c_str());
@@ -332,7 +332,7 @@ namespace table {
 		m_config.m_hsize[idx] = new_size;
 	}
 
-	void BaseTable::appendTableXY (int x, int y, QString const & time, QString const & fgc, QString const & bgc, QString const & msg)
+	void TableWidget::appendTableXY (int x, int y, QString const & time, QString const & fgc, QString const & bgc, QString const & msg)
 	{
 		m_modelView->appendTableXY(x, y, time, fgc, bgc, msg);
 
@@ -370,7 +370,7 @@ namespace table {
 		}
 	}
 
-	void BaseTable::appendTableSetup (int x, int y, QString const & time, QString const & fgc, QString const & bgc, QString const & hhdr, QString const & tag)
+	void TableWidget::appendTableSetup (int x, int y, QString const & time, QString const & fgc, QString const & bgc, QString const & hhdr, QString const & tag)
 	{
 		unsigned long long t = time.toULongLong();
 		if (!hhdr.isEmpty() && x > -1)
@@ -396,19 +396,19 @@ namespace table {
 		}
 	}
 
-	void BaseTable::scrollTo (QModelIndex const & index, ScrollHint hint)
+	void TableWidget::scrollTo (QModelIndex const & index, ScrollHint hint)
 	{
 		QTableView::scrollTo(index, hint);
 	}
 
-	bool BaseTable::isModelProxy () const
+	bool TableWidget::isModelProxy () const
 	{
 		if (0 == model())
 			return false;
 		return model() == m_table_view_proxy;
 	}
 
-	void BaseTable::onInvalidateFilter ()
+	void TableWidget::onInvalidateFilter ()
 	{
 		qDebug("%s this=0x%08x", __FUNCTION__, this);
 		if (isModelProxy())
@@ -419,7 +419,7 @@ namespace table {
 		}
 	}
 
-	void BaseTable::onTableDoubleClicked (QModelIndex const & row_index)
+	void TableWidget::onTableDoubleClicked (QModelIndex const & row_index)
 	{
 		qDebug("%s this=0x%08x", __FUNCTION__, this);
 		if (m_config.m_sync_group == 0)
@@ -442,7 +442,7 @@ namespace table {
 		}
 	}
 
-	void BaseTable::findNearestTimeRow (unsigned long long t)
+	void TableWidget::findNearestTimeRow (unsigned long long t)
 	{
 		//qDebug("%s this=0x%08x", __FUNCTION__, this);
 		bool const is_proxy = isModelProxy();
@@ -489,7 +489,7 @@ namespace table {
 		}
 	}
 
-	void BaseTable::wheelEvent (QWheelEvent * event)
+	void TableWidget::wheelEvent (QWheelEvent * event)
 	{
 		bool const mod = event->modifiers() & Qt::CTRL;
 
@@ -505,12 +505,12 @@ namespace table {
 		}
 	}
 
-	void BaseTable::requestTableWheelEventSync (QWheelEvent * ev, QTableView const * source)
+	void TableWidget::requestTableWheelEventSync (QWheelEvent * ev, QTableView const * source)
 	{
 		// obsolette
 	}
 
-	QModelIndex	BaseTable::moveCursor (CursorAction cursor_action, Qt::KeyboardModifiers modifiers)
+	QModelIndex	TableWidget::moveCursor (CursorAction cursor_action, Qt::KeyboardModifiers modifiers)
 	{
 		bool const mod = modifiers & Qt::CTRL;
 		if (!mod)
@@ -532,7 +532,7 @@ namespace table {
 		}
 	}
 
-	void BaseTable::requestTableActionSync (unsigned long long t, int cursor_action, Qt::KeyboardModifiers modifiers, QTableView const * source)
+	void TableWidget::requestTableActionSync (unsigned long long t, int cursor_action, Qt::KeyboardModifiers modifiers, QTableView const * source)
 	{
 		if (this != source)
 			findNearestTimeRow(t);

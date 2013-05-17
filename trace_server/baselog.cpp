@@ -10,7 +10,7 @@
 
 namespace logs {
 
-	BaseLog::BaseLog (Connection * oparent, QWidget * wparent, LogConfig & cfg, QString const & fname)
+	LogWidget::LogWidget (Connection * oparent, QWidget * wparent, LogConfig & cfg, QString const & fname)
 		: TableView(wparent)
 		, m_config(cfg)
 		, m_config_ui(cfg, this)
@@ -38,23 +38,23 @@ namespace logs {
 							 &getSyncWidgets(), SLOT( performFrameSynchronization(int, unsigned long long, void *) ));
 	}
 
-	BaseLog::~BaseLog ()
+	LogWidget::~LogWidget ()
 	{
 		//qDebug("%s this=0x%08x", __FUNCTION__, this);
 		disconnect(this, SIGNAL(customContextMenuRequested(QPoint const &)), this, SLOT(onShowContextMenu(QPoint const &)));
 	}
 
-	void BaseLog::onShow ()
+	void LogWidget::onShow ()
 	{
 		show();
 	}
 
-	void BaseLog::onHide ()
+	void LogWidget::onHide ()
 	{
 		hide();
 	}
 
-	void BaseLog::onHideContextMenu ()
+	void LogWidget::onHideContextMenu ()
 	{
 		Ui::SettingsLog * ui = m_config_ui.ui();
 		disconnect(ui->applyButton, SIGNAL(clicked()), this, SLOT(onApplyButton()));
@@ -62,7 +62,7 @@ namespace logs {
 		m_config_ui.onHideContextMenu();
 	}
 
-	void BaseLog::onShowContextMenu (QPoint const & pos)
+	void LogWidget::onShowContextMenu (QPoint const & pos)
 	{
 		//qDebug("%s this=0x%08x", __FUNCTION__, this);
 		m_config_ui.onShowContextMenu(QCursor::pos());
@@ -74,14 +74,14 @@ namespace logs {
 		//connect(ui->logViewComboBox, SIGNAL(activated(int)), this, SLOT(onLogViewActivate(int)));
 	}
 
-	void BaseLog::applyConfig (LogConfig & cfg)
+	void LogWidget::applyConfig (LogConfig & cfg)
 	{
 		//qDebug("%s this=0x%08x", __FUNCTION__, this);
 		Ui::SettingsLog * ui = m_config_ui.ui();
 
 	}
 
-	void BaseLog::setConfigValuesToUI (LogConfig const & cfg)
+	void LogWidget::setConfigValuesToUI (LogConfig const & cfg)
 	{
 		//qDebug("%s this=0x%08x", __FUNCTION__, this);
 		Ui::SettingsLog * ui = m_config_ui.ui();
@@ -100,20 +100,20 @@ namespace logs {
 			setViewConfigValuesToUI(cfg.m_gvcfg[0]);*/
 	}
 
-	void BaseLog::setUIValuesToConfig (LogConfig & cfg)
+	void LogWidget::setUIValuesToConfig (LogConfig & cfg)
 	{
 		//qDebug("%s this=0x%08x", __FUNCTION__, this);
 		Ui::SettingsLog * ui = m_config_ui.ui();
 		//m_config.m_show = ui->globalShowCheckBox->checkState() == Qt::Checked;
 	}
 
-	void BaseLog::onApplyButton ()
+	void LogWidget::onApplyButton ()
 	{
 		setUIValuesToConfig(m_config);
 		applyConfig(m_config);
 	}
 
-	void BaseLog::onSaveButton ()
+	void LogWidget::onSaveButton ()
 	{
 		/*m_config.m_hsize.clear();
 		m_config.m_hsize.resize(m_modelView->columnCount());
@@ -122,15 +122,15 @@ namespace logs {
 		m_connection->saveConfigForLog(m_config, m_config.m_tag);
 
 	}
-	void BaseLog::onResetButton () { setConfigValuesToUI(m_config); }
-	void BaseLog::onDefaultButton ()
+	void LogWidget::onResetButton () { setConfigValuesToUI(m_config); }
+	void LogWidget::onDefaultButton ()
 	{
 		LogConfig defaults;
 		//defaults.partialLoadFrom(m_config);
 		setConfigValuesToUI(defaults);
 	}
 
-	void BaseLog::onClearAllDataButton ()
+	void LogWidget::onClearAllDataButton ()
 	{
 	}
 

@@ -10,7 +10,7 @@
 
 namespace plot {
 
-	BasePlot::curves_t::iterator BasePlot::mkCurve (QString const & subtag)
+	PlotWidget::curves_t::iterator PlotWidget::mkCurve (QString const & subtag)
 	{
 		CurveConfig * cc = 0;
 		bool found = false;
@@ -38,13 +38,13 @@ namespace plot {
 		return m_curves.insert(subtag, curve);
 	}
 
-	QColor BasePlot::allocColor () {
+	QColor PlotWidget::allocColor () {
 		QColor c = m_colors.front();
 		m_colors.pop_front();
 		return c;
 	}
 
-	BasePlot::BasePlot (QObject * oparent, QWidget * wparent, PlotConfig & cfg, QString const & fname)
+	PlotWidget::PlotWidget (QObject * oparent, QWidget * wparent, PlotConfig & cfg, QString const & fname)
 		: QwtPlot(wparent)
 		, m_config(cfg)
 		, m_config_ui(cfg, this)
@@ -118,7 +118,7 @@ namespace plot {
 		QTimer::singleShot(0, this, SLOT(onApplyButton()));
 	}
 
-	BasePlot::~BasePlot ()
+	PlotWidget::~PlotWidget ()
 	{
 		//qDebug("%s this=0x%08x", __FUNCTION__, this);
 		stopUpdate();
@@ -132,17 +132,17 @@ namespace plot {
 		disconnect(this, SIGNAL(customContextMenuRequested(QPoint const &)), this, SLOT(onShowPlotContextMenu(QPoint const &)));
 	}
 
-	void BasePlot::onShow ()
+	void PlotWidget::onShow ()
 	{
 		show();
 	}
 
-	void BasePlot::onHide ()
+	void PlotWidget::onHide ()
 	{
 		hide();
 	}
 
-	void BasePlot::applyAxis (AxisConfig const & acfg)
+	void PlotWidget::applyAxis (AxisConfig const & acfg)
 	{
 		setAxisTitle(acfg.m_axis_pos, acfg.m_label);
 		if (!acfg.m_auto_scale)
@@ -155,7 +155,7 @@ namespace plot {
 		//setAxisLabelAlignment(QwtPlot::xBottom, Qt::AlignLeft | Qt::AlignBottom);
 	}
 
-	void BasePlot::applyConfig (PlotConfig const & pcfg)
+	void PlotWidget::applyConfig (PlotConfig const & pcfg)
 	{
 		//qDebug("%s this=0x%08x", __FUNCTION__, this);
 		setTitle(pcfg.m_title);
@@ -188,20 +188,20 @@ namespace plot {
 		updateAxes();
 	}
 
-	void BasePlot::stopUpdate ()
+	void PlotWidget::stopUpdate ()
 	{
 		if (m_timer != -1)
 			killTimer(m_timer);
 	}
 
-	Curve * BasePlot::findCurve (QString const & subtag)
+	Curve * PlotWidget::findCurve (QString const & subtag)
 	{
 		curves_t::const_iterator it = m_curves.find(subtag);
 		if (it == m_curves.end())
 			return 0;
 		return *it;
 	}
-	Curve * BasePlot::findOrCreateCurve (QString const & subtag)
+	Curve * PlotWidget::findOrCreateCurve (QString const & subtag)
 	{
 		curves_t::const_iterator it = m_curves.find(subtag);
 		if (it == m_curves.end())
@@ -209,12 +209,12 @@ namespace plot {
 		return *it;
 	}
 
-	void BasePlot::timerEvent (QTimerEvent * e)
+	void PlotWidget::timerEvent (QTimerEvent * e)
 	{
 		update();
 	}
 
-	void BasePlot::update ()
+	void PlotWidget::update ()
 	{
 		if (!m_config.m_show)
 			return;
@@ -233,7 +233,7 @@ namespace plot {
 		replot();
 	}
 
-	void BasePlot::showCurve (QwtPlotItem * item, bool on)
+	void PlotWidget::showCurve (QwtPlotItem * item, bool on)
 	{
 		item->setVisible(on);
 	#pragma message(__LOC__"!!! Qt5 incompatibility !!!")
@@ -242,12 +242,12 @@ namespace plot {
 		replot();
 	}
 
-	void BasePlot::onHideContextMenu ()
+	void PlotWidget::onHideContextMenu ()
 	{
 		m_config_ui.onHidePlotContextMenu();
 	}
 
-	void BasePlot::onShowContextMenu (QPoint const & pos)
+	void PlotWidget::onShowContextMenu (QPoint const & pos)
 	{
 		qDebug("%s this=0x%08x", __FUNCTION__, this);
 		QRect widgetRect = geometry();
@@ -269,7 +269,7 @@ namespace plot {
 		connect(ui->zAutoScaleCheckBox, SIGNAL(stateChanged(int)), SLOT(onZAutoScaleChanged(int)));
 	}
 
-	void BasePlot::setConfigValues (PlotConfig const & pcfg)
+	void PlotWidget::setConfigValues (PlotConfig const & pcfg)
 	{
 		//qDebug("%s this=0x%08x", __FUNCTION__, this);
 		Ui::SettingsPlot * ui = m_config_ui.ui();
@@ -311,7 +311,7 @@ namespace plot {
 		onCurveActivate(0);
 	}
 
-	void BasePlot::onApplyButton ()
+	void PlotWidget::onApplyButton ()
 	{
 		//qDebug("%s this=0x%08x", __FUNCTION__, this);
 		Ui::SettingsPlot * ui = m_config_ui.ui();
@@ -350,7 +350,7 @@ namespace plot {
 		replot();
 	}
 
-	void BasePlot::onXAutoScaleChanged (int state)
+	void PlotWidget::onXAutoScaleChanged (int state)
 	{
 		Ui::SettingsPlot * ui = m_config_ui.ui();
 		bool enabled = state == Qt::Checked ? false : true;
@@ -359,7 +359,7 @@ namespace plot {
 		ui->xStepDblSpinBox->setEnabled(enabled);
 		ui->xScaleComboBox->setEnabled(enabled);
 	}
-	void BasePlot::onYAutoScaleChanged (int state)
+	void PlotWidget::onYAutoScaleChanged (int state)
 	{
 		Ui::SettingsPlot * ui = m_config_ui.ui();
 		bool enabled = state == Qt::Checked ? false : true;
@@ -368,20 +368,20 @@ namespace plot {
 		ui->yStepDblSpinBox->setEnabled(enabled);
 		ui->yScaleComboBox->setEnabled(enabled);
 	}
-	void BasePlot::onZAutoScaleChanged (int state)
+	void PlotWidget::onZAutoScaleChanged (int state)
 	{
 	}
 
-	void BasePlot::onSaveButton () { saveConfig(m_config, m_fname); }
-	void BasePlot::onResetButton () { setConfigValues(m_config); }
-	void BasePlot::onDefaultButton ()
+	void PlotWidget::onSaveButton () { saveConfig(m_config, m_fname); }
+	void PlotWidget::onResetButton () { setConfigValues(m_config); }
+	void PlotWidget::onDefaultButton ()
 	{
 		PlotConfig defaults;
 		defaults.partialLoadFrom(m_config);
 		setConfigValues(defaults);
 	}
 
-	void BasePlot::onCurveActivate (int idx)
+	void PlotWidget::onCurveActivate (int idx)
 	{
 		Ui::SettingsPlot * ui = m_config_ui.ui();
 		QString const & curvename = ui->curveComboBox->currentText();
@@ -409,7 +409,7 @@ namespace plot {
 		}
 	}
 
-	void BasePlot::clearCurveData (QString const & subtag)
+	void PlotWidget::clearCurveData (QString const & subtag)
 	{
 		for (curves_t::iterator it = m_curves.begin(), ite = m_curves.end(); it != ite; ++it)
 		{
@@ -423,12 +423,12 @@ namespace plot {
 		update();
 	}
 
-	void BasePlot::onClearAllDataButton ()
+	void PlotWidget::onClearAllDataButton ()
 	{
 		clearAllData();
 	}
 
-	void BasePlot::clearAllData ()
+	void PlotWidget::clearAllData ()
 	{
 		for (curves_t::iterator it = m_curves.begin(), ite = m_curves.end(); it != ite; ++it)
 		{
@@ -442,7 +442,7 @@ namespace plot {
 		update();
 	}
 
-	void BasePlot::onClearCurveDataButton ()
+	void PlotWidget::onClearCurveDataButton ()
 	{
 		Ui::SettingsPlot * ui = m_config_ui.ui();
 		clearCurveData(ui->curveComboBox->currentText());

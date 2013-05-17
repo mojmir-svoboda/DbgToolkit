@@ -13,14 +13,14 @@ class Connection;
 
 namespace table {
 
-	class BaseTable : public QTableView
+	class TableWidget : public QTableView
 	{
 		Q_OBJECT
 	public:
-		BaseTable (Connection * oparent, QWidget * wparent, TableConfig & cfg, QString const & fname);
+		TableWidget (Connection * oparent, QWidget * wparent, TableConfig & cfg, QString const & fname);
 
 		void applyConfig (TableConfig & pcfg);
-		virtual ~BaseTable ();
+		virtual ~TableWidget ();
 
 		TableConfig & getConfig () { return m_config; }
 		TableConfig const & getConfig () const { return m_config; }

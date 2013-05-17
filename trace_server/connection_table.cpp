@@ -17,7 +17,7 @@ DataTable::DataTable (Connection * parent, table::TableConfig & config, QString 
 	, m_fname(fname)
 {
 	qDebug("%s this=0x%08x name=%s", __FUNCTION__, this, fname.toStdString().c_str());
-	m_widget = new table::BaseTable(parent, 0, m_config, fname);
+	m_widget = new table::TableWidget(parent, 0, m_config, fname);
 	m_widget->setItemDelegate(new SyncedTableItemDelegate(m_widget));
 }
 DataTable::~DataTable ()

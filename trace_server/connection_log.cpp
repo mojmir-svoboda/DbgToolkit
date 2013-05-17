@@ -13,7 +13,7 @@ DataLog::DataLog (Connection * parent, logs::LogConfig & config, QString const &
 	, m_fname(fname)
 {
 	qDebug("%s this=0x%08x name=%s", __FUNCTION__, this, fname.toStdString().c_str());
-	m_widget = new logs::BaseLog(parent, 0, m_config, fname);
+	m_widget = new logs::LogWidget(parent, 0, m_config, fname);
 }
 DataLog::~DataLog ()
 {

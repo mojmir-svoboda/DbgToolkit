@@ -16,7 +16,7 @@ DataGantt::DataGantt (Connection * parent, gantt::GanttConfig & config, QString 
 	, m_fname(fname)
 {
 	qDebug("%s this=0x%08x name=%s", __FUNCTION__, this, fname.toStdString().c_str());
-	m_widget = new gantt::BaseGantt(parent, 0, m_config, fname);
+	m_widget = new gantt::GanttWidget(parent, 0, m_config, fname);
 	//m_widget->setItemDelegate(new SyncedGanttItemDelegate(m_widget));
 }
 DataGantt::~DataGantt ()

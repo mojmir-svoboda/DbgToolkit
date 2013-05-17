@@ -407,8 +407,8 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 		}
 	}
 
-	if (m_main_window->statsEnabled())
-		m_statswindow = new stats::StatsWindow(this, m_session_state);
+	//if (m_main_window->statsEnabled())
+	//	m_statswindow = new stats::StatsWindow(this, m_session_state);
 
 	qDebug("Server::incomingConnection buffering not enabled, notifying client");
 	onBufferingStateChanged(m_main_window->buffState());

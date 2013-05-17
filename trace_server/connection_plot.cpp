@@ -15,7 +15,7 @@ DataPlot::DataPlot (Connection * parent, plot::PlotConfig & config, QString cons
 	, m_fname(fname)
 {
 	qDebug("%s this=0x%08x", __FUNCTION__, this);
-	m_widget = new plot::BasePlot(parent, 0, m_config, fname);
+	m_widget = new plot::PlotWidget(parent, 0, m_config, fname);
 }
 DataPlot::~DataPlot ()
 {

@@ -203,8 +203,8 @@ Connection::~Connection ()
 void Connection::onDisconnected ()
 {
 	qDebug("onDisconnected()");
-	if (m_statswindow)
-		m_statswindow->stopUpdate();
+	//if (m_statswindow)
+		//m_statswindow->stopUpdate();
 
 	if (m_main_window->dumpModeEnabled())
 	{

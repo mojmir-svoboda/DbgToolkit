@@ -36,14 +36,14 @@ typedef QMap<int, DataFrameView *> dataframeviews_t;
 
 namespace gantt {
 
-	class BaseGantt : public QFrame
+	class GanttWidget : public QFrame
 	{
 		Q_OBJECT
 	public:
-		BaseGantt (Connection * oparent, QWidget * wparent, GanttConfig & cfg, QString const & fname);
+		GanttWidget (Connection * oparent, QWidget * wparent, GanttConfig & cfg, QString const & fname);
 
 		void applyConfig (GanttConfig & pcfg);
-		virtual ~BaseGantt ();
+		virtual ~GanttWidget ();
 
 		GanttConfig & getConfig () { return m_config; }
 		GanttConfig const & getConfig () const { return m_config; }

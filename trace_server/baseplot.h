@@ -15,19 +15,19 @@ class QwtPlotMarker;
 
 namespace plot {
 
-	class BasePlot : public QwtPlot
+	class PlotWidget : public QwtPlot
 	{
 		Q_OBJECT
 	public:
 		typedef QMap<QString, Curve *> curves_t;
 
-		BasePlot (QObject * oparent, QWidget * wparent, PlotConfig & cfg, QString const & fname);
+		PlotWidget (QObject * oparent, QWidget * wparent, PlotConfig & cfg, QString const & fname);
 
 		QColor allocColor ();
 
 		void applyAxis (AxisConfig const & acfg);
 		void applyConfig (PlotConfig const & pcfg);
-		virtual ~BasePlot ();
+		virtual ~PlotWidget ();
 		void stopUpdate ();
 
 		Curve * findCurve (QString const & subtag);
