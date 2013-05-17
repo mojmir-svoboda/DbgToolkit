@@ -125,28 +125,20 @@ Connection * Server::createNewTableView ()
 {
 	Connection * connection = new Connection(this);
 	connection->setMainWindow(m_main_window);
-	QWidget * tab = new QWidget();
-	QHBoxLayout * horizontalLayout = new QHBoxLayout(tab);
-	horizontalLayout->setSpacing(1);
-	horizontalLayout->setContentsMargins(0, 0, 0, 0);
-	horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
-	TableView * tableView = new TableView(tab);
-	tableView->setStyleSheet("QTableView::item{ selection-background-color:	#F5DEB3  } QTableView::item{ selection-color:	#000000 }");
-	
-	// to ignore 'resizeColumnToContents' when accidentaly double-clicked on header handle
-	disconnect(tableView->horizontalHeader(), SIGNAL(sectionHandleDoubleClicked(int)), tableView, SLOT(resizeColumnToContents(int)));
 
-	tableView->setObjectName(QString::fromUtf8("tableView"));
-	LogTableModel * model = new LogTableModel(tableView, connection);
-	connection->m_table_view_src = model;
-	disconnect(model, SIGNAL(rowsInserted(QModelIndex,int,int)), tableView->verticalHeader(), SLOT(sectionsInserted(QModelIndex,int,int)));
-    tableView->verticalHeader()->setFont(m_main_window->tableFont());
-	tableView->verticalHeader()->setDefaultSectionSize(m_main_window->tableRowSize());
-	tableView->verticalHeader()->hide();	// @NOTE: users want that //@NOTE2: they can't have it because of performance
-	tableView->setModel(model);
-	horizontalLayout->addWidget(tableView);
+	datalogs_t::iterator it = connection->findOrCreateLog(tag);
+	DataLog & d = **it;
+
+	///////////////////////////////
+	//prestehovano do DataLog::DataLog
+	///////////////////////////////
+
+	connection->m_table_view_src = d->widget()->model();
 	connection->setTableViewWidget(tableView);
 	connection->sessionState().setupThreadColors(m_main_window->getThreadColors());
+
+	QWidget * const tab = d->widget()->parent();
+
 	int const n = m_main_window->getTabTrace()->addTab(tab, QString::fromUtf8("???"));
 	qDebug("created new tab at %u for connection @ 0x%08x", n, connection);
 

@@ -10,12 +10,12 @@
 
 namespace logs {
 
-	LogWidget::LogWidget (Connection * oparent, QWidget * wparent, LogConfig & cfg, QString const & fname)
+	LogWidget::LogWidget (Connection * connection, QWidget * wparent, LogConfig & cfg, QString const & fname)
 		: TableView(wparent)
 		, m_config(cfg)
 		, m_config_ui(cfg, this)
 		, m_fname(fname)
-		, m_connection(oparent)
+		, m_connection(connection)
 	{
 		//qDebug("%s this=0x%08x", __FUNCTION__, this);
 

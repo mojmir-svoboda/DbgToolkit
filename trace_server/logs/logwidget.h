@@ -50,6 +50,7 @@ namespace logs {
 		logs::CtxLogConfig m_config_ui;
 		QString m_fname;
 		Connection * m_connection;
+		QWidget * m_tab;
 	};
 }
 
