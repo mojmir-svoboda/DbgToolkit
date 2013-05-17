@@ -1,6 +1,6 @@
 #include "sparseproxy.h"
-#include "connection.h"
-#include "mainwindow.h"
+#include "../connection.h"
+#include "../mainwindow.h"
 
 SparseProxyModel::SparseProxyModel (QObject * parent)
 	: QAbstractProxyModel(parent)
