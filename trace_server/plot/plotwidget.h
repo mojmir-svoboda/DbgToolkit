@@ -1,12 +1,11 @@
 #pragma once
 #include <qwidget.h>
 #include <QColorDialog>
-#include "qwt/qwt_plot.h"
-#include "qwt/qwt_plot_canvas.h"
-#include "qwt/qwt_plot_layout.h"
-#include "qwt/qwt_symbol.h"
+#include "../qwt/qwt_plot.h"
+#include "../qwt/qwt_plot_canvas.h"
+#include "../qwt/qwt_plot_layout.h"
+#include "../qwt/qwt_symbol.h"
 #include "curves.h"
-#include "config.h"
 #include "plotctxmenu.h"
 #include "plottypes.h"
 

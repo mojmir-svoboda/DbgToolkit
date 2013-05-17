@@ -1,11 +1,11 @@
 #include "plotwidget.h"
-#include "qwt/qwt_plot_legenditem.h"
-#include "qwt/qwt_legend.h"
-#include "qwt/qwt_plot_panner.h"
-#include "qwt/qwt_plot_zoomer.h"
-#include "qwt/qwt_plot_magnifier.h"
-#include "qwt/qwt_picker_machine.h"
-#include "qwt/qwt_plot_marker.h"
+#include "../qwt/qwt_plot_legenditem.h"
+#include "../qwt/qwt_legend.h"
+#include "../qwt/qwt_plot_panner.h"
+#include "../qwt/qwt_plot_zoomer.h"
+#include "../qwt/qwt_plot_magnifier.h"
+#include "../qwt/qwt_picker_machine.h"
+#include "../qwt/qwt_plot_marker.h"
 #include <QTimer>
 
 namespace plot {

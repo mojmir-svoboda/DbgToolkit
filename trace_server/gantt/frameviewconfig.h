@@ -1,5 +1,7 @@
 #pragma once
-#include "types.h"
+#include <QString>
+#include <QColor>
+#include <QVector>
 #include "frameviewconfig.h"
 
 //namespace gantt {
@@ -8,7 +10,7 @@
 	{
 		QString m_tag;
 		QString m_title;
-		QList<FrameViewConfig> m_gvcfg;
+		QVector<FrameViewConfig> m_gvcfg;
 		int m_sync_group;
 		float m_begin;
 		float m_end;

@@ -1,5 +1,7 @@
 #pragma once
-#include "types.h"
+#include <QString>
+#include <QVector>
+#include <QColor>
 
 namespace logs {
 
@@ -10,10 +12,10 @@ namespace logs {
 		int m_sync_group;
 		QString m_font;
 		int m_fontsize;
-		QVector<columns_setup_t> m_columns_setup;		/// column setup for each registered application
-		QVector<columns_sizes_t> m_columns_sizes;		/// column sizes for each registered application
-		QVector<columns_align_t> m_columns_align;		/// column align for each registered application
-		QVector<columns_elide_t> m_columns_elide;		/// column elide for each registered application
+		QVector<QString> m_columns_setup;		/// column setup for each registered application
+		QVector<int> m_columns_sizes;		/// column sizes for each registered application
+		QVector<QString> m_columns_align;		/// column align for each registered application
+		QVector<QString> m_columns_elide;		/// column elide for each registered application
 		QVector<QColor> m_thread_colors;				/// predefined coloring of threads
 		bool m_show;
 		bool m_auto_scroll;

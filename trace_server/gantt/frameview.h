@@ -1,7 +1,7 @@
 #pragma once
 #include <QFrame>
-#include "qwt/qwt_plot.h"
-#include "qwt/qwt_plot_barchart.h"
+#include "../qwt/qwt_plot.h"
+#include "../qwt/qwt_plot_barchart.h"
 #include "frameviewconfig.h"
 #include "frameviewctxmenu.h"
 

@@ -1,11 +1,11 @@
 #include "logwidget.h"
 //#include <QScrollBar>
 //#include <QSplitter>
-#include "connection.h"
-#include "utils.h"
-#include "utils_qstandarditem.h"
+#include "../connection.h"
+#include "../utils.h"
+#include "../utils_qstandarditem.h"
 //#include "delegates.h"
-#include "syncwidgets.h"
+#include "../syncwidgets.h"
 
 
 namespace logs {

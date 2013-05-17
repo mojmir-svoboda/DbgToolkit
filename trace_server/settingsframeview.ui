@@ -261,7 +261,7 @@
   <customwidget>
    <class>QtColorPicker</class>
    <extends>QPushButton</extends>
-   <header>qtsln/qtcolorpicker/qtcolorpicker.h</header>
+   <header>../qtsln/qtcolorpicker/qtcolorpicker.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

@@ -3,7 +3,7 @@
 #include <QHelpEvent>
 #include <QHeaderView>
 #include <QScrollBar>
-#include "logtablemodel.h"
+#include "logs/logtablemodel.h"
 
 TableView::TableView (QWidget * parent)
 	: QTableView(parent)

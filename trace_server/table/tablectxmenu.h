@@ -6,9 +6,8 @@
 #include <QWidgetAction>
 #include <QLineEdit>
 #include <QLabel>
-#include "config.h"
 #include "ui_settingstable.h"
-#include "qtsln/qtcolorpicker/qtcolorpicker.h"
+#include "../qtsln/qtcolorpicker/qtcolorpicker.h"
 
 namespace table {
 

@@ -4,7 +4,6 @@
 #include <QTableView>
 #include <QAbstractProxyModel>
 #include <QAbstractItemView>
-#include "config.h"
 #include "tableconfig.h"
 #include "tablectxmenu.h"
 #include "tablemodelview.h"

@@ -1,7 +1,7 @@
 #pragma once
-#include <qwidget>
-#include "qwt/qwt_plot.h"
-#include "qwt/qwt_plot_curve.h"
+#include <QWidget>
+#include "../qwt/qwt_plot.h"
+#include "../qwt/qwt_plot_curve.h"
 #include "plotconfig.h"
 
 class QwtPlotCurve;

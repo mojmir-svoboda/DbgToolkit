@@ -2,7 +2,6 @@
 #include <QWidget>
 #include <QDockWidget>
 #include <QFrame>
-#include "config.h"
 #include "ganttconfig.h"
 #include "ganttdata.h"
 #include "ganttctxmenu.h"

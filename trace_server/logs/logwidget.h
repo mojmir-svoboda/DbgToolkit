@@ -1,7 +1,6 @@
 #pragma once
 #include <QWidget>
-#include "config.h"
-#include "tableview.h"
+#include "../tableview.h"
 #include "logconfig.h"
 #include "logctxmenu.h"
 

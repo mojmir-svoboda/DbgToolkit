@@ -1,14 +1,14 @@
 #include "ganttwidget.h"
 #include <QScrollBar>
 #include <QSplitter>
-#include "connection.h"
-#include "utils.h"
-#include "utils_qstandarditem.h"
-#include "delegates.h"
+#include "../connection.h"
+#include "../utils.h"
+#include "../utils_qstandarditem.h"
+#include "../delegates.h"
 #include "ganttview.h"
-#include "label.h"
+#include "../label.h"
 #include "frameview.h"
-#include "syncwidgets.h"
+#include "../syncwidgets.h"
 
 
 DataFrameView::DataFrameView (Connection * parent, FrameViewConfig & config, QString const & fname)
