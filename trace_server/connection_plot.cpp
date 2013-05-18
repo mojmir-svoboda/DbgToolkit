@@ -17,7 +17,7 @@ DataPlot::DataPlot (Connection * connection, config_t & config, QString const & 
 void Connection::onShowPlots ()
 {
 	qDebug("%s", __FUNCTION__);
-	for (dataplots_t::iterator it = m_dataplots.begin(), ite = m_dataplots.end(); it != ite; ++it)
+	for (dataplots_t::iterator it = m_data.get<e_data_plot>().begin(), ite = m_data.get<e_data_plot>().end(); it != ite; ++it)
 	{
 		(*it)->onShow();
 		m_main_window->restoreDockWidget((*it)->m_wd);
@@ -27,7 +27,7 @@ void Connection::onShowPlots ()
 void Connection::onHidePlots ()
 {
 	qDebug("%s", __FUNCTION__);
-	for (dataplots_t::iterator it = m_dataplots.begin(), ite = m_dataplots.end(); it != ite; ++it)
+	for (dataplots_t::iterator it = m_data.get<e_data_plot>().begin(), ite = m_data.get<e_data_plot>().end(); it != ite; ++it)
 	{
 		(*it)->onHide();
 	}
@@ -36,7 +36,7 @@ void Connection::onHidePlots ()
 void Connection::onShowPlotContextMenu (QPoint const &)
 {
 	qDebug("%s", __FUNCTION__);
-	for (dataplots_t::iterator it = m_dataplots.begin(), ite = m_dataplots.end(); it != ite; ++it)
+	for (dataplots_t::iterator it = m_data.get<e_data_plot>().begin(), ite = m_data.get<e_data_plot>().end(); it != ite; ++it)
 	{
 		(*it)->widget().onHideContextMenu();
 	}
@@ -82,8 +82,8 @@ bool Connection::handlePlotClearCommand (DecodedCommand const & cmd)
 		
 		qDebug("clear plot: tag='%s' subtag='%s'", tag.toStdString().c_str(), subtag.toStdString().c_str());
 
-		dataplots_t::iterator it = m_dataplots.find(tag);
-		if (it != m_dataplots.end())
+		dataplots_t::iterator it = m_data.get<e_data_plot>().find(tag);
+		if (it != m_data.get<e_data_plot>().end())
 		{
 			if (!subtag.isEmpty())
 				(*it)->widget().clearCurveData(subtag);
@@ -102,7 +102,7 @@ bool Connection::handleDataXYZCommand (DecodedCommand const & cmd)
 bool Connection::loadConfigForPlots (QString const & preset_name)
 {
 	qDebug("%s this=0x%08x", __FUNCTION__, this);
-	for (dataplots_t::iterator it = m_dataplots.begin(), ite = m_dataplots.end(); it != ite; ++it)
+	for (dataplots_t::iterator it = m_data.get<e_data_plot>().begin(), ite = m_data.get<e_data_plot>().end(); it != ite; ++it)
 	{
 		DataPlot * const plt = *it;
 		QString const fname = getDataTagFileName(getConfig().m_appdir, preset_name, g_presetPlotTag, plt->m_config.m_tag);
@@ -136,7 +136,7 @@ bool Connection::saveConfigForPlot (plot::PlotConfig const & config, QString con
 bool Connection::saveConfigForPlots (QString const & preset_name)
 {
 	qDebug("%s this=0x%08x", __FUNCTION__, this);
-	for (dataplots_t::iterator it = m_dataplots.begin(), ite = m_dataplots.end(); it != ite; ++it)
+	for (dataplots_t::iterator it = m_data.get<e_data_plot>().begin(), ite = m_data.get<e_data_plot>().end(); it != ite; ++it)
 	{
 		DataPlot * const plt = *it;
 		QString const fname = getDataTagFileName(getConfig().m_appdir, preset_name, g_presetPlotTag, plt->m_config.m_tag);
@@ -155,8 +155,8 @@ void Connection::appendDataXY (double x, double y, QString const & msg_tag)
 	subtag.remove(0, slash_pos + 1);
 	QString const plot_name = sessionState().getAppName() + "/plot/" + tag;
 
-	dataplots_t::iterator it = m_dataplots.find(tag);
-	if (it == m_dataplots.end())
+	dataplots_t::iterator it = m_data.get<e_data_plot>().find(tag);
+	if (it == m_data.get<e_data_plot>().end())
 	{
 		// new data plot
 		plot::PlotConfig template_config;
@@ -170,7 +170,7 @@ void Connection::appendDataXY (double x, double y, QString const & msg_tag)
 			}
 		
 		DataPlot * const dp = new DataPlot(this, template_config, fname);
-		it = m_dataplots.insert(tag, dp);
+		it = m_data.get<e_data_plot>().insert(tag, dp);
 		QModelIndex const item_idx = m_data_model->insertItemWithHint(plot_name, template_config.m_show);
 
 		dp->m_wd = m_main_window->m_dock_mgr.mkDockWidget(m_main_window, &dp->widget(), template_config.m_show, plot_name);

@@ -30,8 +30,7 @@
 #include <tlv_parser/tlv.h>
 #include <tlv_parser/tlv_cmd_qstring.h>
 #include <boost/circular_buffer.hpp>
-#include <boost/circular_buffer.hpp>
-#include <boost/mpl/vector.hpp>
+#include <boost/tuple/tuple.hpp>
 #include "sessionstate.h"
 #include "logs/filterproxy.h"
 #include "cmd.h"
@@ -123,9 +122,10 @@ enum E_DataWidgetType {
 	, e_data_plot
 	, e_data_table
 	, e_data_gantt
+	, e_data_widget_max_value
 };
 
-typedef boost::mpl::vector<datalogs_t, dataplots_t, datatables_t, datagantts_t>::type data_widgets_t;
+typedef boost::tuple<datalogs_t, dataplots_t, datatables_t, datagantts_t> data_widgets_t;
 
 
 /**@class		Connection
@@ -411,11 +411,7 @@ private:
 	QTextStream * m_file_csv_stream;
 	QTcpSocket * m_tcpstream;
 	//stats::StatsWindow * m_statswindow;
-	data_widgets_t m_data_widgets;
-	datalogs_t m_datalogs;
-	dataplots_t m_dataplots;
-	datatables_t m_datatables;
-	datagantts_t m_datagantts;
+	data_widgets_t m_data;
 	TreeModel * m_data_model;
 };
 

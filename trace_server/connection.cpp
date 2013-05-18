@@ -4,6 +4,7 @@
 #include <trace_client/trace.h>
 #include "utils.h"
 #include "utils_qstandarditem.h"
+#include "utils_boost.h"
 #include "types.h"
 //#include "statswindow.h"
 #include "delegates.h"
@@ -97,9 +98,21 @@ namespace {
 	}
 }
 
+struct DestroyDockedWidgets {
+	QMainWindow & m_main_window;
+
+	DestroyDockedWidgets (QMainWindow & mw) : m_main_window(mw) { }
+
+	template <typename T>
+	void operator() (T & t)
+	{
+		destroyDockedWidgets(t, m_main_window);
+	}
+};
+
 Connection::~Connection ()
 {
-	for (datatables_t::iterator it = m_datatables.begin(), ite = m_datatables.end(); it != ite; ++it)
+	for (datatables_t::iterator it = m_data.get<e_data_table>().begin(), ite = m_data.get<e_data_table>().end(); it != ite; ++it)
 		QObject::disconnect((*it)->widget().horizontalHeader(), SIGNAL(sectionResized(int, int, int)), &(*it)->widget(), SLOT(onSectionResized(int, int, int)));
 	qDebug("Connection::~Connection() this=0x%08x", this);
 	/*if (m_statswindow)
@@ -108,9 +121,7 @@ Connection::~Connection ()
 		m_statswindow = 0;
 	}*/
 
-	destroyDockedWidgets(m_dataplots, *m_main_window);
-	destroyDockedWidgets(m_datatables, *m_main_window);
-	destroyDockedWidgets(m_datagantts, *m_main_window);
+	recurse(m_data, DestroyDockedWidgets(*m_main_window));
 
 	if (m_tcpstream)
 	{
@@ -217,7 +228,7 @@ void Connection::onDisconnected ()
 		QTimer::singleShot(0, server, SLOT(onCloseMarkedTabs()));
 	}
 
-	for (dataplots_t::iterator it = m_dataplots.begin(), ite = m_dataplots.end(); it != ite; ++it)
+	for (dataplots_t::iterator it = m_data.get<e_data_plot>().begin(), ite = m_data.get<e_data_plot>().end(); it != ite; ++it)
 	{
 		DataPlot * dp = (*it);
 		dp->widget().stopUpdate();
@@ -267,20 +278,21 @@ void Connection::onBufferingStateChanged (int val)
 	}
 }
 
+struct Save {
+	template <class T>
+	void operator() (T const & t)
+	{
+		typedef typename T::const_iterator it_t;
+		for (it_t it = t.begin(), ite = t.end(); it != ite; ++it)
+			(*it)->widget().onSaveButton();
+	}
+};
+
 void Connection::onSaveAll ()
 {
 	qDebug("%s", __FUNCTION__);
 	// @TODO: v hhdr bude 0 !
-	for (dataplots_t::iterator it = m_dataplots.begin(), ite = m_dataplots.end(); it != ite; ++it)
-	{
-		DataPlot * dp = (*it);
-		dp->widget().onSaveButton();
-	}
-
-	for (datatables_t::iterator it = m_datatables.begin(), ite = m_datatables.end(); it != ite; ++it)
-	{
-		DataTable * dt = (*it);
-		dt->widget().onSaveButton();
-	}	
+	
+	recurse(m_data, Save());
 }
 

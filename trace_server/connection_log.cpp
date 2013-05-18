@@ -87,7 +87,7 @@ void Connection::onSectionResized (int idx, int /*old_size*/, int new_size)
 void Connection::onShowLogs ()
 {
 	qDebug("%s", __FUNCTION__);
-	for (datalogs_t::iterator it = m_datalogs.begin(), ite = m_datalogs.end(); it != ite; ++it)
+	for (datalogs_t::iterator it = m_data.get<e_data_log>().begin(), ite = m_data.get<e_data_log>().end(); it != ite; ++it)
 	{
 		(*it)->onShow();
 		m_main_window->restoreDockWidget((*it)->m_wd);
@@ -97,7 +97,7 @@ void Connection::onShowLogs ()
 void Connection::onHideLogs ()
 {
 	qDebug("%s", __FUNCTION__);
-	for (datalogs_t::iterator it = m_datalogs.begin(), ite = m_datalogs.end(); it != ite; ++it)
+	for (datalogs_t::iterator it = m_data.get<e_data_log>().begin(), ite = m_data.get<e_data_log>().end(); it != ite; ++it)
 	{
 		(*it)->onHide();
 	}
@@ -106,7 +106,7 @@ void Connection::onHideLogs ()
 void Connection::onShowLogContextMenu (QPoint const &)
 {
 	qDebug("%s", __FUNCTION__);
-	for (datalogs_t::iterator it = m_datalogs.begin(), ite = m_datalogs.end(); it != ite; ++it)
+	for (datalogs_t::iterator it = m_data.get<e_data_log>().begin(), ite = m_data.get<e_data_log>().end(); it != ite; ++it)
 	{
 		(*it)->widget().onHideContextMenu();
 	}
@@ -123,7 +123,7 @@ bool Connection::loadConfigForLog (QString const & preset_name, logs::LogConfig 
 bool Connection::loadConfigForLogs (QString const & preset_name)
 {
 	qDebug("%s this=0x%08x", __FUNCTION__, this);
-	for (datalogs_t::iterator it = m_datalogs.begin(), ite = m_datalogs.end(); it != ite; ++it)
+	for (datalogs_t::iterator it = m_data.get<e_data_log>().begin(), ite = m_data.get<e_data_log>().end(); it != ite; ++it)
 	{
 		DataLog * const tbl = *it;
 		QString const fname = getDataTagFileName(getConfig().m_appdir, preset_name, g_presetLogTag, tbl->m_config.m_tag);
@@ -148,7 +148,7 @@ bool Connection::saveConfigForLog (logs::LogConfig const & config, QString const
 bool Connection::saveConfigForLogs (QString const & preset_name)
 {
 	qDebug("%s this=0x%08x", __FUNCTION__, this);
-	for (datalogs_t::iterator it = m_datalogs.begin(), ite = m_datalogs.end(); it != ite; ++it)
+	for (datalogs_t::iterator it = m_data.get<e_data_log>().begin(), ite = m_data.get<e_data_log>().end(); it != ite; ++it)
 	{
 		DataLog * const tbl = *it;
 		QString const fname = getDataTagFileName(getConfig().m_appdir, preset_name, g_presetLogTag, tbl->m_config.m_tag);
@@ -162,8 +162,8 @@ datalogs_t::iterator Connection::findOrCreateLog (QString const & tag)
 {
 	QString const log_name = sessionState().getAppName() + "/" + g_presetLogTag + "/" + tag;
 
-	datalogs_t::iterator it = m_datalogs.find(tag);
-	if (it == m_datalogs.end())
+	datalogs_t::iterator it = m_data.get<e_data_log>().find(tag);
+	if (it == m_data.get<e_data_log>().end())
 	{
 		qDebug("log: creating log %s", tag.toStdString().c_str());
 		// new data log
@@ -179,7 +179,7 @@ datalogs_t::iterator Connection::findOrCreateLog (QString const & tag)
 		}
 		
 		DataLog * const dp = new DataLog(this, template_config, fname);
-		it = m_datalogs.insert(tag, dp);
+		it = m_data.get<e_data_log>().insert(tag, dp);
 		QModelIndex const item_idx = m_data_model->insertItemWithHint(log_name, template_config.m_show);
 
 		dp->m_wd = m_main_window->m_dock_mgr.mkDockWidget(m_main_window, &dp->widget(), template_config.m_show, log_name);

@@ -19,7 +19,7 @@ DataGantt::DataGantt (Connection * connection, config_t & config, QString const 
 void Connection::onShowGantts ()
 {
 	qDebug("%s", __FUNCTION__);
-	for (datagantts_t::iterator it = m_datagantts.begin(), ite = m_datagantts.end(); it != ite; ++it)
+	for (datagantts_t::iterator it = m_data.get<e_data_gantt>().begin(), ite = m_data.get<e_data_gantt>().end(); it != ite; ++it)
 	{
 		(*it)->onShow();
 		m_main_window->restoreDockWidget((*it)->m_wd);
@@ -29,7 +29,7 @@ void Connection::onShowGantts ()
 void Connection::onHideGantts ()
 {
 	qDebug("%s", __FUNCTION__);
-	for (datagantts_t::iterator it = m_datagantts.begin(), ite = m_datagantts.end(); it != ite; ++it)
+	for (datagantts_t::iterator it = m_data.get<e_data_gantt>().begin(), ite = m_data.get<e_data_gantt>().end(); it != ite; ++it)
 	{
 		(*it)->onHide();
 	}
@@ -38,7 +38,7 @@ void Connection::onHideGantts ()
 void Connection::onShowGanttContextMenu (QPoint const &)
 {
 	qDebug("%s", __FUNCTION__);
-	for (datagantts_t::iterator it = m_datagantts.begin(), ite = m_datagantts.end(); it != ite; ++it)
+	for (datagantts_t::iterator it = m_data.get<e_data_gantt>().begin(), ite = m_data.get<e_data_gantt>().end(); it != ite; ++it)
 	{
 		(*it)->widget().onHideContextMenu();
 	}
@@ -153,7 +153,7 @@ bool Connection::loadConfigForGantt (QString const & preset_name, gantt::GanttCo
 bool Connection::loadConfigForGantts (QString const & preset_name)
 {
 	qDebug("%s this=0x%08x", __FUNCTION__, this);
-	for (datagantts_t::iterator it = m_datagantts.begin(), ite = m_datagantts.end(); it != ite; ++it)
+	for (datagantts_t::iterator it = m_data.get<e_data_gantt>().begin(), ite = m_data.get<e_data_gantt>().end(); it != ite; ++it)
 	{
 		DataGantt * const tbl = *it;
 		QString const fname = getDataTagFileName(getConfig().m_appdir, preset_name, g_presetGanttTag, tbl->m_config.m_tag);
@@ -178,7 +178,7 @@ bool Connection::saveConfigForGantt (gantt::GanttConfig const & config, QString 
 bool Connection::saveConfigForGantts (QString const & preset_name)
 {
 	qDebug("%s this=0x%08x", __FUNCTION__, this);
-	for (datagantts_t::iterator it = m_datagantts.begin(), ite = m_datagantts.end(); it != ite; ++it)
+	for (datagantts_t::iterator it = m_data.get<e_data_gantt>().begin(), ite = m_data.get<e_data_gantt>().end(); it != ite; ++it)
 	{
 		DataGantt * const tbl = *it;
 		QString const fname = getDataTagFileName(getConfig().m_appdir, preset_name, g_presetGanttTag, tbl->m_config.m_tag);
@@ -192,8 +192,8 @@ datagantts_t::iterator Connection::findOrCreateGantt (QString const & tag)
 {
 	QString const gantt_name = sessionState().getAppName() + "/" + g_presetGanttTag + "/" + tag;
 
-	datagantts_t::iterator it = m_datagantts.find(tag);
-	if (it == m_datagantts.end())
+	datagantts_t::iterator it = m_data.get<e_data_gantt>().find(tag);
+	if (it == m_data.get<e_data_gantt>().end())
 	{
 		qDebug("gantt: creating gantt %s", tag.toStdString().c_str());
 		// new data gantt
@@ -209,7 +209,7 @@ datagantts_t::iterator Connection::findOrCreateGantt (QString const & tag)
 		}
 		
 		DataGantt * const dp = new DataGantt(this, template_config, fname);
-		it = m_datagantts.insert(tag, dp);
+		it = m_data.get<e_data_gantt>().insert(tag, dp);
 		QModelIndex const item_idx = m_data_model->insertItemWithHint(gantt_name, template_config.m_show);
 
 		dp->m_wd = m_main_window->m_dock_mgr.mkDockWidget(m_main_window, &dp->widget(), template_config.m_show, gantt_name);
@@ -266,7 +266,7 @@ bool Connection::handleGanttClearCommand (DecodedCommand const & cmd)
 
 /*void Connection::requestGanttSynchronization (int sync_group, unsigned long long time)
 {
-	for (datagantts_t::iterator it = m_datagantts.begin(), ite = m_datagantts.end(); it != ite; ++it)
+	for (datagantts_t::iterator it = m_data.get<e_data_gantt>().begin(), ite = m_data.get<e_data_gantt>().end(); it != ite; ++it)
 	{
 		DataGantt * const tbl = *it;
 		if (tbl->widget().getConfig().m_sync_group == sync_group)
@@ -276,7 +276,7 @@ bool Connection::handleGanttClearCommand (DecodedCommand const & cmd)
 
 void Connection::requestGanttWheelEventSync (int sync_group, QWheelEvent * ev, QGanttView const * source)
 {
-	for (datagantts_t::iterator it = m_datagantts.begin(), ite = m_datagantts.end(); it != ite; ++it)
+	for (datagantts_t::iterator it = m_data.get<e_data_gantt>().begin(), ite = m_data.get<e_data_gantt>().end(); it != ite; ++it)
 	{
 		DataGantt * const tbl = *it;
 		if (tbl->widget().getConfig().m_sync_group == sync_group)
@@ -286,7 +286,7 @@ void Connection::requestGanttWheelEventSync (int sync_group, QWheelEvent * ev, Q
 
 void Connection::requestGanttActionSync (int sync_group, unsigned long long t, int cursorAction, Qt::KeyboardModifiers modifiers, QGanttView const * source)
 {
-	for (datagantts_t::iterator it = m_datagantts.begin(), ite = m_datagantts.end(); it != ite; ++it)
+	for (datagantts_t::iterator it = m_data.get<e_data_gantt>().begin(), ite = m_data.get<e_data_gantt>().end(); it != ite; ++it)
 	{
 		DataGantt * const tbl = *it;
 		if (tbl->widget().getConfig().m_sync_group == sync_group)

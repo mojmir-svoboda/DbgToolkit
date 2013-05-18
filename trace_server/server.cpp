@@ -257,7 +257,7 @@ void Server::onClickedAtDockedWidgets (QModelIndex idx)
 
 				if (path.size() > 2)
 				{
-					for (datatables_t::iterator it = conn->m_datatables.begin(), ite = conn->m_datatables.end(); it != ite; ++it)
+					for (datatables_t::iterator it = conn->m_data.get<e_data_table>().begin(), ite = conn->m_data.get<e_data_table>().end(); it != ite; ++it)
 					{
 						DataTable * dp = (*it);
 						if (dp->m_config.m_tag == path.at(2))
@@ -292,7 +292,7 @@ void Server::onClickedAtDockedWidgets (QModelIndex idx)
 			{
 				if (path.size() > 2)
 				{
-					for (dataplots_t::iterator it = conn->m_dataplots.begin(), ite = conn->m_dataplots.end(); it != ite; ++it)
+					for (dataplots_t::iterator it = conn->m_data.get<e_data_plot>().begin(), ite = conn->m_data.get<e_data_plot>().end(); it != ite; ++it)
 					{
 						DataPlot * dp = (*it);
 						if (dp->m_config.m_tag == path.at(2))

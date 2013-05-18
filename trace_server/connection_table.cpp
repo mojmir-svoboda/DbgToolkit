@@ -20,7 +20,7 @@ DataTable::DataTable (Connection * connection, config_t & config, QString const 
 void Connection::onShowTables ()
 {
 	qDebug("%s", __FUNCTION__);
-	for (datatables_t::iterator it = m_datatables.begin(), ite = m_datatables.end(); it != ite; ++it)
+	for (datatables_t::iterator it = m_data.get<e_data_table>().begin(), ite = m_data.get<e_data_table>().end(); it != ite; ++it)
 	{
 		(*it)->onShow();
 		m_main_window->restoreDockWidget((*it)->m_wd);
@@ -30,7 +30,7 @@ void Connection::onShowTables ()
 void Connection::onHideTables ()
 {
 	qDebug("%s", __FUNCTION__);
-	for (datatables_t::iterator it = m_datatables.begin(), ite = m_datatables.end(); it != ite; ++it)
+	for (datatables_t::iterator it = m_data.get<e_data_table>().begin(), ite = m_data.get<e_data_table>().end(); it != ite; ++it)
 	{
 		(*it)->onHide();
 	}
@@ -39,7 +39,7 @@ void Connection::onHideTables ()
 void Connection::onShowTableContextMenu (QPoint const &)
 {
 	qDebug("%s", __FUNCTION__);
-	for (datatables_t::iterator it = m_datatables.begin(), ite = m_datatables.end(); it != ite; ++it)
+	for (datatables_t::iterator it = m_data.get<e_data_table>().begin(), ite = m_data.get<e_data_table>().end(); it != ite; ++it)
 	{
 		(*it)->widget().onHideContextMenu();
 	}
@@ -120,7 +120,7 @@ bool Connection::loadConfigForTable (QString const & preset_name, table::TableCo
 bool Connection::loadConfigForTables (QString const & preset_name)
 {
 	qDebug("%s this=0x%08x", __FUNCTION__, this);
-	for (datatables_t::iterator it = m_datatables.begin(), ite = m_datatables.end(); it != ite; ++it)
+	for (datatables_t::iterator it = m_data.get<e_data_table>().begin(), ite = m_data.get<e_data_table>().end(); it != ite; ++it)
 	{
 		DataTable * const tbl = *it;
 		QString const fname = getDataTagFileName(getConfig().m_appdir, preset_name, g_presetTableTag, tbl->m_config.m_tag);
@@ -145,7 +145,7 @@ bool Connection::saveConfigForTable (table::TableConfig const & config, QString 
 bool Connection::saveConfigForTables (QString const & preset_name)
 {
 	qDebug("%s this=0x%08x", __FUNCTION__, this);
-	for (datatables_t::iterator it = m_datatables.begin(), ite = m_datatables.end(); it != ite; ++it)
+	for (datatables_t::iterator it = m_data.get<e_data_table>().begin(), ite = m_data.get<e_data_table>().end(); it != ite; ++it)
 	{
 		DataTable * const tbl = *it;
 		QString const fname = getDataTagFileName(getConfig().m_appdir, preset_name, g_presetTableTag, tbl->m_config.m_tag);
@@ -159,8 +159,8 @@ datatables_t::iterator Connection::findOrCreateTable (QString const & tag)
 {
 	QString const table_name = sessionState().getAppName() + "/" + g_presetTableTag + "/" + tag;
 
-	datatables_t::iterator it = m_datatables.find(tag);
-	if (it == m_datatables.end())
+	datatables_t::iterator it = m_data.get<e_data_table>().find(tag);
+	if (it == m_data.get<e_data_table>().end())
 	{
 		qDebug("table: creating table %s", tag.toStdString().c_str());
 		// new data table
@@ -176,7 +176,7 @@ datatables_t::iterator Connection::findOrCreateTable (QString const & tag)
 		}
 		
 		DataTable * const dp = new DataTable(this, template_config, fname);
-		it = m_datatables.insert(tag, dp);
+		it = m_data.get<e_data_table>().insert(tag, dp);
 		QModelIndex const item_idx = m_data_model->insertItemWithHint(table_name, template_config.m_show);
 
 		// TMP!
@@ -265,7 +265,7 @@ bool Connection::handleTableClearCommand (DecodedCommand const & cmd)
 }
 void Connection::requestTableSynchronization (int sync_group, unsigned long long time)
 {
-	for (datatables_t::iterator it = m_datatables.begin(), ite = m_datatables.end(); it != ite; ++it)
+	for (datatables_t::iterator it = m_data.get<e_data_table>().begin(), ite = m_data.get<e_data_table>().end(); it != ite; ++it)
 	{
 		DataTable * const tbl = *it;
 		if (tbl->widget().getConfig().m_sync_group == sync_group)
@@ -275,7 +275,7 @@ void Connection::requestTableSynchronization (int sync_group, unsigned long long
 
 void Connection::requestTableWheelEventSync (int sync_group, QWheelEvent * ev, QTableView const * source)
 {
-	for (datatables_t::iterator it = m_datatables.begin(), ite = m_datatables.end(); it != ite; ++it)
+	for (datatables_t::iterator it = m_data.get<e_data_table>().begin(), ite = m_data.get<e_data_table>().end(); it != ite; ++it)
 	{
 		DataTable * const tbl = *it;
 		if (tbl->widget().getConfig().m_sync_group == sync_group)
@@ -293,7 +293,7 @@ void Connection::requestTableWheelEventSync (int sync_group, QWheelEvent * ev, Q
 
 void Connection::requestTableActionSync (int sync_group, unsigned long long t, int cursorAction, Qt::KeyboardModifiers modifiers, QTableView const * source)
 {
-	for (datatables_t::iterator it = m_datatables.begin(), ite = m_datatables.end(); it != ite; ++it)
+	for (datatables_t::iterator it = m_data.get<e_data_table>().begin(), ite = m_data.get<e_data_table>().end(); it != ite; ++it)
 	{
 		DataTable * const tbl = *it;
 		if (tbl->widget().getConfig().m_sync_group == sync_group)
