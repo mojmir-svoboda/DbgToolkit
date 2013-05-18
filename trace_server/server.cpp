@@ -69,13 +69,6 @@ void Server::exportStorageToCSV (QString const & filename)
 		conn->exportStorageToCSV(filename);
 }
 
-void Server::onSectionResized (int idx, int /*old_size*/, int new_size)
-{
-	if (Connection * conn = findCurrentConnection())
-		if (conn->sessionState().getColumnSizes() && idx < conn->sessionState().getColumnSizes()->size())
-			conn->sessionState().getColumnSizes()->operator[](idx) = new_size;
-}
-
 void Server::onLevelValueChanged (int val)
 {
 	qDebug("level changed: %u", val);
@@ -113,7 +106,7 @@ void Server::onTabTraceFocus (int i)
 	QWidget * w = m_main_window->getTabTrace()->widget(i);
 	for (connections_t::iterator it = m_connections.begin(), ite = m_connections.end(); it != ite; ++it)
 	{
-		if (it->second->sessionState().m_tab_widget == w)
+		if (it->second->m_tab_widget == w)
 		{
 			it->second->onTabTraceFocus();
 			return;
@@ -124,32 +117,27 @@ void Server::onTabTraceFocus (int i)
 Connection * Server::createNewTableView ()
 {
 	Connection * connection = new Connection(this);
+	QWidget * tab = new QWidget();
+	connection->m_tab_widget = tab;
 	connection->setMainWindow(m_main_window);
 
-	datalogs_t::iterator it = connection->findOrCreateLog(tag);
-	DataLog & d = **it;
+	int const n = m_main_window->getTabTrace()->addTab(tab, QString::fromUtf8("???"));
+	qDebug("created new tab at %u for connection @ 0x%08x", n, connection);
+
+	//QString const tag("default"); // @FIXME
+	//datalogs_t::iterator it = connection->findOrCreateLog(tag);
+	//DataLog & d = **it;
 
 	///////////////////////////////
 	//prestehovano do DataLog::DataLog
 	///////////////////////////////
 
-	connection->m_table_view_src = d->widget()->model();
-	connection->setTableViewWidget(tableView);
-	connection->sessionState().setupThreadColors(m_main_window->getThreadColors());
 
-	QWidget * const tab = d->widget()->parent();
-
-	int const n = m_main_window->getTabTrace()->addTab(tab, QString::fromUtf8("???"));
-	qDebug("created new tab at %u for connection @ 0x%08x", n, connection);
-
-	connection->sessionState().setTabWidget(tab);
-
-	if (m_main_window->filterEnabled())
+	/*if (m_main_window->filterEnabled())
 	{
 		connection->setFilterFile(Qt::Checked);
-	}
+	}*/
 	m_connections.insert(std::make_pair(tab, connection));
-	QObject::connect(tableView->horizontalHeader(), SIGNAL(sectionResized(int, int, int)), this, SLOT(onSectionResized(int, int, int)));
 	return connection;
 }
 

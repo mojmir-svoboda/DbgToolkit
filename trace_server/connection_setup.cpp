@@ -31,7 +31,7 @@ void Connection::handleCSVSetup (QString const & fname)
 				loadSessionState(conn->sessionState(), m_session_state);
 			}
 
-			QWidget * w = conn->sessionState().m_tab_widget;
+			QWidget * w = conn->m_tab_widget;
 			server->onCloseTab(w);	// close old one
 			// @TODO: delete persistent storage for the tab
 		}
@@ -95,7 +95,7 @@ void Connection::handleCSVSetup (QString const & fname)
 	//sessionState().m_pid = pid;
 
 	m_table_view_widget->setVisible(false);
-	int const tab_idx = m_main_window->getTabTrace()->indexOf(sessionState().m_tab_widget);
+	int const tab_idx = m_main_window->getTabTrace()->indexOf(m_tab_widget);
 	m_main_window->getTabTrace()->setTabText(tab_idx, app_name);
 
 	sessionState().m_app_idx = m_main_window->findAppName(app_name);
@@ -206,7 +206,7 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 						loadSessionState(conn->sessionState(), m_session_state);
 					}
 
-					QWidget * w = conn->sessionState().m_tab_widget;
+					QWidget * w = conn->m_tab_widget;
 					server->onCloseTab(w);	// close old one
 					// @TODO: delete persistent storage for the tab
 
@@ -347,7 +347,7 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 			sessionState().m_pid = pid;
 
 			m_table_view_widget->setVisible(false);
-			int const tab_idx = m_main_window->getTabTrace()->indexOf(sessionState().m_tab_widget);
+			int const tab_idx = m_main_window->getTabTrace()->indexOf(m_tab_widget);
 			m_main_window->getTabTrace()->setTabText(tab_idx, app_name);
 			QString storage_name = createStorageName();
 			setupStorage(storage_name);

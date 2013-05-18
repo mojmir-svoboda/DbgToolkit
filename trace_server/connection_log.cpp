@@ -1,21 +1,17 @@
 #include "connection.h"
 #include <QClipboard>
+#include <QObject>
 #include "logs/logtablemodel.h"
 #include "tableview.h"
 #include "constants.h"
 #include "utils.h"
 
-DataLog::DataLog (Connection * connection, logs::LogConfig & config, QString const & fname)
-	: m_parent(connection)
-	, m_wd(0)
-	, m_config(config)
-	, m_widget(0)
-	, m_fname(fname)
+DataLog::DataLog (Connection * connection, config_t & config, QString const & fname)
+	: DockedData<widget_t, config_t>(connection, config, fname)
 {
 	qDebug("%s this=0x%08x name=%s", __FUNCTION__, this, fname.toStdString().c_str());
-	m_widget = new logs::LogWidget(parent, 0, m_config, fname);
 
-	QWidget * tab = new QWidget(connection);
+	QWidget * tab = connection->m_tab_widget;
 	QHBoxLayout * horizontalLayout = new QHBoxLayout(tab);
 	horizontalLayout->setSpacing(1);
 	horizontalLayout->setContentsMargins(0, 0, 0, 0);
@@ -24,58 +20,43 @@ DataLog::DataLog (Connection * connection, logs::LogConfig & config, QString con
 	tableView->setStyleSheet("QTableView::item{ selection-background-color:	#F5DEB3  } QTableView::item{ selection-color:	#000000 }");
 	
 	// to ignore 'resizeColumnToContents' when accidentaly double-clicked on header handle
-	disconnect(tableView->horizontalHeader(), SIGNAL(sectionHandleDoubleClicked(int)), tableView, SLOT(resizeColumnToContents(int)));
+	QObject::disconnect(tableView->horizontalHeader(), SIGNAL(sectionHandleDoubleClicked(int)), tableView, SLOT(resizeColumnToContents(int)));
 
 	tableView->setObjectName(QString::fromUtf8("tableView"));
 	LogTableModel * model = new LogTableModel(tableView, connection);
-	disconnect(model, SIGNAL(rowsInserted(QModelIndex,int,int)), tableView->verticalHeader(), SLOT(sectionsInserted(QModelIndex,int,int)));
-    tableView->verticalHeader()->setFont(m_main_window->tableFont());
-	tableView->verticalHeader()->setDefaultSectionSize(m_main_window->tableRowSize());
+	QObject::disconnect(model, SIGNAL(rowsInserted(QModelIndex,int,int)), tableView->verticalHeader(), SLOT(sectionsInserted(QModelIndex,int,int)));
+    tableView->verticalHeader()->setFont(config.m_font);
+	tableView->verticalHeader()->setDefaultSectionSize(config.m_row_width);
 	tableView->verticalHeader()->hide();	// @NOTE: users want that //@NOTE2: they can't have it because of performance
 	tableView->setModel(model);
 	horizontalLayout->addWidget(tableView);
-}
+	m_widget = tableView;
 
-DataLog::~DataLog ()
-{
-	qDebug("%s this=0x%08x", __FUNCTION__, this);
-	delete m_widget;
-	m_widget = 0;
-}
-void DataLog::onShow ()
-{
-	m_widget->onShow();
-	m_wd->show();
-	m_parent->getMainWindow()->restoreDockWidget(m_wd);
-	//QTimer::singleShot(0, m_parent, SLOT(onShowLogs()));
-}
-void DataLog::onHide ()
-{
-	m_widget->onHide();
-	QTimer::singleShot(0, m_wd, SLOT(hide()));
+	connection->m_table_view_src = model;
+	connection->m_table_view_widget = tableView;
+	connection->sessionState().setupThreadColors(connection->getMainWindow()->getThreadColors());
+	QObject::connect(tableView->horizontalHeader(), SIGNAL(sectionResized(int, int, int)), connection, SLOT(onSectionResized(int, int, int)));
 }
 
 bool Connection::handleLogCommand (DecodedCommand const & cmd)
 {
-	QString tag = msg_tag;
-	int const slash_pos = tag.lastIndexOf(QChar('/'));
-	tag.chop(msg_tag.size() - slash_pos);
+	QString const tag("default"); // @FIXME
+	//int const slash_pos = tag.lastIndexOf(QChar('/'));
+	//tag.chop(msg_tag.size() - slash_pos);
 
-	QString subtag = msg_tag;
-	subtag.remove(0, slash_pos + 1);
+	//QString subtag = msg_tag;
+	//subtag.remove(0, slash_pos + 1);
 
-	datatables_t::iterator it = findOrCreateLog(tag);
+	datalogs_t::iterator it = findOrCreateLog(tag);
 
-	DataTable & dp = **it;
-
-
-	appendToFilters(cmd);
+	DataLog & dp = **it;
 
 	if (cmd.hdr.cmd == tlv::cmd_scope_entry || (cmd.hdr.cmd == tlv::cmd_scope_exit))
 	{
 		if (m_main_window->scopesEnabled())
 		{
 			LogTableModel * model = static_cast<LogTableModel *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
+			//dp.widget().model()->appendCommand(m_table_view_proxy, cmd);
 			model->appendCommand(m_table_view_proxy, cmd);
 		}
 	}
@@ -93,6 +74,13 @@ bool Connection::handleLogCommand (DecodedCommand const & cmd)
 bool Connection::handleLogClearCommand (DecodedCommand const & cmd)
 {
 	return true;
+}
+
+
+void Connection::onSectionResized (int idx, int /*old_size*/, int new_size)
+{
+	if (sessionState().getColumnSizes() && idx < sessionState().getColumnSizes()->size())
+		sessionState().getColumnSizes()->operator[](idx) = new_size;
 }
 
 
@@ -228,6 +216,8 @@ QString Connection::onCopyToClipboard ()
 {
 	QAbstractItemModel * model = m_table_view_widget->model();
 	QItemSelectionModel * selection = m_table_view_widget->selectionModel();
+	if (!selection)
+		return QString();
 	QModelIndexList indexes = selection->selectedIndexes();
 
 	if (indexes.size() < 1)

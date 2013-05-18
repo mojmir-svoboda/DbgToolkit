@@ -19,6 +19,7 @@ Connection::Connection (QObject * parent)
 	, m_last_search_row(0)
 	, m_last_search_col(0)
 	, m_curr_preset()
+	, m_tab_widget(0)
 	, m_table_view_widget(0)
 	, m_file_model(0)
 	, m_file_proxy(0)
@@ -51,7 +52,7 @@ Connection::Connection (QObject * parent)
 	, m_file_csv_stream(0)
 	//, m_file_tlv_stream(0)
 	, m_tcpstream(0)
-	, m_statswindow(0)
+	//, m_statswindow(0)
 	, m_data_model(0)
 {
 	qDebug("Connection::Connection() this=0x%08x", this);
@@ -101,11 +102,11 @@ Connection::~Connection ()
 	for (datatables_t::iterator it = m_datatables.begin(), ite = m_datatables.end(); it != ite; ++it)
 		QObject::disconnect((*it)->widget().horizontalHeader(), SIGNAL(sectionResized(int, int, int)), &(*it)->widget(), SLOT(onSectionResized(int, int, int)));
 	qDebug("Connection::~Connection() this=0x%08x", this);
-	if (m_statswindow)
+	/*if (m_statswindow)
 	{
 		delete m_statswindow;
 		m_statswindow = 0;
-	}
+	}*/
 
 	destroyDockedWidgets(m_dataplots, *m_main_window);
 	destroyDockedWidgets(m_datatables, *m_main_window);

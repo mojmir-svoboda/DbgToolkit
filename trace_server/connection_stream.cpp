@@ -342,7 +342,7 @@ bool Connection::handleCSVStreamCommand (DecodedCommand const & cmd)
 bool Connection::handlePingCommand (DecodedCommand const & cmd)
 {
 	qDebug("ping from client!");
-	QWidget * w = sessionState().m_tab_widget;
+	QWidget * w = m_tab_widget;
 	if (w)
 	{
 		disconnect(m_tcpstream, SIGNAL(disconnected()), this, SLOT(onDisconnected()));

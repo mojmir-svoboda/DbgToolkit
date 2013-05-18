@@ -70,7 +70,6 @@ public slots:
 	void onClickedAtStringList (QModelIndex idx);
 	void onDoubleClickedAtStringList (QModelIndex idx);
 
-	void onSectionResized (int logicalIndex, int oldSize, int newSize);
 	void onEditingFinished ();
 	void onCopyToClipboard ();
 

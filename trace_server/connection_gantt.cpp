@@ -8,34 +8,12 @@
 #include "gantt/ganttview.h"
 //#include <cstdlib>
 
-DataGantt::DataGantt (Connection * parent, gantt::GanttConfig & config, QString const & fname)
-	: m_parent(parent)
-	, m_wd(0)
-	, m_config(config)
-	, m_widget(0)
-	, m_fname(fname)
+DataGantt::DataGantt (Connection * connection, config_t & config, QString const & fname)
+	: DockedData<widget_t, config_t>(connection, config, fname)
 {
 	qDebug("%s this=0x%08x name=%s", __FUNCTION__, this, fname.toStdString().c_str());
-	m_widget = new gantt::GanttWidget(parent, 0, m_config, fname);
+	m_widget = new gantt::GanttWidget(connection, 0, m_config, fname);
 	//m_widget->setItemDelegate(new SyncedGanttItemDelegate(m_widget));
-}
-DataGantt::~DataGantt ()
-{
-	qDebug("%s this=0x%08x", __FUNCTION__, this);
-	delete m_widget;
-	m_widget = 0;
-}
-void DataGantt::onShow ()
-{
-	m_widget->onShow();
-	m_wd->show();
-	m_parent->getMainWindow()->restoreDockWidget(m_wd);
-	//QTimer::singleShot(0, m_parent, SLOT(onShowGantts()));
-}
-void DataGantt::onHide ()
-{
-	m_widget->onHide();
-	QTimer::singleShot(0, m_wd, SLOT(hide()));
 }
 
 void Connection::onShowGantts ()

@@ -30,6 +30,8 @@
 #include <tlv_parser/tlv.h>
 #include <tlv_parser/tlv_cmd_qstring.h>
 #include <boost/circular_buffer.hpp>
+#include <boost/circular_buffer.hpp>
+#include <boost/mpl/vector.hpp>
 #include "sessionstate.h"
 #include "logs/filterproxy.h"
 #include "cmd.h"
@@ -54,78 +56,76 @@ class RegexDelegate;
 
 namespace stats { class StatsWindow; }
 
-template <class ConfigT, class ModelT>
-struct DockedData {
-	// TBD
-};
+template <class WidgetT, class ConfigT>
+struct DockedData
+{
+	typedef WidgetT widget_t;
+	typedef ConfigT config_t;
 
-struct DataPlot {
 	Connection * m_parent;
 	QDockWidget * m_wd;
-	plot::PlotWidget * m_widget;
-	plot::PlotConfig m_config;
+	widget_t * m_widget;
+	config_t m_config;
 	QString m_fname;
 
-	DataPlot (Connection * parent, plot::PlotConfig & config, QString const & fname);
-	~DataPlot ();
+	DockedData (Connection * parent, config_t & config, QString const & fname)
+		: m_parent(parent) , m_wd(0) , m_widget(0) , m_config(config) , m_fname(fname)
+	{ }
 
-	void onShow ();
-	void onHide ();
-	plot::PlotWidget & widget () { return *m_widget; }
+	~DockedData ()
+	{
+		qDebug("%s this=0x%08x", __FUNCTION__, this);
+		delete m_widget;
+		m_widget = 0;
+	}
+
+	widget_t & widget () { return *m_widget; }
+	widget_t const & widget () const { return *m_widget; }
+
+	void onShow ()
+	{
+		m_widget->onShow();
+		m_wd->show();
+		m_parent->getMainWindow()->restoreDockWidget(m_wd);
+	}
+	void onHide ()
+	{
+		m_widget->onHide();
+		QTimer::singleShot(0, m_wd, SLOT(hide()));
+	}
 };
 
-typedef QMap<QString, DataPlot *> dataplots_t;
-
-struct DataTable {
-	Connection * m_parent;
-	QDockWidget * m_wd;
-	table::TableWidget * m_widget;
-	table::TableConfig m_config;
-	QString m_fname;
-
-	DataTable (Connection * parent, table::TableConfig & config, QString const & fname);
-	~DataTable ();
-
-	void onShow ();
-	void onHide ();
-	table::TableWidget & widget () { return *m_widget; }
+struct DataLog : DockedData<logs::LogWidget, logs::LogConfig>
+{
+	DataLog (Connection * parent, config_t & config, QString const & fname);
+};
+struct DataPlot : DockedData<plot::PlotWidget, plot::PlotConfig>
+{
+	DataPlot (Connection * parent, config_t & config, QString const & fname);
+};
+struct DataTable : DockedData<table::TableWidget, table::TableConfig>
+{
+	DataTable (Connection * parent, config_t & config, QString const & fname);
 };
 
-typedef QMap<QString, DataTable *> datatables_t;
-
-struct DataGantt {
-	Connection * m_parent;
-	QDockWidget * m_wd;
-	gantt::GanttWidget * m_widget;
-	gantt::GanttConfig m_config;
-	QString m_fname;
-
-	DataGantt (Connection * parent, gantt::GanttConfig & config, QString const & fname);
-	~DataGantt ();
-
-	void onShow ();
-	void onHide ();
-	gantt::GanttWidget & widget () { return *m_widget; }
-};
-
-typedef QMap<QString, DataGantt *> datagantts_t;
-
-struct DataLog {
-	Connection * m_parent;
-	QDockWidget * m_wd;
-	logs::LogWidget * m_widget;
-	logs::LogConfig m_config;
-	QString m_fname;
-
-	DataLog (Connection * parent, logs::LogConfig & config, QString const & fname);
-	~DataLog ();
-
-	void onShow ();
-	void onHide ();
-	logs::LogWidget & widget () { return *m_widget; }
+struct DataGantt : DockedData<gantt::GanttWidget, gantt::GanttConfig>
+{
+	DataGantt (Connection * parent, config_t & config, QString const & fname);
 };
 
 typedef QMap<QString, DataLog *> datalogs_t;
+typedef QMap<QString, DataPlot *> dataplots_t;
+typedef QMap<QString, DataTable *> datatables_t;
+typedef QMap<QString, DataGantt *> datagantts_t;
+
+enum E_DataWidgetType {
+	  e_data_log
+	, e_data_plot
+	, e_data_table
+	, e_data_gantt
+};
+
+typedef boost::mpl::vector<datalogs_t, dataplots_t, datatables_t, datagantts_t>::type data_widgets_t;
 
 
 /**@class		Connection
@@ -203,6 +203,7 @@ public:
 	bool isModelProxy () const;
 	TreeModel * fileModel () { return m_file_model; }
 	TreeModel const * fileModel () const { return m_file_model; }
+	void onSectionResized (int logicalIndex, int oldSize, int newSize);
 
 signals:
 	void readyForUse();
@@ -274,6 +275,7 @@ private slots:
 private:
 	friend class Server;
 	friend class MainWindow;
+	friend class DataLog;
 	enum {
 		e_data_ok = 0,
 		e_data_pipe_full,
@@ -364,6 +366,8 @@ private:
 	int m_last_search_col;
 	QString m_last_search;
 	QString m_curr_preset;
+
+	QWidget * m_tab_widget;
 	QTableView * m_table_view_widget;
 	TreeModel * m_file_model;
 	TreeProxyModel * m_file_proxy;
@@ -406,11 +410,12 @@ private:
 	QDataStream * m_tcp_dump_stream;
 	QTextStream * m_file_csv_stream;
 	QTcpSocket * m_tcpstream;
-	stats::StatsWindow * m_statswindow;
+	//stats::StatsWindow * m_statswindow;
+	data_widgets_t m_data_widgets;
+	datalogs_t m_datalogs;
 	dataplots_t m_dataplots;
 	datatables_t m_datatables;
 	datagantts_t m_datagantts;
-	datalogs_t m_datalogs;
 	TreeModel * m_data_model;
 };
 

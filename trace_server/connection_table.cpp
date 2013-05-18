@@ -9,34 +9,12 @@
 #include "delegates.h"
 #include <cstdlib>
 
-DataTable::DataTable (Connection * parent, table::TableConfig & config, QString const & fname)
-	: m_parent(parent)
-	, m_wd(0)
-	, m_config(config)
-	, m_widget(0)
-	, m_fname(fname)
+DataTable::DataTable (Connection * connection, config_t & config, QString const & fname)
+	: DockedData<widget_t, config_t>(connection, config, fname)
 {
 	qDebug("%s this=0x%08x name=%s", __FUNCTION__, this, fname.toStdString().c_str());
-	m_widget = new table::TableWidget(parent, 0, m_config, fname);
+	m_widget = new table::TableWidget(connection, 0, m_config, fname);
 	m_widget->setItemDelegate(new SyncedTableItemDelegate(m_widget));
-}
-DataTable::~DataTable ()
-{
-	qDebug("%s this=0x%08x", __FUNCTION__, this);
-	delete m_widget;
-	m_widget = 0;
-}
-void DataTable::onShow ()
-{
-	m_widget->onShow();
-	m_wd->show();
-	m_parent->getMainWindow()->restoreDockWidget(m_wd);
-	//QTimer::singleShot(0, m_parent, SLOT(onShowTables()));
-}
-void DataTable::onHide ()
-{
-	m_widget->onHide();
-	QTimer::singleShot(0, m_wd, SLOT(hide()));
 }
 
 void Connection::onShowTables ()

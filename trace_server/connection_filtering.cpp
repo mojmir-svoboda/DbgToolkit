@@ -12,6 +12,9 @@
 void Connection::onInvalidateFilter ()
 {
 	QItemSelectionModel const * selection = m_table_view_widget->selectionModel();
+	if (!selection)
+		return;
+
 	QModelIndexList const old_selection = selection->selectedIndexes();
 
 	//  fantomas ended here

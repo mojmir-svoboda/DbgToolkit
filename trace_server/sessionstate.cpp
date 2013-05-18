@@ -5,7 +5,6 @@
 SessionState::SessionState (QObject * parent)
 	: m_app_idx(-1)
 	, m_storage_idx(-2)
-	, m_tab_widget(0)
 	, m_exclude_content_to_row(0)
 	, m_time_ref_row(0)
 	, m_current_tag(-1)

@@ -60,7 +60,6 @@ public:
 	explicit SessionState(QObject *parent = 0);
 	~SessionState ();
 
-	void setTabWidget (QWidget * w) { m_tab_widget = w; }
 	void setupColumns (QList<QString> * column_setup_template, columns_sizes_t * sizes
 			, columns_align_t * ca_template, columns_elide_t * ce_template);
 	void setupColumnsCSV (QList<QString> * column_setup_template, columns_sizes_t * sizes
@@ -214,7 +213,6 @@ public:
 private:
 	int m_app_idx;
 	int m_storage_idx;
-	QWidget * m_tab_widget;
 	int m_exclude_content_to_row;
 	int m_time_ref_row;
 	QVector<int> m_color_tag_rows;
