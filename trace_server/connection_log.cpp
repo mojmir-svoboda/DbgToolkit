@@ -7,7 +7,7 @@
 #include "utils.h"
 
 DataLog::DataLog (Connection * connection, config_t & config, QString const & fname)
-	: DockedData<widget_t, config_t>(connection, config, fname)
+	: DockedData<e_data_log, widget_t, config_t>(connection, config, fname)
 {
 	qDebug("%s this=0x%08x name=%s", __FUNCTION__, this, fname.toStdString().c_str());
 
@@ -491,30 +491,33 @@ void Connection::onShowContextMenu (QPoint const & pos)
 
 	onTableClicked(idx);
 
-    if (selectedItem == m_hide_prev)
+    if (selectedItem == m_actions[e_action_HidePrev])
     {
 		onHidePrevFromRow();
     }
-    else if (selectedItem == m_toggle_ref)
+    else if (selectedItem == m_actions[e_action_ToggleRef])
     {
 		onToggleRefFromRow();
     }
-    else if (selectedItem == m_exclude_fileline)
+    else if (selectedItem == m_actions[e_action_ExcludeFileLine])
 	{
 		onExcludeFileLine(m_last_clicked);
 	}
-    else if (selectedItem == m_find_fileline)
+    else if (selectedItem == m_actions[e_action_Find])
 	{
 		onFindFileLine(m_last_clicked);
 	}
-    else if (selectedItem == m_copy_to_clipboard)
+    else if (selectedItem == m_actions[e_action_Copy])
 	{
 		QString const & selection = onCopyToClipboard();
 		qApp->clipboard()->setText(selection);
 	}
-    else if (selectedItem == m_color_tag_row)
+    else if (selectedItem == m_actions[e_action_ColorTag])
 	{
 		onColorTagRow(m_last_clicked.row());
+	}
+    else if (selectedItem == m_actions[e_action_Setup])
+	{
 	}
     else
     { }

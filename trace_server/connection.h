@@ -53,13 +53,22 @@ class CtxDelegate;
 class StringDelegate;
 class RegexDelegate;
 
-namespace stats { class StatsWindow; }
+//namespace stats { class StatsWindow; }
 
-template <class WidgetT, class ConfigT>
+enum E_DataWidgetType {
+	  e_data_log
+	, e_data_plot
+	, e_data_table
+	, e_data_gantt
+	, e_data_widget_max_value
+};
+
+template <int TypeN, class WidgetT, class ConfigT>
 struct DockedData
 {
 	typedef WidgetT widget_t;
 	typedef ConfigT config_t;
+	enum { e_type = TypeN };
 
 	Connection * m_parent;
 	QDockWidget * m_wd;
@@ -94,37 +103,37 @@ struct DockedData
 	}
 };
 
-struct DataLog : DockedData<logs::LogWidget, logs::LogConfig>
+struct DataLog : DockedData<e_data_log, logs::LogWidget, logs::LogConfig>
 {
 	DataLog (Connection * parent, config_t & config, QString const & fname);
 };
-struct DataPlot : DockedData<plot::PlotWidget, plot::PlotConfig>
+struct DataPlot : DockedData<e_data_plot, plot::PlotWidget, plot::PlotConfig>
 {
 	DataPlot (Connection * parent, config_t & config, QString const & fname);
 };
-struct DataTable : DockedData<table::TableWidget, table::TableConfig>
+struct DataTable : DockedData<e_data_table, table::TableWidget, table::TableConfig>
 {
 	DataTable (Connection * parent, config_t & config, QString const & fname);
 };
 
-struct DataGantt : DockedData<gantt::GanttWidget, gantt::GanttConfig>
+struct DataGantt : DockedData<e_data_gantt, gantt::GanttWidget, gantt::GanttConfig>
 {
 	DataGantt (Connection * parent, config_t & config, QString const & fname);
 };
 
-typedef QMap<QString, DataLog *> datalogs_t;
-typedef QMap<QString, DataPlot *> dataplots_t;
-typedef QMap<QString, DataTable *> datatables_t;
-typedef QMap<QString, DataGantt *> datagantts_t;
+template <int TypeN, typename KeyT, typename ValueT>
+struct DataMap : public QMap<KeyT, ValueT>
+{
+	enum { e_type = TypeN };
+	QList<DecodedCommand> m_queue;
 
-enum E_DataWidgetType {
-	  e_data_log
-	, e_data_plot
-	, e_data_table
-	, e_data_gantt
-	, e_data_widget_max_value
+	DataMap () { m_queue.reserve(256); }
 };
 
+typedef DataMap<e_data_log  , QString, DataLog *  > datalogs_t;
+typedef DataMap<e_data_plot , QString, DataPlot * > dataplots_t;
+typedef DataMap<e_data_table, QString, DataTable *> datatables_t;
+typedef DataMap<e_data_gantt, QString, DataGantt *> datagantts_t;
 typedef boost::tuple<datalogs_t, dataplots_t, datatables_t, datagantts_t> data_widgets_t;
 
 
@@ -288,6 +297,7 @@ private:
 
 	template <class T, typename T_Ret, typename T_Arg0, typename T_Arg1>
 	int processStream (T *, T_Ret (T::*read_member_t)(T_Arg0, T_Arg1));
+	bool queueCommand (DecodedCommand const & cmd);
 	bool tryHandleCommand (DecodedCommand const & cmd);
 	bool handleLogCommand (DecodedCommand const & cmd);
 	bool handleTableXYCommand (DecodedCommand const & cmd);
@@ -319,6 +329,7 @@ private:
 	void appendGantt (gantt::DecodedData &);
 
 	datalogs_t::iterator findOrCreateLog (QString const & tag);
+	dataplots_t::iterator findOrCreatePlot (QString const & tag);
 	//void appendLog (logs::DecodedData &);
 
 	bool appendToFilters (DecodedCommand const & cmd);
@@ -379,24 +390,30 @@ private:
 	QStandardItemModel * m_regex_model;
 	QStandardItemModel * m_lvl_model;
 	QStandardItemModel * m_string_model;
-	LevelDelegate * m_lvl_delegate;
-	CtxDelegate * m_ctx_delegate;
-	StringDelegate * m_string_delegate;
-	RegexDelegate * m_regex_delegate;
-	//enum { e_Delegate_Level, e_Delegate_Context, e_
-	//std::vector<QAbstractItemDelegate *> m_delegates;
+
+	enum E_Delegates {
+		  e_delegate_Level
+		, e_delegate_Ctx
+		, e_delegate_String
+		, e_delegate_Regex
+		, e_delegate_max_enum_value
+	};
+	boost::tuple<LevelDelegate *, CtxDelegate *, StringDelegate *, RegexDelegate *> m_delegates;
 	QAbstractProxyModel * m_table_view_proxy;
 	QAbstractItemModel * m_table_view_src;
 
 	QMenu m_ctx_menu;
-	QAction * m_toggle_ref;
-	QAction * m_hide_prev;
-	QAction * m_exclude_fileline;
-	QAction * m_find_fileline;
-	QAction * m_copy_to_clipboard;
-	QAction * m_color_tag_row;
-	//enum { e_Action_ToggleRef, e_Action_HidePrev, e_Action_ExcludeFileLine, e_Action_Find, e_Action_Copy, e_Action_ColorTag };
-	//std::vector<QAction *> m_actions;
+	enum E_Actions {
+		  e_action_ToggleRef
+		, e_action_HidePrev
+		, e_action_ExcludeFileLine
+		, e_action_Find
+		, e_action_Copy
+		, e_action_ColorTag
+		, e_action_Setup
+		, e_action_max_enum_value
+	};
+	std::vector<QAction *> m_actions;
 	QModelIndex m_last_clicked;
 
 	// data receiving stuff

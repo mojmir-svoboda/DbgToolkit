@@ -19,9 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  **/
-#ifndef SERVER_H
-#define SERVER_H
-
+#pragma once
 #include <QObject>
 #include <QAbstractSocket>
 #include <QTcpServer>
@@ -110,9 +108,6 @@ public slots:
 
 	void destroyConnection (Connection * c);
 
-	//profiler::ProfilerWindow * createNewProfilerView ();
-	//void incomingProfilerConnection (profiler::profiler_rvp_t * rvp);
-
 protected:
 	friend class MainWindow;
 	void incomingConnection (qintptr socketDescriptor);
@@ -129,4 +124,3 @@ private:
 	connections_t m_connections;
 };
 
-#endif // SERVER_H

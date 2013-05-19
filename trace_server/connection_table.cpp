@@ -10,7 +10,7 @@
 #include <cstdlib>
 
 DataTable::DataTable (Connection * connection, config_t & config, QString const & fname)
-	: DockedData<widget_t, config_t>(connection, config, fname)
+	: DockedData<e_data_table, widget_t, config_t>(connection, config, fname)
 {
 	qDebug("%s this=0x%08x name=%s", __FUNCTION__, this, fname.toStdString().c_str());
 	m_widget = new table::TableWidget(connection, 0, m_config, fname);

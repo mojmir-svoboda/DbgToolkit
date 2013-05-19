@@ -8,7 +8,7 @@
 #include <cstdlib>
 
 DataPlot::DataPlot (Connection * connection, config_t & config, QString const & fname)
-	: DockedData<widget_t, config_t>(connection, config, fname)
+	: DockedData<e_data_plot, widget_t, config_t>(connection, config, fname)
 {
 	qDebug("%s this=0x%08x", __FUNCTION__, this);
 	m_widget = new plot::PlotWidget(connection, 0, m_config, fname);
@@ -145,16 +145,8 @@ bool Connection::saveConfigForPlots (QString const & preset_name)
 	return true;
 }
 
-void Connection::appendDataXY (double x, double y, QString const & msg_tag)
+dataplots_t::iterator Connection::findOrCreatePlot (QString const & tag)
 {
-	QString tag = msg_tag;
-	int const slash_pos = tag.lastIndexOf(QChar('/'));
-	tag.chop(msg_tag.size() - slash_pos);
-
-	QString subtag = msg_tag;
-	subtag.remove(0, slash_pos + 1);
-	QString const plot_name = sessionState().getAppName() + "/plot/" + tag;
-
 	dataplots_t::iterator it = m_data.get<e_data_plot>().find(tag);
 	if (it == m_data.get<e_data_plot>().end())
 	{
@@ -171,6 +163,7 @@ void Connection::appendDataXY (double x, double y, QString const & msg_tag)
 		
 		DataPlot * const dp = new DataPlot(this, template_config, fname);
 		it = m_data.get<e_data_plot>().insert(tag, dp);
+		QString const plot_name = sessionState().getAppName() + "/plot/" + tag;
 		QModelIndex const item_idx = m_data_model->insertItemWithHint(plot_name, template_config.m_show);
 
 		dp->m_wd = m_main_window->m_dock_mgr.mkDockWidget(m_main_window, &dp->widget(), template_config.m_show, plot_name);
@@ -184,8 +177,21 @@ void Connection::appendDataXY (double x, double y, QString const & msg_tag)
 			dp->onHide();
 		}
 	}
+	return it;
+}
 
+void Connection::appendDataXY (double x, double y, QString const & msg_tag)
+{
+	QString tag = msg_tag;
+	int const slash_pos = tag.lastIndexOf(QChar('/'));
+	tag.chop(msg_tag.size() - slash_pos);
+
+	QString subtag = msg_tag;
+	subtag.remove(0, slash_pos + 1);
+
+	dataplots_t::iterator it = findOrCreatePlot(tag);
 	DataPlot & dp = **it;
+	QString const plot_name = sessionState().getAppName() + "/plot/" + tag; // @TODO: same as fname
 	QString const curve_name = plot_name + "/" + subtag;
 	plot::Curve * curve = dp.widget().findCurve(subtag);
 

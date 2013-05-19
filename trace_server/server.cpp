@@ -1,5 +1,5 @@
 #ifdef WIN32
-#	define _WINSOCKAPI_ 
+#	define _WINSOCKAPI_
 #endif
 #include <QApplication>
 #include <QClipboard>
@@ -19,13 +19,13 @@ Server::Server (QString ip, unsigned short port, QObject * parent, bool quit_del
 	: QTcpServer(parent)
 	, m_main_window(0)
 {
-		m_main_window = static_cast<MainWindow *>(parent);
+	m_main_window = static_cast<MainWindow *>(parent);
 	QHostAddress addr(ip);
 	if (!listen(addr, port)) {
 		status = tr("Unable to start server! Reason: %1").arg(errorString());
 		if (quit_delay)
 		{
-			QMessageBox::critical(0, tr("ee"), status, QMessageBox::Ok, QMessageBox::Ok);	
+			QMessageBox::critical(0, tr("ee"), status, QMessageBox::Ok, QMessageBox::Ok);
 			QTimer::singleShot(0, qApp, SLOT(quit()));
 		}
 		else
@@ -199,6 +199,7 @@ void Server::incomingConnection (qintptr socketDescriptor)
 	connection->start();*/
 }
 
+// @FIXME: hmmm... iterates over ALL connections, that is not the intent
 void Server::onShowPlots ()
 {
 	for (connections_t::iterator it = m_connections.begin(), ite = m_connections.end(); it != ite; ++it)
@@ -427,18 +428,4 @@ void Server::onCloseMarkedTabs ()
 		to_delete.pop_back();
 	}
 }
-
-/*profiler::ProfilerWindow * Server::createNewProfilerView ()
-{
-	return 0;
-}
-
-void Server::incomingProfilerConnection (profiler::profiler_rvp_t * rvp)
-{
-
-	using namespace profiler;
-	ProfilerWindow * w = new ProfilerWindow(m_main_window, this, rvp);
-	qDebug("Incoming profiler rendez-vous point!");
-	m_main_window->statusBar()->showMessage(tr("Incoming profiler rendez-vous point!"));
-}*/
 

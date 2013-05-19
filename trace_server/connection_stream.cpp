@@ -6,6 +6,7 @@
 #include "logs/logtablemodel.h"
 #include "cmd.h"
 #include "utils.h"
+#include "utils_boost.h"
 #include "dock.h"
 #include <cstdlib>
 
@@ -29,11 +30,122 @@ inline size_t read_min (boost::circular_buffer<char> & ring, char * dst, size_t 
 	return min;
 }
 
-void Connection::onHandleCommandsStart ()
+bool isCommandQueuable (tlv::tag_t cmd)
 {
-	LogTableModel * model = static_cast<LogTableModel *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
-	size_t const rows = m_decoded_cmds.size();
-	model->transactionStart(static_cast<int>(rows));
+	switch (cmd)
+	{
+		case tlv::cmd_setup:			return false;
+		case tlv::cmd_ping:				return false;
+		case tlv::cmd_shutdown:			return false;
+		case tlv::cmd_dict_ctx:			return false;
+
+		case tlv::cmd_save_tlv:
+		case tlv::cmd_export_csv:
+		case tlv::cmd_log:
+		case tlv::cmd_log_clear:
+		case tlv::cmd_scope_entry:
+		case tlv::cmd_scope_exit:
+		case tlv::cmd_plot_xy:
+		case tlv::cmd_plot_xyz:	
+		case tlv::cmd_plot_clear:
+		case tlv::cmd_table_xy:	
+		case tlv::cmd_table_setup:
+		case tlv::cmd_table_clear:
+		case tlv::cmd_gantt_bgn:
+		case tlv::cmd_gantt_end:
+		case tlv::cmd_gantt_frame_bgn:
+		case tlv::cmd_gantt_frame_end:
+		case tlv::cmd_gantt_clear:		return true;
+
+		default:
+			qWarning("unknown command!\n"); 
+			return true;
+	}
+}
+
+E_DataWidgetType queueForCommand (tlv::tag_t cmd)
+{
+	switch (cmd)
+	{
+		case tlv::cmd_save_tlv:			return e_data_log;
+		case tlv::cmd_export_csv:		return e_data_log; 
+		case tlv::cmd_log:				return e_data_log;
+		case tlv::cmd_log_clear:		return e_data_log;
+		case tlv::cmd_scope_entry:		return e_data_log;
+		case tlv::cmd_scope_exit:		return e_data_log;
+		case tlv::cmd_plot_xy:			return e_data_plot;
+		case tlv::cmd_plot_xyz:			return e_data_plot;
+		case tlv::cmd_plot_clear:		return e_data_plot;
+		case tlv::cmd_table_xy:			return e_data_table;
+		case tlv::cmd_table_setup:		return e_data_table;
+		case tlv::cmd_table_clear:		return e_data_table;
+		case tlv::cmd_gantt_bgn:		return e_data_gantt;
+		case tlv::cmd_gantt_end:		return e_data_gantt;
+		case tlv::cmd_gantt_frame_bgn:	return e_data_gantt;
+		case tlv::cmd_gantt_frame_end:	return e_data_gantt;
+		case tlv::cmd_gantt_clear:		return e_data_gantt;
+
+		default: qWarning("unknown command!\n"); return e_data_widget_max_value;
+	}
+}
+
+struct QueueCommand {
+	E_DataWidgetType m_type;
+	DecodedCommand const & m_cmd;
+
+	QueueCommand (E_DataWidgetType t, DecodedCommand const & cmd) : m_type(t), m_cmd(cmd) { }
+	
+	template <typename T>
+	void operator() (T & t)
+	{
+		if (t.e_type == m_type)
+			t.m_queue.push_back(m_cmd);
+	}
+};
+
+bool Connection::queueCommand (DecodedCommand const & cmd)
+{
+	E_DataWidgetType const queue_type = queueForCommand(cmd.hdr.cmd);
+	if (queue_type == e_data_widget_max_value)
+		return false;
+
+	recurse(m_data, QueueCommand(queue_type, cmd));
+	return true;
+}
+
+
+bool Connection::tryHandleCommand (DecodedCommand const & cmd)
+{
+	switch (cmd.hdr.cmd)
+	{
+		case tlv::cmd_setup:			handleSetupCommand(cmd); break;
+		case tlv::cmd_log:				handleLogCommand(cmd); break;
+		case tlv::cmd_log_clear:		handleLogClearCommand(cmd); break;
+		case tlv::cmd_plot_xy:			handleDataXYCommand(cmd); break;
+		case tlv::cmd_plot_xyz:			handleDataXYZCommand(cmd); break;
+		case tlv::cmd_table_xy:			handleTableXYCommand(cmd); break;
+		case tlv::cmd_table_setup:		handleTableSetupCommand(cmd); break;
+		case tlv::cmd_scope_entry:		handleLogCommand(cmd); break;
+		case tlv::cmd_scope_exit:		handleLogCommand(cmd); break;
+		case tlv::cmd_save_tlv:			handleSaveTLVCommand(cmd); break;
+		case tlv::cmd_export_csv:		handleExportCSVCommand(cmd); break;
+		case tlv::cmd_ping:				handlePingCommand(cmd); break;
+		case tlv::cmd_shutdown:			handleShutdownCommand(cmd); break;
+		case tlv::cmd_dict_ctx:			handleDictionnaryCtx(cmd); break;
+		case tlv::cmd_gantt_bgn:		handleGanttBgnCommand(cmd); break;
+		case tlv::cmd_gantt_end:		handleGanttEndCommand(cmd); break;
+		case tlv::cmd_gantt_frame_bgn:	handleGanttFrameBgnCommand(cmd); break;
+		case tlv::cmd_gantt_frame_end:	handleGanttFrameEndCommand(cmd); break;
+		case tlv::cmd_plot_clear:		handlePlotClearCommand(cmd); break;
+		case tlv::cmd_table_clear:		handleTableClearCommand(cmd); break;
+		case tlv::cmd_gantt_clear:		handleGanttClearCommand(cmd); break;
+
+		default: qDebug("unknown command, ignoring\n"); break;
+	}
+
+	if (m_src_stream == e_Stream_TCP && m_tcp_dump_stream)
+		m_tcp_dump_stream->writeRawData(&cmd.orig_message[0], cmd.hdr.len + tlv::Header::e_Size);
+	return true;
 }
 
 void Connection::onHandleCommands ()
@@ -43,14 +155,25 @@ void Connection::onHandleCommands ()
 	for (size_t i = 0; i < rows; ++i)
 	{
 		DecodedCommand & cmd = m_decoded_cmds.front();
-		tryHandleCommand(cmd);
+		if (isCommandQueuable(cmd.hdr.cmd))
+		{
+			queueCommand(cmd);
+		}
+		else
+		{
+			tryHandleCommand(cmd);
+		}
 		m_decoded_cmds.pop_front();
 	}
 }
 
+void Connection::onHandleCommandsStart ()
+{
+}
+
 void Connection::onHandleCommandsCommit ()
 {
-	LogTableModel * model = static_cast<LogTableModel *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
+/*	LogTableModel * model = static_cast<LogTableModel *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
 
 	setupColumnSizes(false);
 	model->transactionCommit();
@@ -59,7 +182,7 @@ void Connection::onHandleCommandsCommit ()
 		model->emitLayoutChanged();
 
 	if (m_main_window->autoScrollEnabled())
-		m_table_view_widget->scrollToBottom();
+		m_table_view_widget->scrollToBottom();*/
 }
 
 
@@ -145,33 +268,33 @@ int Connection::processStream (T * t, T_Ret (T::*read_member_fn)(T_Arg0, T_Arg1)
 				emit handleCommands();
 		}
 		
-		emit onHandleCommandsCommit();
+		//emit onHandleCommandsCommit();
 		return e_data_ok;
 	}
 	catch (std::out_of_range const & e)
 	{
-		QMessageBox::critical(0, tr("My Application"),
+		QMessageBox::critical(0, tr("trace server"),
 								tr("OOR exception during decoding: %1").arg(e.what()),
 								QMessageBox::Ok, QMessageBox::Ok);	
 		return e_data_decode_oor;
 	}
 	catch (std::length_error const & e)
 	{
-		QMessageBox::critical(0, tr("My Application"),
+		QMessageBox::critical(0, tr("trace server"),
 								tr("LE exception during decoding: %1").arg(e.what()),
 								QMessageBox::Ok, QMessageBox::Ok);
 		return e_data_decode_lnerr;
 	}
 	catch (std::exception const & e)
 	{
-		QMessageBox::critical(0, tr("My Application"),
+		QMessageBox::critical(0, tr("trace server"),
 								tr("generic exception during decoding: %1").arg(e.what()),
 								QMessageBox::Ok, QMessageBox::Ok);
 		return e_data_decode_captain_failure;
 	}
 	catch (...)
 	{
-		QMessageBox::critical(0, tr("My Application"),
+		QMessageBox::critical(0, tr("trace server"),
 								tr("... exception during decoding"),
 								QMessageBox::Ok, QMessageBox::Ok);
 		return e_data_decode_general_failure;
@@ -380,39 +503,7 @@ bool Connection::handleDictionnaryCtx (DecodedCommand const & cmd)
 	return true;
 }
 
-bool Connection::tryHandleCommand (DecodedCommand const & cmd)
-{
-	switch (cmd.hdr.cmd)
-	{
-		case tlv::cmd_setup:			handleSetupCommand(cmd); break;
-		case tlv::cmd_log:				handleLogCommand(cmd); break;
-		case tlv::cmd_log_clear:		handleLogClearCommand(cmd); break;
-		case tlv::cmd_plot_xy:			handleDataXYCommand(cmd); break;
-		case tlv::cmd_plot_xyz:			handleDataXYZCommand(cmd); break;
-		case tlv::cmd_table_xy:			handleTableXYCommand(cmd); break;
-		case tlv::cmd_table_setup:		handleTableSetupCommand(cmd); break;
-		case tlv::cmd_scope_entry:		handleLogCommand(cmd); break;
-		case tlv::cmd_scope_exit:		handleLogCommand(cmd); break;
-		case tlv::cmd_save_tlv:			handleSaveTLVCommand(cmd); break;
-		case tlv::cmd_export_csv:		handleExportCSVCommand(cmd); break;
-		case tlv::cmd_ping:				handlePingCommand(cmd); break;
-		case tlv::cmd_shutdown:			handleShutdownCommand(cmd); break;
-		case tlv::cmd_dict_ctx:			handleDictionnaryCtx(cmd); break;
-		case tlv::cmd_gantt_bgn:		handleGanttBgnCommand(cmd); break;
-		case tlv::cmd_gantt_end:		handleGanttEndCommand(cmd); break;
-		case tlv::cmd_gantt_frame_bgn:	handleGanttFrameBgnCommand(cmd); break;
-		case tlv::cmd_gantt_frame_end:	handleGanttFrameEndCommand(cmd); break;
-		case tlv::cmd_plot_clear:		handlePlotClearCommand(cmd); break;
-		case tlv::cmd_table_clear:		handleTableClearCommand(cmd); break;
-		case tlv::cmd_gantt_clear:		handleGanttClearCommand(cmd); break;
 
-		default: qDebug("unknown command, ignoring\n"); break;
-	}
-
-	if (m_src_stream == e_Stream_TCP && m_tcp_dump_stream)
-		m_tcp_dump_stream->writeRawData(&cmd.orig_message[0], cmd.hdr.len + tlv::Header::e_Size);
-	return true;
-}
 
 
 //////////////////// storage stuff //////////////////////////////

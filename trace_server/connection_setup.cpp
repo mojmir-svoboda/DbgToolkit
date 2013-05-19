@@ -493,7 +493,7 @@ void Connection::setupModelCtx ()
 	}
 	m_main_window->getWidgetCtx()->setModel(m_ctx_model);
 	m_main_window->getWidgetCtx()->expandAll();
-	m_main_window->getWidgetCtx()->setItemDelegate(m_ctx_delegate);
+	m_main_window->getWidgetCtx()->setItemDelegate(m_delegates.get<e_delegate_Ctx>());
 }
 
 void Connection::setupModelTID ()
@@ -515,7 +515,7 @@ void Connection::setupModelRegex ()
 	if (!m_regex_model)
 		m_regex_model = new QStandardItemModel;
 	m_main_window->getWidgetRegex()->setModel(m_regex_model);
-	m_main_window->getWidgetRegex()->setItemDelegate(m_regex_delegate);
+	m_main_window->getWidgetRegex()->setItemDelegate(m_delegates.get<e_delegate_Regex>());
 }
 
 void Connection::setupModelString ()
@@ -523,7 +523,7 @@ void Connection::setupModelString ()
 	if (!m_string_model)
 		m_string_model = new QStandardItemModel;
 	m_main_window->getWidgetString()->setModel(m_string_model);
-	m_main_window->getWidgetString()->setItemDelegate(m_string_delegate);
+	m_main_window->getWidgetString()->setItemDelegate(m_delegates.get<e_delegate_String>());
 }
 
 void Connection::setupModelLvl ()
@@ -532,6 +532,6 @@ void Connection::setupModelLvl ()
 		m_lvl_model = new QStandardItemModel;
 	m_main_window->getWidgetLvl()->setModel(m_lvl_model);
 	m_main_window->getWidgetLvl()->setSortingEnabled(true);
-	m_main_window->getWidgetLvl()->setItemDelegate(m_lvl_delegate);
+	m_main_window->getWidgetLvl()->setItemDelegate(m_delegates.get<e_delegate_Level>());
 	m_main_window->getWidgetLvl()->setRootIndex(m_lvl_model->indexFromItem(m_lvl_model->invisibleRootItem()));
 }

@@ -31,18 +31,8 @@ Connection::Connection (QObject * parent)
 	, m_regex_model(0)
 	, m_lvl_model(0)
 	, m_string_model(0)
-	, m_lvl_delegate(0)
-	, m_ctx_delegate(0)
-	, m_string_delegate(0)
-	, m_regex_delegate(0)
 	, m_table_view_proxy(0)
 	, m_table_view_src(0)
-	, m_toggle_ref(0)
-	, m_hide_prev(0)
-	, m_exclude_fileline(0)
-	, m_find_fileline(0)
-	, m_color_tag_row(0)
-	, m_copy_to_clipboard(0)
 	, m_last_clicked()
 	, m_buffer(e_ringbuff_size)
 	, m_current_cmd()
@@ -57,24 +47,30 @@ Connection::Connection (QObject * parent)
 	, m_data_model(0)
 {
 	qDebug("Connection::Connection() this=0x%08x", this);
-	m_toggle_ref = new QAction("Set as reference time", this);
-	m_copy_to_clipboard = new QAction("Copy", this);
-	m_exclude_fileline = new QAction("Exclude File:Line (x)", this);
-	m_find_fileline = new QAction("Find File:Line in filters", this);
-	m_hide_prev = new QAction("Hide prev rows", this);
-	m_color_tag_row = new QAction("Tag row with color", this);
-    m_ctx_menu.addAction(m_find_fileline);
-    m_ctx_menu.addAction(m_copy_to_clipboard);
-    m_ctx_menu.addAction(m_toggle_ref);
-    m_ctx_menu.addAction(m_hide_prev);
-    m_ctx_menu.addAction(m_color_tag_row);
+
+	m_actions.resize(e_action_max_enum_value);
+	m_actions[e_action_ToggleRef] = new QAction("Set as reference time", this);
+	m_actions[e_action_HidePrev] = new QAction("Hide prev rows", this);
+	m_actions[e_action_ExcludeFileLine] = new QAction("Exclude File:Line (x)", this);
+	m_actions[e_action_Copy] = new QAction("Copy", this);
+	m_actions[e_action_Find] = new QAction("Find File:Line in filters", this);
+	m_actions[e_action_ColorTag] = new QAction("Tag row with color", this);
+	m_actions[e_action_Setup] = new QAction("Setup", this);
+    m_ctx_menu.addAction(m_actions[e_action_ExcludeFileLine]);
+    m_ctx_menu.addAction(m_actions[e_action_Find]);
+    m_ctx_menu.addAction(m_actions[e_action_Copy]);
+    m_ctx_menu.addAction(m_actions[e_action_ToggleRef]);
+    m_ctx_menu.addAction(m_actions[e_action_HidePrev]);
+    m_ctx_menu.addAction(m_actions[e_action_ColorTag]);
     m_ctx_menu.addSeparator();
-    m_ctx_menu.addAction(m_exclude_fileline);
+    m_ctx_menu.addAction(m_actions[e_action_Setup]);
+
 	m_data_model = new TreeModel(this, &m_session_state.m_data_filters);
-	m_lvl_delegate = new LevelDelegate(m_session_state, this);
-	m_ctx_delegate = new CtxDelegate(m_session_state, this);
-	m_string_delegate = new StringDelegate(m_session_state, this);
-	m_regex_delegate = new RegexDelegate(m_session_state, this);
+	
+	m_delegates.get<e_delegate_Level>() = new LevelDelegate(m_session_state, this);
+	m_delegates.get<e_delegate_Ctx>() = new CtxDelegate(m_session_state, this);
+	m_delegates.get<e_delegate_String>() = new StringDelegate(m_session_state, this);
+	m_delegates.get<e_delegate_Regex>() = new RegexDelegate(m_session_state, this);
 }
 
 namespace {
@@ -152,23 +148,23 @@ Connection::~Connection ()
 
 	destroyModelFile();
 
-	if (m_main_window->getWidgetLvl()->itemDelegate() == m_lvl_delegate)
+	if (m_main_window->getWidgetLvl()->itemDelegate() == m_delegates.get<e_delegate_Level>())
 		m_main_window->getWidgetLvl()->setItemDelegate(0);
 	if (m_main_window->getWidgetLvl()->model() == m_lvl_model)
 		m_main_window->getWidgetLvl()->setModel(0);
 	delete m_lvl_model;
 	m_lvl_model = 0;
-	delete m_lvl_delegate;
-	m_lvl_delegate = 0;
+	delete m_delegates.get<e_delegate_Level>();
+	m_delegates.get<e_delegate_Level>() = 0;
 
-	if (m_main_window->getWidgetCtx()->itemDelegate() == m_ctx_delegate)
+	if (m_main_window->getWidgetCtx()->itemDelegate() == m_delegates.get<e_delegate_Ctx>())
 		m_main_window->getWidgetCtx()->setItemDelegate(0);
 	if (m_main_window->getWidgetCtx()->model() == m_ctx_model)
 		m_main_window->getWidgetCtx()->setModel(0);
 	delete m_ctx_model;
 	m_ctx_model = 0;
-	delete m_ctx_delegate;
-	m_ctx_delegate = 0;
+	delete m_delegates.get<e_delegate_Ctx>();
+	m_delegates.get<e_delegate_Ctx>() = 0;
 
 	if (m_main_window->getWidgetTID()->model() == m_tid_model)
 		m_main_window->getWidgetTID()->setModel(0);
@@ -180,23 +176,23 @@ Connection::~Connection ()
 	delete m_color_regex_model;
 	m_color_regex_model = 0;
 
-	if (m_main_window->getWidgetRegex()->itemDelegate() == m_regex_delegate)
+	if (m_main_window->getWidgetRegex()->itemDelegate() == m_delegates.get<e_delegate_Regex>())
 		m_main_window->getWidgetRegex()->setItemDelegate(0);
 	if (m_main_window->getWidgetRegex()->model() == m_regex_model)
 		m_main_window->getWidgetRegex()->setModel(0);
 	delete m_regex_model;
 	m_regex_model = 0;
-	delete m_regex_delegate;
-	m_regex_delegate = 0;
+	delete m_delegates.get<e_delegate_Regex>();
+	m_delegates.get<e_delegate_Regex>() = 0;
 
-	if (m_main_window->getWidgetString()->itemDelegate() == m_string_delegate)
+	if (m_main_window->getWidgetString()->itemDelegate() == m_delegates.get<e_delegate_String>())
 		m_main_window->getWidgetString()->setItemDelegate(0);
 	if (m_main_window->getWidgetString()->model() == m_string_model)
 		m_main_window->getWidgetString()->setModel(0);
 	delete m_string_model;
 	m_string_model = 0;
-	delete m_string_delegate;
-	m_string_delegate = 0;
+	delete m_delegates.get<e_delegate_String>();
+	m_delegates.get<e_delegate_String>() = 0;
 
 	if (m_table_view_proxy)
 	{
