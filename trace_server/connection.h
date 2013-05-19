@@ -60,6 +60,8 @@ class RegexDelegate;
 #include <boost/mpl/at.hpp>
 #include <boost/mpl/vector.hpp>
 #include <boost/mpl/pair.hpp>
+#include <boost/type_traits/add_pointer.hpp>
+#include <boost/mpl/transform.hpp>
 
 enum E_DataWidgetType {
 	  e_data_log
@@ -155,15 +157,17 @@ struct DataGantt : DockedData<e_data_gantt>
 	DataGantt (Connection * parent, config_t & config, QString const & fname);
 };
 
-typedef boost::mpl::vector<DataLog *, DataPlot *, DataTable *, DataGantt *>::type dockeddata_t;
 
-template <int N>
+typedef boost::mpl::vector<DataLog, DataPlot, DataTable, DataGantt>::type dockeddata_t;
+typedef boost::mpl::transform<dockeddata_t, boost::add_pointer<boost::mpl::_1> >::type dockeddataptr_t;
+
+template <int N, typename SeqT>
 struct SelectDockedData
-	: boost::mpl::apply<boost::mpl::at<boost::mpl::_1, boost::mpl::_2>, dockeddata_t, boost::mpl::int_<N> >
+	: boost::mpl::apply<boost::mpl::at<boost::mpl::_1, boost::mpl::_2>, SeqT, boost::mpl::int_<N> >
 { };
 
 template <int TypeN>
-struct DataMap : public QMap<QString, typename SelectDockedData<TypeN>::type >
+struct DataMap : public QMap<QString, typename SelectDockedData<TypeN, dockeddataptr_t>::type >
 {
 	enum { e_type = TypeN };
 	QList<DecodedCommand> m_queue;

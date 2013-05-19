@@ -190,39 +190,16 @@ bool Connection::saveConfigForGantts (QString const & preset_name)
 
 datagantts_t::iterator Connection::findOrCreateGantt (QString const & tag)
 {
-	QString const gantt_name = sessionState().getAppName() + "/" + g_presetGanttTag + "/" + tag;
-
-	datagantts_t::iterator it = m_data.get<e_data_gantt>().find(tag);
-	if (it == m_data.get<e_data_gantt>().end())
+	datagantts_t::iterator it = dataWidgetFactory<e_data_gantt>(tag);
+	if (it != m_data.get<e_data_gantt>().end())
 	{
-		qDebug("gantt: creating gantt %s", tag.toStdString().c_str());
-		// new data gantt
-		gantt::GanttConfig template_config;
-		template_config.m_tag = tag;
-
-		QString const preset_name = m_main_window->matchClosestPresetName(sessionState().getAppName());
-		QString fname;
-		if (!preset_name.isEmpty())
+		if (m_main_window->ganttState() == e_FtrEnabled && (*it)->config().m_show)
 		{
-			fname = getDataTagFileName(getConfig().m_appdir, preset_name, g_presetGanttTag, tag);
-			loadConfigForGantt(preset_name, template_config, tag);
-		}
-		
-		DataGantt * const dp = new DataGantt(this, template_config, fname);
-		it = m_data.get<e_data_gantt>().insert(tag, dp);
-		QModelIndex const item_idx = m_data_model->insertItemWithHint(gantt_name, template_config.m_show);
-
-		dp->m_wd = m_main_window->m_dock_mgr.mkDockWidget(m_main_window, &dp->widget(), template_config.m_show, gantt_name);
-		bool const visible = template_config.m_show;
-		m_data_model->setData(item_idx, QVariant(visible ? Qt::Checked : Qt::Unchecked), Qt::CheckStateRole);
-		if (m_main_window->ganttState() == e_FtrEnabled && visible)
-		{
-			m_main_window->loadLayout(preset_name);
-			dp->onShow();
+			(*it)->onShow();
 		}
 		else
 		{
-			dp->onHide();
+			(*it)->onHide();
 		}
 	}
 	return it;

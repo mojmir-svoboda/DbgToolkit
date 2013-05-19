@@ -10,8 +10,7 @@ bool Connection::loadConfigFor (QString const & preset_name, typename SelectConf
 }
 
 template <int TypeN>
-typename SelectIterator<TypeN>::type
-Connection::dataWidgetFactory (QString const tag)
+typename SelectIterator<TypeN>::type  Connection::dataWidgetFactory (QString const tag)
 {
 	char const * preset_prefix = g_fileTags[TypeN];
 	QString const log_name = sessionState().getAppName() + "/" + preset_prefix + "/" + tag;
@@ -36,11 +35,19 @@ Connection::dataWidgetFactory (QString const tag)
 			loadConfigFor<TypeN>(preset_name, template_config, tag);
 		}
 		
-		DataLog * const dp = new DataLog(this, template_config, fname);
-		it = m_data.get<TypeN>().insert(tag, dp);
+		typedef typename SelectDockedData<TypeN, dockeddata_t>::type data_t;
+		typedef typename SelectDockedData<TypeN, dockeddataptr_t>::type dataptr_t;
+		dataptr_t const dd = new data_t(this, template_config, fname);
+		it = m_data.get<TypeN>().insert(tag, dd);
 
-		dp->m_wd = m_main_window->m_dock_mgr.mkDockWidget(m_main_window, &(*it)->widget(), (*it)->config().m_show, log_name);
+		dd->m_wd = m_main_window->m_dock_mgr.mkDockWidget(m_main_window, &(*it)->widget(), (*it)->config().m_show, log_name);
 		m_main_window->loadLayout(preset_name);
+
+		QModelIndex const item_idx = m_data_model->insertItemWithHint(log_name, (*it)->config().m_show);
+
+		bool const visible = (*it)->config().m_show;
+		m_data_model->setData(item_idx, QVariant(visible ? Qt::Checked : Qt::Unchecked), Qt::CheckStateRole);
+
 	}
 	return it;
 }

@@ -147,34 +147,16 @@ bool Connection::saveConfigForPlots (QString const & preset_name)
 
 dataplots_t::iterator Connection::findOrCreatePlot (QString const & tag)
 {
-	dataplots_t::iterator it = m_data.get<e_data_plot>().find(tag);
-	if (it == m_data.get<e_data_plot>().end())
+	dataplots_t::iterator it = dataWidgetFactory<e_data_plot>(tag);
+	if (it != m_data.get<e_data_plot>().end())
 	{
-		// new data plot
-		plot::PlotConfig template_config;
-		template_config.m_tag = tag;
-		QString const preset_name = m_curr_preset.isEmpty() ? m_main_window->getValidCurrentPresetName() : m_curr_preset;
-		QString const fname = getDataTagFileName(getConfig().m_appdir, preset_name, g_presetPlotTag, tag);
-		if (!preset_name.isEmpty())
-			if (loadConfigForPlot(preset_name, template_config, tag))
-			{
-				qDebug("plot: loaded tag configuration from file=%s", fname.toStdString().c_str());
-			}
-		
-		DataPlot * const dp = new DataPlot(this, template_config, fname);
-		it = m_data.get<e_data_plot>().insert(tag, dp);
-		QString const plot_name = sessionState().getAppName() + "/plot/" + tag;
-		QModelIndex const item_idx = m_data_model->insertItemWithHint(plot_name, template_config.m_show);
-
-		dp->m_wd = m_main_window->m_dock_mgr.mkDockWidget(m_main_window, &dp->widget(), template_config.m_show, plot_name);
-		if (m_main_window->plotState() == e_FtrEnabled && template_config.m_show)
+		if (m_main_window->plotState() == e_FtrEnabled && (*it)->config().m_show)
 		{
-			m_main_window->loadLayout(preset_name);
-			dp->onShow();
+			(*it)->onShow();
 		}
 		else
 		{
-			dp->onHide();
+			(*it)->onHide();
 		}
 	}
 	return it;

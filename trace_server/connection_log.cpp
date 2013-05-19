@@ -179,27 +179,13 @@ bool Connection::saveConfigForLogs (QString const & preset_name)
 
 datalogs_t::iterator Connection::findOrCreateLog (QString const & tag)
 {
-	QString const log_name = sessionState().getAppName() + "/" + g_presetLogTag + "/" + tag;
 	datalogs_t::iterator it = dataWidgetFactory<e_data_log>(tag);
 	if (it != m_data.get<e_data_log>().end())
 	{
-		logs::LogConfig const & config = (*it)->config();
-		QModelIndex const item_idx = m_data_model->insertItemWithHint(log_name, config.m_show);
-
-		bool const visible = config.m_show;
-		m_data_model->setData(item_idx, QVariant(visible ? Qt::Checked : Qt::Unchecked), Qt::CheckStateRole);
-		//if (m_main_window->logState() == e_FtrEnabled && visible)
-		{
-			(*it)->onShow();
-		}
-		/*else
-		{
-			dp->onHide();
-		}*/
+		(*it)->onShow();
 	}
 	else
 		assert(false);
-
 	return it;
 }
 
