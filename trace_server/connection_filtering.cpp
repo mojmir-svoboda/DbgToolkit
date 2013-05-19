@@ -11,6 +11,8 @@
 
 void Connection::onInvalidateFilter ()
 {
+	if (!m_table_view_widget)
+		return;
 	QItemSelectionModel const * selection = m_table_view_widget->selectionModel();
 	if (!selection)
 		return;

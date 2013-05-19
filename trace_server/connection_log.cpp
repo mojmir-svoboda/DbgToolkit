@@ -7,7 +7,7 @@
 #include "utils.h"
 
 DataLog::DataLog (Connection * connection, config_t & config, QString const & fname)
-	: DockedData<e_data_log, widget_t, config_t>(connection, config, fname)
+	: DockedData<e_data_log>(connection, config, fname)
 {
 	qDebug("%s this=0x%08x name=%s", __FUNCTION__, this, fname.toStdString().c_str());
 
@@ -36,6 +36,9 @@ DataLog::DataLog (Connection * connection, config_t & config, QString const & fn
 	connection->m_table_view_widget = tableView;
 	connection->sessionState().setupThreadColors(connection->getMainWindow()->getThreadColors());
 	QObject::connect(tableView->horizontalHeader(), SIGNAL(sectionResized(int, int, int)), connection, SLOT(onSectionResized(int, int, int)));
+
+
+
 }
 
 bool Connection::handleLogCommand (DecodedCommand const & cmd)
@@ -112,14 +115,6 @@ void Connection::onShowLogContextMenu (QPoint const &)
 	}
 }
 
-bool Connection::loadConfigForLog (QString const & preset_name, logs::LogConfig & config, QString const & tag)
-{
-	QString const fname = getDataTagFileName(getConfig().m_appdir, preset_name, g_presetGanttTag, tag);
-	qDebug("logs: load cfg file=%s", fname.toStdString().c_str());
-	return loadConfig(config, fname);
-}
-
-
 bool Connection::loadConfigForLogs (QString const & preset_name)
 {
 	qDebug("%s this=0x%08x", __FUNCTION__, this);
@@ -157,44 +152,54 @@ bool Connection::saveConfigForLogs (QString const & preset_name)
 	return true;
 }
 
+	/*Connection * conn = server->findConnectionByName(app_name);
+	if (conn)
+	{
+		qDebug("cmd setup: looking for app=%s: not found", app_name.toStdString().c_str());
+		if (!m_main_window->clrFltEnabled())
+		{
+			m_file_model->beforeLoad();
+			loadSessionState(conn->sessionState(), m_session_state);
+		}
+
+		QWidget * w = conn->m_tab_widget;
+		server->onCloseTab(w);	// close old one
+		// @TODO: delete persistent storage for the tab
+
+		m_file_model->afterLoad();
+	}
+	else
+	{
+		qDebug("cmd setup: looking for app=%s: found", app_name.toStdString().c_str());
+		m_file_model->beforeLoad();
+		QString const pname = m_main_window->matchClosestPresetName(app_name);
+		m_main_window->onPresetActivate(this, pname);
+		m_file_model->afterLoad();
+	}*/
 
 datalogs_t::iterator Connection::findOrCreateLog (QString const & tag)
 {
 	QString const log_name = sessionState().getAppName() + "/" + g_presetLogTag + "/" + tag;
-
-	datalogs_t::iterator it = m_data.get<e_data_log>().find(tag);
-	if (it == m_data.get<e_data_log>().end())
+	datalogs_t::iterator it = dataWidgetFactory<e_data_log>(tag);
+	if (it != m_data.get<e_data_log>().end())
 	{
-		qDebug("log: creating log %s", tag.toStdString().c_str());
-		// new data log
-		logs::LogConfig template_config;
-		template_config.m_tag = tag;
+		logs::LogConfig const & config = (*it)->config();
+		QModelIndex const item_idx = m_data_model->insertItemWithHint(log_name, config.m_show);
 
-		QString const preset_name = m_main_window->matchClosestPresetName(sessionState().getAppName());
-		QString fname;
-		if (!preset_name.isEmpty())
-		{
-			fname = getDataTagFileName(getConfig().m_appdir, preset_name, g_presetLogTag, tag);
-			loadConfigForLog(preset_name, template_config, tag);
-		}
-		
-		DataLog * const dp = new DataLog(this, template_config, fname);
-		it = m_data.get<e_data_log>().insert(tag, dp);
-		QModelIndex const item_idx = m_data_model->insertItemWithHint(log_name, template_config.m_show);
-
-		dp->m_wd = m_main_window->m_dock_mgr.mkDockWidget(m_main_window, &dp->widget(), template_config.m_show, log_name);
-		bool const visible = template_config.m_show;
+		bool const visible = config.m_show;
 		m_data_model->setData(item_idx, QVariant(visible ? Qt::Checked : Qt::Unchecked), Qt::CheckStateRole);
 		//if (m_main_window->logState() == e_FtrEnabled && visible)
 		{
-			m_main_window->loadLayout(preset_name);
-			dp->onShow();
+			(*it)->onShow();
 		}
 		/*else
 		{
 			dp->onHide();
 		}*/
 	}
+	else
+		assert(false);
+
 	return it;
 }
 

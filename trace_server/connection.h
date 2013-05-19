@@ -52,8 +52,14 @@ class LevelDelegate;
 class CtxDelegate;
 class StringDelegate;
 class RegexDelegate;
-
 //namespace stats { class StatsWindow; }
+
+#include <boost/mpl/apply.hpp>
+#include <boost/mpl/placeholders.hpp>
+#include <boost/mpl/int.hpp>
+#include <boost/mpl/at.hpp>
+#include <boost/mpl/vector.hpp>
+#include <boost/mpl/pair.hpp>
 
 enum E_DataWidgetType {
 	  e_data_log
@@ -63,11 +69,36 @@ enum E_DataWidgetType {
 	, e_data_widget_max_value
 };
 
-template <int TypeN, class WidgetT, class ConfigT>
+#include "constants.h"
+char const * const g_fileTags[] = { g_presetLogTag, g_presetPlotTag, g_presetTableTag, g_presetGanttTag };
+
+typedef boost::mpl::vector<
+		boost::mpl::pair<  logs::LogWidget,    logs::LogConfig   >,
+		boost::mpl::pair<  plot::PlotWidget,   plot::PlotConfig  >,
+		boost::mpl::pair< table::TableWidget, table::TableConfig >,
+		boost::mpl::pair< gantt::GanttWidget, gantt::GanttConfig >
+	>::type datawidgetcfgs_t;
+
+template <int N, typename SeqT>
+struct SelectInternals
+	: boost::mpl::apply<boost::mpl::at<boost::mpl::_1, boost::mpl::_2>, SeqT, boost::mpl::int_<N> >
+{ };
+
+template <int N>
+struct SelectWidget
+	: boost::mpl::apply<boost::mpl::first<boost::mpl::_1>, typename SelectInternals<N, datawidgetcfgs_t>::type >
+{ };
+template <int N>
+struct SelectConfig
+	: boost::mpl::apply<boost::mpl::second<boost::mpl::_1>, typename SelectInternals<N, datawidgetcfgs_t>::type >
+{ };
+
+
+template <int TypeN>
 struct DockedData
 {
-	typedef WidgetT widget_t;
-	typedef ConfigT config_t;
+	typedef typename SelectWidget<TypeN>::type widget_t;
+	typedef typename SelectConfig<TypeN>::type config_t;
 	enum { e_type = TypeN };
 
 	Connection * m_parent;
@@ -89,6 +120,9 @@ struct DockedData
 
 	widget_t & widget () { return *m_widget; }
 	widget_t const & widget () const { return *m_widget; }
+	config_t & config () { return m_config; }
+	config_t const & config () const { return m_config; }
+
 
 	void onShow ()
 	{
@@ -103,26 +137,33 @@ struct DockedData
 	}
 };
 
-struct DataLog : DockedData<e_data_log, logs::LogWidget, logs::LogConfig>
+struct DataLog : DockedData<e_data_log>
 {
 	DataLog (Connection * parent, config_t & config, QString const & fname);
 };
-struct DataPlot : DockedData<e_data_plot, plot::PlotWidget, plot::PlotConfig>
+struct DataPlot : DockedData<e_data_plot>
 {
 	DataPlot (Connection * parent, config_t & config, QString const & fname);
 };
-struct DataTable : DockedData<e_data_table, table::TableWidget, table::TableConfig>
+struct DataTable : DockedData<e_data_table>
 {
 	DataTable (Connection * parent, config_t & config, QString const & fname);
 };
 
-struct DataGantt : DockedData<e_data_gantt, gantt::GanttWidget, gantt::GanttConfig>
+struct DataGantt : DockedData<e_data_gantt>
 {
 	DataGantt (Connection * parent, config_t & config, QString const & fname);
 };
 
-template <int TypeN, typename KeyT, typename ValueT>
-struct DataMap : public QMap<KeyT, ValueT>
+typedef boost::mpl::vector<DataLog *, DataPlot *, DataTable *, DataGantt *>::type dockeddata_t;
+
+template <int N>
+struct SelectDockedData
+	: boost::mpl::apply<boost::mpl::at<boost::mpl::_1, boost::mpl::_2>, dockeddata_t, boost::mpl::int_<N> >
+{ };
+
+template <int TypeN>
+struct DataMap : public QMap<QString, typename SelectDockedData<TypeN>::type >
 {
 	enum { e_type = TypeN };
 	QList<DecodedCommand> m_queue;
@@ -130,11 +171,19 @@ struct DataMap : public QMap<KeyT, ValueT>
 	DataMap () { m_queue.reserve(256); }
 };
 
-typedef DataMap<e_data_log  , QString, DataLog *  > datalogs_t;
-typedef DataMap<e_data_plot , QString, DataPlot * > dataplots_t;
-typedef DataMap<e_data_table, QString, DataTable *> datatables_t;
-typedef DataMap<e_data_gantt, QString, DataGantt *> datagantts_t;
+typedef DataMap<e_data_log  > datalogs_t;
+typedef DataMap<e_data_plot > dataplots_t;
+typedef DataMap<e_data_table> datatables_t;
+typedef DataMap<e_data_gantt> datagantts_t;
+
 typedef boost::tuple<datalogs_t, dataplots_t, datatables_t, datagantts_t> data_widgets_t;
+
+template <int TypeN>
+struct SelectIterator
+{
+	typedef typename SelectWidget<TypeN>::type widget_t;
+	typedef typename DataMap<TypeN>::iterator type;
+};
 
 
 /**@class		Connection
@@ -195,7 +244,7 @@ public:
 	bool saveConfigForGantt (gantt::GanttConfig const & config, QString const & tag);
 	bool loadConfigForGantts (QString const & preset_name);
 	bool saveConfigForGantts (QString const & preset_name);
-	bool loadConfigForLog (QString const & preset_name, logs::LogConfig & config, QString const & tag);
+	//bool loadConfigForLog (QString const & preset_name, logs::LogConfig & config, QString const & tag);
 	bool saveConfigForLog (logs::LogConfig const & config, QString const & tag);
 	bool loadConfigForLogs (QString const & preset_name);
 	bool saveConfigForLogs (QString const & preset_name);
@@ -320,6 +369,13 @@ private:
 	bool handleTableClearCommand (DecodedCommand const & cmd);
 	bool handleLogClearCommand (DecodedCommand const & cmd);
 
+	template <int TypeN>
+	typename SelectIterator<TypeN>::type
+	dataWidgetFactory (QString const tag);
+
+	template <int TypeN>
+	bool loadConfigFor (QString const & preset_name, typename SelectConfig<TypeN>::type & config, QString const & tag);
+
 	void appendDataXY (double x, double y, QString const & tag);
 	datatables_t::iterator findOrCreateTable (QString const & tag);
 	void appendTableXY (int x, int y, QString const & time, QString const & fgc, QString const & bgc, QString const & tag);
@@ -431,4 +487,6 @@ private:
 	data_widgets_t m_data;
 	TreeModel * m_data_model;
 };
+
+#include "connection.inl"
 

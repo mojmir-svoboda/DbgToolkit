@@ -9,7 +9,7 @@
 //#include <cstdlib>
 
 DataGantt::DataGantt (Connection * connection, config_t & config, QString const & fname)
-	: DockedData<e_data_gantt, widget_t, config_t>(connection, config, fname)
+	: DockedData<e_data_gantt>(connection, config, fname)
 {
 	qDebug("%s this=0x%08x name=%s", __FUNCTION__, this, fname.toStdString().c_str());
 	m_widget = new gantt::GanttWidget(connection, 0, m_config, fname);

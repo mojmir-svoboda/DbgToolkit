@@ -200,6 +200,7 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 				Connection * conn = server->findConnectionByName(app_name);
 				if (conn)
 				{
+					qDebug("cmd setup: looking for app=%s: not found", app_name.toStdString().c_str());
 					if (!m_main_window->clrFltEnabled())
 					{
 						m_file_model->beforeLoad();
@@ -214,6 +215,7 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 				}
 				else
 				{
+					qDebug("cmd setup: looking for app=%s: found", app_name.toStdString().c_str());
 					m_file_model->beforeLoad();
 					QString const pname = m_main_window->matchClosestPresetName(app_name);
 					m_main_window->onPresetActivate(this, pname);
@@ -346,7 +348,6 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 			sessionState().m_app_name = app_name;
 			sessionState().m_pid = pid;
 
-			m_table_view_widget->setVisible(false);
 			int const tab_idx = m_main_window->getTabTrace()->indexOf(m_tab_widget);
 			m_main_window->getTabTrace()->setTabText(tab_idx, app_name);
 			QString storage_name = createStorageName();
@@ -370,6 +371,7 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 
 			sessionState().setupColumns(&cs_setup, &cs_sizes, &cs_align, &cs_elide); 
 
+			/*
 			m_current_cmd.tvs.reserve(sessionState().getColumnsSetupCurrent()->size());
 			for (size_t i = 0, ie = sessionState().getColumnsSetupCurrent()->size(); i < ie; ++i)
 			{
@@ -400,10 +402,11 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 
 			//m_table_view_widget->horizontalHeader()->setStretchLastSection(false);
 //////////////// PERF!!!!! //////////////////
-			/* m_table_view_widget->horizontalHeader()->setStretchLastSection(true); */
+			// m_table_view_widget->horizontalHeader()->setStretchLastSection(true);
 //////////////// PERF!!!!! //////////////////
 
 			static_cast<LogTableModel *>(m_table_view_widget->model())->emitLayoutChanged();
+			*/
 		}
 	}
 

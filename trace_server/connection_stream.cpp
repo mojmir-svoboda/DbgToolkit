@@ -89,19 +89,21 @@ E_DataWidgetType queueForCommand (tlv::tag_t cmd)
 	}
 }
 
-struct QueueCommand {
-	E_DataWidgetType m_type;
-	DecodedCommand const & m_cmd;
+namespace {
+	struct QueueCommand {
+		E_DataWidgetType m_type;
+		DecodedCommand const & m_cmd;
 
-	QueueCommand (E_DataWidgetType t, DecodedCommand const & cmd) : m_type(t), m_cmd(cmd) { }
-	
-	template <typename T>
-	void operator() (T & t)
-	{
-		if (t.e_type == m_type)
-			t.m_queue.push_back(m_cmd);
-	}
-};
+		QueueCommand (E_DataWidgetType t, DecodedCommand const & cmd) : m_type(t), m_cmd(cmd) { }
+		
+		template <typename T>
+		void operator() (T & t)
+		{
+			if (t.e_type == m_type)
+				t.m_queue.push_back(m_cmd);
+		}
+	};
+}
 
 bool Connection::queueCommand (DecodedCommand const & cmd)
 {
@@ -142,15 +144,11 @@ bool Connection::tryHandleCommand (DecodedCommand const & cmd)
 
 		default: qDebug("unknown command, ignoring\n"); break;
 	}
-
-	if (m_src_stream == e_Stream_TCP && m_tcp_dump_stream)
-		m_tcp_dump_stream->writeRawData(&cmd.orig_message[0], cmd.hdr.len + tlv::Header::e_Size);
 	return true;
 }
 
 void Connection::onHandleCommands ()
 {
-	LogTableModel * model = static_cast<LogTableModel *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
 	size_t const rows = m_decoded_cmds.size();
 	for (size_t i = 0; i < rows; ++i)
 	{
@@ -163,6 +161,10 @@ void Connection::onHandleCommands ()
 		{
 			tryHandleCommand(cmd);
 		}
+
+		if (m_src_stream == e_Stream_TCP && m_tcp_dump_stream)
+			m_tcp_dump_stream->writeRawData(&cmd.orig_message[0], cmd.hdr.len + tlv::Header::e_Size);
+
 		m_decoded_cmds.pop_front();
 	}
 }
@@ -411,14 +413,16 @@ void Connection::processTailCSVStream ()
 	QTimer::singleShot(250, this, SLOT(processTailCSVStream()));
 }
 
-void item2separator (QString const & item, QString & sep)
-{
-	if (item == "\\t")
-		sep = "\t";
-	else if (item == "\\n")
-		sep = "\n";
-	else
-		sep = item;
+namespace {
+	void item2separator (QString const & item, QString & sep)
+	{
+		if (item == QLatin1String("\\t"))
+			sep = QLatin1String("\t");
+		else if (item == QLatin1String("\\n"))
+			sep = QLatin1String("\n");
+		else
+			sep = item;
+	}
 }
 
 bool Connection::handleCSVStreamCommand (DecodedCommand const & cmd)
@@ -516,7 +520,7 @@ bool Connection::setupStorage (QString const & name)
 {
 	if (m_src_stream == e_Stream_TCP && !m_storage)
 	{
-		m_storage = new QFile(name + ".tlv_trace");
+		m_storage = new QFile(name + QLatin1String(".tlv_trace"));
 		m_storage->open(QIODevice::WriteOnly);
 		m_tcp_dump_stream = new QDataStream(m_storage);
 
@@ -538,7 +542,7 @@ void Connection::copyStorageTo (QString const & filename)
 	else
 	{
 		QString name = createStorageName();
-		QFile trc(name + ".tlv_trace");
+		QFile trc(name + QLatin1String(".tlv_trace"));
 		trc.open(QIODevice::ReadOnly);
 		trc.copy(filename);
 		trc.close();
