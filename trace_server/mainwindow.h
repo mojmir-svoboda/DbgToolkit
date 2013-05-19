@@ -279,6 +279,7 @@ private:
 	void setupMenuBar ();
 	void createActions ();
 	void createTrayIcon ();
+	void convertBloodyBollockyBuggeryRegistry ();
 
 	float m_time_units;
 	Ui::MainWindow * ui;

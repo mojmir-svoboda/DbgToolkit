@@ -98,7 +98,7 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QStri
 	, m_start_level(level)
 {
 	qDebug("================================================================================");
-	qDebug("%s", __FUNCTION__);
+	qDebug("%s this=0x%08x", __FUNCTION__, this);
 	//QDir::setSearchPaths("icons", QStringList(QDir::currentPath()));
 	ui->setupUi(this);
 	ui->tabTrace->setTabsClosable(true);
@@ -281,7 +281,7 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QStri
 
 MainWindow::~MainWindow()
 {
-	qDebug("%s", __FUNCTION__);
+	qDebug("%s this=0x%08x", __FUNCTION__, this);
 #ifdef WIN32
 	UnregisterHotKey(getHWNDForWidget(this), 0);
 #endif
@@ -1253,6 +1253,28 @@ void MainWindow::storeState ()
 #ifdef WIN32
 	settings.setValue("hotkeyCode", m_config.m_hotkey);
 #endif
+}
+
+template <class SrcT, class DstT>
+void assignSrcToDst (SrcT & src, DstT & dst)
+{
+	dst.reserve(src.size());
+	for (int i = 0, ie = src.size(); i < ie; ++i)
+		dst.push_back(src.at(i));
+}
+
+void MainWindow::convertBloodyBollockyBuggeryRegistry ()
+{
+	qDebug("%s", __FUNCTION__);
+	for (int i = 0, ie = m_config.m_app_names.size(); i < ie; ++i)
+	{
+		logs::LogConfig cfg;
+		assignSrcToDst(m_config.m_columns_setup[i], cfg.m_columns_setup);
+		assignSrcToDst(m_config.m_columns_sizes[i], cfg.m_columns_sizes);
+		assignSrcToDst(m_config.m_columns_align[i], cfg.m_columns_align);
+		assignSrcToDst(m_config.m_columns_elide[i], cfg.m_columns_elide);
+		cfg.m_auto_scroll = autoScrollEnabled();
+	}
 }
 
 void MainWindow::loadState ()
