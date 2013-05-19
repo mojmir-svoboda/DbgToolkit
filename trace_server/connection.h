@@ -325,6 +325,8 @@ public slots:
 	void onCutParentValueChanged (int i);
 	void onCollapseChilds ();
 
+	bool tryHandleCommand (DecodedCommand const & cmd);
+
 private slots:
 	void processReadyRead ();
 	void processTailCSVStream ();
@@ -350,8 +352,8 @@ private:
 
 	template <class T, typename T_Ret, typename T_Arg0, typename T_Arg1>
 	int processStream (T *, T_Ret (T::*read_member_t)(T_Arg0, T_Arg1));
-	bool queueCommand (DecodedCommand const & cmd);
-	bool tryHandleCommand (DecodedCommand const & cmd);
+	bool enqueueCommand (DecodedCommand const & cmd);
+	bool dequeueCommand (DecodedCommand & cmd);
 	bool handleLogCommand (DecodedCommand const & cmd);
 	bool handleTableXYCommand (DecodedCommand const & cmd);
 	bool handleTableSetupCommand (DecodedCommand const & cmd);

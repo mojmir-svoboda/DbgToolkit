@@ -90,11 +90,11 @@ E_DataWidgetType queueForCommand (tlv::tag_t cmd)
 }
 
 namespace {
-	struct QueueCommand {
+	struct EnqueueCommand {
 		E_DataWidgetType m_type;
 		DecodedCommand const & m_cmd;
 
-		QueueCommand (E_DataWidgetType t, DecodedCommand const & cmd) : m_type(t), m_cmd(cmd) { }
+		EnqueueCommand (E_DataWidgetType t, DecodedCommand const & cmd) : m_type(t), m_cmd(cmd) { }
 		
 		template <typename T>
 		void operator() (T & t)
@@ -105,13 +105,13 @@ namespace {
 	};
 }
 
-bool Connection::queueCommand (DecodedCommand const & cmd)
+bool Connection::enqueueCommand (DecodedCommand const & cmd)
 {
 	E_DataWidgetType const queue_type = queueForCommand(cmd.hdr.cmd);
 	if (queue_type == e_data_widget_max_value)
 		return false;
 
-	recurse(m_data, QueueCommand(queue_type, cmd));
+	recurse(m_data, EnqueueCommand(queue_type, cmd));
 	return true;
 }
 
@@ -155,7 +155,7 @@ void Connection::onHandleCommands ()
 		DecodedCommand & cmd = m_decoded_cmds.front();
 		if (isCommandQueuable(cmd.hdr.cmd))
 		{
-			queueCommand(cmd);
+			enqueueCommand(cmd);
 		}
 		else
 		{
@@ -173,8 +173,28 @@ void Connection::onHandleCommandsStart ()
 {
 }
 
+namespace {
+	struct DequeueCommand {
+		Connection & m_conn;
+
+		DequeueCommand ( Connection & c) : m_conn(c) { }
+		
+		template <typename T>
+		void operator() (T & t)
+		{
+			while (!t.m_queue.isEmpty())
+			{
+				DecodedCommand const & cmd = t.m_queue.front();
+				m_conn.tryHandleCommand(cmd);
+				t.m_queue.pop_front();
+			}
+		}
+	};
+}
+
 void Connection::onHandleCommandsCommit ()
 {
+	recurse(m_data, DequeueCommand(*this));
 /*	LogTableModel * model = static_cast<LogTableModel *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
 
 	setupColumnSizes(false);
@@ -270,7 +290,7 @@ int Connection::processStream (T * t, T_Ret (T::*read_member_fn)(T_Arg0, T_Arg1)
 				emit handleCommands();
 		}
 		
-		//emit onHandleCommandsCommit();
+		emit onHandleCommandsCommit();
 		return e_data_ok;
 	}
 	catch (std::out_of_range const & e)
