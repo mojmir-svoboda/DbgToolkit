@@ -1387,6 +1387,8 @@ void MainWindow::loadState ()
 			m_config.m_thread_colors.push_back(QColor(static_cast<Qt::GlobalColor>(i)));
 	}
 
+	convertBloodyBollockyBuggeryRegistry();
+
 #ifdef WIN32
 	unsigned const hotkeyCode = settings.value("hotkeyCode").toInt();
 	m_config.m_hotkey = hotkeyCode ? hotkeyCode : VK_SCROLL;
