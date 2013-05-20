@@ -39,7 +39,6 @@ BEGIN {
     m_threadid[0] = 0;
     m_last_thread = 0;
 
-    m_scope_level = 0;
     m_indenttab[0]=0;
 
 
@@ -85,7 +84,14 @@ function replaceText(text, tmp)
 # |date|lvl|tid|{pfn
 #   1    2   3    4
 
-	if (match($3, "[[:digit:]]+"))
+	if (match($4, "[=]\{80,80\}"))
+	{
+		m_last_thread = 0;
+		for (i=0; i<16; ++i)
+			printf "\n"
+	}
+
+	if (match($3, "[0-9a-f]+"))
 	{
 		ignore_line = 0;
 		if (match($4, ".*got nonmatching preset name.*")) ignore_line = 1;

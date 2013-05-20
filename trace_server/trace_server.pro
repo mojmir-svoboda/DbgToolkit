@@ -51,19 +51,19 @@ static { # everything below takes effect with CONFIG += static
 
 
 SOURCES += ../version.cpp \
-	main.cpp\
-	mainwindow.cpp \
+    main.cpp \
+    mainwindow.cpp \
     server.cpp \
     connection.cpp
 
-HEADERS  += ../version.h	\
-	mainwindow.h \
+HEADERS  += ../version.h \
+    mainwindow.h \
     modelview.h \
     server.h \
     connection.h
 
 FORMS    += help.ui \
-	mainwindow.ui \
+    mainwindow.ui \
     settings.ui \
     settingslog.ui \
     settingsplot.ui \
