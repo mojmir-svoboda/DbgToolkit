@@ -5,6 +5,10 @@
 #include "logctxmenu.h"
 
 class Connection;
+class LevelDelegate;
+class CtxDelegate;
+class StringDelegate;
+class RegexDelegate;
 
 namespace logs {
 
@@ -22,26 +26,89 @@ namespace logs {
 
 	protected:
 
-		bool filterEnabled () const { return m_main_window->filterEnabled(); }
+		bool filterEnabled () const { return m_config.m_filtering; }
 
-	void findTextInAllColumns (QString const & text, int from_row, int to_row, bool only_first)
-	bool matchTextInCell (QString const & text, int row, int col)
-	void endOfSearch ()
-	void findTextInColumn (QString const & text, int col, int from_row, int to_row)
-	void findTextInColumnRev (QString const & text, int col, int from_row, int to_row)
-	void selectionFromTo (int & from, int & to) const
-	void findAllTexts (QString const & text)
-	void findText (QString const & text, tlv::tag_t tag)
-	void findText (QString const & text)
-	void findNext (QString const & text)
-	void findPrev (QString const & text)
-	QString findString4Tag (tlv::tag_t tag, QModelIndex const & row_index) const
-	QVariant findVariant4Tag (tlv::tag_t tag, QModelIndex const & row_index) const
-	void scrollToCurrentTag ()
-	void scrollToCurrentSelection ()
-	void scrollToCurrentTagOrSelection ()
-	void nextToView ()
-	void onFindFileLine (QModelIndex const &)
+// divny
+//bool filterEnabled () const { return m_config_ui->ui()->filterFileCheckBox->isEnabled() && m_config_ui->ui()->filterFileCheckBox->isChecked(); }
+
+	// find
+	void findTextInAllColumns (QString const & text, int from_row, int to_row, bool only_first);
+	bool matchTextInCell (QString const & text, int row, int col);
+	void endOfSearch ();
+	void findTextInColumn (QString const & text, int col, int from_row, int to_row);
+	void findTextInColumnRev (QString const & text, int col, int from_row, int to_row);
+	void selectionFromTo (int & from, int & to) const;
+	void findAllTexts (QString const & text);
+	void findText (QString const & text, tlv::tag_t tag);
+	void findText (QString const & text);
+	void findNext (QString const & text);
+	void findPrev (QString const & text);
+	QString findString4Tag (tlv::tag_t tag, QModelIndex const & row_index) const;
+	QVariant findVariant4Tag (tlv::tag_t tag, QModelIndex const & row_index) const;
+	void scrollToCurrentTag ();
+	void scrollToCurrentSelection ();
+	void scrollToCurrentTagOrSelection ();
+	void nextToView ();
+	void onFindFileLine (QModelIndex const &);
+
+	// filtering stuff
+	void onInvalidateFilter ();
+	void syncSelection (QModelIndexList const & sel);
+	void setFilterFile (int state);
+	void clearFilters (QStandardItem * node);
+	void clearFilters ();
+	void onClearCurrentFileFilter ();
+	void onClearCurrentCtxFilter ();
+	void onClearCurrentTIDFilter ();
+	void onClearCurrentColorizedRegexFilter ();
+	void onClearCurrentRegexFilter ();
+	void onClearCurrentStringFilter ();
+	void onClearCurrentScopeFilter ();
+	void onClearCurrentRefTime ();
+	void onExcludeFileLine (QModelIndex const & row_index);
+	void onFileColOrExp (QModelIndex const & idx, bool collapsed);
+	void onFileExpanded (QModelIndex const & idx);
+	void onFileCollapsed (QModelIndex const & idx);
+	void appendToTIDFilters (QString const & item);
+	void appendToLvlWidgets (FilteredLevel const & flt);
+	void appendToLvlFilters (QString const & item);
+	void appendToCtxWidgets (FilteredContext const & flt);
+	void appendToCtxFilters (QString const & item, bool checked);
+	bool appendToFilters (DecodedCommand const & cmd);
+	void appendToRegexFilters (QString const & str, bool checked, bool inclusive);
+	void removeFromRegexFilters (QString const & val);
+	void recompileRegexps ();
+	void appendToStringWidgets (FilteredString const & flt);
+	void appendToStringFilters (QString const & str, bool checked, int state);
+	void removeFromStringFilters (QString const & val);
+	void recompileStrings ();
+	void appendToColorRegexFilters (QString const & val);
+	void removeFromColorRegexFilters (QString const & val);
+	void loadToColorRegexps (QString const & filter_item, QString const & color, bool enabled);
+	void onColorRegexChanged ();
+	void recompileColorRegexps ();
+	void loadToRegexps (QString const & filter_item, bool inclusive, bool enabled);
+	void onFilterFileComboChanged (QString str);
+	void onCancelFilterFileButton ();
+	void onCutParentValueChanged (int i);
+	void onCollapseChilds ();
+
+
+	void setTableViewWidget (QTableView * w) { m_table_view_widget = w; }
+	QTableView * getTableViewWidget () { return m_table_view_widget; }
+	QTableView const * getTableViewWidget () const { return m_table_view_widget; }
+	SessionState & sessionState () { return m_session_state; }
+	SessionState const & sessionState () const { return m_session_state; }
+
+
+
+	QAbstractTableModel const * modelView () const { return static_cast<QAbstractTableModel const *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model()); }
+	QAbstractProxyModel const * proxyView () const { return static_cast<QAbstractProxyModel const *>(m_table_view_proxy); }
+
+	bool isModelProxy () const;
+	TreeModel * fileModel () { return m_file_model; }
+	TreeModel const * fileModel () const { return m_file_model; }
+
 
 
 	public slots:
@@ -81,7 +148,6 @@ namespace logs {
 		int m_last_search_col;
 		QString m_last_search;
 		QString m_curr_preset;
-		QWidget * m_tab_widget;
 		QTableView * m_table_view_widget;
 		TreeModel * m_file_model;
 		TreeProxyModel * m_file_proxy;

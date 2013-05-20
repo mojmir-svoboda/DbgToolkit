@@ -408,17 +408,16 @@ int MainWindow::cutPathLevel () const { return ui_settings->cutPathSpinBox->valu
 bool MainWindow::cutNamespaceEnabled () const { return ui_settings->cutNamespaceCheckBox->isChecked(); }
 int MainWindow::cutNamespaceLevel () const { return ui_settings->cutNamespaceSpinBox->value(); }
 bool MainWindow::onTopEnabled () const { return ui_settings->onTopCheckBox->isChecked(); }
-bool MainWindow::filterEnabled () const { return ui->filterFileCheckBox->isEnabled() && ui->filterFileCheckBox->isChecked(); }
 int MainWindow::plotState () const { return ui->plotSlider->value(); }
 int MainWindow::tableState () const { return ui->tableSlider->value(); }
 int MainWindow::ganttState () const { return ui->ganttSlider->value(); }
-bool MainWindow::reuseTabEnabled () const { return ui_settings->reuseTabCheckBox->isChecked(); }
-bool MainWindow::autoScrollEnabled () const { return ui->autoScrollCheckBox->isChecked(); }
-bool MainWindow::inViewEnabled () const { return ui->inViewCheckBox->isChecked(); }
+//bool MainWindow::reuseTabEnabled () const { return ui_settings->reuseTabCheckBox->isChecked(); }
+//bool MainWindow::autoScrollEnabled () const { return ui->autoScrollCheckBox->isChecked(); }
+//bool MainWindow::inViewEnabled () const { return ui->inViewCheckBox->isChecked(); }
 bool MainWindow::buffEnabled () const { return ui->buffCheckBox->isChecked(); }
 Qt::CheckState MainWindow::buffState () const { return ui->buffCheckBox->checkState(); }
 bool MainWindow::clrFltEnabled () const { return ui_settings->clrFiltersCheckBox->isChecked(); }
-bool MainWindow::statsEnabled () const { return ui_settings->traceStatsCheckBox->isChecked(); }
+//bool MainWindow::statsEnabled () const { return ui_settings->traceStatsCheckBox->isChecked(); }
 bool MainWindow::dtEnabled () const { return ui->dtToolButton->isChecked(); }
 
 
@@ -466,7 +465,7 @@ void MainWindow::ondtToolButton ()
 {
 	if (Connection * conn = m_server->findCurrentConnection())
 	{
-		conn->onInvalidateFilter();
+		//conn->onInvalidateFilter();
 	}
 }
 
@@ -482,26 +481,6 @@ void MainWindow::onTimeUnitsChanged (int i)
 		m_time_units = 1.0f;
 	if (unit == "m")
 		m_time_units = 60.0f;
-}
-
-void MainWindow::onTableFontToolButton ()
-{
-    bool ok = false;
-	QFont curr_font;
-	Connection * conn = m_server->findCurrentConnection();
-	if (conn)
-	{
-		curr_font = conn->getTableViewWidget()->font();
-		ui_settings->tableFontComboBox->addItem(curr_font.toString());
-	}
-
-    QFont f = QFontDialog::getFont(&ok, curr_font);
-    if (ok)
-	{
-		ui_settings->tableFontComboBox->insertItem(0, curr_font.toString());
-		if (conn)
-			conn->getTableViewWidget()->verticalHeader()->setFont(f);
-    }
 }
 
 void MainWindow::onPlotStateChanged (int state)
@@ -549,11 +528,6 @@ void MainWindow::onPlotsClosed ()
 }
 
 void MainWindow::onTablesStateChanged (int state) { }
-
-void MainWindow::onFilterFile (int state)
-{
-	m_server->onFilterFile(state);
-}
 
 void MainWindow::onEditFind ()
 {

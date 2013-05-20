@@ -19,7 +19,6 @@ namespace logs {
 	, m_column_setup_done(false)
 	, m_last_search_row(0)
 	, m_last_search_col(0)
-	, m_tab_widget(0)
 	, m_table_view_widget(0)
 	, m_file_model(0)
 	, m_file_proxy(0)
@@ -309,6 +308,27 @@ void Server::onFilterFile (int state)
 	if (Connection * conn = findCurrentConnection())
 		conn->setFilterFile(state);
 }
+
+void LogWidget::onTableFontToolButton ()
+{
+    bool ok = false;
+	QFont curr_font;
+	Connection * conn = m_server->findCurrentConnection();
+	if (conn)
+	{
+		curr_font = conn->getTableViewWidget()->font();
+		ui_settings->tableFontComboBox->addItem(curr_font.toString());
+	}
+
+    QFont f = QFontDialog::getFont(&ok, curr_font);
+    if (ok)
+	{
+		ui_settings->tableFontComboBox->insertItem(0, curr_font.toString());
+		if (conn)
+			conn->getTableViewWidget()->verticalHeader()->setFont(f);
+    }
+}
+
 
 
 

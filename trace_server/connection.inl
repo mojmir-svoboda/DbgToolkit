@@ -13,7 +13,7 @@ template <int TypeN>
 typename SelectIterator<TypeN>::type  Connection::dataWidgetFactory (QString const tag)
 {
 	char const * preset_prefix = g_fileTags[TypeN];
-	QString const log_name = sessionState().getAppName() + "/" + preset_prefix + "/" + tag;
+	QString const log_name = getAppName() + "/" + preset_prefix + "/" + tag;
 
 	typedef typename SelectIterator<TypeN>::type iterator;
 	iterator it = m_data.get<TypeN>().find(tag);
@@ -27,7 +27,7 @@ typename SelectIterator<TypeN>::type  Connection::dataWidgetFactory (QString con
 		config_t template_config;
 		template_config.m_tag = tag;
 
-		QString const preset_name = m_main_window->matchClosestPresetName(sessionState().getAppName());
+		QString const preset_name = m_main_window->matchClosestPresetName(getAppName());
 		QString fname;
 		if (!preset_name.isEmpty())
 		{

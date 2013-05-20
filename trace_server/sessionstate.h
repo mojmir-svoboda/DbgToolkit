@@ -66,9 +66,6 @@ public:
 			, columns_align_t * ca_template, columns_elide_t * ce_template);
 	void setupThreadColors (QList<QColor> const & tc);
 
-	QString getAppName () const { return m_app_name; }
-	int getAppIdx () const { return m_app_idx; }
-
 	bool isConfigured () const { return m_columns_setup_current && m_columns_setup_current->size(); }
 
 	QList<QString> const * getColumnsSetupCurrent () const { return m_columns_setup_current; }
@@ -181,8 +178,6 @@ public:
 	void onClearRefTime () { m_time_ref_row = 0; }
 	void onClearStringFilter () { m_filtered_strings.clear(); }
 
-	unsigned getRecvBytes () const { return m_recv_bytes; }
-
 	Dict const & getDictCtx () const { return m_dict_ctx; }
 
 	QString const & separatorChar () const { return m_csv_separator; }
@@ -211,8 +206,7 @@ public:
 	friend class FilterProxyModel;
 
 private:
-	int m_app_idx;
-	int m_storage_idx;
+
 	int m_exclude_content_to_row;
 	int m_time_ref_row;
 	QVector<int> m_color_tag_rows;
@@ -237,10 +231,7 @@ private:
 	columns_sizes_t * m_columns_sizes;
 	QMap<tlv::tag_t, int> m_tags2columns;
 	ThreadSpecific m_tls;
-	QString m_app_name;
-	QString m_pid;
 	QList<CollapsedBlock> m_collapse_blocks;
-	unsigned m_recv_bytes;
 	Dict m_dict_ctx;
 	QList<FilteredString> m_filtered_strings;
 	QString m_csv_separator;

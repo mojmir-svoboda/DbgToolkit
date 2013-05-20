@@ -27,9 +27,7 @@ namespace logs {
 
 		}
 
-		void onInViewStateChanged (int state);
-
-		void CtxLogConfig::onInViewStateChanged (int state)
+		void onInViewStateChanged (int state)
 		{
 			if (state == Qt::Checked)
 			{
@@ -38,9 +36,7 @@ namespace logs {
 			}
 		}
 
-
-
-		void CtxLogConfig::onAutoScrollStateChanged (int state)
+		void onAutoScrollStateChanged (int state)
 		{
 			if (state == Qt::Checked)
 				m_ui->inViewCheckBox->setCheckState(Qt::Unchecked);

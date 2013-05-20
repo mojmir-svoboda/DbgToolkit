@@ -1,4 +1,4 @@
-#include "connection.h"
+#include "logwidget.h"
 #include <QListView>
 #include <QFile>
 #include <QRegExp>
@@ -9,7 +9,7 @@
 #include "logs/logtablemodel.h"
 #include "qtsln/qtcolorpicker/qtcolorpicker.h"
 
-void Connection::onInvalidateFilter ()
+void LogWidget::onInvalidateFilter ()
 {
 	if (!m_table_view_widget)
 		return;
@@ -48,7 +48,7 @@ void Connection::onInvalidateFilter ()
 	scrollToCurrentTagOrSelection();
 }
 
-void Connection::syncSelection (QModelIndexList const & sel)
+void LogWidget::syncSelection (QModelIndexList const & sel)
 {
 	m_table_view_widget->selectionModel()->clearSelection();
 
@@ -67,7 +67,7 @@ void Connection::syncSelection (QModelIndexList const & sel)
 	}
 }
 
-void Connection::setFilterFile (int state)
+void LogWidget::setFilterFile (int state)
 {
 	QItemSelectionModel const * selection = m_table_view_widget->selectionModel();
 	QModelIndexList indexes = selection->selectedIndexes();
@@ -129,7 +129,7 @@ void Connection::setFilterFile (int state)
 		//QTimer::singleShot(1000, this, SLOT(scrollToCurrentTagOrSelection()));
 }
 
-void Connection::clearFilters (QStandardItem * node)
+void LogWidget::clearFilters (QStandardItem * node)
 {
 	if (node)
 	{
@@ -142,54 +142,54 @@ void Connection::clearFilters (QStandardItem * node)
 	}
 }
 
-void Connection::clearFilters ()
+void LogWidget::clearFilters ()
 {
 	//@TODO: call all functions below
 	//sessionState().clearFilters();
 }
 
-void Connection::onClearCurrentFileFilter ()
+void LogWidget::onClearCurrentFileFilter ()
 {
 	sessionState().onClearFileFilter();
 	onInvalidateFilter();
 }
-void Connection::onClearCurrentCtxFilter ()
+void LogWidget::onClearCurrentCtxFilter ()
 {
 	sessionState().onClearCtxFilter();
 	onInvalidateFilter();
 }
-void Connection::onClearCurrentTIDFilter ()
+void LogWidget::onClearCurrentTIDFilter ()
 {
 	sessionState().onClearTIDFilter();
 	onInvalidateFilter();
 }
-void Connection::onClearCurrentColorizedRegexFilter ()
+void LogWidget::onClearCurrentColorizedRegexFilter ()
 {
 	sessionState().onClearColorizedRegexFilter();
 	onInvalidateFilter();
 }
-void Connection::onClearCurrentRegexFilter ()
+void LogWidget::onClearCurrentRegexFilter ()
 {
 	sessionState().onClearRegexFilter();
 	onInvalidateFilter();
 }
-void Connection::onClearCurrentStringFilter ()
+void LogWidget::onClearCurrentStringFilter ()
 {
 	sessionState().onClearStringFilter();
 	onInvalidateFilter();
 }
-void Connection::onClearCurrentScopeFilter ()
+void LogWidget::onClearCurrentScopeFilter ()
 {
 	sessionState().onClearScopeFilter();
 	onInvalidateFilter();
 }
-void Connection::onClearCurrentRefTime ()
+void LogWidget::onClearCurrentRefTime ()
 {
 	sessionState().onClearRefTime();
 	onInvalidateFilter();
 }
 
-void Connection::onExcludeFileLine (QModelIndex const & row_index)
+void LogWidget::onExcludeFileLine (QModelIndex const & row_index)
 {
 	QString file = findString4Tag(tlv::tag_file, row_index);
 	QString line = findString4Tag(tlv::tag_line, row_index);
@@ -204,7 +204,7 @@ void Connection::onExcludeFileLine (QModelIndex const & row_index)
 	onInvalidateFilter();
 }
 
-void Connection::onFileColOrExp (QModelIndex const & idx, bool collapsed)
+void LogWidget::onFileColOrExp (QModelIndex const & idx, bool collapsed)
 {
 	QStandardItemModel const * const model = static_cast<QStandardItemModel *>(m_main_window->getWidgetFile()->model());
 	QStandardItem * const node = model->itemFromIndex(idx);
@@ -229,17 +229,17 @@ void Connection::onFileColOrExp (QModelIndex const & idx, bool collapsed)
 	sessionState().m_file_filters.set_to_state(file, TreeModelItem(static_cast<E_NodeStates>(node->checkState()), collapsed));
 }
 
-void Connection::onFileExpanded (QModelIndex const & idx)
+void LogWidget::onFileExpanded (QModelIndex const & idx)
 {
 	onFileColOrExp(idx, false);
 }
 
-void Connection::onFileCollapsed (QModelIndex const & idx)
+void LogWidget::onFileCollapsed (QModelIndex const & idx)
 {
 	onFileColOrExp(idx, true);
 }
 
-void Connection::appendToTIDFilters (QString const & item)
+void LogWidget::appendToTIDFilters (QString const & item)
 {
 	QStandardItem * root = m_tid_model->invisibleRootItem();
 	QStandardItem * child = findChildByText(root, item);
@@ -250,7 +250,7 @@ void Connection::appendToTIDFilters (QString const & item)
 	}
 }
 
-void Connection::appendToLvlWidgets (FilteredLevel const & flt)
+void LogWidget::appendToLvlWidgets (FilteredLevel const & flt)
 {
 	QStandardItem * root = m_lvl_model->invisibleRootItem();
 	QStandardItem * child = findChildByText(root, flt.m_level_str);
@@ -264,7 +264,7 @@ void Connection::appendToLvlWidgets (FilteredLevel const & flt)
 	}
 }
 
-void Connection::appendToLvlFilters (QString const & item)
+void LogWidget::appendToLvlFilters (QString const & item)
 {
 	bool enabled = false;
 	E_LevelMode lvlmode = e_LvlInclude;
@@ -283,7 +283,7 @@ void Connection::appendToLvlFilters (QString const & item)
 	}
 }
 
-void Connection::appendToCtxWidgets (FilteredContext const & flt)
+void LogWidget::appendToCtxWidgets (FilteredContext const & flt)
 {
 	QStandardItem * root = m_ctx_model->invisibleRootItem();
 	QStandardItem * child = findChildByText(root, flt.m_ctx_str);
@@ -296,7 +296,7 @@ void Connection::appendToCtxWidgets (FilteredContext const & flt)
 }
 
 
-void Connection::appendToCtxFilters (QString const & item, bool checked)
+void LogWidget::appendToCtxFilters (QString const & item, bool checked)
 {
 	bool enabled = false;
 	if (sessionState().isCtxPresent(item, enabled))
@@ -313,7 +313,7 @@ void Connection::appendToCtxFilters (QString const & item, bool checked)
 	}
 }
 
-bool Connection::appendToFilters (DecodedCommand const & cmd)
+bool LogWidget::appendToFilters (DecodedCommand const & cmd)
 {
 	QString line;
 	for (size_t i=0, ie=cmd.tvs.size(); i < ie; ++i)
@@ -357,17 +357,17 @@ bool Connection::appendToFilters (DecodedCommand const & cmd)
 	return true;
 }
 
-void Connection::appendToRegexFilters (QString const & str, bool checked, bool inclusive)
+void LogWidget::appendToRegexFilters (QString const & str, bool checked, bool inclusive)
 {
 	m_session_state.appendToRegexFilters(str, checked, inclusive);
 }
 
-void Connection::removeFromRegexFilters (QString const & val)
+void LogWidget::removeFromRegexFilters (QString const & val)
 {
 	m_session_state.removeFromRegexFilters(val);
 }
 
-void Connection::recompileRegexps ()
+void LogWidget::recompileRegexps ()
 {
 	for (int i = 0, ie = sessionState().m_filtered_regexps.size(); i < ie; ++i)
 	{
@@ -408,7 +408,7 @@ void Connection::recompileRegexps ()
 	onInvalidateFilter();
 }
 
-void Connection::appendToStringWidgets (FilteredString const & flt)
+void LogWidget::appendToStringWidgets (FilteredString const & flt)
 {
 	QStandardItem * root = m_string_model->invisibleRootItem();
 	QStandardItem * child = findChildByText(root, flt.m_string);
@@ -420,39 +420,39 @@ void Connection::appendToStringWidgets (FilteredString const & flt)
 		root->appendRow(row_items);
 	}
 }
-void Connection::appendToStringFilters (QString const & str, bool checked, int state)
+void LogWidget::appendToStringFilters (QString const & str, bool checked, int state)
 {
 	m_session_state.appendToStringFilters(str, checked, state);
 }
 
-void Connection::removeFromStringFilters (QString const & val)
+void LogWidget::removeFromStringFilters (QString const & val)
 {
 	m_session_state.removeFromStringFilters(val);
 }
 
-void Connection::recompileStrings ()
+void LogWidget::recompileStrings ()
 {
 	onInvalidateFilter();
 }
 
-void Connection::appendToColorRegexFilters (QString const & val)
+void LogWidget::appendToColorRegexFilters (QString const & val)
 {
 	m_session_state.appendToColorRegexFilters(val);
 }
 
-void Connection::removeFromColorRegexFilters (QString const & val)
+void LogWidget::removeFromColorRegexFilters (QString const & val)
 {
 	m_session_state.removeFromColorRegexFilters(val);
 }
 
-void Connection::loadToColorRegexps (QString const & filter_item, QString const & color, bool enabled)
+void LogWidget::loadToColorRegexps (QString const & filter_item, QString const & color, bool enabled)
 {
 	sessionState().appendToColorRegexFilters(filter_item);
 	sessionState().setRegexColor(filter_item, QColor(color));
 	sessionState().setRegexChecked(filter_item, enabled);
 }
 
-void Connection::onColorRegexChanged ()
+void LogWidget::onColorRegexChanged ()
 {
 	for (int i = 0, ie = sessionState().m_colorized_texts.size(); i < ie; ++i)
 	{
@@ -472,7 +472,7 @@ void Connection::onColorRegexChanged ()
 	onInvalidateFilter();
 }
 
-void Connection::recompileColorRegexps ()
+void LogWidget::recompileColorRegexps ()
 {
 	for (int i = 0, ie = sessionState().m_colorized_texts.size(); i < ie; ++i)
 	{
@@ -531,12 +531,12 @@ void Connection::recompileColorRegexps ()
 	onInvalidateFilter();
 }
 
-void Connection::loadToRegexps (QString const & filter_item, bool inclusive, bool enabled)
+void LogWidget::loadToRegexps (QString const & filter_item, bool inclusive, bool enabled)
 {
 	sessionState().appendToRegexFilters(filter_item, inclusive, enabled);
 }
 
-void Connection::onFilterFileComboChanged (QString str)
+void LogWidget::onFilterFileComboChanged (QString str)
 {
 	if (str.isEmpty())
 	{
@@ -553,16 +553,16 @@ void Connection::onFilterFileComboChanged (QString str)
 	}
 }
 
-void Connection::onCancelFilterFileButton ()
+void LogWidget::onCancelFilterFileButton ()
 {
 }
 
-void Connection::onCutParentValueChanged (int i)
+void LogWidget::onCutParentValueChanged (int i)
 {
 	fileModel()->onCutParentValueChanged(i);
 	m_main_window->getWidgetFile()->hideLinearParents();
 }
-void Connection::onCollapseChilds ()
+void LogWidget::onCollapseChilds ()
 {
 	fileModel()->collapseChilds(m_main_window->getWidgetFile());
 }

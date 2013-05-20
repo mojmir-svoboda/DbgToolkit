@@ -48,10 +48,6 @@ class QDataStream;
 class QTextStream;
 class QStandardItemModel;
 class QStandardItem;
-class LevelDelegate;
-class CtxDelegate;
-class StringDelegate;
-class RegexDelegate;
 //namespace stats { class StatsWindow; }
 
 #include <boost/mpl/apply.hpp>
@@ -206,32 +202,8 @@ public:
 	MainWindow const * getMainWindow () const { return m_main_window; }
 	MainWindow * getMainWindow () { return m_main_window; }
 	
-	void setTableViewWidget (QTableView * w) { m_table_view_widget = w; }
-	QTableView * getTableViewWidget () { return m_table_view_widget; }
-	QTableView const * getTableViewWidget () const { return m_table_view_widget; }
-	SessionState & sessionState () { return m_session_state; }
-	SessionState const & sessionState () const { return m_session_state; }
-	void appendToCtxFilters (QString const & item, bool checked);
-	void appendToCtxWidgets (FilteredContext const & flt);
-	void appendToLvlFilters (QString const & item);
-	void appendToLvlWidgets (FilteredLevel const & flt);
-	void appendToStringWidgets (FilteredString const & flt);
-
-	void clearFilters ();
-
-	void appendToStringFilters (QString const & str, bool checked, int state);
-	void removeFromStringFilters (QString const & item);
-	void recompileStrings ();
-	void appendToRegexFilters (QString const & str, bool checked, bool inclusive);
-	void removeFromRegexFilters (QString const & item);
-	void appendToColorRegexFilters (QString const & item);
-	void removeFromColorRegexFilters (QString const & item);
-	void recompileRegexps ();
-	void recompileColorRegexps ();
-	void loadToColorRegexps (QString const & filter_item, QString const & color, bool enabled);
-	void loadToRegexps (QString const & filter_item, bool inclusive, bool enabled);
-
-	void flipFilterMode (E_FilterMode mode);
+	QString getAppName () const { return m_app_name; }
+	int getAppIdx () const { return m_app_idx; }
 
 	void run ();
 	bool loadConfigForPlot (QString const & preset_name, plot::PlotConfig & config, QString const & tag);
@@ -256,13 +228,6 @@ public:
 	void requestTableWheelEventSync (int sync_group, QWheelEvent * ev, QTableView const * source);
 	void requestTableActionSync (int sync_group, unsigned long long t, int cursorAction, Qt::KeyboardModifiers modifiers, QTableView const * source);
 
-	QAbstractTableModel const * modelView () const { return static_cast<QAbstractTableModel const *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model()); }
-	QAbstractProxyModel const * proxyView () const { return static_cast<QAbstractProxyModel const *>(m_table_view_proxy); }
-
-	bool isModelProxy () const;
-	TreeModel * fileModel () { return m_file_model; }
-	TreeModel const * fileModel () const { return m_file_model; }
-
 signals:
 	void readyForUse();
 	void newMessage (QString const & from, QString const & message);
@@ -270,29 +235,14 @@ signals:
 	
 public slots:
 	void onTabTraceFocus ();
-	void onFileColOrExp (QModelIndex const &, bool collapsed);
-	void onFileExpanded (QModelIndex const &);
-	void onFileCollapsed (QModelIndex const &);
 	void onLevelValueChanged (int i);
 	QString onCopyToClipboard ();
-	void syncSelection (QModelIndexList const & from);
-	void setFilterFile (int state);
 	void onBufferingStateChanged (int state);
 	void onHandleCommands ();
 	void onHandleCommandsStart ();
 	void onHandleCommandsCommit ();
-	void onInvalidateFilter ();
 	void onHidePrevFromRow ();
 	void onUnhidePrevFromRow ();
-	void onClearCurrentView ();
-	void onClearCurrentFileFilter ();
-	void onClearCurrentCtxFilter ();
-	void onClearCurrentTIDFilter ();
-	void onClearCurrentColorizedRegexFilter ();
-	void onClearCurrentRegexFilter ();
-	void onClearCurrentStringFilter ();
-	void onClearCurrentScopeFilter ();
-	void onClearCurrentRefTime ();
 	void onShowContextMenu (QPoint const & pos);
 	void onShowPlotContextMenu (QPoint const &);
 	void onShowPlots ();
@@ -306,17 +256,10 @@ public slots:
 	void onShowLogContextMenu (QPoint const &);
 	void onShowLogs ();
 	void onHideLogs ();
-	void onExcludeFileLine ();
 	void onToggleRefFromRow ();
 	void onColorTagRow (int row);
-	void onExcludeFileLine (QModelIndex const & row_index);
 	void onApplyColumnSetup ();
-	void onColorRegexChanged();
 	void onSaveAll ();
-	void onFilterFileComboChanged (QString str);
-	void onCancelFilterFileButton ();
-	void onCutParentValueChanged (int i);
-	void onCollapseChilds ();
 
 	bool tryHandleCommand (DecodedCommand const & cmd);
 
@@ -387,10 +330,6 @@ private:
 	dataplots_t::iterator findOrCreatePlot (QString const & tag);
 	//void appendLog (logs::DecodedData &);
 
-	bool appendToFilters (DecodedCommand const & cmd);
-	void appendToTIDFilters (QString const & item);
-	void clearFilters (QStandardItem * node);
-
 	GlobalConfig const & getConfig () { return m_main_window->getConfig(); }
 
 	void tryLoadMatchingPreset (QString const & appname);
@@ -417,9 +356,15 @@ private:
 	MainWindow * m_main_window;
 	E_SrcStream m_src_stream;
 	E_SrcProtocol m_src_protocol;
+
+	int m_app_idx;
+	QString m_pid;
+	int m_storage_idx;
+	QString m_app_name;
+	unsigned m_recv_bytes;
 	bool m_marked_for_close;
 	QString m_curr_preset;
-
+	QWidget * m_tab_widget;
 
 /*
 	SessionState m_session_state;
@@ -427,7 +372,6 @@ private:
 	int m_last_search_row;
 	int m_last_search_col;
 	QString m_last_search;
-	QWidget * m_tab_widget;
 	QTableView * m_table_view_widget;
 	TreeModel * m_file_model;
 	TreeProxyModel * m_file_proxy;

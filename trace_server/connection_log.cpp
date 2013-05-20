@@ -20,12 +20,9 @@ DataLog::DataLog (Connection * connection, config_t & config, QString const & fn
 	horizontalLayout->addWidget(tableView);
 	m_widget = tableView;
 
-	connection->m_table_view_src = model;
-	connection->m_table_view_widget = tableView;
-	connection->sessionState().setupThreadColors(connection->getMainWindow()->getThreadColors());
-
-
-
+	tableView->m_table_view_src = model;
+	tableView->m_table_view_widget = tableView;
+	tableView->sessionState().setupThreadColors(connection->getMainWindow()->getThreadColors());
 }
 
 	//QObject::disconnect(connection->m_table_view_widget->horizontalHeader(), SIGNAL(sectionResized(int, int, int)), this, SLOT(onSectionResized(int, int, int)));

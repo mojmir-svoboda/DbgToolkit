@@ -15,13 +15,18 @@ Connection::Connection (QObject * parent)
 	, m_main_window(0)
 	, m_src_stream(e_Stream_TCP)
 	, m_src_protocol(e_Proto_TLV)
+	, m_app_idx(-1)
+	, m_storage_idx(-2)
+	, m_recv_bytes(0)
+	, m_app_name()
+
 	, m_marked_for_close(false)
 	, m_curr_preset()
+	, m_tab_widget(0)
 
 	/*, m_column_setup_done(false)
 	, m_last_search_row(0)
 	, m_last_search_col(0)
-	, m_tab_widget(0)
 	, m_table_view_widget(0)
 	, m_file_model(0)
 	, m_file_proxy(0)
@@ -215,7 +220,7 @@ void Connection::onDisconnected ()
 
 	if (m_main_window->dumpModeEnabled())
 	{
-		QString fname = tr("%1_%2.csv").arg(sessionState().getAppName()).arg(sessionState().m_pid);
+		QString fname = tr("%1_%2.csv").arg(getAppName()).arg(m_pid);
 		exportStorageToCSV(fname);
 
 		Server * server = static_cast<Server *>(parent());

@@ -181,9 +181,9 @@ p, li { white-space: pre-wrap; }
      </layout>
     </item>
     <item>
-     <widget class="QLabel" name="label">
-      <property name="text">
-       <string>-------------------------------------------------------here go splitter--------------------------------------------------------</string>
+     <widget class="Line" name="line">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
       </property>
      </widget>
     </item>
@@ -354,46 +354,39 @@ p, li { white-space: pre-wrap; }
       </widget>
       <widget class="QWidget" name="tab_4">
        <attribute name="title">
-        <string>Gui</string>
+        <string>Visual</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_10">
         <item row="0" column="0">
          <layout class="QGridLayout" name="gridLayout_9">
-          <item row="1" column="1">
+          <item row="0" column="1">
            <widget class="QSpinBox" name="tableRowSizeSpinBox">
             <property name="value">
              <number>18</number>
             </property>
            </widget>
           </item>
-          <item row="1" column="0">
+          <item row="0" column="0">
            <widget class="QLabel" name="label_17">
             <property name="text">
              <string>Table row size:</string>
             </property>
            </widget>
           </item>
-          <item row="4" column="0">
+          <item row="3" column="0">
            <widget class="QLabel" name="label_18">
             <property name="text">
              <string>Table font</string>
             </property>
            </widget>
           </item>
-          <item row="4" column="1">
+          <item row="3" column="1">
            <widget class="QComboBox" name="tableFontComboBox"/>
           </item>
-          <item row="4" column="2">
+          <item row="3" column="2">
            <widget class="QToolButton" name="tableFontToolButton">
             <property name="text">
              <string>...</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="0">
-           <widget class="QCheckBox" name="dblClickHHeaderCheckBox">
-            <property name="text">
-             <string>double click on header expands column</string>
             </property>
            </widget>
           </item>

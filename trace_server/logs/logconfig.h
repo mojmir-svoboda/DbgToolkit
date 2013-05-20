@@ -20,6 +20,7 @@ namespace logs {
 		QVector<QColor> m_thread_colors;				/// predefined coloring of threads
 		bool m_show;
 		bool m_auto_scroll;
+		bool m_filtering;
 
 		LogConfig ()
 			: m_tag()
@@ -30,6 +31,7 @@ namespace logs {
 			, m_row_width(18)
 			, m_show(true)
 			, m_auto_scroll(true)
+			, m_filtering(true)
 		{ }
 
 		LogConfig (QString const & tag)
@@ -41,6 +43,7 @@ namespace logs {
 			, m_row_width(18)
 			, m_show(true)
 			, m_auto_scroll(true)
+			, m_filtering(true)
 		{ }
 
 		template <class ArchiveT>
@@ -59,6 +62,7 @@ namespace logs {
 			ar & boost::serialization::make_nvp("thread_colors", m_thread_colors);
 			ar & boost::serialization::make_nvp("show", m_show);
 			ar & boost::serialization::make_nvp("autoscroll", m_auto_scroll);
+			ar & boost::serialization::make_nvp("filtering", m_filtering);
 		}
 	};
 

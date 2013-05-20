@@ -59,7 +59,6 @@ SET(trace_server_SOURCES
 	connection.cpp
 	connection_stream.cpp
 	connection_setup.cpp
-	connection_filtering.cpp
 	sessionstate.cpp
 	settings.cpp
 	serialization.cpp
@@ -76,6 +75,7 @@ SET(trace_server_SOURCES
 	logs/filterproxy.cpp
 	logs/logwidget.cpp
 	logs/logwidget_find.cpp
+	logs/logwidget_filtering.cpp
 	logs/logconfig.cpp
 
 	connection_plot.cpp
