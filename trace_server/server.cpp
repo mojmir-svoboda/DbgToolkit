@@ -89,12 +89,6 @@ void Server::onCopyToClipboard ()
 	}
 }
 
-void Server::onFilterFile (int state)
-{
-	if (Connection * conn = findCurrentConnection())
-		conn->setFilterFile(state);
-}
-
 void Server::onBufferingStateChanged (int state)
 {
 	for (connections_t::iterator it = m_connections.begin(), ite = m_connections.end(); it != ite; ++it)
@@ -390,7 +384,7 @@ void Server::destroyConnection (Connection * connection)
 {
 	QObject::disconnect(connection->m_tcpstream, SIGNAL(disconnected()), connection, SLOT(onDisconnected()));
 	QObject::disconnect(connection->m_tcpstream, SIGNAL(readyRead()), connection, SLOT(processReadyRead()));
-	QObject::disconnect(connection->m_table_view_widget->horizontalHeader(), SIGNAL(sectionResized(int, int, int)), this, SLOT(onSectionResized(int, int, int)));
+	//QObject::disconnect(connection->m_table_view_widget->horizontalHeader(), SIGNAL(sectionResized(int, int, int)), this, SLOT(onSectionResized(int, int, int)));
 
 	delete connection;
 }

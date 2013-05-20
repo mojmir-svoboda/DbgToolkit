@@ -24,6 +24,26 @@ namespace logs {
 		{
 			m_widget->setVisible(false);
 			m_ui->setupUi(m_widget);
+
+		}
+
+		void onInViewStateChanged (int state);
+
+		void CtxLogConfig::onInViewStateChanged (int state)
+		{
+			if (state == Qt::Checked)
+			{
+				m_ui->autoScrollCheckBox->setCheckState(Qt::Unchecked);
+				//onNextToView();
+			}
+		}
+
+
+
+		void CtxLogConfig::onAutoScrollStateChanged (int state)
+		{
+			if (state == Qt::Checked)
+				m_ui->inViewCheckBox->setCheckState(Qt::Unchecked);
 		}
 
 		~CtxLogConfig ()

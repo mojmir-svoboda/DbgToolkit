@@ -142,6 +142,7 @@ struct DockedData
 struct DataLog : DockedData<e_data_log>
 {
 	DataLog (Connection * parent, config_t & config, QString const & fname);
+	~DataLog ();
 };
 struct DataPlot : DockedData<e_data_plot>
 {
@@ -150,6 +151,7 @@ struct DataPlot : DockedData<e_data_plot>
 struct DataTable : DockedData<e_data_table>
 {
 	DataTable (Connection * parent, config_t & config, QString const & fname);
+	~DataTable ();
 };
 
 struct DataGantt : DockedData<e_data_gantt>
@@ -203,10 +205,10 @@ public:
 	void setMainWindow (MainWindow * w) { m_main_window = w; }
 	MainWindow const * getMainWindow () const { return m_main_window; }
 	MainWindow * getMainWindow () { return m_main_window; }
-	void setTableViewWidget (QTableView * w) { m_table_view_widget = w; }
-	QTableView const * getTableViewWidget () const { return m_table_view_widget; }
-	QTableView * getTableViewWidget () { return m_table_view_widget; }
 	
+	void setTableViewWidget (QTableView * w) { m_table_view_widget = w; }
+	QTableView * getTableViewWidget () { return m_table_view_widget; }
+	QTableView const * getTableViewWidget () const { return m_table_view_widget; }
 	SessionState & sessionState () { return m_session_state; }
 	SessionState const & sessionState () const { return m_session_state; }
 	void appendToCtxFilters (QString const & item, bool checked);
@@ -216,13 +218,7 @@ public:
 	void appendToStringWidgets (FilteredString const & flt);
 
 	void clearFilters ();
-	void findText (QString const & text, tlv::tag_t tag);
-	void findText (QString const & text);
-	void findAllTexts (QString const & text);
-	void findNext (QString const & text);
-	void findPrev (QString const & text);
-	void scrollToCurrentTag ();
-	void scrollToCurrentSelection ();
+
 	void appendToStringFilters (QString const & str, bool checked, int state);
 	void removeFromStringFilters (QString const & item);
 	void recompileStrings ();
@@ -232,10 +228,12 @@ public:
 	void removeFromColorRegexFilters (QString const & item);
 	void recompileRegexps ();
 	void recompileColorRegexps ();
-	void flipFilterMode (E_FilterMode mode);
-	void run ();
 	void loadToColorRegexps (QString const & filter_item, QString const & color, bool enabled);
 	void loadToRegexps (QString const & filter_item, bool inclusive, bool enabled);
+
+	void flipFilterMode (E_FilterMode mode);
+
+	void run ();
 	bool loadConfigForPlot (QString const & preset_name, plot::PlotConfig & config, QString const & tag);
 	bool saveConfigForPlot (plot::PlotConfig const & config, QString const & tag);
 	bool loadConfigForPlots (QString const & preset_name);
@@ -253,7 +251,6 @@ public:
 	bool loadConfigForLogs (QString const & preset_name);
 	bool saveConfigForLogs (QString const & preset_name);
 
-	bool filterEnabled () const { return m_main_window->filterEnabled(); }
 
 	void requestTableSynchronization (int sync_group, unsigned long long time);
 	void requestTableWheelEventSync (int sync_group, QWheelEvent * ev, QTableView const * source);
@@ -265,7 +262,6 @@ public:
 	bool isModelProxy () const;
 	TreeModel * fileModel () { return m_file_model; }
 	TreeModel const * fileModel () const { return m_file_model; }
-	void onSectionResized (int logicalIndex, int oldSize, int newSize);
 
 signals:
 	void readyForUse();
@@ -279,8 +275,6 @@ public slots:
 	void onFileCollapsed (QModelIndex const &);
 	void onLevelValueChanged (int i);
 	QString onCopyToClipboard ();
-	void nextToView ();
-	void scrollToCurrentTagOrSelection ();
 	void syncSelection (QModelIndexList const & from);
 	void setFilterFile (int state);
 	void onBufferingStateChanged (int state);
@@ -316,7 +310,6 @@ public slots:
 	void onToggleRefFromRow ();
 	void onColorTagRow (int row);
 	void onExcludeFileLine (QModelIndex const & row_index);
-	void onFindFileLine (QModelIndex const & row_index);
 	void onApplyColumnSetup ();
 	void onColorRegexChanged();
 	void onSaveAll ();
@@ -419,27 +412,21 @@ private:
 	void setupModelString ();
 	void setupModelLvl ();
 	void setupColumnSizes (bool force_setup = false);
-	QString findString4Tag (tlv::tag_t tag, QModelIndex const & row_index) const;
-	QVariant findVariant4Tag (tlv::tag_t tag, QModelIndex const & row_index) const;
-	void selectionFromTo (int & from, int & to) const;
-	void findTextInAllColumns (QString const & text, int from_row, int to_row, bool only_first);
-	void findTextInColumn (QString const & text, int col, int from_row, int to_row);
-	void findTextInColumnRev (QString const & text, int col, int from_row, int to_row);
-	bool matchTextInCell (QString const & text, int row, int col);
-	void endOfSearch ();
 
 private:
 	MainWindow * m_main_window;
-	SessionState m_session_state;
 	E_SrcStream m_src_stream;
 	E_SrcProtocol m_src_protocol;
-	bool m_column_setup_done;
 	bool m_marked_for_close;
+	QString m_curr_preset;
+
+
+/*
+	SessionState m_session_state;
+	bool m_column_setup_done;
 	int m_last_search_row;
 	int m_last_search_col;
 	QString m_last_search;
-	QString m_curr_preset;
-
 	QWidget * m_tab_widget;
 	QTableView * m_table_view_widget;
 	TreeModel * m_file_model;
@@ -478,6 +465,9 @@ private:
 	std::vector<QAction *> m_actions;
 	QModelIndex m_last_clicked;
 
+	QTextStream * m_file_csv_stream;*/
+
+
 	// data receiving stuff
 	enum { e_ringbuff_size = 128 * 1024 };
 	boost::circular_buffer<char> m_buffer;
@@ -487,7 +477,6 @@ private:
 	tlv::TVDecoder m_decoder;
 	QFile * m_storage;
 	QDataStream * m_tcp_dump_stream;
-	QTextStream * m_file_csv_stream;
 	QTcpSocket * m_tcpstream;
 	//stats::StatsWindow * m_statswindow;
 	data_widgets_t m_data;

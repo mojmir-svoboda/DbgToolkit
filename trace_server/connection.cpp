@@ -15,11 +15,12 @@ Connection::Connection (QObject * parent)
 	, m_main_window(0)
 	, m_src_stream(e_Stream_TCP)
 	, m_src_protocol(e_Proto_TLV)
-	, m_column_setup_done(false)
 	, m_marked_for_close(false)
+	, m_curr_preset()
+
+	/*, m_column_setup_done(false)
 	, m_last_search_row(0)
 	, m_last_search_col(0)
-	, m_curr_preset()
 	, m_tab_widget(0)
 	, m_table_view_widget(0)
 	, m_file_model(0)
@@ -34,21 +35,22 @@ Connection::Connection (QObject * parent)
 	, m_table_view_proxy(0)
 	, m_table_view_src(0)
 	, m_last_clicked()
+	, m_file_csv_stream(0)
+	//, m_file_tlv_stream(0)*/
+
 	, m_buffer(e_ringbuff_size)
 	, m_current_cmd()
 	, m_decoded_cmds(e_ringcmd_size)
 	, m_decoder()
 	, m_storage(0)
 	, m_tcp_dump_stream(0)
-	, m_file_csv_stream(0)
-	//, m_file_tlv_stream(0)
 	, m_tcpstream(0)
 	//, m_statswindow(0)
 	, m_data_model(0)
 {
 	qDebug("Connection::Connection() this=0x%08x", this);
 
-	m_actions.resize(e_action_max_enum_value);
+	/*m_actions.resize(e_action_max_enum_value);
 	m_actions[e_action_ToggleRef] = new QAction("Set as reference time", this);
 	m_actions[e_action_HidePrev] = new QAction("Hide prev rows", this);
 	m_actions[e_action_ExcludeFileLine] = new QAction("Exclude File:Line (x)", this);
@@ -70,7 +72,7 @@ Connection::Connection (QObject * parent)
 	m_delegates.get<e_delegate_Level>() = new LevelDelegate(m_session_state, this);
 	m_delegates.get<e_delegate_Ctx>() = new CtxDelegate(m_session_state, this);
 	m_delegates.get<e_delegate_String>() = new StringDelegate(m_session_state, this);
-	m_delegates.get<e_delegate_Regex>() = new RegexDelegate(m_session_state, this);
+	m_delegates.get<e_delegate_Regex>() = new RegexDelegate(m_session_state, this);*/
 }
 
 namespace {
@@ -108,8 +110,6 @@ struct DestroyDockedWidgets {
 
 Connection::~Connection ()
 {
-	for (datatables_t::iterator it = m_data.get<e_data_table>().begin(), ite = m_data.get<e_data_table>().end(); it != ite; ++it)
-		QObject::disconnect((*it)->widget().horizontalHeader(), SIGNAL(sectionResized(int, int, int)), &(*it)->widget(), SLOT(onSectionResized(int, int, int)));
 	qDebug("Connection::~Connection() this=0x%08x", this);
 	/*if (m_statswindow)
 	{
@@ -137,7 +137,7 @@ Connection::~Connection ()
 		delete f;
 	}*/
 
-	if (m_file_csv_stream)
+/*	if (m_file_csv_stream)
 	{
 		QIODevice * const f = m_file_csv_stream->device();
 		f->close();
@@ -205,14 +205,13 @@ Connection::~Connection ()
 	delete m_table_view_src;
 	m_table_view_src = 0;
 
-	m_table_view_widget = 0;
+	m_table_view_widget = 0;*/
 }
 
 void Connection::onDisconnected ()
 {
 	qDebug("onDisconnected()");
-	//if (m_statswindow)
-		//m_statswindow->stopUpdate();
+	//if (m_statswindow) m_statswindow->stopUpdate();
 
 	if (m_main_window->dumpModeEnabled())
 	{

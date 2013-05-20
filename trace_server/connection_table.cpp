@@ -17,6 +17,11 @@ DataTable::DataTable (Connection * connection, config_t & config, QString const 
 	m_widget->setItemDelegate(new SyncedTableItemDelegate(m_widget));
 }
 
+DataTable::~DataTable ()
+{
+	QObject::disconnect(horizontalHeader(), SIGNAL(sectionResized(int, int, int)), this, SLOT(onSectionResized(int, int, int)));
+}
+
 void Connection::onShowTables ()
 {
 	qDebug("%s", __FUNCTION__);

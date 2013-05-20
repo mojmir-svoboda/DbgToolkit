@@ -134,7 +134,6 @@ public:
 	int tableRowSize () const;
 	QString tableFont () const;
 	bool onTopEnabled () const;
-	bool autoScrollEnabled () const;
 	bool inViewEnabled () const;
 	bool reuseTabEnabled () const;
 	bool filterEnabled () const;
@@ -238,7 +237,6 @@ private slots:
 	void onPlotsClosed ();
 	void onTablesStateChanged (int state);
 	void onAutoScrollStateChanged (int state);
-	void onInViewStateChanged (int state);
 	void onListVisibilityChanged (bool);
 	void onFilterFile (int state);
 	void onCopyToClipboard ();

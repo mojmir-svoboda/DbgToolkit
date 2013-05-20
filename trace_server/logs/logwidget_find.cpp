@@ -1,9 +1,9 @@
-#include "connection.h"
+#include "logwidget.h"
 #include <QStatusBar>
 #include "logs/logtablemodel.h"
 #include "utils.h"
 
-void Connection::findTextInAllColumns (QString const & text, int from_row, int to_row, bool only_first)
+void LogWidget::findTextInAllColumns (QString const & text, int from_row, int to_row, bool only_first)
 {
 	LogTableModel * model = static_cast<LogTableModel *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
 	for (int i = from_row, ie = to_row; i < ie; ++i)
@@ -40,7 +40,7 @@ void Connection::findTextInAllColumns (QString const & text, int from_row, int t
 	}
 }
 
-bool Connection::matchTextInCell (QString const & text, int row, int col)
+bool LogWidget::matchTextInCell (QString const & text, int row, int col)
 {
 	LogTableModel * model = static_cast<LogTableModel *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
 	QModelIndex const idx = model->index(row, col, QModelIndex());
@@ -64,7 +64,7 @@ bool Connection::matchTextInCell (QString const & text, int row, int col)
 	return false;
 }
 
-void Connection::endOfSearch ()
+void LogWidget::endOfSearch ()
 {
 	qDebug("end of search");
 	// flash icon
@@ -72,14 +72,14 @@ void Connection::endOfSearch ()
 	m_last_search_row = 0;
 }
 
-void Connection::findTextInColumn (QString const & text, int col, int from_row, int to_row)
+void LogWidget::findTextInColumn (QString const & text, int col, int from_row, int to_row)
 {
 	for (int i = from_row, ie = to_row; i < ie; ++i)
 		if (matchTextInCell(text, i, col))
 			return;
 	endOfSearch();
 }
-void Connection::findTextInColumnRev (QString const & text, int col, int from_row, int to_row)
+void LogWidget::findTextInColumnRev (QString const & text, int col, int from_row, int to_row)
 {
 	bool found = false;
 	for (int i = from_row, ie = to_row; i --> ie; )
@@ -90,7 +90,7 @@ void Connection::findTextInColumnRev (QString const & text, int col, int from_ro
 }
 
 
-void Connection::selectionFromTo (int & from, int & to) const
+void LogWidget::selectionFromTo (int & from, int & to) const
 {
 	from = 0;
 	LogTableModel const * model = static_cast<LogTableModel *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
@@ -104,7 +104,7 @@ void Connection::selectionFromTo (int & from, int & to) const
 	from = indexes.first().row();
 }
 
-void Connection::findAllTexts (QString const & text)
+void LogWidget::findAllTexts (QString const & text)
 {
 	m_last_search = text;
 	int from = 0;
@@ -113,7 +113,7 @@ void Connection::findAllTexts (QString const & text)
 	findTextInAllColumns(text, from, to, false);
 }
 
-void Connection::findText (QString const & text, tlv::tag_t tag)
+void LogWidget::findText (QString const & text, tlv::tag_t tag)
 {
 	if (m_last_search != text)
 	{
@@ -142,7 +142,7 @@ void Connection::findText (QString const & text, tlv::tag_t tag)
 	}
 }
 
-void Connection::findText (QString const & text)
+void LogWidget::findText (QString const & text)
 {
 	m_last_search = text;
 	m_last_search_row = 0;
@@ -159,7 +159,7 @@ void Connection::findText (QString const & text)
 	findTextInAllColumns(m_last_search, from, to, true);
 }
 
-void Connection::findNext (QString const & text)
+void LogWidget::findNext (QString const & text)
 {
 	int from, to;
 	selectionFromTo(from, to);
@@ -182,7 +182,7 @@ void Connection::findNext (QString const & text)
 	findTextInColumn(m_last_search, m_last_search_col, m_last_search_row + 1, to);
 }
 
-void Connection::findPrev (QString const & text)
+void LogWidget::findPrev (QString const & text)
 {
 	int from, to;
 	selectionFromTo(from, to);
@@ -206,12 +206,12 @@ void Connection::findPrev (QString const & text)
 	findTextInColumnRev(m_last_search, m_last_search_col, last, 0);
 }
 
-QString Connection::findString4Tag (tlv::tag_t tag, QModelIndex const & row_index) const
+QString LogWidget::findString4Tag (tlv::tag_t tag, QModelIndex const & row_index) const
 {
 	return findVariant4Tag(tag, row_index).toString();
 }
 
-QVariant Connection::findVariant4Tag (tlv::tag_t tag, QModelIndex const & row_index) const
+QVariant LogWidget::findVariant4Tag (tlv::tag_t tag, QModelIndex const & row_index) const
 {
 	int const idx = sessionState().m_tags2columns[tag];
 	if (idx == -1)
@@ -229,7 +229,7 @@ QVariant Connection::findVariant4Tag (tlv::tag_t tag, QModelIndex const & row_in
 }
 
 
-void Connection::scrollToCurrentTag ()
+void LogWidget::scrollToCurrentTag ()
 {
 	if (m_main_window->autoScrollEnabled())
 		return;
@@ -257,7 +257,7 @@ void Connection::scrollToCurrentTag ()
 	}
 }
 
-void Connection::scrollToCurrentSelection ()
+void LogWidget::scrollToCurrentSelection ()
 {
 	if (m_main_window->autoScrollEnabled())
 		return;
@@ -288,7 +288,7 @@ void Connection::scrollToCurrentSelection ()
 	}
 }
 
-void Connection::scrollToCurrentTagOrSelection ()
+void LogWidget::scrollToCurrentTagOrSelection ()
 {
 	if (sessionState().m_color_tag_rows.size() > 0)
 		scrollToCurrentTag();
@@ -296,7 +296,7 @@ void Connection::scrollToCurrentTagOrSelection ()
 		scrollToCurrentSelection();
 }
 
-void Connection::nextToView ()
+void LogWidget::nextToView ()
 {
 	if (sessionState().m_color_tag_rows.size() > 0)
 	{
@@ -310,7 +310,7 @@ void Connection::nextToView ()
 	}
 }
 
-void Connection::onFindFileLine (QModelIndex const &)
+void LogWidget::onFindFileLine (QModelIndex const &)
 {
 	//@FIXME: unused args
 	qDebug("find file:line for idx=(%i,col)", m_last_clicked.row());

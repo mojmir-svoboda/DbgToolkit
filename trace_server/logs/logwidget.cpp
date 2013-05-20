@@ -16,6 +16,27 @@ namespace logs {
 		, m_config_ui(cfg, this)
 		, m_fname(fname)
 		, m_connection(connection)
+	, m_column_setup_done(false)
+	, m_last_search_row(0)
+	, m_last_search_col(0)
+	, m_tab_widget(0)
+	, m_table_view_widget(0)
+	, m_file_model(0)
+	, m_file_proxy(0)
+	, m_ctx_model(0)
+	, m_func_model(0)
+	, m_tid_model(0)
+	, m_color_regex_model(0)
+	, m_regex_model(0)
+	, m_lvl_model(0)
+	, m_string_model(0)
+	, m_table_view_proxy(0)
+	, m_table_view_src(0)
+	, m_last_clicked()
+	, m_file_csv_stream(0)
+	//, m_file_tlv_stream(0)
+
+
 	{
 		//qDebug("%s this=0x%08x", __FUNCTION__, this);
 
@@ -36,12 +57,131 @@ namespace logs {
 							 this, SLOT( performFrameSynchronization(int, unsigned long long, void *) ));
 		connect(this, SIGNAL( requestFrameSynchronization(int, unsigned long long, void *) ),
 							 &getSyncWidgets(), SLOT( performFrameSynchronization(int, unsigned long long, void *) ));
+
+	setStyleSheet("QTableView::item{ selection-background-color:	#F5DEB3  } QTableView::item{ selection-color:	#000000 }");
+	
+	// to ignore 'resizeColumnToContents' when accidentaly double-clicked on header handle
+	QObject::disconnect(horizontalHeader(), SIGNAL(sectionHandleDoubleClicked(int)), this, SLOT(resizeColumnToContents(int)));
+
+	setObjectName(QString::fromUtf8("tableView"));
+	LogTableModel * model = new LogTableModel(this, connection);
+	QObject::disconnect(model, SIGNAL(rowsInserted(QModelIndex,int,int)), verticalHeader(), SLOT(sectionsInserted(QModelIndex,int,int)));
+    verticalHeader()->setFont(config.m_font);
+	verticalHeader()->setDefaultSectionSize(config.m_row_width);
+	verticalHeader()->hide();	// @NOTE: users want that //@NOTE2: they can't have it because of performance
+	setModel(model);
+	QObject::connect(horizontalHeader(), SIGNAL(sectionResized(int, int, int)), this, SLOT(onSectionResized(int, int, int)));
+
+	QStyle const * const style = QApplication::style();
+	connect(m_config_ui->ui()->gotoNextButton, SIGNAL(clicked()), this, SLOT(onNextToView()));
+	m_config_ui->ui()->gotoNextButton->setIcon(style->standardIcon(QStyle::SP_ArrowDown));
+	//connect(ui->autoScrollCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onAutoScrollStateChanged(int)));
+	//connect(ui->inViewCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onInViewStateChanged(int)));
+	//
+	//
+	connect(ui->filterFileCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onFilterFile(int)));
+
+	/*m_actions.resize(e_action_max_enum_value);
+	m_actions[e_action_ToggleRef] = new QAction("Set as reference time", this);
+	m_actions[e_action_HidePrev] = new QAction("Hide prev rows", this);
+	m_actions[e_action_ExcludeFileLine] = new QAction("Exclude File:Line (x)", this);
+	m_actions[e_action_Copy] = new QAction("Copy", this);
+	m_actions[e_action_Find] = new QAction("Find File:Line in filters", this);
+	m_actions[e_action_ColorTag] = new QAction("Tag row with color", this);
+	m_actions[e_action_Setup] = new QAction("Setup", this);
+    m_ctx_menu.addAction(m_actions[e_action_ExcludeFileLine]);
+    m_ctx_menu.addAction(m_actions[e_action_Find]);
+    m_ctx_menu.addAction(m_actions[e_action_Copy]);
+    m_ctx_menu.addAction(m_actions[e_action_ToggleRef]);
+    m_ctx_menu.addAction(m_actions[e_action_HidePrev]);
+    m_ctx_menu.addAction(m_actions[e_action_ColorTag]);
+    m_ctx_menu.addSeparator();
+    m_ctx_menu.addAction(m_actions[e_action_Setup]);*/
+
+	m_data_model = new TreeModel(this, &m_session_state.m_data_filters);
+	
+	m_delegates.get<e_delegate_Level>() = new LevelDelegate(m_session_state, this);
+	m_delegates.get<e_delegate_Ctx>() = new CtxDelegate(m_session_state, this);
+	m_delegates.get<e_delegate_String>() = new StringDelegate(m_session_state, this);
+	m_delegates.get<e_delegate_Regex>() = new RegexDelegate(m_session_state, this);
+
 	}
 
 	LogWidget::~LogWidget ()
 	{
 		//qDebug("%s this=0x%08x", __FUNCTION__, this);
 		disconnect(this, SIGNAL(customContextMenuRequested(QPoint const &)), this, SLOT(onShowContextMenu(QPoint const &)));
+
+/*	if (m_file_csv_stream)
+	{
+		QIODevice * const f = m_file_csv_stream->device();
+		f->close();
+		delete m_file_csv_stream;
+		m_file_csv_stream = 0;
+		delete f;
+	}
+
+	destroyModelFile();
+
+	if (m_main_window->getWidgetLvl()->itemDelegate() == m_delegates.get<e_delegate_Level>())
+		m_main_window->getWidgetLvl()->setItemDelegate(0);
+	if (m_main_window->getWidgetLvl()->model() == m_lvl_model)
+		m_main_window->getWidgetLvl()->setModel(0);
+	delete m_lvl_model;
+	m_lvl_model = 0;
+	delete m_delegates.get<e_delegate_Level>();
+	m_delegates.get<e_delegate_Level>() = 0;
+
+	if (m_main_window->getWidgetCtx()->itemDelegate() == m_delegates.get<e_delegate_Ctx>())
+		m_main_window->getWidgetCtx()->setItemDelegate(0);
+	if (m_main_window->getWidgetCtx()->model() == m_ctx_model)
+		m_main_window->getWidgetCtx()->setModel(0);
+	delete m_ctx_model;
+	m_ctx_model = 0;
+	delete m_delegates.get<e_delegate_Ctx>();
+	m_delegates.get<e_delegate_Ctx>() = 0;
+
+	if (m_main_window->getWidgetTID()->model() == m_tid_model)
+		m_main_window->getWidgetTID()->setModel(0);
+	delete m_tid_model;
+	m_tid_model = 0;
+
+	if (m_main_window->getWidgetColorRegex()->model() == m_color_regex_model)
+		m_main_window->getWidgetColorRegex()->setModel(0);
+	delete m_color_regex_model;
+	m_color_regex_model = 0;
+
+	if (m_main_window->getWidgetRegex()->itemDelegate() == m_delegates.get<e_delegate_Regex>())
+		m_main_window->getWidgetRegex()->setItemDelegate(0);
+	if (m_main_window->getWidgetRegex()->model() == m_regex_model)
+		m_main_window->getWidgetRegex()->setModel(0);
+	delete m_regex_model;
+	m_regex_model = 0;
+	delete m_delegates.get<e_delegate_Regex>();
+	m_delegates.get<e_delegate_Regex>() = 0;
+
+	if (m_main_window->getWidgetString()->itemDelegate() == m_delegates.get<e_delegate_String>())
+		m_main_window->getWidgetString()->setItemDelegate(0);
+	if (m_main_window->getWidgetString()->model() == m_string_model)
+		m_main_window->getWidgetString()->setModel(0);
+	delete m_string_model;
+	m_string_model = 0;
+	delete m_delegates.get<e_delegate_String>();
+	m_delegates.get<e_delegate_String>() = 0;
+
+	if (m_table_view_proxy)
+	{
+		m_table_view_proxy->setSourceModel(0);
+		delete m_table_view_proxy;
+		m_table_view_proxy = 0;
+	}
+
+	m_table_view_widget->setModel(0);
+	delete m_table_view_src;
+	m_table_view_src = 0;
+
+	m_table_view_widget = 0;*/
+
 	}
 
 	void LogWidget::onShow ()
@@ -144,6 +284,31 @@ namespace logs {
 		qDebug("%s syncgrp=%i frame=%i", __FUNCTION__, sync_group, frame);
 	}*/
 
+void MainWindow::onNextToView ()
+{
+	if (!getTabTrace()->currentWidget()) return;
+	if (Connection * conn = m_server->findCurrentConnection())
+		conn->nextToView();
 }
+
+void MainWindow::turnOffAutoScroll ()
+{
+	ui->autoScrollCheckBox->setCheckState(Qt::Unchecked);
+}
+
+void MainWindow::onAutoScrollHotkey ()
+{
+	if (ui->autoScrollCheckBox->checkState() == Qt::Checked)
+		turnOffAutoScroll();
+	else
+		ui->autoScrollCheckBox->setCheckState(Qt::Checked);
+}
+}
+void Server::onFilterFile (int state)
+{
+	if (Connection * conn = findCurrentConnection())
+		conn->setFilterFile(state);
+}
+
 
 

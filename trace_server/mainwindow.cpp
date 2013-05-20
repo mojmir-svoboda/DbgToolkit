@@ -215,19 +215,14 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QStri
 	ui->findNextButton->setIcon(style->standardIcon(QStyle::SP_ArrowForward));
 	ui->findPrevButton->setIcon(style->standardIcon(QStyle::SP_ArrowBack));
 
-	connect(ui->gotoNextButton, SIGNAL(clicked()), this, SLOT(onNextToView()));
-	ui->gotoNextButton->setIcon(style->standardIcon(QStyle::SP_ArrowDown));
 	connect(ui->timeComboBox, SIGNAL(activated(int)), this, SLOT(onTimeUnitsChanged(int)));
 	connect(ui->levelSpinBox, SIGNAL(valueChanged(int)), m_server, SLOT(onLevelValueChanged(int)));
-	connect(ui->filterFileCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onFilterFile(int)));
 	connect(ui->plotSlider, SIGNAL(valueChanged(int)), this, SLOT(onPlotStateChanged(int)));
 	connect(ui->tableSlider, SIGNAL(valueChanged(int)), this, SLOT(onTablesStateChanged(int)));
 	connect(ui->dockedWidgetsToolButton, SIGNAL(clicked()), this, SLOT(onDockedWidgetsToolButton()));
 	connect(m_docked_widgets, SIGNAL(dockClosed()), this, SLOT(onPlotsClosed()));
 
 	connect(ui->buffCheckBox, SIGNAL(stateChanged(int)), m_server, SLOT(onBufferingStateChanged(int)));
-	connect(ui->autoScrollCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onAutoScrollStateChanged(int)));
-	connect(ui->inViewCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onInViewStateChanged(int)));
 	
 	connect(ui_settings->tableFontToolButton, SIGNAL(clicked()), this, SLOT(onTableFontToolButton()));
 	connect(ui_settings->onTopCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onOnTop(int)));//@FIXME: this has some issues
@@ -426,20 +421,6 @@ bool MainWindow::clrFltEnabled () const { return ui_settings->clrFiltersCheckBox
 bool MainWindow::statsEnabled () const { return ui_settings->traceStatsCheckBox->isChecked(); }
 bool MainWindow::dtEnabled () const { return ui->dtToolButton->isChecked(); }
 
-void MainWindow::onAutoScrollStateChanged (int state)
-{
-	if (state == Qt::Checked)
-		ui->inViewCheckBox->setCheckState(Qt::Unchecked);
-}
-
-void MainWindow::onInViewStateChanged (int state)
-{
-	if (state == Qt::Checked)
-	{
-		ui->autoScrollCheckBox->setCheckState(Qt::Unchecked);
-		onNextToView();
-	}
-}
 
 bool MainWindow::filterPaneVertical () const
 {
@@ -710,25 +691,7 @@ void MainWindow::onEditFindPrev ()
 		conn->findPrev(ui->qSearchComboBox->currentText());
 }
 
-void MainWindow::onNextToView ()
-{
-	if (!getTabTrace()->currentWidget()) return;
-	if (Connection * conn = m_server->findCurrentConnection())
-		conn->nextToView();
-}
 
-void MainWindow::turnOffAutoScroll ()
-{
-	ui->autoScrollCheckBox->setCheckState(Qt::Unchecked);
-}
-
-void MainWindow::onAutoScrollHotkey ()
-{
-	if (ui->autoScrollCheckBox->checkState() == Qt::Checked)
-		turnOffAutoScroll();
-	else
-		ui->autoScrollCheckBox->setCheckState(Qt::Checked);
-}
 
 void MainWindow::tailFiles (QStringList const & files)
 {

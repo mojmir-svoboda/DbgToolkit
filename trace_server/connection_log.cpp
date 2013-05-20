@@ -17,29 +17,18 @@ DataLog::DataLog (Connection * connection, config_t & config, QString const & fn
 	horizontalLayout->setContentsMargins(0, 0, 0, 0);
 	horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
 	logs::LogWidget * tableView = new logs::LogWidget(connection, tab, config, fname);
-	tableView->setStyleSheet("QTableView::item{ selection-background-color:	#F5DEB3  } QTableView::item{ selection-color:	#000000 }");
-	
-	// to ignore 'resizeColumnToContents' when accidentaly double-clicked on header handle
-	QObject::disconnect(tableView->horizontalHeader(), SIGNAL(sectionHandleDoubleClicked(int)), tableView, SLOT(resizeColumnToContents(int)));
-
-	tableView->setObjectName(QString::fromUtf8("tableView"));
-	LogTableModel * model = new LogTableModel(tableView, connection);
-	QObject::disconnect(model, SIGNAL(rowsInserted(QModelIndex,int,int)), tableView->verticalHeader(), SLOT(sectionsInserted(QModelIndex,int,int)));
-    tableView->verticalHeader()->setFont(config.m_font);
-	tableView->verticalHeader()->setDefaultSectionSize(config.m_row_width);
-	tableView->verticalHeader()->hide();	// @NOTE: users want that //@NOTE2: they can't have it because of performance
-	tableView->setModel(model);
 	horizontalLayout->addWidget(tableView);
 	m_widget = tableView;
 
 	connection->m_table_view_src = model;
 	connection->m_table_view_widget = tableView;
 	connection->sessionState().setupThreadColors(connection->getMainWindow()->getThreadColors());
-	QObject::connect(tableView->horizontalHeader(), SIGNAL(sectionResized(int, int, int)), connection, SLOT(onSectionResized(int, int, int)));
 
 
 
 }
+
+	//QObject::disconnect(connection->m_table_view_widget->horizontalHeader(), SIGNAL(sectionResized(int, int, int)), this, SLOT(onSectionResized(int, int, int)));
 
 bool Connection::handleLogCommand (DecodedCommand const & cmd)
 {
