@@ -4,6 +4,12 @@
 #
 #-------------------------------------------------
 
+######################################################
+######################################################
+# better to use CMake. i use these only for ui stuff #
+######################################################
+######################################################
+
 QT       += core gui network
 TARGET = trace_server
 TEMPLATE = app
@@ -47,62 +53,23 @@ static { # everything below takes effect with CONFIG += static
 SOURCES += ../version.cpp \
 	main.cpp\
 	mainwindow.cpp \
-    modelview.cpp \
     server.cpp \
-    filterproxy.cpp \
-    connection.cpp \
-    connection_find.cpp \
-    connection_stream.cpp \
-    connection_setup.cpp \
-    connection_filtering.cpp \
-    connection.cpp \
-    sessionstate.cpp \
-    serialization.cpp \
-    settings.cpp	\
-	rvps.cpp	\
-	statswindow.cpp		\
-	profilerconnection.cpp \
-	profilerbar.cpp	\
-	profilergraphicsview.cpp	\
-	profilerview.cpp	\
-	profilerwindow.cpp \
-    profilermainwindow.cpp
+    connection.cpp
 
 HEADERS  += ../version.h	\
 	mainwindow.h \
     modelview.h \
     server.h \
-    connection.h \
-    filterproxy.h \
-    ../tlv_parser/tlv_parser.h \
-    ../tlv_parser/tlv_encoder.h \
-    ../tlv_parser/tlv_decoder.h \
-    ../filters/nnode.hpp \
-    ../filters/file_filter.hpp \
-    ../trace_client/trace.h \
-    sessionstate.h \
-    settings.h	\
-	rvps.h	\
-	rendezvous.h	\
-	statswindow.h	\
-	profilerbar.h	\
-	profilerblockinfo.h	\
-	profilerconnection.h	\
-	profilergraphicsview.h	\
-	profilerserver.h	\
-	profilerview.h	\
-	profilerwindow.h \
-    profilermainwindow.h
+    connection.h
 
-FORMS    += mainwindow.ui \
+FORMS    += help.ui \
+	mainwindow.ui \
     settings.ui \
-    help.ui \
-    profilermainwindow.ui \
+    settingslog.ui \
     settingsplot.ui \
     settingstable.ui \
     settingsgantt.ui \
-    settingsframeview.ui \
-    settingslog.ui
+    settingsframeview.ui
 
 RESOURCES += \
     resources.qrc
