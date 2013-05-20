@@ -71,6 +71,11 @@ namespace logs {
 	setModel(model);
 	QObject::connect(horizontalHeader(), SIGNAL(sectionResized(int, int, int)), this, SLOT(onSectionResized(int, int, int)));
 
+	m_table_view_src = model;
+	m_table_view_widget = tableView;
+	setupThreadColors(connection->getMainWindow()->getThreadColors());
+
+
 	QStyle const * const style = QApplication::style();
 	connect(m_config_ui->ui()->gotoNextButton, SIGNAL(clicked()), this, SLOT(onNextToView()));
 	m_config_ui->ui()->gotoNextButton->setIcon(style->standardIcon(QStyle::SP_ArrowDown));
@@ -327,6 +332,143 @@ void LogWidget::onTableFontToolButton ()
 		if (conn)
 			conn->getTableViewWidget()->verticalHeader()->setFont(f);
     }
+}
+
+
+void MainWindow::onEditFind ()
+{
+	int const tab_idx = getTabTrace()->currentIndex();
+	if (tab_idx < 0)
+		return;
+
+	bool ok;
+	QString search = QInputDialog::getText(this, tr("Find"), tr("Text:"), QLineEdit::Normal, m_config.m_last_search, &ok);
+	if (ok)
+	{
+		m_config.m_last_search = search;
+		if (int const pos = ui->qSearchComboBox->findText(search) >= 0)
+			ui->qSearchComboBox->setCurrentIndex(pos);
+		else
+		{
+			ui->qSearchComboBox->addItem(search);
+			ui->qSearchComboBox->setCurrentIndex(ui->qSearchComboBox->findText(search));
+		}
+		onQSearch(search);
+	}
+}
+
+void MainWindow::onQSearch (QString const & text)
+{
+	Connection * conn = m_server->findCurrentConnection();
+	if (!conn) return;
+
+	appendToSearchHistory(text);
+	//QString qcolumn = ui->qSearchColumnComboBox->currentText();
+	//qDebug("onQSearch: col=%s text=%s", qcolumn.toStdString().c_str(), text.toStdString().c_str());
+	//bool const search_all = (qcolumn == ".*");
+	bool const search_all = true;
+	if (search_all)
+	{
+		conn->findText(text);
+	}
+	/*else
+	{
+		size_t const tag_idx = tlv::tag_for_name(qcolumn.toStdString().c_str());
+		if (tag_idx != tlv::tag_invalid)
+		{
+			conn->findText(text, tag_idx);
+		}
+	}*/
+}
+
+void MainWindow::onQSearchEditingFinished ()
+{
+	if (!getTabTrace()->currentWidget()) return;
+
+	QString const text = ui->qSearchComboBox->currentText();
+	onQSearch(text);
+}
+
+void MainWindow::setLastSearchIntoCombobox (QString const & txt)
+{
+	ui->qSearchComboBox->addItem(txt);
+	ui->qSearchComboBox->setCurrentIndex(ui->qSearchComboBox->findText(txt));
+}
+
+void MainWindow::onFindAllButton ()
+{
+	if (!getTabTrace()->currentWidget()) return;
+
+	QString const text = ui->qSearchComboBox->currentText();
+	if (Connection * conn = m_server->findCurrentConnection())
+	conn->findAllTexts(text);
+}
+
+void MainWindow::onQFilterLineEditFinished ()
+{
+	if (!getTabTrace()->currentWidget()) return;
+
+	Connection * conn = m_server->findCurrentConnection();
+	if (!conn) return;
+
+	if (ui->qFilterLineEdit->text().size() == 0)
+		return;
+
+	QString text = ui->qFilterLineEdit->text();
+	conn->appendToStringFilters(text, true, true);
+
+	QStandardItemModel * model = static_cast<QStandardItemModel *>(getWidgetString()->model());
+	QStandardItem * root = model->invisibleRootItem();
+	QStandardItem * child = findChildByText(root, text);
+	if (!child)
+	{
+		QList<QStandardItem *> row_items = addTriRow(text, Qt::Checked, true);
+		root->appendRow(row_items);
+		child = findChildByText(root, text);
+		child->setCheckState(Qt::Checked);
+	}
+
+	for (int i = 0, ie = ui->tabFilters->count(); i < ie; ++i)
+	{
+		if (ui->tabFilters->tabText(i) == "String")
+		{
+			ui->tabFilters->setCurrentIndex(i);
+			break;
+		}
+	}
+
+	conn->recompileStrings();
+}
+
+void MainWindow::appendToSearchHistory (QString const & str)
+{
+	if (str.length() == 0)
+		return;
+	m_config.m_search_history.insert(str);
+	m_config.saveSearchHistory();
+	updateSearchHistory();
+	ui->qSearchComboBox->setCurrentIndex(ui->qSearchComboBox->findText(str));
+}
+
+void MainWindow::updateSearchHistory ()
+{
+	ui->qSearchComboBox->clear();
+	for (size_t i = 0, ie = m_config.m_search_history.size(); i < ie; ++i)
+		ui->qSearchComboBox->addItem(m_config.m_search_history[i]);
+}
+
+void MainWindow::onEditFindNext ()
+{
+	if (!getTabTrace()->currentWidget()) return;
+	if (Connection * conn = m_server->findCurrentConnection())
+		conn->findNext(ui->qSearchComboBox->currentText());
+}
+
+void MainWindow::onEditFindPrev ()
+{
+	if (!getTabTrace()->currentWidget()) return;
+	if (Connection * conn = m_server->findCurrentConnection())
+		conn->findPrev(ui->qSearchComboBox->currentText());
 }
 
 

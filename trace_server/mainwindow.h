@@ -151,7 +151,6 @@ public:
 	void dragEnterEvent (QDragEnterEvent *event);
 	bool eventFilter (QObject * o, QEvent * e);
 	void setPresetNameIntoComboBox (QString const & pname);
-	void setLastSearchIntoCombobox (QString const & txt);
 	void onPresetActivate (QString const & pname);
 	void onPresetActivate (Connection * conn, QString const & pname);
 
@@ -189,7 +188,6 @@ private slots:
 	void timerHit ();
 	void onQuit ();
 	void onQuitReally ();
-	void onEditFind ();
 	void onEditFindNext ();
 	void onNextToView ();
 	void onAutoScrollHotkey();
@@ -204,12 +202,6 @@ private slots:
 	void onFileExportToCSV ();
 	void closeEvent (QCloseEvent *event);
 	void iconActivated (QSystemTrayIcon::ActivationReason reason);
-	void onQSearch (QString const &);
-	void onQSearchEditingFinished ();
-	void onQFilterLineEditFinished ();
-	void onFindAllButton ();
-	void appendToSearchHistory (QString const & str);
-	void updateSearchHistory ();
 	void onSaveCurrentState ();
 	void onSaveCurrentStateTo (QString const & name);
 	void onAddCurrentState ();
