@@ -372,7 +372,10 @@ namespace plot {
 	{
 	}
 
-	void PlotWidget::onSaveButton () { saveConfig(m_config, m_fname); }
+	void PlotWidget::onSaveButton ()
+	{
+		//saveConfig(m_config, m_fname);
+	}
 	void PlotWidget::onResetButton () { setConfigValues(m_config); }
 	void PlotWidget::onDefaultButton ()
 	{

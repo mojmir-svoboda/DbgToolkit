@@ -173,7 +173,7 @@ void Connection::appendDataXY (double x, double y, QString const & msg_tag)
 
 	dataplots_t::iterator it = findOrCreatePlot(tag);
 	DataPlot & dp = **it;
-	QString const plot_name = sessionState().getAppName() + "/plot/" + tag; // @TODO: same as fname
+	QString const plot_name = getAppName() + "/plot/" + tag; // @TODO: same as fname
 	QString const curve_name = plot_name + "/" + subtag;
 	plot::Curve * curve = dp.widget().findCurve(subtag);
 

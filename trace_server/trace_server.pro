@@ -54,13 +54,15 @@ SOURCES += ../version.cpp \
     main.cpp \
     mainwindow.cpp \
     server.cpp \
-    connection.cpp
+    connection.cpp \
+    filterwidget.cpp
 
 HEADERS  += ../version.h \
     mainwindow.h \
     modelview.h \
     server.h \
-    connection.h
+    connection.h \
+    filterwidget.h
 
 FORMS    += help.ui \
     mainwindow.ui \
@@ -69,7 +71,9 @@ FORMS    += help.ui \
     settingsplot.ui \
     settingstable.ui \
     settingsgantt.ui \
-    settingsframeview.ui
+    settingsframeview.ui \
+    settingsfilters.ui \
+    filterwidget.ui
 
 RESOURCES += \
     resources.qrc

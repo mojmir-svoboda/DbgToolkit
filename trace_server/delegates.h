@@ -1,13 +1,15 @@
 #pragma once
 #include <QStyledItemDelegate>
 #include <QItemDelegate>
-#include "sessionstate.h"
+#include "filterstate.h"
+#include "appdata.h"
 
 class TableItemDelegate : public QStyledItemDelegate
 {
-	SessionState const & m_session_state;
+	FilterState const & m_filter_state;
+	AppData const & m_app_data;
 public: 
-    TableItemDelegate (SessionState & ss, QObject *parent = 0) : QStyledItemDelegate(parent), m_session_state(ss) { }
+    TableItemDelegate (FilterState & fs, AppData const & ad, QObject *parent = 0) : QStyledItemDelegate(parent), m_filter_state(fs), m_app_data(ad) { }
 
     void paint (QPainter * painter, QStyleOptionViewItem const & option, QModelIndex const & index) const;
     void paintCustom (QPainter * painter, QStyleOptionViewItem const & option, QModelIndex const & index) const;
@@ -37,9 +39,9 @@ private slots:
 
 class LevelDelegate : public QStyledItemDelegate
 {
-	SessionState const & m_session_state;
+	FilterState const & m_filter_state;
 public: 
-    LevelDelegate (SessionState & ss, QObject *parent = 0) : QStyledItemDelegate(parent), m_session_state(ss) { }
+    LevelDelegate (FilterState & fs, QObject *parent = 0) : QStyledItemDelegate(parent), m_filter_state(fs) { }
 
     void paint (QPainter * painter, QStyleOptionViewItem const & option, QModelIndex const & index) const;
     
@@ -48,9 +50,10 @@ private slots:
 
 class CtxDelegate : public QStyledItemDelegate
 {
-	SessionState const & m_session_state;
+	FilterState const & m_filter_state;
+	AppData const & m_app_data;
 public: 
-    CtxDelegate (SessionState & ss, QObject *parent = 0) : QStyledItemDelegate(parent), m_session_state(ss) { }
+    CtxDelegate (FilterState & fs, AppData const & ad, QObject *parent = 0) : QStyledItemDelegate(parent), m_filter_state(fs), m_app_data(ad) { }
 
     void paint (QPainter * painter, QStyleOptionViewItem const & option, QModelIndex const & index) const;
     
@@ -59,9 +62,9 @@ private slots:
 
 class StringDelegate : public QStyledItemDelegate
 {
-	SessionState const & m_session_state;
+	FilterState const & m_filter_state;
 public: 
-    StringDelegate (SessionState & ss, QObject *parent = 0) : QStyledItemDelegate(parent), m_session_state(ss) { }
+    StringDelegate (FilterState & fs, QObject *parent = 0) : QStyledItemDelegate(parent), m_filter_state(fs) { }
 
     void paint (QPainter * painter, QStyleOptionViewItem const & option, QModelIndex const & index) const;
     
@@ -69,9 +72,9 @@ private slots:
 };
 class RegexDelegate : public QStyledItemDelegate
 {
-	SessionState const & m_session_state;
+	FilterState const & m_filter_state;
 public: 
-    RegexDelegate (SessionState & ss, QObject *parent = 0) : QStyledItemDelegate(parent), m_session_state(ss) { }
+    RegexDelegate (FilterState & fs, QObject *parent = 0) : QStyledItemDelegate(parent), m_filter_state(fs) { }
 
     void paint (QPainter * painter, QStyleOptionViewItem const & option, QModelIndex const & index) const;
     

@@ -22,19 +22,20 @@
 #include <QStandardItemModel>
 #include <QUrl>
 #include <QtPlugin>
+#include <QClipboard>
 #include "settings.h"
 #include "utils.h"
 #include "../tlv_parser/tlv_parser.h"
 #include "help.h"
 #include "version.h"
-#include "serialization.h"
 #include "constants.h"
 #include "dock.h"
 #include "utils_qstandarditem.h"
+#include "utils_qsettings.h"
 
 ///////////  qt5 stuff
 #include <QWindow>
-#include <QtGui/5.0.1/QtGui/qpa/qplatformnativeinterface.h>
+#include <QtGui/5.1.1/QtGui/qpa/qplatformnativeinterface.h>
 static QWindow * windowForWidget(const QWidget* widget)
 {
 	if (QWindow* window = widget->windowHandle()) { return window; }
@@ -107,8 +108,8 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QStri
 	m_settings_dialog->setWindowFlags(Qt::Sheet);
 	ui_settings = new Ui::SettingsDialog();
 	ui_settings->setupUi(m_settings_dialog);
-	ui_settings->separatorComboBox->addItem("\\t");
-	ui_settings->separatorComboBox->addItem("\\n");
+	//ui_settings->separatorComboBox->addItem("\\t");
+	//ui_settings->separatorComboBox->addItem("\\n");
 
 	m_docked_widgets_tree_view = new TreeView(this);
 	m_docked_widgets_tree_view->setHidingLinearParents(false);
@@ -149,6 +150,7 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QStri
 
 	loadNetworkSettings();
 	m_server = new Server(m_config.m_trace_addr, m_config.m_trace_port, this, quit_delay);
+	connect(m_server, SIGNAL(newConnection(Connection *)), this, SLOT(newConnection(Connection *)));
 	showServerStatus();
 
 	size_t const n = tlv::get_tag_count();
@@ -172,89 +174,31 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QStri
 	m_timer->start();
 	setupMenuBar();
 
-	getWidgetFile()->setEditTriggers(QAbstractItemView::NoEditTriggers);
-	connect(getWidgetFile(), SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtFileTree(QModelIndex)));
-	connect(getWidgetFile(), SIGNAL(doubleClicked(QModelIndex)), m_server, SLOT(onDoubleClickedAtFileTree(QModelIndex)));
-	getWidgetFile()->header()->hide();
-	connect(ui->filterFileComboBox, SIGNAL(editTextChanged(QString)), this, SLOT(onFilterFileComboChanged(QString)));
-	bool const cancel_on = !ui->filterFileComboBox->currentText().isEmpty();
-	ui->cancelFilterButton->setEnabled(cancel_on);
-	connect(ui->cancelFilterButton, SIGNAL(clicked()), this, SLOT(onCancelFilterFileButton()));
-
-	//connect(ui->filterFileComboBox, SIGNAL(activated(int)), this, SLOT(onTimeUnitsChanged(int)));
-
-	getWidgetCtx()->setEditTriggers(QAbstractItemView::NoEditTriggers);
-	connect(getWidgetCtx(), SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtCtxTree(QModelIndex)));
-	connect(getWidgetCtx(), SIGNAL(doubleClicked(QModelIndex)), m_server, SLOT(onDoubleClickedAtCtxTree(QModelIndex)));
-	connect(ui->allCtxButton, SIGNAL(clicked()), m_server, SLOT(onSelectAllCtxs()));
-	connect(ui->noCtxButton, SIGNAL(clicked()), m_server, SLOT(onSelectNoCtxs()));
-	getWidgetCtx()->header()->hide();
-
-	getWidgetTID()->setEditTriggers(QAbstractItemView::NoEditTriggers);
-	connect(getWidgetTID(), SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtTIDList(QModelIndex)));
-	connect(getWidgetTID(), SIGNAL(doubleClicked(QModelIndex)), m_server, SLOT(onDoubleClickedAtTIDList(QModelIndex)));
-
-	connect(getTabTrace(), SIGNAL(currentChanged(int)), m_server, SLOT(onTabTraceFocus(int)));
-
-	getWidgetLvl()->setEditTriggers(QAbstractItemView::NoEditTriggers);
-	connect(getWidgetLvl(), SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtLvlList(QModelIndex)));
-	connect(getWidgetLvl(), SIGNAL(doubleClicked(QModelIndex)), m_server, SLOT(onDoubleClickedAtLvlList(QModelIndex)));
-	connect(ui->allLevelButton, SIGNAL(clicked()), m_server, SLOT(onSelectAllLevels()));
-	connect(ui->noLevelButton, SIGNAL(clicked()), m_server, SLOT(onSelectNoLevels()));
-	getWidgetLvl()->header()->hide();
+	connect(ui->tabTrace, SIGNAL(currentChanged(int)), this, SLOT(onTabTraceFocus(int)));
+	connect(ui->tabTrace, SIGNAL(tabCloseRequested(int)), this, SLOT(onCloseTabWithIndex(int)));
 
 	connect(ui->dtToolButton, SIGNAL(clicked()), this, SLOT(ondtToolButton()));
 
-	QStyle const * const style = QApplication::style();
-	
-	ui->findNextButton->setIcon(style->standardIcon(QStyle::SP_ArrowForward));
-	ui->findPrevButton->setIcon(style->standardIcon(QStyle::SP_ArrowBack));
-
 	connect(ui->timeComboBox, SIGNAL(activated(int)), this, SLOT(onTimeUnitsChanged(int)));
-	connect(ui->levelSpinBox, SIGNAL(valueChanged(int)), m_server, SLOT(onLevelValueChanged(int)));
+	connect(ui->levelSpinBox, SIGNAL(valueChanged(int)), this, SLOT(onLevelValueChanged(int)));
 	connect(ui->plotSlider, SIGNAL(valueChanged(int)), this, SLOT(onPlotStateChanged(int)));
 	connect(ui->tableSlider, SIGNAL(valueChanged(int)), this, SLOT(onTablesStateChanged(int)));
 	connect(ui->dockedWidgetsToolButton, SIGNAL(clicked()), this, SLOT(onDockedWidgetsToolButton()));
 	connect(m_docked_widgets, SIGNAL(dockClosed()), this, SLOT(onPlotsClosed()));
-
-	connect(ui->buffCheckBox, SIGNAL(stateChanged(int)), m_server, SLOT(onBufferingStateChanged(int)));
+	connect(ui->buffCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onBufferingStateChanged(int)));
 	
-	connect(ui_settings->tableFontToolButton, SIGNAL(clicked()), this, SLOT(onTableFontToolButton()));
+	//connect(ui_settings->tableFontToolButton, SIGNAL(clicked()), this, SLOT(onTableFontToolButton()));
 	connect(ui_settings->onTopCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onOnTop(int)));//@FIXME: this has some issues
 	connect(ui_settings->reuseTabCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onReuseTabChanged(int)));
+
 	//connect(ui->clrFiltersCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onClrFiltersStateChanged(int)));
 	connect(ui->activatePresetButton, SIGNAL(clicked()), this, SLOT(onPresetActivate()));
 	connect(ui->presetComboBox, SIGNAL(activated(int)), this, SLOT(onPresetChanged(int)));
 	connect(ui->presetAddButton, SIGNAL(clicked()), this, SLOT(onAddCurrentState()));
 	connect(ui->presetRmButton, SIGNAL(clicked()), this, SLOT(onRmCurrentState()));
 	connect(ui->presetSaveButton, SIGNAL(clicked()), this, SLOT(onSaveCurrentState()));
-	connect(ui->presetResetButton, SIGNAL(clicked()), m_server, SLOT(onClearCurrentState()));
+	connect(ui->presetResetButton, SIGNAL(clicked()), this, SLOT(onClearCurrentState()));
 
-	getWidgetRegex()->setEditTriggers(QAbstractItemView::NoEditTriggers);
-	getWidgetRegex()->header()->hide();
-	connect(getWidgetRegex(), SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtRegexList(QModelIndex)));
-	connect(getWidgetRegex(), SIGNAL(doubleClicked(QModelIndex)), m_server, SLOT(onDoubleClickedAtRegexList(QModelIndex)));
-	connect(ui->comboBoxRegex, SIGNAL(activated(int)), this, SLOT(onRegexActivate(int)));
-	connect(ui->buttonAddRegex, SIGNAL(clicked()), this, SLOT(onRegexAdd()));
-	connect(ui->buttonRmRegex, SIGNAL(clicked()), this, SLOT(onRegexRm()));
-
-	getWidgetColorRegex()->setEditTriggers(QAbstractItemView::NoEditTriggers);
-	connect(getWidgetColorRegex(), SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtColorRegexList(QModelIndex)));
-	connect(getWidgetColorRegex(), SIGNAL(doubleClicked(QModelIndex)), m_server, SLOT(onDoubleClickedAtColorRegexList(QModelIndex)));
-	connect(ui->comboBoxColorRegex, SIGNAL(activated(int)), this, SLOT(onColorRegexActivate(int)));
-	connect(ui->buttonAddColorRegex, SIGNAL(clicked()), this, SLOT(onColorRegexAdd()));
-	connect(ui->buttonRmColorRegex, SIGNAL(clicked()), this, SLOT(onColorRegexRm()));
-
-	connect(ui->cutParentSpinBox, SIGNAL(valueChanged(int)), m_server, SLOT(onCutParentValueChanged(int)));
-	connect(ui->collapseChildsButton, SIGNAL(clicked()), m_server, SLOT(onCollapseChilds()));
-	connect(ui->qFilterLineEdit, SIGNAL(returnPressed()), this, SLOT(onQFilterLineEditFinished()));
-	getWidgetString()->setEditTriggers(QAbstractItemView::NoEditTriggers);
-	getWidgetString()->header()->hide();
-	connect(getWidgetString(), SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtStringList(QModelIndex)));
-	connect(getWidgetString(), SIGNAL(doubleClicked(QModelIndex)), m_server, SLOT(onDoubleClickedAtStringList(QModelIndex)));
-	//connect(ui->comboBoxString, SIGNAL(activated(int)), this, SLOT(onStringActivate(int)));
-	connect(ui->buttonAddString, SIGNAL(clicked()), this, SLOT(onStringAdd()));
-	connect(ui->buttonRmString, SIGNAL(clicked()), this, SLOT(onStringRm()));
 
 	m_status_label = new QLabel(m_server->getStatus());
 	QString human_version(g_Version);
@@ -263,7 +207,7 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QStri
 	statusBar()->addPermanentWidget(version_label);
 	statusBar()->addWidget(m_status_label);
 
-	connect(ui->tabTrace, SIGNAL(tabCloseRequested(int)), m_server, SLOT(onCloseTabWithIndex(int)));
+
 	QTimer::singleShot(0, this, SLOT(loadState()));	// trigger lazy load of settings
 	setWindowTitle("trace_server");
 	setObjectName("trace_server");
@@ -373,53 +317,21 @@ void MainWindow::timerHit ()
 
 QTabWidget * MainWindow::getTabTrace () { return ui->tabTrace; }
 QTabWidget const * MainWindow::getTabTrace () const { return ui->tabTrace; }
-TreeView * MainWindow::getWidgetFile () { return ui->treeViewFile; }
-TreeView const * MainWindow::getWidgetFile () const { return ui->treeViewFile; }
-QTreeView * MainWindow::getWidgetCtx () { return ui->treeViewCtx; }
-QTreeView const * MainWindow::getWidgetCtx () const { return ui->treeViewCtx; }
-QComboBox * MainWindow::getFilterRegex () { return ui->comboBoxRegex; }
-QComboBox const * MainWindow::getFilterRegex () const { return ui->comboBoxRegex; }
-QTreeView * MainWindow::getWidgetRegex () { return ui->treeViewRegex; }
-QTreeView const * MainWindow::getWidgetRegex () const { return ui->treeViewRegex; }
-QComboBox * MainWindow::getFilterColorRegex () { return ui->comboBoxColorRegex; }
-QComboBox const * MainWindow::getFilterColorRegex () const { return ui->comboBoxColorRegex; }
-QListView * MainWindow::getWidgetColorRegex () { return ui->listViewColorRegex; }
-QListView const * MainWindow::getWidgetColorRegex () const { return ui->listViewColorRegex; }
-QListView * MainWindow::getWidgetTID () { return ui->listViewTID; }
-QListView const * MainWindow::getWidgetTID () const { return ui->listViewTID; }
-QTreeView * MainWindow::getWidgetLvl () { return ui->treeViewLvl; }
-QTreeView const * MainWindow::getWidgetLvl () const { return ui->treeViewLvl; }
-QTreeView * MainWindow::getWidgetString () { return ui->treeViewString; }
-QTreeView const * MainWindow::getWidgetString () const { return ui->treeViewString; }
+
+
+
 QTreeView const * MainWindow::getDockedWidgetsTreeView () const { return m_docked_widgets_tree_view; }
 
-bool MainWindow::scopesEnabled () const { return ui_settings->scopesCheckBox->isChecked(); }
-bool MainWindow::indentEnabled () const { return ui_settings->indentCheckBox->isChecked(); }
-int MainWindow::indentLevel () const { return ui_settings->indentSpinBox->value(); }
-int MainWindow::tableRowSize () const { return ui_settings->tableRowSizeSpinBox->value(); }
-QString MainWindow::tableFont () const { return ui_settings->tableFontComboBox->currentText(); }
-bool MainWindow::cutPathEnabled () const { return ui_settings->cutPathCheckBox->isChecked(); }
-int MainWindow::cutPathLevel () const { return ui_settings->cutPathSpinBox->value(); }
-bool MainWindow::cutNamespaceEnabled () const { return ui_settings->cutNamespaceCheckBox->isChecked(); }
-int MainWindow::cutNamespaceLevel () const { return ui_settings->cutNamespaceSpinBox->value(); }
 bool MainWindow::onTopEnabled () const { return ui_settings->onTopCheckBox->isChecked(); }
 int MainWindow::plotState () const { return ui->plotSlider->value(); }
 int MainWindow::tableState () const { return ui->tableSlider->value(); }
 int MainWindow::ganttState () const { return ui->ganttSlider->value(); }
 //bool MainWindow::reuseTabEnabled () const { return ui_settings->reuseTabCheckBox->isChecked(); }
-//bool MainWindow::autoScrollEnabled () const { return ui->autoScrollCheckBox->isChecked(); }
-//bool MainWindow::inViewEnabled () const { return ui->inViewCheckBox->isChecked(); }
 bool MainWindow::buffEnabled () const { return ui->buffCheckBox->isChecked(); }
 Qt::CheckState MainWindow::buffState () const { return ui->buffCheckBox->checkState(); }
-bool MainWindow::clrFltEnabled () const { return ui_settings->clrFiltersCheckBox->isChecked(); }
 //bool MainWindow::statsEnabled () const { return ui_settings->traceStatsCheckBox->isChecked(); }
 bool MainWindow::dtEnabled () const { return ui->dtToolButton->isChecked(); }
 
-
-bool MainWindow::filterPaneVertical () const
-{
-	return ui_settings->filterPaneComboBox->currentText() == QString("Vertical");
-}
 
 void MainWindow::setLevel (int i)
 {
@@ -451,39 +363,17 @@ void MainWindow::onQuitReally ()
 	qApp->quit();
 }
 
-void MainWindow::onReuseTabChanged (int state)
+/*void MainWindow::onReuseTabChanged (int state)
 {
 	ui_settings->clrFiltersCheckBox->setEnabled(state);
-}
-
-void MainWindow::ondtToolButton ()
-{
-	if (Connection * conn = m_server->findCurrentConnection())
-	{
-		//conn->onInvalidateFilter();
-	}
-}
-
-void MainWindow::onTimeUnitsChanged (int i)
-{
-	QString unit = ui->timeComboBox->currentText();
-	qDebug("%s unit=%s", __FUNCTION__, unit.toStdString().c_str());
-	if (unit == "ms")
-		m_time_units = 0.001f;
-	if (unit == "us")
-		m_time_units = 0.000001f;
-	if (unit == "s")
-		m_time_units = 1.0f;
-	if (unit == "m")
-		m_time_units = 60.0f;
-}
+}*/
 
 void MainWindow::onPlotStateChanged (int state)
 {
 	/*m_server->onHidePlots();
 	if (state == Qt::Checked)
 	{
-		Connection * conn = m_server->findCurrentConnection();
+		Connection * conn = findCurrentConnection();
 		if (!conn) return;
 
 		conn->onShowPlots();
@@ -497,7 +387,7 @@ void MainWindow::onDockedWidgetsToolButton ()
 		m_docked_widgets->show();
 		restoreDockWidget(m_docked_widgets);
 
-		if (Connection * conn = m_server->findCurrentConnection())
+		if (Connection * conn = findCurrentConnection())
 		{
 			m_docked_widgets_tree_view->setModel(conn->m_data_model);
 			connect(m_docked_widgets_tree_view, SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtDockedWidgets(QModelIndex)));
@@ -530,7 +420,7 @@ void MainWindow::tailFiles (QStringList const & files)
 	{
 		QString fname = files.at(i);
 		if (fname != "")
-			m_server->createTailDataStream(fname);
+			createTailDataStream(fname);
 	}
 }
 
@@ -545,7 +435,7 @@ void MainWindow::onFileTail ()
 void MainWindow::onLogTail ()
 {
 	setupSeparatorChar("|");
-	m_server->createTailLogStream(m_log_name, "|");
+	createTailLogStream(m_log_name, "|");
 }
 
 void MainWindow::openFiles (QStringList const & files)
@@ -555,7 +445,7 @@ void MainWindow::openFiles (QStringList const & files)
 		QString fname = files.at(i);
 		if (fname != "")
 		{
-			m_server->importDataStream(fname);
+			importDataStream(fname);
 		}
 	}
 }
@@ -575,7 +465,7 @@ void MainWindow::onFileSave ()
 
 	if (filename != "")
 	{
-		m_server->copyStorageTo(filename);
+		copyStorageTo(filename);
 	}
 }
 
@@ -585,7 +475,7 @@ void MainWindow::onFileExportToCSV ()
 
 	if (filename != "")
 	{
-		m_server->exportStorageToCSV(filename);
+		exportStorageToCSV(filename);
 	}
 }
 
@@ -628,71 +518,6 @@ void MainWindow::onHotkeyShowOrHide ()
 	}
 }
 
-void MainWindow::onDumpFilters ()
-{
-	QDialog dialog(this);
-	dialog.setWindowFlags(Qt::Sheet);
-	m_help->setupUi(&dialog);
-	m_help->helpTextEdit->clear();
-
-	QString text(tr("Dumping current filters:\n"));
-	QString session_string;
-
-	if (Connection * conn = m_server->findCurrentConnection())
-	{
-		SessionState const & ss = conn->sessionState();
-		QString ff;
-		ss.m_file_filters.dump_filter(ff);
-
-		QString cols;
-		for (int i = 0, ie = ss.m_colorized_texts.size(); i < ie; ++i)
-		{
-			ColorizedText const & x = ss.m_colorized_texts.at(i);
-			cols += QString("%1 %2 %3\n")
-						.arg(x.m_regex_str)
-						.arg(x.m_qcolor.name())
-						.arg(x.m_is_enabled ? " on" : "off");
-		}
-		QString regs;
-		for (int i = 0, ie = ss.m_filtered_regexps.size(); i < ie; ++i)
-		{
-			FilteredRegex const & x = ss.m_filtered_regexps.at(i);
-			regs += QString("%1 %2 %3\n")
-						.arg(x.m_regex_str)
-						.arg(x.m_state ? "incl" : "excl")
-						.arg(x.m_is_enabled ? " on" : "off");
-		}
-		QString lvls;
-		for (int i = 0, ie = ss.m_lvl_filters.size(); i < ie; ++i)
-		{
-			FilteredLevel const & x = ss.m_lvl_filters.at(i);
-			lvls += QString("%1 %2 %3\n")
-						.arg(x.m_level_str)
-						.arg(x.m_is_enabled ? " on" : "off")
-						.arg(x.m_state ? "incl" : "excl");
-		}
-		QString ctxs;
-		for (int i = 0, ie = ss.m_ctx_filters.size(); i < ie; ++i)
-		{
-			FilteredContext const & x = ss.m_ctx_filters.at(i);
-			ctxs += QString("%1 %2 %3\n")
-						.arg(x.m_ctx_str)
-						.arg(x.m_state)
-						.arg(x.m_is_enabled ? " on" : "off");
-		}
-
-		session_string = QString("Files:\n%1\n\nColors:\n%2\n\nRegExps:\n%3\n\nLevels:\n%4\n\nContexts:\n%5\n\n")
-				.arg(ff)
-				.arg(cols)
-				.arg(regs)
-				.arg(lvls)
-				.arg(ctxs);
-	}
-
-	m_help->helpTextEdit->setPlainText(text + session_string);
-	m_help->helpTextEdit->setReadOnly(true);
-	dialog.exec();
-}
 
 void MainWindow::onShowHelp ()
 {
@@ -705,133 +530,6 @@ void MainWindow::onShowHelp ()
 	dialog.exec();
 }
 
-void MainWindow::onRegexActivate (int idx)
-{
-	if (idx == -1) return;
-	if (!getTabTrace()->currentWidget()) return;
-
-	Connection * conn = m_server->findCurrentConnection();
-	if (!conn) return;
-
-	onRegexAdd();
-}
-
-void MainWindow::onRegexAdd ()
-{
-	Connection * conn = m_server->findCurrentConnection();
-	if (!conn) return;
-
-	QString qItem = ui->comboBoxRegex->currentText();
-	QStandardItem * root = static_cast<QStandardItemModel *>(getWidgetRegex()->model())->invisibleRootItem();
-	QStandardItem * child = findChildByText(root, qItem);
-	if (child == 0)
-	{
-		QList<QStandardItem *> row_items = addTriRow(qItem, Qt::Unchecked, true);
-		root->appendRow(row_items);
-		conn->appendToRegexFilters(qItem, false, true);
-		conn->recompileRegexps();
-	}
-}
-
-void MainWindow::onRegexRm ()
-{
-	QStandardItemModel * model = static_cast<QStandardItemModel *>(getWidgetRegex()->model());
-	QModelIndex const idx = getWidgetRegex()->currentIndex();
-	QStandardItem * item = model->itemFromIndex(idx);
-	if (!item)
-		return;
-	QString const & val = model->data(idx, Qt::DisplayRole).toString();
-	model->removeRow(idx.row());
-	Connection * conn = m_server->findCurrentConnection();
-	if (conn)
-	{
-		conn->removeFromRegexFilters(val);
-		conn->recompileRegexps();
-	}
-}
-
-void MainWindow::onStringAdd ()
-{
-	Connection * conn = m_server->findCurrentConnection();
-	if (!conn) return;
-
-	QString qItem = ui->qFilterLineEdit->text();
-	QStandardItem * root = static_cast<QStandardItemModel *>(getWidgetString()->model())->invisibleRootItem();
-	QStandardItem * child = findChildByText(root, qItem);
-	if (child == 0)
-	{
-		QList<QStandardItem *> row_items = addTriRow(qItem, Qt::Checked, true);
-		root->appendRow(row_items);
-		conn->appendToStringFilters(qItem, true, true);
-		row_items[0]->setCheckState(Qt::Checked);
-		conn->recompileStrings();
-	}
-}
-
-void MainWindow::onStringRm ()
-{
-	QStandardItemModel * model = static_cast<QStandardItemModel *>(getWidgetString()->model());
-	QModelIndex const idx = getWidgetString()->currentIndex();
-	QStandardItem * item = model->itemFromIndex(idx);
-	if (!item)
-		return;
-	QString const & val = model->data(idx, Qt::DisplayRole).toString();
-	model->removeRow(idx.row());
-	Connection * conn = m_server->findCurrentConnection();
-	if (conn)
-	{
-		conn->removeFromStringFilters(val);
-		conn->recompileStrings();
-	}
-}
-
-// @TODO: all the color stuff is almost duplicate, remove duplicity
-void MainWindow::onColorRegexActivate (int idx)
-{
-	if (idx == -1) return;
-	if (!getTabTrace()->currentWidget()) return;
-
-	onColorRegexAdd();
-}
-
-void MainWindow::onColorRegexAdd ()
-{
-	Connection * conn = m_server->findCurrentConnection();
-	if (!conn) return;
-
-	QString qItem = ui->comboBoxColorRegex->currentText();
-	if (!qItem.length())
-		return;
-	QStandardItem * root = static_cast<QStandardItemModel *>(getWidgetColorRegex()->model())->invisibleRootItem();
-	QStandardItem * child = findChildByText(root, qItem);
-	if (child == 0)
-	{
-		QList<QStandardItem *> row_items = addRow(qItem, false);
-		root->appendRow(row_items);
-
-		conn->appendToColorRegexFilters(qItem);
-	}
-	conn->recompileColorRegexps();
-}
-
-void MainWindow::onColorRegexRm ()
-{
-	Connection * conn = m_server->findCurrentConnection();
-	QStandardItemModel * model = static_cast<QStandardItemModel *>(getWidgetColorRegex()->model());
-	QModelIndex const idx = getWidgetColorRegex()->currentIndex();
-	QStandardItem * item = model->itemFromIndex(idx);
-	if (!item)
-		return;
-	QString const & val = model->data(idx, Qt::DisplayRole).toString();
-	model->removeRow(idx.row());
-
-	if (conn)
-	{
-		conn->removeFromColorRegexFilters(val);
-		conn->recompileColorRegexps();
-	}
-}
-
 void MainWindow::storeGeometry ()
 {
 	qDebug("%s", __FUNCTION__);
@@ -839,7 +537,6 @@ void MainWindow::storeGeometry ()
 	settings.setValue("geometry", saveGeometry());
 	settings.setValue("windowState", saveState());
 }
-	
 
 void MainWindow::onSaveAllButton ()
 {
@@ -847,35 +544,9 @@ void MainWindow::onSaveAllButton ()
 	qDebug("%s", __FUNCTION__);
 	storeGeometry();
 
-	if (Connection * conn = m_server->findCurrentConnection())
+	if (Connection * conn = findCurrentConnection())
 	{
 		conn->onSaveAll();
-	}
-}
-
-void MainWindow::onCancelFilterFileButton ()
-{
-	ui->filterFileComboBox->clearEditText();
-	ui->cancelFilterButton->setEnabled(false);
-	ui->cancelFilterButton->setStyleSheet("color: rgb(128, 128, 128)"); 
-	if (Connection * conn = m_server->findCurrentConnection())
-	{
-		conn->onCancelFilterFileButton();
-	}
-}
-
-void MainWindow::onFilterFileComboChanged (QString str)
-{
-	bool cancel_on = !str.isEmpty();
-	ui->cancelFilterButton->setEnabled(cancel_on);
-	if (cancel_on)
-		ui->cancelFilterButton->setStyleSheet("color: rgb(255, 0, 0)"); 
-	else
-		ui->cancelFilterButton->setStyleSheet("color: rgb(128, 128, 128)"); 
-
-	if (Connection * conn = m_server->findCurrentConnection())
-	{
-		conn->onFilterFileComboChanged(str);
 	}
 }
 
@@ -887,14 +558,13 @@ void MainWindow::onDockRestoreButton ()
 	restoreGeometry(settings.value("geometry").toByteArray());
 }
 
-void MainWindow::onGotoFileFilter () { ui->tabFilters->setCurrentIndex(0); }
-void MainWindow::onGotoLevelFilter () { ui->tabFilters->setCurrentIndex(1); }
-void MainWindow::onGotoColorFilter () { ui->tabFilters->setCurrentIndex(5); }
-void MainWindow::onGotoRegexFilter () { ui->tabFilters->setCurrentIndex(4); }
-
 void MainWindow::onCopyToClipboard ()
 {
-	m_server->onCopyToClipboard();
+	if (Connection * conn = findCurrentConnection())
+	{
+		QString selection = conn->onCopyToClipboard();
+        qApp->clipboard()->setText(selection);
+	}
 }
 
 void MainWindow::setupMenuBar ()
@@ -979,29 +649,17 @@ void MainWindow::storeState ()
 	settings.setValue("geometry", saveGeometry());
 	settings.setValue("windowState", saveState());
 	//settings.setValue("splitter", ui->splitter->saveState());
-	settings.setValue("autoScrollCheckBox", ui->autoScrollCheckBox->isChecked());
-	settings.setValue("inViewCheckBox", ui->inViewCheckBox->isChecked());
-	settings.setValue("filterFileCheckBox", ui->filterFileCheckBox->isChecked());
+
 	settings.setValue("tableSlider", ui->tableSlider->value());
 	settings.setValue("plotSlider", ui->plotSlider->value());
 	settings.setValue("ganttSlider", ui->ganttSlider->value());
 	settings.setValue("buffCheckBox", ui->buffCheckBox->isChecked());
-	settings.setValue("clrFiltersCheckBox", ui_settings->clrFiltersCheckBox->isChecked());
 	//settings.setValue("filterModeComboBox", ui->filterModeComboBox->currentIndex());
-	settings.setValue("filterPaneComboBox", ui_settings->filterPaneComboBox->currentIndex());
+	//settings.setValue("filterPaneComboBox", ui_settings->filterPaneComboBox->currentIndex());
 	settings.setValue("levelSpinBox", ui->levelSpinBox->value());
 
 	settings.setValue("trace_stats", ui_settings->traceStatsCheckBox->isChecked());
 	settings.setValue("reuseTabCheckBox", ui_settings->reuseTabCheckBox->isChecked());
-	settings.setValue("scopesCheckBox1", ui_settings->scopesCheckBox->isChecked());
-	settings.setValue("indentCheckBox", ui_settings->indentCheckBox->isChecked());
-	settings.setValue("cutPathCheckBox", ui_settings->cutPathCheckBox->isChecked());
-	settings.setValue("cutNamespaceCheckBox", ui_settings->cutNamespaceCheckBox->isChecked());
-	settings.setValue("indentSpinBox", ui_settings->indentSpinBox->value());
-	settings.setValue("tableRowSizeSpinBox", ui_settings->tableRowSizeSpinBox->value());
-	settings.setValue("tableFontComboBox", ui_settings->tableFontComboBox->currentText());
-	settings.setValue("cutPathSpinBox", ui_settings->cutPathSpinBox->value());
-	settings.setValue("cutNamespaceSpinBox", ui_settings->cutNamespaceSpinBox->value());
 	settings.setValue("onTopCheckBox", ui_settings->onTopCheckBox->isChecked());
 	settings.setValue("presetComboBox", ui->presetComboBox->currentText());
 
@@ -1067,7 +725,6 @@ void MainWindow::convertBloodyBollockyBuggeryRegistry ()
 		assignSrcToDst(m_config.m_columns_sizes[i], cfg.m_columns_sizes);
 		assignSrcToDst(m_config.m_columns_align[i], cfg.m_columns_align);
 		assignSrcToDst(m_config.m_columns_elide[i], cfg.m_columns_elide);
-		cfg.m_auto_scroll = autoScrollEnabled();
 	}
 }
 
@@ -1078,43 +735,29 @@ void MainWindow::loadState ()
 	m_config.m_columns_setup.clear();
 	m_config.m_columns_sizes.clear();
 	m_config.loadSearchHistory();
-	updateSearchHistory();
+	//updateSearchHistory();
 
 	QSettings settings("MojoMir", "TraceServer");
 	restoreGeometry(settings.value("geometry").toByteArray());
 	restoreState(settings.value("windowState").toByteArray());
 	int const pane_val = settings.value("filterPaneComboBox", 0).toInt();
-	ui_settings->filterPaneComboBox->setCurrentIndex(pane_val);
+	/*ui_settings->filterPaneComboBox->setCurrentIndex(pane_val);
 	if (settings.contains("splitter"))
 	{
 		//ui->splitter->restoreState(settings.value("splitter").toByteArray());
 		//ui->splitter->setOrientation(pane_val ? Qt::Vertical : Qt::Horizontal);
-	}
+	}*/
 
 	ui_settings->traceStatsCheckBox->setChecked(settings.value("trace_stats", true).toBool());
 
-	ui->autoScrollCheckBox->setChecked(settings.value("autoScrollCheckBox", true).toBool());
-
-	if (ui->autoScrollCheckBox->checkState() != Qt::Checked)
-		ui->inViewCheckBox->setChecked(settings.value("inViewCheckBox", true).toBool());
-
 	ui_settings->reuseTabCheckBox->setChecked(settings.value("reuseTabCheckBox", true).toBool());
-	ui_settings->scopesCheckBox->setChecked(settings.value("scopesCheckBox1", true).toBool());
-	ui_settings->indentCheckBox->setChecked(settings.value("indentCheckBox", true).toBool());
-	ui_settings->cutPathCheckBox->setChecked(settings.value("cutPathCheckBox", true).toBool());
-	ui_settings->cutNamespaceCheckBox->setChecked(settings.value("cutNamespaceCheckBox", true).toBool());
-
-	ui_settings->indentSpinBox->setValue(settings.value("indentSpinBox", 2).toInt());
-	ui_settings->cutPathSpinBox->setValue(settings.value("cutPathSpinBox", 1).toInt());
-	ui_settings->cutNamespaceSpinBox->setValue(settings.value("cutNamespaceSpinBox", 1).toInt());
 
 	ui->tableSlider->setValue(settings.value("tableSlider", 0).toInt());
 	ui->plotSlider->setValue(settings.value("plotSlider", 0).toInt());
 	ui->ganttSlider->setValue(settings.value("ganttSlider", 0).toInt());
-	ui->filterFileCheckBox->setChecked(settings.value("filterFileCheckBox", true).toBool());
 	ui->buffCheckBox->setChecked(settings.value("buffCheckBox", true).toBool());
-	ui_settings->clrFiltersCheckBox->setChecked(settings.value("clrFiltersCheckBox", false).toBool());
-	//ui->filterModeComboBox->setCurrentIndex(settings.value("filterModeComboBox").toInt());
+
+
 	//@TODO: delete filterMode from registry if exists
 	if (m_start_level == -1)
 	{
@@ -1127,9 +770,8 @@ void MainWindow::loadState ()
 		ui->levelSpinBox->setValue(m_start_level);
 	}
 
-	ui_settings->tableRowSizeSpinBox->setValue(settings.value("tableRowSizeSpinBox", 18).toInt());
-	//ui_settings->tableFontComboBox->setValue(settings.value("tableFontComboBox", "Verdana 8").toInt());
 
+	// @TODO: old code
 	read_list_of_strings(settings, "known-applications", "application", m_config.m_app_names);
 	for (int i = 0, ie = m_config.m_app_names.size(); i < ie; ++i)
 	{
@@ -1228,7 +870,7 @@ bool MainWindow::eventFilter (QObject * target, QEvent * e)
 		QShortcutEvent * se = static_cast<QShortcutEvent *>(e);
 		if (se->key() == QKeySequence(Qt::ControlModifier + Qt::Key_Insert))
 		{
-			m_server->onCopyToClipboard();
+			onCopyToClipboard();
 			return true;
 		}
 	}
@@ -1238,10 +880,10 @@ bool MainWindow::eventFilter (QObject * target, QEvent * e)
 void MainWindow::addNewApplication (QString const & appname)
 {
 	m_config.m_app_names.push_back(appname);
-	m_config.m_columns_setup.push_back(columns_setup_t());
+	/*m_config.m_columns_setup.push_back(columns_setup_t());
 	m_config.m_columns_sizes.push_back(columns_sizes_t());
 	m_config.m_columns_align.push_back(columns_align_t());
-	m_config.m_columns_elide.push_back(columns_elide_t());
+	m_config.m_columns_elide.push_back(columns_elide_t());*/
 }
 
 int MainWindow::createAppName (QString const & appname, E_SrcProtocol const proto)
@@ -1251,7 +893,7 @@ int MainWindow::createAppName (QString const & appname, E_SrcProtocol const prot
 
 	if (proto == e_Proto_TLV)
 	{
-		size_t const n = tlv::tag_bool;
+		/*size_t const n = tlv::tag_bool;
 		for (int i = tlv::tag_time; i < n; ++i)
 		{
 			char const * name = tlv::get_tag_name(i);
@@ -1262,7 +904,7 @@ int MainWindow::createAppName (QString const & appname, E_SrcProtocol const prot
 				m_config.m_columns_align.back().push_back(QChar(alignToString(default_aligns[i])));
 				m_config.m_columns_elide.back().push_back(QChar(elideToString(default_elides[i])));
 			}
-		}
+		}*/
 		onSetup(proto, static_cast<int>(app_idx), true, true);
 	}
 	else if (proto == e_Proto_CSV)

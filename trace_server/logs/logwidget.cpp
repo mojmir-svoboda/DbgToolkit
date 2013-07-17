@@ -1,11 +1,14 @@
 #include "logwidget.h"
 //#include <QScrollBar>
 //#include <QSplitter>
-#include "../connection.h"
-#include "../utils.h"
-#include "../utils_qstandarditem.h"
+#include <connection.h>
+#include <utils.h>
+#include <utils_qstandarditem.h>
 //#include "delegates.h"
-#include "../syncwidgets.h"
+#include <syncwidgets.h>
+#include "logtablemodel.h"
+#include <QInputDialog>
+#include <QFontDialog>
 
 
 namespace logs {
@@ -16,19 +19,17 @@ namespace logs {
 		, m_config_ui(cfg, this)
 		, m_fname(fname)
 		, m_connection(connection)
+	, m_exclude_content_to_row(0)
+	, m_time_ref_row(0)
+	, m_current_tag(-1)
+	, m_current_selection(-1)
+	, m_time_ref_value(0)
+
 	, m_column_setup_done(false)
 	, m_last_search_row(0)
 	, m_last_search_col(0)
 	, m_table_view_widget(0)
-	, m_file_model(0)
-	, m_file_proxy(0)
-	, m_ctx_model(0)
-	, m_func_model(0)
-	, m_tid_model(0)
-	, m_color_regex_model(0)
-	, m_regex_model(0)
-	, m_lvl_model(0)
-	, m_string_model(0)
+
 	, m_table_view_proxy(0)
 	, m_table_view_src(0)
 	, m_last_clicked()
@@ -63,27 +64,26 @@ namespace logs {
 	QObject::disconnect(horizontalHeader(), SIGNAL(sectionHandleDoubleClicked(int)), this, SLOT(resizeColumnToContents(int)));
 
 	setObjectName(QString::fromUtf8("tableView"));
-	LogTableModel * model = new LogTableModel(this, connection);
+	LogTableModel * model = new LogTableModel(this, *this);
 	QObject::disconnect(model, SIGNAL(rowsInserted(QModelIndex,int,int)), verticalHeader(), SLOT(sectionsInserted(QModelIndex,int,int)));
-    verticalHeader()->setFont(config.m_font);
-	verticalHeader()->setDefaultSectionSize(config.m_row_width);
+    verticalHeader()->setFont(cfg.m_font);
+	verticalHeader()->setDefaultSectionSize(cfg.m_row_width);
 	verticalHeader()->hide();	// @NOTE: users want that //@NOTE2: they can't have it because of performance
 	setModel(model);
 	QObject::connect(horizontalHeader(), SIGNAL(sectionResized(int, int, int)), this, SLOT(onSectionResized(int, int, int)));
 
 	m_table_view_src = model;
-	m_table_view_widget = tableView;
-	setupThreadColors(connection->getMainWindow()->getThreadColors());
+	//setupThreadColors(connection->getMainWindow()->getThreadColors());
 
 
 	QStyle const * const style = QApplication::style();
-	connect(m_config_ui->ui()->gotoNextButton, SIGNAL(clicked()), this, SLOT(onNextToView()));
-	m_config_ui->ui()->gotoNextButton->setIcon(style->standardIcon(QStyle::SP_ArrowDown));
+	connect(m_config_ui.ui()->gotoNextButton, SIGNAL(clicked()), this, SLOT(onNextToView()));
+	m_config_ui.ui()->gotoNextButton->setIcon(style->standardIcon(QStyle::SP_ArrowDown));
 	//connect(ui->autoScrollCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onAutoScrollStateChanged(int)));
 	//connect(ui->inViewCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onInViewStateChanged(int)));
 	//
 	//
-	connect(ui->filterFileCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onFilterFile(int)));
+	connect(m_config_ui.ui()->filterFileCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onFilterFile(int)));
 
 	/*m_actions.resize(e_action_max_enum_value);
 	m_actions[e_action_ToggleRef] = new QAction("Set as reference time", this);
@@ -102,13 +102,13 @@ namespace logs {
     m_ctx_menu.addSeparator();
     m_ctx_menu.addAction(m_actions[e_action_Setup]);*/
 
-	m_data_model = new TreeModel(this, &m_session_state.m_data_filters);
+	//m_data_model = new TreeModel(this, &m_session_state.m_data_filters);
 	
-	m_delegates.get<e_delegate_Level>() = new LevelDelegate(m_session_state, this);
+	/*m_delegates.get<e_delegate_Level>() = new LevelDelegate(m_session_state, this);
 	m_delegates.get<e_delegate_Ctx>() = new CtxDelegate(m_session_state, this);
 	m_delegates.get<e_delegate_String>() = new StringDelegate(m_session_state, this);
 	m_delegates.get<e_delegate_Regex>() = new RegexDelegate(m_session_state, this);
-
+	*/
 	}
 
 	LogWidget::~LogWidget ()
@@ -183,8 +183,7 @@ namespace logs {
 	m_table_view_widget->setModel(0);
 	delete m_table_view_src;
 	m_table_view_src = 0;
-
-	m_table_view_widget = 0;*/
+	*/
 
 	}
 
@@ -257,14 +256,21 @@ namespace logs {
 		applyConfig(m_config);
 	}
 
+	void LogWidget::saveConfig (QString const & path)
+	{
+		QString const logpath = path + "/" + g_presetLogTag + "/" + m_config.m_tag;
+
+		filterWidget()->saveConfig(logpath);
+	}
+
 	void LogWidget::onSaveButton ()
 	{
 		/*m_config.m_hsize.clear();
 		m_config.m_hsize.resize(m_modelView->columnCount());
 		for (int i = 0, ie = m_modelView->columnCount(); i < ie; ++i)
 			m_config.m_hsize[i] = horizontalHeader()->sectionSize(i);*/
-		m_connection->saveConfigForLog(m_config, m_config.m_tag);
-
+		//saveConfig();
+		//m_pers_filter.saveConfig(
 	}
 	void LogWidget::onResetButton () { setConfigValuesToUI(m_config); }
 	void LogWidget::onDefaultButton ()
@@ -288,35 +294,31 @@ namespace logs {
 		qDebug("%s syncgrp=%i frame=%i", __FUNCTION__, sync_group, frame);
 	}*/
 
-void MainWindow::onNextToView ()
+void LogWidget::onNextToView ()
 {
-	if (!getTabTrace()->currentWidget()) return;
-	if (Connection * conn = m_server->findCurrentConnection())
-		conn->nextToView();
+	nextToView();
 }
 
-void MainWindow::turnOffAutoScroll ()
+void LogWidget::turnOffAutoScroll ()
 {
-	ui->autoScrollCheckBox->setCheckState(Qt::Unchecked);
+	//ui->autoScrollCheckBox->setCheckState(Qt::Unchecked);
 }
 
-void MainWindow::onAutoScrollHotkey ()
+void LogWidget::onAutoScrollHotkey ()
 {
-	if (ui->autoScrollCheckBox->checkState() == Qt::Checked)
+	/*if (ui->autoScrollCheckBox->checkState() == Qt::Checked)
 		turnOffAutoScroll();
 	else
-		ui->autoScrollCheckBox->setCheckState(Qt::Checked);
+		ui->autoScrollCheckBox->setCheckState(Qt::Checked);*/
 }
-}
-void Server::onFilterFile (int state)
+void LogWidget::onFilterFile (int state)
 {
-	if (Connection * conn = findCurrentConnection())
-		conn->setFilterFile(state);
+	setFilterFile(state);
 }
 
 void LogWidget::onTableFontToolButton ()
 {
-    bool ok = false;
+    /*bool ok = false;
 	QFont curr_font;
 	Connection * conn = m_server->findCurrentConnection();
 	if (conn)
@@ -329,23 +331,18 @@ void LogWidget::onTableFontToolButton ()
     if (ok)
 	{
 		ui_settings->tableFontComboBox->insertItem(0, curr_font.toString());
-		if (conn)
-			conn->getTableViewWidget()->verticalHeader()->setFont(f);
-    }
+		verticalHeader()->setFont(f);
+    }*/
 }
 
 
-void MainWindow::onEditFind ()
+void LogWidget::onEditFind ()
 {
-	int const tab_idx = getTabTrace()->currentIndex();
-	if (tab_idx < 0)
-		return;
-
-	bool ok;
-	QString search = QInputDialog::getText(this, tr("Find"), tr("Text:"), QLineEdit::Normal, m_config.m_last_search, &ok);
+	/*bool ok;
+	QString search = QInputDialog::getText(this, tr("Find"), tr("Text:"), QLineEdit::Normal, m_last_search, &ok);
 	if (ok)
 	{
-		m_config.m_last_search = search;
+		m_last_search = search;
 		if (int const pos = ui->qSearchComboBox->findText(search) >= 0)
 			ui->qSearchComboBox->setCurrentIndex(pos);
 		else
@@ -354,14 +351,11 @@ void MainWindow::onEditFind ()
 			ui->qSearchComboBox->setCurrentIndex(ui->qSearchComboBox->findText(search));
 		}
 		onQSearch(search);
-	}
+	}*/
 }
 
-void MainWindow::onQSearch (QString const & text)
+void LogWidget::onQSearch (QString const & text)
 {
-	Connection * conn = m_server->findCurrentConnection();
-	if (!conn) return;
-
 	appendToSearchHistory(text);
 	//QString qcolumn = ui->qSearchColumnComboBox->currentText();
 	//qDebug("onQSearch: col=%s text=%s", qcolumn.toStdString().c_str(), text.toStdString().c_str());
@@ -369,7 +363,7 @@ void MainWindow::onQSearch (QString const & text)
 	bool const search_all = true;
 	if (search_all)
 	{
-		conn->findText(text);
+		findText(text);
 	}
 	/*else
 	{
@@ -381,41 +375,31 @@ void MainWindow::onQSearch (QString const & text)
 	}*/
 }
 
-void MainWindow::onQSearchEditingFinished ()
+void LogWidget::onQSearchEditingFinished ()
 {
-	if (!getTabTrace()->currentWidget()) return;
-
-	QString const text = ui->qSearchComboBox->currentText();
-	onQSearch(text);
+	//QString const text = ui->qSearchComboBox->currentText();
+	//onQSearch(text);
 }
 
-void MainWindow::setLastSearchIntoCombobox (QString const & txt)
+void LogWidget::setLastSearchIntoCombobox (QString const & txt)
 {
-	ui->qSearchComboBox->addItem(txt);
-	ui->qSearchComboBox->setCurrentIndex(ui->qSearchComboBox->findText(txt));
+	//ui->qSearchComboBox->addItem(txt);
+	//ui->qSearchComboBox->setCurrentIndex(ui->qSearchComboBox->findText(txt));
 }
 
-void MainWindow::onFindAllButton ()
+void LogWidget::onFindAllButton ()
 {
-	if (!getTabTrace()->currentWidget()) return;
-
-	QString const text = ui->qSearchComboBox->currentText();
-	if (Connection * conn = m_server->findCurrentConnection())
-	conn->findAllTexts(text);
+	//QString const text = ui->qSearchComboBox->currentText();
+	//findAllTexts(text);
 }
 
-void MainWindow::onQFilterLineEditFinished ()
+void LogWidget::onQFilterLineEditFinished ()
 {
-	if (!getTabTrace()->currentWidget()) return;
-
-	Connection * conn = m_server->findCurrentConnection();
-	if (!conn) return;
-
-	if (ui->qFilterLineEdit->text().size() == 0)
+	/*if (ui->qFilterLineEdit->text().size() == 0)
 		return;
 
 	QString text = ui->qFilterLineEdit->text();
-	conn->appendToStringFilters(text, true, true);
+	appendToStringFilters(text, true, true);
 
 	QStandardItemModel * model = static_cast<QStandardItemModel *>(getWidgetString()->model());
 	QStandardItem * root = model->invisibleRootItem();
@@ -437,40 +421,1059 @@ void MainWindow::onQFilterLineEditFinished ()
 		}
 	}
 
-	conn->recompileStrings();
+	recompileStrings();*/
 }
 
-void MainWindow::appendToSearchHistory (QString const & str)
+void LogWidget::appendToSearchHistory (QString const & str)
 {
-	if (str.length() == 0)
+/*	if (str.length() == 0)
 		return;
 	m_config.m_search_history.insert(str);
 	m_config.saveSearchHistory();
 	updateSearchHistory();
-	ui->qSearchComboBox->setCurrentIndex(ui->qSearchComboBox->findText(str));
+	ui->qSearchComboBox->setCurrentIndex(ui->qSearchComboBox->findText(str));*/
 }
 
-void MainWindow::updateSearchHistory ()
+void LogWidget::updateSearchHistory ()
 {
-	ui->qSearchComboBox->clear();
+/*	ui->qSearchComboBox->clear();
 	for (size_t i = 0, ie = m_config.m_search_history.size(); i < ie; ++i)
-		ui->qSearchComboBox->addItem(m_config.m_search_history[i]);
+		ui->qSearchComboBox->addItem(m_config.m_search_history[i]);*/
 }
 
-void MainWindow::onEditFindNext ()
+void LogWidget::onEditFindNext ()
 {
-	if (!getTabTrace()->currentWidget()) return;
-	if (Connection * conn = m_server->findCurrentConnection())
-		conn->findNext(ui->qSearchComboBox->currentText());
+	//findNext(ui->qSearchComboBox->currentText());
 }
 
-void MainWindow::onEditFindPrev ()
+void LogWidget::onEditFindPrev ()
 {
-	if (!getTabTrace()->currentWidget()) return;
-	if (Connection * conn = m_server->findCurrentConnection())
-		conn->findPrev(ui->qSearchComboBox->currentText());
+	//findPrev(ui->qSearchComboBox->currentText());
 }
 
+void LogWidget::onDumpFilters ()
+{
+	/*QDialog dialog(this);
+	dialog.setWindowFlags(Qt::Sheet);
+	m_help->setupUi(&dialog);
+	m_help->helpTextEdit->clear();
+
+	QString text(tr("Dumping current filters:\n"));
+	QString session_string;
+
+	if (Connection * conn = m_server->findCurrentConnection())
+	{
+		SessionState const & ss = conn->sessionState();
+		QString ff;
+		ss.m_file_filters.dump_filter(ff);
+
+		QString cols;
+		for (int i = 0, ie = ss.m_colorized_texts.size(); i < ie; ++i)
+		{
+			ColorizedText const & x = ss.m_colorized_texts.at(i);
+			cols += QString("%1 %2 %3\n")
+						.arg(x.m_regex_str)
+						.arg(x.m_qcolor.name())
+						.arg(x.m_is_enabled ? " on" : "off");
+		}
+		QString regs;
+		for (int i = 0, ie = ss.m_filtered_regexps.size(); i < ie; ++i)
+		{
+			FilteredRegex const & x = ss.m_filtered_regexps.at(i);
+			regs += QString("%1 %2 %3\n")
+						.arg(x.m_regex_str)
+						.arg(x.m_state ? "incl" : "excl")
+						.arg(x.m_is_enabled ? " on" : "off");
+		}
+		QString lvls;
+		for (int i = 0, ie = ss.m_lvl_filters.size(); i < ie; ++i)
+		{
+			FilteredLevel const & x = ss.m_lvl_filters.at(i);
+			lvls += QString("%1 %2 %3\n")
+						.arg(x.m_level_str)
+						.arg(x.m_is_enabled ? " on" : "off")
+						.arg(x.m_state ? "incl" : "excl");
+		}
+		QString ctxs;
+		for (int i = 0, ie = ss.m_ctx_filters.size(); i < ie; ++i)
+		{
+			FilteredContext const & x = ss.m_ctx_filters.at(i);
+			ctxs += QString("%1 %2 %3\n")
+						.arg(x.m_ctx_str)
+						.arg(x.m_state)
+						.arg(x.m_is_enabled ? " on" : "off");
+		}
+
+		session_string = QString("Files:\n%1\n\nColors:\n%2\n\nRegExps:\n%3\n\nLevels:\n%4\n\nContexts:\n%5\n\n")
+				.arg(ff)
+				.arg(cols)
+				.arg(regs)
+				.arg(lvls)
+				.arg(ctxs);
+	}
+
+	m_help->helpTextEdit->setPlainText(text + session_string);
+	m_help->helpTextEdit->setReadOnly(true);
+	dialog.exec();*/
+}
+
+
+void LogWidget::appendLog (DecodedCommand const & cmd)
+{
+	if (cmd.hdr.cmd == tlv::cmd_scope_entry || (cmd.hdr.cmd == tlv::cmd_scope_exit))
+	{
+		if (m_config.m_scopes)
+		{
+			LogTableModel * model = static_cast<LogTableModel *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
+			//dp.widget().model()->appendCommand(m_table_view_proxy, cmd);
+			model->appendCommand(m_table_view_proxy, cmd);
+		}
+	}
+	else if (cmd.hdr.cmd == tlv::cmd_log)
+	{
+		LogTableModel * model = static_cast<LogTableModel *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
+		model->appendCommand(m_table_view_proxy, cmd);
+	}
+}
+
+
+void LogWidget::applyConfig ()
+{
+/*	settings.setValue("autoScrollCheckBox", ui->autoScrollCheckBox->isChecked());
+	settings.setValue("inViewCheckBox", ui->inViewCheckBox->isChecked());
+	settings.setValue("filterFileCheckBox", ui->filterFileCheckBox->isChecked());
+	settings.setValue("clrFiltersCheckBox", ui_settings->clrFiltersCheckBox->isChecked());
+	//settings.setValue("filterModeComboBox", ui->filterModeComboBox->currentIndex());
+	//settings.setValue("filterPaneComboBox", ui_settings->filterPaneComboBox->currentIndex());
+
+	settings.setValue("scopesCheckBox1", ui_settings->scopesCheckBox->isChecked());
+	settings.setValue("indentCheckBox", ui_settings->indentCheckBox->isChecked());
+	settings.setValue("cutPathCheckBox", ui_settings->cutPathCheckBox->isChecked());
+	settings.setValue("cutNamespaceCheckBox", ui_settings->cutNamespaceCheckBox->isChecked());
+	settings.setValue("indentSpinBox", ui_settings->indentSpinBox->value());
+	settings.setValue("tableRowSizeSpinBox", ui_settings->tableRowSizeSpinBox->value());
+	settings.setValue("tableFontComboBox", ui_settings->tableFontComboBox->currentText());
+	settings.setValue("cutPathSpinBox", ui_settings->cutPathSpinBox->value());
+	settings.setValue("cutNamespaceSpinBox", ui_settings->cutNamespaceSpinBox->value());
+
+
+*/
+}
+
+/*void FilterState::setupColumns (QList<QString> * cs_template, columns_sizes_t * sizes , columns_align_t * ca_template, columns_elide_t * ce_template)
+{
+	m_columns_sizes = sizes;
+	m_columns_setup_template = cs_template;
+	m_columns_align_template = ca_template;
+	m_columns_elide_template = ce_template;
+
+	if (!m_columns_setup_current)
+	{
+		m_columns_setup_current = new QList<QString>();
+	}
+	else
+	{
+		m_columns_setup_current->clear();
+	}
+
+	m_tags2columns.clear();
+	*m_columns_setup_current = *m_columns_setup_template;
+	for (size_t i = 0, ie = cs_template->size(); i < ie; ++i)
+	{
+		size_t const tag_idx = tlv::tag_for_name(cs_template->at(i).toStdString().c_str());
+		if (tag_idx != tlv::tag_invalid)
+		{
+			m_tags2columns.insert(tag_idx, static_cast<int>(i)); // column index is int in Qt toolkit
+			//qDebug("FilterState::setupColumns col[%u] tag_idx=%u tag_name=%s", i, tag_idx, cs->at(i).toStdString().c_str());
+		}
+	}
+}
+
+void FilterState::setupColumnsCSV (QList<QString> * cs_template, columns_sizes_t * sizes
+			, columns_align_t * ca_template, columns_elide_t * ce_template)
+{
+	m_columns_sizes = sizes;
+	m_columns_setup_template = cs_template;
+	m_columns_align_template = ca_template;
+	m_columns_elide_template = ce_template;
+
+	if (!m_columns_setup_current)
+	{
+		m_columns_setup_current = new QList<QString>();
+	}
+	else
+	{
+		m_columns_setup_current->clear();
+	}
+
+	m_tags2columns.clear();
+	*m_columns_setup_current = *m_columns_setup_template;
+}*/
+
+int LogWidget::findColumn4Tag (tlv::tag_t tag) const
+{
+	QMap<tlv::tag_t, int>::const_iterator it = m_tags2columns.find(tag);
+	if (it != m_tags2columns.end())
+		return it.value();
+	return -1;
+}
+
+int LogWidget::findColumn4TagInTemplate (tlv::tag_t tag) const
+{
+	QMap<tlv::tag_t, int>::const_iterator it = m_tags2columns.find(tag);
+	if (it != m_tags2columns.end())
+		return it.value();
+	return -1;
+}
+
+int LogWidget::appendColumn (tlv::tag_t tag)
+{
+	TagDesc const & desc = m_tagconfig.findOrCreateTag(tag);
+
+	m_config.m_columns_setup.push_back(desc.m_tag_str);
+	m_config.m_columns_align.push_back(desc.m_align_str);
+	m_config.m_columns_elide.push_back(desc.m_elide_str);
+	m_config.m_columns_sizes.push_back(desc.m_size);
+
+	//qDebug("inserting column and size. tmpl_sz=%u curr_sz=%u sizes_sz=%u", m_columns_setup_template->size(), m_columns_setup_current->size(), m_columns_sizes->size());
+
+	int const column_index = m_config.m_columns_setup.size() - 1;
+	m_tags2columns.insert(tag, column_index);
+
+	return column_index;
+}
+
+QString LogWidget::onCopyToClipboard ()
+{
+	QAbstractItemModel * m = model();
+	QItemSelectionModel * selection = selectionModel();
+	if (!selection)
+		return QString();
+	QModelIndexList indexes = selection->selectedIndexes();
+
+	if (indexes.size() < 1)
+		return QString();
+
+	std::sort(indexes.begin(), indexes.end());
+
+	QString selected_text;
+	selected_text.reserve(4096);
+	for (int i = 0; i < indexes.size(); ++i)
+	{
+		QModelIndex const current = indexes.at(i);
+		selected_text.append(m->data(current).toString());
+		
+		if (i + 1 < indexes.size() && current.row() != indexes.at(i + 1).row())
+			selected_text.append('\n');	// switching rows
+		else
+			selected_text.append('\t');
+	}
+	return selected_text;
+}
+
+bool LogWidget::isModelProxy () const
+{
+	if (0 == model())
+		return false;
+	return model() == m_table_view_proxy;
+}
+
+void LogWidget::findTableIndexInFilters (QModelIndex const & src_idx, bool scroll_to_item, bool expand)
+{
+/*	{
+		QString const file = findString4Tag(tlv::tag_file, src_idx);
+		QString const line = findString4Tag(tlv::tag_line, src_idx);
+		QString const combined = file + "/" + line;
+		qDebug("findTableIndexInFilters %s in tree", combined.toStdString().c_str());
+		m_file_model->selectItem(m_main_window->getWidgetFile(), combined, scroll_to_item);
+		if (expand)
+			m_file_model->expandItem(m_main_window->getWidgetFile(), combined);
+	}
+	{
+		QString tid = findString4Tag(tlv::tag_tid, src_idx);
+		QModelIndexList indexList = m_tid_model->match(m_tid_model->index(0, 0), Qt::DisplayRole, tid);
+		if (!indexList.empty())
+		{
+			QModelIndex const selectedIndex(indexList.first());
+			m_main_window->getWidgetTID()->setCurrentIndex(selectedIndex);
+		}
+	}
+	{
+		QString lvl = findString4Tag(tlv::tag_lvl, src_idx);
+		QModelIndexList indexList = m_lvl_model->match(m_lvl_model->index(0, 0), Qt::DisplayRole, lvl);
+		if (!indexList.empty())
+		{
+			QModelIndex const selectedIndex(indexList.first());
+			m_main_window->getWidgetLvl()->setCurrentIndex(selectedIndex);
+		}
+	}
+	{
+		QString ctx = findString4Tag(tlv::tag_ctx, src_idx);
+		QModelIndexList indexList = m_ctx_model->match(m_ctx_model->index(0, 0), Qt::DisplayRole, ctx);
+		if (!indexList.empty())
+		{
+			QModelIndex const selectedIndex(indexList.first());
+			m_main_window->getWidgetCtx()->setCurrentIndex(selectedIndex);
+		}
+	}*/
+}
+
+void LogWidget::onTableClicked (QModelIndex const & row_index)
+{
+/*	m_last_clicked = row_index;
+	if (isModelProxy())
+		m_last_clicked = m_table_view_proxy->mapToSource(row_index);
+
+	m_last_search_row = m_last_clicked.row(); // set search from this line
+	m_last_search_col = m_last_clicked.column();
+
+	bool const scroll_to_item = false;
+	bool const expand = false;
+	findTableIndexInFilters(m_last_clicked, scroll_to_item, expand);*/
+}
+
+void LogWidget::onTableDoubleClicked (QModelIndex const & row_index)
+{
+/*	if (m_table_view_proxy)
+	{
+		QModelIndex const curr = m_table_view_proxy->mapToSource(row_index);
+		LogTableModel * model = static_cast<LogTableModel *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
+		qDebug("2c curr: (%i,col) -> (%i,col)", row_index.row(), curr.row());
+
+		int row_bgn = curr.row();
+		int row_end = curr.row();
+		int layer = model->layers()[row_bgn];
+
+		if (model->rowTypes()[row_bgn] == tlv::cmd_scope_exit)
+		{
+			layer += 1;
+			// test na range
+			--row_bgn;
+		}
+
+		QString tid = findString4Tag(tlv::tag_tid, curr);
+		QString file = findString4Tag(tlv::tag_file, curr);
+		QString line = findString4Tag(tlv::tag_line, curr);
+		int from = row_bgn;
+
+		if (model->rowTypes()[from] != tlv::cmd_scope_entry)
+		{
+			while (row_bgn > 0)
+			{
+				QModelIndex const curr_idx = model->index(row_bgn, row_index.column(), QModelIndex());
+				QString curr_tid = findString4Tag(tlv::tag_tid, curr_idx);
+				if (curr_tid == tid)
+				{
+					if (static_cast<int>(model->layers()[row_bgn]) >= layer)
+					{
+						from = row_bgn;
+					}
+					else
+					{	
+						break;
+					}
+				}
+				--row_bgn;
+			}
+		}
+
+		int to = row_end;
+		if (model->rowTypes()[to] != tlv::cmd_scope_exit)
+		{
+			while (row_end < static_cast<int>(model->layers().size()))
+			{
+				QModelIndex const curr_idx = model->index(row_end, row_index.column(), QModelIndex());
+				QString next_tid = findString4Tag(tlv::tag_tid, curr_idx);
+				if (next_tid == tid)
+				{
+					if (model->layers()[row_end] >= layer)
+						to = row_end;
+					else if ((model->layers()[row_end] == layer - 1) && (model->rowTypes()[row_end] == tlv::cmd_scope_exit))
+					{
+						to = row_end;
+						break;
+					}
+					else
+						break;
+				}
+				++row_end;
+			}
+		}
+
+		qDebug("row=%u / curr=%u layer=%u, from,to=(%u, %u)", row_index.row(), curr.row(), layer, from, to);
+		if (m_session_state.findCollapsedBlock(tid, from, to))
+			m_session_state.eraseCollapsedBlock(tid, from, to);
+		else
+			m_session_state.appendCollapsedBlock(tid, from, to, file, line);
+		onInvalidateFilter();
+	}*/
+}
+
+void LogWidget::onApplyColumnSetup ()
+{
+/*	qDebug("%s", __FUNCTION__);
+	for (int i = 0; i < m_table_view_widget->horizontalHeader()->count(); ++i)
+	{
+		//qDebug("column: %s", m_table_view_widget->horizontalHeader()->text());
+	}
+
+	QMap<int, int> order;
+
+	if (sessionState().m_app_idx == -1)
+		sessionState().m_app_idx = m_main_window->m_config.m_columns_setup.size() - 1;
+	
+	columns_setup_t const & new_cs = m_main_window->getColumnSetup(sessionState().m_app_idx);
+
+	for (int i = 0, ie = new_cs.size(); i < ie; ++i)
+	{
+		tlv::tag_t const tag = tlv::tag_for_name(new_cs.at(i).toStdString().c_str());
+		if (tag != tlv::tag_invalid)
+		{
+			order[tag] = i;
+		}
+	}
+
+	if (0 == sessionState().m_columns_setup_current)
+	{
+	}
+	else
+	{
+		columns_setup_t const & old_cs = *sessionState().m_columns_setup_current;
+	}
+*/
+	//static_cast<TableView *>(m_table_view_widget)->setColumnOrder(order, m_session_state);
+}
+
+void LogWidget::onExcludeFileLine ()
+{
+	QModelIndex const current = m_last_clicked;
+	if (current.isValid())
+	{
+		onExcludeFileLine(current);
+		onInvalidateFilter();
+	}
+}
+
+void LogWidget::onToggleRefFromRow ()
+{
+	/*QModelIndex const current = m_last_clicked;
+	if (current.isValid())
+	{
+		qDebug("Toggle Ref from row=%i", current.row());
+		m_session_state.setTimeRefFromRow(current.row());
+
+		//LogTableModel * model = static_cast<LogTableModel *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
+		QString const & strtime = findString4Tag(tlv::tag_time, current);
+		m_session_state.setTimeRefValue(strtime.toULongLong());
+		onInvalidateFilter();
+	}*/
+}
+
+void LogWidget::onColorTagRow (int)
+{
+	/*QModelIndex current = m_table_view_widget->currentIndex();
+	if (isModelProxy())
+	{
+		current = m_table_view_proxy->mapToSource(current);
+	}
+
+	int const row = current.row(); // set search from this line
+	if (current.isValid())
+	{
+		qDebug("Color tag on row=%i", current.row());
+		m_session_state.addColorTagRow(current.row());
+		onInvalidateFilter();
+	}*/
+}
+
+void LogWidget::onClearCurrentView ()
+{
+	/*LogTableModel * model = static_cast<LogTableModel *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
+	m_session_state.excludeContentToRow(model->rowCount());
+	onInvalidateFilter();*/
+}
+
+void LogWidget::onHidePrevFromRow ()
+{
+	/*QModelIndex const current = m_last_clicked;
+	if (current.isValid())
+	{
+		qDebug("Hide prev from row=%i", current.row());
+		m_session_state.excludeContentToRow(current.row());
+		onInvalidateFilter();
+	}*/
+}
+
+void LogWidget::onUnhidePrevFromRow ()
+{
+	//m_session_state.excludeContentToRow(0);
+	//onInvalidateFilter();
+}
+
+/*
+void LogWidget::onShowContextMenu (QPoint const & pos)
+{
+    QPoint globalPos = m_table_view_widget->mapToGlobal(pos);
+    QAction * selectedItem = m_ctx_menu.exec(globalPos); // @TODO: rather async
+
+	//poas = ui->tableView->viewport()->mapFromGlobal(e->globalPos());
+	QModelIndex const idx = m_table_view_widget->indexAt(pos);
+	qDebug("left click at r=%2i,c=%2i", idx.row(), idx.column());
+
+	onTableClicked(idx);
+
+    if (selectedItem == m_actions[e_action_HidePrev])
+    {
+		onHidePrevFromRow();
+    }
+    else if (selectedItem == m_actions[e_action_ToggleRef])
+    {
+		onToggleRefFromRow();
+    }
+    else if (selectedItem == m_actions[e_action_ExcludeFileLine])
+	{
+		onExcludeFileLine(m_last_clicked);
+	}
+    else if (selectedItem == m_actions[e_action_Find])
+	{
+		onFindFileLine(m_last_clicked);
+	}
+    else if (selectedItem == m_actions[e_action_Copy])
+	{
+		QString const & selection = onCopyToClipboard();
+		qApp->clipboard()->setText(selection);
+	}
+    else if (selectedItem == m_actions[e_action_ColorTag])
+	{
+		onColorTagRow(m_last_clicked.row());
+	}
+    else if (selectedItem == m_actions[e_action_Setup])
+	{
+	}
+    else
+    { }
+}
+*/
+
+void LogWidget::onSectionResized (int idx, int /*old_size*/, int new_size)
+{
+	if (idx < m_config.m_columns_setup.size())
+	{
+		m_config.m_columns_sizes[idx] = new_size;
+	}
+}
+
+void LogWidget::exportStorageToCSV (QString const & filename)
+{
+	// " --> ""
+	QRegExp regex("\"");
+	QString to_string("\"\"");
+	QFile csv(filename);
+	csv.open(QIODevice::WriteOnly);
+	QTextStream str(&csv);
+
+	for (int c = 0, ce = m_config.m_columns_setup.size(); c < ce; ++c)
+	{
+		str << "\"" << m_config.m_columns_setup.at(c) << "\"";
+		if (c < ce - 1)
+			str << ",\t";
+	}
+	str << "\n";
+
+	for (int r = 0, re = model()->rowCount(); r < re; ++r)
+	{
+		for (int c = 0, ce = model()->columnCount(); c < ce; ++c)
+		{
+			QModelIndex current = model()->index(r, c, QModelIndex());
+			// csv nedumpovat pres proxy
+			QString txt = model()->data(current).toString();
+			QString const quoted_txt = txt.replace(regex, to_string);
+			str << "\"" << quoted_txt << "\"";
+			if (c < ce - 1)
+				str << ",\t";
+		}
+		str << "\n";
+	}
+	csv.close();
+}
+
+
+}
+
+
+
+#if 0
+
+#include "ui_settings.h"
+#include <QLineEdit>
+#include <QListView>
+#include <QListWidget>
+#include <QMimeData>
+#include <QDragEnterEvent>
+#include <QStandardItem>
+#include "types.h"
+#include "utils.h"
+#include "utils_qstandarditem.h"
+#include "mainwindow.h"
+#include "connection.h"
+#include "movablelistmodel.h"
+#include <tlv_parser/tlv_parser.h>
+
+
+
+void MainWindow::syncSettingsViews (QListView const * const invoker, QModelIndex const idx)
+{
+	QListView * const views[] = { ui_settings->listViewColumnSetup, ui_settings->listViewColumnSizes, ui_settings->listViewColumnAlign, ui_settings->listViewColumnElide };
+
+	for (size_t i = 0; i < sizeof(views) / sizeof(*views); ++i)
+	{
+		if (views[i] != invoker)
+		{
+			views[i]->selectionModel()->clearSelection();
+			QModelIndex const other_idx = views[i]->model()->index(idx.row(), idx.column(), QModelIndex());
+			views[i]->selectionModel()->select(other_idx, QItemSelectionModel::Select);
+		}
+	}
+}
+
+void MainWindow::onClickedAtSettingColumnSetup (QModelIndex const idx)
+{
+	syncSettingsViews(ui_settings->listViewColumnSetup, idx);
+
+	QStandardItem * const item = static_cast<QStandardItemModel *>(ui_settings->listViewColumnSetup->model())->itemFromIndex(idx);
+	Qt::CheckState const curr = item->checkState();
+
+	item->setCheckState(curr == Qt::Checked ? Qt::Unchecked : Qt::Checked);
+
+	QModelIndex const size_idx = ui_settings->listViewColumnSizes->model()->index(idx.row(), idx.column(), QModelIndex());
+	if (curr == Qt::Checked)
+	{
+		//ui_settings->listViewColumnSizes->model()->setData(size_idx, QString("0"));
+	}
+	else
+	{
+		// this does not work at all
+		/*int app_idx = 0;
+		Connection * conn = m_server->findCurrentConnection();
+		if (conn)
+			app_idx = conn->sessionState().m_app_idx;
+
+		int size_val = 64;
+		if (app_idx < m_columns_sizes.size())
+		{
+			if (size_idx.row() < m_columns_sizes[app_idx].size())
+			{
+				size_val = m_columns_sizes[app_idx].at(size_idx.row());
+				ui_settings->listViewColumnSizes->model()->setData(size_idx, tr("%1").arg(size_val));
+			}
+		}*/
+	}
+}
+void MainWindow::onClickedAtSettingColumnSizes (QModelIndex const idx)
+{
+	syncSettingsViews(ui_settings->listViewColumnSizes, idx);
+}
+void MainWindow::onClickedAtSettingColumnAlign (QModelIndex const idx)
+{
+	QString const txt = ui_settings->listViewColumnAlign->model()->data(idx).toString();
+	E_Align const curr = stringToAlign(txt.toStdString().c_str()[0]);
+	size_t i = (curr + 1) % e_max_align_enum_value;
+	E_Align const act = static_cast<E_Align>(i);
+	ui_settings->listViewColumnAlign->model()->setData(idx, QString(alignToString(act)));
+
+	syncSettingsViews(ui_settings->listViewColumnAlign, idx);
+}
+void MainWindow::onClickedAtSettingColumnElide (QModelIndex const idx)
+{
+	QString const txt = ui_settings->listViewColumnElide->model()->data(idx).toString();
+	E_Elide const curr = stringToElide(txt.toStdString().c_str()[0]);
+	size_t i = (curr + 1) % e_max_elide_enum_value;
+	E_Elide const act = static_cast<E_Elide>(i);
+	ui_settings->listViewColumnElide->model()->setData(idx, QString(elideToString(act)));
+
+	syncSettingsViews(ui_settings->listViewColumnElide, idx);
+}
+
+void MainWindow::onSettingsAppSelectedTLV (int const idx, bool const first_time)
+{
+	qDebug("settings, clicked idx=%i", idx);
+	clearListView(ui_settings->listViewColumnSetup);
+	clearListView(ui_settings->listViewColumnSizes);
+	clearListView(ui_settings->listViewColumnAlign);
+	clearListView(ui_settings->listViewColumnElide);
+
+	ui_settings->listViewColumnSetup->reset();
+	ui_settings->listViewColumnSizes->reset();
+	ui_settings->listViewColumnAlign->reset();
+	ui_settings->listViewColumnElide->reset();
+
+	QStandardItem * cs_root = static_cast<QStandardItemModel *>(ui_settings->listViewColumnSetup->model())->invisibleRootItem();
+	QStandardItem * csz_root = static_cast<QStandardItemModel *>(ui_settings->listViewColumnSizes->model())->invisibleRootItem();
+	QStandardItem * cal_root = static_cast<QStandardItemModel *>(ui_settings->listViewColumnAlign->model())->invisibleRootItem();
+	QStandardItem * cel_root = static_cast<QStandardItemModel *>(ui_settings->listViewColumnElide->model())->invisibleRootItem();
+	if (idx >= 0 && idx < m_config.m_columns_setup.size())
+		for (int i = 0, ie = m_config.m_columns_setup[idx].size(); i < ie; ++i)
+		{
+			cs_root->appendRow(addRow(m_config.m_columns_setup.at(idx).at(i), true));
+			csz_root->appendRow(addUncheckableRow(tr("%1").arg(m_config.m_columns_sizes.at(idx).at(i))));
+			cal_root->appendRow(addUncheckableRow(tr("%1").arg(m_config.m_columns_align.at(idx).at(i))));
+			cel_root->appendRow(addUncheckableRow(tr("%1").arg(m_config.m_columns_elide.at(idx).at(i))));
+		}
+
+	//size_t const n = tlv::get_tag_count() - 1; // -1 is for the tag Bool
+	size_t const n = tlv::tag_bool;
+
+	size_t add_tag_count = 0;
+	size_t * const add_tag_indices = static_cast<size_t * const>(alloca(sizeof(size_t) * n));
+	for (size_t i = tlv::tag_time; i < n; ++i)
+	{
+		char const * name = tlv::get_tag_name(i);
+		if (name)
+		{
+			if (findChildByText(cs_root, QString::fromLatin1(name)))
+				continue;
+
+			QList<QStandardItem *> row_items = addRow(QString::fromLatin1(name), first_time);
+			cs_root->appendRow(row_items);
+			add_tag_indices[add_tag_count++] = i;
+
+			csz_root->appendRow(addUncheckableRow(QString("0")));
+			cal_root->appendRow(addUncheckableRow(QString(aligns[0])));
+			cel_root->appendRow(addUncheckableRow(QString(elides[0])));
+		}
+	}
+
+	disconnect(ui_settings->listViewColumnSetup, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtSettingColumnSetup(QModelIndex)));
+	disconnect(ui_settings->listViewColumnSizes, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtSettingColumnSizes(QModelIndex)));
+	disconnect(ui_settings->listViewColumnAlign, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtSettingColumnAlign(QModelIndex)));
+	disconnect(ui_settings->listViewColumnElide, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtSettingColumnElide(QModelIndex)));
+	connect(ui_settings->listViewColumnSetup, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtSettingColumnSetup(QModelIndex)));
+	connect(ui_settings->listViewColumnSizes, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtSettingColumnSizes(QModelIndex)));
+	connect(ui_settings->listViewColumnAlign, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtSettingColumnAlign(QModelIndex)));
+	connect(ui_settings->listViewColumnElide, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtSettingColumnElide(QModelIndex)));
+
+	connect(ui_settings->macUserButton, SIGNAL(clicked()), this, SLOT(onClickedAtSettingPooftahButton()));
+	connect(ui_settings->okButton, SIGNAL(clicked()), this, SLOT(onClickedAtSettingOkButton()));
+	connect(ui_settings->okSaveButton, SIGNAL(clicked()), this, SLOT(onClickedAtSettingOkSaveButton()));
+	connect(ui_settings->cancelButton, SIGNAL(clicked()), this, SLOT(onClickedAtSettingCancelButton()));
+}
+
+
+void MainWindow::onSettingsAppSelectedCSV (int const idx, int const columns, bool const first_time)
+{
+	qDebug("settings, clicked idx=%i", idx);
+	clearListView(ui_settings->listViewColumnSetup);
+	clearListView(ui_settings->listViewColumnSizes);
+	clearListView(ui_settings->listViewColumnAlign);
+	clearListView(ui_settings->listViewColumnElide);
+
+	ui_settings->listViewColumnSetup->reset();
+	ui_settings->listViewColumnSizes->reset();
+	ui_settings->listViewColumnAlign->reset();
+	ui_settings->listViewColumnElide->reset();
+
+	QStandardItem * cs_root = static_cast<QStandardItemModel *>(ui_settings->listViewColumnSetup->model())->invisibleRootItem();
+	QStandardItem * csz_root = static_cast<QStandardItemModel *>(ui_settings->listViewColumnSizes->model())->invisibleRootItem();
+	QStandardItem * cal_root = static_cast<QStandardItemModel *>(ui_settings->listViewColumnAlign->model())->invisibleRootItem();
+	QStandardItem * cel_root = static_cast<QStandardItemModel *>(ui_settings->listViewColumnElide->model())->invisibleRootItem();
+	if (idx >= 0 && idx < m_config.m_columns_setup.size())
+		for (int i = 0, ie = m_config.m_columns_setup[idx].size(); i < ie; ++i)
+		{
+			cs_root->appendRow(addRow(m_config.m_columns_setup.at(idx).at(i), true));
+			csz_root->appendRow(addUncheckableRow(tr("%1").arg(m_config.m_columns_sizes.at(idx).at(i))));
+			cal_root->appendRow(addUncheckableRow(tr("%1").arg(m_config.m_columns_align.at(idx).at(i))));
+			cel_root->appendRow(addUncheckableRow(tr("%1").arg(m_config.m_columns_elide.at(idx).at(i))));
+		}
+
+	/*
+	//size_t const n = tlv::get_tag_count() - 1; // -1 is for the tag Bool
+	size_t const n = tlv::tag_bool;
+
+	size_t add_tag_count = 0;
+	size_t * const add_tag_indices = static_cast<size_t * const>(alloca(sizeof(size_t) * n));
+	for (size_t i = tlv::tag_time; i < n; ++i)
+	{
+		char const * name = tlv::get_tag_name(i);
+		if (name)
+		{
+			if (findChildByText(cs_root, QString::fromAscii(name)))
+				continue;
+
+			QList<QStandardItem *> row_items = addRow(QString::fromAscii(name), first_time);
+			cs_root->appendRow(row_items);
+			add_tag_indices[add_tag_count++] = i;
+
+			csz_root->appendRow(addUncheckableRow(QString("0")));
+			cal_root->appendRow(addUncheckableRow(QString(aligns[0])));
+			cel_root->appendRow(addUncheckableRow(QString(elides[0])));
+		}
+	}*/
+
+	disconnect(ui_settings->listViewColumnSetup, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtSettingColumnSetup(QModelIndex)));
+	disconnect(ui_settings->listViewColumnSizes, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtSettingColumnSizes(QModelIndex)));
+	disconnect(ui_settings->listViewColumnAlign, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtSettingColumnAlign(QModelIndex)));
+	disconnect(ui_settings->listViewColumnElide, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtSettingColumnElide(QModelIndex)));
+	connect(ui_settings->listViewColumnSetup, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtSettingColumnSetup(QModelIndex)));
+	connect(ui_settings->listViewColumnSizes, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtSettingColumnSizes(QModelIndex)));
+	connect(ui_settings->listViewColumnAlign, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtSettingColumnAlign(QModelIndex)));
+	connect(ui_settings->listViewColumnElide, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtSettingColumnElide(QModelIndex)));
+
+	/*connect(ui_settings->macUserButton, SIGNAL(clicked()), this, SLOT(onClickedAtSettingPooftahButton()));
+	connect(ui_settings->okButton, SIGNAL(clicked()), this, SLOT(onClickedAtSettingOkButton()));
+	connect(ui_settings->okSaveButton, SIGNAL(clicked()), this, SLOT(onClickedAtSettingOkSaveButton()));
+	connect(ui_settings->cancelButton, SIGNAL(clicked()), this, SLOT(onClickedAtSettingCancelButton()));*/
+
+	connect(ui_settings->okButton, SIGNAL(clicked()), this, SLOT(onClickedAtSettingOkButton()));
+	connect(ui_settings->okSaveButton, SIGNAL(clicked()), this, SLOT(onClickedAtSettingOkSaveButton()));
+	connect(ui_settings->cancelButton, SIGNAL(clicked()), this, SLOT(onClickedAtSettingCancelButton()));
+}
+
+void MainWindow::onSetupAction ()
+{
+	// TODO: protocol from current tab
+	onSetup(e_Proto_TLV, -1);
+}
+
+
+void MainWindow::setupSeparatorChar (QString const & c)
+{
+	ui_settings->separatorComboBox->addItem(c);
+	ui_settings->separatorComboBox->setCurrentIndex(ui_settings->separatorComboBox->findText(c));
+}
+
+QString MainWindow::separatorChar () const
+{
+	return ui_settings->protocolComboBox->currentText();
+}
+
+void MainWindow::onSetup (E_SrcProtocol const proto, int curr_app_idx, bool first_time, bool mac_user)
+{
+	settingsToDefault();
+	prepareSettingsWidgets(curr_app_idx, first_time);
+
+	if (proto == e_Proto_TLV)
+	{
+		ui_settings->separatorComboBox->setEnabled(false);
+		ui_settings->columnCountSpinBox->setEnabled(false);
+		ui_settings->protocolComboBox->setCurrentIndex(ui_settings->protocolComboBox->findText("TLV"));
+		onSettingsAppSelectedTLV(curr_app_idx, first_time);
+	}
+	else
+	{
+		ui_settings->protocolComboBox->setCurrentIndex(ui_settings->protocolComboBox->findText("CSV"));
+		onSettingsAppSelectedCSV(curr_app_idx, first_time);
+	}
+
+	if (mac_user)
+		onClickedAtSettingPooftahButton();
+
+	m_settings_dialog->exec();
+
+	clearSettingWidgets();
+}
+
+void MainWindow::onSetupCSVColumns (int curr_app_idx, int columns, bool first_time)
+{
+	prepareSettingsWidgets(curr_app_idx, first_time);
+	ui_settings->separatorComboBox->setEnabled(false);
+	ui_settings->columnCountSpinBox->setEnabled(true);
+	ui_settings->columnCountSpinBox->setValue(columns);
+	ui_settings->protocolComboBox->setCurrentIndex(ui_settings->protocolComboBox->findText("CSV"));
+
+	// @TODO: fill widgets
+
+	connect(ui_settings->separatorComboBox, SIGNAL(activated(int)), this, SLOT(onSeparatorSelected(int)));
+	onSettingsAppSelectedCSV(curr_app_idx, columns, first_time);
+
+	m_settings_dialog->exec();
+	clearSettingWidgets();
+}
+
+void MainWindow::settingsToDefault ()
+{
+	ui_settings->separatorComboBox->setDuplicatesEnabled(false);
+	ui_settings->protocolComboBox->setDuplicatesEnabled(false);
+	ui_settings->protocolComboBox->addItem("CSV");
+	ui_settings->protocolComboBox->addItem("TLV");
+	ui_settings->columnCountSpinBox->setEnabled(false);
+
+}
+
+void MainWindow::settingsDisableButSeparator ()
+{
+	ui_settings->separatorComboBox->setEnabled(true);
+	ui_settings->columnCountSpinBox->setEnabled(false);
+}
+
+void MainWindow::onSetupCSVSeparator (int curr_app_idx, bool first_time)
+{
+	settingsToDefault();
+	prepareSettingsWidgets(curr_app_idx, first_time);
+	settingsDisableButSeparator();
+
+	ui_settings->protocolComboBox->setCurrentIndex(ui_settings->protocolComboBox->findText("CSV"));
+	onSettingsAppSelectedCSV(curr_app_idx, first_time);
+
+	m_settings_dialog->exec();
+	clearSettingWidgets();
+}
+
+void MainWindow::prepareSettingsWidgets (int curr_app_idx, bool first_time)
+{
+	if (curr_app_idx == -1)
+	{
+		ui_settings->appNameComboBox->setEnabled(true);
+		ui_settings->appNameComboBox->clear();
+		for (int a = 0, ae = m_config.m_app_names.size(); a < ae; ++a)
+			ui_settings->appNameComboBox->addItem(m_config.m_app_names.at(a));
+
+		Connection * conn = m_server->findCurrentConnection();
+		if (conn)
+		{
+			curr_app_idx = conn->sessionState().m_app_idx;
+		}
+	}
+	else
+	{
+		ui_settings->appNameComboBox->clear();
+		ui_settings->appNameComboBox->addItem(m_config.m_app_names.at(curr_app_idx));
+		ui_settings->appNameComboBox->setEnabled(false);
+	}
+
+	connect(ui_settings->appNameComboBox, SIGNAL(activated(int)), this, SLOT(onSettingsAppSelected(int)));
+
+	MyListModel * model = new MyListModel(this);
+	ui_settings->listViewColumnSetup->setModel(model);
+	//ui_settings->listViewColumnSetup->model()->setSupportedDragActions(Qt::MoveAction);
+	ui_settings->listViewColumnSizes->setModel(new QStandardItemModel(this));
+	ui_settings->listViewColumnAlign->setModel(new QStandardItemModel(this));
+	ui_settings->listViewColumnElide->setModel(new QStandardItemModel(this));
+	ui_settings->listViewColumnSetup->setDropIndicatorShown(true);
+	ui_settings->listViewColumnSetup->setMovement(QListView::Snap);
+	ui_settings->listViewColumnSetup->setDragDropMode(QAbstractItemView::InternalMove);
+	model->addObserver(ui_settings->listViewColumnSizes->model());
+	model->addObserver(ui_settings->listViewColumnAlign->model());
+	model->addObserver(ui_settings->listViewColumnElide->model());
+	ui_settings->listViewColumnSetup->setEditTriggers(QAbstractItemView::NoEditTriggers);
+	ui_settings->listViewColumnAlign->setEditTriggers(QAbstractItemView::NoEditTriggers);
+	ui_settings->listViewColumnElide->setEditTriggers(QAbstractItemView::NoEditTriggers);
+}
+
+void MainWindow::clearSettingWidgets()
+{
+	disconnect(ui_settings->listViewColumnSetup, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtSettingColumnSetup(QModelIndex)));
+	disconnect(ui_settings->listViewColumnSizes, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtSettingColumnSizes(QModelIndex)));
+	disconnect(ui_settings->listViewColumnAlign, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtSettingColumnAlign(QModelIndex)));
+	disconnect(ui_settings->listViewColumnElide, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtSettingColumnElide(QModelIndex)));
+	clearListView(ui_settings->listViewColumnSetup);
+	clearListView(ui_settings->listViewColumnSizes);
+	clearListView(ui_settings->listViewColumnAlign);
+	clearListView(ui_settings->listViewColumnElide);
+	ui_settings->listViewColumnSetup->reset();
+	ui_settings->listViewColumnSizes->reset();
+	ui_settings->listViewColumnAlign->reset();
+	ui_settings->listViewColumnElide->reset();
+}
+
+void MainWindow::onClickedAtSettingPooftahButton ()
+{
+	for (size_t j = 0, je = ui_settings->listViewColumnAlign->model()->rowCount(); j < je; ++j)
+	{
+		QModelIndex const tag_idx = ui_settings->listViewColumnSetup->model()->index(j, 0, QModelIndex());
+		QString const tag = ui_settings->listViewColumnSetup->model()->data(tag_idx).toString();
+
+		QModelIndex const row_idx = ui_settings->listViewColumnAlign->model()->index(j, 0, QModelIndex());
+		size_t const tag_val = tlv::tag_for_name(tag.toLatin1());
+		ui_settings->listViewColumnAlign->model()->setData(row_idx, QString(alignToString(default_aligns[tag_val])));
+
+		QModelIndex const erow_idx = ui_settings->listViewColumnElide->model()->index(j, 0, QModelIndex());
+		ui_settings->listViewColumnElide->model()->setData(erow_idx, QString(elideToString(default_elides[tag_val])));
+
+		QModelIndex const srow_idx = ui_settings->listViewColumnSizes->model()->index(j, 0, QModelIndex());
+		ui_settings->listViewColumnSizes->model()->setData(srow_idx, tr("%1").arg(default_sizes[tag_val]));
+	}
+}
+
+void MainWindow::onClickedAtSettingOkButton ()
+{
+	for (int app_idx = 0, app_idxe = m_config.m_app_names.size(); app_idx < app_idxe; ++app_idx)
+	{
+		qDebug("app=%s", m_config.m_app_names.at(app_idx).toStdString().c_str());
+		m_config.m_columns_setup[app_idx].clear();
+		m_config.m_columns_sizes[app_idx].clear();
+		m_config.m_columns_align[app_idx].clear();
+		m_config.m_columns_elide[app_idx].clear();
+
+		for (size_t j = 0, je = ui_settings->listViewColumnSetup->model()->rowCount(); j < je; ++j)
+		{
+			QModelIndex const row_idx = ui_settings->listViewColumnSetup->model()->index(j, 0, QModelIndex());
+			QStandardItem * const item = static_cast<QStandardItemModel *>(ui_settings->listViewColumnSetup->model())->itemFromIndex(row_idx);
+			if (item->checkState() == Qt::Checked)
+			{
+				QString const & d = ui_settings->listViewColumnSetup->model()->data(row_idx).toString();
+				m_config.m_columns_setup[app_idx].append(d);
+			}
+		}
+		for (size_t j = 0, je = ui_settings->listViewColumnSizes->model()->rowCount(); j < je; ++j)
+		{
+			QModelIndex const row_idx = ui_settings->listViewColumnSizes->model()->index(j, 0, QModelIndex());
+			m_config.m_columns_sizes[app_idx].append(ui_settings->listViewColumnSizes->model()->data(row_idx).toString().toInt());
+		}
+		for (size_t j = 0, je = ui_settings->listViewColumnAlign->model()->rowCount(); j < je; ++j)
+		{
+			QModelIndex const row_idx = ui_settings->listViewColumnAlign->model()->index(j, 0, QModelIndex());
+			m_config.m_columns_align[app_idx].append(ui_settings->listViewColumnAlign->model()->data(row_idx).toString());
+		}
+		for (size_t j = 0, je = ui_settings->listViewColumnElide->model()->rowCount(); j < je; ++j)
+		{
+			QModelIndex const row_idx = ui_settings->listViewColumnElide->model()->index(j, 0, QModelIndex());
+			m_config.m_columns_elide[app_idx].append(ui_settings->listViewColumnElide->model()->data(row_idx).toString());
+		}
+	}
+
+	m_settings_dialog->close();
+	m_server->onApplyColumnSetup();
+}
+
+void MainWindow::onClickedAtSettingOkSaveButton ()
+{
+	onClickedAtSettingOkButton();
+	storeState();
+}
+
+void MainWindow::onClickedAtSettingCancelButton ()
+{
+	m_settings_dialog->close();
+}
+
+
+	bool add (QString const & tlvname, int row, bool checked)
+	{
+		//insertRow(row, addRow(tlvname, checked));
+		//beginInsertRows(QModelIndex(), row, row);
+		//insertRow(m_data.count());
+		//m_data.insert(row, tlvname);
+		//endInsertRows();
+		//emit layoutChanged();
+		return true;
+	}
+
+	// @NOTE: hmm, that not work. me not know why. this no meat bone crush it!
+	/*QVariant data (QModelIndex const & index, int role = Qt::DisplayRole) const {
+		if (!index.isValid()) return QVariant();
+		return QVariant(m_data[index.row()]);
+	}
+	int rowCount (QModelIndex const & parent) const {
+		if (parent.isValid()) return 0;
+		else return m_data.size();
+	}
+	int columnCount (QModelIndex const & parent) const { return 1; }*/
+
+			//beginInsertRows(QModelIndex(), endRow, endRow);
+			//m_data.insert(endRow, tlvname);
+			//endInsertRows();
+
+#endif
 
 
 

@@ -9,6 +9,8 @@
 #include "logs/logtablemodel.h"
 #include "qtsln/qtcolorpicker/qtcolorpicker.h"
 
+namespace logs {
+
 void LogWidget::onInvalidateFilter ()
 {
 	if (!m_table_view_widget)
@@ -94,7 +96,7 @@ void LogWidget::setFilterFile (int state)
 	{
 		if (!m_table_view_proxy)
 		{
-			m_table_view_proxy = new FilterProxyModel(this, m_session_state);
+			m_table_view_proxy = new FilterProxyModel(this, *this);
 			m_table_view_proxy->setSourceModel(m_table_view_widget->model());
 		}
 
@@ -121,10 +123,10 @@ void LogWidget::setFilterFile (int state)
 		}
 	}
 
-	if (m_column_setup_done)
-		setupColumnSizes(true);
+	//if (m_column_setup_done)
+	//	setupColumnSizes(true);
 
-	if (m_main_window->inViewEnabled())
+	if (m_config.m_in_view)
 		scrollToCurrentTagOrSelection();
 		//QTimer::singleShot(1000, this, SLOT(scrollToCurrentTagOrSelection()));
 }
@@ -145,47 +147,47 @@ void LogWidget::clearFilters (QStandardItem * node)
 void LogWidget::clearFilters ()
 {
 	//@TODO: call all functions below
-	//sessionState().clearFilters();
+	//m_filter_state.clearFilters();
 }
 
 void LogWidget::onClearCurrentFileFilter ()
 {
-	sessionState().onClearFileFilter();
+	m_filter_state.onClearFileFilter();
 	onInvalidateFilter();
 }
 void LogWidget::onClearCurrentCtxFilter ()
 {
-	sessionState().onClearCtxFilter();
+	m_filter_state.onClearCtxFilter();
 	onInvalidateFilter();
 }
 void LogWidget::onClearCurrentTIDFilter ()
 {
-	sessionState().onClearTIDFilter();
+	m_filter_state.onClearTIDFilter();
 	onInvalidateFilter();
 }
 void LogWidget::onClearCurrentColorizedRegexFilter ()
 {
-	sessionState().onClearColorizedRegexFilter();
+	m_filter_state.onClearColorizedRegexFilter();
 	onInvalidateFilter();
 }
 void LogWidget::onClearCurrentRegexFilter ()
 {
-	sessionState().onClearRegexFilter();
+	m_filter_state.onClearRegexFilter();
 	onInvalidateFilter();
 }
 void LogWidget::onClearCurrentStringFilter ()
 {
-	sessionState().onClearStringFilter();
+	m_filter_state.onClearStringFilter();
 	onInvalidateFilter();
 }
 void LogWidget::onClearCurrentScopeFilter ()
 {
-	sessionState().onClearScopeFilter();
+	m_filter_state.onClearScopeFilter();
 	onInvalidateFilter();
 }
 void LogWidget::onClearCurrentRefTime ()
 {
-	sessionState().onClearRefTime();
+	onClearRefTime();
 	onInvalidateFilter();
 }
 
@@ -195,7 +197,7 @@ void LogWidget::onExcludeFileLine (QModelIndex const & row_index)
 	QString line = findString4Tag(tlv::tag_line, row_index);
 	qDebug("appending: %s:%s", file.toStdString().c_str(), line.toStdString().c_str());
 	QString const fileline = file + "/" + line;
-	QModelIndex const result = m_file_model->stateToItem(fileline, Qt::Unchecked);
+	QModelIndex const result = filterWidget()->fileModel()->stateToItem(fileline, Qt::Unchecked);
 	if (!result.isValid())
 	{
 		Q_ASSERT("nonexistent index");
@@ -206,7 +208,7 @@ void LogWidget::onExcludeFileLine (QModelIndex const & row_index)
 
 void LogWidget::onFileColOrExp (QModelIndex const & idx, bool collapsed)
 {
-	QStandardItemModel const * const model = static_cast<QStandardItemModel *>(m_main_window->getWidgetFile()->model());
+	QStandardItemModel const * const model = static_cast<QStandardItemModel *>(filterWidget()->getWidgetFile()->model());
 	QStandardItem * const node = model->itemFromIndex(idx);
 
 	std::vector<QString> s;	// @TODO: hey piggy, to member variables
@@ -226,7 +228,7 @@ void LogWidget::onFileColOrExp (QModelIndex const & idx, bool collapsed)
 	for (std::vector<QString>::const_reverse_iterator it=s.rbegin(), ite=s.rend(); it != ite; ++it)
 		file += QString("/") + *it;
 
-	sessionState().m_file_filters.set_to_state(file, TreeModelItem(static_cast<E_NodeStates>(node->checkState()), collapsed));
+	m_filter_state.m_file_filters.set_to_state(file, TreeModelItem(static_cast<E_NodeStates>(node->checkState()), collapsed));
 }
 
 void LogWidget::onFileExpanded (QModelIndex const & idx)
@@ -241,7 +243,7 @@ void LogWidget::onFileCollapsed (QModelIndex const & idx)
 
 void LogWidget::appendToTIDFilters (QString const & item)
 {
-	QStandardItem * root = m_tid_model->invisibleRootItem();
+	QStandardItem * root = filterWidget()->m_tid_model->invisibleRootItem();
 	QStandardItem * child = findChildByText(root, item);
 	if (child == 0)
 	{
@@ -252,7 +254,7 @@ void LogWidget::appendToTIDFilters (QString const & item)
 
 void LogWidget::appendToLvlWidgets (FilteredLevel const & flt)
 {
-	QStandardItem * root = m_lvl_model->invisibleRootItem();
+	QStandardItem * root = filterWidget()->m_lvl_model->invisibleRootItem();
 	QStandardItem * child = findChildByText(root, flt.m_level_str);
 	if (child == 0)
 	{
@@ -260,7 +262,7 @@ void LogWidget::appendToLvlWidgets (FilteredLevel const & flt)
 		QList<QStandardItem *> row_items = addTriRow(flt.m_level_str, Qt::Checked, lvlModToString(mode));
 		row_items[0]->setCheckState(flt.m_is_enabled ? Qt::Checked : Qt::Unchecked);
 		root->appendRow(row_items);
-		m_main_window->getWidgetLvl()->sortByColumn(0, Qt::AscendingOrder);
+		filterWidget()->getWidgetLvl()->sortByColumn(0, Qt::AscendingOrder);
 	}
 }
 
@@ -268,24 +270,24 @@ void LogWidget::appendToLvlFilters (QString const & item)
 {
 	bool enabled = false;
 	E_LevelMode lvlmode = e_LvlInclude;
-	if (sessionState().isLvlPresent(item, enabled, lvlmode))
+	if (m_filter_state.isLvlPresent(item, enabled, lvlmode))
 		return;
 
-	QStandardItem * root = m_lvl_model->invisibleRootItem();
+	QStandardItem * root = filterWidget()->m_lvl_model->invisibleRootItem();
 	QStandardItem * child = findChildByText(root, item);
 	if (child == 0)
 	{
 		QList<QStandardItem *> row_items = addTriRow(item, Qt::Checked, true);
 		row_items[0]->setCheckState(Qt::Checked);
 		root->appendRow(row_items);
-		m_main_window->getWidgetLvl()->sortByColumn(0, Qt::AscendingOrder);
-		sessionState().appendLvlFilter(item);
+		filterWidget()->getWidgetLvl()->sortByColumn(0, Qt::AscendingOrder);
+		m_filter_state.appendLvlFilter(item);
 	}
 }
 
 void LogWidget::appendToCtxWidgets (FilteredContext const & flt)
 {
-	QStandardItem * root = m_ctx_model->invisibleRootItem();
+	QStandardItem * root = filterWidget()->m_ctx_model->invisibleRootItem();
 	QStandardItem * child = findChildByText(root, flt.m_ctx_str);
 	if (child == 0)
 	{
@@ -299,17 +301,17 @@ void LogWidget::appendToCtxWidgets (FilteredContext const & flt)
 void LogWidget::appendToCtxFilters (QString const & item, bool checked)
 {
 	bool enabled = false;
-	if (sessionState().isCtxPresent(item, enabled))
+	if (m_filter_state.isCtxPresent(item, enabled))
 		return;
 
-	QStandardItem * root = m_ctx_model->invisibleRootItem();
+	QStandardItem * root = filterWidget()->m_ctx_model->invisibleRootItem();
 	QStandardItem * child = findChildByText(root, item);
 	if (child == 0)
 	{
 		QList<QStandardItem *> row_items = addRow(item, true);
 		row_items[0]->setCheckState(Qt::Checked);
 		root->appendRow(row_items);
-		sessionState().appendCtxFilter(item);
+		m_filter_state.appendCtxFilter(item);
 	}
 }
 
@@ -326,11 +328,11 @@ bool LogWidget::appendToFilters (DecodedCommand const & cmd)
 
 		if (cmd.tvs[i].m_tag == tlv::tag_tid)
 		{
-			int const idx = sessionState().m_tls.findThreadId(cmd.tvs[i].m_val);
+			int const idx = m_tls.findThreadId(cmd.tvs[i].m_val);
 			if (cmd.hdr.cmd == tlv::cmd_scope_entry)
-				sessionState().m_tls.incrIndent(idx);
+				m_tls.incrIndent(idx);
 			if (cmd.hdr.cmd == tlv::cmd_scope_exit)
-				sessionState().m_tls.decrIndent(idx);
+				m_tls.decrIndent(idx);
 			appendToTIDFilters(cmd.tvs[i].m_val);
 		}
 
@@ -359,20 +361,20 @@ bool LogWidget::appendToFilters (DecodedCommand const & cmd)
 
 void LogWidget::appendToRegexFilters (QString const & str, bool checked, bool inclusive)
 {
-	m_session_state.appendToRegexFilters(str, checked, inclusive);
+	m_filter_state.appendToRegexFilters(str, checked, inclusive);
 }
 
 void LogWidget::removeFromRegexFilters (QString const & val)
 {
-	m_session_state.removeFromRegexFilters(val);
+	m_filter_state.removeFromRegexFilters(val);
 }
 
 void LogWidget::recompileRegexps ()
 {
-	for (int i = 0, ie = sessionState().m_filtered_regexps.size(); i < ie; ++i)
+	for (int i = 0, ie = m_filter_state.m_filtered_regexps.size(); i < ie; ++i)
 	{
-		FilteredRegex & fr = sessionState().m_filtered_regexps[i];
-		QStandardItem * root = m_regex_model->invisibleRootItem();
+		FilteredRegex & fr = m_filter_state.m_filtered_regexps[i];
+		QStandardItem * root = filterWidget()->m_regex_model->invisibleRootItem();
 		QString const qregex = fr.m_regex_str;
 		QStandardItem * child = findChildByText(root, qregex);
 		fr.m_is_enabled = false;
@@ -410,7 +412,7 @@ void LogWidget::recompileRegexps ()
 
 void LogWidget::appendToStringWidgets (FilteredString const & flt)
 {
-	QStandardItem * root = m_string_model->invisibleRootItem();
+	QStandardItem * root = filterWidget()->m_string_model->invisibleRootItem();
 	QStandardItem * child = findChildByText(root, flt.m_string);
 	if (child == 0)
 	{
@@ -422,12 +424,12 @@ void LogWidget::appendToStringWidgets (FilteredString const & flt)
 }
 void LogWidget::appendToStringFilters (QString const & str, bool checked, int state)
 {
-	m_session_state.appendToStringFilters(str, checked, state);
+	m_filter_state.appendToStringFilters(str, checked, state);
 }
 
 void LogWidget::removeFromStringFilters (QString const & val)
 {
-	m_session_state.removeFromStringFilters(val);
+	m_filter_state.removeFromStringFilters(val);
 }
 
 void LogWidget::recompileStrings ()
@@ -437,34 +439,34 @@ void LogWidget::recompileStrings ()
 
 void LogWidget::appendToColorRegexFilters (QString const & val)
 {
-	m_session_state.appendToColorRegexFilters(val);
+	m_filter_state.appendToColorRegexFilters(val);
 }
 
 void LogWidget::removeFromColorRegexFilters (QString const & val)
 {
-	m_session_state.removeFromColorRegexFilters(val);
+	m_filter_state.removeFromColorRegexFilters(val);
 }
 
 void LogWidget::loadToColorRegexps (QString const & filter_item, QString const & color, bool enabled)
 {
-	sessionState().appendToColorRegexFilters(filter_item);
-	sessionState().setRegexColor(filter_item, QColor(color));
-	sessionState().setRegexChecked(filter_item, enabled);
+	m_filter_state.appendToColorRegexFilters(filter_item);
+	m_filter_state.setRegexColor(filter_item, QColor(color));
+	m_filter_state.setRegexChecked(filter_item, enabled);
 }
 
 void LogWidget::onColorRegexChanged ()
 {
-	for (int i = 0, ie = sessionState().m_colorized_texts.size(); i < ie; ++i)
+	for (int i = 0, ie = m_filter_state.m_colorized_texts.size(); i < ie; ++i)
 	{
-		ColorizedText & ct = sessionState().m_colorized_texts[i];
-		QStandardItem * root = m_color_regex_model->invisibleRootItem();
+		ColorizedText & ct = m_filter_state.m_colorized_texts[i];
+		QStandardItem * root = filterWidget()->m_color_regex_model->invisibleRootItem();
 		QString const qregex = ct.m_regex_str;
 		QStandardItem * child = findChildByText(root, qregex);
-		QModelIndex const idx = m_color_regex_model->indexFromItem(child);
+		QModelIndex const idx = filterWidget()->m_color_regex_model->indexFromItem(child);
 		if (!child)
 			continue;
 
-		if (QtColorPicker * w = static_cast<QtColorPicker *>(m_main_window->getWidgetColorRegex()->indexWidget(idx)))
+		if (QtColorPicker * w = static_cast<QtColorPicker *>(filterWidget()->getWidgetColorRegex()->indexWidget(idx)))
 		{
 			ct.m_qcolor = w->currentColor();
 		}
@@ -474,29 +476,29 @@ void LogWidget::onColorRegexChanged ()
 
 void LogWidget::recompileColorRegexps ()
 {
-	for (int i = 0, ie = sessionState().m_colorized_texts.size(); i < ie; ++i)
+	for (int i = 0, ie = m_filter_state.m_colorized_texts.size(); i < ie; ++i)
 	{
-		ColorizedText & ct = sessionState().m_colorized_texts[i];
-		QStandardItem * root = m_color_regex_model->invisibleRootItem();
+		ColorizedText & ct = m_filter_state.m_colorized_texts[i];
+		QStandardItem * root = filterWidget()->m_color_regex_model->invisibleRootItem();
 		QString const qregex = ct.m_regex_str;
 		QStandardItem * child = findChildByText(root, qregex);
-		QModelIndex const idx = m_color_regex_model->indexFromItem(child);
+		QModelIndex const idx = filterWidget()->m_color_regex_model->indexFromItem(child);
 		ct.m_is_enabled = false;
 		if (!child)
 			continue;
 
-		if (m_main_window->getWidgetColorRegex()->indexWidget(idx) == 0)
+		if (filterWidget()->getWidgetColorRegex()->indexWidget(idx) == 0)
 		{
-			QtColorPicker * w = new QtColorPicker(m_main_window->getWidgetColorRegex(), qregex);
+			QtColorPicker * w = new QtColorPicker(filterWidget()->getWidgetColorRegex(), qregex);
 			w->setStandardColors();
 			w->setCurrentColor(ct.m_qcolor);
 
 			connect(w, SIGNAL(colorChanged(const QColor &)), this, SLOT(onColorRegexChanged()));
-			m_main_window->getWidgetColorRegex()->setIndexWidget(idx, w);
+			filterWidget()->getWidgetColorRegex()->setIndexWidget(idx, w);
 		}
 		else
 		{
-			QtColorPicker * w = static_cast<QtColorPicker *>(m_main_window->getWidgetColorRegex()->indexWidget(idx));
+			QtColorPicker * w = static_cast<QtColorPicker *>(filterWidget()->getWidgetColorRegex()->indexWidget(idx));
 			w->setCurrentColor(ct.m_qcolor);
 		}
 
@@ -533,23 +535,23 @@ void LogWidget::recompileColorRegexps ()
 
 void LogWidget::loadToRegexps (QString const & filter_item, bool inclusive, bool enabled)
 {
-	sessionState().appendToRegexFilters(filter_item, inclusive, enabled);
+	m_filter_state.appendToRegexFilters(filter_item, inclusive, enabled);
 }
 
 void LogWidget::onFilterFileComboChanged (QString str)
 {
 	if (str.isEmpty())
 	{
-		m_main_window->getWidgetFile()->setModel(m_file_model);
+		filterWidget()->getWidgetFile()->setModel(filterWidget()->m_file_model);
 	}
 	else
 	{
-		if (m_main_window->getWidgetFile()->model() != m_file_proxy)
+		if (filterWidget()->getWidgetFile()->model() != filterWidget()->m_file_proxy)
 		{
-			m_main_window->getWidgetFile()->setModel(m_file_proxy);
-			m_file_proxy->setSourceModel(m_file_model);
+			filterWidget()->getWidgetFile()->setModel(filterWidget()->m_file_proxy);
+			filterWidget()->m_file_proxy->setSourceModel(filterWidget()->m_file_model);
 		}
-		m_file_proxy->setFindString(str);
+		filterWidget()->m_file_proxy->setFindString(str);
 	}
 }
 
@@ -559,10 +561,13 @@ void LogWidget::onCancelFilterFileButton ()
 
 void LogWidget::onCutParentValueChanged (int i)
 {
-	fileModel()->onCutParentValueChanged(i);
-	m_main_window->getWidgetFile()->hideLinearParents();
+	filterWidget()->fileModel()->onCutParentValueChanged(i);
+	filterWidget()->getWidgetFile()->hideLinearParents();
 }
 void LogWidget::onCollapseChilds ()
 {
-	fileModel()->collapseChilds(m_main_window->getWidgetFile());
+	filterWidget()->fileModel()->collapseChilds(filterWidget()->getWidgetFile());
 }
+
+}
+

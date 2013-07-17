@@ -537,6 +537,14 @@ namespace table {
 		if (this != source)
 			findNearestTimeRow(t);
 	}
+
+	void TableWidget::loadConfig (QString const & path)
+	{
+	}
+
+	void TableWidget::saveConfig (QString const & path)
+	{
+	}
 }
 
 

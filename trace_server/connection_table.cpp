@@ -19,7 +19,7 @@ DataTable::DataTable (Connection * connection, config_t & config, QString const 
 
 DataTable::~DataTable ()
 {
-	QObject::disconnect(horizontalHeader(), SIGNAL(sectionResized(int, int, int)), this, SLOT(onSectionResized(int, int, int)));
+	//QObject::disconnect(m_widget->horizontalHeader(), SIGNAL(sectionResized(int, int, int)), this, SLOT(onSectionResized(int, int, int)));
 }
 
 void Connection::onShowTables ()
@@ -139,6 +139,7 @@ bool Connection::loadConfigForTables (QString const & preset_name)
 	return true;
 }
 
+/*
 bool Connection::saveConfigForTable (table::TableConfig const & config, QString const & tag)
 {
 	QString const preset_name = m_curr_preset.isEmpty() ? m_main_window->getValidCurrentPresetName() : m_curr_preset;
@@ -158,7 +159,7 @@ bool Connection::saveConfigForTables (QString const & preset_name)
 	}
 	return true;
 }
-
+*/
 
 datatables_t::iterator Connection::findOrCreateTable (QString const & tag)
 {

@@ -33,6 +33,8 @@ namespace plot {
 		Curve * findOrCreateCurve (QString const & subtag);
 		curves_t::iterator mkCurve (QString const & subtag);
 
+		void loadConfig (QString const & path);
+		void saveConfig (QString const & path);
 		PlotConfig & getConfig () { return m_config; }
 		PlotConfig const & getConfig () const { return m_config; }
 

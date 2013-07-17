@@ -23,13 +23,10 @@
 #include <QObject>
 #include <QAbstractSocket>
 #include <QTcpServer>
-#include <QModelIndex>
 
 class Connection;
 class QTcpServer;
 class QNetworkSession;
-class QFile;
-class QStandardItem;
 class MainWindow;
 
 class Server : public QTcpServer
@@ -39,87 +36,16 @@ public:
 	static unsigned short const default_port = 13127;
 	explicit Server (QString addr, unsigned short port, QObject * parent = 0, bool quit_delay = true);
 
-	QString const & getStatus () const { return status; }
+	QString const & getStatus () const { return m_server_status; }
 
-	//void createTLVDataStream (QString const & fname);
-	//void incomingDataStream (QDataStream & stream);
-	//void incomingTailDataStream (QDataStream & stream);
-	void createTailDataStream (QString const & fname);
-	void createTailLogStream (QString const & fname, QString const & separator);
-	void importDataStream (QString const & fname);
-	void copyStorageTo (QString const & filename);
-	void exportStorageToCSV (QString const & filename);
-	Connection * findConnectionByName (QString const & app_name);
-	
 signals:
 	void newConnection (Connection * connection);
 
 public slots:
-	void onClickedAtCtxTree (QModelIndex idx);
-	void onDoubleClickedAtCtxTree (QModelIndex idx);
-	void onClickedAtTIDList (QModelIndex idx);
-	void onDoubleClickedAtTIDList (QModelIndex idx);
-	void onClickedAtLvlList (QModelIndex idx);
-	void onDoubleClickedAtLvlList (QModelIndex idx);
-	void onClickedAtRegexList (QModelIndex idx);
-	void onDoubleClickedAtRegexList (QModelIndex idx);
-	void onClickedAtColorRegexList (QModelIndex idx);
-	void onDoubleClickedAtColorRegexList (QModelIndex idx);
-	void onClickedAtStringList (QModelIndex idx);
-	void onDoubleClickedAtStringList (QModelIndex idx);
-
-	void onEditingFinished ();
-	void onCopyToClipboard ();
-
-	void onHidePrevFromRow ();
-	void onUnhidePrevFromRow ();
-	void onExcludeFileLine ();
-	void onToggleRefFromRow ();
-	void onClearCurrentView ();
-	void onClearCurrentFileFilter ();
-	void onClearCurrentCtxFilter ();
-	void onClearCurrentTIDFilter ();
-	void onClearCurrentColorizedRegexFilter ();
-	void onClearCurrentRegexFilter ();
-	void onClearCurrentStringFilter ();
-	void onClearCurrentScopeFilter ();
-	void onClearCurrentRefTime ();
-	void onApplyColumnSetup ();
-	void onSelectAllLevels ();
-	void onSelectNoLevels ();
-	void onSelectAllCtxs ();
-	void onSelectNoCtxs ();
-	void onShowPlots ();
-	void onClickedAtDockedWidgets (QModelIndex idx);
-	void onHidePlots ();
-	void onShowTables ();
-	void onHideTables ();
-	void onCloseMarkedTabs ();
-	void onCloseCurrentTab ();
-	void onCloseTab (QWidget * w);
-	void onCloseTab (int idx, QWidget * w);
-	void onCloseTabWithIndex (int);
-	void onTabTraceFocus (int i);
-	void onLevelValueChanged (int val);
-	void onBufferingStateChanged (int state);
-	void onCutParentValueChanged (int state);
-	void onCollapseChilds ();
-
-	void destroyConnection (Connection * c);
-
-protected:
-	friend class MainWindow;
 	void incomingConnection (qintptr socketDescriptor);
-	Connection * createNewTableView ();
-	Connection * findCurrentConnection ();
 	
-	template <typename T>
-	void applyFnOnAllChildren (T fn, QAbstractItemModel * model, Qt::CheckState state);
-
 private:
+	friend class MainWindow;
 	MainWindow * m_main_window;
-	QString status;
-	typedef std::map<QWidget *, Connection *> connections_t;
-	connections_t m_connections;
+	QString m_server_status;
 };
-

@@ -24,16 +24,18 @@
 #include <QAbstractProxyModel>
 #include <QRegExp>
 #include <filters/file_filter.hpp>
-#include "../sessionstate.h"
+#include "../filterstate.h"
 
 class MainWindow;
+
+namespace logs { class LogWidget; }
 
 class FilterProxyModel : public QAbstractProxyModel
 {
 	Q_OBJECT
 
 public:
-	explicit FilterProxyModel (QObject * parent, SessionState & ss);
+	explicit FilterProxyModel (QObject * parent, logs::LogWidget & lw);
 
 	virtual QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
 	virtual QModelIndex parent (QModelIndex const & child) const;
@@ -57,9 +59,10 @@ protected:
 	bool filterAcceptsRow (int sourceRow, QModelIndex const & sourceParent) const;
 
 	std::vector<int> m_map_from_tgt;
+	logs::LogWidget & m_log_widget;
+	FilterState & m_filter_state;
 	int m_columns;
 	std::vector<int> m_map_from_src;
-	SessionState & m_session_state;
 	MainWindow const * m_main_window;
 };
 

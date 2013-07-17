@@ -9,7 +9,6 @@
 #include "settings.h"
 #include "constants.h"
 #include "utils.h"
-#include "serialization.h"
 
 QString MainWindow::getCurrentPresetName () const
 {
@@ -17,13 +16,13 @@ QString MainWindow::getCurrentPresetName () const
 	return txt;
 }
 
-QString MainWindow::promptAndCreatePresetName ()
+QString MainWindow::promptAndCreatePresetName (QString const & app_name)
 {
-	if (Connection * conn = m_server->findCurrentConnection())
+	if (Connection * conn = findCurrentConnection())
 	{
 		bool ok = false;
 
-		QString const filled_text = getPresetPath(conn->sessionState().getAppName(), g_defaultPresetName);
+		QString const filled_text = getPresetPath(app_name, g_defaultPresetName);
 		QStringList items(m_config.m_preset_names);
 		items.push_front(filled_text);
 
@@ -61,65 +60,69 @@ QString MainWindow::getValidCurrentPresetName ()
 {
 	QString txt = getCurrentPresetName();
 	if (0 == txt.size())
-		txt = promptAndCreatePresetName();
+	{
+		if (Connection * conn = findCurrentConnection())
+			txt = promptAndCreatePresetName(conn->getAppName());
+	}
 	if (0 == txt.size())
-		if (Connection * conn = m_server->findCurrentConnection())
-			txt = getPresetPath(conn->sessionState().getAppName(), g_defaultPresetName);
+		if (Connection * conn = findCurrentConnection())
+			txt = getPresetPath(conn->getAppName(), g_defaultPresetName);
 	return txt;
 }
 
 void MainWindow::onSaveCurrentState ()
 {
-	QString txt = getCurrentPresetName();
-	if (0 == txt.size())
-		if (Connection * conn = m_server->findCurrentConnection())
-			txt = getPresetPath(conn->sessionState().getAppName(), g_defaultPresetName);
-	onSaveCurrentStateTo(txt);
-	storeState();
-}
-
-void MainWindow::onSaveCurrentStateTo (QString const & preset_name)
-{
-	qDebug("%s", __FUNCTION__);
-	if (!getTabTrace()->currentWidget()) return;
-	Connection * conn = m_server->findCurrentConnection();
-	if (!conn) return;
-
-	if (!preset_name.isEmpty())
-	{
-		int idx = findPresetName(preset_name);
-		if (idx == -1)
-			idx = addPresetName(preset_name);
-		createPresetPath(m_config.m_appdir, preset_name);
-
-		qDebug("new preset_name[%i]=%s", idx, preset_name.toStdString().c_str());
-		saveCurrentSession(preset_name);
-		saveLayout(preset_name);
-
-		conn->saveConfigForTables(preset_name);
-		conn->saveConfigForPlots(preset_name);
-
-		ui->presetComboBox->clear();
-		for (int i = 0, ie = m_config.m_preset_names.size(); i < ie; ++i)
-			ui->presetComboBox->addItem(m_config.m_preset_names.at(i));
-		setPresetNameIntoComboBox(preset_name);
-		storePresetNames();
-	}
+	QString const txt = getValidCurrentPresetName();
+	if (txt.size())
+		onSaveCurrentStateTo(txt);
 }
 
 void MainWindow::setPresetNameIntoComboBox (QString const & pname)
 {
 	ui->presetComboBox->setCurrentIndex(ui->presetComboBox->findText(pname));
 }
+void MainWindow::reloadPresetList ()
+{
+	ui->presetComboBox->clear();
+	for (int i = 0, ie = m_config.m_preset_names.size(); i < ie; ++i)
+		ui->presetComboBox->addItem(m_config.m_preset_names.at(i));
+}
+
+void MainWindow::onSaveCurrentStateTo (QString const & preset_name)
+{
+	qDebug("%s", __FUNCTION__);
+	if (preset_name.isEmpty()) return;
+	//if (!getTabTrace()->currentWidget()) return;
+	if (Connection * conn = findCurrentConnection())
+	{
+		int idx = findPresetName(preset_name);
+		if (idx == -1)
+			idx = addPresetName(preset_name);
+		// @TODO: validate preset_name
+		createPresetPath(m_config.m_appdir, preset_name);
+
+		qDebug("new preset_name[%i]=%s", idx, preset_name.toStdString().c_str());
+		
+		QString const path = getPresetPath(getConfig().m_appdir, preset_name);
+		conn->saveConfigs(path);
+		saveLayout(preset_name);
+		
+		reloadPresetList ();
+		setPresetNameIntoComboBox(preset_name);
+		storePresetNames();
+	}
+	storeState();
+}
+
 
 void MainWindow::onAddCurrentState ()
 {
 	qDebug("%s", __FUNCTION__);
 	if (!getTabTrace()->currentWidget()) return;
-	Connection * conn = m_server->findCurrentConnection();
+	Connection * conn = findCurrentConnection();
 	if (!conn) return;
 
-	QString const filled_text = getPresetPath(conn->sessionState().getAppName(), g_defaultPresetName);
+	QString const filled_text = getPresetPath(conn->getAppName(), g_defaultPresetName);
 	QStringList items(m_config.m_preset_names);
 	items.push_front(filled_text);
 
@@ -141,7 +144,7 @@ void MainWindow::onRmCurrentState ()
 
 	qDebug("removing preset_name[%i]=%s", idx, preset_name.toStdString().c_str());
 	
-	QString fname = getPresetFileName(m_config.m_appdir, preset_name);
+	QString fname = getPresetPath(m_config.m_appdir, preset_name);
 	qDebug("confirm to remove session file=%s", fname.toStdString().c_str());
 
 	QMessageBox msg_box;
@@ -164,42 +167,32 @@ void MainWindow::onRmCurrentState ()
 }
 
 
-void MainWindow::onPresetActivate (QString const & pname)
+
+void MainWindow::onPresetActivate (int idx)
 {
 	qDebug("%s", __FUNCTION__);
-	onPresetActivate(ui->presetComboBox->findText(pname));
+	if (idx == -1) return;
+	if (Connection * conn = findCurrentConnection())
+	{
+		QString const & preset_name = m_config.m_preset_names.at(idx);
+		onPresetActivate(conn, preset_name);
+	}
 }
-
+void MainWindow::onPresetActivate () { onPresetActivate(ui->presetComboBox->currentIndex()); }
+void MainWindow::onPresetActivate (QString const & pname) { onPresetActivate(ui->presetComboBox->findText(pname)); }
 void MainWindow::onPresetActivate (Connection * conn, QString const & preset_name)
 {
+	//@TODO: toto prijde jinam
 	qDebug("%s", __FUNCTION__);
 	if (!conn) return;
 
-	SessionState dummy;
-	if (loadSession(dummy, preset_name))
+	bool const neco = 0;
+	if (neco)
 	{
-		conn->destroyModelFile();
-		conn->m_session_state.merge_with(dummy.m_file_filters);
-		//std::swap(conn->m_session_state.m_file_filters.root, dummy.m_file_filters.root);
-
-		conn->setupModelFile();
-		conn->m_session_state.m_filtered_regexps = dummy.m_filtered_regexps;
-		conn->m_session_state.m_colorized_texts = dummy.m_colorized_texts;
-		conn->m_session_state.m_lvl_filters = dummy.m_lvl_filters;
-		conn->m_session_state.m_ctx_filters = dummy.m_ctx_filters;
-		conn->m_curr_preset = preset_name;
-		//@TODO: this blows under linux, i wonder why?
-		//conn->m_session_state.m_filtered_regexps.swap(dummy.m_filtered_regexps);
-		//conn->m_session_state.m_colorized_texts.swap(dummy.m_colorized_texts);
-
-		getWidgetFile()->hideLinearParents();
-		getWidgetFile()->syncExpandState();
-
-		conn->onInvalidateFilter();
-		setPresetNameIntoComboBox(preset_name);
-		conn->loadConfigForTables(preset_name);
-		conn->loadConfigForPlots(preset_name);
+		conn->loadConfigs(preset_name);
 		loadLayout(preset_name);
+
+		setPresetNameIntoComboBox(preset_name);
 	}
 	else
 	{
@@ -209,33 +202,17 @@ void MainWindow::onPresetActivate (Connection * conn, QString const & preset_nam
 	}
 }
 
-void MainWindow::onPresetActivate ()
-{
-	onPresetActivate(ui->presetComboBox->currentIndex());
-}
 
 void MainWindow::onPresetChanged (int idx)
 {
-	qDebug("%s", __FUNCTION__);
+/*	qDebug("%s", __FUNCTION__);
 	if (idx == -1) return;
-	if (Connection * conn = m_server->findCurrentConnection())
+	if (Connection * conn = findCurrentConnection())
 	{
 		conn->onClearCurrentFileFilter();
 		QString const & preset_name = m_config.m_preset_names.at(idx);
 		onPresetActivate(conn, preset_name);
-	}
-}
-
-void MainWindow::onPresetActivate (int idx)
-{
-	qDebug("%s", __FUNCTION__);
-	if (idx == -1) return;
-	if (Connection * conn = m_server->findCurrentConnection())
-	{
-		conn->onClearCurrentFileFilter();
-		QString const & preset_name = m_config.m_preset_names.at(idx);
-		onPresetActivate(conn, preset_name);
-	}
+	}*/
 }
 
 void MainWindow::saveLayout (QString const & preset_name)
@@ -303,6 +280,9 @@ void MainWindow::loadLayout (QString const & preset_name)
 	}
 }
 
+
+
+/*
 void MainWindow::saveSession (SessionState const & s, QString const & preset_name) const
 {
 	qDebug("%s", __FUNCTION__);
@@ -315,7 +295,7 @@ void MainWindow::storePresets ()
 {
 	qDebug("%s", __FUNCTION__);
 	if (!getTabTrace()->currentWidget()) return;
-	Connection * conn = m_server->findCurrentConnection();
+	Connection * conn = findCurrentConnection();
 	if (!conn) return;
 
 	storePresetNames();
@@ -329,13 +309,14 @@ void MainWindow::saveCurrentSession (QString const & preset_name)
 {
 	qDebug("%s name=%s", __FUNCTION__, preset_name.toStdString().c_str());
 	if (!getTabTrace()->currentWidget()) return;
-	Connection * conn = m_server->findCurrentConnection();
+	Connection * conn = findCurrentConnection();
 	if (!conn) return;
 
 	saveSession(conn->sessionState(), preset_name);
 }
+*/
 
-bool MainWindow::loadSession (SessionState & s, QString const & preset_name)
+/*bool MainWindow::loadSession (SessionState & s, QString const & preset_name)
 {
 	qDebug("%s name=%s", __FUNCTION__, preset_name.toStdString().c_str());
 	QString fname = getPresetFileName(m_config.m_appdir, preset_name);
@@ -343,76 +324,5 @@ bool MainWindow::loadSession (SessionState & s, QString const & preset_name)
 	s.m_file_filters.clear();
 	return loadSessionState(s, fname.toLatin1());
 }
-
-void MainWindow::loadPresets ()
-{
-	qDebug("%s", __FUNCTION__);
-	m_config.m_preset_names.clear();
-
-	QSettings settings("MojoMir", "TraceServer");
-	read_list_of_strings(settings, "known-presets", "preset", m_config.m_preset_names);
-	for (int  i = 0, ie = m_config.m_preset_names.size(); i < ie; ++i)
-	{
-		ui->presetComboBox->addItem(m_config.m_preset_names.at(i));
-	}
-
-	for (int  i = 0, ie = m_config.m_preset_names.size(); i < ie; ++i)
-	{
-		qDebug("reading preset: %s", m_config.m_preset_names.at(i).toStdString().c_str());
-		QString const prs_name = tr("preset_%1").arg(m_config.m_preset_names[i]);
-		QStringList const split = prs_name.split("/");
-
-		if (prs_name.isEmpty())
-			continue;
-
-		if (split.size() == 2)
-		{
-			qDebug("split[0]: %s", split.at(0).toStdString().c_str());
-			qDebug("split[1]: %s", split.at(1).toStdString().c_str());
-			if (settings.childGroups().contains(split.at(0)))
-			{
-				settings.beginGroup(split.at(0));
-				if (settings.childGroups().contains(split.at(1)))
-				{
-					settings.beginGroup(split.at(1));
-					typedef QList<QString>			filter_regexs_t;
-					typedef QList<QString>			filter_preset_t;
-
-					filter_preset_t m_file_filters;
-					filter_preset_t m_colortext_regexs;
-					filter_preset_t m_colortext_colors;
-					filter_preset_t m_colortext_enabled;
-					filter_preset_t m_regex_filters;
-					filter_preset_t m_regex_fmode;
-					filter_preset_t m_regex_enabled;
-
-					read_list_of_strings(settings, "items", "item", m_file_filters);
-					read_list_of_strings(settings, "cregexps", "item", m_colortext_regexs);
-					read_list_of_strings(settings, "cregexps_colors", "item", m_colortext_colors);
-					read_list_of_strings(settings, "cregexps_enabled", "item", m_colortext_enabled);
-					read_list_of_strings(settings, "regexps", "item", m_regex_filters);
-					read_list_of_strings(settings, "regexps_fmode", "item", m_regex_fmode);
-					read_list_of_strings(settings, "regexps_enabled", "item", m_regex_enabled);
-
-					SessionState ss;
-					for (int f = 0, fe = m_file_filters.size(); f < fe; ++f)
-						ss.m_file_filters.set_to_state(m_file_filters.at(f), e_Checked);
-
-					saveSession(ss, m_config.m_preset_names.at(i));
-
-					settings.remove("");
-					settings.endGroup();
-				}
-				settings.endGroup();
-			}
-		}
-	}
-}
-
-void MainWindow::storePresetNames ()
-{
-	qDebug("%s", __FUNCTION__);
-	QSettings settings("MojoMir", "TraceServer");
-	write_list_of_strings(settings, "known-presets", "preset", m_config.m_preset_names);
-}
+*/
 

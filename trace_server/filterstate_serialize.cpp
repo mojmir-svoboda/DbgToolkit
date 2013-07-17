@@ -1,5 +1,4 @@
-#include "serialization.h"
-#include "sessionstate.h"
+#include "filterstate.h"
 #include <boost/serialization/type_info_implementation.hpp>
 #include <boost/archive/xml_iarchive.hpp>
 #include <boost/archive/xml_oarchive.hpp>
@@ -16,7 +15,7 @@
 #include <QMessageBox>
 #include <QString>
 
-bool saveSessionState (SessionState const & s, char const * filename)
+bool saveFilterState (FilterState const & s, char const * filename)
 {
 	try {
 		std::ofstream ofs(filename);
@@ -45,7 +44,7 @@ bool saveSessionState (SessionState const & s, char const * filename)
 	return false;
 }
 
-bool loadSessionState (SessionState & s, char const * filename)
+bool loadFilterState (FilterState & s, char const * filename)
 {
 	try {
 		std::ifstream ifs(filename);
@@ -74,7 +73,7 @@ bool loadSessionState (SessionState & s, char const * filename)
 	return false;
 }
 
-bool loadSessionState (SessionState const & src, SessionState & target)
+bool loadFilterState (FilterState const & src, FilterState & target)
 {
 	try {
 		std::stringstream s;

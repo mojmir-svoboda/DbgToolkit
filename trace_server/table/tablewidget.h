@@ -34,6 +34,9 @@ namespace table {
 		void requestTableWheelEventSync (QWheelEvent * ev, QTableView const * source);
 		void requestTableActionSync (unsigned long long t, int cursorAction, Qt::KeyboardModifiers modifiers, QTableView const * source);
 
+		void loadConfig (QString const & path);
+		void saveConfig (QString const & path);
+
 	protected:
 		virtual void wheelEvent (QWheelEvent * event);
 		virtual QModelIndex	moveCursor (CursorAction cursorAction, Qt::KeyboardModifiers modifiers);

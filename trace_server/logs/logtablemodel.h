@@ -24,17 +24,20 @@
 #include <QString>
 #include <vector>
 #include <tlv_parser/tlv_cmd_qstring.h>
-#include "../sessionstate.h"
+#include "../filterstate.h"
+#include "../cmd.h"
 
 class Connection;
-class SessionState;
+class FilterState;
 class QAbstractProxyModel;
+
+namespace logs { class LogWidget; }
 
 class LogTableModel : public QAbstractTableModel
 {
 	Q_OBJECT
 public:
-	explicit LogTableModel (QObject * parent = 0, Connection * c = 0);
+	explicit LogTableModel (QObject * parent, logs::LogWidget & lw);
 	~LogTableModel ();
 
 	int rowCount (const QModelIndex & parent = QModelIndex()) const;
@@ -44,6 +47,7 @@ public:
 	QVariant headerData (int section, Qt::Orientation orientation, int role) const;
 
 	void transactionStart (int n);
+	void appendCommand (DecodedCommand const & cmd);
 	void appendCommand (QAbstractProxyModel * filter, tlv::StringCommand const & cmd);
 	void appendCommandCSV (QAbstractProxyModel * filter, tlv::StringCommand const & cmd);
 	void transactionCommit ();
@@ -60,7 +64,7 @@ public:
 	typedef std::vector<unsigned> row_types_t;
 	row_types_t const & rowTypes () const { return m_rowTypes; }
 
-	SessionState const & session () const { return m_session_state; }
+	FilterState const & filterState () const { return m_filter_state; }
 
 signals:
 	
@@ -69,7 +73,8 @@ public slots:
 private:
 
 	Connection * m_connection;
-	SessionState & m_session_state;
+	logs::LogWidget & m_log_widget;
+	FilterState & m_filter_state;
 	typedef std::vector<QString> columns_t;
 	typedef std::vector<columns_t> rows_t;
 	rows_t m_rows;

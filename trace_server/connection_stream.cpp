@@ -226,7 +226,7 @@ int Connection::processStream (T * t, T_Ret (T::*read_member_fn)(T_Arg0, T_Arg1)
 				size_t const to_read = free_space < local_buff_sz ? free_space : local_buff_sz;
 
 				qint64 const count = (t->*read_member_fn)(local_buff, static_cast<int>(to_read));
-				sessionState().m_recv_bytes += count;			
+				m_recv_bytes += count;			
 
 				if (count <= 0)
 				{
@@ -384,11 +384,11 @@ void Connection::processDataStream (QDataStream & stream)
 		case e_data_ok:
 		{
 			// update column sizes
-			columns_sizes_t const & sizes = *sessionState().m_columns_sizes;
+			/*columns_sizes_t const & sizes = *sessionState().m_columns_sizes;
 			bool const old = m_table_view_widget->blockSignals(true);
 			for (int c = 0, ce = sizes.size(); c < ce; ++c)
 				m_table_view_widget->horizontalHeader()->resizeSection(c, sizes.at(c));
-			m_table_view_widget->blockSignals(old);
+			m_table_view_widget->blockSignals(old);*/
 			return;
 		}
 		case e_data_decode_oor:
@@ -418,7 +418,7 @@ void Connection::processTailCSVStream ()
 		if (m_decoded_cmds.size() > 0)
 		{
 			emit onHandleCommandsStart();
-			LogTableModel * model = static_cast<LogTableModel *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
+
 			for (size_t i = 0, ie = m_decoded_cmds.size(); i < ie; ++i)
 			{
 				DecodedCommand & cmd = m_decoded_cmds.front();
@@ -447,7 +447,8 @@ namespace {
 
 bool Connection::handleCSVStreamCommand (DecodedCommand const & cmd)
 {
-	if (!m_session_state.isConfigured())
+	// TODO
+	/*if (!m_session_state.isConfigured())
 	{
 		if (m_session_state.separatorChar().isEmpty())
 		{
@@ -459,7 +460,7 @@ bool Connection::handleCSVStreamCommand (DecodedCommand const & cmd)
 		QStringList const list = val.split(m_session_state.separatorChar());
 		int const cols = list.size();
 
-		int const idx = m_session_state.m_app_idx;
+		int const idx = m_app_idx;
 		if (m_main_window->m_config.m_columns_setup[idx].size() == 0)
 		{
 			m_main_window->m_config.m_columns_setup[idx].reserve(cols);
@@ -483,6 +484,7 @@ bool Connection::handleCSVStreamCommand (DecodedCommand const & cmd)
 	//appendToFilters(cmd);
 	LogTableModel * model = static_cast<LogTableModel *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
 	model->appendCommandCSV(m_table_view_proxy, cmd);
+	*/
 	return true;
 }
 
@@ -523,7 +525,7 @@ bool Connection::handleDictionnaryCtx (DecodedCommand const & cmd)
 			value.append(cmd.tvs[i+1].m_val);
 		}
 	}
-	sessionState().addCtxDict(name, value);
+	m_app_data.addCtxDict(name, value);
 	return true;
 }
 
@@ -533,7 +535,7 @@ bool Connection::handleDictionnaryCtx (DecodedCommand const & cmd)
 //////////////////// storage stuff //////////////////////////////
 QString Connection::createStorageName () const
 {
-	return sessionState().m_app_name + QString::number(sessionState().m_storage_idx);
+	return m_app_name + QString::number(m_storage_idx);
 }
 
 bool Connection::setupStorage (QString const & name)
@@ -580,40 +582,6 @@ bool Connection::handleSaveTLVCommand (DecodedCommand const & cmd)
 		}
 	}
 	return true;
-}
-
-void Connection::exportStorageToCSV (QString const & filename)
-{
-	// " --> ""
-	QRegExp regex("\"");
-	QString to_string("\"\"");
-	QFile csv(filename);
-	csv.open(QIODevice::WriteOnly);
-	QTextStream str(&csv);
-
-	for (int c = 0, ce = m_session_state.m_columns_setup_current->size(); c < ce; ++c)
-	{
-		str << "\"" << m_session_state.m_columns_setup_current->at(c) << "\"";
-		if (c < ce - 1)
-			str << ",\t";
-	}
-	str << "\n";
-
-	for (int r = 0, re = m_table_view_widget->model()->rowCount(); r < re; ++r)
-	{
-		for (int c = 0, ce = m_table_view_widget->model()->columnCount(); c < ce; ++c)
-		{
-			QModelIndex current = m_table_view_widget->model()->index(r, c, QModelIndex());
-			// csv nedumpovat pres proxy
-			QString txt = m_table_view_widget->model()->data(current).toString();
-			QString const quoted_txt = txt.replace(regex, to_string);
-			str << "\"" << quoted_txt << "\"";
-			if (c < ce - 1)
-				str << ",\t";
-		}
-		str << "\n";
-	}
-	csv.close();
 }
 
 bool Connection::handleExportCSVCommand (DecodedCommand const & cmd)

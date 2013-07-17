@@ -31,7 +31,6 @@
 #include <tlv_parser/tlv_cmd_qstring.h>
 #include <boost/circular_buffer.hpp>
 #include <boost/tuple/tuple.hpp>
-#include "sessionstate.h"
 #include "logs/filterproxy.h"
 #include "cmd.h"
 #include "plot/plotwidget.h"
@@ -41,6 +40,7 @@
 #include "treeview.h"
 #include "treeproxy.h"
 #include "logs/logwidget.h"
+#include "appdata.h"
 
 class Server;
 class QFile;
@@ -223,6 +223,8 @@ public:
 	bool loadConfigForLogs (QString const & preset_name);
 	bool saveConfigForLogs (QString const & preset_name);
 
+	void saveConfigs (QString const & preset_name);
+	void loadConfigs (QString const & preset_name);
 
 	void requestTableSynchronization (int sync_group, unsigned long long time);
 	void requestTableWheelEventSync (int sync_group, QWheelEvent * ev, QTableView const * source);
@@ -235,14 +237,14 @@ signals:
 	
 public slots:
 	void onTabTraceFocus ();
+	void onBufferingStateChanged (int state);
 	void onLevelValueChanged (int i);
 	QString onCopyToClipboard ();
-	void onBufferingStateChanged (int state);
+
 	void onHandleCommands ();
 	void onHandleCommandsStart ();
 	void onHandleCommandsCommit ();
-	void onHidePrevFromRow ();
-	void onUnhidePrevFromRow ();
+
 	void onShowContextMenu (QPoint const & pos);
 	void onShowPlotContextMenu (QPoint const &);
 	void onShowPlots ();
@@ -256,12 +258,17 @@ public slots:
 	void onShowLogContextMenu (QPoint const &);
 	void onShowLogs ();
 	void onHideLogs ();
-	void onToggleRefFromRow ();
-	void onColorTagRow (int row);
+
 	void onApplyColumnSetup ();
 	void onSaveAll ();
 
+	void onToggleRefFromRow ();
+	void onColorTagRow (int row);
+	void onHidePrevFromRow ();
+	void onUnhidePrevFromRow ();
+
 	bool tryHandleCommand (DecodedCommand const & cmd);
+
 
 private slots:
 	void processReadyRead ();
@@ -270,9 +277,8 @@ private slots:
 	void onDisconnected ();
 	void onTableClicked (QModelIndex const & index);
 	void onTableDoubleClicked (QModelIndex const & index);
-	void findTableIndexInFilters (QModelIndex const & row_index, bool scroll_to_item, bool expand);
 
-private:
+protected:
 	friend class Server;
 	friend class MainWindow;
 	friend class DataLog;
@@ -318,17 +324,18 @@ private:
 	template <int TypeN>
 	bool loadConfigFor (QString const & preset_name, typename SelectConfig<TypeN>::type & config, QString const & tag);
 
+	datalogs_t::iterator findOrCreateLog (QString const & tag);
+	void appendLog (DecodedCommand const &);
+
+	dataplots_t::iterator findOrCreatePlot (QString const & tag);
 	void appendDataXY (double x, double y, QString const & tag);
+
 	datatables_t::iterator findOrCreateTable (QString const & tag);
 	void appendTableXY (int x, int y, QString const & time, QString const & fgc, QString const & bgc, QString const & tag);
 	void appendTableSetup (int x, int y, QString const & time, QString const & fgc, QString const & bgc, QString const & hhdr, QString const & tag);
 
 	datagantts_t::iterator findOrCreateGantt (QString const & tag);
 	void appendGantt (gantt::DecodedData &);
-
-	datalogs_t::iterator findOrCreateLog (QString const & tag);
-	dataplots_t::iterator findOrCreatePlot (QString const & tag);
-	//void appendLog (logs::DecodedData &);
 
 	GlobalConfig const & getConfig () { return m_main_window->getConfig(); }
 
@@ -342,6 +349,9 @@ private:
 	void setSocketDescriptor (int sd);
 	void setImportFile (QString const & fname);
 	void setTailFile (QString const & fname);
+
+	void findTableIndexInFilters (QModelIndex const & row_index, bool scroll_to_item, bool expand);
+
 	void setupModelFile ();
 	void destroyModelFile ();
 	void setupModelCtx ();
@@ -357,6 +367,7 @@ private:
 	E_SrcStream m_src_stream;
 	E_SrcProtocol m_src_protocol;
 
+	AppData m_app_data;
 	int m_app_idx;
 	QString m_pid;
 	int m_storage_idx;
@@ -365,12 +376,12 @@ private:
 	bool m_marked_for_close;
 	QString m_curr_preset;
 	QWidget * m_tab_widget;
+	QTextStream * m_file_csv_stream;
+	QDataStream * m_file_tlv_stream;
 
 /*
 	SessionState m_session_state;
 	bool m_column_setup_done;
-	int m_last_search_row;
-	int m_last_search_col;
 	QString m_last_search;
 	QTableView * m_table_view_widget;
 	TreeModel * m_file_model;
@@ -408,8 +419,7 @@ private:
 	};
 	std::vector<QAction *> m_actions;
 	QModelIndex m_last_clicked;
-
-	QTextStream * m_file_csv_stream;*/
+*/
 
 
 	// data receiving stuff

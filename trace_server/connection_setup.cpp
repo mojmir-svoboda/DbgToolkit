@@ -6,14 +6,13 @@
 #include "logs/logtablemodel.h"
 #include "utils.h"
 #include "utils_qstandarditem.h"
-#include "serialization.h"
 #include "constants.h"
 //#include "statswindow.h"
 #include "delegates.h"
 
 void Connection::handleCSVSetup (QString const & fname)
 {
-	qDebug("Connection::handleCSVSetup() this=0x%08x", this);
+/*	qDebug("Connection::handleCSVSetup() this=0x%08x", this);
 
 	this->setupModelColorRegex();
 	this->setupModelRegex();
@@ -22,8 +21,7 @@ void Connection::handleCSVSetup (QString const & fname)
 	QString app_name = fname;
 	if (m_main_window->reuseTabEnabled())
 	{
-		Server * server = static_cast<Server *>(parent());
-		Connection * conn = server->findConnectionByName(app_name);
+		Connection * conn = m_main_window->findConnectionByName(app_name);
 		if (conn)
 		{
 			if (!m_main_window->clrFltEnabled())
@@ -32,7 +30,7 @@ void Connection::handleCSVSetup (QString const & fname)
 			}
 
 			QWidget * w = conn->m_tab_widget;
-			server->onCloseTab(w);	// close old one
+			m_main_window->onCloseTab(w);	// close old one
 			// @TODO: delete persistent storage for the tab
 		}
 		else
@@ -40,69 +38,20 @@ void Connection::handleCSVSetup (QString const & fname)
 			QString const pname = m_main_window->matchClosestPresetName(app_name);
 			m_main_window->onPresetActivate(this, pname);
 		}
-
-		{
-			QStandardItemModel * model = static_cast<QStandardItemModel *>(m_main_window->getWidgetColorRegex()->model());
-			QStandardItem * root = model->invisibleRootItem();
-			for (int i = 0; i < sessionState().m_colorized_texts.size(); ++i)
-			{
-				ColorizedText & ct = sessionState().m_colorized_texts[i];
-				ct.m_regex = QRegExp(ct.m_regex_str);
-
-				QStandardItem * child = findChildByText(root, ct.m_regex_str);
-				if (child == 0)
-				{
-					QList<QStandardItem *> row_items = addRow(ct.m_regex_str, ct.m_is_enabled);
-					root->appendRow(row_items);
-				}
-			}
-			recompileColorRegexps();
-		}
-
-		{
-			QStandardItemModel * model = static_cast<QStandardItemModel *>(m_main_window->getWidgetRegex()->model());
-			QStandardItem * root = model->invisibleRootItem();
-			for (int i = 0; i < sessionState().m_filtered_regexps.size(); ++i)
-			{
-				FilteredRegex & flt = sessionState().m_filtered_regexps[i];
-				flt.m_regex = QRegExp(flt.m_regex_str);
-
-				QStandardItem * child = findChildByText(root, flt.m_regex_str);
-				if (child == 0)
-				{
-					Qt::CheckState const state = flt.m_is_enabled ? Qt::Checked : Qt::Unchecked;
-					QList<QStandardItem *> row_items = addTriRow(flt.m_regex_str, state, static_cast<bool>(flt.m_state));
-					root->appendRow(row_items);
-					child = findChildByText(root, flt.m_regex_str);
-					child->setCheckState(state);
-				}
-			}
-			recompileRegexps();
-		}
-		{
-			QStandardItemModel * model = static_cast<QStandardItemModel *>(m_main_window->getWidgetString()->model());
-			QStandardItem * root = model->invisibleRootItem();
-			for (int i = 0; i < sessionState().m_filtered_strings.size(); ++i)
-			{
-				FilteredString & flt = sessionState().m_filtered_strings[i];
-				appendToStringWidgets(flt);
-			}
-		}
-
 	}
 
-	sessionState().m_app_name = app_name;
+	m_app_name = app_name;
 	//sessionState().m_pid = pid;
 
 	m_table_view_widget->setVisible(false);
 	int const tab_idx = m_main_window->getTabTrace()->indexOf(m_tab_widget);
 	m_main_window->getTabTrace()->setTabText(tab_idx, app_name);
 
-	sessionState().m_app_idx = m_main_window->findAppName(app_name);
-	if (sessionState().m_app_idx == e_InvalidItem)
+	m_app_idx = m_main_window->findAppName(app_name);
+	if (m_app_idx == e_InvalidItem)
 	{
 		qDebug("Unknown application: requesting user input");
-		sessionState().m_app_idx = m_main_window->createAppName(app_name, e_Proto_CSV);
+		m_app_idx = m_main_window->createAppName(app_name, e_Proto_CSV);
 	}
 
 	columns_setup_t & cs_setup = m_main_window->getColumnSetup(sessionState().m_app_idx);
@@ -147,15 +96,15 @@ void Connection::handleCSVSetup (QString const & fname)
 	static_cast<LogTableModel *>(m_table_view_widget->model())->emitLayoutChanged();
 
 	qDebug("Server::incomingConnection buffering not enabled, notifying client");
-	onBufferingStateChanged(m_main_window->buffState());
+	onBufferingStateChanged(m_main_window->buffState());*/
 }
 
 void Connection::tryLoadMatchingPreset (QString const & app_name)
 {
-	m_file_model->beforeLoad();
+	//m_file_model->beforeLoad();
 	QString const preset_name = m_main_window->matchClosestPresetName(app_name);
 	m_main_window->onPresetActivate(this, preset_name);
-	m_file_model->afterLoad();
+	//m_file_model->afterLoad();
 }
 
 bool Connection::handleSetupCommand (DecodedCommand const & cmd)
@@ -185,41 +134,40 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 
 		if (cmd.tvs[i].m_tag == tlv::tag_app)
 		{
-			this->setupModelFile();
+			/*this->setupModelFile();
 			this->setupModelLvl();
 			this->setupModelCtx();
 			this->setupModelTID();
 			this->setupModelColorRegex();
 			this->setupModelRegex();
-			this->setupModelString();
+			this->setupModelString();*/
 
 			QString app_name = cmd.tvs[i].m_val;
 			if (m_main_window->reuseTabEnabled())
 			{
-				Server * server = static_cast<Server *>(parent());
-				Connection * conn = server->findConnectionByName(app_name);
+				Connection * conn = m_main_window->findConnectionByName(app_name);
 				if (conn)
 				{
 					qDebug("cmd setup: looking for app=%s: not found", app_name.toStdString().c_str());
-					if (!m_main_window->clrFltEnabled())
+					/*if (!m_main_window->clrFltEnabled())
 					{
 						m_file_model->beforeLoad();
 						loadSessionState(conn->sessionState(), m_session_state);
-					}
+					}*/
 
 					QWidget * w = conn->m_tab_widget;
-					server->onCloseTab(w);	// close old one
+					m_main_window->onCloseTab(w);	// close old one
 					// @TODO: delete persistent storage for the tab
 
-					m_file_model->afterLoad();
+					//m_file_model->afterLoad();
 				}
 				else
 				{
 					qDebug("cmd setup: looking for app=%s: found", app_name.toStdString().c_str());
-					m_file_model->beforeLoad();
+					//m_file_model->beforeLoad();
 					QString const pname = m_main_window->matchClosestPresetName(app_name);
 					m_main_window->onPresetActivate(this, pname);
-					m_file_model->afterLoad();
+					//m_file_model->afterLoad();
 				}
 
 			}
@@ -229,7 +177,7 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 			}
 
 
-			{
+			/*{
 				QStandardItemModel * model = static_cast<QStandardItemModel *>(m_main_window->getWidgetColorRegex()->model());
 				if (model)
 				{
@@ -340,26 +288,26 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 				}
 				else
 					qWarning("str - nonexistent model");
-			}
+			}*/
 
-			this->setupModelFile();
-			this->setupModelLvl();
+			//this->setupModelFile();
+			//this->setupModelLvl();
 
-			sessionState().m_app_name = app_name;
-			sessionState().m_pid = pid;
+			m_app_name = app_name;
+			//sessionState().m_pid = pid;
 
 			int const tab_idx = m_main_window->getTabTrace()->indexOf(m_tab_widget);
 			m_main_window->getTabTrace()->setTabText(tab_idx, app_name);
 			QString storage_name = createStorageName();
 			setupStorage(storage_name);
 
-			sessionState().m_app_idx = m_main_window->findAppName(app_name);
-			if (sessionState().m_app_idx == e_InvalidItem)
+			m_app_idx = m_main_window->findAppName(app_name);
+			if (m_app_idx == e_InvalidItem)
 			{
-				sessionState().m_app_idx = m_main_window->createAppName(app_name, e_Proto_TLV);
+				m_app_idx = m_main_window->createAppName(app_name, e_Proto_TLV);
 			}
 
-			columns_setup_t & cs_setup = m_main_window->getColumnSetup(sessionState().m_app_idx);
+			/*columns_setup_t & cs_setup = m_main_window->getColumnSetup(sessionState().m_app_idx);
 			columns_sizes_t & cs_sizes = m_main_window->getColumnSizes(sessionState().m_app_idx);
 			columns_align_t & cs_align = m_main_window->getColumnAlign(sessionState().m_app_idx);
 			columns_elide_t & cs_elide = m_main_window->getColumnElide(sessionState().m_app_idx);
@@ -369,7 +317,7 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 				m_main_window->onSetup(e_Proto_TLV, sessionState().m_app_idx, true, true);
 			}
 
-			sessionState().setupColumns(&cs_setup, &cs_sizes, &cs_align, &cs_elide); 
+			sessionState().setupColumns(&cs_setup, &cs_sizes, &cs_align, &cs_elide); */
 
 			/*
 			m_current_cmd.tvs.reserve(sessionState().getColumnsSetupCurrent()->size());
@@ -420,7 +368,7 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 
 void Connection::setupColumnSizes (bool force_setup)
 {
-	if (force_setup || !m_column_setup_done)
+/*	if (force_setup || !m_column_setup_done)
 	{
 		m_column_setup_done = true;
 		bool const old = m_table_view_widget->blockSignals(true);
@@ -450,91 +398,8 @@ void Connection::setupColumnSizes (bool force_setup)
 			}
 		}
 		m_table_view_widget->blockSignals(old);
-	}
+	}*/
 	//m_main_window->getWidgetFile()->resizeColumnToContents(true);
 }
 
-void Connection::setupModelFile ()
-{
-	if (!m_file_model)
-	{
-		qDebug("new tree view file model");
-		m_file_model = new TreeModel(this, &m_session_state.m_file_filters);
 
-		  //->setFilterBehavior( KSelectionProxyModel::ExactSelection );
-		m_proxy_selection = new QItemSelectionModel(m_file_model, this);
-		m_file_proxy = new TreeProxyModel(m_file_model, m_proxy_selection);
-	}
-	m_main_window->getWidgetFile()->setModel(m_file_model);
-	m_main_window->getWidgetFile()->syncExpandState();
-	m_main_window->getWidgetFile()->hideLinearParents();
-	connect(m_file_model, SIGNAL(invalidateFilter()), this, SLOT(onInvalidateFilter()));
-}
-
-void Connection::destroyModelFile ()
-{
-	if (m_file_model)
-	{
-		qDebug("destroying file model");
-		disconnect(m_file_model, SIGNAL(invalidateFilter()), this, SLOT(onInvalidateFilter()));
-		m_main_window->getWidgetFile()->unsetModel(m_file_model);
-		delete m_file_model;
-		m_file_model = 0;
-		delete m_file_proxy;
-		m_file_proxy = 0;
-		delete m_proxy_selection;
-		m_proxy_selection = 0;
-	}
-}
-
-void Connection::setupModelCtx ()
-{
-	if (!m_ctx_model)
-	{
-		qDebug("new tree view ctx model");
-		m_ctx_model = new QStandardItemModel;
-	}
-	m_main_window->getWidgetCtx()->setModel(m_ctx_model);
-	m_main_window->getWidgetCtx()->expandAll();
-	m_main_window->getWidgetCtx()->setItemDelegate(m_delegates.get<e_delegate_Ctx>());
-}
-
-void Connection::setupModelTID ()
-{
-	if (!m_tid_model)
-		m_tid_model = new QStandardItemModel;
-	m_main_window->getWidgetTID()->setModel(m_tid_model);
-}
-
-void Connection::setupModelColorRegex ()
-{
-	if (!m_color_regex_model)
-		m_color_regex_model = new QStandardItemModel;
-	m_main_window->getWidgetColorRegex()->setModel(m_color_regex_model);
-}
-
-void Connection::setupModelRegex ()
-{
-	if (!m_regex_model)
-		m_regex_model = new QStandardItemModel;
-	m_main_window->getWidgetRegex()->setModel(m_regex_model);
-	m_main_window->getWidgetRegex()->setItemDelegate(m_delegates.get<e_delegate_Regex>());
-}
-
-void Connection::setupModelString ()
-{
-	if (!m_string_model)
-		m_string_model = new QStandardItemModel;
-	m_main_window->getWidgetString()->setModel(m_string_model);
-	m_main_window->getWidgetString()->setItemDelegate(m_delegates.get<e_delegate_String>());
-}
-
-void Connection::setupModelLvl ()
-{
-	if (!m_lvl_model)
-		m_lvl_model = new QStandardItemModel;
-	m_main_window->getWidgetLvl()->setModel(m_lvl_model);
-	m_main_window->getWidgetLvl()->setSortingEnabled(true);
-	m_main_window->getWidgetLvl()->setItemDelegate(m_delegates.get<e_delegate_Level>());
-	m_main_window->getWidgetLvl()->setRootIndex(m_lvl_model->indexFromItem(m_lvl_model->invisibleRootItem()));
-}

@@ -90,7 +90,7 @@
 		}
 	};
 
-	bool loadConfig (FrameViewConfig & config, QString const & fname);
-	bool saveConfig (FrameViewConfig const & config, QString const & fname);
+	void loadConfig (FrameViewConfig & config, QString const & fname);
+	void saveConfig (FrameViewConfig const & config, QString const & fname);
 //}
 
