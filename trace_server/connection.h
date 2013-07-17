@@ -353,6 +353,8 @@ protected:
 	void setupModelLvl ();
 	void setupColumnSizes (bool force_setup = false);
 
+	bool dumpModeEnabled () const;
+
 private:
 	MainWindow * m_main_window;
 	E_SrcStream m_src_stream;
@@ -425,7 +427,6 @@ private:
 	QTcpSocket * m_tcpstream;
 	//stats::StatsWindow * m_statswindow;
 	data_widgets_t m_data;
-	TreeModel * m_data_model;
 };
 
 #include "connection.inl"

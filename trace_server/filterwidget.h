@@ -102,7 +102,6 @@ public:
 	void onSelectAllCtxs ();
 	void onSelectNoCtxs ();
 
-	FilterWidget *	m_filter_widget;
 	FilterState		m_filter_state;
 
 	TreeModel * m_file_model;

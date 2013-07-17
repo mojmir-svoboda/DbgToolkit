@@ -496,7 +496,7 @@ bool Connection::handlePingCommand (DecodedCommand const & cmd)
 	{
 		disconnect(m_tcpstream, SIGNAL(disconnected()), this, SLOT(onDisconnected()));
 		m_marked_for_close = true;
-		QTimer::singleShot(0, static_cast<Server *>(parent()), SLOT(onCloseMarkedTabs()));
+		QTimer::singleShot(0, m_main_window, SLOT(onCloseMarkedTabs()));
 	}
 	return true;
 }

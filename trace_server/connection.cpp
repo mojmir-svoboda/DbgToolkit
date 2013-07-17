@@ -6,43 +6,26 @@
 #include "utils_qstandarditem.h"
 #include "utils_boost.h"
 #include "types.h"
+#include "server.h"
 //#include "statswindow.h"
 #include "delegates.h"
 #include "tableview.h"
 
 Connection::Connection (QObject * parent)
 	: QThread(parent)
-	, m_main_window(0)
+	, m_main_window(qobject_cast<MainWindow *>(parent))
 	, m_src_stream(e_Stream_TCP)
 	, m_src_protocol(e_Proto_TLV)
+	, m_app_data()
 	, m_app_idx(-1)
 	, m_storage_idx(-2)
-	, m_recv_bytes(0)
 	, m_app_name()
-
+	, m_recv_bytes(0)
 	, m_marked_for_close(false)
 	, m_curr_preset()
 	, m_tab_widget(0)
 	, m_file_tlv_stream(0)
 	, m_file_csv_stream(0)
-
-	/*, m_column_setup_done(false)
-	, m_last_search_row(0)
-	, m_last_search_col(0)
-	, m_table_view_widget(0)
-	, m_file_model(0)
-	, m_file_proxy(0)
-	, m_ctx_model(0)
-	, m_func_model(0)
-	, m_tid_model(0)
-	, m_color_regex_model(0)
-	, m_regex_model(0)
-	, m_lvl_model(0)
-	, m_string_model(0)
-	, m_table_view_proxy(0)
-	, m_table_view_src(0)
-	, m_last_clicked()*/
-
 	, m_buffer(e_ringbuff_size)
 	, m_current_cmd()
 	, m_decoded_cmds(e_ringcmd_size)
@@ -51,7 +34,6 @@ Connection::Connection (QObject * parent)
 	, m_tcp_dump_stream(0)
 	, m_tcpstream(0)
 	//, m_statswindow(0)
-	, m_data_model(0)
 {
 	qDebug("Connection::Connection() this=0x%08x", this);
 
@@ -76,8 +58,6 @@ Connection::Connection (QObject * parent)
     m_ctx_menu.addSeparator();
     m_ctx_menu.addAction(m_actions[e_action_Setup]);
 
-	m_data_model = new TreeModel(this, &m_session_state.m_data_filters);
-	
 	m_delegates.get<e_delegate_Level>() = new LevelDelegate(m_session_state, this);
 	m_delegates.get<e_delegate_Ctx>() = new CtxDelegate(m_session_state, this);
 	m_delegates.get<e_delegate_String>() = new StringDelegate(m_session_state, this);

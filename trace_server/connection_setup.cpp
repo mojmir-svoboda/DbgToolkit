@@ -7,7 +7,6 @@
 #include "utils.h"
 #include "utils_qstandarditem.h"
 #include "constants.h"
-//#include "statswindow.h"
 #include "delegates.h"
 
 void Connection::handleCSVSetup (QString const & fname)
@@ -107,12 +106,14 @@ void Connection::tryLoadMatchingPreset (QString const & app_name)
 	//m_file_model->afterLoad();
 }
 
+bool Connection::dumpModeEnabled () const { return m_main_window->dumpModeEnabled(); }
+
 bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 {
 	qDebug("Connection::handleSetupCommand() this=0x%08x", this);
 
 	QString pid;
-	if (m_main_window->dumpModeEnabled())
+	if (dumpModeEnabled())
 	{
 		for (size_t i=0, ie=cmd.tvs.size(); i < ie; ++i)
 			if (cmd.tvs[i].m_tag == tlv::tag_pid)

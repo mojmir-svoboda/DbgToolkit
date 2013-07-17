@@ -19,24 +19,30 @@ namespace logs {
 		, m_config_ui(cfg, this)
 		, m_fname(fname)
 		, m_connection(connection)
-	, m_exclude_content_to_row(0)
-	, m_time_ref_row(0)
-	, m_current_tag(-1)
-	, m_current_selection(-1)
-	, m_time_ref_value(0)
-
-	, m_column_setup_done(false)
-	, m_last_search_row(0)
-	, m_last_search_col(0)
-	, m_table_view_widget(0)
-
-	, m_table_view_proxy(0)
-	, m_table_view_src(0)
-	, m_last_clicked()
-	, m_file_csv_stream(0)
-	//, m_file_tlv_stream(0)
-
-
+		, m_tab(0)
+		, m_filter_state()
+		, m_tagconfig()
+		, m_tags2columns()
+		, m_tls()
+		, m_last_search_row(0)
+		, m_last_search_col(0)
+		, m_last_search()
+		, m_column_setup_done(false)
+		, m_exclude_content_to_row(0)
+		, m_time_ref_row(0)
+		, m_color_tag_rows()
+		, m_current_tag(-1)
+		, m_current_selection(-1)
+		, m_time_ref_value(0)
+		, m_curr_preset()
+		, m_table_view_proxy(0)
+		, m_table_view_src(0)
+		, m_ctx_menu()
+		, m_actions()
+		, m_last_clicked()
+		, m_csv_separator()
+		, m_file_csv_stream(0)
+		//, m_file_tlv_stream(0)
 	{
 		//qDebug("%s this=0x%08x", __FUNCTION__, this);
 
@@ -58,57 +64,57 @@ namespace logs {
 		connect(this, SIGNAL( requestFrameSynchronization(int, unsigned long long, void *) ),
 							 &getSyncWidgets(), SLOT( performFrameSynchronization(int, unsigned long long, void *) ));
 
-	setStyleSheet("QTableView::item{ selection-background-color:	#F5DEB3  } QTableView::item{ selection-color:	#000000 }");
-	
-	// to ignore 'resizeColumnToContents' when accidentaly double-clicked on header handle
-	QObject::disconnect(horizontalHeader(), SIGNAL(sectionHandleDoubleClicked(int)), this, SLOT(resizeColumnToContents(int)));
+		setStyleSheet("QTableView::item{ selection-background-color:	#F5DEB3  } QTableView::item{ selection-color:	#000000 }");
+		
+		// to ignore 'resizeColumnToContents' when accidentaly double-clicked on header handle
+		QObject::disconnect(horizontalHeader(), SIGNAL(sectionHandleDoubleClicked(int)), this, SLOT(resizeColumnToContents(int)));
 
-	setObjectName(QString::fromUtf8("tableView"));
-	LogTableModel * model = new LogTableModel(this, *this);
-	QObject::disconnect(model, SIGNAL(rowsInserted(QModelIndex,int,int)), verticalHeader(), SLOT(sectionsInserted(QModelIndex,int,int)));
-    verticalHeader()->setFont(cfg.m_font);
-	verticalHeader()->setDefaultSectionSize(cfg.m_row_width);
-	verticalHeader()->hide();	// @NOTE: users want that //@NOTE2: they can't have it because of performance
-	setModel(model);
-	QObject::connect(horizontalHeader(), SIGNAL(sectionResized(int, int, int)), this, SLOT(onSectionResized(int, int, int)));
+		setObjectName(QString::fromUtf8("tableView"));
+		LogTableModel * model = new LogTableModel(this, *this);
+		QObject::disconnect(model, SIGNAL(rowsInserted(QModelIndex,int,int)), verticalHeader(), SLOT(sectionsInserted(QModelIndex,int,int)));
+		verticalHeader()->setFont(cfg.m_font);
+		verticalHeader()->setDefaultSectionSize(cfg.m_row_width);
+		verticalHeader()->hide();	// @NOTE: users want that //@NOTE2: they can't have it because of performance
+		setModel(model);
+		//QObject::connect(horizontalHeader(), SIGNAL(sectionResized(int, int, int)), this, SLOT(onSectionResized(int, int, int)));
 
-	m_table_view_src = model;
-	//setupThreadColors(connection->getMainWindow()->getThreadColors());
+		m_table_view_src = model;
+		//setupThreadColors(connection->getMainWindow()->getThreadColors());
 
 
-	QStyle const * const style = QApplication::style();
-	connect(m_config_ui.ui()->gotoNextButton, SIGNAL(clicked()), this, SLOT(onNextToView()));
-	m_config_ui.ui()->gotoNextButton->setIcon(style->standardIcon(QStyle::SP_ArrowDown));
-	//connect(ui->autoScrollCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onAutoScrollStateChanged(int)));
-	//connect(ui->inViewCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onInViewStateChanged(int)));
-	//
-	//
-	connect(m_config_ui.ui()->filterFileCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onFilterFile(int)));
+		QStyle const * const style = QApplication::style();
+		connect(m_config_ui.ui()->gotoNextButton, SIGNAL(clicked()), this, SLOT(onNextToView()));
+		m_config_ui.ui()->gotoNextButton->setIcon(style->standardIcon(QStyle::SP_ArrowDown));
+		//connect(ui->autoScrollCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onAutoScrollStateChanged(int)));
+		//connect(ui->inViewCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onInViewStateChanged(int)));
+		//
+		//
+		connect(m_config_ui.ui()->filterFileCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onFilterFile(int)));
 
-	/*m_actions.resize(e_action_max_enum_value);
-	m_actions[e_action_ToggleRef] = new QAction("Set as reference time", this);
-	m_actions[e_action_HidePrev] = new QAction("Hide prev rows", this);
-	m_actions[e_action_ExcludeFileLine] = new QAction("Exclude File:Line (x)", this);
-	m_actions[e_action_Copy] = new QAction("Copy", this);
-	m_actions[e_action_Find] = new QAction("Find File:Line in filters", this);
-	m_actions[e_action_ColorTag] = new QAction("Tag row with color", this);
-	m_actions[e_action_Setup] = new QAction("Setup", this);
-    m_ctx_menu.addAction(m_actions[e_action_ExcludeFileLine]);
-    m_ctx_menu.addAction(m_actions[e_action_Find]);
-    m_ctx_menu.addAction(m_actions[e_action_Copy]);
-    m_ctx_menu.addAction(m_actions[e_action_ToggleRef]);
-    m_ctx_menu.addAction(m_actions[e_action_HidePrev]);
-    m_ctx_menu.addAction(m_actions[e_action_ColorTag]);
-    m_ctx_menu.addSeparator();
-    m_ctx_menu.addAction(m_actions[e_action_Setup]);*/
+		/*m_actions.resize(e_action_max_enum_value);
+		m_actions[e_action_ToggleRef] = new QAction("Set as reference time", this);
+		m_actions[e_action_HidePrev] = new QAction("Hide prev rows", this);
+		m_actions[e_action_ExcludeFileLine] = new QAction("Exclude File:Line (x)", this);
+		m_actions[e_action_Copy] = new QAction("Copy", this);
+		m_actions[e_action_Find] = new QAction("Find File:Line in filters", this);
+		m_actions[e_action_ColorTag] = new QAction("Tag row with color", this);
+		m_actions[e_action_Setup] = new QAction("Setup", this);
+		m_ctx_menu.addAction(m_actions[e_action_ExcludeFileLine]);
+		m_ctx_menu.addAction(m_actions[e_action_Find]);
+		m_ctx_menu.addAction(m_actions[e_action_Copy]);
+		m_ctx_menu.addAction(m_actions[e_action_ToggleRef]);
+		m_ctx_menu.addAction(m_actions[e_action_HidePrev]);
+		m_ctx_menu.addAction(m_actions[e_action_ColorTag]);
+		m_ctx_menu.addSeparator();
+		m_ctx_menu.addAction(m_actions[e_action_Setup]);*/
 
-	//m_data_model = new TreeModel(this, &m_session_state.m_data_filters);
-	
-	/*m_delegates.get<e_delegate_Level>() = new LevelDelegate(m_session_state, this);
-	m_delegates.get<e_delegate_Ctx>() = new CtxDelegate(m_session_state, this);
-	m_delegates.get<e_delegate_String>() = new StringDelegate(m_session_state, this);
-	m_delegates.get<e_delegate_Regex>() = new RegexDelegate(m_session_state, this);
-	*/
+		//m_data_model = new TreeModel(this, &m_session_state.m_data_filters);
+		
+		/*m_delegates.get<e_delegate_Level>() = new LevelDelegate(m_session_state, this);
+		m_delegates.get<e_delegate_Ctx>() = new CtxDelegate(m_session_state, this);
+		m_delegates.get<e_delegate_String>() = new StringDelegate(m_session_state, this);
+		m_delegates.get<e_delegate_Regex>() = new RegexDelegate(m_session_state, this);
+		*/
 	}
 
 	LogWidget::~LogWidget ()
@@ -529,15 +535,15 @@ void LogWidget::appendLog (DecodedCommand const & cmd)
 	{
 		if (m_config.m_scopes)
 		{
-			LogTableModel * model = static_cast<LogTableModel *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
+			LogTableModel * m = static_cast<LogTableModel *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : model());
 			//dp.widget().model()->appendCommand(m_table_view_proxy, cmd);
-			model->appendCommand(m_table_view_proxy, cmd);
+			m->appendCommand(m_table_view_proxy, cmd);
 		}
 	}
 	else if (cmd.hdr.cmd == tlv::cmd_log)
 	{
-		LogTableModel * model = static_cast<LogTableModel *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
-		model->appendCommand(m_table_view_proxy, cmd);
+		LogTableModel * m = static_cast<LogTableModel *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : model());
+		m->appendCommand(m_table_view_proxy, cmd);
 	}
 }
 
@@ -962,10 +968,10 @@ void LogWidget::onShowContextMenu (QPoint const & pos)
 
 void LogWidget::onSectionResized (int idx, int /*old_size*/, int new_size)
 {
-	if (idx < m_config.m_columns_setup.size())
+	/*if (idx < m_config.m_columns_setup.size())
 	{
 		m_config.m_columns_sizes[idx] = new_size;
-	}
+	}*/
 }
 
 void LogWidget::exportStorageToCSV (QString const & filename)

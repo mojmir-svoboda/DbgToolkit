@@ -184,19 +184,18 @@ void Connection::appendDataXY (double x, double y, QString const & msg_tag)
 		plot::CurveConfig const * ccfg = 0;
 		dp.m_config.findCurveConfig(subtag, ccfg); // config is created by mkCurve
 
-		QModelIndex const item_idx = m_data_model->insertItemWithHint(curve_name, ccfg ? ccfg->m_show : true);
+		// @FIXME: nemela by toto delat factory?
+		QModelIndex const item_idx = m_main_window->addDockedWidget(curve_name, ccfg ? ccfg->m_show : true);
 
 		if (dp.m_config.m_show)
 		{
 			bool const visible = ccfg ? ccfg->m_show : true;
 			dp.widget().showCurve(curve->m_curve, visible);
-			m_data_model->setData(item_idx, QVariant(visible ? Qt::Checked : Qt::Unchecked), Qt::CheckStateRole);
 		}
 		else
 		{
 			bool const visible = ccfg ? ccfg->m_show : false;
 			dp.widget().showCurve(curve->m_curve, visible);
-			m_data_model->setData(item_idx, QVariant(visible ? Qt::Checked : Qt::Unchecked), Qt::CheckStateRole);
 		}
 	}
 

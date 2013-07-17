@@ -43,11 +43,8 @@ typename SelectIterator<TypeN>::type  Connection::dataWidgetFactory (QString con
 		dd->m_wd = m_main_window->m_dock_mgr.mkDockWidget(m_main_window, &(*it)->widget(), (*it)->config().m_show, log_name);
 		m_main_window->loadLayout(preset_name);
 
-		QModelIndex const item_idx = m_data_model->insertItemWithHint(log_name, (*it)->config().m_show);
-
 		bool const visible = (*it)->config().m_show;
-		m_data_model->setData(item_idx, QVariant(visible ? Qt::Checked : Qt::Unchecked), Qt::CheckStateRole);
-
+		QModelIndex const item_idx = m_main_window->addDockedWidget(log_name, visible);
 	}
 	return it;
 }

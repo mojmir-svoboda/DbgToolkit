@@ -2,10 +2,9 @@
 #include "connection.h"
 #include <QTreeView>
 
-TreeModel::TreeModel (Connection * parent, tree_data_t * data)
+TreeModel::TreeModel (QObject * parent, tree_data_t * data)
 	: QAbstractItemModel(parent)
 	, m_tree_data(data)
-	, m_connection(parent)
 	, m_cut_parent_lvl(0)
 {
 	qDebug("%s", __FUNCTION__);

@@ -26,8 +26,8 @@
 #include <QTimer>
 #include <QComboBox>
 #include <QSystemTrayIcon>
-#include "server.h"
 #include <tlv_parser/tlv_parser.h>
+#include <filters/file_filter.hpp>
 #include "config.h"
 #include "dock.h"
 
@@ -37,6 +37,7 @@ namespace Ui {
 	class HelpDialog;
 }
 
+class Server;
 class QSystemTrayIcon;
 class QAction;
 class QMenu;
@@ -45,7 +46,9 @@ class QStandardItemModel;
 class QLabel;
 class SessionState;
 class TreeView;
+class TreeModel;
 class QTreeView;
+class Connection;
 
 enum E_ApiErrors { e_InvalidItem = -1 };
 
@@ -164,6 +167,7 @@ public:
 
 	DockManager const & dockManager () const { return m_dock_mgr; }
 	DockManager & dockManager () { return m_dock_mgr; }
+	QModelIndex addDockedWidget (QString const & name, bool on);
 
 	void createTailDataStream (QString const & fname);
 	void createTailLogStream (QString const & fname, QString const & separator);
@@ -274,6 +278,9 @@ private:
 	DockManager 		m_dock_mgr;
 	DockWidget * 		m_docked_widgets;
 	TreeView * 			m_docked_widgets_tree_view;
+	TreeModel *			m_docked_widgets_model;
+	typedef tree_filter<TreeModelItem> data_filters_t;
+	data_filters_t		m_docked_widgets_state;
 	QString 			m_log_name;
 
 	int 				m_start_level; // @TODO: to config?

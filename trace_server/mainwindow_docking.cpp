@@ -2,6 +2,13 @@
 #include "treemodel.h"
 #include "connection.h"
 
+QModelIndex MainWindow::addDockedWidget (QString const & name, bool on)
+{
+	QModelIndex const idx = m_docked_widgets_model->insertItemWithHint(name, on);
+	m_docked_widgets_model->setData(idx, QVariant(on ? Qt::Checked : Qt::Unchecked), Qt::CheckStateRole);
+	return idx;
+}
+
 // @TODO: hmm. this whole fn is.. unfortunately rushed. need to rethink
 void MainWindow::onClickedAtDockedWidgets (QModelIndex idx)
 {

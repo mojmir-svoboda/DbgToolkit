@@ -72,7 +72,6 @@ public slots:
 
 private:
 
-	Connection * m_connection;
 	logs::LogWidget & m_log_widget;
 	FilterState & m_filter_state;
 	typedef std::vector<QString> columns_t;

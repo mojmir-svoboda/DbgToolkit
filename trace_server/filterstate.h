@@ -169,7 +169,6 @@ public:
 		ar & boost::serialization::make_nvp("file_filters", m_file_filters);
 		ar & boost::serialization::make_nvp("ctx_filters", m_ctx_filters);
 		ar & boost::serialization::make_nvp("lvl_filters", m_lvl_filters);
-		ar & boost::serialization::make_nvp("data_filters", m_data_filters);
 		ar & boost::serialization::make_nvp("colorized_texts", m_colorized_texts);
 		ar & boost::serialization::make_nvp("filtered_regexps", m_filtered_regexps);
 		ar & boost::serialization::make_nvp("collapse_blocks", m_collapse_blocks);
@@ -185,8 +184,6 @@ public:
 	ctx_filters_t			m_ctx_filters;
 	lvl_filters_t			m_lvl_filters;
 	tid_filters_t			m_tid_filters;
-	typedef tree_filter<TreeModelItem> data_filters_t;
-	data_filters_t			m_data_filters;	// @TODO: k cemu to je?
 	QList<ColorizedText>	m_colorized_texts;
 	QList<FilteredRegex>	m_filtered_regexps;
 	QList<CollapsedBlock>	m_collapse_blocks;

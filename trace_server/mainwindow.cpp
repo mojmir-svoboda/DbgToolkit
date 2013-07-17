@@ -34,7 +34,7 @@
 
 ///////////  qt5 stuff
 #include <QWindow>
-#include <QtGui/5.1.0/QtGui/qpa/qplatformnativeinterface.h>
+#include <QtGui/5.1.1/QtGui/qpa/qplatformnativeinterface.h>
 static QWindow * windowForWidget(const QWidget* widget)
 {
 	if (QWindow* window = widget->windowHandle()) { return window; }
@@ -94,6 +94,7 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QStri
 	, m_dock_mgr()
 	, m_docked_widgets(0)
 	, m_docked_widgets_tree_view(0)
+	, m_docked_widgets_model(0)
 	, m_log_name(log_name)
 	, m_start_level(level)
 {
@@ -110,6 +111,7 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QStri
 	//ui_settings->separatorComboBox->addItem("\\t");
 	//ui_settings->separatorComboBox->addItem("\\n");
 
+	m_docked_widgets_model = new TreeModel(this, &m_docked_widgets_state);
 	m_docked_widgets_tree_view = new TreeView(this);
 	m_docked_widgets_tree_view->setHidingLinearParents(false);
 	m_docked_widgets = m_dock_mgr.mkDockWidget(this, m_docked_widgets_tree_view, false, QString("list"), Qt::LeftDockWidgetArea);
@@ -117,6 +119,8 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QStri
 	m_docked_widgets->setVisible(false);
 	m_docked_widgets->setFeatures(QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetFloatable);
 	connect(m_docked_widgets, SIGNAL(visibilityChanged(bool)), this, SLOT(onListVisibilityChanged(bool)));
+
+	
 
 	QString const homedir = QDir::homePath();
 	m_config.m_appdir = homedir + "/.flogging";
@@ -393,8 +397,8 @@ void MainWindow::onDockedWidgetsToolButton ()
 
 		if (Connection * conn = findCurrentConnection())
 		{
-			m_docked_widgets_tree_view->setModel(conn->m_data_model);
-			connect(m_docked_widgets_tree_view, SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtDockedWidgets(QModelIndex)));
+			m_docked_widgets_tree_view->setModel(m_docked_widgets_model);
+			connect(m_docked_widgets_tree_view, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtDockedWidgets(QModelIndex)));
 		}
 	}
 	else

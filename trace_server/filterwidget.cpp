@@ -20,9 +20,10 @@
 FilterWidget::FilterWidget (QWidget * parent)
 	: QWidget(parent)
 	, ui(new Ui::FilterWidget)
-
+	, m_filter_state()
 	, m_file_model(0)
 	, m_file_proxy(0)
+	, m_proxy_selection(0)
 	, m_ctx_model(0)
 	, m_func_model(0)
 	, m_tid_model(0)
@@ -30,8 +31,6 @@ FilterWidget::FilterWidget (QWidget * parent)
 	, m_regex_model(0)
 	, m_lvl_model(0)
 	, m_string_model(0)
-
-
 {
     ui->setupUi(this);
 }

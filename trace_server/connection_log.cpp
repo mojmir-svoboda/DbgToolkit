@@ -16,7 +16,7 @@ DataLog::DataLog (Connection * connection, config_t & config, QString const & fn
 	horizontalLayout->setSpacing(1);
 	horizontalLayout->setContentsMargins(0, 0, 0, 0);
 	horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
-	logs::LogWidget * tableView = new logs::LogWidget(connection, tab, config, fname);
+	logs::LogWidget * tableView = new logs::LogWidget(connection, tab, this->config(), fname);
 	horizontalLayout->addWidget(tableView);
 	m_widget = tableView;
 }
@@ -146,7 +146,8 @@ datalogs_t::iterator Connection::findOrCreateLog (QString const & tag)
 	datalogs_t::iterator it = dataWidgetFactory<e_data_log>(tag);
 	if (it != m_data.get<e_data_log>().end())
 	{
-		(*it)->onShow();
+		DataLog * d = *it;
+		d->onShow();
 	}
 	else
 		assert(false);
