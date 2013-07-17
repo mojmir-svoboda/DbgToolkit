@@ -55,14 +55,16 @@ SOURCES += ../version.cpp \
     mainwindow.cpp \
     server.cpp \
     connection.cpp \
-    filterwidget.cpp
+    filterwidget.cpp \
+    findwidget.cpp
 
 HEADERS  += ../version.h \
     mainwindow.h \
     modelview.h \
     server.h \
     connection.h \
-    filterwidget.h
+    filterwidget.h \
+    findwidget.h
 
 FORMS    += help.ui \
     mainwindow.ui \
@@ -73,7 +75,8 @@ FORMS    += help.ui \
     settingsgantt.ui \
     settingsframeview.ui \
     settingsfilters.ui \
-    filterwidget.ui
+    filterwidget.ui \
+    findwidget.ui
 
 RESOURCES += \
     resources.qrc

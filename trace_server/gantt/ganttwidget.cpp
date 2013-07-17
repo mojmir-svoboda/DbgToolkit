@@ -256,7 +256,7 @@ namespace gantt {
 		m_config.m_hsize.resize(m_modelView->columnCount());
 		for (int i = 0, ie = m_modelView->columnCount(); i < ie; ++i)
 			m_config.m_hsize[i] = horizontalHeader()->sectionSize(i);*/
-		m_connection->saveConfigForGantt(m_config, m_config.m_tag);
+		//m_connection->saveConfigForGantt(m_config, m_config.m_tag);
 
 	}
 	void GanttWidget::onResetButton () { setConfigValuesToUI(m_config); }

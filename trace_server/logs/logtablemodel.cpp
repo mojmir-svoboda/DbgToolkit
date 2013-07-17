@@ -185,7 +185,7 @@ void LogTableModel::appendCommand (QAbstractProxyModel * filter, tlv::StringComm
 
 	int indent = 0;
 	QString qindent;
-	if (m_connection->getMainWindow()->indentEnabled())
+	if (m_log_widget.m_config.m_indent)
 	{
 		if (thread_idx >= 0)
 			indent = m_log_widget.getTLS().m_indents[thread_idx];

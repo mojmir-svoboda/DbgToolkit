@@ -206,7 +206,7 @@ public:
 	int getAppIdx () const { return m_app_idx; }
 
 	void run ();
-	bool loadConfigForPlot (QString const & preset_name, plot::PlotConfig & config, QString const & tag);
+	/*bool loadConfigForPlot (QString const & preset_name, plot::PlotConfig & config, QString const & tag);
 	bool saveConfigForPlot (plot::PlotConfig const & config, QString const & tag);
 	bool loadConfigForPlots (QString const & preset_name);
 	bool saveConfigForPlots (QString const & preset_name);
@@ -221,7 +221,7 @@ public:
 	//bool loadConfigForLog (QString const & preset_name, logs::LogConfig & config, QString const & tag);
 	bool saveConfigForLog (logs::LogConfig const & config, QString const & tag);
 	bool loadConfigForLogs (QString const & preset_name);
-	bool saveConfigForLogs (QString const & preset_name);
+	bool saveConfigForLogs (QString const & preset_name);*/
 
 	void saveConfigs (QString const & preset_name);
 	void loadConfigs (QString const & preset_name);
@@ -239,13 +239,13 @@ public slots:
 	void onTabTraceFocus ();
 	void onBufferingStateChanged (int state);
 	void onLevelValueChanged (int i);
-	QString onCopyToClipboard ();
+	//QString onCopyToClipboard ();
 
 	void onHandleCommands ();
 	void onHandleCommandsStart ();
 	void onHandleCommandsCommit ();
 
-	void onShowContextMenu (QPoint const & pos);
+	//void onShowContextMenu (QPoint const & pos);
 	void onShowPlotContextMenu (QPoint const &);
 	void onShowPlots ();
 	void onHidePlots ();
@@ -259,13 +259,7 @@ public slots:
 	void onShowLogs ();
 	void onHideLogs ();
 
-	void onApplyColumnSetup ();
 	void onSaveAll ();
-
-	void onToggleRefFromRow ();
-	void onColorTagRow (int row);
-	void onHidePrevFromRow ();
-	void onUnhidePrevFromRow ();
 
 	bool tryHandleCommand (DecodedCommand const & cmd);
 
@@ -275,8 +269,6 @@ private slots:
 	void processTailCSVStream ();
 	void handleCSVSetup (QString const & fname);
 	void onDisconnected ();
-	void onTableClicked (QModelIndex const & index);
-	void onTableDoubleClicked (QModelIndex const & index);
 
 protected:
 	friend class Server;
@@ -344,7 +336,6 @@ protected:
 	QString createStorageName () const;
 	void processDataStream (QDataStream & stream);
 	void copyStorageTo (QString const & filename);
-	void exportStorageToCSV (QString const & filename);
 	void closeStorage ();
 	void setSocketDescriptor (int sd);
 	void setImportFile (QString const & fname);

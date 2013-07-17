@@ -21,7 +21,10 @@ DataLog::DataLog (Connection * connection, config_t & config, QString const & fn
 	m_widget = tableView;
 }
 
+DataLog::~DataLog ()
+{
 	//QObject::disconnect(connection->m_table_view_widget->horizontalHeader(), SIGNAL(sectionResized(int, int, int)), this, SLOT(onSectionResized(int, int, int)));
+}
 
 bool Connection::handleLogCommand (DecodedCommand const & cmd)
 {
@@ -76,7 +79,7 @@ void Connection::onShowLogContextMenu (QPoint const &)
 	}
 }
 
-bool Connection::loadConfigForLogs (QString const & preset_name)
+/*bool Connection::loadConfigForLogs (QString const & preset_name)
 {
 	qDebug("%s this=0x%08x", __FUNCTION__, this);
 	for (datalogs_t::iterator it = m_data.get<e_data_log>().begin(), ite = m_data.get<e_data_log>().end(); it != ite; ++it)
@@ -91,7 +94,7 @@ bool Connection::loadConfigForLogs (QString const & preset_name)
 			tbl->onHide();
 	}
 	return true;
-}
+}*/
 
 /*bool Connection::saveConfigForLog (logs::LogConfig const & config, QString const & tag)
 {

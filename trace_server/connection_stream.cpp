@@ -590,7 +590,12 @@ bool Connection::handleExportCSVCommand (DecodedCommand const & cmd)
 	{
 		if (cmd.tvs[i].m_tag == tlv::tag_file)
 		{
-			exportStorageToCSV(cmd.tvs[i].m_val);
+
+
+
+
+
+			//exportStorageToCSV(cmd.tvs[i].m_val);
 			return true;
 		}
 	}

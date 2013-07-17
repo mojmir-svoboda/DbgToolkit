@@ -1,23 +1,4 @@
 
-TreeView * MainWindow::getWidgetFile () { return ui->treeViewFile; }
-TreeView const * MainWindow::getWidgetFile () const { return ui->treeViewFile; }
-QTreeView * MainWindow::getWidgetCtx () { return ui->treeViewCtx; }
-QTreeView const * MainWindow::getWidgetCtx () const { return ui->treeViewCtx; }
-QComboBox * MainWindow::getFilterRegex () { return ui->comboBoxRegex; }
-QComboBox const * MainWindow::getFilterRegex () const { return ui->comboBoxRegex; }
-QTreeView * MainWindow::getWidgetRegex () { return ui->treeViewRegex; }
-QTreeView const * MainWindow::getWidgetRegex () const { return ui->treeViewRegex; }
-QComboBox * MainWindow::getFilterColorRegex () { return ui->comboBoxColorRegex; }
-QComboBox const * MainWindow::getFilterColorRegex () const { return ui->comboBoxColorRegex; }
-QListView * MainWindow::getWidgetColorRegex () { return ui->listViewColorRegex; }
-QListView const * MainWindow::getWidgetColorRegex () const { return ui->listViewColorRegex; }
-QListView * MainWindow::getWidgetTID () { return ui->listViewTID; }
-QListView const * MainWindow::getWidgetTID () const { return ui->listViewTID; }
-QTreeView * MainWindow::getWidgetLvl () { return ui->treeViewLvl; }
-QTreeView const * MainWindow::getWidgetLvl () const { return ui->treeViewLvl; }
-QTreeView * MainWindow::getWidgetString () { return ui->treeViewString; }
-QTreeView const * MainWindow::getWidgetString () const { return ui->treeViewString; }
-
 //bool MainWindow::autoScrollEnabled () const { return ui->autoScrollCheckBox->isChecked(); }
 //bool MainWindow::inViewEnabled () const { return ui->inViewCheckBox->isChecked(); }
 bool MainWindow::scopesEnabled () const { return ui_settings->scopesCheckBox->isChecked(); }

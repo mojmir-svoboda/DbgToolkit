@@ -50,6 +50,38 @@ public:
 	QTreeView * getWidgetLvl ();
 	QTreeView const * getWidgetLvl () const;
 
+	// filtering
+	void onRegexActivate (int idx);
+	void onRegexAdd ();
+	void onRegexRm ();
+	void onColorRegexActivate (int idx);
+	void onColorRegexAdd ();
+	void onColorRegexRm ();
+	//void onStringActivate (int idx);
+	void onStringAdd ();
+	void onStringRm ();
+	void onGotoFileFilter ();
+	void onGotoColorFilter ();
+	void onGotoRegexFilter ();
+	void onGotoLevelFilter ();
+	void syncSettingsViews (QListView const * const invoker, QModelIndex const idx);
+	void onFilterFileComboChanged (QString str);
+	void onCancelFilterFileButton ();
+	void onClickedAtCtxTree (QModelIndex idx);
+	void onDoubleClickedAtCtxTree (QModelIndex idx);
+	void onClickedAtTIDList (QModelIndex idx);
+	void onDoubleClickedAtTIDList (QModelIndex idx);
+	void onClickedAtLvlList (QModelIndex idx);
+	void onDoubleClickedAtLvlList (QModelIndex idx);
+	void onClickedAtRegexList (QModelIndex idx);
+	void onDoubleClickedAtRegexList (QModelIndex idx);
+	void onClickedAtColorRegexList (QModelIndex idx);
+	void onDoubleClickedAtColorRegexList (QModelIndex idx);
+	void onClickedAtStringList (QModelIndex idx);
+	void onDoubleClickedAtStringList (QModelIndex idx);
+
+
+
 
 	// sem??
 	void onHidePrevFromRow ();
@@ -94,3 +126,6 @@ public:
 	boost::tuple<LevelDelegate *, CtxDelegate *, StringDelegate *, RegexDelegate *> m_delegates;
 
 };
+
+bool loadFilterState (FilterState & s, std::string const & filename);
+bool loadFilterState (FilterState const & src, FilterState & target);

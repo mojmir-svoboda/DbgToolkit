@@ -223,7 +223,6 @@ namespace logs {
 	void onClearRefTime () { m_time_ref_row = 0; }
 
 
-
 	signals:
 		//void requestTimeSynchronization (int sync_group, unsigned long long time, void * source);
 		//void requestFrameSynchronization (int sync_group, unsigned long long frame, void * source);

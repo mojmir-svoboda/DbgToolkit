@@ -23,7 +23,6 @@
 #include <QUrl>
 #include <QtPlugin>
 #include <QClipboard>
-#include "settings.h"
 #include "utils.h"
 #include "../tlv_parser/tlv_parser.h"
 #include "help.h"
@@ -35,7 +34,7 @@
 
 ///////////  qt5 stuff
 #include <QWindow>
-#include <QtGui/5.1.1/QtGui/qpa/qplatformnativeinterface.h>
+#include <QtGui/5.1.0/QtGui/qpa/qplatformnativeinterface.h>
 static QWindow * windowForWidget(const QWidget* widget)
 {
 	if (QWindow* window = widget->windowHandle()) { return window; }
@@ -326,7 +325,12 @@ bool MainWindow::onTopEnabled () const { return ui_settings->onTopCheckBox->isCh
 int MainWindow::plotState () const { return ui->plotSlider->value(); }
 int MainWindow::tableState () const { return ui->tableSlider->value(); }
 int MainWindow::ganttState () const { return ui->ganttSlider->value(); }
-//bool MainWindow::reuseTabEnabled () const { return ui_settings->reuseTabCheckBox->isChecked(); }
+bool MainWindow::reuseTabEnabled () const { return true; 
+	
+	
+	
+	
+	ui_settings->reuseTabCheckBox->isChecked(); }
 bool MainWindow::buffEnabled () const { return ui->buffCheckBox->isChecked(); }
 Qt::CheckState MainWindow::buffState () const { return ui->buffCheckBox->checkState(); }
 //bool MainWindow::statsEnabled () const { return ui_settings->traceStatsCheckBox->isChecked(); }
@@ -402,10 +406,10 @@ void MainWindow::onDockedWidgetsToolButton ()
 	}
 }
 
-void MainWindow::onListVisibilityChanged (bool visible)
+/*void MainWindow::onListVisibilityChanged (bool visible)
 {
 	ui->dockedWidgetsToolButton->setChecked(visible);
-}
+}*/
 
 void MainWindow::onPlotsClosed ()
 {
@@ -434,8 +438,8 @@ void MainWindow::onFileTail ()
 
 void MainWindow::onLogTail ()
 {
-	setupSeparatorChar("|");
-	createTailLogStream(m_log_name, "|");
+	//setupSeparatorChar("|");
+	//createTailLogStream(m_log_name, "|");
 }
 
 void MainWindow::openFiles (QStringList const & files)
@@ -475,7 +479,7 @@ void MainWindow::onFileExportToCSV ()
 
 	if (filename != "")
 	{
-		exportStorageToCSV(filename);
+		//exportStorageToCSV(filename);
 	}
 }
 
@@ -556,15 +560,6 @@ void MainWindow::onDockRestoreButton ()
 	QSettings settings("MojoMir", "TraceServer");
 	restoreState(settings.value("windowState").toByteArray());
 	restoreGeometry(settings.value("geometry").toByteArray());
-}
-
-void MainWindow::onCopyToClipboard ()
-{
-	if (Connection * conn = findCurrentConnection())
-	{
-		QString selection = conn->onCopyToClipboard();
-        qApp->clipboard()->setText(selection);
-	}
 }
 
 void MainWindow::setupMenuBar ()
@@ -870,7 +865,21 @@ bool MainWindow::eventFilter (QObject * target, QEvent * e)
 		QShortcutEvent * se = static_cast<QShortcutEvent *>(e);
 		if (se->key() == QKeySequence(Qt::ControlModifier + Qt::Key_Insert))
 		{
-			onCopyToClipboard();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+			//onCopyToClipboard();
 			return true;
 		}
 	}
@@ -891,9 +900,9 @@ int MainWindow::createAppName (QString const & appname, E_SrcProtocol const prot
 	addNewApplication(appname);
 	int const app_idx = static_cast<int>(m_config.m_app_names.size()) - 1;
 
-	if (proto == e_Proto_TLV)
+	/*if (proto == e_Proto_TLV)
 	{
-		/*size_t const n = tlv::tag_bool;
+		size_t const n = tlv::tag_bool;
 		for (int i = tlv::tag_time; i < n; ++i)
 		{
 			char const * name = tlv::get_tag_name(i);
@@ -904,12 +913,12 @@ int MainWindow::createAppName (QString const & appname, E_SrcProtocol const prot
 				m_config.m_columns_align.back().push_back(QChar(alignToString(default_aligns[i])));
 				m_config.m_columns_elide.back().push_back(QChar(elideToString(default_elides[i])));
 			}
-		}*/
+		}
 		onSetup(proto, static_cast<int>(app_idx), true, true);
 	}
 	else if (proto == e_Proto_CSV)
 	{
-	}
+	}*/
 
 	return app_idx;
 }

@@ -126,18 +126,18 @@ public:
 
 	// log widget
 	bool scopesEnabled () const;
-	bool indentEnabled () const;
-	bool cutPathEnabled () const;
-	bool cutNamespaceEnabled () const;
-	int cutPathLevel () const;
-	int cutNamespaceLevel () const;
-	int indentLevel () const;
-	int tableRowSize () const;
-	QString tableFont () const;
-	bool inViewEnabled () const;
+	//bool indentEnabled () const;
+	//bool cutPathEnabled () const;
+	//bool cutNamespaceEnabled () const;
+	//int cutPathLevel () const;
+	//int cutNamespaceLevel () const;
+	//int indentLevel () const;
+	//int tableRowSize () const;
+	//QString tableFont () const;
+	//bool inViewEnabled () const;
 	bool reuseTabEnabled () const;
-	bool filterEnabled () const;
-	bool clrFltEnabled () const;
+	//bool filterEnabled () const;
+	//bool clrFltEnabled () const;
 	bool dtEnabled () const;
 	//OBS bool statsEnabled () const;
 	//OBS bool filterPaneVertical () const;
@@ -169,10 +169,11 @@ public:
 	void createTailLogStream (QString const & fname, QString const & separator);
 	void importDataStream (QString const & fname);
 	void copyStorageTo (QString const & filename);
-	void exportStorageToCSV (QString const & filename);
+	//void exportStorageToCSV (QString const & filename);
 	Connection * findConnectionByName (QString const & app_name);
 	Connection * findCurrentConnection ();
 	Connection * createNewConnection ();
+	void destroyConnection (Connection * connection);
 
 public slots:
 	void newConnection (Connection * connection);
@@ -186,6 +187,9 @@ public slots:
 	void onClickedAtDockedWidgets (QModelIndex idx);
 	void onCloseTab (int idx, QWidget * w);
 	void onCloseTab (QWidget * w);
+	void onCloseMarkedTabs ();
+	void onCloseTabWithIndex (int idx);
+	void onCloseCurrentTab ();
 
 	friend class Connection;
 private slots:
@@ -194,19 +198,13 @@ private slots:
 	void loadPresets ();
 	void storeGeometry ();
 	void storeState ();
-	void saveCurrentSession (QString const & preset_name);
-	void storePresets ();
+	//void saveCurrentSession (QString const & preset_name);
+	//void storePresets ();
 	void storePresetNames ();
 	void timerHit ();
 	void onQuit ();
 	void onQuitReally ();
 	void openFiles (QStringList const & list);
-
-	void onEditFindNext ();
-	void onNextToView ();
-	void onAutoScrollHotkey();
-	void turnOffAutoScroll();
-	void onEditFindPrev ();
 
 	void onFileLoad ();
 	void onFileTail ();
@@ -227,38 +225,11 @@ private slots:
 	void onAddCurrentState ();
 	void onRmCurrentState ();
 
-	void onDumpFilters ();
+	void onLevelValueChanged (int i);
+	void onBufferingStateChanged (int state);
 	void onShowHelp ();
+	void onTabTraceFocus (int i);
 	
-	// filtering
-	void onRegexActivate (int idx);
-	void onRegexAdd ();
-	void onRegexRm ();
-	void onColorRegexActivate (int idx);
-	void onColorRegexAdd ();
-	void onColorRegexRm ();
-	//void onStringActivate (int idx);
-	void onStringAdd ();
-	void onStringRm ();
-	void onGotoFileFilter ();
-	void onGotoColorFilter ();
-	void onGotoRegexFilter ();
-	void onGotoLevelFilter ();
-	void syncSettingsViews (QListView const * const invoker, QModelIndex const idx);
-	void onFilterFileComboChanged (QString str);
-	void onCancelFilterFileButton ();
-	void onClickedAtCtxTree (QModelIndex idx);
-	void onDoubleClickedAtCtxTree (QModelIndex idx);
-	void onClickedAtTIDList (QModelIndex idx);
-	void onDoubleClickedAtTIDList (QModelIndex idx);
-	void onClickedAtLvlList (QModelIndex idx);
-	void onDoubleClickedAtLvlList (QModelIndex idx);
-	void onClickedAtRegexList (QModelIndex idx);
-	void onDoubleClickedAtRegexList (QModelIndex idx);
-	void onClickedAtColorRegexList (QModelIndex idx);
-	void onDoubleClickedAtColorRegexList (QModelIndex idx);
-	void onClickedAtStringList (QModelIndex idx);
-	void onDoubleClickedAtStringList (QModelIndex idx);
 
 
 	//void onReuseTabChanged (int state);
@@ -269,8 +240,7 @@ private slots:
 	void onPlotsClosed ();
 	void onTablesStateChanged (int state);
 	//void onAutoScrollStateChanged (int state);
-	void onFilterFile (int state);
-	void onCopyToClipboard ();
+	//void onCopyToClipboard ();
 
 private:
 	void showServerStatus ();

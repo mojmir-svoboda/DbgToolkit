@@ -115,7 +115,7 @@ bool Connection::handleTableSetupCommand (DecodedCommand const & cmd)
 }
 
 
-bool Connection::loadConfigForTable (QString const & preset_name, table::TableConfig & config, QString const & tag)
+/*bool Connection::loadConfigForTable (QString const & preset_name, table::TableConfig & config, QString const & tag)
 {
 	QString const fname = getDataTagFileName(getConfig().m_appdir, preset_name, g_presetTableTag, tag);
 	qDebug("table: load cfg file=%s", fname.toStdString().c_str());
@@ -137,7 +137,7 @@ bool Connection::loadConfigForTables (QString const & preset_name)
 			tbl->onHide();
 	}
 	return true;
-}
+}*/
 
 /*
 bool Connection::saveConfigForTable (table::TableConfig const & config, QString const & tag)

@@ -143,7 +143,7 @@ bool Connection::handleGanttFrameEndCommand (DecodedCommand const & cmd)
 	return true;
 }
 
-bool Connection::loadConfigForGantt (QString const & preset_name, gantt::GanttConfig & config, QString const & tag)
+/*bool Connection::loadConfigForGantt (QString const & preset_name, gantt::GanttConfig & config, QString const & tag)
 {
 	QString const fname = getDataTagFileName(getConfig().m_appdir, preset_name, g_presetGanttTag, tag);
 	qDebug("gantt: load cfg file=%s", fname.toStdString().c_str());
@@ -185,7 +185,7 @@ bool Connection::saveConfigForGantts (QString const & preset_name)
 		tbl->widget().onSaveButton();
 	}
 	return true;
-}
+}*/
 
 
 datagantts_t::iterator Connection::findOrCreateGantt (QString const & tag)

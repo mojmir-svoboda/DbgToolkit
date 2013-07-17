@@ -1,6 +1,5 @@
 #include "filterstate.h"
 #include <tlv_parser/tlv_encoder.h>
-#include "settings.h"
 
 FilterState::FilterState (QObject * parent)
 {

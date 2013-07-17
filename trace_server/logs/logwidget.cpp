@@ -256,6 +256,11 @@ namespace logs {
 		applyConfig(m_config);
 	}
 
+	void LogWidget::loadConfig (QString const & path)
+	{
+		QString const logpath = path + "/" + g_presetLogTag + "/" + m_config.m_tag;
+	}
+
 	void LogWidget::saveConfig (QString const & path)
 	{
 		QString const logpath = path + "/" + g_presetLogTag + "/" + m_config.m_tag;

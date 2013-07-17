@@ -44,7 +44,7 @@ bool saveFilterState (FilterState const & s, char const * filename)
 	return false;
 }
 
-bool loadFilterState (FilterState & s, char const * filename)
+bool loadFilterState (FilterState & s, std::string const & filename)
 {
 	try {
 		std::ifstream ifs(filename);
@@ -72,6 +72,7 @@ bool loadFilterState (FilterState & s, char const * filename)
 	}
 	return false;
 }
+
 
 bool loadFilterState (FilterState const & src, FilterState & target)
 {

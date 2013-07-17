@@ -99,7 +99,7 @@ bool Connection::handleDataXYZCommand (DecodedCommand const & cmd)
 	return true;
 }
  
-bool Connection::loadConfigForPlots (QString const & preset_name)
+/*bool Connection::loadConfigForPlots (QString const & preset_name)
 {
 	qDebug("%s this=0x%08x", __FUNCTION__, this);
 	for (dataplots_t::iterator it = m_data.get<e_data_plot>().begin(), ite = m_data.get<e_data_plot>().end(); it != ite; ++it)
@@ -143,7 +143,7 @@ bool Connection::saveConfigForPlots (QString const & preset_name)
 		saveConfig(plt->m_config, fname);
 	}
 	return true;
-}
+}*/
 
 dataplots_t::iterator Connection::findOrCreatePlot (QString const & tag)
 {

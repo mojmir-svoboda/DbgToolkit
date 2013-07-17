@@ -50,6 +50,7 @@ SET(trace_server_SOURCES
 	mainwindow.cpp
 	mainwindow_presets.cpp
 	mainwindow_obsolette.cpp
+	mainwindow_connection.cpp
 	mainwindow_docking.cpp
 	tableview.cpp
 	treeview.cpp
@@ -68,6 +69,7 @@ SET(trace_server_SOURCES
 	config.cpp
 	dock.cpp
 	syncwidgets.cpp
+	findwidget.cpp
 
 	kde/kselectionproxymodel.cpp
 	kde/kmodelindexproxymapper.cpp
@@ -125,6 +127,7 @@ SET(trace_server_HEADERS
 	constants.h
 	syncwidgets.h
 	config.h
+	findwidget.h
 
 	logs/logtablemodel.h
 	logs/logwidget.h
@@ -166,6 +169,7 @@ SET(trace_server_HEADERS
 SET(trace_server_UI 
 	mainwindow.ui
 	filterwidget.ui
+	findwidget.ui
 	settings.ui
 	settingslog.ui
 	settingsplot.ui

@@ -1,7 +1,12 @@
+#include "mainwindow.h"
+#include "connection.h"
+#include <QClipboard>
+#include <QStatusBar>
+
 Connection * MainWindow::findCurrentConnection ()
 {
 	Q_ASSERT(parent());
-	QWidget * w = m_main_window->getTabTrace()->currentWidget();
+	QWidget * w = getTabTrace()->currentWidget();
 	connections_t::iterator it = m_connections.find(w);
 	return (it != m_connections.end()) ? it->second : 0;
 }
@@ -11,18 +16,11 @@ Connection * MainWindow::findConnectionByName (QString const & app_name)
 	Q_ASSERT(parent());
 
 	for (connections_t::const_iterator it = m_connections.begin(), ite = m_connections.end(); it != ite; ++it)
-		if (it->second->sessionState().getAppName() == app_name)
+		if (it->second->getAppName() == app_name)
 			return it->second;
 	return 0;
 }
 
-
-
-void MainWindow::exportStorageToCSV (QString const & filename)
-{
-	if (Connection * conn = findCurrentConnection())
-		conn->exportStorageToCSV(filename);
-}
 
 
 void MainWindow::copyStorageTo (QString const & filename)
@@ -38,14 +36,14 @@ void MainWindow::onLevelValueChanged (int val)
 		conn->onLevelValueChanged(val);
 }
 
-void MainWindow::onCopyToClipboard ()
+/*void MainWindow::onCopyToClipboard ()
 {
 	if (Connection * conn = findCurrentConnection())
 	{
 		QString selection = conn->onCopyToClipboard();
         qApp->clipboard()->setText(selection);
 	}
-}
+}*/
 
 void MainWindow::onBufferingStateChanged (int state)
 {
@@ -57,7 +55,7 @@ void MainWindow::onBufferingStateChanged (int state)
 
 void MainWindow::onTabTraceFocus (int i)
 {
-	QWidget * w = m_main_window->getTabTrace()->widget(i);
+	QWidget * w = getTabTrace()->widget(i);
 	// @TODO: unfocus current
 	for (connections_t::iterator it = m_connections.begin(), ite = m_connections.end(); it != ite; ++it)
 	{
@@ -81,9 +79,8 @@ Connection * MainWindow::createNewConnection ()
 	Connection * connection = new Connection(this);
 	QWidget * tab = new QWidget();
 	connection->m_tab_widget = tab;
-	connection->setMainWindow(m_main_window);
 
-	int const n = m_main_window->getTabTrace()->addTab(tab, QString::fromUtf8("???"));
+	int const n = getTabTrace()->addTab(tab, QString::fromUtf8("???"));
 	qDebug("created new tab at %u for connection @ 0x%08x", n, connection);
 
 	//QString const tag("default"); // @FIXME
@@ -95,7 +92,7 @@ Connection * MainWindow::createNewConnection ()
 	///////////////////////////////
 
 
-	/*if (m_main_window->filterEnabled())
+	/*if (filterEnabled())
 	{
 		connection->setFilterFile(Qt::Checked);
 	}*/
@@ -112,9 +109,9 @@ void MainWindow::importDataStream (QString const & fname)
 		return;
 	}
 
-	Connection * connection = createNewTableView ();
+	Connection * connection = createNewConnection();
 	connection->setImportFile(fname);
-	m_main_window->statusBar()->showMessage(tr("Importing file!"));
+	statusBar()->showMessage(tr("Importing file!"));
 
 	QDataStream import_stream(&file);
 	connection->processDataStream(import_stream);
@@ -123,11 +120,11 @@ void MainWindow::importDataStream (QString const & fname)
 
 void MainWindow::createTailLogStream (QString const & fname, QString const & separator)
 {
-	Connection * connection = createNewTableView ();
+	Connection * connection = createNewConnection();
 	connection->setTailFile(fname);
-	connection->m_session_state.m_csv_separator = separator;
+	//connection->m_csv_separator = separator;
 	
-	m_main_window->statusBar()->showMessage(tr("Tail!"));
+	statusBar()->showMessage(tr("Tail!"));
 	connection->handleCSVSetup(fname);
 	connection->processTailCSVStream();
 	emit newConnection(connection);
@@ -135,10 +132,10 @@ void MainWindow::createTailLogStream (QString const & fname, QString const & sep
 
 void MainWindow::createTailDataStream (QString const & fname)
 {
-	Connection * connection = createNewTableView ();
+	Connection * connection = createNewConnection();
 	connection->setTailFile(fname);
 
-	m_main_window->statusBar()->showMessage(tr("Tail!"));
+	statusBar()->showMessage(tr("Tail!"));
 	connection->handleCSVSetup(fname);
 	connection->processTailCSVStream();
 	emit newConnection(connection);
@@ -148,7 +145,7 @@ void MainWindow::createTailDataStream (QString const & fname)
 void MainWindow::onCloseTab (int idx, QWidget * w)
 {
 	qDebug("MainWindow::onCloseTab(idx=%i, QWidget *=0x%08x) idx=%i", idx, w, idx);
-	m_main_window->getTabTrace()->removeTab(idx);
+	getTabTrace()->removeTab(idx);
 	connections_t::iterator it = m_connections.find(w);
 	if (it != m_connections.end())
 	{
@@ -156,8 +153,8 @@ void MainWindow::onCloseTab (int idx, QWidget * w)
 		m_connections.erase(it);
 		destroyConnection(connection);
 	}
-	qDebug("MainWindow::onCloseTab(idx=%i, QWidget *=0x%08x) curr idx=%i", idx, w, m_main_window->getTabTrace()->currentIndex());
-	onTabTraceFocus(m_main_window->getTabTrace()->currentIndex());
+	qDebug("MainWindow::onCloseTab(idx=%i, QWidget *=0x%08x) curr idx=%i", idx, w, getTabTrace()->currentIndex());
+	onTabTraceFocus(getTabTrace()->currentIndex());
 }
 void MainWindow::onCloseMarkedTabs ()
 {
@@ -183,7 +180,7 @@ void MainWindow::onCloseTab (QWidget * w)
 {
 	if (w)
 	{
-		int const idx = m_main_window->getTabTrace()->indexOf(w);
+		int const idx = getTabTrace()->indexOf(w);
 		if (idx != -1)
 		{
 			qDebug("MainWindow::onCloseTab(QWidget *) idx=%i", idx);
@@ -195,7 +192,7 @@ void MainWindow::onCloseTabWithIndex (int idx)
 {
 	if (idx != -1)
 	{
-		if (QWidget * w = m_main_window->getTabTrace()->widget(idx))
+		if (QWidget * w = getTabTrace()->widget(idx))
 		{
 			qDebug("MainWindow::onCloseTabWithIndex(int) idx=%i widget=0x%08x", idx, w);
 			onCloseTab(idx, w);
@@ -205,7 +202,7 @@ void MainWindow::onCloseTabWithIndex (int idx)
 void MainWindow::onCloseCurrentTab ()
 {
 	qDebug("%s", __FUNCTION__);
-	QWidget * w = m_main_window->getTabTrace()->currentWidget();
+	QWidget * w = getTabTrace()->currentWidget();
 	onCloseTab(w);
 }
 

@@ -6,7 +6,6 @@
 #include "dock.h"
 #include <QMessageBox>
 #include <QInputDialog>
-#include "settings.h"
 #include "constants.h"
 #include "utils.h"
 

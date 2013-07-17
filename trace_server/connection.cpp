@@ -225,7 +225,13 @@ void Connection::onDisconnected ()
 	if (m_main_window->dumpModeEnabled())
 	{
 		QString fname = tr("%1_%2.csv").arg(getAppName()).arg(m_pid);
-		exportStorageToCSV(fname);
+
+
+
+
+
+
+		//exportStorageToCSV(fname);
 
 		Server * server = static_cast<Server *>(parent());
 		m_marked_for_close = true;

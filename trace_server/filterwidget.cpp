@@ -41,6 +41,27 @@ FilterWidget::~FilterWidget ()
     delete ui;
 }
 
+TreeView * FilterWidget::getWidgetFile () { return ui->treeViewFile; }
+TreeView const * FilterWidget::getWidgetFile () const { return ui->treeViewFile; }
+QTreeView * FilterWidget::getWidgetCtx () { return ui->treeViewCtx; }
+QTreeView const * FilterWidget::getWidgetCtx () const { return ui->treeViewCtx; }
+QComboBox * FilterWidget::getFilterRegex () { return ui->comboBoxRegex; }
+QComboBox const * FilterWidget::getFilterRegex () const { return ui->comboBoxRegex; }
+QTreeView * FilterWidget::getWidgetRegex () { return ui->treeViewRegex; }
+QTreeView const * FilterWidget::getWidgetRegex () const { return ui->treeViewRegex; }
+QComboBox * FilterWidget::getFilterColorRegex () { return ui->comboBoxColorRegex; }
+QComboBox const * FilterWidget::getFilterColorRegex () const { return ui->comboBoxColorRegex; }
+QListView * FilterWidget::getWidgetColorRegex () { return ui->listViewColorRegex; }
+QListView const * FilterWidget::getWidgetColorRegex () const { return ui->listViewColorRegex; }
+QListView * FilterWidget::getWidgetTID () { return ui->listViewTID; }
+QListView const * FilterWidget::getWidgetTID () const { return ui->listViewTID; }
+QTreeView * FilterWidget::getWidgetLvl () { return ui->treeViewLvl; }
+QTreeView const * FilterWidget::getWidgetLvl () const { return ui->treeViewLvl; }
+QTreeView * FilterWidget::getWidgetString () { return ui->treeViewString; }
+QTreeView const * FilterWidget::getWidgetString () const { return ui->treeViewString; }
+
+
+
 bool saveFilterState (FilterState const & s, std::string const & filename)
 {
 	try {
@@ -49,65 +70,6 @@ bool saveFilterState (FilterState const & s, std::string const & filename)
 		boost::archive::xml_oarchive oa(ofs);
 		oa << BOOST_SERIALIZATION_NVP(s);
 		ofs.close();
-		return true;
-	}
-	catch (std::out_of_range const & e)
-	{
-		QMessageBox::critical(0, QString(__FUNCTION__), QString("OOR exception during decoding: %1").arg(e.what()), QMessageBox::Ok, QMessageBox::Ok);	
-	}
-	catch (std::length_error const & e)
-	{
-		QMessageBox::critical(0, QString(__FUNCTION__), QString("LE exception during decoding: %1").arg(e.what()), QMessageBox::Ok, QMessageBox::Ok);
-	}
-	catch (std::exception const & e)
-	{
-		QMessageBox::critical(0, QString(__FUNCTION__), QString("generic exception during decoding: %1").arg(e.what()), QMessageBox::Ok, QMessageBox::Ok);
-	}
-	catch (...)
-	{
-		QMessageBox::critical(0, QString(__FUNCTION__), QString("... exception during decoding"), QMessageBox::Ok, QMessageBox::Ok);
-	}
-	return false;
-}
-
-bool loadFilterState (FilterState & s, std::string const & filename)
-{
-	try {
-		std::ifstream ifs(filename);
-		if (!ifs) return false;
-		boost::archive::xml_iarchive ia(ifs);
-		ia >> BOOST_SERIALIZATION_NVP(s);
-		ifs.close();
-		return true;
-	}
-	catch (std::out_of_range const & e)
-	{
-		QMessageBox::critical(0, QString(__FUNCTION__), QString("OOR exception during decoding: %1").arg(e.what()), QMessageBox::Ok, QMessageBox::Ok);	
-	}
-	catch (std::length_error const & e)
-	{
-		QMessageBox::critical(0, QString(__FUNCTION__), QString("LE exception during decoding: %1").arg(e.what()), QMessageBox::Ok, QMessageBox::Ok);
-	}
-	catch (std::exception const & e)
-	{
-		QMessageBox::critical(0, QString(__FUNCTION__), QString("generic exception during decoding: %1").arg(e.what()), QMessageBox::Ok, QMessageBox::Ok);
-	}
-	catch (...)
-	{
-		QMessageBox::critical(0, QString(__FUNCTION__), QString("... exception during decoding"), QMessageBox::Ok, QMessageBox::Ok);
-	}
-	return false;
-}
-
-bool loadFilterState (FilterState const & src, FilterState & target)
-{
-	try {
-		std::stringstream s;
-		boost::archive::xml_oarchive oa(s);
-		oa << BOOST_SERIALIZATION_NVP(src);
-
-		boost::archive::xml_iarchive ia(s);
-		ia >> BOOST_SERIALIZATION_NVP(target);
 		return true;
 	}
 	catch (std::out_of_range const & e)

@@ -6,6 +6,7 @@
 #include "../qwt/qwt_plot_magnifier.h"
 #include "../qwt/qwt_picker_machine.h"
 #include "../qwt/qwt_plot_marker.h"
+#include <constants.h>
 #include <QTimer>
 
 namespace plot {
@@ -371,6 +372,17 @@ namespace plot {
 	void PlotWidget::onZAutoScaleChanged (int state)
 	{
 	}
+
+	void PlotWidget::loadConfig (QString const & path)
+	{
+		QString const logpath = path + "/" + g_presetPlotTag + "/" + m_config.m_tag;
+	}
+	void PlotWidget::saveConfig (QString const & path)
+	{
+		QString const logpath = path + "/" + g_presetPlotTag + "/" + m_config.m_tag;
+	}
+
+
 
 	void PlotWidget::onSaveButton ()
 	{
