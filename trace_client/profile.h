@@ -82,12 +82,12 @@
 /**	@macro		PROFILE_SCOPE
  *	@brief		profiles scope
  **/
-#	define PROFILE_SCOPE                profile::ScopedProfile UNIQUE(profile_entry_guard_)
+#	define PROFILE_SCOPE                profile::ScopedProfile TRACE_UNIQUE(profile_entry_guard_)
 
 /**	@macro		FRAME_PROFILE_SCOPE
  *	@brief		profiles scope
  **/
-#	define PROFILE_FRAME_SCOPE          profile::ScopedFrameProfile UNIQUE(profile_entry_guard_)
+#	define PROFILE_FRAME_SCOPE          profile::ScopedFrameProfile TRACE_UNIQUE(profile_entry_guard_)
 
 	namespace profile {
 

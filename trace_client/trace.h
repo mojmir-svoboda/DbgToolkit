@@ -100,7 +100,7 @@
  *	@param[in]	fmt			formatted message appended to the scope
  **/
 #	define TRACE_SCOPE_MSG(level, context, fmt, ...)	\
-		trace::ScopedLog UNIQUE(entry_guard_)(static_cast<trace::level_t>(level), context, __FILE__, __LINE__, __FUNCTION__, fmt, __VA_ARGS__)
+		trace::ScopedLog TRACE_UNIQUE(entry_guard_)(static_cast<trace::level_t>(level), context, __FILE__, __LINE__, __FUNCTION__, fmt, __VA_ARGS__)
 /**	@macro		TRACE_SCOPE
  *	@brief		logs "entry to" and "exit from" scope
  **/
@@ -164,12 +164,12 @@
 /**	@macro		TRACE_GANTT_SCOPE
  *	@brief		traces event into gantt chart
  **/
-#	define TRACE_GANTT_SCOPE                trace::ScopedGantt UNIQUE(profile_entry_guard_)
+#	define TRACE_GANTT_SCOPE                trace::ScopedGantt TRACE_UNIQUE(profile_entry_guard_)
 
 /**	@macro		TRACE_GANTT_FRAME_SCOPE
  *	@brief		traces frame into gantt chart
  **/
-#	define TRACE_GANTT_FRAME_SCOPE          trace::ScopedGanttFrame UNIQUE(profile_entry_guard_)
+#	define TRACE_GANTT_FRAME_SCOPE          trace::ScopedGanttFrame TRACE_UNIQUE(profile_entry_guard_)
 
 #	define TRACE_GANTT_CLEAR                trace::WriteGanttClear
 
