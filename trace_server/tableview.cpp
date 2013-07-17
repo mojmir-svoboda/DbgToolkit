@@ -44,7 +44,7 @@ void TableView::scrollTo (QModelIndex const & index, ScrollHint hint)
 	QTableView::scrollTo(index, hint);
 }
 
-void TableView::setColumnOrder (QMap<int, int> const & columnOrderMap, SessionState const & session)
+/*void TableView::setColumnOrder (QMap<int, int> const & columnOrderMap, SessionState const & session)
 {
     LogTableModel * tableModel = static_cast<LogTableModel *>(model());
     int currentIndex;
@@ -62,7 +62,7 @@ void TableView::setColumnOrder (QMap<int, int> const & columnOrderMap, SessionSt
 
        	horizontalHeader()->moveSection(currentIndex, indexMovingTo);
     }
-}
+}*/
 
 void TableView::keyPressEvent (QKeyEvent * event)
 {

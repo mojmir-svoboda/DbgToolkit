@@ -11,24 +11,22 @@
 
 //namespace gantt {
 
-	bool loadConfig (FrameViewConfig & config, QString const & fname)
+	void loadConfig (FrameViewConfig & config, QString const & fname)
 	{
 		std::ifstream ifs(fname.toLatin1());
-		if (!ifs) return false;
+		if (!ifs) return;
 		boost::archive::xml_iarchive ia(ifs);
 		ia >> BOOST_SERIALIZATION_NVP(config);
 		ifs.close();
-		return true;
 	}
 
-	bool saveConfig (FrameViewConfig const & config, QString const & fname)
+	void saveConfig (FrameViewConfig const & config, QString const & fname)
 	{
 		std::ofstream ofs(fname.toLatin1());
-		if (!ofs) return false;
+		if (!ofs) return;
 		boost::archive::xml_oarchive oa(ofs);
 		oa << BOOST_SERIALIZATION_NVP(config);
 		ofs.close();
-		return true;
 	}
 //}
 

@@ -8,10 +8,11 @@
 #include "../connection.h"
 #include "../mainwindow.h"
 
-FilterProxyModel::FilterProxyModel (QObject * parent, SessionState & ss)
+FilterProxyModel::FilterProxyModel (QObject * parent, logs::LogWidget & lw)
 	: QAbstractProxyModel(parent)
+	, m_log_widget(lw)
 	, m_columns(0)
-	, m_session_state(ss)
+	, m_filter_state(lw.m_filter_state)
 	, m_main_window(static_cast<Connection const *>(parent)->getMainWindow())
 { }
 
@@ -121,13 +122,13 @@ bool FilterProxyModel::filterAcceptsRow (int sourceRow, QModelIndex const & /*so
 {
 	//@TODO: toStdString is a performance hit too
 	QString file, line;
-	int const col_idx = m_session_state.findColumn4Tag(tlv::tag_file);
+	int const col_idx = m_log_widget.findColumn4Tag(tlv::tag_file);
 	if (col_idx >= 0)
 	{
 		QModelIndex data_idx = sourceModel()->index(sourceRow, col_idx, QModelIndex());
 		file = sourceModel()->data(data_idx).toString();
 	}
-	int const col_idx2 = m_session_state.findColumn4Tag(tlv::tag_line);
+	int const col_idx2 = m_log_widget.findColumn4Tag(tlv::tag_line);
 	if (col_idx2 >= 0)
 	{
 		QModelIndex data_idx2 = sourceModel()->index(sourceRow, col_idx2, QModelIndex());
@@ -138,7 +139,7 @@ bool FilterProxyModel::filterAcceptsRow (int sourceRow, QModelIndex const & /*so
 	if (!file.isNull() && !line.isNull() && !file.isEmpty() && !line.isEmpty())
 	{
 		TreeModelItem ff;
-		bool const ff_present = m_session_state.isFileLinePresent(std::make_pair(file, line), ff);
+		bool const ff_present = m_filter_state.isFileLinePresent(std::make_pair(file, line), ff);
 		if (ff_present)
 		{
 			excluded |= ff.m_state == e_Unchecked;
@@ -146,7 +147,7 @@ bool FilterProxyModel::filterAcceptsRow (int sourceRow, QModelIndex const & /*so
 	}
 
 	QString tid;
-	int const tid_idx = m_session_state.findColumn4Tag(tlv::tag_tid);
+	int const tid_idx = m_log_widget.findColumn4Tag(tlv::tag_tid);
 	if (tid_idx >= 0)
 	{
 		QModelIndex data_idx = sourceModel()->index(sourceRow, tid_idx, QModelIndex());
@@ -154,7 +155,7 @@ bool FilterProxyModel::filterAcceptsRow (int sourceRow, QModelIndex const & /*so
 	}
 
 	QString lvl;
-	int const lvl_idx = m_session_state.findColumn4Tag(tlv::tag_lvl);
+	int const lvl_idx = m_log_widget.findColumn4Tag(tlv::tag_lvl);
 	if (lvl_idx >= 0)
 	{
 		QModelIndex data_idx = sourceModel()->index(sourceRow, lvl_idx, QModelIndex());
@@ -162,7 +163,7 @@ bool FilterProxyModel::filterAcceptsRow (int sourceRow, QModelIndex const & /*so
 	}
 
 	QString ctx;
-	int const ctx_idx = m_session_state.findColumn4Tag(tlv::tag_ctx);
+	int const ctx_idx = m_log_widget.findColumn4Tag(tlv::tag_ctx);
 	if (ctx_idx >= 0)
 	{
 		QModelIndex data_idx = sourceModel()->index(sourceRow, ctx_idx, QModelIndex());
@@ -172,7 +173,7 @@ bool FilterProxyModel::filterAcceptsRow (int sourceRow, QModelIndex const & /*so
 	
 	E_LevelMode lvlmode = e_LvlInclude;
 	bool lvl_enabled = true;
-	bool const lvl_present = m_session_state.isLvlPresent(lvl, lvl_enabled, lvlmode);
+	bool const lvl_present = m_filter_state.isLvlPresent(lvl, lvl_enabled, lvlmode);
 
 	if (lvl_present)
 	{
@@ -182,9 +183,9 @@ bool FilterProxyModel::filterAcceptsRow (int sourceRow, QModelIndex const & /*so
 	}
 
 	bool inclusive_filters = false;
-	for (int i = 0, ie = m_session_state.m_filtered_regexps.size(); i < ie; ++i)
+	for (int i = 0, ie = m_filter_state.m_filtered_regexps.size(); i < ie; ++i)
 	{
-		FilteredRegex const & fr = m_session_state.m_filtered_regexps.at(i);
+		FilteredRegex const & fr = m_filter_state.m_filtered_regexps.at(i);
 		if (!fr.m_is_enabled)
 			continue;
 		else
@@ -196,19 +197,19 @@ bool FilterProxyModel::filterAcceptsRow (int sourceRow, QModelIndex const & /*so
 			}
 		}
 	}
-	if (m_session_state.m_filtered_regexps.size() > 0)
+	if (m_filter_state.m_filtered_regexps.size() > 0)
 	{
 		QString msg;
-		int const msg_idx = m_session_state.findColumn4Tag(tlv::tag_msg);
+		int const msg_idx = m_log_widget.findColumn4Tag(tlv::tag_msg);
 		if (msg_idx >= 0)
 		{
 			QModelIndex data_idx = sourceModel()->index(sourceRow, msg_idx, QModelIndex());
 			msg = sourceModel()->data(data_idx).toString();
 		}
 
-		for (int i = 0, ie = m_session_state.m_filtered_regexps.size(); i < ie; ++i)
+		for (int i = 0, ie = m_filter_state.m_filtered_regexps.size(); i < ie; ++i)
 		{
-			FilteredRegex const & fr = m_session_state.m_filtered_regexps.at(i);
+			FilteredRegex const & fr = m_filter_state.m_filtered_regexps.at(i);
 			if (fr.exactMatch(msg))
 			{
 				if (!fr.m_is_enabled)
@@ -225,9 +226,9 @@ bool FilterProxyModel::filterAcceptsRow (int sourceRow, QModelIndex const & /*so
 
 	}
 
-	for (int i = 0, ie = m_session_state.m_filtered_strings.size(); i < ie; ++i)
+	for (int i = 0, ie = m_filter_state.m_filtered_strings.size(); i < ie; ++i)
 	{
-		FilteredString const & fr = m_session_state.m_filtered_strings.at(i);
+		FilteredString const & fr = m_filter_state.m_filtered_strings.at(i);
 		if (!fr.m_is_enabled)
 			continue;
 		else
@@ -239,19 +240,19 @@ bool FilterProxyModel::filterAcceptsRow (int sourceRow, QModelIndex const & /*so
 			}
 		}
 	}
-	if (m_session_state.m_filtered_strings.size() > 0)
+	if (m_filter_state.m_filtered_strings.size() > 0)
 	{
 		QString msg;
-		int const msg_idx = m_session_state.findColumn4Tag(tlv::tag_msg);
+		int const msg_idx = m_log_widget.findColumn4Tag(tlv::tag_msg);
 		if (msg_idx >= 0)
 		{
 			QModelIndex data_idx = sourceModel()->index(sourceRow, msg_idx, QModelIndex());
 			msg = sourceModel()->data(data_idx).toString();
 		}
 
-		for (int i = 0, ie = m_session_state.m_filtered_strings.size(); i < ie; ++i)
+		for (int i = 0, ie = m_filter_state.m_filtered_strings.size(); i < ie; ++i)
 		{
-			FilteredString const & fr = m_session_state.m_filtered_strings.at(i);
+			FilteredString const & fr = m_filter_state.m_filtered_strings.at(i);
 			if (fr.match(msg))
 			{
 				if (!fr.m_is_enabled)
@@ -271,18 +272,18 @@ bool FilterProxyModel::filterAcceptsRow (int sourceRow, QModelIndex const & /*so
 	if (inclusive_filters)
 		return false;
 
-	excluded |= m_session_state.isTIDExcluded(tid);
+	excluded |= m_filter_state.isTIDExcluded(tid);
 
 	bool ctx_enabled = true;
-	bool const ctx_present = m_session_state.isCtxPresent(ctx, ctx_enabled);
+	bool const ctx_present = m_filter_state.isCtxPresent(ctx, ctx_enabled);
 	if (ctx_present)
 	{
 		excluded |= !ctx_enabled;
 	}
 
 	QModelIndex data_idx = sourceModel()->index(sourceRow, 0, QModelIndex());
-	excluded |= m_session_state.isBlockCollapsed(tid, data_idx.row());
-	excluded |= data_idx.row() < m_session_state.excludeContentToRow();
+	excluded |= m_filter_state.isBlockCollapsed(tid, data_idx.row());
+	excluded |= data_idx.row() < m_log_widget.excludeContentToRow();
 	return !excluded;
 }
 

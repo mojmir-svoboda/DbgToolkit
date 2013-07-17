@@ -23,6 +23,8 @@ Connection::Connection (QObject * parent)
 	, m_marked_for_close(false)
 	, m_curr_preset()
 	, m_tab_widget(0)
+	, m_file_tlv_stream(0)
+	, m_file_csv_stream(0)
 
 	/*, m_column_setup_done(false)
 	, m_last_search_row(0)
@@ -39,9 +41,7 @@ Connection::Connection (QObject * parent)
 	, m_string_model(0)
 	, m_table_view_proxy(0)
 	, m_table_view_src(0)
-	, m_last_clicked()
-	, m_file_csv_stream(0)
-	//, m_file_tlv_stream(0)*/
+	, m_last_clicked()*/
 
 	, m_buffer(e_ringbuff_size)
 	, m_current_cmd()
@@ -54,6 +54,10 @@ Connection::Connection (QObject * parent)
 	, m_data_model(0)
 {
 	qDebug("Connection::Connection() this=0x%08x", this);
+
+	static int counter = 0;
+	m_storage_idx = counter;
+	++counter;
 
 	/*m_actions.resize(e_action_max_enum_value);
 	m_actions[e_action_ToggleRef] = new QAction("Set as reference time", this);
@@ -279,12 +283,30 @@ void Connection::onBufferingStateChanged (int val)
 }
 
 struct Save {
+
+	QString const & m_path;
+	Save (QString const & p) : m_path(p) { }
+
 	template <class T>
 	void operator() (T const & t)
 	{
 		typedef typename T::const_iterator it_t;
 		for (it_t it = t.begin(), ite = t.end(); it != ite; ++it)
-			(*it)->widget().onSaveButton();
+			(*it)->widget().saveConfig(m_path);
+	}
+};
+
+struct Load {
+
+	QString const & m_path;
+	Load (QString const & p) : m_path(p) { }
+
+	template <class T>
+	void operator() (T const & t)
+	{
+		typedef typename T::const_iterator it_t;
+		for (it_t it = t.begin(), ite = t.end(); it != ite; ++it)
+			(*it)->widget().loadConfig(m_path);
 	}
 };
 
@@ -293,6 +315,19 @@ void Connection::onSaveAll ()
 	qDebug("%s", __FUNCTION__);
 	// @TODO: v hhdr bude 0 !
 	
-	recurse(m_data, Save());
+	QString const preset_name = m_curr_preset.isEmpty() ? m_main_window->getValidCurrentPresetName() : m_curr_preset;
+	//QString const fname = getDataTagFileName(getConfig().m_appdir, preset_name, g_presetTableTag, tag);
+	QString const preset_path = getPresetPath(getConfig().m_appdir, preset_name);
+	saveConfigs(preset_path);
 }
 
+
+void Connection::saveConfigs (QString const & path)
+{
+	recurse(m_data, Save(path));
+}
+
+void Connection::loadConfigs (QString const & path)
+{
+	recurse(m_data, Load(path));
+}

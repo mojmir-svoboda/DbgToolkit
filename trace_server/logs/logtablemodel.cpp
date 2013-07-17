@@ -5,10 +5,10 @@
 #include "../connection.h"
 #include <trace_client/trace.h>
 
-LogTableModel::LogTableModel (QObject * parent, Connection * c)
+LogTableModel::LogTableModel (QObject * parent, logs::LogWidget & lw)
 	: QAbstractTableModel(parent)
-	, m_connection(c)
-	, m_session_state(c->sessionState())
+	, m_log_widget(lw)
+	, m_filter_state(lw.m_filter_state)
 {
 	size_t const prealloc_size = 128 * 1024;
 	m_rows.reserve(prealloc_size); // @TODO: magic const!
@@ -23,9 +23,7 @@ int LogTableModel::rowCount (const QModelIndex & /*parent*/) const { return stat
 
 int LogTableModel::columnCount (const QModelIndex & /*parent*/) const
 {
-	if (m_session_state.getColumnsSetupCurrent())
-		return m_session_state.getColumnsSetupCurrent()->size();
-	return 0;
+	return m_log_widget.m_config.m_columns_setup.size();
 }
 
 inline bool LogTableModel::checkExistence (QModelIndex const & index) const
@@ -35,13 +33,13 @@ inline bool LogTableModel::checkExistence (QModelIndex const & index) const
 
 inline bool LogTableModel::checkTagExistence (tlv::tag_t tag, QModelIndex const & index) const
 {
-	int const column_idx = m_session_state.findColumn4Tag(tag);
+	int const column_idx = m_log_widget.findColumn4Tag(tag);
 	return column_idx != -1 && column_idx == index.column();
 }
 
 inline bool LogTableModel::checkColumnExistence (tlv::tag_t tag, QModelIndex const & index) const
 {
-	int const column_idx = m_session_state.findColumn4Tag(tag);
+	int const column_idx = m_log_widget.findColumn4Tag(tag);
 	return column_idx != -1 && column_idx == index.column() && checkExistence(index);
 }
 
@@ -68,7 +66,7 @@ QVariant LogTableModel::data (const QModelIndex &index, int role) const
 
 			QColor color;
 			E_ColorRole color_role = e_Bg;
-			bool const is_match = m_session_state.isMatchedColorizedText(msg, color, color_role);
+			bool const is_match = m_filter_state.isMatchedColorizedText(msg, color, color_role);
 
 			if (is_match && role == Qt::BackgroundRole && color_role == e_Bg)
 			{
@@ -85,12 +83,12 @@ QVariant LogTableModel::data (const QModelIndex &index, int role) const
 	{
 		if (checkColumnExistence(tlv::tag_msg, index))
 		{
-			int const column_idx = m_session_state.findColumn4Tag(tlv::tag_tid);
+			int const column_idx = m_log_widget.findColumn4Tag(tlv::tag_tid);
 			if (column_idx != -1)
 			{
 				QString const & tid = m_rows[index.row()][column_idx];
 
-				bool const is_collapsed = m_session_state.isBlockCollapsedIncl(tid, index.row());
+				bool const is_collapsed = m_filter_state.isBlockCollapsedIncl(tid, index.row());
 				if (is_collapsed)
 					return QBrush(Qt::lightGray);
 			}
@@ -99,9 +97,9 @@ QVariant LogTableModel::data (const QModelIndex &index, int role) const
 		if (checkColumnExistence(tlv::tag_tid, index))
 		{
 			QString const & tid = m_rows[index.row()][index.column()];
-			int const idx = m_session_state.getTLS().findThreadId(tid);
+			int const idx = m_log_widget.getTLS().findThreadId(tid);
 			if (idx >= 0)
-				return QBrush(m_session_state.getThreadColors()[idx]);
+				return QBrush(m_log_widget.m_config.m_thread_colors[idx]);
 		}
 		if (checkColumnExistence(tlv::tag_lvl, index))
 		{
@@ -151,9 +149,8 @@ QVariant LogTableModel::headerData (int section, Qt::Orientation orientation, in
 {
 	if (role == Qt::DisplayRole) {
 		if (orientation == Qt::Horizontal) {
-			if (m_session_state.getColumnsSetupCurrent() && 
-					0 <= section && section < (int)m_session_state.getColumnsSetupCurrent()->size())
-				return m_session_state.getColumnsSetupCurrent()->operator[](section);
+			if (0 <= section && section < (int)m_log_widget.m_config.m_columns_setup.size())
+				return m_log_widget.m_config.m_columns_setup[section];
 		}
 	}
 	return QVariant();
@@ -184,14 +181,14 @@ void LogTableModel::appendCommand (QAbstractProxyModel * filter, tlv::StringComm
 	int thread_idx = -1;
 	for (size_t i=0, ie=cmd.tvs.size(); i < ie; ++i)
 		if (cmd.tvs[i].m_tag == tlv::tag_tid)
-			thread_idx = m_session_state.getTLS().findThreadId(cmd.tvs[i].m_val);
+			thread_idx = m_log_widget.getTLS().findThreadId(cmd.tvs[i].m_val);
 
 	int indent = 0;
 	QString qindent;
 	if (m_connection->getMainWindow()->indentEnabled())
 	{
 		if (thread_idx >= 0)
-			indent = m_session_state.getTLS().m_indents[thread_idx];
+			indent = m_log_widget.getTLS().m_indents[thread_idx];
 
 		if (indent > 0)
 			for(int j = 0; j < indent; ++j)
@@ -240,10 +237,10 @@ void LogTableModel::appendCommand (QAbstractProxyModel * filter, tlv::StringComm
 		}
 
 		qval.append(val);
-		column_index = m_session_state.findColumn4Tag(tag);
+		column_index = m_log_widget.findColumn4Tag(tag);
 		if (column_index < 0)
 		{
-			column_index = m_session_state.insertColumn(tag);
+			column_index = m_log_widget.appendColumn(tag);
 
 			if (filter)
 			{
@@ -256,26 +253,26 @@ void LogTableModel::appendCommand (QAbstractProxyModel * filter, tlv::StringComm
 	//if (m_main_window->dtEnabled())
 	{
 		int const tag = tlv::tag_max_value + 1;
-		int ci = m_session_state.findColumn4Tag(static_cast<tlv::tag_t>(tag));
+		int ci = m_log_widget.findColumn4Tag(static_cast<tlv::tag_t>(tag));
 		if (ci < 0)
 		{
-			ci = m_session_state.insertColumn(tag);
+			ci = m_log_widget.appendColumn(tag);
 			if (filter)
 			{
 				filter->insertColumn(ci);
 			}
 		}
 
-		unsigned long long const last_t = m_session_state.getTLS().lastTime(thread_idx);
+		unsigned long long const last_t = m_log_widget.getTLS().lastTime(thread_idx);
 		unsigned long long const t = time.toULongLong();
 		long long const dt = t - last_t;
 		columns[ci] = tr("%1").arg(dt);
-		m_session_state.getTLS().setLastTime(thread_idx, t);
+		m_log_widget.getTLS().setLastTime(thread_idx, t);
 	}
 
 	if (cmd.hdr.cmd == tlv::cmd_scope_entry)
 	{
-		int column_index = m_session_state.findColumn4Tag(tlv::tag_msg);
+		int column_index = m_log_widget.findColumn4Tag(tlv::tag_msg);
 		if (column_index >= 0)
 		{
 			QString qindent_old;
@@ -288,7 +285,7 @@ void LogTableModel::appendCommand (QAbstractProxyModel * filter, tlv::StringComm
 
 	if (cmd.hdr.cmd == tlv::cmd_scope_exit)
 	{
-		int column_index = m_session_state.findColumn4Tag(tlv::tag_msg);
+		int column_index = m_log_widget.findColumn4Tag(tlv::tag_msg);
 		if (column_index >= 0)
 		{
 			columns[column_index] = qindent + QString("} ") + msg;
@@ -306,7 +303,7 @@ void LogTableModel::appendCommand (QAbstractProxyModel * filter, tlv::StringComm
 		insertRow(row);
 	}
 
-	void const * node = m_connection->fileModel()->insertItem(file + "/" + line);
+	void const * node = m_log_widget.filterWidget()->fileModel()->insertItem(file + "/" + line);
 	m_tree_node_ptrs.back() = node;
 }
 
@@ -324,16 +321,16 @@ void LogTableModel::appendCommandCSV (QAbstractProxyModel * filter, tlv::StringC
 	}
 
 	//QStringList list = msg.split(QRegExp(separator), QString::SkipEmptyParts);
-	QStringList const list = msg.split(m_session_state.separatorChar());
+	QStringList const list = msg.split(m_log_widget.m_csv_separator);
 	columns_t & columns = m_rows.back();
 	columns.resize(list.size());
 	for (int i = 0, ie = list.size(); i < ie; ++i)
 	{
 		QString const & col_value = list.at(i);
-		int column_index = m_session_state.findColumn4Tag(i);
+		int column_index = m_log_widget.findColumn4Tag(i);
 		if (column_index < 0)
 		{
-			column_index = m_session_state.insertColumn(i);
+			column_index = m_log_widget.appendColumn(i);
 			beginInsertColumns(QModelIndex(), column_index, column_index + 3);
 			insertColumns(column_index, 3);
 			endInsertColumns();

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>433</width>
-    <height>229</height>
+    <width>513</width>
+    <height>315</height>
    </rect>
   </property>
   <property name="floating">
@@ -22,180 +22,289 @@
   <widget class="QWidget" name="dockWidgetContents">
    <layout class="QGridLayout" name="gridLayout_2">
     <item row="0" column="0">
-     <layout class="QHBoxLayout" name="horizontalLayout">
+     <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <property name="margin">
+       <number>6</number>
+      </property>
       <item>
-       <widget class="QPushButton" name="applyButton">
-        <property name="maximumSize">
-         <size>
-          <width>50</width>
-          <height>15</height>
-         </size>
-        </property>
-        <property name="font">
-         <font>
-          <family>Lucida Console</family>
-          <pointsize>7</pointsize>
-         </font>
-        </property>
-        <property name="text">
-         <string>Apply</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QCheckBox" name="tableShowCheckBox">
-        <property name="text">
-         <string>show</string>
-        </property>
-        <property name="checked">
-         <bool>false</bool>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <spacer name="horizontalSpacer">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item>
-       <widget class="QPushButton" name="saveButton">
+       <widget class="QListWidget" name="iconWidget">
         <property name="maximumSize">
          <size>
           <width>16777215</width>
-          <height>15</height>
+          <height>16777215</height>
          </size>
         </property>
-        <property name="font">
-         <font>
-          <family>Lucida Console</family>
-          <pointsize>7</pointsize>
-         </font>
+        <property name="frameShape">
+         <enum>QFrame::StyledPanel</enum>
         </property>
-        <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Saves ONLY settings of THIS table. Does not save widget screen position, this information is stored in Preset.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        <property name="frameShadow">
+         <enum>QFrame::Plain</enum>
         </property>
-        <property name="text">
-         <string>Save</string>
+        <property name="lineWidth">
+         <number>0</number>
         </property>
+        <property name="verticalScrollBarPolicy">
+         <enum>Qt::ScrollBarAlwaysOff</enum>
+        </property>
+        <property name="horizontalScrollBarPolicy">
+         <enum>Qt::ScrollBarAlwaysOff</enum>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>48</width>
+          <height>48</height>
+         </size>
+        </property>
+        <property name="movement">
+         <enum>QListView::Static</enum>
+        </property>
+        <property name="flow">
+         <enum>QListView::TopToBottom</enum>
+        </property>
+        <property name="isWrapping" stdset="0">
+         <bool>false</bool>
+        </property>
+        <property name="resizeMode">
+         <enum>QListView::Fixed</enum>
+        </property>
+        <property name="viewMode">
+         <enum>QListView::IconMode</enum>
+        </property>
+        <property name="selectionRectVisible">
+         <bool>true</bool>
+        </property>
+        <item>
+         <property name="text">
+          <string>Find</string>
+         </property>
+         <property name="icon">
+          <iconset resource="resources.qrc">
+           <normaloff>:/images/find.ico</normaloff>:/images/find.ico</iconset>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Filters</string>
+         </property>
+         <property name="icon">
+          <iconset resource="resources.qrc">
+           <normaloff>:/images/filter.ico</normaloff>:/images/filter.ico</iconset>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Tools</string>
+         </property>
+         <property name="icon">
+          <iconset resource="resources.qrc">
+           <normaloff>:/images/tools.ico</normaloff>:/images/tools.ico</iconset>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>View</string>
+         </property>
+         <property name="icon">
+          <iconset resource="resources.qrc">
+           <normaloff>:/images/view.ico</normaloff>:/images/view.ico</iconset>
+         </property>
+        </item>
        </widget>
       </item>
       <item>
-       <spacer name="horizontalSpacer_2">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-     </layout>
-    </item>
-    <item row="5" column="0">
-     <layout class="QGridLayout" name="gridLayout">
-      <item row="2" column="2">
-       <widget class="QLabel" name="label">
-        <property name="font">
-         <font>
-          <family>Verdana</family>
-          <pointsize>7</pointsize>
-         </font>
-        </property>
-        <property name="text">
-         <string>Sync Group</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="0" rowspan="5">
-       <widget class="QListView" name="columnView">
-        <property name="toolTip">
-         <string>Select columns to show/hide</string>
-        </property>
-        <property name="alternatingRowColors">
-         <bool>false</bool>
-        </property>
-        <property name="textElideMode">
-         <enum>Qt::ElideMiddle</enum>
-        </property>
-        <property name="spacing">
-         <number>0</number>
-        </property>
-        <property name="uniformItemSizes">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1" rowspan="5">
-       <widget class="QListView" name="rowView">
-        <property name="toolTip">
-         <string>Selects rows to hide</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="3">
-       <widget class="QSpinBox" name="syncGroupSpinBox">
-        <property name="toolTip">
-         <string>Identifier of the synchronization group.
+       <widget class="QStackedWidget" name="stackedWidget">
+        <widget class="QWidget" name="findPage"/>
+        <widget class="QWidget" name="filtersPage">
+         <layout class="QGridLayout" name="gridLayout_4">
+          <item row="0" column="0">
+           <widget class="FilterWidget" name="widget" native="true"/>
+          </item>
+         </layout>
+        </widget>
+        <widget class="QWidget" name="toolsPage">
+         <layout class="QGridLayout" name="gridLayout_3">
+          <item row="0" column="0">
+           <layout class="QHBoxLayout" name="horizontalLayout">
+            <item>
+             <widget class="QPushButton" name="applyButton">
+              <property name="maximumSize">
+               <size>
+                <width>50</width>
+                <height>15</height>
+               </size>
+              </property>
+              <property name="font">
+               <font>
+                <family>Lucida Console</family>
+                <pointsize>7</pointsize>
+               </font>
+              </property>
+              <property name="text">
+               <string>Apply</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="tableShowCheckBox">
+              <property name="text">
+               <string>show</string>
+              </property>
+              <property name="checked">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QPushButton" name="saveButton">
+              <property name="maximumSize">
+               <size>
+                <width>16777215</width>
+                <height>15</height>
+               </size>
+              </property>
+              <property name="font">
+               <font>
+                <family>Lucida Console</family>
+                <pointsize>7</pointsize>
+               </font>
+              </property>
+              <property name="toolTip">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Saves ONLY settings of THIS table. Does not save widget screen position, this information is stored in Preset.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+              <property name="text">
+               <string>Save</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_2">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </item>
+          <item row="1" column="0">
+           <layout class="QGridLayout" name="gridLayout">
+            <item row="2" column="2">
+             <widget class="QLabel" name="label">
+              <property name="font">
+               <font>
+                <family>Verdana</family>
+                <pointsize>7</pointsize>
+               </font>
+              </property>
+              <property name="text">
+               <string>Sync Group</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="0" rowspan="5">
+             <widget class="QListView" name="columnView">
+              <property name="toolTip">
+               <string>Select columns to show/hide</string>
+              </property>
+              <property name="alternatingRowColors">
+               <bool>false</bool>
+              </property>
+              <property name="textElideMode">
+               <enum>Qt::ElideMiddle</enum>
+              </property>
+              <property name="spacing">
+               <number>0</number>
+              </property>
+              <property name="uniformItemSizes">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1" rowspan="5">
+             <widget class="QListView" name="rowView">
+              <property name="toolTip">
+               <string>Selects rows to hide</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="3">
+             <widget class="QSpinBox" name="syncGroupSpinBox">
+              <property name="toolTip">
+               <string>Identifier of the synchronization group.
 All tables with the same number will have inputs synchronized.
 0 means no synchronization with other tables.</string>
-        </property>
-        <property name="prefix">
-         <string/>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="3">
-       <widget class="QCheckBox" name="filteringCheckBox">
-        <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enables proxy mode that performs auto-hiding of empty columns/rows&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="3">
-       <widget class="QCheckBox" name="autoScrollCheckBox">
-        <property name="text">
-         <string/>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="2">
-       <widget class="QLabel" name="label_2">
-        <property name="font">
-         <font>
-          <family>Verdana</family>
-          <pointsize>7</pointsize>
-         </font>
-        </property>
-        <property name="text">
-         <string>Hide empty</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="2">
-       <widget class="QLabel" name="label_3">
-        <property name="font">
-         <font>
-          <family>Verdana</family>
-          <pointsize>7</pointsize>
-         </font>
-        </property>
-        <property name="text">
-         <string>Autoscroll</string>
-        </property>
+              </property>
+              <property name="prefix">
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="3">
+             <widget class="QCheckBox" name="filteringCheckBox">
+              <property name="toolTip">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enables proxy mode that performs auto-hiding of empty columns/rows&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="3">
+             <widget class="QCheckBox" name="autoScrollCheckBox">
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="2">
+             <widget class="QLabel" name="label_2">
+              <property name="font">
+               <font>
+                <family>Verdana</family>
+                <pointsize>7</pointsize>
+               </font>
+              </property>
+              <property name="text">
+               <string>Hide empty</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="2">
+             <widget class="QLabel" name="label_3">
+              <property name="font">
+               <font>
+                <family>Verdana</family>
+                <pointsize>7</pointsize>
+               </font>
+              </property>
+              <property name="text">
+               <string>Autoscroll</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+        <widget class="QWidget" name="viewPage"/>
        </widget>
       </item>
      </layout>
@@ -203,6 +312,33 @@ All tables with the same number will have inputs synchronized.
    </layout>
   </widget>
  </widget>
- <resources/>
- <connections/>
+ <customwidgets>
+  <customwidget>
+   <class>FilterWidget</class>
+   <extends>QWidget</extends>
+   <header location="global">filterwidget.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources>
+  <include location="resources.qrc"/>
+ </resources>
+ <connections>
+  <connection>
+   <sender>iconWidget</sender>
+   <signal>currentRowChanged(int)</signal>
+   <receiver>stackedWidget</receiver>
+   <slot>setCurrentIndex(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>45</x>
+     <y>148</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>283</x>
+     <y>148</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

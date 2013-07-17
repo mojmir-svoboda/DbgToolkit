@@ -27,7 +27,6 @@
 #include <QComboBox>
 #include <QSystemTrayIcon>
 #include "server.h"
-#include "settings.h"
 #include <tlv_parser/tlv_parser.h>
 #include "config.h"
 #include "dock.h"
@@ -63,34 +62,6 @@ public:
 
 	QString getAppDir () const { return m_config.m_appdir; }
 
-	columns_setup_t const & getColumnSetup (int i) const { return m_config.m_columns_setup.at(i); }
-	columns_setup_t & getColumnSetup (int i) { return m_config.m_columns_setup[i]; }
-	columns_sizes_t const & getColumnSizes (int i) const { return m_config.m_columns_sizes.at(i); }
-	columns_sizes_t & getColumnSizes (int i) { return m_config.m_columns_sizes[i]; }
-	columns_align_t const & getColumnAlign (int i) const { return m_config.m_columns_align.at(i); }
-	columns_align_t & getColumnAlign (int i) { return m_config.m_columns_align[i]; }
-	columns_elide_t const & getColumnElide (int i) const { return m_config.m_columns_elide.at(i); }
-	columns_align_t & getColumnElide (int i) { return m_config.m_columns_elide[i]; }
-
-	int findPresetName (QString const & name)
-	{
-		for (int i = 0, ie = m_config.m_preset_names.size(); i < ie; ++i)
-			if (m_config.m_preset_names[i] == name)
-				return i;
-		return e_InvalidItem;
-	}
-	
-
-	void saveLayout (QString const & preset_name);
-	void loadLayout (QString const & preset_name);
-	void saveSession (SessionState const & s, QString const & preset_name) const;
-	bool loadSession (SessionState & s, QString const & preset_name);
-	int addPresetName (QString const & name)
-	{
-		m_config.m_preset_names.push_back(name);
-		return static_cast<int>(m_config.m_preset_names.size()) - 1;
-	}
-
 	int createAppName (QString const & appname, E_SrcProtocol const proto);
 	void addNewApplication (QString const & appname);
 	int findAppName (QString const & appname)
@@ -100,30 +71,60 @@ public:
 				return i;
 		return e_InvalidItem;
 	}
-	QList<QColor> const & getThreadColors () const { return m_config.m_thread_colors; }
-	TreeView * getWidgetFile ();
-	TreeView const * getWidgetFile () const;
-	QTreeView * getWidgetCtx ();
-	QTreeView const * getWidgetCtx () const;
-    QComboBox * getFilterRegex ();
-    QComboBox const * getFilterRegex () const;
-	QTreeView * getWidgetRegex ();
-	QTreeView const * getWidgetRegex () const;
-	QTreeView * getWidgetString ();
-	QTreeView const * getWidgetString () const;
-    QComboBox * getFilterColorRegex ();
-    QComboBox const * getFilterColorRegex () const;
-	QListView * getWidgetColorRegex ();
-	QListView const * getWidgetColorRegex () const;
-	QListView * getWidgetTID ();
-	QListView const * getWidgetTID () const;
-	QTreeView * getWidgetLvl ();
-	QTreeView const * getWidgetLvl () const;
+
+
+/*
+ *
+*/
+
+
+	// presets
+	void reloadPresetList ();
+	int findPresetName (QString const & name)
+	{
+		for (int i = 0, ie = m_config.m_preset_names.size(); i < ie; ++i)
+			if (m_config.m_preset_names[i] == name)
+				return i;
+		return e_InvalidItem;
+	}
+	void saveLayout (QString const & preset_name);
+	void loadLayout (QString const & preset_name);
+	void saveSession (SessionState const & s, QString const & preset_name) const;
+	bool loadSession (SessionState & s, QString const & preset_name);
+	int addPresetName (QString const & name)
+	{
+		m_config.m_preset_names.push_back(name);
+		return static_cast<int>(m_config.m_preset_names.size()) - 1;
+	}
+	void setPresetNameIntoComboBox (QString const & pname);
+	void onPresetActivate (QString const & pname);
+	void onPresetActivate (Connection * conn, QString const & pname);
+	QString getCurrentPresetName () const;
+	QString promptAndCreatePresetName (QString const & app_name);
+	QString getValidCurrentPresetName ();
+	QString matchClosestPresetName (QString const & appname);
+
+
 	QTreeView const * getDockedWidgetsTreeView () const;
-	void setLevel (int i);
-	int getLevel () const;
-	float getTimeUnits () const { return m_time_units; }
+
+	// global config
+	GlobalConfig const & getConfig () const { return m_config; }
 	bool dumpModeEnabled () const { return m_config.m_dump_mode; }
+	void setLevel (int i);
+	unsigned getHotKey () const;
+	bool onTopEnabled () const;
+
+	// per connection config
+	int getLevel () const; // @TODO: per connection
+	bool buffEnabled () const; 
+	Qt::CheckState buffState () const;
+	float getTimeUnits () const { return m_time_units; }
+	int plotState () const;	// @TODO: should be per connection
+	int tableState () const;
+	int ganttState () const;
+
+
+	// log widget
 	bool scopesEnabled () const;
 	bool indentEnabled () const;
 	bool cutPathEnabled () const;
@@ -133,41 +134,48 @@ public:
 	int indentLevel () const;
 	int tableRowSize () const;
 	QString tableFont () const;
-	bool onTopEnabled () const;
 	bool inViewEnabled () const;
 	bool reuseTabEnabled () const;
 	bool filterEnabled () const;
-	int plotState () const;
-	int tableState () const;
-	int ganttState () const;
-	bool buffEnabled () const;
-	Qt::CheckState buffState () const;
 	bool clrFltEnabled () const;
-	bool statsEnabled () const;
-	bool filterPaneVertical () const;
 	bool dtEnabled () const;
+	//OBS bool statsEnabled () const;
+	//OBS bool filterPaneVertical () const;
+	QList<QColor> const & getThreadColors () const { return m_config.m_thread_colors; }
+	columns_setup_t const & getColumnSetup (int i) const { return m_config.m_columns_setup.at(i); }
+	columns_setup_t & getColumnSetup (int i) { return m_config.m_columns_setup[i]; }
+	columns_sizes_t const & getColumnSizes (int i) const { return m_config.m_columns_sizes.at(i); }
+	columns_sizes_t & getColumnSizes (int i) { return m_config.m_columns_sizes[i]; }
+	columns_align_t const & getColumnAlign (int i) const { return m_config.m_columns_align.at(i); }
+	columns_align_t & getColumnAlign (int i) { return m_config.m_columns_align[i]; }
+	columns_elide_t const & getColumnElide (int i) const { return m_config.m_columns_elide.at(i); }
+	columns_align_t & getColumnElide (int i) { return m_config.m_columns_elide[i]; }
+
+
+	
+	// drag and drop
 	void changeEvent (QEvent* e);
 	void dropEvent (QDropEvent * event);
 	void dragEnterEvent (QDragEnterEvent *event);
 	bool eventFilter (QObject * o, QEvent * e);
-	void setPresetNameIntoComboBox (QString const & pname);
-	void onPresetActivate (QString const & pname);
-	void onPresetActivate (Connection * conn, QString const & pname);
 
-	QString getCurrentPresetName () const;
-	QString promptAndCreatePresetName ();
-	QString getValidCurrentPresetName ();
-	QString matchClosestPresetName (QString const & appname);
-
-	unsigned getHotKey () const;
-	Server const * getServer () const { return m_server; }
-	Server * getServer () { return m_server; }
-	GlobalConfig const & getConfig () const { return m_config; }
+	//OBS Server const * getServer () const { return m_server; }
+	//OBS Server * getServer () { return m_server; }
 
 	DockManager const & dockManager () const { return m_dock_mgr; }
 	DockManager & dockManager () { return m_dock_mgr; }
 
+	void createTailDataStream (QString const & fname);
+	void createTailLogStream (QString const & fname, QString const & separator);
+	void importDataStream (QString const & fname);
+	void copyStorageTo (QString const & filename);
+	void exportStorageToCSV (QString const & filename);
+	Connection * findConnectionByName (QString const & app_name);
+	Connection * findCurrentConnection ();
+	Connection * createNewConnection ();
+
 public slots:
+	void newConnection (Connection * connection);
 	void onHotkeyShowOrHide ();
 	void hide ();
 	void showNormal ();
@@ -175,9 +183,13 @@ public slots:
 	void onOnTop (int);
 	void onDockRestoreButton ();
 	void onDockedWidgetsToolButton ();
+	void onClickedAtDockedWidgets (QModelIndex idx);
+	void onCloseTab (int idx, QWidget * w);
+	void onCloseTab (QWidget * w);
 
 	friend class Connection;
 private slots:
+
 	void loadState ();
 	void loadPresets ();
 	void storeGeometry ();
@@ -188,13 +200,15 @@ private slots:
 	void timerHit ();
 	void onQuit ();
 	void onQuitReally ();
+	void openFiles (QStringList const & list);
+
 	void onEditFindNext ();
 	void onNextToView ();
 	void onAutoScrollHotkey();
 	void turnOffAutoScroll();
 	void onEditFindPrev ();
+
 	void onFileLoad ();
-	void openFiles (QStringList const & list);
 	void onFileTail ();
 	void onLogTail ();
 	void tailFiles (QStringList const & list);
@@ -202,13 +216,21 @@ private slots:
 	void onFileExportToCSV ();
 	void closeEvent (QCloseEvent *event);
 	void iconActivated (QSystemTrayIcon::ActivationReason reason);
+
+	// preset
+	void onPresetActivate (int idx);
+	void onPresetChanged (int idx);
+	void onPresetActivate ();
+	void onSaveAllButton ();
 	void onSaveCurrentState ();
 	void onSaveCurrentStateTo (QString const & name);
 	void onAddCurrentState ();
 	void onRmCurrentState ();
-	void onPresetActivate (int idx);
-	void onPresetChanged (int idx);
-	void onPresetActivate ();
+
+	void onDumpFilters ();
+	void onShowHelp ();
+	
+	// filtering
 	void onRegexActivate (int idx);
 	void onRegexAdd ();
 	void onRegexRm ();
@@ -218,43 +240,6 @@ private slots:
 	//void onStringActivate (int idx);
 	void onStringAdd ();
 	void onStringRm ();
-	void onShowHelp ();
-	void onDumpFilters ();
-	void onReuseTabChanged (int state);
-	void ondtToolButton ();
-	void onTimeUnitsChanged (int i);
-	void onTableFontToolButton ();
-	void onPlotStateChanged (int state);
-	void onSaveAllButton ();
-	void onPlotsClosed ();
-	void onTablesStateChanged (int state);
-	void onAutoScrollStateChanged (int state);
-	void onListVisibilityChanged (bool);
-	void onFilterFile (int state);
-	void onCopyToClipboard ();
-
-	void onSetupAction ();
-	void prepareSettingsWidgets (int idx, bool first_time = false);
-	void clearSettingWidgets ();
-	void setupSeparatorChar (QString const & c);
-	QString separatorChar () const;
-	void onSetup (E_SrcProtocol const proto, int curr_app_idx = -1, bool first_time = false, bool mac_user = false);
-	//void onSetupCSV (int curr_app_idx = -1, bool first_time = false, bool mac_user = false);
-	//void onSetupCSVSeparator (int curr_app_idx = -1, int column = -1, bool first_time = false);
-	void onSetupCSVColumns (int curr_app_idx, int columns, bool first_time);
-	void onSetupCSVSeparator (int curr_app_idx, bool first_time);
-	void onSettingsAppSelectedTLV (int idx, bool first_time = false);
-	void onSettingsAppSelectedCSV (int idx, int columns, bool first_time = false);
-	void settingsDisableButSeparator ();
-	void settingsToDefault ();
-	void onClickedAtSettingPooftahButton ();
-	void onClickedAtSettingOkButton ();
-	void onClickedAtSettingOkSaveButton ();
-	void onClickedAtSettingCancelButton ();
-	void onClickedAtSettingColumnSetup (QModelIndex idx);
-	void onClickedAtSettingColumnSizes (QModelIndex idx);
-	void onClickedAtSettingColumnAlign (QModelIndex idx);
-	void onClickedAtSettingColumnElide (QModelIndex idx);
 	void onGotoFileFilter ();
 	void onGotoColorFilter ();
 	void onGotoRegexFilter ();
@@ -262,6 +247,30 @@ private slots:
 	void syncSettingsViews (QListView const * const invoker, QModelIndex const idx);
 	void onFilterFileComboChanged (QString str);
 	void onCancelFilterFileButton ();
+	void onClickedAtCtxTree (QModelIndex idx);
+	void onDoubleClickedAtCtxTree (QModelIndex idx);
+	void onClickedAtTIDList (QModelIndex idx);
+	void onDoubleClickedAtTIDList (QModelIndex idx);
+	void onClickedAtLvlList (QModelIndex idx);
+	void onDoubleClickedAtLvlList (QModelIndex idx);
+	void onClickedAtRegexList (QModelIndex idx);
+	void onDoubleClickedAtRegexList (QModelIndex idx);
+	void onClickedAtColorRegexList (QModelIndex idx);
+	void onDoubleClickedAtColorRegexList (QModelIndex idx);
+	void onClickedAtStringList (QModelIndex idx);
+	void onDoubleClickedAtStringList (QModelIndex idx);
+
+
+	//void onReuseTabChanged (int state);
+	//void ondtToolButton ();
+	//void onTimeUnitsChanged (int i);
+	//void onTableFontToolButton ();
+	void onPlotStateChanged (int state);
+	void onPlotsClosed ();
+	void onTablesStateChanged (int state);
+	//void onAutoScrollStateChanged (int state);
+	void onFilterFile (int state);
+	void onCopyToClipboard ();
 
 private:
 	void showServerStatus ();
@@ -271,27 +280,34 @@ private:
 	void createTrayIcon ();
 	void convertBloodyBollockyBuggeryRegistry ();
 
-	float m_time_units;
-	Ui::MainWindow * ui;
-	Ui::SettingsDialog * ui_settings;
-	Ui::HelpDialog * m_help;
-	GlobalConfig m_config;
+	typedef std::map<QWidget *, Connection *> connections_t;
+	connections_t 		m_connections;
 
-	QTimer * m_timer;
-	Server * m_server;
-	QAction * m_minimize_action;
-	QAction * m_maximize_action;
-	QAction * m_restore_action;
-	QAction * m_quit_action;
-	QMenu * m_tray_menu;
-	QSystemTrayIcon * m_tray_icon;
-	QLabel * m_status_label;
+	Ui::MainWindow * 	ui;
+	Ui::SettingsDialog * ui_settings;
 	QDialog * m_settings_dialog;
-	DockManager m_dock_mgr;
-	DockWidget * m_docked_widgets;
-	TreeView * m_docked_widgets_tree_view;
-	QString m_log_name;
-	int m_start_level;
+
+	Ui::HelpDialog * 	m_help;
+	GlobalConfig 		m_config;
+
+	QTimer *  			m_timer;
+	Server *  			m_server;
+	QAction * 			m_minimize_action;
+	QAction * 			m_maximize_action;
+	QAction * 			m_restore_action;
+	QAction * 			m_quit_action;
+	QMenu *   			m_tray_menu;
+	QSystemTrayIcon * 	m_tray_icon;
+	QLabel *			m_status_label;
+
+	// docked widgets
+	DockManager 		m_dock_mgr;
+	DockWidget * 		m_docked_widgets;
+	TreeView * 			m_docked_widgets_tree_view;
+	QString 			m_log_name;
+
+	int 				m_start_level; // @TODO: to config?
+	float 				m_time_units;
 };
 
 #endif // MAINWINDOW_H

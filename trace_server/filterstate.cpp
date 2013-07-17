@@ -1,134 +1,21 @@
-#include "sessionstate.h"
+#include "filterstate.h"
 #include <tlv_parser/tlv_encoder.h>
 #include "settings.h"
 
-SessionState::SessionState (QObject * parent)
-	: m_exclude_content_to_row(0)
-	, m_time_ref_row(0)
-	, m_current_tag(-1)
-	, m_current_selection(-1)
-	, m_time_ref_value(0)
-	, m_columns_setup_current(0)
-	, m_columns_setup_template(0)
-	, m_columns_align_template(0)
-	, m_columns_elide_template(0)
-	, m_columns_sizes(0)
-	, m_csv_separator("")
+FilterState::FilterState (QObject * parent)
 {
-	qDebug("SessionState()");
+	qDebug("FilterState()");
 	m_colorized_texts.push_back(ColorizedText(".*[Ww]arning.*", QColor(Qt::yellow), e_Bg));
 	m_colorized_texts.push_back(ColorizedText(".*[Ee]rror.*", QColor(Qt::red), e_Fg));
-	static int counter = 0;
-	m_storage_idx = counter;
-	++counter;
 }
 
-SessionState::~SessionState ()
+FilterState::~FilterState ()
 {
-	qDebug("~SessionState()");
-	if (m_columns_setup_current)
-		delete m_columns_setup_current;
+	qDebug("~FilterState()");
 }
 
-void SessionState::setupColumns (QList<QString> * cs_template, columns_sizes_t * sizes
-			, columns_align_t * ca_template, columns_elide_t * ce_template)
-{
-	m_columns_sizes = sizes;
-	m_columns_setup_template = cs_template;
-	m_columns_align_template = ca_template;
-	m_columns_elide_template = ce_template;
 
-	if (!m_columns_setup_current)
-	{
-		m_columns_setup_current = new QList<QString>();
-	}
-	else
-	{
-		m_columns_setup_current->clear();
-	}
-
-	m_tags2columns.clear();
-	*m_columns_setup_current = *m_columns_setup_template;
-	for (size_t i = 0, ie = cs_template->size(); i < ie; ++i)
-	{
-		size_t const tag_idx = tlv::tag_for_name(cs_template->at(i).toStdString().c_str());
-		if (tag_idx != tlv::tag_invalid)
-		{
-			m_tags2columns.insert(tag_idx, static_cast<int>(i)); // column index is int in Qt toolkit
-			//qDebug("SessionState::setupColumns col[%u] tag_idx=%u tag_name=%s", i, tag_idx, cs->at(i).toStdString().c_str());
-		}
-	}
-}
-
-void SessionState::setupColumnsCSV (QList<QString> * cs_template, columns_sizes_t * sizes
-			, columns_align_t * ca_template, columns_elide_t * ce_template)
-{
-	m_columns_sizes = sizes;
-	m_columns_setup_template = cs_template;
-	m_columns_align_template = ca_template;
-	m_columns_elide_template = ce_template;
-
-	if (!m_columns_setup_current)
-	{
-		m_columns_setup_current = new QList<QString>();
-	}
-	else
-	{
-		m_columns_setup_current->clear();
-	}
-
-	m_tags2columns.clear();
-	*m_columns_setup_current = *m_columns_setup_template;
-}
-
-void SessionState::setupThreadColors (QList<QColor> const & tc)
-{
-	m_thread_colors = tc;
-}
-
-int SessionState::findColumn4Tag (tlv::tag_t tag) const
-{
-	QMap<tlv::tag_t, int>::const_iterator it = m_tags2columns.find(tag);
-	if (it != m_tags2columns.end())
-		return it.value();
-	return -1;
-}
-
-int SessionState::findColumn4TagInTemplate (tlv::tag_t tag) const
-{
-	QMap<tlv::tag_t, int>::const_iterator it = m_tags2columns.find(tag);
-	if (it != m_tags2columns.end())
-		return it.value();
-	return -1;
-}
-
-int SessionState::insertColumn (tlv::tag_t tag)
-{
-	m_columns_setup_current->push_back(QString());
-	tlv::tag_t const used_tag = tag > tlv::tag_max_value ? tlv::tag_time : tag;
-	if (m_columns_sizes->size() < m_columns_setup_current->size())
-	{
-		m_columns_align_template->push_back(QString(alignToString(default_aligns[used_tag])));
-		m_columns_sizes->push_back(default_sizes[used_tag]);
-		m_columns_elide_template->push_back(QString(elideToString(default_elides[used_tag])));
-	}
-
-	qDebug("inserting column and size. tmpl_sz=%u curr_sz=%u sizes_sz=%u", m_columns_setup_template->size(), m_columns_setup_current->size(), m_columns_sizes->size());
-
-	int const column_index = m_columns_setup_current->size() - 1;
-	char const * name = tlv::get_tag_name(tag);
-
-	m_tags2columns.insert(tag, column_index);
-
-	if (name)
-		m_columns_setup_current->operator[](column_index) = name;
-	else
-		m_columns_setup_current->operator[](column_index) = QString("???");
-
-	return column_index;
-}
-
-void SessionState::clearFilters ()
+void FilterState::clearFilters ()
 {
 	m_file_filters.clear();
 	m_tid_filters.clear();
@@ -140,7 +27,7 @@ void SessionState::clearFilters ()
 
 
 ///////// file filters
-bool SessionState::isFileLinePresent (fileline_t const & item, TreeModelItem & fi) const
+bool FilterState::isFileLinePresent (fileline_t const & item, TreeModelItem & fi) const
 {
 	TreeModelItem const * tmp_fi = 0;
 	bool const exists = m_file_filters.is_present(item.first + "/" + item.second, tmp_fi);
@@ -148,7 +35,7 @@ bool SessionState::isFileLinePresent (fileline_t const & item, TreeModelItem & f
 		fi = *tmp_fi;
 	return exists;
 }
-bool SessionState::isFileLinePresent (QString const & fileline, TreeModelItem & fi) const
+bool FilterState::isFileLinePresent (QString const & fileline, TreeModelItem & fi) const
 {
 	TreeModelItem const * tmp_fi = 0;
 	bool const exists = m_file_filters.is_present(fileline, tmp_fi);
@@ -158,7 +45,7 @@ bool SessionState::isFileLinePresent (QString const & fileline, TreeModelItem & 
 }
 
 ///////// ctx filters
-bool SessionState::isCtxPresent (QString const & item, bool & enabled) const
+bool FilterState::isCtxPresent (QString const & item, bool & enabled) const
 {
 	for (int i = 0, ie = m_ctx_filters.size(); i < ie; ++i)
 		if (m_ctx_filters.at(i).m_ctx_str == item)
@@ -169,7 +56,7 @@ bool SessionState::isCtxPresent (QString const & item, bool & enabled) const
 		}
 	return false;
 }
-void SessionState::appendCtxFilter (QString const & item)
+void FilterState::appendCtxFilter (QString const & item)
 {
 	for (int i = 0, ie = m_ctx_filters.size(); i < ie; ++i)
 		if (m_ctx_filters[i].m_ctx_str == item)
@@ -181,7 +68,7 @@ void SessionState::appendCtxFilter (QString const & item)
 	m_ctx_filters.push_back(FilteredContext(item, true, 0));
 
 }
-void SessionState::removeCtxFilter (QString const & item)
+void FilterState::removeCtxFilter (QString const & item)
 {
 	for (int i = 0, ie = m_ctx_filters.size(); i < ie; ++i)
 		if (m_ctx_filters[i].m_ctx_str == item)
@@ -193,21 +80,21 @@ void SessionState::removeCtxFilter (QString const & item)
 }
 
 ///////// tid filters
-void SessionState::appendTIDFilter (QString const & item)
+void FilterState::appendTIDFilter (QString const & item)
 {
 	m_tid_filters.push_back(item);
 }
-void SessionState::removeTIDFilter (QString const & item)
+void FilterState::removeTIDFilter (QString const & item)
 {
 	m_tid_filters.erase(std::remove(m_tid_filters.begin(), m_tid_filters.end(), item), m_tid_filters.end());
 }
-bool SessionState::isTIDExcluded (QString const & item) const
+bool FilterState::isTIDExcluded (QString const & item) const
 {
 	return std::find(m_tid_filters.begin(), m_tid_filters.end(), item) != m_tid_filters.end();
 }
 
 ///////// lvl filters
-void SessionState::appendLvlFilter (QString const & item)
+void FilterState::appendLvlFilter (QString const & item)
 {
 	for (int i = 0, ie = m_lvl_filters.size(); i < ie; ++i)
 		if (m_lvl_filters[i].m_level_str == item)
@@ -219,7 +106,7 @@ void SessionState::appendLvlFilter (QString const & item)
 	m_lvl_filters.push_back(FilteredLevel(item, true, e_LvlInclude));
 	std::sort(m_lvl_filters.begin(), m_lvl_filters.end());
 }
-void SessionState::removeLvlFilter (QString const & item)
+void FilterState::removeLvlFilter (QString const & item)
 {
 	for (int i = 0, ie = m_lvl_filters.size(); i < ie; ++i)
 		if (m_lvl_filters[i].m_level_str == item)
@@ -229,7 +116,7 @@ void SessionState::removeLvlFilter (QString const & item)
 			return;
 		}
 }
-bool SessionState::isLvlPresent (QString const & item, bool & enabled, E_LevelMode & lvlmode) const
+bool FilterState::isLvlPresent (QString const & item, bool & enabled, E_LevelMode & lvlmode) const
 {
 	for (int i = 0, ie = m_lvl_filters.size(); i < ie; ++i)
 		if (m_lvl_filters.at(i).m_level_str == item)
@@ -241,7 +128,7 @@ bool SessionState::isLvlPresent (QString const & item, bool & enabled, E_LevelMo
 		}
 	return false;
 }
-bool SessionState::setLvlMode (QString const & item, bool enabled, E_LevelMode lvlmode)
+bool FilterState::setLvlMode (QString const & item, bool enabled, E_LevelMode lvlmode)
 {
 	for (int i = 0, ie = m_lvl_filters.size(); i < ie; ++i)
 		if (m_lvl_filters.at(i).m_level_str == item)
@@ -256,11 +143,11 @@ bool SessionState::setLvlMode (QString const & item, bool enabled, E_LevelMode l
 }
 
 ///////// collapsed scopes
-void SessionState::appendCollapsedBlock (QString tid, int from, int to, QString file, QString line)
+void FilterState::appendCollapsedBlock (QString tid, int from, int to, QString file, QString line)
 {
 	m_collapse_blocks.push_back(CollapsedBlock(tid, from, to, file, line));
 }
-bool SessionState::findCollapsedBlock (QString tid, int from, int to) const
+bool FilterState::findCollapsedBlock (QString tid, int from, int to) const
 {
 	for (int i = 0, ie = m_collapse_blocks.size(); i < ie; ++i)
 	{
@@ -270,7 +157,7 @@ bool SessionState::findCollapsedBlock (QString tid, int from, int to) const
 	}
 	return false;
 }
-bool SessionState::eraseCollapsedBlock (QString tid, int from, int to)
+bool FilterState::eraseCollapsedBlock (QString tid, int from, int to)
 {
 	for (int i = 0, ie = m_collapse_blocks.size(); i < ie; ++i)
 	{
@@ -283,7 +170,7 @@ bool SessionState::eraseCollapsedBlock (QString tid, int from, int to)
 	}
 	return false;
 }
-bool SessionState::isBlockCollapsed (QString tid, int row) const
+bool FilterState::isBlockCollapsed (QString tid, int row) const
 {
 	for (int i = 0, ie = m_collapse_blocks.size(); i < ie; ++i)
 	{
@@ -296,7 +183,7 @@ bool SessionState::isBlockCollapsed (QString tid, int row) const
 	}
 	return false;
 }
-bool SessionState::isBlockCollapsedIncl (QString tid, int row) const
+bool FilterState::isBlockCollapsedIncl (QString tid, int row) const
 {
 	for (int i = 0, ie = m_collapse_blocks.size(); i < ie; ++i)
 	{
@@ -311,7 +198,7 @@ bool SessionState::isBlockCollapsedIncl (QString tid, int row) const
 }
 
 ///////// color filters
-bool SessionState::isMatchedColorizedText (QString str, QColor & color, E_ColorRole & role) const
+bool FilterState::isMatchedColorizedText (QString str, QColor & color, E_ColorRole & role) const
 {
 	for (int i = 0, ie = m_colorized_texts.size(); i < ie; ++i)
 	{
@@ -325,7 +212,7 @@ bool SessionState::isMatchedColorizedText (QString str, QColor & color, E_ColorR
 	}
 	return false;
 }
-void SessionState::setRegexColor (QString const & s, QColor col)
+void FilterState::setRegexColor (QString const & s, QColor col)
 {
 	for (int i = 0, ie = m_colorized_texts.size(); i < ie; ++i)
 	{
@@ -336,7 +223,7 @@ void SessionState::setRegexColor (QString const & s, QColor col)
 		}
 	}
 }
-void SessionState::setColorRegexChecked (QString const & s, bool checked)
+void FilterState::setColorRegexChecked (QString const & s, bool checked)
 {
 	for (int i = 0, ie = m_colorized_texts.size(); i < ie; ++i)
 	{
@@ -347,7 +234,7 @@ void SessionState::setColorRegexChecked (QString const & s, bool checked)
 		}
 	}
 }
-void SessionState::removeFromColorRegexFilters (QString const & s)
+void FilterState::removeFromColorRegexFilters (QString const & s)
 {
 	for (int i = 0, ie = m_colorized_texts.size(); i < ie; ++i)
 	{
@@ -359,7 +246,7 @@ void SessionState::removeFromColorRegexFilters (QString const & s)
 		}
 	}
 }
-void SessionState::appendToColorRegexFilters (QString const & s)
+void FilterState::appendToColorRegexFilters (QString const & s)
 {
 	for (int i = 0, ie = m_colorized_texts.size(); i < ie; ++i)
 	{
@@ -371,7 +258,7 @@ void SessionState::appendToColorRegexFilters (QString const & s)
 }
 
 ///////////////////
-bool SessionState::isMatchedRegexExcluded (QString str) const
+bool FilterState::isMatchedRegexExcluded (QString str) const
 {
 	for (int i = 0, ie = m_filtered_regexps.size(); i < ie; ++i)
 	{
@@ -388,7 +275,7 @@ bool SessionState::isMatchedRegexExcluded (QString str) const
 	}
 	return false;
 }
-void SessionState::setRegexInclusive (QString const & s, bool state)
+void FilterState::setRegexInclusive (QString const & s, bool state)
 {
 	for (int i = 0, ie = m_filtered_regexps.size(); i < ie; ++i)
 	{
@@ -399,7 +286,7 @@ void SessionState::setRegexInclusive (QString const & s, bool state)
 		}
 	}
 }
-void SessionState::setRegexChecked (QString const & s, bool checked)
+void FilterState::setRegexChecked (QString const & s, bool checked)
 {
 	for (int i = 0, ie = m_filtered_regexps.size(); i < ie; ++i)
 	{
@@ -410,7 +297,7 @@ void SessionState::setRegexChecked (QString const & s, bool checked)
 		}
 	}
 }
-void SessionState::removeFromRegexFilters (QString const & s)
+void FilterState::removeFromRegexFilters (QString const & s)
 {
 	for (int i = 0, ie = m_filtered_regexps.size(); i < ie; ++i)
 	{
@@ -422,7 +309,7 @@ void SessionState::removeFromRegexFilters (QString const & s)
 		}
 	}
 }
-void SessionState::appendToRegexFilters (QString const & s, bool enabled, bool state)
+void FilterState::appendToRegexFilters (QString const & s, bool enabled, bool state)
 {
 	for (int i = 0, ie = m_filtered_regexps.size(); i < ie; ++i)
 		if (m_filtered_regexps[i].m_regex_str == s)
@@ -432,7 +319,7 @@ void SessionState::appendToRegexFilters (QString const & s, bool enabled, bool s
 
 
 ///////////////////
-bool SessionState::isMatchedStringExcluded (QString str) const
+bool FilterState::isMatchedStringExcluded (QString str) const
 {
 	for (int i = 0, ie = m_filtered_strings.size(); i < ie; ++i)
 	{
@@ -449,7 +336,7 @@ bool SessionState::isMatchedStringExcluded (QString str) const
 	}
 	return false;
 }
-void SessionState::setStringState (QString const & s, int state)
+void FilterState::setStringState (QString const & s, int state)
 {
 	for (int i = 0, ie = m_filtered_strings.size(); i < ie; ++i)
 	{
@@ -460,7 +347,7 @@ void SessionState::setStringState (QString const & s, int state)
 		}
 	}
 }
-void SessionState::setStringChecked (QString const & s, bool checked)
+void FilterState::setStringChecked (QString const & s, bool checked)
 {
 	for (int i = 0, ie = m_filtered_strings.size(); i < ie; ++i)
 	{
@@ -471,7 +358,7 @@ void SessionState::setStringChecked (QString const & s, bool checked)
 		}
 	}
 }
-void SessionState::removeFromStringFilters (QString const & s)
+void FilterState::removeFromStringFilters (QString const & s)
 {
 	for (int i = 0, ie = m_filtered_strings.size(); i < ie; ++i)
 	{
@@ -483,7 +370,7 @@ void SessionState::removeFromStringFilters (QString const & s)
 		}
 	}
 }
-void SessionState::appendToStringFilters (QString const & s, bool enabled, int state)
+void FilterState::appendToStringFilters (QString const & s, bool enabled, int state)
 {
 	for (int i = 0, ie = m_filtered_strings.size(); i < ie; ++i)
 		if (m_filtered_strings[i].m_string == s)
@@ -491,7 +378,7 @@ void SessionState::appendToStringFilters (QString const & s, bool enabled, int s
 	m_filtered_strings.push_back(FilteredString(s, enabled, state));
 }
 
-void SessionState::merge_rhs (node_t * lhs, node_t const * rhs)
+void FilterState::merge_rhs (node_t * lhs, node_t const * rhs)
 {
 	node_t const * rhs_child = rhs->children;
 	while (rhs_child)
@@ -522,7 +409,7 @@ void SessionState::merge_rhs (node_t * lhs, node_t const * rhs)
 	}
 }
 
-void SessionState::merge_state (node_t * lhs, node_t const * rhs)
+void FilterState::merge_state (node_t * lhs, node_t const * rhs)
 {
 	node_t * lhs_child = lhs->children;
 
@@ -570,13 +457,13 @@ void SessionState::merge_state (node_t * lhs, node_t const * rhs)
 	}
 }
 
-void SessionState::merge (node_t * lhs, node_t const * rhs)
+void FilterState::merge (node_t * lhs, node_t const * rhs)
 {
 	merge_rhs(lhs, rhs);
 	merge_state(lhs, rhs);
 }
 
-void SessionState::merge_with (file_filters_t const & rhs)
+void FilterState::merge_with (file_filters_t const & rhs)
 {   
 	node_t * const rhs_root = rhs.root;
 	if (m_file_filters.root && rhs_root)
@@ -584,26 +471,11 @@ void SessionState::merge_with (file_filters_t const & rhs)
 	merge(m_file_filters.root, rhs_root);
 } 
 
-void SessionState::addColorTagRow (int row)
-{
-	for (int i = 0, ie = m_color_tag_rows.size(); i < ie; ++i)
-		if (m_color_tag_rows.at(i) == row)
-		{
-			removeColorTagRow(row);
-			return;
-		}
-	m_color_tag_rows.push_back(row);
-}
 
-bool SessionState::findColorTagRow (int row) const
-{
-	for (int i = 0, ie = m_color_tag_rows.size(); i < ie; ++i)
-		if (m_color_tag_rows.at(i) == row)
-			return true;
-	return false;
-}
 
-void SessionState::removeColorTagRow (int row)
-{
-	m_color_tag_rows.erase(std::remove(m_color_tag_rows.begin(), m_color_tag_rows.end(), row), m_color_tag_rows.end());
-}
+
+
+
+
+
+

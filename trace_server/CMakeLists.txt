@@ -49,6 +49,8 @@ SET(trace_server_SOURCES
 	../version.cpp
 	mainwindow.cpp
 	mainwindow_presets.cpp
+	mainwindow_obsolette.cpp
+	mainwindow_docking.cpp
 	tableview.cpp
 	treeview.cpp
 	treemodel.cpp
@@ -56,12 +58,12 @@ SET(trace_server_SOURCES
 	delegates.cpp
 	server.cpp
 	server_filtering.cpp
+	filterwidget.cpp
 	connection.cpp
 	connection_stream.cpp
 	connection_setup.cpp
-	sessionstate.cpp
-	settings.cpp
-	serialization.cpp
+	filterstate.cpp
+	filterstate_serialize.cpp
 	constants.cpp
 	config.cpp
 	dock.cpp
@@ -114,11 +116,10 @@ SET(trace_server_HEADERS
 	../tlv_parser/tlv_decoder.h
 	../filters/nnode.hpp
 	../filters/file_filter.hpp
-	sessionstate.h
-	settings.h
+	filterwidget.h
+	filterstate.h
 	delegates.h
 	rendezvous.h
-	serialization.h
 	utils.h
 	dock.h
 	constants.h
@@ -164,6 +165,7 @@ SET(trace_server_HEADERS
 
 SET(trace_server_UI 
 	mainwindow.ui
+	filterwidget.ui
 	settings.ui
 	settingslog.ui
 	settingsplot.ui
@@ -186,6 +188,7 @@ QT5_ADD_RESOURCES(trace_server_RESOURCES_RCC ${trace_server_RESOURCES})
 INCLUDE_DIRECTORIES(${QT_USE_FILE})
 ADD_DEFINITIONS(${QT_DEFINITIONS})
 INCLUDE_DIRECTORIES(${CMAKE_BINARY_DIR})
+INCLUDE_DIRECTORIES(${trace_server_SOURCE_DIR})
 
 ADD_DEFINITIONS(${QT_DEFINITIONS})
 ADD_DEFINITIONS(-DQT_PLUGIN)

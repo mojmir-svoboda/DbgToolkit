@@ -31,7 +31,8 @@
 #include "tls.h"
 #include "config.h"
 
-class Server;
+class FilterWidget;
+class PersistentFilter;
 class MainWindow;
 
 struct SessionStats {
@@ -52,22 +53,28 @@ struct Dict {
 				return m_names.at(i);
 		return QString();
 	}
+
+	template <class ArchiveT>
+	void serialize (ArchiveT & ar, unsigned const version)
+	{
+		ar & boost::serialization::make_nvp("names", m_names);
+		ar & boost::serialization::make_nvp("strvalues", m_strvalues);
+		ar & boost::serialization::make_nvp("values", m_values);
+	}
 };
 
-class SessionState
+class FilterState
 {
 public:
-	explicit SessionState(QObject *parent = 0);
-	~SessionState ();
+	explicit FilterState (QObject *parent = 0);
+	~FilterState ();
 
-	void setupColumns (QList<QString> * column_setup_template, columns_sizes_t * sizes
-			, columns_align_t * ca_template, columns_elide_t * ce_template);
-	void setupColumnsCSV (QList<QString> * column_setup_template, columns_sizes_t * sizes
-			, columns_align_t * ca_template, columns_elide_t * ce_template);
+/*		
+	// cfg
+	void setupColumns (QList<QString> * column_setup_template, columns_sizes_t * sizes , columns_align_t * ca_template, columns_elide_t * ce_template);
+	void setupColumnsCSV (QList<QString> * column_setup_template, columns_sizes_t * sizes , columns_align_t * ca_template, columns_elide_t * ce_template);
 	void setupThreadColors (QList<QColor> const & tc);
-
 	bool isConfigured () const { return m_columns_setup_current && m_columns_setup_current->size(); }
-
 	QList<QString> const * getColumnsSetupCurrent () const { return m_columns_setup_current; }
 	QList<QString> * getColumnsSetupCurrent () { return m_columns_setup_current; }
 	QList<QString> const * getColumnsSetupTemplate () const { return m_columns_setup_template; }
@@ -75,16 +82,9 @@ public:
 	columns_sizes_t * getColumnSizes () { return m_columns_sizes; }
 	QList<QString> const * getColumnsAlignTemplate () const { return m_columns_align_template; }
 	QList<QString> const * getColumnsElideTemplate () const { return m_columns_elide_template; }
+*/
 
-	int findColumn4TagInTemplate (tlv::tag_t tag) const;
-	int findColumn4Tag (tlv::tag_t tag) const;
-	int insertColumn (tlv::tag_t tag);
-
-	QList<QColor> const & getThreadColors () const { return m_thread_colors; }
-
-	ThreadSpecific & getTLS () { return m_tls; }
-	ThreadSpecific const & getTLS () const { return m_tls; }
-
+	// filter state
 	// file
 	typedef tree_filter<TreeModelItem> file_filters_t;
 	typedef file_filters_t::node_t node_t;
@@ -94,21 +94,12 @@ public:
 	void merge (node_t * lhs, node_t const * rhs);
 	void merge_state (node_t * lhs, node_t const * rhs);
 	void merge_rhs (node_t * lhs, node_t const * rhs);
-	
+
 	// ctx
 	typedef QList<FilteredContext> ctx_filters_t;
 	bool isCtxPresent (QString const & item, bool & enabled) const;
 	void appendCtxFilter (QString const & item);
 	void removeCtxFilter (QString const & item);
-
-	void addCtxDict (QList<QString> const & names, QList<QString> const & strvalues)
-	{
-		m_dict_ctx.m_names = names;
-		m_dict_ctx.m_strvalues = strvalues;
-		
-		foreach (QString const & item, m_dict_ctx.m_strvalues)
-			m_dict_ctx.m_values.append(item.toInt());
-	}
 
 	// tid
 	typedef std::vector<QString> tid_filters_t;
@@ -151,18 +142,6 @@ public:
 	void setStringChecked (QString const & s, bool checked);
 	void setStringState (QString const & s, int state);
 
-	void excludeContentToRow (int row) { m_exclude_content_to_row = row; }
-	int excludeContentToRow () const { return m_exclude_content_to_row; }
-
-	void setTimeRefFromRow (int row) { m_time_ref_row = row; }
-	int timeRefFromRow () const { return m_time_ref_row; }
-
-	void addColorTagRow (int row);
-	bool findColorTagRow (int row) const;
-	void removeColorTagRow (int row);
-
-	unsigned long long timeRefValue () const { return m_time_ref_value; }
-	void setTimeRefValue (unsigned long long t) { m_time_ref_value = t; }
 
 	void clearFilters ();
 	void onClearFileFilter ()
@@ -175,13 +154,10 @@ public:
 	void onClearColorizedRegexFilter () { m_colorized_texts.clear(); }
 	void onClearLvlFilter () { m_lvl_filters.clear(); }
 	void onClearRegexFilter () { m_filtered_regexps.clear(); }
-	void onClearRefTime () { m_time_ref_row = 0; }
 	void onClearStringFilter () { m_filtered_strings.clear(); }
 
-	Dict const & getDictCtx () const { return m_dict_ctx; }
 
-	QString const & separatorChar () const { return m_csv_separator; }
-	
+
 signals:
 	
 private:
@@ -197,43 +173,27 @@ public:
 		ar & boost::serialization::make_nvp("colorized_texts", m_colorized_texts);
 		ar & boost::serialization::make_nvp("filtered_regexps", m_filtered_regexps);
 		ar & boost::serialization::make_nvp("collapse_blocks", m_collapse_blocks);
-		ar & boost::serialization::make_nvp("thread_colors", m_thread_colors);
 	}
 
 	friend class Connection;
-	friend class Server;
-	friend class MainWindow;
 	friend class FilterProxyModel;
+	friend class FilterWidget;
+	friend class PersistentFilter;
 
-private:
 
-	int m_exclude_content_to_row;
-	int m_time_ref_row;
-	QVector<int> m_color_tag_rows;
-	int m_current_tag;
-	int m_current_selection;
-	unsigned long long m_time_ref_value;
-	file_filters_t m_file_filters;
-	ctx_filters_t m_ctx_filters;
-	tid_filters_t m_tid_filters;
-	lvl_filters_t m_lvl_filters;
-
+	file_filters_t			m_file_filters;
+	ctx_filters_t			m_ctx_filters;
+	lvl_filters_t			m_lvl_filters;
+	tid_filters_t			m_tid_filters;
 	typedef tree_filter<TreeModelItem> data_filters_t;
-	data_filters_t m_data_filters;
+	data_filters_t			m_data_filters;	// @TODO: k cemu to je?
+	QList<ColorizedText>	m_colorized_texts;
+	QList<FilteredRegex>	m_filtered_regexps;
+	QList<CollapsedBlock>	m_collapse_blocks;
+	QList<FilteredString>	m_filtered_strings;
 
-	QList<QColor> m_thread_colors;
-	QList<ColorizedText> m_colorized_texts;
-	QList<FilteredRegex> m_filtered_regexps;
-	QList<QString> * m_columns_setup_current;
-	QList<QString> * m_columns_setup_template;
-	QList<QString> * m_columns_align_template;
-	QList<QString> * m_columns_elide_template;
-	columns_sizes_t * m_columns_sizes;
-	QMap<tlv::tag_t, int> m_tags2columns;
-	ThreadSpecific m_tls;
-	QList<CollapsedBlock> m_collapse_blocks;
-	Dict m_dict_ctx;
-	QList<FilteredString> m_filtered_strings;
-	QString m_csv_separator;
 };
 
+bool saveFilterState (FilterState const & s, char const * filename);
+bool loadFilterState (FilterState & s, char const * filename);
+bool loadFilterState (FilterState const & src, FilterState & target);

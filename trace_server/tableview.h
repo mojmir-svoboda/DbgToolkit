@@ -9,7 +9,7 @@ public:
 	explicit TableView (QWidget * parent = 0);
 	virtual ~TableView ();
 
-	void setColumnOrder (QMap<int, int> const & columnOrderMap, SessionState const & s);
+	//void setColumnOrder (QMap<int, int> const & columnOrderMap, SessionState const & s);
 
 	virtual void scrollTo (QModelIndex const & index, ScrollHint hint = EnsureVisible);
 

@@ -25,7 +25,6 @@
 #include <QDir>
 #include <QFile>
 #include <QSettings>
-#include "sessionstate.h"
 #include "constants.h"
 
 inline QStandardItem * findChildByText (QStandardItem * parent, QString const & txt)

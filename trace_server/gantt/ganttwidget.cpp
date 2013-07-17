@@ -458,7 +458,7 @@ namespace gantt {
 	dataframeviews_t::iterator GanttWidget::findOrCreateFrameView (int sync_group)
 	{
 		char tmp[] = "frames";
-		QString const name = m_connection->sessionState().getAppName() + "/" + tmp + "/" + QString("%1").arg(sync_group);
+		QString const name = m_connection->getAppName() + "/" + tmp + "/" + QString("%1").arg(sync_group);
 
 		dataframeviews_t::iterator it = m_dataframeviews.find(sync_group);
 		if (it == m_dataframeviews.end())
