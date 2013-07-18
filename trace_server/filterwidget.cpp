@@ -33,10 +33,12 @@ FilterWidget::FilterWidget (QWidget * parent)
 	, m_string_model(0)
 {
     ui->setupUi(this);
+	setupModelFile();
 }
 
 FilterWidget::~FilterWidget ()
 {
+	destroyModelFile();
     delete ui;
 }
 
@@ -127,30 +129,30 @@ void FilterWidget::saveConfig (QString const & path)
 	saveFilterState(m_filter_state, fname.toStdString());
 }
 
-/*void Connection::setupModelFile ()
+void FilterWidget::setupModelFile ()
 {
 	if (!m_file_model)
 	{
 		qDebug("new tree view file model");
-		m_file_model = new TreeModel(this, &m_session_state.m_file_filters);
+		m_file_model = new TreeModel(this, &m_filter_state.m_file_filters);
 
 		  //->setFilterBehavior( KSelectionProxyModel::ExactSelection );
 		m_proxy_selection = new QItemSelectionModel(m_file_model, this);
 		m_file_proxy = new TreeProxyModel(m_file_model, m_proxy_selection);
 	}
-	m_main_window->getWidgetFile()->setModel(m_file_model);
-	m_main_window->getWidgetFile()->syncExpandState();
-	m_main_window->getWidgetFile()->hideLinearParents();
-	connect(m_file_model, SIGNAL(invalidateFilter()), this, SLOT(onInvalidateFilter()));
+	getWidgetFile()->setModel(m_file_model);
+	getWidgetFile()->syncExpandState();
+	getWidgetFile()->hideLinearParents();
+	//connect(m_file_model, SIGNAL(invalidateFilter()), this, SLOT(onInvalidateFilter()));
 }
 
-void Connection::destroyModelFile ()
+void FilterWidget::destroyModelFile ()
 {
 	if (m_file_model)
 	{
 		qDebug("destroying file model");
-		disconnect(m_file_model, SIGNAL(invalidateFilter()), this, SLOT(onInvalidateFilter()));
-		m_main_window->getWidgetFile()->unsetModel(m_file_model);
+		//disconnect(m_file_model, SIGNAL(invalidateFilter()), this, SLOT(onInvalidateFilter()));
+		getWidgetFile()->unsetModel(m_file_model);
 		delete m_file_model;
 		m_file_model = 0;
 		delete m_file_proxy;
@@ -160,7 +162,7 @@ void Connection::destroyModelFile ()
 	}
 }
 
-void Connection::setupModelCtx ()
+/*void Connection::setupModelCtx ()
 {
 	if (!m_ctx_model)
 	{

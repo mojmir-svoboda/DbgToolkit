@@ -50,6 +50,9 @@ public:
 	QTreeView * getWidgetLvl ();
 	QTreeView const * getWidgetLvl () const;
 
+	void setupModelFile ();
+	void destroyModelFile ();
+
 	// filtering
 	void onRegexActivate (int idx);
 	void onRegexAdd ();
