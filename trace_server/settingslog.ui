@@ -31,6 +31,9 @@
           <height>16777215</height>
          </size>
         </property>
+        <property name="frameShape">
+         <enum>QFrame::NoFrame</enum>
+        </property>
         <property name="frameShadow">
          <enum>QFrame::Plain</enum>
         </property>
@@ -38,10 +41,13 @@
          <number>0</number>
         </property>
         <property name="verticalScrollBarPolicy">
-         <enum>Qt::ScrollBarAlwaysOff</enum>
+         <enum>Qt::ScrollBarAsNeeded</enum>
         </property>
         <property name="horizontalScrollBarPolicy">
-         <enum>Qt::ScrollBarAlwaysOff</enum>
+         <enum>Qt::ScrollBarAsNeeded</enum>
+        </property>
+        <property name="alternatingRowColors">
+         <bool>true</bool>
         </property>
         <property name="iconSize">
          <size>
@@ -62,7 +68,7 @@
          <bool>true</bool>
         </property>
         <property name="resizeMode">
-         <enum>QListView::Fixed</enum>
+         <enum>QListView::Adjust</enum>
         </property>
         <property name="layoutMode">
          <enum>QListView::SinglePass</enum>
@@ -72,7 +78,7 @@
         </property>
         <property name="gridSize">
          <size>
-          <width>50</width>
+          <width>64</width>
           <height>64</height>
          </size>
         </property>
@@ -80,7 +86,7 @@
          <enum>QListView::IconMode</enum>
         </property>
         <property name="uniformItemSizes">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
         <property name="wordWrap">
          <bool>false</bool>
@@ -103,7 +109,7 @@
          </property>
          <property name="icon">
           <iconset resource="resources.qrc">
-           <normaloff>:/images/find.ico</normaloff>:/images/find.ico</iconset>
+           <normaloff>:/images/find.png</normaloff>:/images/find.png</iconset>
          </property>
         </item>
         <item>
@@ -112,7 +118,7 @@
          </property>
          <property name="icon">
           <iconset resource="resources.qrc">
-           <normaloff>:/images/filter.ico</normaloff>:/images/filter.ico</iconset>
+           <normaloff>:/images/filter.png</normaloff>:/images/filter.png</iconset>
          </property>
         </item>
         <item>
@@ -121,7 +127,7 @@
          </property>
          <property name="icon">
           <iconset resource="resources.qrc">
-           <normaloff>:/images/tools.ico</normaloff>:/images/tools.ico</iconset>
+           <normaloff>:/images/tools.png</normaloff>:/images/tools.png</iconset>
          </property>
         </item>
         <item>
@@ -133,7 +139,7 @@
          </property>
          <property name="icon">
           <iconset resource="resources.qrc">
-           <normaloff>:/images/view.ico</normaloff>:/images/view.ico</iconset>
+           <normaloff>:/images/view.png</normaloff>:/images/view.png</iconset>
          </property>
         </item>
        </widget>
@@ -141,7 +147,7 @@
       <item>
        <widget class="QStackedWidget" name="stackedWidget">
         <property name="currentIndex">
-         <number>1</number>
+         <number>0</number>
         </property>
         <widget class="QWidget" name="findPage">
          <layout class="QVBoxLayout" name="verticalLayout_4">
@@ -283,6 +289,9 @@
              </spacer>
             </item>
            </layout>
+          </item>
+          <item>
+           <widget class="QTreeView" name="findResultTreeView"/>
           </item>
          </layout>
         </widget>
@@ -586,7 +595,7 @@
                    </font>
                   </property>
                   <property name="text">
-                   <string>Clear filters on new connection (ony if reuseTab checked)</string>
+                   <string>Clear filters on new connection</string>
                   </property>
                  </widget>
                 </item>
