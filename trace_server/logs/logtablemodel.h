@@ -24,8 +24,9 @@
 #include <QString>
 #include <vector>
 #include <tlv_parser/tlv_cmd_qstring.h>
-#include "../filterstate.h"
-#include "../cmd.h"
+#include <table/tablemodelview.h>
+#include <filterstate.h>
+#include <cmd.h>
 
 class Connection;
 class FilterState;
@@ -33,8 +34,50 @@ class QAbstractProxyModel;
 
 namespace logs { class LogWidget; }
 
-class LogTableModel : public QAbstractTableModel
+class LogTableModel : public TableModelView
 {
+	//explicit LogTableModel (QObject * parent, QVector<QString> & hhdr, QVector<int> & hsize);
+	//~TableModelView ();
+
+	explicit LogTableModel (QObject * parent, logs::LogWidget & lw);
+	~LogTableModel ();
+
+	//void transactionStart (int n);
+	void appendCommand (DecodedCommand const & cmd);
+	void appendCommand (QAbstractProxyModel * filter, tlv::StringCommand const & cmd);
+	//void appendCommandCSV (QAbstractProxyModel * filter, tlv::StringCommand const & cmd);
+	//void transactionCommit ();
+
+	//void emitLayoutChanged ();
+
+	//bool checkExistence (QModelIndex const & index) const;
+	//bool checkColumnExistence (tlv::tag_t tag, QModelIndex const & index) const;
+	//bool checkTagExistence (tlv::tag_t tag, QModelIndex const & index) const;
+
+	typedef std::vector<unsigned> layers_t;
+	layers_t const & layers () const { return m_layers; }
+
+	typedef std::vector<unsigned> row_types_t;
+	row_types_t const & rowTypes () const { return m_rowTypes; }
+
+	FilterState const & filterState () const { return m_filter_state; }
+
+signals:
+	
+public slots:
+
+private:
+
+	logs::LogWidget & m_log_widget;
+	FilterState & m_filter_state;
+	typedef std::vector<void const *> tree_node_ptrs_t;
+	tree_node_ptrs_t m_tree_node_ptrs;
+
+	layers_t m_layers;
+	row_types_t m_rowTypes;
+};
+
+/*
 	Q_OBJECT
 public:
 	explicit LogTableModel (QObject * parent, logs::LogWidget & lw);
@@ -83,5 +126,5 @@ private:
 	layers_t m_layers;
 	row_types_t m_rowTypes;
 };
-
+*/
 

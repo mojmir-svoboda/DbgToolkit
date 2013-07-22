@@ -68,7 +68,7 @@ public:
 	int row_time (int const row) const { return m_row_times[row]; }
 	int col_time (int const col) const { return m_col_times[col]; }
 
-private:
+protected:
 	typedef std::vector<Cell> columns_t;
 	typedef std::vector<columns_t> rows_t;
 
