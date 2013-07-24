@@ -551,6 +551,10 @@ namespace table {
 	void TableWidget::saveConfig (QString const & path)
 	{
 	}
+
+	void TableWidget::commitCommands (E_ReceiveMode mode)
+	{
+	}
 }
 
 

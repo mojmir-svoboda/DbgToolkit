@@ -30,6 +30,7 @@ namespace logs {
 		bool m_indent;
 		bool m_cut_path;
 		bool m_cut_namespaces;
+		bool m_dt_enabled;
 		QString m_csv_separator;
 
 		LogConfig ()
@@ -51,6 +52,7 @@ namespace logs {
 			, m_indent(true)
 			, m_cut_path(true)
 			, m_cut_namespaces(true)
+			, m_dt_enabled(false)
 			, m_csv_separator(",")
 		{ }
 
@@ -73,6 +75,7 @@ namespace logs {
 			, m_indent(true)
 			, m_cut_path(true)
 			, m_cut_namespaces(true)
+			, m_dt_enabled(false)
 		{ }
 
 		template <class ArchiveT>
@@ -101,6 +104,7 @@ namespace logs {
 			ar & boost::serialization::make_nvp("indent", m_indent);
 			ar & boost::serialization::make_nvp("cut_path", m_cut_path);
 			ar & boost::serialization::make_nvp("cut_namespaces", m_cut_namespaces);
+			ar & boost::serialization::make_nvp("dt_enabled", m_dt_enabled);
 		}
 	};
 

@@ -169,6 +169,7 @@ struct DataMap : public QMap<QString, typename SelectDockedData<TypeN, dockeddat
 {
 	enum { e_type = TypeN };
 	QList<DecodedCommand> m_queue;
+	typedef typename SelectDockedData<TypeN, dockeddataptr_t>::type widget_t;
 
 	DataMap () { m_queue.reserve(256); }
 };
@@ -261,7 +262,7 @@ public slots:
 
 	void onSaveAll ();
 
-	bool tryHandleCommand (DecodedCommand const & cmd);
+	bool tryHandleCommand (DecodedCommand const & cmd, E_ReceiveMode mode);
 
 
 private slots:
@@ -288,7 +289,7 @@ protected:
 	int processStream (T *, T_Ret (T::*read_member_t)(T_Arg0, T_Arg1));
 	bool enqueueCommand (DecodedCommand const & cmd);
 	bool dequeueCommand (DecodedCommand & cmd);
-	bool handleLogCommand (DecodedCommand const & cmd);
+	bool handleLogCommand (DecodedCommand const & cmd, E_ReceiveMode mode);
 	bool handleTableXYCommand (DecodedCommand const & cmd);
 	bool handleTableSetupCommand (DecodedCommand const & cmd);
 	bool handleDataXYCommand (DecodedCommand const & cmd);
@@ -307,7 +308,7 @@ protected:
 	bool handleGanttClearCommand (DecodedCommand const & cmd);
 	bool handlePlotClearCommand (DecodedCommand const & cmd);
 	bool handleTableClearCommand (DecodedCommand const & cmd);
-	bool handleLogClearCommand (DecodedCommand const & cmd);
+	bool handleLogClearCommand (DecodedCommand const & cmd, E_ReceiveMode mode);
 
 	template <int TypeN>
 	typename SelectIterator<TypeN>::type
@@ -317,7 +318,7 @@ protected:
 	bool loadConfigFor (QString const & preset_name, typename SelectConfig<TypeN>::type & config, QString const & tag);
 
 	datalogs_t::iterator findOrCreateLog (QString const & tag);
-	void appendLog (DecodedCommand const &);
+	//void appendLog (DecodedCommand const &);
 
 	dataplots_t::iterator findOrCreatePlot (QString const & tag);
 	void appendDataXY (double x, double y, QString const & tag);

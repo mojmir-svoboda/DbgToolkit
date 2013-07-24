@@ -1,10 +1,11 @@
 #pragma once
 #include <qwidget.h>
 #include <QColorDialog>
-#include "../qwt/qwt_plot.h"
-#include "../qwt/qwt_plot_canvas.h"
-#include "../qwt/qwt_plot_layout.h"
-#include "../qwt/qwt_symbol.h"
+#include <qwt/qwt_plot.h>
+#include <qwt/qwt_plot_canvas.h>
+#include <qwt/qwt_plot_layout.h>
+#include <qwt/qwt_symbol.h>
+#include <cmd.h>
 #include "curves.h"
 #include "plotctxmenu.h"
 #include "plottypes.h"
@@ -21,29 +22,32 @@ namespace plot {
 		typedef QMap<QString, Curve *> curves_t;
 
 		PlotWidget (QObject * oparent, QWidget * wparent, PlotConfig & cfg, QString const & fname);
-
-		QColor allocColor ();
+		virtual ~PlotWidget ();
 
 		void applyAxis (AxisConfig const & acfg);
 		void applyConfig (PlotConfig const & pcfg);
-		virtual ~PlotWidget ();
-		void stopUpdate ();
-
-		Curve * findCurve (QString const & subtag);
-		Curve * findOrCreateCurve (QString const & subtag);
-		curves_t::iterator mkCurve (QString const & subtag);
 
 		void loadConfig (QString const & path);
 		void saveConfig (QString const & path);
 		PlotConfig & getConfig () { return m_config; }
 		PlotConfig const & getConfig () const { return m_config; }
 
+		void handleCommand (DecodedCommand const & cmd, E_ReceiveMode mode);
+		void commitCommands (E_ReceiveMode mode);
+
+
+		Curve * findCurve (QString const & subtag);
+		Curve * findOrCreateCurve (QString const & subtag);
+		curves_t::iterator mkCurve (QString const & subtag);
+
 		void clearAllData ();
 		void clearCurveData (QString const & subtag);
+		void stopUpdate ();
 
 	protected:
 		void timerEvent (QTimerEvent * e);
 		virtual void update ();
+		QColor allocColor ();
 
 	public Q_SLOTS:
 		void showCurve (QwtPlotItem * item, bool on);

@@ -7,7 +7,7 @@ namespace logs {
 
 void LogWidget::findTextInAllColumns (QString const & text, int from_row, int to_row, bool only_first)
 {
-	LogTableModel * model = static_cast<LogTableModel *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
+	LogTableModel * model = static_cast<LogTableModel *>(m_proxy_model ? m_proxy_model->sourceModel() : m_table_view_widget->model());
 	for (int i = from_row, ie = to_row; i < ie; ++i)
 	{
 		for (int j = 0, je = model->columnCount(); j < je; ++j)
@@ -15,7 +15,7 @@ void LogWidget::findTextInAllColumns (QString const & text, int from_row, int to
 			if (isModelProxy()) // @TODO: dedup!
 			{
 				QModelIndex const idx = model->index(i, j, QModelIndex());
-				QModelIndex const curr = m_table_view_proxy->mapFromSource(idx);
+				QModelIndex const curr = m_proxy_model->mapFromSource(idx);
 
 				if (idx.isValid() && model->data(idx).toString().contains(text, Qt::CaseInsensitive))
 				{
@@ -44,16 +44,16 @@ void LogWidget::findTextInAllColumns (QString const & text, int from_row, int to
 
 bool LogWidget::matchTextInCell (QString const & text, int row, int col)
 {
-	LogTableModel * model = static_cast<LogTableModel *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
+	LogTableModel * model = static_cast<LogTableModel *>(m_proxy_model ? m_proxy_model->sourceModel() : m_table_view_widget->model());
 	QModelIndex const idx = model->index(row, col, QModelIndex());
 	if (idx.isValid() && model->data(idx).toString().contains(text, Qt::CaseInsensitive))
 	{
 		qDebug("found string %s: src=%i,%i", text.toStdString(), row, col);
-		if (m_table_view_proxy)
+		if (m_proxy_model)
 		{
-			QModelIndex const curr = m_table_view_proxy->mapFromSource(idx);
+			QModelIndex const curr = m_proxy_model->mapFromSource(idx);
 			m_table_view_widget->selectionModel()->setCurrentIndex(curr, QItemSelectionModel::Select);
-			m_table_view_widget->scrollTo(m_table_view_proxy->mapFromSource(idx), QTableView::PositionAtCenter);
+			m_table_view_widget->scrollTo(m_proxy_model->mapFromSource(idx), QTableView::PositionAtCenter);
 		}
 		else
 		{
@@ -95,7 +95,7 @@ void LogWidget::findTextInColumnRev (QString const & text, int col, int from_row
 void LogWidget::selectionFromTo (int & from, int & to) const
 {
 	from = 0;
-	LogTableModel const * model = static_cast<LogTableModel *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
+	LogTableModel const * model = static_cast<LogTableModel *>(m_proxy_model ? m_proxy_model->sourceModel() : m_table_view_widget->model());
 	to = model->rowCount();
 	QItemSelectionModel const * selection = m_table_view_widget->selectionModel();
 	QModelIndexList indexes = selection->selectedIndexes();
@@ -110,7 +110,7 @@ void LogWidget::findAllTexts (QString const & text)
 {
 	m_last_search = text;
 	int from = 0;
-	LogTableModel const * model = static_cast<LogTableModel *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
+	LogTableModel const * model = static_cast<LogTableModel *>(m_proxy_model ? m_proxy_model->sourceModel() : m_table_view_widget->model());
 	int to = model->rowCount();
 	findTextInAllColumns(text, from, to, false);
 }
@@ -138,7 +138,7 @@ void LogWidget::findText (QString const & text, tlv::tag_t tag)
 	}
 	else
 	{
-		LogTableModel const * model = static_cast<LogTableModel *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
+		LogTableModel const * model = static_cast<LogTableModel *>(m_proxy_model ? m_proxy_model->sourceModel() : m_table_view_widget->model());
 		int const to = model->rowCount();
 		findTextInColumn(m_last_search, m_last_search_col, m_last_search_row + 1, to);
 	}
@@ -219,7 +219,7 @@ QVariant LogWidget::findVariant4Tag (tlv::tag_t tag, QModelIndex const & row_ind
 	if (idx == -1)
 		return QVariant();
 
-	LogTableModel * model = static_cast<LogTableModel *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
+	LogTableModel * model = static_cast<LogTableModel *>(m_proxy_model ? m_proxy_model->sourceModel() : m_table_view_widget->model());
 
 	QModelIndex const model_idx = model->index(row_index.row(), idx, QModelIndex());
 	if (model_idx.isValid())
@@ -253,7 +253,7 @@ void LogWidget::scrollToCurrentTag ()
 		//qDebug("scrollToCurrentTag: current=%2i src row=%2i ", sessionState().m_current_tag, tag_row);
 
 		if (isModelProxy())
-			scrollTo(m_table_view_proxy->mapFromSource(tag_idx), QAbstractItemView::PositionAtCenter);
+			scrollTo(m_proxy_model->mapFromSource(tag_idx), QAbstractItemView::PositionAtCenter);
 		else
 			scrollTo(tag_idx, QAbstractItemView::PositionAtCenter);
 	}
@@ -280,7 +280,7 @@ void LogWidget::scrollToCurrentSelection ()
 	qDebug("scrollToSelection[%i] row=%i", m_current_selection, idx.row());
 	if (isModelProxy())
 	{
-		QModelIndex const own_idx = m_table_view_proxy->index(idx.row(), idx.column());
+		QModelIndex const own_idx = m_proxy_model->index(idx.row(), idx.column());
 		scrollTo(own_idx, QAbstractItemView::PositionAtCenter);
 	}
 	else

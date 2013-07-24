@@ -38,19 +38,18 @@ bool isCommandQueuable (tlv::tag_t cmd)
 		case tlv::cmd_ping:				return false;
 		case tlv::cmd_shutdown:			return false;
 		case tlv::cmd_dict_ctx:			return false;
-
-		case tlv::cmd_save_tlv:
-		case tlv::cmd_export_csv:
+		case tlv::cmd_save_tlv:			return false;
+		case tlv::cmd_export_csv:		return false;
+		case tlv::cmd_plot_clear:		return false;
+		case tlv::cmd_table_setup:		return false;
+		case tlv::cmd_table_clear:		return false;
+		case tlv::cmd_log_clear:		return false;
 		case tlv::cmd_log:
-		case tlv::cmd_log_clear:
 		case tlv::cmd_scope_entry:
 		case tlv::cmd_scope_exit:
 		case tlv::cmd_plot_xy:
 		case tlv::cmd_plot_xyz:	
-		case tlv::cmd_plot_clear:
 		case tlv::cmd_table_xy:	
-		case tlv::cmd_table_setup:
-		case tlv::cmd_table_clear:
 		case tlv::cmd_gantt_bgn:
 		case tlv::cmd_gantt_end:
 		case tlv::cmd_gantt_frame_bgn:
@@ -116,19 +115,19 @@ bool Connection::enqueueCommand (DecodedCommand const & cmd)
 }
 
 
-bool Connection::tryHandleCommand (DecodedCommand const & cmd)
+bool Connection::tryHandleCommand (DecodedCommand const & cmd, E_ReceiveMode mode)
 {
 	switch (cmd.hdr.cmd)
 	{
 		case tlv::cmd_setup:			handleSetupCommand(cmd); break;
-		case tlv::cmd_log:				handleLogCommand(cmd); break;
-		case tlv::cmd_log_clear:		handleLogClearCommand(cmd); break;
+		case tlv::cmd_log:				handleLogCommand(cmd, mode); break;
+		case tlv::cmd_log_clear:		handleLogClearCommand(cmd, mode); break;
 		case tlv::cmd_plot_xy:			handleDataXYCommand(cmd); break;
 		case tlv::cmd_plot_xyz:			handleDataXYZCommand(cmd); break;
 		case tlv::cmd_table_xy:			handleTableXYCommand(cmd); break;
 		case tlv::cmd_table_setup:		handleTableSetupCommand(cmd); break;
-		case tlv::cmd_scope_entry:		handleLogCommand(cmd); break;
-		case tlv::cmd_scope_exit:		handleLogCommand(cmd); break;
+		case tlv::cmd_scope_entry:		handleLogCommand(cmd, mode); break;
+		case tlv::cmd_scope_exit:		handleLogCommand(cmd, mode); break;
 		case tlv::cmd_save_tlv:			handleSaveTLVCommand(cmd); break;
 		case tlv::cmd_export_csv:		handleExportCSVCommand(cmd); break;
 		case tlv::cmd_ping:				handlePingCommand(cmd); break;
@@ -159,7 +158,7 @@ void Connection::onHandleCommands ()
 		}
 		else
 		{
-			tryHandleCommand(cmd);
+			tryHandleCommand(cmd, e_RecvSync);
 		}
 
 		if (m_src_stream == e_Stream_TCP && m_tcp_dump_stream)
@@ -185,9 +184,11 @@ namespace {
 			while (!t.m_queue.isEmpty())
 			{
 				DecodedCommand const & cmd = t.m_queue.front();
-				m_conn.tryHandleCommand(cmd);
+				m_conn.tryHandleCommand(cmd, e_RecvBatched);
 				t.m_queue.pop_front();
 			}
+			foreach (typename T::widget_t w, t)
+				w->widget().commitCommands(e_RecvBatched);
 		}
 	};
 }
@@ -195,6 +196,8 @@ namespace {
 void Connection::onHandleCommandsCommit ()
 {
 	recurse(m_data, DequeueCommand(*this));
+
+
 /*	LogTableModel * model = static_cast<LogTableModel *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
 
 	setupColumnSizes(false);

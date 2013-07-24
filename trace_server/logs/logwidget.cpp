@@ -35,8 +35,8 @@ namespace logs {
 		, m_current_selection(-1)
 		, m_time_ref_value(0)
 		, m_curr_preset()
-		, m_table_view_proxy(0)
-		, m_table_view_src(0)
+		, m_proxy_model(0)
+		, m_src_model(0)
 		, m_ctx_menu()
 		, m_actions()
 		, m_last_clicked()
@@ -45,6 +45,8 @@ namespace logs {
 		//, m_file_tlv_stream(0)
 	{
 		//qDebug("%s this=0x%08x", __FUNCTION__, this);
+		//
+		m_queue.reserve(256);
 
 		setContextMenuPolicy(Qt::CustomContextMenu);
 		connect(this, SIGNAL(customContextMenuRequested(QPoint const &)), this, SLOT(onShowContextMenu(QPoint const &)));
@@ -76,9 +78,9 @@ namespace logs {
 		verticalHeader()->setDefaultSectionSize(cfg.m_row_width);
 		verticalHeader()->hide();	// @NOTE: users want that //@NOTE2: they can't have it because of performance
 		setModel(model);
-		//QObject::connect(horizontalHeader(), SIGNAL(sectionResized(int, int, int)), this, SLOT(onSectionResized(int, int, int)));
+		QObject::connect(horizontalHeader(), SIGNAL(sectionResized(int, int, int)), this, SLOT(onSectionResized(int, int, int)));
 
-		m_table_view_src = model;
+		m_src_model = model;
 		//setupThreadColors(connection->getMainWindow()->getThreadColors());
 
 
@@ -179,16 +181,16 @@ namespace logs {
 	delete m_delegates.get<e_delegate_String>();
 	m_delegates.get<e_delegate_String>() = 0;
 
-	if (m_table_view_proxy)
+	if (m_proxy_model)
 	{
-		m_table_view_proxy->setSourceModel(0);
-		delete m_table_view_proxy;
-		m_table_view_proxy = 0;
+		m_proxy_model->setSourceModel(0);
+		delete m_proxy_model;
+		m_proxy_model = 0;
 	}
 
 	m_table_view_widget->setModel(0);
-	delete m_table_view_src;
-	m_table_view_src = 0;
+	delete m_src_model;
+	m_src_model = 0;
 	*/
 
 	}
@@ -529,22 +531,38 @@ void LogWidget::onDumpFilters ()
 }
 
 
-void LogWidget::appendLog (DecodedCommand const & cmd)
+
+void LogWidget::commitCommands (E_ReceiveMode mode)
 {
-	if (cmd.hdr.cmd == tlv::cmd_scope_entry || (cmd.hdr.cmd == tlv::cmd_scope_exit))
+	for (int i = 0, ie = m_queue.size(); i < ie; ++i)
+	{
+		DecodedCommand & cmd = m_queue[i];
+		m_src_model->handleCommand(cmd, mode);
+	}
+	m_src_model->commitCommands(mode);
+}
+
+void LogWidget::handleCommand (DecodedCommand const & cmd, E_ReceiveMode mode)
+{
+	if (mode == e_RecvSync)
+		m_src_model->handleCommand(cmd, mode);
+	else
+		m_queue.append(cmd);
+
+/*	if (cmd.hdr.cmd == tlv::cmd_scope_entry || (cmd.hdr.cmd == tlv::cmd_scope_exit))
 	{
 		if (m_config.m_scopes)
 		{
-			LogTableModel * m = static_cast<LogTableModel *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : model());
-			//dp.widget().model()->appendCommand(m_table_view_proxy, cmd);
-			m->appendCommand(m_table_view_proxy, cmd);
+			LogTableModel * m = static_cast<LogTableModel *>(m_proxy_model ? m_proxy_model->sourceModel() : model());
+			//dp.widget().model()->appendCommand(m_proxy_model, cmd);
+			m->appendCommand(m_proxy_model, cmd);
 		}
 	}
 	else if (cmd.hdr.cmd == tlv::cmd_log)
 	{
-		LogTableModel * m = static_cast<LogTableModel *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : model());
-		m->appendCommand(m_table_view_proxy, cmd);
-	}
+		m_src_model->handleCommand(cmd);
+		//m_src_model->appendCommand(m_proxy_model, cmd);
+	}*/
 }
 
 
@@ -629,14 +647,6 @@ int LogWidget::findColumn4Tag (tlv::tag_t tag) const
 	return -1;
 }
 
-int LogWidget::findColumn4TagInTemplate (tlv::tag_t tag) const
-{
-	QMap<tlv::tag_t, int>::const_iterator it = m_tags2columns.find(tag);
-	if (it != m_tags2columns.end())
-		return it.value();
-	return -1;
-}
-
 int LogWidget::appendColumn (tlv::tag_t tag)
 {
 	TagDesc const & desc = m_tagconfig.findOrCreateTag(tag);
@@ -686,7 +696,7 @@ bool LogWidget::isModelProxy () const
 {
 	if (0 == model())
 		return false;
-	return model() == m_table_view_proxy;
+	return model() == m_proxy_model;
 }
 
 void LogWidget::findTableIndexInFilters (QModelIndex const & src_idx, bool scroll_to_item, bool expand)
@@ -733,7 +743,7 @@ void LogWidget::onTableClicked (QModelIndex const & row_index)
 {
 /*	m_last_clicked = row_index;
 	if (isModelProxy())
-		m_last_clicked = m_table_view_proxy->mapToSource(row_index);
+		m_last_clicked = m_proxy_model->mapToSource(row_index);
 
 	m_last_search_row = m_last_clicked.row(); // set search from this line
 	m_last_search_col = m_last_clicked.column();
@@ -745,10 +755,10 @@ void LogWidget::onTableClicked (QModelIndex const & row_index)
 
 void LogWidget::onTableDoubleClicked (QModelIndex const & row_index)
 {
-/*	if (m_table_view_proxy)
+/*	if (m_proxy_model)
 	{
-		QModelIndex const curr = m_table_view_proxy->mapToSource(row_index);
-		LogTableModel * model = static_cast<LogTableModel *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
+		QModelIndex const curr = m_proxy_model->mapToSource(row_index);
+		LogTableModel * model = static_cast<LogTableModel *>(m_proxy_model ? m_proxy_model->sourceModel() : m_table_view_widget->model());
 		qDebug("2c curr: (%i,col) -> (%i,col)", row_index.row(), curr.row());
 
 		int row_bgn = curr.row();
@@ -873,7 +883,7 @@ void LogWidget::onToggleRefFromRow ()
 		qDebug("Toggle Ref from row=%i", current.row());
 		m_session_state.setTimeRefFromRow(current.row());
 
-		//LogTableModel * model = static_cast<LogTableModel *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
+		//LogTableModel * model = static_cast<LogTableModel *>(m_proxy_model ? m_proxy_model->sourceModel() : m_table_view_widget->model());
 		QString const & strtime = findString4Tag(tlv::tag_time, current);
 		m_session_state.setTimeRefValue(strtime.toULongLong());
 		onInvalidateFilter();
@@ -885,7 +895,7 @@ void LogWidget::onColorTagRow (int)
 	/*QModelIndex current = m_table_view_widget->currentIndex();
 	if (isModelProxy())
 	{
-		current = m_table_view_proxy->mapToSource(current);
+		current = m_proxy_model->mapToSource(current);
 	}
 
 	int const row = current.row(); // set search from this line
@@ -899,7 +909,7 @@ void LogWidget::onColorTagRow (int)
 
 void LogWidget::onClearCurrentView ()
 {
-	/*LogTableModel * model = static_cast<LogTableModel *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
+	/*LogTableModel * model = static_cast<LogTableModel *>(m_proxy_model ? m_proxy_model->sourceModel() : m_table_view_widget->model());
 	m_session_state.excludeContentToRow(model->rowCount());
 	onInvalidateFilter();*/
 }
@@ -966,12 +976,29 @@ void LogWidget::onShowContextMenu (QPoint const & pos)
 }
 */
 
-void LogWidget::onSectionResized (int idx, int /*old_size*/, int new_size)
+void LogWidget::onSectionResized (int c, int /*old_size*/, int new_size)
 {
 	/*if (idx < m_config.m_columns_setup.size())
 	{
 		m_config.m_columns_sizes[idx] = new_size;
 	}*/
+
+	//int const idx = !isModelProxy() ? c : static_cast<SparseProxyModel *>(m_proxy_model)->colToSource(c);
+	int const idx = c;
+	//qDebug("table: on rsz hdr[%i -> src=%02i ]  %i->%i\t\t%s", c, idx, old_size, new_size, m_config.m_hhdr.at(idx).toStdString().c_str());
+	if (idx < 0) return;
+	int const curr_sz = m_config.m_columns_sizes.size();
+	if (idx < curr_sz)
+	{
+		//qDebug("%s this=0x%08x hsize[%i]=%i", __FUNCTION__, this, idx, new_size);
+	}
+	else
+	{
+		m_config.m_columns_sizes.resize(idx + 1);
+		for (int i = curr_sz; i < idx + 1; ++i)
+			m_config.m_columns_sizes[i] = 32;
+	}
+	m_config.m_columns_sizes[idx] = new_size;
 }
 
 void LogWidget::exportStorageToCSV (QString const & filename)

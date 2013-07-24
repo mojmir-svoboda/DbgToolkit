@@ -26,7 +26,7 @@ DataLog::~DataLog ()
 	//QObject::disconnect(connection->m_table_view_widget->horizontalHeader(), SIGNAL(sectionResized(int, int, int)), this, SLOT(onSectionResized(int, int, int)));
 }
 
-bool Connection::handleLogCommand (DecodedCommand const & cmd)
+bool Connection::handleLogCommand (DecodedCommand const & cmd, E_ReceiveMode mode)
 {
 	QString const tag("default"); // @FIXME
 	//int const slash_pos = tag.lastIndexOf(QChar('/'));
@@ -39,14 +39,14 @@ bool Connection::handleLogCommand (DecodedCommand const & cmd)
 
 	DataLog & dp = **it;
 
-	dp.widget().appendLog(cmd);
+	dp.widget().handleCommand(cmd, mode);
 
 	//m_main_window->getWidgetFile()->hideLinearParents();
 	return true;
 }
 
 
-bool Connection::handleLogClearCommand (DecodedCommand const & cmd)
+bool Connection::handleLogClearCommand (DecodedCommand const & cmd, E_ReceiveMode mode)
 {
 	return true;
 }

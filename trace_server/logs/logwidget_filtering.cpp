@@ -28,7 +28,7 @@ void LogWidget::onInvalidateFilter ()
 		for (int i = 0, ie = old_selection.size(); i < ie; ++i)
 		{
 			QModelIndex const & pxy_idx = old_selection.at(i);
-			QModelIndex const src_idx = m_table_view_proxy->mapToSource(pxy_idx);
+			QModelIndex const src_idx = m_proxy_model->mapToSource(pxy_idx);
 
 			//qDebug("update filter: pxy=(%2i, %2i) src=(%2i, %2i)", pxy_idx.row(), pxy_idx.column(), src_idx.row(), src_idx.column());
 			srcs.push_back(src_idx);
@@ -38,10 +38,10 @@ void LogWidget::onInvalidateFilter ()
 		srcs = old_selection;
 
 	if (isModelProxy())
-		static_cast<FilterProxyModel *>(m_table_view_proxy)->force_update();
+		static_cast<FilterProxyModel *>(m_proxy_model)->force_update();
 	else
 	{
-		LogTableModel * model = static_cast<LogTableModel *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
+		LogTableModel * model = static_cast<LogTableModel *>(m_proxy_model ? m_proxy_model->sourceModel() : m_table_view_widget->model());
 		model->emitLayoutChanged();
 	}
 
@@ -59,7 +59,7 @@ void LogWidget::syncSelection (QModelIndexList const & sel)
 		QModelIndex idx = sel.at(i);
 		if (isModelProxy())
 		{
-			idx = m_table_view_proxy->mapFromSource(sel.at(i));
+			idx = m_proxy_model->mapFromSource(sel.at(i));
 			//qDebug("syncSelection: pxy src=(%2i, %2i)", idx.row(), idx.column());
 		}
 		//else qDebug("syncSelection: src=(%2i, %2i)", idx.row(), idx.column());
@@ -82,35 +82,35 @@ void LogWidget::setFilterFile (int state)
 		for (int i = 0, ie = indexes.size(); i < ie; ++i)
 		{
 			QModelIndex const & pxy_idx = indexes.at(i);
-			QModelIndex const src_idx = m_table_view_proxy->mapToSource(pxy_idx);
+			QModelIndex const src_idx = m_proxy_model->mapToSource(pxy_idx);
 			srcs.push_back(src_idx);
 		}
 
-		m_table_view_widget->setModel(m_table_view_proxy->sourceModel());
-		//m_table_view_widget->setSelectionModel(m_table_view_proxy->selectionModel());
+		m_table_view_widget->setModel(m_proxy_model->sourceModel());
+		//m_table_view_widget->setSelectionModel(m_proxy_model->selectionModel());
 
 		for (int i = 0, ie = srcs.size(); i < ie; ++i)
 			m_table_view_widget->selectionModel()->setCurrentIndex(srcs.at(i), QItemSelectionModel::Select);
 	}
 	else if (state == Qt::Checked)
 	{
-		if (!m_table_view_proxy)
+		if (!m_proxy_model)
 		{
-			m_table_view_proxy = new FilterProxyModel(this, *this);
-			m_table_view_proxy->setSourceModel(m_table_view_widget->model());
+			m_proxy_model = new FilterProxyModel(this, *this);
+			m_proxy_model->setSourceModel(m_table_view_widget->model());
 		}
 
-		m_table_view_widget->setModel(m_table_view_proxy);
-		//m_table_view_widget->setSelectionModel(m_table_view_proxy->selectionModel());
+		m_table_view_widget->setModel(m_proxy_model);
+		//m_table_view_widget->setSelectionModel(m_proxy_model->selectionModel());
 
-		static_cast<FilterProxyModel *>(m_table_view_proxy)->force_update();
+		static_cast<FilterProxyModel *>(m_proxy_model)->force_update();
 		onInvalidateFilter();
 
 		QModelIndexList pxys;
 		for (int i = 0, ie = indexes.size(); i < ie; ++i)
 		{
 			QModelIndex const & src_idx = indexes.at(i);
-			QModelIndex const pxy_idx = m_table_view_proxy->mapFromSource(src_idx);
+			QModelIndex const pxy_idx = m_proxy_model->mapFromSource(src_idx);
 			//qDebug("on: src(r=%i c=%i) -> pxy(r=%i c=%i)", src_idx.row(), src_idx.column(), pxy_idx.row(), pxy_idx.column());
 			if (pxy_idx.isValid())
 				pxys.push_back(pxy_idx);

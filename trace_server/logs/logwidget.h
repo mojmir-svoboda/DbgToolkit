@@ -30,8 +30,9 @@ namespace logs {
 		void loadConfig (QString const & path);
 		void saveConfig (QString const & path);
 
-
-		void appendCommand (DecodedCommand const & cmd);
+		QList<DecodedCommand> m_queue;
+		void handleCommand (DecodedCommand const & cmd, E_ReceiveMode mode);
+		void commitCommands (E_ReceiveMode mode);
 
 	protected:
 		friend class LogTableModel;
@@ -137,8 +138,8 @@ namespace logs {
 	FilterState const & filterState () const { return m_filter_state; }
 
 
-	QAbstractTableModel const * modelView () const { return static_cast<QAbstractTableModel const *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : model()); }
-	QAbstractProxyModel const * proxyView () const { return static_cast<QAbstractProxyModel const *>(m_table_view_proxy); }
+	//QAbstractTableModel const * modelView () const { return static_cast<QAbstractTableModel const *>(m_proxy_model ? m_proxy_model->sourceModel() : model()); }
+	//QAbstractProxyModel const * proxyView () const { return static_cast<QAbstractProxyModel const *>(m_proxy_model); }
 
 	bool isModelProxy () const;
 
@@ -192,7 +193,6 @@ namespace logs {
 		void onEditFindNext ();
 		void onEditFindPrev ();
 		void onDumpFilters ();
-		void appendLog (DecodedCommand const & cmd);
 		void applyConfig ();
 		void onTableClicked (QModelIndex const & row_index);
 		void onTableDoubleClicked (QModelIndex const & row_index);
@@ -257,8 +257,8 @@ namespace logs {
 		QString m_curr_preset;
 		QTableView * m_table_view_widget;
 
-		QAbstractProxyModel * m_table_view_proxy;
-		LogTableModel * m_table_view_src;
+		QAbstractProxyModel * m_proxy_model;
+		LogTableModel * m_src_model;
 
 		QMenu m_ctx_menu;
 		enum E_Actions {

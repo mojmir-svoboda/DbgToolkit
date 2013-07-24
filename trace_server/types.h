@@ -11,6 +11,11 @@ enum E_FeatureStates {
 	, e_FtrEnabled		= 2
 };
 
+enum E_ReceiveMode {
+	  e_RecvSync
+	, e_RecvBatched
+};
+
 enum E_NodeStates {
 	  e_Unchecked
 	, e_PartialCheck

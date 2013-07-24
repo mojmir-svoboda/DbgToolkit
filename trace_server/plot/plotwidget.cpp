@@ -462,5 +462,9 @@ namespace plot {
 		Ui::SettingsPlot * ui = m_config_ui.ui();
 		clearCurveData(ui->curveComboBox->currentText());
 	}
+
+	void PlotWidget::commitCommands (E_ReceiveMode mode)
+	{
+	}
 }
 

@@ -38,6 +38,9 @@ struct Cell
 	QVariant m_bgc;
 };
 
+typedef std::vector<Cell> columns_t;
+typedef std::vector<columns_t> rows_t;
+
 class TableModelView : public QAbstractTableModel
 {
 	//Q_OBJECT
@@ -69,8 +72,6 @@ public:
 	int col_time (int const col) const { return m_col_times[col]; }
 
 protected:
-	typedef std::vector<Cell> columns_t;
-	typedef std::vector<columns_t> rows_t;
 
 	typedef std::vector<unsigned long long> times_t;
 	times_t m_row_times;

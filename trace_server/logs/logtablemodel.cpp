@@ -19,8 +19,60 @@ LogTableModel::~LogTableModel ()
 	qDebug("%s", __FUNCTION__);
 }
 
+void LogTableModel::commitCommands (E_ReceiveMode mode)
+{
+	commitBatchToModel();
+}
 
-void LogTableModel::appendCommand (QAbstractProxyModel * filter, tlv::StringCommand const & cmd)
+void LogTableModel::handleCommand (DecodedCommand const & cmd, E_ReceiveMode mode)
+{
+	parseCommand(cmd, mode, m_batch);
+	if (mode == e_RecvSync)
+	{
+		commitBatchToModel();
+	}
+}
+
+void LogTableModel::commitBatchToModel ()
+{
+	int const rows = m_batch.m_rows.size();
+	int const from = m_rows.size();
+	int const to = from + rows - 1;
+	beginInsertRows(QModelIndex(), from, to);
+	int cols = 0;
+	for (int i = 0, ie = m_batch.m_rows.size(); i < ie; ++i)
+	{
+		m_rows.push_back(m_batch.m_rows[i]);
+		int const curr_cols = m_batch.m_rows[i].size();
+		cols = cols < curr_cols ? curr_cols : cols;
+		m_tree_node_ptrs.push_back(m_batch.m_tree_node_ptrs[i]);
+		m_layers.push_back(m_batch.m_layers[i]);
+		m_rowTypes.push_back(m_batch.m_rowTypes[i]);
+	}
+	endInsertRows();
+
+	bool new_cols = false;
+	int cols_first = 0;
+	int cols_last = 0;
+	if (m_columnCount < cols)
+	{
+		new_cols = true;
+		cols_first = m_columnCount;
+		cols_last = cols - 1;
+	}
+
+	if (new_cols)
+	{
+		beginInsertColumns(QModelIndex(), cols_first, cols_last);
+		qDebug("mod  COL  beginInsertCols(%02i, %02i) ", cols_first, cols_last);
+		insertColumns(cols_first, cols_last);
+		if (m_columnCount < cols_last + 1)
+			m_columnCount = cols_last + 1;
+		endInsertColumns();
+	}
+}
+
+void LogTableModel::parseCommand (DecodedCommand const & cmd, E_ReceiveMode mode, BatchCmd & batch)
 {
 	int column_index = -1;
 	int thread_idx = -1;
@@ -40,21 +92,16 @@ void LogTableModel::appendCommand (QAbstractProxyModel * filter, tlv::StringComm
 				qindent.append("  ");	// @TODO: ugh
 	}
 
-	m_rows.push_back(columns_t(cmd.tvs.size()));
-	m_tree_node_ptrs.push_back(0);
-	m_layers.push_back(indent);
-	m_rowTypes.push_back(cmd.hdr.cmd);
-	columns_t & columns = m_rows.back();
+	batch.m_rows.push_back(columns_t(cmd.tvs.size()));
+	batch.m_tree_node_ptrs.push_back(0);
+	batch.m_layers.push_back(indent);
+	batch.m_rowTypes.push_back(cmd.hdr.cmd);
+	columns_t & columns = batch.m_rows.back();
 	columns.reserve(cmd.tvs.size());
 
 	size_t n = cmd.tvs.size();
 	if (cmd.hdr.cmd == tlv::cmd_scope_entry || (cmd.hdr.cmd == tlv::cmd_scope_exit))
 		n = n + 1;
-	
-	//if (m_main_window->dtEnabled())
-		n = n + 1;
-
-	columns.resize(n);
 
 	QString file;
 	QString line;
@@ -86,26 +133,48 @@ void LogTableModel::appendCommand (QAbstractProxyModel * filter, tlv::StringComm
 		if (column_index < 0)
 		{
 			column_index = m_log_widget.appendColumn(tag);
-
-			if (filter)
-			{
-				filter->insertColumn(column_index);
-			}
 		}
-		columns[column_index] = qval;
+		columns[column_index].m_value = qval;
 	}
 
-	//if (m_main_window->dtEnabled())
+
+	void const * node = m_log_widget.filterWidget()->fileModel()->insertItem(file + "/" + line);
+	batch.m_tree_node_ptrs.back() = node;
+
+	unsigned long long t = time.toULongLong();
+	//if (m_config.m_dt_enabled)
+	//	n = n + 1;
+
+		//m_col_times[ix] = t;
+
+	/*if (new_cols)
+	{
+		beginInsertColumns(QModelIndex(), cols_first, cols_last);
+		qDebug("mod  COL  beginInsertCols(%02i, %02i) ", cols_first, cols_last);
+		insertColumns(cols_first, cols_last);
+		if (m_columnCount < cols_last + 1)
+			m_columnCount = cols_last + 1;
+		endInsertColumns();
+	}*/
+
+	/*
+	for (int ix = x, ixe = x + n_cols; ix < ixe; ++ix)
+	{
+		QModelIndex const idx = index(y, ix, QModelIndex());
+		emit dataChanged(idx, idx);
+		if (m_proxy)
+			m_proxy->setData(idx, m_rows[y][ix].m_value, Qt::EditRole);
+	}
+	*/
+
+
+/*	if (m_config.m_dt_enabled)
 	{
 		int const tag = tlv::tag_max_value + 1;
 		int ci = m_log_widget.findColumn4Tag(static_cast<tlv::tag_t>(tag));
 		if (ci < 0)
 		{
 			ci = m_log_widget.appendColumn(tag);
-			if (filter)
-			{
-				filter->insertColumn(ci);
-			}
 		}
 
 		unsigned long long const last_t = m_log_widget.getTLS().lastTime(thread_idx);
@@ -136,22 +205,11 @@ void LogTableModel::appendCommand (QAbstractProxyModel * filter, tlv::StringComm
 			columns[column_index] = qindent + QString("} ") + msg;
 		}
 	}
+*/
 
-	if (filter)
-	{
-		int const row = filter->rowCount();
-		filter->insertRow(row);
-	}
-	else
-	{
-		int const row = rowCount();
-		insertRow(row);
-	}
 
-	void const * node = m_log_widget.filterWidget()->fileModel()->insertItem(file + "/" + line);
-	m_tree_node_ptrs.back() = node;
+
 }
-
 
 /*LogTableModel::LogTableModel (QObject * parent, logs::LogWidget & lw)
 	: QAbstractTableModel(parent)
