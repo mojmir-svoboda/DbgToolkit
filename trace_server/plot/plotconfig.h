@@ -177,5 +177,6 @@ namespace plot {
 
 	bool loadConfig (PlotConfig & config, QString const & fname);
 	bool saveConfig (PlotConfig const & config, QString const & fname);
+	void fillDefaultConfig (PlotConfig & config);
 }
 

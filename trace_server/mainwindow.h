@@ -145,14 +145,15 @@ public:
 	//OBS bool statsEnabled () const;
 	//OBS bool filterPaneVertical () const;
 	QList<QColor> const & getThreadColors () const { return m_config.m_thread_colors; }
-	columns_setup_t const & getColumnSetup (int i) const { return m_config.m_columns_setup.at(i); }
+
+	/*columns_setup_t const & getColumnSetup (int i) const { return m_config.m_columns_setup.at(i); }
 	columns_setup_t & getColumnSetup (int i) { return m_config.m_columns_setup[i]; }
 	columns_sizes_t const & getColumnSizes (int i) const { return m_config.m_columns_sizes.at(i); }
 	columns_sizes_t & getColumnSizes (int i) { return m_config.m_columns_sizes[i]; }
 	columns_align_t const & getColumnAlign (int i) const { return m_config.m_columns_align.at(i); }
 	columns_align_t & getColumnAlign (int i) { return m_config.m_columns_align[i]; }
 	columns_elide_t const & getColumnElide (int i) const { return m_config.m_columns_elide.at(i); }
-	columns_align_t & getColumnElide (int i) { return m_config.m_columns_elide[i]; }
+	columns_align_t & getColumnElide (int i) { return m_config.m_columns_elide[i]; }*/
 
 
 	

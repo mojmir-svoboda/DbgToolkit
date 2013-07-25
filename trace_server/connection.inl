@@ -9,6 +9,38 @@ bool Connection::loadConfigFor (QString const & preset_name, typename SelectConf
 	return loadConfig(config, fname);
 }
 
+inline void Connection::defaultConfigFor (logs::LogConfig & config)
+{
+	QString const & appname = getAppName();
+	int const idx = m_main_window->findAppName(appname);
+	if (idx != e_InvalidItem)
+	{
+		convertBloodyBollockyBuggeryRegistry(config);
+		return;
+	}
+	fillDefaultConfig(config);
+}
+inline void Connection::defaultConfigFor (plot::PlotConfig & config)
+{
+	fillDefaultConfig(config);
+}
+inline void Connection::defaultConfigFor (table::TableConfig & config)
+{
+	fillDefaultConfig(config);
+}
+inline void Connection::defaultConfigFor (gantt::GanttConfig & config)
+{
+	fillDefaultConfig(config);
+}
+
+
+template <int TypeN>
+void Connection::defaultConfigFor (typename SelectConfig<TypeN>::type & config, QString const & tag)
+{
+	defaultConfigFor(config);
+	config.m_tag = tag;
+}
+
 template <int TypeN>
 typename SelectIterator<TypeN>::type  Connection::dataWidgetFactory (QString const tag)
 {
@@ -32,7 +64,11 @@ typename SelectIterator<TypeN>::type  Connection::dataWidgetFactory (QString con
 		if (!preset_name.isEmpty())
 		{
 			fname = getDataTagFileName(getConfig().m_appdir, preset_name, preset_prefix, tag);
-			loadConfigFor<TypeN>(preset_name, template_config, tag);
+			bool const loaded = loadConfigFor<TypeN>(preset_name, template_config, tag);
+			if (!loaded)
+			{
+				defaultConfigFor<TypeN>(template_config, tag);
+			}
 		}
 		
 		typedef typename SelectDockedData<TypeN, dockeddata_t>::type data_t;

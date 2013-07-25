@@ -25,6 +25,7 @@ public:
     Ui::FilterWidget * ui;
 
 	void loadConfig (QString const & path, FilterState & config);
+	void loadConfig (QString const & path);
 	void saveConfig (QString const & path);
 	void applyConfig (FilterState const & src, FilterState & dst);
 

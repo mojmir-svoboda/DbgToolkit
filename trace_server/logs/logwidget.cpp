@@ -267,12 +267,15 @@ namespace logs {
 	void LogWidget::loadConfig (QString const & path)
 	{
 		QString const logpath = path + "/" + g_presetLogTag + "/" + m_config.m_tag;
+		logs::loadConfig(m_config, logpath);
+		filterWidget()->loadConfig(logpath);
 	}
 
 	void LogWidget::saveConfig (QString const & path)
 	{
 		QString const logpath = path + "/" + g_presetLogTag + "/" + m_config.m_tag;
 
+		logs::saveConfig(m_config, logpath);
 		filterWidget()->saveConfig(logpath);
 	}
 
@@ -639,11 +642,20 @@ void FilterState::setupColumnsCSV (QList<QString> * cs_template, columns_sizes_t
 	*m_columns_setup_current = *m_columns_setup_template;
 }*/
 
-int LogWidget::findColumn4Tag (tlv::tag_t tag) const
+int LogWidget::findColumn4Tag (tlv::tag_t tag)
 {
 	QMap<tlv::tag_t, int>::const_iterator it = m_tags2columns.find(tag);
 	if (it != m_tags2columns.end())
 		return it.value();
+
+	char const * name = tlv::get_tag_name(tag);
+	QString const qname = QString(name);
+	for (int i = 0, ie = m_config.m_columns_setup.size(); i < ie; ++i)
+		if (m_config.m_columns_setup[i] == qname)
+		{
+			m_tags2columns.insert(tag, i);
+			return i;
+		}
 	return -1;
 }
 

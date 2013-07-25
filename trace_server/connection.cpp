@@ -317,3 +317,27 @@ void Connection::loadConfigs (QString const & path)
 {
 	recurse(m_data, Load(path));
 }
+
+// legacy configs
+template <class SrcT, class DstT>
+void assignSrcToDst (SrcT & src, DstT & dst)
+{
+	dst.reserve(src.size());
+	for (int i = 0, ie = src.size(); i < ie; ++i)
+		dst.push_back(src.at(i));
+}
+
+void Connection::convertBloodyBollockyBuggeryRegistry (logs::LogConfig & cfg)
+{
+	qDebug("%s", __FUNCTION__);
+	int const i = m_main_window->findAppName(getAppName());
+	if (i != e_InvalidItem)
+	{
+		assignSrcToDst(m_main_window->m_config.m_columns_setup[i], cfg.m_columns_setup);
+		assignSrcToDst(m_main_window->m_config.m_columns_sizes[i], cfg.m_columns_sizes);
+		assignSrcToDst(m_main_window->m_config.m_columns_align[i], cfg.m_columns_align);
+		assignSrcToDst(m_main_window->m_config.m_columns_elide[i], cfg.m_columns_elide);
+	}
+}
+
+

@@ -144,7 +144,7 @@ namespace logs {
 	bool isModelProxy () const;
 
 	int findColumn4TagInTemplate (tlv::tag_t tag) const;
-	int findColumn4Tag (tlv::tag_t tag) const;
+	int findColumn4Tag (tlv::tag_t tag);
 	int appendColumn (tlv::tag_t tag);
 
 	ThreadSpecific & getTLS () { return m_tls; }

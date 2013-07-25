@@ -5,7 +5,7 @@
 #include <boost/serialization/utility.hpp>
 #include <boost/serialization/serialization.hpp>
 #include <boost/serialization/vector.hpp>
-#include "../serialize/ser_qt.h"
+#include <serialize/ser_qt.h>
 #include <fstream>
 #include <sstream>
 
@@ -29,6 +29,11 @@ namespace gantt {
 		oa << BOOST_SERIALIZATION_NVP(config);
 		ofs.close();
 		return true;
+	}
+
+	void fillDefaultConfig (GanttConfig & config)
+	{
+		config = GanttConfig();
 	}
 }
 

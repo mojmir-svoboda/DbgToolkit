@@ -123,6 +123,15 @@ void FilterWidget::loadConfig (QString const & fname, FilterState & config)
 	}
 }
 
+void FilterWidget::loadConfig (QString const & fname)
+{
+	FilterState dummy;
+	if (loadFilterState(dummy, fname.toStdString()))
+	{
+		applyConfig(dummy, m_filter_state);
+	}
+}
+
 void FilterWidget::saveConfig (QString const & path)
 {
 	QString const fname = path + "/" + g_filterStateTag;

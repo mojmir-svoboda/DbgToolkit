@@ -30,6 +30,11 @@ namespace logs {
 		ofs.close();
 		return true;
 	}
+
+	void fillDefaultConfig (LogConfig & config)
+	{
+		config = LogConfig();
+	}
 }
 
 

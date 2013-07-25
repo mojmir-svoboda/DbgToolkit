@@ -60,5 +60,6 @@ namespace table {
 
 	bool loadConfig (TableConfig & config, QString const & fname);
 	bool saveConfig (TableConfig const & config, QString const & fname);
+	void fillDefaultConfig (TableConfig & config);
 }
 

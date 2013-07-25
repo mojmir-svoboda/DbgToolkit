@@ -706,27 +706,6 @@ void MainWindow::storeState ()
 #endif
 }
 
-template <class SrcT, class DstT>
-void assignSrcToDst (SrcT & src, DstT & dst)
-{
-	dst.reserve(src.size());
-	for (int i = 0, ie = src.size(); i < ie; ++i)
-		dst.push_back(src.at(i));
-}
-
-void MainWindow::convertBloodyBollockyBuggeryRegistry ()
-{
-	qDebug("%s", __FUNCTION__);
-	for (int i = 0, ie = m_config.m_app_names.size(); i < ie; ++i)
-	{
-		logs::LogConfig cfg;
-		assignSrcToDst(m_config.m_columns_setup[i], cfg.m_columns_setup);
-		assignSrcToDst(m_config.m_columns_sizes[i], cfg.m_columns_sizes);
-		assignSrcToDst(m_config.m_columns_align[i], cfg.m_columns_align);
-		assignSrcToDst(m_config.m_columns_elide[i], cfg.m_columns_elide);
-	}
-}
-
 void MainWindow::loadState ()
 {
 	qDebug("%s", __FUNCTION__);
@@ -821,8 +800,6 @@ void MainWindow::loadState ()
 		for (size_t i = Qt::white; i < Qt::transparent; ++i)
 			m_config.m_thread_colors.push_back(QColor(static_cast<Qt::GlobalColor>(i)));
 	}
-
-	convertBloodyBollockyBuggeryRegistry();
 
 #ifdef WIN32
 	unsigned const hotkeyCode = settings.value("hotkeyCode").toInt();

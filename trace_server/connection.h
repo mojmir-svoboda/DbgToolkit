@@ -317,6 +317,15 @@ protected:
 	template <int TypeN>
 	bool loadConfigFor (QString const & preset_name, typename SelectConfig<TypeN>::type & config, QString const & tag);
 
+
+	template <int TypeN>
+	void defaultConfigFor (typename SelectConfig<TypeN>::type & config, QString const & tag);
+	void defaultConfigFor (logs::LogConfig & config);
+	void defaultConfigFor (plot::PlotConfig & config);
+	void defaultConfigFor (table::TableConfig & config);
+	void defaultConfigFor (gantt::GanttConfig & config);
+	void convertBloodyBollockyBuggeryRegistry (logs::LogConfig & cfg);
+
 	datalogs_t::iterator findOrCreateLog (QString const & tag);
 	//void appendLog (DecodedCommand const &);
 

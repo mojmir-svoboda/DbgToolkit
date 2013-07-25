@@ -110,6 +110,7 @@ namespace logs {
 
 	bool loadConfig (LogConfig & config, QString const & fname);
 	bool saveConfig (LogConfig const & config, QString const & fname);
+	void fillDefaultConfig (LogConfig & config);
 }
 
 /*

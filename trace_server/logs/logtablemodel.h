@@ -45,6 +45,7 @@ struct BatchCmd {
 	layers_t m_layers;
 	row_types_t m_rowTypes;
 
+	void clear () { m_rows.clear(); m_tree_node_ptrs.clear(); m_layers.clear(); m_rowTypes.clear(); }
 };
 
 class LogTableModel : public TableModelView

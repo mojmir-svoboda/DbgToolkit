@@ -5,7 +5,7 @@
 #include <boost/serialization/utility.hpp>
 #include <boost/serialization/serialization.hpp>
 #include <boost/serialization/vector.hpp>
-#include "../serialize/ser_qt.h"
+#include <serialize/ser_qt.h>
 #include <fstream>
 #include <sstream>
 
@@ -30,6 +30,12 @@ namespace plot {
 		ofs.close();
 		return true;
 	}
+
+	void fillDefaultConfig (PlotConfig & config)
+	{
+		config = PlotConfig();
+	}
+
 }
 
 
