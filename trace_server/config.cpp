@@ -13,7 +13,7 @@
 #include <fstream>
 #include <sstream>
 
-bool saveHistory (History<QString> const & h, char const * filename)
+bool saveHistoryState (History<QString> const & h, char const * filename)
 {
     std::ofstream ofs(filename);
     if (!ofs) return false;
@@ -23,7 +23,7 @@ bool saveHistory (History<QString> const & h, char const * filename)
     return true;
 }
 
-bool loadHistory (History<QString> & h, char const * filename)
+bool loadHistoryState (History<QString> & h, char const * filename)
 {
     std::ifstream ifs(filename);
     if (!ifs) return false;
@@ -33,16 +33,20 @@ bool loadHistory (History<QString> & h, char const * filename)
 	return true;
 }
 
-void GlobalConfig::loadSearchHistory ()
+void GlobalConfig::loadHistory ()
 {
-	QString const filename = m_appdir + "/search_history.xml";
-	loadHistory(m_search_history, filename.toLatin1());
+	QString const sfilename = m_appdir + "/search_history.xml";
+	loadHistoryState(m_search_history, sfilename.toLatin1());
+	QString const pfilename = m_appdir + "/preset_history.xml";
+	loadHistoryState(m_preset_history, pfilename.toLatin1());
 }
 
-void GlobalConfig::saveSearchHistory () const
+void GlobalConfig::saveHistory () const
 {
-	QString const filename = m_appdir + "/search_history.xml";
-	saveHistory(m_search_history, filename.toLatin1());
+	QString const sfilename = m_appdir + "/search_history.xml";
+	QString const pfilename = m_appdir + "/preset_history.xml";
+	saveHistoryState(m_search_history, sfilename.toLatin1());
+	saveHistoryState(m_preset_history, pfilename.toLatin1());
 }
 
 

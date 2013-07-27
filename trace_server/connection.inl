@@ -59,11 +59,47 @@ typename SelectIterator<TypeN>::type  Connection::dataWidgetFactory (QString con
 		config_t template_config;
 		template_config.m_tag = tag;
 
-		QString const preset_name = m_main_window->matchClosestPresetName(getAppName());
-		QString fname;
+		QString preset_name = m_main_window->matchClosestPresetName(getAppName());
+		if (preset_name.isEmpty())
+		{
+			QStringList subdirs;
+			if (int const n = findPresetsForApp(getConfig().m_appdir, getAppName(), subdirs))
+			{
+				bool default_present = false;
+				QStringList candidates;
+				foreach (QString const & s, subdirs)
+				{
+					QString test_preset_name = getAppName() + "/" + s;
+					QString const cfg_fname = getDataTagFileName(getConfig().m_appdir, test_preset_name, preset_prefix, tag);
+					if (existsFile(cfg_fname))
+					{
+						if (s == QString(g_defaultPresetName))
+							default_present = true;
+						candidates << test_preset_name;
+					}
+
+					m_main_window->mentionInPresetHistory(test_preset_name);
+				}
+
+				if (default_present)
+					preset_name = getAppName() + "/" + g_defaultPresetName;
+				else
+				{
+					if (candidates.size())
+						preset_name = candidates.at(0);
+				}
+			}
+		}
+
+		if (preset_name.isEmpty())
+		{
+			preset_name = getPresetPath(getAppName(), g_defaultPresetName); // fallback to default
+		}
+
+		m_main_window->mentionInPresetHistory(preset_name);
+		QString const fname = getDataTagFileName(getConfig().m_appdir, preset_name, preset_prefix, tag);
 		if (!preset_name.isEmpty())
 		{
-			fname = getDataTagFileName(getConfig().m_appdir, preset_name, preset_prefix, tag);
 			bool const loaded = loadConfigFor<TypeN>(preset_name, template_config, tag);
 			if (!loaded)
 			{

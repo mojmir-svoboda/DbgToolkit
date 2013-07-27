@@ -96,7 +96,7 @@ namespace tlv {
 				size_t const consumed = stream.read(local_buffer, to_read);
 				if (consumed == 0)
 					return false;
-				val += QString::fromLatin1(local_buffer, consumed);
+				val += QString::fromLatin1(local_buffer, static_cast<int>(consumed));
 				rd += to_read;
 			}
 			val.squeeze();

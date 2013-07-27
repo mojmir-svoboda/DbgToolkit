@@ -197,7 +197,7 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QStri
 	//connect(ui->clrFiltersCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onClrFiltersStateChanged(int)));
 	connect(ui->activatePresetButton, SIGNAL(clicked()), this, SLOT(onPresetActivate()));
 	connect(ui->presetComboBox, SIGNAL(activated(int)), this, SLOT(onPresetChanged(int)));
-	connect(ui->presetAddButton, SIGNAL(clicked()), this, SLOT(onAddCurrentState()));
+	connect(ui->presetAddButton, SIGNAL(clicked()), this, SLOT(onAddPreset()));
 	connect(ui->presetRmButton, SIGNAL(clicked()), this, SLOT(onRmCurrentState()));
 	connect(ui->presetSaveButton, SIGNAL(clicked()), this, SLOT(onSaveCurrentState()));
 	connect(ui->presetResetButton, SIGNAL(clicked()), this, SLOT(onClearCurrentState()));
@@ -712,7 +712,7 @@ void MainWindow::loadState ()
 	m_config.m_app_names.clear();
 	m_config.m_columns_setup.clear();
 	m_config.m_columns_sizes.clear();
-	m_config.loadSearchHistory();
+	m_config.loadHistory();
 	//updateSearchHistory();
 
 	QSettings settings("MojoMir", "TraceServer");

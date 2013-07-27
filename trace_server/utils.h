@@ -22,6 +22,7 @@
 #pragma once
 #include <QString>
 #include <QDir>
+#include <QDirIterator>
 #include <QFile>
 #include <QSettings>
 #include "constants.h"
@@ -35,6 +36,24 @@ void clearListView (C * v)
 	}
 }
 
+inline bool existsFile (char const * fname) { QFile file(fname); return file.exists(); }
+inline bool existsFile (QString const & fname) { QFile file(fname); return file.exists(); }
+
+inline bool validatePresetName (QString const & str)
+{
+	int const slash_pos = str.lastIndexOf(QChar('/'));
+	bool const slash_present = (slash_pos != -1);
+	// @TODO: some more checks? make in tmp, verify in tmp, return result
+	return slash_present;
+}
+
+inline bool checkPresetPath (QString const & appdir, QString const & preset_name)
+{
+	QString presetdir = appdir + "/" + preset_name;
+	if (existsFile(presetdir))
+		return true;
+	return false;
+}
 
 inline QString createPresetPath (QString const & appdir, QString const & preset_name)
 {
@@ -63,12 +82,17 @@ inline QString getDataTagFileName (QString const & appdir, QString const & prese
 	return fname;
 }
 
-
-
-inline bool existsFile (char const * fname)
+inline int findPresetsForApp (QString const & appdir, QString const & appname, QStringList & presets)
 {
-	QFile file(fname);
-	return file.exists();
+	QString presetdir = appdir + "/" + appname;
+
+    QDirIterator directories(presetdir, QDir::Dirs | QDir::NoDotAndDotDot, QDirIterator::Subdirectories);
+     
+    while (directories.hasNext()) {
+    	directories.next();
+    	presets << directories.fileName();
+    }
+	return presets.size();
 }
 
 inline QString getPresetPath (QString const & app_name, QString const & name)

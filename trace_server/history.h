@@ -53,6 +53,8 @@ struct History
 		m_dict.reserve(m_key_limit);
 	}
 
+	void sort () { std::sort(m_dict.begin(), m_dict.end()); }
+
 	void insert (typename boost::call_traits<KeyT>::param_type key)
 	{
 		unsigned const key_hash = hash<KeyT>()(key);
@@ -65,12 +67,33 @@ struct History
 			}
 		}
 
-		std::sort(m_dict.begin(), m_dict.end());
+		sort();
 
 		// item not found, replace another
 		if (m_dict.size() >= m_key_limit)
 			m_dict.pop_back();
 		m_dict.push_back(ItemInfo<KeyT>(key));
+	}
+
+	void insert_no_refcount (typename boost::call_traits<KeyT>::param_type key)
+	{
+		if (!find(key))
+			m_dict.push_back(ItemInfo<KeyT>(key));
+	}
+
+
+	bool find (typename boost::call_traits<KeyT>::param_type key)
+	{
+		unsigned const key_hash = hash<KeyT>()(key);
+		for (size_t i = 0, ie = m_dict.size(); i < ie; ++i)
+			if (m_dict[i].m_hash == key_hash && m_dict[i].m_key == key)
+				return true;
+		return false;
+	}
+
+	void remove (typename boost::call_traits<KeyT>::param_type key)
+	{
+		m_dict.erase(std::remove(m_dict.begin(), m_dict.end(), key), m_dict.end());
 	}
 
 	template <class ArchiveT>

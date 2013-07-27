@@ -82,30 +82,21 @@ public:
 
 
 	// presets
-	void reloadPresetList ();
-	int findPresetName (QString const & name)
-	{
-		for (int i = 0, ie = m_config.m_preset_names.size(); i < ie; ++i)
-			if (m_config.m_preset_names[i] == name)
-				return i;
-		return e_InvalidItem;
-	}
+	int findRegistryPresetName (QString const & name);
+	int addRegistryPresetName (QString const & name);
 	void saveLayout (QString const & preset_name);
 	void loadLayout (QString const & preset_name);
 	void saveSession (SessionState const & s, QString const & preset_name) const;
 	bool loadSession (SessionState & s, QString const & preset_name);
-	int addPresetName (QString const & name)
-	{
-		m_config.m_preset_names.push_back(name);
-		return static_cast<int>(m_config.m_preset_names.size()) - 1;
-	}
-	void setPresetNameIntoComboBox (QString const & pname);
-	void onPresetActivate (QString const & pname);
+
 	void onPresetActivate (Connection * conn, QString const & pname);
 	QString getCurrentPresetName () const;
 	QString promptAndCreatePresetName (QString const & app_name);
 	QString getValidCurrentPresetName ();
 	QString matchClosestPresetName (QString const & appname);
+	void setPresetAsCurrent (QString const & pname);
+	void mentionInPresetHistory (QString const & str);
+	void syncPresetWithHistory ();
 
 
 	QTreeView const * getDockedWidgetsTreeView () const;
@@ -195,6 +186,8 @@ public slots:
 	void onCloseMarkedTabs ();
 	void onCloseTabWithIndex (int idx);
 	void onCloseCurrentTab ();
+	void onPresetActivate ();
+	void onPresetActivate (int idx);
 
 	friend class Connection;
 private slots:
@@ -221,13 +214,11 @@ private slots:
 	void iconActivated (QSystemTrayIcon::ActivationReason reason);
 
 	// preset
-	void onPresetActivate (int idx);
 	void onPresetChanged (int idx);
-	void onPresetActivate ();
 	void onSaveAllButton ();
 	void onSaveCurrentState ();
 	void onSaveCurrentStateTo (QString const & name);
-	void onAddCurrentState ();
+	void onAddPreset ();
 	void onRmCurrentState ();
 
 	void onLevelValueChanged (int i);

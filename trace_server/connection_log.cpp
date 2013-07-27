@@ -159,16 +159,12 @@ datalogs_t::iterator Connection::findOrCreateLog (QString const & tag)
 
 void Connection::onTabTraceFocus ()
 {
-	//@TODO
-	/*setupModelFile();
-	setupModelLvl();
-	m_main_window->getWidgetCtx()->setModel(m_ctx_model);
-	m_main_window->getWidgetTID()->setModel(m_tid_model);
-	m_main_window->getWidgetColorRegex()->setModel(m_color_regex_model);
-	m_main_window->getWidgetRegex()->setModel(m_regex_model);
-	m_main_window->getWidgetString()->setModel(m_string_model);*/
 	if (!m_curr_preset.isEmpty())
-		m_main_window->setPresetNameIntoComboBox(m_curr_preset);
+		m_main_window->setPresetAsCurrent(m_curr_preset);
+
+	// @TODO: set app level to spinbox
+	// @TODO: set app buffering to spinbox
+
 	//m_main_window->setLastSearchIntoCombobox(m_last_search);
 }
 

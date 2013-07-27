@@ -274,7 +274,7 @@ private slots:
 protected:
 	friend class Server;
 	friend class MainWindow;
-	friend class DataLog;
+	friend struct DataLog;
 	enum {
 		e_data_ok = 0,
 		e_data_pipe_full,

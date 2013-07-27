@@ -14,9 +14,10 @@ struct GlobalConfig {
 	QList<columns_align_t> m_columns_align;		/// column align for each registered application
 	QList<columns_elide_t> m_columns_elide;		/// column elide for each registered application
 	QList<QColor> m_thread_colors;				/// predefined coloring of threads
-	QList<QString> m_preset_names;				/// registered presets
+	QList<QString> m_registry_pnames;			/// legacy preset names from registry
 	QString m_last_search;
 	History<QString> m_search_history;
+	History<QString> m_preset_history;
 
 	QString m_trace_addr;
 	unsigned short m_trace_port;
@@ -30,10 +31,11 @@ struct GlobalConfig {
 		, m_was_maximized(false)
 		, m_dump_mode(false)
 		, m_search_history(16)
+		, m_preset_history(16)
 	{ }
 
-	void loadSearchHistory ();
-	void saveSearchHistory () const;
+	void loadHistory ();
+	void saveHistory () const;
 };
 
 struct CollapsedBlock {
