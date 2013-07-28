@@ -51,8 +51,8 @@ QString MainWindow::promptAndCreatePresetName (QString const & app_name)
 		items.push_front(default_pname);
 
 		QString preset_name;
-		bool ok = false;
-		while (!ok)
+		bool ok = true;
+		while (ok)
 		{
 			QString const pname = QInputDialog::getItem(this, tr("Save current preset"), tr("Preset name:"), items, 0, true, &ok);
 			if (ok && !validatePresetName(pname))
@@ -220,6 +220,7 @@ void MainWindow::onPresetActivate (Connection * conn, QString const & preset_nam
 	if (checkPresetPath(m_config.m_appdir, preset_name))
 	{
 		conn->loadConfigs(preset_name);
+		conn->applyConfigs();
 		loadLayout(preset_name);
 		m_config.m_preset_history.insert(preset_name);
 		syncPresetWithHistory();

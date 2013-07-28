@@ -29,6 +29,7 @@ namespace logs {
 
 		void loadConfig (QString const & path);
 		void saveConfig (QString const & path);
+		void applyConfig ();
 
 		QList<DecodedCommand> m_queue;
 		void handleCommand (DecodedCommand const & cmd, E_ReceiveMode mode);
@@ -39,6 +40,7 @@ namespace logs {
 		friend class FilterProxyModel;
 
 		bool filterEnabled () const { return m_config.m_filtering; }
+		int sizeHintForColumn (int column) const;
 
 	void setupSeparatorChar (QString const & c);
 	QString separatorChar () const;
@@ -193,7 +195,6 @@ namespace logs {
 		void onEditFindNext ();
 		void onEditFindPrev ();
 		void onDumpFilters ();
-		void applyConfig ();
 		void onTableClicked (QModelIndex const & row_index);
 		void onTableDoubleClicked (QModelIndex const & row_index);
 		void onApplyColumnSetup ();

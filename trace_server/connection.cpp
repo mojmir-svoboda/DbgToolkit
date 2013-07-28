@@ -296,6 +296,17 @@ struct Load {
 	}
 };
 
+struct Apply {
+
+	template <class T>
+	void operator() (T const & t)
+	{
+		typedef typename T::const_iterator it_t;
+		for (it_t it = t.begin(), ite = t.end(); it != ite; ++it)
+			(*it)->widget().applyConfig();
+	}
+};
+
 void Connection::onSaveAll ()
 {
 	qDebug("%s", __FUNCTION__);
@@ -316,6 +327,11 @@ void Connection::saveConfigs (QString const & path)
 void Connection::loadConfigs (QString const & path)
 {
 	recurse(m_data, Load(path));
+}
+
+void Connection::applyConfigs ()
+{
+	recurse(m_data, Apply());
 }
 
 // legacy configs

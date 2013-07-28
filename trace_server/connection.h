@@ -226,6 +226,7 @@ public:
 
 	void saveConfigs (QString const & preset_name);
 	void loadConfigs (QString const & preset_name);
+	void applyConfigs ();
 
 	void requestTableSynchronization (int sync_group, unsigned long long time);
 	void requestTableWheelEventSync (int sync_group, QWheelEvent * ev, QTableView const * source);

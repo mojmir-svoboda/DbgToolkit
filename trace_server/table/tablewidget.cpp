@@ -89,6 +89,11 @@ namespace table {
 		hide();
 	}
 
+	void TableWidget::applyConfig ()
+	{
+		applyConfig(m_config);
+	}
+
 	void TableWidget::applyConfig (TableConfig & cfg)
 	{
 		qDebug("%s this=0x%08x", __FUNCTION__, this);

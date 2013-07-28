@@ -225,11 +225,43 @@ namespace logs {
 		//connect(ui->logViewComboBox, SIGNAL(activated(int)), this, SLOT(onLogViewActivate(int)));
 	}
 
+	void LogWidget::applyConfig ()
+	{
+		applyConfig(m_config);
+	}
+
 	void LogWidget::applyConfig (LogConfig & cfg)
 	{
 		//qDebug("%s this=0x%08x", __FUNCTION__, this);
-		Ui::SettingsLog * ui = m_config_ui.ui();
+		//Ui::SettingsLog * ui = m_config_ui.ui();
+		horizontalHeader()->resizeSections(QHeaderView::Fixed);
+		//horizontalHeader()->resizeSectionItem(c, 32, );
+		bool const old = blockSignals(true);
+		for (int c = 0, ce = m_config.m_columns_sizes.size(); c < ce; ++c)
+			horizontalHeader()->resizeSection(c, m_config.m_columns_sizes.at(c));
+		blockSignals(old);
 
+	}
+
+	int LogWidget::sizeHintForColumn (int column) const
+	{
+		/*if (idx < m_config.m_columns_setup.size())
+		{
+			m_config.m_columns_sizes[idx] = new_size;
+		}*/
+
+		//@TODO: proxy !!!!!!!!!!!!!!!!!!
+		//int const idx = !isModelProxy() ? c : static_cast<SparseProxyModel *>(m_proxy_model)->colToSource(c);
+		int const idx = column;
+		//qDebug("table: on rsz hdr[%i -> src=%02i ]  %i->%i\t\t%s", c, idx, old_size, new_size, m_config.m_hhdr.at(idx).toStdSt
+		if (idx < 0) return 64;
+		int const curr_sz = m_config.m_columns_sizes.size();
+		if (idx < curr_sz)
+		{
+			//qDebug("%s this=0x%08x hsize[%i]=%i", __FUNCTION__, this, idx, new_size);
+			return m_config.m_columns_sizes[idx];
+		}
+		return 32;
 	}
 
 	void LogWidget::setConfigValuesToUI (LogConfig const & cfg)
@@ -261,7 +293,7 @@ namespace logs {
 	void LogWidget::onApplyButton ()
 	{
 		setUIValuesToConfig(m_config);
-		applyConfig(m_config);
+		applyConfig();
 	}
 
 	void LogWidget::loadConfig (QString const & path)
@@ -569,9 +601,9 @@ void LogWidget::handleCommand (DecodedCommand const & cmd, E_ReceiveMode mode)
 }
 
 
-void LogWidget::applyConfig ()
+/*void LogWidget::applyConfig ()
 {
-/*	settings.setValue("autoScrollCheckBox", ui->autoScrollCheckBox->isChecked());
+	settings.setValue("autoScrollCheckBox", ui->autoScrollCheckBox->isChecked());
 	settings.setValue("inViewCheckBox", ui->inViewCheckBox->isChecked());
 	settings.setValue("filterFileCheckBox", ui->filterFileCheckBox->isChecked());
 	settings.setValue("clrFiltersCheckBox", ui_settings->clrFiltersCheckBox->isChecked());
@@ -587,10 +619,9 @@ void LogWidget::applyConfig ()
 	settings.setValue("tableFontComboBox", ui_settings->tableFontComboBox->currentText());
 	settings.setValue("cutPathSpinBox", ui_settings->cutPathSpinBox->value());
 	settings.setValue("cutNamespaceSpinBox", ui_settings->cutNamespaceSpinBox->value());
-
+}
 
 */
-}
 
 /*void FilterState::setupColumns (QList<QString> * cs_template, columns_sizes_t * sizes , columns_align_t * ca_template, columns_elide_t * ce_template)
 {
@@ -995,6 +1026,7 @@ void LogWidget::onSectionResized (int c, int /*old_size*/, int new_size)
 		m_config.m_columns_sizes[idx] = new_size;
 	}*/
 
+	//@TODO: proxy !!!!!!!!!!!!!!!!!!
 	//int const idx = !isModelProxy() ? c : static_cast<SparseProxyModel *>(m_proxy_model)->colToSource(c);
 	int const idx = c;
 	//qDebug("table: on rsz hdr[%i -> src=%02i ]  %i->%i\t\t%s", c, idx, old_size, new_size, m_config.m_hhdr.at(idx).toStdString().c_str());

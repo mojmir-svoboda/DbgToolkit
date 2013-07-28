@@ -26,16 +26,17 @@ namespace plot {
 
 		void applyAxis (AxisConfig const & acfg);
 		void applyConfig (PlotConfig const & pcfg);
-
+		
 		void loadConfig (QString const & path);
 		void saveConfig (QString const & path);
-		PlotConfig & getConfig () { return m_config; }
-		PlotConfig const & getConfig () const { return m_config; }
+		void applyConfig ();
 
 		void handleCommand (DecodedCommand const & cmd, E_ReceiveMode mode);
 		void commitCommands (E_ReceiveMode mode);
 
 
+		PlotConfig & getConfig () { return m_config; }
+		PlotConfig const & getConfig () const { return m_config; }
 		Curve * findCurve (QString const & subtag);
 		Curve * findOrCreateCurve (QString const & subtag);
 		curves_t::iterator mkCurve (QString const & subtag);

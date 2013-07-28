@@ -189,6 +189,11 @@ namespace plot {
 		updateAxes();
 	}
 
+	void PlotWidget::applyConfig ()
+	{
+		applyConfig(m_config);
+	}
+
 	void PlotWidget::stopUpdate ()
 	{
 		if (m_timer != -1)

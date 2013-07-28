@@ -40,6 +40,7 @@ namespace table {
 
 		void loadConfig (QString const & path);
 		void saveConfig (QString const & path);
+		void applyConfig ();
 
 	protected:
 		virtual void wheelEvent (QWheelEvent * event);
