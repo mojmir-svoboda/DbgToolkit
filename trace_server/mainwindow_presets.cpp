@@ -55,7 +55,7 @@ QString MainWindow::promptAndCreatePresetName (QString const & app_name)
 		while (ok)
 		{
 			QString const pname = QInputDialog::getItem(this, tr("Save current preset"), tr("Preset name:"), items, 0, true, &ok);
-			if (ok && !validatePresetName(pname))
+			if (ok && validatePresetName(pname))
 			{
 				preset_name = pname;
 				break;
