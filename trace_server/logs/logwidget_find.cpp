@@ -1,7 +1,7 @@
 #include "logwidget.h"
 #include <QStatusBar>
 #include "logs/logtablemodel.h"
-#include <logs/filterproxy.h>
+#include <logs/filterproxymodel.h>
 #include "utils.h"
 
 namespace logs {

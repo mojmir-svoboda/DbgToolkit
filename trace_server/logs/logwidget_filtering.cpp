@@ -5,7 +5,7 @@
 #include <tlv_parser/tlv_encoder.h>
 #include "utils.h"
 #include "utils_qstandarditem.h"
-#include "logs/filterproxy.h"
+#include "filterproxymodel.h"
 #include "logs/logtablemodel.h"
 #include "qtsln/qtcolorpicker/qtcolorpicker.h"
 

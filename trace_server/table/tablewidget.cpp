@@ -1,12 +1,12 @@
 #include "tablewidget.h"
 #include <QScrollBar>
 #include "editableheaderview.h"
-#include "sparseproxy.h"
-#include "../connection.h"
-#include "../utils.h"
-#include "../utils_qstandarditem.h"
-#include "../movablelistmodel.h"
-#include "../delegates.h"
+#include "sparseproxymodel.h"
+#include <connection.h>
+#include <utils.h>
+#include <utils_qstandarditem.h>
+#include <movablelistmodel.h>
+#include <delegates.h>
 
 namespace table {
 
