@@ -135,14 +135,6 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 
 		if (cmd.tvs[i].m_tag == tlv::tag_app)
 		{
-			/*this->setupModelFile();
-			this->setupModelLvl();
-			this->setupModelCtx();
-			this->setupModelTID();
-			this->setupModelColorRegex();
-			this->setupModelRegex();
-			this->setupModelString();*/
-
 			QString app_name = cmd.tvs[i].m_val;
 			if (m_main_window->reuseTabEnabled())
 			{
@@ -166,15 +158,15 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 				{
 					qDebug("cmd setup: looking for app=%s: found", app_name.toStdString().c_str());
 					//m_file_model->beforeLoad();
-					QString const pname = m_main_window->matchClosestPresetName(app_name);
-					m_main_window->onPresetActivate(this, pname);
+					//QString const pname = m_main_window->matchClosestPresetName(app_name);
+					//m_main_window->onPresetActivate(this, pname);
 					//m_file_model->afterLoad();
 				}
 
 			}
 			else
 			{
-				tryLoadMatchingPreset(app_name);
+				//tryLoadMatchingPreset(app_name);
 			}
 
 
@@ -308,17 +300,7 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 				m_app_idx = m_main_window->createAppName(app_name, e_Proto_TLV);
 			}
 
-			/*columns_setup_t & cs_setup = m_main_window->getColumnSetup(sessionState().m_app_idx);
-			columns_sizes_t & cs_sizes = m_main_window->getColumnSizes(sessionState().m_app_idx);
-			columns_align_t & cs_align = m_main_window->getColumnAlign(sessionState().m_app_idx);
-			columns_elide_t & cs_elide = m_main_window->getColumnElide(sessionState().m_app_idx);
-
-			if (cs_setup.empty() || cs_sizes.empty() || cs_align.empty() || cs_elide.empty())
-			{
-				m_main_window->onSetup(e_Proto_TLV, sessionState().m_app_idx, true, true);
-			}
-
-			sessionState().setupColumns(&cs_setup, &cs_sizes, &cs_align, &cs_elide); */
+				//m_main_window->onSetup(e_Proto_TLV, sessionState().m_app_idx, true, true);
 
 			/*
 			m_current_cmd.tvs.reserve(sessionState().getColumnsSetupCurrent()->size());
@@ -343,9 +325,6 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 			connect(m_table_view_widget, SIGNAL(doubleClicked(QModelIndex const &)), this, SLOT(onTableDoubleClicked(QModelIndex const &)));
 			m_table_view_widget->setContextMenuPolicy(Qt::CustomContextMenu);
 			connect(m_table_view_widget, SIGNAL(customContextMenuRequested(QPoint const &)), this, SLOT(onShowContextMenu(QPoint const &)));
-
-			m_table_view_widget->setVisible(true);
-			m_table_view_widget->setItemDelegate(new TableItemDelegate(sessionState(), this));
 
 			m_main_window->getTabTrace()->setCurrentIndex(tab_idx);
 

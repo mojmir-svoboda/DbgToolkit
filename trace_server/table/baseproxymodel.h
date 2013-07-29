@@ -20,35 +20,44 @@
  * SOFTWARE.
  **/
 #pragma once
-#include <QString>
 #include <QAbstractProxyModel>
-#include <QRegExp>
-#include <filters/file_filter.hpp>
-#include "../filterstate.h"
+#include <vector>
+#include <3rd/assocvector.h>
 
-class MainWindow;
-
-namespace logs { class LogWidget; }
-
-class FilterProxyModel : public QAbstractProxyModel
+class BaseProxyModel : public QAbstractProxyModel
 {
 	Q_OBJECT
 
 public:
-	explicit FilterProxyModel (QObject * parent, logs::LogWidget & lw);
+	explicit BaseProxyModel (QObject * parent);
 
-	virtual QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
+	virtual QModelIndex index (int row, int column, QModelIndex const & parent = QModelIndex()) const;
 	virtual QModelIndex parent (QModelIndex const & child) const;
 
 	virtual int rowCount (QModelIndex const & parent = QModelIndex()) const;
 	virtual int columnCount (QModelIndex const & parent = QModelIndex()) const;
 
 	virtual QModelIndex mapToSource (QModelIndex const & proxyIndex) const;
-	virtual QModelIndex mapFromSource (QModelIndex const & sourceIndex) const;
 
-	virtual bool insertRows (int row, int count, QModelIndex const &);
-	virtual bool insertColumns (int column, int count, const QModelIndex &parent = QModelIndex());
+	QModelIndex mapNearestFromSource (QModelIndex const & sourceIndex) const;
+	virtual QModelIndex mapFromSource (QModelIndex const & sourceIndex) const;
+	bool rowInProxy (int row) const;
+	bool colInProxy (int col) const;
+	int colToSource (int col) const;
+	int colFromSource (int col) const;
+
+	//QVariant headerData (int section, Qt::Orientation orientation, int role) const;
+	//bool  setHeaderData (int section, Qt::Orientation orientation, QVariant const & value, int role = Qt::EditRole);
+
+	virtual bool insertRows (int first, int last, QModelIndex const &);
+	virtual bool insertColumns (int first, int last, QModelIndex const & parent = QModelIndex());
+
+	void insertAllowedColumn (int src_col);
+	void removeAllowedColumn (int src_col);
+
 	QVariant data (QModelIndex const & index, int role) const;
+	bool setData (QModelIndex const & index, QVariant const & value, int role);
+
 	Qt::ItemFlags flags (QModelIndex const & index) const;
 
 public slots:
@@ -56,14 +65,19 @@ public slots:
 
 protected:
 
-	bool filterAcceptsRow (int sourceRow, QModelIndex const & sourceParent) const;
+	virtual bool filterAcceptsColumn (int sourceColumn, QModelIndex const & source_parent) const = 0;
+	virtual bool filterAcceptsRow (int sourceRow, QModelIndex const & sourceParent) const = 0;
 
+	typedef Loki::AssocVector<int, int> map_t; // @TODO: reserve
+
+	void insertCol (int c);
+	void insertRow (int c);
+
+	map_t m_cmap_from_src;
+	std::vector<int> m_cmap_from_tgt;
+	map_t m_map_from_src;
 	std::vector<int> m_map_from_tgt;
-	logs::LogWidget & m_log_widget;
-	FilterState & m_filter_state;
-	int m_columns;
-	std::vector<int> m_map_from_src;
-	MainWindow const * m_main_window;
+	std::vector<int> m_allowed_src_cols;
 };
 
 

@@ -34,6 +34,15 @@ FilterWidget::FilterWidget (QWidget * parent)
 {
     ui->setupUi(this);
 	setupModelFile();
+			/*this->setupModelFile();
+			this->setupModelLvl();
+			this->setupModelCtx();
+			this->setupModelTID();
+			this->setupModelColorRegex();
+			this->setupModelRegex();
+			this->setupModelString();*/
+
+
 }
 
 FilterWidget::~FilterWidget ()

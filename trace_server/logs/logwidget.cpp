@@ -7,6 +7,7 @@
 //#include "delegates.h"
 #include <syncwidgets.h>
 #include "logtablemodel.h"
+#include "filterproxymodel.h"
 #include <QInputDialog>
 #include <QFontDialog>
 
@@ -54,7 +55,7 @@ namespace logs {
 		setConfigValuesToUI(m_config);
 		onApplyButton();
 		//setUpdatesEnabled(true);
-		//horizontalHeader()->setSectionsMovable(true);
+		horizontalHeader()->setSectionsMovable(true);
 		//setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 
 		connect(&getSyncWidgets(), SIGNAL( requestTimeSynchronization(int, unsigned long long, void *) ),
@@ -79,6 +80,8 @@ namespace logs {
 		verticalHeader()->hide();	// @NOTE: users want that //@NOTE2: they can't have it because of performance
 		setModel(model);
 		QObject::connect(horizontalHeader(), SIGNAL(sectionResized(int, int, int)), this, SLOT(onSectionResized(int, int, int)));
+		QObject::connect(horizontalHeader(), SIGNAL(sectionMoved(int, int, int)), this, SLOT(onSectionMoved(int, int, int)));
+		setItemDelegate(new TableItemDelegate(*this, m_connection->appData(), this));
 
 		m_src_model = model;
 		//setupThreadColors(connection->getMainWindow()->getThreadColors());
@@ -188,7 +191,7 @@ namespace logs {
 		m_proxy_model = 0;
 	}
 
-	m_table_view_widget->setModel(0);
+	setModel(0);
 	delete m_src_model;
 	m_src_model = 0;
 	*/
@@ -234,13 +237,13 @@ namespace logs {
 	{
 		//qDebug("%s this=0x%08x", __FUNCTION__, this);
 		//Ui::SettingsLog * ui = m_config_ui.ui();
-		horizontalHeader()->resizeSections(QHeaderView::Fixed);
+		//horizontalHeader()->resizeSections(QHeaderView::Fixed);
 		//horizontalHeader()->resizeSectionItem(c, 32, );
 		bool const old = blockSignals(true);
 		for (int c = 0, ce = m_config.m_columns_sizes.size(); c < ce; ++c)
 			horizontalHeader()->resizeSection(c, m_config.m_columns_sizes.at(c));
 		blockSignals(old);
-
+		setupFilteringProxy(m_config.m_filtering ? Qt::Checked : Qt::Unchecked);
 	}
 
 	int LogWidget::sizeHintForColumn (int column) const
@@ -251,8 +254,7 @@ namespace logs {
 		}*/
 
 		//@TODO: proxy !!!!!!!!!!!!!!!!!!
-		//int const idx = !isModelProxy() ? c : static_cast<SparseProxyModel *>(m_proxy_model)->colToSource(c);
-		int const idx = column;
+		int const idx = !isModelProxy() ? column : m_proxy_model->colToSource(column);
 		//qDebug("table: on rsz hdr[%i -> src=%02i ]  %i->%i\t\t%s", c, idx, old_size, new_size, m_config.m_hhdr.at(idx).toStdSt
 		if (idx < 0) return 64;
 		int const curr_sz = m_config.m_columns_sizes.size();
@@ -309,6 +311,9 @@ namespace logs {
 
 		logs::saveConfig(m_config, logpath);
 		filterWidget()->saveConfig(logpath);
+
+        //currentIndex  = horizontalHeader()->visualIndex(session.findColumn4Tag(iter.key()));
+		// isSectionHidden
 	}
 
 	void LogWidget::onSaveButton ()
@@ -361,7 +366,7 @@ void LogWidget::onAutoScrollHotkey ()
 }
 void LogWidget::onFilterFile (int state)
 {
-	setFilterFile(state);
+	setupFilteringProxy(state);
 }
 
 void LogWidget::onTableFontToolButton ()
@@ -801,7 +806,7 @@ void LogWidget::onTableDoubleClicked (QModelIndex const & row_index)
 /*	if (m_proxy_model)
 	{
 		QModelIndex const curr = m_proxy_model->mapToSource(row_index);
-		LogTableModel * model = static_cast<LogTableModel *>(m_proxy_model ? m_proxy_model->sourceModel() : m_table_view_widget->model());
+		LogTableModel * model = static_cast<LogTableModel *>(m_proxy_model ? m_proxy_model->sourceModel() : model());
 		qDebug("2c curr: (%i,col) -> (%i,col)", row_index.row(), curr.row());
 
 		int row_bgn = curr.row();
@@ -876,9 +881,9 @@ void LogWidget::onTableDoubleClicked (QModelIndex const & row_index)
 void LogWidget::onApplyColumnSetup ()
 {
 /*	qDebug("%s", __FUNCTION__);
-	for (int i = 0; i < m_table_view_widget->horizontalHeader()->count(); ++i)
+	for (int i = 0; i < horizontalHeader()->count(); ++i)
 	{
-		//qDebug("column: %s", m_table_view_widget->horizontalHeader()->text());
+		//qDebug("column: %s", horizontalHeader()->text());
 	}
 
 	QMap<int, int> order;
@@ -926,7 +931,7 @@ void LogWidget::onToggleRefFromRow ()
 		qDebug("Toggle Ref from row=%i", current.row());
 		m_session_state.setTimeRefFromRow(current.row());
 
-		//LogTableModel * model = static_cast<LogTableModel *>(m_proxy_model ? m_proxy_model->sourceModel() : m_table_view_widget->model());
+		//LogTableModel * model = static_cast<LogTableModel *>(m_proxy_model ? m_proxy_model->sourceModel() : model());
 		QString const & strtime = findString4Tag(tlv::tag_time, current);
 		m_session_state.setTimeRefValue(strtime.toULongLong());
 		onInvalidateFilter();
@@ -935,7 +940,7 @@ void LogWidget::onToggleRefFromRow ()
 
 void LogWidget::onColorTagRow (int)
 {
-	/*QModelIndex current = m_table_view_widget->currentIndex();
+	/*QModelIndex current = currentIndex();
 	if (isModelProxy())
 	{
 		current = m_proxy_model->mapToSource(current);
@@ -952,7 +957,7 @@ void LogWidget::onColorTagRow (int)
 
 void LogWidget::onClearCurrentView ()
 {
-	/*LogTableModel * model = static_cast<LogTableModel *>(m_proxy_model ? m_proxy_model->sourceModel() : m_table_view_widget->model());
+	/*LogTableModel * model = static_cast<LogTableModel *>(m_proxy_model ? m_proxy_model->sourceModel() : model());
 	m_session_state.excludeContentToRow(model->rowCount());
 	onInvalidateFilter();*/
 }
@@ -977,11 +982,11 @@ void LogWidget::onUnhidePrevFromRow ()
 /*
 void LogWidget::onShowContextMenu (QPoint const & pos)
 {
-    QPoint globalPos = m_table_view_widget->mapToGlobal(pos);
+    QPoint globalPos = mapToGlobal(pos);
     QAction * selectedItem = m_ctx_menu.exec(globalPos); // @TODO: rather async
 
 	//poas = ui->tableView->viewport()->mapFromGlobal(e->globalPos());
-	QModelIndex const idx = m_table_view_widget->indexAt(pos);
+	QModelIndex const idx = indexAt(pos);
 	qDebug("left click at r=%2i,c=%2i", idx.row(), idx.column());
 
 	onTableClicked(idx);
@@ -1019,16 +1024,21 @@ void LogWidget::onShowContextMenu (QPoint const & pos)
 }
 */
 
-void LogWidget::onSectionResized (int c, int /*old_size*/, int new_size)
+void LogWidget::onSectionMoved (int logical, int old_visual, int new_visual)
 {
+	qDebug("log: section moved logical=%i old_visual=%i new_visual=%i", logical, old_visual, new_visual);
+}
+
+void LogWidget::onSectionResized (int logical, int old_size, int new_size)
+{
+	qDebug("log: section resized logical=%i old_sz=%i new_sz=%i", logical, old_size, new_size);
 	/*if (idx < m_config.m_columns_setup.size())
 	{
 		m_config.m_columns_sizes[idx] = new_size;
 	}*/
 
 	//@TODO: proxy !!!!!!!!!!!!!!!!!!
-	//int const idx = !isModelProxy() ? c : static_cast<SparseProxyModel *>(m_proxy_model)->colToSource(c);
-	int const idx = c;
+	int const idx = !isModelProxy() ? logical : m_proxy_model->colToSource(logical);
 	//qDebug("table: on rsz hdr[%i -> src=%02i ]  %i->%i\t\t%s", c, idx, old_size, new_size, m_config.m_hhdr.at(idx).toStdString().c_str());
 	if (idx < 0) return;
 	int const curr_sz = m_config.m_columns_sizes.size();

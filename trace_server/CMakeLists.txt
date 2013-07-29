@@ -76,7 +76,7 @@ SET(trace_server_SOURCES
 
 	connection_log.cpp
 	logs/logtablemodel.cpp
-	logs/filterproxy.cpp
+	logs/filterproxymodel.cpp
 	logs/logwidget.cpp
 	logs/logwidget_find.cpp
 	logs/logwidget_filtering.cpp
@@ -89,7 +89,8 @@ SET(trace_server_SOURCES
 
 	connection_table.cpp
 	table/editableheaderview.cpp
-	table/sparseproxy.cpp
+	table/baseproxymodel.cpp
+	table/sparseproxymodel.cpp
 	table/tableconfig.cpp
 	table/tablemodelview.cpp
 	table/tablewidget.cpp
@@ -133,7 +134,7 @@ SET(trace_server_HEADERS
 	logs/logwidget.h
 	logs/logconfig.h
 	logs/logctxmenu.h
-	logs/filterproxy.h
+	logs/filterproxymodel.h
 
 	kde/kbihash_p.h
 	kde/kmodelindexproxymapper.h
@@ -146,7 +147,8 @@ SET(trace_server_HEADERS
 	plot/plotctxmenu.h
 
 	table/editableheaderview.h
-	table/sparseproxy.h
+	table/baseproxymodel.h
+	table/sparseproxymodel.h
 	table/tableconfig.h
 	table/tablectxmenu.h
 	table/tablemodelview.h

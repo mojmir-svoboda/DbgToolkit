@@ -4,7 +4,7 @@
 #include "filterstate.h"
 #include "appdata.h"
 
-class TableItemDelegate : public QStyledItemDelegate
+/*class TableItemDelegate : public QStyledItemDelegate
 {
 	FilterState const & m_filter_state;
 	AppData const & m_app_data;
@@ -22,7 +22,7 @@ public:
     
 private slots:
 };
-
+*/
 
 class SyncedTableItemDelegate : public QStyledItemDelegate
 {

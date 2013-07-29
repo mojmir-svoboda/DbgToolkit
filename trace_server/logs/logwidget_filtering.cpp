@@ -13,9 +13,7 @@ namespace logs {
 
 void LogWidget::onInvalidateFilter ()
 {
-	if (!m_table_view_widget)
-		return;
-	QItemSelectionModel const * selection = m_table_view_widget->selectionModel();
+	QItemSelectionModel const * selection = selectionModel();
 	if (!selection)
 		return;
 
@@ -41,8 +39,7 @@ void LogWidget::onInvalidateFilter ()
 		static_cast<FilterProxyModel *>(m_proxy_model)->force_update();
 	else
 	{
-		LogTableModel * model = static_cast<LogTableModel *>(m_proxy_model ? m_proxy_model->sourceModel() : m_table_view_widget->model());
-		model->emitLayoutChanged();
+		m_src_model->emitLayoutChanged();
 	}
 
 	syncSelection(srcs);
@@ -52,7 +49,7 @@ void LogWidget::onInvalidateFilter ()
 
 void LogWidget::syncSelection (QModelIndexList const & sel)
 {
-	m_table_view_widget->selectionModel()->clearSelection();
+	selectionModel()->clearSelection();
 
 	for (int i = 0, ie = sel.size(); i < ie; ++i)
 	{
@@ -65,13 +62,13 @@ void LogWidget::syncSelection (QModelIndexList const & sel)
 		//else qDebug("syncSelection: src=(%2i, %2i)", idx.row(), idx.column());
 
 		if (idx.isValid())
-			m_table_view_widget->selectionModel()->setCurrentIndex(idx, QItemSelectionModel::Select);
+			selectionModel()->setCurrentIndex(idx, QItemSelectionModel::Select);
 	}
 }
 
-void LogWidget::setFilterFile (int state)
+void LogWidget::setupFilteringProxy (int state)
 {
-	QItemSelectionModel const * selection = m_table_view_widget->selectionModel();
+	QItemSelectionModel const * selection = selectionModel();
 	QModelIndexList indexes = selection->selectedIndexes();
 
 	if (state == Qt::Unchecked)
@@ -86,22 +83,22 @@ void LogWidget::setFilterFile (int state)
 			srcs.push_back(src_idx);
 		}
 
-		m_table_view_widget->setModel(m_proxy_model->sourceModel());
-		//m_table_view_widget->setSelectionModel(m_proxy_model->selectionModel());
+		setModel(m_proxy_model->sourceModel());
+		//setSelectionModel(m_proxy_model->selectionModel());
 
 		for (int i = 0, ie = srcs.size(); i < ie; ++i)
-			m_table_view_widget->selectionModel()->setCurrentIndex(srcs.at(i), QItemSelectionModel::Select);
+			selectionModel()->setCurrentIndex(srcs.at(i), QItemSelectionModel::Select);
 	}
 	else if (state == Qt::Checked)
 	{
 		if (!m_proxy_model)
 		{
 			m_proxy_model = new FilterProxyModel(this, *this);
-			m_proxy_model->setSourceModel(m_table_view_widget->model());
+			m_proxy_model->setSourceModel(model());
 		}
 
-		m_table_view_widget->setModel(m_proxy_model);
-		//m_table_view_widget->setSelectionModel(m_proxy_model->selectionModel());
+		setModel(m_proxy_model);
+		//setSelectionModel(m_proxy_model->selectionModel());
 
 		static_cast<FilterProxyModel *>(m_proxy_model)->force_update();
 		onInvalidateFilter();
@@ -119,7 +116,7 @@ void LogWidget::setFilterFile (int state)
 		for (int i = 0, ie = pxys.size(); i < ie; ++i)
 		{
 			//qDebug("on: pxy r=%i c=%i", pxys.at(i).row(), pxys.at(i).column());
-			m_table_view_widget->selectionModel()->setCurrentIndex(pxys.at(i), QItemSelectionModel::Select);
+			selectionModel()->setCurrentIndex(pxys.at(i), QItemSelectionModel::Select);
 		}
 	}
 

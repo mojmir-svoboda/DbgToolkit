@@ -1,25 +1,25 @@
 #include "logwidget.h"
 #include <QStatusBar>
 #include "logs/logtablemodel.h"
+#include <logs/filterproxy.h>
 #include "utils.h"
 
 namespace logs {
 
 void LogWidget::findTextInAllColumns (QString const & text, int from_row, int to_row, bool only_first)
 {
-	LogTableModel * model = static_cast<LogTableModel *>(m_proxy_model ? m_proxy_model->sourceModel() : m_table_view_widget->model());
 	for (int i = from_row, ie = to_row; i < ie; ++i)
 	{
-		for (int j = 0, je = model->columnCount(); j < je; ++j)
+		for (int j = 0, je = model()->columnCount(); j < je; ++j)
 		{
 			if (isModelProxy()) // @TODO: dedup!
 			{
-				QModelIndex const idx = model->index(i, j, QModelIndex());
+				QModelIndex const idx = model()->index(i, j, QModelIndex());
 				QModelIndex const curr = m_proxy_model->mapFromSource(idx);
 
-				if (idx.isValid() && model->data(idx).toString().contains(text, Qt::CaseInsensitive))
+				if (idx.isValid() && model()->data(idx).toString().contains(text, Qt::CaseInsensitive))
 				{
-					m_table_view_widget->selectionModel()->setCurrentIndex(curr, QItemSelectionModel::Select);
+					selectionModel()->setCurrentIndex(curr, QItemSelectionModel::Select);
 					m_last_search_row = idx.row();
 					m_last_search_col = idx.column();
 					if (only_first)
@@ -28,10 +28,10 @@ void LogWidget::findTextInAllColumns (QString const & text, int from_row, int to
 			}
 			else
 			{
-				QModelIndex const idx = model->index(i, j, QModelIndex());
-				if (idx.isValid() && model->data(idx).toString().contains(text, Qt::CaseInsensitive))
+				QModelIndex const idx = model()->index(i, j, QModelIndex());
+				if (idx.isValid() && model()->data(idx).toString().contains(text, Qt::CaseInsensitive))
 				{
-					m_table_view_widget->selectionModel()->setCurrentIndex(idx, QItemSelectionModel::Select);
+					selectionModel()->setCurrentIndex(idx, QItemSelectionModel::Select);
 					m_last_search_row = idx.row();
 					m_last_search_col = idx.column();
 					if (only_first)
@@ -44,7 +44,7 @@ void LogWidget::findTextInAllColumns (QString const & text, int from_row, int to
 
 bool LogWidget::matchTextInCell (QString const & text, int row, int col)
 {
-	LogTableModel * model = static_cast<LogTableModel *>(m_proxy_model ? m_proxy_model->sourceModel() : m_table_view_widget->model());
+	LogTableModel * model = m_src_model;
 	QModelIndex const idx = model->index(row, col, QModelIndex());
 	if (idx.isValid() && model->data(idx).toString().contains(text, Qt::CaseInsensitive))
 	{
@@ -52,13 +52,13 @@ bool LogWidget::matchTextInCell (QString const & text, int row, int col)
 		if (m_proxy_model)
 		{
 			QModelIndex const curr = m_proxy_model->mapFromSource(idx);
-			m_table_view_widget->selectionModel()->setCurrentIndex(curr, QItemSelectionModel::Select);
-			m_table_view_widget->scrollTo(m_proxy_model->mapFromSource(idx), QTableView::PositionAtCenter);
+			selectionModel()->setCurrentIndex(curr, QItemSelectionModel::Select);
+			scrollTo(m_proxy_model->mapFromSource(idx), QTableView::PositionAtCenter);
 		}
 		else
 		{
-			m_table_view_widget->selectionModel()->setCurrentIndex(idx, QItemSelectionModel::Select);
-			m_table_view_widget->scrollTo(idx, QTableView::PositionAtCenter);
+			selectionModel()->setCurrentIndex(idx, QItemSelectionModel::Select);
+			scrollTo(idx, QTableView::PositionAtCenter);
 		}
 		m_last_search_row = idx.row();
 		return true;
@@ -95,9 +95,9 @@ void LogWidget::findTextInColumnRev (QString const & text, int col, int from_row
 void LogWidget::selectionFromTo (int & from, int & to) const
 {
 	from = 0;
-	LogTableModel const * model = static_cast<LogTableModel *>(m_proxy_model ? m_proxy_model->sourceModel() : m_table_view_widget->model());
+	LogTableModel const * model = m_src_model;
 	to = model->rowCount();
-	QItemSelectionModel const * selection = m_table_view_widget->selectionModel();
+	QItemSelectionModel const * selection = selectionModel();
 	QModelIndexList indexes = selection->selectedIndexes();
 	if (indexes.size() < 1)
 		return;
@@ -110,7 +110,7 @@ void LogWidget::findAllTexts (QString const & text)
 {
 	m_last_search = text;
 	int from = 0;
-	LogTableModel const * model = static_cast<LogTableModel *>(m_proxy_model ? m_proxy_model->sourceModel() : m_table_view_widget->model());
+	LogTableModel const * model = m_src_model;
 	int to = model->rowCount();
 	findTextInAllColumns(text, from, to, false);
 }
@@ -138,7 +138,7 @@ void LogWidget::findText (QString const & text, tlv::tag_t tag)
 	}
 	else
 	{
-		LogTableModel const * model = static_cast<LogTableModel *>(m_proxy_model ? m_proxy_model->sourceModel() : m_table_view_widget->model());
+		LogTableModel const * model = m_src_model;
 		int const to = model->rowCount();
 		findTextInColumn(m_last_search, m_last_search_col, m_last_search_row + 1, to);
 	}
@@ -219,7 +219,7 @@ QVariant LogWidget::findVariant4Tag (tlv::tag_t tag, QModelIndex const & row_ind
 	if (idx == -1)
 		return QVariant();
 
-	LogTableModel * model = static_cast<LogTableModel *>(m_proxy_model ? m_proxy_model->sourceModel() : m_table_view_widget->model());
+	LogTableModel * model = m_src_model;
 
 	QModelIndex const model_idx = model->index(row_index.row(), idx, QModelIndex());
 	if (model_idx.isValid())

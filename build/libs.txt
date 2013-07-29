@@ -28,6 +28,22 @@ Ws2_32.lib
 e:\qt5.1\qtbase\lib\translator_hlsld.lib
 d3dcompiler.lib
 
+C:\c\devel\qt5.1\qtbase\lib\Qt5OpenGLd.lib
+imm32.lib
+c:\c\devel\qt5.1\qtbase\lib\libEGLd.lib
+c:\c\devel\qt5.1\qtbase\plugins\platforms\qwindowsd.lib
+c:\c\devel\qt5.1\qtbase\plugins\imageformats\qicod.lib
+c:\c\devel\qt5.1\qtbase\lib\libGLESv2d.lib
+c:\c\devel\qt5.1\qtbase\lib\Qt5PlatformSupportd.lib
+c:\c\devel\qt5.1\qtbase\lib\translator_commond.lib
+c:\c\devel\qt5.1\qtbase\lib\preprocessord.lib
+d3d9.lib
+dxguid.lib 
+Ws2_32.lib
+c:\c\devel\qt5.1\qtbase\lib\translator_hlsld.lib
+d3dcompiler.lib
+
+
 
 =========================================
 

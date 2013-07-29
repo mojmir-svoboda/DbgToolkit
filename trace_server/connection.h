@@ -31,7 +31,6 @@
 #include <tlv_parser/tlv_cmd_qstring.h>
 #include <boost/circular_buffer.hpp>
 #include <boost/tuple/tuple.hpp>
-#include "logs/filterproxy.h"
 #include "cmd.h"
 #include "plot/plotwidget.h"
 #include "table/tablewidget.h"
@@ -205,6 +204,7 @@ public:
 	
 	QString getAppName () const { return m_app_name; }
 	int getAppIdx () const { return m_app_idx; }
+	AppData const & appData () const { return m_app_data; }
 
 	void run ();
 	/*bool loadConfigForPlot (QString const & preset_name, plot::PlotConfig & config, QString const & tag);

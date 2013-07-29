@@ -2,6 +2,8 @@
 #include <QWidget>
 #include <tableview.h>
 #include <cmd.h>
+#include <QStyledItemDelegate>
+#include <QItemDelegate>
 #include "logconfig.h"
 #include "logctxmenu.h"
 #include "tagconfig.h"
@@ -35,12 +37,19 @@ namespace logs {
 		void handleCommand (DecodedCommand const & cmd, E_ReceiveMode mode);
 		void commitCommands (E_ReceiveMode mode);
 
+		int findColumn4Tag (tlv::tag_t tag);
+
+		LogTableModel const * logModel () const { return m_src_model; }
+		FilterProxyModel const * logProxy () const { return m_proxy_model; }
+
 	protected:
 		friend class LogTableModel;
 		friend class FilterProxyModel;
 
 		bool filterEnabled () const { return m_config.m_filtering; }
+		void setupFilteringProxy (int state);
 		int sizeHintForColumn (int column) const;
+
 
 	void setupSeparatorChar (QString const & c);
 	QString separatorChar () const;
@@ -96,7 +105,6 @@ namespace logs {
 	// filtering stuff
 	void onInvalidateFilter ();
 	void syncSelection (QModelIndexList const & sel);
-	void setFilterFile (int state);
 	void clearFilters (QStandardItem * node);
 	void clearFilters ();
 	void onClearCurrentFileFilter ();
@@ -140,13 +148,10 @@ namespace logs {
 	FilterState const & filterState () const { return m_filter_state; }
 
 
-	//QAbstractTableModel const * modelView () const { return static_cast<QAbstractTableModel const *>(m_proxy_model ? m_proxy_model->sourceModel() : model()); }
-	//QAbstractProxyModel const * proxyView () const { return static_cast<QAbstractProxyModel const *>(m_proxy_model); }
 
 	bool isModelProxy () const;
 
 	int findColumn4TagInTemplate (tlv::tag_t tag) const;
-	int findColumn4Tag (tlv::tag_t tag);
 	int appendColumn (tlv::tag_t tag);
 
 	ThreadSpecific & getTLS () { return m_tls; }
@@ -178,6 +183,7 @@ namespace logs {
 
 		void onClearAllDataButton ();
 		void onSectionResized (int logicalIndex, int oldSize, int newSize);
+		void onSectionMoved (int logical, int old_visual, int new_visual);
 
 		void onNextToView ();
 		void turnOffAutoScroll ();
@@ -256,9 +262,8 @@ namespace logs {
 
 
 		QString m_curr_preset;
-		QTableView * m_table_view_widget;
 
-		QAbstractProxyModel * m_proxy_model;
+		FilterProxyModel * m_proxy_model;
 		LogTableModel * m_src_model;
 
 		QMenu m_ctx_menu;
@@ -278,5 +283,26 @@ namespace logs {
 		QString m_csv_separator;
 		QTextStream * m_file_csv_stream;
 	};
+
+	class TableItemDelegate : public QStyledItemDelegate
+	{
+		LogWidget const & m_log_widget;
+		AppData const & m_app_data;
+	public: 
+		TableItemDelegate (LogWidget & lw, AppData const & ad, QObject *parent = 0) : QStyledItemDelegate(parent), m_log_widget(lw), m_app_data(ad) { }
+
+		void paint (QPainter * painter, QStyleOptionViewItem const & option, QModelIndex const & index) const;
+		void paintCustom (QPainter * painter, QStyleOptionViewItem const & option, QModelIndex const & index) const;
+
+		void paintTokenized (QPainter * painter, QStyleOptionViewItemV4 & option, QModelIndex const & index, QString const & separator, QString const & out_separator, int level = 1) const;
+		void paintContext (QPainter * painter, QStyleOptionViewItemV4 & option, QModelIndex const & index) const;
+		void paintTime (QPainter * painter, QStyleOptionViewItemV4 & option, QModelIndex const & index) const;
+
+		void paintHilited (QPainter * painter, QStyleOptionViewItemV4 & option, QModelIndex const & index) const;
+		
+	private slots:
+	};
+
+
 }
 
