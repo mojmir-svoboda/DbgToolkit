@@ -106,6 +106,11 @@ namespace logs {
 			ar & boost::serialization::make_nvp("cut_namespaces", m_cut_namespaces);
 			ar & boost::serialization::make_nvp("dt_enabled", m_dt_enabled);
 		}
+
+		void clear ()
+		{
+			*this = LogConfig();
+		}
 	};
 
 	bool loadConfig (LogConfig & config, QString const & fname);

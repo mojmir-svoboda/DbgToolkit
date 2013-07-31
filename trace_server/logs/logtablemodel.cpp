@@ -135,7 +135,8 @@ void LogTableModel::parseCommand (DecodedCommand const & cmd, E_ReceiveMode mode
 		if (column_index < 0)
 		{
 			column_index = m_log_widget.appendColumn(tag);
-			columns.resize(column_index);
+			if (columns.size() < column_index)
+				columns.resize(column_index);
 		}
 		columns[column_index].m_value = qval;
 	}

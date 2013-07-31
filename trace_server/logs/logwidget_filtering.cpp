@@ -83,22 +83,16 @@ void LogWidget::setupFilteringProxy (int state)
 			srcs.push_back(src_idx);
 		}
 
-		setModel(m_proxy_model->sourceModel());
-		//setSelectionModel(m_proxy_model->selectionModel());
+		setModel(m_src_model);
+		setSelectionModel(m_src_selection);
 
 		for (int i = 0, ie = srcs.size(); i < ie; ++i)
 			selectionModel()->setCurrentIndex(srcs.at(i), QItemSelectionModel::Select);
 	}
 	else if (state == Qt::Checked)
 	{
-		if (!m_proxy_model)
-		{
-			m_proxy_model = new FilterProxyModel(this, *this);
-			m_proxy_model->setSourceModel(model());
-		}
-
 		setModel(m_proxy_model);
-		//setSelectionModel(m_proxy_model->selectionModel());
+		setSelectionModel(m_proxy_selection);
 
 		static_cast<FilterProxyModel *>(m_proxy_model)->force_update();
 		onInvalidateFilter();

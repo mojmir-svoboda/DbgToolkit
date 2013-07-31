@@ -49,6 +49,8 @@ namespace logs {
 		bool filterEnabled () const { return m_config.m_filtering; }
 		void setupFilteringProxy (int state);
 		int sizeHintForColumn (int column) const;
+		void normalizeConfig (logs::LogConfig & normalized);
+		void moveSectionsAccordingTo (logs::LogConfig const & cfg);
 
 
 	void setupSeparatorChar (QString const & c);
@@ -236,6 +238,7 @@ namespace logs {
 
 	protected:
 		LogConfig m_config;
+		LogConfig m_config2;
 		logs::CtxLogConfig m_config_ui;
 		QString m_fname;
 		Connection * m_connection;
@@ -264,7 +267,9 @@ namespace logs {
 		QString m_curr_preset;
 
 		FilterProxyModel * m_proxy_model;
+		QItemSelectionModel * m_proxy_selection;
 		LogTableModel * m_src_model;
+		QItemSelectionModel * m_src_selection;
 
 		QMenu m_ctx_menu;
 		enum E_Actions {

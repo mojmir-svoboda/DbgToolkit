@@ -37,7 +37,9 @@ namespace logs {
 		, m_time_ref_value(0)
 		, m_curr_preset()
 		, m_proxy_model(0)
+		, m_proxy_selection(0)
 		, m_src_model(0)
+		, m_src_selection(0)
 		, m_ctx_menu()
 		, m_actions()
 		, m_last_clicked()
@@ -53,7 +55,6 @@ namespace logs {
 		connect(this, SIGNAL(customContextMenuRequested(QPoint const &)), this, SLOT(onShowContextMenu(QPoint const &)));
 
 		setConfigValuesToUI(m_config);
-		onApplyButton();
 		//setUpdatesEnabled(true);
 		horizontalHeader()->setSectionsMovable(true);
 		//setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
@@ -81,9 +82,15 @@ namespace logs {
 		setModel(model);
 		QObject::connect(horizontalHeader(), SIGNAL(sectionResized(int, int, int)), this, SLOT(onSectionResized(int, int, int)));
 		QObject::connect(horizontalHeader(), SIGNAL(sectionMoved(int, int, int)), this, SLOT(onSectionMoved(int, int, int)));
-		setItemDelegate(new TableItemDelegate(*this, m_connection->appData(), this));
+		//setItemDelegate(new TableItemDelegate(*this, m_connection->appData(), this));
 
 		m_src_model = model;
+		m_src_selection = new QItemSelectionModel(m_src_model);
+		setSelectionModel(m_src_selection);
+
+		m_proxy_model = new FilterProxyModel(this, *this);
+		m_proxy_model->setSourceModel(m_src_model);
+		m_proxy_selection = new QItemSelectionModel(m_proxy_model);
 		//setupThreadColors(connection->getMainWindow()->getThreadColors());
 
 
@@ -120,6 +127,8 @@ namespace logs {
 		m_delegates.get<e_delegate_String>() = new StringDelegate(m_session_state, this);
 		m_delegates.get<e_delegate_Regex>() = new RegexDelegate(m_session_state, this);
 		*/
+
+		applyConfig();
 	}
 
 	LogWidget::~LogWidget ()
@@ -227,10 +236,44 @@ namespace logs {
 		connect(ui->saveButton, SIGNAL(clicked()), this, SLOT(onSaveButton()));
 		//connect(ui->logViewComboBox, SIGNAL(activated(int)), this, SLOT(onLogViewActivate(int)));
 	}
+	
+	void LogWidget::moveSectionsAccordingTo (logs::LogConfig const & cfg)
+	{
+		QMap<int, int> perms;
+		int const hn = horizontalHeader()->count();
+		for (int hi = 0; hi < hn; ++hi)
+		{
+			int const currentVisualIndex = horizontalHeader()->visualIndex(hi);
+			//if (currentVisualIndex != i)
+			if (currentVisualIndex > -1 && currentVisualIndex < m_config.m_columns_setup.size())
+			{
+				QString val = m_config.m_columns_setup[hi];
+				
+				int const nn = cfg.m_columns_setup.size();
+				for (int nj = 0; nj < nn; ++nj)
+					if (val == cfg.m_columns_setup[nj] && hi != nj)
+						perms.insert(hi, nj);
+
+			}
+		}
+
+		QMapIterator<int, int> iter(perms);
+
+		while (iter.hasNext())
+		{
+			iter.next();
+			int const logical = iter.key();
+			int const visual = iter.value();
+			horizontalHeader()->moveSection(logical, visual);
+		}
+	}
+
 
 	void LogWidget::applyConfig ()
 	{
-		applyConfig(m_config);
+		moveSectionsAccordingTo(m_config2);
+		m_config = m_config2;
+		applyConfig(m_config2);
 	}
 
 	void LogWidget::applyConfig (LogConfig & cfg)
@@ -243,7 +286,10 @@ namespace logs {
 		for (int c = 0, ce = m_config.m_columns_sizes.size(); c < ce; ++c)
 			horizontalHeader()->resizeSection(c, m_config.m_columns_sizes.at(c));
 		blockSignals(old);
-		setupFilteringProxy(m_config.m_filtering ? Qt::Checked : Qt::Unchecked);
+
+		//@TODO: !!!!!!!!!
+		setupFilteringProxy(Qt::Unchecked);
+		//setupFilteringProxy(m_config.m_filtering ? Qt::Checked : Qt::Unchecked);
 	}
 
 	int LogWidget::sizeHintForColumn (int column) const
@@ -294,22 +340,58 @@ namespace logs {
 
 	void LogWidget::onApplyButton ()
 	{
-		setUIValuesToConfig(m_config);
+		applyConfig();
+		//setUIValuesToConfig(m_config2);
 		applyConfig();
 	}
 
 	void LogWidget::loadConfig (QString const & path)
 	{
 		QString const logpath = path + "/" + g_presetLogTag + "/" + m_config.m_tag;
-		logs::loadConfig(m_config, logpath);
+		m_config2.clear();
+		logs::loadConfig(m_config2, logpath);
 		filterWidget()->loadConfig(logpath);
+	}
+
+	void LogWidget::normalizeConfig (logs::LogConfig & normalized)
+	{
+		QMap<int, int> perms;
+		int const n = horizontalHeader()->count();
+		for (int i = 0; i < n; ++i)
+		{
+			int const currentVisualIndex = horizontalHeader()->visualIndex(i);
+			if (currentVisualIndex != i)
+			{
+				perms.insert(i, currentVisualIndex);
+			}
+		}
+
+		normalized.m_columns_setup.resize(n);
+		normalized.m_columns_sizes.resize(n);
+		normalized.m_columns_align.resize(n);
+		normalized.m_columns_elide.resize(n);
+
+		QMapIterator<int, int> iter(perms);
+		while (iter.hasNext())
+		{
+			iter.next();
+			int const logical = iter.key();
+			int const visual = iter.value();
+
+			normalized.m_columns_setup[visual] = m_config.m_columns_setup[logical];
+			normalized.m_columns_sizes[visual] = m_config.m_columns_sizes[logical];
+			normalized.m_columns_align[visual] = m_config.m_columns_align[logical];
+			normalized.m_columns_elide[visual] = m_config.m_columns_elide[logical];
+		}
 	}
 
 	void LogWidget::saveConfig (QString const & path)
 	{
 		QString const logpath = path + "/" + g_presetLogTag + "/" + m_config.m_tag;
 
-		logs::saveConfig(m_config, logpath);
+		logs::LogConfig tmp = m_config;
+		normalizeConfig(tmp);
+		logs::saveConfig(tmp, logpath);
 		filterWidget()->saveConfig(logpath);
 
         //currentIndex  = horizontalHeader()->visualIndex(session.findColumn4Tag(iter.key()));

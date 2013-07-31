@@ -167,7 +167,8 @@ void MainWindow::onAddPreset ()
 	qDebug("%s", __FUNCTION__);
 	if (Connection * conn = findCurrentConnection())
 	{
-		promptAndCreatePresetName(conn->getAppName());
+  		QString const preset_name = promptAndCreatePresetName(conn->getAppName());
+		onSaveCurrentStateTo(preset_name);		
 	}
 }
 
@@ -219,7 +220,8 @@ void MainWindow::onPresetActivate (Connection * conn, QString const & preset_nam
 
 	if (checkPresetPath(m_config.m_appdir, preset_name))
 	{
-		conn->loadConfigs(preset_name);
+		QString const path = getPresetPath(m_config.m_appdir, preset_name);
+		conn->loadConfigs(path);
 		conn->applyConfigs();
 		loadLayout(preset_name);
 		m_config.m_preset_history.insert(preset_name);

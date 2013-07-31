@@ -135,16 +135,17 @@ void FilterWidget::loadConfig (QString const & fname, FilterState & config)
 void FilterWidget::loadConfig (QString const & fname)
 {
 	FilterState dummy;
-	if (loadFilterState(dummy, fname.toStdString()))
+	QString const fsname = fname + "." + g_filterStateTag;
+	if (loadFilterState(dummy, fsname.toStdString()))
 	{
 		applyConfig(dummy, m_filter_state);
 	}
 }
 
-void FilterWidget::saveConfig (QString const & path)
+void FilterWidget::saveConfig (QString const & fname)
 {
-	QString const fname = path + "/" + g_filterStateTag;
-	saveFilterState(m_filter_state, fname.toStdString());
+	QString const fsname = fname + "." + g_filterStateTag;
+	saveFilterState(m_filter_state, fsname.toStdString());
 }
 
 void FilterWidget::setupModelFile ()
