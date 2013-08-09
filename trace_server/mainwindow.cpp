@@ -92,9 +92,6 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QStri
 	, m_tray_icon(0)
 	, m_settings_dialog(0)
 	, m_dock_mgr()
-	, m_docked_widgets(0)
-	, m_docked_widgets_tree_view(0)
-	, m_docked_widgets_model(0)
 	, m_log_name(log_name)
 	, m_start_level(level)
 {
@@ -110,17 +107,6 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QStri
 	ui_settings->setupUi(m_settings_dialog);
 	//ui_settings->separatorComboBox->addItem("\\t");
 	//ui_settings->separatorComboBox->addItem("\\n");
-
-	m_docked_widgets_model = new TreeModel(this, &m_docked_widgets_state);
-	m_docked_widgets_tree_view = new TreeView(this);
-	m_docked_widgets_tree_view->setHidingLinearParents(false);
-	m_docked_widgets = m_dock_mgr.mkDockWidget(this, m_docked_widgets_tree_view, false, QString("list"), Qt::LeftDockWidgetArea);
-	restoreDockWidget(m_docked_widgets);
-	m_docked_widgets->setVisible(false);
-	m_docked_widgets->setFeatures(QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetFloatable);
-	connect(m_docked_widgets, SIGNAL(visibilityChanged(bool)), this, SLOT(onListVisibilityChanged(bool)));
-
-	
 
 	QString const homedir = QDir::homePath();
 	m_config.m_appdir = homedir + "/.flogging";
@@ -156,7 +142,7 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QStri
 	connect(m_server, SIGNAL(newConnection(Connection *)), this, SLOT(newConnection(Connection *)));
 	showServerStatus();
 
-	size_t const n = tlv::get_tag_count();
+	/*size_t const n = tlv::get_tag_count();
 	QString msg_tag;
 	for (size_t i = tlv::tag_time; i < n; ++i)
 	{
@@ -169,8 +155,8 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QStri
 			//ui->qSearchColumnComboBox->addItem(qname);
 		}
 	}
-	//ui->qSearchColumnComboBox->addItem("trace_server");
-	//ui->qSearchColumnComboBox->setCurrentIndex(ui->qSearchColumnComboBox->findText(msg_tag));
+	ui->qSearchColumnComboBox->addItem("trace_server");
+	ui->qSearchColumnComboBox->setCurrentIndex(ui->qSearchColumnComboBox->findText(msg_tag));*/
 
 	m_timer->setInterval(5000);
 	connect(m_timer, SIGNAL(timeout()) , this, SLOT(timerHit()));
@@ -187,7 +173,6 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QStri
 	connect(ui->plotSlider, SIGNAL(valueChanged(int)), this, SLOT(onPlotStateChanged(int)));
 	connect(ui->tableSlider, SIGNAL(valueChanged(int)), this, SLOT(onTablesStateChanged(int)));
 	connect(ui->dockedWidgetsToolButton, SIGNAL(clicked()), this, SLOT(onDockedWidgetsToolButton()));
-	connect(m_docked_widgets, SIGNAL(dockClosed()), this, SLOT(onPlotsClosed()));
 	connect(ui->buffCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onBufferingStateChanged(int)));
 	
 	//connect(ui_settings->tableFontToolButton, SIGNAL(clicked()), this, SLOT(onTableFontToolButton()));
@@ -323,7 +308,7 @@ QTabWidget const * MainWindow::getTabTrace () const { return ui->tabTrace; }
 
 
 
-QTreeView const * MainWindow::getDockedWidgetsTreeView () const { return m_docked_widgets_tree_view; }
+//QTreeView const * MainWindow::getDockedWidgetsTreeView () const { return m_docked_widgets_tree_view; }
 
 bool MainWindow::onTopEnabled () const { return ui_settings->onTopCheckBox->isChecked(); }
 int MainWindow::plotState () const { return ui->plotSlider->value(); }
@@ -392,30 +377,16 @@ void MainWindow::onDockedWidgetsToolButton ()
 {
 	if (ui->dockedWidgetsToolButton->isChecked())
 	{
-		m_docked_widgets->show();
-		restoreDockWidget(m_docked_widgets);
-
-		if (Connection * conn = findCurrentConnection())
-		{
-			m_docked_widgets_tree_view->setModel(m_docked_widgets_model);
-			connect(m_docked_widgets_tree_view, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtDockedWidgets(QModelIndex)));
-		}
+		m_dock_mgr.m_docked_widgets->show();
+		restoreDockWidget(m_dock_mgr.m_docked_widgets);
 	}
 	else
 	{
-		if (m_server)
-			disconnect(m_docked_widgets_tree_view, SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtDockedWidgets(QModelIndex)));
-		if (m_docked_widgets)
-			m_docked_widgets->hide();
+		m_dock_mgr.m_docked_widgets->hide();
 	}
 }
 
-/*void MainWindow::onListVisibilityChanged (bool visible)
-{
-	ui->dockedWidgetsToolButton->setChecked(visible);
-}*/
-
-void MainWindow::onPlotsClosed ()
+void MainWindow::onDockManagerClosed ()
 {
 	ui->dockedWidgetsToolButton->setChecked(false);
 }
@@ -814,7 +785,7 @@ void MainWindow::loadState ()
 	QString const pname = settings.value("presetComboBox").toString();
 	ui->presetComboBox->setCurrentIndex(ui->presetComboBox->findText(pname));
 
-	ui->dockedWidgetsToolButton->setChecked(m_docked_widgets->isVisible());
+	ui->dockedWidgetsToolButton->setChecked(m_dock_mgr.m_docked_widgets->isVisible());
 	qApp->installEventFilter(this);
 }
 

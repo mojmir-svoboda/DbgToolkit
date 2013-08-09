@@ -11,6 +11,8 @@
 #include "delegates.h"
 #include "tableview.h"
 
+GlobalConfig const & Connection::getConfig () const { return m_main_window->getConfig(); }
+
 Connection::Connection (QObject * parent)
 	: QThread(parent)
 	, m_main_window(qobject_cast<MainWindow *>(parent))
@@ -356,4 +358,9 @@ void Connection::convertBloodyBollockyBuggeryRegistry (logs::LogConfig & cfg)
 	}
 }
 
+
+int Connection::findAppNameInMainWindow (QString const & appname)
+{
+	return m_main_window->findAppName(appname);
+}
 

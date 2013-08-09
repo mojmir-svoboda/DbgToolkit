@@ -1,4 +1,5 @@
 #include "treeview.h"
+#include "treemodel.h"
 
 TreeView::TreeView (QWidget * parent)
 	: QTreeView(parent)
@@ -50,14 +51,14 @@ void TreeView::hideLinearParents ()
 {
 	if (m_hiding && m_current)
 	{
-		if (TreeModel * model = qobject_cast<TreeModel *>(m_current))
-			setRootIndex(static_cast<TreeModel *>(m_current)->hideLinearParents());
+		//if (TreeModel * model = qobject_cast<TreeModel *>(m_current))
+		//	setRootIndex(static_cast<TreeModel *>(m_current)->hideLinearParents());
 	}
 }
 
 void TreeView::syncExpandState ()
 {
-	if (TreeModel * model = qobject_cast<TreeModel *>(m_current))
-		static_cast<TreeModel *>(m_current)->syncExpandState(this);
+	//if (TreeModel * model = qobject_cast<TreeModel *>(m_current))
+	//	static_cast<TreeModel *>(m_current)->syncExpandState(this);
 }
 

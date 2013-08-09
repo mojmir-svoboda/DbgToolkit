@@ -14,7 +14,7 @@
 #include <sstream>
 #include <QMessageBox>
 #include <QString>
-#include "ui_filterwidget.h"
+//#include "ui_filterwidget.h"
 #include "constants.h"
 
 FilterWidget::FilterWidget (QWidget * parent)

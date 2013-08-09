@@ -5,14 +5,24 @@
 #include <QListView>
 #include "filterstate.h"
 #include "treemodel.h"
-#include "treeview.h"
-#include "treeproxy.h"
+//#include "treeview.h"
+//#include "treeproxy.h"
 #include "delegates.h"
 #include <boost/tuple/tuple.hpp>
 
-namespace Ui {
-	class FilterWidget;
-}
+class FilterTreeModel : public TreeModel<TreeModelItem>
+{       
+	Q_OBJECT
+public:
+
+	explicit FilterTreeModel (QObject * parent = 0, tree_data_t * data = 0);
+	~FilterTreeModel ();
+
+	QModelIndex insertItemWithPath (QStringList const & path, bool checked);
+}; 
+
+namespace Ui {	class FilterWidget; }
+class TreeProxyModel;
 
 class FilterWidget : public QWidget
 {
@@ -29,8 +39,8 @@ public:
 	void saveConfig (QString const & path);
 	void applyConfig (FilterState const & src, FilterState & dst);
 
-	TreeModel * fileModel () { return m_file_model; }
-	TreeModel const * fileModel () const { return m_file_model; }
+	FilterTreeModel * fileModel () { return m_file_model; }
+	FilterTreeModel const * fileModel () const { return m_file_model; }
 
 	TreeView * getWidgetFile ();
 	TreeView const * getWidgetFile () const;
@@ -108,7 +118,7 @@ public:
 
 	FilterState		m_filter_state;
 
-	TreeModel * m_file_model;
+	FilterTreeModel * m_file_model;
 	TreeProxyModel * m_file_proxy;
 	QItemSelectionModel * m_proxy_selection;
 	QStandardItemModel * m_ctx_model;

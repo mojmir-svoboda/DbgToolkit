@@ -2,7 +2,6 @@
 #include <QTreeView>
 #include <QStandardItemModel>
 #include <QList>
-#include "TreeModel.h"
 
 class TreeView : public QTreeView
 {

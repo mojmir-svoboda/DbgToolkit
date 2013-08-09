@@ -8,31 +8,31 @@
 #include "gantt/ganttview.h"
 //#include <cstdlib>
 
-DataGantt::DataGantt (Connection * connection, config_t & config, QString const & fname)
-	: DockedData<e_data_gantt>(connection, config, fname)
+DataGantt::DataGantt (Connection * connection, config_t & config, QString const & confname, QStringList const & path)
+	: DockedData<e_data_gantt>(connection, config, confname, path)
 {
-	qDebug("%s this=0x%08x name=%s", __FUNCTION__, this, fname.toStdString().c_str());
-	m_widget = new gantt::GanttWidget(connection, 0, m_config, fname);
+	qDebug("%s this=0x%08x name=%s", __FUNCTION__, this, confname.toStdString().c_str());
+	m_widget = new gantt::GanttWidget(connection, 0, m_config, confname, path);
 	//m_widget->setItemDelegate(new SyncedGanttItemDelegate(m_widget));
 }
 
 void Connection::onShowGantts ()
 {
-	qDebug("%s", __FUNCTION__);
+	/*qDebug("%s", __FUNCTION__);
 	for (datagantts_t::iterator it = m_data.get<e_data_gantt>().begin(), ite = m_data.get<e_data_gantt>().end(); it != ite; ++it)
 	{
 		(*it)->onShow();
 		m_main_window->restoreDockWidget((*it)->m_wd);
-	}
+	}*/
 }
 
 void Connection::onHideGantts ()
 {
-	qDebug("%s", __FUNCTION__);
+	/*qDebug("%s", __FUNCTION__);
 	for (datagantts_t::iterator it = m_data.get<e_data_gantt>().begin(), ite = m_data.get<e_data_gantt>().end(); it != ite; ++it)
 	{
 		(*it)->onHide();
-	}
+	}*/
 }
 
 void Connection::onShowGanttContextMenu (QPoint const &)
@@ -195,11 +195,11 @@ datagantts_t::iterator Connection::findOrCreateGantt (QString const & tag)
 	{
 		if (m_main_window->ganttState() == e_FtrEnabled && (*it)->config().m_show)
 		{
-			(*it)->onShow();
+			//(*it)->onShow();
 		}
 		else
 		{
-			(*it)->onHide();
+			//(*it)->onHide();
 		}
 	}
 	return it;

@@ -5,6 +5,8 @@
 #include <QColor>
 #include <vector>
 
+enum E_ApiErrors { e_InvalidItem = -1 };
+
 enum E_FeatureStates {
 	  e_FtrDisabled		= 0
 	, e_FtrDataOnly		= 1

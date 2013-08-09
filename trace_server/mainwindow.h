@@ -27,7 +27,6 @@
 #include <QComboBox>
 #include <QSystemTrayIcon>
 #include <tlv_parser/tlv_parser.h>
-#include <filters/file_filter.hpp>
 #include "config.h"
 #include "dock.h"
 
@@ -46,11 +45,8 @@ class QStandardItemModel;
 class QLabel;
 class SessionState;
 class TreeView;
-class TreeModel;
 class QTreeView;
 class Connection;
-
-enum E_ApiErrors { e_InvalidItem = -1 };
 
 class MainWindow : public QMainWindow
 {
@@ -181,6 +177,8 @@ public slots:
 	void onDockRestoreButton ();
 	void onDockedWidgetsToolButton ();
 	void onClickedAtDockedWidgets (QModelIndex idx);
+	void onDockManagerClosed ();
+
 	void onCloseTab (int idx, QWidget * w);
 	void onCloseTab (QWidget * w);
 	void onCloseMarkedTabs ();
@@ -268,11 +266,6 @@ private:
 
 	// docked widgets
 	DockManager 		m_dock_mgr;
-	DockWidget * 		m_docked_widgets;
-	TreeView * 			m_docked_widgets_tree_view;
-	TreeModel *			m_docked_widgets_model;
-	typedef tree_filter<TreeModelItem> data_filters_t;
-	data_filters_t		m_docked_widgets_state;
 	QString 			m_log_name;
 
 	int 				m_start_level; // @TODO: to config?

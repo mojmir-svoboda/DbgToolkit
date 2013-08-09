@@ -6,17 +6,17 @@
 #include "constants.h"
 #include "utils.h"
 
-DataLog::DataLog (Connection * connection, config_t & config, QString const & fname)
-	: DockedData<e_data_log>(connection, config, fname)
+DataLog::DataLog (Connection * connection, config_t & config, QString const & confname, QStringList const & path)
+	: DockedData<e_data_log>(connection, config, confname, path)
 {
-	qDebug("%s this=0x%08x name=%s", __FUNCTION__, this, fname.toStdString().c_str());
+	qDebug("%s this=0x%08x name=%s", __FUNCTION__, this, confname.toStdString().c_str());
 
 	QWidget * tab = connection->m_tab_widget;
 	QHBoxLayout * horizontalLayout = new QHBoxLayout(tab);
 	horizontalLayout->setSpacing(1);
 	horizontalLayout->setContentsMargins(0, 0, 0, 0);
 	horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
-	logs::LogWidget * tableView = new logs::LogWidget(connection, tab, this->config(), fname);
+	logs::LogWidget * tableView = new logs::LogWidget(connection, tab, this->config(), confname);
 	horizontalLayout->addWidget(tableView);
 	m_widget = tableView;
 }
@@ -56,7 +56,7 @@ void Connection::onShowLogs ()
 	qDebug("%s", __FUNCTION__);
 	for (datalogs_t::iterator it = m_data.get<e_data_log>().begin(), ite = m_data.get<e_data_log>().end(); it != ite; ++it)
 	{
-		(*it)->onShow();
+		//(*it)->onShow();
 		m_main_window->restoreDockWidget((*it)->m_wd);
 	}
 }
@@ -64,10 +64,10 @@ void Connection::onShowLogs ()
 void Connection::onHideLogs ()
 {
 	qDebug("%s", __FUNCTION__);
-	for (datalogs_t::iterator it = m_data.get<e_data_log>().begin(), ite = m_data.get<e_data_log>().end(); it != ite; ++it)
+	/*for (datalogs_t::iterator it = m_data.get<e_data_log>().begin(), ite = m_data.get<e_data_log>().end(); it != ite; ++it)
 	{
 		(*it)->onHide();
-	}
+	}*/
 }
 
 void Connection::onShowLogContextMenu (QPoint const &)
@@ -147,7 +147,7 @@ datalogs_t::iterator Connection::findOrCreateLog (QString const & tag)
 	if (it != m_data.get<e_data_log>().end())
 	{
 		DataLog * d = *it;
-		d->onShow();
+		//d->onShow();
 	}
 	else
 		assert(false);

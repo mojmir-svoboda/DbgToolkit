@@ -7,8 +7,8 @@
 #include "dock.h"
 #include <cstdlib>
 
-DataPlot::DataPlot (Connection * connection, config_t & config, QString const & fname)
-	: DockedData<e_data_plot>(connection, config, fname)
+DataPlot::DataPlot (Connection * connection, config_t & config, QString const & confname, QString const & name, QStringList const & path)
+	: DockedData<e_data_plot>(connection, config, confname, name, path)
 {
 	qDebug("%s this=0x%08x", __FUNCTION__, this);
 	m_widget = new plot::PlotWidget(connection, 0, m_config, fname);

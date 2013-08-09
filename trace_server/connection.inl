@@ -12,7 +12,7 @@ bool Connection::loadConfigFor (QString const & preset_name, typename SelectConf
 inline void Connection::defaultConfigFor (logs::LogConfig & config)
 {
 	QString const & appname = getAppName();
-	int const idx = m_main_window->findAppName(appname);
+	int const idx = findAppNameInMainWindow(appname);
 	if (idx != e_InvalidItem)
 	{
 		convertBloodyBollockyBuggeryRegistry(config);
@@ -112,11 +112,19 @@ typename SelectIterator<TypeN>::type  Connection::dataWidgetFactory (QString con
 		dataptr_t const dd = new data_t(this, template_config, fname);
 		it = m_data.get<TypeN>().insert(tag, dd);
 
-		dd->m_wd = m_main_window->m_dock_mgr.mkDockWidget(m_main_window, &(*it)->widget(), (*it)->config().m_show, log_name);
+		DockedWidgetBase & dwb = (*it)->widget();
+
+		QString const name0 = parent()->name();
+		QString const name1 = getAppName();
+		QString const name2 = preset_prefix;
+		QString const name3 = tag;
+		dwb.m_dockpath.append();
+
+		dd->m_wd = m_main_window->m_dock_mgr.mkDockWidget(dwb, (*it)->config().m_show);
 		m_main_window->loadLayout(preset_name);
 
 		bool const visible = (*it)->config().m_show;
-		QModelIndex const item_idx = m_main_window->addDockedWidget(log_name, visible);
+		QModelIndex const item_idx = m_main_window->m_dock_mgr.addDockedTreeItem(dwb, visible);
 	}
 	return it;
 }

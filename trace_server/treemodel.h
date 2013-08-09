@@ -5,15 +5,16 @@
 
 class QTreeView;
 class Connection;
-typedef tree_filter<TreeModelItem> tree_data_t;
 
+template <class InfoT>
 class TreeModel : public QAbstractItemModel
 {
 	Q_OBJECT
 public:
 
 	typedef QAbstractItemModel parent_t;
-	typedef tree_data_t::node_t node_t;
+	typedef tree_filter<InfoT> tree_data_t;
+	typedef typename tree_data_t::node_t node_t;
 
 	explicit TreeModel (QObject * parent = 0, tree_data_t * data = 0);
 	~TreeModel ();
@@ -78,3 +79,4 @@ protected:
 	int m_cut_parent_lvl;
 };
 
+#include "treemodel.inl"

@@ -31,7 +31,6 @@
 #include "tls.h"
 #include "config.h"
 
-class FilterWidget;
 class PersistentFilter;
 class MainWindow;
 
@@ -176,7 +175,7 @@ public:
 
 	friend class Connection;
 	friend class FilterProxyModel;
-	friend class FilterWidget;
+	//friend class FilterWidget;
 	friend class PersistentFilter;
 
 

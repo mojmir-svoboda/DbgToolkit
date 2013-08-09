@@ -1,107 +1,33 @@
 #pragma  once
 
-class DockedWidgetBase {
+struct DockedWidgetBase;
 
-		void loadConfig (QString const & path);
-		void saveConfig (QString const & path);
+struct DockedInfo
+{
+	QStringList m_path;
+	//DockedWidgetBase * m_widget;
 
-		QList<DecodedCommand> m_queue;
-		void handleCommand (DecodedCommand const & cmd, E_ReceiveMode mode);
-		void commitCommands (E_ReceiveMode mode);
+	/*@member	state
+	 * duplicates qt enum
+	 *	Qt::Unchecked	0	The item is unchecked.
+	 *	Qt::PartiallyChecked	1	The item is partially checked. Items in hierarchical models may be partially checked if some, but not all, of their children are checked.
+	 *	Qt::Checked	2	The item is checked.
+	 */
+	int m_state;
+	int m_collapsed;
+	int m_valid_widget;
+	int m_centralwidget;
 
-	// find
-	void endOfSearch ();
-	void findAllTexts (QString const & text);
-	void findText (QString const & text, tlv::tag_t tag);
-	void findText (QString const & text);
-	void findNext (QString const & text);
-	void findPrev (QString const & text);
+	DockedInfo () : m_state(e_Unchecked), m_collapsed(true), m_valid_widget(false), m_centralwidget(false) { }
 
-	void scrollToCurrentTag ();
-	void scrollToCurrentSelection ();
-	void scrollToCurrentTagOrSelection ();
-	void nextToView ();
-
-	// filtering stuff
-	void onInvalidateFilter ();
-	//void syncSelection (QModelIndexList const & sel);
-
-	//QAbstractTableModel const * modelView () const { return static_cast<QAbstractTableModel const *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : model()); }
-	//QAbstractProxyModel const * proxyView () const { return static_cast<QAbstractProxyModel const *>(m_table_view_proxy); }
-
-	//bool isModelProxy () const;
-
-	//int findColumn4TagInTemplate (tlv::tag_t tag) const;
-	//int findColumn4Tag (tlv::tag_t tag) const;
-	//int appendColumn (tlv::tag_t tag);
-
-	FilterWidget * filterWidget () { return m_config_ui.m_ui->widget; }
-	FilterWidget const * filterWidget () const { return m_config_ui.m_ui->widget; }
-
-
-
-
-
-	public slots:
-
-		void onShow ();
-		void onHide ();
-		void onHideContextMenu ();
-		void onShowContextMenu (QPoint const & pos);
-
-		void setConfigValuesToUI (LogConfig const & cfg);
-		void setUIValuesToConfig (LogConfig & cfg);
-
-		void onSaveButton ();
-		void onApplyButton ();
-		void onResetButton ();
-		void onDefaultButton ();
-		void scrollTo (QModelIndex const & index, ScrollHint hint);
-		
-		void performTimeSynchronization (int sync_group, unsigned long long time, void * source);
-		void performFrameSynchronization (int sync_group, unsigned long long frame, void * source);
-
-		void onClearAllDataButton ();
-		void onNextToView ();
-		void turnOffAutoScroll ();
-		void onAutoScrollHotkey ();
-		void onQSearch (QString const & text);
-		void onQSearchEditingFinished ();
-		void setLastSearchIntoCombobox (QString const & txt);
-		void onFindAllButton ();
-		void onQFilterLineEditFinished ();
-		void appendToSearchHistory (QString const & str);
-		void updateSearchHistory ();
-		void onEditFindNext ();
-		void onEditFindPrev ();
-		void onDumpFilters ();
-		void applyConfig ();
-		void exportStorageToCSV (QString const & filename);
-
-		QString onCopyToClipboard ();
-		void findTableIndexInFilters (QModelIndex const & src_idx, bool scroll_to_item, bool expand);
-
-	signals:
-		//void requestTimeSynchronization (int sync_group, unsigned long long time, void * source);
-		//void requestFrameSynchronization (int sync_group, unsigned long long frame, void * source);
-
-	protected:
-		QString m_fname;
-		Connection * m_connection;
-		QWidget * m_tab;
-
-		FilterState m_filter_state;
-
-		// mutable state
-		TagConfig m_tagconfig;
-		QMap<tlv::tag_t, int> m_tags2columns;
-
-		QString m_last_search;
-		int m_current_tag;
-		int m_current_selection;
-		unsigned long long m_time_ref_value;
-
-		QString m_curr_preset;
-		//QString m_csv_separator;
-		//QTextStream * m_file_csv_stream;
+	template <class ArchiveT>
+	void serialize (ArchiveT & ar, unsigned const version)
+	{
+		ar & boost::serialization::make_nvp("path", m_path);
+		ar & boost::serialization::make_nvp("state", m_state);
+		ar & boost::serialization::make_nvp("collapsed", m_collapsed);
+		ar & boost::serialization::make_nvp("centralwidget", m_centralwidget);
+	}
 };
+
+

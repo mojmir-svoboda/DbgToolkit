@@ -2,7 +2,7 @@
 #include "connection.h"
 #include "mainwindow.h"
 
-TreeProxyModel::TreeProxyModel (TreeModel * src, QItemSelectionModel * selection)
+TreeProxyModel::TreeProxyModel (TreeModel<TreeModelItem> * src, QItemSelectionModel * selection)
 	: KSelectionProxyModel(selection)
 	, m_selection(selection)
 	, m_src(src)

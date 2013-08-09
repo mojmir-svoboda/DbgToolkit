@@ -54,7 +54,6 @@ SET(trace_server_SOURCES
 	mainwindow_docking.cpp
 	tableview.cpp
 	treeview.cpp
-	treemodel.cpp
 	treeproxy.cpp
 	delegates.cpp
 	server.cpp

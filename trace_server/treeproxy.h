@@ -34,7 +34,7 @@ class TreeProxyModel : public KSelectionProxyModel
 	Q_OBJECT
 
 public:
-	explicit TreeProxyModel (TreeModel * src, QItemSelectionModel * selection);
+	explicit TreeProxyModel (TreeModel<TreeModelItem> * src, QItemSelectionModel * selection);
 
 public slots:
 	//void force_update();
@@ -44,7 +44,7 @@ protected:
 
 	QString m_find;
 	QItemSelectionModel * m_selection;
-	TreeModel * m_src;
+	TreeModel<TreeModelItem> * m_src;
 };
 
 

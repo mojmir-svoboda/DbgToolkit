@@ -7,6 +7,7 @@
 #include "logconfig.h"
 #include "logctxmenu.h"
 #include "tagconfig.h"
+#include <appdata.h>
 
 class Connection;
 class LevelDelegate;

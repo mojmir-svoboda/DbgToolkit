@@ -90,22 +90,59 @@ struct SelectConfig
 	: boost::mpl::apply<boost::mpl::second<boost::mpl::_1>, typename SelectInternals<N, datawidgetcfgs_t>::type >
 { };
 
+struct DockedWidgetBase {
+
+	DockedWidgetBase (QStringList const & path) 
+		: m_idx()
+		, m_dockpath(path), m_wd(0) 
+	{ }
+	virtual ~DockedWidgetBase () { }
+
+	QModelIndex m_idx;
+	QStringList m_dockpath;
+	QDockWidget * m_wd;
+
+	virtual E_DataWidgetType type () const = 0;
+
+	QStringList const & dockPath () const { return m_dockpath; }
+
+	// find
+	/*virtual void findAllRefs (QString const & text) = 0;
+	virtual void findText (QString const & text, tlv::tag_t tag) = 0;
+	virtual void findText (QString const & text) = 0;
+	virtual void findNext (QString const & text) = 0;
+	virtual void findPrev (QString const & text) = 0;*/
+
+	//virtual void performTimeSynchronization (int sync_group, unsigned long long time, void * source) = 0;
+	//virtual void performFrameSynchronization (int sync_group, unsigned long long frame, void * source) = 0;
+
+	//void scrollToCurrentTag () = 0;
+	//void scrollToCurrentSelection () = 0;
+	//void scrollToCurrentTagOrSelection () = 0;
+	//void nextToView () = 0;
+
+};
 
 template <int TypeN>
-struct DockedData
+struct DockedData : DockedWidgetBase
 {
 	typedef typename SelectWidget<TypeN>::type widget_t;
 	typedef typename SelectConfig<TypeN>::type config_t;
 	enum { e_type = TypeN };
 
-	Connection * m_parent;
-	QDockWidget * m_wd;
-	widget_t * m_widget;
-	config_t m_config;
-	QString m_fname;
+	virtual E_DataWidgetType type () const { return static_cast<E_DataWidgetType>(e_type); }
 
-	DockedData (Connection * parent, config_t & config, QString const & fname)
-		: m_parent(parent) , m_wd(0) , m_widget(0) , m_config(config) , m_fname(fname)
+	Connection * m_parent;
+	widget_t *   m_widget;
+	config_t     m_config;
+	QString      m_confname;
+
+	DockedData (Connection * parent, config_t & config, QString const & confname, QStringList const & dockpath)
+		: DockedWidgetBase(dockpath)
+		, m_parent(parent)
+		, m_widget(0)
+		, m_config(config)
+		, m_confname(confname)
 	{ }
 
 	~DockedData ()
@@ -121,13 +158,13 @@ struct DockedData
 	config_t const & config () const { return m_config; }
 
 
-	void onShow ()
+	virtual void show ()
 	{
 		m_widget->onShow();
 		m_wd->show();
 		m_parent->getMainWindow()->restoreDockWidget(m_wd);
 	}
-	void onHide ()
+	virtual void hide ()
 	{
 		m_widget->onHide();
 		QTimer::singleShot(0, m_wd, SLOT(hide()));
@@ -136,22 +173,22 @@ struct DockedData
 
 struct DataLog : DockedData<e_data_log>
 {
-	DataLog (Connection * parent, config_t & config, QString const & fname);
+	DataLog (Connection * parent, config_t & config, QString const & confname, QStringList const & path);
 	~DataLog ();
 };
 struct DataPlot : DockedData<e_data_plot>
 {
-	DataPlot (Connection * parent, config_t & config, QString const & fname);
+	DataPlot (Connection * parent, config_t & config, QString const & confname, QStringList const & path);
 };
 struct DataTable : DockedData<e_data_table>
 {
-	DataTable (Connection * parent, config_t & config, QString const & fname);
+	DataTable (Connection * parent, config_t & config, QString const & confname, QStringList const & path);
 	~DataTable ();
 };
 
 struct DataGantt : DockedData<e_data_gantt>
 {
-	DataGantt (Connection * parent, config_t & config, QString const & fname);
+	DataGantt (Connection * parent, config_t & config, QString const & confname, QStringList const & path);
 };
 
 
@@ -204,6 +241,7 @@ public:
 	
 	QString getAppName () const { return m_app_name; }
 	int getAppIdx () const { return m_app_idx; }
+	int findAppNameInMainWindow (QString const & appname);
 	AppData const & appData () const { return m_app_data; }
 
 	void run ();
@@ -340,7 +378,7 @@ protected:
 	datagantts_t::iterator findOrCreateGantt (QString const & tag);
 	void appendGantt (gantt::DecodedData &);
 
-	GlobalConfig const & getConfig () { return m_main_window->getConfig(); }
+	GlobalConfig const & getConfig () const;
 
 	void tryLoadMatchingPreset (QString const & appname);
 	bool setupStorage (QString const & name);
