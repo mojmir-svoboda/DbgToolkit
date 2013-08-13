@@ -16,7 +16,7 @@ void DockWidget::closeEvent (QCloseEvent * event)
 {	
 	static_cast<QMainWindow *>(parent())->removeDockWidget(this);
 	setWidget(0);
-	m_mgr.onPlotClosed(this);
+	m_mgr.onWidgetClosed(this);
 	event->accept();
 }
 
@@ -36,10 +36,10 @@ DockManager::DockManager (MainWindow * mw)
 
 DockManager::~DockManager ()
 {
-	disconnect(m_docked_widgets_tree_view, SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtDockedWidgets(QModelIndex)));
+	disconnect(m_docked_widgets_tree_view, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtDockedWidgets(QModelIndex)));
 }
 
-DockWidget * DockManager::mkDockWidget (DockedWidgetBase & dwb, bool visible, QString const & confname, QStringList const & path);
+DockWidget * DockManager::mkDockWidget (DockedWidgetBase & dwb, bool visible, QString const & confname, QStringList const & path)
 {
 	return mkDockWidget(dwb, visible, confname, path, Qt::BottomDockWidgetArea);
 }

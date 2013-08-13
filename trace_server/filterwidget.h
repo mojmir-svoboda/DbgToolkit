@@ -5,8 +5,7 @@
 #include <QListView>
 #include "filterstate.h"
 #include "treemodel.h"
-//#include "treeview.h"
-//#include "treeproxy.h"
+#include "treeview.h"
 #include "delegates.h"
 #include <boost/tuple/tuple.hpp>
 

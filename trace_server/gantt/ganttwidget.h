@@ -39,7 +39,7 @@ namespace gantt {
 	{
 		Q_OBJECT
 	public:
-		GanttWidget (Connection * oparent, QWidget * wparent, GanttConfig & cfg, QString const & fname);
+		GanttWidget (Connection * oparent, QWidget * wparent, GanttConfig & cfg, QString const & fname, QStringList const & path);
 
 		void applyConfig (GanttConfig & pcfg);
 		virtual ~GanttWidget ();

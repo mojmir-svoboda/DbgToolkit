@@ -1,5 +1,4 @@
 #include "treemodel.h"
-#include "connection.h"
 #include <QTreeView>
 
 template <class InfoT>

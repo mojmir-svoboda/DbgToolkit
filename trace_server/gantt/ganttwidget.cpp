@@ -11,7 +11,7 @@
 #include "../syncwidgets.h"
 
 
-DataFrameView::DataFrameView (Connection * parent, FrameViewConfig & config, QString const & fname)
+DataFrameView::DataFrameView (Connection * parent, FrameViewConfig & config, QString const & fname, QStringList const & path)
 	: m_parent(parent)
 	, m_wd(0)
 	, m_widget(0)

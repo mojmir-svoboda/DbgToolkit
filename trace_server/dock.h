@@ -44,6 +44,7 @@ struct DockManager : QObject
 {
 	Q_OBJECT
 public:
+	~DockManager ();
 
 	QMultiMap<QStringList, QDockWidget *> m_widgets;
 	MainWindow * 		m_main_window;

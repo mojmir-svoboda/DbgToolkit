@@ -109,7 +109,11 @@ typename SelectIterator<TypeN>::type  Connection::dataWidgetFactory (QString con
 		
 		typedef typename SelectDockedData<TypeN, dockeddata_t>::type data_t;
 		typedef typename SelectDockedData<TypeN, dockeddataptr_t>::type dataptr_t;
-		dataptr_t const dd = new data_t(this, template_config, fname);
+		QStringList path;
+		path.append(getAppName());
+		path.append(preset_prefix);
+		path.append(tag);
+		dataptr_t const dd = new data_t(this, template_config, fname, path);
 		it = m_data.get<TypeN>().insert(tag, dd);
 
 		DockedWidgetBase & dwb = (*it)->widget();

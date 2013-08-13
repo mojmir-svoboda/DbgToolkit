@@ -14,8 +14,9 @@
 #include <sstream>
 #include <QMessageBox>
 #include <QString>
-//#include "ui_filterwidget.h"
 #include "constants.h"
+#include "treeproxy.h"
+#include "ui_filterwidget.h"
 
 FilterWidget::FilterWidget (QWidget * parent)
 	: QWidget(parent)
@@ -153,7 +154,7 @@ void FilterWidget::setupModelFile ()
 	if (!m_file_model)
 	{
 		qDebug("new tree view file model");
-		m_file_model = new TreeModel(this, &m_filter_state.m_file_filters);
+		m_file_model = new FilterTreeModel(this, &m_filter_state.m_file_filters);
 
 		  //->setFilterBehavior( KSelectionProxyModel::ExactSelection );
 		m_proxy_selection = new QItemSelectionModel(m_file_model, this);
