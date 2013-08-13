@@ -37,6 +37,8 @@ public:
 	~DockTreeModel ();
 
 	QModelIndex insertItemWithPath (QStringList const & path, bool checked);
+
+	TreeModel<DockedInfo>::node_t const * getItemFromIndex (QModelIndex const & index) const { return itemFromIndex(index); }
 };
 
 
@@ -46,7 +48,7 @@ struct DockManager : QObject
 public:
 	~DockManager ();
 
-	QMultiMap<QStringList, QDockWidget *> m_widgets;
+	QMultiMap<QString, QDockWidget *> m_widgets; // @TODO: hashed container?
 	MainWindow * 		m_main_window;
 	DockWidget * 		m_docked_widgets;
 	TreeView * 			m_docked_widgets_tree_view;
@@ -58,12 +60,14 @@ public:
 	DockWidget * mkDockWidget (DockedWidgetBase & dwb, bool visible);
 	DockWidget * mkDockWidget (DockedWidgetBase & dwb, bool visible, Qt::DockWidgetArea area);
 	QModelIndex addDockedTreeItem (DockedWidgetBase & dwb, bool on);
-	QModelIndex addTreeItem (QStringList const & path, bool on);
+	QModelIndex addLeafTreeItem (QStringList const & path, bool on);
+
 
 	void handleAction (Action * a);
 
 public slots:
 	void onWidgetClosed (DockWidget * w);
+	void onClickedAtDockedWidgets (QModelIndex idx);
 
 };
 

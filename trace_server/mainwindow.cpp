@@ -92,6 +92,7 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QStri
 	, m_tray_icon(0)
 	, m_settings_dialog(0)
 	, m_dock_mgr()
+	, m_docked_name("trace_server")
 	, m_log_name(log_name)
 	, m_start_level(level)
 {

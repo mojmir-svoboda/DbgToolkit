@@ -6,6 +6,7 @@
 #include "dock.h"
 #include "delegates.h"
 #include "gantt/ganttview.h"
+#include "gantt/ganttwidget.h"
 //#include <cstdlib>
 
 DataGantt::DataGantt (Connection * connection, config_t & config, QString const & confname, QStringList const & path)

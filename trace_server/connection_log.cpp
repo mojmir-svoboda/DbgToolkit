@@ -2,6 +2,7 @@
 #include <QClipboard>
 #include <QObject>
 #include "logs/logtablemodel.h"
+#include "logs/logwidget.h"
 #include "tableview.h"
 #include "constants.h"
 #include "utils.h"

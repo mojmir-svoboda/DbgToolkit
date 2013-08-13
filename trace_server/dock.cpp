@@ -6,6 +6,7 @@
 #include <QCloseEvent>
 #include <QMainWindow>
 #include "mainwindow.h"
+#include "connection.h"
 
 DockWidget::DockWidget (DockManager & mgr, QString const & name, QMainWindow * const window)
 	: QDockWidget(name, window)
@@ -39,19 +40,19 @@ DockManager::~DockManager ()
 	disconnect(m_docked_widgets_tree_view, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtDockedWidgets(QModelIndex)));
 }
 
-DockWidget * DockManager::mkDockWidget (DockedWidgetBase & dwb, bool visible, QString const & confname, QStringList const & path)
+DockWidget * DockManager::mkDockWidget (DockedWidgetBase & dwb, bool visible)
 {
-	return mkDockWidget(dwb, visible, confname, path, Qt::BottomDockWidgetArea);
+	return mkDockWidget(dwb, visible, Qt::BottomDockWidgetArea);
 }
 
 DockWidget * DockManager::mkDockWidget (DockedWidgetBase & dwb, bool visible, Qt::DockWidgetArea area)
 {
 	QString const name = dwb.dockPath().join("/");
-	DockWidget * const dock = new DockWidget(*this, name, window);
+	DockWidget * const dock = new DockWidget(*this, name, m_main_window);
 	dock->setObjectName(name);
 	dock->setWindowTitle(name);
 	dock->setAllowedAreas(Qt::AllDockWidgetAreas);
-	dock->setWidget(docked_widget);
+	//dock->setWidget(docked_widget); // set by caller
 	m_main_window->addDockWidget(area, dock);
 	m_widgets.insert(name, dock);
 	dock->setAttribute(Qt::WA_DeleteOnClose, false);
@@ -74,11 +75,11 @@ void DockManager::onWidgetClosed (DockWidget * w)
 }*/
 
 
-QModelIndex DockManager::addDockedWidget (DockedWidgetBase & dockedwidget, bool on)
+QModelIndex DockManager::addDockedTreeItem (DockedWidgetBase & dwb, bool on)
 {
-	QModelIndex const idx = m_docked_widgets_model->insertItemWithHint(dockedwidget.dockPath(), on);
+	QModelIndex const idx = m_docked_widgets_model->insertItemWithPath(dwb.dockPath(), on);
 	m_docked_widgets_model->setData(idx, QVariant(on ? Qt::Checked : Qt::Unchecked), Qt::CheckStateRole);
-	dockedwidget.m_idx = idx;
+	dwb.m_idx = idx;
 	return idx;
 }
 
@@ -91,8 +92,8 @@ void DockManager::handleAction (Action * a)
 // @TODO: hmm. this whole fn is.. unfortunately rushed. need to rethink
 void DockManager::onClickedAtDockedWidgets (QModelIndex idx)
 {
-	TreeModel<DockedInfo>::node_t * n = m_docked_widgets_model->itemFromIndex(idx);
-	QStringList const & dst = n->m_dst_path;
+	TreeModel<DockedInfo>::node_t const * n = m_docked_widgets_model->getItemFromIndex(idx);
+	QStringList const & dst = n->data.m_path;
 	int const state = m_docked_widgets_model->data(idx, Qt::CheckStateRole).toInt();
 
 	ActionVisibility av;
@@ -232,8 +233,8 @@ void DockManager::onClickedAtDockedWidgets (QModelIndex idx)
 
 QModelIndex DockTreeModel::insertItemWithPath (QStringList const & path, bool checked)
 {
-	QString const name = dwb.dockPath().join("/");
-	TreeModelItem const * i = 0;
+	QString const name = path.join("/");
+	DockedInfo const * i = 0;
 	node_t const * node = m_tree_data->is_present(name, i);
 	if (node)
 	{
@@ -243,7 +244,7 @@ QModelIndex DockTreeModel::insertItemWithPath (QStringList const & path, bool ch
 	else
 	{
 		//qDebug("%s path=%s not present, adding", __FUNCTION__, path.toStdString().c_str());
-		TreeModelItem i;
+		DockedInfo i;
 		i.m_state = checked ? Qt::Checked : Qt::Unchecked;
 		i.m_collapsed = false;
 	

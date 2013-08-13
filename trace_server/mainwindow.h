@@ -156,6 +156,7 @@ public:
 	DockManager const & dockManager () const { return m_dock_mgr; }
 	DockManager & dockManager () { return m_dock_mgr; }
 	QModelIndex addDockedWidget (QString const & name, bool on);
+	QString const & dockedName () const { return m_docked_name; }
 
 	void createTailDataStream (QString const & fname);
 	void createTailLogStream (QString const & fname, QString const & separator);
@@ -266,6 +267,7 @@ private:
 
 	// docked widgets
 	DockManager 		m_dock_mgr;
+	QString				m_docked_name;
 	QString 			m_log_name;
 
 	int 				m_start_level; // @TODO: to config?

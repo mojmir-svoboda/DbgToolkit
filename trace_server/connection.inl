@@ -110,21 +110,22 @@ typename SelectIterator<TypeN>::type  Connection::dataWidgetFactory (QString con
 		typedef typename SelectDockedData<TypeN, dockeddata_t>::type data_t;
 		typedef typename SelectDockedData<TypeN, dockeddataptr_t>::type dataptr_t;
 		QStringList path;
-		path.append(getAppName());
-		path.append(preset_prefix);
-		path.append(tag);
+		QString const & name0 = m_main_window->dockedName();
+		QString const & name1 = getAppName();
+		QString const & name2 = preset_prefix;
+		QString const & name3 = tag;
+		path.append(name0);
+		path.append(name1);
+		path.append(name2);
+		path.append(name3);
 		dataptr_t const dd = new data_t(this, template_config, fname, path);
 		it = m_data.get<TypeN>().insert(tag, dd);
 
-		DockedWidgetBase & dwb = (*it)->widget();
+		DockedWidgetBase & dwb = *dd;;
 
-		QString const name0 = parent()->name();
-		QString const name1 = getAppName();
-		QString const name2 = preset_prefix;
-		QString const name3 = tag;
-		dwb.m_dockpath.append();
-
+		dwb.m_dockpath = path;
 		dd->m_wd = m_main_window->m_dock_mgr.mkDockWidget(dwb, (*it)->config().m_show);
+		dwb.m_wd->setWidget(&(*it)->widget());
 		m_main_window->loadLayout(preset_name);
 
 		bool const visible = (*it)->config().m_show;
