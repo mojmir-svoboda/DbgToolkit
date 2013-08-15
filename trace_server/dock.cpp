@@ -21,8 +21,8 @@ void DockWidget::closeEvent (QCloseEvent * event)
 	event->accept();
 }
 
-DockManager::DockManager (MainWindow * mw)
-	: QObject(mw)
+DockManager::DockManager (MainWindow * mw, QStringList const & path)
+	: QObject(mw), ActionAble(path)
 	, m_main_window(mw)
 	, m_docked_widgets(0)
 	, m_docked_widgets_tree_view(0)
@@ -84,7 +84,7 @@ QModelIndex DockManager::addDockedTreeItem (DockedWidgetBase & dwb, bool on)
 }
 
 
-void DockManager::handleAction (Action * a)
+bool DockManager::handleAction (Action * a, bool sync)
 {
 	QStringList const & src_path = a->m_src_path;
 }
@@ -98,7 +98,7 @@ void DockManager::onClickedAtDockedWidgets (QModelIndex idx)
 
 	ActionVisibility av;
 	av.m_args.push_back(state);
-	handleAction(&av);
+	handleAction(&av, true);
 	
 /*	QList<QString> path;
 	QList<bool> state;

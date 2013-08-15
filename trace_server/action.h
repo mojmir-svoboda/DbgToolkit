@@ -12,11 +12,13 @@ enum E_ActionType {
 	, e_AlignV
 };
 
+struct ActionAble;
+
 struct Action {
+	ActionAble * m_src;
 	QStringList m_src_path;
-	DockedWidgetBase * m_src;
+	ActionAble * m_dst;
 	QStringList m_dst_path;
-	DockedWidgetBase * m_dst;
 	QList<QVariant> m_args;
 	
 	Action () : m_src(0), m_dst(0) { }
@@ -27,6 +29,17 @@ struct Action {
 struct ActionVisibility : Action {
 
 	virtual E_ActionType type () const { return e_Visibility; }
+};
+
+
+struct ActionAble {
+
+	QStringList m_path;
+
+	ActionAble (QStringList const & path) : m_path(path) { }
+	virtual ~ActionAble () { }
+
+	virtual bool handleAction (Action * a, bool sync) = 0;
 };
 
 

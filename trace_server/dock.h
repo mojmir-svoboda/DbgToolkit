@@ -42,10 +42,11 @@ public:
 };
 
 
-struct DockManager : QObject
+struct DockManager : QObject, ActionAble
 {
 	Q_OBJECT
 public:
+	DockManager (MainWindow * mw, QStringList const & path);
 	~DockManager ();
 
 	QMultiMap<QString, QDockWidget *> m_widgets; // @TODO: hashed container?
@@ -56,14 +57,12 @@ public:
 	typedef tree_filter<DockedInfo> data_filters_t;
 	data_filters_t		m_docked_widgets_state;
 
-	explicit DockManager (MainWindow * parent = 0);
 	DockWidget * mkDockWidget (DockedWidgetBase & dwb, bool visible);
 	DockWidget * mkDockWidget (DockedWidgetBase & dwb, bool visible, Qt::DockWidgetArea area);
 	QModelIndex addDockedTreeItem (DockedWidgetBase & dwb, bool on);
 	QModelIndex addLeafTreeItem (QStringList const & path, bool on);
 
-
-	void handleAction (Action * a);
+	virtual bool handleAction (Action * a, bool sync);
 
 public slots:
 	void onWidgetClosed (DockWidget * w);

@@ -90,10 +90,11 @@ struct SelectConfig
 	: boost::mpl::apply<boost::mpl::second<boost::mpl::_1>, typename SelectInternals<N, datawidgetcfgs_t>::type >
 { };
 
-struct DockedWidgetBase {
+struct DockedWidgetBase : ActionAble {
 
-	DockedWidgetBase (QStringList const & path) 
-		: m_idx()
+	DockedWidgetBase (QStringList const & path)
+		: ActionAble(path)
+		, m_idx()
 		, m_dockpath(path), m_wd(0) 
 	{ }
 	virtual ~DockedWidgetBase () { }
@@ -157,8 +158,12 @@ struct DockedData : DockedWidgetBase
 	config_t & config () { return m_config; }
 	config_t const & config () const { return m_config; }
 
+	virtual bool handleAction (Action * a, bool sync)
+	{
+		return m_widget->handleAction(a, sync);
+	}
 
-	virtual void show ()
+	/*virtual void show ()
 	{
 		m_widget->onShow();
 		m_wd->show();
@@ -168,7 +173,7 @@ struct DockedData : DockedWidgetBase
 	{
 		m_widget->onHide();
 		QTimer::singleShot(0, m_wd, SLOT(hide()));
-	}
+	}*/
 };
 
 struct DataLog : DockedData<e_data_log>

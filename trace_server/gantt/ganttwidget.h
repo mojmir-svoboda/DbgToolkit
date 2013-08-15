@@ -6,6 +6,7 @@
 #include "ganttdata.h"
 #include "ganttctxmenu.h"
 #include "frameview.h"
+#include "action.h"
 
 class Connection;
 QT_FORWARD_DECLARE_CLASS(QSplitter)
@@ -14,14 +15,14 @@ namespace gantt {
 	QT_FORWARD_DECLARE_CLASS(GanttView)
 }
 
-struct DataFrameView {
+struct DataFrameView : ActionAble {
 	Connection * m_parent;
 	QDockWidget * m_wd;
 	FrameView * m_widget;
 	FrameViewConfig m_config;
 	QString m_fname;
 
-	DataFrameView (Connection * parent, FrameViewConfig & config, QString const & fname);
+	DataFrameView (Connection * parent, FrameViewConfig & config, QString const & fname, QStringList const & path);
 	~DataFrameView ();
 
 	void onShow ();
@@ -35,7 +36,7 @@ typedef QMap<int, DataFrameView *> dataframeviews_t;
 
 namespace gantt {
 
-	class GanttWidget : public QFrame
+	class GanttWidget : public QFrame, public ActionAble
 	{
 		Q_OBJECT
 	public:

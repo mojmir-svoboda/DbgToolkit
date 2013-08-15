@@ -11,7 +11,7 @@
 #include "../syncwidgets.h"
 
 
-DataFrameView::DataFrameView (Connection * parent, FrameViewConfig & config, QString const & fname, QStringList const & path)
+DataFrameView::DataFrameView (Connection * parent, FrameViewConfig & config, QString const & fname)
 	: m_parent(parent)
 	, m_wd(0)
 	, m_widget(0)
@@ -44,7 +44,7 @@ void DataFrameView::onHide ()
 namespace gantt {
 
 	GanttWidget::GanttWidget (Connection * oparent, QWidget * wparent, GanttConfig & cfg, QString const & fname)
-		: QFrame(wparent)
+		: QFrame(wparent), ActionAble(path)
 		, m_config(cfg)
 		, m_config_ui(cfg, this)
 		, m_fname(fname)

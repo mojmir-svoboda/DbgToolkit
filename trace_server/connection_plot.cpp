@@ -7,30 +7,30 @@
 #include "dock.h"
 #include <cstdlib>
 
-DataPlot::DataPlot (Connection * connection, config_t & config, QString const & confname, QString const & name, QStringList const & path)
-	: DockedData<e_data_plot>(connection, config, confname, name, path)
+DataPlot::DataPlot (Connection * connection, config_t & config, QString const & confname, QStringList const & path)
+	: DockedData<e_data_plot>(connection, config, confname, path)
 {
 	qDebug("%s this=0x%08x", __FUNCTION__, this);
-	m_widget = new plot::PlotWidget(connection, 0, m_config, fname);
+	m_widget = new plot::PlotWidget(connection, 0, m_config, confname);
 }
 
 void Connection::onShowPlots ()
 {
 	qDebug("%s", __FUNCTION__);
-	for (dataplots_t::iterator it = m_data.get<e_data_plot>().begin(), ite = m_data.get<e_data_plot>().end(); it != ite; ++it)
+	/*for (dataplots_t::iterator it = m_data.get<e_data_plot>().begin(), ite = m_data.get<e_data_plot>().end(); it != ite; ++it)
 	{
 		(*it)->onShow();
 		m_main_window->restoreDockWidget((*it)->m_wd);
-	}
+	}*/
 }
 
 void Connection::onHidePlots ()
 {
 	qDebug("%s", __FUNCTION__);
-	for (dataplots_t::iterator it = m_data.get<e_data_plot>().begin(), ite = m_data.get<e_data_plot>().end(); it != ite; ++it)
+	/*for (dataplots_t::iterator it = m_data.get<e_data_plot>().begin(), ite = m_data.get<e_data_plot>().end(); it != ite; ++it)
 	{
 		(*it)->onHide();
-	}
+	}*/
 }
 
 void Connection::onShowPlotContextMenu (QPoint const &)
@@ -152,11 +152,11 @@ dataplots_t::iterator Connection::findOrCreatePlot (QString const & tag)
 	{
 		if (m_main_window->plotState() == e_FtrEnabled && (*it)->config().m_show)
 		{
-			(*it)->onShow();
+			(*it)->show();
 		}
 		else
 		{
-			(*it)->onHide();
+			(*it)->hide();
 		}
 	}
 	return it;

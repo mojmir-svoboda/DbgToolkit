@@ -9,10 +9,10 @@
 #include "delegates.h"
 #include <cstdlib>
 
-DataTable::DataTable (Connection * connection, config_t & config, QString const & confname, QString const & name, QStringList const & path)
-	: DockedData<e_data_table>(connection, config, confname, name, path)
+DataTable::DataTable (Connection * connection, config_t & config, QString const & confname, QStringList const & path)
+	: DockedData<e_data_table>(connection, config, confname, path)
 {
-	qDebug("%s this=0x%08x name=%s", __FUNCTION__, this, fname.toStdString().c_str());
+	qDebug("%s this=0x%08x name=%s", __FUNCTION__, this, confname.toStdString().c_str());
 	m_widget = new table::TableWidget(connection, 0, m_config, confname);
 	m_widget->setItemDelegate(new SyncedTableItemDelegate(m_widget));
 }
@@ -25,20 +25,20 @@ DataTable::~DataTable ()
 void Connection::onShowTables ()
 {
 	qDebug("%s", __FUNCTION__);
-	for (datatables_t::iterator it = m_data.get<e_data_table>().begin(), ite = m_data.get<e_data_table>().end(); it != ite; ++it)
+	/*for (datatables_t::iterator it = m_data.get<e_data_table>().begin(), ite = m_data.get<e_data_table>().end(); it != ite; ++it)
 	{
 		(*it)->onShow();
 		m_main_window->restoreDockWidget((*it)->m_wd);
-	}
+	}*/
 }
 
 void Connection::onHideTables ()
 {
 	qDebug("%s", __FUNCTION__);
-	for (datatables_t::iterator it = m_data.get<e_data_table>().begin(), ite = m_data.get<e_data_table>().end(); it != ite; ++it)
+	/*for (datatables_t::iterator it = m_data.get<e_data_table>().begin(), ite = m_data.get<e_data_table>().end(); it != ite; ++it)
 	{
 		(*it)->onHide();
-	}
+	}*/
 }
 
 void Connection::onShowTableContextMenu (QPoint const &)
@@ -178,11 +178,11 @@ datatables_t::iterator Connection::findOrCreateTable (QString const & tag)
 
 		if (m_main_window->tableState() == e_FtrEnabled && (*it)->config().m_show)
 		{
-			(*it)->onShow();
+			(*it)->show();
 		}
 		else
 		{
-			(*it)->onHide();
+			(*it)->hide();
 		}
 	}
 	return it;

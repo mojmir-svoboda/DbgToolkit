@@ -6,6 +6,7 @@
 #include "utils.h"
 #include "utils_qstandarditem.h"
 #include "filterproxymodel.h"
+#include <treeproxy.h>
 #include "logs/logtablemodel.h"
 #include "qtsln/qtcolorpicker/qtcolorpicker.h"
 
