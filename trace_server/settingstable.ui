@@ -78,7 +78,7 @@
           <string>Find</string>
          </property>
          <property name="icon">
-          <iconset resource="resources.qrc">
+          <iconset>
            <normaloff>:/images/find.ico</normaloff>:/images/find.ico</iconset>
          </property>
         </item>
@@ -87,7 +87,7 @@
           <string>Filters</string>
          </property>
          <property name="icon">
-          <iconset resource="resources.qrc">
+          <iconset>
            <normaloff>:/images/filter.ico</normaloff>:/images/filter.ico</iconset>
          </property>
         </item>
@@ -96,7 +96,7 @@
           <string>Tools</string>
          </property>
          <property name="icon">
-          <iconset resource="resources.qrc">
+          <iconset>
            <normaloff>:/images/tools.ico</normaloff>:/images/tools.ico</iconset>
          </property>
         </item>
@@ -105,7 +105,7 @@
           <string>View</string>
          </property>
          <property name="icon">
-          <iconset resource="resources.qrc">
+          <iconset>
            <normaloff>:/images/view.ico</normaloff>:/images/view.ico</iconset>
          </property>
         </item>
@@ -320,9 +320,7 @@ All tables with the same number will have inputs synchronized.
    <container>1</container>
   </customwidget>
  </customwidgets>
- <resources>
-  <include location="resources.qrc"/>
- </resources>
+ <resources/>
  <connections>
   <connection>
    <sender>iconWidget</sender>

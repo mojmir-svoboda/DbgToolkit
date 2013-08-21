@@ -11,15 +11,16 @@
 #include "../syncwidgets.h"
 
 
-DataFrameView::DataFrameView (Connection * parent, FrameViewConfig & config, QString const & fname)
-	: m_parent(parent)
+DataFrameView::DataFrameView (Connection * parent, FrameViewConfig & config, QString const & fname, QStringList const & path)
+	: ActionAble(path)
+	, m_parent(parent)
 	, m_wd(0)
 	, m_widget(0)
 	, m_config(config)
 	, m_fname(fname)
 {
 	qDebug("%s this=0x%08x", __FUNCTION__, this);
-	m_widget = new FrameView(parent, 0, m_config, fname);
+	m_widget = new FrameView(parent, 0, m_config, fname, path);
 }
 DataFrameView::~DataFrameView ()
 {
@@ -43,7 +44,7 @@ void DataFrameView::onHide ()
 
 namespace gantt {
 
-	GanttWidget::GanttWidget (Connection * oparent, QWidget * wparent, GanttConfig & cfg, QString const & fname)
+	GanttWidget::GanttWidget (Connection * oparent, QWidget * wparent, GanttConfig & cfg, QString const & fname, QStringList const & path)
 		: QFrame(wparent), ActionAble(path)
 		, m_config(cfg)
 		, m_config_ui(cfg, this)
@@ -191,6 +192,11 @@ namespace gantt {
 				gv->applyConfig(gvc);
 			}
 		}
+	}
+
+	bool GanttWidget::handleAction (Action * a, bool sync)
+	{
+		return false;
 	}
 
 	void GanttWidget::showGanttView (GanttView * item, bool on)
@@ -468,7 +474,9 @@ namespace gantt {
 			FrameViewConfig template_config;
 
 			QString fname;
-			DataFrameView * const fv = new DataFrameView(m_connection, template_config, fname);
+			QStringList path = m_path;
+			path.append("frameview");
+			DataFrameView * const fv = new DataFrameView(m_connection, template_config, fname, path);
 			it = m_dataframeviews.insert(sync_group, fv);
 			//QModelIndex const item_idx = m_data_model->insertItemWithHint(name, template_config.m_show);
 

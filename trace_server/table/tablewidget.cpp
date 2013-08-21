@@ -10,8 +10,8 @@
 
 namespace table {
 
-	TableWidget::TableWidget (Connection * oparent, QWidget * wparent, TableConfig & cfg, QString const & fname)
-		: QTableView(wparent)
+	TableWidget::TableWidget (Connection * oparent, QWidget * wparent, TableConfig & cfg, QString const & fname, QStringList const & path)
+		: QTableView(wparent), ActionAble(path)
 		, m_config(cfg)
 		, m_config_ui(cfg, this)
 		, m_fname(fname)
@@ -87,6 +87,11 @@ namespace table {
 	void TableWidget::onHide ()
 	{
 		hide();
+	}
+
+	bool TableWidget::handleAction (Action * a, bool sync)
+	{
+		return false;
 	}
 
 	void TableWidget::applyConfig ()

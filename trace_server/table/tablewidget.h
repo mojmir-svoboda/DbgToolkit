@@ -7,17 +7,18 @@
 #include "tableconfig.h"
 #include "tablectxmenu.h"
 #include "tablemodelview.h"
+#include "action.h"
 #include <cmd.h>
 
 class Connection;
 
 namespace table {
 
-	class TableWidget : public QTableView
+	class TableWidget : public QTableView, public ActionAble
 	{
 		Q_OBJECT
 	public:
-		TableWidget (Connection * oparent, QWidget * wparent, TableConfig & cfg, QString const & fname);
+		TableWidget (Connection * oparent, QWidget * wparent, TableConfig & cfg, QString const & fname, QStringList const & path);
 
 		void applyConfig (TableConfig & pcfg);
 		virtual ~TableWidget ();
@@ -27,6 +28,7 @@ namespace table {
 
 		void handleCommand (DecodedCommand const & cmd, E_ReceiveMode mode);
 		void commitCommands (E_ReceiveMode mode);
+		virtual bool handleAction (Action * a, bool sync);
 
 		void appendTableXY (int x, int y, QString const & time, QString const & fgc, QString const & bgc, QString const & msg);
 		void appendTableSetup (int x, int y, QString const & time, QString const & fgc, QString const & bgc, QString const & hhdr, QString const & tag);

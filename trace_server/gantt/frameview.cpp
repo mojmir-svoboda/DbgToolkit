@@ -76,8 +76,9 @@ QwtText BarPlot::barTitle (int idx) const
 }
 
 
-FrameView::FrameView (Connection * oparent, QWidget * wparent, FrameViewConfig & cfg, QString const & fname)
-	: m_bars(0)
+FrameView::FrameView (Connection * oparent, QWidget * wparent, FrameViewConfig & cfg, QString const & fname, QStringList const & path)
+	: ActionAble(path)
+	, m_bars(0)
 	, m_config(cfg)
 	, m_config_ui(cfg, this)
 {
@@ -133,6 +134,12 @@ FrameView::FrameView (Connection * oparent, QWidget * wparent, FrameViewConfig &
 						 this, SLOT( performFrameSynchronization(int, unsigned long long, void *) ));
     connect(this, SIGNAL( requestFrameSynchronization(int, unsigned long long, void *) ),
 						 &getSyncWidgets(), SLOT( performFrameSynchronization(int, unsigned long long, void *) ));
+}
+
+
+bool FrameView::handleAction (Action * a, bool sync)
+{
+	return false;
 }
 
 void FrameView::selected (QRectF const & r)

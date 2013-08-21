@@ -11,7 +11,7 @@ DataPlot::DataPlot (Connection * connection, config_t & config, QString const & 
 	: DockedData<e_data_plot>(connection, config, confname, path)
 {
 	qDebug("%s this=0x%08x", __FUNCTION__, this);
-	m_widget = new plot::PlotWidget(connection, 0, m_config, confname);
+	m_widget = new plot::PlotWidget(connection, 0, m_config, confname, path);
 }
 
 void Connection::onShowPlots ()
@@ -152,11 +152,11 @@ dataplots_t::iterator Connection::findOrCreatePlot (QString const & tag)
 	{
 		if (m_main_window->plotState() == e_FtrEnabled && (*it)->config().m_show)
 		{
-			(*it)->show();
+			//(*it)->show();
 		}
 		else
 		{
-			(*it)->hide();
+			//(*it)->hide();
 		}
 	}
 	return it;

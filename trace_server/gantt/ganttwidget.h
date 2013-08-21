@@ -28,6 +28,11 @@ struct DataFrameView : ActionAble {
 	void onShow ();
 	void onHide ();
 	FrameView & widget () { return *m_widget; }
+
+	virtual bool handleAction (Action * a, bool sync)
+	{
+		return false;
+	}
 };
 
 typedef QMap<int, DataFrameView *> dataframeviews_t;
@@ -52,6 +57,7 @@ namespace gantt {
 		GanttView * findGanttView (QString const & subtag);
 		GanttView * findOrCreateGanttView (QString const & subtag);
 		ganttviews_t::iterator mkGanttView (QString const & subtag);
+		virtual bool handleAction (Action * a, bool sync);
 
 		dataframeviews_t::iterator findOrCreateFrameView (int sync_group);
 

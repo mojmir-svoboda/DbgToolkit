@@ -14,8 +14,8 @@
 
 namespace logs {
 
-	LogWidget::LogWidget (Connection * connection, QWidget * wparent, LogConfig & cfg, QString const & fname)
-		: TableView(wparent)
+	LogWidget::LogWidget (Connection * connection, QWidget * wparent, LogConfig & cfg, QString const & fname, QStringList const & path)
+		: TableView(wparent), ActionAble(path)
 		, m_config(cfg)
 		, m_config_ui(cfg, this)
 		, m_fname(fname)
@@ -687,6 +687,10 @@ void LogWidget::handleCommand (DecodedCommand const & cmd, E_ReceiveMode mode)
 	}*/
 }
 
+bool LogWidget::handleAction (Action * a, bool sync)
+{
+	return false;
+}
 
 /*void LogWidget::applyConfig ()
 {

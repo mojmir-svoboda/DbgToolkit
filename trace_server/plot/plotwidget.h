@@ -6,6 +6,7 @@
 #include <qwt/qwt_plot_layout.h>
 #include <qwt/qwt_symbol.h>
 #include <cmd.h>
+#include "action.h"
 #include "curves.h"
 #include "plotctxmenu.h"
 #include "plottypes.h"
@@ -15,13 +16,13 @@ class QwtPlotMarker;
 
 namespace plot {
 
-	class PlotWidget : public QwtPlot
+	class PlotWidget : public QwtPlot, public ActionAble
 	{
 		Q_OBJECT
 	public:
 		typedef QMap<QString, Curve *> curves_t;
 
-		PlotWidget (QObject * oparent, QWidget * wparent, PlotConfig & cfg, QString const & fname);
+		PlotWidget (QObject * oparent, QWidget * wparent, PlotConfig & cfg, QString const & fname, QStringList const & path);
 		virtual ~PlotWidget ();
 
 		void applyAxis (AxisConfig const & acfg);
@@ -32,6 +33,7 @@ namespace plot {
 		void applyConfig ();
 
 		void handleCommand (DecodedCommand const & cmd, E_ReceiveMode mode);
+		virtual bool handleAction (Action * a, bool sync);
 		void commitCommands (E_ReceiveMode mode);
 
 

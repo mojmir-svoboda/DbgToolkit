@@ -45,8 +45,8 @@ namespace plot {
 		return c;
 	}
 
-	PlotWidget::PlotWidget (QObject * oparent, QWidget * wparent, PlotConfig & cfg, QString const & fname)
-		: QwtPlot(wparent)
+	PlotWidget::PlotWidget (QObject * oparent, QWidget * wparent, PlotConfig & cfg, QString const & fname, QStringList const & path)
+		: QwtPlot(wparent), ActionAble(path)
 		, m_config(cfg)
 		, m_config_ui(cfg, this)
 		, m_curves()
@@ -470,6 +470,11 @@ namespace plot {
 
 	void PlotWidget::commitCommands (E_ReceiveMode mode)
 	{
+	}
+
+	bool PlotWidget::handleAction (Action * a, bool sync)
+	{
+		return false;
 	}
 }
 

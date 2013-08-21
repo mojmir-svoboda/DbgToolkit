@@ -4,6 +4,7 @@
 #include <cmd.h>
 #include <QStyledItemDelegate>
 #include <QItemDelegate>
+#include "action.h"
 #include "logconfig.h"
 #include "logctxmenu.h"
 #include "tagconfig.h"
@@ -18,11 +19,11 @@ class LogTableModel;
 
 namespace logs {
 
-	class LogWidget : public TableView
+	class LogWidget : public TableView, public ActionAble
 	{
 		Q_OBJECT
 	public:
-		LogWidget (Connection * oparent, QWidget * wparent, LogConfig & cfg, QString const & fname);
+		LogWidget (Connection * oparent, QWidget * wparent, LogConfig & cfg, QString const & fname, QStringList const & path);
 
 		void applyConfig (LogConfig & pcfg);
 		virtual ~LogWidget ();
@@ -36,6 +37,7 @@ namespace logs {
 
 		QList<DecodedCommand> m_queue;
 		void handleCommand (DecodedCommand const & cmd, E_ReceiveMode mode);
+		virtual bool handleAction (Action * a, bool sync);
 		void commitCommands (E_ReceiveMode mode);
 
 		int findColumn4Tag (tlv::tag_t tag);

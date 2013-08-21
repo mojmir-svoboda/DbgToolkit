@@ -1,9 +1,10 @@
 #pragma once
 #include <QFrame>
-#include "../qwt/qwt_plot.h"
-#include "../qwt/qwt_plot_barchart.h"
+#include <qwt/qwt_plot.h>
+#include <qwt/qwt_plot_barchart.h>
 #include "frameviewconfig.h"
 #include "frameviewctxmenu.h"
+#include "action.h"
 
 class Connection;
 
@@ -21,14 +22,15 @@ struct BarPlot : QwtPlotBarChart
 	std::vector<QColor> m_colors;
 };
 
-struct FrameView : QwtPlot
+struct FrameView : QwtPlot, ActionAble
 {
 	Q_OBJECT
 public:
 
-	FrameView (Connection * oparent, QWidget * wparent, FrameViewConfig & cfg, QString const & fname);
+	FrameView (Connection * oparent, QWidget * wparent, FrameViewConfig & cfg, QString const & fname, QStringList const & path);
 
 	void appendFrame (unsigned long long from, unsigned long long to);
+	virtual bool handleAction (Action * a, bool sync);
 
 signals:
 	void requestTimeSynchronization (int sync_group, unsigned long long time, void * source);

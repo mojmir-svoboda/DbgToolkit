@@ -17,7 +17,7 @@ DataLog::DataLog (Connection * connection, config_t & config, QString const & co
 	horizontalLayout->setSpacing(1);
 	horizontalLayout->setContentsMargins(0, 0, 0, 0);
 	horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
-	logs::LogWidget * tableView = new logs::LogWidget(connection, tab, this->config(), confname);
+	logs::LogWidget * tableView = new logs::LogWidget(connection, tab, this->config(), confname, path);
 	horizontalLayout->addWidget(tableView);
 	m_widget = tableView;
 }

@@ -13,7 +13,7 @@ DataTable::DataTable (Connection * connection, config_t & config, QString const 
 	: DockedData<e_data_table>(connection, config, confname, path)
 {
 	qDebug("%s this=0x%08x name=%s", __FUNCTION__, this, confname.toStdString().c_str());
-	m_widget = new table::TableWidget(connection, 0, m_config, confname);
+	m_widget = new table::TableWidget(connection, 0, m_config, confname, path);
 	m_widget->setItemDelegate(new SyncedTableItemDelegate(m_widget));
 }
 
@@ -178,11 +178,11 @@ datatables_t::iterator Connection::findOrCreateTable (QString const & tag)
 
 		if (m_main_window->tableState() == e_FtrEnabled && (*it)->config().m_show)
 		{
-			(*it)->show();
+			//(*it)->show();
 		}
 		else
 		{
-			(*it)->hide();
+			//(*it)->hide();
 		}
 	}
 	return it;

@@ -87,6 +87,7 @@ QModelIndex DockManager::addDockedTreeItem (DockedWidgetBase & dwb, bool on)
 bool DockManager::handleAction (Action * a, bool sync)
 {
 	QStringList const & src_path = a->m_src_path;
+	return false;
 }
 
 // @TODO: hmm. this whole fn is.. unfortunately rushed. need to rethink
