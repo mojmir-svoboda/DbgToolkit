@@ -162,7 +162,7 @@ struct DataFrame : DockedData<e_data_frame>
 };
 
 
-typedef boost::mpl::vector<DataLog, DataPlot, DataTable, DataGantt>::type dockeddata_t;
+typedef boost::mpl::vector<DataLog, DataPlot, DataTable, DataGantt, DataFrame>::type dockeddata_t;
 typedef boost::mpl::transform<dockeddata_t, boost::add_pointer<boost::mpl::_1> >::type dockeddataptr_t;
 
 template <int N, typename SeqT>
@@ -334,6 +334,7 @@ protected:
 	void defaultConfigFor (plot::PlotConfig & config);
 	void defaultConfigFor (table::TableConfig & config);
 	void defaultConfigFor (gantt::GanttConfig & config);
+	void defaultConfigFor (FrameViewConfig & config);
 	void convertBloodyBollockyBuggeryRegistry (logs::LogConfig & cfg);
 
 	datalogs_t::iterator findOrCreateLog (QString const & tag);
@@ -348,6 +349,9 @@ protected:
 
 	datagantts_t::iterator findOrCreateGantt (QString const & tag);
 	void appendGantt (gantt::DecodedData &);
+
+	dataframes_t::iterator findOrCreateFrame (QString const & tag);
+	void appendFrames (gantt::DecodedData &);
 
 	GlobalConfig const & getConfig () const;
 

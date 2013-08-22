@@ -32,7 +32,10 @@ inline void Connection::defaultConfigFor (gantt::GanttConfig & config)
 {
 	fillDefaultConfig(config);
 }
-
+inline void Connection::defaultConfigFor (FrameViewConfig & config)
+{
+	fillDefaultConfig(config);
+}
 
 template <int TypeN>
 void Connection::defaultConfigFor (typename SelectConfig<TypeN>::type & config, QString const & tag)

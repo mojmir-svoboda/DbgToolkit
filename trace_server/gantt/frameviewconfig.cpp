@@ -11,13 +11,14 @@
 
 //namespace gantt {
 
-	void loadConfig (FrameViewConfig & config, QString const & fname)
+	bool loadConfig (FrameViewConfig & config, QString const & fname)
 	{
 		std::ifstream ifs(fname.toLatin1());
-		if (!ifs) return;
+		if (!ifs) return false;
 		boost::archive::xml_iarchive ia(ifs);
 		ia >> BOOST_SERIALIZATION_NVP(config);
 		ifs.close();
+		return true;
 	}
 
 	void saveConfig (FrameViewConfig const & config, QString const & fname)
@@ -28,6 +29,12 @@
 		oa << BOOST_SERIALIZATION_NVP(config);
 		ofs.close();
 	}
+
+	void fillDefaultConfig (FrameViewConfig & config)
+	{
+		config = FrameViewConfig();
+	}
+
 //}
 
 

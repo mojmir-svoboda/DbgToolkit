@@ -89,6 +89,21 @@ bool Connection::saveConfigForGantts (QString const & preset_name)
 	return true;
 }*/
 
+dataframes_t::iterator Connection::findOrCreateFrame (QString const & tag)
+{
+	dataframes_t::iterator it = dataWidgetFactory<e_data_frame>(tag);
+	if (it != m_data.get<e_data_frame>().end())
+	{
+		DataFrame * d = *it;
+		//d->onShow();
+	}
+	else
+		assert(false);
+	return it;
+}
+
+
+
 
 datagantts_t::iterator Connection::findOrCreateGantt (QString const & tag)
 {
@@ -142,6 +157,108 @@ bool Connection::handleGanttClearCommand (DecodedCommand const & cmd)
 	}
 	return true;
 }
+
+	bool parseCommand (DecodedCommand const & cmd, gantt::DecodedData & dd)
+	{
+		QString msg;
+		QString tid;
+		QString time;
+		QString fgc;
+		QString bgc;
+		for (size_t i=0, ie=cmd.tvs.size(); i < ie; ++i)
+		{
+			if (cmd.tvs[i].m_tag == tlv::tag_msg)
+				msg = cmd.tvs[i].m_val;
+			else if (cmd.tvs[i].m_tag == tlv::tag_time)
+				time = cmd.tvs[i].m_val;
+			else if (cmd.tvs[i].m_tag == tlv::tag_tid)
+				tid = cmd.tvs[i].m_val;
+			else if (cmd.tvs[i].m_tag == tlv::tag_fgc)
+				fgc = cmd.tvs[i].m_val;
+			else if (cmd.tvs[i].m_tag == tlv::tag_bgc)
+				bgc = cmd.tvs[i].m_val;
+		}
+
+		QString subtag = msg;
+		int const slash_pos0 = subtag.lastIndexOf(QChar('/'));
+		subtag.chop(msg.size() - slash_pos0);
+
+		QString tag = subtag;
+		int const slash_pos1 = tag.lastIndexOf(QChar('/'));
+		tag.chop(tag.size() - slash_pos1);
+
+		subtag.remove(0, slash_pos1 + 1);
+		msg.remove(0, slash_pos0 + 1);
+
+		//if (!subtag.contains("Dude"))
+		//	return false;
+
+		dd.m_time = time.toULongLong();
+		dd.m_ctx = tid.toULongLong();
+		dd.m_tag = tag;
+		dd.m_subtag = subtag;
+		dd.m_text = msg;
+		return true;
+	}
+
+	bool Connection::handleGanttBgnCommand (DecodedCommand const & cmd)
+	{
+		if (m_main_window->ganttState() == e_FtrDisabled)
+			return true;
+
+		gantt::DecodedData dd;
+		if (!parseCommand(cmd, dd))
+			return true;
+		dd.m_type = gantt::e_GanttBgn;
+
+		//qDebug("+decoded Gantt type=%i tag='%s' subtag='%s' text='%s'", dd.m_type, dd.m_tag.toStdString().c_str(), dd.m_subtag.toStdString().c_str(), dd.m_text.toStdString().c_str());
+		appendGantt(dd);
+		return true;
+	}
+
+	bool Connection::handleGanttEndCommand (DecodedCommand const & cmd)
+	{
+		if (m_main_window->ganttState() == e_FtrDisabled)
+			return true;
+
+		gantt::DecodedData dd;
+		if (!parseCommand(cmd, dd))
+			return true;
+		dd.m_type = gantt::e_GanttEnd;
+		//qDebug("+decoded Gantt type=%i tag='%s' subtag='%s' text='%s'", dd.m_type, dd.m_tag.toStdString().c_str(), dd.m_subtag.toStdString().c_str(), dd.m_text.toStdString().c_str());
+		appendGantt(dd);
+		return true;
+	}
+	bool Connection::handleGanttFrameBgnCommand (DecodedCommand const & cmd)
+	{
+		if (m_main_window->ganttState() == e_FtrDisabled)
+			return true;
+
+		gantt::DecodedData dd;
+		if (!parseCommand(cmd, dd))
+			return true;
+		dd.m_type = gantt::e_GanttFrameBgn;
+		appendGantt(dd);
+		return true;
+
+	}
+	bool Connection::handleGanttFrameEndCommand (DecodedCommand const & cmd)
+	{
+		if (m_main_window->ganttState() == e_FtrDisabled)
+			return true;
+
+		gantt::DecodedData dd;
+		if (!parseCommand(cmd, dd))
+			return true;
+		dd.m_type = gantt::e_GanttFrameEnd;
+
+		appendGantt(dd);
+		//appendFrameEnd(dd);
+		return true;
+	}
+
+
+
 
 /*void Connection::requestGanttSynchronization (int sync_group, unsigned long long time)
 {

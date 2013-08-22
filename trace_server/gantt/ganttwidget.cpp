@@ -180,7 +180,7 @@ namespace gantt {
 		for (int i = 0, ie = m_queue.size(); i < ie; ++i)
 		{
 			DecodedCommand & cmd = m_queue[i];
-			handleGanttCommand(cmd);
+			//handleGanttCommand(cmd);
 		}
 		//m_src_model->commitCommands(mode);
 	}
@@ -188,7 +188,7 @@ namespace gantt {
 	void GanttWidget::handleCommand (DecodedCommand const & cmd, E_ReceiveMode mode)
 	{
 		if (mode == e_RecvSync)
-			m_src_model->handleCommand(cmd, mode);
+			;//m_src_model->handleDecodedCommand(cmd, mode);
 		else
 			m_queue.append(cmd);
 	}
@@ -458,124 +458,24 @@ namespace gantt {
 	void GanttWidget::appendFrameEnd (DecodedData & dd)
 	{
 		gantt::GanttView * gv = findOrCreateGanttView(dd.m_subtag);
-		Connection::dataframeviews_t::iterator fv_it = findOrCreateFrameView(gv->config().m_sync_group);
+		QString const tag = QString("%1").arg(gv->config().m_sync_group);
+		dataframes_t::iterator fv_it = m_connection->findOrCreateFrame(tag);
 
 		unsigned long long from, to;
 		gv->appendFrameEnd(dd, from, to);
 		(*fv_it)->widget().appendFrame(from, to);
 	}
 
-	Connection::dataframeviews_t::iterator GanttWidget::findOrCreateFrameView (int sync_group)
+	dataframes_t::iterator GanttWidget::findOrCreateFrameView (int sync_group)
 	{
 		QString const tag = QString("%1").arg(sync_group);
 
-		Connection::dataframeviews_t::iterator it = m_connection->dataWidgetFactory<e_data_gantt>(tag);
+		dataframes_t::iterator it = m_connection->dataWidgetFactory<e_data_gantt>(tag);
 
 		m_dataframeviews.insert(sync_group, fv);
 			//QModelIndex const item_idx = m_data_model->insertItemWithHint(name, template_config.m_show);
 		return it;
 	}
-
-	bool parseCommand (DecodedCommand const & cmd, gantt::DecodedData & dd)
-	{
-		QString msg;
-		QString tid;
-		QString time;
-		QString fgc;
-		QString bgc;
-		for (size_t i=0, ie=cmd.tvs.size(); i < ie; ++i)
-		{
-			if (cmd.tvs[i].m_tag == tlv::tag_msg)
-				msg = cmd.tvs[i].m_val;
-			else if (cmd.tvs[i].m_tag == tlv::tag_time)
-				time = cmd.tvs[i].m_val;
-			else if (cmd.tvs[i].m_tag == tlv::tag_tid)
-				tid = cmd.tvs[i].m_val;
-			else if (cmd.tvs[i].m_tag == tlv::tag_fgc)
-				fgc = cmd.tvs[i].m_val;
-			else if (cmd.tvs[i].m_tag == tlv::tag_bgc)
-				bgc = cmd.tvs[i].m_val;
-		}
-
-		QString subtag = msg;
-		int const slash_pos0 = subtag.lastIndexOf(QChar('/'));
-		subtag.chop(msg.size() - slash_pos0);
-
-		QString tag = subtag;
-		int const slash_pos1 = tag.lastIndexOf(QChar('/'));
-		tag.chop(tag.size() - slash_pos1);
-
-		subtag.remove(0, slash_pos1 + 1);
-		msg.remove(0, slash_pos0 + 1);
-
-		//if (!subtag.contains("Dude"))
-		//	return false;
-
-		dd.m_time = time.toULongLong();
-		dd.m_ctx = tid.toULongLong();
-		dd.m_tag = tag;
-		dd.m_subtag = subtag;
-		dd.m_text = msg;
-		return true;
-	}
-
-	bool GanttWidget::handleGanttBgnCommand (DecodedCommand const & cmd)
-	{
-		if (m_main_window->ganttState() == e_FtrDisabled)
-			return true;
-
-		gantt::DecodedData dd;
-		if (!parseCommand(cmd, dd))
-			return true;
-		dd.m_type = gantt::e_GanttBgn;
-
-		//qDebug("+decoded Gantt type=%i tag='%s' subtag='%s' text='%s'", dd.m_type, dd.m_tag.toStdString().c_str(), dd.m_subtag.toStdString().c_str(), dd.m_text.toStdString().c_str());
-		appendGantt(dd);
-		return true;
-	}
-
-	bool GanttWidget::handleGanttEndCommand (DecodedCommand const & cmd)
-	{
-		if (m_main_window->ganttState() == e_FtrDisabled)
-			return true;
-
-		gantt::DecodedData dd;
-		if (!parseCommand(cmd, dd))
-			return true;
-		dd.m_type = gantt::e_GanttEnd;
-		//qDebug("+decoded Gantt type=%i tag='%s' subtag='%s' text='%s'", dd.m_type, dd.m_tag.toStdString().c_str(), dd.m_subtag.toStdString().c_str(), dd.m_text.toStdString().c_str());
-		appendGantt(dd);
-		return true;
-	}
-	bool GanttWidget::handleGanttFrameBgnCommand (DecodedCommand const & cmd)
-	{
-		if (m_main_window->ganttState() == e_FtrDisabled)
-			return true;
-
-		gantt::DecodedData dd;
-		if (!parseCommand(cmd, dd))
-			return true;
-		dd.m_type = gantt::e_GanttFrameBgn;
-		appendGantt(dd);
-		return true;
-
-	}
-	bool GanttWidget::handleGanttFrameEndCommand (DecodedCommand const & cmd)
-	{
-		if (m_main_window->ganttState() == e_FtrDisabled)
-			return true;
-
-		gantt::DecodedData dd;
-		if (!parseCommand(cmd, dd))
-			return true;
-		dd.m_type = gantt::e_GanttFrameEnd;
-
-		appendGantt(dd);
-		//appendFrameEnd(dd);
-		return true;
-	}
-
-
 
 }
 
