@@ -7,6 +7,7 @@
 #include "ganttctxmenu.h"
 #include "frameview.h"
 #include "action.h"
+#include "dock.h"
 
 class Connection;
 QT_FORWARD_DECLARE_CLASS(QSplitter)
@@ -15,30 +16,6 @@ namespace gantt {
 	QT_FORWARD_DECLARE_CLASS(GanttView)
 }
 
-struct DataFrameView : ActionAble {
-	Connection * m_parent;
-	QDockWidget * m_wd;
-	FrameView * m_widget;
-	FrameViewConfig m_config;
-	QString m_fname;
-
-	DataFrameView (Connection * parent, FrameViewConfig & config, QString const & fname, QStringList const & path);
-	~DataFrameView ();
-
-	void onShow ();
-	void onHide ();
-	FrameView & widget () { return *m_widget; }
-
-	virtual bool handleAction (Action * a, bool sync)
-	{
-		return false;
-	}
-};
-
-typedef QMap<int, DataFrameView *> dataframeviews_t;
-
-
-
 namespace gantt {
 
 	class GanttWidget : public QFrame, public ActionAble
@@ -46,6 +23,13 @@ namespace gantt {
 		Q_OBJECT
 	public:
 		GanttWidget (Connection * oparent, QWidget * wparent, GanttConfig & cfg, QString const & fname, QStringList const & path);
+
+		void loadConfig (QString const & path);
+		void saveConfig (QString const & path);
+		void applyConfig ();
+
+		void commitCommands (E_ReceiveMode mode);
+		QList<DecodedCommand> m_queue;
 
 		void applyConfig (GanttConfig & pcfg);
 		virtual ~GanttWidget ();
@@ -59,7 +43,7 @@ namespace gantt {
 		ganttviews_t::iterator mkGanttView (QString const & subtag);
 		virtual bool handleAction (Action * a, bool sync);
 
-		dataframeviews_t::iterator findOrCreateFrameView (int sync_group);
+		FrameView * findOrCreateFrameView (int sync_group);
 
 
 		//void appendGantt (QString const & time, QString const & tid, QString const & fgc, QString const & bgc, QString const & msg);
@@ -115,7 +99,6 @@ namespace gantt {
 		QSplitter * m_layout;
 		ganttviews_t m_ganttviews;
 		QVector<QString> m_subtags;
-		dataframeviews_t m_dataframeviews;
 	};
 }
 

@@ -1,4 +1,5 @@
 #pragma once
+#include "filterstate.h"
 
 struct AppData {
 

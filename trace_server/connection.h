@@ -32,13 +32,14 @@
 #include <boost/circular_buffer.hpp>
 #include <boost/tuple/tuple.hpp>
 #include "cmd.h"
-#include "plot/plotwidget.h"
-#include "table/tablewidget.h"
-#include "gantt/ganttwidget.h"
 #include "gantt/ganttdata.h"
 #include "treeview.h"
 #include "treeproxy.h"
 #include "logs/logwidget.h"
+#include "plot/plotwidget.h"
+#include "table/tablewidget.h"
+#include "gantt/ganttwidget.h"
+#include "gantt/frameview.h"
 #include "appdata.h"
 
 class Server;
@@ -58,22 +59,15 @@ class QStandardItem;
 #include <boost/type_traits/add_pointer.hpp>
 #include <boost/mpl/transform.hpp>
 
-enum E_DataWidgetType {
-	  e_data_log
-	, e_data_plot
-	, e_data_table
-	, e_data_gantt
-	, e_data_widget_max_value
-};
-
 #include "constants.h"
-char const * const g_fileTags[] = { g_presetLogTag, g_presetPlotTag, g_presetTableTag, g_presetGanttTag };
+char const * const g_fileTags[] = { g_presetLogTag, g_presetPlotTag, g_presetTableTag, g_presetGanttTag, g_presetFrameTag };
 
 typedef boost::mpl::vector<
 		boost::mpl::pair<  logs::LogWidget,    logs::LogConfig   >,
 		boost::mpl::pair<  plot::PlotWidget,   plot::PlotConfig  >,
 		boost::mpl::pair< table::TableWidget, table::TableConfig >,
-		boost::mpl::pair< gantt::GanttWidget, gantt::GanttConfig >
+		boost::mpl::pair< gantt::GanttWidget, gantt::GanttConfig >,
+		boost::mpl::pair< FrameView,   FrameViewConfig >
 	>::type datawidgetcfgs_t;
 
 template <int N, typename SeqT>
@@ -89,40 +83,6 @@ template <int N>
 struct SelectConfig
 	: boost::mpl::apply<boost::mpl::second<boost::mpl::_1>, typename SelectInternals<N, datawidgetcfgs_t>::type >
 { };
-
-struct DockedWidgetBase : ActionAble {
-
-	DockedWidgetBase (QStringList const & path)
-		: ActionAble(path)
-		, m_idx()
-		, m_dockpath(path), m_wd(0) 
-	{ }
-	virtual ~DockedWidgetBase () { }
-
-	QModelIndex m_idx;
-	QStringList m_dockpath;
-	QDockWidget * m_wd;
-
-	virtual E_DataWidgetType type () const = 0;
-
-	QStringList const & dockPath () const { return m_dockpath; }
-
-	// find
-	/*virtual void findAllRefs (QString const & text) = 0;
-	virtual void findText (QString const & text, tlv::tag_t tag) = 0;
-	virtual void findText (QString const & text) = 0;
-	virtual void findNext (QString const & text) = 0;
-	virtual void findPrev (QString const & text) = 0;*/
-
-	//virtual void performTimeSynchronization (int sync_group, unsigned long long time, void * source) = 0;
-	//virtual void performFrameSynchronization (int sync_group, unsigned long long frame, void * source) = 0;
-
-	//void scrollToCurrentTag () = 0;
-	//void scrollToCurrentSelection () = 0;
-	//void scrollToCurrentTagOrSelection () = 0;
-	//void nextToView () = 0;
-
-};
 
 template <int TypeN>
 struct DockedData : DockedWidgetBase
@@ -196,6 +156,11 @@ struct DataGantt : DockedData<e_data_gantt>
 	DataGantt (Connection * parent, config_t & config, QString const & confname, QStringList const & path);
 };
 
+struct DataFrame : DockedData<e_data_frame>
+{
+	DataFrame (Connection * parent, config_t & config, QString const & confname, QStringList const & path);
+};
+
 
 typedef boost::mpl::vector<DataLog, DataPlot, DataTable, DataGantt>::type dockeddata_t;
 typedef boost::mpl::transform<dockeddata_t, boost::add_pointer<boost::mpl::_1> >::type dockeddataptr_t;
@@ -219,8 +184,9 @@ typedef DataMap<e_data_log  > datalogs_t;
 typedef DataMap<e_data_plot > dataplots_t;
 typedef DataMap<e_data_table> datatables_t;
 typedef DataMap<e_data_gantt> datagantts_t;
+typedef DataMap<e_data_frame> dataframes_t;
 
-typedef boost::tuple<datalogs_t, dataplots_t, datatables_t, datagantts_t> data_widgets_t;
+typedef boost::tuple<datalogs_t, dataplots_t, datatables_t, datagantts_t, dataframes_t> data_widgets_t;
 
 template <int TypeN>
 struct SelectIterator

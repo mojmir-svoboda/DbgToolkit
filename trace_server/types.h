@@ -5,6 +5,16 @@
 #include <QColor>
 #include <vector>
 
+// available widget types @TODO: frameview
+enum E_DataWidgetType {
+	  e_data_log
+	, e_data_plot
+	, e_data_table
+	, e_data_gantt
+	, e_data_frame
+	, e_data_widget_max_value
+};
+
 enum E_ApiErrors { e_InvalidItem = -1 };
 
 enum E_FeatureStates {

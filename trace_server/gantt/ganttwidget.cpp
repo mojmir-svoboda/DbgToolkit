@@ -1,45 +1,21 @@
 #include "ganttwidget.h"
 #include <QScrollBar>
 #include <QSplitter>
-#include "../connection.h"
-#include "../utils.h"
-#include "../utils_qstandarditem.h"
+#include <utils.h>
+#include <utils_qstandarditem.h>
 #include "../delegates.h"
 #include "ganttview.h"
-#include "../label.h"
+#include <label.h>
 #include "frameview.h"
-#include "../syncwidgets.h"
+#include <syncwidgets.h>
+#include <connection.h>
 
-
-DataFrameView::DataFrameView (Connection * parent, FrameViewConfig & config, QString const & fname, QStringList const & path)
-	: ActionAble(path)
-	, m_parent(parent)
-	, m_wd(0)
-	, m_widget(0)
-	, m_config(config)
-	, m_fname(fname)
+DataFrame::DataFrame (Connection * connection, FrameViewConfig & config, QString const & confname, QStringList const & path)
+	: DockedData<e_data_frame>(connection, config, confname, path)
 {
 	qDebug("%s this=0x%08x", __FUNCTION__, this);
-	m_widget = new FrameView(parent, 0, m_config, fname, path);
+	m_widget = new FrameView(connection, 0, m_config, confname, path);
 }
-DataFrameView::~DataFrameView ()
-{
-	qDebug("%s this=0x%08x", __FUNCTION__, this);
-	delete m_widget;
-	m_widget = 0;
-}
-void DataFrameView::onShow ()
-{
-	m_wd->show();
-	m_widget->onShow();
-}
-void DataFrameView::onHide ()
-{
-	//m_wd->hide();
-	m_widget->onHide();
-	QTimer::singleShot(0, m_wd, SLOT(hide()));
-}
-
 
 
 namespace gantt {
@@ -198,6 +174,25 @@ namespace gantt {
 	{
 		return false;
 	}
+
+	void GanttWidget::commitCommands (E_ReceiveMode mode)
+	{
+		for (int i = 0, ie = m_queue.size(); i < ie; ++i)
+		{
+			DecodedCommand & cmd = m_queue[i];
+			handleGanttCommand(cmd);
+		}
+		//m_src_model->commitCommands(mode);
+	}
+
+	void GanttWidget::handleCommand (DecodedCommand const & cmd, E_ReceiveMode mode)
+	{
+		if (mode == e_RecvSync)
+			m_src_model->handleCommand(cmd, mode);
+		else
+			m_queue.append(cmd);
+	}
+
 
 	void GanttWidget::showGanttView (GanttView * item, bool on)
 	{
@@ -447,54 +442,139 @@ namespace gantt {
 	}*/
 
 
-	
+	void GanttWidget::loadConfig (QString const & path)
+	{
+		//QString const logpath = path + "/" + g_presetLogTag + "/" + m_config.m_tag;
+		//m_config2.clear();
+		//logs::loadConfig(m_config2, logpath);
+		//filterWidget()->loadConfig(logpath);
+	}
 
+	void GanttWidget::saveConfig (QString const & path)
+	{
+	}
 
 
 	void GanttWidget::appendFrameEnd (DecodedData & dd)
 	{
 		gantt::GanttView * gv = findOrCreateGanttView(dd.m_subtag);
-		dataframeviews_t::iterator fv_it = findOrCreateFrameView(gv->config().m_sync_group);
+		Connection::dataframeviews_t::iterator fv_it = findOrCreateFrameView(gv->config().m_sync_group);
 
 		unsigned long long from, to;
 		gv->appendFrameEnd(dd, from, to);
 		(*fv_it)->widget().appendFrame(from, to);
 	}
 
-	dataframeviews_t::iterator GanttWidget::findOrCreateFrameView (int sync_group)
+	Connection::dataframeviews_t::iterator GanttWidget::findOrCreateFrameView (int sync_group)
 	{
-		char tmp[] = "frames";
-		QString const name = m_connection->getAppName() + "/" + tmp + "/" + QString("%1").arg(sync_group);
+		QString const tag = QString("%1").arg(sync_group);
 
-		dataframeviews_t::iterator it = m_dataframeviews.find(sync_group);
-		if (it == m_dataframeviews.end())
-		{
-			qDebug("gantt: creating frameview %i", name.toStdString().c_str());
-			// new data gantt
-			FrameViewConfig template_config;
+		Connection::dataframeviews_t::iterator it = m_connection->dataWidgetFactory<e_data_gantt>(tag);
 
-			QString fname;
-			QStringList path = m_path;
-			path.append("frameview");
-			DataFrameView * const fv = new DataFrameView(m_connection, template_config, fname, path);
-			it = m_dataframeviews.insert(sync_group, fv);
+		m_dataframeviews.insert(sync_group, fv);
 			//QModelIndex const item_idx = m_data_model->insertItemWithHint(name, template_config.m_show);
-
-			fv->m_wd = m_connection->getMainWindow()->dockManager().mkDockWidget(m_connection->getMainWindow(), &fv->widget(), template_config.m_show, name);
-			bool const visible = template_config.m_show;
-			//m_data_model->setData(item_idx, QVariant(visible ? Qt::Checked : Qt::Unchecked), Qt::CheckStateRole);
-			if (m_connection->getMainWindow()->ganttState() == e_FtrEnabled && visible)
-			{
-				//m_main_window->loadLayout(preset_name);
-				fv->onShow();
-			}
-			else
-			{
-				fv->onHide();
-			}
-		}
 		return it;
 	}
+
+	bool parseCommand (DecodedCommand const & cmd, gantt::DecodedData & dd)
+	{
+		QString msg;
+		QString tid;
+		QString time;
+		QString fgc;
+		QString bgc;
+		for (size_t i=0, ie=cmd.tvs.size(); i < ie; ++i)
+		{
+			if (cmd.tvs[i].m_tag == tlv::tag_msg)
+				msg = cmd.tvs[i].m_val;
+			else if (cmd.tvs[i].m_tag == tlv::tag_time)
+				time = cmd.tvs[i].m_val;
+			else if (cmd.tvs[i].m_tag == tlv::tag_tid)
+				tid = cmd.tvs[i].m_val;
+			else if (cmd.tvs[i].m_tag == tlv::tag_fgc)
+				fgc = cmd.tvs[i].m_val;
+			else if (cmd.tvs[i].m_tag == tlv::tag_bgc)
+				bgc = cmd.tvs[i].m_val;
+		}
+
+		QString subtag = msg;
+		int const slash_pos0 = subtag.lastIndexOf(QChar('/'));
+		subtag.chop(msg.size() - slash_pos0);
+
+		QString tag = subtag;
+		int const slash_pos1 = tag.lastIndexOf(QChar('/'));
+		tag.chop(tag.size() - slash_pos1);
+
+		subtag.remove(0, slash_pos1 + 1);
+		msg.remove(0, slash_pos0 + 1);
+
+		//if (!subtag.contains("Dude"))
+		//	return false;
+
+		dd.m_time = time.toULongLong();
+		dd.m_ctx = tid.toULongLong();
+		dd.m_tag = tag;
+		dd.m_subtag = subtag;
+		dd.m_text = msg;
+		return true;
+	}
+
+	bool GanttWidget::handleGanttBgnCommand (DecodedCommand const & cmd)
+	{
+		if (m_main_window->ganttState() == e_FtrDisabled)
+			return true;
+
+		gantt::DecodedData dd;
+		if (!parseCommand(cmd, dd))
+			return true;
+		dd.m_type = gantt::e_GanttBgn;
+
+		//qDebug("+decoded Gantt type=%i tag='%s' subtag='%s' text='%s'", dd.m_type, dd.m_tag.toStdString().c_str(), dd.m_subtag.toStdString().c_str(), dd.m_text.toStdString().c_str());
+		appendGantt(dd);
+		return true;
+	}
+
+	bool GanttWidget::handleGanttEndCommand (DecodedCommand const & cmd)
+	{
+		if (m_main_window->ganttState() == e_FtrDisabled)
+			return true;
+
+		gantt::DecodedData dd;
+		if (!parseCommand(cmd, dd))
+			return true;
+		dd.m_type = gantt::e_GanttEnd;
+		//qDebug("+decoded Gantt type=%i tag='%s' subtag='%s' text='%s'", dd.m_type, dd.m_tag.toStdString().c_str(), dd.m_subtag.toStdString().c_str(), dd.m_text.toStdString().c_str());
+		appendGantt(dd);
+		return true;
+	}
+	bool GanttWidget::handleGanttFrameBgnCommand (DecodedCommand const & cmd)
+	{
+		if (m_main_window->ganttState() == e_FtrDisabled)
+			return true;
+
+		gantt::DecodedData dd;
+		if (!parseCommand(cmd, dd))
+			return true;
+		dd.m_type = gantt::e_GanttFrameBgn;
+		appendGantt(dd);
+		return true;
+
+	}
+	bool GanttWidget::handleGanttFrameEndCommand (DecodedCommand const & cmd)
+	{
+		if (m_main_window->ganttState() == e_FtrDisabled)
+			return true;
+
+		gantt::DecodedData dd;
+		if (!parseCommand(cmd, dd))
+			return true;
+		dd.m_type = gantt::e_GanttFrameEnd;
+
+		appendGantt(dd);
+		//appendFrameEnd(dd);
+		return true;
+	}
+
 
 
 }

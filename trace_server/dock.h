@@ -11,6 +11,27 @@ class QMainWindow;
 class MainWindow;
 struct DockManager;
 
+
+struct DockedWidgetBase : ActionAble {
+
+	DockedWidgetBase (QStringList const & path)
+		: ActionAble(path)
+		, m_idx()
+		, m_dockpath(path), m_wd(0) 
+	{ }
+	virtual ~DockedWidgetBase () { }
+
+	QModelIndex m_idx;
+	QStringList m_dockpath;
+	QDockWidget * m_wd;
+
+	virtual E_DataWidgetType type () const = 0;
+
+	QStringList const & dockPath () const { return m_dockpath; }
+};
+
+
+
 struct DockWidget : public QDockWidget
 {
 	Q_OBJECT
