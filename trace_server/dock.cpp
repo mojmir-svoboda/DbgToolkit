@@ -22,13 +22,13 @@ void DockWidget::closeEvent (QCloseEvent * event)
 }
 
 DockManager::DockManager (MainWindow * mw, QStringList const & path)
-	: QObject(mw), ActionAble(path)
+	: QWidget(mw), ActionAble(path)
 	, m_main_window(mw)
 	, m_docked_widgets(0)
 	, m_docked_widgets_tree_view(0)
 	, m_docked_widgets_model(0)
 {
-
+	m_docked_widgets_tree_view = new TreeView(this);
 	m_docked_widgets_tree_view->setModel(m_docked_widgets_model);
 	connect(m_docked_widgets_tree_view, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtDockedWidgets(QModelIndex)));
 	connect(m_docked_widgets, SIGNAL(visibilityChanged(bool)), this, SLOT(onListVisibilityChanged(bool)));

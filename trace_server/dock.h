@@ -58,7 +58,7 @@ public:
 };
 
 
-struct DockManager : QObject, ActionAble
+struct DockManager : QWidget, ActionAble
 {
 	Q_OBJECT
 public:
