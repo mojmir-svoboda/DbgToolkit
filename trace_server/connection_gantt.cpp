@@ -89,21 +89,6 @@ bool Connection::saveConfigForGantts (QString const & preset_name)
 	return true;
 }*/
 
-dataframes_t::iterator Connection::findOrCreateFrame (QString const & tag)
-{
-	dataframes_t::iterator it = dataWidgetFactory<e_data_frame>(tag);
-	if (it != m_data.get<e_data_frame>().end())
-	{
-		DataFrame * d = *it;
-		//d->onShow();
-	}
-	else
-		assert(false);
-	return it;
-}
-
-
-
 
 datagantts_t::iterator Connection::findOrCreateGantt (QString const & tag)
 {
@@ -131,7 +116,7 @@ void Connection::appendGantt (gantt::DecodedData & dd)
 	gv->appendGantt(dd);
 }
 
-bool Connection::handleGanttClearCommand (DecodedCommand const & cmd)
+bool Connection::handleGanttClearCommand (DecodedCommand const & cmd, E_ReceiveMode mode)
 {
 	QString msg;
 	for (size_t i=0, ie=cmd.tvs.size(); i < ie; ++i)
@@ -201,7 +186,7 @@ bool Connection::handleGanttClearCommand (DecodedCommand const & cmd)
 		return true;
 	}
 
-	bool Connection::handleGanttBgnCommand (DecodedCommand const & cmd)
+	bool Connection::handleGanttBgnCommand (DecodedCommand const & cmd, E_ReceiveMode mode)
 	{
 		if (m_main_window->ganttState() == e_FtrDisabled)
 			return true;
@@ -216,7 +201,7 @@ bool Connection::handleGanttClearCommand (DecodedCommand const & cmd)
 		return true;
 	}
 
-	bool Connection::handleGanttEndCommand (DecodedCommand const & cmd)
+	bool Connection::handleGanttEndCommand (DecodedCommand const & cmd, E_ReceiveMode mode)
 	{
 		if (m_main_window->ganttState() == e_FtrDisabled)
 			return true;
@@ -229,7 +214,7 @@ bool Connection::handleGanttClearCommand (DecodedCommand const & cmd)
 		appendGantt(dd);
 		return true;
 	}
-	bool Connection::handleGanttFrameBgnCommand (DecodedCommand const & cmd)
+	bool Connection::handleGanttFrameBgnCommand (DecodedCommand const & cmd, E_ReceiveMode mode)
 	{
 		if (m_main_window->ganttState() == e_FtrDisabled)
 			return true;
@@ -242,7 +227,7 @@ bool Connection::handleGanttClearCommand (DecodedCommand const & cmd)
 		return true;
 
 	}
-	bool Connection::handleGanttFrameEndCommand (DecodedCommand const & cmd)
+	bool Connection::handleGanttFrameEndCommand (DecodedCommand const & cmd, E_ReceiveMode mode)
 	{
 		if (m_main_window->ganttState() == e_FtrDisabled)
 			return true;

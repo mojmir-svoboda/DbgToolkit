@@ -152,9 +152,9 @@ QVariant TreeModel<InfoT>::data (QModelIndex const & index, int role) const
 }
 
 template <class InfoT>
-void TreeModel<InfoT>::onExpanded (QModelIndex const & idx) { setData(idx, 0, Qt::UserRole); }
+void TreeModel<InfoT>::expanded (QModelIndex const & idx) { setData(idx, 0, Qt::UserRole); }
 template <class InfoT>
-void TreeModel<InfoT>::onCollapsed (QModelIndex const & idx) { setData(idx, 1, Qt::UserRole); }
+void TreeModel<InfoT>::collapsed (QModelIndex const & idx) { setData(idx, 1, Qt::UserRole); }
 
 template <class InfoT>
 void TreeModel<InfoT>::stateToChildren (node_t * item, Qt::CheckState state)
@@ -242,7 +242,7 @@ bool TreeModel<InfoT>::setData (QModelIndex const & index, QVariant const & valu
 		}
 		else if (state == Qt::PartiallyChecked)
 		{ }
-		emit invalidateFilter(); // @TODO: perf problem - do not call recursively!
+		//emit invalidateFilter(); // @TODO: perf problem - do not call recursively!
 	}
 	else
 		return false;

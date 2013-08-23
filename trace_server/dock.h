@@ -16,18 +16,13 @@ struct DockedWidgetBase : ActionAble {
 
 	DockedWidgetBase (QStringList const & path)
 		: ActionAble(path)
-		, m_idx()
-		, m_dockpath(path), m_wd(0) 
+		, m_wd(0) 
 	{ }
 	virtual ~DockedWidgetBase () { }
 
-	QModelIndex m_idx;
-	QStringList m_dockpath;
 	QDockWidget * m_wd;
 
 	virtual E_DataWidgetType type () const = 0;
-
-	QStringList const & dockPath () const { return m_dockpath; }
 };
 
 
@@ -81,9 +76,9 @@ public:
 	DockWidget * mkDockWidget (DockedWidgetBase & dwb, bool visible);
 	DockWidget * mkDockWidget (DockedWidgetBase & dwb, bool visible, Qt::DockWidgetArea area);
 	QModelIndex addDockedTreeItem (DockedWidgetBase & dwb, bool on);
-	QModelIndex addLeafTreeItem (QStringList const & path, bool on);
+	QModelIndex addLeafTreeItem (ActionAble & aa, bool on);
 
-	virtual bool handleAction (Action * a, bool sync);
+	virtual bool handleAction (Action * a, E_ActionHandleType sync);
 
 public slots:
 	void onWidgetClosed (DockWidget * w);

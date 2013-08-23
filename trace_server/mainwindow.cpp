@@ -34,7 +34,7 @@
 
 ///////////  qt5 stuff
 #include <QWindow>
-#include <QtGui/5.1.1/QtGui/qpa/qplatformnativeinterface.h>
+#include <QtGui/5.1.0/QtGui/qpa/qplatformnativeinterface.h>
 static QWindow * windowForWidget(const QWidget* widget)
 {
 	if (QWindow* window = widget->windowHandle()) { return window; }
@@ -361,18 +361,6 @@ void MainWindow::onQuitReally ()
 {
 	ui_settings->clrFiltersCheckBox->setEnabled(state);
 }*/
-
-void MainWindow::onPlotStateChanged (int state)
-{
-	/*m_server->onHidePlots();
-	if (state == Qt::Checked)
-	{
-		Connection * conn = findCurrentConnection();
-		if (!conn) return;
-
-		conn->onShowPlots();
-	}*/
-}
 
 void MainWindow::onDockedWidgetsToolButton ()
 {

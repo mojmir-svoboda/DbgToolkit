@@ -47,7 +47,7 @@ DockWidget * DockManager::mkDockWidget (DockedWidgetBase & dwb, bool visible)
 
 DockWidget * DockManager::mkDockWidget (DockedWidgetBase & dwb, bool visible, Qt::DockWidgetArea area)
 {
-	QString const name = dwb.dockPath().join("/");
+	QString const name = dwb.path().join("/");
 	DockWidget * const dock = new DockWidget(*this, name, m_main_window);
 	dock->setObjectName(name);
 	dock->setWindowTitle(name);
@@ -77,14 +77,23 @@ void DockManager::onWidgetClosed (DockWidget * w)
 
 QModelIndex DockManager::addDockedTreeItem (DockedWidgetBase & dwb, bool on)
 {
-	QModelIndex const idx = m_docked_widgets_model->insertItemWithPath(dwb.dockPath(), on);
+	QModelIndex const idx = m_docked_widgets_model->insertItemWithPath(dwb.path(), on);
 	m_docked_widgets_model->setData(idx, QVariant(on ? Qt::Checked : Qt::Unchecked), Qt::CheckStateRole);
 	dwb.m_idx = idx;
 	return idx;
 }
 
 
-bool DockManager::handleAction (Action * a, bool sync)
+QModelIndex DockManager::addLeafTreeItem (ActionAble & aa, bool on)
+{
+	QModelIndex const idx = m_docked_widgets_model->insertItemWithPath(aa.path(), on);
+	// @TODO: set type=AA into returned node
+	m_docked_widgets_model->setData(idx, QVariant(on ? Qt::Checked : Qt::Unchecked), Qt::CheckStateRole);
+	aa.m_idx = idx;
+	return idx;
+}
+
+bool DockManager::handleAction (Action * a, E_ActionHandleType sync)
 {
 	QStringList const & src_path = a->m_src_path;
 	return false;
@@ -99,7 +108,7 @@ void DockManager::onClickedAtDockedWidgets (QModelIndex idx)
 
 	ActionVisibility av;
 	av.m_args.push_back(state);
-	handleAction(&av, true);
+	handleAction(&av, e_Sync);
 	
 /*	QList<QString> path;
 	QList<bool> state;

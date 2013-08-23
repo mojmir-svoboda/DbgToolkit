@@ -17,8 +17,9 @@ struct DockedInfo
 	int m_collapsed;
 	int m_valid_widget;
 	int m_centralwidget;
+	int m_childwidget;
 
-	DockedInfo () : m_state(e_Unchecked), m_collapsed(true), m_valid_widget(false), m_centralwidget(false) { }
+	DockedInfo () : m_state(e_Unchecked), m_collapsed(true), m_valid_widget(false), m_centralwidget(false), m_childwidget(false) { }
 
 	template <class ArchiveT>
 	void serialize (ArchiveT & ar, unsigned const version)

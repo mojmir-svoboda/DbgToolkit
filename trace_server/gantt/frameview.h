@@ -30,7 +30,7 @@ public:
 	FrameView (Connection * oparent, QWidget * wparent, FrameViewConfig & cfg, QString const & fname, QStringList const & path);
 
 	void appendFrame (unsigned long long from, unsigned long long to);
-	virtual bool handleAction (Action * a, bool sync);
+	virtual bool handleAction (Action * a, E_ActionHandleType sync);
 
 signals:
 	void requestTimeSynchronization (int sync_group, unsigned long long time, void * source);

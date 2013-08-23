@@ -31,7 +31,9 @@ namespace plot {
 			cc = &m_config.m_ccfg.back();
 		}
 
-		Curve * curve = new Curve(*cc);
+		QStringList p = path();
+		p << subtag;
+		Curve * curve = new Curve(*cc, p);
 		curve->m_curve = new QwtPlotCurve(subtag);
 		curve->m_data = new Data(m_config.m_history_ln);
 		curve->m_curve->attach(this);
@@ -470,11 +472,104 @@ namespace plot {
 
 	void PlotWidget::commitCommands (E_ReceiveMode mode)
 	{
+		for (int i = 0, ie = m_queue.size(); i < ie; ++i)
+		{
+			DecodedCommand & cmd = m_queue[i];
+			handleCommand(cmd, mode);
+		}
+		m_queue.clear();
 	}
 
-	bool PlotWidget::handleAction (Action * a, bool sync)
+	bool PlotWidget::handleAction (Action * a, E_ActionHandleType sync)
 	{
 		return false;
 	}
+
+	void PlotWidget::handleCommand (DecodedCommand const & cmd, E_ReceiveMode mode)
+	{
+		if (mode == e_RecvSync)
+		{
+			if (cmd.hdr.cmd == tlv::cmd_plot_xy)
+				handleDataXYCommand(cmd);
+			else if (cmd.hdr.cmd == tlv::cmd_plot_clear)
+				handlePlotClearCommand(cmd);
+		}
+		else
+			m_queue.append(cmd);
+	}
+
+	bool PlotWidget::handleDataXYCommand (DecodedCommand const & cmd)
+	{
+		QString tag;
+		double x = 0.0;
+		double y = 0.0;
+		for (size_t i=0, ie=cmd.tvs.size(); i < ie; ++i) // @TODO: precache
+		{
+			if (cmd.tvs[i].m_tag == tlv::tag_msg)
+				tag = cmd.tvs[i].m_val;
+			else if (cmd.tvs[i].m_tag == tlv::tag_x)
+				x = cmd.tvs[i].m_val.toDouble();
+			else if (cmd.tvs[i].m_tag == tlv::tag_y)
+				y = cmd.tvs[i].m_val.toDouble();
+		}
+
+		int const slash_pos = tag.lastIndexOf(QChar('/'));
+		QString subtag = tag;
+		tag.chop(tag.size() - slash_pos);
+		subtag.remove(0, slash_pos + 1);
+
+		QStringList subpath = path();
+		subpath << subtag;
+
+		plot::Curve * curve = findCurve(subtag);
+		if (!curve)
+		{
+			curve = *mkCurve(subtag);
+
+			plot::CurveConfig const * ccfg = 0;
+			m_config.findCurveConfig(subtag, ccfg); // config is created by mkCurve
+			// @TODO: applyCurveConfig
+
+			if (m_config.m_show)
+			{
+				bool const visible = ccfg ? ccfg->m_show : true;
+				showCurve(curve->m_curve, visible);
+			}
+			else
+			{
+				bool const visible = ccfg ? ccfg->m_show : false;
+				showCurve(curve->m_curve, visible);
+			}
+		}
+
+		curve->m_data->push_back(x, y);
+
+		// if (autoscroll && need_to) shift m_from;
+		return true;
+	}
+
+	bool PlotWidget::handlePlotClearCommand (DecodedCommand const & cmd)
+	{
+		QString tag;
+		for (size_t i=0, ie=cmd.tvs.size(); i < ie; ++i) // @TODO: precache
+		{
+			if (cmd.tvs[i].m_tag == tlv::tag_msg)
+				tag = cmd.tvs[i].m_val;
+		}
+		int const slash_pos = tag.lastIndexOf(QChar('/'));
+		QString subtag = tag;
+		tag.chop(tag.size() - slash_pos);
+		subtag.remove(0, slash_pos + 1);
+		
+		qDebug("clear plot: tag='%s' subtag='%s'", tag.toStdString().c_str(), subtag.toStdString().c_str());
+
+		if (!subtag.isEmpty())
+			clearCurveData(subtag);
+		else
+			clearAllData();
+		return true;
+	}
+
+
 }
 

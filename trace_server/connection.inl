@@ -126,7 +126,6 @@ typename SelectIterator<TypeN>::type  Connection::dataWidgetFactory (QString con
 
 		DockedWidgetBase & dwb = *dd;;
 
-		dwb.m_dockpath = path;
 		dd->m_wd = m_main_window->m_dock_mgr.mkDockWidget(dwb, (*it)->config().m_show);
 		dwb.m_wd->setWidget(&(*it)->widget());
 		m_main_window->loadLayout(preset_name);

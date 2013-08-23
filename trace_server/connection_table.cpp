@@ -50,7 +50,7 @@ void Connection::onShowTableContextMenu (QPoint const &)
 	}
 }
 
-bool Connection::handleTableXYCommand (DecodedCommand const & cmd)
+bool Connection::handleTableXYCommand (DecodedCommand const & cmd, E_ReceiveMode mode)
 {
 	QString tag;
 	QString time;
@@ -81,7 +81,7 @@ bool Connection::handleTableXYCommand (DecodedCommand const & cmd)
 	return true;
 }
 
-bool Connection::handleTableSetupCommand (DecodedCommand const & cmd)
+bool Connection::handleTableSetupCommand (DecodedCommand const & cmd, E_ReceiveMode mode)
 {
 	QString tag;
 	QString time;
@@ -220,7 +220,7 @@ void Connection::appendTableSetup (int x, int y, QString const & time, QString c
 	dp.widget().appendTableSetup(x, y, time, fgc, bgc, hhdr, subtag);
 }
 
-bool Connection::handleTableClearCommand (DecodedCommand const & cmd)
+bool Connection::handleTableClearCommand (DecodedCommand const & cmd, E_ReceiveMode mode)
 {
 	QString msg;
 	for (size_t i=0, ie=cmd.tvs.size(); i < ie; ++i)

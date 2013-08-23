@@ -15,7 +15,11 @@ class FilterTreeModel : public TreeModel<TreeModelItem>
 public:
 
 	explicit FilterTreeModel (QObject * parent = 0, tree_data_t * data = 0);
-	~FilterTreeModel ();
+	~FilterTreeModel () { }
+
+public Q_SLOTS:
+	void onExpanded (QModelIndex const & idx) { expanded(idx); }
+	void onCollapsed (QModelIndex const & idx) { collapsed(idx); }
 
 	QModelIndex insertItemWithPath (QStringList const & path, bool checked);
 }; 

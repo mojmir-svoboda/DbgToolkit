@@ -18,6 +18,20 @@
 #include "treeproxy.h"
 #include "ui_filterwidget.h"
 
+FilterTreeModel::FilterTreeModel (QObject * parent, tree_data_t * data)
+	: TreeModel<TreeModelItem>(parent, data)
+{
+	qDebug("%s", __FUNCTION__);
+}
+
+
+QModelIndex FilterTreeModel::insertItemWithPath (QStringList const & path, bool checked)
+{
+	QString const name = path.join("/");
+	return insertItemWithHint(name, checked);
+}
+
+
 FilterWidget::FilterWidget (QWidget * parent)
 	: QWidget(parent)
 	, ui(new Ui::FilterWidget)

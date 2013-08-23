@@ -118,7 +118,7 @@ struct DockedData : DockedWidgetBase
 	config_t & config () { return m_config; }
 	config_t const & config () const { return m_config; }
 
-	virtual bool handleAction (Action * a, bool sync)
+	virtual bool handleAction (Action * a, E_ActionHandleType sync)
 	{
 		return m_widget->handleAction(a, sync);
 	}
@@ -299,26 +299,28 @@ protected:
 	int processStream (T *, T_Ret (T::*read_member_t)(T_Arg0, T_Arg1));
 	bool enqueueCommand (DecodedCommand const & cmd);
 	bool dequeueCommand (DecodedCommand & cmd);
-	bool handleLogCommand (DecodedCommand const & cmd, E_ReceiveMode mode);
-	bool handleTableXYCommand (DecodedCommand const & cmd);
-	bool handleTableSetupCommand (DecodedCommand const & cmd);
-	bool handleDataXYCommand (DecodedCommand const & cmd);
-	bool handleDataXYZCommand (DecodedCommand const & cmd);
+	//void preparseCommand (DecodedCommand & cmd);
+
 	bool handleSetupCommand (DecodedCommand const & cmd);
-	bool handleExportCSVCommand (DecodedCommand const & cmd);
-	bool handleSaveTLVCommand (DecodedCommand const & cmd);
 	bool handlePingCommand (DecodedCommand const & cmd);
 	bool handleShutdownCommand (DecodedCommand const & cmd);
 	bool handleDictionnaryCtx (DecodedCommand const & cmd);
 	bool handleCSVStreamCommand (DecodedCommand const & cmd);
-	bool handleGanttBgnCommand (DecodedCommand const & cmd);
-	bool handleGanttEndCommand (DecodedCommand const & cmd);
-	bool handleGanttFrameBgnCommand (DecodedCommand const & cmd);
-	bool handleGanttFrameEndCommand (DecodedCommand const & cmd);
-	bool handleGanttClearCommand (DecodedCommand const & cmd);
-	bool handlePlotClearCommand (DecodedCommand const & cmd);
-	bool handleTableClearCommand (DecodedCommand const & cmd);
+	bool handleExportCSVCommand (DecodedCommand const & cmd);
+	bool handleSaveTLVCommand (DecodedCommand const & cmd);
+
+	bool handleLogCommand (DecodedCommand const & cmd, E_ReceiveMode mode);
 	bool handleLogClearCommand (DecodedCommand const & cmd, E_ReceiveMode mode);
+	bool handleTableXYCommand (DecodedCommand const & cmd, E_ReceiveMode mode);
+	bool handleTableSetupCommand (DecodedCommand const & cmd, E_ReceiveMode mode);
+	bool handleTableClearCommand (DecodedCommand const & cmd, E_ReceiveMode mode);
+	bool handlePlotCommand (DecodedCommand const & cmd, E_ReceiveMode mode);
+	bool handleDataXYZCommand (DecodedCommand const & cmd, E_ReceiveMode mode);
+	bool handleGanttBgnCommand (DecodedCommand const & cmd, E_ReceiveMode mode);
+	bool handleGanttEndCommand (DecodedCommand const & cmd, E_ReceiveMode mode);
+	bool handleGanttFrameBgnCommand (DecodedCommand const & cmd, E_ReceiveMode mode);
+	bool handleGanttFrameEndCommand (DecodedCommand const & cmd, E_ReceiveMode mode);
+	bool handleGanttClearCommand (DecodedCommand const & cmd, E_ReceiveMode mode);
 
 	template <int TypeN>
 	typename SelectIterator<TypeN>::type
@@ -341,7 +343,7 @@ protected:
 	//void appendLog (DecodedCommand const &);
 
 	dataplots_t::iterator findOrCreatePlot (QString const & tag);
-	void appendDataXY (double x, double y, QString const & tag);
+	//void appendDataXY (double x, double y, QString const & tag);
 
 	datatables_t::iterator findOrCreateTable (QString const & tag);
 	void appendTableXY (int x, int y, QString const & time, QString const & fgc, QString const & bgc, QString const & tag);

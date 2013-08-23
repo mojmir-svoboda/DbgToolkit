@@ -120,26 +120,27 @@ bool Connection::tryHandleCommand (DecodedCommand const & cmd, E_ReceiveMode mod
 	switch (cmd.hdr.cmd)
 	{
 		case tlv::cmd_setup:			handleSetupCommand(cmd); break;
-		case tlv::cmd_log:				handleLogCommand(cmd, mode); break;
-		case tlv::cmd_log_clear:		handleLogClearCommand(cmd, mode); break;
-		case tlv::cmd_plot_xy:			handleDataXYCommand(cmd); break;
-		case tlv::cmd_plot_xyz:			handleDataXYZCommand(cmd); break;
-		case tlv::cmd_table_xy:			handleTableXYCommand(cmd); break;
-		case tlv::cmd_table_setup:		handleTableSetupCommand(cmd); break;
-		case tlv::cmd_scope_entry:		handleLogCommand(cmd, mode); break;
-		case tlv::cmd_scope_exit:		handleLogCommand(cmd, mode); break;
+		case tlv::cmd_shutdown:			handleShutdownCommand(cmd); break;
+		case tlv::cmd_ping:				handlePingCommand(cmd); break;
 		case tlv::cmd_save_tlv:			handleSaveTLVCommand(cmd); break;
 		case tlv::cmd_export_csv:		handleExportCSVCommand(cmd); break;
-		case tlv::cmd_ping:				handlePingCommand(cmd); break;
-		case tlv::cmd_shutdown:			handleShutdownCommand(cmd); break;
 		case tlv::cmd_dict_ctx:			handleDictionnaryCtx(cmd); break;
-		case tlv::cmd_gantt_bgn:		handleGanttBgnCommand(cmd); break;
-		case tlv::cmd_gantt_end:		handleGanttEndCommand(cmd); break;
-		case tlv::cmd_gantt_frame_bgn:	handleGanttFrameBgnCommand(cmd); break;
-		case tlv::cmd_gantt_frame_end:	handleGanttFrameEndCommand(cmd); break;
-		case tlv::cmd_plot_clear:		handlePlotClearCommand(cmd); break;
-		case tlv::cmd_table_clear:		handleTableClearCommand(cmd); break;
-		case tlv::cmd_gantt_clear:		handleGanttClearCommand(cmd); break;
+
+		case tlv::cmd_log:				handleLogCommand(cmd, mode); break;
+		case tlv::cmd_log_clear:		handleLogClearCommand(cmd, mode); break;
+		case tlv::cmd_scope_entry:		handleLogCommand(cmd, mode); break;
+		case tlv::cmd_scope_exit:		handleLogCommand(cmd, mode); break;
+		case tlv::cmd_plot_xy:			handlePlotCommand(cmd, mode); break;
+		case tlv::cmd_plot_xyz:			handlePlotCommand(cmd, mode); break;
+		case tlv::cmd_plot_clear:		handlePlotCommand(cmd, mode); break;
+		case tlv::cmd_table_xy:			handleTableXYCommand(cmd, mode); break;
+		case tlv::cmd_table_setup:		handleTableSetupCommand(cmd, mode); break;
+		case tlv::cmd_table_clear:		handleTableClearCommand(cmd, mode); break;
+		case tlv::cmd_gantt_bgn:		handleGanttBgnCommand(cmd, mode); break;
+		case tlv::cmd_gantt_end:		handleGanttEndCommand(cmd, mode); break;
+		case tlv::cmd_gantt_frame_bgn:	handleGanttFrameBgnCommand(cmd, mode); break;
+		case tlv::cmd_gantt_frame_end:	handleGanttFrameEndCommand(cmd, mode); break;
+		case tlv::cmd_gantt_clear:		handleGanttClearCommand(cmd, mode); break;
 
 		default: qDebug("unknown command, ignoring\n"); break;
 	}

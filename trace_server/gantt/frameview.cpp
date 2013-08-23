@@ -137,7 +137,7 @@ FrameView::FrameView (Connection * oparent, QWidget * wparent, FrameViewConfig &
 }
 
 
-bool FrameView::handleAction (Action * a, bool sync)
+bool FrameView::handleAction (Action * a, E_ActionHandleType sync)
 {
 	return false;
 }

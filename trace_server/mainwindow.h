@@ -155,7 +155,6 @@ public:
 
 	DockManager const & dockManager () const { return m_dock_mgr; }
 	DockManager & dockManager () { return m_dock_mgr; }
-	QModelIndex addDockedWidget (QString const & name, bool on);
 	QString const & dockedName () const { return m_docked_name; }
 
 	void createTailDataStream (QString const & fname);
@@ -177,7 +176,6 @@ public slots:
 	void onOnTop (int);
 	void onDockRestoreButton ();
 	void onDockedWidgetsToolButton ();
-	void onClickedAtDockedWidgets (QModelIndex idx);
 	void onDockManagerClosed ();
 
 	void onCloseTab (int idx, QWidget * w);
@@ -231,8 +229,6 @@ private slots:
 	//void ondtToolButton ();
 	//void onTimeUnitsChanged (int i);
 	//void onTableFontToolButton ();
-	void onPlotStateChanged (int state);
-	void onPlotsClosed ();
 	void onTablesStateChanged (int state);
 	//void onAutoScrollStateChanged (int state);
 	//void onCopyToClipboard ();

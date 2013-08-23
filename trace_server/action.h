@@ -1,6 +1,12 @@
 #pragma once
 #include <QList>
 #include <QVariant>
+#include <QModelIndex>
+
+enum E_ActionHandleType {
+	  e_Sync  = 0
+	, e_Async = 1
+};
 
 enum E_ActionType {
 	  e_Unknown = 0
@@ -35,11 +41,16 @@ struct ActionVisibility : Action {
 struct ActionAble {
 
 	QStringList m_path;
+	QModelIndex m_idx;
 
-	ActionAble (QStringList const & path) : m_path(path) { }
+	ActionAble (QStringList const & path) : m_path(path), m_idx() { }
+	ActionAble (QStringList const & path, QModelIndex const & idx) : m_path(path), m_idx(idx) { }
 	virtual ~ActionAble () { }
 
-	virtual bool handleAction (Action * a, bool sync) = 0;
+	virtual bool handleAction (Action * a, E_ActionHandleType sync) = 0;
+
+	QStringList const & path () const { return m_path; }
+	QModelIndex const & index () const { return m_idx; }
 };
 
 

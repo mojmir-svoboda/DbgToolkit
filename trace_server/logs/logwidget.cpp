@@ -687,7 +687,7 @@ void LogWidget::handleCommand (DecodedCommand const & cmd, E_ReceiveMode mode)
 	}*/
 }
 
-bool LogWidget::handleAction (Action * a, bool sync)
+bool LogWidget::handleAction (Action * a, E_ActionHandleType sync)
 {
 	return false;
 }

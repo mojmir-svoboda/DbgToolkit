@@ -42,7 +42,7 @@ namespace gantt {
 		GanttView * findGanttView (QString const & subtag);
 		GanttView * findOrCreateGanttView (QString const & subtag);
 		ganttviews_t::iterator mkGanttView (QString const & subtag);
-		virtual bool handleAction (Action * a, bool sync);
+		virtual bool handleAction (Action * a, E_ActionHandleType sync);
 		void handleCommand (DecodedCommand const & cmd, E_ReceiveMode mode);
 
 		FrameView * findOrCreateFrameView (int sync_group);

@@ -25,17 +25,21 @@ namespace plot {
 		PlotWidget (QObject * oparent, QWidget * wparent, PlotConfig & cfg, QString const & fname, QStringList const & path);
 		virtual ~PlotWidget ();
 
-		void applyAxis (AxisConfig const & acfg);
-		void applyConfig (PlotConfig const & pcfg);
-		
 		void loadConfig (QString const & path);
 		void saveConfig (QString const & path);
 		void applyConfig ();
 
+		QList<DecodedCommand> m_queue;
 		void handleCommand (DecodedCommand const & cmd, E_ReceiveMode mode);
-		virtual bool handleAction (Action * a, bool sync);
 		void commitCommands (E_ReceiveMode mode);
 
+		virtual bool handleAction (Action * a, E_ActionHandleType sync);
+
+		void stopUpdate ();
+
+	protected:
+		void applyAxis (AxisConfig const & acfg);
+		void applyConfig (PlotConfig const & pcfg);
 
 		PlotConfig & getConfig () { return m_config; }
 		PlotConfig const & getConfig () const { return m_config; }
@@ -43,11 +47,12 @@ namespace plot {
 		Curve * findOrCreateCurve (QString const & subtag);
 		curves_t::iterator mkCurve (QString const & subtag);
 
+		bool handleDataXYCommand (DecodedCommand const & cmd);
+		bool handlePlotClearCommand (DecodedCommand const & cmd);
+
 		void clearAllData ();
 		void clearCurveData (QString const & subtag);
-		void stopUpdate ();
 
-	protected:
 		void timerEvent (QTimerEvent * e);
 		virtual void update ();
 		QColor allocColor ();

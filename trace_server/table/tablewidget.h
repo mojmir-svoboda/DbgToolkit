@@ -28,7 +28,7 @@ namespace table {
 
 		void handleCommand (DecodedCommand const & cmd, E_ReceiveMode mode);
 		void commitCommands (E_ReceiveMode mode);
-		virtual bool handleAction (Action * a, bool sync);
+		virtual bool handleAction (Action * a, E_ActionHandleType sync);
 
 		void appendTableXY (int x, int y, QString const & time, QString const & fgc, QString const & bgc, QString const & msg);
 		void appendTableSetup (int x, int y, QString const & time, QString const & fgc, QString const & bgc, QString const & hhdr, QString const & tag);

@@ -33,13 +33,15 @@ namespace plot {
 		}
 	};
 
-	struct Curve {
+	struct Curve : ActionAble
+	{
 		QwtPlotCurve * m_curve;
 		Data * m_data;
 		CurveConfig & m_config;
 
-		Curve (CurveConfig & curve)
-			: m_curve(0)
+		Curve (CurveConfig & curve, QStringList const & path)
+			: ActionAble(path)
+			, m_curve(0)
 			, m_data(0)
 			, m_config(curve)
 		{
@@ -50,6 +52,11 @@ namespace plot {
 		QwtPlotCurve * getCurve () { return m_curve; }
 
 		QString const & getName () { return m_config.m_tag; }
+
+		virtual bool handleAction (Action * a, E_ActionHandleType sync)
+		{
+			return false;
+		}
 		
 		~Curve ()
 		{

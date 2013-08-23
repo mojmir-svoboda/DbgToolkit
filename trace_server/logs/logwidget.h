@@ -37,8 +37,9 @@ namespace logs {
 
 		QList<DecodedCommand> m_queue;
 		void handleCommand (DecodedCommand const & cmd, E_ReceiveMode mode);
-		virtual bool handleAction (Action * a, bool sync);
 		void commitCommands (E_ReceiveMode mode);
+
+		virtual bool handleAction (Action * a, E_ActionHandleType sync);
 
 		int findColumn4Tag (tlv::tag_t tag);
 

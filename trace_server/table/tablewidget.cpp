@@ -89,7 +89,7 @@ namespace table {
 		hide();
 	}
 
-	bool TableWidget::handleAction (Action * a, bool sync)
+	bool TableWidget::handleAction (Action * a, E_ActionHandleType sync)
 	{
 		return false;
 	}

@@ -9,7 +9,6 @@ class Connection;
 template <class InfoT>
 class TreeModel : public QAbstractItemModel
 {
-	Q_OBJECT
 public:
 
 	typedef QAbstractItemModel parent_t;
@@ -56,13 +55,8 @@ public:
 	void onCutParentValueChanged (int i);
 	void collapseChilds (QTreeView * tv);
 
-public Q_SLOTS:
-	
-	void onExpanded (QModelIndex const & idx);
-	void onCollapsed (QModelIndex const & idx);
-
-Q_SIGNALS:
-	void invalidateFilter ();
+	void expanded (QModelIndex const & idx);
+	void collapsed (QModelIndex const & idx);
 
 protected:
 	node_t const * itemFromIndex (QModelIndex const & index) const;
