@@ -65,18 +65,21 @@ public:
 	DockManager (MainWindow * mw, QStringList const & path);
 	~DockManager ();
 
-	QMultiMap<QString, QDockWidget *> m_widgets; // @TODO: hashed container?
+	typedef QMultiMap<QString, DockWidget *> widgets_t;
+	typedef QMultiMap<QString, ActionAble *> actionables_t;
+	widgets_t			m_widgets; // @TODO: hashed container?
+	actionables_t		m_actionables;
 	MainWindow * 		m_main_window;
-	DockWidget * 		m_docked_widgets;
+	QDockWidget * 		m_docked_widgets;
 	TreeView * 			m_docked_widgets_tree_view;
 	DockTreeModel *		m_docked_widgets_model;
 	typedef tree_filter<DockedInfo> data_filters_t;
-	data_filters_t		m_docked_widgets_state;
+	data_filters_t *	m_docked_widgets_data;
 
 	DockWidget * mkDockWidget (DockedWidgetBase & dwb, bool visible);
-	DockWidget * mkDockWidget (DockedWidgetBase & dwb, bool visible, Qt::DockWidgetArea area);
+	DockWidget * mkDockWidget (ActionAble & aa, bool visible, Qt::DockWidgetArea area);
 	QModelIndex addDockedTreeItem (DockedWidgetBase & dwb, bool on);
-	QModelIndex addLeafTreeItem (ActionAble & aa, bool on);
+	QModelIndex addActionTreeItem (ActionAble & aa, bool on);
 
 	virtual bool handleAction (Action * a, E_ActionHandleType sync);
 

@@ -80,7 +80,10 @@ void LogTableModel::parseCommand (DecodedCommand const & cmd, E_ReceiveMode mode
 	int thread_idx = -1;
 	for (size_t i=0, ie=cmd.tvs.size(); i < ie; ++i)
 		if (cmd.tvs[i].m_tag == tlv::tag_tid)
-			thread_idx = m_log_widget.getTLS().findThreadId(cmd.tvs[i].m_val);
+		{
+			ThreadSpecific & tls = m_log_widget.getTLS();
+			thread_idx = tls.findThreadId(cmd.tvs[i].m_val);
+		}
 
 	int indent = 0;
 	QString qindent;

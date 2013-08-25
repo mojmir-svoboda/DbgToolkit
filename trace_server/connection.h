@@ -120,6 +120,19 @@ struct DockedData : DockedWidgetBase
 
 	virtual bool handleAction (Action * a, E_ActionHandleType sync)
 	{
+		switch (a->type())
+		{
+			case e_Visibility:
+			{
+				Q_ASSERT(m_args.size() > 0);
+				bool const on = a->m_args.at(0).toBool();
+				m_wd->setVisible(on);
+				return true;
+			}
+			default:
+				return false;
+		}
+
 		return m_widget->handleAction(a, sync);
 	}
 

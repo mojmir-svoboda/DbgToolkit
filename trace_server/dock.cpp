@@ -27,12 +27,30 @@ DockManager::DockManager (MainWindow * mw, QStringList const & path)
 	, m_docked_widgets(0)
 	, m_docked_widgets_tree_view(0)
 	, m_docked_widgets_model(0)
+	, m_docked_widgets_data(0)
 {
+	m_docked_widgets_data = new data_filters_t();
+	m_docked_widgets_model = new DockTreeModel(this, m_docked_widgets_data);
 	m_docked_widgets_tree_view = new TreeView(this);
 	m_docked_widgets_tree_view->setModel(m_docked_widgets_model);
+
+	QString const name = path.join("/");
+	QDockWidget * const dock = new QDockWidget(this);
+	dock->setObjectName(name);
+	dock->setWindowTitle(name);
+	dock->setAllowedAreas(Qt::AllDockWidgetAreas);
+	m_main_window->addDockWidget(Qt::BottomDockWidgetArea, dock);
+	m_actionables.insert(name, this);
+	dock->setAttribute(Qt::WA_DeleteOnClose, false);
+	dock->setWidget(m_docked_widgets_tree_view);
+
+	//if (visible) 
+	//	m_main_window->restoreDockWidget(dock);
+	m_docked_widgets = dock;
+
 	connect(m_docked_widgets_tree_view, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtDockedWidgets(QModelIndex)));
 	connect(m_docked_widgets, SIGNAL(visibilityChanged(bool)), this, SLOT(onListVisibilityChanged(bool)));
-	connect(m_docked_widgets, SIGNAL(dockClosed()), m_main_window, SLOT(onDockManagerClosed()));
+	connect(m_docked_widgets, SIGNAL(dockClosed()), mw, SLOT(onDockManagerClosed()));
 }
 
 DockManager::~DockManager ()
@@ -45,9 +63,11 @@ DockWidget * DockManager::mkDockWidget (DockedWidgetBase & dwb, bool visible)
 	return mkDockWidget(dwb, visible, Qt::BottomDockWidgetArea);
 }
 
-DockWidget * DockManager::mkDockWidget (DockedWidgetBase & dwb, bool visible, Qt::DockWidgetArea area)
+DockWidget * DockManager::mkDockWidget (ActionAble & aa, bool visible, Qt::DockWidgetArea area)
 {
-	QString const name = dwb.path().join("/");
+	Q_ASSERT(aa.path().size() > 0);
+
+	QString const name = aa.path().join("/");
 	DockWidget * const dock = new DockWidget(*this, name, m_main_window);
 	dock->setObjectName(name);
 	dock->setWindowTitle(name);
@@ -77,18 +97,17 @@ void DockManager::onWidgetClosed (DockWidget * w)
 
 QModelIndex DockManager::addDockedTreeItem (DockedWidgetBase & dwb, bool on)
 {
-	QModelIndex const idx = m_docked_widgets_model->insertItemWithPath(dwb.path(), on);
-	m_docked_widgets_model->setData(idx, QVariant(on ? Qt::Checked : Qt::Unchecked), Qt::CheckStateRole);
-	dwb.m_idx = idx;
-	return idx;
+	return addActionTreeItem(dwb, on);
 }
 
 
-QModelIndex DockManager::addLeafTreeItem (ActionAble & aa, bool on)
+QModelIndex DockManager::addActionTreeItem (ActionAble & aa, bool on)
 {
 	QModelIndex const idx = m_docked_widgets_model->insertItemWithPath(aa.path(), on);
 	// @TODO: set type=AA into returned node
 	m_docked_widgets_model->setData(idx, QVariant(on ? Qt::Checked : Qt::Unchecked), Qt::CheckStateRole);
+	QString const & name = aa.joinedPath();
+	m_actionables.insert(name, &aa);
 	aa.m_idx = idx;
 	return idx;
 }
@@ -96,6 +115,55 @@ QModelIndex DockManager::addLeafTreeItem (ActionAble & aa, bool on)
 bool DockManager::handleAction (Action * a, E_ActionHandleType sync)
 {
 	QStringList const & src_path = a->m_src_path;
+	QStringList const & dst_path = a->m_dst_path;
+	QStringList const & my_addr = path();
+
+	if (dst_path.size() == 0)
+	{
+		qWarning("DockManager::handleAction empty dst");
+		return false;
+	}
+
+	Q_ASSERT(my_addr.size() == 1);
+	int const lvl = dst_path.indexOf(my_addr.at(0), a->m_dst_curr_level);
+	if (lvl == -1)
+	{
+		qWarning("DockManager::handleAction message not for me");
+		return false;
+	}
+	else if (lvl == dst_path.size() - 1)
+	{
+		// message just for me! gr8!
+		a->m_dst_curr_level = lvl;
+		a->m_dst = this;
+		return true;
+	}
+	else
+	{
+		// message for my children
+		a->m_dst_curr_level = lvl + 1;
+
+		if (a->m_dst_curr_level >= 0 && a->m_dst_curr_level < dst_path.size())
+		{
+			QString const dst_joined = dst_path.join("/");
+			actionables_t::iterator it = m_actionables.find(dst_joined);
+			if (it != m_actionables.end() && it.key() == dst_joined)
+			{
+				ActionAble * const next_hop =  it.value();
+				next_hop->handleAction(a, sync);
+				++it;
+			}
+			else
+			{
+				//@TODO: find least common subpath
+			}
+		}
+		else
+		{
+			qWarning("DockManager::handleAction hmm? what?");
+		}
+	}
+
 	return false;
 }
 
@@ -108,6 +176,10 @@ void DockManager::onClickedAtDockedWidgets (QModelIndex idx)
 
 	ActionVisibility av;
 	av.m_args.push_back(state);
+	av.m_src_path = path();
+	av.m_src = this;
+	av.m_dst_path = dst;
+	//av.m_dst = 0;
 	handleAction(&av, e_Sync);
 	
 /*	QList<QString> path;
@@ -240,6 +312,16 @@ void DockManager::onClickedAtDockedWidgets (QModelIndex idx)
 
 }
 
+DockTreeModel::DockTreeModel (QObject * parent, tree_data_t * data)
+	: TreeModel<DockedInfo>(parent, data)
+{
+	qDebug("%s", __FUNCTION__);
+}
+
+DockTreeModel::~DockTreeModel ()
+{
+}
+
 
 QModelIndex DockTreeModel::insertItemWithPath (QStringList const & path, bool checked)
 {
@@ -257,6 +339,7 @@ QModelIndex DockTreeModel::insertItemWithPath (QStringList const & path, bool ch
 		DockedInfo i;
 		i.m_state = checked ? Qt::Checked : Qt::Unchecked;
 		i.m_collapsed = false;
+		i.m_path = path;
 	
 		node_t * const n = m_tree_data->set_to_state(name, i);
 

@@ -689,7 +689,18 @@ void LogWidget::handleCommand (DecodedCommand const & cmd, E_ReceiveMode mode)
 
 bool LogWidget::handleAction (Action * a, E_ActionHandleType sync)
 {
-	return false;
+	switch (a->type())
+	{
+		case e_Visibility:
+		{
+			Q_ASSERT(m_args.size() > 0);
+			bool const on = a->m_args.at(0).toBool();
+			setVisible(on);
+			return true;
+		}
+		default:
+			return false;
+	}
 }
 
 /*void LogWidget::applyConfig ()

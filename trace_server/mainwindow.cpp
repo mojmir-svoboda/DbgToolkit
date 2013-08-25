@@ -34,7 +34,7 @@
 
 ///////////  qt5 stuff
 #include <QWindow>
-#include <QtGui/5.1.0/QtGui/qpa/qplatformnativeinterface.h>
+#include <QtGui/5.1.1/QtGui/qpa/qplatformnativeinterface.h>
 static QWindow * windowForWidget(const QWidget* widget)
 {
 	if (QWindow* window = widget->windowHandle()) { return window; }
