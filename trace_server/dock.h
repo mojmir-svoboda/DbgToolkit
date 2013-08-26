@@ -90,3 +90,25 @@ public slots:
 };
 
 
+#include <QStyledItemDelegate>
+class CloseButton : public QStyledItemDelegate {
+    Q_OBJECT
+public:
+
+    explicit CloseButton (QObject * parent = 0, QPixmap const & closeIcon = QPixmap());
+    QPoint closeIconPos (QStyleOptionViewItem const & option) const;
+    void paint (QPainter * painter, QStyleOptionViewItem const & option, QModelIndex const & index) const;
+    QSize sizeHint (QStyleOptionViewItem const & option, QModelIndex const & index) const;
+    bool editorEvent (QEvent * event, QAbstractItemModel * model, QStyleOptionViewItem const & option, QModelIndex const & index);
+
+signals:
+    void closeIndexClicked(const QModelIndex &);
+
+protected:
+    QPixmap m_closeIcon;
+    static const int margin = 2; // pixels to keep arount the icon
+
+    Q_DISABLE_COPY(CloseButton)
+};
+
+

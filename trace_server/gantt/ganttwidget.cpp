@@ -118,6 +118,19 @@ namespace gantt {
 		return *it;
 	}
 
+	void GanttWidget::appendFrameEnd (DecodedData & dd)
+	{
+		gantt::GanttView * gv = findOrCreateGanttView(dd.m_subtag);
+		//QString const tag = QString("%1").arg(gv->config().m_sync_group);
+		dataframes_t::iterator fv_it = m_connection->findOrCreateFrame(dd.m_subtag);
+
+		unsigned long long from, to;
+		gv->appendFrameEnd(dd, from, to);
+		(*fv_it)->widget().appendFrame(from, to);
+	}
+
+
+
 	void GanttWidget::onHideContextMenu ()
 	{
 		Ui::SettingsGantt * ui = m_config_ui.ui();

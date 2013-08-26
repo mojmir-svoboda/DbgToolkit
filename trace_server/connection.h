@@ -298,6 +298,7 @@ protected:
 	friend class Server;
 	friend class MainWindow;
 	friend struct DataLog;
+	friend class gantt::GanttWidget;
 	enum {
 		e_data_ok = 0,
 		e_data_pipe_full,

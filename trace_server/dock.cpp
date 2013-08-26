@@ -8,6 +8,65 @@
 #include "mainwindow.h"
 #include "connection.h"
 
+#include <QStyledItemDelegate>
+    CloseButton::CloseButton (QObject * parent, QPixmap const & closeIcon)
+        : QStyledItemDelegate(parent)
+        , m_closeIcon(closeIcon)
+    {
+        if (m_closeIcon.isNull())
+        {
+            m_closeIcon = qApp->style()->standardPixmap(QStyle::SP_DialogCloseButton);
+        }
+    }
+
+    QPoint CloseButton::closeIconPos (QStyleOptionViewItem const & option) const
+	{
+        return QPoint(option.rect.right() - m_closeIcon.width() - margin,
+                      option.rect.center().y() - m_closeIcon.height()/2);
+    }
+
+    void CloseButton::paint (QPainter * painter, QStyleOptionViewItem const & option, QModelIndex const & index) const
+	{
+        QStyledItemDelegate::paint(painter, option, index);
+        // Only display the close icon for top level items...
+        //if(!index.parent().isValid()
+                // ...and when the mouse is hovering the item
+                // (mouseTracking must be enabled on the view)
+                //&& (option.state & QStyle::State_MouseOver))
+				//)
+        {
+            painter->drawPixmap(closeIconPos(option), m_closeIcon);
+        }
+    }
+
+    QSize CloseButton::sizeHint (QStyleOptionViewItem const & option, QModelIndex const & index) const
+    {
+        QSize size = QStyledItemDelegate::sizeHint(option, index);
+
+        // Make some room for the close icon
+        if (!index.parent().isValid()) {
+            size.rwidth() += m_closeIcon.width() + margin * 2;
+            size.setHeight(qMax(size.height(), m_closeIcon.height() + margin * 2));
+        }
+        return size;
+    }
+
+    bool CloseButton::editorEvent (QEvent * event, QAbstractItemModel * model, QStyleOptionViewItem const & option, QModelIndex const & index)
+    {
+        // Emit a signal when the icon is clicked
+        if (!index.parent().isValid() && event->type() == QEvent::MouseButtonRelease)
+		{
+            QMouseEvent const * mouseEvent = static_cast<QMouseEvent const *>(event);
+            QRect const closeButtonRect = m_closeIcon.rect().translated(closeIconPos(option));
+            if (closeButtonRect.contains(mouseEvent->pos()))
+            {
+                emit closeIndexClicked(index);
+            }
+        }
+        return false;
+    }
+
+
 DockWidget::DockWidget (DockManager & mgr, QString const & name, QMainWindow * const window)
 	: QDockWidget(name, window)
 	, m_mgr(mgr)
@@ -33,6 +92,8 @@ DockManager::DockManager (MainWindow * mw, QStringList const & path)
 	m_docked_widgets_model = new DockTreeModel(this, m_docked_widgets_data);
 	m_docked_widgets_tree_view = new TreeView(this);
 	m_docked_widgets_tree_view->setModel(m_docked_widgets_model);
+
+	m_docked_widgets_tree_view->setItemDelegateForColumn(1, new CloseButton(m_docked_widgets_tree_view));
 
 	QString const name = path.join("/");
 	QDockWidget * const dock = new QDockWidget(this);

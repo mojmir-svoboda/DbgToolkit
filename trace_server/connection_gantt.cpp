@@ -237,8 +237,13 @@ bool Connection::handleGanttClearCommand (DecodedCommand const & cmd, E_ReceiveM
 			return true;
 		dd.m_type = gantt::e_GanttFrameEnd;
 
-		appendGantt(dd);
-		//appendFrameEnd(dd);
+		//appendGantt(dd);
+
+		//qDebug("appendGantt type=%i tag=%s subtag=%s text=%s", dd.m_type, dd.m_tag.toStdString().c_str(), dd.m_subtag.toStdString().c_str(), dd.m_text.toStdString().c_str());
+		datagantts_t::iterator it = findOrCreateGantt(dd.m_tag);
+		DataGantt & dp = **it;
+		dp.widget().appendFrameEnd(dd);
+
 		return true;
 	}
 

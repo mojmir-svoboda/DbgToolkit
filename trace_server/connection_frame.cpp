@@ -1,13 +1,12 @@
 #include "connection.h"
-#include "frameview.h"
+#include <gantt/frameview.h>
 #include <QScrollBar>
 #include <QSplitter>
 #include <utils.h>
 #include <utils_qstandarditem.h>
 //#include <delegates.h>
-#include "ganttview.h"
+//#include <gantt/ganttview.h>
 #include <label.h>
-#include "frameview.h"
 #include <syncwidgets.h>
 
 
@@ -32,16 +31,6 @@ dataframes_t::iterator Connection::findOrCreateFrame (QString const & tag)
 	return it;
 }
 
-	void GanttWidget::appendFrameEnd (DecodedData & dd)
-	{
-		gantt::GanttView * gv = findOrCreateGanttView(dd.m_subtag);
-		QString const tag = QString("%1").arg(gv->config().m_sync_group);
-		dataframes_t::iterator fv_it = m_connection->findOrCreateFrame(tag);
-
-		unsigned long long from, to;
-		gv->appendFrameEnd(dd, from, to);
-		(*fv_it)->widget().appendFrame(from, to);
-	}
 
 	/*dataframes_t::iterator GanttWidget::findOrCreateFrameView (int sync_group)
 	{

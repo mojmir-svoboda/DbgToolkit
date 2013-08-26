@@ -61,7 +61,7 @@ int TreeModel<InfoT>::rowCount (QModelIndex const & index) const
 template <class InfoT>
 int TreeModel<InfoT>::columnCount (QModelIndex const & parent) const
 {
-	return 1; // @TODO: not supported yet
+	return 2; // @TODO: not supported yet
 }
 
 template <class InfoT>

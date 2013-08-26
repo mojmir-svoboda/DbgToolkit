@@ -95,6 +95,7 @@ SET(trace_server_SOURCES
 	table/tablewidget.cpp
 
 	connection_gantt.cpp
+	connection_frame.cpp
 	gantt/arrow.cpp
 	gantt/frameview.cpp
 	gantt/frameviewconfig.cpp
