@@ -9,24 +9,25 @@
 #include "connection.h"
 
 #include <QStyledItemDelegate>
-    CloseButton::CloseButton (QObject * parent, QPixmap const & closeIcon)
+    DockedTreeDelegate::DockedTreeDelegate (QObject * parent, QPixmap const & icon)
         : QStyledItemDelegate(parent)
-        , m_closeIcon(closeIcon)
+        , m_icon(icon)
     {
-        if (m_closeIcon.isNull())
+        if (m_icon.isNull())
         {
-            m_closeIcon = qApp->style()->standardPixmap(QStyle::SP_DialogCloseButton);
+            m_icon = qApp->style()->standardPixmap(QStyle::SP_DialogCloseButton);
         }
     }
 
-    QPoint CloseButton::closeIconPos (QStyleOptionViewItem const & option) const
+    QPoint DockedTreeDelegate::closeIconPos (QStyleOptionViewItem const & option) const
 	{
-        return QPoint(option.rect.right() - m_closeIcon.width() - margin,
-                      option.rect.center().y() - m_closeIcon.height()/2);
+        return QPoint(option.rect.right() - m_icon.width() - margin,
+                      option.rect.center().y() - m_icon.height()/2);
     }
 
-    void CloseButton::paint (QPainter * painter, QStyleOptionViewItem const & option, QModelIndex const & index) const
+    void DockedTreeDelegate::paint (QPainter * painter, QStyleOptionViewItem const & option, QModelIndex const & index) const
 	{
+		TreeView * t = static_cast<TreeView *>(parent());
         QStyledItemDelegate::paint(painter, option, index);
         // Only display the close icon for top level items...
         //if(!index.parent().isValid()
@@ -35,29 +36,29 @@
                 //&& (option.state & QStyle::State_MouseOver))
 				//)
         {
-            painter->drawPixmap(closeIconPos(option), m_closeIcon);
+            painter->drawPixmap(closeIconPos(option), m_icon);
         }
     }
 
-    QSize CloseButton::sizeHint (QStyleOptionViewItem const & option, QModelIndex const & index) const
+    QSize DockedTreeDelegate::sizeHint (QStyleOptionViewItem const & option, QModelIndex const & index) const
     {
         QSize size = QStyledItemDelegate::sizeHint(option, index);
 
         // Make some room for the close icon
         if (!index.parent().isValid()) {
-            size.rwidth() += m_closeIcon.width() + margin * 2;
-            size.setHeight(qMax(size.height(), m_closeIcon.height() + margin * 2));
+            size.rwidth() += m_icon.width() + margin * 2;
+            size.setHeight(qMax(size.height(), m_icon.height() + margin * 2));
         }
         return size;
     }
 
-    bool CloseButton::editorEvent (QEvent * event, QAbstractItemModel * model, QStyleOptionViewItem const & option, QModelIndex const & index)
+    bool DockedTreeDelegate::editorEvent (QEvent * event, QAbstractItemModel * model, QStyleOptionViewItem const & option, QModelIndex const & index)
     {
         // Emit a signal when the icon is clicked
         if (!index.parent().isValid() && event->type() == QEvent::MouseButtonRelease)
 		{
             QMouseEvent const * mouseEvent = static_cast<QMouseEvent const *>(event);
-            QRect const closeButtonRect = m_closeIcon.rect().translated(closeIconPos(option));
+            QRect const closeButtonRect = m_icon.rect().translated(closeIconPos(option));
             if (closeButtonRect.contains(mouseEvent->pos()))
             {
                 emit closeIndexClicked(index);
@@ -93,7 +94,18 @@ DockManager::DockManager (MainWindow * mw, QStringList const & path)
 	m_docked_widgets_tree_view = new TreeView(this);
 	m_docked_widgets_tree_view->setModel(m_docked_widgets_model);
 
-	m_docked_widgets_tree_view->setItemDelegateForColumn(1, new CloseButton(m_docked_widgets_tree_view));
+	QPixmap icons_for_cols[e_max_action_type];
+	icons_for_cols[e_Visibility] = QPixmap();
+	icons_for_cols[e_InCentralWidget] = qApp->style()->standardPixmap(QStyle::SP_DesktopIcon);
+	icons_for_cols[e_SyncGroup] = QPixmap();
+	icons_for_cols[e_Select] = qApp->style()->standardPixmap(QStyle::SP_DialogCloseButton);
+	icons_for_cols[e_AlignH] = qApp->style()->standardPixmap(QStyle::SP_ToolBarHorizontalExtensionButton);
+	icons_for_cols[e_AlignV] = qApp->style()->standardPixmap(QStyle::SP_ToolBarVerticalExtensionButton);
+
+	for (int i = e_InCentralWidget; i < e_max_action_type; ++i)
+	{
+		m_docked_widgets_tree_view->setItemDelegateForColumn(i, new DockedTreeDelegate(m_docked_widgets_tree_view, icons_for_cols[i]));
+	}
 
 	QString const name = path.join("/");
 	QDockWidget * const dock = new QDockWidget(this);
@@ -228,149 +240,34 @@ bool DockManager::handleAction (Action * a, E_ActionHandleType sync)
 	return false;
 }
 
-// @TODO: hmm. this whole fn is.. unfortunately rushed. need to rethink
 void DockManager::onClickedAtDockedWidgets (QModelIndex idx)
 {
 	TreeModel<DockedInfo>::node_t const * n = m_docked_widgets_model->getItemFromIndex(idx);
 	QStringList const & dst = n->data.m_path;
-	int const state = m_docked_widgets_model->data(idx, Qt::CheckStateRole).toInt();
 
-	ActionVisibility av;
-	av.m_args.push_back(state);
-	av.m_src_path = path();
-	av.m_src = this;
-	av.m_dst_path = dst;
+	int const col = idx.column();
+	Action a;
+	a.m_type = static_cast<E_ActionType>(col);
+	a.m_src_path = path();
+	a.m_src = this;
+	a.m_dst_path = dst;
+	if (col == e_Visibility)
+	{
+		int const state = m_docked_widgets_model->data(idx, Qt::CheckStateRole).toInt();
+		a.m_args.push_back(state);
+	}
+	if (col == e_Visibility)
+	{
+		int const state = n->data.m_centralwidget;
+		int const new_state = state == 0 ? 1 : 0;
+
+		//m_docked_widgets_model->setData(idx, Qt::CheckStateRole).toInt();
+
+		a.m_args.push_back(new_state);
+	}
+
 	//av.m_dst = 0;
-	handleAction(&av, e_Sync);
-	
-/*	QList<QString> path;
-	QList<bool> state;
-	path.push_front(m_docked_widgets_model->data(idx).toString());
-	state.push_front(model->data(idx, Qt::CheckStateRole).toInt());
-	QModelIndex parent = model->parent(idx);
-	while (parent.isValid())
-	{
-		path.push_front(model->data(parent).toString());
-		state.push_front(model->data(parent, Qt::CheckStateRole).toInt());
-		parent = model->parent(parent);
-	}
-
-	//path[0]=WarHorse_App path[1]=table path[2]=pokus path[3]=--
-	qDebug("path[0]=%s", path.size() > 0 ? path.at(0).toStdString().c_str() : "--");
-	qDebug("path[1]=%s", path.size() > 1 ? path.at(1).toStdString().c_str() : "--");
-	qDebug("path[2]=%s", path.size() > 2 ? path.at(2).toStdString().c_str() : "--");
-	qDebug("path[3]=%s", path.size() > 3 ? path.at(3).toStdString().c_str() : "--");
-
-	Q_ASSERT(path.size());
-
-	if (Connection * conn = findConnectionByName(path.at(0)))
-	{
-		if (path.size() > 1)
-		{
-			QString class_type = path.at(1);
-			if (class_type == "table")
-			{
-				//path.pop_front(); // drop app name
-				//path.pop_front(); // drop widget identifier
-
-				if (path.size() > 2)
-				{
-					for (datatables_t::iterator it = conn->m_data.get<e_data_table>().begin(), ite = conn->m_data.get<e_data_table>().end(); it != ite; ++it)
-					{
-						DataTable * dp = (*it);
-						if (dp->m_config.m_tag == path.at(2))
-						{
-							bool apply = false;
-							bool const xchg = dp->widget().getConfig().m_show ^ state.at(2);
-							apply |= xchg;
-							if (xchg)
-							{
-								dp->m_config.m_show = state.at(2);
-							}
-
-							if (state.at(2))
-								dp->onShow();
-							else
-								dp->onHide();
-
-							if (apply)
-								dp->widget().applyConfig(dp->widget().getConfig());
-						}
-					}
-				}
-				else
-				{
-					if (state.at(1))
-						conn->onShowTables();
-					else
-						conn->onHideTables();
-				}
-			}
-			else
-			{
-				if (path.size() > 2)
-				{
-					for (dataplots_t::iterator it = conn->m_data.get<e_data_plot>().begin(), ite = conn->m_data.get<e_data_plot>().end(); it != ite; ++it)
-					{
-						DataPlot * dp = (*it);
-						if (dp->m_config.m_tag == path.at(2))
-						{
-							bool apply = false;
-							bool const xchg = dp->widget().getConfig().m_show ^ state.at(2);
-							apply |= xchg;
-							if (xchg)
-							{
-								dp->m_config.m_show = state.at(2);
-							}
-
-							if (path.size() > 3)
-							{
-								for (int cc = 0, cce = dp->m_config.m_ccfg.size(); cc < cce; ++cc)
-								{
-									plot::CurveConfig & cfg = dp->m_config.m_ccfg[cc];
-									if (cfg.m_tag == path.at(3))
-									{
-										apply |= cfg.m_show ^ state.at(3);
-										cfg.m_show = state.at(3);
-										break;
-									}
-								}
-							}
-							else if (path.size() > 2)
-							{
-								for (int cc = 0, cce = dp->m_config.m_ccfg.size(); cc < cce; ++cc)
-								{
-									plot::CurveConfig & cfg = dp->m_config.m_ccfg[cc];
-									apply |= cfg.m_show ^ state.at(2);
-									cfg.m_show = state.at(2);
-								}
-
-								if (state.at(2))
-									dp->onShow();
-								else
-									dp->onHide();
-							}
-
-							if (apply)
-							{
-								dp->widget().applyConfig(dp->widget().getConfig());
-							}
-						}
-					}
-				}
-				else
-				{
-					if (state.at(1))
-						conn->onShowPlots();
-					else
-						conn->onHidePlots();
-				}
-			}
-		}
-
-	}
-*/
-
+	handleAction(&a, e_Sync);
 }
 
 DockTreeModel::DockTreeModel (QObject * parent, tree_data_t * data)
@@ -409,4 +306,60 @@ QModelIndex DockTreeModel::insertItemWithPath (QStringList const & path, bool ch
 		return idx;
 	}
 }
+
+int DockTreeModel::columnCount (QModelIndex const & parent) const
+{
+	return e_max_action_type; // @TODO: not supported yet
+}
+
+QVariant DockTreeModel::data (QModelIndex const & index, int role) const
+{
+	if (!index.isValid())
+		return QVariant();
+	
+	int const col = index.column();
+
+	if (col == e_Visibility)
+		return TreeModel<DockedInfo>::data(index, role);
+
+	if (col == e_SyncGroup && role == Qt::DisplayRole)
+	{
+		node_t const * const item = itemFromIndex(index);
+		return QString("0");
+		//return static_cast<Qt::CheckState>(item->data.m_state);
+	}
+
+/*	if (col == e_InCentralWidget && role == Qt::DisplayRole)
+	{
+		node_t const * const item = itemFromIndex(index);
+		return item->data.m_centralwidget;
+		//return static_cast<Qt::CheckState>(item->data.m_state);
+	}
+
+
+
+      e_Visibility = 0
+    , e_InCentralWidget
+    , e_SyncGroup
+    , e_Select
+    , e_AlignH
+    , e_AlignV
+    , e_max_action_type*/
+
+	/*node_t const * const item = itemFromIndex(index);
+	if (role == Qt::DisplayRole)
+	{
+		return QVariant(item->key);
+	}
+	else if (role == Qt::UserRole) // collapsed or expanded?
+	{
+		return static_cast<bool>(item->data.m_collapsed);
+	}
+	else if (role == Qt::CheckStateRole)
+	{
+		return static_cast<Qt::CheckState>(item->data.m_state);
+	}*/
+	return QVariant();
+}
+
 

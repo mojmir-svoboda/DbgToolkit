@@ -364,3 +364,21 @@ int Connection::findAppNameInMainWindow (QString const & appname)
 	return m_main_window->findAppName(appname);
 }
 
+
+void Connection::setWidgetToTabWidget (QWidget * w)
+{
+	if (m_tab_widget->layout() == 0)
+	{
+		m_tab_widget->setLayout(new QHBoxLayout());
+	}
+	m_tab_widget->layout()->addWidget(w);
+}
+
+void Connection::unsetWidgetFromTabWidget (QWidget * & w)
+{
+	if (m_tab_widget->layout() != 0)
+	{
+		w = m_tab_widget->layout()->widget();
+		m_tab_widget->layout()->removeWidget(w);
+	}
+}

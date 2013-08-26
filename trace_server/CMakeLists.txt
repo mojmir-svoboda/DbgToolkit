@@ -46,6 +46,7 @@ ENDIF()
 
 SET(trace_server_SOURCES
 	main.cpp
+	qt_plugins.cpp
 	../version.cpp
 	mainwindow.cpp
 	mainwindow_presets.cpp

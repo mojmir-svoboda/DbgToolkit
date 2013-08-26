@@ -129,6 +129,24 @@ struct DockedData : DockedWidgetBase
 				m_wd->setVisible(on);
 				return true;
 			}
+			case e_InCentralWidget:
+			{
+				Q_ASSERT(m_args.size() > 0);
+				bool const on = a->m_args.at(0).toBool();
+				if (on)
+				{
+					m_wd->setVisible(false);
+					m_parent->setWidgetToTabWidget(m_widget);
+				}
+				else
+				{
+					m_wd->setVisible(true);
+					m_wd->setWidget(m_widget);
+					QWidget * w;
+					m_parent->unsetWidgetFromTabWidget(w);
+				}
+				return true;
+			}
 			default:
 				return false;
 		}
@@ -286,6 +304,9 @@ public slots:
 	void onSaveAll ();
 
 	bool tryHandleCommand (DecodedCommand const & cmd, E_ReceiveMode mode);
+
+	void setWidgetToTabWidget (QWidget * w);
+	void unsetWidgetFromTabWidget (QWidget * & w);
 
 
 private slots:

@@ -55,6 +55,9 @@ public:
 	QModelIndex insertItemWithPath (QStringList const & path, bool checked);
 
 	TreeModel<DockedInfo>::node_t const * getItemFromIndex (QModelIndex const & index) const { return itemFromIndex(index); }
+
+	virtual int columnCount (QModelIndex const & parent) const;
+	virtual QVariant data (QModelIndex const & index, int role) const;
 };
 
 
@@ -62,6 +65,7 @@ struct DockManager : QWidget, ActionAble
 {
 	Q_OBJECT
 public:
+	
 	DockManager (MainWindow * mw, QStringList const & path);
 	~DockManager ();
 
@@ -91,24 +95,24 @@ public slots:
 
 
 #include <QStyledItemDelegate>
-class CloseButton : public QStyledItemDelegate {
+class DockedTreeDelegate : public QStyledItemDelegate {
     Q_OBJECT
 public:
 
-    explicit CloseButton (QObject * parent = 0, QPixmap const & closeIcon = QPixmap());
+    explicit DockedTreeDelegate (QObject * parent = 0, QPixmap const & icon = QPixmap());
     QPoint closeIconPos (QStyleOptionViewItem const & option) const;
     void paint (QPainter * painter, QStyleOptionViewItem const & option, QModelIndex const & index) const;
     QSize sizeHint (QStyleOptionViewItem const & option, QModelIndex const & index) const;
     bool editorEvent (QEvent * event, QAbstractItemModel * model, QStyleOptionViewItem const & option, QModelIndex const & index);
 
 signals:
-    void closeIndexClicked(const QModelIndex &);
+    void closeIndexClicked (QModelIndex const &);
 
 protected:
-    QPixmap m_closeIcon;
+    QPixmap m_icon;
     static const int margin = 2; // pixels to keep arount the icon
 
-    Q_DISABLE_COPY(CloseButton)
+    Q_DISABLE_COPY(DockedTreeDelegate)
 };
 
 

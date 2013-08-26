@@ -9,18 +9,19 @@ enum E_ActionHandleType {
 };
 
 enum E_ActionType {
-	  e_Unknown = 0
-	, e_Visibility
-	, e_ToCentralWidget
-	, e_SetSyncGroup
+	  e_Visibility = 0
+	, e_InCentralWidget
 	, e_SyncGroup
+	, e_Select
 	, e_AlignH
 	, e_AlignV
+	, e_max_action_type
 };
 
 struct ActionAble;
 
 struct Action {
+	E_ActionType m_type;
 	ActionAble * m_src;
 	QStringList m_src_path;
 	mutable ActionAble * m_dst;
@@ -29,14 +30,9 @@ struct Action {
 
 	QList<QVariant> m_args;
 	
-	Action () : m_src(0), m_dst(0), m_dst_curr_level(0) { }
+	Action () : m_type(e_Visibility), m_src(0), m_dst(0), m_dst_curr_level(0) { }
 	virtual ~Action () { }
-	virtual E_ActionType type () const = 0;
-};
-
-struct ActionVisibility : Action {
-
-	virtual E_ActionType type () const { return e_Visibility; }
+	virtual E_ActionType type () const { return m_type; }
 };
 
 
