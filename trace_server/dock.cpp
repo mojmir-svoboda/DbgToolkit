@@ -229,6 +229,7 @@ bool DockManager::handleAction (Action * a, E_ActionHandleType sync)
 			actionables_t::iterator it = m_actionables.find(dst_joined);
 			if (it != m_actionables.end() && it.key() == dst_joined)
 			{
+				qDebug("delivering action to: %s", dst_joined.toStdString().c_str());
 				ActionAble * const next_hop =  it.value();
 				next_hop->handleAction(a, sync);
 				++it;

@@ -131,6 +131,10 @@ typename SelectIterator<TypeN>::type  Connection::dataWidgetFactory (QString con
 		m_main_window->loadLayout(preset_name);
 
 		bool const visible = (*it)->config().m_show;
+
+		//if (m_main_window->ganttState() == e_FtrEnabled && visible)
+		dd->m_wd->setVisible(visible);
+		dd->widget().setVisible(visible);
 		QModelIndex const item_idx = m_main_window->m_dock_mgr.addDockedTreeItem(dwb, visible);
 	}
 	return it;
