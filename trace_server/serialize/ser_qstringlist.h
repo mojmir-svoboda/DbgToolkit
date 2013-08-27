@@ -13,7 +13,7 @@ namespace boost { namespace serialization {
 	inline void load (ArchiveT & a, QStringList & sl, unsigned const /*version*/)
 	{
 		using boost::serialization::make_nvp;
-		std::string s;
+		//std::string s;
 		a >> make_nvp("value", sl);
 	}
 	 
@@ -24,4 +24,5 @@ namespace boost { namespace serialization {
 	}
 	
 } }
+
 

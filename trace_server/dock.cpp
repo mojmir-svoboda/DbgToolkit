@@ -142,7 +142,7 @@ void DockManager::loadConfig (QString const & path)
 {
 	QString const fpath = path + "/" + g_dockStateTag;
 	m_config2.clear();
-	loadConfig(fpath);
+	::loadConfig(m_config2, fpath);
 
 	m_config = m_config2;
 	// @TODO: leak!!!
@@ -153,7 +153,7 @@ void DockManager::loadConfig (QString const & path)
 void DockManager::saveConfig (QString const & path)
 {
 	QString const fpath = path + "/" + g_dockStateTag;
-	saveConfig(fpath);
+	::saveConfig(m_config, fpath);
 }
 
 
