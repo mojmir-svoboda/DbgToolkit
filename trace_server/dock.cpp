@@ -19,7 +19,7 @@
         }
     }
 
-    QPoint DockedTreeDelegate::closeIconPos (QStyleOptionViewItem const & option) const
+    QPoint DockedTreeDelegate::calcIconPos (QStyleOptionViewItem const & option) const
 	{
         return QPoint(option.rect.right() - m_icon.width() - margin,
                       option.rect.center().y() - m_icon.height()/2);
@@ -28,6 +28,16 @@
     void DockedTreeDelegate::paint (QPainter * painter, QStyleOptionViewItem const & option, QModelIndex const & index) const
 	{
 		TreeView * t = static_cast<TreeView *>(parent());
+		DockTreeModel * m = static_cast<DockTreeModel *>(t->model());
+
+		TreeModel<DockedInfo>::node_t const * n = m->getItemFromIndex(index);
+
+		int const col = index.column();
+		if (col == e_InCentralWidget)
+		{
+			if (n->data.m_centralwidget)
+				painter->drawPixmap(calcIconPos(option), m_icon);
+		}
         QStyledItemDelegate::paint(painter, option, index);
         // Only display the close icon for top level items...
         //if(!index.parent().isValid()
@@ -35,9 +45,6 @@
                 // (mouseTracking must be enabled on the view)
                 //&& (option.state & QStyle::State_MouseOver))
 				//)
-        {
-            painter->drawPixmap(closeIconPos(option), m_icon);
-        }
     }
 
     QSize DockedTreeDelegate::sizeHint (QStyleOptionViewItem const & option, QModelIndex const & index) const
@@ -58,7 +65,7 @@
         if (!index.parent().isValid() && event->type() == QEvent::MouseButtonRelease)
 		{
             QMouseEvent const * mouseEvent = static_cast<QMouseEvent const *>(event);
-            QRect const closeButtonRect = m_icon.rect().translated(closeIconPos(option));
+            QRect const closeButtonRect = m_icon.rect().translated(calcIconPos(option));
             if (closeButtonRect.contains(mouseEvent->pos()))
             {
                 emit closeIndexClicked(index);
@@ -256,13 +263,12 @@ void DockManager::onClickedAtDockedWidgets (QModelIndex idx)
 		int const state = m_docked_widgets_model->data(idx, Qt::CheckStateRole).toInt();
 		a.m_args.push_back(state);
 	}
-	if (col == e_Visibility)
+	if (col == e_InCentralWidget)
 	{
 		int const state = n->data.m_centralwidget;
 		int const new_state = state == 0 ? 1 : 0;
 
-		//m_docked_widgets_model->setData(idx, Qt::CheckStateRole).toInt();
-
+		m_docked_widgets_model->setData(idx, new_state, e_DockRoleCentralWidget);
 		a.m_args.push_back(new_state);
 	}
 
@@ -360,6 +366,33 @@ QVariant DockTreeModel::data (QModelIndex const & index, int role) const
 		return static_cast<Qt::CheckState>(item->data.m_state);
 	}*/
 	return QVariant();
+}
+
+bool DockTreeModel::setData (QModelIndex const & index, QVariant const & value, int role)
+{
+	if (!index.isValid()) return false;
+
+	node_t * const item = itemFromIndex(index);
+	if (role <= Qt::UserRole)
+	{
+		return TreeModel<DockedInfo>::setData(index, value, role);
+	}
+	else if (role == e_DockRoleCentralWidget)
+	{
+		bool const v = value.toBool();
+		item->data.m_centralwidget = v;
+	}
+	else if (role == e_DockRoleSyncGroup)
+	{
+	}
+	else if (role == e_DockRoleSelect)
+	{
+	}
+	else
+		return false;
+
+	emit dataChanged(index, index);
+	return true;
 }
 
 

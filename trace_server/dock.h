@@ -44,6 +44,12 @@ private:
 	DockManager & m_mgr;
 };
 
+enum {
+	e_DockRoleCentralWidget = Qt::UserRole + 1,
+	e_DockRoleSelect,
+	e_DockRoleSyncGroup
+};
+
 class DockTreeModel : public TreeModel<DockedInfo>
 {
 	Q_OBJECT
@@ -57,7 +63,8 @@ public:
 	TreeModel<DockedInfo>::node_t const * getItemFromIndex (QModelIndex const & index) const { return itemFromIndex(index); }
 
 	virtual int columnCount (QModelIndex const & parent) const;
-	virtual QVariant data (QModelIndex const & index, int role) const;
+	virtual QVariant data (const QModelIndex & index, int role = Qt::DisplayRole) const;
+	virtual bool setData (QModelIndex const & index, QVariant const & value, int role = Qt::EditRole);
 };
 
 
@@ -100,7 +107,7 @@ class DockedTreeDelegate : public QStyledItemDelegate {
 public:
 
     explicit DockedTreeDelegate (QObject * parent = 0, QPixmap const & icon = QPixmap());
-    QPoint closeIconPos (QStyleOptionViewItem const & option) const;
+    QPoint calcIconPos (QStyleOptionViewItem const & option) const;
     void paint (QPainter * painter, QStyleOptionViewItem const & option, QModelIndex const & index) const;
     QSize sizeHint (QStyleOptionViewItem const & option, QModelIndex const & index) const;
     bool editorEvent (QEvent * event, QAbstractItemModel * model, QStyleOptionViewItem const & option, QModelIndex const & index);
