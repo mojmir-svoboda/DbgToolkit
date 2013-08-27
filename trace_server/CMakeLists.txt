@@ -68,6 +68,7 @@ SET(trace_server_SOURCES
 	constants.cpp
 	config.cpp
 	dock.cpp
+	dockconfig.cpp
 	syncwidgets.cpp
 	findwidget.cpp
 
@@ -126,6 +127,7 @@ SET(trace_server_HEADERS
 	rendezvous.h
 	utils.h
 	dock.h
+	dockconfig.h
 	constants.h
 	syncwidgets.h
 	config.h

@@ -202,13 +202,22 @@ struct SelectDockedData
 { };
 
 template <int TypeN>
-struct DataMap : public QMap<QString, typename SelectDockedData<TypeN, dockeddataptr_t>::type >
+struct DataMap 
+	: QMap<QString, typename SelectDockedData<TypeN, dockeddataptr_t>::type >
+	, ActionAble
 {
 	enum { e_type = TypeN };
 	QList<DecodedCommand> m_queue;
 	typedef typename SelectDockedData<TypeN, dockeddataptr_t>::type widget_t;
 
-	DataMap () { m_queue.reserve(256); }
+	DataMap () : ActionAble(QStringList()) { m_queue.reserve(256); }
+
+	virtual bool handleAction (Action * a, E_ActionHandleType sync)
+	{
+		for (iterator it = begin(), ite = end(); it != ite; ++it)
+			(*it)->handleAction(a, sync);
+		return true;
+	}
 };
 
 typedef DataMap<e_data_log  > datalogs_t;
@@ -360,6 +369,8 @@ protected:
 	template <int TypeN>
 	typename SelectIterator<TypeN>::type
 	dataWidgetFactory (QString const tag);
+
+	void registerDataMaps ();
 
 	template <int TypeN>
 	bool loadConfigFor (QString const & preset_name, typename SelectConfig<TypeN>::type & config, QString const & tag);

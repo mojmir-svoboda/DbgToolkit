@@ -1,5 +1,6 @@
 #pragma once
 
+extern char const * g_traceServerName;
 extern char const * g_defaultPresetName;
 extern char const * g_presetLayoutName;
 extern char const * g_filterStateTag;

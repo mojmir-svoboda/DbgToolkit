@@ -6,6 +6,7 @@
 #include "treemodel.h"
 #include "dockedwidget.h"
 #include "action.h"
+#include "dockconfig.h"
 class QCloseEvent;
 class QMainWindow;
 class MainWindow;
@@ -86,11 +87,16 @@ public:
 	DockTreeModel *		m_docked_widgets_model;
 	typedef tree_filter<DockedInfo> data_filters_t;
 	data_filters_t *	m_docked_widgets_data;
+	DockConfig			m_config;
+	DockConfig			m_config2;
 
 	DockWidget * mkDockWidget (DockedWidgetBase & dwb, bool visible);
 	DockWidget * mkDockWidget (ActionAble & aa, bool visible, Qt::DockWidgetArea area);
 	QModelIndex addDockedTreeItem (DockedWidgetBase & dwb, bool on);
 	QModelIndex addActionTreeItem (ActionAble & aa, bool on);
+
+	void loadConfig (QString const & path);
+	void saveConfig (QString const & path);
 
 	virtual bool handleAction (Action * a, E_ActionHandleType sync);
 

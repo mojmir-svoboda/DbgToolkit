@@ -1,5 +1,6 @@
 #include "constants.h"
 
+char const * g_traceServerName = "trace_server";
 char const * g_defaultPresetName = "default";
 char const * g_presetLayoutName = "layout";
 char const * g_filterStateTag = "filterstate";

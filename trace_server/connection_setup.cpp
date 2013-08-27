@@ -6,6 +6,7 @@
 #include "logs/logtablemodel.h"
 #include "utils.h"
 #include "utils_qstandarditem.h"
+#include "utils_boost.h"
 #include "constants.h"
 #include "delegates.h"
 
@@ -107,6 +108,29 @@ void Connection::tryLoadMatchingPreset (QString const & app_name)
 }
 
 bool Connection::dumpModeEnabled () const { return m_main_window->dumpModeEnabled(); }
+
+namespace {
+	struct RegisterCommand {
+		MainWindow & m_main_window;
+		QString const & m_app_name;
+		RegisterCommand (MainWindow & mw, QString const & app_name) : m_main_window(mw), m_app_name(app_name) { }
+		
+		template <typename T>
+		void operator() (T & t)
+		{
+			QStringList p = m_main_window.dockManager().path();
+			p << m_app_name;
+			p << g_fileTags[t.e_type];
+			t.m_path = p;
+			t.m_joined_path = p.join("/");
+			m_main_window.dockManager().addActionTreeItem(t, true);
+		}
+	};
+}
+void Connection::registerDataMaps ()
+{
+	recurse(m_data, RegisterCommand(*m_main_window, getAppName()));
+}
 
 bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 {
@@ -300,6 +324,7 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 				m_app_idx = m_main_window->createAppName(app_name, e_Proto_TLV);
 			}
 
+			registerDataMaps();
 				//m_main_window->onSetup(e_Proto_TLV, sessionState().m_app_idx, true, true);
 
 			/*

@@ -95,11 +95,14 @@ DockManager::DockManager (MainWindow * mw, QStringList const & path)
 	, m_docked_widgets_tree_view(0)
 	, m_docked_widgets_model(0)
 	, m_docked_widgets_data(0)
+	, m_config(g_traceServerName)
+	, m_config2(g_traceServerName)
 {
 	m_docked_widgets_data = new data_filters_t();
-	m_docked_widgets_model = new DockTreeModel(this, m_docked_widgets_data);
 	m_docked_widgets_tree_view = new TreeView(this);
+	m_docked_widgets_model = new DockTreeModel(this, m_docked_widgets_data);
 	m_docked_widgets_tree_view->setModel(m_docked_widgets_model);
+	m_docked_widgets_tree_view->resizeColumnToContents(0);
 
 	QPixmap icons_for_cols[e_max_action_type];
 	icons_for_cols[e_Visibility] = QPixmap();
@@ -112,6 +115,7 @@ DockManager::DockManager (MainWindow * mw, QStringList const & path)
 	for (int i = e_InCentralWidget; i < e_max_action_type; ++i)
 	{
 		m_docked_widgets_tree_view->setItemDelegateForColumn(i, new DockedTreeDelegate(m_docked_widgets_tree_view, icons_for_cols[i]));
+		m_docked_widgets_tree_view->resizeColumnToContents(i);
 	}
 
 	QString const name = path.join("/");
@@ -132,6 +136,26 @@ DockManager::DockManager (MainWindow * mw, QStringList const & path)
 	connect(m_docked_widgets, SIGNAL(visibilityChanged(bool)), this, SLOT(onListVisibilityChanged(bool)));
 	connect(m_docked_widgets, SIGNAL(dockClosed()), mw, SLOT(onDockManagerClosed()));
 }
+
+char const * g_dockStateTag = "dockstate";
+void DockManager::loadConfig (QString const & path)
+{
+	QString const fpath = path + "/" + g_dockStateTag;
+	m_config2.clear();
+	loadConfig(fpath);
+
+	m_config = m_config2;
+	// @TODO: leak!!!
+	m_docked_widgets_model = new DockTreeModel(this, &m_config.m_docked_widgets_data);
+	m_docked_widgets_tree_view->setModel(m_docked_widgets_model);
+}
+
+void DockManager::saveConfig (QString const & path)
+{
+	QString const fpath = path + "/" + g_dockStateTag;
+	saveConfig(fpath);
+}
+
 
 DockManager::~DockManager ()
 {
@@ -189,6 +213,7 @@ QModelIndex DockManager::addActionTreeItem (ActionAble & aa, bool on)
 	QString const & name = aa.joinedPath();
 	m_actionables.insert(name, &aa);
 	aa.m_idx = idx;
+	m_docked_widgets_tree_view->resizeColumnToContents(0);
 	return idx;
 }
 
@@ -304,9 +329,10 @@ QModelIndex DockTreeModel::insertItemWithPath (QStringList const & path, bool ch
 		DockedInfo i;
 		i.m_state = checked ? Qt::Checked : Qt::Unchecked;
 		i.m_collapsed = false;
-		i.m_path = path;
+		//i.m_path = path;
 	
 		node_t * const n = m_tree_data->set_to_state(name, i);
+		n->data.m_path = path;
 
 		QModelIndex const idx = indexFromItem(n);
 		setData(idx, checked ? Qt::Checked : Qt::Unchecked, Qt::CheckStateRole);

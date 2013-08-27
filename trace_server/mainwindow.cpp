@@ -57,7 +57,7 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QStri
 	, m_tray_icon(0)
 	, m_settings_dialog(0)
 	, m_dock_mgr(this, QStringList(QString("trace_server")))
-	, m_docked_name("trace_server")
+	, m_docked_name(g_traceServerName)
 	, m_log_name(log_name)
 	, m_start_level(level)
 {
@@ -163,8 +163,8 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QStri
 
 
 	QTimer::singleShot(0, this, SLOT(loadState()));	// trigger lazy load of settings
-	setWindowTitle("trace_server");
-	setObjectName("trace_server");
+	setWindowTitle(g_traceServerName);
+	setObjectName(g_traceServerName);
 }
 
 MainWindow::~MainWindow()
@@ -625,7 +625,8 @@ void MainWindow::storeState ()
 		}
 		settings.endGroup();
 	}
-
+	
+	m_dock_mgr.saveConfig(m_config.m_appdir);
 #ifdef WIN32
 	settings.setValue("hotkeyCode", m_config.m_hotkey);
 #endif
@@ -739,7 +740,9 @@ void MainWindow::loadState ()
 	QString const pname = settings.value("presetComboBox").toString();
 	ui->presetComboBox->setCurrentIndex(ui->presetComboBox->findText(pname));
 
-	ui->dockedWidgetsToolButton->setChecked(m_dock_mgr.m_docked_widgets->isVisible());
+	m_dock_mgr.loadConfig(m_config.m_appdir);
+
+	ui->dockedWidgetsToolButton->setChecked(m_dock_mgr.m_config.m_show);
 	qApp->installEventFilter(this);
 }
 
