@@ -382,3 +382,21 @@ void Connection::unsetWidgetFromTabWidget (QWidget * & w)
 		m_tab_widget->layout()->removeWidget(w);
 	}
 }
+QWidget * Connection::toCentralWidget (QDockWidget * wd, QWidget * w, bool on)
+{
+	if (on)
+	{
+		wd->setVisible(false);
+		setWidgetToTabWidget(w);
+		return 0;
+	}
+	else
+	{
+		wd->setVisible(true);
+		wd->setWidget(w);
+		QWidget * oldw;
+		unsetWidgetFromTabWidget(oldw);
+		return oldw;
+	}
+}
+

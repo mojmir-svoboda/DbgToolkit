@@ -4,7 +4,7 @@ template <int TypeN>
 bool Connection::loadConfigFor (QString const & preset_name, typename SelectConfig<TypeN>::type & config, QString const & tag)
 {
 	char const * preset_prefix = g_fileTags[TypeN];
-	QString const fname = getDataTagFileName(getConfig().m_appdir, preset_name, preset_prefix, tag);
+	QString const fname = getDataTagFileNameAndMkPath(getConfig().m_appdir, getAppName(), preset_name, preset_prefix, tag);
 	qDebug("loadCfgFor<>: load cfg file=%s", fname.toStdString().c_str());
 	return loadConfig(config, fname);
 }
@@ -73,19 +73,24 @@ typename SelectIterator<TypeN>::type  Connection::dataWidgetFactory (QString con
 				foreach (QString const & s, subdirs)
 				{
 					QString test_preset_name = getAppName() + "/" + s;
-					QString const cfg_fname = getDataTagFileName(getConfig().m_appdir, test_preset_name, preset_prefix, tag);
+					QString const cfg_fname = getDataTagFileName(getConfig().m_appdir, getAppName(), s, preset_prefix, tag);
+					qDebug("kurva: appdir=%s appname=%s s=%s pfx=%s",
+								getConfig().m_appdir.toStdString().c_str(),
+								getAppName().toStdString().c_str(),
+								s.toStdString().c_str(),
+								preset_prefix);
 					if (existsFile(cfg_fname))
 					{
 						if (s == QString(g_defaultPresetName))
 							default_present = true;
-						candidates << test_preset_name;
+						candidates << s;
 					}
 
 					m_main_window->mentionInPresetHistory(test_preset_name);
 				}
 
 				if (default_present)
-					preset_name = getAppName() + "/" + g_defaultPresetName;
+					preset_name = g_defaultPresetName;
 				else
 				{
 					if (candidates.size())
@@ -95,12 +100,10 @@ typename SelectIterator<TypeN>::type  Connection::dataWidgetFactory (QString con
 		}
 
 		if (preset_name.isEmpty())
-		{
-			preset_name = getPresetPath(getAppName(), g_defaultPresetName); // fallback to default
-		}
+			preset_name = g_defaultPresetName; // fallback to default
 
 		m_main_window->mentionInPresetHistory(preset_name);
-		QString const fname = getDataTagFileName(getConfig().m_appdir, preset_name, preset_prefix, tag);
+		QString const fname = getDataTagFileName(getConfig().m_appdir, getAppName(), preset_name, preset_prefix, tag);
 		if (!preset_name.isEmpty())
 		{
 			bool const loaded = loadConfigFor<TypeN>(preset_name, template_config, tag);
@@ -131,11 +134,14 @@ typename SelectIterator<TypeN>::type  Connection::dataWidgetFactory (QString con
 		m_main_window->loadLayout(preset_name);
 
 		bool const visible = (*it)->config().m_show;
-
 		//if (m_main_window->ganttState() == e_FtrEnabled && visible)
 		dd->m_wd->setVisible(visible);
 		dd->widget().setVisible(visible);
 		QModelIndex const item_idx = m_main_window->m_dock_mgr.addDockedTreeItem(dwb, visible);
+
+		bool const in_cw = (*it)->config().m_central_widget;
+		if (in_cw)
+			toCentralWidget(dd->m_wd, dd->m_widget, in_cw);
 	}
 	return it;
 }

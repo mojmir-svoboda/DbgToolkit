@@ -85,12 +85,14 @@ namespace gantt {
 		int m_timer_delay_ms;
 		int m_history_ln;
 		bool m_show;
+		bool m_central_widget;
 
 		GanttConfig ()
 			: m_tag()
 			, m_timer_delay_ms(50)
 			, m_history_ln(2048)
 			, m_show(true)
+			, m_central_widget(false)
 		{ }
 
 		GanttConfig (QString const & tag)
@@ -98,6 +100,7 @@ namespace gantt {
 			, m_timer_delay_ms(50)
 			, m_history_ln(2048)
 			, m_show(true)
+			, m_central_widget(false)
 		{ }
 
 		template <class ArchiveT>
@@ -109,6 +112,7 @@ namespace gantt {
 			ar & boost::serialization::make_nvp("timer", m_timer_delay_ms);
 			ar & boost::serialization::make_nvp("length", m_history_ln);
 			ar & boost::serialization::make_nvp("show", m_show);
+			ar & boost::serialization::make_nvp("central_widget", m_central_widget);
 		}
 
 		bool findGanttViewConfig (QString const & tag, GanttViewConfig const * & ccfg)
@@ -120,6 +124,11 @@ namespace gantt {
 					return true;
 				}
 			return false;
+		}
+
+		void clear ()
+		{
+			*this = GanttConfig();
 		}
 	};
 

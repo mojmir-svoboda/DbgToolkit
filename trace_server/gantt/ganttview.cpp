@@ -88,7 +88,7 @@ void GanttView::appendFrameBgn (DecodedData & dd)
 
 	++m_ganttData.m_frame;
 	//qDebug("--{ +++ f=%i t=%8llu  ctxi=%u  msg=%s", m_ganttData.m_frame, m_ganttData.m_frame_begin, dd.m_ctx_idx, dd.m_text.toStdString().c_str());
-	qDebug("{ FRAME %3i", m_ganttData.m_frame);
+	//qDebug("{ FRAME %3i", m_ganttData.m_frame);
 }
 
 void GanttView::appendFrameEnd (DecodedData & dd, unsigned long long & from, unsigned long long & to)
@@ -97,7 +97,7 @@ void GanttView::appendFrameEnd (DecodedData & dd, unsigned long long & from, uns
 	from = m_ganttData.m_frame_begin * scale;
 	to = dd.m_time * scale;
 	m_ganttData.m_frames.push_back(std::make_pair(m_ganttData.m_frame_begin * scale, dd.m_time * scale));
-	qDebug("} FRAME=%3i", m_ganttData.m_frame);
+	//qDebug("} FRAME=%3i", m_ganttData.m_frame);
 
 
 	for (size_t ci = 0, cie = m_ganttData.m_contexts.size(); ci < cie; ++ci)
@@ -143,7 +143,7 @@ void GanttView::appendFrameEnd (DecodedData & dd)
 
 	//m_last_flush_end_idx = to;
 
-	qDebug("} FRAME=%3i", m_ganttData.m_frame);
+	//qDebug("} FRAME=%3i", m_ganttData.m_frame);
 	//qDebug("}-- --- f=%i t=%8llu  ctxi=%u  msg=%s", m_ganttData.m_frame, m_ganttData.m_frame_begin, dd.m_ctx_idx, dd.m_text.toStdString().c_str());
 	//dump
 }

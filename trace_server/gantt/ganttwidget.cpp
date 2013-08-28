@@ -157,10 +157,6 @@ namespace gantt {
 		connect(ui->nextFrameButton, SIGNAL(valueChanged(int)), this, SLOT(onFrameValueChanged(int)));
 	}
 
-	void GanttWidget::applyConfig ()
-	{
-	}
-
 	void GanttWidget::applyConfig (GanttConfig & cfg)
 	{
 		//qDebug("%s this=0x%08x", __FUNCTION__, this);
@@ -450,17 +446,27 @@ namespace gantt {
 			findNearestTimeRow(t);
 	}*/
 
+	void GanttWidget::applyConfig ()
+	{
+		m_config = m_config2;
+		applyConfig(m_config);
+	}
 
 	void GanttWidget::loadConfig (QString const & path)
 	{
-		//QString const logpath = path + "/" + g_presetLogTag + "/" + m_config.m_tag;
-		//m_config2.clear();
-		//logs::loadConfig(m_config2, logpath);
-		//filterWidget()->loadConfig(logpath);
+		QString const fname = path + "/" + g_presetGanttTag + "/" + m_config.m_tag;
+		m_config2.clear();
+		gantt::loadConfig(m_config2, fname);
+		filterWidget()->loadConfig(fname);
 	}
 
 	void GanttWidget::saveConfig (QString const & path)
 	{
+		QString const fname = path + "/" + g_presetGanttTag + "/" + m_config.m_tag;
+		gantt::GanttConfig tmp = m_config;
+		//normalizeConfig(tmp);
+		gantt::saveConfig(tmp, fname);
+		filterWidget()->saveConfig(fname);
 	}
 
 

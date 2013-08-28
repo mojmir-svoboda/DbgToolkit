@@ -1,3 +1,4 @@
+#pragma once
 #include <QString>
 #include <string>
 #include <boost/serialization/string.hpp>

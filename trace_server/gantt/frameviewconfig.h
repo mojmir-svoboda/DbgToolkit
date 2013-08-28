@@ -23,6 +23,7 @@
 		QColor m_color3;
 		QColor m_color4;
 		bool m_show;
+		bool m_central_widget;
 		bool m_on1;
 		bool m_on2;
 		bool m_on3;
@@ -42,6 +43,7 @@
 			, m_color3(Qt::yellow)
 			, m_color4(Qt::red)
 			, m_show(true)
+			, m_central_widget(false)
 			, m_on1(true)
 			, m_on2(true)
 			, m_on3(true)
@@ -62,6 +64,7 @@
 			, m_color3(Qt::yellow)
 			, m_color4(Qt::red)
 			, m_show(true)
+			, m_central_widget(false)
 			, m_on1(true)
 			, m_on2(true)
 			, m_on3(true)
@@ -83,6 +86,7 @@
 			ar & boost::serialization::make_nvp("color3", m_color3);
 			ar & boost::serialization::make_nvp("color4", m_color4);
 			ar & boost::serialization::make_nvp("show", m_show);
+			ar & boost::serialization::make_nvp("central_widget", m_central_widget);
 			ar & boost::serialization::make_nvp("on1", m_on1);
 			ar & boost::serialization::make_nvp("on2", m_on2);
 			ar & boost::serialization::make_nvp("on3", m_on3);

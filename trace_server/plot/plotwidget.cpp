@@ -191,11 +191,6 @@ namespace plot {
 		updateAxes();
 	}
 
-	void PlotWidget::applyConfig ()
-	{
-		applyConfig(m_config);
-	}
-
 	void PlotWidget::stopUpdate ()
 	{
 		if (m_timer != -1)
@@ -380,15 +375,28 @@ namespace plot {
 	{
 	}
 
+	void PlotWidget::applyConfig ()
+	{
+		m_config = m_config2;
+		applyConfig(m_config);
+	}
+
 	void PlotWidget::loadConfig (QString const & path)
 	{
-		QString const logpath = path + "/" + g_presetPlotTag + "/" + m_config.m_tag;
+		QString const fname = path + "/" + g_presetPlotTag + "/" + m_config.m_tag;
+		plot::PlotConfig tmp = m_config;
+		//normalizeConfig(tmp);
+		plot::saveConfig(tmp, fname);
+		filterWidget()->saveConfig(fname);
+
 	}
 	void PlotWidget::saveConfig (QString const & path)
 	{
-		QString const logpath = path + "/" + g_presetPlotTag + "/" + m_config.m_tag;
+		QString const fname = path + "/" + g_presetPlotTag + "/" + m_config.m_tag;
+		m_config2.clear();
+		plot::loadConfig(m_config2, fname);
+		filterWidget()->loadConfig(fname);
 	}
-
 
 
 	void PlotWidget::onSaveButton ()

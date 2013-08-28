@@ -201,7 +201,7 @@ void FrameView::performFrameSynchronization (int sync_group, unsigned long long 
 
 void FrameView::appendFrame (unsigned long long from, unsigned long long to)
 {
-	qDebug("frame: dt=%f", to - from);
+	//qDebug("frame: dt=%f", to - from);
 
 
 	QwtInterval interval(0.0f, 500.0f);

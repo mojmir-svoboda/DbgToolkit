@@ -127,24 +127,15 @@ struct DockedData : DockedWidgetBase
 				Q_ASSERT(m_args.size() > 0);
 				bool const on = a->m_args.at(0).toBool();
 				m_wd->setVisible(on);
+				config().m_show = on;
 				return true;
 			}
 			case e_InCentralWidget:
 			{
 				Q_ASSERT(m_args.size() > 0);
 				bool const on = a->m_args.at(0).toBool();
-				if (on)
-				{
-					m_wd->setVisible(false);
-					m_parent->setWidgetToTabWidget(m_widget);
-				}
-				else
-				{
-					m_wd->setVisible(true);
-					m_wd->setWidget(m_widget);
-					QWidget * w;
-					m_parent->unsetWidgetFromTabWidget(w);
-				}
+				m_parent->toCentralWidget(m_wd, m_widget, on);
+				config().m_central_widget = on;
 				return true;
 			}
 			default:
@@ -316,6 +307,7 @@ public slots:
 
 	void setWidgetToTabWidget (QWidget * w);
 	void unsetWidgetFromTabWidget (QWidget * & w);
+	QWidget * toCentralWidget (QDockWidget * wd, QWidget * w, bool on);
 
 
 private slots:

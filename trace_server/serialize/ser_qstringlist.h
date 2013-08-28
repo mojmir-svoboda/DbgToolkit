@@ -1,4 +1,6 @@
 #pragma once
+#include "ser_qlist.h"
+#include "ser_qstring.h"
 
 namespace boost { namespace serialization {
 
@@ -6,15 +8,16 @@ namespace boost { namespace serialization {
 	inline void save (ArchiveT & a, QStringList const & sl, unsigned const /*version*/)
 	{
 		using boost::serialization::make_nvp;
-		a << make_nvp("value", sl);
+		QList<QString> const & ref = sl;
+		a << make_nvp("value", ref);
 	}
 	 
 	template <class ArchiveT>
 	inline void load (ArchiveT & a, QStringList & sl, unsigned const /*version*/)
 	{
 		using boost::serialization::make_nvp;
-		//std::string s;
-		a >> make_nvp("value", sl);
+		QList<QString> & ref = sl;
+		a >> make_nvp("value", ref);
 	}
 	 
 	template <class ArchiveT>

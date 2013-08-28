@@ -23,6 +23,7 @@ namespace logs {
 		QVector<QColor> m_thread_colors;				/// predefined coloring of threads
 		bool m_show;
 		bool m_auto_scroll;
+		bool m_central_widget;
 		bool m_in_view;
 		bool m_filtering;
 		bool m_clr_filters;
@@ -45,6 +46,7 @@ namespace logs {
 			, m_cut_namespace_level(3)
 			, m_show(true)
 			, m_auto_scroll(false)
+			, m_central_widget(true)
 			, m_in_view(true)
 			, m_filtering(true)
 			, m_clr_filters(true)
@@ -68,6 +70,7 @@ namespace logs {
 			, m_cut_namespace_level(3)
 			, m_show(true)
 			, m_auto_scroll(false)
+			, m_central_widget(tag == "default")
 			, m_in_view(true)
 			, m_filtering(true)
 			, m_clr_filters(true)
@@ -97,6 +100,7 @@ namespace logs {
 			ar & boost::serialization::make_nvp("thread_colors", m_thread_colors);
 			ar & boost::serialization::make_nvp("show", m_show);
 			ar & boost::serialization::make_nvp("autoscroll", m_auto_scroll);
+			ar & boost::serialization::make_nvp("central_widget", m_central_widget);
 			ar & boost::serialization::make_nvp("in_view", m_in_view);
 			ar & boost::serialization::make_nvp("filtering", m_filtering);
 			ar & boost::serialization::make_nvp("clr_filters", m_clr_filters);

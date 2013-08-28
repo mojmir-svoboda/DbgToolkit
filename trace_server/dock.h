@@ -12,6 +12,29 @@ class QMainWindow;
 class MainWindow;
 struct DockManager;
 
+struct DockConfigBase {
+
+	// font
+	// font size
+	bool m_auto_scroll;
+	bool m_show;
+	bool m_central_widget;
+
+	int  m_sync_group;
+};
+
+
+
+class DockTreeView : public TreeView
+{
+	Q_OBJECT
+public:
+
+	DockTreeView (QWidget * parent = 0);
+
+protected:
+};
+
 
 struct DockedWidgetBase : ActionAble {
 
@@ -66,10 +89,14 @@ public:
 	virtual int columnCount (QModelIndex const & parent) const;
 	virtual QVariant data (const QModelIndex & index, int role = Qt::DisplayRole) const;
 	virtual bool setData (QModelIndex const & index, QVariant const & value, int role = Qt::EditRole);
+
+public slots:
+	void onExpanded (QModelIndex const & idx) { expanded(idx); }
+	void onCollapsed (QModelIndex const & idx) { collapsed(idx); }
 };
 
 
-struct DockManager : QWidget, ActionAble
+struct DockManager : DockTreeView, ActionAble
 {
 	Q_OBJECT
 public:
@@ -83,7 +110,6 @@ public:
 	actionables_t		m_actionables;
 	MainWindow * 		m_main_window;
 	QDockWidget * 		m_docked_widgets;
-	TreeView * 			m_docked_widgets_tree_view;
 	DockTreeModel *		m_docked_widgets_model;
 	typedef tree_filter<DockedInfo> data_filters_t;
 	data_filters_t *	m_docked_widgets_data;
@@ -103,6 +129,9 @@ public:
 public slots:
 	void onWidgetClosed (DockWidget * w);
 	void onClickedAtDockedWidgets (QModelIndex idx);
+
+protected slots:
+	void onColumnResized (int column, int oldSize, int newSize);
 
 };
 

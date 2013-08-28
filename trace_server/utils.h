@@ -60,25 +60,28 @@ inline QString createPresetPath (QString const & appdir, QString const & preset_
 	QString presetdir = appdir + "/" + preset_name;
 	QDir d;
 	d.mkpath(presetdir);
+	qDebug("mk preset path: %s", presetdir.toStdString().c_str());
 	return presetdir;
 }
-
 
 inline QString getDataTagFileName (QString const & appdir, QString const & app_name, QString const & preset_name, QString const & class_name, QString const & tag)
 {
 	QString presetdir = appdir + "/" + app_name + "/" + preset_name + "/" + class_name;
 	QDir d;
-	d.mkpath(presetdir);
 	QString const fname = presetdir + "/" + tag;
+	qDebug("cfg fname for data: %s", fname.toStdString().c_str());
 	return fname;
 }
 
-inline QString getDataTagFileName (QString const & appdir, QString const & preset_name, QString const & class_name, QString const & tag)
+
+
+inline QString getDataTagFileNameAndMkPath (QString const & appdir, QString const & app_name, QString const & preset_name, QString const & class_name, QString const & tag)
 {
-	QString presetdir = appdir + "/" + preset_name + "/" + class_name;
+	QString presetdir = appdir + "/" + app_name + "/" + preset_name + "/" + class_name;
 	QDir d;
 	d.mkpath(presetdir);
 	QString const fname = presetdir + "/" + tag;
+	qDebug("mk cfg path for fname: %s", fname.toStdString().c_str());
 	return fname;
 }
 
@@ -90,6 +93,7 @@ inline int findPresetsForApp (QString const & appdir, QString const & appname, Q
      
     while (directories.hasNext()) {
     	directories.next();
+		qDebug("candidate for preset: %s", directories.fileName().toStdString().c_str());
     	presets << directories.fileName();
     }
 	return presets.size();

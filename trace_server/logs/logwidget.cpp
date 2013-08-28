@@ -17,6 +17,7 @@ namespace logs {
 	LogWidget::LogWidget (Connection * connection, QWidget * wparent, LogConfig & cfg, QString const & fname, QStringList const & path)
 		: TableView(wparent), ActionAble(path)
 		, m_config(cfg)
+		, m_config2(cfg)
 		, m_config_ui(cfg, this)
 		, m_fname(fname)
 		, m_connection(connection)
@@ -128,7 +129,7 @@ namespace logs {
 		m_delegates.get<e_delegate_Regex>() = new RegexDelegate(m_session_state, this);
 		*/
 
-		applyConfig();
+		applyConfig(m_config);
 	}
 
 	LogWidget::~LogWidget ()
@@ -273,7 +274,7 @@ namespace logs {
 	{
 		moveSectionsAccordingTo(m_config2);
 		m_config = m_config2;
-		applyConfig(m_config2);
+		applyConfig(m_config);
 	}
 
 	void LogWidget::applyConfig (LogConfig & cfg)
@@ -342,7 +343,7 @@ namespace logs {
 	{
 		applyConfig();
 		//setUIValuesToConfig(m_config2);
-		applyConfig();
+		//applyConfig();
 	}
 
 	void LogWidget::loadConfig (QString const & path)

@@ -112,6 +112,7 @@ namespace plot {
 		// qwt state
 		// flags
 		bool m_auto_scroll;
+		bool m_central_widget;
 		bool m_show;
 		bool m_unused_b1;
 		bool m_unused_b2;
@@ -122,6 +123,7 @@ namespace plot {
 			, m_history_ln(256)
 			, m_from(0)
 			, m_auto_scroll(true)
+			, m_central_widget(false)
 			, m_show(true)
 			, m_unused_b1(false)
 			, m_unused_b2(false)
@@ -139,6 +141,7 @@ namespace plot {
 			, m_history_ln(256)
 			, m_from(0)
 			, m_auto_scroll(true)
+			, m_central_widget(false)
 		{ }
 
 		template <class ArchiveT>
@@ -152,6 +155,7 @@ namespace plot {
 			//ar & m_from;
 			// flags
 			ar & boost::serialization::make_nvp("autoscroll", m_auto_scroll);
+			ar & boost::serialization::make_nvp("central_widget", m_central_widget);
 			ar & boost::serialization::make_nvp("show", m_show);
 			ar & boost::serialization::make_nvp("flag1", m_unused_b1);
 			ar & boost::serialization::make_nvp("flag2", m_unused_b2);
@@ -172,6 +176,11 @@ namespace plot {
 					return true;
 				}
 			return false;
+		}
+
+		void clear ()
+		{
+			*this = PlotConfig();
 		}
 	};
 

@@ -241,7 +241,7 @@ namespace logs {
 		//void requestFrameSynchronization (int sync_group, unsigned long long frame, void * source);
 
 	protected:
-		LogConfig m_config;
+		LogConfig & m_config;
 		LogConfig m_config2;
 		logs::CtxLogConfig m_config_ui;
 		QString m_fname;

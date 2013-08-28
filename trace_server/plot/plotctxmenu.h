@@ -14,27 +14,27 @@ namespace plot {
 	struct CtxPlotConfig : QObject
 	{
 		PlotConfig & m_pcfg;
-		Ui::SettingsPlot * ui_settingsplot;
+		Ui::SettingsPlot * m_ui;
 		QDockWidget * m_settingsplot;
 		QtColorPicker * m_curve_color;
 		QtColorPicker * m_symbol_color;
 
 		CtxPlotConfig (PlotConfig & cfg, QWidget * parent)
 			: m_pcfg(cfg)
-			, ui_settingsplot(new Ui::SettingsPlot)
+			, m_ui(new Ui::SettingsPlot)
 			, m_settingsplot(new QDockWidget(parent))
 			, m_curve_color(new QtColorPicker(parent))
 			, m_symbol_color(new QtColorPicker(parent))
 		{
 			m_settingsplot->setVisible(false);
-			ui_settingsplot->setupUi(m_settingsplot);
-			ui_settingsplot->curveColorLayout->addWidget(m_curve_color);
-			ui_settingsplot->symbolColorLayout->addWidget(m_symbol_color);
+			m_ui->setupUi(m_settingsplot);
+			m_ui->curveColorLayout->addWidget(m_curve_color);
+			m_ui->symbolColorLayout->addWidget(m_symbol_color);
 			m_curve_color->setStandardColors();
 			m_symbol_color->setStandardColors();
-			setAxisRange(ui_settingsplot->xFromDblSpinBox);
-			setAxisRange(ui_settingsplot->yFromDblSpinBox);
-			setAxisRange(ui_settingsplot->zFromDblSpinBox);
+			setAxisRange(m_ui->xFromDblSpinBox);
+			setAxisRange(m_ui->yFromDblSpinBox);
+			setAxisRange(m_ui->zFromDblSpinBox);
 		}
 
 		void setAxisRange (QDoubleSpinBox * w)
@@ -46,8 +46,8 @@ namespace plot {
 		~CtxPlotConfig ()
 		{
 			m_settingsplot->setVisible(false);
-			delete ui_settingsplot;
-			ui_settingsplot = 0;
+			delete m_ui;
+			m_ui = 0;
 			delete m_settingsplot;
 			m_settingsplot = 0;
 		}
@@ -66,7 +66,7 @@ namespace plot {
 			m_settingsplot->setVisible(false);
 		}
 
-		Ui::SettingsPlot * ui () { return ui_settingsplot; }
+		Ui::SettingsPlot * ui () { return m_ui; }
 	};
 
 }

@@ -47,6 +47,9 @@ namespace gantt {
 
 		FrameView * findOrCreateFrameView (int sync_group);
 
+		FilterWidget * filterWidget () { return m_config_ui.m_ui->widget; }
+		FilterWidget const * filterWidget () const { return m_config_ui.m_ui->widget; }
+
 
 		//void appendGantt (QString const & time, QString const & tid, QString const & fgc, QString const & bgc, QString const & msg);
 		void appendFrameEnd (DecodedData & data);
@@ -95,6 +98,7 @@ namespace gantt {
 
 	protected:
 		GanttConfig & m_config;
+		GanttConfig m_config2;
 		gantt::CtxGanttConfig m_config_ui;
 		QString m_fname;
 		Connection * m_connection;

@@ -55,6 +55,8 @@ namespace plot {
 
 		virtual bool handleAction (Action * a, E_ActionHandleType sync)
 		{
+			if (a->type() == e_Visibility && m_curve)
+				m_curve->setVisible(on)
 			return false;
 		}
 		

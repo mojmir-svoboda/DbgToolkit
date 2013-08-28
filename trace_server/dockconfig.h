@@ -24,6 +24,7 @@ struct DockConfig
 		, m_fontsize(10)
 		, m_row_width(18)
 		, m_show(true)
+		, m_docked_widgets_data()
 	{ }
 
 	template <class ArchiveT>
@@ -40,7 +41,7 @@ struct DockConfig
 
 	void clear ()
 	{
-		*this = DockConfig(g_traceServerName);
+		// @TODO: nontrivial cause of m_docked_widgets_data
 	}
 };
 
