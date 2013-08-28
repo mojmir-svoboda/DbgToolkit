@@ -55,9 +55,19 @@ namespace plot {
 
 		virtual bool handleAction (Action * a, E_ActionHandleType sync)
 		{
-			if (a->type() == e_Visibility && m_curve)
-				m_curve->setVisible(on)
-			return false;
+			switch (a->type())
+			{
+				case e_Visibility:
+				{
+					Q_ASSERT(m_args.size() > 0);
+					bool const on = a->m_args.at(0).toBool();
+					if (m_curve)
+						m_curve->setVisible(on);
+					return true;
+				}
+				default:
+					return false;
+			}
 		}
 		
 		~Curve ()

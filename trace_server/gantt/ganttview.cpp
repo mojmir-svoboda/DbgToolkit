@@ -54,7 +54,7 @@ GfxView & GanttView::createViewForContext (unsigned long long ctx, QGraphicsScen
 		m_layout->addWidget(view);
 
 		//view->verticalScrollBar()->setStyleSheet("QScrollBar:vertical { width: 6px; }");
-		view->horizontalScrollBar()->setStyleSheet("QScrollBar:horizontal { height: 10px; }");
+		//view->horizontalScrollBar()->setStyleSheet("QScrollBar:horizontal { height: 10px; }");
 
 		QGraphicsScene * scene = (s == 0) ? new QGraphicsScene() : s;
 		GfxView g;

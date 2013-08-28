@@ -234,7 +234,7 @@ class Connection : public QThread
 {
 	Q_OBJECT
 public:
-	explicit Connection(QObject *parent = 0);
+	explicit Connection (QObject * parent = 0);
 	~Connection ();
 
 	void setMainWindow (MainWindow * w) { m_main_window = w; }

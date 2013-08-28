@@ -218,7 +218,7 @@ int main ()
 			//TRACE_GANTT_END(trace::e_Info, trace::CTX_Default, "aa0/g0/end", i);
 			TRACE_GANTT_FRAME_END(trace::e_Info, trace::CTX_Default, "aa0/g0/frame %i", i);
 
-			if (i==5)
+			if (i==55)
 			{
 				TRACE_PLOT_CLEAR(trace::e_Info, trace::CTX_Default, "sample_plot%i/%s", 0, "sin");
 				TRACE_TABLE_CLEAR(trace::e_Info, trace::CTX_Default, "aa0");	

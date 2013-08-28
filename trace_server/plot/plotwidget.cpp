@@ -384,18 +384,17 @@ namespace plot {
 	void PlotWidget::loadConfig (QString const & path)
 	{
 		QString const fname = path + "/" + g_presetPlotTag + "/" + m_config.m_tag;
-		plot::PlotConfig tmp = m_config;
-		//normalizeConfig(tmp);
-		plot::saveConfig(tmp, fname);
-		filterWidget()->saveConfig(fname);
-
+		m_config2.clear();
+		plot::loadConfig(m_config2, fname);
+		filterWidget()->loadConfig(fname);
 	}
 	void PlotWidget::saveConfig (QString const & path)
 	{
 		QString const fname = path + "/" + g_presetPlotTag + "/" + m_config.m_tag;
-		m_config2.clear();
-		plot::loadConfig(m_config2, fname);
-		filterWidget()->loadConfig(fname);
+		plot::PlotConfig tmp = m_config;
+		//normalizeConfig(tmp);
+		plot::saveConfig(tmp, fname);
+		filterWidget()->saveConfig(fname);
 	}
 
 

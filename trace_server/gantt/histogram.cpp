@@ -10,8 +10,9 @@
 Histogram::Histogram (QString const & title, QColor const & symbolColor)
 	: QwtPlotHistogram( title )
 {
-    setStyle(QwtPlotHistogram::Columns);
+    setStyle(QwtPlotHistogram::Outline);
     setColor(symbolColor);
+	//setAxisAutoScale(acfg.m_axis_pos, true);
 }
 
 void Histogram::setColor (QColor const & symbolColor)
@@ -23,8 +24,8 @@ void Histogram::setColor (QColor const & symbolColor)
     setBrush(QBrush(color));
 
     QwtColumnSymbol * symbol = new QwtColumnSymbol(QwtColumnSymbol::Box);
-    symbol->setFrameStyle(QwtColumnSymbol::Raised);
-    symbol->setLineWidth(2);
+    symbol->setFrameStyle(QwtColumnSymbol::Plain);
+    symbol->setLineWidth(1);
     symbol->setPalette(QPalette(color));
     setSymbol(symbol);
 }

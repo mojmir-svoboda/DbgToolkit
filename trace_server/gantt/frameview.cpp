@@ -56,8 +56,8 @@ BarPlot::BarPlot () : QwtPlotBarChart()
 QwtColumnSymbol * BarPlot::specialSymbol (int index, QPointF const &) const
 {
 	QwtColumnSymbol * symbol = new QwtColumnSymbol(QwtColumnSymbol::Box);
-	symbol->setLineWidth(2);
-	symbol->setFrameStyle(QwtColumnSymbol::Raised);
+	symbol->setLineWidth(1);
+	symbol->setFrameStyle(QwtColumnSymbol::Plain);
 
 	QColor c(Qt::white);
 	if (index >= 0 && index < m_colors.size())
@@ -75,6 +75,17 @@ QwtText BarPlot::barTitle (int idx) const
 	return title;
 }
 
+	struct XZoomer : QwtPlotZoomer
+	{
+		XZoomer (QWidget * canvas) : QwtPlotZoomer(canvas) { }
+		virtual void zoom (QRectF const & rect)
+		{
+			QRectF newRect;
+			QRectF const & baseRect = zoomBase();
+			newRect.setCoords(rect.left(), baseRect.top(), rect.right(), baseRect.bottom());
+			QwtPlotZoomer::zoom(newRect);
+		}
+	};
 
 FrameView::FrameView (Connection * oparent, QWidget * wparent, FrameViewConfig & cfg, QString const & fname, QStringList const & path)
 	: ActionAble(path)
@@ -99,8 +110,9 @@ FrameView::FrameView (Connection * oparent, QWidget * wparent, FrameViewConfig &
 
 	QwtPlotMagnifier * lookglass = new QwtPlotMagnifier(canvas());
 	canvas()->setFocusPolicy(Qt::WheelFocus);
+	lookglass->setAxisEnabled(QwtPlot::yLeft, false);
 
-	QwtPlotZoomer * zoomer = new QwtPlotZoomer(canvas());
+	XZoomer * zoomer = new XZoomer(canvas());
 	zoomer->setRubberBandPen( QColor( Qt::black ) );
 	zoomer->setTrackerPen( QColor( Qt::black ) );
 	zoomer->setMousePattern( QwtEventPattern::MouseSelect2, Qt::RightButton, Qt::ControlModifier );
@@ -116,10 +128,13 @@ FrameView::FrameView (Connection * oparent, QWidget * wparent, FrameViewConfig &
 	picker->setTrackerPen(QColor(Qt::white));
 
 	QwtPlotPanner * panner = new QwtPlotPanner(canvas());
+	panner->setAxisEnabled(QwtPlot::yLeft, false);
 	panner->setMouseButton(Qt::MidButton);
 
     setAxisMaxMinor(QwtPlot::xBottom, 3);
     setAxisScaleDraw(QwtPlot::xBottom, new FrameScaleDraw(Qt::Horizontal, m_bars->m_strvalues));
+
+	setAxisAutoScale(QwtPlot::yLeft, true);
 
     connect(picker, SIGNAL(selected(QRectF const &) ), this, SLOT(selected(QRectF const &)));
     connect(picker, SIGNAL(selected(QPointF const &) ), this, SLOT(selected(QPointF const &)));

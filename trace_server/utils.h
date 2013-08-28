@@ -89,7 +89,8 @@ inline int findPresetsForApp (QString const & appdir, QString const & appname, Q
 {
 	QString presetdir = appdir + "/" + appname;
 
-    QDirIterator directories(presetdir, QDir::Dirs | QDir::NoDotAndDotDot, QDirIterator::Subdirectories);
+    //QDirIterator directories(presetdir, QDir::Dirs | QDir::NoDotAndDotDot, QDirIterator::Subdirectories);
+    QDirIterator directories(presetdir, QDir::Dirs | QDir::NoDotAndDotDot, QDirIterator::NoIteratorFlags);
      
     while (directories.hasNext()) {
     	directories.next();

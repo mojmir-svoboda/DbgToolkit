@@ -63,6 +63,15 @@ typename SelectIterator<TypeN>::type  Connection::dataWidgetFactory (QString con
 		template_config.m_tag = tag;
 
 		QString preset_name = m_main_window->matchClosestPresetName(getAppName());
+		if (!preset_name.isEmpty())
+		{
+			QStringList const prs = preset_name.split("/");
+			if (prs.size() == 2 && prs.at(0) == getAppName())
+				preset_name = prs.at(1);
+			else
+				preset_name.clear();
+		}
+	
 		if (preset_name.isEmpty())
 		{
 			QStringList subdirs;
@@ -74,11 +83,6 @@ typename SelectIterator<TypeN>::type  Connection::dataWidgetFactory (QString con
 				{
 					QString test_preset_name = getAppName() + "/" + s;
 					QString const cfg_fname = getDataTagFileName(getConfig().m_appdir, getAppName(), s, preset_prefix, tag);
-					qDebug("kurva: appdir=%s appname=%s s=%s pfx=%s",
-								getConfig().m_appdir.toStdString().c_str(),
-								getAppName().toStdString().c_str(),
-								s.toStdString().c_str(),
-								preset_prefix);
 					if (existsFile(cfg_fname))
 					{
 						if (s == QString(g_defaultPresetName))
