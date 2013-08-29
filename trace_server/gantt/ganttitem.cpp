@@ -11,7 +11,7 @@ BarTextItem::BarTextItem (QGraphicsItem * parent, GanttViewConfig const & gvcfg,
 	, m_x(x), m_y(y), m_w(w), m_h(h), m_color(color)
 	, m_ctx(ctx), m_ctx_offs(ctx_offs)
 {
-	setZValue(1);
+	setZValue(2);
 	setParentItem(parent);
 	//setFlags(ItemIsSelectable);
 	//setAcceptHoverEvents(true);
@@ -57,7 +57,7 @@ void BarTextItem::paint (QPainter * painter, QStyleOptionGraphicsItem const * op
 		painter->drawStaticText(pt, text);
 		painter->restore();
 	}
-	else if (0.4f <= lod && lod < 0.7f)
+	else if (0.6f <= lod && lod < 0.7f)
 	{
 		painter->save();
 		QFont font(m_gvcfg.m_font, m_gvcfg.m_fontsize - 1);
@@ -67,10 +67,20 @@ void BarTextItem::paint (QPainter * painter, QStyleOptionGraphicsItem const * op
 		painter->drawStaticText(pt, QString("%1 %2").arg(m_data.m_tag).arg(m_data.m_msg));
 		painter->restore();
 	}
-	else if (0.2f <= lod && lod < 0.4f)
+	else if (0.5f <= lod && lod < 0.6f)
 	{
 		painter->save();
 		QFont font(m_gvcfg.m_font, m_gvcfg.m_fontsize - 2);
+		font.setStyleStrategy(QFont::ForceOutline);
+		painter->setFont(font);
+		painter->setPen(Qt::black);
+		painter->drawStaticText(pt, QString("%1 %2").arg(m_data.m_tag).arg(m_data.m_msg));
+		painter->restore();
+	}
+	else if (0.3f <= lod && lod < 0.5f)
+	{
+		painter->save();
+		QFont font(m_gvcfg.m_font, m_gvcfg.m_fontsize - 3);
 		font.setStyleStrategy(QFont::ForceOutline);
 		QString text = QString("%1").arg(m_data.m_tag);
 		painter->setFont(font);
@@ -80,6 +90,14 @@ void BarTextItem::paint (QPainter * painter, QStyleOptionGraphicsItem const * op
 	}
 	else
 	{
+		painter->save();
+		QFont font(m_gvcfg.m_font, m_gvcfg.m_fontsize - 4);
+		font.setStyleStrategy(QFont::ForceOutline);
+		QString text = QString("%1").arg(m_data.m_tag);
+		painter->setFont(font);
+		painter->setPen(Qt::black);
+		painter->drawStaticText(pt, text);
+		painter->restore();
 	}
 }
 
@@ -91,7 +109,7 @@ BarItem::BarItem (GanttViewConfig const & cfg, Data & d, QColor const & color, i
 	, m_ctx(ctx), m_ctx_offs(ctx_offs)
 	, m_lod(1.0f)
 {
-	setZValue(0);
+	setZValue(1);
 	//setFlags(ItemIsSelectable | ItemIsMovable);
 	setFlags(ItemIsSelectable);
 	setAcceptHoverEvents(true);
@@ -111,6 +129,7 @@ QPainterPath BarItem::shape () const
 
 void BarItem::paint (QPainter * painter, QStyleOptionGraphicsItem const * option, QWidget * widget)
 {
+	painter->save();
 	// @NOTE: should have positive impact on performace
 	painter->setClipRect(option->exposedRect);
 
@@ -124,6 +143,7 @@ void BarItem::paint (QPainter * painter, QStyleOptionGraphicsItem const * option
 	painter->fillRect(QRectF(0, 0, m_w, m_h), fillColor);
 
 	m_lod = option->levelOfDetailFromTransform(painter->worldTransform());
+	painter->restore();
 }
 
 void BarItem::mousePressEvent (QGraphicsSceneMouseEvent * event)
@@ -147,6 +167,68 @@ void BarItem::hoverLeaveEvent (QGraphicsSceneHoverEvent *event)
 {
 	qDebug("-");
 }*/
+
+FrameItem::FrameItem (GanttViewConfig const & cfg, QColor const & color, int x, int y, int w, int h, int ctx)
+	: m_gvcfg(cfg)
+	, m_x(x), m_y(y), m_w(w), m_h(h), m_color(color)
+	, m_ctx(ctx)
+	, m_lod(1.0f)
+{
+	setZValue(0);
+	//setFlags(ItemIsSelectable | ItemIsMovable);
+	//setFlags(ItemIsSelectable);
+	//setAcceptHoverEvents(true);
+}
+
+QRectF FrameItem::boundingRect () const
+{
+	qreal const penWidth = 1;
+	return QRectF(-penWidth, -penWidth, m_w + penWidth, m_h + penWidth);
+}
+
+QPainterPath FrameItem::shape () const
+{
+	QPainterPath path;
+	path.addRect(0, 0, m_w, m_h);
+	return path;
+}
+
+void FrameItem::paint (QPainter * painter, QStyleOptionGraphicsItem const * option, QWidget * widget)
+{
+	painter->save();
+	painter->setClipRect(option->exposedRect);
+
+	m_lod = option->levelOfDetailFromTransform(painter->worldTransform());
+
+	QColor fillColor = m_color;
+	/*QColor fillColor = (option->state & QStyle::State_Selected) ? m_color.dark(150) : m_color;
+	if (option->state & QStyle::State_MouseOver)
+	{
+		fillColor = fillColor.light(125);
+	}*/
+
+	QPen p1;
+	p1.setColor(fillColor);
+	p1.setWidth(1);
+	painter->setPen(p1);
+	painter->fillRect(QRectF(1, 1, m_w-1, m_h-1), fillColor);
+	painter->drawRect(QRectF(0, 0, m_w, m_h));
+	painter->restore();
+}
+
+void FrameItem::mousePressEvent (QGraphicsSceneMouseEvent * event)
+{
+}
+
+void FrameItem::mouseMoveEvent (QGraphicsSceneMouseEvent * event)
+{
+	QGraphicsItem::mouseMoveEvent(event);
+}
+
+void FrameItem::mouseReleaseEvent (QGraphicsSceneMouseEvent * event)
+{
+}
+
 
 }
 

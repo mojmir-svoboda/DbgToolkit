@@ -9,7 +9,7 @@ struct DockedConfigBase {
 	bool m_central_widget;
 	int  m_sync_group;
 
-	DockedConfigBase () : m_auto_scroll(0), m_show(0), m_central_widget(0), m_sync_group(0) { }
+	DockedConfigBase () : m_auto_scroll(false), m_show(true), m_central_widget(false), m_sync_group(0) { }
 
 	template <class ArchiveT>
 	void serialize (ArchiveT & ar, unsigned const version)

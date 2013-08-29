@@ -35,7 +35,7 @@
 		int const col = index.column();
 		if (col == e_InCentralWidget)
 		{
-			if (n->data.m_centralwidget)
+			if (m->data(index, Qt::DisplayRole).toBool())
 				painter->drawPixmap(calcIconPos(option), m_icon);
 		}
         QStyledItemDelegate::paint(painter, option, index);
@@ -295,7 +295,13 @@ QModelIndex DockManager::addActionTreeItem (ActionAble & aa, bool on)
 	return idx;
 }
 
-
+DockedWidgetBase const * DockManager::findDockable (QString const & dst_joined) const
+{
+	dockables_t::const_iterator it = m_dockables.find(dst_joined);
+	if (it != m_dockables.end() && it.key() == dst_joined)
+		return *it;
+	return 0;
+}
 DockedWidgetBase * DockManager::findDockable (QString const & dst_joined)
 {
 	dockables_t::iterator it = m_dockables.find(dst_joined);
@@ -378,7 +384,7 @@ void DockManager::onClickedAtDockedWidgets (QModelIndex idx)
 	}
 	if (col == e_InCentralWidget)
 	{
-		int const state = n->data.m_centralwidget;
+		int const state = m_docked_widgets_model->data(idx, e_DockRoleCentralWidget).toInt();
 		int const new_state = state == 0 ? 1 : 0;
 
 		m_docked_widgets_model->setData(idx, new_state, e_DockRoleCentralWidget);
@@ -452,6 +458,24 @@ Qt::ItemFlags DockTreeModel::flags (QModelIndex const & index) const
 }
 
 
+DockedWidgetBase const * DockTreeModel::getWidgetFromIndex (QModelIndex const & index) const
+{
+	DockManager const * const mgr = static_cast<DockManager const *>(QObject::parent());
+	node_t const * const item = itemFromIndex(index);
+	QStringList const & p = item->data.m_path;
+	DockedWidgetBase const * const dwb = mgr->findDockable(p.join("/"));
+	return dwb;
+}
+
+DockedWidgetBase * DockTreeModel::getWidgetFromIndex (QModelIndex const & index)
+{
+	DockManager * const mgr = static_cast<DockManager *>(QObject::parent());
+	node_t const * const item = itemFromIndex(index);
+	QStringList const & p = item->data.m_path;
+	DockedWidgetBase * dwb = mgr->findDockable(p.join("/"));
+	return dwb;
+}
+
 QVariant DockTreeModel::data (QModelIndex const & index, int role) const
 {
 	if (!index.isValid())
@@ -462,41 +486,21 @@ QVariant DockTreeModel::data (QModelIndex const & index, int role) const
 	if (col == e_Visibility)
 		return TreeModel<DockedInfo>::data(index, role);
 
-	if (col == e_SyncGroup && role == Qt::DisplayRole)
+	if ((col == e_SyncGroup && role == Qt::DisplayRole) || role == e_DockRoleSyncGroup)
 	{
-		DockManager * const mgr = static_cast<DockManager *>(QObject::parent());
-		node_t const * const item = itemFromIndex(index);
-		QStringList const & p = item->data.m_path;
-		DockedWidgetBase * dwb = mgr->findDockable(p.join("/"));
-		if (dwb)
-		{
+		if (DockedWidgetBase const * const dwb = getWidgetFromIndex(index))
 			return QVariant(dwb->dockedConfig().m_sync_group);
-		}
-		//return static_cast<Qt::CheckState>(item->data.m_state);
 	}
-
-	if (col == e_SyncGroup && role == Qt::EditRole)
+	if ((col == e_InCentralWidget && role == Qt::DisplayRole) || role == e_DockRoleCentralWidget)
 	{
-		node_t const * const item = itemFromIndex(index);
-		return QString("0");
-	}
-
-/*	if (col == e_InCentralWidget && role == Qt::DisplayRole)
-	{
-		node_t const * const item = itemFromIndex(index);
-		return item->data.m_centralwidget;
-		//return static_cast<Qt::CheckState>(item->data.m_state);
+		if (DockedWidgetBase const * const dwb = getWidgetFromIndex(index))
+			return QVariant(dwb->dockedConfig().m_central_widget);
 	}
 
 
+	/*if (col == e_SyncGroup && role == Qt::EditRole)
+	}*/
 
-      e_Visibility = 0
-    , e_InCentralWidget
-    , e_SyncGroup
-    , e_Select
-    , e_AlignH
-    , e_AlignV
-    , e_max_action_type*/
 
 	/*node_t const * const item = itemFromIndex(index);
 	if (role == Qt::DisplayRole)
@@ -519,21 +523,15 @@ bool DockTreeModel::setData (QModelIndex const & index, QVariant const & value, 
 	if (!index.isValid()) return false;
 
 	node_t * const item = itemFromIndex(index);
-	if (role == Qt::EditRole)
+	int const col = index.column();
+
+	if (col == e_SyncGroup && role == Qt::EditRole)
 	{
-		DockManager * const mgr = static_cast<DockManager *>(QObject::parent());
-		node_t const * const item = itemFromIndex(index);
-		QStringList const & p = item->data.m_path;
-		DockedWidgetBase * dwb = mgr->findDockable(p.join("/"));
-		if (dwb)
+		if (DockedWidgetBase * const dwb = getWidgetFromIndex(index))
 		{
 			int const sg = value.toInt();
 			dwb->dockedConfig().m_sync_group = sg;
-			return true; 
 		}
-
-		//item->data.m_sync_group = value.toInt();
-		//return TreeModel<DockedInfo>::setData(index, value, role);
 	}
 	else if (role <= Qt::UserRole)
 	{
@@ -541,11 +539,19 @@ bool DockTreeModel::setData (QModelIndex const & index, QVariant const & value, 
 	}
 	else if (role == e_DockRoleCentralWidget)
 	{
-		bool const v = value.toBool();
-		item->data.m_centralwidget = v;
+		if (DockedWidgetBase * const dwb = getWidgetFromIndex(index))
+		{
+			int const on = value.toInt();
+			dwb->dockedConfig().m_central_widget = on;
+		}
 	}
 	else if (role == e_DockRoleSyncGroup)
 	{
+		if (DockedWidgetBase * const dwb = getWidgetFromIndex(index))
+		{
+			int const sg = value.toInt();
+			dwb->dockedConfig().m_sync_group = sg;
+		}
 	}
 	else if (role == e_DockRoleSelect)
 	{

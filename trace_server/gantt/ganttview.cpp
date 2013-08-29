@@ -20,7 +20,7 @@
 namespace gantt {
 
 int g_heightValue = 38;
-int g_spaceValue = 15;
+int g_spaceValue = 2;
 
 void GanttView::initColors ()
 {
@@ -52,9 +52,6 @@ GfxView & GanttView::createViewForContext (unsigned long long ctx, QGraphicsScen
 		view->setOptimizationFlags(QGraphicsView::DontSavePainterState);
 		view->setViewportUpdateMode(QGraphicsView::SmartViewportUpdate);
 		m_layout->addWidget(view);
-
-		//view->verticalScrollBar()->setStyleSheet("QScrollBar:vertical { width: 6px; }");
-		//view->horizontalScrollBar()->setStyleSheet("QScrollBar:horizontal { height: 10px; }");
 
 		QGraphicsScene * scene = (s == 0) ? new QGraphicsScene() : s;
 		GfxView g;
@@ -104,16 +101,21 @@ void GanttView::appendFrameEnd (DecodedData & dd, unsigned long long & from, uns
 	{
 		GfxView & v = viewAt(ci);
 
-		QPen p1;
-		p1.setColor(Qt::gray);
-		p1.setWidth(8);
-		QGraphicsLineItem * line1 = new QGraphicsLineItem(from, 0, from, 200);
-		line1->setPen(p1);
-		v.m_scene->addItem(line1);
+		static int grr = 0;
+		QColor cols[] = { QColor(208,208,208), QColor(192,192,192) };
+		QColor cc = cols[(grr++) % 2];
+		QString const msg = QString("%1").arg(m_ganttData.m_frames.size());
 
-		QGraphicsTextItem * txt = new QGraphicsTextItem(QString("%1").arg(m_ganttData.m_frames.size()));
+		QGraphicsItem * item = new FrameItem(m_gvcfg, cc, 0, 0, to - from, 200, ci);
+		item->setPos(QPointF(from, 0));
+		v.m_scene->addItem(item);
+		item->setToolTip(QString("frame=%1 dt=%2").arg(msg).arg(to - from));
+
+		QGraphicsTextItem * txt = new QGraphicsTextItem(msg);
 		txt->setFlag(QGraphicsItem::ItemIgnoresTransformations);
-		txt->setPos(from, 7);
+		txt->setParentItem(item);
+		txt->setPos(0, 7);
+		txt->setZValue(3);
 		v.m_scene->addItem(txt);
 	}
 
@@ -178,6 +180,20 @@ void GanttView::appendBgn (DecodedData & dd)
 	//qDebug("{ f=%i t=%8llu  ctxi=%u  tag='%s'  ['%s']", d.m_frame, d.m_time_bgn, d.m_ctx_idx, d.m_tag.toStdString().c_str(), d.m_msg.toStdString().c_str());
 }
 
+
+int find_first_not_of (QString const & chars, QString const & text)
+{
+	QString::const_iterator it = text.constBegin();
+	QString::const_iterator end = text.constEnd();
+	while (it != end)
+	{
+		if(chars.contains(*it) == false)
+			return std::distance(it,end);
+		++it;
+	}
+	return -1;
+}
+
 void GanttView::appendEnd (DecodedData & dd)
 {
 	unsigned const frame_idx = m_ganttData.m_frame;
@@ -188,8 +204,14 @@ void GanttView::appendEnd (DecodedData & dd)
 
 		d->m_time_end_orig = dd.m_time;
 		d->m_time_end = dd.m_time * m_gvcfg.m_timeunits;
-		d->m_endmsg = dd.m_text;
-		d->complete(m_gvcfg.m_timeunits);
+
+		/*int const n = find_first_not_of(d->m_msg, dd.m_text);
+
+		QString tail = dd.m_text;
+		if (n > 0)
+			tail.remove(0, n);
+		d->m_endmsg = tail;
+		d->complete(m_gvcfg.m_timeunits);*/
 
 		(*m_ganttData.m_completed_frame_data[d->m_frame])[dd.m_ctx_idx].push_back(d);
 
@@ -334,7 +356,7 @@ void GanttView::consumeEnd (Data * end_data)
 					}
 					else
 					{
-						QPointF bg_p0(d.m_x, d.m_parent->m_y + g_heightValue);
+						/*QPointF bg_p0(d.m_x, d.m_parent->m_y + g_heightValue);
 						QPointF bg_p1(d.m_x, d.m_y);
 						Arrow * arrow_bg = new Arrow(d.m_parent->m_item, d.m_item, bg_p0, bg_p1, 0, 0);
 						v.m_scene->addItem(arrow_bg);
@@ -342,7 +364,7 @@ void GanttView::consumeEnd (Data * end_data)
 						QPointF nd_p0(d.m_x + d.m_dt, d.m_y);
 						QPointF nd_p1(d.m_parent->m_x + d.m_parent->m_dt, d.m_parent->m_y + g_heightValue);
 						Arrow * arrow_nd = new Arrow(d.m_parent->m_item, d.m_item, nd_p0, nd_p1, 0, 0);
-						v.m_scene->addItem(arrow_nd);
+						v.m_scene->addItem(arrow_nd);*/
 
 
 						//QGraphicsLineItem * ln_bg = new QGraphicsLineItem(d.m_x, d.m_parent->m_y + g_heightValue, d.m_x, d.m_y);
@@ -359,13 +381,13 @@ void GanttView::consumeEnd (Data * end_data)
 				p1.setColor(Qt::black);
 				p1.setWidth(0);
 
-				QGraphicsLineItem * ln_bgn = new QGraphicsLineItem(d.m_x, d.m_y, d.m_x, d.m_y + g_heightValue);
+				/*QGraphicsLineItem * ln_bgn = new QGraphicsLineItem(d.m_x, d.m_y, d.m_x, d.m_y + g_heightValue);
 				ln_bgn->setPen(p1);
 				v.m_scene->addItem(ln_bgn);
 
 				QGraphicsLineItem * ln_end = new QGraphicsLineItem(d.m_x + d.m_dt, d.m_y, d.m_x + d.m_dt, d.m_y + g_heightValue);
 				ln_end->setPen(p1);
-				v.m_scene->addItem(ln_end);
+				v.m_scene->addItem(ln_end);*/
 			}
 		}
 	} 
@@ -732,9 +754,15 @@ void GraphicsView::verticalScroll (int n)
 	m_gv.updateTimeWidget(this);
 }
 
-void GraphicsView::horizontalScroll (int n)
+void GraphicsView::horizontalScroll (int dx)
 {
 	m_gv.updateTimeWidget(this);
+
+	viewport()->update();
+	// QPointF viewCenter = mapToScene(width() / 2, height() / 2);
+    //viewCenter += QPointF(dx, 0); // Why did you subtract instead of add dx?
+    //centerOn(viewCenter);
+
 }
 
 /**

@@ -53,5 +53,30 @@ namespace gantt {
 		//QList<QPointF> m_stuff;
 	};
 
+	class FrameItem : public QGraphicsItem
+	{
+	public:
+		FrameItem (GanttViewConfig const & gvcfg, QColor const & color, int x, int y, int w, int h, int ctx);
+
+		QRectF boundingRect () const;
+		QPainterPath shape () const;
+		void paint (QPainter * painter, QStyleOptionGraphicsItem const * item, QWidget * widget);
+
+		float lod () const { return m_lod; }
+
+	protected:
+		void mousePressEvent (QGraphicsSceneMouseEvent *event);
+		void mouseMoveEvent (QGraphicsSceneMouseEvent *event);
+		void mouseReleaseEvent (QGraphicsSceneMouseEvent *event);
+
+	private:
+		GanttViewConfig const & m_gvcfg;
+		int m_ctx;
+		int m_x, m_y, m_w, m_h;
+		QColor m_color;
+		float m_lod;
+		//QList<QPointF> m_stuff;
+	};
+
 } 
 

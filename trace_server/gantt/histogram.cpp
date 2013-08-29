@@ -35,7 +35,7 @@ void Histogram::setValues (uint numValues, double const * values)
     QVector<QwtIntervalSample> samples(numValues);
     for ( uint i = 0; i < numValues; i++ )
     {
-        QwtInterval interval( double( i ), i + 1.0 );
+        QwtInterval interval( double( i ), i + 0.5f );
         interval.setBorderFlags( QwtInterval::ExcludeMaximum );
 
         samples[i] = QwtIntervalSample( values[i], interval );

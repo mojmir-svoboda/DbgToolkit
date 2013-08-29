@@ -14,11 +14,11 @@ struct DockedInfo
 	 */
 	int m_state;
 	int m_collapsed;
-	int m_valid_widget;
-	int m_centralwidget;
-	int m_childwidget;
+	//int m_valid_widget;
+	//int m_centralwidget;
+	//int m_childwidget;
 
-	DockedInfo () : m_state(e_Unchecked), m_collapsed(true), m_valid_widget(false), m_centralwidget(false), m_childwidget(false) { }
+	DockedInfo () : m_state(e_Unchecked), m_collapsed(true) { }
 
 	template <class ArchiveT>
 	void serialize (ArchiveT & ar, unsigned const version)
@@ -26,7 +26,7 @@ struct DockedInfo
 		ar & boost::serialization::make_nvp("path", m_path);
 		ar & boost::serialization::make_nvp("state", m_state);
 		ar & boost::serialization::make_nvp("collapsed", m_collapsed);
-		ar & boost::serialization::make_nvp("centralwidget", m_centralwidget);
+		//ar & boost::serialization::make_nvp("centralwidget", m_centralwidget);
 	}
 };
 

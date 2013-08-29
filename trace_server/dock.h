@@ -77,6 +77,8 @@ public:
 	QModelIndex insertItemWithPath (QStringList const & path, bool checked);
 
 	TreeModel<DockedInfo>::node_t const * getItemFromIndex (QModelIndex const & index) const { return itemFromIndex(index); }
+	DockedWidgetBase const * getWidgetFromIndex (QModelIndex const & index) const;
+	DockedWidgetBase * getWidgetFromIndex (QModelIndex const & index);
 
 	virtual int columnCount (QModelIndex const & parent) const;
 	virtual QVariant data (const QModelIndex & index, int role = Qt::DisplayRole) const;
@@ -115,6 +117,7 @@ public:
 	DockWidget * mkDockWidget (ActionAble & aa, bool visible, Qt::DockWidgetArea area);
 	QModelIndex addDockedTreeItem (DockedWidgetBase & dwb, bool on);
 	QModelIndex addActionTreeItem (ActionAble & aa, bool on);
+	DockedWidgetBase const * findDockable (QString const & joined_path) const;
 	DockedWidgetBase * findDockable (QString const & joined_path);
 
 	void loadConfig (QString const & path);
