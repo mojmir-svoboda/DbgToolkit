@@ -78,6 +78,7 @@
 	DockTreeView::DockTreeView (QWidget * parent)
 		: TreeView(parent)
 	{
+		setEditTriggers(QAbstractItemView::CurrentChanged);
 	}
 
 	void DockManager::onColumnResized (int idx, int , int new_size)
@@ -96,6 +97,49 @@
 		}
 		m_config.m_columns_sizes[idx] = new_size;
 	}
+
+	SpinBoxDelegate::SpinBoxDelegate(QObject *parent)
+		: QStyledItemDelegate(parent)
+	{
+	}
+
+	QWidget *SpinBoxDelegate::createEditor(QWidget *parent,
+		const QStyleOptionViewItem &/* option */,
+		const QModelIndex &/* index */) const
+	{
+		QSpinBox *editor = new QSpinBox(parent);
+		editor->setFrame(false);
+		editor->setMinimum(0);
+		editor->setMaximum(100);
+
+		return editor;
+	}
+
+	void SpinBoxDelegate::setEditorData(QWidget *editor,
+										const QModelIndex &index) const
+	{
+		int value = index.model()->data(index, Qt::EditRole).toInt();
+
+		QSpinBox *spinBox = static_cast<QSpinBox*>(editor);
+		spinBox->setValue(value);
+	}
+
+	void SpinBoxDelegate::setModelData(QWidget *editor, QAbstractItemModel *model,
+									   const QModelIndex &index) const
+	{
+		QSpinBox *spinBox = static_cast<QSpinBox*>(editor);
+		spinBox->interpretText();
+		int value = spinBox->value();
+
+		model->setData(index, value, Qt::EditRole);
+	}
+
+	void SpinBoxDelegate::updateEditorGeometry(QWidget *editor,
+		const QStyleOptionViewItem &option, const QModelIndex &/* index */) const
+	{
+		editor->setGeometry(option.rect);
+	}
+
 
 
 DockWidget::DockWidget (DockManager & mgr, QString const & name, QMainWindow * const window)
@@ -135,7 +179,10 @@ DockManager::DockManager (MainWindow * mw, QStringList const & path)
 
 	for (int i = e_InCentralWidget; i < e_max_action_type; ++i)
 	{
-		setItemDelegateForColumn(i, new DockedTreeDelegate(this, icons_for_cols[i]));
+		if (i == e_SyncGroup)
+			setItemDelegateForColumn(i, new SpinBoxDelegate(this));
+		else
+			setItemDelegateForColumn(i, new DockedTreeDelegate(this, icons_for_cols[i]));
 		resizeColumnToContents(i);
 	}
 
@@ -231,6 +278,7 @@ void DockManager::onWidgetClosed (DockWidget * w)
 
 QModelIndex DockManager::addDockedTreeItem (DockedWidgetBase & dwb, bool on)
 {
+	m_dockables.insert(dwb.joinedPath(), &dwb);
 	return addActionTreeItem(dwb, on);
 }
 
@@ -245,6 +293,15 @@ QModelIndex DockManager::addActionTreeItem (ActionAble & aa, bool on)
 	aa.m_idx = idx;
 	//resizeColumnToContents(0);
 	return idx;
+}
+
+
+DockedWidgetBase * DockManager::findDockable (QString const & dst_joined)
+{
+	dockables_t::iterator it = m_dockables.find(dst_joined);
+	if (it != m_dockables.end() && it.key() == dst_joined)
+		return *it;
+	return 0;
 }
 
 bool DockManager::handleAction (Action * a, E_ActionHandleType sync)
@@ -375,6 +432,26 @@ int DockTreeModel::columnCount (QModelIndex const & parent) const
 	return e_max_action_type; // @TODO: not supported yet
 }
 
+Qt::ItemFlags DockTreeModel::flags (QModelIndex const & index) const
+{
+	if (index.column() == e_SyncGroup)
+	{
+		return QAbstractItemModel::flags(index) | Qt::ItemIsEnabled | Qt::ItemIsEditable;
+	}
+	else if (index.column() == e_InCentralWidget)
+	{
+		return QAbstractItemModel::flags(index) | Qt::ItemIsEnabled;
+	}
+
+	return QAbstractItemModel::flags(index)
+				| Qt::ItemIsEnabled
+				| Qt::ItemIsUserCheckable
+			//	| Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled
+				| Qt::ItemIsSelectable
+				| Qt::ItemIsTristate;
+}
+
+
 QVariant DockTreeModel::data (QModelIndex const & index, int role) const
 {
 	if (!index.isValid())
@@ -387,9 +464,21 @@ QVariant DockTreeModel::data (QModelIndex const & index, int role) const
 
 	if (col == e_SyncGroup && role == Qt::DisplayRole)
 	{
+		DockManager * const mgr = static_cast<DockManager *>(QObject::parent());
+		node_t const * const item = itemFromIndex(index);
+		QStringList const & p = item->data.m_path;
+		DockedWidgetBase * dwb = mgr->findDockable(p.join("/"));
+		if (dwb)
+		{
+			return QVariant(dwb->dockedConfig().m_sync_group);
+		}
+		//return static_cast<Qt::CheckState>(item->data.m_state);
+	}
+
+	if (col == e_SyncGroup && role == Qt::EditRole)
+	{
 		node_t const * const item = itemFromIndex(index);
 		return QString("0");
-		//return static_cast<Qt::CheckState>(item->data.m_state);
 	}
 
 /*	if (col == e_InCentralWidget && role == Qt::DisplayRole)
@@ -430,7 +519,23 @@ bool DockTreeModel::setData (QModelIndex const & index, QVariant const & value, 
 	if (!index.isValid()) return false;
 
 	node_t * const item = itemFromIndex(index);
-	if (role <= Qt::UserRole)
+	if (role == Qt::EditRole)
+	{
+		DockManager * const mgr = static_cast<DockManager *>(QObject::parent());
+		node_t const * const item = itemFromIndex(index);
+		QStringList const & p = item->data.m_path;
+		DockedWidgetBase * dwb = mgr->findDockable(p.join("/"));
+		if (dwb)
+		{
+			int const sg = value.toInt();
+			dwb->dockedConfig().m_sync_group = sg;
+			return true; 
+		}
+
+		//item->data.m_sync_group = value.toInt();
+		//return TreeModel<DockedInfo>::setData(index, value, role);
+	}
+	else if (role <= Qt::UserRole)
 	{
 		return TreeModel<DockedInfo>::setData(index, value, role);
 	}
@@ -451,5 +556,7 @@ bool DockTreeModel::setData (QModelIndex const & index, QVariant const & value, 
 	emit dataChanged(index, index);
 	return true;
 }
+
+
 
 

@@ -1,6 +1,7 @@
 #pragma once
 #include <QString>
 #include <QColor>
+#include <dockedconfig.h>
 
 namespace plot {
 
@@ -99,7 +100,7 @@ namespace plot {
 		}
 	};
 
-	struct PlotConfig
+	struct PlotConfig : DockedConfigBase
 	{
 		QString m_tag;
 		QString m_title;
@@ -111,9 +112,6 @@ namespace plot {
 		int m_from;
 		// qwt state
 		// flags
-		bool m_auto_scroll;
-		bool m_central_widget;
-		bool m_show;
 		bool m_unused_b1;
 		bool m_unused_b2;
 
@@ -122,9 +120,6 @@ namespace plot {
 			, m_timer_delay_ms(50)
 			, m_history_ln(256)
 			, m_from(0)
-			, m_auto_scroll(true)
-			, m_central_widget(false)
-			, m_show(true)
 			, m_unused_b1(false)
 			, m_unused_b2(false)
 		{
@@ -140,13 +135,12 @@ namespace plot {
 			, m_timer_delay_ms(50)
 			, m_history_ln(256)
 			, m_from(0)
-			, m_auto_scroll(true)
-			, m_central_widget(false)
 		{ }
 
 		template <class ArchiveT>
 		void serialize (ArchiveT & ar, unsigned const version)
 		{
+			DockedConfigBase::serialize(ar, version);
 			ar & boost::serialization::make_nvp("tag", m_tag);
 			ar & boost::serialization::make_nvp("ccfg", m_ccfg);
 			ar & boost::serialization::make_nvp("acfg", m_acfg);
@@ -154,9 +148,6 @@ namespace plot {
 			ar & boost::serialization::make_nvp("length", m_history_ln);
 			//ar & m_from;
 			// flags
-			ar & boost::serialization::make_nvp("autoscroll", m_auto_scroll);
-			ar & boost::serialization::make_nvp("central_widget", m_central_widget);
-			ar & boost::serialization::make_nvp("show", m_show);
 			ar & boost::serialization::make_nvp("flag1", m_unused_b1);
 			ar & boost::serialization::make_nvp("flag2", m_unused_b2);
 		}

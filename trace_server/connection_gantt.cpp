@@ -45,65 +45,9 @@ void Connection::onShowGanttContextMenu (QPoint const &)
 	}
 }
 
-/*bool Connection::loadConfigForGantt (QString const & preset_name, gantt::GanttConfig & config, QString const & tag)
-{
-	QString const fname = getDataTagFileName(getConfig().m_appdir, preset_name, g_presetGanttTag, tag);
-	qDebug("gantt: load cfg file=%s", fname.toStdString().c_str());
-	return loadConfig(config, fname);
-}
-
-bool Connection::loadConfigForGantts (QString const & preset_name)
-{
-	qDebug("%s this=0x%08x", __FUNCTION__, this);
-	for (datagantts_t::iterator it = m_data.get<e_data_gantt>().begin(), ite = m_data.get<e_data_gantt>().end(); it != ite; ++it)
-	{
-		DataGantt * const tbl = *it;
-		QString const fname = getDataTagFileName(getConfig().m_appdir, preset_name, g_presetGanttTag, tbl->m_config.m_tag);
-		loadConfig(tbl->m_config, fname);
-		tbl->widget().applyConfig(tbl->m_config);
-		if (tbl->m_config.m_show)
-			tbl->onShow();
-		else
-			tbl->onHide();
-	}
-	return true;
-}
-
-bool Connection::saveConfigForGantt (gantt::GanttConfig const & config, QString const & tag)
-{
-	QString const preset_name = m_curr_preset.isEmpty() ? m_main_window->getValidCurrentPresetName() : m_curr_preset;
-	QString const fname = getDataTagFileName(getConfig().m_appdir, preset_name, g_presetGanttTag, tag);
-	qDebug("gantt save cfg file=%s", fname.toStdString().c_str());
-	return saveConfig(config, fname);
-}
-
-bool Connection::saveConfigForGantts (QString const & preset_name)
-{
-	qDebug("%s this=0x%08x", __FUNCTION__, this);
-	for (datagantts_t::iterator it = m_data.get<e_data_gantt>().begin(), ite = m_data.get<e_data_gantt>().end(); it != ite; ++it)
-	{
-		DataGantt * const tbl = *it;
-		QString const fname = getDataTagFileName(getConfig().m_appdir, preset_name, g_presetGanttTag, tbl->m_config.m_tag);
-		tbl->widget().onSaveButton();
-	}
-	return true;
-}*/
-
-
 datagantts_t::iterator Connection::findOrCreateGantt (QString const & tag)
 {
 	datagantts_t::iterator it = dataWidgetFactory<e_data_gantt>(tag);
-	if (it != m_data.get<e_data_gantt>().end())
-	{
-		if (m_main_window->ganttState() == e_FtrEnabled && (*it)->config().m_show)
-		{
-			//(*it)->onShow();
-		}
-		else
-		{
-			//(*it)->onHide();
-		}
-	}
 	return it;
 }
 

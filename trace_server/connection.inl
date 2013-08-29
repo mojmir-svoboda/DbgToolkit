@@ -115,6 +115,8 @@ typename SelectIterator<TypeN>::type  Connection::dataWidgetFactory (QString con
 			{
 				defaultConfigFor<TypeN>(template_config, tag);
 			}
+			else
+				m_main_window->loadLayout(getPresetPath(getAppName(), preset_name));
 		}
 		
 		typedef typename SelectDockedData<TypeN, dockeddata_t>::type data_t;
@@ -135,7 +137,6 @@ typename SelectIterator<TypeN>::type  Connection::dataWidgetFactory (QString con
 
 		dd->m_wd = m_main_window->m_dock_mgr.mkDockWidget(dwb, (*it)->config().m_show);
 		dwb.m_wd->setWidget(&(*it)->widget());
-		m_main_window->loadLayout(preset_name);
 
 		bool const visible = (*it)->config().m_show;
 		//if (m_main_window->ganttState() == e_FtrEnabled && visible)
@@ -143,9 +144,24 @@ typename SelectIterator<TypeN>::type  Connection::dataWidgetFactory (QString con
 		dd->widget().setVisible(visible);
 		QModelIndex const item_idx = m_main_window->m_dock_mgr.addDockedTreeItem(dwb, visible);
 
-		bool const in_cw = (*it)->config().m_central_widget;
-		if (in_cw)
-			toCentralWidget(dd->m_wd, dd->m_widget, in_cw);
+		if (/*m_main_window->ganttState() == e_FtrEnabled &&*/ visible)
+		{
+			dd->m_wd->setVisible(visible);
+			dd->widget().setVisible(visible);
+
+			bool const in_cw = (*it)->config().m_central_widget;
+			if (in_cw)
+				toCentralWidget(dd->m_wd, dd->m_widget, in_cw);
+			else
+				m_main_window->restoreDockWidget(dd->m_wd);
+		}
+		else
+		{
+			dd->m_wd->setVisible(false);
+			dd->widget().setVisible(false);
+			// @TODO: visible to data_tree?
+			// @TODO: visible to widget conf? probably not..
+		}
 	}
 	return it;
 }

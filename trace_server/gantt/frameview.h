@@ -22,11 +22,8 @@ struct BarPlot : QwtPlotBarChart
 	std::vector<QColor> m_colors;
 };
 
-struct FrameView : QwtPlot, ActionAble
+struct FrameView : QWidget, ActionAble
 {
-	Q_OBJECT
-public:
-
 	FrameView (Connection * oparent, QWidget * wparent, FrameViewConfig & cfg, QString const & fname, QStringList const & path);
 
 	void appendFrame (unsigned long long from, unsigned long long to);
@@ -37,7 +34,7 @@ signals:
 	void requestFrameSynchronization (int sync_group, unsigned long long frame, void * source);
 
 public slots:
-
+ 
 	void performTimeSynchronization (int sync_group, unsigned long long time, void * source);
 	void performFrameSynchronization (int sync_group, unsigned long long frame, void * source);
 
@@ -58,10 +55,16 @@ public slots:
 	void onResetViewButton ();
 	void onDefaultButton ();
 
-public:
+private slots:
+	void setNum (double v);
 
+public:
+	
+	QwtPlot * m_plot;
 	BarPlot * m_bars;
 	FrameViewConfig & m_config;
 	frameview::CtxFrameViewConfig m_config_ui;
+
+	Q_OBJECT
 };
 

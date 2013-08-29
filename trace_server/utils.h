@@ -94,7 +94,7 @@ inline int findPresetsForApp (QString const & appdir, QString const & appname, Q
      
     while (directories.hasNext()) {
     	directories.next();
-		qDebug("candidate for preset: %s", directories.fileName().toStdString().c_str());
+		//qDebug("candidate for preset: %s", directories.fileName().toStdString().c_str());
     	presets << directories.fileName();
     }
 	return presets.size();
@@ -102,10 +102,7 @@ inline int findPresetsForApp (QString const & appdir, QString const & appname, Q
 
 inline QString getPresetPath (QString const & app_name, QString const & name)
 {
-	QString path;
-	path.append(app_name);
-	path.append("/");
-	path.append(name);
+	QString const path = app_name + "/" + name;
 	return path;
 }
 

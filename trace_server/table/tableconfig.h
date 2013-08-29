@@ -2,10 +2,11 @@
 #include <QString>
 #include <QColor>
 #include <QVector>
+#include <dockedconfig.h>
 
 namespace table {
 
-	struct TableConfig
+	struct TableConfig : DockedConfigBase
 	{
 		QString m_tag;
 		QString m_title;
@@ -13,21 +14,13 @@ namespace table {
 		QVector<int> m_hsize;
 		QVector<QString> m_vhdr;
 		QVector<int> m_vsize;
-		int m_sync_group;
 
-		bool m_auto_scroll;
-		bool m_central_widget;
-		bool m_show;
 		bool m_hide_empty;
 		bool m_unused_b2;
 
 		TableConfig ()
 			: m_tag()
 			, m_title()
-			, m_sync_group(0)
-			, m_auto_scroll(true)
-			, m_central_widget(false)
-			, m_show(true)
 			, m_hide_empty(false)
 			, m_unused_b2(false)
 		{
@@ -39,9 +32,6 @@ namespace table {
 
 		TableConfig (QString const & tag)
 			: m_tag(tag)
-			, m_auto_scroll(true)
-			, m_central_widget(false)
-			, m_show(true)
 		{ }
 
 		template <class ArchiveT>

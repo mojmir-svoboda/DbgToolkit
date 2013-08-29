@@ -21,13 +21,6 @@ DataFrame::DataFrame (Connection * connection, FrameViewConfig & config, QString
 dataframes_t::iterator Connection::findOrCreateFrame (QString const & tag)
 {
 	dataframes_t::iterator it = dataWidgetFactory<e_data_frame>(tag);
-	if (it != m_data.get<e_data_frame>().end())
-	{
-		DataFrame * d = *it;
-		//d->onShow();
-	}
-	else
-		assert(false);
 	return it;
 }
 

@@ -80,43 +80,6 @@ void Connection::onShowLogContextMenu (QPoint const &)
 	}
 }
 
-/*bool Connection::loadConfigForLogs (QString const & preset_name)
-{
-	qDebug("%s this=0x%08x", __FUNCTION__, this);
-	for (datalogs_t::iterator it = m_data.get<e_data_log>().begin(), ite = m_data.get<e_data_log>().end(); it != ite; ++it)
-	{
-		DataLog * const tbl = *it;
-		QString const fname = getDataTagFileName(getConfig().m_appdir, preset_name, g_presetLogTag, tbl->m_config.m_tag);
-		loadConfig(tbl->m_config, fname);
-		tbl->widget().applyConfig(tbl->m_config);
-		if (tbl->m_config.m_show)
-			tbl->onShow();
-		else
-			tbl->onHide();
-	}
-	return true;
-}*/
-
-/*bool Connection::saveConfigForLog (logs::LogConfig const & config, QString const & tag)
-{
-	QString const preset_name = m_curr_preset.isEmpty() ? m_main_window->getValidCurrentPresetName() : m_curr_preset;
-	QString const fname = getDataTagFileName(getConfig().m_appdir, preset_name, g_presetLogTag, tag);
-	qDebug("log save cfg file=%s", fname.toStdString().c_str());
-	return saveConfig(config, fname);
-}
-
-bool Connection::saveConfigForLogs (QString const & preset_name)
-{
-	qDebug("%s this=0x%08x", __FUNCTION__, this);
-	for (datalogs_t::iterator it = m_data.get<e_data_log>().begin(), ite = m_data.get<e_data_log>().end(); it != ite; ++it)
-	{
-		DataLog * const tbl = *it;
-		QString const fname = getDataTagFileName(getConfig().m_appdir, preset_name, g_presetLogTag, tbl->m_config.m_tag);
-		tbl->widget().onSaveButton();
-	}
-	return true;
-}*/
-
 	/*Connection * conn = server->findConnectionByName(app_name);
 	if (conn)
 	{
@@ -145,17 +108,8 @@ bool Connection::saveConfigForLogs (QString const & preset_name)
 datalogs_t::iterator Connection::findOrCreateLog (QString const & tag)
 {
 	datalogs_t::iterator it = dataWidgetFactory<e_data_log>(tag);
-	if (it != m_data.get<e_data_log>().end())
-	{
-		DataLog * d = *it;
-		//d->onShow();
-	}
-	else
-		assert(false);
 	return it;
 }
-
-
 
 
 void Connection::onTabTraceFocus ()

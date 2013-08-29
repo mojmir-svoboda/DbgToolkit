@@ -2,14 +2,14 @@
 #include <QString>
 #include <QVector>
 #include <QColor>
+#include <dockedconfig.h>
 
 namespace logs {
 
-	struct LogConfig
+	struct LogConfig : DockedConfigBase
 	{
 		QString m_tag;
 		int m_history_ln;
-		int m_sync_group;
 		QString m_font;
 		int m_fontsize;
 		int m_row_width;
@@ -21,9 +21,6 @@ namespace logs {
 		QVector<QString> m_columns_align;		/// column align for each registered application
 		QVector<QString> m_columns_elide;		/// column elide for each registered application
 		QVector<QColor> m_thread_colors;				/// predefined coloring of threads
-		bool m_show;
-		bool m_auto_scroll;
-		bool m_central_widget;
 		bool m_in_view;
 		bool m_filtering;
 		bool m_clr_filters;
@@ -37,16 +34,12 @@ namespace logs {
 		LogConfig ()
 			: m_tag("default")
 			, m_history_ln(128*128)
-			, m_sync_group(0)
 			, m_font("Verdana")
 			, m_fontsize(10)
 			, m_row_width(18)
 			, m_indent_level(2)
 			, m_cut_path_level(2)
 			, m_cut_namespace_level(3)
-			, m_show(true)
-			, m_auto_scroll(false)
-			, m_central_widget(true)
 			, m_in_view(true)
 			, m_filtering(true)
 			, m_clr_filters(true)
@@ -56,21 +49,19 @@ namespace logs {
 			, m_cut_namespaces(true)
 			, m_dt_enabled(false)
 			, m_csv_separator(",")
-		{ }
+		{
+			m_central_widget = true;
+		}
 
 		LogConfig (QString const & tag)
 			: m_tag()
 			, m_history_ln(128*128)
-			, m_sync_group(0)
 			, m_font("Verdana")
 			, m_fontsize(10)
 			, m_row_width(18)
 			, m_indent_level(2)
 			, m_cut_path_level(2)
 			, m_cut_namespace_level(3)
-			, m_show(true)
-			, m_auto_scroll(false)
-			, m_central_widget(tag == "default")
 			, m_in_view(true)
 			, m_filtering(true)
 			, m_clr_filters(true)
@@ -79,14 +70,16 @@ namespace logs {
 			, m_cut_path(true)
 			, m_cut_namespaces(true)
 			, m_dt_enabled(false)
-		{ }
+		{
+			m_central_widget = tag == "default";
+		}
 
 		template <class ArchiveT>
 		void serialize (ArchiveT & ar, unsigned const version)
 		{
+			DockedConfigBase::serialize(ar, version);
 			ar & boost::serialization::make_nvp("tag", m_tag);
 			ar & boost::serialization::make_nvp("history_ln", m_history_ln);
-			ar & boost::serialization::make_nvp("sync_group", m_sync_group);
 			ar & boost::serialization::make_nvp("font", m_font);
 			ar & boost::serialization::make_nvp("fontsize", m_fontsize);
 			ar & boost::serialization::make_nvp("row_width", m_row_width);
@@ -98,9 +91,6 @@ namespace logs {
 			ar & boost::serialization::make_nvp("columns_align", m_columns_align);
 			ar & boost::serialization::make_nvp("columns_elide", m_columns_elide);
 			ar & boost::serialization::make_nvp("thread_colors", m_thread_colors);
-			ar & boost::serialization::make_nvp("show", m_show);
-			ar & boost::serialization::make_nvp("autoscroll", m_auto_scroll);
-			ar & boost::serialization::make_nvp("central_widget", m_central_widget);
 			ar & boost::serialization::make_nvp("in_view", m_in_view);
 			ar & boost::serialization::make_nvp("filtering", m_filtering);
 			ar & boost::serialization::make_nvp("clr_filters", m_clr_filters);

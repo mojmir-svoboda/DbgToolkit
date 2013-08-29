@@ -1,18 +1,24 @@
 #include "frameview.h"
-#include "../qwt/qwt_column_symbol.h"
-#include "../qwt/qwt_plot_legenditem.h"
-#include "../qwt/qwt_legend.h"
-#include "../qwt/qwt_plot_panner.h"
-#include "../qwt/qwt_plot_zoomer.h"
-#include "../qwt/qwt_plot_magnifier.h"
-#include "../qwt/qwt_picker_machine.h"
-#include "../qwt/qwt_plot_marker.h"
-#include "../qwt/qwt_plot_layout.h"
-#include "../qwt/qwt_color_map.h"
-#include "../qwt/qwt_interval.h"
-#include "../qwt/qwt_plot.h"
-#include "../qwt/qwt_scale_draw.h"
-#include "../syncwidgets.h"
+#include <qwt/qwt_column_symbol.h>
+#include <qwt/qwt_plot_legenditem.h>
+#include <qwt/qwt_legend.h>
+#include <qwt/qwt_plot_panner.h>
+#include <qwt/qwt_plot_zoomer.h>
+#include <qwt/qwt_plot_magnifier.h>
+#include <qwt/qwt_picker_machine.h>
+#include <qwt/qwt_plot_marker.h>
+#include <qwt/qwt_plot_layout.h>
+#include <qwt/qwt_color_map.h>
+#include <qwt/qwt_interval.h>
+#include <qwt/qwt_plot.h>
+#include <qwt/qwt_slider.h>
+#include <qwt/qwt_scale_draw.h>
+#include <qwt/qwt_scale_engine.h>
+#include <qwt/qwt_scale_widget.h>
+#include <qwt/qwt_transform.h>
+#include <syncwidgets.h>
+
+#include "scrollzoomer.h"
 
 struct FrameScaleDraw : public QwtScaleDraw
 {
@@ -21,7 +27,7 @@ public:
 		: m_labels( labels )
     {
         setTickLength(QwtScaleDiv::MinorTick, 0);
-        setTickLength(QwtScaleDiv::MediumTick, 0);
+        setTickLength(QwtScaleDiv::MediumTick, 1);
         setTickLength(QwtScaleDiv::MajorTick, 2);
 
         enableComponent(QwtScaleDraw::Backbone, false);
@@ -56,7 +62,7 @@ BarPlot::BarPlot () : QwtPlotBarChart()
 QwtColumnSymbol * BarPlot::specialSymbol (int index, QPointF const &) const
 {
 	QwtColumnSymbol * symbol = new QwtColumnSymbol(QwtColumnSymbol::Box);
-	symbol->setLineWidth(1);
+	symbol->setLineWidth(0);
 	symbol->setFrameStyle(QwtColumnSymbol::Plain);
 
 	QColor c(Qt::white);
@@ -75,9 +81,171 @@ QwtText BarPlot::barTitle (int idx) const
 	return title;
 }
 
-	struct XZoomer : QwtPlotZoomer
+QwtSlider * createSlider (int sliderType)
+{
+    QwtSlider * slider = new QwtSlider();
+
+    switch( sliderType )
+    {
+        case 0:
+        {
+            slider->setOrientation( Qt::Horizontal );
+            slider->setScalePosition( QwtSlider::TrailingScale );
+            slider->setTrough( true );
+            slider->setGroove( false );
+            slider->setSpacing( 0 );
+            slider->setHandleSize( QSize( 30, 16 ) );
+            slider->setScale( 10.0, -10.0 );
+            slider->setTotalSteps( 8 );
+            slider->setSingleSteps( 1 );
+            slider->setPageSteps( 1 );
+            slider->setWrapping( true );
+            break;
+        }
+        case 1:
+        {
+            slider->setOrientation( Qt::Horizontal );
+            slider->setScalePosition( QwtSlider::NoScale );
+            slider->setTrough( true );
+            slider->setGroove( true );
+            slider->setScale( 0.0, 1.0 );
+            slider->setTotalSteps( 100 );
+            slider->setSingleSteps( 1 );
+            slider->setPageSteps( 5 );
+            break;
+        }
+        case 2:
+        {
+            slider->setOrientation( Qt::Horizontal );
+            slider->setScalePosition( QwtSlider::LeadingScale );
+            slider->setTrough( false );
+            slider->setGroove( true );
+            slider->setHandleSize( QSize( 12, 25 ) );
+            slider->setScale( 1000.0, 3000.0 );
+            slider->setTotalSteps( 200.0 );
+            slider->setSingleSteps( 2 );
+            slider->setPageSteps( 10 );
+            break;
+        }
+        case 3:
+        {
+            slider->setOrientation( Qt::Horizontal );
+            slider->setScalePosition( QwtSlider::TrailingScale );
+            slider->setTrough( true );
+            slider->setGroove( true );
+
+            QwtLinearScaleEngine *scaleEngine = new QwtLinearScaleEngine( 2 );
+            scaleEngine->setTransformation( new QwtPowerTransform( 2 ) );
+            slider->setScaleEngine( scaleEngine );
+            slider->setScale( 0.0, 128.0 );
+            slider->setTotalSteps( 100 );
+            slider->setStepAlignment( false );
+            slider->setSingleSteps( 1 );
+            slider->setPageSteps( 5 );
+            break;
+        }
+        case 4:
+        {
+            slider->setOrientation( Qt::Vertical );
+            slider->setScalePosition( QwtSlider::TrailingScale );
+            slider->setTrough( false );
+            slider->setGroove( true );
+            slider->setScale( 100.0, 0.0 );
+            slider->setInvertedControls( true );
+            slider->setTotalSteps( 100 );
+            slider->setPageSteps( 5 );
+            slider->setScaleMaxMinor( 5 );
+            break;
+        }
+        case 5:
+        {
+            slider->setOrientation( Qt::Vertical );
+            slider->setScalePosition( QwtSlider::NoScale );
+            slider->setTrough( true );
+            slider->setGroove( false );
+            slider->setScale( 0.0, 100.0 );
+            slider->setTotalSteps( 100 );
+            slider->setPageSteps( 10 );
+            break;
+        }
+        case 6:
+        {
+            slider->setOrientation( Qt::Vertical );
+            slider->setScalePosition( QwtSlider::LeadingScale );
+            slider->setTrough( true );
+            slider->setGroove( true );
+            slider->setScaleEngine( new QwtLogScaleEngine );
+            slider->setStepAlignment( false );
+            slider->setHandleSize( QSize( 20, 32 ) );
+            slider->setBorderWidth( 1 );
+            slider->setScale( 1.0, 1.0e4 );
+            slider->setTotalSteps( 100 );
+            slider->setPageSteps( 10 );
+            slider->setScaleMaxMinor( 9 );
+            break;
+        }
+    }
+
+    if (slider)
+    {
+        QString name( "Slider %1" );
+        slider->setObjectName( name.arg( sliderType ) );
+    }
+    return slider;
+}
+
+const unsigned int c_rangeMax = 1000;
+
+class Zoomer: public ScrollZoomer
+{
+public:
+    Zoomer( QWidget *canvas ):
+        ScrollZoomer( canvas )
+    {
+#if 0
+        setRubberBandPen( QPen( Qt::red, 2, Qt::DotLine ) );
+#else
+        setRubberBandPen( QPen( Qt::red ) );
+#endif
+    }
+
+    virtual QwtText trackerTextF( const QPointF &pos ) const
+    {
+        QColor bg( Qt::white );
+
+        QwtText text = QwtPlotZoomer::trackerTextF( pos );
+        text.setBackgroundBrush( QBrush( bg ) );
+        return text;
+    }
+
+    virtual void rescale()
+    {
+        QwtScaleWidget *scaleWidget = plot()->axisWidget( yAxis() );
+        QwtScaleDraw *sd = scaleWidget->scaleDraw();
+
+        double minExtent = 0.0;
+        if ( zoomRectIndex() > 0 )
+        {
+            // When scrolling in vertical direction
+            // the plot is jumping in horizontal direction
+            // because of the different widths of the labels
+            // So we better use a fixed extent.
+
+            minExtent = sd->spacing() + sd->maxTickLength() + 1;
+            minExtent += sd->labelSize(
+                scaleWidget->font(), c_rangeMax ).width();
+        }
+
+        sd->setMinimumExtent( minExtent );
+
+        ScrollZoomer::rescale();
+    }
+};
+
+	struct XZoomer : Zoomer
 	{
-		XZoomer (QWidget * canvas) : QwtPlotZoomer(canvas) { }
+		//XZoomer (QWidget * canvas) : QwtPlotZoomer(canvas) { }
+		XZoomer (QWidget * canvas) : Zoomer(canvas) { }
 		virtual void zoom (QRectF const & rect)
 		{
 			QRectF newRect;
@@ -86,6 +254,9 @@ QwtText BarPlot::barTitle (int idx) const
 			QwtPlotZoomer::zoom(newRect);
 		}
 	};
+
+
+
 
 FrameView::FrameView (Connection * oparent, QWidget * wparent, FrameViewConfig & cfg, QString const & fname, QStringList const & path)
 	: ActionAble(path)
@@ -97,22 +268,23 @@ FrameView::FrameView (Connection * oparent, QWidget * wparent, FrameViewConfig &
 	setContextMenuPolicy(Qt::CustomContextMenu);
 	connect(this, SIGNAL(customContextMenuRequested(QPoint const &)), this, SLOT(onShowContextMenu(QPoint const &)));
 
+	m_plot = new QwtPlot();
 	m_bars = new BarPlot();
-	m_bars->attach(this);
+	m_bars->attach(m_plot);
 
-	plotLayout()->setAlignCanvasToScales(true);
-	plotLayout()->setCanvasMargin(0);
-	setContentsMargins(QMargins(0, 0, 0, 0));
-	setMinimumSize(64,64);
+	m_plot->plotLayout()->setAlignCanvasToScales(true);
+	m_plot->plotLayout()->setCanvasMargin(0);
+	m_plot->setContentsMargins(QMargins(0, 0, 0, 0));
+	m_plot->setMinimumSize(64,64);
 
-	setAutoReplot(true);
+	m_plot->setAutoReplot(true);
 	//qDebug("%s this=0x%08x", __FUNCTION__, this);
 
-	QwtPlotMagnifier * lookglass = new QwtPlotMagnifier(canvas());
-	canvas()->setFocusPolicy(Qt::WheelFocus);
+	QwtPlotMagnifier * lookglass = new QwtPlotMagnifier(m_plot->canvas());
+	m_plot->canvas()->setFocusPolicy(Qt::WheelFocus);
 	lookglass->setAxisEnabled(QwtPlot::yLeft, false);
 
-	XZoomer * zoomer = new XZoomer(canvas());
+	XZoomer * zoomer = new XZoomer(m_plot->canvas());
 	zoomer->setRubberBandPen( QColor( Qt::black ) );
 	zoomer->setTrackerPen( QColor( Qt::black ) );
 	zoomer->setMousePattern( QwtEventPattern::MouseSelect2, Qt::RightButton, Qt::ControlModifier );
@@ -120,21 +292,31 @@ FrameView::FrameView (Connection * oparent, QWidget * wparent, FrameViewConfig &
 
 	QwtPlotPicker * picker = new QwtPlotPicker(QwtPlot::xBottom, QwtPlot::yLeft,
 										QwtPlotPicker::CrossRubberBand, QwtPicker::AlwaysOn,
-										canvas());
+										m_plot->canvas());
 	//picker->setStateMachine(new QwtPickerDragPointMachine());
 	picker->setStateMachine(new QwtPickerClickPointMachine());
 	picker->setRubberBandPen(QColor(Qt::green));
 	picker->setRubberBand(QwtPicker::CrossRubberBand);
 	picker->setTrackerPen(QColor(Qt::white));
 
-	QwtPlotPanner * panner = new QwtPlotPanner(canvas());
+	QwtPlotPanner * panner = new QwtPlotPanner(m_plot->canvas());
 	panner->setAxisEnabled(QwtPlot::yLeft, false);
 	panner->setMouseButton(Qt::MidButton);
 
-    setAxisMaxMinor(QwtPlot::xBottom, 3);
-    setAxisScaleDraw(QwtPlot::xBottom, new FrameScaleDraw(Qt::Horizontal, m_bars->m_strvalues));
+    m_plot->setAxisMaxMinor(QwtPlot::xBottom, 3);
+    m_plot->setAxisScaleDraw(QwtPlot::xBottom, new FrameScaleDraw(Qt::Horizontal, m_bars->m_strvalues));
 
-	setAxisAutoScale(QwtPlot::yLeft, true);
+	m_plot->setAxisAutoScale(QwtPlot::yLeft, true);
+	m_bars->setLayoutPolicy(QwtPlotAbstractBarChart::FixedSampleSize);
+	m_bars->setLayoutHint(5);
+	m_bars->setSpacing(1);
+
+	QwtSlider * slider = createSlider(1);
+    connect(slider, SIGNAL(valueChanged(double)), SLOT(setNum(double)));
+    QVBoxLayout * layout = new QVBoxLayout( this );
+    layout->addWidget(m_plot);
+    //layout->addWidget(slider);
+	///m_bars->setLegendMode(QwtPlotBarChart::LegendBarTitles);
 
     connect(picker, SIGNAL(selected(QRectF const &) ), this, SLOT(selected(QRectF const &)));
     connect(picker, SIGNAL(selected(QPointF const &) ), this, SLOT(selected(QPointF const &)));
@@ -151,6 +333,14 @@ FrameView::FrameView (Connection * oparent, QWidget * wparent, FrameViewConfig &
 						 &getSyncWidgets(), SLOT( performFrameSynchronization(int, unsigned long long, void *) ));
 }
 
+void FrameView::setNum (double v)
+{
+    //QString text;
+    //text.setNum(v, 'f', 2);
+
+    //d_label->setText( text );
+}
+
 
 bool FrameView::handleAction (Action * a, E_ActionHandleType sync)
 {
@@ -160,7 +350,7 @@ bool FrameView::handleAction (Action * a, E_ActionHandleType sync)
 void FrameView::selected (QRectF const & r)
 {
 	QPointF const pos = r.topLeft();
-	float const f = invTransform( QwtPlot::xBottom, pos.x());
+	float const f = m_plot->invTransform( QwtPlot::xBottom, pos.x());
 	qDebug("selected: %f", f);
 	//m_bars->invTransform( QwtPlot::yLeft, pos.y() ),
 	//m_bars->invTransform( QwtPlot::yRight, pos.y() )
@@ -334,8 +524,8 @@ void FrameView::onSaveButton ()
 
 void FrameView::onResetViewButton ()
 {
-	setAxisAutoScale(QwtPlot::yLeft, true);
-	setAxisAutoScale(QwtPlot::xBottom, true);
+	m_plot->setAxisAutoScale(QwtPlot::yLeft, true);
+	m_plot->setAxisAutoScale(QwtPlot::xBottom, true);
 }
 void FrameView::onDefaultButton ()
 {

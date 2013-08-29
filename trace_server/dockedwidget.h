@@ -5,7 +5,6 @@ struct DockedWidgetBase;
 struct DockedInfo
 {
 	QStringList m_path;
-	//DockedWidgetBase * m_widget;
 
 	/*@member	state
 	 * duplicates qt enum

@@ -117,6 +117,8 @@ struct DockedData : DockedWidgetBase
 	widget_t const & widget () const { return *m_widget; }
 	config_t & config () { return m_config; }
 	config_t const & config () const { return m_config; }
+	virtual DockedConfigBase const & dockedConfig () const { return config(); }
+	virtual DockedConfigBase & dockedConfig () { return config(); }
 
 	virtual bool handleAction (Action * a, E_ActionHandleType sync)
 	{
@@ -247,22 +249,6 @@ public:
 	AppData const & appData () const { return m_app_data; }
 
 	void run ();
-	/*bool loadConfigForPlot (QString const & preset_name, plot::PlotConfig & config, QString const & tag);
-	bool saveConfigForPlot (plot::PlotConfig const & config, QString const & tag);
-	bool loadConfigForPlots (QString const & preset_name);
-	bool saveConfigForPlots (QString const & preset_name);
-	bool loadConfigForTable (QString const & preset_name, table::TableConfig & config, QString const & tag);
-	bool saveConfigForTable (table::TableConfig const & config, QString const & tag);
-	bool loadConfigForTables (QString const & preset_name);
-	bool saveConfigForTables (QString const & preset_name);
-	bool loadConfigForGantt (QString const & preset_name, gantt::GanttConfig & config, QString const & tag);
-	bool saveConfigForGantt (gantt::GanttConfig const & config, QString const & tag);
-	bool loadConfigForGantts (QString const & preset_name);
-	bool saveConfigForGantts (QString const & preset_name);
-	//bool loadConfigForLog (QString const & preset_name, logs::LogConfig & config, QString const & tag);
-	bool saveConfigForLog (logs::LogConfig const & config, QString const & tag);
-	bool loadConfigForLogs (QString const & preset_name);
-	bool saveConfigForLogs (QString const & preset_name);*/
 
 	void saveConfigs (QString const & preset_name);
 	void loadConfigs (QString const & preset_name);

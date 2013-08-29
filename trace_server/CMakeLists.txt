@@ -99,6 +99,8 @@ SET(trace_server_SOURCES
 	connection_gantt.cpp
 	connection_frame.cpp
 	gantt/arrow.cpp
+	gantt/scrollzoomer.cpp
+	gantt/scrollbar.cpp
 	gantt/frameview.cpp
 	gantt/frameviewconfig.cpp
 	gantt/ganttconfig.cpp
@@ -161,6 +163,8 @@ SET(trace_server_HEADERS
 	gantt/frameview.h
 	gantt/frameviewconfig.h
 	gantt/frameviewctxmenu.h
+	gantt/scrollzoomer.h
+	gantt/scrollbar.h
 	gantt/ganttconfig.h
 	gantt/ganttctxmenu.h
 	gantt/ganttdata.h

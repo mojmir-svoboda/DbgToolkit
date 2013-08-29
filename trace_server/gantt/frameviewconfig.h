@@ -3,15 +3,15 @@
 #include <QColor>
 #include <QVector>
 #include "frameviewconfig.h"
+#include "dockedconfig.h"
 
 //namespace gantt {
 
-	struct FrameViewConfig
+	struct FrameViewConfig : DockedConfigBase
 	{
 		QString m_tag;
 		QString m_title;
 		QVector<FrameViewConfig> m_gvcfg;
-		int m_sync_group;
 		float m_begin;
 		float m_end;
 		float m_val1;
@@ -22,8 +22,6 @@
 		QColor m_color2;
 		QColor m_color3;
 		QColor m_color4;
-		bool m_show;
-		bool m_central_widget;
 		bool m_on1;
 		bool m_on2;
 		bool m_on3;
@@ -31,7 +29,6 @@
 
 		FrameViewConfig ()
 			: m_tag()
-			, m_sync_group(0)
 			, m_begin(0)
 			, m_end(30)
 			, m_val1(0.0f)
@@ -42,8 +39,6 @@
 			, m_color2(Qt::green)
 			, m_color3(Qt::yellow)
 			, m_color4(Qt::red)
-			, m_show(true)
-			, m_central_widget(false)
 			, m_on1(true)
 			, m_on2(true)
 			, m_on3(true)
@@ -52,7 +47,6 @@
 
 		FrameViewConfig (QString const & tag)
 			: m_tag(tag)
-			, m_sync_group(0)
 			, m_begin(0)
 			, m_end(30)
 			, m_val1(0.0f)
@@ -63,8 +57,6 @@
 			, m_color2(Qt::green)
 			, m_color3(Qt::yellow)
 			, m_color4(Qt::red)
-			, m_show(true)
-			, m_central_widget(false)
 			, m_on1(true)
 			, m_on2(true)
 			, m_on3(true)
@@ -74,9 +66,9 @@
 		template <class ArchiveT>
 		void serialize (ArchiveT & ar, unsigned const version)
 		{
+			DockedConfigBase::serialize(ar, version);
 			ar & boost::serialization::make_nvp("tag", m_tag);
 			ar & boost::serialization::make_nvp("title", m_title);
-			ar & boost::serialization::make_nvp("sync_group", m_sync_group);
 			ar & boost::serialization::make_nvp("val1", m_val1);
 			ar & boost::serialization::make_nvp("val2", m_val2);
 			ar & boost::serialization::make_nvp("val3", m_val3);
@@ -85,8 +77,6 @@
 			ar & boost::serialization::make_nvp("color2", m_color2);
 			ar & boost::serialization::make_nvp("color3", m_color3);
 			ar & boost::serialization::make_nvp("color4", m_color4);
-			ar & boost::serialization::make_nvp("show", m_show);
-			ar & boost::serialization::make_nvp("central_widget", m_central_widget);
 			ar & boost::serialization::make_nvp("on1", m_on1);
 			ar & boost::serialization::make_nvp("on2", m_on2);
 			ar & boost::serialization::make_nvp("on3", m_on3);

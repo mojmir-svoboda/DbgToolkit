@@ -93,52 +93,6 @@ bool Connection::handleDataXYZCommand (DecodedCommand const & cmd, E_ReceiveMode
 	return true;
 }
  
-/*bool Connection::loadConfigForPlots (QString const & preset_name)
-{
-	qDebug("%s this=0x%08x", __FUNCTION__, this);
-	for (dataplots_t::iterator it = m_data.get<e_data_plot>().begin(), ite = m_data.get<e_data_plot>().end(); it != ite; ++it)
-	{
-		DataPlot * const plt = *it;
-		QString const fname = getDataTagFileName(getConfig().m_appdir, preset_name, g_presetPlotTag, plt->m_config.m_tag);
-		loadConfig(plt->m_config, fname);
-		plt->widget().applyConfig(plt->m_config);
-		if (plt->m_config.m_show)
-			plt->onShow();
-		else
-			plt->onHide();
-	}
-	return true;
-}
-
-bool Connection::loadConfigForPlot (QString const & preset_name, plot::PlotConfig & config, QString const & tag)
-{
-	QString const fname = getDataTagFileName(getConfig().m_appdir, preset_name, g_presetPlotTag, tag);
-	qDebug("load tag file=%s", fname.toStdString().c_str());
-
-	return loadConfig(config, fname);
-}
-
-bool Connection::saveConfigForPlot (plot::PlotConfig const & config, QString const & tag)
-{
-	QString const preset_name = m_curr_preset.isEmpty() ? m_main_window->getCurrentPresetName() : m_curr_preset;
-	QString const fname = getDataTagFileName(getConfig().m_appdir, preset_name, g_presetPlotTag, tag);
-	qDebug("save tag file=%s", fname.toStdString().c_str());
-
-	return saveConfig(config, fname);
-}
-
-bool Connection::saveConfigForPlots (QString const & preset_name)
-{
-	qDebug("%s this=0x%08x", __FUNCTION__, this);
-	for (dataplots_t::iterator it = m_data.get<e_data_plot>().begin(), ite = m_data.get<e_data_plot>().end(); it != ite; ++it)
-	{
-		DataPlot * const plt = *it;
-		QString const fname = getDataTagFileName(getConfig().m_appdir, preset_name, g_presetPlotTag, plt->m_config.m_tag);
-		saveConfig(plt->m_config, fname);
-	}
-	return true;
-}*/
-
 dataplots_t::iterator Connection::findOrCreatePlot (QString const & tag)
 {
 	dataplots_t::iterator it = dataWidgetFactory<e_data_plot>(tag);

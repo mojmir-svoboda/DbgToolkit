@@ -2,28 +2,17 @@
 #include <QString>
 #include <QDockWidget>
 #include <QMultiMap>
+#include <QSpinBox>
 #include "treeview.h"
 #include "treemodel.h"
 #include "dockedwidget.h"
 #include "action.h"
 #include "dockconfig.h"
+#include "dockedconfig.h"
 class QCloseEvent;
 class QMainWindow;
 class MainWindow;
 struct DockManager;
-
-struct DockConfigBase {
-
-	// font
-	// font size
-	bool m_auto_scroll;
-	bool m_show;
-	bool m_central_widget;
-
-	int  m_sync_group;
-};
-
-
 
 class DockTreeView : public TreeView
 {
@@ -43,6 +32,9 @@ struct DockedWidgetBase : ActionAble {
 		, m_wd(0) 
 	{ }
 	virtual ~DockedWidgetBase () { }
+
+	virtual DockedConfigBase const & dockedConfig () const = 0;
+	virtual DockedConfigBase & dockedConfig () = 0;
 
 	QDockWidget * m_wd;
 
@@ -88,6 +80,7 @@ public:
 
 	virtual int columnCount (QModelIndex const & parent) const;
 	virtual QVariant data (const QModelIndex & index, int role = Qt::DisplayRole) const;
+	Qt::ItemFlags flags (QModelIndex const & index) const;
 	virtual bool setData (QModelIndex const & index, QVariant const & value, int role = Qt::EditRole);
 
 public slots:
@@ -106,7 +99,9 @@ public:
 
 	typedef QMultiMap<QString, DockWidget *> widgets_t;
 	typedef QMultiMap<QString, ActionAble *> actionables_t;
+	typedef QMultiMap<QString, DockedWidgetBase *> dockables_t;
 	widgets_t			m_widgets; // @TODO: hashed container?
+	dockables_t			m_dockables;
 	actionables_t		m_actionables;
 	MainWindow * 		m_main_window;
 	QDockWidget * 		m_docked_widgets;
@@ -120,6 +115,7 @@ public:
 	DockWidget * mkDockWidget (ActionAble & aa, bool visible, Qt::DockWidgetArea area);
 	QModelIndex addDockedTreeItem (DockedWidgetBase & dwb, bool on);
 	QModelIndex addActionTreeItem (ActionAble & aa, bool on);
+	DockedWidgetBase * findDockable (QString const & joined_path);
 
 	void loadConfig (QString const & path);
 	void saveConfig (QString const & path);
@@ -155,6 +151,19 @@ protected:
     static const int margin = 2; // pixels to keep arount the icon
 
     Q_DISABLE_COPY(DockedTreeDelegate)
+};
+
+
+class SpinBoxDelegate : public QStyledItemDelegate
+{
+    Q_OBJECT
+
+public:
+    SpinBoxDelegate(QObject *parent = 0);
+    QWidget *createEditor(QWidget *parent, QStyleOptionViewItem const &option, QModelIndex const &index) const;
+    void setEditorData(QWidget *editor, QModelIndex const &index) const;
+    void setModelData(QWidget *editor, QAbstractItemModel *model, QModelIndex const &index) const;
+    void updateEditorGeometry(QWidget *editor, QStyleOptionViewItem const &option, QModelIndex const &index) const;
 };
 
 
