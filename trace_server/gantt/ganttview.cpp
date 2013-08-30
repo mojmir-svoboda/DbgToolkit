@@ -554,7 +554,7 @@ void GanttView::applyConfig (GanttViewConfig & gvcfg)
 	}
 }
 
-void GanttView::syncCtxViews (GraphicsView const * src, QPointF center)
+void GanttView::syncCtxViews (GraphicsView const * src, QPointF const & center)
 {
 	for (contextviews_t::iterator it = m_contextviews.begin(), ite = m_contextviews.end(); it != ite; ++it)
 	{
@@ -566,13 +566,14 @@ void GanttView::syncCtxViews (GraphicsView const * src, QPointF center)
 			bool const old = gv->horizontalScrollBar()->blockSignals(true);
 			bool const old2 = gv->verticalScrollBar()->blockSignals(true);
 			gv->centerOn(center);
+			gv->viewport()->update();
 			gv->horizontalScrollBar()->blockSignals(old);
 			gv->verticalScrollBar()->blockSignals(old);
 		}
 	}
 }
 
-void GanttView::syncGanttView (GanttView const * src, QPointF center)
+void GanttView::syncGanttView (GanttView const * src, QPointF const & center)
 {
 }
 
