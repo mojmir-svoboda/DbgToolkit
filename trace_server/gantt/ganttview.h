@@ -1,16 +1,12 @@
 #pragma once
 #include <QWidget>
 #include <QMap>
-//#include "config.h"
 #include "ganttconfig.h"
 #include "ganttdata.h"
 #include "scalewidget.h"
-#include "../qwt/qwt_transform.h"
 
 #include <QFrame>
 #include <QGraphicsView>
-//#include <QGridLayout>
-//#include <cstdio>
 
 class Connection;
 
@@ -84,6 +80,9 @@ namespace gantt {
 		void gotoFrame (unsigned n);
 		GanttViewConfig const & config () const { return m_gvcfg; }
 
+		void syncGanttView (GanttView const * src, QPointF const & center);
+		void syncCtxViews (GraphicsView const * src, QPointF const & center);
+
 	private slots:
 		void resetView ();
 		//void verticalScroll (int);
@@ -97,6 +96,7 @@ namespace gantt {
 		
 	private:
 		friend class GanttWidget;
+		friend class GraphicsView;
 
 		void initColors ();
 		void appendBgn (DecodedData & data);
@@ -112,7 +112,8 @@ namespace gantt {
 		GfxView & createViewForContext (unsigned long long ctx, QGraphicsScene * scene = 0);
 
 		GfxView & viewAt (unsigned long long ctx);
-
+	
+		GanttWidget * m_ganttwidget;
 		QSplitter * m_layout;
 		ScaleWidget * m_timewidget;
 		Connection * m_connection;

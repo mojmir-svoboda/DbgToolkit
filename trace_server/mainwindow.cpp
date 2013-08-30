@@ -590,6 +590,8 @@ void MainWindow::storeState ()
 	write_list_of_strings(settings, "known-applications", "application", m_config.m_app_names);
 	for (int i = 0, ie = m_config.m_app_names.size(); i < ie; ++i)
 	{
+		if (i >= m_config.m_columns_setup.size())
+			break;
 		settings.beginGroup(tr("column_order_%1").arg(m_config.m_app_names[i]));
 		{
 			write_list_of_strings(settings, "orders", "column", m_config.m_columns_setup.at(i));

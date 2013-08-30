@@ -115,6 +115,7 @@ inline void reassemblePath (std::vector<QString> const & tokens, QString & path)
 	}
 }
 
+#include <filters/file_filter.hpp>
 template <class F>
 void set_state_to_childs (tree_filter<F> const & ff, std::string const & file, E_NodeStates state);
 template <class F>

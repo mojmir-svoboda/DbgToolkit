@@ -4,17 +4,21 @@
 #include <QFrame>
 #include "ganttconfig.h"
 #include "ganttdata.h"
-#include "ganttctxmenu.h"
-#include "frameview.h"
+//#include "ganttctxmenu.h"
+//#include "frameview.h"
 #include "action.h"
-#include "dock.h"
+#include "types.h"
+//#include "dock.h"
 #include "cmd.h"
 
 class Connection;
 QT_FORWARD_DECLARE_CLASS(QSplitter)
+QT_FORWARD_DECLARE_CLASS(FilterWidget)
 
 namespace gantt {
 	QT_FORWARD_DECLARE_CLASS(GanttView)
+	QT_FORWARD_DECLARE_CLASS(FrameView)
+	QT_FORWARD_DECLARE_CLASS(CtxGanttConfig)
 }
 
 namespace gantt {
@@ -42,13 +46,14 @@ namespace gantt {
 		GanttView * findGanttView (QString const & subtag);
 		GanttView * findOrCreateGanttView (QString const & subtag);
 		ganttviews_t::iterator mkGanttView (QString const & subtag);
+		void syncGanttViews (GanttView * src, QPointF interval);
 		virtual bool handleAction (Action * a, E_ActionHandleType sync);
 		void handleCommand (DecodedCommand const & cmd, E_ReceiveMode mode);
 
 		FrameView * findOrCreateFrameView (int sync_group);
 
-		FilterWidget * filterWidget () { return m_config_ui.m_ui->widget; }
-		FilterWidget const * filterWidget () const { return m_config_ui.m_ui->widget; }
+		FilterWidget * filterWidget ();
+		FilterWidget const * filterWidget () const;
 
 
 		//void appendGantt (QString const & time, QString const & tid, QString const & fgc, QString const & bgc, QString const & msg);
@@ -99,7 +104,7 @@ namespace gantt {
 	protected:
 		GanttConfig & m_config;
 		GanttConfig m_config2;
-		gantt::CtxGanttConfig m_config_ui;
+		gantt::CtxGanttConfig * m_config_ui;
 		QString m_fname;
 		Connection * m_connection;
 		QSplitter * m_layout;

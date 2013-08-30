@@ -41,7 +41,7 @@ struct DockConfig
 
 	void clear ()
 	{
-		// @TODO: nontrivial cause of m_docked_widgets_data
+		*this = DockConfig(g_traceServerName);
 	}
 };
 

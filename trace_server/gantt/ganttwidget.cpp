@@ -7,6 +7,7 @@
 #include "ganttview.h"
 #include <label.h>
 #include "frameview.h"
+#include "ganttctxmenu.h"
 #include <syncwidgets.h>
 #include <connection.h>
 
@@ -15,7 +16,7 @@ namespace gantt {
 	GanttWidget::GanttWidget (Connection * oparent, QWidget * wparent, GanttConfig & cfg, QString const & fname, QStringList const & path)
 		: QFrame(wparent), ActionAble(path)
 		, m_config(cfg)
-		, m_config_ui(cfg, this)
+		, m_config_ui(new CtxGanttConfig(cfg, this))
 		, m_fname(fname)
 		, m_connection(oparent)
 	{
@@ -61,6 +62,9 @@ namespace gantt {
 		m_ganttviews.clear();
 		disconnect(this, SIGNAL(customContextMenuRequested(QPoint const &)), this, SLOT(onShowContextMenu(QPoint const &)));
 	}
+
+	FilterWidget * GanttWidget::filterWidget () { return m_config_ui->m_ui->widget; }
+	FilterWidget const * GanttWidget::filterWidget () const { return m_config_ui->m_ui->widget; }
 
 	void GanttWidget::onShow ()
 	{
@@ -118,6 +122,16 @@ namespace gantt {
 		return *it;
 	}
 
+	void GanttWidget::syncGanttViews (GanttView * src, QPointF interval)
+	{
+		for (ganttviews_t::iterator it = m_ganttviews.begin(), ite = m_ganttviews.end(); it != ite; ++it)
+		{
+			GanttView * gv = *it;
+			if (gv != src)
+				gv->syncGanttView(gv, interval);
+		}
+	}
+
 	void GanttWidget::appendFrameEnd (DecodedData & dd)
 	{
 		gantt::GanttView * gv = findOrCreateGanttView(dd.m_subtag);
@@ -133,17 +147,17 @@ namespace gantt {
 
 	void GanttWidget::onHideContextMenu ()
 	{
-		Ui::SettingsGantt * ui = m_config_ui.ui();
+		Ui::SettingsGantt * ui = m_config_ui->ui();
 		disconnect(ui->applyButton, SIGNAL(clicked()), this, SLOT(onApplyButton()));
 		disconnect(ui->saveButton, SIGNAL(clicked()), this, SLOT(onSaveButton()));
-		m_config_ui.onHideContextMenu();
+		m_config_ui->onHideContextMenu();
 	}
 
 	void GanttWidget::onShowContextMenu (QPoint const & pos)
 	{
 		//qDebug("%s this=0x%08x", __FUNCTION__, this);
-		m_config_ui.onShowContextMenu(QCursor::pos());
-		Ui::SettingsGantt * ui = m_config_ui.ui();
+		m_config_ui->onShowContextMenu(QCursor::pos());
+		Ui::SettingsGantt * ui = m_config_ui->ui();
 
 		setConfigValuesToUI(m_config);
 		connect(ui->applyButton, SIGNAL(clicked()), this, SLOT(onApplyButton()));
@@ -160,7 +174,7 @@ namespace gantt {
 	void GanttWidget::applyConfig (GanttConfig & cfg)
 	{
 		//qDebug("%s this=0x%08x", __FUNCTION__, this);
-		Ui::SettingsGantt * ui = m_config_ui.ui();
+		Ui::SettingsGantt * ui = m_config_ui->ui();
 
 		for (size_t i = 0, ie = m_config.m_gvcfg.size(); i < ie; ++i)
 		{
@@ -221,7 +235,7 @@ namespace gantt {
 	void GanttWidget::setConfigValuesToUI (GanttConfig const & cfg)
 	{
 		//qDebug("%s this=0x%08x", __FUNCTION__, this);
-		Ui::SettingsGantt * ui = m_config_ui.ui();
+		Ui::SettingsGantt * ui = m_config_ui->ui();
 		
 		ui->globalShowCheckBox->blockSignals(true);
 		ui->globalShowCheckBox->setCheckState(cfg.m_show ? Qt::Checked : Qt::Unchecked);
@@ -240,7 +254,7 @@ namespace gantt {
 	void GanttWidget::setUIValuesToConfig (GanttConfig & cfg)
 	{
 		//qDebug("%s this=0x%08x", __FUNCTION__, this);
-		Ui::SettingsGantt * ui = m_config_ui.ui();
+		Ui::SettingsGantt * ui = m_config_ui->ui();
 		m_config.m_show = ui->globalShowCheckBox->checkState() == Qt::Checked;
 
 		for (size_t i = 0, ie = cfg.m_gvcfg.size(); i < ie; ++i)
@@ -275,7 +289,7 @@ namespace gantt {
 
 	void GanttWidget::setViewConfigValuesToUI (GanttViewConfig const & gvcfg)
 	{
-		Ui::SettingsGantt * ui = m_config_ui.ui();
+		Ui::SettingsGantt * ui = m_config_ui->ui();
 		ui->showGanttViewCheckBox->setCheckState(gvcfg.m_show ? Qt::Checked : Qt::Unchecked);
 		ui->timeUnitsComboBox->setCurrentIndex(ui->timeUnitsComboBox->findText(gvcfg.m_strtimeunits));
 		ui->scaleDoubleSpinBox->setValue(gvcfg.m_scale);
@@ -284,12 +298,12 @@ namespace gantt {
 		ui->autoColorCheckBox->setCheckState(gvcfg.m_auto_color ? Qt::Checked : Qt::Unchecked);
 		ui->yScalingCheckBox->setCheckState(gvcfg.m_y_scaling ? Qt::Checked : Qt::Unchecked);
 		//gvcfg.m_curve_color->setCurrentColor(ccfg.m_color);
-		//m_config_ui.m_symbol_color->setCurrentColor(ccfg.m_color);
+		//m_config_ui->m_symbol_color->setCurrentColor(ccfg.m_color);
 	}
 
 	void GanttWidget::setUIValuesToViewConfig (GanttViewConfig & gvcfg)
 	{
-		Ui::SettingsGantt * ui = m_config_ui.ui();
+		Ui::SettingsGantt * ui = m_config_ui->ui();
 		gvcfg.m_show = ui->showGanttViewCheckBox->isChecked();
 		gvcfg.m_strtimeunits = ui->timeUnitsComboBox->currentText();
 		gvcfg.setTimeUnits(gvcfg.m_strtimeunits);
@@ -303,7 +317,7 @@ namespace gantt {
 
 	void GanttWidget::onGanttViewActivate (int idx)
 	{
-		Ui::SettingsGantt * ui = m_config_ui.ui();
+		Ui::SettingsGantt * ui = m_config_ui->ui();
 		QString const & gvname = ui->ganttViewComboBox->currentText();
 		for (size_t i = 0, ie = m_config.m_gvcfg.size(); i < ie; ++i)
 		{
@@ -336,7 +350,7 @@ namespace gantt {
 
 	void GanttWidget::onFitAllButton ()
 	{
-		Ui::SettingsGantt * ui = m_config_ui.ui();
+		Ui::SettingsGantt * ui = m_config_ui->ui();
 		QString const & gvname = ui->ganttViewComboBox->currentText();
 		for (size_t i = 0, ie = m_config.m_gvcfg.size(); i < ie; ++i)
 		{
@@ -348,7 +362,7 @@ namespace gantt {
 	}
 	void GanttWidget::onFitFrameButton ()
 	{
-		Ui::SettingsGantt * ui = m_config_ui.ui();
+		Ui::SettingsGantt * ui = m_config_ui->ui();
 		QString const & gvname = ui->ganttViewComboBox->currentText();
 		for (size_t i = 0, ie = m_config.m_gvcfg.size(); i < ie; ++i)
 		{
@@ -360,7 +374,7 @@ namespace gantt {
 	}
 	void GanttWidget::onPrevFrameButton ()
 	{
-		Ui::SettingsGantt * ui = m_config_ui.ui();
+		Ui::SettingsGantt * ui = m_config_ui->ui();
 		QString const & gvname = ui->ganttViewComboBox->currentText();
 		for (size_t i = 0, ie = m_config.m_gvcfg.size(); i < ie; ++i)
 		{
@@ -372,7 +386,7 @@ namespace gantt {
 	}
 	void GanttWidget::onNextFrameButton ()
 	{
-		Ui::SettingsGantt * ui = m_config_ui.ui();
+		Ui::SettingsGantt * ui = m_config_ui->ui();
 		QString const & gvname = ui->ganttViewComboBox->currentText();
 		for (size_t i = 0, ie = m_config.m_gvcfg.size(); i < ie; ++i)
 		{
@@ -384,7 +398,7 @@ namespace gantt {
 	}
 	void GanttWidget::onFrameValueChanged (int f)
 	{
-		Ui::SettingsGantt * ui = m_config_ui.ui();
+		Ui::SettingsGantt * ui = m_config_ui->ui();
 		QString const & gvname = ui->ganttViewComboBox->currentText();
 		for (size_t i = 0, ie = m_config.m_gvcfg.size(); i < ie; ++i)
 		{

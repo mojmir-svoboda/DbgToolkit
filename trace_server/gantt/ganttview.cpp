@@ -1,4 +1,5 @@
 #include "ganttview.h"
+#include "ganttwidget.h"
 #include <QtGui>
 #include <QSpinBox>
 #include <QSplitter>
@@ -7,11 +8,11 @@
 #endif
 #include <qmath.h>
 #include "scalewidget.h"
-#include "../qwt/qwt_scale_widget.h"
-#include "../qwt/qwt_scale_draw.h"
-#include "../qwt/qwt_color_map.h"
-#include "../qwt/qwt_scale_engine.h"
-#include "../qwt/qwt_transform.h"
+#include <qwt/qwt_scale_widget.h>
+#include <qwt/qwt_scale_draw.h>
+#include <qwt/qwt_color_map.h>
+#include <qwt/qwt_scale_engine.h>
+#include <qwt/qwt_transform.h>
 #include "ganttitem.h"
 #include "../label.h"
 #include "arrow.h"
@@ -118,12 +119,6 @@ void GanttView::appendFrameEnd (DecodedData & dd, unsigned long long & from, uns
 		txt->setZValue(3);
 		v.m_scene->addItem(txt);
 	}
-
-/*	QPen p2;
-	p2.setColor(Qt::yellow);
-	QGraphicsLineItem * line2 = new QGraphicsLineItem(pi.m_frames[f].second, 0, pi.m_frames[f].second, max_y);
-	line2->setPen(p2);
-	m_scene->addItem(line2);*/
 }
 
 void GanttView::appendFrameEnd (DecodedData & dd)
@@ -181,15 +176,17 @@ void GanttView::appendBgn (DecodedData & dd)
 }
 
 
-int find_first_not_of (QString const & chars, QString const & text)
+int find_first_not_same (QString const & s1, QString const & s2)
 {
-	QString::const_iterator it = text.constBegin();
-	QString::const_iterator end = text.constEnd();
-	while (it != end)
+	int const s1_sz = s1.length();
+	int const s2_sz = s2.length();
+	int const min_sz = std::min(s1_sz, s2_sz);
+	QString::const_iterator it1 = s1.constBegin();
+	QString::const_iterator it2 = s2.constEnd();
+	for (int i = 0; i < min_sz; ++i, ++it1, ++it2)
 	{
-		if(chars.contains(*it) == false)
-			return std::distance(it,end);
-		++it;
+		if (it1 != it2)
+			return i;
 	}
 	return -1;
 }
@@ -210,8 +207,8 @@ void GanttView::appendEnd (DecodedData & dd)
 		QString tail = dd.m_text;
 		if (n > 0)
 			tail.remove(0, n);
-		d->m_endmsg = tail;
-		d->complete(m_gvcfg.m_timeunits);*/
+		d->m_endmsg = tail;*/
+		d->complete(m_gvcfg.m_timeunits);
 
 		(*m_ganttData.m_completed_frame_data[d->m_frame])[dd.m_ctx_idx].push_back(d);
 
@@ -326,7 +323,7 @@ void GanttView::consumeEnd (Data * end_data)
 				d.m_item = item;
 
 				QGraphicsItem * titem = new BarTextItem(item, m_gvcfg, d, d.m_color, 0, 0, w, h, ci, offs);
-				titem->setPos(QPointF(0, 0));
+				titem->setPos(QPointF(2, 0));
 				d.m_textitem = titem;
 
 				v.m_scene->addItem(item);
@@ -377,16 +374,18 @@ void GanttView::consumeEnd (Data * end_data)
 					}
 				}
 
-				QPen p1;
+				/*QPen p1;
 				p1.setColor(Qt::black);
 				p1.setWidth(0);
 
-				/*QGraphicsLineItem * ln_bgn = new QGraphicsLineItem(d.m_x, d.m_y, d.m_x, d.m_y + g_heightValue);
+				QGraphicsLineItem * ln_bgn = new QGraphicsLineItem(d.m_x, d.m_y, d.m_x, d.m_y + g_heightValue);
 				ln_bgn->setPen(p1);
+				ln_bgn->setZValue(3);
 				v.m_scene->addItem(ln_bgn);
 
 				QGraphicsLineItem * ln_end = new QGraphicsLineItem(d.m_x + d.m_dt, d.m_y, d.m_x + d.m_dt, d.m_y + g_heightValue);
 				ln_end->setPen(p1);
+				ln_end->setZValue(3);
 				v.m_scene->addItem(ln_end);*/
 			}
 		}
@@ -555,6 +554,29 @@ void GanttView::applyConfig (GanttViewConfig & gvcfg)
 	}
 }
 
+void GanttView::syncCtxViews (GraphicsView const * src, QPointF center)
+{
+	for (contextviews_t::iterator it = m_contextviews.begin(), ite = m_contextviews.end(); it != ite; ++it)
+	{
+		// @TODO: only the first one, the others will be synced
+		// @TODO: wtf? to asi neplati uz
+		GraphicsView * gv = (*it).m_view;
+		if (src != gv)
+		{
+			bool const old = gv->horizontalScrollBar()->blockSignals(true);
+			bool const old2 = gv->verticalScrollBar()->blockSignals(true);
+			gv->centerOn(center);
+			gv->horizontalScrollBar()->blockSignals(old);
+			gv->verticalScrollBar()->blockSignals(old);
+		}
+	}
+}
+
+void GanttView::syncGanttView (GanttView const * src, QPointF center)
+{
+}
+
+
 void GanttView::updateTimeWidget (GraphicsView * v)
 {
     //QPointF tl(v->horizontalScrollBar()->value(), v->verticalScrollBar()->value());
@@ -607,6 +629,7 @@ void GanttView::gotoFrame (unsigned n)
 GanttView::GanttView (Connection * conn, QWidget * parent, gantt::GanttViewConfig & config, QString const & fname)
 	: QFrame(parent)
 	, m_connection(conn)
+	, m_ganttwidget(static_cast<GanttWidget *>(parent))
 	, m_curr_timeunits(1.0f)
 	, m_gvcfg(config)
 	, m_last_flush_end_idx(0)
@@ -625,12 +648,14 @@ GanttView::GanttView (Connection * conn, QWidget * parent, gantt::GanttViewConfi
 	grid->setContentsMargins(QMargins(0, 0, 0, 0));
 
 	VerticalLabel * label = new VerticalLabel(this);
+	label->setMaximumWidth(32);
+	label->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed);
 	label->setText(m_gvcfg.m_tag);
 	//label->setAlignment(Qt::Align);
 	//grid->addWidget(label, 0, 0);
 	//grid->addWidget(label, 0, 0, -1, -1, Qt::AlignCenter);
 	//grid->addWidget(label, 0, 0, 3, 1, Qt::AlignCenter);
-	grid->addWidget(label, 0, 0, 3, 1);
+	grid->addWidget(label, 0, 0);
 
 	grid->addWidget(m_layout, 0, 1);
 	grid->setVerticalSpacing(0);
@@ -759,10 +784,21 @@ void GraphicsView::horizontalScroll (int dx)
 	m_gv.updateTimeWidget(this);
 
 	viewport()->update();
-	// QPointF viewCenter = mapToScene(width() / 2, height() / 2);
-    //viewCenter += QPointF(dx, 0); // Why did you subtract instead of add dx?
-    //centerOn(viewCenter);
 
+	QRectF const vscenerect = mapToScene(rect()).boundingRect();
+	QPointF tl1 = vscenerect.topLeft();
+	QPointF br1 = vscenerect.bottomRight();
+
+	/*QwtLinearScaleEngine se;
+	QwtTransform * t = se.transformation();
+	QwtInterval interval(tl1.x(), br1.x());
+	QwtScaleDiv d = se.divideScale(interval.minValue(), interval.maxValue(), 20, 20);*/
+
+	//GanttWidget * w = m_gv.m_ganttwidget;
+	//if (w)
+	//	w->syncGanttViews(&m_gv, vscenerect.center());
+
+	m_gv.syncCtxViews(this, vscenerect.center());
 }
 
 /**

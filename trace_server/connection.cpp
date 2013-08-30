@@ -349,7 +349,7 @@ void Connection::convertBloodyBollockyBuggeryRegistry (logs::LogConfig & cfg)
 {
 	qDebug("%s", __FUNCTION__);
 	int const i = m_main_window->findAppName(getAppName());
-	if (i != e_InvalidItem)
+	if (i != e_InvalidItem && m_main_window->m_config.m_columns_setup.size() > i)
 	{
 		assignSrcToDst(m_main_window->m_config.m_columns_setup[i], cfg.m_columns_setup);
 		assignSrcToDst(m_main_window->m_config.m_columns_sizes[i], cfg.m_columns_sizes);

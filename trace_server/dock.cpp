@@ -210,10 +210,10 @@ char const * g_dockStateTag = "dockstate";
 void DockManager::loadConfig (QString const & path)
 {
 	QString const fpath = path + "/" + g_dockStateTag;
-	m_config2.clear();
-	::loadConfig(m_config2, fpath);
+	//m_config2.clear();
+	//::loadConfig(m_config, fpath);
 
-	m_config = m_config2;
+	//m_config = m_config2;
 	// @TODO: leak!!!
 	m_docked_widgets_model = new DockTreeModel(this, &m_config.m_docked_widgets_data);
 	for (int i = 0, ie = m_config.m_columns_sizes.size(); i < ie; ++i)
