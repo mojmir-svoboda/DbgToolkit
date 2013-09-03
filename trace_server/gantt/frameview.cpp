@@ -32,10 +32,10 @@ public:
 
         enableComponent(QwtScaleDraw::Backbone, false);
 
-        if (orientation == Qt::Vertical)
+        /*if (orientation == Qt::Vertical)
             setLabelRotation( -90.0 );
         else
-            setLabelRotation( -90.0 );
+            setLabelRotation( -90.0 );*/
 
         setLabelAlignment(Qt::AlignLeft | Qt::AlignVCenter);
     }
@@ -144,46 +144,6 @@ QwtSlider * createSlider (int sliderType)
             slider->setPageSteps( 5 );
             break;
         }
-        case 4:
-        {
-            slider->setOrientation( Qt::Vertical );
-            slider->setScalePosition( QwtSlider::TrailingScale );
-            slider->setTrough( false );
-            slider->setGroove( true );
-            slider->setScale( 100.0, 0.0 );
-            slider->setInvertedControls( true );
-            slider->setTotalSteps( 100 );
-            slider->setPageSteps( 5 );
-            slider->setScaleMaxMinor( 5 );
-            break;
-        }
-        case 5:
-        {
-            slider->setOrientation( Qt::Vertical );
-            slider->setScalePosition( QwtSlider::NoScale );
-            slider->setTrough( true );
-            slider->setGroove( false );
-            slider->setScale( 0.0, 100.0 );
-            slider->setTotalSteps( 100 );
-            slider->setPageSteps( 10 );
-            break;
-        }
-        case 6:
-        {
-            slider->setOrientation( Qt::Vertical );
-            slider->setScalePosition( QwtSlider::LeadingScale );
-            slider->setTrough( true );
-            slider->setGroove( true );
-            slider->setScaleEngine( new QwtLogScaleEngine );
-            slider->setStepAlignment( false );
-            slider->setHandleSize( QSize( 20, 32 ) );
-            slider->setBorderWidth( 1 );
-            slider->setScale( 1.0, 1.0e4 );
-            slider->setTotalSteps( 100 );
-            slider->setPageSteps( 10 );
-            slider->setScaleMaxMinor( 9 );
-            break;
-        }
     }
 
     if (slider)
@@ -234,6 +194,7 @@ public:
             minExtent = sd->spacing() + sd->maxTickLength() + 1;
             minExtent += sd->labelSize(
                 scaleWidget->font(), c_rangeMax ).width();
+			//minExtent = 8;
         }
 
         sd->setMinimumExtent( minExtent );
@@ -316,7 +277,7 @@ FrameView::FrameView (Connection * oparent, QWidget * wparent, FrameViewConfig &
     QVBoxLayout * layout = new QVBoxLayout( this );
     layout->addWidget(m_plot);
     //layout->addWidget(slider);
-	///m_bars->setLegendMode(QwtPlotBarChart::LegendBarTitles);
+	m_bars->setLegendMode(QwtPlotBarChart::LegendBarTitles);
 
     connect(picker, SIGNAL(selected(QRectF const &) ), this, SLOT(selected(QRectF const &)));
     connect(picker, SIGNAL(selected(QPointF const &) ), this, SLOT(selected(QPointF const &)));

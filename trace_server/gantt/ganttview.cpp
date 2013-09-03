@@ -107,6 +107,8 @@ void GanttView::appendFrameEnd (DecodedData & dd, unsigned long long & from, uns
 		QColor cc = cols[(grr++) % 2];
 		QString const msg = QString("%1").arg(m_ganttData.m_frames.size());
 
+		Q_ASSERT(to - from > 0);
+
 		QGraphicsItem * item = new FrameItem(m_gvcfg, cc, 0, 0, to - from, 200, ci);
 		item->setPos(QPointF(from, 0));
 		v.m_scene->addItem(item);
@@ -213,7 +215,6 @@ void GanttView::appendEnd (DecodedData & dd)
 		(*m_ganttData.m_completed_frame_data[d->m_frame])[dd.m_ctx_idx].push_back(d);
 
 		//qDebug("end flushing f=%i", d->m_frame);
-		//consumeData(m_ganttData.m_completed_frame_data[d->m_frame]);
 		consumeEnd(d);
 		//qDebug("} f=%i t=%8llu  ctxi=%u  tag='%s' ['%s']", d->m_frame, d->m_time_bgn, d->m_ctx_idx, d->m_tag.toStdString().c_str(), d->m_msg.toStdString().c_str());
 	}
@@ -565,8 +566,14 @@ void GanttView::syncCtxViews (GraphicsView const * src, QPointF const & center)
 		{
 			bool const old = gv->horizontalScrollBar()->blockSignals(true);
 			bool const old2 = gv->verticalScrollBar()->blockSignals(true);
-			gv->centerOn(center);
+
+			QRectF const & r = src->sceneRect();
+			gv->setSceneRect(r);
 			gv->viewport()->update();
+			//QTransform const & m = src->transform();
+			//gv->setTransform(m);
+			//gv->centerOn(center);
+			//gv->viewport()->update();
 			gv->horizontalScrollBar()->blockSignals(old);
 			gv->verticalScrollBar()->blockSignals(old);
 		}
@@ -649,14 +656,9 @@ GanttView::GanttView (Connection * conn, QWidget * parent, gantt::GanttViewConfi
 	grid->setContentsMargins(QMargins(0, 0, 0, 0));
 
 	VerticalLabel * label = new VerticalLabel(this);
-	label->setMaximumWidth(32);
-	label->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed);
 	label->setText(m_gvcfg.m_tag);
-	//label->setAlignment(Qt::Align);
-	//grid->addWidget(label, 0, 0);
-	//grid->addWidget(label, 0, 0, -1, -1, Qt::AlignCenter);
-	//grid->addWidget(label, 0, 0, 3, 1, Qt::AlignCenter);
-	grid->addWidget(label, 0, 0);
+	grid->addWidget(label, 0, 0, -1, 1);
+	//label->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed);
 
 	grid->addWidget(m_layout, 0, 1);
 	grid->setVerticalSpacing(0);
