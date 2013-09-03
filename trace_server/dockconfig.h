@@ -41,7 +41,10 @@ struct DockConfig
 
 	void clear ()
 	{
-		*this = DockConfig(g_traceServerName);
+		m_docked_widgets_data.clear();
+		DockConfig rhs(g_traceServerName);
+		*this = rhs;
+		rhs.m_docked_widgets_data.root = 0;
 	}
 };
 
