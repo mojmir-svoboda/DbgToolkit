@@ -13,6 +13,12 @@ TableModelView::TableModelView (QObject * parent, QVector<QString> & hhdr, QVect
 {
 	size_t const prealloc_size = 128;
 	m_rows.reserve(prealloc_size);
+
+	int const last = hsize.size() - 1;
+	beginInsertColumns(QModelIndex(), m_columnCount, last);
+	insertColumns(m_columnCount, last);
+	m_columnCount = last + 1;
+	endInsertColumns();
 }
 
 TableModelView::~TableModelView ()

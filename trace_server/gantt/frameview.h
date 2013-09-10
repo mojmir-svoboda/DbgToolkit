@@ -29,6 +29,9 @@ struct FrameView : QWidget, ActionAble
 	void appendFrame (unsigned long long from, unsigned long long to);
 	virtual bool handleAction (Action * a, E_ActionHandleType sync);
 
+	void applyConfig (FrameViewConfig & cfg);
+	void applyConfig ();
+
 signals:
 	void requestTimeSynchronization (int sync_group, unsigned long long time, void * source);
 	void requestFrameSynchronization (int sync_group, unsigned long long frame, void * source);
@@ -49,7 +52,6 @@ public slots:
 	void onShowContextMenu (QPoint const & pos);
 	void setConfigValuesToUI (FrameViewConfig const & cfg);
 	void setUIValuesToConfig (FrameViewConfig & cfg);
-	void applyConfig (FrameViewConfig & cfg);
 	void onApplyButton ();
 	void onSaveButton ();
 	void onResetViewButton ();

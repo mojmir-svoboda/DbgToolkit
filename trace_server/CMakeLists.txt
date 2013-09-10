@@ -82,6 +82,7 @@ SET(trace_server_SOURCES
 	logs/logwidget_find.cpp
 	logs/logwidget_filtering.cpp
 	logs/logconfig.cpp
+	logs/logdelegate.cpp
 
 	connection_plot.cpp
 	plot/plotwidget.cpp
@@ -140,6 +141,7 @@ SET(trace_server_HEADERS
 	logs/logconfig.h
 	logs/logctxmenu.h
 	logs/filterproxymodel.h
+	logs/logdelegate.h
 
 	kde/kbihash_p.h
 	kde/kmodelindexproxymapper.h

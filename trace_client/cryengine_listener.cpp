@@ -65,12 +65,12 @@ void EngineProfileCallback::AddFrameProfiler (CFrameProfiler * pProfiler)
 void EngineProfileCallback::StartFrame ()
 {
 	++m_frame_id;
-	TRACE_GANTT_FRAME_BGN(trace::e_Info, trace::CTX_Engine, "profile/g0/frame %i...", m_frame_id);
+	//TRACE_GANTT_FRAME_BGN(trace::e_Info, trace::CTX_Engine, "profile/g0/frame %i...", m_frame_id);
 	m_original->StartFrame();
 }
 void EngineProfileCallback::EndFrame ()
 {
-	TRACE_GANTT_FRAME_END(trace::e_Info, trace::CTX_Engine, "aa0/g0/frame %i", m_frame_id);
+	//TRACE_GANTT_FRAME_END(trace::e_Info, trace::CTX_Engine, "aa0/g0/frame %i", m_frame_id);
 	m_original->EndFrame();
 }
 

@@ -472,6 +472,12 @@ void FrameView::onApplyButton ()
 	applyConfig(m_config);
 }
 
+
+void FrameView::applyConfig ()
+{
+	applyConfig(m_config);
+}
+
 void FrameView::applyConfig (FrameViewConfig & cfg)
 {
 	//qDebug("%s this=0x%08x", __FUNCTION__, this);

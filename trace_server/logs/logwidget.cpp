@@ -4,7 +4,7 @@
 #include <connection.h>
 #include <utils.h>
 #include <utils_qstandarditem.h>
-//#include "delegates.h"
+#include "logdelegate.h"
 #include <syncwidgets.h>
 #include "logtablemodel.h"
 #include "filterproxymodel.h"
@@ -83,7 +83,9 @@ namespace logs {
 		setModel(model);
 		QObject::connect(horizontalHeader(), SIGNAL(sectionResized(int, int, int)), this, SLOT(onSectionResized(int, int, int)));
 		QObject::connect(horizontalHeader(), SIGNAL(sectionMoved(int, int, int)), this, SLOT(onSectionMoved(int, int, int)));
-		//setItemDelegate(new TableItemDelegate(*this, m_connection->appData(), this));
+
+		horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
+		setItemDelegate(new LogDelegate(*this, m_connection->appData(), this));
 
 		m_src_model = model;
 		m_src_selection = new QItemSelectionModel(m_src_model);
@@ -129,7 +131,7 @@ namespace logs {
 		m_delegates.get<e_delegate_Regex>() = new RegexDelegate(m_session_state, this);
 		*/
 
-		applyConfig(m_config);
+		//applyConfig(m_config);
 	}
 
 	LogWidget::~LogWidget ()

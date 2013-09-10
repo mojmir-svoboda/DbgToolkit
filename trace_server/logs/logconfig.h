@@ -16,11 +16,11 @@ namespace logs {
 		int m_indent_level;
 		int m_cut_path_level;
 		int m_cut_namespace_level;
-		QVector<QString> m_columns_setup;		/// column setup for each registered application
-		QVector<int> m_columns_sizes;		/// column sizes for each registered application
-		QVector<QString> m_columns_align;		/// column align for each registered application
-		QVector<QString> m_columns_elide;		/// column elide for each registered application
-		QVector<QColor> m_thread_colors;				/// predefined coloring of threads
+		QVector<QString> 	m_columns_setup;		/// column setup for each registered application
+		QVector<int> 		m_columns_sizes;		/// column sizes for each registered application
+		QVector<QString> 	m_columns_align;		/// column align for each registered application
+		QVector<QString> 	m_columns_elide;		/// column elide for each registered application
+		QVector<QColor> 	m_thread_colors;		/// predefined coloring of threads
 		bool m_in_view;
 		bool m_filtering;
 		bool m_clr_filters;

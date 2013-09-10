@@ -137,6 +137,7 @@ typename SelectIterator<TypeN>::type  Connection::dataWidgetFactory (QString con
 
 		dd->m_wd = m_main_window->m_dock_mgr.mkDockWidget(dwb, (*it)->config().m_show);
 		dwb.m_wd->setWidget(&(*it)->widget());
+		(*it)->widget().applyConfig();
 
 		bool const visible = (*it)->config().m_show;
 		//if (m_main_window->ganttState() == e_FtrEnabled && visible)
