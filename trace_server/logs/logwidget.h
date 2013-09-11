@@ -45,6 +45,7 @@ namespace logs {
 
 		LogTableModel const * logModel () const { return m_src_model; }
 		FilterProxyModel const * logProxy () const { return m_proxy_model; }
+		bool isModelProxy () const;
 
 	protected:
 		friend class LogTableModel;
@@ -155,7 +156,6 @@ namespace logs {
 
 
 
-	bool isModelProxy () const;
 
 	int findColumn4TagInTemplate (tlv::tag_t tag) const;
 	int appendColumn (tlv::tag_t tag);
