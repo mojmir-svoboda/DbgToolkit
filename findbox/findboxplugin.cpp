@@ -1,5 +1,5 @@
+#include "findboxplugin.h"
 #include "findbox.h"
-#include "customwidgetplugin.h"
 #include <QtPlugin>
 
 FindBoxPlugin::FindBoxPlugin (QObject * parent)

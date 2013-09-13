@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 2.8.9)
 PROJECT(trace_server)
 set (CMAKE_VERBOSE_MAKEFILE on)
 find_package(Qt5Widgets REQUIRED)
@@ -6,8 +6,9 @@ find_package(Qt5Core REQUIRED)
 find_package(Qt5Network REQUIRED)
 find_package(Qt5OpenGL REQUIRED)
 set(CMAKE_AUTOMOC ON)
+set (CMAKE_PREFIX_PATH "${QTDIR}; ${WINSDK_LIB}")
 
-include("${CMAKE_CURRENT_SOURCE_DIR}/FindReleaseAndDebug.cmake")
+include("${CMAKE_CURRENT_SOURCE_DIR}/FindPlugins.cmake")
 
 SET (LIBRARY_OUTPUT_PATH
    ${PROJECT_BINARY_DIR}/Bin
@@ -32,7 +33,7 @@ add_definitions("-DTRACE_STATIC")
 
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/..)
 
-set(Boost_DEBUG 1)
+set(Boost_DEBUG 0)
 set(Boost_USE_STATIC_LIBS 1)
 FIND_PACKAGE(Boost)
 IF (Boost_FOUND)
@@ -42,6 +43,7 @@ IF (Boost_FOUND)
 	set(BOOST_LIBS thread date_time system regex serialization)
 	find_package(Boost COMPONENTS ${BOOST_LIBS} REQUIRED)
 ENDIF()
+message("boost: ${Boost_LIBRARIES}")
 
 
 SET(trace_server_SOURCES
@@ -210,36 +212,23 @@ ADD_DEFINITIONS(-DQT_PLUGIN)
 ADD_DEFINITIONS(-DQT_NO_DEBUG)
 ADD_DEFINITIONS(-DQT_STATIC)
 ADD_DEFINITIONS(-DSTATIC)
-message("Plugin libs ${QT_PLUGINS_DIR}")
+
+set(Qt_DEBUG 1)
 
 
+message("Qt config: ${QT_CONFIG}")
+message("Plugin libs: ${QT_PLUGINS_DIR}")
 macro(QT_ADD_IMG_PLUGINS target)
-
-  IF(QT_CONFIG MATCHES "static")
 	add_definitions(-DQT_STATICPLUGIN)
    
 	# Links against the static plugins
-	#FIND_RELEASE_AND_DEBUG(QJPEG qjpeg qjpegd "${QT_PLUGINS_DIR}/imageformats")
-	#FIND_RELEASE_AND_DEBUG(QGIF qgif qgifd "${QT_PLUGINS_DIR}/imageformats")
-	#FIND_RELEASE_AND_DEBUG(QMNG qmng qmngd "${QT_PLUGINS_DIR}/imageformats")
-	FIND_RELEASE_AND_DEBUG(QICO qico qicod "${QT_PLUGINS_DIR}/imageformats")
-	#FIND_RELEASE_AND_DEBUG(QSVG qsvg qsvgd "${QT_PLUGINS_DIR}/imageformats")
-	#FIND_RELEASE_AND_DEBUG(QTIFF qtiff qtiffd "${QT_PLUGINS_DIR}/imageformats")
-	#FIND_RELEASE_AND_DEBUG(QSVGR QtSvg QtSvgd "C:/devel/QtSDK/QtSources/4.7.4/lib")		# @TODO: fixed path
-
-	FIND_RELEASE_AND_DEBUG(QWINDOWS qwindows qwindowsd "${QT_PLUGINS_DIR}/platforms")
+	#FIND_PLUGINS(QICO qico qicod "${QT_PLUGINS_DIR}/imageformats")
+	FIND_PLUGINS(QICO NAMES qico qicod DEFAULT_SUFFIXES PATHS "e:/qt5/qtbase/plugins/imageformats")
+	#FIND_RELEASE_AND_DEBUG(QWINDOWS qwindows qwindowsd "${QT_PLUGINS_DIR}/platforms")
 
 	message("ico: ${QICO_LIBRARY}")
-	#message("svg: ${QSVG_LIBRARY}")
-	#message("svgr: ${QSVGR_LIBRARY}")
-	message("boost: ${Boost_LIBRARIES}")
   
-	target_link_libraries(${target} ${QJPEG_LIBRARY} ${QGIF_LIBRARY}
-	  ${QMNG_LIBRARY} ${QTIFF_LIBRARY})
-	#	 ${QSVG_LIBRARY} ${QSVGR_LIBRARY})
-  
-  endif(QT_CONFIG MATCHES "static")
-
+	target_link_libraries(${target} ${QICO_LIBRARY} ${QWINDOWS_LIBRARY})
 endmacro(QT_ADD_IMG_PLUGINS)
 
 message("Generated headers: ${trace_server_UI_HDRS}")
@@ -257,8 +246,26 @@ ADD_EXECUTABLE(trace_server WIN32
 		${trace_server_RESOURCES_RCC}
 		${trace_server_SOURCES})
 
+qt5_use_modules(trace_server Widgets Core Gui Network OpenGL)
 QT_ADD_IMG_PLUGINS(trace_server)
 #TARGET_LINK_LIBRARIES(trace_server ${QT_LIBRARIES} ${QICO} ${QSVG} ${Boost_LIBRARIES} qwt)
-TARGET_LINK_LIBRARIES(trace_server ${Boost_LIBRARIES} ${QWINDOWS} qwt qtsln Qt5::WinMain)
+TARGET_LINK_LIBRARIES(trace_server ${Boost_LIBRARIES}
+	qwt
+	qtsln
+	wsock32 ws2_32
+	${Qt5Gui_EGL_LIBRARIES}
+	${Qt5Gui_OPENGL_LIBRARIES}
+	${Qt5Widgets_LIBRARIES}
+	imm32
+	winmm
+	d3d9
+	dxguid
+	d3dcompiler
+	Qt5::WinMain)
 
-qt5_use_modules(trace_server Widgets Core Gui Network OpenGL)
+
+#message("Debug variable dump:")
+#get_cmake_property(_variableNames VARIABLES)
+#foreach (_variableName ${_variableNames})
+#	message(STATUS "${_variableName}=${${_variableName}}")
+#endforeach()
