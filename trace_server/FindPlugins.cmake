@@ -102,16 +102,22 @@ macro(FIND_PLUGINS)
     endforeach()
   endforeach()
 
+  #message("find plugin: ${LIBRELDBG_PATHS}")
+  #message("find plugin: ${LIBPREFIX}")
+
   find_library(${LIBPREFIX}_LIBRARY_RELEASE
     NAMES ${LIBRELDBG_NAMES}
     HINTS ${LIBRELDBG_PATHS}
     PATH_SUFFIXES lib
   )
+
+
   find_library(${LIBPREFIX}_LIBRARY_DEBUG
     NAMES ${LIBRELDBG_NAMES_DEBUG}
     HINTS ${LIBRELDBG_PATHS}    
     PATH_SUFFIXES lib
   )
+
 
   SELECT_LIBRARY_CONFIGURATIONS(${LIBPREFIX})
 

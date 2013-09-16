@@ -1,22 +1,31 @@
 cmake_minimum_required(VERSION 2.8.9)
-PROJECT(trace_server)
+project(trace_server)
 set (CMAKE_VERBOSE_MAKEFILE on)
 find_package(Qt5Widgets REQUIRED)
 find_package(Qt5Core REQUIRED)
 find_package(Qt5Network REQUIRED)
 find_package(Qt5OpenGL REQUIRED)
+find_program(QT_QMAKE_EXECUTABLE NAMES qmake qmake5 qmake-qt5 qmake-mac PATHS ${QTROOTS})
+message("qmake: ${QT_QMAKE_EXECUTABLE}")
+
+get_filename_component(QT_QMAKE_PATH ${QT_QMAKE_EXECUTABLE} PATH)
+get_filename_component(QT_PLUGINS_PATH "${QT_QMAKE_PATH}/../plugins" ABSOLUTE)
+get_filename_component(QT_LIB_PATH "${QT_QMAKE_PATH}/../lib" ABSOLUTE)
+message("qt lib path: ${QT_LIB_PATH}")
+message("qt plugins path: ${QT_PLUGINS_PATH}")
+
 set(CMAKE_AUTOMOC ON)
-set (CMAKE_PREFIX_PATH "${QTDIR}; ${WINSDK_LIB}")
+set(CMAKE_PREFIX_PATH "${QTDIR}; ${WINSDK_LIB}")
 
 include("${CMAKE_CURRENT_SOURCE_DIR}/FindPlugins.cmake")
 
-SET (LIBRARY_OUTPUT_PATH
+set(LIBRARY_OUTPUT_PATH
    ${PROJECT_BINARY_DIR}/Bin
    CACHE PATH
    "Single Directory for all Libraries"
    )
 
-SET (EXECUTABLE_OUTPUT_PATH
+set(EXECUTABLE_OUTPUT_PATH
    ${PROJECT_BINARY_DIR}/Bin
    CACHE PATH
    "Single Directory for all Executables."
@@ -31,22 +40,22 @@ add_subdirectory("qtsln")
 add_definitions("-DTRACE_ENABLED")
 add_definitions("-DTRACE_STATIC")
 
-INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/..)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/..)
 
 set(Boost_DEBUG 0)
 set(Boost_USE_STATIC_LIBS 1)
-FIND_PACKAGE(Boost)
-IF (Boost_FOUND)
-	INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIR})
-	ADD_DEFINITIONS( "-DHAS_BOOST" )
+find_package(Boost)
+if (Boost_FOUND)
+	include_directories(${Boost_INCLUDE_DIR})
+	add_definitions( "-DHAS_BOOST" )
 
 	set(BOOST_LIBS thread date_time system regex serialization)
 	find_package(Boost COMPONENTS ${BOOST_LIBS} REQUIRED)
-ENDIF()
+endif()
 message("boost: ${Boost_LIBRARIES}")
 
 
-SET(trace_server_SOURCES
+set(trace_server_SOURCES
 	main.cpp
 	qt_plugins.cpp
 	../version.cpp
@@ -113,7 +122,7 @@ SET(trace_server_SOURCES
 	gantt/histogram.cpp
 	)
 
-SET(trace_server_HEADERS
+set(trace_server_HEADERS
 	mainwindow.h 
 	tableview.h
 	treeview.h
@@ -179,7 +188,7 @@ SET(trace_server_HEADERS
 	gantt/scalewidget.h
 	)
 
-SET(trace_server_UI 
+set(trace_server_UI 
 	mainwindow.ui
 	filterwidget.ui
 	findwidget.ui
@@ -192,77 +201,94 @@ SET(trace_server_UI
 	help.ui
 	)
 
-SET(trace_server_RESOURCES resources.qrc)
-IF (WIN32)
-	SET (QT_USE_QTMAIN TRUE)
-	ADD_DEFINITIONS(-DNOMINMAX)
-	ADD_DEFINITIONS(-DWIN_LEAN_AND_MEAN)
-ENDIF (WIN32) 
+set(trace_server_RESOURCES resources.qrc)
 
-QT5_WRAP_UI(trace_server_UI_HDRS ${trace_server_UI})
-QT5_WRAP_CPP(trace_server_MOC ${trace_server_HEADERS})
-QT5_ADD_RESOURCES(trace_server_RESOURCES_RCC ${trace_server_RESOURCES})
-INCLUDE_DIRECTORIES(${QT_USE_FILE})
-ADD_DEFINITIONS(${QT_DEFINITIONS})
-INCLUDE_DIRECTORIES(${CMAKE_BINARY_DIR})
-INCLUDE_DIRECTORIES(${trace_server_SOURCE_DIR})
+qt5_wrap_ui(trace_server_UI_HDRS ${trace_server_UI})
+qt5_wrap_cpp(trace_server_MOC ${trace_server_HEADERS})
+qt5_add_resources(trace_server_RESOURCES_RCC ${trace_server_RESOURCES})
 
-ADD_DEFINITIONS(${QT_DEFINITIONS})
-ADD_DEFINITIONS(-DQT_PLUGIN)
-ADD_DEFINITIONS(-DQT_NO_DEBUG)
-ADD_DEFINITIONS(-DQT_STATIC)
-ADD_DEFINITIONS(-DSTATIC)
-
-set(Qt_DEBUG 1)
-
-
-message("Qt config: ${QT_CONFIG}")
-message("Plugin libs: ${QT_PLUGINS_DIR}")
-macro(QT_ADD_IMG_PLUGINS target)
-	add_definitions(-DQT_STATICPLUGIN)
-   
-	# Links against the static plugins
-	#FIND_PLUGINS(QICO qico qicod "${QT_PLUGINS_DIR}/imageformats")
-	FIND_PLUGINS(QICO NAMES qico qicod DEFAULT_SUFFIXES PATHS "e:/qt5/qtbase/plugins/imageformats")
-	#FIND_RELEASE_AND_DEBUG(QWINDOWS qwindows qwindowsd "${QT_PLUGINS_DIR}/platforms")
-
-	message("ico: ${QICO_LIBRARY}")
-  
-	target_link_libraries(${target} ${QICO_LIBRARY} ${QWINDOWS_LIBRARY})
-endmacro(QT_ADD_IMG_PLUGINS)
-
-message("Generated headers: ${trace_server_UI_HDRS}")
-message("Generated files ${CMAKE_BINARY_DIR}")
-message("Generated files trace_server_MOC ${trace_server_MOC}")
-message("Generated files trace_server_UI_HDRS ${trace_server_UI_HDRS}")
-message("Generated files trace_server_UI_SRCS ${trace_server_UI_SRCS}")
-message("Generated files trace_server_RESOURCES_RCC ${trace_server_RESOURCES_RCC}")
-message("Generated files trace_server_SOURCES ${trace_server_SOURCES}")
-
-
-ADD_EXECUTABLE(trace_server WIN32
+add_executable(trace_server WIN32
 		${trace_server_UI_HDRS}
 		${trace_server_UI_SRCS}
 		${trace_server_RESOURCES_RCC}
 		${trace_server_SOURCES})
 
+
+include_directories(${QT_USE_FILE})
+add_definitions(${QT_DEFINITIONS})
+include_directories(${CMAKE_BINARY_DIR})
+include_directories(${trace_server_SOURCE_DIR})
+
+add_definitions(${QT_DEFINITIONS})
+add_definitions(-DQT_PLUGIN)
+add_definitions(-DQT_NO_DEBUG)
+add_definitions(-DQT_STATIC)
+add_definitions(-DSTATIC)
+
+####################### Platform specific ######################
+if (WIN32)
+	set (QT_USE_QTMAIN TRUE)
+	add_definitions(-DNOMINMAX)
+	add_definitions(-DWIN_LEAN_AND_MEAN)
+	target_link_libraries(trace_server Qt5::WinMain)
+endif (WIN32) 
+####################### Platform specific ######################
+
+
+######################## Plugin section ########################
+# Locate static plugins
+add_definitions(-DQT_STATICPLUGIN)
+get_filename_component(QT_IMG_PLUGINS_PATH "${QT_PLUGINS_PATH}/imageformats" ABSOLUTE)
+get_filename_component(QT_PLATFORM_PLUGINS_PATH "${QT_PLUGINS_PATH}/platforms" ABSOLUTE)
+
+FIND_PLUGINS(QICO          NAMES qico                   DEFAULT_SUFFIXES PATHS ${QT_IMG_PLUGINS_PATH})
+message("plugin ico: ${QICO_LIBRARIES}")
+target_link_libraries(trace_server ${QICO_LIBRARIES})
+
+if (WIN32)
+	FIND_PLUGINS(QWINDOWS      NAMES qwindows               DEFAULT_SUFFIXES PATHS ${QT_PLATFORM_PLUGINS_PATH})
+	FIND_PLUGINS(QPLATFORM     NAMES Qt5PlatformSupport     DEFAULT_SUFFIXES PATHS ${QT_LIB_PATH})
+	FIND_PLUGINS(QTRANSLATOR   NAMES translator_common      DEFAULT_SUFFIXES PATHS ${QT_LIB_PATH})
+	FIND_PLUGINS(QPREPROC      NAMES preprocessor           DEFAULT_SUFFIXES PATHS ${QT_LIB_PATH})
+	FIND_PLUGINS(QTRANS_HLSL   NAMES translator_hlsl        DEFAULT_SUFFIXES PATHS ${QT_LIB_PATH})
+	message("plugin win: ${QWINDOWS_LIBRARIES}")
+
+	target_link_libraries(trace_server
+		wsock32 ws2_32
+		imm32 winmm d3d9 dxguid d3dcompiler
+		${QPLATFORM_LIBRARY}
+		${QTRANS_HLSL_LIBRARY}
+		${QTRANSLATOR_LIBRARY}
+		${QPREPROC_LIBRARY}
+		${QWINDOWS_LIBRARY})
+elseif (UNIX)
+	message("not implemented yet, but should be trivial to do so")
+elseif (APPLE)
+	message("not implemented yet, but should be trivial to do so")
+endif()
+######################## Plugin section ########################
+
 qt5_use_modules(trace_server Widgets Core Gui Network OpenGL)
-QT_ADD_IMG_PLUGINS(trace_server)
-#TARGET_LINK_LIBRARIES(trace_server ${QT_LIBRARIES} ${QICO} ${QSVG} ${Boost_LIBRARIES} qwt)
-TARGET_LINK_LIBRARIES(trace_server ${Boost_LIBRARIES}
+
+target_link_libraries(trace_server ${Boost_LIBRARIES}
 	qwt
 	qtsln
-	wsock32 ws2_32
 	${Qt5Gui_EGL_LIBRARIES}
 	${Qt5Gui_OPENGL_LIBRARIES}
 	${Qt5Widgets_LIBRARIES}
-	imm32
-	winmm
-	d3d9
-	dxguid
-	d3dcompiler
+	${QICO}
 	Qt5::WinMain)
 
+
+
+############################# debug ############################
+#message("Generated headers: ${trace_server_UI_HDRS}")
+#message("Generated files ${CMAKE_BINARY_DIR}")
+#message("Generated files trace_server_MOC ${trace_server_MOC}")
+#message("Generated files trace_server_UI_HDRS ${trace_server_UI_HDRS}")
+#message("Generated files trace_server_UI_SRCS ${trace_server_UI_SRCS}")
+#message("Generated files trace_server_RESOURCES_RCC ${trace_server_RESOURCES_RCC}")
+#message("Generated files trace_server_SOURCES ${trace_server_SOURCES}")
 
 #message("Debug variable dump:")
 #get_cmake_property(_variableNames VARIABLES)
