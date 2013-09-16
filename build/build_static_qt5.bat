@@ -3,7 +3,7 @@ rem QMAKE_LFLAGS_RELEASE = $$QMAKE_LFLAGS_RELEASE_WITH_DEBUGINFO
 rem
 
 set PATH=c:/Program Files (x86)/Git/bin;%PATH%
-set PATH=C:/strawberry/perl/bin;%PATH%
+set PATH=C:/bin/strawberry/perl/bin;%PATH%
 set PATH=e:\qt5.1\qtbase\gnuwin32\bin;%PATH%
 set PATH=C:\Python32;%PATH%
 git clone git://gitorious.org/qt/qt5.git qt5
