@@ -15,8 +15,8 @@ namespace trace {
 		e.Encode(TLV(tag_time, sys::trc_vsnprintf(tlv_buff, tlv_buff_sz, "%llu", sys::queryTime_ms()), tlv_buff));
 		e.Encode(TLV(tag_lvl,  sys::trc_vsnprintf(tlv_buff, tlv_buff_sz,   "%u", level), tlv_buff));
 		e.Encode(TLV(tag_ctx,  sys::trc_vsnprintf(tlv_buff, tlv_buff_sz,   "%x", context), tlv_buff));
-		e.Encode(TLV(tag_x,    sys::trc_vsnprintf(tlv_buff, tlv_buff_sz,   "%i", x), tlv_buff));
-		e.Encode(TLV(tag_y,    sys::trc_vsnprintf(tlv_buff, tlv_buff_sz,   "%i", y), tlv_buff));
+		e.Encode(TLV(tag_ix,   sys::trc_vsnprintf(tlv_buff, tlv_buff_sz,   "%i", x), tlv_buff));
+		e.Encode(TLV(tag_iy,   sys::trc_vsnprintf(tlv_buff, tlv_buff_sz,   "%i", y), tlv_buff));
 		encode_va_fields(e, fmt, args);
 		if (e.Commit())
 		{
@@ -49,8 +49,8 @@ namespace trace {
 		e.Encode(TLV(tag_time, sys::trc_vsnprintf(tlv_buff, tlv_buff_sz, "%llu", sys::queryTime_ms()), tlv_buff));
 		e.Encode(TLV(tag_lvl,  sys::trc_vsnprintf(tlv_buff, tlv_buff_sz,   "%u", level), tlv_buff));
 		e.Encode(TLV(tag_ctx,  sys::trc_vsnprintf(tlv_buff, tlv_buff_sz,   "%x", context), tlv_buff));
-		e.Encode(TLV(tag_x,    sys::trc_vsnprintf(tlv_buff, tlv_buff_sz,   "%i", x), tlv_buff));
-		e.Encode(TLV(tag_y,    sys::trc_vsnprintf(tlv_buff, tlv_buff_sz,   "%i", y), tlv_buff));
+		e.Encode(TLV(tag_ix,   sys::trc_vsnprintf(tlv_buff, tlv_buff_sz,   "%i", x), tlv_buff));
+		e.Encode(TLV(tag_iy,   sys::trc_vsnprintf(tlv_buff, tlv_buff_sz,   "%i", y), tlv_buff));
 		e.Encode(TLV(tag_fgc,  sys::trc_vsnprintf(tlv_buff, tlv_buff_sz,   "#%02x%02x%02x", c.r, c.g, c.b), tlv_buff));
 		encode_va_fields(e, fmt, args);
 		if (e.Commit())
@@ -67,8 +67,8 @@ namespace trace {
 		e.Encode(TLV(tag_time, sys::trc_vsnprintf(tlv_buff, tlv_buff_sz, "%llu", sys::queryTime_ms()), tlv_buff));
 		e.Encode(TLV(tag_lvl,  sys::trc_vsnprintf(tlv_buff, tlv_buff_sz,   "%u", level), tlv_buff));
 		e.Encode(TLV(tag_ctx,  sys::trc_vsnprintf(tlv_buff, tlv_buff_sz,   "%x", context), tlv_buff));
-		e.Encode(TLV(tag_x,    sys::trc_vsnprintf(tlv_buff, tlv_buff_sz,   "%i", x), tlv_buff));
-		e.Encode(TLV(tag_y,    sys::trc_vsnprintf(tlv_buff, tlv_buff_sz,   "%i", y), tlv_buff));
+		e.Encode(TLV(tag_ix,   sys::trc_vsnprintf(tlv_buff, tlv_buff_sz,   "%i", x), tlv_buff));
+		e.Encode(TLV(tag_iy,   sys::trc_vsnprintf(tlv_buff, tlv_buff_sz,   "%i", y), tlv_buff));
 		e.Encode(TLV(tag_fgc,  sys::trc_vsnprintf(tlv_buff, tlv_buff_sz,   "#%02x%02x%02x", fg.r, fg.g, fg.b), tlv_buff));
 		e.Encode(TLV(tag_bgc,  sys::trc_vsnprintf(tlv_buff, tlv_buff_sz,   "#%02x%02x%02x", bg.r, bg.g, bg.b), tlv_buff));
 		encode_va_fields(e, fmt, args);
@@ -88,7 +88,7 @@ namespace trace {
 		e.Encode(TLV(tag_time, sys::trc_vsnprintf(tlv_buff, tlv_buff_sz, "%llu", sys::queryTime_ms()), tlv_buff));
 		e.Encode(TLV(tag_lvl,  sys::trc_vsnprintf(tlv_buff, tlv_buff_sz,   "%u", level), tlv_buff));
 		e.Encode(TLV(tag_ctx,  sys::trc_vsnprintf(tlv_buff, tlv_buff_sz,   "%x", context), tlv_buff));
-		e.Encode(TLV(tag_x,    sys::trc_vsnprintf(tlv_buff, tlv_buff_sz,   "%i", x), tlv_buff));
+		e.Encode(TLV(tag_ix,   sys::trc_vsnprintf(tlv_buff, tlv_buff_sz,   "%i", x), tlv_buff));
 		encode_str(e, tag_hhdr, name);
 		encode_va_fields(e, tag_msg, fmt, args);
 		if (e.Commit())
@@ -106,7 +106,7 @@ namespace trace {
 		e.Encode(TLV(tag_time, sys::trc_vsnprintf(tlv_buff, tlv_buff_sz, "%llu", sys::queryTime_ms()), tlv_buff));
 		e.Encode(TLV(tag_lvl,  sys::trc_vsnprintf(tlv_buff, tlv_buff_sz,   "%u", level), tlv_buff));
 		e.Encode(TLV(tag_ctx,  sys::trc_vsnprintf(tlv_buff, tlv_buff_sz,   "%x", context), tlv_buff));
-		e.Encode(TLV(tag_x,    sys::trc_vsnprintf(tlv_buff, tlv_buff_sz,   "%i", x), tlv_buff));
+		e.Encode(TLV(tag_ix,   sys::trc_vsnprintf(tlv_buff, tlv_buff_sz,   "%i", x), tlv_buff));
 		e.Encode(TLV(tag_y,    sys::trc_vsnprintf(tlv_buff, tlv_buff_sz,   "%i", y), tlv_buff));
 		e.Encode(TLV(tag_fgc,  sys::trc_vsnprintf(tlv_buff, tlv_buff_sz,   "#%02x%02x%02x", c.r, c.g, c.b), tlv_buff));
 		encode_va_fields(e, tag_msg, fmt, args);
@@ -124,7 +124,7 @@ namespace trace {
 		e.Encode(TLV(tag_time, sys::trc_vsnprintf(tlv_buff, tlv_buff_sz, "%llu", sys::queryTime_ms()), tlv_buff));
 		e.Encode(TLV(tag_lvl,  sys::trc_vsnprintf(tlv_buff, tlv_buff_sz,   "%u", level), tlv_buff));
 		e.Encode(TLV(tag_ctx,  sys::trc_vsnprintf(tlv_buff, tlv_buff_sz,   "%x", context), tlv_buff));
-		e.Encode(TLV(tag_x,    sys::trc_vsnprintf(tlv_buff, tlv_buff_sz,   "%i", x), tlv_buff));
+		e.Encode(TLV(tag_ix,   sys::trc_vsnprintf(tlv_buff, tlv_buff_sz,   "%i", x), tlv_buff));
 		e.Encode(TLV(tag_y,    sys::trc_vsnprintf(tlv_buff, tlv_buff_sz,   "%i", y), tlv_buff));
 		e.Encode(TLV(tag_fgc,  sys::trc_vsnprintf(tlv_buff, tlv_buff_sz,   "#%02x%02x%02x", fg.r, fg.g, fg.b), tlv_buff));
 		e.Encode(TLV(tag_bgc,  sys::trc_vsnprintf(tlv_buff, tlv_buff_sz,   "#%02x%02x%02x", bg.r, bg.g, bg.b), tlv_buff));
