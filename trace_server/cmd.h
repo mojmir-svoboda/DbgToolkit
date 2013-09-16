@@ -15,9 +15,8 @@ struct DecodedCommand : tlv::StringCommand
 
 	void Reset ()
 	{
+		tlv::StringCommand::Reset();
 		written_hdr = written_payload = false;
-		hdr.Reset();
-		tvs.clear();
 	}
 };
 
