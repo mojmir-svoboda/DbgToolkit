@@ -298,7 +298,7 @@
         <widget class="QWidget" name="filtersPage">
          <layout class="QHBoxLayout" name="horizontalLayout_4">
           <item>
-           <widget class="FilterWidget" name="widget" native="true"/>
+           <widget class="FilterMgr" name="widget" native="true"/>
           </item>
          </layout>
         </widget>
@@ -843,9 +843,9 @@ p, li { white-space: pre-wrap; }
  </widget>
  <customwidgets>
   <customwidget>
-   <class>FilterWidget</class>
+   <class>FilterMgr</class>
    <extends>QWidget</extends>
-   <header>../filterwidget.h</header>
+   <header location="global">filtermgr.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

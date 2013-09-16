@@ -82,6 +82,14 @@ set(trace_server_SOURCES
 	dockconfig.cpp
 	syncwidgets.cpp
 	findwidget.cpp
+	filtermgr.cpp
+	filterbase.cpp
+	filter_fileline.cpp
+	filter_ctx.cpp
+	filter_lvl.cpp
+	filter_string.cpp
+	filter_regex.cpp
+	filter_tid.cpp
 
 	kde/kselectionproxymodel.cpp
 	kde/kmodelindexproxymapper.cpp
@@ -146,6 +154,14 @@ set(trace_server_HEADERS
 	syncwidgets.h
 	config.h
 	findwidget.h
+	filtermgr.h
+	filterbase.h
+	filter_fileline.h
+	filter_ctx.h
+	filter_lvl.h
+	filter_string.h
+	filter_regex.h
+	filter_tid.h
 
 	logs/logtablemodel.h
 	logs/logwidget.h
@@ -199,6 +215,12 @@ set(trace_server_UI
 	settingsgantt.ui
 	settingsframeview.ui
 	help.ui
+	filter_ctx.ui
+	filter_fileline.ui
+	filter_lvl.ui
+	filter_regex.ui
+	filter_string.ui
+	filter_tid.ui
 	)
 
 set(trace_server_RESOURCES resources.qrc)

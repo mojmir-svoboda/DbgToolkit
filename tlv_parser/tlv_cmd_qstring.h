@@ -42,17 +42,18 @@ namespace tlv {
 
 	struct StringCommand
 	{
-		tlv::Header hdr;
-		tvs_t tvs;
+		tlv::Header m_hdr;
+		tvs_t m_tvs;
 
-		StringCommand () : hdr(0, 0) { }
+		StringCommand () : m_hdr(0, 0) { }
 
-		void Reset ()
+		void reset ()
 		{
-			hdr.Reset();
-			tvs.clear();
+			m_hdr.Reset();
+			m_tvs.clear();
 		}
 	};
+
 
 	/**@class	TVDecoder
 	 * @brief	interprets stream of bytes as TLV protocol and creates StringCommand
@@ -64,13 +65,13 @@ namespace tlv {
 		bool decode_header (char const * buff, size_t ln, StringCommand & cmd)
 		{
 			memstream input(buff, ln);
-			return decode_hdr(input, cmd.hdr);
+			return decode_hdr(input, cmd.m_hdr);
 		}
 
 		bool decode_payload (char const * buff, size_t ln, StringCommand & cmd)
 		{
 			memstream input(buff, ln);
-			return decode(input, cmd.tvs);
+			return decode(input, cmd.m_tvs);
 		}
 
 		bool decode (memstream & stream, TV & tv)

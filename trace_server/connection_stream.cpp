@@ -12,9 +12,9 @@
 
 inline void Dump (DecodedCommand const & c)
 {
-	qDebug("command.hdr.cmd = 0x%x command.hdr.len = 0x%x", c.hdr.cmd, c.hdr.len);
-	for (size_t i = 0; i < c.tvs.size(); ++i)
-		qDebug("tlv[%u] t=%02x val=%s", i, c.tvs[i].m_tag, c.tvs[i].m_val.toStdString().c_str());
+	qDebug("command.hdr.cmd = 0x%x command.hdr.len = 0x%x", c.m_hdr.cmd, c.m_hdr.len);
+	for (size_t i = 0; i < c.m_tvs.size(); ++i)
+		qDebug("tlv[%u] t=%02x val=%s", i, c.m_tvs[i].m_tag, c.m_tvs[i].m_val.toStdString().c_str());
 }
 
 inline size_t read_min (boost::circular_buffer<char> & ring, char * dst, size_t min)
@@ -106,7 +106,7 @@ namespace {
 
 bool Connection::enqueueCommand (DecodedCommand const & cmd)
 {
-	E_DataWidgetType const queue_type = queueForCommand(cmd.hdr.cmd);
+	E_DataWidgetType const queue_type = queueForCommand(cmd.m_hdr.cmd);
 	if (queue_type == e_data_widget_max_value)
 		return false;
 
@@ -117,7 +117,7 @@ bool Connection::enqueueCommand (DecodedCommand const & cmd)
 
 bool Connection::tryHandleCommand (DecodedCommand const & cmd, E_ReceiveMode mode)
 {
-	switch (cmd.hdr.cmd)
+	switch (cmd.m_hdr.cmd)
 	{
 		case tlv::cmd_setup:			handleSetupCommand(cmd); break;
 		case tlv::cmd_shutdown:			handleShutdownCommand(cmd); break;
@@ -153,7 +153,7 @@ void Connection::onHandleCommands ()
 	for (size_t i = 0; i < rows; ++i)
 	{
 		DecodedCommand & cmd = m_decoded_cmds.front();
-		if (isCommandQueuable(cmd.hdr.cmd))
+		if (isCommandQueuable(cmd.m_hdr.cmd))
 		{
 			enqueueCommand(cmd);
 		}
@@ -163,7 +163,7 @@ void Connection::onHandleCommands ()
 		}
 
 		if (m_src_stream == e_Stream_TCP && m_tcp_dump_stream)
-			m_tcp_dump_stream->writeRawData(&cmd.orig_message[0], cmd.hdr.len + tlv::Header::e_Size);
+			m_tcp_dump_stream->writeRawData(&cmd.m_orig_message[0], cmd.m_hdr.len + tlv::Header::e_Size);
 
 		m_decoded_cmds.pop_front();
 	}
@@ -245,39 +245,40 @@ int Connection::processStream (T * t, T_Ret (T::*read_member_fn)(T_Arg0, T_Arg1)
 			// try process data in ring buffer
 			while (!m_decoded_cmds.full())
 			{
-				if (!m_current_cmd.written_hdr)
+				if (!m_current_cmd.m_written_hdr)
 				{
-					size_t const count_hdr = read_min(m_buffer, &m_current_cmd.orig_message[0], tlv::Header::e_Size);
+					size_t const count_hdr = read_min(m_buffer, &m_current_cmd.m_orig_message[0], tlv::Header::e_Size);
 					if (count_hdr == tlv::Header::e_Size)
 					{
-						m_decoder.decode_header(&m_current_cmd.orig_message[0], tlv::Header::e_Size, m_current_cmd);
-						if (m_current_cmd.hdr.cmd == 0 || m_current_cmd.hdr.len == 0)
+						m_decoder.decode_header(&m_current_cmd.m_orig_message[0], tlv::Header::e_Size, m_current_cmd);
+						if (m_current_cmd.m_hdr.cmd == 0 || m_current_cmd.m_hdr.len == 0)
 						{
 							Q_ASSERT(false);
 							//@TODO: parsing error, discard everything and re-request stop sequence
 							break;
 						}
-						m_current_cmd.written_hdr = true;
+						m_current_cmd.m_written_hdr = true;
 					}
 					else
 						break; // not enough data
 				}
 
-				if (m_current_cmd.written_hdr && !m_current_cmd.written_payload)
+				if (m_current_cmd.m_written_hdr && !m_current_cmd.m_written_payload)
 				{
-					size_t const count_payload = read_min(m_buffer, &m_current_cmd.orig_message[0] + tlv::Header::e_Size, m_current_cmd.hdr.len);
-					if (count_payload == m_current_cmd.hdr.len)
-						m_current_cmd.written_payload = true;
+					size_t const count_payload = read_min(m_buffer, &m_current_cmd.m_orig_message[0] + tlv::Header::e_Size, m_current_cmd.m_hdr.len);
+					if (count_payload == m_current_cmd.m_hdr.len)
+						m_current_cmd.m_written_payload = true;
 					else
 						break; // not enough data
 				}
 
-				if (m_current_cmd.written_hdr && m_current_cmd.written_payload)
+				if (m_current_cmd.m_written_hdr && m_current_cmd.m_written_payload)
 				{
-					if (m_decoder.decode_payload(&m_current_cmd.orig_message[0] + tlv::Header::e_Size, m_current_cmd.hdr.len, m_current_cmd))
+					if (m_decoder.decode_payload(&m_current_cmd.m_orig_message[0] + tlv::Header::e_Size, m_current_cmd.m_hdr.len, m_current_cmd))
 					{
 						//qDebug("CONN: hdr_sz=%u payload_sz=%u buff_sz=%u ",  tlv::Header::e_Size, m_current_cmd.hdr.len, m_buffer.size());
 						m_decoded_cmds.push_back(m_current_cmd);
+						m_decoded_cmds.back().decode_postprocess();
 					}
 					else
 					{
@@ -286,7 +287,7 @@ int Connection::processStream (T * t, T_Ret (T::*read_member_fn)(T_Arg0, T_Arg1)
 						break;
 					}
 
-					m_current_cmd.Reset(); // reset current command for another decoding pass
+					m_current_cmd.reset(); // reset current command for another decoding pass
 				}
 			}
 
@@ -414,9 +415,9 @@ void Connection::processTailCSVStream ()
 			tlv::TV tv;
 			tv.m_tag = tlv::tag_msg;
 			tv.m_val = data;
-			m_current_cmd.tvs.push_back(tv);
+			m_current_cmd.m_tvs.push_back(tv);
 			m_decoded_cmds.push_back(m_current_cmd);
-			m_current_cmd.Reset(); // reset current command for another decoding pass
+			m_current_cmd.reset(); // reset current command for another decoding pass
 		}
 
 		if (m_decoded_cmds.size() > 0)
@@ -517,16 +518,16 @@ bool Connection::handleDictionnaryCtx (DecodedCommand const & cmd)
 	qDebug("received custom context dictionnary");
 	QList<QString> name;
 	QList<QString> value;
-	for (size_t i=0, ie=cmd.tvs.size(); i < ie; i+=2)
+	for (size_t i=0, ie=cmd.m_tvs.size(); i < ie; i+=2)
 	{
-		if (cmd.tvs[i].m_tag == tlv::tag_string)
+		if (cmd.m_tvs[i].m_tag == tlv::tag_string)
 		{
-			name.append(cmd.tvs[i].m_val);
+			name.append(cmd.m_tvs[i].m_val);
 		}
 
-		if (cmd.tvs[i+1].m_tag == tlv::tag_int)
+		if (cmd.m_tvs[i+1].m_tag == tlv::tag_int)
 		{
-			value.append(cmd.tvs[i+1].m_val);
+			value.append(cmd.m_tvs[i+1].m_val);
 		}
 	}
 	m_app_data.addCtxDict(name, value);
@@ -577,11 +578,11 @@ void Connection::copyStorageTo (QString const & filename)
 
 bool Connection::handleSaveTLVCommand (DecodedCommand const & cmd)
 {
-	for (size_t i=0, ie=cmd.tvs.size(); i < ie; ++i)
+	for (size_t i=0, ie=cmd.m_tvs.size(); i < ie; ++i)
 	{
-		if (cmd.tvs[i].m_tag == tlv::tag_file)
+		if (cmd.m_tvs[i].m_tag == tlv::tag_file)
 		{
-			copyStorageTo(cmd.tvs[i].m_val);
+			copyStorageTo(cmd.m_tvs[i].m_val);
 			return true;
 		}
 	}
@@ -590,9 +591,9 @@ bool Connection::handleSaveTLVCommand (DecodedCommand const & cmd)
 
 bool Connection::handleExportCSVCommand (DecodedCommand const & cmd)
 {
-	for (size_t i=0, ie=cmd.tvs.size(); i < ie; ++i)
+	for (size_t i=0, ie=cmd.m_tvs.size(); i < ie; ++i)
 	{
-		if (cmd.tvs[i].m_tag == tlv::tag_file)
+		if (cmd.m_tvs[i].m_tag == tlv::tag_file)
 		{
 
 

@@ -63,10 +63,10 @@ void Connection::appendGantt (gantt::DecodedData & dd)
 bool Connection::handleGanttClearCommand (DecodedCommand const & cmd, E_ReceiveMode mode)
 {
 	QString msg;
-	for (size_t i=0, ie=cmd.tvs.size(); i < ie; ++i)
+	for (size_t i=0, ie=cmd.m_tvs.size(); i < ie; ++i)
 	{
-		if (cmd.tvs[i].m_tag == tlv::tag_msg)
-			msg = cmd.tvs[i].m_val;
+		if (cmd.m_tvs[i].m_tag == tlv::tag_msg)
+			msg = cmd.m_tvs[i].m_val;
 	}
 
 	if (m_main_window->plotState() != e_FtrDisabled)
@@ -94,18 +94,18 @@ bool Connection::handleGanttClearCommand (DecodedCommand const & cmd, E_ReceiveM
 		QString time;
 		QString fgc;
 		QString bgc;
-		for (size_t i=0, ie=cmd.tvs.size(); i < ie; ++i)
+		for (size_t i=0, ie=cmd.m_tvs.size(); i < ie; ++i)
 		{
-			if (cmd.tvs[i].m_tag == tlv::tag_msg)
-				msg = cmd.tvs[i].m_val;
-			else if (cmd.tvs[i].m_tag == tlv::tag_time)
-				time = cmd.tvs[i].m_val;
-			else if (cmd.tvs[i].m_tag == tlv::tag_tid)
-				tid = cmd.tvs[i].m_val;
-			else if (cmd.tvs[i].m_tag == tlv::tag_fgc)
-				fgc = cmd.tvs[i].m_val;
-			else if (cmd.tvs[i].m_tag == tlv::tag_bgc)
-				bgc = cmd.tvs[i].m_val;
+			if (cmd.m_tvs[i].m_tag == tlv::tag_msg)
+				msg = cmd.m_tvs[i].m_val;
+			else if (cmd.m_tvs[i].m_tag == tlv::tag_time)
+				time = cmd.m_tvs[i].m_val;
+			else if (cmd.m_tvs[i].m_tag == tlv::tag_tid)
+				tid = cmd.m_tvs[i].m_val;
+			else if (cmd.m_tvs[i].m_tag == tlv::tag_fgc)
+				fgc = cmd.m_tvs[i].m_val;
+			else if (cmd.m_tvs[i].m_tag == tlv::tag_bgc)
+				bgc = cmd.m_tvs[i].m_val;
 		}
 
 		QString subtag = msg;

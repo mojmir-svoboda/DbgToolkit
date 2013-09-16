@@ -48,10 +48,10 @@ bool Connection::handlePlotCommand (DecodedCommand const & cmd, E_ReceiveMode mo
 		return true;
 
 	QString tag;
-	for (size_t i=0, ie=cmd.tvs.size(); i < ie; ++i) // @TODO: precache
+	for (size_t i=0, ie=cmd.m_tvs.size(); i < ie; ++i) // @TODO: precache
 	{
-		if (cmd.tvs[i].m_tag == tlv::tag_msg)
-			tag = cmd.tvs[i].m_val;
+		if (cmd.m_tvs[i].m_tag == tlv::tag_msg)
+			tag = cmd.m_tvs[i].m_val;
 	}
 
 	int const slash_pos = tag.lastIndexOf(QChar('/'));

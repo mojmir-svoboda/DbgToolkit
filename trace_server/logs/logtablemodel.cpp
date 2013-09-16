@@ -78,11 +78,11 @@ void LogTableModel::parseCommand (DecodedCommand const & cmd, E_ReceiveMode mode
 {
 	int column_index = -1;
 	int thread_idx = -1;
-	for (size_t i=0, ie=cmd.tvs.size(); i < ie; ++i)
-		if (cmd.tvs[i].m_tag == tlv::tag_tid)
+	for (size_t i=0, ie=cmd.m_tvs.size(); i < ie; ++i)
+		if (cmd.m_tvs[i].m_tag == tlv::tag_tid)
 		{
 			ThreadSpecific & tls = m_log_widget.getTLS();
-			thread_idx = tls.findThreadId(cmd.tvs[i].m_val);
+			thread_idx = tls.findThreadId(cmd.m_tvs[i].m_val);
 		}
 
 	int indent = 0;
@@ -97,15 +97,15 @@ void LogTableModel::parseCommand (DecodedCommand const & cmd, E_ReceiveMode mode
 				qindent.append("  ");	// @TODO: ugh
 	}
 
-	batch.m_rows.push_back(columns_t(cmd.tvs.size()));
+	batch.m_rows.push_back(columns_t(cmd.m_tvs.size()));
 	batch.m_tree_node_ptrs.push_back(0);
 	batch.m_layers.push_back(indent);
-	batch.m_rowTypes.push_back(cmd.hdr.cmd);
+	batch.m_rowTypes.push_back(cmd.m_hdr.cmd);
 	columns_t & columns = batch.m_rows.back();
-	columns.reserve(cmd.tvs.size());
+	columns.reserve(cmd.m_tvs.size());
 
-	size_t n = cmd.tvs.size();
-	if (cmd.hdr.cmd == tlv::cmd_scope_entry || (cmd.hdr.cmd == tlv::cmd_scope_exit))
+	size_t n = cmd.m_tvs.size();
+	if (cmd.m_hdr.cmd == tlv::cmd_scope_entry || (cmd.m_hdr.cmd == tlv::cmd_scope_exit))
 		n = n + 1;
 
 	QString file;
@@ -113,10 +113,10 @@ void LogTableModel::parseCommand (DecodedCommand const & cmd, E_ReceiveMode mode
 	QString func;
 	QString time;
 	QString msg;
-	for (size_t i = 0, ie = cmd.tvs.size(); i < ie; ++i)
+	for (size_t i = 0, ie = cmd.m_tvs.size(); i < ie; ++i)
 	{
-		tlv::tag_t const tag = cmd.tvs[i].m_tag;
-		QString const & val = cmd.tvs[i].m_val;
+		tlv::tag_t const tag = cmd.m_tvs[i].m_tag;
+		QString const & val = cmd.m_tvs[i].m_val;
 		if (tag == tlv::tag_file)
 			file = val;
 		if (tag == tlv::tag_line)
@@ -145,7 +145,7 @@ void LogTableModel::parseCommand (DecodedCommand const & cmd, E_ReceiveMode mode
 	}
 
 
-	void const * node = m_log_widget.filterWidget()->fileModel()->insertItem(file + "/" + line);
+	void const * node = m_log_widget.filterMgr()->fileModel()->insertItem(file + "/" + line);
 	batch.m_tree_node_ptrs.back() = node;
 
 	unsigned long long t = time.toULongLong();

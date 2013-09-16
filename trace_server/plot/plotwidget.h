@@ -29,8 +29,8 @@ namespace plot {
 		void saveConfig (QString const & path);
 		void applyConfig ();
 
-		FilterWidget * filterWidget () { return m_config_ui.m_ui->widget; }
-		FilterWidget const * filterWidget () const { return m_config_ui.m_ui->widget; }
+		FilterMgr * filterMgr () { return m_config_ui.m_ui->widget; }
+		FilterMgr const * filterMgr () const { return m_config_ui.m_ui->widget; }
 
 		QList<DecodedCommand> m_queue;
 		void handleCommand (DecodedCommand const & cmd, E_ReceiveMode mode);

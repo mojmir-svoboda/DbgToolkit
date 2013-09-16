@@ -310,31 +310,31 @@ void LogWidget::appendToCtxFilters (QString const & item, bool checked)
 bool LogWidget::appendToFilters (DecodedCommand const & cmd)
 {
 	QString line;
-	for (size_t i=0, ie=cmd.tvs.size(); i < ie; ++i)
+	for (size_t i=0, ie=cmd.m_tvs.size(); i < ie; ++i)
 	{
-		if (cmd.tvs[i].m_tag == tlv::tag_line)
+		if (cmd.m_tvs[i].m_tag == tlv::tag_line)
 		{
-			line = cmd.tvs[i].m_val;
+			line = cmd.m_tvs[i].m_val;
 			break;
 		}
 
-		if (cmd.tvs[i].m_tag == tlv::tag_tid)
+		if (cmd.m_tvs[i].m_tag == tlv::tag_tid)
 		{
-			int const idx = m_tls.findThreadId(cmd.tvs[i].m_val);
-			if (cmd.hdr.cmd == tlv::cmd_scope_entry)
+			int const idx = m_tls.findThreadId(cmd.m_tvs[i].m_val);
+			if (cmd.m_hdr.cmd == tlv::cmd_scope_entry)
 				m_tls.incrIndent(idx);
-			if (cmd.hdr.cmd == tlv::cmd_scope_exit)
+			if (cmd.m_hdr.cmd == tlv::cmd_scope_exit)
 				m_tls.decrIndent(idx);
-			appendToTIDFilters(cmd.tvs[i].m_val);
+			appendToTIDFilters(cmd.m_tvs[i].m_val);
 		}
 
-		if (cmd.tvs[i].m_tag == tlv::tag_ctx)
+		if (cmd.m_tvs[i].m_tag == tlv::tag_ctx)
 		{
-			appendToCtxFilters(cmd.tvs[i].m_val, false);
+			appendToCtxFilters(cmd.m_tvs[i].m_val, false);
 		}
-		if (cmd.tvs[i].m_tag == tlv::tag_lvl)
+		if (cmd.m_tvs[i].m_tag == tlv::tag_lvl)
 		{
-			appendToLvlFilters(cmd.tvs[i].m_val);
+			appendToLvlFilters(cmd.m_tvs[i].m_val);
 		}
 	}
 

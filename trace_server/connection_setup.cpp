@@ -139,16 +139,16 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 	QString pid;
 	if (dumpModeEnabled())
 	{
-		for (size_t i=0, ie=cmd.tvs.size(); i < ie; ++i)
-			if (cmd.tvs[i].m_tag == tlv::tag_pid)
-				pid = cmd.tvs[i].m_val;
+		for (size_t i=0, ie=cmd.m_tvs.size(); i < ie; ++i)
+			if (cmd.m_tvs[i].m_tag == tlv::tag_pid)
+				pid = cmd.m_tvs[i].m_val;
 	}
 
-	for (size_t i=0, ie=cmd.tvs.size(); i < ie; ++i)
+	for (size_t i=0, ie=cmd.m_tvs.size(); i < ie; ++i)
 	{
-		if (cmd.tvs[i].m_tag == tlv::tag_lvl)
+		if (cmd.m_tvs[i].m_tag == tlv::tag_lvl)
 		{
-			int const client_level = cmd.tvs[i].m_val.toInt();
+			int const client_level = cmd.m_tvs[i].m_val.toInt();
 			int const server_level = m_main_window->getLevel();
 			if (client_level != server_level)
 			{
@@ -157,9 +157,9 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 			}
 		}
 
-		if (cmd.tvs[i].m_tag == tlv::tag_app)
+		if (cmd.m_tvs[i].m_tag == tlv::tag_app)
 		{
-			QString app_name = cmd.tvs[i].m_val;
+			QString app_name = cmd.m_tvs[i].m_val;
 			if (m_main_window->reuseTabEnabled())
 			{
 				Connection * conn = m_main_window->findConnectionByName(app_name);

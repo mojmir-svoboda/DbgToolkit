@@ -89,9 +89,11 @@ namespace tlv {
 		tag_int,          /// int
 		tag_string,       /// string
 		tag_float,        /// float
-		tag_x,            /// x
-		tag_y,            /// y
-		tag_z,            /// z
+		tag_ix,           /// x (int)
+		tag_iy,           /// y (int)
+		tag_x,            /// x (float)
+		tag_y,            /// y (float)
+		tag_z,            /// z (float)
 		tag_fgc,          /// fg color
 		tag_bgc,          /// bg color
 		tag_hhdr,         /// horizontal header

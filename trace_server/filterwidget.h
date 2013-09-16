@@ -9,21 +9,6 @@
 #include "delegates.h"
 #include <boost/tuple/tuple.hpp>
 
-class FilterTreeModel : public TreeModel<TreeModelItem>
-{       
-	Q_OBJECT
-public:
-
-	explicit FilterTreeModel (QObject * parent = 0, tree_data_t * data = 0);
-	~FilterTreeModel () { }
-
-public Q_SLOTS:
-	void onExpanded (QModelIndex const & idx) { expanded(idx); }
-	void onCollapsed (QModelIndex const & idx) { collapsed(idx); }
-
-	QModelIndex insertItemWithPath (QStringList const & path, bool checked);
-}; 
-
 namespace Ui {	class FilterWidget; }
 class TreeProxyModel;
 
@@ -42,11 +27,6 @@ public:
 	void saveConfig (QString const & path);
 	void applyConfig (FilterState const & src, FilterState & dst);
 
-	FilterTreeModel * fileModel () { return m_file_model; }
-	FilterTreeModel const * fileModel () const { return m_file_model; }
-
-	TreeView * getWidgetFile ();
-	TreeView const * getWidgetFile () const;
 	QTreeView * getWidgetCtx ();
 	QTreeView const * getWidgetCtx () const;
     QComboBox * getFilterRegex ();
@@ -64,9 +44,6 @@ public:
 	QTreeView * getWidgetLvl ();
 	QTreeView const * getWidgetLvl () const;
 
-	void setupModelFile ();
-	void destroyModelFile ();
-
 	// filtering
 	void onRegexActivate (int idx);
 	void onRegexAdd ();
@@ -77,13 +54,10 @@ public:
 	//void onStringActivate (int idx);
 	void onStringAdd ();
 	void onStringRm ();
-	void onGotoFileFilter ();
 	void onGotoColorFilter ();
 	void onGotoRegexFilter ();
 	void onGotoLevelFilter ();
 	void syncSettingsViews (QListView const * const invoker, QModelIndex const idx);
-	void onFilterFileComboChanged (QString str);
-	void onCancelFilterFileButton ();
 	void onClickedAtCtxTree (QModelIndex idx);
 	void onDoubleClickedAtCtxTree (QModelIndex idx);
 	void onClickedAtTIDList (QModelIndex idx);
@@ -103,10 +77,9 @@ public:
 	// sem??
 	void onHidePrevFromRow ();
 	void onUnhidePrevFromRow ();
-	void onExcludeFileLine ();
 	void onToggleRefFromRow ();
 	void onClearCurrentView ();
-	void onClearCurrentFileFilter ();
+	//void onClearCurrentFileFilter ();
 	void onClearCurrentCtxFilter ();
 	void onClearCurrentTIDFilter ();
 	void onClearCurrentColorizedRegexFilter ();
@@ -121,9 +94,7 @@ public:
 
 	FilterState		m_filter_state;
 
-	FilterTreeModel * m_file_model;
-	TreeProxyModel * m_file_proxy;
-	QItemSelectionModel * m_proxy_selection;
+	//QItemSelectionModel * m_proxy_selection;
 	QStandardItemModel * m_ctx_model;
 	QStandardItemModel * m_func_model;
 	QStandardItemModel * m_tid_model;

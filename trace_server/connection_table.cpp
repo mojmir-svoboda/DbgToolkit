@@ -58,20 +58,20 @@ bool Connection::handleTableXYCommand (DecodedCommand const & cmd, E_ReceiveMode
 	int y = 0;
 	QString fgc;
 	QString bgc;
-	for (size_t i=0, ie=cmd.tvs.size(); i < ie; ++i)
+	for (size_t i=0, ie=cmd.m_tvs.size(); i < ie; ++i)
 	{
-		if (cmd.tvs[i].m_tag == tlv::tag_msg)
-			tag = cmd.tvs[i].m_val;
-		else if (cmd.tvs[i].m_tag == tlv::tag_x)
-			x = cmd.tvs[i].m_val.toInt();
-		else if (cmd.tvs[i].m_tag == tlv::tag_y)
-			y = cmd.tvs[i].m_val.toInt();
-		else if (cmd.tvs[i].m_tag == tlv::tag_time)
-			time = cmd.tvs[i].m_val;
-		else if (cmd.tvs[i].m_tag == tlv::tag_fgc)
-			fgc = cmd.tvs[i].m_val;
-		else if (cmd.tvs[i].m_tag == tlv::tag_bgc)
-			bgc = cmd.tvs[i].m_val;
+		if (cmd.m_tvs[i].m_tag == tlv::tag_msg)
+			tag = cmd.m_tvs[i].m_val;
+		else if (cmd.m_tvs[i].m_tag == tlv::tag_x)
+			x = cmd.m_tvs[i].m_val.toInt();
+		else if (cmd.m_tvs[i].m_tag == tlv::tag_y)
+			y = cmd.m_tvs[i].m_val.toInt();
+		else if (cmd.m_tvs[i].m_tag == tlv::tag_time)
+			time = cmd.m_tvs[i].m_val;
+		else if (cmd.m_tvs[i].m_tag == tlv::tag_fgc)
+			fgc = cmd.m_tvs[i].m_val;
+		else if (cmd.m_tvs[i].m_tag == tlv::tag_bgc)
+			bgc = cmd.m_tvs[i].m_val;
 	}
 
 	if (m_main_window->tableState() != e_FtrDisabled)
@@ -89,22 +89,22 @@ bool Connection::handleTableSetupCommand (DecodedCommand const & cmd, E_ReceiveM
 	int y = 0;
 	QString fgc, bgc;
 	QString hhdr;
-	for (size_t i=0, ie=cmd.tvs.size(); i < ie; ++i)
+	for (size_t i=0, ie=cmd.m_tvs.size(); i < ie; ++i)
 	{
-		if (cmd.tvs[i].m_tag == tlv::tag_msg)
-			tag = cmd.tvs[i].m_val;
-		else if (cmd.tvs[i].m_tag == tlv::tag_x)
-			x = cmd.tvs[i].m_val.toInt();
-		else if (cmd.tvs[i].m_tag == tlv::tag_y)
-			y = cmd.tvs[i].m_val.toInt();
-		else if (cmd.tvs[i].m_tag == tlv::tag_time)
-			time = cmd.tvs[i].m_val;
-		else if (cmd.tvs[i].m_tag == tlv::tag_hhdr)
-			hhdr = cmd.tvs[i].m_val;
-		else if (cmd.tvs[i].m_tag == tlv::tag_fgc)
-			fgc = cmd.tvs[i].m_val;
-		else if (cmd.tvs[i].m_tag == tlv::tag_bgc)
-			bgc = cmd.tvs[i].m_val;
+		if (cmd.m_tvs[i].m_tag == tlv::tag_msg)
+			tag = cmd.m_tvs[i].m_val;
+		else if (cmd.m_tvs[i].m_tag == tlv::tag_x)
+			x = cmd.m_tvs[i].m_val.toInt();
+		else if (cmd.m_tvs[i].m_tag == tlv::tag_y)
+			y = cmd.m_tvs[i].m_val.toInt();
+		else if (cmd.m_tvs[i].m_tag == tlv::tag_time)
+			time = cmd.m_tvs[i].m_val;
+		else if (cmd.m_tvs[i].m_tag == tlv::tag_hhdr)
+			hhdr = cmd.m_tvs[i].m_val;
+		else if (cmd.m_tvs[i].m_tag == tlv::tag_fgc)
+			fgc = cmd.m_tvs[i].m_val;
+		else if (cmd.m_tvs[i].m_tag == tlv::tag_bgc)
+			bgc = cmd.m_tvs[i].m_val;
 	}
 
 	//qDebug("table: setup hdr: x=%i y=%i hhdr=%s fg=%s bg=%s", x, y, hhdr.toStdString().c_str(), fgc.toStdString().c_str(), bgc.toStdString().c_str());
@@ -223,10 +223,10 @@ void Connection::appendTableSetup (int x, int y, QString const & time, QString c
 bool Connection::handleTableClearCommand (DecodedCommand const & cmd, E_ReceiveMode mode)
 {
 	QString msg;
-	for (size_t i=0, ie=cmd.tvs.size(); i < ie; ++i)
+	for (size_t i=0, ie=cmd.m_tvs.size(); i < ie; ++i)
 	{
-		if (cmd.tvs[i].m_tag == tlv::tag_msg)
-			msg = cmd.tvs[i].m_val;
+		if (cmd.m_tvs[i].m_tag == tlv::tag_msg)
+			msg = cmd.m_tvs[i].m_val;
 	}
 
 	if (m_main_window->plotState() != e_FtrDisabled)

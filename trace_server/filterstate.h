@@ -84,34 +84,9 @@ public:
 */
 
 	// filter state
-	// file
-	typedef tree_filter<TreeModelItem> file_filters_t;
-	typedef file_filters_t::node_t node_t;
-	bool isFileLinePresent (fileline_t const & p, TreeModelItem & state) const; /// checks for file:line existence in the tree
-	bool isFileLinePresent (QString const & fileline, TreeModelItem & state) const; /// checks for file:line existence in the tree
-	void merge_with (file_filters_t const & rhs);
-	void merge (node_t * lhs, node_t const * rhs);
-	void merge_state (node_t * lhs, node_t const * rhs);
-	void merge_rhs (node_t * lhs, node_t const * rhs);
 
-	// ctx
-	typedef QList<FilteredContext> ctx_filters_t;
-	bool isCtxPresent (QString const & item, bool & enabled) const;
-	void appendCtxFilter (QString const & item);
-	void removeCtxFilter (QString const & item);
 
-	// tid
-	typedef std::vector<QString> tid_filters_t;
-	void appendTIDFilter (QString const & item);
-	void removeTIDFilter (QString const & item);
-	bool isTIDExcluded (QString const & item) const;
 
-	// lvl
-	typedef QList<FilteredLevel> lvl_filters_t;
-	void appendLvlFilter (QString const & item);
-	void removeLvlFilter (QString const & item);
-	bool isLvlPresent (QString const & item, bool & enabled, E_LevelMode & lvlmode) const;
-	bool setLvlMode (QString const & item, bool enabled, E_LevelMode lvlmode);
 
 	// blocks
 	void appendCollapsedBlock (QString tid, int from, int to, QString file, QString line);
@@ -127,34 +102,16 @@ public:
 	void setRegexColor (QString const & s, QColor col);
 	void setColorRegexChecked (QString const & s, bool checked);
 
-	// regex filtering
-	void appendToRegexFilters (QString const & str, bool checked, bool inclusive);
-	void removeFromRegexFilters (QString const & str);
-	bool isMatchedRegexExcluded (QString str) const;
-	void setRegexChecked (QString const & s, bool checked);
-	void setRegexInclusive (QString const & s, bool inclusive);
-
-	// string filtering
-	void appendToStringFilters (QString const & str, bool checked, int state);
-	void removeFromStringFilters (QString const & str);
-	bool isMatchedStringExcluded (QString str) const;
-	void setStringChecked (QString const & s, bool checked);
-	void setStringState (QString const & s, int state);
 
 
 	void clearFilters ();
-	void onClearFileFilter ()
-	{
-		m_file_filters.set_state_to_childs(m_file_filters.root, TreeModelItem(e_Checked, false));
-	}
-	void onClearCtxFilter () { m_ctx_filters.clear(); }
-	void onClearTIDFilter () { m_tid_filters.clear(); }
-	void onClearScopeFilter () { m_collapse_blocks.clear(); }
 	void onClearColorizedRegexFilter () { m_colorized_texts.clear(); }
-	void onClearLvlFilter () { m_lvl_filters.clear(); }
-	void onClearRegexFilter () { m_filtered_regexps.clear(); }
-	void onClearStringFilter () { m_filtered_strings.clear(); }
+	void onClearScopeFilter () { m_collapse_blocks.clear(); }
 
+	template <class ArchiveT>
+	void serialize (ArchiveT & ar, unsigned const version)
+	{
+	}
 
 
 signals:
@@ -162,31 +119,15 @@ signals:
 private:
 public:
 
-	template <class ArchiveT>
-	void serialize (ArchiveT & ar, unsigned const version)
-	{
-		ar & boost::serialization::make_nvp("file_filters", m_file_filters);
-		ar & boost::serialization::make_nvp("ctx_filters", m_ctx_filters);
-		ar & boost::serialization::make_nvp("lvl_filters", m_lvl_filters);
-		ar & boost::serialization::make_nvp("colorized_texts", m_colorized_texts);
-		ar & boost::serialization::make_nvp("filtered_regexps", m_filtered_regexps);
-		ar & boost::serialization::make_nvp("collapse_blocks", m_collapse_blocks);
-	}
-
 	friend class Connection;
 	friend class FilterProxyModel;
 	//friend class FilterWidget;
 	friend class PersistentFilter;
 
 
-	file_filters_t			m_file_filters;
-	ctx_filters_t			m_ctx_filters;
-	lvl_filters_t			m_lvl_filters;
-	tid_filters_t			m_tid_filters;
+
 	QList<ColorizedText>	m_colorized_texts;
-	QList<FilteredRegex>	m_filtered_regexps;
 	QList<CollapsedBlock>	m_collapse_blocks;
-	QList<FilteredString>	m_filtered_strings;
 
 };
 

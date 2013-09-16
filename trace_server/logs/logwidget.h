@@ -25,14 +25,13 @@ namespace logs {
 	public:
 		LogWidget (Connection * oparent, QWidget * wparent, LogConfig & cfg, QString const & fname, QStringList const & path);
 
-		void applyConfig (LogConfig & pcfg);
 		virtual ~LogWidget ();
 
 		LogConfig & getConfig () { return m_config; }
 		LogConfig const & getConfig () const { return m_config; }
-
 		void loadConfig (QString const & path);
 		void saveConfig (QString const & path);
+		void applyConfig (LogConfig & pcfg);
 		void applyConfig ();
 
 		QList<DecodedCommand> m_queue;
@@ -112,7 +111,7 @@ namespace logs {
 	// filtering stuff
 	void onInvalidateFilter ();
 	void syncSelection (QModelIndexList const & sel);
-	void clearFilters (QStandardItem * node);
+	//void clearFilters (QStandardItem * node);
 	void clearFilters ();
 	void onClearCurrentFileFilter ();
 	void onClearCurrentCtxFilter ();
@@ -163,8 +162,8 @@ namespace logs {
 	ThreadSpecific & getTLS () { return m_tls; }
 	ThreadSpecific const & getTLS () const { return m_tls; }
 
-	FilterWidget * filterWidget () { return m_config_ui.m_ui->widget; }
-	FilterWidget const * filterWidget () const { return m_config_ui.m_ui->widget; }
+	FilterMgr * filterMgr () { return m_config_ui.m_ui->widget; }
+	FilterMgr const * filterMgr () const { return m_config_ui.m_ui->widget; }
 
 
 

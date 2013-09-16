@@ -76,7 +76,13 @@ FORMS    += help.ui \
     settingsframeview.ui \
     settingsfilters.ui \
     filterwidget.ui \
-    findwidget.ui
+    findwidget.ui \
+    filter_fileline.ui \
+    filter_tid.ui \
+    filter_string.ui \
+    filter_regex.ui \
+    filter_lvl.ui \
+    filter_ctx.ui
 
 RESOURCES += \
     resources.qrc

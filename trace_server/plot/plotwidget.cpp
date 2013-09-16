@@ -496,9 +496,9 @@ namespace plot {
 	{
 		if (mode == e_RecvSync)
 		{
-			if (cmd.hdr.cmd == tlv::cmd_plot_xy)
+			if (cmd.m_hdr.cmd == tlv::cmd_plot_xy)
 				handleDataXYCommand(cmd);
-			else if (cmd.hdr.cmd == tlv::cmd_plot_clear)
+			else if (cmd.m_hdr.cmd == tlv::cmd_plot_clear)
 				handlePlotClearCommand(cmd);
 		}
 		else
@@ -510,14 +510,14 @@ namespace plot {
 		QString tag;
 		double x = 0.0;
 		double y = 0.0;
-		for (size_t i=0, ie=cmd.tvs.size(); i < ie; ++i) // @TODO: precache
+		for (size_t i=0, ie=cmd.m_tvs.size(); i < ie; ++i) // @TODO: precache
 		{
-			if (cmd.tvs[i].m_tag == tlv::tag_msg)
-				tag = cmd.tvs[i].m_val;
-			else if (cmd.tvs[i].m_tag == tlv::tag_x)
-				x = cmd.tvs[i].m_val.toDouble();
-			else if (cmd.tvs[i].m_tag == tlv::tag_y)
-				y = cmd.tvs[i].m_val.toDouble();
+			if (cmd.m_tvs[i].m_tag == tlv::tag_msg)
+				tag = cmd.m_tvs[i].m_val;
+			else if (cmd.m_tvs[i].m_tag == tlv::tag_x)
+				x = cmd.m_tvs[i].m_val.toDouble(); // conversion float->double
+			else if (cmd.m_tvs[i].m_tag == tlv::tag_y)
+				y = cmd.m_tvs[i].m_val.toDouble(); // conversion float->double
 		}
 
 		int const slash_pos = tag.lastIndexOf(QChar('/'));
@@ -558,10 +558,10 @@ namespace plot {
 	bool PlotWidget::handlePlotClearCommand (DecodedCommand const & cmd)
 	{
 		QString tag;
-		for (size_t i=0, ie=cmd.tvs.size(); i < ie; ++i) // @TODO: precache
+		for (size_t i=0, ie=cmd.m_tvs.size(); i < ie; ++i) // @TODO: precache
 		{
-			if (cmd.tvs[i].m_tag == tlv::tag_msg)
-				tag = cmd.tvs[i].m_val;
+			if (cmd.m_tvs[i].m_tag == tlv::tag_msg)
+				tag = cmd.m_tvs[i].m_val;
 		}
 		int const slash_pos = tag.lastIndexOf(QChar('/'));
 		QString subtag = tag;

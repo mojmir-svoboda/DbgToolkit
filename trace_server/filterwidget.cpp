@@ -18,27 +18,12 @@
 #include "treeproxy.h"
 #include "ui_filterwidget.h"
 
-FilterTreeModel::FilterTreeModel (QObject * parent, tree_data_t * data)
-	: TreeModel<TreeModelItem>(parent, data)
-{
-	qDebug("%s", __FUNCTION__);
-}
-
-
-QModelIndex FilterTreeModel::insertItemWithPath (QStringList const & path, bool checked)
-{
-	QString const name = path.join("/");
-	return insertItemWithHint(name, checked);
-}
 
 
 FilterWidget::FilterWidget (QWidget * parent)
 	: QWidget(parent)
 	, ui(new Ui::FilterWidget)
 	, m_filter_state()
-	, m_file_model(0)
-	, m_file_proxy(0)
-	, m_proxy_selection(0)
 	, m_ctx_model(0)
 	, m_func_model(0)
 	, m_tid_model(0)
@@ -48,7 +33,6 @@ FilterWidget::FilterWidget (QWidget * parent)
 	, m_string_model(0)
 {
     ui->setupUi(this);
-	setupModelFile();
 			/*this->setupModelFile();
 			this->setupModelLvl();
 			this->setupModelCtx();
@@ -62,12 +46,9 @@ FilterWidget::FilterWidget (QWidget * parent)
 
 FilterWidget::~FilterWidget ()
 {
-	destroyModelFile();
     delete ui;
 }
 
-TreeView * FilterWidget::getWidgetFile () { return ui->treeViewFile; }
-TreeView const * FilterWidget::getWidgetFile () const { return ui->treeViewFile; }
 QTreeView * FilterWidget::getWidgetCtx () { return ui->treeViewCtx; }
 QTreeView const * FilterWidget::getWidgetCtx () const { return ui->treeViewCtx; }
 QComboBox * FilterWidget::getFilterRegex () { return ui->comboBoxRegex; }
@@ -120,14 +101,10 @@ void FilterWidget::applyConfig (FilterState const & src, FilterState & dst)
 {
 	//conn->onClearCurrentFileFilter();
 	//destroyModelFile();
-	m_filter_state.merge_with(src.m_file_filters);
 	//std::swap(conn->m_filter_state.m_file_filters.root, src.m_file_filters.root);
 
 	//setupModelFile();
-	m_filter_state.m_filtered_regexps = src.m_filtered_regexps;
 	m_filter_state.m_colorized_texts = src.m_colorized_texts;
-	m_filter_state.m_lvl_filters = src.m_lvl_filters;
-	m_filter_state.m_ctx_filters = src.m_ctx_filters;
 	//@TODO: this blows under linux, i wonder why?
 	//m_filter_state.m_filtered_regexps.swap(src.m_filtered_regexps);
 	//m_filter_state.m_colorized_texts.swap(src.m_colorized_texts);
@@ -159,41 +136,6 @@ void FilterWidget::loadConfig (QString const & fname)
 
 void FilterWidget::saveConfig (QString const & fname)
 {
-	QString const fsname = fname + "." + g_filterStateTag;
-	saveFilterState(m_filter_state, fsname.toStdString());
-}
-
-void FilterWidget::setupModelFile ()
-{
-	if (!m_file_model)
-	{
-		qDebug("new tree view file model");
-		m_file_model = new FilterTreeModel(this, &m_filter_state.m_file_filters);
-
-		  //->setFilterBehavior( KSelectionProxyModel::ExactSelection );
-		m_proxy_selection = new QItemSelectionModel(m_file_model, this);
-		m_file_proxy = new TreeProxyModel(m_file_model, m_proxy_selection);
-	}
-	getWidgetFile()->setModel(m_file_model);
-	getWidgetFile()->syncExpandState();
-	getWidgetFile()->hideLinearParents();
-	//connect(m_file_model, SIGNAL(invalidateFilter()), this, SLOT(onInvalidateFilter()));
-}
-
-void FilterWidget::destroyModelFile ()
-{
-	if (m_file_model)
-	{
-		qDebug("destroying file model");
-		//disconnect(m_file_model, SIGNAL(invalidateFilter()), this, SLOT(onInvalidateFilter()));
-		getWidgetFile()->unsetModel(m_file_model);
-		delete m_file_model;
-		m_file_model = 0;
-		delete m_file_proxy;
-		m_file_proxy = 0;
-		delete m_proxy_selection;
-		m_proxy_selection = 0;
-	}
 }
 
 /*void Connection::setupModelCtx ()
