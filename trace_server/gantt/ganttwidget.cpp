@@ -63,8 +63,8 @@ namespace gantt {
 		disconnect(this, SIGNAL(customContextMenuRequested(QPoint const &)), this, SLOT(onShowContextMenu(QPoint const &)));
 	}
 
-	FilterWidget * GanttWidget::filterWidget () { return m_config_ui->m_ui->widget; }
-	FilterWidget const * GanttWidget::filterWidget () const { return m_config_ui->m_ui->widget; }
+	FilterMgr * GanttWidget::filterMgr () { return m_config_ui->m_ui->widget; }
+	FilterMgr const * GanttWidget::filterMgr () const { return m_config_ui->m_ui->widget; }
 
 	void GanttWidget::onShow ()
 	{

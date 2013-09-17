@@ -5,6 +5,8 @@
 
 #include "config.h"
 #include <QList>
+#include <QStandardItemModel>
+#include <QStyledItemDelegate>
 
 struct FilterTid : FilterBase
 {
@@ -23,21 +25,22 @@ struct FilterTid : FilterBase
 	virtual void loadConfig (QString const & path);
 	virtual void saveConfig (QString const & path);
 	virtual void applyConfig ();
+	virtual void clear ();
 
-	Q_OBJECT
-
-	// tid
-	typedef std::vector<QString> tid_filters_t;
+	// tid specific
+	void setupModel ();
+	void destroyModel ();
 	void appendTIDFilter (QString const & item);
 	void removeTIDFilter (QString const & item);
 	bool isTIDExcluded (QString const & item) const;
 
-	void onClearTIDFilter () { m_tid_filters.clear(); }
 	template <class ArchiveT>
 	void serialize (ArchiveT & ar, unsigned const version)
-	{
-	}
+	{ }
 
+	typedef std::vector<QString> tid_filters_t;
 	tid_filters_t			m_tid_filters;
+	QStandardItemModel *	m_tid_model;
 
+	Q_OBJECT
 };

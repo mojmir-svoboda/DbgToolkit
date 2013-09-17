@@ -55,13 +55,25 @@ struct DecodedCommand : tlv::StringCommand
 	bool get (tlv::tag_t tag, T & t) const
 	{
 		for (size_t i = 0, ie = m_variants.size(); i < ie; ++i)
-			if (tvs[i].m_tag == tag)
+			if (m_tvs[i].m_tag == tag)
 			{
 				t = m_variants[i].value<T>();
 				return true;
 			}
 		return false;
 	}
+
+	bool getString (tlv::tag_t tag, QString & t) const
+	{
+		for (size_t i = 0, ie = m_variants.size(); i < ie; ++i)
+			if (m_tvs[i].m_tag == tag)
+			{
+				t = m_tvs[i].m_val;
+				return true;
+			}
+		return false;
+	}
+
 
 	void decode_postprocess ()
 	{

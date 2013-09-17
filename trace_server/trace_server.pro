@@ -56,7 +56,8 @@ SOURCES += ../version.cpp \
     server.cpp \
     connection.cpp \
     filterwidget.cpp \
-    findwidget.cpp
+    findwidget.cpp \
+    combolist.cpp
 
 HEADERS  += ../version.h \
     mainwindow.h \
@@ -64,7 +65,8 @@ HEADERS  += ../version.h \
     server.h \
     connection.h \
     filterwidget.h \
-    findwidget.h
+    findwidget.h \
+    combolist.h
 
 FORMS    += help.ui \
     mainwindow.ui \
@@ -82,7 +84,8 @@ FORMS    += help.ui \
     filter_string.ui \
     filter_regex.ui \
     filter_lvl.ui \
-    filter_ctx.ui
+    filter_ctx.ui \
+    combolist.ui
 
 RESOURCES += \
     resources.qrc

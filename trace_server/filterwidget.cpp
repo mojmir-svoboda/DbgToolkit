@@ -24,24 +24,10 @@ FilterWidget::FilterWidget (QWidget * parent)
 	: QWidget(parent)
 	, ui(new Ui::FilterWidget)
 	, m_filter_state()
-	, m_ctx_model(0)
 	, m_func_model(0)
-	, m_tid_model(0)
 	, m_color_regex_model(0)
-	, m_regex_model(0)
-	, m_lvl_model(0)
-	, m_string_model(0)
 {
     ui->setupUi(this);
-			/*this->setupModelFile();
-			this->setupModelLvl();
-			this->setupModelCtx();
-			this->setupModelTID();
-			this->setupModelColorRegex();
-			this->setupModelRegex();
-			this->setupModelString();*/
-
-
 }
 
 FilterWidget::~FilterWidget ()
@@ -49,22 +35,10 @@ FilterWidget::~FilterWidget ()
     delete ui;
 }
 
-QTreeView * FilterWidget::getWidgetCtx () { return ui->treeViewCtx; }
-QTreeView const * FilterWidget::getWidgetCtx () const { return ui->treeViewCtx; }
-QComboBox * FilterWidget::getFilterRegex () { return ui->comboBoxRegex; }
-QComboBox const * FilterWidget::getFilterRegex () const { return ui->comboBoxRegex; }
-QTreeView * FilterWidget::getWidgetRegex () { return ui->treeViewRegex; }
-QTreeView const * FilterWidget::getWidgetRegex () const { return ui->treeViewRegex; }
 QComboBox * FilterWidget::getFilterColorRegex () { return ui->comboBoxColorRegex; }
 QComboBox const * FilterWidget::getFilterColorRegex () const { return ui->comboBoxColorRegex; }
 QListView * FilterWidget::getWidgetColorRegex () { return ui->listViewColorRegex; }
 QListView const * FilterWidget::getWidgetColorRegex () const { return ui->listViewColorRegex; }
-QListView * FilterWidget::getWidgetTID () { return ui->listViewTID; }
-QListView const * FilterWidget::getWidgetTID () const { return ui->listViewTID; }
-QTreeView * FilterWidget::getWidgetLvl () { return ui->treeViewLvl; }
-QTreeView const * FilterWidget::getWidgetLvl () const { return ui->treeViewLvl; }
-QTreeView * FilterWidget::getWidgetString () { return ui->treeViewString; }
-QTreeView const * FilterWidget::getWidgetString () const { return ui->treeViewString; }
 
 
 
@@ -138,57 +112,13 @@ void FilterWidget::saveConfig (QString const & fname)
 {
 }
 
-/*void Connection::setupModelCtx ()
-{
-	if (!m_ctx_model)
-	{
-		qDebug("new tree view ctx model");
-		m_ctx_model = new QStandardItemModel;
-	}
-	m_main_window->getWidgetCtx()->setModel(m_ctx_model);
-	m_main_window->getWidgetCtx()->expandAll();
-	m_main_window->getWidgetCtx()->setItemDelegate(m_delegates.get<e_delegate_Ctx>());
-}
-
-void Connection::setupModelTID ()
-{
-	if (!m_tid_model)
-		m_tid_model = new QStandardItemModel;
-	m_main_window->getWidgetTID()->setModel(m_tid_model);
-}
-
-void Connection::setupModelColorRegex ()
+/*void Connection::setupModelColorRegex ()
 {
 	if (!m_color_regex_model)
 		m_color_regex_model = new QStandardItemModel;
 	m_main_window->getWidgetColorRegex()->setModel(m_color_regex_model);
 }
 
-void Connection::setupModelRegex ()
-{
-	if (!m_regex_model)
-		m_regex_model = new QStandardItemModel;
-	m_main_window->getWidgetRegex()->setModel(m_regex_model);
-	m_main_window->getWidgetRegex()->setItemDelegate(m_delegates.get<e_delegate_Regex>());
-}
-
-void Connection::setupModelString ()
-{
-	if (!m_string_model)
-		m_string_model = new QStandardItemModel;
-	m_main_window->getWidgetString()->setModel(m_string_model);
-	m_main_window->getWidgetString()->setItemDelegate(m_delegates.get<e_delegate_String>());
-}
-
-void Connection::setupModelLvl ()
-{
-	if (!m_lvl_model)
-		m_lvl_model = new QStandardItemModel;
-	m_main_window->getWidgetLvl()->setModel(m_lvl_model);
-	m_main_window->getWidgetLvl()->setSortingEnabled(true);
-	m_main_window->getWidgetLvl()->setItemDelegate(m_delegates.get<e_delegate_Level>());
-	m_main_window->getWidgetLvl()->setRootIndex(m_lvl_model->indexFromItem(m_lvl_model->invisibleRootItem()));
-}
 		{
 			QStandardItemModel * model = static_cast<QStandardItemModel *>(m_main_window->getWidgetColorRegex()->model());
 			QStandardItem * root = model->invisibleRootItem();

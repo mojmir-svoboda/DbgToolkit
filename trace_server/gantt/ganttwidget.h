@@ -10,6 +10,7 @@
 #include "types.h"
 //#include "dock.h"
 #include "cmd.h"
+#include "filtermgr.h"
 
 class Connection;
 QT_FORWARD_DECLARE_CLASS(QSplitter)
@@ -52,8 +53,8 @@ namespace gantt {
 
 		FrameView * findOrCreateFrameView (int sync_group);
 
-		FilterWidget * filterWidget ();
-		FilterWidget const * filterWidget () const;
+		FilterMgr * filterMgr ();
+		FilterMgr const * filterMgr () const;
 
 
 		//void appendGantt (QString const & time, QString const & tid, QString const & fgc, QString const & bgc, QString const & msg);

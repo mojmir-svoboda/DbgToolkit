@@ -26,6 +26,7 @@
 #include <QFile>
 #include <QSettings>
 #include "constants.h"
+#include "types.h"
 
 inline QStandardItem * findChildByText (QStandardItem * parent, QString const & txt)
 {

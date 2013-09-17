@@ -5,6 +5,8 @@
 
 #include "config.h"
 #include <QList>
+#include <QStyledItemDelegate>
+#include "appdata.h"
 
 struct FilterCtx : FilterBase
 {
@@ -23,22 +25,34 @@ struct FilterCtx : FilterBase
 	virtual void loadConfig (QString const & path);
 	virtual void saveConfig (QString const & path);
 	virtual void applyConfig ();
+	virtual void clear ();
 
-	Q_OBJECT
-
-	// ctx
-	typedef QList<FilteredContext> ctx_filters_t;
+	// ctx specific
+	void setupModel ();
+	void detroyModel ();
 	bool isCtxPresent (QString const & item, bool & enabled) const;
 	void appendCtxFilter (QString const & item);
 	void removeCtxFilter (QString const & item);
-	void onClearCtxFilter () { m_ctx_filters.clear(); }
 
 	template <class ArchiveT>
 	void serialize (ArchiveT & ar, unsigned const version)
 	{
 		ar & boost::serialization::make_nvp("ctx_filters", m_ctx_filters);
 	}
+
+	typedef QList<FilteredContext> ctx_filters_t;
 	ctx_filters_t			m_ctx_filters;
+	QStandardItemModel *	m_ctx_model;
+	QStyledItemDelegate *   m_delegate;
 
-
+	Q_OBJECT
 };
+
+struct CtxDelegate : public QStyledItemDelegate
+{
+	AppData const & m_app_data;
+    CtxDelegate (AppData const & ad, QObject *parent = 0) : QStyledItemDelegate(parent), m_app_data(ad) { }
+    void paint (QPainter * painter, QStyleOptionViewItem const & option, QModelIndex const & index) const;
+};
+
+

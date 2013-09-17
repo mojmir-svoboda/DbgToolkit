@@ -145,7 +145,7 @@ void LogTableModel::parseCommand (DecodedCommand const & cmd, E_ReceiveMode mode
 	}
 
 
-	void const * node = m_log_widget.filterMgr()->fileModel()->insertItem(file + "/" + line);
+	void const * node = m_log_widget.filterMgr()->getFilterFileLine()->fileModel()->insertItem(file + "/" + line);
 	batch.m_tree_node_ptrs.back() = node;
 
 	unsigned long long t = time.toULongLong();

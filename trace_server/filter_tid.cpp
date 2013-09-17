@@ -4,6 +4,8 @@ FilterTid::FilterTid (QWidget * parent)
 	: FilterBase(parent)
 	, m_ui(new Ui_FilterTid)
 {
+	initUI();
+	setupModel();
 }
 
 void FilterTid::initUI ()
@@ -17,7 +19,12 @@ void FilterTid::doneUI ()
 
 bool FilterTid::accept (DecodedCommand const & cmd) const
 {
-	return true;
+	QString tid;
+	if (!cmd.getString(tlv::tag_tid, tid))
+		return true;
+
+	bool const excluded = isTIDExcluded(tid);
+	return !excluded;
 }
 
 void FilterTid::loadConfig (QString const & path)
@@ -35,8 +42,29 @@ void FilterTid::applyConfig ()
 	//m_filter_state.merge_with(src.m_file_filters);
 }
 
+void FilterTid::clear ()
+{
+	m_tid_filters.clear();
+	// @TODO m_tid_model.clear();
+}
+
 
 ///////// tid filters
+void FilterTid::setupModel ()
+{
+	if (!m_tid_model)
+		m_tid_model = new QStandardItemModel;
+	m_ui->view->setModel(m_tid_model);
+}
+
+void FilterTid::destroyModel ()
+{
+	if (m_ui->view->model() == m_tid_model)
+		m_ui->view->setModel(0);
+	delete m_tid_model;
+	m_tid_model = 0;
+}
+
 void FilterTid::appendTIDFilter (QString const & item)
 {
 	m_tid_filters.push_back(item);

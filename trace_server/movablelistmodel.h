@@ -2,6 +2,7 @@
 #include <QMimeData>
 #include <QString>
 #include <QVariant>
+#include "utils_qstandarditem.h"
 
 class MyListModel : public QStandardItemModel
 {

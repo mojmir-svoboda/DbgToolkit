@@ -353,7 +353,7 @@ namespace logs {
 		QString const logpath = path + "/" + g_presetLogTag + "/" + m_config.m_tag;
 		m_config2.clear();
 		logs::loadConfig(m_config2, logpath);
-		filterWidget()->loadConfig(logpath);
+		filterMgr()->loadConfig(logpath);
 	}
 
 	void LogWidget::normalizeConfig (logs::LogConfig & normalized)
@@ -395,7 +395,7 @@ namespace logs {
 		logs::LogConfig tmp = m_config;
 		normalizeConfig(tmp);
 		logs::saveConfig(tmp, logpath);
-		filterWidget()->saveConfig(logpath);
+		filterMgr()->saveConfig(logpath);
 
         //currentIndex  = horizontalHeader()->visualIndex(session.findColumn4Tag(iter.key()));
 		// isSectionHidden

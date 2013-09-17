@@ -40,8 +40,9 @@ struct FilterFileLine : FilterBase
 	virtual void saveConfig (QString const & path);
 	virtual void applyConfig ();
 
-	Q_OBJECT
 
+	void setupModel ();
+	void destroyModel ();
 	typedef tree_filter<TreeModelItem> file_filters_t;
 	typedef file_filters_t::node_t node_t;
 	file_filters_t			m_file_filters;
@@ -59,7 +60,7 @@ struct FilterFileLine : FilterBase
 		ar & boost::serialization::make_nvp("file_filters", m_file_filters);
 	}
 
-	void clear ()
+	virtual void clear ()
 	{
 		m_file_filters.set_state_to_childs(m_file_filters.root, TreeModelItem(e_Checked, false));
 	}
@@ -70,8 +71,6 @@ struct FilterFileLine : FilterBase
 	FilterTreeModel const * fileModel () const { return m_file_model; }
 	TreeView * getWidgetFile ();
 	TreeView const * getWidgetFile () const;
-	void setupModelFile ();
-	void destroyModelFile ();
 	void onGotoFileFilter ();
 	void onFilterFileComboChanged (QString str);
 	void onCancelFilterFileButton ();
@@ -81,4 +80,6 @@ struct FilterFileLine : FilterBase
 	FilterTreeModel * m_file_model;
 	TreeProxyModel * m_file_proxy;
 	QItemSelectionModel * m_proxy_selection;
+
+	Q_OBJECT
 };

@@ -5,6 +5,8 @@
 
 #include "config.h"
 #include <QList>
+#include <QStandardItemModel>
+#include <QStyledItemDelegate>
 
 struct FilterString : FilterBase
 {
@@ -23,22 +25,33 @@ struct FilterString : FilterBase
 	virtual void loadConfig (QString const & path);
 	virtual void saveConfig (QString const & path);
 	virtual void applyConfig ();
-
-	Q_OBJECT
+	virtual void clear ();
 
 	// string filtering
+	void setupModel ();
+	void destroyModel ();
 	void appendToStringFilters (QString const & str, bool checked, int state);
 	void removeFromStringFilters (QString const & str);
 	bool isMatchedStringExcluded (QString str) const;
 	void setStringChecked (QString const & s, bool checked);
 	void setStringState (QString const & s, int state);
 
-	void onClearStringFilter () { m_filtered_strings.clear(); }
 	template <class ArchiveT>
 	void serialize (ArchiveT & ar, unsigned const version)
 	{
 		ar & boost::serialization::make_nvp("filtered_strings", m_filtered_strings);
 	}
-	QList<FilteredString>	m_filtered_strings;
 
+	QList<FilteredString>	m_filtered_strings;
+	QStandardItemModel *	m_string_model;
+	QStyledItemDelegate *   m_delegate;
+
+	Q_OBJECT
 };
+
+struct StringDelegate : public QStyledItemDelegate
+{
+    StringDelegate (QObject * parent = 0) : QStyledItemDelegate(parent) { }
+    void paint (QPainter * painter, QStyleOptionViewItem const & option, QModelIndex const & index) const;
+};
+

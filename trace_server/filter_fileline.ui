@@ -1,130 +1,134 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>FilterFileLine</class>
- <widget class="QWidget" name="filterFileLine">
-  <attribute name="title">
-   <string>File</string>
-  </attribute>
+ <widget class="QWidget" name="FilterFileLine">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>256</width>
+    <height>219</height>
+   </rect>
+  </property>
   <layout class="QVBoxLayout" name="filterFileLayout">
    <property name="spacing">
-	<number>1</number>
+    <number>1</number>
    </property>
    <property name="margin">
-	<number>0</number>
+    <number>0</number>
    </property>
    <item>
-	<layout class="QGridLayout" name="gL_2">
-	 <property name="topMargin">
-	  <number>0</number>
-	 </property>
-	 <property name="rightMargin">
-	  <number>0</number>
-	 </property>
-	 <property name="bottomMargin">
-	  <number>0</number>
-	 </property>
-	 <item row="0" column="2">
-	  <spacer name="hS_8">
-	   <property name="orientation">
-		<enum>Qt::Horizontal</enum>
-	   </property>
-	   <property name="sizeHint" stdset="0">
-		<size>
-		 <width>40</width>
-		 <height>20</height>
-		</size>
-	   </property>
-	  </spacer>
-	 </item>
-	 <item row="0" column="4">
-	  <widget class="QSpinBox" name="cutParentSpinBox">
-	   <property name="maximumSize">
-		<size>
-		 <width>36</width>
-		 <height>16777215</height>
-		</size>
-	   </property>
-	   <property name="toolTip">
-		<string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Clip up to N levels from the root path.&lt;/p&gt;&lt;p&gt;I.e. for long path like /c/devel/qt5/qtbase/include will be stripped to qtbase/include for value 3 in the spinbox. 0 for no clip.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-	   </property>
-	   <property name="buttonSymbols">
-		<enum>QAbstractSpinBox::UpDownArrows</enum>
-	   </property>
-	  </widget>
-	 </item>
-	 <item row="0" column="0">
-	  <widget class="QComboBox" name="filterFileComboBox">
-	   <property name="minimumSize">
-		<size>
-		 <width>64</width>
-		 <height>0</height>
-		</size>
-	   </property>
-	   <property name="toolTip">
-		<string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Find string in the file filter view&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-	   </property>
-	   <property name="editable">
-		<bool>true</bool>
-	   </property>
-	  </widget>
-	 </item>
-	 <item row="0" column="1">
-	  <widget class="QPushButton" name="cancelFilterButton">
-	   <property name="maximumSize">
-		<size>
-		 <width>16</width>
-		 <height>16777215</height>
-		</size>
-	   </property>
-	   <property name="font">
-		<font>
-		 <pointsize>9</pointsize>
-		 <weight>75</weight>
-		 <bold>true</bold>
-		</font>
-	   </property>
-	   <property name="text">
-		<string>X</string>
-	   </property>
-	   <property name="flat">
-		<bool>false</bool>
-	   </property>
-	  </widget>
-	 </item>
-	 <item row="0" column="3">
-	  <widget class="QPushButton" name="collapseChildsButton">
-	   <property name="maximumSize">
-		<size>
-		 <width>24</width>
-		 <height>16777215</height>
-		</size>
-	   </property>
-	   <property name="toolTip">
-		<string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Collapses parents with leaves only&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-	   </property>
-	   <property name="text">
-		<string>CC</string>
-	   </property>
-	  </widget>
-	 </item>
-	</layout>
+    <layout class="QGridLayout" name="gL_2">
+     <property name="topMargin">
+      <number>0</number>
+     </property>
+     <property name="rightMargin">
+      <number>0</number>
+     </property>
+     <property name="bottomMargin">
+      <number>0</number>
+     </property>
+     <item row="0" column="2">
+      <spacer name="hS_8">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item row="0" column="4">
+      <widget class="QSpinBox" name="cutParentSpinBox">
+       <property name="maximumSize">
+        <size>
+         <width>36</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="toolTip">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Clip up to N levels from the root path.&lt;/p&gt;&lt;p&gt;I.e. for long path like /c/devel/qt5/qtbase/include will be stripped to qtbase/include for value 3 in the spinbox. 0 for no clip.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+       <property name="buttonSymbols">
+        <enum>QAbstractSpinBox::UpDownArrows</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0">
+      <widget class="QComboBox" name="filterFileComboBox">
+       <property name="minimumSize">
+        <size>
+         <width>64</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="toolTip">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Find string in the file filter view&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+       <property name="editable">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QPushButton" name="cancelFilterButton">
+       <property name="maximumSize">
+        <size>
+         <width>16</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>9</pointsize>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>X</string>
+       </property>
+       <property name="flat">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="3">
+      <widget class="QPushButton" name="collapseChildsButton">
+       <property name="maximumSize">
+        <size>
+         <width>24</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="toolTip">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Collapses parents with leaves only&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+       <property name="text">
+        <string>CC</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
    <item>
-	<widget class="TreeView" name="treeViewFile">
-	 <property name="frameShadow">
-	  <enum>QFrame::Sunken</enum>
-	 </property>
-	 <property name="autoScroll">
-	  <bool>false</bool>
-	 </property>
-	 <property name="showDropIndicator" stdset="0">
-	  <bool>false</bool>
-	 </property>
-	</widget>
+    <widget class="TreeView" name="view">
+     <property name="frameShadow">
+      <enum>QFrame::Sunken</enum>
+     </property>
+     <property name="autoScroll">
+      <bool>false</bool>
+     </property>
+     <property name="showDropIndicator" stdset="0">
+      <bool>false</bool>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>
-
  <customwidgets>
   <customwidget>
    <class>TreeView</class>

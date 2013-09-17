@@ -82,10 +82,11 @@ set(trace_server_SOURCES
 	dockconfig.cpp
 	syncwidgets.cpp
 	findwidget.cpp
+	combolist.cpp
 	filtermgr.cpp
 	filterbase.cpp
 	filter_fileline.cpp
-	filter_ctx.cpp
+	##filter_ctx.cpp
 	filter_lvl.cpp
 	filter_string.cpp
 	filter_regex.cpp
@@ -154,6 +155,7 @@ set(trace_server_HEADERS
 	syncwidgets.h
 	config.h
 	findwidget.h
+	combolist.h
 	filtermgr.h
 	filterbase.h
 	filter_fileline.h
@@ -208,6 +210,7 @@ set(trace_server_UI
 	mainwindow.ui
 	filterwidget.ui
 	findwidget.ui
+	combolist.ui
 	settings.ui
 	settingslog.ui
 	settingsplot.ui

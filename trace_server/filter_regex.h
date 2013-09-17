@@ -5,6 +5,8 @@
 
 #include "config.h"
 #include <QList>
+#include <QStandardItemModel>
+#include <QStyledItemDelegate>
 
 struct FilterRegex : FilterBase
 {
@@ -23,10 +25,11 @@ struct FilterRegex : FilterBase
 	virtual void loadConfig (QString const & path);
 	virtual void saveConfig (QString const & path);
 	virtual void applyConfig ();
+	virtual void clear ();
 
-	Q_OBJECT
-	
 	// regex filtering
+	void setupModel ();
+	void destroyModel ();
 	void appendToRegexFilters (QString const & str, bool checked, bool inclusive);
 	void removeFromRegexFilters (QString const & str);
 	bool isMatchedRegexExcluded (QString str) const;
@@ -41,5 +44,15 @@ struct FilterRegex : FilterBase
 	}
 
 	QList<FilteredRegex>	m_filtered_regexps;
+	QStandardItemModel *	m_regex_model;
+	QStyledItemDelegate *   m_delegate;
 
+	Q_OBJECT
 };
+
+struct RegexDelegate : public QStyledItemDelegate
+{
+    RegexDelegate (QObject * parent = 0) : QStyledItemDelegate(parent) { }
+    void paint (QPainter * painter, QStyleOptionViewItem const & option, QModelIndex const & index) const;
+};
+

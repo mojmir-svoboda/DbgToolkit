@@ -46,7 +46,7 @@ protected:
 	bool filterAcceptsColumn (int sourceColumn, QModelIndex const & source_parent) const;
 
 	logs::LogWidget & m_log_widget;
-	FilterState & m_filter_state;
+	//FilterState & m_filter_state;
 };
 
 

@@ -5,16 +5,36 @@
 
 enum E_FilterType {
 	e_Filter_Mgr = 0,
-	e_Filter_FileLine,
+	e_Filter_Script,
+	e_Filter_String,
+	e_Filter_Regex,
 	e_Filter_Ctx,
 	e_Filter_Lvl,
 	e_Filter_Tid,
-	e_Filter_Regex,
-	e_Filter_String,
-	e_Filter_User,
+	e_Filter_FileLine,
+	e_Filter_User0,
+	e_Filter_User1,
+	e_Filter_User2,
 
 	e_filtertype_max_value
 };
+
+QString const g_filterNames[] = {
+	QString("Mgr"),
+	QString("Script"),
+	QString("String"),
+	QString("Regex"),
+	QString("Ctx"),
+	QString("Level"),
+	QString("Tid"),
+	QString("FileLn"),
+	QString("User0"),
+	QString("User1"),
+	QString("User2"),
+	QString("max")
+};
+
+
 
 struct FilterBase : public QWidget
 {
@@ -38,6 +58,8 @@ struct FilterBase : public QWidget
 	virtual void loadConfig (QString const & path) = 0;
 	virtual void saveConfig (QString const & path) = 0;
 	virtual void applyConfig () = 0;
+
+	virtual void clear () = 0;
 
 	Q_OBJECT
 };

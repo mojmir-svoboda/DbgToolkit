@@ -7,7 +7,8 @@ FilterFileLine::FilterFileLine (QWidget * parent)
 	, m_file_proxy(0)
 	, m_proxy_selection(0)
 {
-	setupModelFile();
+	initUI();
+	setupModel();
 }
 
 void FilterFileLine::initUI ()
@@ -17,12 +18,28 @@ void FilterFileLine::initUI ()
 
 void FilterFileLine::doneUI ()
 {
-	destroyModelFile();
+	destroyModel();
 }
 
 bool FilterFileLine::accept (DecodedCommand const & cmd) const
 {
-	return true;
+	QString file, line;
+	if (!cmd.getString(tlv::tag_file, file))
+		return true;
+	if (!cmd.getString(tlv::tag_line, line))
+		return true;
+
+	bool excluded = false;
+	if (!file.isNull() && !line.isNull() && !file.isEmpty() && !line.isEmpty())
+	{
+		TreeModelItem ff;
+		bool const ff_present = isFileLinePresent(std::make_pair(file, line), ff);
+		if (ff_present)
+		{
+			excluded |= ff.m_state == e_Unchecked;
+		}
+	}
+	return !excluded;
 }
 
 void FilterFileLine::loadConfig (QString const & path)
@@ -55,6 +72,40 @@ QModelIndex FilterTreeModel::insertItemWithPath (QStringList const & path, bool 
 
 
 ///////// file filters
+void FilterFileLine::setupModel ()
+{
+	if (!m_file_model)
+	{
+		qDebug("new tree view file model");
+		m_file_model = new FilterTreeModel(this, &m_file_filters);
+
+		  //->setFilterBehavior( KSelectionProxyModel::ExactSelection );
+		m_proxy_selection = new QItemSelectionModel(m_file_model, this);
+		m_file_proxy = new TreeProxyModel(m_file_model, m_proxy_selection);
+	}
+	getWidgetFile()->setModel(m_file_model);
+	getWidgetFile()->syncExpandState();
+	getWidgetFile()->hideLinearParents();
+	//connect(m_file_model, SIGNAL(invalidateFilter()), this, SLOT(onInvalidateFilter()));
+}
+
+void FilterFileLine::destroyModel ()
+{
+	if (m_file_model)
+	{
+		qDebug("destroying file model");
+		//disconnect(m_file_model, SIGNAL(invalidateFilter()), this, SLOT(onInvalidateFilter()));
+		getWidgetFile()->unsetModel(m_file_model);
+		delete m_file_model;
+		m_file_model = 0;
+		delete m_file_proxy;
+		m_file_proxy = 0;
+		delete m_proxy_selection;
+		m_proxy_selection = 0;
+	}
+}
+
+
 bool FilterFileLine::isFileLinePresent (fileline_t const & item, TreeModelItem & fi) const
 {
 	TreeModelItem const * tmp_fi = 0;
@@ -165,41 +216,8 @@ void FilterFileLine::merge_with (file_filters_t const & rhs)
 	merge(m_file_filters.root, rhs_root);
 } 
 
-TreeView * FilterFileLine::getWidgetFile () { return m_ui->treeViewFile; }
-TreeView const * FilterFileLine::getWidgetFile () const { return m_ui->treeViewFile; }
-
-void FilterFileLine::setupModelFile ()
-{
-	if (!m_file_model)
-	{
-		qDebug("new tree view file model");
-		m_file_model = new FilterTreeModel(this, &m_file_filters);
-
-		  //->setFilterBehavior( KSelectionProxyModel::ExactSelection );
-		m_proxy_selection = new QItemSelectionModel(m_file_model, this);
-		m_file_proxy = new TreeProxyModel(m_file_model, m_proxy_selection);
-	}
-	getWidgetFile()->setModel(m_file_model);
-	getWidgetFile()->syncExpandState();
-	getWidgetFile()->hideLinearParents();
-	//connect(m_file_model, SIGNAL(invalidateFilter()), this, SLOT(onInvalidateFilter()));
-}
-
-void FilterFileLine::destroyModelFile ()
-{
-	if (m_file_model)
-	{
-		qDebug("destroying file model");
-		//disconnect(m_file_model, SIGNAL(invalidateFilter()), this, SLOT(onInvalidateFilter()));
-		getWidgetFile()->unsetModel(m_file_model);
-		delete m_file_model;
-		m_file_model = 0;
-		delete m_file_proxy;
-		m_file_proxy = 0;
-		delete m_proxy_selection;
-		m_proxy_selection = 0;
-	}
-}
+TreeView * FilterFileLine::getWidgetFile () { return m_ui->view; }
+TreeView const * FilterFileLine::getWidgetFile () const { return m_ui->view; }
 
 
 

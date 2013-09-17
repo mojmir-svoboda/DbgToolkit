@@ -5,6 +5,8 @@
 
 #include "config.h"
 #include <QList>
+#include <QStandardItemModel>
+#include <QStyledItemDelegate>
 
 struct FilterLvl : FilterBase
 {
@@ -24,21 +26,33 @@ struct FilterLvl : FilterBase
 	virtual void saveConfig (QString const & path);
 	virtual void applyConfig ();
 
-	Q_OBJECT
+	virtual void clear ();
 
-	// lvl
-	typedef QList<FilteredLevel> lvl_filters_t;
+	// lvl specific
+	void setupModel ();
+	void destroyModel ();
 	void appendLvlFilter (QString const & item);
 	void removeLvlFilter (QString const & item);
 	bool isLvlPresent (QString const & item, bool & enabled, E_LevelMode & lvlmode) const;
 	bool setLvlMode (QString const & item, bool enabled, E_LevelMode lvlmode);
-	void onClearLvlFilter () { m_lvl_filters.clear(); }
 
 	template <class ArchiveT>
 	void serialize (ArchiveT & ar, unsigned const version)
 	{
 		ar & boost::serialization::make_nvp("lvl_filters", m_lvl_filters);
 	}
-	lvl_filters_t			m_lvl_filters;
 
+	typedef QList<FilteredLevel> lvl_filters_t;
+	lvl_filters_t			m_lvl_filters;
+	QStandardItemModel *	m_lvl_model;
+	QStyledItemDelegate *   m_delegate;
+
+	Q_OBJECT
 };
+
+struct LevelDelegate : public QStyledItemDelegate
+{
+    LevelDelegate (QObject * parent = 0) : QStyledItemDelegate(parent) { }
+    void paint (QPainter * painter, QStyleOptionViewItem const & option, QModelIndex const & index) const;
+};
+

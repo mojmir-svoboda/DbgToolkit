@@ -60,10 +60,7 @@ Connection::Connection (QObject * parent)
     m_ctx_menu.addSeparator();
     m_ctx_menu.addAction(m_actions[e_action_Setup]);
 
-	m_delegates.get<e_delegate_Level>() = new LevelDelegate(m_session_state, this);
-	m_delegates.get<e_delegate_Ctx>() = new CtxDelegate(m_session_state, this);
-	m_delegates.get<e_delegate_String>() = new StringDelegate(m_session_state, this);
-	m_delegates.get<e_delegate_Regex>() = new RegexDelegate(m_session_state, this);*/
+	*/
 }
 
 namespace {
@@ -137,53 +134,11 @@ Connection::~Connection ()
 		delete f;
 	}
 
-	destroyModelFile();
-
-	if (m_main_window->getWidgetLvl()->itemDelegate() == m_delegates.get<e_delegate_Level>())
-		m_main_window->getWidgetLvl()->setItemDelegate(0);
-	if (m_main_window->getWidgetLvl()->model() == m_lvl_model)
-		m_main_window->getWidgetLvl()->setModel(0);
-	delete m_lvl_model;
-	m_lvl_model = 0;
-	delete m_delegates.get<e_delegate_Level>();
-	m_delegates.get<e_delegate_Level>() = 0;
-
-	if (m_main_window->getWidgetCtx()->itemDelegate() == m_delegates.get<e_delegate_Ctx>())
-		m_main_window->getWidgetCtx()->setItemDelegate(0);
-	if (m_main_window->getWidgetCtx()->model() == m_ctx_model)
-		m_main_window->getWidgetCtx()->setModel(0);
-	delete m_ctx_model;
-	m_ctx_model = 0;
-	delete m_delegates.get<e_delegate_Ctx>();
-	m_delegates.get<e_delegate_Ctx>() = 0;
-
-	if (m_main_window->getWidgetTID()->model() == m_tid_model)
-		m_main_window->getWidgetTID()->setModel(0);
-	delete m_tid_model;
-	m_tid_model = 0;
-
 	if (m_main_window->getWidgetColorRegex()->model() == m_color_regex_model)
 		m_main_window->getWidgetColorRegex()->setModel(0);
 	delete m_color_regex_model;
 	m_color_regex_model = 0;
 
-	if (m_main_window->getWidgetRegex()->itemDelegate() == m_delegates.get<e_delegate_Regex>())
-		m_main_window->getWidgetRegex()->setItemDelegate(0);
-	if (m_main_window->getWidgetRegex()->model() == m_regex_model)
-		m_main_window->getWidgetRegex()->setModel(0);
-	delete m_regex_model;
-	m_regex_model = 0;
-	delete m_delegates.get<e_delegate_Regex>();
-	m_delegates.get<e_delegate_Regex>() = 0;
-
-	if (m_main_window->getWidgetString()->itemDelegate() == m_delegates.get<e_delegate_String>())
-		m_main_window->getWidgetString()->setItemDelegate(0);
-	if (m_main_window->getWidgetString()->model() == m_string_model)
-		m_main_window->getWidgetString()->setModel(0);
-	delete m_string_model;
-	m_string_model = 0;
-	delete m_delegates.get<e_delegate_String>();
-	m_delegates.get<e_delegate_String>() = 0;
 
 	if (m_table_view_proxy)
 	{

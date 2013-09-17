@@ -27,22 +27,10 @@ public:
 	void saveConfig (QString const & path);
 	void applyConfig (FilterState const & src, FilterState & dst);
 
-	QTreeView * getWidgetCtx ();
-	QTreeView const * getWidgetCtx () const;
-    QComboBox * getFilterRegex ();
-    QComboBox const * getFilterRegex () const;
-	QTreeView * getWidgetRegex ();
-	QTreeView const * getWidgetRegex () const;
-	QTreeView * getWidgetString ();
-	QTreeView const * getWidgetString () const;
     QComboBox * getFilterColorRegex ();
     QComboBox const * getFilterColorRegex () const;
 	QListView * getWidgetColorRegex ();
 	QListView const * getWidgetColorRegex () const;
-	QListView * getWidgetTID ();
-	QListView const * getWidgetTID () const;
-	QTreeView * getWidgetLvl ();
-	QTreeView const * getWidgetLvl () const;
 
 	// filtering
 	void onRegexActivate (int idx);
@@ -95,23 +83,8 @@ public:
 	FilterState		m_filter_state;
 
 	//QItemSelectionModel * m_proxy_selection;
-	QStandardItemModel * m_ctx_model;
 	QStandardItemModel * m_func_model;
-	QStandardItemModel * m_tid_model;
 	QStandardItemModel * m_color_regex_model;
-	QStandardItemModel * m_regex_model;
-	QStandardItemModel * m_lvl_model;
-	QStandardItemModel * m_string_model;
-
-	enum E_Delegates {
-		  e_delegate_Level
-		, e_delegate_Ctx
-		, e_delegate_String
-		, e_delegate_Regex
-		, e_delegate_max_enum_value
-	};
-	boost::tuple<LevelDelegate *, CtxDelegate *, StringDelegate *, RegexDelegate *> m_delegates;
-
 };
 
 bool loadFilterState (FilterState & s, std::string const & filename);
