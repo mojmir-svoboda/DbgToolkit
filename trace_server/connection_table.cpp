@@ -9,8 +9,8 @@
 #include "delegates.h"
 #include <cstdlib>
 
-DataTable::DataTable (Connection * connection, config_t & config, QString const & confname, QStringList const & path)
-	: DockedData<e_data_table>(connection, config, confname, path)
+DataTable::DataTable (Connection * connection, QString const & confname, QStringList const & path)
+	: DockedData<e_data_table>(connection, confname, path)
 {
 	qDebug("%s this=0x%08x name=%s", __FUNCTION__, this, confname.toStdString().c_str());
 	m_widget = new table::TableWidget(connection, 0, m_config, confname, path);

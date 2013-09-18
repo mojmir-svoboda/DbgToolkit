@@ -501,5 +501,16 @@ void FrameView::onDefaultButton ()
 	setConfigValuesToUI(defaults);
 }
 
+void FrameView::loadConfig (QString const & preset_dir)
+{
+	/*QString const logpath = preset_dir + "/" + g_presetLogTag + "/" + m_config.m_tag;
+	m_config.clear();
+	bool const loaded = logs::loadConfig(m_config, logpath);
+	if (!loaded)
+		m_connection->defaultConfigFor(m_config);
+
+	filterMgr()->loadConfig(logpath);*/
+}
+
 
 

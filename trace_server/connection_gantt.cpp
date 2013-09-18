@@ -9,8 +9,8 @@
 #include "gantt/ganttwidget.h"
 //#include <cstdlib>
 
-DataGantt::DataGantt (Connection * connection, config_t & config, QString const & confname, QStringList const & path)
-	: DockedData<e_data_gantt>(connection, config, confname, path)
+DataGantt::DataGantt (Connection * connection, QString const & confname, QStringList const & path)
+	: DockedData<e_data_gantt>(connection, confname, path)
 {
 	qDebug("%s this=0x%08x name=%s", __FUNCTION__, this, confname.toStdString().c_str());
 	m_widget = new gantt::GanttWidget(connection, 0, m_config, confname, path);

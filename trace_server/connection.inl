@@ -1,14 +1,5 @@
 #pragma once
 
-template <int TypeN>
-bool Connection::loadConfigFor (QString const & preset_name, typename SelectConfig<TypeN>::type & config, QString const & tag)
-{
-	char const * preset_prefix = g_fileTags[TypeN];
-	QString const fname = getDataTagFileNameAndMkPath(getConfig().m_appdir, getAppName(), preset_name, preset_prefix, tag);
-	qDebug("loadCfgFor<>: load cfg file=%s", fname.toStdString().c_str());
-	return loadConfig(config, fname);
-}
-
 inline void Connection::defaultConfigFor (logs::LogConfig & config)
 {
 	QString const & appname = getAppName();
@@ -18,30 +9,6 @@ inline void Connection::defaultConfigFor (logs::LogConfig & config)
 		convertBloodyBollockyBuggeryRegistry(config);
 		return;
 	}
-	fillDefaultConfig(config);
-}
-inline void Connection::defaultConfigFor (plot::PlotConfig & config)
-{
-	fillDefaultConfig(config);
-}
-inline void Connection::defaultConfigFor (table::TableConfig & config)
-{
-	fillDefaultConfig(config);
-}
-inline void Connection::defaultConfigFor (gantt::GanttConfig & config)
-{
-	fillDefaultConfig(config);
-}
-inline void Connection::defaultConfigFor (FrameViewConfig & config)
-{
-	fillDefaultConfig(config);
-}
-
-template <int TypeN>
-void Connection::defaultConfigFor (typename SelectConfig<TypeN>::type & config, QString const & tag)
-{
-	defaultConfigFor(config);
-	config.m_tag = tag;
 }
 
 template <int TypeN>
@@ -58,9 +25,6 @@ typename SelectIterator<TypeN>::type  Connection::dataWidgetFactory (QString con
 
 		typedef typename SelectWidget<TypeN>::type widget_t;
 		typedef typename SelectConfig<TypeN>::type config_t;
-
-		config_t template_config;
-		template_config.m_tag = tag;
 
 		QString preset_name = m_main_window->matchClosestPresetName(getAppName());
 		if (!preset_name.isEmpty())
@@ -108,16 +72,7 @@ typename SelectIterator<TypeN>::type  Connection::dataWidgetFactory (QString con
 
 		m_main_window->mentionInPresetHistory(preset_name);
 		QString const fname = getDataTagFileName(getConfig().m_appdir, getAppName(), preset_name, preset_prefix, tag);
-		if (!preset_name.isEmpty())
-		{
-			bool const loaded = loadConfigFor<TypeN>(preset_name, template_config, tag);
-			if (!loaded)
-			{
-				defaultConfigFor<TypeN>(template_config, tag);
-			}
-			else
-				m_main_window->loadLayout(getPresetPath(getAppName(), preset_name));
-		}
+
 		
 		typedef typename SelectDockedData<TypeN, dockeddata_t>::type data_t;
 		typedef typename SelectDockedData<TypeN, dockeddataptr_t>::type dataptr_t;
@@ -130,8 +85,15 @@ typename SelectIterator<TypeN>::type  Connection::dataWidgetFactory (QString con
 		path.append(name1);
 		path.append(name2);
 		path.append(name3);
-		dataptr_t const dd = new data_t(this, template_config, fname, path);
+		dataptr_t const dd = new data_t(this, fname, path);
 		it = m_data.get<TypeN>().insert(tag, dd);
+
+		dd->m_config.m_tag = tag;
+		if (!preset_name.isEmpty())
+		{
+			QString const cfg_path = getConfig().m_appdir + "/" + getAppName() + "/" + preset_name;
+			dd->widget().loadConfig(cfg_path);
+		}
 
 		DockedWidgetBase & dwb = *dd;;
 

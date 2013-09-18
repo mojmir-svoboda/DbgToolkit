@@ -74,6 +74,13 @@ inline QString getDataTagFileName (QString const & appdir, QString const & app_n
 }
 
 
+inline QString mkPresetDir (QString const & appdir, QString const & app_name, QString const & preset_name, QString const & class_name)
+{
+	QString presetdir = appdir + "/" + app_name + "/" + preset_name + "/" + class_name;
+	QDir d;
+	d.mkpath(presetdir);
+	return presetdir;
+}
 
 inline QString getDataTagFileNameAndMkPath (QString const & appdir, QString const & app_name, QString const & preset_name, QString const & class_name, QString const & tag)
 {

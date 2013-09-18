@@ -98,11 +98,11 @@ struct DockedData : DockedWidgetBase
 	config_t     m_config;
 	QString      m_confname;
 
-	DockedData (Connection * parent, config_t & config, QString const & confname, QStringList const & dockpath)
+	DockedData (Connection * parent, QString const & confname, QStringList const & dockpath)
 		: DockedWidgetBase(dockpath)
 		, m_parent(parent)
 		, m_widget(0)
-		, m_config(config)
+		, m_config()
 		, m_confname(confname)
 	{ }
 
@@ -162,27 +162,27 @@ struct DockedData : DockedWidgetBase
 
 struct DataLog : DockedData<e_data_log>
 {
-	DataLog (Connection * parent, config_t & config, QString const & confname, QStringList const & path);
+	DataLog (Connection * parent, QString const & confname, QStringList const & path);
 	~DataLog ();
 };
 struct DataPlot : DockedData<e_data_plot>
 {
-	DataPlot (Connection * parent, config_t & config, QString const & confname, QStringList const & path);
+	DataPlot (Connection * parent, QString const & confname, QStringList const & path);
 };
 struct DataTable : DockedData<e_data_table>
 {
-	DataTable (Connection * parent, config_t & config, QString const & confname, QStringList const & path);
+	DataTable (Connection * parent, QString const & confname, QStringList const & path);
 	~DataTable ();
 };
 
 struct DataGantt : DockedData<e_data_gantt>
 {
-	DataGantt (Connection * parent, config_t & config, QString const & confname, QStringList const & path);
+	DataGantt (Connection * parent, QString const & confname, QStringList const & path);
 };
 
 struct DataFrame : DockedData<e_data_frame>
 {
-	DataFrame (Connection * parent, config_t & config, QString const & confname, QStringList const & path);
+	DataFrame (Connection * parent, QString const & confname, QStringList const & path);
 };
 
 
@@ -257,6 +257,8 @@ public:
 	void requestTableSynchronization (int sync_group, unsigned long long time);
 	void requestTableWheelEventSync (int sync_group, QWheelEvent * ev, QTableView const * source);
 	void requestTableActionSync (int sync_group, unsigned long long t, int cursorAction, Qt::KeyboardModifiers modifiers, QTableView const * source);
+
+	void defaultConfigFor (logs::LogConfig & config); // loads legacy registry defaults
 
 signals:
 	void readyForUse();
@@ -350,17 +352,6 @@ protected:
 
 	void registerDataMaps ();
 
-	template <int TypeN>
-	bool loadConfigFor (QString const & preset_name, typename SelectConfig<TypeN>::type & config, QString const & tag);
-
-
-	template <int TypeN>
-	void defaultConfigFor (typename SelectConfig<TypeN>::type & config, QString const & tag);
-	void defaultConfigFor (logs::LogConfig & config);
-	void defaultConfigFor (plot::PlotConfig & config);
-	void defaultConfigFor (table::TableConfig & config);
-	void defaultConfigFor (gantt::GanttConfig & config);
-	void defaultConfigFor (FrameViewConfig & config);
 	void convertBloodyBollockyBuggeryRegistry (logs::LogConfig & cfg);
 
 	datalogs_t::iterator findOrCreateLog (QString const & tag);

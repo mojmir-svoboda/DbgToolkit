@@ -113,7 +113,7 @@ void FilterMgr::recreateFilters ()
 	{
 		E_FilterType const t = filterName2Type(m_filter_order[i]);
 		FilterBase * b = filterFactory(t, this);
-		m_filters.push_back(b);
+		m_filters[i]= b;
 		m_cache[t] = b;
 	}
 }
@@ -284,16 +284,22 @@ void FilterMgr::clear ()
 }
 
 
+///////// serialize
 bool loadConfig (FilterMgr & w, QString const & fname)
 {
 	std::ifstream ifs(fname.toLatin1());
 	if (!ifs) return false;
-	boost::archive::xml_iarchive ia(ifs);
-	ia >> BOOST_SERIALIZATION_NVP(w.m_filter_order);
-	ifs.close();
-	return true;
+	try {
+		boost::archive::xml_iarchive ia(ifs);
+		ia >> BOOST_SERIALIZATION_NVP(w.m_filter_order);
+		ifs.close();
+		return true;
+	}
+	catch (...)
+	{
+		return false;
+	}
 }
-
 bool saveConfig (FilterMgr const & w, QString const & fname)
 {
 	std::ofstream ofs(fname.toLatin1());
@@ -303,7 +309,6 @@ bool saveConfig (FilterMgr const & w, QString const & fname)
 	ofs.close();
 	return true;
 }
-
 void fillDefaultConfig (FilterMgr & w)
 {
 	w.m_filter_order.push_back(g_filterNames[e_Filter_String]);

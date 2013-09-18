@@ -342,11 +342,14 @@ namespace logs {
 		//applyConfig();
 	}
 
-	void LogWidget::loadConfig (QString const & path)
+	void LogWidget::loadConfig (QString const & preset_dir)
 	{
-		QString const logpath = path + "/" + g_presetLogTag + "/" + m_config.m_tag;
-		m_config2.clear();
-		logs::loadConfig(m_config2, logpath);
+		QString const logpath = preset_dir + "/" + g_presetLogTag + "/" + m_config.m_tag;
+		m_config.clear();
+		bool const loaded = logs::loadConfig(m_config, logpath);
+		if (!loaded)
+			m_connection->defaultConfigFor(m_config);
+
 		filterMgr()->loadConfig(logpath);
 	}
 

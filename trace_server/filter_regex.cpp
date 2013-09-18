@@ -1,5 +1,14 @@
 #include "filter_regex.h"
 #include <QPainter>
+// serialization stuff
+#include <boost/serialization/type_info_implementation.hpp>
+#include <boost/archive/xml_iarchive.hpp>
+#include <boost/archive/xml_oarchive.hpp>
+#include <boost/serialization/utility.hpp>
+#include <boost/serialization/serialization.hpp>
+#include <boost/serialization/vector.hpp>
+#include <serialize/ser_qt.h>
+#include <fstream>
 
 FilterRegex::FilterRegex (QWidget * parent)
 	: FilterBase(parent)
@@ -171,6 +180,35 @@ void FilterRegex::appendToRegexFilters (QString const & s, bool enabled, bool st
 		if (m_data[i].m_regex_str == s)
 			return;
 	m_data.push_back(FilteredRegex(s, enabled, state));
+}
+
+//////// serialize
+bool loadConfig (FilterRegex & w, QString const & fname)
+{
+	std::ifstream ifs(fname.toLatin1());
+	if (!ifs) return false;
+	try {
+		boost::archive::xml_iarchive ia(ifs);
+		ia >> BOOST_SERIALIZATION_NVP(w.m_data);
+		ifs.close();
+		return true;
+	}
+	catch (...)
+	{
+		return false;
+	}
+}
+bool saveConfig (FilterRegex const & w, QString const & fname)
+{
+	std::ofstream ofs(fname.toLatin1());
+	if (!ofs) return false;
+	boost::archive::xml_oarchive oa(ofs);
+	oa << BOOST_SERIALIZATION_NVP(w.m_data);
+	ofs.close();
+	return true;
+}
+void fillDefaultConfig (FilterRegex & w)
+{
 }
 
 

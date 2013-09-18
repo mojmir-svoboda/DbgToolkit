@@ -111,7 +111,7 @@ namespace logs {
 	// filtering stuff
 	void onInvalidateFilter ();
 	void syncSelection (QModelIndexList const & sel);
-	//void clearFilters (QStandardItem * node);
+	void clearFilters (QStandardItem * node);
 	void clearFilters ();
 	void onClearCurrentFileFilter ();
 	void onClearCurrentCtxFilter ();

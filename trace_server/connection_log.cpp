@@ -7,8 +7,8 @@
 #include "constants.h"
 #include "utils.h"
 
-DataLog::DataLog (Connection * connection, config_t & config, QString const & confname, QStringList const & path)
-	: DockedData<e_data_log>(connection, config, confname, path)
+DataLog::DataLog (Connection * connection, QString const & confname, QStringList const & path)
+	: DockedData<e_data_log>(connection, confname, path)
 {
 	qDebug("%s this=0x%08x name=%s", __FUNCTION__, this, confname.toStdString().c_str());
 

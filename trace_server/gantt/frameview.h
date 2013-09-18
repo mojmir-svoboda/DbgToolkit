@@ -29,6 +29,8 @@ struct FrameView : QWidget, ActionAble
 	void appendFrame (unsigned long long from, unsigned long long to);
 	virtual bool handleAction (Action * a, E_ActionHandleType sync);
 
+	void loadConfig (QString const & path);
+	void saveConfig (QString const & path);
 	void applyConfig (FrameViewConfig & cfg);
 	void applyConfig ();
 
