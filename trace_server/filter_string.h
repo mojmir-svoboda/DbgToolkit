@@ -39,6 +39,7 @@ struct FilterString : FilterBase
 	template <class ArchiveT>
 	void serialize (ArchiveT & ar, unsigned const version)
 	{
+		ar & boost::serialization::make_nvp("enabled", m_enabled);
 		ar & boost::serialization::make_nvp("filtered_strings", m_data);
 	}
 

@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <QGridLayout>
 #include <QComboBox>
+#include <QModelIndexList>
 #include "ui_combolist.h"
 // serialization stuff
 #include <boost/serialization/type_info_implementation.hpp>
@@ -85,10 +86,14 @@ void FilterMgr::rmFilter (FilterBase * b)
 
 void FilterMgr::mvFilter (int from, int to)
 {
+	m_filters.move(from, to);
+	m_filter_order.move(from, to);
 }
 
 void FilterMgr::onTabMoved (int from, int to)
 {
+	mvFilter(from, to);
+	//TODO: emit signal to recalc model?
 }
 
 FilterBase * filterFactory (E_FilterType t, QWidget * parent)
@@ -114,16 +119,22 @@ FilterBase * filterFactory (E_FilterType t, QWidget * parent)
 void FilterMgr::recreateFilters ()
 {
 	m_filters.clear();
-	m_filters.resize(m_filter_order.size());
+	m_filters.reserve(m_filter_order.size());
 	m_cache.clear();
 	m_cache.resize(e_filtertype_max_value);
 	for (size_t i = 0, ie = m_filter_order.size(); i < ie; ++i)
 	{
 		E_FilterType const t = filterName2Type(m_filter_order[i]);
 		FilterBase * b = filterFactory(t, 0);
-		m_filters[i]= b;
+		m_filters.push_back(b);
 		m_cache[t] = b;
 		m_tabFilters->insertTab(i, b, b->typeName());
+
+		QStyle const * const style = QApplication::style();
+		QIcon icon(style->standardIcon(QStyle::SP_DialogYesButton));
+		QPushButton * btn = new QPushButton();
+		btn->setIcon(icon);
+		m_tabFilters->tabBar()->setTabButton(i, QTabBar::LeftSide, btn);
 	}
 }
 
@@ -212,7 +223,6 @@ void FilterMgr::initUI ()
 	//m_widget = m_widget;
 
 	m_tabCtxMenu = new ComboList();
-	m_tabCtxMenu->ui->filterView->setEditTriggers(QAbstractItemView::AllEditTriggers);
 	m_tabCtxModel = new MyListModel(this);
 	m_tabCtxModel->m_flags |= Qt::ItemIsEditable;
 	m_tabCtxMenu->ui->filterView->setModel(m_tabCtxModel);
@@ -220,12 +230,14 @@ void FilterMgr::initUI ()
 	m_tabCtxMenu->ui->filterView->setDropIndicatorShown(true);
 	m_tabCtxMenu->ui->filterView->setMovement(QListView::Snap);
 	m_tabCtxMenu->ui->filterView->setDragDropMode(QAbstractItemView::InternalMove);
+	//m_tabCtxMenu->ui->filterView->setEditTriggers(QAbstractItemView::AllEditTriggers);
 	m_delegate = new ComboBoxDelegate(m_tabCtxMenu);
 	m_tabCtxMenu->ui->filterView->setItemDelegate(m_delegate);
 	m_tabCtxMenu->setVisible(0);
 
 	connect(m_tabCtxMenu->ui->addButton, SIGNAL(clicked()), this, SLOT(onCtxAddButton()));
 	connect(m_tabCtxMenu->ui->rmButton, SIGNAL(clicked()), this, SLOT(onCtxRmButton()));
+	connect(m_tabCtxMenu->ui->commitButton, SIGNAL(clicked()), this, SLOT(onCommitButton()));
 
 	setContextMenuPolicy(Qt::CustomContextMenu);
 	connect(this, SIGNAL(customContextMenuRequested(QPoint const &)), this, SLOT(onShowContextMenu(QPoint const &)));
@@ -273,6 +285,16 @@ void FilterMgr::onCtxAddButton ()
 
 void FilterMgr::onCtxRmButton ()
 {
+	QModelIndexList const idxs = m_tabCtxMenu->ui->filterView->selectionModel()->selectedIndexes();
+	foreach (QModelIndex index, idxs)
+	{
+		m_tabCtxModel->removeRow(index.row());
+	}
+}
+
+void FilterMgr::onCtxCommitButton ()
+{
+	setUIToConfig();
 }
 
 void FilterMgr::setUIToConfig ()

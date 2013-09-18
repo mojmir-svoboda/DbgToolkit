@@ -91,6 +91,7 @@ set(trace_server_SOURCES
 	filter_string.cpp
 	filter_regex.cpp
 	filter_tid.cpp
+	movabletabwidget.cpp
 
 	kde/kselectionproxymodel.cpp
 	kde/kmodelindexproxymapper.cpp

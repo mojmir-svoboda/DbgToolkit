@@ -36,7 +36,9 @@ struct FilterTid : FilterBase
 
 	template <class ArchiveT>
 	void serialize (ArchiveT & ar, unsigned const version)
-	{ }
+	{
+		ar & boost::serialization::make_nvp("enabled", m_enabled);
+	}
 
 	typedef std::vector<QString> tid_filters_t;
 	tid_filters_t			m_data;

@@ -15,7 +15,7 @@
 struct FilterMgr : FilterBase 
 {
 	QStringList 				m_filter_order;
-	typedef std::vector<FilterBase *> filters_t;
+	typedef QList<FilterBase *> filters_t;
 	filters_t					m_filters;	/// user-order respecting filters
 	std::vector<FilterBase *> 	m_cache; // enum ordered cache of m_filters
 
@@ -65,6 +65,7 @@ public slots:
 	void onHideContextMenu ();
 	void onCtxAddButton ();
 	void onCtxRmButton ();
+	void onCtxCommitButton ();
 	void onTabMoved (int from, int to);
 
 public:
