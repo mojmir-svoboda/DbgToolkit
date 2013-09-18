@@ -43,43 +43,43 @@ struct FilterFileLine : FilterBase
 
 	void setupModel ();
 	void destroyModel ();
-	typedef tree_filter<TreeModelItem> file_filters_t;
-	typedef file_filters_t::node_t node_t;
-	file_filters_t			m_file_filters;
 
 	bool isFileLinePresent (fileline_t const & p, TreeModelItem & state) const; /// checks for file:line existence in the tree
 	bool isFileLinePresent (QString const & fileline, TreeModelItem & state) const; /// checks for file:line existence in the tree
+	template <class ArchiveT>
+	void serialize (ArchiveT & ar, unsigned const version)
+	{
+		ar & boost::serialization::make_nvp("file_filters", m_data);
+	}
+
+	virtual void clear ()
+	{
+		m_data.set_state_to_childs(m_data.root, TreeModelItem(e_Checked, false));
+	}
+
+	friend class FilterProxyModel;
+
+	FilterTreeModel * fileModel () { return m_model; }
+	FilterTreeModel const * fileModel () const { return m_model; }
+	TreeView * getWidgetFile ();
+	TreeView const * getWidgetFile () const;
+
+	void onGotoFileFilter ();
+	void onFilterFileComboChanged (QString str);
+	void onCancelFilterFileButton ();
+	void onExcludeFileLine ();
+
+	typedef tree_filter<TreeModelItem> file_filters_t;
+	typedef file_filters_t::node_t node_t;
 	void merge_with (file_filters_t const & rhs);
 	void merge (node_t * lhs, node_t const * rhs);
 	void merge_state (node_t * lhs, node_t const * rhs);
 	void merge_rhs (node_t * lhs, node_t const * rhs);
 
-	template <class ArchiveT>
-	void serialize (ArchiveT & ar, unsigned const version)
-	{
-		ar & boost::serialization::make_nvp("file_filters", m_file_filters);
-	}
-
-	virtual void clear ()
-	{
-		m_file_filters.set_state_to_childs(m_file_filters.root, TreeModelItem(e_Checked, false));
-	}
-
-	friend class FilterProxyModel;
-
-	FilterTreeModel * fileModel () { return m_file_model; }
-	FilterTreeModel const * fileModel () const { return m_file_model; }
-	TreeView * getWidgetFile ();
-	TreeView const * getWidgetFile () const;
-	void onGotoFileFilter ();
-	void onFilterFileComboChanged (QString str);
-	void onCancelFilterFileButton ();
-
-	void onExcludeFileLine ();
-
-	FilterTreeModel * m_file_model;
-	TreeProxyModel * m_file_proxy;
-	QItemSelectionModel * m_proxy_selection;
+	file_filters_t			m_data;
+	FilterTreeModel *		m_model;
+	TreeProxyModel *		m_proxy;
+	QItemSelectionModel *	m_proxy_selection;
 
 	Q_OBJECT
 };

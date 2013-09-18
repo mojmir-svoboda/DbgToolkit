@@ -34,6 +34,14 @@ QString const g_filterNames[] = {
 	QString("max")
 };
 
+inline E_FilterType filterName2Type (QString const & name)
+{
+	for (size_t i = 0; i < e_filtertype_max_value; ++i)
+		if (name == g_filterNames[i])
+			return static_cast<E_FilterType>(i);
+	return e_filtertype_max_value;
+}
+
 
 
 struct FilterBase : public QWidget
@@ -50,6 +58,7 @@ struct FilterBase : public QWidget
 	QWidget * ui () { return m_widget; }
 
 	virtual E_FilterType type () const = 0;
+	QString typeName () const { return g_filterNames[this->type()]; }
 
 	virtual bool accept (DecodedCommand const & cmd) const = 0;
 	void enable (bool state) { m_enabled = state; }

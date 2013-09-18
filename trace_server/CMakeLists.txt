@@ -86,7 +86,7 @@ set(trace_server_SOURCES
 	filtermgr.cpp
 	filterbase.cpp
 	filter_fileline.cpp
-	##filter_ctx.cpp
+	filter_ctx.cpp
 	filter_lvl.cpp
 	filter_string.cpp
 	filter_regex.cpp

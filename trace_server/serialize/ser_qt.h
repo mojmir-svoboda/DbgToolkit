@@ -4,4 +4,5 @@
 #include "ser_qcolor.h"
 #include "ser_qregexp.h"
 #include "ser_qstring.h"
+#include "ser_qstringlist.h"
 

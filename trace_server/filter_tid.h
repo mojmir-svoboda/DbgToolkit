@@ -39,8 +39,8 @@ struct FilterTid : FilterBase
 	{ }
 
 	typedef std::vector<QString> tid_filters_t;
-	tid_filters_t			m_tid_filters;
-	QStandardItemModel *	m_tid_model;
+	tid_filters_t			m_data;
+	QStandardItemModel *	m_model;
 
 	Q_OBJECT
 };

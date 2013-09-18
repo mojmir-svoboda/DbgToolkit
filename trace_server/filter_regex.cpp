@@ -4,9 +4,18 @@
 FilterRegex::FilterRegex (QWidget * parent)
 	: FilterBase(parent)
 	, m_ui(new Ui_FilterRegex)
+	, m_data()
+	, m_model(0)
+	, m_delegate(0)
 {
 	initUI();
 	setupModel();
+}
+
+FilterRegex::~FilterRegex ()
+{
+	destroyModel();
+	doneUI();
 }
 
 void FilterRegex::initUI ()
@@ -21,9 +30,9 @@ void FilterRegex::doneUI ()
 bool FilterRegex::accept (DecodedCommand const & cmd) const
 {
 	bool inclusive_filters = false;
-	for (int i = 0, ie = m_filtered_regexps.size(); i < ie; ++i)
+	for (int i = 0, ie = m_data.size(); i < ie; ++i)
 	{
-		FilteredRegex const & fr = m_filtered_regexps.at(i);
+		FilteredRegex const & fr = m_data.at(i);
 		if (!fr.m_is_enabled)
 			continue;
 		else
@@ -35,15 +44,15 @@ bool FilterRegex::accept (DecodedCommand const & cmd) const
 			}
 		}
 	}
-	if (m_filtered_regexps.size() > 0)
+	if (m_data.size() > 0)
 	{
 		QString msg;
 		if (!cmd.getString(tlv::tag_msg, msg))
 			return true;
 
-		for (int i = 0, ie = m_filtered_regexps.size(); i < ie; ++i)
+		for (int i = 0, ie = m_data.size(); i < ie; ++i)
 		{
-			FilteredRegex const & fr = m_filtered_regexps.at(i);
+			FilteredRegex const & fr = m_data.at(i);
 			if (fr.exactMatch(msg))
 			{
 				if (!fr.m_is_enabled)
@@ -79,7 +88,7 @@ void FilterRegex::applyConfig ()
 
 void FilterRegex::clear ()
 {
-	m_filtered_regexps.clear();
+	m_data.clear();
 	// @TODO m_regex_model.clear();
 }
 
@@ -87,9 +96,9 @@ void FilterRegex::clear ()
 
 void FilterRegex::setupModel ()
 {
-	if (!m_regex_model)
-		m_regex_model = new QStandardItemModel;
-	m_ui->view->setModel(m_regex_model);
+	if (!m_model)
+		m_model = new QStandardItemModel;
+	m_ui->view->setModel(m_model);
 	m_ui->view->setItemDelegate(new RegexDelegate(this));
 }
 
@@ -97,19 +106,19 @@ void FilterRegex::destroyModel ()
 {
 	if (m_ui->view->itemDelegate())
 		m_ui->view->setItemDelegate(0);
-	if (m_ui->view->model() == m_regex_model)
+	if (m_ui->view->model() == m_model)
 		m_ui->view->setModel(0);
-	delete m_regex_model;
-	m_regex_model = 0;
+	delete m_model;
+	m_model = 0;
 	delete m_delegate;
 	m_delegate = 0;
 }
 
 bool FilterRegex::isMatchedRegexExcluded (QString str) const
 {
-	for (int i = 0, ie = m_filtered_regexps.size(); i < ie; ++i)
+	for (int i = 0, ie = m_data.size(); i < ie; ++i)
 	{
-		FilteredRegex const & fr = m_filtered_regexps.at(i);
+		FilteredRegex const & fr = m_data.at(i);
 		if (fr.exactMatch(str))
 		{
 			if (!fr.m_is_enabled)
@@ -124,9 +133,9 @@ bool FilterRegex::isMatchedRegexExcluded (QString str) const
 }
 void FilterRegex::setRegexInclusive (QString const & s, bool state)
 {
-	for (int i = 0, ie = m_filtered_regexps.size(); i < ie; ++i)
+	for (int i = 0, ie = m_data.size(); i < ie; ++i)
 	{
-		FilteredRegex & fr = m_filtered_regexps[i];
+		FilteredRegex & fr = m_data[i];
 		if (fr.m_regex_str == s)
 		{
 			fr.m_state = state;
@@ -135,9 +144,9 @@ void FilterRegex::setRegexInclusive (QString const & s, bool state)
 }
 void FilterRegex::setRegexChecked (QString const & s, bool checked)
 {
-	for (int i = 0, ie = m_filtered_regexps.size(); i < ie; ++i)
+	for (int i = 0, ie = m_data.size(); i < ie; ++i)
 	{
-		FilteredRegex & fr = m_filtered_regexps[i];
+		FilteredRegex & fr = m_data[i];
 		if (fr.m_regex_str == s)
 		{
 			fr.m_is_enabled = checked;
@@ -146,22 +155,22 @@ void FilterRegex::setRegexChecked (QString const & s, bool checked)
 }
 void FilterRegex::removeFromRegexFilters (QString const & s)
 {
-	for (int i = 0, ie = m_filtered_regexps.size(); i < ie; ++i)
+	for (int i = 0, ie = m_data.size(); i < ie; ++i)
 	{
-		FilteredRegex & fr = m_filtered_regexps[i];
+		FilteredRegex & fr = m_data[i];
 		if (fr.m_regex_str == s)
 		{
-			m_filtered_regexps.removeAt(i);
+			m_data.removeAt(i);
 			return;
 		}
 	}
 }
 void FilterRegex::appendToRegexFilters (QString const & s, bool enabled, bool state)
 {
-	for (int i = 0, ie = m_filtered_regexps.size(); i < ie; ++i)
-		if (m_filtered_regexps[i].m_regex_str == s)
+	for (int i = 0, ie = m_data.size(); i < ie; ++i)
+		if (m_data[i].m_regex_str == s)
 			return;
-	m_filtered_regexps.push_back(FilteredRegex(s, enabled, state));
+	m_data.push_back(FilteredRegex(s, enabled, state));
 }
 
 

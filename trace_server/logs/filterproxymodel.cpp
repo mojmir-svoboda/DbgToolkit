@@ -6,6 +6,7 @@
 #include <tlv_parser/tlv_encoder.h>
 #include <trace_client/trace.h>
 #include <connection.h>
+#include "logtablemodel.h"
 
 FilterProxyModel::FilterProxyModel (QObject * parent, logs::LogWidget & lw)
 	: BaseProxyModel(parent)
@@ -44,7 +45,13 @@ bool FilterProxyModel::filterAcceptsRow (int sourceRow, QModelIndex const & /*so
 	/*QModelIndex data_idx = sourceModel()->index(sourceRow, 0, QModelIndex());
 	excluded |= m_filter_state.isBlockCollapsed(tid, data_idx.row());
 	excluded |= data_idx.row() < m_log_widget.excludeContentToRow();*/
-	return m_log_widget.filterMgr()->accept();
+	if (sourceRow < m_log_widget.m_src_model->dcmds().size())
+	{
+		DecodedCommand const & dcmd = m_log_widget.m_src_model->dcmds()[sourceRow];
+		return m_log_widget.filterMgr()->accept(dcmd);
+	}
+	qWarning("no dcmd for source row, should not happen!");
+	return true;
 }
 
 

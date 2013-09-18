@@ -4,9 +4,18 @@
 FilterLvl::FilterLvl (QWidget * parent)
 	: FilterBase(parent)
 	, m_ui(new Ui_FilterLvl)
+	, m_data()
+	, m_model(0)
+	, m_delegate(0)
 {
 	initUI();
 	setupModel();
+}
+
+FilterLvl::~FilterLvl ()
+{
+	destroyModel();
+	doneUI();
 }
 
 void FilterLvl::initUI ()
@@ -16,7 +25,6 @@ void FilterLvl::initUI ()
 
 void FilterLvl::doneUI ()
 {
-	//destroyModelFile();
 }
 
 bool FilterLvl::accept (DecodedCommand const & cmd) const
@@ -56,7 +64,7 @@ void FilterLvl::applyConfig ()
 
 void FilterLvl::clear ()
 {
-	m_lvl_filters.clear();
+	m_data.clear();
 	// @TODO m_lvl_model.clear();
 }
 
@@ -64,53 +72,53 @@ void FilterLvl::clear ()
 ///////// lvl filters
 void FilterLvl::setupModel ()
 {
-	if (!m_lvl_model)
-		m_lvl_model = new QStandardItemModel;
-	m_ui->view->setModel(m_lvl_model);
+	if (!m_model)
+		m_model = new QStandardItemModel;
+	m_ui->view->setModel(m_model);
 	m_ui->view->setSortingEnabled(true);
 
 	//m_ui->view->setItemDelegate(new LevelDelegate(m_log_widget.m_app_data, this););
-	m_ui->view->setRootIndex(m_lvl_model->indexFromItem(m_lvl_model->invisibleRootItem()));
+	m_ui->view->setRootIndex(m_model->indexFromItem(m_model->invisibleRootItem()));
 }
 
 void FilterLvl::destroyModel ()
 {
 	//if (m_ui->view->itemDelegate() == m_delegates.get<e_delegate_Level>())
 	//	m_ui->view->setItemDelegate(0);
-	if (m_ui->view->model() == m_lvl_model)
+	if (m_ui->view->model() == m_model)
 		m_ui->view->setModel(0);
-	delete m_lvl_model;
-	m_lvl_model = 0;
+	delete m_model;
+	m_model = 0;
 }
 
 void FilterLvl::appendLvlFilter (QString const & item)
 {
-	for (int i = 0, ie = m_lvl_filters.size(); i < ie; ++i)
-		if (m_lvl_filters[i].m_level_str == item)
+	for (int i = 0, ie = m_data.size(); i < ie; ++i)
+		if (m_data[i].m_level_str == item)
 		{
-			FilteredLevel & l = m_lvl_filters[i];
+			FilteredLevel & l = m_data[i];
 			l.m_is_enabled = true;
 			return;
 		}
-	m_lvl_filters.push_back(FilteredLevel(item, true, e_LvlInclude));
-	std::sort(m_lvl_filters.begin(), m_lvl_filters.end());
+	m_data.push_back(FilteredLevel(item, true, e_LvlInclude));
+	std::sort(m_data.begin(), m_data.end());
 }
 void FilterLvl::removeLvlFilter (QString const & item)
 {
-	for (int i = 0, ie = m_lvl_filters.size(); i < ie; ++i)
-		if (m_lvl_filters[i].m_level_str == item)
+	for (int i = 0, ie = m_data.size(); i < ie; ++i)
+		if (m_data[i].m_level_str == item)
 		{
-			FilteredLevel & l = m_lvl_filters[i];
+			FilteredLevel & l = m_data[i];
 			l.m_is_enabled = false;
 			return;
 		}
 }
 bool FilterLvl::isLvlPresent (QString const & item, bool & enabled, E_LevelMode & lvlmode) const
 {
-	for (int i = 0, ie = m_lvl_filters.size(); i < ie; ++i)
-		if (m_lvl_filters.at(i).m_level_str == item)
+	for (int i = 0, ie = m_data.size(); i < ie; ++i)
+		if (m_data.at(i).m_level_str == item)
 		{
-			FilteredLevel const & l = m_lvl_filters.at(i);
+			FilteredLevel const & l = m_data.at(i);
 			lvlmode = static_cast<E_LevelMode>(l.m_state);
 			enabled = l.m_is_enabled;
 			return true;
@@ -119,10 +127,10 @@ bool FilterLvl::isLvlPresent (QString const & item, bool & enabled, E_LevelMode 
 }
 bool FilterLvl::setLvlMode (QString const & item, bool enabled, E_LevelMode lvlmode)
 {
-	for (int i = 0, ie = m_lvl_filters.size(); i < ie; ++i)
-		if (m_lvl_filters.at(i).m_level_str == item)
+	for (int i = 0, ie = m_data.size(); i < ie; ++i)
+		if (m_data.at(i).m_level_str == item)
 		{
-			FilteredLevel & l = m_lvl_filters[i];
+			FilteredLevel & l = m_data[i];
 			l.m_state = lvlmode;
 			l.m_is_enabled = enabled;
 			return true;

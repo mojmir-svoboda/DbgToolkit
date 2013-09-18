@@ -37,15 +37,17 @@ namespace logs { class LogWidget; }
 typedef std::vector<void const *> tree_node_ptrs_t;
 typedef std::vector<unsigned> layers_t;
 typedef std::vector<unsigned> row_types_t;
+typedef std::vector<DecodedCommand> dcmds_t;
 
 struct BatchCmd {
+	dcmds_t m_dcmds;
 	rows_t m_rows;
 	tree_node_ptrs_t m_tree_node_ptrs;
 
 	layers_t m_layers;
 	row_types_t m_rowTypes;
 
-	void clear () { m_rows.clear(); m_tree_node_ptrs.clear(); m_layers.clear(); m_rowTypes.clear(); }
+	void clear () { m_dcmds.clear(); m_rows.clear(); m_tree_node_ptrs.clear(); m_layers.clear(); m_rowTypes.clear(); }
 };
 
 class LogTableModel : public TableModelView
@@ -76,6 +78,8 @@ public:
 	row_types_t const & rowTypes () const { return m_rowTypes; }
 	FilterState const & filterState () const { return m_filter_state; }
 
+	dcmds_t const & dcmds () { return m_dcmds; }
+
 signals:
 	
 public slots:
@@ -92,6 +96,7 @@ protected:
 	tree_node_ptrs_t m_tree_node_ptrs;
 	layers_t m_layers;
 	row_types_t m_rowTypes;
+	dcmds_t m_dcmds;
 };
 
 /*

@@ -4,9 +4,18 @@
 FilterString::FilterString (QWidget * parent)
 	: FilterBase(parent)
 	, m_ui(new Ui_FilterString)
+	, m_data()
+	, m_model(0)
+	, m_delegate(0)
 {
 	initUI();
 	setupModel();
+}
+
+FilterString::~FilterString ()
+{
+	destroyModel();
+	doneUI();
 }
 
 void FilterString::initUI ()
@@ -21,9 +30,9 @@ void FilterString::doneUI ()
 bool FilterString::accept (DecodedCommand const & cmd) const
 {
 	bool inclusive_filters = false;
-	for (int i = 0, ie = m_filtered_strings.size(); i < ie; ++i)
+	for (int i = 0, ie = m_data.size(); i < ie; ++i)
 	{
-		FilteredString const & fr = m_filtered_strings.at(i);
+		FilteredString const & fr = m_data.at(i);
 		if (!fr.m_is_enabled)
 			continue;
 		else
@@ -35,15 +44,15 @@ bool FilterString::accept (DecodedCommand const & cmd) const
 			}
 		}
 	}
-	if (m_filtered_strings.size() > 0)
+	if (m_data.size() > 0)
 	{
 		QString msg;
 		if (!cmd.getString(tlv::tag_msg, msg))
 			return true;
 
-		for (int i = 0, ie = m_filtered_strings.size(); i < ie; ++i)
+		for (int i = 0, ie = m_data.size(); i < ie; ++i)
 		{
-			FilteredString const & fr = m_filtered_strings.at(i);
+			FilteredString const & fr = m_data.at(i);
 			if (fr.match(msg))
 			{
 				if (!fr.m_is_enabled)
@@ -79,7 +88,7 @@ void FilterString::applyConfig ()
 
 void FilterString::clear ()
 {
-	m_filtered_strings.clear();
+	m_data.clear();
 	// @TODO m_string_model.clear();
 }
 
@@ -87,9 +96,9 @@ void FilterString::clear ()
 ///////////////////
 void FilterString::setupModel ()
 {
-	if (!m_string_model)
-		m_string_model = new QStandardItemModel;
-	m_ui->view->setModel(m_string_model);
+	if (!m_model)
+		m_model = new QStandardItemModel;
+	m_ui->view->setModel(m_model);
 	//m_ui->view->setItemDelegate(m_delegates.get<e_delegate_String>());
 }
 
@@ -97,10 +106,10 @@ void FilterString::destroyModel ()
 {
 	if (m_ui->view->itemDelegate())
 		m_ui->view->setItemDelegate(0);
-	if (m_ui->view->model() == m_string_model)
+	if (m_ui->view->model() == m_model)
 		m_ui->view->setModel(0);
-	delete m_string_model;
-	m_string_model = 0;
+	delete m_model;
+	m_model = 0;
 	delete m_delegate;
 	m_delegate = 0;
 }
@@ -108,9 +117,9 @@ void FilterString::destroyModel ()
 
 bool FilterString::isMatchedStringExcluded (QString str) const
 {
-	for (int i = 0, ie = m_filtered_strings.size(); i < ie; ++i)
+	for (int i = 0, ie = m_data.size(); i < ie; ++i)
 	{
-		FilteredString const & fr = m_filtered_strings.at(i);
+		FilteredString const & fr = m_data.at(i);
 		if (fr.match(str))
 		{
 			if (!fr.m_is_enabled)
@@ -125,9 +134,9 @@ bool FilterString::isMatchedStringExcluded (QString str) const
 }
 void FilterString::setStringState (QString const & s, int state)
 {
-	for (int i = 0, ie = m_filtered_strings.size(); i < ie; ++i)
+	for (int i = 0, ie = m_data.size(); i < ie; ++i)
 	{
-		FilteredString & fr = m_filtered_strings[i];
+		FilteredString & fr = m_data[i];
 		if (fr.m_string == s)
 		{
 			fr.m_state = state;
@@ -136,9 +145,9 @@ void FilterString::setStringState (QString const & s, int state)
 }
 void FilterString::setStringChecked (QString const & s, bool checked)
 {
-	for (int i = 0, ie = m_filtered_strings.size(); i < ie; ++i)
+	for (int i = 0, ie = m_data.size(); i < ie; ++i)
 	{
-		FilteredString & fr = m_filtered_strings[i];
+		FilteredString & fr = m_data[i];
 		if (fr.m_string == s)
 		{
 			fr.m_is_enabled = checked;
@@ -147,22 +156,22 @@ void FilterString::setStringChecked (QString const & s, bool checked)
 }
 void FilterString::removeFromStringFilters (QString const & s)
 {
-	for (int i = 0, ie = m_filtered_strings.size(); i < ie; ++i)
+	for (int i = 0, ie = m_data.size(); i < ie; ++i)
 	{
-		FilteredString & fr = m_filtered_strings[i];
+		FilteredString & fr = m_data[i];
 		if (fr.m_string == s)
 		{
-			m_filtered_strings.removeAt(i);
+			m_data.removeAt(i);
 			return;
 		}
 	}
 }
 void FilterString::appendToStringFilters (QString const & s, bool enabled, int state)
 {
-	for (int i = 0, ie = m_filtered_strings.size(); i < ie; ++i)
-		if (m_filtered_strings[i].m_string == s)
+	for (int i = 0, ie = m_data.size(); i < ie; ++i)
+		if (m_data[i].m_string == s)
 			return;
-	m_filtered_strings.push_back(FilteredString(s, enabled, state));
+	m_data.push_back(FilteredString(s, enabled, state));
 }
 
 

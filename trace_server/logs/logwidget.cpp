@@ -125,12 +125,6 @@ namespace logs {
 
 		//m_data_model = new TreeModel(this, &m_session_state.m_data_filters);
 		
-		/*m_delegates.get<e_delegate_Level>() = new LevelDelegate(m_session_state, this);
-		m_delegates.get<e_delegate_Ctx>() = new CtxDelegate(m_session_state, this);
-		m_delegates.get<e_delegate_String>() = new StringDelegate(m_session_state, this);
-		m_delegates.get<e_delegate_Regex>() = new RegexDelegate(m_session_state, this);
-		*/
-
 		//applyConfig(m_config);
 	}
 

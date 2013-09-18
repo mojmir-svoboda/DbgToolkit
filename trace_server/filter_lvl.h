@@ -39,12 +39,12 @@ struct FilterLvl : FilterBase
 	template <class ArchiveT>
 	void serialize (ArchiveT & ar, unsigned const version)
 	{
-		ar & boost::serialization::make_nvp("lvl_filters", m_lvl_filters);
+		ar & boost::serialization::make_nvp("lvl_filters", m_data);
 	}
 
 	typedef QList<FilteredLevel> lvl_filters_t;
-	lvl_filters_t			m_lvl_filters;
-	QStandardItemModel *	m_lvl_model;
+	lvl_filters_t			m_data;
+	QStandardItemModel *	m_model;
 	QStyledItemDelegate *   m_delegate;
 
 	Q_OBJECT

@@ -13,9 +13,10 @@
 
 struct FilterMgr : FilterBase 
 {
+	QStringList 				m_filter_order;
 	typedef std::vector<FilterBase *> filters_t;
-	filters_t m_filters;	/// user-order respecting filters
-	std::vector<FilterBase *> m_cache; // enum ordered cache of m_filters
+	filters_t					m_filters;	/// user-order respecting filters
+	std::vector<FilterBase *> 	m_cache; // enum ordered cache of m_filters
 
 	FilterMgr (QWidget * parent = 0);
 	virtual ~FilterMgr ();
@@ -35,6 +36,7 @@ struct FilterMgr : FilterBase
 	void addFilter (FilterBase * b);
 	void rmFilter (FilterBase * b);
 	void mvFilter (int from, int to);
+	void recreateFilters ();
 
 	//FilterXX *			getFilterXX () { return static_cast<FilterXX *>(m_cache[e_Filter_XX]); }
 	//FilterXX const *		getFilterXX () const { return static_cast<FilterXX const *>(m_cache[e_Filter_XX]); }
@@ -64,9 +66,13 @@ public slots:
 	void onCtxRmButton ();
 
 public:
-    QTabWidget * m_tabFilters;
-	ComboList * m_tabCtxMenu;
-	MyListModel * m_tabCtxModel;
+    QTabWidget *			m_tabFilters;
+	ComboList *				m_tabCtxMenu;
+	QStyledItemDelegate *	m_delegate;
+	MyListModel *			m_tabCtxModel;
 	Q_OBJECT
 };
 
+bool loadConfig (FilterMgr & config, QString const & fname);
+bool saveConfig (FilterMgr const & config, QString const & fname);
+void fillDefaultConfig (FilterMgr & config);

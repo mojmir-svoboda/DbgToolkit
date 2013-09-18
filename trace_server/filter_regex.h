@@ -36,15 +36,15 @@ struct FilterRegex : FilterBase
 	void setRegexChecked (QString const & s, bool checked);
 	void setRegexInclusive (QString const & s, bool inclusive);
 
-	void onClearRegexFilter () { m_filtered_regexps.clear(); }
+	void onClearRegexFilter () { m_data.clear(); }
 	template <class ArchiveT>
 	void serialize (ArchiveT & ar, unsigned const version)
 	{
-		ar & boost::serialization::make_nvp("filtered_regexps", m_filtered_regexps);
+		ar & boost::serialization::make_nvp("filtered_regexps", m_data);
 	}
 
-	QList<FilteredRegex>	m_filtered_regexps;
-	QStandardItemModel *	m_regex_model;
+	QList<FilteredRegex>	m_data;
+	QStandardItemModel *	m_model;
 	QStyledItemDelegate *   m_delegate;
 
 	Q_OBJECT

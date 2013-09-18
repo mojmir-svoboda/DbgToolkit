@@ -220,7 +220,7 @@ void LogWidget::onFileColOrExp (QModelIndex const & idx, bool collapsed)
 	for (std::vector<QString>::const_reverse_iterator it=s.rbegin(), ite=s.rend(); it != ite; ++it)
 		file += QString("/") + *it;
 
-	filterMgr()->getFilterFileLine()->m_file_filters.set_to_state(file, TreeModelItem(static_cast<E_NodeStates>(node->checkState()), collapsed));
+	filterMgr()->getFilterFileLine()->m_data.set_to_state(file, TreeModelItem(static_cast<E_NodeStates>(node->checkState()), collapsed));
 }
 
 void LogWidget::onFileExpanded (QModelIndex const & idx)
@@ -235,7 +235,7 @@ void LogWidget::onFileCollapsed (QModelIndex const & idx)
 
 void LogWidget::appendToTIDFilters (QString const & item)
 {
-	QStandardItem * root = filterMgr()->getFilterTid()->m_tid_model->invisibleRootItem();
+	QStandardItem * root = filterMgr()->getFilterTid()->m_model->invisibleRootItem();
 	QStandardItem * child = findChildByText(root, item);
 	if (child == 0)
 	{
@@ -246,7 +246,7 @@ void LogWidget::appendToTIDFilters (QString const & item)
 
 void LogWidget::appendToLvlWidgets (FilteredLevel const & flt)
 {
-	QStandardItem * root = filterMgr()->getFilterLvl()->m_lvl_model->invisibleRootItem();
+	QStandardItem * root = filterMgr()->getFilterLvl()->m_model->invisibleRootItem();
 	QStandardItem * child = findChildByText(root, flt.m_level_str);
 	if (child == 0)
 	{
@@ -265,7 +265,7 @@ void LogWidget::appendToLvlFilters (QString const & item)
 	if (filterMgr()->getFilterLvl()->isLvlPresent(item, enabled, lvlmode))
 		return;
 
-	QStandardItem * root = filterMgr()->getFilterLvl()->m_lvl_model->invisibleRootItem();
+	QStandardItem * root = filterMgr()->getFilterLvl()->m_model->invisibleRootItem();
 	QStandardItem * child = findChildByText(root, item);
 	if (child == 0)
 	{
@@ -279,7 +279,7 @@ void LogWidget::appendToLvlFilters (QString const & item)
 
 void LogWidget::appendToCtxWidgets (FilteredContext const & flt)
 {
-	QStandardItem * root = filterMgr()->getFilterCtx()->m_ctx_model->invisibleRootItem();
+	QStandardItem * root = filterMgr()->getFilterCtx()->m_model->invisibleRootItem();
 	QStandardItem * child = findChildByText(root, flt.m_ctx_str);
 	if (child == 0)
 	{
@@ -296,7 +296,7 @@ void LogWidget::appendToCtxFilters (QString const & item, bool checked)
 	if (filterMgr()->getFilterCtx()->isCtxPresent(item, enabled))
 		return;
 
-	QStandardItem * root = filterMgr()->getFilterCtx()->m_ctx_model->invisibleRootItem();
+	QStandardItem * root = filterMgr()->getFilterCtx()->m_model->invisibleRootItem();
 	QStandardItem * child = findChildByText(root, item);
 	if (child == 0)
 	{
@@ -363,10 +363,10 @@ void LogWidget::removeFromRegexFilters (QString const & val)
 
 void LogWidget::recompileRegexps ()
 {
-	for (int i = 0, ie = filterMgr()->getFilterRegex()->m_filtered_regexps.size(); i < ie; ++i)
+	for (int i = 0, ie = filterMgr()->getFilterRegex()->m_data.size(); i < ie; ++i)
 	{
-		FilteredRegex & fr = filterMgr()->getFilterRegex()->m_filtered_regexps[i];
-		QStandardItem * root = filterMgr()->getFilterRegex()->m_regex_model->invisibleRootItem();
+		FilteredRegex & fr = filterMgr()->getFilterRegex()->m_data[i];
+		QStandardItem * root = filterMgr()->getFilterRegex()->m_model->invisibleRootItem();
 		QString const qregex = fr.m_regex_str;
 		QStandardItem * child = findChildByText(root, qregex);
 		fr.m_is_enabled = false;
@@ -404,7 +404,7 @@ void LogWidget::recompileRegexps ()
 
 void LogWidget::appendToStringWidgets (FilteredString const & flt)
 {
-	QStandardItem * root = filterMgr()->getFilterString()->m_string_model->invisibleRootItem();
+	QStandardItem * root = filterMgr()->getFilterString()->m_model->invisibleRootItem();
 	QStandardItem * child = findChildByText(root, flt.m_string);
 	if (child == 0)
 	{

@@ -8,6 +8,12 @@ FilterTid::FilterTid (QWidget * parent)
 	setupModel();
 }
 
+FilterTid::~FilterTid ()
+{
+	destroyModel();
+	doneUI();
+}
+
 void FilterTid::initUI ()
 {
 	m_ui->setupUi(this);
@@ -44,7 +50,7 @@ void FilterTid::applyConfig ()
 
 void FilterTid::clear ()
 {
-	m_tid_filters.clear();
+	m_data.clear();
 	// @TODO m_tid_model.clear();
 }
 
@@ -52,30 +58,30 @@ void FilterTid::clear ()
 ///////// tid filters
 void FilterTid::setupModel ()
 {
-	if (!m_tid_model)
-		m_tid_model = new QStandardItemModel;
-	m_ui->view->setModel(m_tid_model);
+	if (!m_model)
+		m_model = new QStandardItemModel;
+	m_ui->view->setModel(m_model);
 }
 
 void FilterTid::destroyModel ()
 {
-	if (m_ui->view->model() == m_tid_model)
+	if (m_ui->view->model() == m_model)
 		m_ui->view->setModel(0);
-	delete m_tid_model;
-	m_tid_model = 0;
+	delete m_model;
+	m_model = 0;
 }
 
 void FilterTid::appendTIDFilter (QString const & item)
 {
-	m_tid_filters.push_back(item);
+	m_data.push_back(item);
 }
 void FilterTid::removeTIDFilter (QString const & item)
 {
-	m_tid_filters.erase(std::remove(m_tid_filters.begin(), m_tid_filters.end(), item), m_tid_filters.end());
+	m_data.erase(std::remove(m_data.begin(), m_data.end(), item), m_data.end());
 }
 bool FilterTid::isTIDExcluded (QString const & item) const
 {
-	return std::find(m_tid_filters.begin(), m_tid_filters.end(), item) != m_tid_filters.end();
+	return std::find(m_data.begin(), m_data.end(), item) != m_data.end();
 }
 
 

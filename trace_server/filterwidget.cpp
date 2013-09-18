@@ -101,7 +101,7 @@ void FilterWidget::loadConfig (QString const & fname, FilterState & config)
 void FilterWidget::loadConfig (QString const & fname)
 {
 	FilterState dummy;
-	QString const fsname = fname + "." + g_filterStateTag;
+	QString const fsname = fname + "." + g_filterTag;
 	if (loadFilterState(dummy, fsname.toStdString()))
 	{
 		applyConfig(dummy, m_filter_state);

@@ -43,6 +43,7 @@ void LogTableModel::commitBatchToModel ()
 	for (int i = 0, ie = m_batch.m_rows.size(); i < ie; ++i)
 	{
 		m_rows.push_back(m_batch.m_rows[i]);
+		m_dcmds.push_back(m_batch.m_dcmds[i]);
 		int const curr_cols = m_batch.m_rows[i].size();
 		cols = cols < curr_cols ? curr_cols : cols;
 		m_tree_node_ptrs.push_back(m_batch.m_tree_node_ptrs[i]);
@@ -98,6 +99,7 @@ void LogTableModel::parseCommand (DecodedCommand const & cmd, E_ReceiveMode mode
 	}
 
 	batch.m_rows.push_back(columns_t(cmd.m_tvs.size()));
+	batch.m_dcmds.push_back(cmd);
 	batch.m_tree_node_ptrs.push_back(0);
 	batch.m_layers.push_back(indent);
 	batch.m_rowTypes.push_back(cmd.m_hdr.cmd);
