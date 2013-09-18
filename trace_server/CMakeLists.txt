@@ -156,6 +156,8 @@ set(trace_server_HEADERS
 	config.h
 	findwidget.h
 	combolist.h
+	movablelistmodel.h
+	movabletabwidget.h
 	filtermgr.h
 	filterbase.h
 	filter_fileline.h

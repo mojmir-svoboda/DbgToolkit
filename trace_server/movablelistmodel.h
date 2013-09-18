@@ -9,6 +9,8 @@ class MyListModel : public QStandardItemModel
 	QList<QAbstractItemModel *> m_observers;
 
 public:
+	int m_flags;
+
 	MyListModel (QObject * parent = 0 );
 
 	void addObserver (QAbstractItemModel * o) { m_observers.append(o); }
@@ -16,7 +18,7 @@ public:
 	Qt::ItemFlags flags (QModelIndex const & index) const
 	{
 		if (index.isValid())
-			return (Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled);
+			return m_flags;
 		return Qt::ItemIsDropEnabled;
 	}
 
@@ -98,5 +100,8 @@ public:
 	}
 };
 
-inline MyListModel::MyListModel (QObject * parent) : QStandardItemModel(parent) { }
+inline MyListModel::MyListModel (QObject * parent)
+	: QStandardItemModel(parent)
+	, m_flags(Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled) 
+{ }
 

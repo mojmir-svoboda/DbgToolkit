@@ -3,6 +3,7 @@
 #include <QTabWidget>
 #include "combolist.h"
 #include "movablelistmodel.h"
+#include "movabletabwidget.h"
 //#include "filter_script.h"
 #include "filter_string.h"
 #include "filter_regex.h"
@@ -64,9 +65,10 @@ public slots:
 	void onHideContextMenu ();
 	void onCtxAddButton ();
 	void onCtxRmButton ();
+	void onTabMoved (int from, int to);
 
 public:
-    QTabWidget *			m_tabFilters;
+    MovableTabWidget *		m_tabFilters;
 	ComboList *				m_tabCtxMenu;
 	QStyledItemDelegate *	m_delegate;
 	MyListModel *			m_tabCtxModel;

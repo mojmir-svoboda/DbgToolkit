@@ -12,7 +12,6 @@
 #include <boost/serialization/vector.hpp>
 #include <serialize/ser_qt.h>
 #include <fstream>
-//#include <sstream>
 
 FilterMgr::FilterMgr (QWidget * parent)
 	: FilterBase(parent)
@@ -88,6 +87,10 @@ void FilterMgr::mvFilter (int from, int to)
 {
 }
 
+void FilterMgr::onTabMoved (int from, int to)
+{
+}
+
 FilterBase * filterFactory (E_FilterType t, QWidget * parent)
 {
 	switch (t)
@@ -117,9 +120,10 @@ void FilterMgr::recreateFilters ()
 	for (size_t i = 0, ie = m_filter_order.size(); i < ie; ++i)
 	{
 		E_FilterType const t = filterName2Type(m_filter_order[i]);
-		FilterBase * b = filterFactory(t, this);
+		FilterBase * b = filterFactory(t, 0);
 		m_filters[i]= b;
 		m_cache[t] = b;
+		m_tabFilters->insertTab(i, b, b->typeName());
 	}
 }
 
@@ -130,16 +134,20 @@ namespace {
 			cbx->addItem(g_filterNames[i]);
 	}
 
-	 
 	struct ComboBoxDelegate : public QStyledItemDelegate
 	{
-		ComboBoxDelegate (QObject *parent = 0);
+		QComboBox mutable * m_cbx;
+		ComboBoxDelegate (QObject * parent = 0);
 
 		QWidget * createEditor (QWidget * parent, QStyleOptionViewItem const & option, QModelIndex const & index) const;
 		void setEditorData (QWidget * editor, QModelIndex const & index) const;
 		void setModelData (QWidget * editor, QAbstractItemModel * model, QModelIndex const & index) const;
 		void updateEditorGeometry (QWidget * editor, QStyleOptionViewItem const & option, QModelIndex const & index) const;
 		//Q_OBJECT
+		QSize sizeHint (QStyleOptionViewItem const & option, QModelIndex const & index) const
+		{
+			return QSize(64, 25);
+		}
 	};
 
 	ComboBoxDelegate::ComboBoxDelegate (QObject * parent)
@@ -147,7 +155,7 @@ namespace {
 	{
 	}
 
-	QWidget * ComboBoxDelegate::createEditor (QWidget *parent, QStyleOptionViewItem const & /* option */, QModelIndex const & /* index */) const
+	QWidget * ComboBoxDelegate::createEditor (QWidget * parent, QStyleOptionViewItem const & /* option */, QModelIndex const & /* index */) const
 	{
 		QComboBox * const editor = new QComboBox(parent);
 		fillComboBoxWithFilters(editor);
@@ -161,7 +169,7 @@ namespace {
 		cbx->setCurrentIndex(cbx->findText(value));
 	}
 
-	void ComboBoxDelegate::setModelData(QWidget * editor, QAbstractItemModel *model, QModelIndex const & index) const
+	void ComboBoxDelegate::setModelData (QWidget * editor, QAbstractItemModel *model, QModelIndex const & index) const
 	{
 		QComboBox * cbx = static_cast<QComboBox *>(editor);
 		QString value = cbx->currentText();
@@ -185,10 +193,11 @@ void FilterMgr::initUI ()
 	gridLayout->setContentsMargins(0, 0, 0, 0);
 	gridLayout->setObjectName(QStringLiteral("gridLayout"));
 
-	m_tabFilters = new QTabWidget(this);
+	m_tabFilters = new MovableTabWidget(this);
 	m_tabFilters->setObjectName(QStringLiteral("tabFilters"));
 	m_tabFilters->setEnabled(true);
 	m_tabFilters->setMinimumSize(QSize(128, 0));
+	m_tabFilters->setMovable(true);
 	QFont font;
 	font.setFamily(QStringLiteral("Verdana"));
 	font.setPointSize(7);
@@ -196,19 +205,24 @@ void FilterMgr::initUI ()
 	m_tabFilters->setLayoutDirection(Qt::LeftToRight);
 	m_tabFilters->setTabPosition(QTabWidget::North);
 	m_tabFilters->setUsesScrollButtons(true);
+	connect(m_tabFilters, SIGNAL(tabMovedSignal(int, int)), this, SLOT(onTabMoved(int, int)));
 
 	gridLayout->addWidget(m_tabFilters, 0, 0, 1, 1);
 	setLayout(gridLayout);
 	//m_widget = m_widget;
 
-	m_tabCtxMenu = new ComboList(this);
-	MyListModel * model = new MyListModel(this);
-	m_tabCtxMenu->ui->filterView->setModel(model);
+	m_tabCtxMenu = new ComboList();
+	m_tabCtxMenu->ui->filterView->setEditTriggers(QAbstractItemView::AllEditTriggers);
+	m_tabCtxModel = new MyListModel(this);
+	m_tabCtxModel->m_flags |= Qt::ItemIsEditable;
+	m_tabCtxMenu->ui->filterView->setModel(m_tabCtxModel);
+	m_tabCtxMenu->ui->filterView->setResizeMode(QListView::Adjust);
 	m_tabCtxMenu->ui->filterView->setDropIndicatorShown(true);
 	m_tabCtxMenu->ui->filterView->setMovement(QListView::Snap);
 	m_tabCtxMenu->ui->filterView->setDragDropMode(QAbstractItemView::InternalMove);
-	m_delegate = new ComboBoxDelegate(this);
+	m_delegate = new ComboBoxDelegate(m_tabCtxMenu);
 	m_tabCtxMenu->ui->filterView->setItemDelegate(m_delegate);
+	m_tabCtxMenu->setVisible(0);
 
 	connect(m_tabCtxMenu->ui->addButton, SIGNAL(clicked()), this, SLOT(onCtxAddButton()));
 	connect(m_tabCtxMenu->ui->rmButton, SIGNAL(clicked()), this, SLOT(onCtxRmButton()));
@@ -226,9 +240,8 @@ void FilterMgr::doneUI ()
 
 void FilterMgr::clearUI ()
 {
-	if (m_tabCtxModel->hasChildren()) {
+	if (m_tabCtxModel && m_tabCtxModel->hasChildren())
 		m_tabCtxModel->removeRows(0, m_tabCtxModel->rowCount());
-	}
 }
 
 
@@ -237,10 +250,10 @@ void FilterMgr::setConfigToUI ()
 	clearUI();
 	for (size_t i = 0, ie = m_filters.size(); i < ie; ++i)
 	{
-		QComboBox * cbx = new QComboBox(m_tabCtxMenu);
-		fillComboBoxWithFilters(cbx);
-		cbx->setCurrentIndex(m_filters[i]->type());
-		QStandardItem * const qitem = new QStandardItem();
+		//QComboBox * cbx = new QComboBox(m_tabCtxMenu);
+		//fillComboBoxWithFilters(cbx);
+		//cbx->setCurrentIndex(m_filters[i]->type());
+		QStandardItem * const qitem = new QStandardItem(m_filters[i]->typeName());
 		//name_item->setCheckable(true);
 		//name_item->setCheckState(checked ? Qt::Checked : Qt::Unchecked);
 		m_tabCtxModel->appendRow(qitem);
@@ -251,7 +264,11 @@ void FilterMgr::onCtxAddButton ()
 {
 	QComboBox * cbx = new QComboBox(m_tabCtxMenu);
 	fillComboBoxWithFilters(cbx);
-	
+
+	QStandardItem * const qitem = new QStandardItem(g_filterNames[1]);
+	//name_item->setCheckable(true);
+	//name_item->setCheckState(checked ? Qt::Checked : Qt::Unchecked);
+	m_tabCtxModel->appendRow(qitem);
 }
 
 void FilterMgr::onCtxRmButton ()
@@ -272,8 +289,8 @@ void FilterMgr::onShowContextMenu (QPoint const & pt)
 
 	if (m_tabCtxMenu->isVisible())
 	{
-		//QPoint globalPos = mapToGlobal(pos);
-		m_tabCtxMenu->move(pt);
+		QPoint global_pos = mapToGlobal(pt);
+		m_tabCtxMenu->move(global_pos);
 	}
 
 	//connect(ui->logViewComboBox, SIGNAL(activated(int)), this, SLOT(onLogViewActivate(int)));
