@@ -16,9 +16,14 @@
 
 FilterMgr::FilterMgr (QWidget * parent)
 	: FilterBase(parent)
+	, m_tabFilters(0)
+	, m_tabCtxMenu(0)
+	, m_delegate(0)
+	, m_tabCtxModel(0)
 {
 	m_filters.reserve(e_filtertype_max_value);
 	m_cache.resize(e_filtertype_max_value);
+	initUI();
 }
 
 FilterMgr::~FilterMgr ()
@@ -174,7 +179,7 @@ void FilterMgr::initUI ()
 	setObjectName(QStringLiteral("FilterWidget"));
 	//m_widget->setObjectName(QStringLiteral("FilterWidget"));
 
-	//FilterWidget->resize(380, 305);
+	resize(380, 305);
 	QGridLayout * gridLayout = new QGridLayout(this);
 	gridLayout->setSpacing(0);
 	gridLayout->setContentsMargins(0, 0, 0, 0);
@@ -190,10 +195,10 @@ void FilterMgr::initUI ()
 	m_tabFilters->setFont(font);
 	m_tabFilters->setLayoutDirection(Qt::LeftToRight);
 	m_tabFilters->setTabPosition(QTabWidget::North);
-	//m_tabFilters->setTabShape(QTabWidget::Triangular);
 	m_tabFilters->setUsesScrollButtons(true);
 
 	gridLayout->addWidget(m_tabFilters, 0, 0, 1, 1);
+	setLayout(gridLayout);
 	//m_widget = m_widget;
 
 	m_tabCtxMenu = new ComboList(this);

@@ -146,9 +146,11 @@ void LogTableModel::parseCommand (DecodedCommand const & cmd, E_ReceiveMode mode
 		columns[column_index].m_value = qval;
 	}
 
-
-	void const * node = m_log_widget.filterMgr()->getFilterFileLine()->fileModel()->insertItem(file + "/" + line);
-	batch.m_tree_node_ptrs.back() = node;
+	if (m_log_widget.filterMgr()->getFilterFileLine() && m_log_widget.filterMgr()->getFilterFileLine()->fileModel())
+	{
+		void const * node = m_log_widget.filterMgr()->getFilterFileLine()->fileModel()->insertItem(file + "/" + line);
+		batch.m_tree_node_ptrs.back() = node;
+	}
 
 	unsigned long long t = time.toULongLong();
 	//if (m_config.m_dt_enabled)
