@@ -52,8 +52,8 @@ struct FilterBase : public QWidget
 	QWidget * m_widget;
 	QToolButton * m_button;
 
-	FilterBase (QWidget * parent = 0) : QWidget(parent), m_enabled(true), m_widget(0), m_button(0) { }
-	virtual ~FilterBase () { }
+	FilterBase (QWidget * parent = 0);
+	virtual ~FilterBase ();
 
 	virtual void initUI () = 0;
 	virtual void doneUI () = 0;

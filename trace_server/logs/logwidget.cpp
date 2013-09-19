@@ -663,6 +663,7 @@ void LogWidget::commitCommands (E_ReceiveMode mode)
 	{
 		DecodedCommand & cmd = m_queue[i];
 		m_src_model->handleCommand(cmd, mode);
+		appendToFilters(cmd);
 	}
 	m_src_model->commitCommands(mode);
 }

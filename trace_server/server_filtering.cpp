@@ -12,7 +12,5 @@
 #include "utils.h"
 #include "delegates.h"
 #include "tableview.h"
-#include "utils_qstandarditem.h"
-#include <boost/function.hpp>
 
 

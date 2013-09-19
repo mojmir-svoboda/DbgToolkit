@@ -49,6 +49,12 @@ struct FilterLvl : FilterBase
 	QStyledItemDelegate *   m_delegate;
 
 	Q_OBJECT
+public slots:
+	void onSelectAllLevels ();
+	void onSelectNoLevels ();
+	void onClickedAtLvlList (QModelIndex idx);
+signals:
+	void filterChangedSignal ();
 };
 
 struct LevelDelegate : public QStyledItemDelegate

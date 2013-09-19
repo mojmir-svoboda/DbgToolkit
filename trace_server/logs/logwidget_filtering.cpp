@@ -235,26 +235,32 @@ void LogWidget::onFileCollapsed (QModelIndex const & idx)
 
 void LogWidget::appendToTIDFilters (QString const & item)
 {
-	QStandardItem * root = filterMgr()->getFilterTid()->m_model->invisibleRootItem();
-	QStandardItem * child = findChildByText(root, item);
-	if (child == 0)
+	if (filterMgr()->getFilterTid())
 	{
-		QList<QStandardItem *> row_items = addRow(item, true);
-		root->appendRow(row_items);
+		QStandardItem * root = filterMgr()->getFilterTid()->m_model->invisibleRootItem();
+		QStandardItem * child = findChildByText(root, item);
+		if (child == 0)
+		{
+			QList<QStandardItem *> row_items = addRow(item, true);
+			root->appendRow(row_items);
+		}
 	}
 }
 
 void LogWidget::appendToLvlWidgets (FilteredLevel const & flt)
 {
-	QStandardItem * root = filterMgr()->getFilterLvl()->m_model->invisibleRootItem();
-	QStandardItem * child = findChildByText(root, flt.m_level_str);
-	if (child == 0)
+	if (filterMgr()->getFilterLvl())
 	{
-		E_LevelMode const mode = static_cast<E_LevelMode>(flt.m_state);
-		QList<QStandardItem *> row_items = addTriRow(flt.m_level_str, Qt::Checked, lvlModToString(mode));
-		row_items[0]->setCheckState(flt.m_is_enabled ? Qt::Checked : Qt::Unchecked);
-		root->appendRow(row_items);
-		filterMgr()->getFilterLvl()->m_ui->view->sortByColumn(0, Qt::AscendingOrder);
+		QStandardItem * root = filterMgr()->getFilterLvl()->m_model->invisibleRootItem();
+		QStandardItem * child = findChildByText(root, flt.m_level_str);
+		if (child == 0)
+		{
+			E_LevelMode const mode = static_cast<E_LevelMode>(flt.m_state);
+			QList<QStandardItem *> row_items = addTriRow(flt.m_level_str, Qt::Checked, lvlModToString(mode));
+			row_items[0]->setCheckState(flt.m_is_enabled ? Qt::Checked : Qt::Unchecked);
+			root->appendRow(row_items);
+			filterMgr()->getFilterLvl()->m_ui->view->sortByColumn(0, Qt::AscendingOrder);
+		}
 	}
 }
 
@@ -279,155 +285,207 @@ void LogWidget::appendToLvlFilters (QString const & item)
 
 void LogWidget::appendToCtxWidgets (FilteredContext const & flt)
 {
-	QStandardItem * root = filterMgr()->getFilterCtx()->m_model->invisibleRootItem();
-	QStandardItem * child = findChildByText(root, flt.m_ctx_str);
-	if (child == 0)
+	if (filterMgr()->getFilterCtx())
 	{
-		QList<QStandardItem *> row_items = addRow(flt.m_ctx_str, true);
-		row_items[0]->setCheckState(flt.m_is_enabled ? Qt::Checked : Qt::Unchecked);
-		root->appendRow(row_items);
+		QStandardItem * root = filterMgr()->getFilterCtx()->m_model->invisibleRootItem();
+		QStandardItem * child = findChildByText(root, flt.m_ctx_str);
+		if (child == 0)
+		{
+			QList<QStandardItem *> row_items = addRow(flt.m_ctx_str, true);
+			row_items[0]->setCheckState(flt.m_is_enabled ? Qt::Checked : Qt::Unchecked);
+			root->appendRow(row_items);
+		}
 	}
 }
 
 
 void LogWidget::appendToCtxFilters (QString const & item, bool checked)
 {
-	bool enabled = false;
-	if (filterMgr()->getFilterCtx()->isCtxPresent(item, enabled))
-		return;
-
-	QStandardItem * root = filterMgr()->getFilterCtx()->m_model->invisibleRootItem();
-	QStandardItem * child = findChildByText(root, item);
-	if (child == 0)
+	if (filterMgr()->getFilterCtx())
 	{
-		QList<QStandardItem *> row_items = addRow(item, true);
-		row_items[0]->setCheckState(Qt::Checked);
-		root->appendRow(row_items);
-		filterMgr()->getFilterCtx()->appendCtxFilter(item);
+		bool enabled = false;
+		if (filterMgr()->getFilterCtx()->isCtxPresent(item, enabled))
+			return;
+
+		QStandardItem * root = filterMgr()->getFilterCtx()->m_model->invisibleRootItem();
+		QStandardItem * child = findChildByText(root, item);
+		if (child == 0)
+		{
+			QList<QStandardItem *> row_items = addRow(item, true);
+			row_items[0]->setCheckState(Qt::Checked);
+			root->appendRow(row_items);
+			filterMgr()->getFilterCtx()->appendCtxFilter(item);
+		}
 	}
 }
 
 bool LogWidget::appendToFilters (DecodedCommand const & cmd)
 {
-	QString line;
-	for (size_t i=0, ie=cmd.m_tvs.size(); i < ie; ++i)
+	QString tid;
+	if (cmd.getString(tlv::tag_tid, tid))
 	{
-		if (cmd.m_tvs[i].m_tag == tlv::tag_line)
-		{
-			line = cmd.m_tvs[i].m_val;
-			break;
-		}
-
-		if (cmd.m_tvs[i].m_tag == tlv::tag_tid)
-		{
-			int const idx = m_tls.findThreadId(cmd.m_tvs[i].m_val);
-			if (cmd.m_hdr.cmd == tlv::cmd_scope_entry)
-				m_tls.incrIndent(idx);
-			if (cmd.m_hdr.cmd == tlv::cmd_scope_exit)
-				m_tls.decrIndent(idx);
-			appendToTIDFilters(cmd.m_tvs[i].m_val);
-		}
-
-		if (cmd.m_tvs[i].m_tag == tlv::tag_ctx)
-		{
-			appendToCtxFilters(cmd.m_tvs[i].m_val, false);
-		}
-		if (cmd.m_tvs[i].m_tag == tlv::tag_lvl)
-		{
-			appendToLvlFilters(cmd.m_tvs[i].m_val);
-		}
+		int const idx = m_tls.findThreadId(tid);
+		if (cmd.m_hdr.cmd == tlv::cmd_scope_entry)
+			m_tls.incrIndent(idx);
+		if (cmd.m_hdr.cmd == tlv::cmd_scope_exit)
+			m_tls.decrIndent(idx);
+		appendToTIDFilters(tid);
 	}
 
-	/*for (size_t i=0, ie=cmd.tvs.size(); i < ie; ++i)
+	QString ctx;
+	if (cmd.getString(tlv::tag_ctx, ctx))
+		appendToCtxFilters(ctx, false);
+
+	QString lvl;
+	if (cmd.getString(tlv::tag_lvl, lvl))
+		appendToLvlFilters(lvl);
+
+	/*handled already by logtablemodel
+	 * QString file, line;
+	if (cmd.getString(tlv::tag_line, line) && cmd.getString(tlv::tag_file, file))
 	{
-		if (cmd.tvs[i].m_tag == tlv::tag_file)
-		{
-			QString file(cmd.tvs[i].m_val);
-			QModelIndex const ret = m_file_model->insertItem(file + "/" + line);
-			if (ret.isValid())
-				m_main_window->getWidgetFile()->hideLinearParents();
-		}
+		QModelIndex const ret = m_file_model->insertItem(file + "/" + line);
+		//if (ret.isValid())
+			//->hideLinearParents();
 	}*/
 	return true;
 }
 
 void LogWidget::appendToRegexFilters (QString const & str, bool checked, bool inclusive)
 {
-	filterMgr()->getFilterRegex()->appendToRegexFilters(str, checked, inclusive);
+	if (filterMgr()->getFilterRegex())
+		filterMgr()->getFilterRegex()->appendToRegexFilters(str, checked, inclusive);
 }
 
 void LogWidget::removeFromRegexFilters (QString const & val)
 {
-	filterMgr()->getFilterRegex()->removeFromRegexFilters(val);
+	if (filterMgr()->getFilterRegex())
+		filterMgr()->getFilterRegex()->removeFromRegexFilters(val);
 }
 
 void LogWidget::recompileRegexps ()
 {
-	for (int i = 0, ie = filterMgr()->getFilterRegex()->m_data.size(); i < ie; ++i)
+	if (filterMgr()->getFilterRegex())
 	{
-		FilteredRegex & fr = filterMgr()->getFilterRegex()->m_data[i];
-		QStandardItem * root = filterMgr()->getFilterRegex()->m_model->invisibleRootItem();
-		QString const qregex = fr.m_regex_str;
-		QStandardItem * child = findChildByText(root, qregex);
-		fr.m_is_enabled = false;
-		if (!child)
-			continue;
-		QRegExp regex(qregex);
-		if (regex.isValid())
+		for (int i = 0, ie = filterMgr()->getFilterRegex()->m_data.size(); i < ie; ++i)
 		{
-			fr.m_regex = regex;
-			bool const checked = (child->checkState() == Qt::Checked);
-			if (child && checked)
+			FilteredRegex & fr = filterMgr()->getFilterRegex()->m_data[i];
+			QStandardItem * root = filterMgr()->getFilterRegex()->m_model->invisibleRootItem();
+			QString const qregex = fr.m_regex_str;
+			QStandardItem * child = findChildByText(root, qregex);
+			fr.m_is_enabled = false;
+			if (!child)
+				continue;
+			QRegExp regex(qregex);
+			if (regex.isValid())
 			{
-				child->setData(QBrush(Qt::green), Qt::BackgroundRole);
-				child->setToolTip(tr("ok"));
-				fr.m_is_enabled = true;
+				fr.m_regex = regex;
+				bool const checked = (child->checkState() == Qt::Checked);
+				if (child && checked)
+				{
+					child->setData(QBrush(Qt::green), Qt::BackgroundRole);
+					child->setToolTip(tr("ok"));
+					fr.m_is_enabled = true;
+				}
+				else if (child && !checked)
+				{
+					child->setData(QBrush(Qt::yellow), Qt::BackgroundRole);
+					child->setToolTip(tr("regex not enabled"));
+				}
 			}
-			else if (child && !checked)
+			else
 			{
-				child->setData(QBrush(Qt::yellow), Qt::BackgroundRole);
-				child->setToolTip(tr("regex not enabled"));
+				if (child)
+				{
+					child->setData(QBrush(Qt::red), Qt::BackgroundRole);
+					child->setToolTip(regex.errorString());
+				}
 			}
 		}
-		else
-		{
-			if (child)
-			{
-				child->setData(QBrush(Qt::red), Qt::BackgroundRole);
-				child->setToolTip(regex.errorString());
-			}
-		}
-	}
 
-	onInvalidateFilter();
+		onInvalidateFilter();
+	}
 }
+
+void LogWidget::loadToRegexps (QString const & filter_item, bool inclusive, bool enabled)
+{
+	if (filterMgr()->getFilterRegex())
+	{
+		filterMgr()->getFilterRegex()->appendToRegexFilters(filter_item, inclusive, enabled);
+	}
+}
+
+
 
 void LogWidget::appendToStringWidgets (FilteredString const & flt)
 {
-	QStandardItem * root = filterMgr()->getFilterString()->m_model->invisibleRootItem();
-	QStandardItem * child = findChildByText(root, flt.m_string);
-	if (child == 0)
+	if (filterMgr()->getFilterString())
 	{
-		bool const mode = static_cast<bool>(flt.m_state);
-		QList<QStandardItem *> row_items = addTriRow(flt.m_string, flt.m_is_enabled ? Qt::Checked : Qt::Unchecked, mode);
-		row_items[0]->setCheckState(flt.m_is_enabled ? Qt::Checked : Qt::Unchecked);
-		root->appendRow(row_items);
+		QStandardItem * root = filterMgr()->getFilterString()->m_model->invisibleRootItem();
+		QStandardItem * child = findChildByText(root, flt.m_string);
+		if (child == 0)
+		{
+			bool const mode = static_cast<bool>(flt.m_state);
+			QList<QStandardItem *> row_items = addTriRow(flt.m_string, flt.m_is_enabled ? Qt::Checked : Qt::Unchecked, mode);
+			row_items[0]->setCheckState(flt.m_is_enabled ? Qt::Checked : Qt::Unchecked);
+			root->appendRow(row_items);
+		}
 	}
 }
 void LogWidget::appendToStringFilters (QString const & str, bool checked, int state)
 {
-	filterMgr()->getFilterString()->appendToStringFilters(str, checked, state);
+	if (filterMgr()->getFilterString())
+	{
+		filterMgr()->getFilterString()->appendToStringFilters(str, checked, state);
+	}
 }
 
 void LogWidget::removeFromStringFilters (QString const & val)
 {
-	filterMgr()->getFilterString()->removeFromStringFilters(val);
+	if (filterMgr()->getFilterString())
+	{
+		filterMgr()->getFilterString()->removeFromStringFilters(val);
+	}
 }
 
 void LogWidget::recompileStrings ()
 {
 	onInvalidateFilter();
 }
+
+/*void LogWidget::onFilterFileComboChanged (QString str)
+{
+	if (str.isEmpty())
+	{
+		filterMgr()->getFilterFileLine()->setModel(filterMgr()->getFilterFileLine()->m_file_model);
+	}
+	else
+	{
+		if (filterWidget()->getWidgetFile()->model() != filterWidget()->m_file_proxy)
+		{
+			filterWidget()->getWidgetFile()->setModel(filterWidget()->m_file_proxy);
+			filterWidget()->m_file_proxy->setSourceModel(filterWidget()->m_file_model);
+		}
+		filterWidget()->m_file_proxy->setFindString(str);
+	}
+}*/
+
+void LogWidget::onCancelFilterFileButton ()
+{
+}
+
+void LogWidget::onCutParentValueChanged (int i)
+{
+	filterMgr()->getFilterFileLine()->fileModel()->onCutParentValueChanged(i);
+	//filterWidget()->getWidgetFile()->hideLinearParents();
+}
+void LogWidget::onCollapseChilds ()
+{
+	//filterWidget()->fileModel()->collapseChilds(filterWidget()->getWidgetFile());
+}
+
+
+
 
 void LogWidget::appendToColorRegexFilters (QString const & val)
 {
@@ -525,41 +583,6 @@ void LogWidget::recompileColorRegexps ()
 	onInvalidateFilter();*/
 }
 
-void LogWidget::loadToRegexps (QString const & filter_item, bool inclusive, bool enabled)
-{
-	filterMgr()->getFilterRegex()->appendToRegexFilters(filter_item, inclusive, enabled);
-}
-
-/*void LogWidget::onFilterFileComboChanged (QString str)
-{
-	if (str.isEmpty())
-	{
-		filterMgr()->getFilterFileLine()->setModel(filterMgr()->getFilterFileLine()->m_file_model);
-	}
-	else
-	{
-		if (filterWidget()->getWidgetFile()->model() != filterWidget()->m_file_proxy)
-		{
-			filterWidget()->getWidgetFile()->setModel(filterWidget()->m_file_proxy);
-			filterWidget()->m_file_proxy->setSourceModel(filterWidget()->m_file_model);
-		}
-		filterWidget()->m_file_proxy->setFindString(str);
-	}
-}*/
-
-void LogWidget::onCancelFilterFileButton ()
-{
-}
-
-void LogWidget::onCutParentValueChanged (int i)
-{
-	filterMgr()->getFilterFileLine()->fileModel()->onCutParentValueChanged(i);
-	//filterWidget()->getWidgetFile()->hideLinearParents();
-}
-void LogWidget::onCollapseChilds ()
-{
-	//filterWidget()->fileModel()->collapseChilds(filterWidget()->getWidgetFile());
-}
 
 }
 

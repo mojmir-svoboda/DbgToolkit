@@ -39,11 +39,6 @@ void MainWindow::onTimeUnitsChanged (int i)
 
 void MainWindow::connectFiltersToWidget ()
 {
-	getWidgetFile()->setEditTriggers(QAbstractItemView::NoEditTriggers);
-	connect(getWidgetFile(), SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtFileTree(QModelIndex)));
-	connect(getWidgetFile(), SIGNAL(doubleClicked(QModelIndex)), m_server, SLOT(onDoubleClickedAtFileTree(QModelIndex)));
-	getWidgetFile()->header()->hide();
-
 
 	connect(ui->filterFileComboBox, SIGNAL(editTextChanged(QString)), this, SLOT(onFilterFileComboChanged(QString)));
 	bool const cancel_on = !ui->filterFileComboBox->currentText().isEmpty();
@@ -51,31 +46,8 @@ void MainWindow::connectFiltersToWidget ()
 	connect(ui->cancelFilterButton, SIGNAL(clicked()), this, SLOT(onCancelFilterFileButton()));
 	//connect(ui->filterFileComboBox, SIGNAL(activated(int)), this, SLOT(onTimeUnitsChanged(int)));
 
-	getWidgetCtx()->setEditTriggers(QAbstractItemView::NoEditTriggers);
-	connect(getWidgetCtx(), SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtCtxTree(QModelIndex)));
-	connect(getWidgetCtx(), SIGNAL(doubleClicked(QModelIndex)), m_server, SLOT(onDoubleClickedAtCtxTree(QModelIndex)));
-	connect(ui->allCtxButton, SIGNAL(clicked()), m_server, SLOT(onSelectAllCtxs()));
-	connect(ui->noCtxButton, SIGNAL(clicked()), m_server, SLOT(onSelectNoCtxs()));
-	getWidgetCtx()->header()->hide();
 
-	getWidgetTID()->setEditTriggers(QAbstractItemView::NoEditTriggers);
-	connect(getWidgetTID(), SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtTIDList(QModelIndex)));
-	connect(getWidgetTID(), SIGNAL(doubleClicked(QModelIndex)), m_server, SLOT(onDoubleClickedAtTIDList(QModelIndex)));
 
-	getWidgetLvl()->setEditTriggers(QAbstractItemView::NoEditTriggers);
-	connect(getWidgetLvl(), SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtLvlList(QModelIndex)));
-	connect(getWidgetLvl(), SIGNAL(doubleClicked(QModelIndex)), m_server, SLOT(onDoubleClickedAtLvlList(QModelIndex)));
-	connect(ui->allLevelButton, SIGNAL(clicked()), m_server, SLOT(onSelectAllLevels()));
-	connect(ui->noLevelButton, SIGNAL(clicked()), m_server, SLOT(onSelectNoLevels()));
-	getWidgetLvl()->header()->hide();
-
-	getWidgetRegex()->setEditTriggers(QAbstractItemView::NoEditTriggers);
-	getWidgetRegex()->header()->hide();
-	connect(getWidgetRegex(), SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtRegexList(QModelIndex)));
-	connect(getWidgetRegex(), SIGNAL(doubleClicked(QModelIndex)), m_server, SLOT(onDoubleClickedAtRegexList(QModelIndex)));
-	connect(ui->comboBoxRegex, SIGNAL(activated(int)), this, SLOT(onRegexActivate(int)));
-	connect(ui->buttonAddRegex, SIGNAL(clicked()), this, SLOT(onRegexAdd()));
-	connect(ui->buttonRmRegex, SIGNAL(clicked()), this, SLOT(onRegexRm()));
 
 	getWidgetColorRegex()->setEditTriggers(QAbstractItemView::NoEditTriggers);
 	connect(getWidgetColorRegex(), SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtColorRegexList(QModelIndex)));
@@ -84,17 +56,7 @@ void MainWindow::connectFiltersToWidget ()
 	connect(ui->buttonAddColorRegex, SIGNAL(clicked()), this, SLOT(onColorRegexAdd()));
 	connect(ui->buttonRmColorRegex, SIGNAL(clicked()), this, SLOT(onColorRegexRm()));
 
-	connect(ui->cutParentSpinBox, SIGNAL(valueChanged(int)), m_server, SLOT(onCutParentValueChanged(int)));
-	connect(ui->collapseChildsButton, SIGNAL(clicked()), m_server, SLOT(onCollapseChilds()));
 
-	connect(ui->qFilterLineEdit, SIGNAL(returnPressed()), this, SLOT(onQFilterLineEditFinished()));
-	getWidgetString()->setEditTriggers(QAbstractItemView::NoEditTriggers);
-	getWidgetString()->header()->hide();
-	connect(getWidgetString(), SIGNAL(clicked(QModelIndex)), m_server, SLOT(onClickedAtStringList(QModelIndex)));
-	connect(getWidgetString(), SIGNAL(doubleClicked(QModelIndex)), m_server, SLOT(onDoubleClickedAtStringList(QModelIndex)));
-	//connect(ui->comboBoxString, SIGNAL(activated(int)), this, SLOT(onStringActivate(int)));
-	connect(ui->buttonAddString, SIGNAL(clicked()), this, SLOT(onStringAdd()));
-	connect(ui->buttonRmString, SIGNAL(clicked()), this, SLOT(onStringRm()));
 }
 
 

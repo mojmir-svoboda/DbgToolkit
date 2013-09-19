@@ -119,6 +119,14 @@ void FilterRegex::setupModel ()
 		m_model = new QStandardItemModel;
 	m_ui->view->setModel(m_model);
 	m_ui->view->setItemDelegate(new RegexDelegate(this));
+
+	m_ui->view->setEditTriggers(QAbstractItemView::NoEditTriggers);
+	m_ui->view->header()->hide();
+	connect(m_ui->view, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtRegexList(QModelIndex)));
+	connect(m_ui->view, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(onDoubleClickedAtRegexList(QModelIndex)));
+	connect(m_ui->comboBoxRegex, SIGNAL(activated(int)), this, SLOT(onRegexActivate(int)));
+	connect(m_ui->buttonAddRegex, SIGNAL(clicked()), this, SLOT(onRegexAdd()));
+	connect(m_ui->buttonRmRegex, SIGNAL(clicked()), this, SLOT(onRegexRm()));
 }
 
 void FilterRegex::destroyModel ()
@@ -191,6 +199,53 @@ void FilterRegex::appendToRegexFilters (QString const & s, bool enabled, bool st
 			return;
 	m_data.push_back(FilteredRegex(s, enabled, state));
 }
+
+void FilterRegex::onClickedAtRegexList (QModelIndex idx)
+{
+	if (!idx.isValid())
+		return;
+	QStandardItemModel * model = static_cast<QStandardItemModel *>(m_main_window->getWidgetRegex()->model());
+
+	if (idx.column() == 1)
+	{
+		QString const & mod = model->data(idx, Qt::DisplayRole).toString();
+		E_FilterMode const curr = stringToFltMod(mod.toStdString().c_str()[0]);
+		size_t const i = (curr + 1) % e_max_fltmod_enum_value;
+		E_FilterMode const new_mode = static_cast<E_FilterMode>(i);
+		model->setData(idx, QString(fltModToString(new_mode)));
+
+		if (Connection * conn = findCurrentConnection())
+		{
+			QString const & reg = model->data(model->index(idx.row(), 0, QModelIndex()), Qt::DisplayRole).toString();
+			bool const is_inclusive = new_mode == e_Include;
+			conn->sessionState().setRegexInclusive(reg, is_inclusive);
+			conn->recompileRegexps();
+			conn->onInvalidateFilter();
+		}
+	}
+	else
+	{
+		QString const & mod = model->data(model->index(idx.row(), 1, QModelIndex()), Qt::DisplayRole).toString();
+		E_FilterMode const curr = stringToFltMod(mod.toStdString().c_str()[0]);
+
+		QStandardItem * item = model->itemFromIndex(idx);
+		Q_ASSERT(item);
+		bool const orig_checked = (item->checkState() == Qt::Checked);
+		Qt::CheckState const checked = orig_checked ? Qt::Unchecked : Qt::Checked;
+		item->setCheckState(checked);
+		if (Connection * conn = findCurrentConnection())
+		{
+			// @TODO: if state really changed
+			QString const & val = model->data(idx, Qt::DisplayRole).toString();
+			bool const is_inclusive = curr == e_Include;
+			conn->sessionState().setRegexInclusive(val, is_inclusive);
+			conn->m_session_state.setRegexChecked(val, checked);
+			conn->recompileRegexps();
+			conn->onInvalidateFilter();
+		}
+	}
+}
+
 
 //////// delegate
 void RegexDelegate::paint (QPainter * painter, QStyleOptionViewItem const & option, QModelIndex const & index) const

@@ -60,5 +60,11 @@ struct FilterCtx : FilterBase
 	QStyledItemDelegate *   m_delegate;
 
 	Q_OBJECT
+public slots:
+	void onClickedAtCtxTree (QModelIndex idx);
+	void onSelectAllCtxs ();
+	void onSelectNoCtxs ();
+signals:
+	void filterChangedSignal ();
 };
 

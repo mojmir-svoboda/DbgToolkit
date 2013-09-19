@@ -46,4 +46,7 @@ struct FilterTid : FilterBase
 	QStandardItemModel *	m_model;
 
 	Q_OBJECT
+public slots:
+signals:
+	void filterChangedSignal ();
 };

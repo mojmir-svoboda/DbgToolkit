@@ -2,6 +2,8 @@
 #include "constants.h"
 #include "serialize.h"
 #include <QPainter>
+#include "utils_qstandarditem.h"
+#include <boost/function.hpp>
 // serialization stuff
 #include <boost/serialization/type_info_implementation.hpp>
 #include <boost/archive/xml_iarchive.hpp>
@@ -100,6 +102,13 @@ void FilterLvl::setupModel ()
 
 	//m_ui->view->setItemDelegate(new LevelDelegate(m_log_widget.m_app_data, this););
 	m_ui->view->setRootIndex(m_model->indexFromItem(m_model->invisibleRootItem()));
+
+	m_ui->view->setEditTriggers(QAbstractItemView::NoEditTriggers);
+	connect(m_ui->view, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtLvlList(QModelIndex)));
+	connect(m_ui->view, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(onDoubleClickedAtLvlList(QModelIndex)));
+	connect(m_ui->allLevelButton, SIGNAL(clicked()), this, SLOT(onSelectAllLevels()));
+	connect(m_ui->noLevelButton, SIGNAL(clicked()), this, SLOT(onSelectNoLevels()));
+	m_ui->view->header()->hide();
 }
 
 void FilterLvl::destroyModel ()
@@ -159,6 +168,55 @@ bool FilterLvl::setLvlMode (QString const & item, bool enabled, E_LevelMode lvlm
 	return false;
 
 }
+
+// slots
+void FilterLvl::onSelectAllLevels ()
+{
+	boost::function<void (FilterLvl *, QString const &)> f = &FilterLvl::appendLvlFilter;
+	applyFnOnAllChildren(f, this, m_model, Qt::Checked);
+}
+void FilterLvl::onSelectNoLevels ()
+{
+	boost::function<void (FilterLvl *, QString const &)> f = &FilterLvl::removeLvlFilter;
+	applyFnOnAllChildren(f, this, m_model, Qt::Unchecked);
+}
+
+void FilterLvl::onClickedAtLvlList (QModelIndex idx)
+{
+	if (!idx.isValid()) return;
+	QStandardItem * item = m_model->itemFromIndex(idx);
+	Q_ASSERT(item);
+
+	bool checked = (item->checkState() == Qt::Checked);
+
+	if (idx.column() == 1)
+	{
+		QString const & filter_item = m_model->data(m_model->index(idx.row(), 0, QModelIndex()), Qt::DisplayRole).toString();
+		QString const & mod = m_model->data(idx, Qt::DisplayRole).toString();
+
+		E_LevelMode const curr = stringToLvlMod(mod.toStdString().c_str()[0]);
+		size_t const i = (curr + 1) % e_max_lvlmod_enum_value;
+		E_LevelMode const new_mode = static_cast<E_LevelMode>(i);
+		m_model->setData(idx, QString(lvlModToString(new_mode)));
+
+		setLvlMode(filter_item, !checked, new_mode);
+
+		emit filterChangedSignal();
+	}
+	else
+	{
+		QString const & filter_item = m_model->data(idx, Qt::DisplayRole).toString();
+		item->setCheckState(!checked ? Qt::Checked : Qt::Unchecked);
+		if (!checked)
+			appendLvlFilter(filter_item);
+		else
+			removeLvlFilter(filter_item);
+		emit filterChangedSignal();
+	}
+}
+
+
+
 
 
 

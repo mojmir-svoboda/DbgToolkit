@@ -50,6 +50,14 @@ struct FilterRegex : FilterBase
 	QStyledItemDelegate *   m_delegate;
 
 	Q_OBJECT
+public slots:
+	void onClickedAtRegexList (QModelIndex idx);
+	void onDoubleClickedAtRegexList (QModelIndex idx);
+	void onRegexActivate (int);
+	void onRegexAdd ();
+	void onRegexRm ();
+signals:
+	void filterChangedSignal ();
 };
 
 struct RegexDelegate : public QStyledItemDelegate

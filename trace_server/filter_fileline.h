@@ -85,5 +85,10 @@ struct FilterFileLine : FilterBase
 	QItemSelectionModel *	m_proxy_selection;
 
 	Q_OBJECT
+public slots:
+	void onCollapseChilds ();
+	void onCutParentValueChanged (int i);
+signals:
+	void filterChangedSignal ();
 };
 

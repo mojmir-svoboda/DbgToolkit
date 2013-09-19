@@ -49,6 +49,11 @@ struct FilterString : FilterBase
 	QStyledItemDelegate *   m_delegate;
 
 	Q_OBJECT
+public slots:
+	void onClickedAtStringList (QModelIndex idx);
+signals:
+	void filterChangedSignal ();
+
 };
 
 struct StringDelegate : public QStyledItemDelegate

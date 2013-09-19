@@ -119,6 +119,15 @@ void FilterString::setupModel ()
 	if (!m_model)
 		m_model = new QStandardItemModel;
 	m_ui->view->setModel(m_model);
+	connect(m_ui->qFilterLineEdit, SIGNAL(returnPressed()), this, SLOT(onQFilterLineEditFinished()));
+	m_ui->view->setEditTriggers(QAbstractItemView::NoEditTriggers);
+	m_ui->view->header()->hide();
+	connect(m_ui->view, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtStringList(QModelIndex)));
+	connect(m_ui->view, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(onDoubleClickedAtStringList(QModelIndex)));
+	//connect(ui->comboBoxString, SIGNAL(activated(int)), this, SLOT(onStringActivate(int)));
+	connect(m_ui->buttonAddString, SIGNAL(clicked()), this, SLOT(onStringAdd()));
+	connect(m_ui->buttonRmString, SIGNAL(clicked()), this, SLOT(onStringRm()));
+
 	//m_ui->view->setItemDelegate(m_delegates.get<e_delegate_String>());
 }
 
@@ -194,34 +203,41 @@ void FilterString::appendToStringFilters (QString const & s, bool enabled, int s
 	m_data.push_back(FilteredString(s, enabled, state));
 }
 
+void FilterString::onClickedAtStringList (QModelIndex idx)
+{
+	if (!idx.isValid())
+		return;
 
-///////// serialize
-bool loadConfig (FilterString & w, QString const & fname)
-{
-	std::ifstream ifs(fname.toLatin1());
-	if (!ifs) return false;
-	try {
-		boost::archive::xml_iarchive ia(ifs);
-		ia >> BOOST_SERIALIZATION_NVP(w.m_data);
-		ifs.close();
-		return true;
-	}
-	catch (...)
+	if (idx.column() == 1)
 	{
-		return false;
+		QString const & filter_item = m_model->data(m_model->index(idx.row(), 0, QModelIndex()), Qt::DisplayRole).toString();
+		QString const & mod = m_model->data(idx, Qt::DisplayRole).toString();
+		E_FilterMode const curr = stringToFltMod(mod.toStdString().c_str()[0]);
+		size_t const i = (curr + 1) % e_max_fltmod_enum_value;
+		E_FilterMode const new_mode = static_cast<E_FilterMode>(i);
+		m_model->setData(idx, QString(fltModToString(new_mode)));
+
+		bool const is_inclusive = new_mode == e_Include;
+		setStringState(filter_item, is_inclusive);
+		recompileStrings();
 	}
-}
-bool saveConfig (FilterString const & w, QString const & fname)
-{
-	std::ofstream ofs(fname.toLatin1());
-	if (!ofs) return false;
-	boost::archive::xml_oarchive oa(ofs);
-	oa << BOOST_SERIALIZATION_NVP(w.m_data);
-	ofs.close();
-	return true;
-}
-void fillDefaultConfig (FilterString & w)
-{
+	else
+	{
+		QStandardItem * item = m_model->itemFromIndex(idx);
+		Q_ASSERT(item);
+		bool const orig_checked = (item->checkState() == Qt::Checked);
+		Qt::CheckState const checked = orig_checked ? Qt::Unchecked : Qt::Checked;
+		item->setCheckState(checked);
+
+		QString const & mod = m_model->data(m_model->index(idx.row(), 1, QModelIndex()), Qt::DisplayRole).toString();
+		E_FilterMode const curr = stringToFltMod(mod.toStdString().c_str()[0]);
+		bool const is_inclusive = curr == e_Include;
+		QString const & val = m_model->data(idx, Qt::DisplayRole).toString();
+		// @TODO: if state really changed
+		setStringState(val, is_inclusive);
+		setStringChecked(val, checked);
+		recompileStrings();
+	}
 }
 
 

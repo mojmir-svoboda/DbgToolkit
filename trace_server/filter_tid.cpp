@@ -83,6 +83,10 @@ void FilterTid::setupModel ()
 	if (!m_model)
 		m_model = new QStandardItemModel;
 	m_ui->view->setModel(m_model);
+
+	m_ui->view->setEditTriggers(QAbstractItemView::NoEditTriggers);
+	connect(m_ui->view, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtTIDList(QModelIndex)));
+	connect(m_ui->view, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(onDoubleClickedAtTIDList(QModelIndex)));
 }
 
 void FilterTid::destroyModel ()
@@ -104,6 +108,24 @@ void FilterTid::removeTIDFilter (QString const & item)
 bool FilterTid::isTIDExcluded (QString const & item) const
 {
 	return std::find(m_data.begin(), m_data.end(), item) != m_data.end();
+}
+
+// slots
+void FilterTid::onClickedAtTIDList (QModelIndex idx)
+{
+	if (!idx.isValid())
+		return;
+	QStandardItem * item = m_model->itemFromIndex(idx);
+	Q_ASSERT(item);
+
+	bool const orig_checked = (item->checkState() == Qt::Checked);
+	QString const & val = m_model->data(idx, Qt::DisplayRole).toString();
+	bool const checked = !orig_checked;
+	if (checked)
+		appendTIDFilter(val);
+	else
+		removeTIDFilter(val);
+	emit filterChangedSignal();
 }
 
 

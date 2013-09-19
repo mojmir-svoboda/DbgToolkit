@@ -23,6 +23,7 @@ FilterMgr::FilterMgr (QWidget * parent)
 	, m_tabCtxModel(0)
 {
 	m_filters.reserve(e_filtertype_max_value);
+	m_filter_order.reserve(e_filtertype_max_value);
 	m_cache.resize(e_filtertype_max_value);
 	initUI();
 }
@@ -77,7 +78,6 @@ void FilterMgr::saveConfig (QString const & path)
 
 void FilterMgr::applyConfig ()
 {
-
 	for (size_t i = 0, ie = m_filters.size(); i < ie; ++i)
 		m_filters[i]->applyConfig();
 }
@@ -137,26 +137,50 @@ void FilterMgr::recreateFilters ()
 {
 	m_filters.clear();
 	m_filters.reserve(m_filter_order.size());
-	m_cache.clear();
+	//m_cache.clear();
 	m_cache.resize(e_filtertype_max_value);
+
+	for (size_t i = 0, ie = m_tabFilters->tabBar()->count(); i < ie; ++i)
+	{
+		m_tabFilters->tabBar()->setTabButton(i, QTabBar::LeftSide, 0);
+	}
+
+	m_tabFilters->clear();
 	for (size_t i = 0, ie = m_filter_order.size(); i < ie; ++i)
 	{
 		E_FilterType const t = filterName2Type(m_filter_order[i]);
-		FilterBase * fb = filterFactory(t, 0);
+		FilterBase * fb = 0;
+		if (m_cache[t] != 0)
+		{
+			fb = m_cache[t];
+		}
+		else
+		{
+			fb = filterFactory(t, 0);
+			m_cache[t] = fb;
+		}
 		m_filters.push_back(fb);
-		m_cache[t] = fb;
 		m_tabFilters->insertTab(i, fb, fb->typeName());
-
-		fb->m_button = new QToolButton;
-		fb->m_button->setCheckable(true);
-		fb->m_button->setIcon(grabIcon(fb->m_enabled));
-		fb->m_button->setToolTip(QApplication::translate("FilterBar", "enables/disables filter", 0));
-		fb->m_button->setChecked(fb->m_enabled);
-		fb->m_button->setMinimumSize(QSize(16, 16));
-		fb->m_button->setMaximumSize(QSize(24, 16));
-
-		connect(fb->m_button, SIGNAL(clicked()), fb, SLOT(onTabButton()));
 		m_tabFilters->tabBar()->setTabButton(i, QTabBar::LeftSide, fb->m_button);
+	}
+
+	for (size_t c = 0, ce = m_cache.size(); c < ce; ++c)
+	{
+		if (m_cache[c] == 0)
+			continue;
+
+		bool used = 0;
+		for (size_t i = 0, ie = m_filters.size(); i < ie; ++i)
+			if (m_cache[c] && m_cache[c] == m_filters[i])
+			{
+				used |= 1;
+				break;
+			}
+		if (used)
+			continue;
+
+		delete m_cache[c];
+		m_cache[c] = 0;
 	}
 }
 
@@ -253,13 +277,14 @@ void FilterMgr::initUI ()
 	m_tabCtxMenu->ui->filterView->setMovement(QListView::Snap);
 	m_tabCtxMenu->ui->filterView->setDragDropMode(QAbstractItemView::InternalMove);
 	//m_tabCtxMenu->ui->filterView->setEditTriggers(QAbstractItemView::AllEditTriggers);
+	m_tabCtxMenu->ui->filterView->setEditTriggers(QAbstractItemView::CurrentChanged);
 	m_delegate = new ComboBoxDelegate(m_tabCtxMenu);
 	m_tabCtxMenu->ui->filterView->setItemDelegate(m_delegate);
 	m_tabCtxMenu->setVisible(0);
 
 	connect(m_tabCtxMenu->ui->addButton, SIGNAL(clicked()), this, SLOT(onCtxAddButton()));
 	connect(m_tabCtxMenu->ui->rmButton, SIGNAL(clicked()), this, SLOT(onCtxRmButton()));
-	connect(m_tabCtxMenu->ui->commitButton, SIGNAL(clicked()), this, SLOT(onCommitButton()));
+	connect(m_tabCtxMenu->ui->commitButton, SIGNAL(clicked()), this, SLOT(onCtxCommitButton()));
 
 	setContextMenuPolicy(Qt::CustomContextMenu);
 	connect(this, SIGNAL(customContextMenuRequested(QPoint const &)), this, SLOT(onShowContextMenu(QPoint const &)));
@@ -287,10 +312,13 @@ void FilterMgr::setConfigToUI ()
 		//QComboBox * cbx = new QComboBox(m_tabCtxMenu);
 		//fillComboBoxWithFilters(cbx);
 		//cbx->setCurrentIndex(m_filters[i]->type());
-		QStandardItem * const qitem = new QStandardItem(m_filters[i]->typeName());
-		//name_item->setCheckable(true);
-		//name_item->setCheckState(checked ? Qt::Checked : Qt::Unchecked);
-		m_tabCtxModel->appendRow(qitem);
+		if (m_filters[i])
+		{
+			QStandardItem * const qitem = new QStandardItem(m_filters[i]->typeName());
+			qitem->setCheckable(true);
+			qitem->setCheckState(m_filters[i]->enabled() ? Qt::Checked : Qt::Unchecked);
+			m_tabCtxModel->appendRow(qitem);
+		}
 	}
 }
 
@@ -300,8 +328,8 @@ void FilterMgr::onCtxAddButton ()
 	fillComboBoxWithFilters(cbx);
 
 	QStandardItem * const qitem = new QStandardItem(g_filterNames[1]);
-	//name_item->setCheckable(true);
-	//name_item->setCheckState(checked ? Qt::Checked : Qt::Unchecked);
+	qitem->setCheckable(true);
+	qitem->setCheckState(Qt::Checked);
 	m_tabCtxModel->appendRow(qitem);
 }
 
@@ -317,10 +345,25 @@ void FilterMgr::onCtxRmButton ()
 void FilterMgr::onCtxCommitButton ()
 {
 	setUIToConfig();
+	applyConfig();
 }
 
 void FilterMgr::setUIToConfig ()
 {
+	m_filter_order.clear();
+	m_filter_order.reserve(e_filtertype_max_value);
+
+	for (int i = 0, ie = m_tabCtxModel->rowCount(); i < ie; ++i)
+	{
+		QStandardItem const * const qitem = m_tabCtxModel->item(i, 0);
+		if (qitem)
+		{
+			QString const & s = qitem->text();
+			m_filter_order.push_back(s);
+		}
+	}
+	recreateFilters();
+
 	//std::vector<FilterBase *> m_origs;
 }
 

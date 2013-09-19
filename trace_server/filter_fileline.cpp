@@ -111,6 +111,15 @@ void FilterFileLine::setupModel ()
 	getWidgetFile()->setModel(m_model);
 	getWidgetFile()->syncExpandState();
 	getWidgetFile()->hideLinearParents();
+
+	connect(m_ui->cutParentSpinBox, SIGNAL(valueChanged(int)), this, SLOT(onCutParentValueChanged(int)));
+	connect(m_ui->collapseChildsButton, SIGNAL(clicked()), this, SLOT(onCollapseChilds()));
+	getWidgetFile()->setEditTriggers(QAbstractItemView::NoEditTriggers);
+	connect(getWidgetFile(), SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtFileTree(QModelIndex)));
+	connect(getWidgetFile(), SIGNAL(doubleClicked(QModelIndex)), this, SLOT(onDoubleClickedAtFileTree(QModelIndex)));
+	getWidgetFile()->header()->hide();
+
+
 	//connect(m_file_model, SIGNAL(invalidateFilter()), this, SLOT(onInvalidateFilter()));
 }
 
@@ -243,4 +252,16 @@ void FilterFileLine::merge_with (file_filters_t const & rhs)
 
 TreeView * FilterFileLine::getWidgetFile () { return m_ui->view; }
 TreeView const * FilterFileLine::getWidgetFile () const { return m_ui->view; }
+
+void FilterFileLine::onCutParentValueChanged (int i)
+{
+	//if (Connection * conn = findCurrentConnection())
+	//	conn->onCutParentValueChanged(i);
+}
+
+void FilterFileLine::onCollapseChilds ()
+{
+	//if (Connection * conn = findCurrentConnection())
+	//	conn->onCollapseChilds();
+}
 

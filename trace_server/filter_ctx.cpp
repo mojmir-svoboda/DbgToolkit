@@ -2,6 +2,8 @@
 #include <QPainter>
 #include "constants.h"
 #include "serialize.h"
+#include "utils_qstandarditem.h"
+#include <boost/function.hpp>
 // serialization stuff
 #include <boost/serialization/type_info_implementation.hpp>
 #include <boost/archive/xml_iarchive.hpp>
@@ -93,7 +95,15 @@ void FilterCtx::setupModel ()
 	CtxDelegate * d = new CtxDelegate(this);
 	m_delegate = d;
 	m_ui->view->setItemDelegate(d);
+
+	m_ui->view->setEditTriggers(QAbstractItemView::NoEditTriggers);
+	connect(m_ui->view, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtCtxTree(QModelIndex)));
+	connect(m_ui->allCtxButton, SIGNAL(clicked()), this, SLOT(onSelectAllCtxs()));
+	connect(m_ui->noCtxButton, SIGNAL(clicked()), this, SLOT(onSelectNoCtxs()));
+	m_ui->view->header()->hide();
+
 }
+
 
 void FilterCtx::destroyModel ()
 {
@@ -141,6 +151,39 @@ void FilterCtx::removeCtxFilter (QString const & item)
 			return;
 		}
 }
+
+
+//////// slots
+void FilterCtx::onClickedAtCtxTree (QModelIndex idx)
+{
+	QStandardItem * item = m_model->itemFromIndex(idx);
+	Q_ASSERT(item);
+
+	QString const & ctx = m_model->data(idx, Qt::DisplayRole).toString();
+	bool const orig_checked = (item->checkState() == Qt::Checked);
+	appendCtxFilter(ctx);
+	removeCtxFilter(ctx);
+
+	emit filterChangedSignal();
+}
+
+void FilterCtx::onSelectAllCtxs ()
+{
+	boost::function<void (FilterCtx*, QString)> f = &FilterCtx::appendCtxFilter;
+	applyFnOnAllChildren(f, this, m_model, Qt::Checked);
+ 
+	emit filterChangedSignal();
+}
+
+void FilterCtx::onSelectNoCtxs ()
+{
+	boost::function<void (FilterCtx*, QString)> f = &FilterCtx::removeCtxFilter;
+	applyFnOnAllChildren(f, this, m_model, Qt::Unchecked);
+
+	emit filterChangedSignal();
+}
+
+
 
 
 //////// delegate

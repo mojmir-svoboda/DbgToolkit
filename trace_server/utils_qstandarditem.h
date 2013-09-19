@@ -125,6 +125,20 @@ inline QList<QStandardItem *> addTriRow (QString const & str, Qt::CheckState con
 	return row_items;
 }
 
+template <typename T, typename U>
+void applyFnOnAllChildren (T fn, U instance, QAbstractItemModel * abs_model, Qt::CheckState state)
+{
+	QStandardItemModel * model = static_cast<QStandardItemModel *>(abs_model);
+	QStandardItem * root = model->invisibleRootItem();
+	QList<QStandardItem *> l = listChildren(root);
+
+	for (int i = 0, ie = l.size(); i < ie; ++i)
+	{
+		l.at(i)->setCheckState(state);
+		QString const & data = model->data(l.at(i)->index(), Qt::DisplayRole).toString();
+		fn(instance, data);
+	}
+}
 	 
 inline QList<QStandardItem *> addRowTriState (QString const & str, E_NodeStates const state)
 {
