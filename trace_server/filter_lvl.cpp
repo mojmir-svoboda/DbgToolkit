@@ -66,6 +66,9 @@ void FilterLvl::defaultConfig ()
 
 void FilterLvl::loadConfig (QString const & path)
 {
+	QString const fname = path + "/" + g_filterTag + "/" + typeName();
+	if (!::loadConfigTemplate(*this, fname))
+		defaultConfig();
 }
 
 void FilterLvl::saveConfig (QString const & path)

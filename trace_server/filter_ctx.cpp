@@ -56,6 +56,9 @@ void FilterCtx::defaultConfig ()
 
 void FilterCtx::loadConfig (QString const & path)
 {
+	QString const fname = path + "/" + g_filterTag + "/" + typeName();
+	if (!::loadConfigTemplate(*this, fname))
+		defaultConfig();
 }
 
 void FilterCtx::saveConfig (QString const & path)

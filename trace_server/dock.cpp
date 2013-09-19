@@ -225,8 +225,8 @@ void DockManager::loadConfig (QString const & path)
 	m_config2.clear();
 	::loadConfigTemplate(m_config, fpath);
 
-	m_config = m_config2;
-	m_config2.m_docked_widgets_data.root = 0; // @TODO: promyslet.. takle na to urcite zapomenu
+	//m_config = m_config2;
+	//m_config2.m_docked_widgets_data.root = 0; // @TODO: promyslet.. takle na to urcite zapomenu
 	m_docked_widgets_model = new DockTreeModel(this, &m_config.m_docked_widgets_data);
 	for (int i = 0, ie = m_config.m_columns_sizes.size(); i < ie; ++i)
 	{

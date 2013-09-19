@@ -89,6 +89,9 @@ void FilterRegex::defaultConfig ()
 
 void FilterRegex::loadConfig (QString const & path)
 {
+	QString const fname = path + "/" + g_filterTag + "/" + typeName();
+	if (!::loadConfigTemplate(*this, fname))
+		defaultConfig();
 }
 void FilterRegex::saveConfig (QString const & path)
 {

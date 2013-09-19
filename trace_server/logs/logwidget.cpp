@@ -268,8 +268,8 @@ namespace logs {
 
 	void LogWidget::applyConfig ()
 	{
-		moveSectionsAccordingTo(m_config2);
-		m_config = m_config2;
+		moveSectionsAccordingTo(m_config);
+		//m_config = m_config2;
 		applyConfig(m_config);
 	}
 
