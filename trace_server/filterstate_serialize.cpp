@@ -15,7 +15,7 @@
 #include <QMessageBox>
 #include <QString>
 
-bool saveFilterState (FilterState const & s, char const * filename)
+/*bool saveFilterState (FilterState const & s, char const * filename)
 {
 	try {
 		std::ofstream ofs(filename);
@@ -103,4 +103,4 @@ bool loadFilterState (FilterState const & src, FilterState & target)
 	}
 	return false;
 }
-
+*/

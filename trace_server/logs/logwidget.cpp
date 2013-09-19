@@ -338,6 +338,7 @@ namespace logs {
 	void LogWidget::onApplyButton ()
 	{
 		applyConfig();
+		filterMgr()->applyConfig();
 		//setUIValuesToConfig(m_config2);
 		//applyConfig();
 	}

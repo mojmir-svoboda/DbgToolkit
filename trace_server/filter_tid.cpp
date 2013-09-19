@@ -1,4 +1,6 @@
 #include "filter_tid.h"
+#include "constants.h"
+#include "serialize.h"
 // serialization stuff
 #include <boost/serialization/type_info_implementation.hpp>
 #include <boost/archive/xml_iarchive.hpp>
@@ -43,14 +45,20 @@ bool FilterTid::accept (DecodedCommand const & cmd) const
 	return !excluded;
 }
 
+
+void FilterTid::defaultConfig ()
+{
+	m_data.clear();
+}
+
 void FilterTid::loadConfig (QString const & path)
 {
 }
 
 void FilterTid::saveConfig (QString const & path)
 {
-	//QString const fsname = fname + "." + g_filterStateTag;
-	//saveFilterTid(m_filter_state, fsname.toStdString());
+	QString const fname = path + "/" + g_filterTag + "/" + typeName();
+	::saveConfigTemplate(*this, fname);
 }
 
 void FilterTid::applyConfig ()

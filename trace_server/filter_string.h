@@ -22,10 +22,18 @@ struct FilterString : FilterBase
 
 	virtual bool accept (DecodedCommand const & cmd) const;
 
+	virtual void defaultConfig ();
 	virtual void loadConfig (QString const & path);
 	virtual void saveConfig (QString const & path);
 	virtual void applyConfig ();
 	virtual void clear ();
+
+	template <class ArchiveT>
+	void serialize (ArchiveT & ar, unsigned const version)
+	{
+		ar & boost::serialization::make_nvp("enabled", m_enabled);
+		ar & boost::serialization::make_nvp("filtered_strings", m_data);
+	}
 
 	// string filtering
 	void setupModel ();
@@ -35,13 +43,6 @@ struct FilterString : FilterBase
 	bool isMatchedStringExcluded (QString str) const;
 	void setStringChecked (QString const & s, bool checked);
 	void setStringState (QString const & s, int state);
-
-	template <class ArchiveT>
-	void serialize (ArchiveT & ar, unsigned const version)
-	{
-		ar & boost::serialization::make_nvp("enabled", m_enabled);
-		ar & boost::serialization::make_nvp("filtered_strings", m_data);
-	}
 
 	QList<FilteredString>	m_data;
 	QStandardItemModel *	m_model;

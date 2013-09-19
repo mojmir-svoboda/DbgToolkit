@@ -1,4 +1,6 @@
 #include "filter_string.h"
+#include "constants.h"
+#include "serialize.h"
 #include <QPainter>
 // serialization stuff
 #include <boost/serialization/type_info_implementation.hpp>
@@ -81,14 +83,19 @@ bool FilterString::accept (DecodedCommand const & cmd) const
 	return true;
 }
 
+void FilterString::defaultConfig ()
+{
+	m_data.clear();
+}
+
 void FilterString::loadConfig (QString const & path)
 {
 }
 
 void FilterString::saveConfig (QString const & path)
 {
-	//QString const fsname = fname + "." + g_filterStateTag;
-	//saveFilterString(m_filter_state, fsname.toStdString());
+	QString const fname = path + "/" + g_filterTag + "/" + typeName();
+	::saveConfigTemplate(*this, fname);
 }
 
 void FilterString::applyConfig ()

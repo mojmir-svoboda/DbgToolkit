@@ -22,11 +22,18 @@ struct FilterLvl : FilterBase
 
 	virtual bool accept (DecodedCommand const & cmd) const;
 
+	virtual void defaultConfig ();
 	virtual void loadConfig (QString const & path);
 	virtual void saveConfig (QString const & path);
 	virtual void applyConfig ();
-
 	virtual void clear ();
+
+	template <class ArchiveT>
+	void serialize (ArchiveT & ar, unsigned const version)
+	{
+		ar & boost::serialization::make_nvp("enabled", m_enabled);
+		ar & boost::serialization::make_nvp("lvl_filters", m_data);
+	}
 
 	// lvl specific
 	void setupModel ();
@@ -35,13 +42,6 @@ struct FilterLvl : FilterBase
 	void removeLvlFilter (QString const & item);
 	bool isLvlPresent (QString const & item, bool & enabled, E_LevelMode & lvlmode) const;
 	bool setLvlMode (QString const & item, bool enabled, E_LevelMode lvlmode);
-
-	template <class ArchiveT>
-	void serialize (ArchiveT & ar, unsigned const version)
-	{
-		ar & boost::serialization::make_nvp("enabled", m_enabled);
-		ar & boost::serialization::make_nvp("lvl_filters", m_data);
-	}
 
 	typedef QList<FilteredLevel> lvl_filters_t;
 	lvl_filters_t			m_data;

@@ -22,10 +22,18 @@ struct FilterRegex : FilterBase
 
 	virtual bool accept (DecodedCommand const & cmd) const;
 
+	virtual void defaultConfig ();
 	virtual void loadConfig (QString const & path);
 	virtual void saveConfig (QString const & path);
 	virtual void applyConfig ();
 	virtual void clear ();
+
+	template <class ArchiveT>
+	void serialize (ArchiveT & ar, unsigned const version)
+	{
+		ar & boost::serialization::make_nvp("enabled", m_enabled);
+		ar & boost::serialization::make_nvp("filtered_regexps", m_data);
+	}
 
 	// regex filtering
 	void setupModel ();
@@ -37,13 +45,6 @@ struct FilterRegex : FilterBase
 	void setRegexInclusive (QString const & s, bool inclusive);
 
 	void onClearRegexFilter () { m_data.clear(); }
-	template <class ArchiveT>
-	void serialize (ArchiveT & ar, unsigned const version)
-	{
-		ar & boost::serialization::make_nvp("enabled", m_enabled);
-		ar & boost::serialization::make_nvp("filtered_regexps", m_data);
-	}
-
 	QList<FilteredRegex>	m_data;
 	QStandardItemModel *	m_model;
 	QStyledItemDelegate *   m_delegate;

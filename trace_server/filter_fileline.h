@@ -36,16 +36,16 @@ struct FilterFileLine : FilterBase
 
 	virtual bool accept (DecodedCommand const & cmd) const;
 
+	virtual void defaultConfig ();
 	virtual void loadConfig (QString const & path);
 	virtual void saveConfig (QString const & path);
 	virtual void applyConfig ();
 
+	virtual void clear ()
+	{
+		m_data.set_state_to_childs(m_data.root, TreeModelItem(e_Checked, false));
+	}
 
-	void setupModel ();
-	void destroyModel ();
-
-	bool isFileLinePresent (fileline_t const & p, TreeModelItem & state) const; /// checks for file:line existence in the tree
-	bool isFileLinePresent (QString const & fileline, TreeModelItem & state) const; /// checks for file:line existence in the tree
 	template <class ArchiveT>
 	void serialize (ArchiveT & ar, unsigned const version)
 	{
@@ -53,10 +53,12 @@ struct FilterFileLine : FilterBase
 		ar & boost::serialization::make_nvp("file_filters", m_data);
 	}
 
-	virtual void clear ()
-	{
-		m_data.set_state_to_childs(m_data.root, TreeModelItem(e_Checked, false));
-	}
+	// file line specific
+	void setupModel ();
+	void destroyModel ();
+
+	bool isFileLinePresent (fileline_t const & p, TreeModelItem & state) const; /// checks for file:line existence in the tree
+	bool isFileLinePresent (QString const & fileline, TreeModelItem & state) const; /// checks for file:line existence in the tree
 
 	friend class FilterProxyModel;
 
@@ -84,3 +86,4 @@ struct FilterFileLine : FilterBase
 
 	Q_OBJECT
 };
+

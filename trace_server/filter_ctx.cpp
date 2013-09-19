@@ -1,5 +1,7 @@
 #include "filter_ctx.h"
 #include <QPainter>
+#include "constants.h"
+#include "serialize.h"
 // serialization stuff
 #include <boost/serialization/type_info_implementation.hpp>
 #include <boost/archive/xml_iarchive.hpp>
@@ -47,14 +49,19 @@ bool FilterCtx::accept (DecodedCommand const & cmd) const
 	return ctx_enabled;
 }
 
+
+void FilterCtx::defaultConfig ()
+{
+}
+
 void FilterCtx::loadConfig (QString const & path)
 {
 }
 
 void FilterCtx::saveConfig (QString const & path)
 {
-	//QString const fsname = fname + "." + g_filterStateTag;
-	//saveFilterCtx(m_filter_state, fsname.toStdString());
+	QString const fname = path + "/" + g_filterTag + "/" + typeName();
+	::saveConfigTemplate(*this, fname);
 }
 
 void FilterCtx::applyConfig ()
@@ -129,36 +136,6 @@ void FilterCtx::removeCtxFilter (QString const & item)
 			fc.m_is_enabled = false;
 			return;
 		}
-}
-
-
-///////// serialize
-bool loadConfig (FilterCtx & w, QString const & fname)
-{
-	std::ifstream ifs(fname.toLatin1());
-	if (!ifs) return false;
-	try {
-		boost::archive::xml_iarchive ia(ifs);
-		ia >> BOOST_SERIALIZATION_NVP(w.m_data);
-		ifs.close();
-		return true;
-	}
-	catch (...)
-	{
-		return false;
-	}
-}
-bool saveConfig (FilterCtx const & w, QString const & fname)
-{
-	std::ofstream ofs(fname.toLatin1());
-	if (!ofs) return false;
-	boost::archive::xml_oarchive oa(ofs);
-	oa << BOOST_SERIALIZATION_NVP(w.m_data);
-	ofs.close();
-	return true;
-}
-void fillDefaultConfig (FilterCtx & w)
-{
 }
 
 

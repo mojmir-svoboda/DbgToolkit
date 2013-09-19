@@ -1,4 +1,6 @@
 #include "filter_lvl.h"
+#include "constants.h"
+#include "serialize.h"
 #include <QPainter>
 // serialization stuff
 #include <boost/serialization/type_info_implementation.hpp>
@@ -57,14 +59,19 @@ bool FilterLvl::accept (DecodedCommand const & cmd) const
 	return !excluded;
 }
 
+void FilterLvl::defaultConfig ()
+{
+	m_data.clear();
+}
+
 void FilterLvl::loadConfig (QString const & path)
 {
 }
 
 void FilterLvl::saveConfig (QString const & path)
 {
-	//QString const fsname = fname + "." + g_filterStateTag;
-	//saveFilterLvl(m_filter_state, fsname.toStdString());
+	QString const fname = path + "/" + g_filterTag + "/" + typeName();
+	::saveConfigTemplate(*this, fname);
 }
 
 void FilterLvl::applyConfig ()
@@ -149,36 +156,6 @@ bool FilterLvl::setLvlMode (QString const & item, bool enabled, E_LevelMode lvlm
 
 }
 
-
-///////// serialize
-bool loadConfig (FilterLvl & w, QString const & fname)
-{
-	std::ifstream ifs(fname.toLatin1());
-	if (!ifs) return false;
-	try {
-		boost::archive::xml_iarchive ia(ifs);
-		ia >> BOOST_SERIALIZATION_NVP(w.m_data);
-		ifs.close();
-		return true;
-	}
-	catch (...)
-	{
-		return false;
-	}
-}
-bool saveConfig (FilterLvl const & w, QString const & fname)
-{
-	std::ofstream ofs(fname.toLatin1());
-	if (!ofs) return false;
-	boost::archive::xml_oarchive oa(ofs);
-	oa << BOOST_SERIALIZATION_NVP(w.m_data);
-	ofs.close();
-	return true;
-}
-
-void fillDefaultConfig (FilterLvl & w)
-{
-}
 
 
 //////// delegate

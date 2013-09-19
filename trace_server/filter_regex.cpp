@@ -1,4 +1,6 @@
 #include "filter_regex.h"
+#include "constants.h"
+#include "serialize.h"
 #include <QPainter>
 // serialization stuff
 #include <boost/serialization/type_info_implementation.hpp>
@@ -80,14 +82,18 @@ bool FilterRegex::accept (DecodedCommand const & cmd) const
 	return true;
 }
 
+void FilterRegex::defaultConfig ()
+{
+	m_data.clear();
+}
+
 void FilterRegex::loadConfig (QString const & path)
 {
 }
-
 void FilterRegex::saveConfig (QString const & path)
 {
-	//QString const fsname = fname + "." + g_filterStateTag;
-	//saveFilterRegex(m_filter_state, fsname.toStdString());
+	QString const fname = path + "/" + g_filterTag + "/" + typeName();
+	::saveConfigTemplate(*this, fname);
 }
 
 void FilterRegex::applyConfig ()
@@ -181,36 +187,6 @@ void FilterRegex::appendToRegexFilters (QString const & s, bool enabled, bool st
 			return;
 	m_data.push_back(FilteredRegex(s, enabled, state));
 }
-
-//////// serialize
-bool loadConfig (FilterRegex & w, QString const & fname)
-{
-	std::ifstream ifs(fname.toLatin1());
-	if (!ifs) return false;
-	try {
-		boost::archive::xml_iarchive ia(ifs);
-		ia >> BOOST_SERIALIZATION_NVP(w.m_data);
-		ifs.close();
-		return true;
-	}
-	catch (...)
-	{
-		return false;
-	}
-}
-bool saveConfig (FilterRegex const & w, QString const & fname)
-{
-	std::ofstream ofs(fname.toLatin1());
-	if (!ofs) return false;
-	boost::archive::xml_oarchive oa(ofs);
-	oa << BOOST_SERIALIZATION_NVP(w.m_data);
-	ofs.close();
-	return true;
-}
-void fillDefaultConfig (FilterRegex & w)
-{
-}
-
 
 //////// delegate
 void RegexDelegate::paint (QPainter * painter, QStyleOptionViewItem const & option, QModelIndex const & index) const

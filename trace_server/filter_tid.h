@@ -22,10 +22,17 @@ struct FilterTid : FilterBase
 
 	virtual bool accept (DecodedCommand const & cmd) const;
 
+	virtual void defaultConfig ();
 	virtual void loadConfig (QString const & path);
 	virtual void saveConfig (QString const & path);
 	virtual void applyConfig ();
 	virtual void clear ();
+
+	template <class ArchiveT>
+	void serialize (ArchiveT & ar, unsigned const version)
+	{
+		ar & boost::serialization::make_nvp("enabled", m_enabled);
+	}
 
 	// tid specific
 	void setupModel ();
@@ -33,12 +40,6 @@ struct FilterTid : FilterBase
 	void appendTIDFilter (QString const & item);
 	void removeTIDFilter (QString const & item);
 	bool isTIDExcluded (QString const & item) const;
-
-	template <class ArchiveT>
-	void serialize (ArchiveT & ar, unsigned const version)
-	{
-		ar & boost::serialization::make_nvp("enabled", m_enabled);
-	}
 
 	typedef std::vector<QString> tid_filters_t;
 	tid_filters_t			m_data;

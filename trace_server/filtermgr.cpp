@@ -4,6 +4,7 @@
 #include <QComboBox>
 #include <QModelIndexList>
 #include "ui_combolist.h"
+#include "serialize.h"
 // serialization stuff
 #include <boost/serialization/type_info_implementation.hpp>
 #include <boost/archive/xml_iarchive.hpp>
@@ -43,10 +44,20 @@ bool FilterMgr::accept (DecodedCommand const & cmd) const
 	return accepted;
 }
 
+void FilterMgr::defaultConfig ()
+{
+	m_filter_order.clear();
+	// @TODO clear others? probably no
+	m_filter_order.push_back(g_filterNames[e_Filter_String]);
+	m_filter_order.push_back(g_filterNames[e_Filter_Ctx]);
+	m_filter_order.push_back(g_filterNames[e_Filter_Lvl]);
+	m_filter_order.push_back(g_filterNames[e_Filter_FileLine]);
+}
+
 void FilterMgr::loadConfig (QString const & path)
 {
 	QString const fname = path + "/" + g_filterTag + "/" + typeName();
-	if (!::loadConfig(*this, fname))
+	if (!::loadConfigTemplate(*this, fname))
 		fillDefaultConfig(*this);
 
 	recreateFilters();
@@ -58,7 +69,7 @@ void FilterMgr::loadConfig (QString const & path)
 void FilterMgr::saveConfig (QString const & path)
 {
 	QString const fname = path + "/" + g_filterTag + "/" + typeName();
-	::saveConfig(*this, fname);
+	::saveConfigTemplate(*this, fname);
 
 	for (size_t i = 0, ie = m_filters.size(); i < ie; ++i)
 		m_filters[i]->saveConfig(path);
@@ -77,10 +88,12 @@ void FilterMgr::addFilter (FilterBase * b)
 	m_filters.push_back(b);
 	m_cache[t] = b;
 }
-void FilterMgr::rmFilter (FilterBase * b)
+void FilterMgr::rmFilter (FilterBase * & b)
 {
 	E_FilterType const t = b->type();
 	m_filters.erase(std::remove(m_filters.begin(), m_filters.end(), b), m_filters.end());
+	delete b;
+	b = 0;
 	m_cache[t] = 0;
 }
 
@@ -116,6 +129,10 @@ FilterBase * filterFactory (E_FilterType t, QWidget * parent)
 	}
 }
 
+namespace {
+
+}
+
 void FilterMgr::recreateFilters ()
 {
 	m_filters.clear();
@@ -125,16 +142,21 @@ void FilterMgr::recreateFilters ()
 	for (size_t i = 0, ie = m_filter_order.size(); i < ie; ++i)
 	{
 		E_FilterType const t = filterName2Type(m_filter_order[i]);
-		FilterBase * b = filterFactory(t, 0);
-		m_filters.push_back(b);
-		m_cache[t] = b;
-		m_tabFilters->insertTab(i, b, b->typeName());
+		FilterBase * fb = filterFactory(t, 0);
+		m_filters.push_back(fb);
+		m_cache[t] = fb;
+		m_tabFilters->insertTab(i, fb, fb->typeName());
 
-		QStyle const * const style = QApplication::style();
-		QIcon icon(style->standardIcon(QStyle::SP_DialogYesButton));
-		QPushButton * btn = new QPushButton();
-		btn->setIcon(icon);
-		m_tabFilters->tabBar()->setTabButton(i, QTabBar::LeftSide, btn);
+		fb->m_button = new QToolButton;
+		fb->m_button->setCheckable(true);
+		fb->m_button->setIcon(grabIcon(fb->m_enabled));
+		fb->m_button->setToolTip(QApplication::translate("FilterBar", "enables/disables filter", 0));
+		fb->m_button->setChecked(fb->m_enabled);
+		fb->m_button->setMinimumSize(QSize(16, 16));
+		fb->m_button->setMaximumSize(QSize(24, 16));
+
+		connect(fb->m_button, SIGNAL(clicked()), fb, SLOT(onTabButton()));
+		m_tabFilters->tabBar()->setTabButton(i, QTabBar::LeftSide, fb->m_button);
 	}
 }
 
@@ -328,36 +350,4 @@ void FilterMgr::clear ()
 }
 
 
-///////// serialize
-bool loadConfig (FilterMgr & w, QString const & fname)
-{
-	std::ifstream ifs(fname.toLatin1());
-	if (!ifs) return false;
-	try {
-		boost::archive::xml_iarchive ia(ifs);
-		ia >> BOOST_SERIALIZATION_NVP(w.m_filter_order);
-		ifs.close();
-		return true;
-	}
-	catch (...)
-	{
-		return false;
-	}
-}
-bool saveConfig (FilterMgr const & w, QString const & fname)
-{
-	std::ofstream ofs(fname.toLatin1());
-	if (!ofs) return false;
-	boost::archive::xml_oarchive oa(ofs);
-	oa << BOOST_SERIALIZATION_NVP(w.m_filter_order);
-	ofs.close();
-	return true;
-}
-void fillDefaultConfig (FilterMgr & w)
-{
-	w.m_filter_order.push_back(g_filterNames[e_Filter_String]);
-	w.m_filter_order.push_back(g_filterNames[e_Filter_Ctx]);
-	w.m_filter_order.push_back(g_filterNames[e_Filter_Lvl]);
-	w.m_filter_order.push_back(g_filterNames[e_Filter_FileLine]);
-}
 

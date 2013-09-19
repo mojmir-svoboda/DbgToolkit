@@ -1,4 +1,6 @@
 #include "filter_fileline.h"
+#include "constants.h"
+#include "serialize.h"
 // serialization stuff
 #include <boost/serialization/type_info_implementation.hpp>
 #include <boost/archive/xml_iarchive.hpp>
@@ -59,12 +61,15 @@ bool FilterFileLine::accept (DecodedCommand const & cmd) const
 
 void FilterFileLine::loadConfig (QString const & path)
 {
+	QString const fname = path + "/" + g_filterTag + "/" + typeName();
+	if (!::loadConfigTemplate(*this, fname))
+		defaultConfig();
 }
 
 void FilterFileLine::saveConfig (QString const & path)
 {
-	//QString const fsname = fname + "." + g_filterStateTag;
-	//saveFilterState(m_filter_state, fsname.toStdString());
+	QString const fname = path + "/" + g_filterTag + "/" + typeName();
+	::saveConfigTemplate(*this, fname);
 }
 
 void FilterFileLine::applyConfig ()
@@ -233,35 +238,4 @@ void FilterFileLine::merge_with (file_filters_t const & rhs)
 
 TreeView * FilterFileLine::getWidgetFile () { return m_ui->view; }
 TreeView const * FilterFileLine::getWidgetFile () const { return m_ui->view; }
-
-
-///////// serialize
-bool loadConfig (FilterFileLine & w, QString const & fname)
-{
-	std::ifstream ifs(fname.toLatin1());
-	if (!ifs) return false;
-	try {
-		boost::archive::xml_iarchive ia(ifs);
-		ia >> BOOST_SERIALIZATION_NVP(w.m_data);
-		ifs.close();
-		return true;
-	}
-	catch (...)
-	{
-		return false;
-	}
-}
-bool saveConfig (FilterFileLine const & w, QString const & fname)
-{
-	std::ofstream ofs(fname.toLatin1());
-	if (!ofs) return false;
-	boost::archive::xml_oarchive oa(ofs);
-	oa << BOOST_SERIALIZATION_NVP(w.m_data);
-	ofs.close();
-	return true;
-}
-void fillDefaultConfig (FilterFileLine & w)
-{
-}
-
 

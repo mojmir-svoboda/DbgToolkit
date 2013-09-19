@@ -1,6 +1,8 @@
 #pragma once
 #include <QObject>
 #include <QWidget>
+#include <QIcon>
+#include <QToolButton>
 #include "cmd.h"
 
 enum E_FilterType {
@@ -42,14 +44,15 @@ inline E_FilterType filterName2Type (QString const & name)
 	return e_filtertype_max_value;
 }
 
-
+QIcon grabIcon (bool enabled);
 
 struct FilterBase : public QWidget
 {
 	bool m_enabled;
 	QWidget * m_widget;
+	QToolButton * m_button;
 
-	FilterBase (QWidget * parent = 0) : QWidget(parent), m_enabled(true), m_widget(0) { }
+	FilterBase (QWidget * parent = 0) : QWidget(parent), m_enabled(true), m_widget(0), m_button(0) { }
 	virtual ~FilterBase () { }
 
 	virtual void initUI () = 0;
@@ -64,6 +67,7 @@ struct FilterBase : public QWidget
 	void enable (bool state) { m_enabled = state; }
 	bool enabled () const { return m_enabled; }
 
+	virtual void defaultConfig () = 0;
 	virtual void loadConfig (QString const & path) = 0;
 	virtual void saveConfig (QString const & path) = 0;
 	virtual void applyConfig () = 0;
@@ -71,4 +75,6 @@ struct FilterBase : public QWidget
 	virtual void clear () = 0;
 
 	Q_OBJECT
+public slots:
+	void onTabButton ();
 };

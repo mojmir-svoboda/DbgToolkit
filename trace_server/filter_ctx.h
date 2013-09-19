@@ -33,10 +33,18 @@ struct FilterCtx : FilterBase
 
 	virtual bool accept (DecodedCommand const & cmd) const;
 
+	virtual void defaultConfig ();
 	virtual void loadConfig (QString const & path);
 	virtual void saveConfig (QString const & path);
 	virtual void applyConfig ();
 	virtual void clear ();
+
+	template <class ArchiveT>
+	void serialize (ArchiveT & ar, unsigned const version)
+	{
+		ar & boost::serialization::make_nvp("enabled", m_enabled);
+		ar & boost::serialization::make_nvp("ctx_filters", m_data);
+	}
 
 	// ctx specific
 	void setAppData (AppData const * appdata) { static_cast<CtxDelegate *>(m_delegate)->setAppData(appdata); }
@@ -46,13 +54,6 @@ struct FilterCtx : FilterBase
 	void appendCtxFilter (QString const & item);
 	void removeCtxFilter (QString const & item);
 
-	template <class ArchiveT>
-	void serialize (ArchiveT & ar, unsigned const version)
-	{
-		ar & boost::serialization::make_nvp("enabled", m_enabled);
-		ar & boost::serialization::make_nvp("ctx_filters", m_data);
-	}
-
 	typedef QList<FilteredContext> ctx_filters_t;
 	ctx_filters_t			m_data;
 	QStandardItemModel *	m_model;
@@ -60,5 +61,4 @@ struct FilterCtx : FilterBase
 
 	Q_OBJECT
 };
-
 

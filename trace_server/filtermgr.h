@@ -17,7 +17,7 @@ struct FilterMgr : FilterBase
 	QStringList 				m_filter_order;
 	typedef QList<FilterBase *> filters_t;
 	filters_t					m_filters;	/// user-order respecting filters
-	std::vector<FilterBase *> 	m_cache; // enum ordered cache of m_filters
+	std::vector<FilterBase *> 	m_cache;	/// enum ordered cache of m_filters
 
 	FilterMgr (QWidget * parent = 0);
 	virtual ~FilterMgr ();
@@ -29,13 +29,20 @@ struct FilterMgr : FilterBase
 
 	virtual bool accept (DecodedCommand const & cmd) const;
 
+	virtual void defaultConfig ();
 	virtual void loadConfig (QString const & path);
 	virtual void saveConfig (QString const & path);
 	virtual void applyConfig ();
 	virtual void clear ();
 
+	template <class ArchiveT>
+	void serialize (ArchiveT & ar, unsigned const version)
+	{
+		ar & boost::serialization::make_nvp("filter_order", m_filter_order);
+	}
+
 	void addFilter (FilterBase * b);
-	void rmFilter (FilterBase * b);
+	void rmFilter (FilterBase * & b);
 	void mvFilter (int from, int to);
 	void recreateFilters ();
 
