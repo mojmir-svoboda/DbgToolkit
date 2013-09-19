@@ -9,25 +9,16 @@
 #include <serialize/ser_qstringlist.h>
 #include <fstream>
 #include <sstream>
+#include "serialize.h"
 
 bool loadConfig (DockConfig & config, QString const & fname)
 {
-	std::ifstream ifs(fname.toLatin1());
-	if (!ifs) return false;
-	boost::archive::xml_iarchive ia(ifs);
-	ia >> BOOST_SERIALIZATION_NVP(config);
-	ifs.close();
-	return true;
+    return loadConfigTemplate(config, fname);
 }
 
 bool saveConfig (DockConfig const & config, QString const & fname)
 {
-	std::ofstream ofs(fname.toLatin1());
-	if (!ofs) return false;
-	boost::archive::xml_oarchive oa(ofs);
-	oa << BOOST_SERIALIZATION_NVP(config);
-	ofs.close();
-	return true;
+    return saveConfigTemplate(config, fname);
 }
 
 void fillDefaultConfig (DockConfig & config)

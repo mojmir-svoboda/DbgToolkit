@@ -7,8 +7,20 @@
 #include <QMainWindow>
 #include "mainwindow.h"
 #include "connection.h"
-
 #include <QStyledItemDelegate>
+// serialization stuff
+#include <boost/serialization/type_info_implementation.hpp>
+#include <boost/archive/xml_iarchive.hpp>
+#include <boost/archive/xml_oarchive.hpp>
+#include <boost/serialization/utility.hpp>
+#include <boost/serialization/serialization.hpp>
+#include <boost/serialization/vector.hpp>
+#include <serialize/ser_qt.h>
+#include <fstream>
+#include "serialize.h"
+
+
+
     DockedTreeDelegate::DockedTreeDelegate (QObject * parent, QPixmap const & icon)
         : QStyledItemDelegate(parent)
         , m_icon(icon)
@@ -211,7 +223,7 @@ void DockManager::loadConfig (QString const & path)
 {
 	QString const fpath = path + "/" + g_dockStateTag;
 	m_config2.clear();
-	::loadConfig(m_config, fpath);
+	::loadConfigTemplate(m_config, fpath);
 
 	m_config = m_config2;
 	m_config2.m_docked_widgets_data.root = 0; // @TODO: promyslet.. takle na to urcite zapomenu
@@ -230,7 +242,7 @@ void DockManager::loadConfig (QString const & path)
 void DockManager::saveConfig (QString const & path)
 {
 	QString const fpath = path + "/" + g_dockStateTag;
-	::saveConfig(m_config, fpath);
+	::saveConfigTemplate(m_config, fpath);
 }
 
 

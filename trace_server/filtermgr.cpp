@@ -58,7 +58,7 @@ void FilterMgr::loadConfig (QString const & path)
 {
 	QString const fname = path + "/" + g_filterTag + "/" + typeName();
 	if (!::loadConfigTemplate(*this, fname))
-		fillDefaultConfig(*this);
+		defaultConfig();
 
 	recreateFilters();
 

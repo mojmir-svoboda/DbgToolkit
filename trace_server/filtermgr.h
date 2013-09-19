@@ -83,6 +83,3 @@ public:
 	Q_OBJECT
 };
 
-bool loadConfig (FilterMgr & config, QString const & fname);
-bool saveConfig (FilterMgr const & config, QString const & fname);
-void fillDefaultConfig (FilterMgr & config);

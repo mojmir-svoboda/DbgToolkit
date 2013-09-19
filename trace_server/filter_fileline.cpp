@@ -59,6 +59,10 @@ bool FilterFileLine::accept (DecodedCommand const & cmd) const
 	return !excluded;
 }
 
+void FilterFileLine::defaultConfig ()
+{
+}
+
 void FilterFileLine::loadConfig (QString const & path)
 {
 	QString const fname = path + "/" + g_filterTag + "/" + typeName();

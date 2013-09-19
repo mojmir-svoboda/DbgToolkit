@@ -91,21 +91,21 @@ void FilterWidget::applyConfig (FilterState const & src, FilterState & dst)
 
 void FilterWidget::loadConfig (QString const & fname, FilterState & config)
 {
-	FilterState dummy;
+	/*FilterState dummy;
 	if (loadFilterState(dummy, fname.toStdString()))
 	{
 		applyConfig(dummy, config);
-	}
+	}*/
 }
 
 void FilterWidget::loadConfig (QString const & fname)
 {
-	FilterState dummy;
+	/*FilterState dummy;
 	QString const fsname = fname + "." + g_filterTag;
 	if (loadFilterState(dummy, fsname.toStdString()))
 	{
 		applyConfig(dummy, m_filter_state);
-	}
+	}*/
 }
 
 void FilterWidget::saveConfig (QString const & fname)
