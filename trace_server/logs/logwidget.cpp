@@ -345,9 +345,9 @@ namespace logs {
 
 	void LogWidget::loadConfig (QString const & preset_dir)
 	{
-		QString const logpath = preset_dir + "/" + g_presetLogTag + "/" + m_config.m_tag;
+		QString const logpath = preset_dir + "/" + g_presetLogTag;
 		m_config.clear();
-		bool const loaded = logs::loadConfig(m_config, logpath);
+		bool const loaded = logs::loadConfig(m_config, logpath + "/" + m_config.m_tag);
 		if (!loaded)
 			m_connection->defaultConfigFor(m_config);
 
@@ -388,11 +388,12 @@ namespace logs {
 
 	void LogWidget::saveConfig (QString const & path)
 	{
-		QString const logpath = path + "/" + g_presetLogTag + "/" + m_config.m_tag;
+		QString const logpath = path + "/" + g_presetLogTag;
+		mkDir(logpath);
 
 		logs::LogConfig tmp = m_config;
 		normalizeConfig(tmp);
-		logs::saveConfig(tmp, logpath);
+		logs::saveConfig(tmp, logpath + "/" + m_config.m_tag);
 		filterMgr()->saveConfig(logpath);
 
         //currentIndex  = horizontalHeader()->visualIndex(session.findColumn4Tag(iter.key()));

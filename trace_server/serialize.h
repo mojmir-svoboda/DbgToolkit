@@ -1,5 +1,8 @@
 #pragma once
 #include <QMessageBox>
+#include <QFileInfo>
+#include <QDir>
+#include "utils.h"
 
 template <class T>
 bool loadConfigTemplate (T & t, QString const & fname)
@@ -35,6 +38,9 @@ template <class T>
 bool saveConfigTemplate (T const & t, QString const & fname)
 {
 	try {
+		QFileInfo fi(fname);
+		QString pname = fi.path();
+		mkDir(pname);
 		std::ofstream ofs(fname.toLatin1());
 		if (!ofs) return false;
 		boost::archive::xml_oarchive oa(ofs);
