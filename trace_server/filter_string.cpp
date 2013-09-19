@@ -103,6 +103,7 @@ void FilterString::saveConfig (QString const & path)
 
 void FilterString::applyConfig ()
 {
+	FilterBase::applyConfig();
 }
 
 void FilterString::clear ()

@@ -271,6 +271,7 @@ namespace logs {
 		moveSectionsAccordingTo(m_config);
 		//m_config = m_config2;
 		applyConfig(m_config);
+		filterMgr()->applyConfig();
 	}
 
 	void LogWidget::applyConfig (LogConfig & cfg)

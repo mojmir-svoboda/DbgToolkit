@@ -101,6 +101,7 @@ void FilterRegex::saveConfig (QString const & path)
 
 void FilterRegex::applyConfig ()
 {
+	FilterBase::applyConfig();
 	//m_filter_state.m_filtered_regexps = src.m_filtered_regexps;
 }
 

@@ -122,6 +122,7 @@ public:
 
 	void loadConfig (QString const & path);
 	void saveConfig (QString const & path);
+	void applyConfig ();
 
 	virtual bool handleAction (Action * a, E_ActionHandleType sync);
 

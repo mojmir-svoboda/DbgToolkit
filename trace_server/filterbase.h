@@ -70,7 +70,7 @@ struct FilterBase : public QWidget
 	virtual void defaultConfig () = 0;
 	virtual void loadConfig (QString const & path) = 0;
 	virtual void saveConfig (QString const & path) = 0;
-	virtual void applyConfig () = 0;
+	virtual void applyConfig ();
 
 	virtual void clear () = 0;
 

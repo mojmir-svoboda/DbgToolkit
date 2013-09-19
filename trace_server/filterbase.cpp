@@ -17,4 +17,8 @@ void FilterBase::onTabButton ()
 	m_button->setIcon(grabIcon(enabled));
 }
 
-
+void FilterBase::applyConfig ()
+{
+	m_button->setChecked(m_enabled);
+	m_button->setIcon(grabIcon(m_enabled));
+}

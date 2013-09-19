@@ -79,6 +79,7 @@ void FilterLvl::saveConfig (QString const & path)
 
 void FilterLvl::applyConfig ()
 {
+	FilterBase::applyConfig();
 	//m_lvl_filters = src.m_lvl_filters;
 }
 

@@ -743,7 +743,7 @@ void MainWindow::loadState ()
 	ui->presetComboBox->setCurrentIndex(ui->presetComboBox->findText(pname));
 
 	m_dock_mgr.loadConfig(m_config.m_appdir);
-
+	m_dock_mgr.applyConfig();
 	ui->dockedWidgetsToolButton->setChecked(m_dock_mgr.m_config.m_show);
 	qApp->installEventFilter(this);
 }

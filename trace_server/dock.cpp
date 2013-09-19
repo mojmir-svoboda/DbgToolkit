@@ -228,15 +228,19 @@ void DockManager::loadConfig (QString const & path)
 	//m_config = m_config2;
 	//m_config2.m_docked_widgets_data.root = 0; // @TODO: promyslet.. takle na to urcite zapomenu
 	m_docked_widgets_model = new DockTreeModel(this, &m_config.m_docked_widgets_data);
+	setModel(m_docked_widgets_model);
+}
+
+void DockManager::applyConfig ()
+{
 	for (int i = 0, ie = m_config.m_columns_sizes.size(); i < ie; ++i)
 	{
 		header()->resizeSection(i, m_config.m_columns_sizes[i]);
 	}
-	setModel(m_docked_widgets_model);
+
 	syncExpandState();
 	if (m_docked_widgets_model)
 		m_docked_widgets_model->syncExpandState(this);
-
 }
 
 void DockManager::saveConfig (QString const & path)

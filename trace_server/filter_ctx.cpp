@@ -69,6 +69,7 @@ void FilterCtx::saveConfig (QString const & path)
 
 void FilterCtx::applyConfig ()
 {
+	FilterBase::applyConfig();
 	//m_filter_state.merge_with(src.m_file_filters);
 }
 
