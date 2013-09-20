@@ -276,7 +276,7 @@ namespace logs {
 		filterMgr()->applyConfig();
 		filterMgr()->connectFiltersTo(this);
 
-		connect(filterMgr(), SIGNAL(filterEnabledChanged(int)), this, SLOT(onFilterEnabledChanged()));
+		connect(filterMgr(), SIGNAL(filterEnabledChanged()), this, SLOT(onFilterEnabledChanged()));
 
 		if (filterMgr()->getFilterCtx())
 			filterMgr()->getFilterCtx()->setAppData(&m_connection->appData());

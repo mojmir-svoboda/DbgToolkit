@@ -35,10 +35,11 @@ QIcon grabIcon (bool enabled)
 void FilterBase::onTabButton ()
 {
 	bool const enabled = m_button->isChecked();
+	bool const change = m_enabled ^ enabled;
 	m_enabled = enabled;
 	m_button->setIcon(grabIcon(enabled));
 
-	if (m_enabled ^ enabled)
+	if (change)
 		emit filterEnabledChanged();
 }
 
