@@ -185,17 +185,27 @@ void LogWidget::onClearCurrentRefTime ()
 
 void LogWidget::onExcludeFileLine (QModelIndex const & row_index)
 {
-	QString file = findString4Tag(tlv::tag_file, row_index);
-	QString line = findString4Tag(tlv::tag_line, row_index);
-	qDebug("appending: %s:%s", file.toStdString().c_str(), line.toStdString().c_str());
-	QString const fileline = file + "/" + line;
-	QModelIndex const result = filterMgr()->getFilterFileLine()->fileModel()->stateToItem(fileline, Qt::Unchecked);
-	if (!result.isValid())
+	if (filterMgr()->getFilterFileLine())
 	{
-		Q_ASSERT("nonexistent index");
-		qFatal("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+		DecodedCommand const * dcmd = getDecodedCommand(row_index);
+		if (dcmd)
+		{
+
+			QString file, line;
+			if (dcmd->getString(tlv::tag_file, file) && dcmd->getString(tlv::tag_line, line))
+			{
+				qDebug("excluding: %s:%s", file.toStdString().c_str(), line.toStdString().c_str());
+				QString const fileline = file + "/" + line;
+				QModelIndex const result = filterMgr()->getFilterFileLine()->fileModel()->stateToItem(fileline, Qt::Unchecked);
+				if (!result.isValid())
+				{
+					Q_ASSERT("nonexistent index");
+					qFatal("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+				}
+			}
+			onInvalidateFilter();
+		}
 	}
-	onInvalidateFilter();
 }
 
 void LogWidget::onFileColOrExp (QModelIndex const & idx, bool collapsed)
@@ -363,75 +373,6 @@ void LogWidget::removeFromRegexFilters (QString const & val)
 		filterMgr()->getFilterRegex()->removeFromRegexFilters(val);
 }
 
-void LogWidget::recompileRegexps ()
-{
-	if (filterMgr()->getFilterRegex())
-	{
-		for (int i = 0, ie = filterMgr()->getFilterRegex()->m_data.size(); i < ie; ++i)
-		{
-			FilteredRegex & fr = filterMgr()->getFilterRegex()->m_data[i];
-			QStandardItem * root = filterMgr()->getFilterRegex()->m_model->invisibleRootItem();
-			QString const qregex = fr.m_regex_str;
-			QStandardItem * child = findChildByText(root, qregex);
-			fr.m_is_enabled = false;
-			if (!child)
-				continue;
-			QRegExp regex(qregex);
-			if (regex.isValid())
-			{
-				fr.m_regex = regex;
-				bool const checked = (child->checkState() == Qt::Checked);
-				if (child && checked)
-				{
-					child->setData(QBrush(Qt::green), Qt::BackgroundRole);
-					child->setToolTip(tr("ok"));
-					fr.m_is_enabled = true;
-				}
-				else if (child && !checked)
-				{
-					child->setData(QBrush(Qt::yellow), Qt::BackgroundRole);
-					child->setToolTip(tr("regex not enabled"));
-				}
-			}
-			else
-			{
-				if (child)
-				{
-					child->setData(QBrush(Qt::red), Qt::BackgroundRole);
-					child->setToolTip(regex.errorString());
-				}
-			}
-		}
-
-		onInvalidateFilter();
-	}
-}
-
-void LogWidget::loadToRegexps (QString const & filter_item, bool inclusive, bool enabled)
-{
-	if (filterMgr()->getFilterRegex())
-	{
-		filterMgr()->getFilterRegex()->appendToRegexFilters(filter_item, inclusive, enabled);
-	}
-}
-
-
-
-void LogWidget::appendToStringWidgets (FilteredString const & flt)
-{
-	if (filterMgr()->getFilterString())
-	{
-		QStandardItem * root = filterMgr()->getFilterString()->m_model->invisibleRootItem();
-		QStandardItem * child = findChildByText(root, flt.m_string);
-		if (child == 0)
-		{
-			bool const mode = static_cast<bool>(flt.m_state);
-			QList<QStandardItem *> row_items = addTriRow(flt.m_string, flt.m_is_enabled ? Qt::Checked : Qt::Unchecked, mode);
-			row_items[0]->setCheckState(flt.m_is_enabled ? Qt::Checked : Qt::Unchecked);
-			root->appendRow(row_items);
-		}
-	}
-}
 void LogWidget::appendToStringFilters (QString const & str, bool checked, int state)
 {
 	if (filterMgr()->getFilterString())
@@ -447,45 +388,6 @@ void LogWidget::removeFromStringFilters (QString const & val)
 		filterMgr()->getFilterString()->removeFromStringFilters(val);
 	}
 }
-
-void LogWidget::recompileStrings ()
-{
-	onInvalidateFilter();
-}
-
-/*void LogWidget::onFilterFileComboChanged (QString str)
-{
-	if (str.isEmpty())
-	{
-		filterMgr()->getFilterFileLine()->setModel(filterMgr()->getFilterFileLine()->m_file_model);
-	}
-	else
-	{
-		if (filterWidget()->getWidgetFile()->model() != filterWidget()->m_file_proxy)
-		{
-			filterWidget()->getWidgetFile()->setModel(filterWidget()->m_file_proxy);
-			filterWidget()->m_file_proxy->setSourceModel(filterWidget()->m_file_model);
-		}
-		filterWidget()->m_file_proxy->setFindString(str);
-	}
-}*/
-
-void LogWidget::onCancelFilterFileButton ()
-{
-}
-
-void LogWidget::onCutParentValueChanged (int i)
-{
-	filterMgr()->getFilterFileLine()->fileModel()->onCutParentValueChanged(i);
-	//filterWidget()->getWidgetFile()->hideLinearParents();
-}
-void LogWidget::onCollapseChilds ()
-{
-	//filterWidget()->fileModel()->collapseChilds(filterWidget()->getWidgetFile());
-}
-
-
-
 
 void LogWidget::appendToColorRegexFilters (QString const & val)
 {

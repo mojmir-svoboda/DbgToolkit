@@ -42,6 +42,7 @@ struct FilterLvl : FilterBase
 	void removeLvlFilter (QString const & item);
 	bool isLvlPresent (QString const & item, bool & enabled, E_LevelMode & lvlmode) const;
 	bool setLvlMode (QString const & item, bool enabled, E_LevelMode lvlmode);
+	void recompile ();
 
 	typedef QList<FilteredLevel> lvl_filters_t;
 	lvl_filters_t			m_data;

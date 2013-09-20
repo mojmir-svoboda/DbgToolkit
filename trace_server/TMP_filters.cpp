@@ -60,102 +60,6 @@ void MainWindow::connectFiltersToWidget ()
 }
 
 
-void MainWindow::onRegexActivate (int idx)
-{
-	if (idx == -1) return;
-	if (!getTabTrace()->currentWidget()) return;
-
-	Connection * conn = m_server->findCurrentConnection();
-	if (!conn) return;
-
-	onRegexAdd();
-}
-
-void MainWindow::onRegexAdd ()
-{
-	Connection * conn = m_server->findCurrentConnection();
-	if (!conn) return;
-
-	QString qItem = ui->comboBoxRegex->currentText();
-
-	conn->onRegexAdd(qItem);
-/*
- *
-	if (!qItem.length())
-		return;
-	QStandardItem * root = static_cast<QStandardItemModel *>(getWidgetRegex()->model())->invisibleRootItem();
-	QStandardItem * child = findChildByText(root, qItem);
-	if (child == 0)
-	{
-		QList<QStandardItem *> row_items = addTriRow(qItem, Qt::Unchecked, true);
-		root->appendRow(row_items);
-		conn->appendToRegexFilters(qItem, false, true);
-		conn->recompileRegexps();
-	}
-	*/
-}
-
-void MainWindow::onRegexRm ()
-{
-	/*QStandardItemModel * model = static_cast<QStandardItemModel *>(getWidgetRegex()->model());
-	QModelIndex const idx = getWidgetRegex()->currentIndex();
-	QStandardItem * item = model->itemFromIndex(idx);
-	if (!item)
-		return;
-	QString const & val = model->data(idx, Qt::DisplayRole).toString();
-	model->removeRow(idx.row());*/
-	Connection * conn = m_server->findCurrentConnection();
-	if (conn)
-	{
-		conn->onRegexRm();
-		//conn->removeFromRegexFilters(val);
-		//conn->recompileRegexps();
-	}
-}
-
-void MainWindow::onStringAdd ()
-{
-	Connection * conn = m_server->findCurrentConnection();
-	if (!conn) return;
-
-	QString qItem = ui->qFilterLineEdit->text();
-	conn->onStringAdd(qItem);
-
-	/*
-	 *
-	 *
-	if (!qItem.length())
-		return;
-	 * QStandardItem * root = static_cast<QStandardItemModel *>(getWidgetString()->model())->invisibleRootItem();
-	QStandardItem * child = findChildByText(root, qItem);
-	if (child == 0)
-	{
-		QList<QStandardItem *> row_items = addTriRow(qItem, Qt::Checked, true);
-		root->appendRow(row_items);
-		conn->appendToStringFilters(qItem, true, true);
-		row_items[0]->setCheckState(Qt::Checked);
-		conn->recompileStrings();
-	}*/
-}
-
-void MainWindow::onStringRm ()
-{
-	/*QStandardItemModel * model = static_cast<QStandardItemModel *>(getWidgetString()->model());
-	QModelIndex const idx = getWidgetString()->currentIndex();
-	QStandardItem * item = model->itemFromIndex(idx);
-	if (!item)
-		return;
-	QString const & val = model->data(idx, Qt::DisplayRole).toString();
-	model->removeRow(idx.row());*/
-	Connection * conn = m_server->findCurrentConnection();
-	if (conn)
-	{
-		conn->onStringRm();
-		//conn->removeFromStringFilters(val);
-		//conn->recompileStrings();
-	}
-}
-
 // @TODO: all the color stuff is almost duplicate, remove duplicity
 void MainWindow::onColorRegexActivate (int idx)
 {
@@ -200,32 +104,6 @@ void MainWindow::onColorRegexRm ()
 	{
 		conn->removeFromColorRegexFilters(val);
 		conn->recompileColorRegexps();
-	}
-}
-
-void MainWindow::onCancelFilterFileButton ()
-{
-	ui->filterFileComboBox->clearEditText();
-	ui->cancelFilterButton->setEnabled(false);
-	ui->cancelFilterButton->setStyleSheet("color: rgb(128, 128, 128)"); 
-	if (Connection * conn = m_server->findCurrentConnection())
-	{
-		conn->onCancelFilterFileButton();
-	}
-}
-
-void MainWindow::onFilterFileComboChanged (QString str)
-{
-	bool cancel_on = !str.isEmpty();
-	ui->cancelFilterButton->setEnabled(cancel_on);
-	if (cancel_on)
-		ui->cancelFilterButton->setStyleSheet("color: rgb(255, 0, 0)"); 
-	else
-		ui->cancelFilterButton->setStyleSheet("color: rgb(128, 128, 128)"); 
-
-	if (Connection * conn = m_server->findCurrentConnection())
-	{
-		conn->onFilterFileComboChanged(str);
 	}
 }
 

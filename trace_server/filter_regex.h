@@ -43,6 +43,7 @@ struct FilterRegex : FilterBase
 	bool isMatchedRegexExcluded (QString str) const;
 	void setRegexChecked (QString const & s, bool checked);
 	void setRegexInclusive (QString const & s, bool inclusive);
+	void recompile ();
 
 	void onClearRegexFilter () { m_data.clear(); }
 	QList<FilteredRegex>	m_data;
@@ -52,9 +53,9 @@ struct FilterRegex : FilterBase
 	Q_OBJECT
 public slots:
 	void onClickedAtRegexList (QModelIndex idx);
-	void onDoubleClickedAtRegexList (QModelIndex idx);
 	void onRegexActivate (int);
 	void onRegexAdd ();
+	void onStringAdd ();
 	void onRegexRm ();
 signals:
 	void filterChangedSignal ();

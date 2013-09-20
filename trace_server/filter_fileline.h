@@ -68,8 +68,6 @@ struct FilterFileLine : FilterBase
 	TreeView const * getWidgetFile () const;
 
 	void onGotoFileFilter ();
-	void onFilterFileComboChanged (QString str);
-	void onCancelFilterFileButton ();
 	void onExcludeFileLine ();
 
 	typedef tree_filter<TreeModelItem> file_filters_t;
@@ -78,6 +76,7 @@ struct FilterFileLine : FilterBase
 	void merge (node_t * lhs, node_t const * rhs);
 	void merge_state (node_t * lhs, node_t const * rhs);
 	void merge_rhs (node_t * lhs, node_t const * rhs);
+	void recompile ();
 
 	file_filters_t			m_data;
 	FilterTreeModel *		m_model;
@@ -88,6 +87,8 @@ struct FilterFileLine : FilterBase
 public slots:
 	void onCollapseChilds ();
 	void onCutParentValueChanged (int i);
+	void onCancelFilterFileButton ();
+	void onFilterFileComboChanged (QString str);
 signals:
 	void filterChangedSignal ();
 };

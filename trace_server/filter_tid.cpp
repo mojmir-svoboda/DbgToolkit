@@ -110,6 +110,10 @@ bool FilterTid::isTIDExcluded (QString const & item) const
 	return std::find(m_data.begin(), m_data.end(), item) != m_data.end();
 }
 
+void FilterTid::recompile ()
+{
+}
+
 // slots
 void FilterTid::onClickedAtTIDList (QModelIndex idx)
 {

@@ -1,6 +1,8 @@
 #include "filter_string.h"
 #include "constants.h"
 #include "serialize.h"
+#include "utils_qstandarditem.h"
+#include <boost/function.hpp>
 #include <QPainter>
 // serialization stuff
 #include <boost/serialization/type_info_implementation.hpp>
@@ -203,6 +205,20 @@ void FilterString::appendToStringFilters (QString const & s, bool enabled, int s
 	m_data.push_back(FilteredString(s, enabled, state));
 }
 
+void FilterString::appendToStringWidgets (FilteredString const & flt)
+{
+	QStandardItem * root = m_model->invisibleRootItem();
+	QStandardItem * child = findChildByText(root, flt.m_string);
+	if (child == 0)
+	{
+		bool const mode = static_cast<bool>(flt.m_state);
+		QList<QStandardItem *> row_items = addTriRow(flt.m_string, flt.m_is_enabled ? Qt::Checked : Qt::Unchecked, mode);
+		row_items[0]->setCheckState(flt.m_is_enabled ? Qt::Checked : Qt::Unchecked);
+		root->appendRow(row_items);
+	}
+}
+
+
 void FilterString::onClickedAtStringList (QModelIndex idx)
 {
 	if (!idx.isValid())
@@ -219,7 +235,8 @@ void FilterString::onClickedAtStringList (QModelIndex idx)
 
 		bool const is_inclusive = new_mode == e_Include;
 		setStringState(filter_item, is_inclusive);
-		recompileStrings();
+		recompile();
+		emit filterChangedSignal();
 	}
 	else
 	{
@@ -236,9 +253,34 @@ void FilterString::onClickedAtStringList (QModelIndex idx)
 		// @TODO: if state really changed
 		setStringState(val, is_inclusive);
 		setStringChecked(val, checked);
-		recompileStrings();
+		recompile();
+		emit filterChangedSignal();
 	}
 }
+
+void FilterString::recompile ()
+{ }
+
+void FilterString::onStringRm ()
+{
+	/*QStandardItemModel * model = static_cast<QStandardItemModel *>(getWidgetString()->model());
+	QModelIndex const idx = getWidgetString()->currentIndex();
+	QStandardItem * item = model->itemFromIndex(idx);
+	if (!item)
+		return;
+	QString const & val = model->data(idx, Qt::DisplayRole).toString();
+	model->removeRow(idx.row());*/
+	/*Connection * conn = m_server->findCurrentConnection();
+	if (conn)
+	{
+		conn->onStringRm();
+		//conn->removeFromStringFilters(val);
+		//conn->recompileStrings();
+	}*/
+}
+
+
+
 
 
 //////// delegate

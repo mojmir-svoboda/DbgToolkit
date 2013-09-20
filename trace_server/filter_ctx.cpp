@@ -183,7 +183,8 @@ void FilterCtx::onSelectNoCtxs ()
 	emit filterChangedSignal();
 }
 
-
+void FilterCtx::recompile ()
+{ }
 
 
 //////// delegate

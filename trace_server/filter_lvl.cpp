@@ -215,6 +215,8 @@ void FilterLvl::onClickedAtLvlList (QModelIndex idx)
 	}
 }
 
+void FilterLvl::recompile ()
+{ }
 
 
 

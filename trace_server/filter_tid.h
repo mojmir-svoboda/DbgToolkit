@@ -40,6 +40,7 @@ struct FilterTid : FilterBase
 	void appendTIDFilter (QString const & item);
 	void removeTIDFilter (QString const & item);
 	bool isTIDExcluded (QString const & item) const;
+	void recompile ();
 
 	typedef std::vector<QString> tid_filters_t;
 	tid_filters_t			m_data;
@@ -47,6 +48,7 @@ struct FilterTid : FilterBase
 
 	Q_OBJECT
 public slots:
+	void onClickedAtTIDList (QModelIndex idx);
 signals:
 	void filterChangedSignal ();
 };

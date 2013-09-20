@@ -257,11 +257,52 @@ void FilterFileLine::onCutParentValueChanged (int i)
 {
 	//if (Connection * conn = findCurrentConnection())
 	//	conn->onCutParentValueChanged(i);
+
+	m_model->onCutParentValueChanged(i);
+	//filterWidget()->getWidgetFile()->hideLinearParents();
 }
 
 void FilterFileLine::onCollapseChilds ()
 {
 	//if (Connection * conn = findCurrentConnection())
 	//	conn->onCollapseChilds();
+	m_model->collapseChilds(m_ui->view);
 }
+
+void FilterFileLine::recompile ()
+{ }
+
+void FilterFileLine::onCancelFilterFileButton ()
+{
+	m_ui->filterFileComboBox->clearEditText();
+	m_ui->cancelFilterButton->setEnabled(false);
+	m_ui->cancelFilterButton->setStyleSheet("color: rgb(128, 128, 128)"); 
+}
+
+
+void FilterFileLine::onFilterFileComboChanged (QString str)
+{
+	bool cancel_on = !str.isEmpty();
+	m_ui->cancelFilterButton->setEnabled(cancel_on);
+	if (cancel_on)
+		m_ui->cancelFilterButton->setStyleSheet("color: rgb(255, 0, 0)"); 
+	else
+		m_ui->cancelFilterButton->setStyleSheet("color: rgb(128, 128, 128)"); 
+
+	if (str.isEmpty())
+	{
+		m_ui->view->setModel(m_model);
+	}
+	else
+	{
+		if (m_ui->view->model() != m_proxy)
+		{
+			m_ui->view->setModel(m_proxy);
+			m_proxy->setSourceModel(m_model);
+		}
+		m_proxy->setFindString(str);
+	}
+}
+
+
 

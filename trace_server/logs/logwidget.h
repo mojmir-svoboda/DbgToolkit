@@ -46,6 +46,9 @@ namespace logs {
 		FilterProxyModel const * logProxy () const { return m_proxy_model; }
 		bool isModelProxy () const;
 
+		DecodedCommand const * getDecodedCommand (QModelIndex const & row_index);
+		DecodedCommand const * getDecodedCommand (int row);
+
 	protected:
 		friend class LogTableModel;
 		friend class FilterProxyModel;
@@ -133,22 +136,15 @@ namespace logs {
 	bool appendToFilters (DecodedCommand const & cmd);
 	void appendToRegexFilters (QString const & str, bool checked, bool inclusive);
 	void removeFromRegexFilters (QString const & val);
-	void recompileRegexps ();
 	void appendToStringWidgets (FilteredString const & flt);
 	void appendToStringFilters (QString const & str, bool checked, int state);
 	void removeFromStringFilters (QString const & val);
-	void recompileStrings ();
 	void appendToColorRegexFilters (QString const & val);
 	void removeFromColorRegexFilters (QString const & val);
 	void loadToColorRegexps (QString const & filter_item, QString const & color, bool enabled);
 	void onColorRegexChanged ();
 	void recompileColorRegexps ();
-	void loadToRegexps (QString const & filter_item, bool inclusive, bool enabled);
-	void onFilterFileComboChanged (QString str);
-	void onCancelFilterFileButton ();
-	void onCutParentValueChanged (int i);
-	void onCollapseChilds ();
-
+	//void loadToRegexps (QString const & filter_item, bool inclusive, bool enabled);
 
 	FilterState & filterState () { return m_filter_state; }
 	FilterState const & filterState () const { return m_filter_state; }

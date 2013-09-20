@@ -2,6 +2,8 @@
 #include "constants.h"
 #include "serialize.h"
 #include <QPainter>
+#include "utils_qstandarditem.h"
+#include <boost/function.hpp>
 // serialization stuff
 #include <boost/serialization/type_info_implementation.hpp>
 #include <boost/archive/xml_iarchive.hpp>
@@ -123,7 +125,6 @@ void FilterRegex::setupModel ()
 	m_ui->view->setEditTriggers(QAbstractItemView::NoEditTriggers);
 	m_ui->view->header()->hide();
 	connect(m_ui->view, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtRegexList(QModelIndex)));
-	connect(m_ui->view, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(onDoubleClickedAtRegexList(QModelIndex)));
 	connect(m_ui->comboBoxRegex, SIGNAL(activated(int)), this, SLOT(onRegexActivate(int)));
 	connect(m_ui->buttonAddRegex, SIGNAL(clicked()), this, SLOT(onRegexAdd()));
 	connect(m_ui->buttonRmRegex, SIGNAL(clicked()), this, SLOT(onRegexRm()));
@@ -204,7 +205,7 @@ void FilterRegex::onClickedAtRegexList (QModelIndex idx)
 {
 	if (!idx.isValid())
 		return;
-	QStandardItemModel * model = static_cast<QStandardItemModel *>(m_main_window->getWidgetRegex()->model());
+/*	QStandardItemModel * model = static_cast<QStandardItemModel *>(m_main_window->getWidgetRegex()->model());
 
 	if (idx.column() == 1)
 	{
@@ -243,8 +244,121 @@ void FilterRegex::onClickedAtRegexList (QModelIndex idx)
 			conn->recompileRegexps();
 			conn->onInvalidateFilter();
 		}
+	}*/
+}
+
+void FilterRegex::recompile ()
+{
+/*	for (int i = 0, ie = filterMgr()->getFilterRegex()->m_data.size(); i < ie; ++i)
+	{
+		FilteredRegex & fr = filterMgr()->getFilterRegex()->m_data[i];
+		QStandardItem * root = filterMgr()->getFilterRegex()->m_model->invisibleRootItem();
+		QString const qregex = fr.m_regex_str;
+		QStandardItem * child = findChildByText(root, qregex);
+		fr.m_is_enabled = false;
+		if (!child)
+			continue;
+		QRegExp regex(qregex);
+		if (regex.isValid())
+		{
+			fr.m_regex = regex;
+			bool const checked = (child->checkState() == Qt::Checked);
+			if (child && checked)
+			{
+				child->setData(QBrush(Qt::green), Qt::BackgroundRole);
+				child->setToolTip(tr("ok"));
+				fr.m_is_enabled = true;
+			}
+			else if (child && !checked)
+			{
+				child->setData(QBrush(Qt::yellow), Qt::BackgroundRole);
+				child->setToolTip(tr("regex not enabled"));
+			}
+		}
+		else
+		{
+			if (child)
+			{
+				child->setData(QBrush(Qt::red), Qt::BackgroundRole);
+				child->setToolTip(regex.errorString());
+			}
+		}
+	}
+
+	onInvalidateFilter();*/
+}
+
+void FilterRegex::onRegexActivate (int idx)
+{
+	onRegexAdd();
+}
+
+void FilterRegex::onRegexAdd ()
+{
+	QString qItem = m_ui->comboBoxRegex->currentText();
+	//onRegexAdd(qItem);
+/*
+ *
+	if (!qItem.length())
+		return;
+	QStandardItem * root = static_cast<QStandardItemModel *>(getWidgetRegex()->model())->invisibleRootItem();
+	QStandardItem * child = findChildByText(root, qItem);
+	if (child == 0)
+	{
+		QList<QStandardItem *> row_items = addTriRow(qItem, Qt::Unchecked, true);
+		root->appendRow(row_items);
+		conn->appendToRegexFilters(qItem, false, true);
+		conn->recompileRegexps();
+	}
+	*/
+}
+
+void FilterRegex::onRegexRm ()
+{
+	/*QStandardItemModel * model = static_cast<QStandardItemModel *>(getWidgetRegex()->model());
+	QModelIndex const idx = getWidgetRegex()->currentIndex();
+	QStandardItem * item = model->itemFromIndex(idx);
+	if (!item)
+		return;
+	QString const & val = model->data(idx, Qt::DisplayRole).toString();
+	model->removeRow(idx.row());*/
+	//Connection * conn = m_server->findCurrentConnection();
+	//if (conn)
+	{
+		//conn->onRegexRm();
+		//conn->removeFromRegexFilters(val);
+		//conn->recompileRegexps();
 	}
 }
+
+void FilterRegex::onStringAdd ()
+{
+	//Connection * conn = m_server->findCurrentConnection();
+	//if (!conn) return;
+
+	//QString qItem = ui->qFilterLineEdit->text();
+	//conn->onStringAdd(qItem);
+
+	/*
+	 *
+	 *
+	if (!qItem.length())
+		return;
+	 * QStandardItem * root = static_cast<QStandardItemModel *>(getWidgetString()->model())->invisibleRootItem();
+	QStandardItem * child = findChildByText(root, qItem);
+	if (child == 0)
+	{
+		QList<QStandardItem *> row_items = addTriRow(qItem, Qt::Checked, true);
+		root->appendRow(row_items);
+		conn->appendToStringFilters(qItem, true, true);
+		row_items[0]->setCheckState(Qt::Checked);
+		conn->recompileStrings();
+	}*/
+}
+
+
+
+
 
 
 //////// delegate

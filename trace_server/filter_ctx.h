@@ -53,6 +53,7 @@ struct FilterCtx : FilterBase
 	bool isCtxPresent (QString const & item, bool & enabled) const;
 	void appendCtxFilter (QString const & item);
 	void removeCtxFilter (QString const & item);
+	void recompile ();
 
 	typedef QList<FilteredContext> ctx_filters_t;
 	ctx_filters_t			m_data;

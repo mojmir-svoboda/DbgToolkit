@@ -655,7 +655,17 @@ void LogWidget::onDumpFilters ()
 	dialog.exec();*/
 }
 
+DecodedCommand const * LogWidget::getDecodedCommand (QModelIndex const & row_index)
+{
+	return getDecodedCommand(row_index.row());
+}
 
+DecodedCommand const * LogWidget::getDecodedCommand (int row)
+{
+	if (row >= 0 && row < m_src_model->dcmds().size())
+		return &m_src_model->dcmds()[row];
+	return 0;
+}
 
 void LogWidget::commitCommands (E_ReceiveMode mode)
 {

@@ -39,10 +39,12 @@ struct FilterString : FilterBase
 	void setupModel ();
 	void destroyModel ();
 	void appendToStringFilters (QString const & str, bool checked, int state);
+	void appendToStringWidgets (FilteredString const & flt);
 	void removeFromStringFilters (QString const & str);
 	bool isMatchedStringExcluded (QString str) const;
 	void setStringChecked (QString const & s, bool checked);
 	void setStringState (QString const & s, int state);
+	void recompile ();
 
 	QList<FilteredString>	m_data;
 	QStandardItemModel *	m_model;
@@ -51,6 +53,7 @@ struct FilterString : FilterBase
 	Q_OBJECT
 public slots:
 	void onClickedAtStringList (QModelIndex idx);
+	void onStringRm ();
 signals:
 	void filterChangedSignal ();
 
