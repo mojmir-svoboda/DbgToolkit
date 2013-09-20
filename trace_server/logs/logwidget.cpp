@@ -280,6 +280,9 @@ namespace logs {
 		//Ui::SettingsLog * ui = m_config_ui.ui();
 		//horizontalHeader()->resizeSections(QHeaderView::Fixed);
 		//horizontalHeader()->resizeSectionItem(c, 32, );
+
+		m_src_model->resizeToCfg();
+
 		bool const old = blockSignals(true);
 		for (int c = 0, ce = m_config.m_columns_sizes.size(); c < ce; ++c)
 			horizontalHeader()->resizeSection(c, m_config.m_columns_sizes.at(c));
@@ -856,6 +859,11 @@ bool LogWidget::isModelProxy () const
 	if (0 == model())
 		return false;
 	return model() == m_proxy_model;
+}
+
+void LogWidget::onFilterChanged ()
+{
+	onInvalidateFilter();
 }
 
 void LogWidget::findTableIndexInFilters (QModelIndex const & src_idx, bool scroll_to_item, bool expand)

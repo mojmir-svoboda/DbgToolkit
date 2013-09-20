@@ -129,9 +129,18 @@ FilterBase * filterFactory (E_FilterType t, QWidget * parent)
 	}
 }
 
-namespace {
-
+void FilterMgr::connectFiltersTo (QWidget * w)
+{
+	for (size_t i = 0, ie = m_filters.size(); i < ie; ++i)
+		connect(m_filters[i], SIGNAL(filterChangedSignal()), w, SLOT(onFilterChanged()));
 }
+
+void FilterMgr::disconnectFiltersTo (QWidget * w)
+{
+	for (size_t i = 0, ie = m_filters.size(); i < ie; ++i)
+		disconnect(m_filters[i], SIGNAL(filterChangedSignal()), w, SLOT(onFilterChanged()));
+}
+
 
 void FilterMgr::recreateFilters ()
 {

@@ -73,6 +73,8 @@ public:
 	//bool checkColumnExistence (tlv::tag_t tag, QModelIndex const & index) const;
 	//bool checkTagExistence (tlv::tag_t tag, QModelIndex const & index) const;
 
+	void resizeToCfg ();
+
 	layers_t const & layers () const { return m_layers; }
 
 	row_types_t const & rowTypes () const { return m_rowTypes; }

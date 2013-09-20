@@ -19,6 +19,18 @@ LogTableModel::~LogTableModel ()
 	qDebug("%s", __FUNCTION__);
 }
 
+void LogTableModel::resizeToCfg ()
+{
+	if (m_log_widget.m_config.m_columns_setup.size() > 0 && m_columnCount == 0)
+	{
+		int const last = m_log_widget.m_config.m_columns_setup.size() - 1;
+		beginInsertColumns(QModelIndex(), m_columnCount, last);
+		insertColumns(m_columnCount, last);
+		m_columnCount = last + 1;
+		endInsertColumns();
+	}
+}
+
 void LogTableModel::commitCommands (E_ReceiveMode mode)
 {
 	commitBatchToModel();

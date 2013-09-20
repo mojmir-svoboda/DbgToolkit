@@ -46,6 +46,9 @@ struct FilterMgr : FilterBase
 	void mvFilter (int from, int to);
 	void recreateFilters ();
 
+	void connectFiltersTo (QWidget * w);
+	void disconnectFiltersTo (QWidget * w);
+
 	//FilterXX *			getFilterXX () { return static_cast<FilterXX *>(m_cache[e_Filter_XX]); }
 	//FilterXX const *		getFilterXX () const { return static_cast<FilterXX const *>(m_cache[e_Filter_XX]); }
 	//FilterScript *		getFilterScript () { return static_cast<FilterScript *>(m_cache[e_Filter_Script]); }

@@ -113,6 +113,7 @@ namespace logs {
 
 	// filtering stuff
 	void onInvalidateFilter ();
+	void onFilterChanged ();
 	void syncSelection (QModelIndexList const & sel);
 	void clearFilters (QStandardItem * node);
 	void clearFilters ();
