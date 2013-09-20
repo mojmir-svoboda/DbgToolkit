@@ -54,6 +54,8 @@ struct FilterCtx : FilterBase
 	void appendCtxFilter (QString const & item);
 	void removeCtxFilter (QString const & item);
 	void recompile ();
+	void setConfigToUI ();
+	void appendToCtxWidgets (FilteredContext const & flt);
 
 	typedef QList<FilteredContext> ctx_filters_t;
 	ctx_filters_t			m_data;

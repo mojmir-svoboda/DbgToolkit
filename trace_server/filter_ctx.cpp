@@ -69,11 +69,28 @@ void FilterCtx::saveConfig (QString const & path)
 	::saveConfigTemplate(*this, fname);
 }
 
+void FilterCtx::setConfigToUI ()
+{
+	for (int i = 0, ie = m_data.size(); i < ie; ++i)
+	{
+		QStandardItem * root = m_model->invisibleRootItem();
+		QStandardItem * child = findChildByText(root, m_data[i].m_ctx_str);
+		if (child == 0)
+		{
+			//FilteredContext & fc = m_data[i];
+			QList<QStandardItem *> row_items = addRow(m_data[i].m_ctx_str, true);
+			row_items[0]->setCheckState(m_data[i].m_is_enabled ? Qt::Checked : Qt::Unchecked);
+			root->appendRow(row_items);
+		}
+	}
+}
+
 void FilterCtx::applyConfig ()
 {
 	FilterBase::applyConfig();
-	//m_filter_state.merge_with(src.m_file_filters);
+	setConfigToUI();
 }
+
 
 void FilterCtx::clear ()
 {
@@ -185,6 +202,20 @@ void FilterCtx::onSelectNoCtxs ()
 
 void FilterCtx::recompile ()
 { }
+
+void FilterCtx::appendToCtxWidgets (FilteredContext const & flt)
+{
+	QStandardItem * root = m_model->invisibleRootItem();
+	QStandardItem * child = findChildByText(root, flt.m_ctx_str);
+	if (child == 0)
+	{
+		QList<QStandardItem *> row_items = addRow(flt.m_ctx_str, true);
+		row_items[0]->setCheckState(flt.m_is_enabled ? Qt::Checked : Qt::Unchecked);
+		root->appendRow(row_items);
+	}
+}
+
+
 
 
 //////// delegate

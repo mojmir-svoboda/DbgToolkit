@@ -79,9 +79,27 @@ void FilterLvl::saveConfig (QString const & path)
 	::saveConfigTemplate(*this, fname);
 }
 
+void FilterLvl::setConfigToUI ()
+{
+	for (int i = 0, ie = m_data.size(); i < ie; ++i)
+	{
+		QStandardItem * root = m_model->invisibleRootItem();
+
+		QStandardItem * child = findChildByText(root, m_data[i].m_level_str);
+		if (child == 0)
+		{
+			//FilteredContext & fc = m_data[i];
+			QList<QStandardItem *> row_items = addRow(m_data[i].m_level_str, true);
+			row_items[0]->setCheckState(m_data[i].m_is_enabled ? Qt::Checked : Qt::Unchecked);
+			root->appendRow(row_items);
+		}
+	}
+}
+
 void FilterLvl::applyConfig ()
 {
 	FilterBase::applyConfig();
+	setConfigToUI();
 	//m_lvl_filters = src.m_lvl_filters;
 }
 

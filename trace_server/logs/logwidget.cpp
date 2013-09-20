@@ -106,6 +106,8 @@ namespace logs {
 		//
 		connect(m_config_ui.ui()->filterFileCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onFilterFile(int)));
 
+
+
 		/*m_actions.resize(e_action_max_enum_value);
 		m_actions[e_action_ToggleRef] = new QAction("Set as reference time", this);
 		m_actions[e_action_HidePrev] = new QAction("Hide prev rows", this);
@@ -272,6 +274,9 @@ namespace logs {
 		//m_config = m_config2;
 		applyConfig(m_config);
 		filterMgr()->applyConfig();
+		filterMgr()->connectFiltersTo(this);
+		if (filterMgr()->getFilterCtx())
+			filterMgr()->getFilterCtx()->setAppData(&m_connection->appData());
 	}
 
 	void LogWidget::applyConfig (LogConfig & cfg)
@@ -342,7 +347,6 @@ namespace logs {
 	void LogWidget::onApplyButton ()
 	{
 		applyConfig();
-		filterMgr()->applyConfig();
 		//setUIValuesToConfig(m_config2);
 		//applyConfig();
 	}
