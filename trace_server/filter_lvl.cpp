@@ -118,7 +118,7 @@ void FilterLvl::setupModel ()
 	m_ui->view->setModel(m_model);
 	m_ui->view->setSortingEnabled(true);
 
-	//m_ui->view->setItemDelegate(new LevelDelegate(m_log_widget.m_app_data, this););
+	m_ui->view->setItemDelegate(new LevelDelegate(this));
 	m_ui->view->setRootIndex(m_model->indexFromItem(m_model->invisibleRootItem()));
 
 	m_ui->view->setEditTriggers(QAbstractItemView::NoEditTriggers);
@@ -192,11 +192,13 @@ void FilterLvl::onSelectAllLevels ()
 {
 	boost::function<void (FilterLvl *, QString const &)> f = &FilterLvl::appendLvlFilter;
 	applyFnOnAllChildren(f, this, m_model, Qt::Checked);
+	emit filterChangedSignal();
 }
 void FilterLvl::onSelectNoLevels ()
 {
 	boost::function<void (FilterLvl *, QString const &)> f = &FilterLvl::removeLvlFilter;
 	applyFnOnAllChildren(f, this, m_model, Qt::Unchecked);
+	emit filterChangedSignal();
 }
 
 void FilterLvl::onClickedAtLvlList (QModelIndex idx)
@@ -250,6 +252,7 @@ namespace trace {
 
 void LevelDelegate::paint (QPainter * painter, QStyleOptionViewItem const & option, QModelIndex const & index) const
 {
+	//if (m_app_data && m_app_data->getDictCtx().m_names.size())
     painter->save();
     QStyleOptionViewItemV4 option4 = option;
     initStyleOption(&option4, index);

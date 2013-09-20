@@ -190,7 +190,9 @@ namespace logs {
 		void turnOffAutoScroll ();
 		void onAutoScrollHotkey ();
 		void onFilterChanged ();
-		void onFilterFile (int state);
+		//void onFilterFile (int state);
+
+		void onFilterEnabledChanged ();
 		void onTableFontToolButton ();
 		void onEditFind ();
 		void onQSearch (QString const & text);

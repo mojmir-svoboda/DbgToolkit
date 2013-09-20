@@ -37,6 +37,9 @@ void FilterBase::onTabButton ()
 	bool const enabled = m_button->isChecked();
 	m_enabled = enabled;
 	m_button->setIcon(grabIcon(enabled));
+
+	if (m_enabled ^ enabled)
+		emit filterEnabledChanged();
 }
 
 void FilterBase::applyConfig ()

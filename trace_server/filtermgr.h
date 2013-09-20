@@ -28,6 +28,8 @@ struct FilterMgr : FilterBase
 	virtual E_FilterType type () const { return e_Filter_Mgr; }
 
 	virtual bool accept (DecodedCommand const & cmd) const;
+	virtual bool enabled () const;
+	bool someFilterEnabled () const;
 
 	virtual void defaultConfig ();
 	virtual void loadConfig (QString const & path);
@@ -71,6 +73,7 @@ struct FilterMgr : FilterBase
 	void setUIToConfig ();
 
 public slots:
+	void onFilterEnabledChanged ();
 	void onShowContextMenu (QPoint const & pt);
 	void onHideContextMenu ();
 	void onCtxAddButton ();

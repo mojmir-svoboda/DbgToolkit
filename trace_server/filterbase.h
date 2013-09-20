@@ -64,8 +64,8 @@ struct FilterBase : public QWidget
 	QString typeName () const { return g_filterNames[this->type()]; }
 
 	virtual bool accept (DecodedCommand const & cmd) const = 0;
-	void enable (bool state) { m_enabled = state; }
-	bool enabled () const { return m_enabled; }
+	virtual bool enabled () const { return m_enabled; }
+	virtual void enable (bool state) { m_enabled = state; }
 
 	virtual void defaultConfig () = 0;
 	virtual void loadConfig (QString const & path) = 0;
@@ -77,4 +77,6 @@ struct FilterBase : public QWidget
 	Q_OBJECT
 public slots:
 	void onTabButton ();
+signals:
+	void filterEnabledChanged ();
 };

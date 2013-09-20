@@ -275,6 +275,9 @@ namespace logs {
 		applyConfig(m_config);
 		filterMgr()->applyConfig();
 		filterMgr()->connectFiltersTo(this);
+
+		connect(filterMgr(), SIGNAL(filterEnabledChanged(int)), this, SLOT(onFilterEnabledChanged()));
+
 		if (filterMgr()->getFilterCtx())
 			filterMgr()->getFilterCtx()->setAppData(&m_connection->appData());
 	}
@@ -293,9 +296,7 @@ namespace logs {
 			horizontalHeader()->resizeSection(c, m_config.m_columns_sizes.at(c));
 		blockSignals(old);
 
-		//@TODO: !!!!!!!!!
-		setupFilteringProxy(Qt::Unchecked);
-		//setupFilteringProxy(m_config.m_filtering ? Qt::Checked : Qt::Unchecked);
+		setupFilteringProxy(filterMgr()->enabled() ? Qt::Checked : Qt::Unchecked);
 	}
 
 	int LogWidget::sizeHintForColumn (int column) const
@@ -456,9 +457,10 @@ void LogWidget::onAutoScrollHotkey ()
 	else
 		ui->autoScrollCheckBox->setCheckState(Qt::Checked);*/
 }
-void LogWidget::onFilterFile (int state)
+
+void LogWidget::onFilterEnabledChanged ()
 {
-	setupFilteringProxy(state);
+	setupFilteringProxy(filterMgr()->enabled() ? Qt::Checked : Qt::Unchecked);
 }
 
 void LogWidget::onTableFontToolButton ()

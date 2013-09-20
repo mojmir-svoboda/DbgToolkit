@@ -82,6 +82,21 @@ void FilterMgr::applyConfig ()
 		m_filters[i]->applyConfig();
 }
 
+
+bool FilterMgr::someFilterEnabled () const
+{
+	bool some_filter_enabled = false;
+	for (size_t i = 0, ie = m_filters.size(); i < ie; ++i)
+		if (m_filters[i] && m_filters[i]->enabled())
+			some_filter_enabled |= 1;
+	return some_filter_enabled;
+}
+
+bool FilterMgr::enabled () const
+{
+	return m_enabled && someFilterEnabled();
+}
+
 void FilterMgr::addFilter (FilterBase * b)
 {
 	E_FilterType const t = b->type();
@@ -166,6 +181,7 @@ void FilterMgr::recreateFilters ()
 		else
 		{
 			fb = filterFactory(t, 0);
+			connect(fb, SIGNAL(filterEnabledChanged()), this, SLOT(onFilterEnabledChanged()));
 			m_cache[t] = fb;
 		}
 		m_filters.push_back(fb);
@@ -401,5 +417,14 @@ void FilterMgr::clear ()
 {
 }
 
+void FilterMgr::onFilterEnabledChanged ()
+{
+	bool const some_enabled = someFilterEnabled();
+	if (m_enabled ^ some_enabled)
+	{
+		m_enabled = some_enabled;
+		emit filterEnabledChanged();
+	}
+}
 
 

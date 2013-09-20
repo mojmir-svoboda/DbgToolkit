@@ -196,6 +196,7 @@ void FilterString::removeFromStringFilters (QString const & s)
 			return;
 		}
 	}
+	emit filterChangedSignal();
 }
 void FilterString::appendToStringFilters (QString const & s, bool enabled, int state)
 {
@@ -203,6 +204,7 @@ void FilterString::appendToStringFilters (QString const & s, bool enabled, int s
 		if (m_data[i].m_string == s)
 			return;
 	m_data.push_back(FilteredString(s, enabled, state));
+	emit filterChangedSignal();
 }
 
 void FilterString::appendToStringWidgets (FilteredString const & flt)
