@@ -94,6 +94,7 @@ namespace logs {
 		m_proxy_model = new FilterProxyModel(this, *this);
 		m_proxy_model->setSourceModel(m_src_model);
 		m_proxy_selection = new QItemSelectionModel(m_proxy_model);
+		model->setProxy(m_proxy_model);
 		//setupThreadColors(connection->getMainWindow()->getThreadColors());
 
 
@@ -104,7 +105,7 @@ namespace logs {
 		//connect(ui->inViewCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onInViewStateChanged(int)));
 		//
 		//
-		connect(m_config_ui.ui()->filterFileCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onFilterFile(int)));
+		//connect(m_config_ui.ui()->filterFileCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onFilterFile(int)));
 
 
 

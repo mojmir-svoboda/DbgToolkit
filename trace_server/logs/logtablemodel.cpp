@@ -84,6 +84,16 @@ void LogTableModel::commitBatchToModel ()
 		endInsertColumns();
 	}
 
+	for (int i = 0, ie = m_batch.m_rows.size(); i < ie; ++i)
+	{
+		for (int ix = 0, ixe = 0 + m_batch.m_rows[i].size(); ix < ixe; ++ix)
+		{
+			QModelIndex const idx = index(rows + i, ix, QModelIndex());
+			if (m_proxy)
+				m_proxy->setData(idx, m_rows[i][ix].m_value, Qt::EditRole);
+		}
+	}
+
 	m_batch.clear();
 }
 
@@ -179,16 +189,6 @@ void LogTableModel::parseCommand (DecodedCommand const & cmd, E_ReceiveMode mode
 			m_columnCount = cols_last + 1;
 		endInsertColumns();
 	}*/
-
-	/*
-	for (int ix = x, ixe = x + n_cols; ix < ixe; ++ix)
-	{
-		QModelIndex const idx = index(y, ix, QModelIndex());
-		emit dataChanged(idx, idx);
-		if (m_proxy)
-			m_proxy->setData(idx, m_rows[y][ix].m_value, Qt::EditRole);
-	}
-	*/
 
 
 /*	if (m_config.m_dt_enabled)

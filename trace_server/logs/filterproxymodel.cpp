@@ -21,7 +21,10 @@ Qt::ItemFlags FilterProxyModel::flags (QModelIndex const & index) const
 
 bool FilterProxyModel::filterAcceptsColumn (int sourceColumn, QModelIndex const & source_parent) const
 {
-	bool drop = true;
+	return true;
+/*	bool drop = true;
+
+	//@TODO: proc jedu pres vsechny rows ?!!?!?!!
 	for (int i = 0, ie = sourceModel()->rowCount(); i < ie; ++i)
 	{
 		QModelIndex const data_idx = sourceModel()->index(i, sourceColumn, QModelIndex());
@@ -32,7 +35,7 @@ bool FilterProxyModel::filterAcceptsColumn (int sourceColumn, QModelIndex const 
 			break;
 		}
 	}
-	return !drop;
+	return !drop;*/
 }
 
 bool FilterProxyModel::filterAcceptsRow (int sourceRow, QModelIndex const & /*sourceParent*/) const
