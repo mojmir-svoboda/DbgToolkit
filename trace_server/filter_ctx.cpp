@@ -178,10 +178,12 @@ void FilterCtx::onClickedAtCtxTree (QModelIndex idx)
 
 	QString const & ctx = m_model->data(idx, Qt::DisplayRole).toString();
 	bool const orig_checked = (item->checkState() == Qt::Checked);
-	appendCtxFilter(ctx);
-	removeCtxFilter(ctx);
+	if (orig_checked)
+		appendCtxFilter(ctx);
+	else
+		removeCtxFilter(ctx);
 
-	emit filterChangedSignal();
+	emitFilterChangedSignal();
 }
 
 void FilterCtx::onSelectAllCtxs ()
@@ -189,7 +191,7 @@ void FilterCtx::onSelectAllCtxs ()
 	boost::function<void (FilterCtx*, QString)> f = &FilterCtx::appendCtxFilter;
 	applyFnOnAllChildren(f, this, m_model, Qt::Checked);
  
-	emit filterChangedSignal();
+	emitFilterChangedSignal();
 }
 
 void FilterCtx::onSelectNoCtxs ()
@@ -197,7 +199,7 @@ void FilterCtx::onSelectNoCtxs ()
 	boost::function<void (FilterCtx*, QString)> f = &FilterCtx::removeCtxFilter;
 	applyFnOnAllChildren(f, this, m_model, Qt::Unchecked);
 
-	emit filterChangedSignal();
+	emitFilterChangedSignal();
 }
 
 void FilterCtx::recompile ()

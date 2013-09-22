@@ -31,6 +31,11 @@ QIcon grabIcon (bool enabled)
 	return icon;
 }
 
+void FilterBase::emitFilterChangedSignal ()
+{
+	if (m_enabled)
+		emit filterChangedSignal();
+}
 
 void FilterBase::onTabButton ()
 {
@@ -40,7 +45,9 @@ void FilterBase::onTabButton ()
 	m_button->setIcon(grabIcon(enabled));
 
 	if (change)
+	{
 		emit filterEnabledChanged();
+	}
 }
 
 void FilterBase::applyConfig ()

@@ -90,6 +90,5 @@ public slots:
 	void onCancelFilterFileButton ();
 	void onFilterFileComboChanged (QString str);
 signals:
-	void filterChangedSignal ();
 };
 

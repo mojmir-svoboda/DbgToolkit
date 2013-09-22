@@ -425,6 +425,8 @@ void FilterMgr::onFilterEnabledChanged ()
 		m_enabled = some_enabled;
 		emit filterEnabledChanged();
 	}
+	else
+		emit filterChangedSignal();
 }
 
 

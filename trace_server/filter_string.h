@@ -55,7 +55,6 @@ public slots:
 	void onClickedAtStringList (QModelIndex idx);
 	void onStringRm ();
 signals:
-	void filterChangedSignal ();
 
 };
 

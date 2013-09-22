@@ -56,7 +56,6 @@ public slots:
 	void onSelectNoLevels ();
 	void onClickedAtLvlList (QModelIndex idx);
 signals:
-	void filterChangedSignal ();
 };
 
 struct LevelDelegate : public QStyledItemDelegate

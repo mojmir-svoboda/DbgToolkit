@@ -107,6 +107,8 @@ void MainWindow::onSaveCurrentState ()
 	QString const txt = getValidCurrentPresetName();
 	if (txt.size())
 		onSaveCurrentStateTo(txt);
+	else
+		storeState();
 }
 
 void MainWindow::mentionInPresetHistory (QString const & str)

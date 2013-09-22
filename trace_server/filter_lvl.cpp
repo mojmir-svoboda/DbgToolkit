@@ -192,13 +192,13 @@ void FilterLvl::onSelectAllLevels ()
 {
 	boost::function<void (FilterLvl *, QString const &)> f = &FilterLvl::appendLvlFilter;
 	applyFnOnAllChildren(f, this, m_model, Qt::Checked);
-	emit filterChangedSignal();
+	emitFilterChangedSignal();
 }
 void FilterLvl::onSelectNoLevels ()
 {
 	boost::function<void (FilterLvl *, QString const &)> f = &FilterLvl::removeLvlFilter;
 	applyFnOnAllChildren(f, this, m_model, Qt::Unchecked);
-	emit filterChangedSignal();
+	emitFilterChangedSignal();
 }
 
 void FilterLvl::onClickedAtLvlList (QModelIndex idx)
@@ -221,7 +221,7 @@ void FilterLvl::onClickedAtLvlList (QModelIndex idx)
 
 		setLvlMode(filter_item, !checked, new_mode);
 
-		emit filterChangedSignal();
+		emitFilterChangedSignal();
 	}
 	else
 	{
@@ -231,7 +231,7 @@ void FilterLvl::onClickedAtLvlList (QModelIndex idx)
 			appendLvlFilter(filter_item);
 		else
 			removeLvlFilter(filter_item);
-		emit filterChangedSignal();
+		emitFilterChangedSignal();
 	}
 }
 

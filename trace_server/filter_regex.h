@@ -58,7 +58,6 @@ public slots:
 	void onStringAdd ();
 	void onRegexRm ();
 signals:
-	void filterChangedSignal ();
 };
 
 struct RegexDelegate : public QStyledItemDelegate

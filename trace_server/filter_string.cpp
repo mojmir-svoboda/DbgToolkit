@@ -196,7 +196,7 @@ void FilterString::removeFromStringFilters (QString const & s)
 			return;
 		}
 	}
-	emit filterChangedSignal();
+	emitFilterChangedSignal();
 }
 void FilterString::appendToStringFilters (QString const & s, bool enabled, int state)
 {
@@ -204,7 +204,7 @@ void FilterString::appendToStringFilters (QString const & s, bool enabled, int s
 		if (m_data[i].m_string == s)
 			return;
 	m_data.push_back(FilteredString(s, enabled, state));
-	emit filterChangedSignal();
+	emitFilterChangedSignal();
 }
 
 void FilterString::appendToStringWidgets (FilteredString const & flt)
@@ -238,7 +238,7 @@ void FilterString::onClickedAtStringList (QModelIndex idx)
 		bool const is_inclusive = new_mode == e_Include;
 		setStringState(filter_item, is_inclusive);
 		recompile();
-		emit filterChangedSignal();
+		emitFilterChangedSignal();
 	}
 	else
 	{
@@ -256,7 +256,7 @@ void FilterString::onClickedAtStringList (QModelIndex idx)
 		setStringState(val, is_inclusive);
 		setStringChecked(val, checked);
 		recompile();
-		emit filterChangedSignal();
+		emitFilterChangedSignal();
 	}
 }
 

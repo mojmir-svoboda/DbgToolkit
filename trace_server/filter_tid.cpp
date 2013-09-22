@@ -129,7 +129,7 @@ void FilterTid::onClickedAtTIDList (QModelIndex idx)
 		appendTIDFilter(val);
 	else
 		removeTIDFilter(val);
-	emit filterChangedSignal();
+	emitFilterChangedSignal();
 }
 
 

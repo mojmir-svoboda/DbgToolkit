@@ -68,6 +68,5 @@ public slots:
 	void onSelectAllCtxs ();
 	void onSelectNoCtxs ();
 signals:
-	void filterChangedSignal ();
 };
 

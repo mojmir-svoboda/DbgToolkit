@@ -80,6 +80,8 @@ public slots:
 	void onCtxRmButton ();
 	void onCtxCommitButton ();
 	void onTabMoved (int from, int to);
+signals:
+	void filterChangedSignal ();
 
 public:
     MovableTabWidget *		m_tabFilters;
