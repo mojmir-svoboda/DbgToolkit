@@ -112,7 +112,6 @@ namespace logs {
 	void onFindFileLine (QModelIndex const &);
 
 	// filtering stuff
-	void onInvalidateFilter ();
 	void syncSelection (QModelIndexList const & sel);
 	void clearFilters (QStandardItem * node);
 	void clearFilters ();
@@ -192,6 +191,7 @@ namespace logs {
 		void onFilterChanged ();
 		//void onFilterFile (int state);
 
+		void onInvalidateFilter ();
 		void onFilterEnabledChanged ();
 		void onTableFontToolButton ();
 		void onEditFind ();

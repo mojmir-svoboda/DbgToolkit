@@ -305,4 +305,70 @@ void FilterFileLine::onFilterFileComboChanged (QString str)
 }
 
 
+void FilterFileLine::onClickedAtFileTree (QModelIndex idx)
+{
+	FilterFileLine * const node = m_model->getItemFromIndex(idx);
+	FilterFileLine const * line_node = 0;
+
+	s.clear();
+	s.reserve(16);
+	if (!node->hasChildren())
+		line_node = node;
+	else
+		s.push_back(model->data(idx, Qt::DisplayRole).toString());
+
+	QStandardItem * parent = node->parent();
+	std::string file;
+	QModelIndex parent_idx = model->indexFromItem(parent);
+	while (parent_idx.isValid())
+	{
+		QString const & val = model->data(parent_idx, Qt::DisplayRole).toString();
+		s.push_back(val);
+		parent = parent->parent();
+		parent_idx = model->indexFromItem(parent);
+	}
+
+	for (std::vector<QString>::const_reverse_iterator it=s.rbegin(), ite=s.rend(); it != ite; ++it)
+		file += std::string("/") + (*it).toStdString();
+
+	fileline_t filter_node(file, std::string());
+	if (line_node)
+	{
+		QString const & val = model->data(idx, Qt::DisplayRole).toString();
+		filter_node.second = val.toStdString();
+	}
+	std::string const fileline = filter_node.first + "/" + filter_node.second;
+
+	Qt::CheckState const curr_state = node->checkState();
+	if (curr_state == Qt::Checked)
+	{
+		// unchecked --> checked
+		setCheckStateChilds(node, curr_state);
+		conn->sessionState().m_file_filters.set_state_to_childs(fileline, static_cast<E_NodeStates>(curr_state));
+
+		QStandardItem * p = node;
+		while (p = p->parent())
+		{
+			bool const all_checked = checkChildState(p, Qt::Checked);
+			if (all_checked)
+			{
+				//conn->sessionState().m_file_filters.set_state_to_childs(fileline, static_cast<E_NodeStates>(curr_state));
+				p->setCheckState(Qt::Checked);
+			}
+		}
+	}
+	else if (curr_state == Qt::Unchecked)
+	{
+		// checked --> unchecked
+		set_state_to_topdown(conn->sessionState().m_file_filters, fileline, static_cast<E_NodeStates>(curr_state), e_PartialCheck);
+		setCheckStateChilds(node, curr_state);
+		setCheckStateReverse(node->parent(), Qt::PartiallyChecked); // iff parent unchecked and clicked on leaf
+	}
+
+	E_NodeStates const new_state = static_cast<E_NodeStates>(curr_state);
+
+	qDebug("file click! sync state of %s --> node_checkstate=%i", fileline.c_str(), node->checkState());
+	conn->sessionState().m_file_filters.set_to_state(fileline, static_cast<E_NodeStates>(new_state));
+	conn->onInvalidateFilter();
+}
 

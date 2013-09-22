@@ -14,6 +14,7 @@ public:
 
 	explicit FilterTreeModel (QObject * parent = 0, tree_data_t * data = 0);
 	~FilterTreeModel () { }
+	TreeModel<TreeModelItem>::node_t const * getItemFromIndex (QModelIndex const & index) const { return itemFromIndex(index); }
 
 public Q_SLOTS:
 	void onExpanded (QModelIndex const & idx) { expanded(idx); }
@@ -89,6 +90,7 @@ public slots:
 	void onCutParentValueChanged (int i);
 	void onCancelFilterFileButton ();
 	void onFilterFileComboChanged (QString str);
+	void onClickedAtFileTree (QModelIndex idx);
 signals:
 };
 
