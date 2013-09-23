@@ -307,7 +307,34 @@ void FilterFileLine::onFilterFileComboChanged (QString str)
 
 void FilterFileLine::onClickedAtFileTree (QModelIndex idx)
 {
-	FilterFileLine * const node = m_model->getItemFromIndex(idx);
+/*	TreeModel<DockedInfo>::node_t const * n = m_docked_widgets_model->getItemFromIndex(idx);
+	QStringList const & dst = n->data.m_path;
+
+	int const col = idx.column();
+	Action a;
+	a.m_type = static_cast<E_ActionType>(col);
+	a.m_src_path = path();
+	a.m_src = this;
+	a.m_dst_path = dst;
+	if (col == e_Visibility)
+	{
+		int const state = m_docked_widgets_model->data(idx, Qt::CheckStateRole).toInt();
+		a.m_args.push_back(state);
+	}
+	if (col == e_InCentralWidget)
+	{
+		int const state = m_docked_widgets_model->data(idx, e_DockRoleCentralWidget).toInt();
+		int const new_state = state == 0 ? 1 : 0;
+
+		m_docked_widgets_model->setData(idx, new_state, e_DockRoleCentralWidget);
+		a.m_args.push_back(new_state);
+	}*/
+
+
+	emitFilterChangedSignal();
+
+
+/*	FilterFileLine * const node = m_model->getItemFromIndex(idx);
 	FilterFileLine const * line_node = 0;
 
 	s.clear();
@@ -369,6 +396,6 @@ void FilterFileLine::onClickedAtFileTree (QModelIndex idx)
 
 	qDebug("file click! sync state of %s --> node_checkstate=%i", fileline.c_str(), node->checkState());
 	conn->sessionState().m_file_filters.set_to_state(fileline, static_cast<E_NodeStates>(new_state));
-	conn->onInvalidateFilter();
+	conn->onInvalidateFilter();*/
 }
 

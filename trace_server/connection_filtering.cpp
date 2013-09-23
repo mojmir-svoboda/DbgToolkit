@@ -40,49 +40,6 @@ void MainWindow::onRegexRm ()
 	}
 }
 
-void MainWindow::onStringAdd ()
-{
-	Connection * conn = m_server->findCurrentConnection();
-	if (!conn) return;
-
-	QString qItem = ui->qFilterLineEdit->text();
-	conn->onStringAdd(qItem);
-
-	/*
-	 *
-	 *
-	if (!qItem.length())
-		return;
-	 * QStandardItem * root = static_cast<QStandardItemModel *>(getWidgetString()->model())->invisibleRootItem();
-	QStandardItem * child = findChildByText(root, qItem);
-	if (child == 0)
-	{
-		QList<QStandardItem *> row_items = addTriRow(qItem, Qt::Checked, true);
-		root->appendRow(row_items);
-		conn->appendToStringFilters(qItem, true, true);
-		row_items[0]->setCheckState(Qt::Checked);
-		conn->recompileStrings();
-	}*/
-}
-
-void MainWindow::onStringRm ()
-{
-	/*QStandardItemModel * model = static_cast<QStandardItemModel *>(getWidgetString()->model());
-	QModelIndex const idx = getWidgetString()->currentIndex();
-	QStandardItem * item = model->itemFromIndex(idx);
-	if (!item)
-		return;
-	QString const & val = model->data(idx, Qt::DisplayRole).toString();
-	model->removeRow(idx.row());*/
-	Connection * conn = m_server->findCurrentConnection();
-	if (conn)
-	{
-		conn->onStringRm();
-		//conn->removeFromStringFilters(val);
-		//conn->recompileStrings();
-	}
-}
-
 // @TODO: all the color stuff is almost duplicate, remove duplicity
 void MainWindow::onColorRegexActivate (int idx)
 {

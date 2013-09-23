@@ -265,24 +265,33 @@ void FilterString::recompile ()
 
 void FilterString::onStringRm ()
 {
-	/*QStandardItemModel * model = static_cast<QStandardItemModel *>(getWidgetString()->model());
-	QModelIndex const idx = getWidgetString()->currentIndex();
-	QStandardItem * item = model->itemFromIndex(idx);
+	QModelIndex const idx = m_ui->view->currentIndex();
+	QStandardItem * item = m_model->itemFromIndex(idx);
 	if (!item)
 		return;
-	QString const & val = model->data(idx, Qt::DisplayRole).toString();
-	model->removeRow(idx.row());*/
-	/*Connection * conn = m_server->findCurrentConnection();
-	if (conn)
-	{
-		conn->onStringRm();
-		//conn->removeFromStringFilters(val);
-		//conn->recompileStrings();
-	}*/
+	QString const & val = m_model->data(idx, Qt::DisplayRole).toString();
+	m_model->removeRow(idx.row());
+	removeFromStringFilters(val);
+	recompile();
 }
 
+void FilterString::onStringAdd ()
+{
+	QString const qItem = m_ui->qFilterLineEdit->text();
 
-
+	if (!qItem.length())
+		return;
+	QStandardItem * root = m_model->invisibleRootItem();
+	QStandardItem * child = findChildByText(root, qItem);
+	if (child == 0)
+	{
+		QList<QStandardItem *> row_items = addTriRow(qItem, Qt::Checked, true);
+		root->appendRow(row_items);
+		appendToStringFilters(qItem, true, true);
+		row_items[0]->setCheckState(Qt::Checked);
+		recompile();
+	}
+}
 
 
 //////// delegate

@@ -54,6 +54,7 @@ struct FilterString : FilterBase
 public slots:
 	void onClickedAtStringList (QModelIndex idx);
 	void onStringRm ();
+	void onStringAdd ();
 signals:
 
 };
