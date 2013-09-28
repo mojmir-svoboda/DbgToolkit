@@ -94,7 +94,6 @@ namespace logs {
 		m_proxy_model = new FilterProxyModel(this, *this);
 		m_proxy_model->setSourceModel(m_src_model);
 		m_proxy_selection = new QItemSelectionModel(m_proxy_model);
-		model->setProxy(m_proxy_model);
 		//setupThreadColors(connection->getMainWindow()->getThreadColors());
 
 
@@ -290,6 +289,7 @@ namespace logs {
 		//Ui::SettingsLog * ui = m_config_ui.ui();
 		//horizontalHeader()->resizeSections(QHeaderView::Fixed);
 		//horizontalHeader()->resizeSectionItem(c, 32, );
+		setupFilteringProxy(filterMgr()->enabled() ? Qt::Checked : Qt::Unchecked);
 
 		m_src_model->resizeToCfg();
 
@@ -297,8 +297,6 @@ namespace logs {
 		for (int c = 0, ce = m_config.m_columns_sizes.size(); c < ce; ++c)
 			horizontalHeader()->resizeSection(c, m_config.m_columns_sizes.at(c));
 		blockSignals(old);
-
-		setupFilteringProxy(filterMgr()->enabled() ? Qt::Checked : Qt::Unchecked);
 	}
 
 	int LogWidget::sizeHintForColumn (int column) const

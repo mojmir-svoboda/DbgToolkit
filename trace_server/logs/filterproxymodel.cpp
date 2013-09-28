@@ -51,6 +51,9 @@ bool FilterProxyModel::filterAcceptsRow (int sourceRow, QModelIndex const & /*so
 	if (sourceRow < m_log_widget.m_src_model->dcmds().size())
 	{
 		DecodedCommand const & dcmd = m_log_widget.m_src_model->dcmds()[sourceRow];
+		QString line;
+		/*if (dcmd.getString(tlv::tag_line, line) && line == "12")
+			printf("ee");*/
 		return m_log_widget.filterMgr()->accept(dcmd);
 	}
 	qWarning("no dcmd for source row, should not happen!");

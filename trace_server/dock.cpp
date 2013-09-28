@@ -238,7 +238,7 @@ void DockManager::applyConfig ()
 		header()->resizeSection(i, m_config.m_columns_sizes[i]);
 	}
 
-	syncExpandState();
+	//syncExpandState();
 	if (m_docked_widgets_model)
 		m_docked_widgets_model->syncExpandState(this);
 }

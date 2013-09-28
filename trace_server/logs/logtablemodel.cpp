@@ -88,7 +88,7 @@ void LogTableModel::commitBatchToModel ()
 	{
 		for (int ix = 0, ixe = 0 + m_batch.m_rows[i].size(); ix < ixe; ++ix)
 		{
-			QModelIndex const idx = index(rows + i, ix, QModelIndex());
+			QModelIndex const idx = index(i, ix, QModelIndex());
 			if (m_proxy)
 				m_proxy->setData(idx, m_rows[i][ix].m_value, Qt::EditRole);
 		}

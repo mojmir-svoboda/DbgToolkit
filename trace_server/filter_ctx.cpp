@@ -89,6 +89,7 @@ void FilterCtx::applyConfig ()
 {
 	FilterBase::applyConfig();
 	setConfigToUI();
+	m_ui->view->sortByColumn(0, Qt::AscendingOrder);
 }
 
 

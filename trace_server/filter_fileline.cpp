@@ -79,7 +79,10 @@ void FilterFileLine::saveConfig (QString const & path)
 void FilterFileLine::applyConfig ()
 {
 	FilterBase::applyConfig();
-	merge_with(m_data);
+	//merge_with(m_data);
+
+	if (m_model)
+		m_model->syncExpandState(m_ui->view);
 }
 
 FilterTreeModel::FilterTreeModel (QObject * parent, tree_data_t * data)

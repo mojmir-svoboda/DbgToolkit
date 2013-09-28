@@ -133,7 +133,7 @@ bool BaseProxyModel::setData (QModelIndex const & src_index, QVariant const & va
 	if (filterAcceptsColumn(src_index.column(), QModelIndex()))
 		insertCol(src_index.column());
 
-	//if (filterAcceptsRow(src_index.row(), QModelIndex()))
+	if (filterAcceptsRow(src_index.row(), QModelIndex()))
 		insertRow(src_index.row());
 
 	QModelIndex const index = mapFromSource(src_index);

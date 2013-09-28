@@ -100,6 +100,7 @@ void FilterLvl::applyConfig ()
 {
 	FilterBase::applyConfig();
 	setConfigToUI();
+	m_ui->view->sortByColumn(0, Qt::AscendingOrder);
 	//m_lvl_filters = src.m_lvl_filters;
 }
 
