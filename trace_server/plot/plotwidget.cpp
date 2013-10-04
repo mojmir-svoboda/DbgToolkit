@@ -482,7 +482,7 @@ namespace plot {
 		for (int i = 0, ie = m_queue.size(); i < ie; ++i)
 		{
 			DecodedCommand & cmd = m_queue[i];
-			handleCommand(cmd, mode);
+			handleCommand(cmd, e_RecvSync);
 		}
 		m_queue.clear();
 	}
