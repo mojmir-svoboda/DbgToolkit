@@ -1,0 +1,84 @@
+B. Qt5
+======
+
+For doing a static build of Qt 5 you need:
+
+    * Git (>= 1.6.x)
+
+		http://git-scm.com/download/win
+
+    * Perl (>=5.14)
+
+		http://strawberry-perl.googlecode.com/files/strawberry-perl-5.18.1.1-64bit.msi
+
+    * Python (>=2.6.x)
+
+		http://www.python.org/ftp/python/3.3.2/python-3.3.2.amd64.msi
+
+    * A working compiler (msvc 2010, msvc2012, mingw, gcc)
+	* directx sdk on windows (probably)
+
+		http://www.microsoft.com/en-us/download/details.aspx?id=6812
+
+You can find more details on:
+	http://qt-project.org/wiki/Building_Qt_5_from_Git
+
+More brief version goes here:
+
+
+
+B1. 32b build
+-------------
+
+Run:
+	Start Menu/Programs/Microsoft Visual Studio 2012/Visual Studio Tools/VS2012 x86 Native Tools Command Prompt
+
+Set paths:
+	set PATH=c:/Program Files (x86)/Git/bin;%PATH%
+	set PATH=C:/strawberry/perl/bin;%PATH%
+	set PATH=e:\qt5\qtbase\gnuwin32\bin;%PATH%
+	set PATH=C:\Python33;%PATH%
+
+cd to future qt5 location:
+	cd c:/devel/qt5
+
+Clone git of Qt5:
+	git clone git://gitorious.org/qt/qt5.git qt5
+
+cd to qt5:
+	cd qt5
+
+init subrepositories:
+	perl init-repository --no-webkit
+init subrepositories:
+	configure.bat -debug-and-release -opensource -platform win32-msvc2012 -static -ltcg -no-accessibility -no-openvg -no-gif -no-dbus -no-audio-backend -no-sql-sqlite -no-qml-debug -nomake examples -nomake tests -no-icu
+
+
+B2. 64b build
+-------------
+
+Run
+
+	Start Menu/Programs/Microsoft Visual Studio 2012/Visual Studio Tools/VS2012 x64 Cross Tools Command Prompt
+
+Set paths:
+	set PATH=c:/Program Files (x86)/Git/bin;%PATH%
+	set PATH=C:/strawberry/perl/bin;%PATH%
+	set PATH=e:\qt5\qtbase\gnuwin32\bin;%PATH%
+	set PATH=C:\Python33;%PATH%
+
+cd to future qt5 location:
+	cd c:/devel/qt5
+
+Clone git of Qt5:
+	git clone git://gitorious.org/qt/qt5.git qt5
+
+cd to qt5:
+	cd qt5
+
+init subrepositories:
+	perl init-repository --no-webkit
+init subrepositories:
+	configure.bat -debug-and-release -opensource -platform win32-msvc2012 -static -ltcg -no-accessibility -no-openvg -no-gif -no-dbus -no-audio-backend -no-sql-sqlite -no-qml-debug -nomake examples -nomake tests -no-icu
+
+

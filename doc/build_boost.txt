@@ -1,0 +1,42 @@
+A. Boost
+========
+
+General boost build instructions:
+
+	http://www.boost.org/doc/libs/1_54_0/more/getting_started/windows.html#install-boost-build
+
+To get 64b version details:
+
+	http://stackoverflow.com/questions/2322255/64-bit-version-of-boost-for-64-bit-windows#
+
+Toolset selection:
+
+	bjam --toolset=msvc-11.0 address-model=64 --build-type=complete stage
+
+
+A1. 32b build
+-------------
+
+Run
+	Start Menu/Programs/Microsoft Visual Studio 2012/Visual Studio Tools/VS2012 x86 Native Tools Command Prompt
+
+cd into BOOST_ROOT (cd c:/devel/boost_1_54_0 for example)
+Run
+	bootstrap.bat
+
+Follow instructions
+
+A2. 64b build
+-------------
+
+Run
+	Start Menu/Programs/Microsoft Visual Studio 2012/Visual Studio Tools/VS2012 x64 Cross Tools Command Prompt
+
+Build 64bit boost
+
+	bjam --toolset=msvc-9.0 address-model=64 --build-type=complete stage
+
+Follow instructions
+
+
+
