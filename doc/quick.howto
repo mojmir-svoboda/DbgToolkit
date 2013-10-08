@@ -12,10 +12,44 @@ Usage scenario is trivial:
 	...
 	4. user terminated program
 
-2. setup (easy way)
-===================
+2. prerequisities
+=================
 
-Use CMake.
+2.1. Client
+
+	You need to integrate client library into your application. This
+	is quite straightforward and is shown in 5.
+	You need:
+		* working C++ compiler (gcc, msvc 2010 or later)
+
+2.2 Server
+
+	The server uses boost for serialization and Qt 5 for gui.
+
+	So you need:
+		* static libraries from boost ( >= 1.49.0 )
+			see doc/build_boost.txt
+
+		* static build of Qt 5 ( >= 5.1.1 )
+			see doc/build_qt5.txt
+
+		* working C++ compiler (gcc, msvc 2010 or later)
+
+	On windows you'd probably need also:
+
+		* Qt Visual Studio 201x Add-in for Qt5
+
+			http://download.qt-project.org/official_releases/vsaddin/qt-vs-addin-1.2.2-opensource.exe
+
+		* qmake.exe in system's path
+
+	
+
+
+3. Generate global project
+==========================
+
+Use command-line CMake or cmake-gui if available.
 There are pre-cooked CMakeList.txt files that are templates for project
 generator.
 
@@ -26,24 +60,38 @@ Look at following file, please:
 This is the input file for cmake generator.
 
 for example:
-	cmake -G "Visual Studio 10 Win64"
-or
-	cmake -G "Visual Studio 9 2008 Win64"
-or
-	cmake -G "MinGW Makefiles"
-or
-	cmake -G "Unix Makefiles"
+	mkdir _project
+	cd _project
+	cmake -G "GENERATOR" ..
+
+where you substitute GENERATOR for your generator. For example:
+	cmake -G "Visual Studio 11 Win64" ..
+	cmake -G "Visual Studio 9 2008 Win64" ..
+	cmake -G "MinGW Makefiles" ..
+	cmake -G "Unix Makefiles" ..
 
 Then simply call make, mingw32-make or open .sln in visual studio
 
 NOTE:
 
 To build debug version use
-	cmake -DCMAKE_BUILD_TYPE:STRING=Debug -G "Unix Makefiles"
+	mkdir _project
+	cd _project
+	cmake -DCMAKE_BUILD_TYPE:STRING=Debug -G "Unix Makefiles" ..
+
+4. Build server part
+====================
+
+From source top level:
+
+	cd flogging/trace_server
+	mkdir _project
+	cd _project
+	cmake -G "Visual Studio 11 Win64" ..
 
 
-2. setup client part (custom projects)
-======================================
+5. Integrate client part
+========================
 
 To enable logging you must define
 	TRACE_ENABLED
