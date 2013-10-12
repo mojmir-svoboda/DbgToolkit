@@ -79,10 +79,9 @@ bool FilterString::accept (DecodedCommand const & cmd) const
 				}
 			}
 		}
-
+		return false;
 	}
-
-	return true;
+	return true; // no strings at all
 }
 
 void FilterString::defaultConfig ()
@@ -273,6 +272,7 @@ void FilterString::onStringRm ()
 	m_model->removeRow(idx.row());
 	removeFromStringFilters(val);
 	recompile();
+	emitFilterChangedSignal();
 }
 
 void FilterString::onStringAdd ()

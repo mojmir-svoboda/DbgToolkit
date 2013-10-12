@@ -68,7 +68,8 @@ bool FilterProxyModel::filterAcceptsRow (int sourceRow, QModelIndex const & /*so
 		QString line;
 		/*if (dcmd.getString(tlv::tag_line, line) && line == "12")
 			printf("ee");*/
-		return m_log_widget.filterMgr()->accept(dcmd);
+		bool const accepted = m_log_widget.filterMgr()->accept(dcmd);
+		return accepted;
 	}
 	qWarning("no dcmd for source row, should not happen!");
 	return true;
