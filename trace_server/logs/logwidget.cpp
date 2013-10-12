@@ -283,20 +283,26 @@ namespace logs {
 			filterMgr()->getFilterCtx()->setAppData(&m_connection->appData());
 	}
 
+	void LogWidget::resizeSections ()
+	{
+		bool const old = blockSignals(true);
+		for (int c = 0, ce = m_config.m_columns_sizes.size(); c < ce; ++c)
+			horizontalHeader()->resizeSection(c, m_config.m_columns_sizes.at(c));
+		blockSignals(old);
+	}
+
 	void LogWidget::applyConfig (LogConfig & cfg)
 	{
 		//qDebug("%s this=0x%08x", __FUNCTION__, this);
 		//Ui::SettingsLog * ui = m_config_ui.ui();
 		//horizontalHeader()->resizeSections(QHeaderView::Fixed);
 		//horizontalHeader()->resizeSectionItem(c, 32, );
-		setupFilteringProxy(filterMgr()->enabled() ? Qt::Checked : Qt::Unchecked);
 
 		m_src_model->resizeToCfg();
+		m_proxy_model->resizeToCfg();
+		setupFilteringProxy(filterMgr()->enabled() ? Qt::Checked : Qt::Unchecked);
 
-		bool const old = blockSignals(true);
-		for (int c = 0, ce = m_config.m_columns_sizes.size(); c < ce; ++c)
-			horizontalHeader()->resizeSection(c, m_config.m_columns_sizes.at(c));
-		blockSignals(old);
+		resizeSections();
 	}
 
 	int LogWidget::sizeHintForColumn (int column) const
@@ -460,7 +466,7 @@ void LogWidget::onAutoScrollHotkey ()
 
 void LogWidget::onFilterEnabledChanged ()
 {
-	setupFilteringProxy(filterMgr()->enabled() ? Qt::Checked : Qt::Unchecked);
+	applyConfig();
 }
 
 void LogWidget::onTableFontToolButton ()

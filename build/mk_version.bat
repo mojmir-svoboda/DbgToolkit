@@ -1,4 +1,4 @@
-rem @echo off
+@echo off
 
 set VER_SRC="%2version.cpp"
 IF EXIST %VER_SRC% (

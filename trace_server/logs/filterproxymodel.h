@@ -39,6 +39,7 @@ public:
 	explicit FilterProxyModel (QObject * parent, logs::LogWidget & lw);
 
 	Qt::ItemFlags flags (QModelIndex const & index) const;
+	void resizeToCfg ();
 
 protected:
 
@@ -46,6 +47,7 @@ protected:
 	bool filterAcceptsColumn (int sourceColumn, QModelIndex const & source_parent) const;
 
 	logs::LogWidget & m_log_widget;
+	int m_column_count;
 	//FilterState & m_filter_state;
 };
 

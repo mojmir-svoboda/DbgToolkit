@@ -11,8 +11,22 @@
 FilterProxyModel::FilterProxyModel (QObject * parent, logs::LogWidget & lw)
 	: BaseProxyModel(parent)
 	, m_log_widget(lw)
+	, m_column_count(0)
 	//, m_filter_state(lw.m_filter_state)
 { }
+
+void FilterProxyModel::resizeToCfg ()
+{
+	if (m_log_widget.m_config.m_columns_setup.size() > 0 && m_column_count == 0)
+	{
+		int const last = m_log_widget.m_config.m_columns_setup.size() - 1;
+		beginInsertColumns(QModelIndex(), m_column_count, last);
+		insertColumns(m_column_count, last);
+		m_column_count = last + 1;
+		endInsertColumns();
+	}
+}
+
 
 Qt::ItemFlags FilterProxyModel::flags (QModelIndex const & index) const
 {

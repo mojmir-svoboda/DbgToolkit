@@ -58,6 +58,7 @@ namespace logs {
 		int sizeHintForColumn (int column) const;
 		void normalizeConfig (logs::LogConfig & normalized);
 		void moveSectionsAccordingTo (logs::LogConfig const & cfg);
+		void resizeSections ();
 
 
 	void setupSeparatorChar (QString const & c);
