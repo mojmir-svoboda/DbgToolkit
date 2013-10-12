@@ -58,7 +58,6 @@ message("boost: ${Boost_LIBRARIES}")
 set(trace_server_SOURCES
 	main.cpp
 	qt_plugins.cpp
-	../version.cpp
 	mainwindow.cpp
 	mainwindow_presets.cpp
 	mainwindow_obsolette.cpp
@@ -306,6 +305,31 @@ target_link_libraries(trace_server ${Boost_LIBRARIES}
 	${Qt5Widgets_LIBRARIES}
 	${QICO}
 	Qt5::WinMain)
+
+message("src_dir: ${CMAKE_CURRENT_SOURCE_DIR}")
+
+if (WIN32 AND NOT MINGW)
+	find_program(GIT_EXECUTABLE
+		NAMES "git.exe"
+		HINTS "C:/Program Files (x86)/git/bin/"
+		DOC "git x86 command line client")
+
+	if (NOT GIT_FOUND)
+		find_program(GIT_EXECUTABLE
+			NAMES "git.exe"
+			HINTS "C:/Program Files/git/bin/"
+			DOC "git x64 command line client")
+	endif (NOT GIT_FOUND)
+
+	message("git: ${GIT_EXECUTABLE}")
+endif (WIN32 AND NOT MINGW)
+
+if (WIN32 AND NOT MINGW)
+	get_filename_component(MK_VERSION_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../build/mk_version.bat" ABSOLUTE)
+	message("mk_version.bat: ${MK_VERSION_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/")
+	add_custom_command(TARGET trace_server PRE_BUILD
+		COMMAND cmd /c ${MK_VERSION_PATH} ${GIT_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/)
+endif (WIN32 AND NOT MINGW)
 
 
 

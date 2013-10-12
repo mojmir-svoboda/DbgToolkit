@@ -44,6 +44,7 @@
 ** 
 ****************************************************************************/
 
+#include "qtcolorpicker.h"
 #include <QApplication>
 #include <QDesktopWidget>
 #include <QtGui/QPainter>
@@ -64,7 +65,6 @@
 #include <QtGui/QMouseEvent>
 #include <math.h>
 
-#include "qtcolorpicker.h"
 
 /*! \class QtColorPicker
 
@@ -1138,5 +1138,5 @@ void ColorPickerButton::paintEvent(QPaintEvent *e)
 
 }
 
-#include "qtcolorpicker.moc"
+#include <qtsln/qtcolorpicker.moc>
 
