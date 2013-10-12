@@ -74,18 +74,22 @@ void LogWidget::setupFilteringProxy (int state)
 
 	if (state == Qt::Unchecked)
 	{
-		if (indexes.size() < 1)
-			return;
 		QModelIndexList srcs;
-		for (int i = 0, ie = indexes.size(); i < ie; ++i)
+		if (indexes.size() > 0)
 		{
-			QModelIndex const & pxy_idx = indexes.at(i);
-			QModelIndex const src_idx = m_proxy_model->mapToSource(pxy_idx);
-			srcs.push_back(src_idx);
+			for (int i = 0, ie = indexes.size(); i < ie; ++i)
+			{
+				QModelIndex const & pxy_idx = indexes.at(i);
+				QModelIndex const src_idx = m_proxy_model->mapToSource(pxy_idx);
+				srcs.push_back(src_idx);
+			}
 		}
 
 		setModel(m_src_model);
-		setSelectionModel(m_src_selection);
+
+		if (srcs.size() > 0)
+			setSelectionModel(m_src_selection);
+
 		m_src_model->setProxy(0);
 
 		for (int i = 0, ie = srcs.size(); i < ie; ++i)

@@ -227,8 +227,8 @@ void FilterLvl::onClickedAtLvlList (QModelIndex idx)
 	else
 	{
 		QString const & filter_item = m_model->data(idx, Qt::DisplayRole).toString();
-		item->setCheckState(!checked ? Qt::Checked : Qt::Unchecked);
-		if (!checked)
+		//item->setCheckState(!checked ? Qt::Checked : Qt::Unchecked);
+		if (checked)
 			appendLvlFilter(filter_item);
 		else
 			removeLvlFilter(filter_item);
@@ -241,7 +241,7 @@ void FilterLvl::recompile ()
 
 
 
-
+	
 
 //////// delegate
 // @TODO: tmp, via dictionnary in future

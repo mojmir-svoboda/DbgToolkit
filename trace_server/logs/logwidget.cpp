@@ -270,6 +270,7 @@ namespace logs {
 
 	void LogWidget::applyConfig ()
 	{
+		filterMgr()->disconnectFiltersTo(this);
 		moveSectionsAccordingTo(m_config);
 		//m_config = m_config2;
 		applyConfig(m_config);
@@ -466,7 +467,9 @@ void LogWidget::onAutoScrollHotkey ()
 
 void LogWidget::onFilterEnabledChanged ()
 {
-	applyConfig();
+	applyConfig(m_config);
+	//setupUi
+	//applyConfig();
 }
 
 void LogWidget::onTableFontToolButton ()
