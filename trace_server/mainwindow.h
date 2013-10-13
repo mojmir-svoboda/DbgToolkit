@@ -29,6 +29,7 @@
 #include <tlv_parser/tlv_parser.h>
 #include "config.h"
 #include "dock.h"
+#include "findwidget.h"
 
 namespace Ui {
 	class MainWindow;
@@ -92,7 +93,6 @@ public:
 	QString matchClosestPresetName (QString const & appname);
 	void setPresetAsCurrent (QString const & pname);
 	void mentionInPresetHistory (QString const & str);
-	void syncPresetWithHistory ();
 
 
 	QTreeView const * getDockedWidgetsTreeView () const;
@@ -149,6 +149,7 @@ public:
 	void dropEvent (QDropEvent * event);
 	void dragEnterEvent (QDragEnterEvent *event);
 	bool eventFilter (QObject * o, QEvent * e);
+	void keyPressEvent (QKeyEvent * e);
 
 	//OBS Server const * getServer () const { return m_server; }
 	//OBS Server * getServer () { return m_server; }
@@ -198,6 +199,7 @@ private slots:
 	void storePresetNames ();
 	void timerHit ();
 	void onQuit ();
+	void onFocusChanged (QWidget * old, QWidget * now);
 	void onQuitReally ();
 	void openFiles (QStringList const & list);
 
@@ -209,6 +211,12 @@ private slots:
 	void onFileExportToCSV ();
 	void closeEvent (QCloseEvent *event);
 	void iconActivated (QSystemTrayIcon::ActivationReason reason);
+
+	void handleFindVisibility();
+	void onFind ();
+	void onFindAllRefs ();
+	void onFindNext ();
+	void onFindPrev ();
 
 	// preset
 	void onPresetChanged (int idx);
@@ -246,7 +254,8 @@ private:
 
 	Ui::MainWindow * 	ui;
 	Ui::SettingsDialog * ui_settings;
-	QDialog * m_settings_dialog;
+	QDialog *			m_settings_dialog;
+	FindWidget *		m_find_widget;
 
 	Ui::HelpDialog * 	m_help;
 	GlobalConfig 		m_config;

@@ -8,6 +8,7 @@
 #include <QInputDialog>
 #include "constants.h"
 #include "utils.h"
+#include "utils_history.h"
 
 QString MainWindow::getCurrentPresetName () const
 {
@@ -116,17 +117,8 @@ void MainWindow::mentionInPresetHistory (QString const & str)
 	if (str.isEmpty() || !validatePresetName(str))
 		return;
 
-	m_config.m_preset_history.insert_no_refcount(str);
+	mentionStringInHistory_NoRef(str, ui->presetComboBox, m_config.m_preset_history);
 	m_config.saveHistory();
-	syncPresetWithHistory();
-	//ui->presetComboBox->setCurrentIndex(ui->presetComboBox->findText(str));
-}
-
-void MainWindow::syncPresetWithHistory ()
-{
-	ui->presetComboBox->clear();
-	for (size_t i = 0, ie = m_config.m_preset_history.size(); i < ie; ++i)
-		ui->presetComboBox->addItem(m_config.m_preset_history[i]);
 }
 
 void MainWindow::setPresetAsCurrent (QString const & pname)
@@ -150,11 +142,9 @@ void MainWindow::onSaveCurrentStateTo (QString const & preset_name)
 		conn->saveConfigs(path);
 		saveLayout(preset_name);
 
-		m_config.m_preset_history.insert(preset_name);
+		mentionStringInHistory_Ref(preset_name, ui->presetComboBox, m_config.m_preset_history);
 		m_config.saveHistory();
-		syncPresetWithHistory();
 		setPresetAsCurrent(preset_name);
-
 
 		//reloadPresetList ();
 		//setPresetNameIntoComboBox(preset_name);
@@ -169,7 +159,7 @@ void MainWindow::onAddPreset ()
 	qDebug("%s", __FUNCTION__);
 	if (Connection * conn = findCurrentConnection())
 	{
-  		QString const preset_name = promptAndCreatePresetName(conn->getAppName());
+		QString const preset_name = promptAndCreatePresetName(conn->getAppName());
 		onSaveCurrentStateTo(preset_name);		
 	}
 }
@@ -226,15 +216,15 @@ void MainWindow::onPresetActivate (Connection * conn, QString const & preset_nam
 		conn->loadConfigs(path);
 		conn->applyConfigs();
 		loadLayout(preset_name);
-		m_config.m_preset_history.insert(preset_name);
-		syncPresetWithHistory();
-		setPresetAsCurrent(preset_name);
+
+		mentionStringInHistory_Ref(preset_name, ui->presetComboBox, m_config.m_preset_history);
 		m_config.saveHistory();
+		setPresetAsCurrent(preset_name);
 	}
 	else
 	{
-		m_config.m_preset_history.remove(preset_name);
-		syncPresetWithHistory();
+		removeStringFromHistory(preset_name, ui->presetComboBox, m_config.m_preset_history);
+		m_config.saveHistory();
 		setPresetAsCurrent(preset_name);
 	}
 }

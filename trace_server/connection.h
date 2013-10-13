@@ -113,6 +113,8 @@ struct DockedData : DockedWidgetBase
 		m_widget = 0;
 	}
 
+	virtual QWidget * dockedWidget () { return m_widget; }
+
 	widget_t & widget () { return *m_widget; }
 	widget_t const & widget () const { return *m_widget; }
 	config_t & config () { return m_config; }

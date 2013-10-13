@@ -25,8 +25,9 @@ protected:
 };
 
 
-struct DockedWidgetBase : ActionAble {
-
+struct DockedWidgetBase : QObject, ActionAble {
+	Q_OBJECT
+public:
 	DockedWidgetBase (QStringList const & path)
 		: ActionAble(path)
 		, m_wd(0) 
@@ -35,6 +36,7 @@ struct DockedWidgetBase : ActionAble {
 
 	virtual DockedConfigBase const & dockedConfig () const = 0;
 	virtual DockedConfigBase & dockedConfig () = 0;
+	virtual QWidget * dockedWidget () = 0;
 
 	QDockWidget * m_wd;
 
@@ -119,6 +121,9 @@ public:
 	QModelIndex addActionTreeItem (ActionAble & aa, bool on);
 	DockedWidgetBase const * findDockable (QString const & joined_path) const;
 	DockedWidgetBase * findDockable (QString const & joined_path);
+	ActionAble const * findActionAble (QString const & dst_joined) const;
+	DockedWidgetBase const * findDockableForWidget (QWidget * w) const;
+	DockedWidgetBase * findDockableForWidget (QWidget * w);
 
 	void loadConfig (QString const & path);
 	void saveConfig (QString const & path);

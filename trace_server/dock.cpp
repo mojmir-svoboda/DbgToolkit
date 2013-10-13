@@ -311,6 +311,39 @@ QModelIndex DockManager::addActionTreeItem (ActionAble & aa, bool on)
 	return idx;
 }
 
+ActionAble const * DockManager::findActionAble (QString const & dst_joined) const
+{
+	actionables_t::const_iterator it = m_actionables.find(dst_joined);
+	if (it != m_actionables.end() && it.key() == dst_joined)
+		return *it;
+	return 0;
+}
+
+DockedWidgetBase const * DockManager::findDockableForWidget (QWidget * w) const
+{
+	for (dockables_t::const_iterator it = m_dockables.begin(), ite = m_dockables.end(); it != ite; ++it)
+	{
+		DockedWidgetBase const * const dwb = *it;
+		DockedWidgetBase const * const dwbw = qobject_cast<DockedWidgetBase const *>(w);
+		if (w && dwb && dwb == dwbw)
+			return dwb;
+	}
+	return 0;
+}
+DockedWidgetBase * DockManager::findDockableForWidget (QWidget * w)
+{
+	for (dockables_t::const_iterator it = m_dockables.begin(), ite = m_dockables.end(); it != ite; ++it)
+	{
+		DockedWidgetBase * const dwb = *it;
+		if (w && dwb && dwb->dockedWidget() == w)
+			return dwb;
+	}
+	return 0;
+}
+
+
+
+
 DockedWidgetBase const * DockManager::findDockable (QString const & dst_joined) const
 {
 	dockables_t::const_iterator it = m_dockables.find(dst_joined);

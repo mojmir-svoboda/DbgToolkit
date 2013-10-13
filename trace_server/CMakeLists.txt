@@ -63,6 +63,7 @@ set(trace_server_SOURCES
 	mainwindow_obsolette.cpp
 	mainwindow_connection.cpp
 	mainwindow_docking.cpp
+	mainwindow_find.cpp
 	tableview.cpp
 	treeview.cpp
 	treeproxy.cpp
@@ -80,7 +81,6 @@ set(trace_server_SOURCES
 	dock.cpp
 	dockconfig.cpp
 	syncwidgets.cpp
-	findwidget.cpp
 	combolist.cpp
 	filtermgr.cpp
 	filterbase.cpp
@@ -91,6 +91,9 @@ set(trace_server_SOURCES
 	filter_regex.cpp
 	filter_tid.cpp
 	movabletabwidget.cpp
+
+	findwidget.cpp
+	findconfig.cpp
 
 	kde/kselectionproxymodel.cpp
 	kde/kmodelindexproxymapper.cpp
@@ -154,10 +157,13 @@ set(trace_server_HEADERS
 	constants.h
 	syncwidgets.h
 	config.h
-	findwidget.h
 	combolist.h
 	movablelistmodel.h
 	movabletabwidget.h
+
+	findwidget.h
+	findconfig.h
+
 	filtermgr.h
 	filterbase.h
 	filter_fileline.h

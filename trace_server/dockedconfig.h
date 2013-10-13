@@ -1,4 +1,5 @@
 #pragma once
+#include "findconfig.h"
 
 struct DockedConfigBase {
 
@@ -8,15 +9,18 @@ struct DockedConfigBase {
 	bool	m_show;
 	bool	m_central_widget;
 	int		m_sync_group;
-	float 	m_time_units;
+	int		m_level;
+	float	m_time_units;
+	FindConfig m_find_config;
 
 	DockedConfigBase () 
 		: m_auto_scroll(false)
 		, m_show(true)
 		, m_central_widget(false)
 		, m_sync_group(0)
+		, m_level(3)
 		, m_time_units(0.001f)
-
+		, m_find_config()
 	{ }
 
 	template <class ArchiveT>
@@ -25,8 +29,10 @@ struct DockedConfigBase {
 		ar & boost::serialization::make_nvp("autoscroll", m_auto_scroll);
 		ar & boost::serialization::make_nvp("show", m_show);
 		ar & boost::serialization::make_nvp("sync_group", m_sync_group);
+		ar & boost::serialization::make_nvp("level", m_level);
 		ar & boost::serialization::make_nvp("central_widget", m_central_widget);
 		ar & boost::serialization::make_nvp("time_units", m_time_units);
+		ar & boost::serialization::make_nvp("find_config", m_find_config);
 		//ar & boost::serialization::make_nvp("font", m_font);
 		//ar & boost::serialization::make_nvp("fontsize", m_fontsize);
 	}

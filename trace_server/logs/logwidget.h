@@ -196,6 +196,8 @@ namespace logs {
 		void onFilterEnabledChanged ();
 		void onTableFontToolButton ();
 		void onEditFind ();
+		void onEditFindNext ();
+		void onEditFindPrev ();
 		void onQSearch (QString const & text);
 		void onQSearchEditingFinished ();
 		void setLastSearchIntoCombobox (QString const & txt);
@@ -203,8 +205,6 @@ namespace logs {
 		void onQFilterLineEditFinished ();
 		void appendToSearchHistory (QString const & str);
 		void updateSearchHistory ();
-		void onEditFindNext ();
-		void onEditFindPrev ();
 		void onDumpFilters ();
 		void onTableClicked (QModelIndex const & row_index);
 		void onTableDoubleClicked (QModelIndex const & row_index);

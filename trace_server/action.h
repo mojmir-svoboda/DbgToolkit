@@ -15,6 +15,9 @@ enum E_ActionType {
 	, e_Select
 	, e_AlignH
 	, e_AlignV
+	, e_Find
+	, e_FindAll
+	, e_FindAllRefs
 	, e_max_action_type
 };
 
@@ -23,7 +26,7 @@ struct ActionAble;
 struct Action {
 	E_ActionType m_type;
 	ActionAble * m_src;
-	QStringList m_src_path;
+	QStringList  m_src_path;
 	mutable ActionAble * m_dst;
 	QStringList m_dst_path;
 	mutable int m_dst_curr_level;
