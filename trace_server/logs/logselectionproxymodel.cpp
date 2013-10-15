@@ -1,14 +1,14 @@
-#include "treeproxy.h"
+#include "logselectionproxymodel.h"
 
-TreeProxyModel::TreeProxyModel (TreeModel<TreeModelItem> * src, QItemSelectionModel * selection)
+LogSelectionProxyModel::LogSelectionProxyModel (QAbstractItemModel * src, QItemSelectionModel * selection)
 	: KSelectionProxyModel(selection)
-	, m_selection(selection)
 	, m_src(src)
+	, m_selection(selection)
 {
 }
 
 
-void TreeProxyModel::setFindString (QString const & s)
+/*void LogSelectionProxyModel::setFindString (QString const & s)
 {
 	m_find = s;
 
@@ -19,4 +19,4 @@ void TreeProxyModel::setFindString (QString const & s)
 		m_selection->select(children.at(i), QItemSelectionModel::Select);
 	//beginResetModel();
 	//endResetModel();
-}
+}*/

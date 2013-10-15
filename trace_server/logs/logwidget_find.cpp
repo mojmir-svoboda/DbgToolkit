@@ -6,7 +6,30 @@
 
 namespace logs {
 
-void LogWidget::findTextInAllColumns (QString const & text, int from_row, int to_row, bool only_first)
+void LogWidget::findTextInAllTable (QString const & text, QModelIndexList & result)
+{
+	for (int i = 0, ie = model()->rowCount(); i < ie; ++i)
+	{
+		for (int j = 0, je = model()->columnCount(); j < je; ++j)
+		{
+			QModelIndex const idx = model()->index(i, j, QModelIndex());
+			QModelIndex src_idx = idx; 
+			if (isModelProxy())
+			{
+				src_idx = m_proxy_model->mapFromSource(idx);
+			}
+
+			if (idx.isValid() && model()->data(idx).toString().contains(text, Qt::CaseInsensitive))
+			{
+				result.push_back(src_idx);
+			}
+		}
+	}
+}
+
+
+
+void LogWidget::findTextInAllColumns (QString const & text, int from_row, int to_row, bool only_first, QModelIndexList & result)
 {
 	for (int i = from_row, ie = to_row; i < ie; ++i)
 	{
@@ -42,6 +65,51 @@ void LogWidget::findTextInAllColumns (QString const & text, int from_row, int to
 	}
 }
 
+
+
+
+
+
+
+
+
+
+
+void LogWidget::findTextInAllColumns (QString const & text, int from_row, int to_row, bool only_first)
+{
+	for (int i = from_row, ie = to_row; i < ie; ++i)
+	{
+		for (int j = 0, je = model()->columnCount(); j < je; ++j)
+		{
+			if (isModelProxy()) // @TODO: dedup!
+			{
+				QModelIndex const idx = model()->index(i, j, QModelIndex());
+				QModelIndex const curr = m_proxy_model->mapFromSource(idx);
+
+				if (idx.isValid() && model()->data(idx).toString().contains(text, Qt::CaseInsensitive))
+				{
+					selectionModel()->setCurrentIndex(curr, QItemSelectionModel::Select);
+					m_last_search_idx = idx;
+					if (only_first)
+						return;
+				}
+			}
+			else
+			{
+				QModelIndex const idx = model()->index(i, j, QModelIndex());
+				if (idx.isValid() && model()->data(idx).toString().contains(text, Qt::CaseInsensitive))
+				{
+					selectionModel()->setCurrentIndex(idx, QItemSelectionModel::Select);
+					m_last_search_row = idx.row();
+					m_last_search_col = idx.column();
+					if (only_first)
+						return;
+				}
+			}
+		}
+	}
+}
+
 bool LogWidget::matchTextInCell (QString const & text, int row, int col)
 {
 	LogTableModel * model = m_src_model;
@@ -49,7 +117,7 @@ bool LogWidget::matchTextInCell (QString const & text, int row, int col)
 	if (idx.isValid() && model->data(idx).toString().contains(text, Qt::CaseInsensitive))
 	{
 		qDebug("found string %s: src=%i,%i", text.toStdString(), row, col);
-		if (m_proxy_model)
+		if (isModelProxy()) // @TODO: dedup!
 		{
 			QModelIndex const curr = m_proxy_model->mapFromSource(idx);
 			selectionModel()->setCurrentIndex(curr, QItemSelectionModel::Select);

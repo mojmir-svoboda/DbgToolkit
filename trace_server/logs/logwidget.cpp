@@ -38,8 +38,8 @@ namespace logs {
 		, m_time_ref_value(0)
 		, m_curr_preset()
 		, m_proxy_model(0)
-		, m_proxy_selection(0)
 		, m_src_model(0)
+		, m_selection(0)
 		, m_src_selection(0)
 		, m_ctx_menu()
 		, m_actions()
@@ -88,12 +88,14 @@ namespace logs {
 		setItemDelegate(new LogDelegate(*this, m_connection->appData(), this));
 
 		m_src_model = model;
+		m_selection = new LogSelectionProxyModel(m_src_model, m_src_selection);
+
 		m_src_selection = new QItemSelectionModel(m_src_model);
 		setSelectionModel(m_src_selection);
+		//m_proxy_selection = new QItemSelectionModel(m_proxy_model);
 
 		m_proxy_model = new FilterProxyModel(this, *this);
 		m_proxy_model->setSourceModel(m_src_model);
-		m_proxy_selection = new QItemSelectionModel(m_proxy_model);
 		//setupThreadColors(connection->getMainWindow()->getThreadColors());
 
 
@@ -728,6 +730,19 @@ bool LogWidget::handleAction (Action * a, E_ActionHandleType sync)
 			Q_ASSERT(m_args.size() > 0);
 			bool const on = a->m_args.at(0).toBool();
 			setVisible(on);
+			return true;
+		}
+
+		case e_Find:
+		{
+			if (a->m_args.size() == 5)
+			{
+				QString const str  = a->m_args.at(0).toString();	// text
+				bool const ww = a->m_args.at(1).toBool();			// m_whole_word;
+				bool const Aa = a->m_args.at(2).toBool();			// m_case_sensitive
+				bool const regexp = a->m_args.at(3).toBool();		// m_regexp
+				QString const to_w  = a->m_args.at(4).toString();	// m_to_widget
+			}
 			return true;
 		}
 		default:

@@ -98,6 +98,7 @@ set(trace_server_SOURCES
 	connection_log.cpp
 	logs/logtablemodel.cpp
 	logs/filterproxymodel.cpp
+	logs/logselectionproxymodel.cpp
 	logs/logwidget.cpp
 	logs/logwidget_find.cpp
 	logs/logwidget_filtering.cpp
@@ -171,6 +172,7 @@ set(trace_server_HEADERS
 	filter_tid.h
 
 	logs/logtablemodel.h
+	logs/logselectionproxymodel.h
 	logs/logwidget.h
 	logs/logconfig.h
 	logs/logctxmenu.h

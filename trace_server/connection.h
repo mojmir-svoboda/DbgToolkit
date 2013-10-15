@@ -34,7 +34,6 @@
 #include "cmd.h"
 #include "gantt/ganttdata.h"
 #include "treeview.h"
-#include "treeproxy.h"
 #include "logs/logwidget.h"
 #include "plot/plotwidget.h"
 #include "table/tablewidget.h"

@@ -10,8 +10,9 @@ void MainWindow::handleFindVisibility()
 {
 	if (m_find_widget)
 	{
-		m_find_widget->setParent(0);
 		m_find_widget->hide();
+		m_find_widget->setParent(this);
+		m_find_widget->move(0,0);
 	}
 
 	QWidget * w = getFocusedWidget();

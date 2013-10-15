@@ -8,6 +8,7 @@
 #include "logconfig.h"
 #include "logctxmenu.h"
 #include "tagconfig.h"
+#include "logselectionproxymodel.h"
 #include <appdata.h>
 
 class Connection;
@@ -59,6 +60,8 @@ namespace logs {
 		void normalizeConfig (logs::LogConfig & normalized);
 		void moveSectionsAccordingTo (logs::LogConfig const & cfg);
 		void resizeSections ();
+
+		void findTextInAllTable (QString const & text, QModelIndexList & result);
 
 
 	void setupSeparatorChar (QString const & c);
@@ -270,9 +273,10 @@ namespace logs {
 		QString m_curr_preset;
 
 		FilterProxyModel * m_proxy_model;
-		QItemSelectionModel * m_proxy_selection;
 		LogTableModel * m_src_model;
+		LogSelectionProxyModel * m_selection;
 		QItemSelectionModel * m_src_selection;
+		//QItemSelectionModel * m_proxy_selection;
 
 		QMenu m_ctx_menu;
 		enum E_Actions {

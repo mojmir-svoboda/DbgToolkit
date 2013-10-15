@@ -6,7 +6,6 @@
 #include <QComboBox>
 #include <QLineEdit>
 
-
 FindWidget::FindWidget (MainWindow * mw, QWidget * parent)
 	: QWidget(parent)
 	, m_ui(new Ui::FindWidget)
@@ -44,9 +43,9 @@ void FindWidget::applyConfig ()
 
 void FindWidget::onCancel ()
 {
-	setParent(0);
 	hide();
-	//hide();
+	setParent(m_main_window);
+	move(0,0);
 }
 
 void FindWidget::onEditTextChanged (QString str)
@@ -54,9 +53,8 @@ void FindWidget::onEditTextChanged (QString str)
 	//qDebug("find!");
 }
 
-void FindWidget::onReturnPressed ()
+void FindWidget::find ()
 {
-	//m_config.saveHistory();
 	QString str = m_ui->findBox->currentText();
 	if (!str.isEmpty())
 	{
@@ -65,6 +63,11 @@ void FindWidget::onReturnPressed ()
 		makeActionFind(str, a);
 		m_main_window->dockManager().handleAction(&a, e_Sync);
 	}
+}
+
+void FindWidget::onReturnPressed ()
+{
+	//m_config.saveHistory();
 }
 
 void FindWidget::onFocusChanged (QWidget * old, QWidget * now)
@@ -79,12 +82,12 @@ void FindWidget::makeActionFind (QString const & str, Action & a)
 	//a.m_src = this;
 	if (m_dwb)
 		a.m_dst_path = m_dwb->path();
+	a.m_args.push_back(str);
 	a.m_args.push_back(m_config.m_whole_word);
 	a.m_args.push_back(m_config.m_case_sensitive);
 	a.m_args.push_back(m_config.m_regexp);
 	a.m_args.push_back(m_config.m_to_widget);
 }
-
 
 void FindWidget::setConfigValuesToUI (FindConfig const & cfg)
 {
@@ -100,3 +103,4 @@ void FindWidget::setUIValuesToConfig (FindConfig & cfg)
 	cfg.m_whole_word = m_ui->wholeWordCheckBox->isChecked();
 	cfg.m_regexp = m_ui->regexCheckBox->isChecked();
 }
+

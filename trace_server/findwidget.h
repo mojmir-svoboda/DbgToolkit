@@ -22,6 +22,7 @@ public:
 	FindConfig const & getConfig () const { return m_config; }
 	void applyConfig (FindConfig & cfg);
 	void applyConfig ();
+	void find ();
 
 public slots:
 	void onCancel ();
@@ -36,9 +37,9 @@ protected:
 
 private:
 	friend class MainWindow;
-	Ui::FindWidget * m_ui;
-	MainWindow * m_main_window;
-	FindConfig m_config;
-	DockedWidgetBase * m_dwb;
+	Ui::FindWidget *	m_ui;
+	MainWindow *		m_main_window;
+	FindConfig			m_config;
+	DockedWidgetBase *	m_dwb;
 };
 
