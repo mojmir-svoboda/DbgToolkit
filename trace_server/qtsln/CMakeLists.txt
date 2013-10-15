@@ -11,7 +11,6 @@ SET(qtsln_HEADERS
 	qtcolorpicker/qtcolorpicker.h
 	)
 
-#SET(QT_USE_QTOPENGL true)
 #QT5_WRAP_CPP(qtsln_MOC ${qtsln_HEADERS})
 #QT4_ADD_RESOURCES(qtsln_RESOURCES_RCC ${qtsln_RESOURCES})
 INCLUDE_DIRECTORIES(${QT_USE_FILE})
@@ -26,4 +25,5 @@ ADD_DEFINITIONS(-DQT_NO_PRINTER)
 ADD_DEFINITIONS(-DSTATIC)
 
 add_library (qtsln STATIC ${qtsln_SOURCES})
+set_target_properties(qtsln PROPERTIES AUTOMOC TRUE)
 qt5_use_modules(qtsln Widgets Gui Core)

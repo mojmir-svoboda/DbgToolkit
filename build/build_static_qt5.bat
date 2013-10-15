@@ -5,11 +5,12 @@ rem
 set PATH=c:/Program Files (x86)/Git/bin;%PATH%
 set PATH=C:/strawberry/perl/bin;%PATH%
 set PATH=c:\devel\qt5\qtbase\gnuwin32\bin;%PATH%
-set PATH=C:\Python33;%PATH%
+set PATH=C:\Python32;%PATH%
 git clone git://gitorious.org/qt/qt5.git qt5
 cd qt5
+perl init-repository --no-webkit
 rem perl init-repository --no-webkit --codereview-user mojmir.svoboda
-rem rem configure.bat -debug-and-release -opensource -platform win32-msvc2012 -static -ltcg -no-accessibility -no-openvg -no-gif -no-dbus -no-audio-backend -no-sql-sqlite -no-qml-debug -nomake demos -nomake examples -nomake tests -no-icu
+configure.bat -debug-and-release -opensource -platform win32-msvc2012 -static -ltcg -no-accessibility -no-openvg -no-gif -no-dbus -no-audio-backend -no-sql-sqlite -no-qml-debug -nomake examples -nomake tests -no-icu
 
 rem profile
 rem configure -force-debug-info -debug-and-release -opensource -platform win32-msvc2012 -static -no-ltcg -no-accessibility -no-gif -no-dbus -no-audio-backend -no-sql-sqlite -nomake demos -nomake examples -nomake tests -no-nis -angle -no-directwrite -no-qml-debug -no-icu

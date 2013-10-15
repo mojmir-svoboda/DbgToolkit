@@ -31,9 +31,6 @@ set(EXECUTABLE_OUTPUT_PATH
    "Single Directory for all Executables."
    )
 
-#SET(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH} "c:/devel/boost_1_47_0")
-#SET(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} "c:/devel/boost_1_47_0")
-
 add_subdirectory("qwt")
 add_subdirectory("qtsln")
 
