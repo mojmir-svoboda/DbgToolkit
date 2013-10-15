@@ -22,6 +22,7 @@ namespace logs {
 		, m_fname(fname)
 		, m_connection(connection)
 		, m_tab(0)
+		, m_linked_parent(0)
 		, m_filter_state()
 		, m_tagconfig()
 		, m_tags2columns()
@@ -75,27 +76,6 @@ namespace logs {
 		QObject::disconnect(horizontalHeader(), SIGNAL(sectionHandleDoubleClicked(int)), this, SLOT(resizeColumnToContents(int)));
 
 		setObjectName(QString::fromUtf8("tableView"));
-		LogTableModel * model = new LogTableModel(this, *this);
-		QObject::disconnect(model, SIGNAL(rowsInserted(QModelIndex,int,int)), verticalHeader(), SLOT(sectionsInserted(QModelIndex,int,int)));
-		verticalHeader()->setFont(cfg.m_font);
-		verticalHeader()->setDefaultSectionSize(cfg.m_row_width);
-		verticalHeader()->hide();	// @NOTE: users want that //@NOTE2: they can't have it because of performance
-		setModel(model);
-		QObject::connect(horizontalHeader(), SIGNAL(sectionResized(int, int, int)), this, SLOT(onSectionResized(int, int, int)));
-		QObject::connect(horizontalHeader(), SIGNAL(sectionMoved(int, int, int)), this, SLOT(onSectionMoved(int, int, int)));
-
-		horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
-		setItemDelegate(new LogDelegate(*this, m_connection->appData(), this));
-
-		m_src_model = model;
-		m_selection = new LogSelectionProxyModel(m_src_model, m_src_selection);
-
-		m_src_selection = new QItemSelectionModel(m_src_model);
-		setSelectionModel(m_src_selection);
-		//m_proxy_selection = new QItemSelectionModel(m_proxy_model);
-
-		m_proxy_model = new FilterProxyModel(this, *this);
-		m_proxy_model->setSourceModel(m_src_model);
 		//setupThreadColors(connection->getMainWindow()->getThreadColors());
 
 
@@ -108,6 +88,13 @@ namespace logs {
 		//
 		//connect(m_config_ui.ui()->filterFileCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onFilterFile(int)));
 
+		QObject::connect(horizontalHeader(), SIGNAL(sectionResized(int, int, int)), this, SLOT(onSectionResized(int, int, int)));
+		QObject::connect(horizontalHeader(), SIGNAL(sectionMoved(int, int, int)), this, SLOT(onSectionMoved(int, int, int)));
+		verticalHeader()->setFont(cfg.m_font);
+		verticalHeader()->setDefaultSectionSize(cfg.m_row_width);
+		verticalHeader()->hide();	// @NOTE: users want that //@NOTE2: they can't have it because of performance
+		horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
+		setItemDelegate(new LogDelegate(*this, m_connection->appData(), this));
 
 
 		/*m_actions.resize(e_action_max_enum_value);
@@ -130,6 +117,36 @@ namespace logs {
 		//m_data_model = new TreeModel(this, &m_session_state.m_data_filters);
 		
 		//applyConfig(m_config);
+	}
+
+	void LogWidget::setupLogModel (LogTableModel * linked_model)
+	{
+		LogTableModel * model = 0;
+		if (linked_model)
+			model = linked_model;
+		else
+		{
+			model = new LogTableModel(this, *this);
+			QObject::disconnect(model, SIGNAL(rowsInserted(QModelIndex,int,int)), verticalHeader(), SLOT(sectionsInserted(QModelIndex,int,int)));
+		}
+
+		setModel(model);
+
+		m_src_model = model;
+
+		//m_proxy_selection = new QItemSelectionModel(m_proxy_model);
+		setupLogSelectionProxy();
+
+		m_proxy_model = new FilterProxyModel(this, *this);
+		m_proxy_model->setSourceModel(m_src_model);
+		setupFilteringProxy(filterMgr()->enabled() ? Qt::Checked : Qt::Unchecked);
+	}
+
+	void LogWidget::setupLogSelectionProxy ()
+	{
+		m_src_selection = new QItemSelectionModel(m_src_model);
+		setSelectionModel(m_src_selection);
+		m_selection = new LogSelectionProxyModel(m_src_model, m_src_selection);
 	}
 
 	LogWidget::~LogWidget ()
@@ -301,8 +318,10 @@ namespace logs {
 		//horizontalHeader()->resizeSections(QHeaderView::Fixed);
 		//horizontalHeader()->resizeSectionItem(c, 32, );
 
-		m_src_model->resizeToCfg();
-		m_proxy_model->resizeToCfg();
+		if (m_src_model)
+			m_src_model->resizeToCfg();
+		if (m_proxy_model)
+			m_proxy_model->resizeToCfg();
 		setupFilteringProxy(filterMgr()->enabled() ? Qt::Checked : Qt::Unchecked);
 
 		resizeSections();
@@ -742,6 +761,14 @@ bool LogWidget::handleAction (Action * a, E_ActionHandleType sync)
 				bool const Aa = a->m_args.at(2).toBool();			// m_case_sensitive
 				bool const regexp = a->m_args.at(3).toBool();		// m_regexp
 				QString const to_w  = a->m_args.at(4).toString();	// m_to_widget
+
+				m_config.m_find_config.m_whole_word = ww;
+				m_config.m_find_config.m_case_sensitive = Aa;
+				m_config.m_find_config.m_regexp = regexp;
+				m_config.m_find_config.m_to_widget = to_w;
+				m_config.m_find_config.m_str = str;
+				m_config.m_find_config.m_history.insert(str);
+				// m_config.save
 			}
 			return true;
 		}

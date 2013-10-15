@@ -3,6 +3,7 @@
 #include "logs/logtablemodel.h"
 #include <logs/filterproxymodel.h>
 #include "utils.h"
+#include "connection.h"
 
 namespace logs {
 
@@ -27,51 +28,28 @@ void LogWidget::findTextInAllTable (QString const & text, QModelIndexList & resu
 	}
 }
 
-
-
-void LogWidget::findTextInAllColumns (QString const & text, int from_row, int to_row, bool only_first, QModelIndexList & result)
+void LogWidget::registerLinkedLog (LogWidget * l)
 {
-	for (int i = from_row, ie = to_row; i < ie; ++i)
-	{
-		for (int j = 0, je = model()->columnCount(); j < je; ++j)
-		{
-			if (isModelProxy()) // @TODO: dedup!
-			{
-				QModelIndex const idx = model()->index(i, j, QModelIndex());
-				QModelIndex const curr = m_proxy_model->mapFromSource(idx);
-
-				if (idx.isValid() && model()->data(idx).toString().contains(text, Qt::CaseInsensitive))
-				{
-					selectionModel()->setCurrentIndex(curr, QItemSelectionModel::Select);
-					m_last_search_row = idx.row();
-					m_last_search_col = idx.column();
-					if (only_first)
-						return;
-				}
-			}
-			else
-			{
-				QModelIndex const idx = model()->index(i, j, QModelIndex());
-				if (idx.isValid() && model()->data(idx).toString().contains(text, Qt::CaseInsensitive))
-				{
-					selectionModel()->setCurrentIndex(idx, QItemSelectionModel::Select);
-					m_last_search_row = idx.row();
-					m_last_search_col = idx.column();
-					if (only_first)
-						return;
-				}
-			}
-		}
-	}
+	m_linked_widgets.push_back(l);
 }
 
+void LogWidget::unregisterLinkedLog (LogWidget * l)
+{
+	m_linked_widgets.erase(std::remove(m_linked_widgets.begin(), m_linked_widgets.end(), l), m_linked_widgets.end());
+}
 
+void LogWidget::mkFindAllRefsLogWidget ()
+{
+	QString tag = m_connection->getAppName() + "/" + "find_all_refs";
+	datalogs_t::iterator it = m_connection->dataWidgetFactory<e_data_log>(tag);
 
+	DataLog * dp = *it;
+	dp->widget().m_linked_parent = this;
+	registerLinkedLog(&dp->widget());
 
-
-
-
-
+	LogWidget & child = dp->widget();
+	child.setupLogModel(m_src_model);
+}
 
 
 
@@ -89,7 +67,9 @@ void LogWidget::findTextInAllColumns (QString const & text, int from_row, int to
 				if (idx.isValid() && model()->data(idx).toString().contains(text, Qt::CaseInsensitive))
 				{
 					selectionModel()->setCurrentIndex(curr, QItemSelectionModel::Select);
-					m_last_search_idx = idx;
+					m_last_search_row = idx.row();
+					m_last_search_col = idx.column();
+					//m_last_search_idx = idx;
 					if (only_first)
 						return;
 				}

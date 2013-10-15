@@ -261,6 +261,10 @@ public:
 
 	void defaultConfigFor (logs::LogConfig & config); // loads legacy registry defaults
 
+	template <int TypeN>
+	typename SelectIterator<TypeN>::type
+	dataWidgetFactory (QString const tag);
+
 signals:
 	void readyForUse();
 	void newMessage (QString const & from, QString const & message);
@@ -346,10 +350,6 @@ protected:
 	bool handleGanttFrameBgnCommand (DecodedCommand const & cmd, E_ReceiveMode mode);
 	bool handleGanttFrameEndCommand (DecodedCommand const & cmd, E_ReceiveMode mode);
 	bool handleGanttClearCommand (DecodedCommand const & cmd, E_ReceiveMode mode);
-
-	template <int TypeN>
-	typename SelectIterator<TypeN>::type
-	dataWidgetFactory (QString const tag);
 
 	void registerDataMaps ();
 

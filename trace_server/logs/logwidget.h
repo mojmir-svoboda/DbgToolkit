@@ -46,6 +46,8 @@ namespace logs {
 		LogTableModel const * logModel () const { return m_src_model; }
 		FilterProxyModel const * logProxy () const { return m_proxy_model; }
 		bool isModelProxy () const;
+		void setupLogModel (LogTableModel * src_model);
+		void setupLogSelectionProxy ();
 
 		DecodedCommand const * getDecodedCommand (QModelIndex const & row_index);
 		DecodedCommand const * getDecodedCommand (int row);
@@ -62,6 +64,9 @@ namespace logs {
 		void resizeSections ();
 
 		void findTextInAllTable (QString const & text, QModelIndexList & result);
+		void mkFindAllRefsLogWidget ();
+		void registerLinkedLog (LogWidget * l);
+		void unregisterLinkedLog (LogWidget * l);
 
 
 	void setupSeparatorChar (QString const & c);
@@ -249,6 +254,8 @@ namespace logs {
 		QString m_fname;
 		Connection * m_connection;
 		QWidget * m_tab;
+		LogWidget * m_linked_parent;
+		std::vector<LogWidget *> m_linked_widgets;
 
 		FilterState m_filter_state;
 

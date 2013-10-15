@@ -70,12 +70,14 @@ void LogWidget::syncSelection (QModelIndexList const & sel)
 void LogWidget::setupFilteringProxy (int state)
 {
 	QItemSelectionModel const * selection = selectionModel();
-	QModelIndexList indexes = selection->selectedIndexes();
+	QModelIndexList indexes;
+	if (selection)
+		selection->selectedIndexes();
 
 	if (state == Qt::Unchecked)
 	{
 		QModelIndexList srcs;
-		if (indexes.size() > 0)
+		if (m_proxy_model && indexes.size() > 0)
 		{
 			for (int i = 0, ie = indexes.size(); i < ie; ++i)
 			{
@@ -98,11 +100,16 @@ void LogWidget::setupFilteringProxy (int state)
 	else if (state == Qt::Checked)
 	{
 		setModel(m_proxy_model);
-		m_proxy_model->setSourceModel(m_src_model);
-		setSelectionModel(m_proxy_selection);
-		m_src_model->setProxy(m_proxy_model);
+		if (m_proxy_model)
+			m_proxy_model->setSourceModel(m_src_model);
 
-		static_cast<FilterProxyModel *>(m_proxy_model)->force_update();
+		///////////////////////////////////////////////////////////////
+		//setSelectionModel(m_proxy_selection);
+		//m_src_model->setProxy(m_proxy_model);
+		///////////////////////////////////////////////////////////////
+
+		if (m_proxy_model)
+			m_proxy_model->force_update();
 		//onInvalidateFilter();
 
 		QModelIndexList pxys;

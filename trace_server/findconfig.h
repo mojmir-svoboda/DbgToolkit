@@ -12,6 +12,7 @@ struct FindConfig
 	unsigned m_history_ln;
 	History<QString> m_history;
 	QString m_to_widget;
+	QString m_str;
 
 	FindConfig ()
 		: m_whole_word(false)
@@ -31,6 +32,7 @@ struct FindConfig
 		ar & boost::serialization::make_nvp("history_ln", m_history_ln);
 		ar & boost::serialization::make_nvp("history", m_history);
 		ar & boost::serialization::make_nvp("to_widget", m_to_widget);
+		ar & boost::serialization::make_nvp("str", m_str);
 	}
 
 	void clear ();
