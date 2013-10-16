@@ -38,17 +38,22 @@ void LogWidget::unregisterLinkedLog (LogWidget * l)
 	m_linked_widgets.erase(std::remove(m_linked_widgets.begin(), m_linked_widgets.end(), l), m_linked_widgets.end());
 }
 
+void LogWidget::linkToSource (LogWidget * src)
+{
+	m_linked_parent = src;
+	src->registerLinkedLog(this);
+	setupLogModel(src->m_src_model);
+}
+
 void LogWidget::mkFindAllRefsLogWidget ()
 {
 	QString tag = m_connection->getAppName() + "/" + "find_all_refs";
 	datalogs_t::iterator it = m_connection->dataWidgetFactory<e_data_log>(tag);
 
 	DataLog * dp = *it;
-	dp->widget().m_linked_parent = this;
-	registerLinkedLog(&dp->widget());
 
 	LogWidget & child = dp->widget();
-	child.setupLogModel(m_src_model);
+	child.linkToSource(this);
 }
 
 

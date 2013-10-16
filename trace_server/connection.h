@@ -260,10 +260,13 @@ public:
 	void requestTableActionSync (int sync_group, unsigned long long t, int cursorAction, Qt::KeyboardModifiers modifiers, QTableView const * source);
 
 	void defaultConfigFor (logs::LogConfig & config); // loads legacy registry defaults
+	template <int TypeN>
+	QString getClosestPresetName (QString const & tag);
 
 	template <int TypeN>
 	typename SelectIterator<TypeN>::type
 	dataWidgetFactory (QString const tag);
+
 
 signals:
 	void readyForUse();

@@ -12,6 +12,58 @@ inline void Connection::defaultConfigFor (logs::LogConfig & config)
 }
 
 template <int TypeN>
+inline QString Connection::getClosestPresetName (QString const & tag)
+{
+	char const * preset_prefix = g_fileTags[TypeN];
+	QString preset_name = m_main_window->matchClosestPresetName(getAppName());
+	if (!preset_name.isEmpty())
+	{
+		QStringList const prs = preset_name.split("/");
+		if (prs.size() == 2 && prs.at(0) == getAppName())
+			preset_name = prs.at(1);
+		else
+			preset_name.clear();
+	}
+
+	if (preset_name.isEmpty())
+	{
+		QStringList subdirs;
+		if (int const n = findPresetsForApp(getConfig().m_appdir, getAppName(), subdirs))
+		{
+			bool default_present = false;
+			QStringList candidates;
+			foreach (QString const & s, subdirs)
+			{
+				QString test_preset_name = getAppName() + "/" + s;
+				QString const cfg_fname = getDataTagFileName(getConfig().m_appdir, getAppName(), s, preset_prefix, tag);
+				if (existsFile(cfg_fname))
+				{
+					if (s == QString(g_defaultPresetName))
+						default_present = true;
+					candidates << s;
+				}
+
+				m_main_window->mentionInPresetHistory(test_preset_name);
+			}
+
+			if (default_present)
+				preset_name = g_defaultPresetName;
+			else
+			{
+				if (candidates.size())
+					preset_name = candidates.at(0);
+			}
+		}
+	}
+
+	if (preset_name.isEmpty())
+		preset_name = g_defaultPresetName; // fallback to default
+
+	m_main_window->mentionInPresetHistory(preset_name);
+	return preset_name;
+}
+
+template <int TypeN>
 typename SelectIterator<TypeN>::type  Connection::dataWidgetFactory (QString const tag)
 {
 	char const * preset_prefix = g_fileTags[TypeN];
@@ -26,53 +78,8 @@ typename SelectIterator<TypeN>::type  Connection::dataWidgetFactory (QString con
 		typedef typename SelectWidget<TypeN>::type widget_t;
 		typedef typename SelectConfig<TypeN>::type config_t;
 
-		QString preset_name = m_main_window->matchClosestPresetName(getAppName());
-		if (!preset_name.isEmpty())
-		{
-			QStringList const prs = preset_name.split("/");
-			if (prs.size() == 2 && prs.at(0) == getAppName())
-				preset_name = prs.at(1);
-			else
-				preset_name.clear();
-		}
-	
-		if (preset_name.isEmpty())
-		{
-			QStringList subdirs;
-			if (int const n = findPresetsForApp(getConfig().m_appdir, getAppName(), subdirs))
-			{
-				bool default_present = false;
-				QStringList candidates;
-				foreach (QString const & s, subdirs)
-				{
-					QString test_preset_name = getAppName() + "/" + s;
-					QString const cfg_fname = getDataTagFileName(getConfig().m_appdir, getAppName(), s, preset_prefix, tag);
-					if (existsFile(cfg_fname))
-					{
-						if (s == QString(g_defaultPresetName))
-							default_present = true;
-						candidates << s;
-					}
-
-					m_main_window->mentionInPresetHistory(test_preset_name);
-				}
-
-				if (default_present)
-					preset_name = g_defaultPresetName;
-				else
-				{
-					if (candidates.size())
-						preset_name = candidates.at(0);
-				}
-			}
-		}
-
-		if (preset_name.isEmpty())
-			preset_name = g_defaultPresetName; // fallback to default
-
-		m_main_window->mentionInPresetHistory(preset_name);
+		QString const preset_name = getClosestPresetName<TypeN>(tag);
 		QString const fname = getDataTagFileName(getConfig().m_appdir, getAppName(), preset_name, preset_prefix, tag);
-
 		
 		typedef typename SelectDockedData<TypeN, dockeddata_t>::type data_t;
 		typedef typename SelectDockedData<TypeN, dockeddataptr_t>::type dataptr_t;

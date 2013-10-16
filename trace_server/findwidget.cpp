@@ -22,6 +22,7 @@ FindWidget::FindWidget (MainWindow * mw, QWidget * parent)
 	//connect(m_ui->findBox, SIGNAL(editTextChanged(QString)), this, SLOT(onEditTextChanged(QString)));
 	QLineEdit * le = m_ui->findBox->lineEdit();
 	connect(le, SIGNAL(returnPressed()), this, SLOT(onReturnPressed()));
+	connect(m_ui->refsButton, SIGNAL(clocked()), this, SLOT(onFindAllRefs()));
 }
 
 FindWidget::~FindWidget ()

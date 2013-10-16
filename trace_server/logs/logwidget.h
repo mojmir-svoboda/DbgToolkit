@@ -48,6 +48,7 @@ namespace logs {
 		bool isModelProxy () const;
 		void setupLogModel (LogTableModel * src_model);
 		void setupLogSelectionProxy ();
+		void linkToSource (LogWidget * src);
 
 		DecodedCommand const * getDecodedCommand (QModelIndex const & row_index);
 		DecodedCommand const * getDecodedCommand (int row);
@@ -55,6 +56,7 @@ namespace logs {
 	protected:
 		friend class LogTableModel;
 		friend class FilterProxyModel;
+		friend class FindProxyModel;
 
 		bool filterEnabled () const { return m_config.m_filtering; }
 		void setupFilteringProxy (int state);

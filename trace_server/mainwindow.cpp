@@ -518,7 +518,7 @@ void MainWindow::setupMenuBar ()
 	QMenu * editMenu = menuBar()->addMenu(tr("&Edit"));
 	editMenu->addAction(tr("Find"), this, SLOT(onFind()), QKeySequence::Find);
 	//editMenu->addAction(tr("Find"), this, SLOT(onFind()),	Qt::ControlModifier + Qt::Key_F);
-	editMenu->addAction(tr("Find"), this, SLOT(onFind()),	Qt::ControlModifier + Qt::ShiftModifier + Qt::Key_F);
+	editMenu->addAction(tr("Find"), this, SLOT(onFindAllRefs()), Qt::ControlModifier + Qt::ShiftModifier + Qt::Key_F);
 	editMenu->addAction(tr("Find Next"), this, SLOT(onFindNext()), QKeySequence::FindNext);
 	editMenu->addAction(tr("Find Prev"), this, SLOT(onFindPrev()), QKeySequence::FindPrevious);
 
