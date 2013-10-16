@@ -29,6 +29,7 @@ public slots:
 	void onEditTextChanged (QString str);
 	void onFocusChanged (QWidget * old, QWidget * now);
 	void onReturnPressed ();
+	void onFindAllRefs ();
 	
 protected:
 	void setConfigValuesToUI (FindConfig const & cfg);

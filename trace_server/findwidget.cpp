@@ -22,7 +22,7 @@ FindWidget::FindWidget (MainWindow * mw, QWidget * parent)
 	//connect(m_ui->findBox, SIGNAL(editTextChanged(QString)), this, SLOT(onEditTextChanged(QString)));
 	QLineEdit * le = m_ui->findBox->lineEdit();
 	connect(le, SIGNAL(returnPressed()), this, SLOT(onReturnPressed()));
-	connect(m_ui->refsButton, SIGNAL(clocked()), this, SLOT(onFindAllRefs()));
+	connect(m_ui->refsButton, SIGNAL(clicked()), this, SLOT(onFindAllRefs()));
 }
 
 FindWidget::~FindWidget ()
@@ -83,11 +83,22 @@ void FindWidget::makeActionFind (QString const & str, Action & a)
 	//a.m_src = this;
 	if (m_dwb)
 		a.m_dst_path = m_dwb->path();
-	a.m_args.push_back(str);
-	a.m_args.push_back(m_config.m_whole_word);
-	a.m_args.push_back(m_config.m_case_sensitive);
-	a.m_args.push_back(m_config.m_regexp);
-	a.m_args.push_back(m_config.m_to_widget);
+	QVariant fc;
+	fc.setValue(m_config);
+	a.m_args.push_back(fc);
+}
+
+void FindWidget::onFindAllRefs ()
+{
+	QString const str = m_ui->findBox->currentText();
+	if (!str.isEmpty())
+	{
+		mentionStringInHistory_Ref(str, m_ui->findBox, m_config.m_history);
+		m_config.m_refs = 1;
+		Action a;
+		makeActionFind(str, a);
+		m_main_window->dockManager().handleAction(&a, e_Sync);
+	}
 }
 
 void FindWidget::setConfigValuesToUI (FindConfig const & cfg)

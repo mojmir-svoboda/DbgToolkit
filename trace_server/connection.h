@@ -142,7 +142,7 @@ struct DockedData : DockedWidgetBase
 				return true;
 			}
 			default:
-				return false;
+				break;
 		}
 
 		return m_widget->handleAction(a, sync);

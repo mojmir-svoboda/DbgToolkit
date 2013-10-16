@@ -2,12 +2,13 @@
 #include <QStatusBar>
 #include "logs/logtablemodel.h"
 #include <logs/filterproxymodel.h>
+#include <logs/findproxymodel.h>
 #include "utils.h"
 #include "connection.h"
 
 namespace logs {
 
-void LogWidget::findTextInAllTable (QString const & text, QModelIndexList & result)
+void LogWidget::findInWholeTable (FindConfig const & fc, QModelIndexList & result)
 {
 	for (int i = 0, ie = model()->rowCount(); i < ie; ++i)
 	{
@@ -20,9 +21,16 @@ void LogWidget::findTextInAllTable (QString const & text, QModelIndexList & resu
 				src_idx = m_proxy_model->mapFromSource(idx);
 			}
 
-			if (idx.isValid() && model()->data(idx).toString().contains(text, Qt::CaseInsensitive))
+			if (fc.m_regexp)
 			{
-				result.push_back(src_idx);
+			}
+			else
+			{
+				Qt::CaseSensitivity const cs = fc.m_case_sensitive ? Qt::CaseSensitive : Qt::CaseInsensitive;
+				if (idx.isValid() && model()->data(idx).toString().contains(fc.m_str, cs))
+				{
+					result.push_back(src_idx);
+				}
 			}
 		}
 	}
@@ -42,20 +50,63 @@ void LogWidget::linkToSource (LogWidget * src)
 {
 	m_linked_parent = src;
 	src->registerLinkedLog(this);
-	setupLogModel(src->m_src_model);
 }
 
-void LogWidget::mkFindAllRefsLogWidget ()
+LogWidget * LogWidget::mkFindAllRefsLogWidget (FindConfig const & fc)
 {
-	QString tag = m_connection->getAppName() + "/" + "find_all_refs";
+	QString tag;
+	if (fc.m_to_widget.isEmpty())
+		m_connection->getAppName() + "/" + "find_all_refs";
+	else
+	{
+		// @TODO: validate widget form: appname/foo
+		tag = fc.m_to_widget;
+	}
+
 	datalogs_t::iterator it = m_connection->dataWidgetFactory<e_data_log>(tag);
 
 	DataLog * dp = *it;
-
 	LogWidget & child = dp->widget();
 	child.linkToSource(this);
+	return &child;
 }
 
+void LogWidget::setFindProxyModel (FindConfig const & fc)
+{
+	setModel(m_find_proxy_model);
+	applyConfig();
+}
+
+void LogWidget::handleFindAction (FindConfig const & fc)
+{
+	//QModelIndexList results;
+	//findInWholeTable(fc, results);
+	
+	bool const select_only = !fc.m_refs && !fc.m_clone;
+
+	if (select_only)
+	{
+		// select(results);
+	}
+	else
+	{
+		LogWidget * result_widget = 0;
+		if (fc.m_refs)
+		{
+			result_widget = mkFindAllRefsLogWidget(fc);
+			result_widget->setupLogModel(m_src_model);
+			result_widget->setFindProxyModel(fc);
+			result_widget->applyConfig();
+			//result_widget->setFindProxy
+			// setup selection
+		}
+		else // clone
+		{
+			//result_widget = mkFindAllCloneLogWidget(fc);
+		}
+
+	}
+}
 
 
 void LogWidget::findTextInAllColumns (QString const & text, int from_row, int to_row, bool only_first)

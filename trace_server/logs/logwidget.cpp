@@ -8,6 +8,7 @@
 #include <syncwidgets.h>
 #include "logtablemodel.h"
 #include "filterproxymodel.h"
+#include "findproxymodel.h"
 #include <QInputDialog>
 #include <QFontDialog>
 
@@ -39,6 +40,7 @@ namespace logs {
 		, m_time_ref_value(0)
 		, m_curr_preset()
 		, m_proxy_model(0)
+		, m_find_proxy_model(0)
 		, m_src_model(0)
 		, m_selection(0)
 		, m_src_selection(0)
@@ -131,7 +133,6 @@ namespace logs {
 		}
 
 		setModel(model);
-
 		m_src_model = model;
 
 		//m_proxy_selection = new QItemSelectionModel(m_proxy_model);
@@ -139,7 +140,10 @@ namespace logs {
 
 		m_proxy_model = new FilterProxyModel(this, *this);
 		m_proxy_model->setSourceModel(m_src_model);
-		setupFilteringProxy(filterMgr()->enabled() ? Qt::Checked : Qt::Unchecked);
+
+		m_find_proxy_model = new FindProxyModel(this, *this);
+		m_find_proxy_model->setSourceModel(m_src_model);
+		//setupFilteringProxy(filterMgr()->enabled() ? Qt::Checked : Qt::Unchecked);
 	}
 
 	void LogWidget::setupLogSelectionProxy ()
@@ -754,27 +758,22 @@ bool LogWidget::handleAction (Action * a, E_ActionHandleType sync)
 
 		case e_Find:
 		{
-			if (a->m_args.size() == 5)
+			if (a->m_args.size() > 0)
 			{
-				QString const str  = a->m_args.at(0).toString();	// text
-				bool const ww = a->m_args.at(1).toBool();			// m_whole_word;
-				bool const Aa = a->m_args.at(2).toBool();			// m_case_sensitive
-				bool const regexp = a->m_args.at(3).toBool();		// m_regexp
-				QString const to_w  = a->m_args.at(4).toString();	// m_to_widget
-
-				m_config.m_find_config.m_whole_word = ww;
-				m_config.m_find_config.m_case_sensitive = Aa;
-				m_config.m_find_config.m_regexp = regexp;
-				m_config.m_find_config.m_to_widget = to_w;
-				m_config.m_find_config.m_str = str;
-				m_config.m_find_config.m_history.insert(str);
-				// m_config.save
+				if (a->m_args.at(0).canConvert<FindConfig>())
+				{
+					 FindConfig const fc = a->m_args.at(0).value<FindConfig>();
+					 handleFindAction(fc);
+					 m_config.m_find_config = fc;
+					// m_config.save
+				}		  
+				return true;
 			}
-			return true;
 		}
 		default:
 			return false;
 	}
+	return false;
 }
 
 /*void LogWidget::applyConfig ()

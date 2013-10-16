@@ -17,6 +17,7 @@ class CtxDelegate;
 class StringDelegate;
 class RegexDelegate;
 class LogTableModel;
+class FindProxyModel;
 
 namespace logs {
 
@@ -65,8 +66,10 @@ namespace logs {
 		void moveSectionsAccordingTo (logs::LogConfig const & cfg);
 		void resizeSections ();
 
-		void findTextInAllTable (QString const & text, QModelIndexList & result);
-		void mkFindAllRefsLogWidget ();
+		void setFindProxyModel (FindConfig const & fc);
+		void handleFindAction (FindConfig const & fc);
+		void findInWholeTable (FindConfig const & fc, QModelIndexList & result);
+		LogWidget * mkFindAllRefsLogWidget (FindConfig const & fc);
 		void registerLinkedLog (LogWidget * l);
 		void unregisterLinkedLog (LogWidget * l);
 
@@ -282,6 +285,7 @@ namespace logs {
 		QString m_curr_preset;
 
 		FilterProxyModel * m_proxy_model;
+		FindProxyModel * m_find_proxy_model;
 		LogTableModel * m_src_model;
 		LogSelectionProxyModel * m_selection;
 		QItemSelectionModel * m_src_selection;
