@@ -46,6 +46,21 @@ struct DockConfig
 		*this = rhs;
 		rhs.m_docked_widgets_data.root = 0;
 	}
+
+	void defaultConfig ()
+	{
+		m_font = "Verdana";
+		m_fontsize = 10;
+		m_row_width = 18;
+		m_show = true;
+		m_columns_sizes.clear();
+		m_columns_sizes.push_back(192);
+		m_columns_sizes.push_back(48);
+		m_columns_sizes.push_back(32);
+		m_columns_sizes.push_back(32);
+		m_columns_sizes.push_back(32);
+		m_columns_sizes.push_back(32);
+	}
 };
 
 bool loadConfig (DockConfig & config, QString const & fname);

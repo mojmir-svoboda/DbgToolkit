@@ -12,10 +12,6 @@
 #include <appdata.h>
 
 class Connection;
-class LevelDelegate;
-class CtxDelegate;
-class StringDelegate;
-class RegexDelegate;
 class LogTableModel;
 class FindProxyModel;
 
@@ -50,6 +46,7 @@ namespace logs {
 		void setupLogModel (LogTableModel * src_model);
 		void setupLogSelectionProxy ();
 		void linkToSource (LogWidget * src);
+		bool isLinkedWidget () const { return m_linked_parent != 0; }
 
 		DecodedCommand const * getDecodedCommand (QModelIndex const & row_index);
 		DecodedCommand const * getDecodedCommand (int row);

@@ -56,7 +56,7 @@ LogWidget * LogWidget::mkFindAllRefsLogWidget (FindConfig const & fc)
 {
 	QString tag;
 	if (fc.m_to_widget.isEmpty())
-		m_connection->getAppName() + "/" + "find_all_refs";
+		tag = "find_all_refs";
 	else
 	{
 		// @TODO: validate widget form: appname/foo

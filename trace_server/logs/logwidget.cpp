@@ -326,7 +326,12 @@ namespace logs {
 			m_src_model->resizeToCfg();
 		if (m_proxy_model)
 			m_proxy_model->resizeToCfg();
-		setupFilteringProxy(filterMgr()->enabled() ? Qt::Checked : Qt::Unchecked);
+		if (m_find_proxy_model)
+			m_find_proxy_model->resizeToCfg();
+		if (!isLinkedWidget())
+		{
+			setupFilteringProxy(filterMgr()->enabled() ? Qt::Checked : Qt::Unchecked);
+		}
 
 		resizeSections();
 	}

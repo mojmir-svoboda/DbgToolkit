@@ -132,37 +132,3 @@ void FilterTid::onClickedAtTIDList (QModelIndex idx)
 	emitFilterChangedSignal();
 }
 
-
-///////// serialize
-/*bool loadConfig (FilterTid & w, QString const & fname)
-{
-	std::ifstream ifs(fname.toLatin1());
-	if (!ifs) return false;
-	try {
-		boost::archive::xml_iarchive ia(ifs);
-		ia >> BOOST_SERIALIZATION_NVP(w.m_data);
-		ifs.close();
-		return true;
-	}
-	catch (...)
-	{
-		return false;
-	}
-}
-
-bool saveConfig (FilterTid const & w, QString const & fname)
-{
-	std::ofstream ofs(fname.toLatin1());
-	if (!ofs) return false;
-	boost::archive::xml_oarchive oa(ofs);
-	oa << BOOST_SERIALIZATION_NVP(w.m_data);
-	ofs.close();
-	return true;
-}
-
-void fillDefaultConfig (FilterTid & w)
-{
-}*/
-
-
-

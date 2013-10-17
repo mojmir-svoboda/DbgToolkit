@@ -49,6 +49,14 @@ void FindWidget::onCancel ()
 	move(0,0);
 }
 
+void FindWidget::onActivate ()
+{
+	show();
+	activateWindow();
+	m_ui->findBox->setFocus();
+	raise();
+}
+
 void FindWidget::onEditTextChanged (QString str)
 {
 	//qDebug("find!");

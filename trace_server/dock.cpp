@@ -223,7 +223,8 @@ void DockManager::loadConfig (QString const & path)
 {
 	QString const fpath = path + "/" + g_dockStateTag;
 	m_config2.clear();
-	::loadConfigTemplate(m_config, fpath);
+	if (!::loadConfigTemplate(m_config, fpath))
+		fillDefaultConfig(m_config);
 
 	//m_config = m_config2;
 	//m_config2.m_docked_widgets_data.root = 0; // @TODO: promyslet.. takle na to urcite zapomenu

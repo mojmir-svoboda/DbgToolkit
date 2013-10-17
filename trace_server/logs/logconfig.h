@@ -29,6 +29,8 @@ namespace logs {
 		bool m_cut_path;
 		bool m_cut_namespaces;
 		bool m_dt_enabled;
+		bool m_filter_proxy;
+		bool m_find_proxy;
 		QString m_csv_separator;
 
 		LogConfig ()
@@ -48,13 +50,15 @@ namespace logs {
 			, m_cut_path(true)
 			, m_cut_namespaces(true)
 			, m_dt_enabled(false)
+			, m_filter_proxy(false)
+			, m_find_proxy(false)
 			, m_csv_separator(",")
 		{
 			m_central_widget = true;
 		}
 
 		LogConfig (QString const & tag)
-			: m_tag()
+			: m_tag(tag)
 			, m_history_ln(128*128)
 			, m_font("Verdana")
 			, m_fontsize(10)
@@ -70,6 +74,9 @@ namespace logs {
 			, m_cut_path(true)
 			, m_cut_namespaces(true)
 			, m_dt_enabled(false)
+			, m_filter_proxy(false)
+			, m_find_proxy(false)
+			, m_csv_separator(",")
 		{
 			m_central_widget = tag == "default";
 		}

@@ -5,7 +5,8 @@
 #include <boost/serialization/utility.hpp>
 #include <boost/serialization/serialization.hpp>
 #include <boost/serialization/vector.hpp>
-#include "../serialize/ser_qt.h"
+#include <serialize/ser_qt.h>
+#include <serialize.h>
 #include <fstream>
 #include <sstream>
 
@@ -13,22 +14,14 @@ namespace logs {
 
 	bool loadConfig (LogConfig & config, QString const & fname)
 	{
-		std::ifstream ifs(fname.toLatin1());
-		if (!ifs) return false;
-		boost::archive::xml_iarchive ia(ifs);
-		ia >> BOOST_SERIALIZATION_NVP(config);
-		ifs.close();
+		if (!::loadConfigTemplate(config, fname))
+			fillDefaultConfig(config);
 		return true;
 	}
 
 	bool saveConfig (LogConfig const & config, QString const & fname)
 	{
-		std::ofstream ofs(fname.toLatin1());
-		if (!ofs) return false;
-		boost::archive::xml_oarchive oa(ofs);
-		oa << BOOST_SERIALIZATION_NVP(config);
-		ofs.close();
-		return true;
+		return ::saveConfigTemplate(config, fname);
 	}
 
 	void fillDefaultConfig (LogConfig & config)

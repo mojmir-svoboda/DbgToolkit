@@ -23,7 +23,7 @@ bool saveConfig (DockConfig const & config, QString const & fname)
 
 void fillDefaultConfig (DockConfig & config)
 {
-	config = DockConfig(g_traceServerName);
+	config.defaultConfig();
 }
 
 

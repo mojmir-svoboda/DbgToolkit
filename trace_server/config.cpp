@@ -6,30 +6,22 @@
 #include <boost/serialization/serialization.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/nvp.hpp>
-#include "serialize/ser_qlist.h"
-#include "serialize/ser_qcolor.h"
-#include "serialize/ser_qregexp.h"
-#include "serialize/ser_qstring.h"
+#include <serialize/ser_qlist.h>
+#include <serialize/ser_qcolor.h>
+#include <serialize/ser_qregexp.h>
+#include <serialize/ser_qstring.h>
+#include <serialize.h>
 #include <fstream>
 #include <sstream>
 
 bool saveHistoryState (History<QString> const & h, char const * filename)
 {
-    std::ofstream ofs(filename);
-    if (!ofs) return false;
-    boost::archive::xml_oarchive oa(ofs);
-    oa << BOOST_SERIALIZATION_NVP(h);
-    ofs.close();
-    return true;
+	return ::saveConfigTemplate(h, filename);
 }
 
 bool loadHistoryState (History<QString> & h, char const * filename)
 {
-    std::ifstream ifs(filename);
-    if (!ifs) return false;
-    boost::archive::xml_iarchive ia(ifs);
-    ia >> BOOST_SERIALIZATION_NVP(h);
-    ifs.close();
+	::loadConfigTemplate(h, filename);
 	return true;
 }
 

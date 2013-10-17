@@ -2,6 +2,7 @@
 #include <QMessageBox>
 #include <QFileInfo>
 #include <QDir>
+#include "types.h"
 #include "utils.h"
 
 template <class T>
