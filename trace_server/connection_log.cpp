@@ -22,6 +22,21 @@ DataLog::DataLog (Connection * connection, QString const & confname, QStringList
 	m_widget = tableView;
 }
 
+DataLog::DataLog (Connection * connection, QString const & confname, QStringList const & path, logs::LogConfig const & config)
+	: DockedData<e_data_log>(connection, confname, path, config)
+{
+	qDebug("%s this=0x%08x with cfg name=%s", __FUNCTION__, this, confname.toStdString().c_str());
+
+	QWidget * tab = connection->m_tab_widget;
+	QHBoxLayout * horizontalLayout = new QHBoxLayout(tab);
+	horizontalLayout->setSpacing(1);
+	horizontalLayout->setContentsMargins(0, 0, 0, 0);
+	horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
+	logs::LogWidget * tableView = new logs::LogWidget(connection, tab, this->config(), confname, path);
+	horizontalLayout->addWidget(tableView);
+	m_widget = tableView;
+}
+
 DataLog::~DataLog ()
 {
 	//QObject::disconnect(connection->m_table_view_widget->horizontalHeader(), SIGNAL(sectionResized(int, int, int)), this, SLOT(onSectionResized(int, int, int)));
@@ -107,10 +122,12 @@ void Connection::onShowLogContextMenu (QPoint const &)
 
 datalogs_t::iterator Connection::findOrCreateLog (QString const & tag)
 {
-	datalogs_t::iterator it = dataWidgetFactory<e_data_log>(tag);
-	if ((*it)->widget().model() == 0)
+	typedef SelectIterator<e_data_log>::type iterator;
+	iterator it = m_data.get<e_data_log>().find(tag);
+	if (it == m_data.get<e_data_log>().end())
 	{
-		(*it)->widget().setupLogModel(0); // 0 means "create new model"
+		it = dataWidgetFactory<e_data_log>(tag);
+		(*it)->widget().setupNewLogModel();
 		(*it)->widget().applyConfig(); // 0 means "create new model"
 	}
 	return it;

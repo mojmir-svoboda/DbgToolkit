@@ -163,9 +163,14 @@ bool Connection::saveConfigForTables (QString const & preset_name)
 
 datatables_t::iterator Connection::findOrCreateTable (QString const & tag)
 {
-	datatables_t::iterator it = dataWidgetFactory<e_data_table>(tag);
-	if (it != m_data.get<e_data_table>().end())
+	typedef SelectIterator<e_data_table>::type iterator;
+	iterator it = m_data.get<e_data_table>().find(tag);
+	if (it == m_data.get<e_data_table>().end())
 	{
+		it = dataWidgetFactory<e_data_table>(tag);
+		//(*it)->widget().setupNewLogModel();
+		(*it)->widget().applyConfig(); // 0 means "create new model"
+
 		// TMP!
 /*		(*it)->m_widget->setEditTriggers(QAbstractItemView::NoEditTriggers);
 		(*it)->m_widget->verticalHeader()->setFont(m_main_window->tableFont());*/

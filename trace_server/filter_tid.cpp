@@ -1,16 +1,6 @@
 #include "filter_tid.h"
 #include "constants.h"
 #include "serialize.h"
-// serialization stuff
-#include <boost/serialization/type_info_implementation.hpp>
-#include <boost/archive/xml_iarchive.hpp>
-#include <boost/archive/xml_oarchive.hpp>
-#include <boost/serialization/utility.hpp>
-#include <boost/serialization/serialization.hpp>
-#include <boost/serialization/vector.hpp>
-#include <serialize/ser_qt.h>
-#include <fstream>
-
 
 FilterTid::FilterTid (QWidget * parent)
 	: FilterBase(parent)

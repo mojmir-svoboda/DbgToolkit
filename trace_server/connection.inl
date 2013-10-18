@@ -1,4 +1,5 @@
 #pragma once
+#include <serialize.h>
 
 inline void Connection::defaultConfigFor (logs::LogConfig & config)
 {
@@ -64,11 +65,22 @@ inline QString Connection::getClosestPresetName (QString const & tag)
 }
 
 template <int TypeN>
-typename SelectIterator<TypeN>::type  Connection::dataWidgetFactory (QString const tag)
+void Connection::mkWidgetPath (QString const tag, QStringList & path)
 {
 	char const * preset_prefix = g_fileTags[TypeN];
-	QString const log_name = getAppName() + "/" + preset_prefix + "/" + tag;
+	QString const & name0 = m_main_window->dockedName();
+	QString const & name1 = getAppName();
+	QString const & name2 = preset_prefix;
+	QString const & name3 = tag;
+	path.append(name0);
+	path.append(name1);
+	path.append(name2);
+	path.append(name3);
+}
 
+template <int TypeN>
+typename SelectIterator<TypeN>::type  Connection::dataWidgetFactory (QString const tag)
+{
 	typedef typename SelectIterator<TypeN>::type iterator;
 	iterator it = m_data.get<TypeN>().find(tag);
 	if (it == m_data.get<TypeN>().end())
@@ -79,19 +91,13 @@ typename SelectIterator<TypeN>::type  Connection::dataWidgetFactory (QString con
 		typedef typename SelectConfig<TypeN>::type config_t;
 
 		QString const preset_name = getClosestPresetName<TypeN>(tag);
+		char const * preset_prefix = g_fileTags[TypeN];
 		QString const fname = getDataTagFileName(getConfig().m_appdir, getAppName(), preset_name, preset_prefix, tag);
 		
 		typedef typename SelectDockedData<TypeN, dockeddata_t>::type data_t;
 		typedef typename SelectDockedData<TypeN, dockeddataptr_t>::type dataptr_t;
 		QStringList path;
-		QString const & name0 = m_main_window->dockedName();
-		QString const & name1 = getAppName();
-		QString const & name2 = preset_prefix;
-		QString const & name3 = tag;
-		path.append(name0);
-		path.append(name1);
-		path.append(name2);
-		path.append(name3);
+		mkWidgetPath<TypeN>(tag, path);
 		dataptr_t const dd = new data_t(this, fname, path);
 		it = m_data.get<TypeN>().insert(tag, dd);
 
@@ -106,7 +112,7 @@ typename SelectIterator<TypeN>::type  Connection::dataWidgetFactory (QString con
 
 		dd->m_wd = m_main_window->m_dock_mgr.mkDockWidget(dwb, (*it)->config().m_show);
 		dwb.m_wd->setWidget(&(*it)->widget());
-		(*it)->widget().applyConfig();
+		//(*it)->widget().applyConfig(); handled by caller
 
 		bool const visible = (*it)->config().m_show;
 		//if (m_main_window->ganttState() == e_FtrEnabled && visible)
@@ -135,5 +141,83 @@ typename SelectIterator<TypeN>::type  Connection::dataWidgetFactory (QString con
 	}
 	return it;
 }
+
+template <int TypeN>
+bool Connection::dataWidgetConfigPreload (QString const tag, typename SelectConfig<TypeN>::type & config)
+{
+	typedef typename SelectWidget<TypeN>::type widget_t;
+	typedef typename SelectConfig<TypeN>::type config_t;
+
+	QString const preset_name = getClosestPresetName<TypeN>(tag);
+	char const * preset_prefix = g_fileTags[TypeN];
+	QString const fname = getDataTagFileName(getConfig().m_appdir, getAppName(), preset_name, preset_prefix, tag);
+	
+	if (!preset_name.isEmpty())
+	{
+		QString const cfg_path = getConfig().m_appdir + "/" + getAppName() + "/" + preset_name;
+		//bool const loaded = logs::loadConfig(m_config, logpath + "/" + m_config.m_tag);
+		//if (!loaded)
+		//	m_connection->defaultConfigFor(m_config);
+		//filterMgr()->loadConfig(logpath);
+		return ::loadConfigTemplate(config, cfg_path);
+	}
+	return false;
+}
+
+template <int TypeN>
+typename SelectIterator<TypeN>::type  Connection::dataWidgetFactoryFrom (QString const tag, typename SelectConfig<TypeN>::type const & config)
+{
+	typedef typename SelectIterator<TypeN>::type iterator;
+	iterator it = m_data.get<TypeN>().find(tag);
+	if (it == m_data.get<TypeN>().end())
+	{
+		qDebug("datawidget factory: creating type=%i with %s", TypeN, tag.toStdString().c_str());
+
+		typedef typename SelectWidget<TypeN>::type widget_t;
+		typedef typename SelectConfig<TypeN>::type config_t;
+
+		QString const preset_name = getClosestPresetName<TypeN>(tag);
+		char const * preset_prefix = g_fileTags[TypeN];
+		QString const fname = getDataTagFileName(getConfig().m_appdir, getAppName(), preset_name, preset_prefix, tag);
+		
+		typedef typename SelectDockedData<TypeN, dockeddata_t>::type data_t;
+		typedef typename SelectDockedData<TypeN, dockeddataptr_t>::type dataptr_t;
+		QStringList path;
+		mkWidgetPath<TypeN>(tag, path);
+		dataptr_t const dd = new data_t(this, fname, path, config);
+		it = m_data.get<TypeN>().insert(tag, dd);
+		dd->m_config.m_tag = tag;
+		DockedWidgetBase & dwb = *dd;;
+		dd->m_wd = m_main_window->m_dock_mgr.mkDockWidget(dwb, (*it)->config().m_show);
+		dwb.m_wd->setWidget(&(*it)->widget());
+		// no applyConfig here!
+
+		bool const visible = (*it)->config().m_show;
+		dd->m_wd->setVisible(visible);
+		dd->widget().setVisible(visible);
+		QModelIndex const item_idx = m_main_window->m_dock_mgr.addDockedTreeItem(dwb, visible);
+
+		if (visible)
+		{
+			dd->m_wd->setVisible(visible);
+			dd->widget().setVisible(visible);
+
+			bool const in_cw = (*it)->config().m_central_widget;
+			if (in_cw)
+				toCentralWidget(dd->m_wd, dd->m_widget, in_cw);
+			else
+				m_main_window->restoreDockWidget(dd->m_wd);
+		}
+		else
+		{
+			dd->m_wd->setVisible(false);
+			dd->widget().setVisible(false);
+			// @TODO: visible to data_tree?
+			// @TODO: visible to widget conf? probably not..
+		}
+	}
+	return it;
+}
+
 
 

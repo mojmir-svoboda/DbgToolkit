@@ -63,25 +63,46 @@ LogWidget * LogWidget::mkFindAllRefsLogWidget (FindConfig const & fc)
 		tag = fc.m_to_widget;
 	}
 
-	datalogs_t::iterator it = m_connection->dataWidgetFactory<e_data_log>(tag);
+	LogConfig cfg;
+	cfg.m_tag = tag;
+	bool const loaded = m_connection->dataWidgetConfigPreload<e_data_log>(tag, cfg);
+	if (!loaded)
+	{
+		cfg = m_config;	// inherit from parent widget if not loaded
+	}
+	cfg.m_tag = tag;
+	cfg.m_show = true;
+	cfg.m_central_widget = false;
+	cfg.m_filter_proxy = false;
+	cfg.m_find_proxy = true;
+	datalogs_t::iterator it = m_connection->dataWidgetFactoryFrom<e_data_log>(tag, cfg);
 
 	DataLog * dp = *it;
 	LogWidget & child = dp->widget();
 	child.linkToSource(this);
+	/* QString const logpath = preset_dir + "/" + g_presetLogTag;
+		m_config.clear();
+		bool const loaded = logs::loadConfig(m_config, logpath + "/" + m_config.m_tag);
+		if (!loaded)
+			m_connection->defaultConfigFor(m_config);
+		filterMgr()->loadConfig(logpath);*/
+	child.setupLogModel(m_src_model);
+	child.setFindProxyModel(fc);
 	return &child;
 }
 
 void LogWidget::setFindProxyModel (FindConfig const & fc)
 {
+	m_config.m_find_config = fc;
 	setModel(m_find_proxy_model);
+	m_find_proxy_model->force_update();
+	m_find_proxy_model->resizeToCfg();
+	resizeSections();
 	applyConfig();
 }
 
 void LogWidget::handleFindAction (FindConfig const & fc)
 {
-	//QModelIndexList results;
-	//findInWholeTable(fc, results);
-	
 	bool const select_only = !fc.m_refs && !fc.m_clone;
 
 	if (select_only)
@@ -94,17 +115,12 @@ void LogWidget::handleFindAction (FindConfig const & fc)
 		if (fc.m_refs)
 		{
 			result_widget = mkFindAllRefsLogWidget(fc);
-			result_widget->setupLogModel(m_src_model);
-			result_widget->setFindProxyModel(fc);
-			result_widget->applyConfig();
-			//result_widget->setFindProxy
 			// setup selection
 		}
 		else // clone
 		{
 			//result_widget = mkFindAllCloneLogWidget(fc);
 		}
-
 	}
 }
 

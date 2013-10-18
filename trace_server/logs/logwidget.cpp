@@ -121,6 +121,11 @@ namespace logs {
 		//applyConfig(m_config);
 	}
 
+	void LogWidget::setupNewLogModel ()
+	{
+		setupLogModel(0);
+	}
+
 	void LogWidget::setupLogModel (LogTableModel * linked_model)
 	{
 		LogTableModel * model = 0;
@@ -132,7 +137,6 @@ namespace logs {
 			QObject::disconnect(model, SIGNAL(rowsInserted(QModelIndex,int,int)), verticalHeader(), SLOT(sectionsInserted(QModelIndex,int,int)));
 		}
 
-		setModel(model);
 		m_src_model = model;
 
 		//m_proxy_selection = new QItemSelectionModel(m_proxy_model);
@@ -143,7 +147,6 @@ namespace logs {
 
 		m_find_proxy_model = new FindProxyModel(this, *this);
 		m_find_proxy_model->setSourceModel(m_src_model);
-		//setupFilteringProxy(filterMgr()->enabled() ? Qt::Checked : Qt::Unchecked);
 	}
 
 	void LogWidget::setupLogSelectionProxy ()
@@ -328,10 +331,9 @@ namespace logs {
 			m_proxy_model->resizeToCfg();
 		if (m_find_proxy_model)
 			m_find_proxy_model->resizeToCfg();
+
 		if (!isLinkedWidget())
-		{
-			setupFilteringProxy(filterMgr()->enabled() ? Qt::Checked : Qt::Unchecked);
-		}
+			setFilteringProxy(filterMgr()->enabled());
 
 		resizeSections();
 	}

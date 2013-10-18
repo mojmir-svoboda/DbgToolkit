@@ -105,6 +105,14 @@ struct DockedData : DockedWidgetBase
 		, m_confname(confname)
 	{ }
 
+	DockedData (Connection * parent, QString const & confname, QStringList const & dockpath, config_t const & cfg)
+		: DockedWidgetBase(dockpath)
+		, m_parent(parent)
+		, m_widget(0)
+		, m_config(cfg)
+		, m_confname(confname)
+	{ }
+
 	~DockedData ()
 	{
 		qDebug("%s this=0x%08x", __FUNCTION__, this);
@@ -164,6 +172,7 @@ struct DockedData : DockedWidgetBase
 struct DataLog : DockedData<e_data_log>
 {
 	DataLog (Connection * parent, QString const & confname, QStringList const & path);
+	DataLog (Connection * parent, QString const & confname, QStringList const & path, config_t const & cfg);
 	~DataLog ();
 };
 struct DataPlot : DockedData<e_data_plot>
@@ -260,13 +269,18 @@ public:
 	void requestTableActionSync (int sync_group, unsigned long long t, int cursorAction, Qt::KeyboardModifiers modifiers, QTableView const * source);
 
 	void defaultConfigFor (logs::LogConfig & config); // loads legacy registry defaults
+
+	// data widget creation functions:
+	template <int TypeN>
+	bool dataWidgetConfigPreload (QString const tag, typename SelectConfig<TypeN>::type & config);
 	template <int TypeN>
 	QString getClosestPresetName (QString const & tag);
-
 	template <int TypeN>
-	typename SelectIterator<TypeN>::type
-	dataWidgetFactory (QString const tag);
-
+	void mkWidgetPath (QString const tag, QStringList & path);
+	template <int TypeN>
+	typename SelectIterator<TypeN>::type dataWidgetFactory (QString const tag);
+	template <int TypeN>
+	typename SelectIterator<TypeN>::type dataWidgetFactoryFrom (QString const tag, typename SelectConfig<TypeN>::type const & config);
 
 signals:
 	void readyForUse();

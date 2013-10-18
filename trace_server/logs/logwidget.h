@@ -44,6 +44,7 @@ namespace logs {
 		FilterProxyModel const * logProxy () const { return m_proxy_model; }
 		bool isModelProxy () const;
 		void setupLogModel (LogTableModel * src_model);
+		void setupNewLogModel ();
 		void setupLogSelectionProxy ();
 		void linkToSource (LogWidget * src);
 		bool isLinkedWidget () const { return m_linked_parent != 0; }
@@ -57,12 +58,12 @@ namespace logs {
 		friend class FindProxyModel;
 
 		bool filterEnabled () const { return m_config.m_filtering; }
-		void setupFilteringProxy (int state);
 		int sizeHintForColumn (int column) const;
 		void normalizeConfig (logs::LogConfig & normalized);
 		void moveSectionsAccordingTo (logs::LogConfig const & cfg);
 		void resizeSections ();
 
+		void setFilteringProxy (bool on);
 		void setFindProxyModel (FindConfig const & fc);
 		void handleFindAction (FindConfig const & fc);
 		void findInWholeTable (FindConfig const & fc, QModelIndexList & result);

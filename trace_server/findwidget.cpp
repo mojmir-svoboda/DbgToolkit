@@ -103,6 +103,7 @@ void FindWidget::onFindAllRefs ()
 	{
 		mentionStringInHistory_Ref(str, m_ui->findBox, m_config.m_history);
 		m_config.m_refs = 1;
+		m_config.m_str = str;
 		Action a;
 		makeActionFind(str, a);
 		m_main_window->dockManager().handleAction(&a, e_Sync);

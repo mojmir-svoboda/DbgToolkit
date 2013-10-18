@@ -67,14 +67,25 @@ void LogWidget::syncSelection (QModelIndexList const & sel)
 	}
 }
 
-void LogWidget::setupFilteringProxy (int state)
+/*void LogWidget::setFindProxyModel (FindConfig const & fc)
+{
+	m_config.m_find_config = fc;
+	setModel(m_find_proxy_model);
+	m_find_proxy_model->force_update();
+	m_find_proxy_model->resizeToCfg();
+	resizeSections();
+	applyConfig();
+}*/
+
+
+void LogWidget::setFilteringProxy (bool on)
 {
 	QItemSelectionModel const * selection = selectionModel();
 	QModelIndexList indexes;
 	if (selection)
 		selection->selectedIndexes();
 
-	if (state == Qt::Unchecked)
+	if (!on)
 	{
 		QModelIndexList srcs;
 		if (m_proxy_model && indexes.size() > 0)
@@ -97,9 +108,10 @@ void LogWidget::setupFilteringProxy (int state)
 		for (int i = 0, ie = srcs.size(); i < ie; ++i)
 			selectionModel()->setCurrentIndex(srcs.at(i), QItemSelectionModel::Select);
 	}
-	else if (state == Qt::Checked)
+	else
 	{
 		setModel(m_proxy_model);
+		m_src_model->setProxy(m_proxy_model);
 		if (m_proxy_model)
 			m_proxy_model->setSourceModel(m_src_model);
 

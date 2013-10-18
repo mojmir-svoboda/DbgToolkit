@@ -1,3 +1,4 @@
+#pragma once
 #include <QRegExp>
 #include <string>
 #include <boost/serialization/string.hpp>

@@ -95,7 +95,13 @@ bool Connection::handleDataXYZCommand (DecodedCommand const & cmd, E_ReceiveMode
  
 dataplots_t::iterator Connection::findOrCreatePlot (QString const & tag)
 {
-	dataplots_t::iterator it = dataWidgetFactory<e_data_plot>(tag);
+	typedef SelectIterator<e_data_plot>::type iterator;
+	iterator it = m_data.get<e_data_plot>().find(tag);
+	if (it == m_data.get<e_data_plot>().end())
+	{
+		it = dataWidgetFactory<e_data_plot>(tag);
+		(*it)->widget().applyConfig();
+	}
 	return it;
 }
 
