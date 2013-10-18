@@ -67,19 +67,16 @@ class KBiAssociativeContainer
         }
     };
 
-
-template<typename T, typename U>
+    template<typename T, typename U>
     struct _iterator_impl_ctor<QMap<T, U>, T, U> : public QMap<T, U>::iterator
     {
         /* implicit */ _iterator_impl_ctor(const typename QMap<T, U>::iterator it)
             // Using internals here because I was too lazy to write my own iterator.
-          //: QMap<T, U>::iterator(static_cast<QMapData<T,U>::Node*>(it))
-		            : QMap<T, U>::iterator(it)
+          : QMap<T, U>::iterator(it)
         {
 
         }
     };
-
 public:
     typedef typename RightContainer::mapped_type left_type;
     typedef typename LeftContainer::mapped_type right_type;

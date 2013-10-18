@@ -32,7 +32,7 @@ class LogSelectionProxyModel : public KSelectionProxyModel
 	Q_OBJECT
 
 public:
-	explicit LogSelectionProxyModel (QAbstractItemModel * src, QItemSelectionModel * selection);
+	explicit LogSelectionProxyModel (QAbstractItemModel * src_model, QItemSelectionModel * selection);
 
 public slots:
 	//void force_update();

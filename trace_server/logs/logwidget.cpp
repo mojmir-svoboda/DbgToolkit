@@ -43,6 +43,7 @@ namespace logs {
 		, m_find_proxy_model(0)
 		, m_src_model(0)
 		, m_selection(0)
+		, m_kselection_model(0)
 		, m_src_selection(0)
 		, m_ctx_menu()
 		, m_actions()

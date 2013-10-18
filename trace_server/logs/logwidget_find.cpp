@@ -88,6 +88,15 @@ LogWidget * LogWidget::mkFindAllRefsLogWidget (FindConfig const & fc)
 		filterMgr()->loadConfig(logpath);*/
 	child.setupLogModel(m_src_model);
 	child.setFindProxyModel(fc);
+
+	
+
+	child.setSelectionModel(m_selection);
+	child.m_linked_parent->setSelectionModel(m_selection);
+	
+	//	m_src_selection = new QItemSelectionModel(m_src_model);
+//		setSelectionModel(m_src_selection);
+//		m_selection = new LogSelectionProxyModel(m_src_model, m_src_selection);
 	return &child;
 }
 

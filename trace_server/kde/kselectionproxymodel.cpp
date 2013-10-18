@@ -19,6 +19,21 @@
 
 #include "kselectionproxymodel.h"
 
+#include <QtCore/QStack>
+#include <QtCore/QStringList>
+#include <QtCore/QPointer>
+#include <QItemSelectionRange>
+
+#include "kmodelindexproxymapper.h"
+#include "kbihash_p.h"
+#include "kvoidpointerfactory_p.h"
+
+#include "kdebug.h"
+
+typedef KBiHash<QPersistentModelIndex, QModelIndex> SourceProxyIndexMapping;
+typedef KBiHash<void*, QModelIndex> ParentMapping;
+typedef KHash2Map<QPersistentModelIndex, int> SourceIndexProxyRowMapping;
+
 #define KDO(object) kDebug() << #object << object
 #define SON(object) object->setObjectName(#object)
 
@@ -384,7 +399,7 @@ QItemSelection kNormalizeSelection(QItemSelection selection)
     return stableNormalizeSelection(selection);
 }
 
-#if 0
+
 class KSelectionProxyModelPrivate
 {
 public:
@@ -591,7 +606,6 @@ public:
     };
     QVector<PendingSelectionChange> m_pendingSelectionChanges;
 };
-#endif
 
 void KSelectionProxyModelPrivate::emitContinuousRanges(const QModelIndex &sourceFirst, const QModelIndex &sourceLast,
                                                        const QModelIndex &proxyFirst, const QModelIndex &proxyLast)
@@ -2089,7 +2103,7 @@ void KSelectionProxyModel::setSourceModel(QAbstractItemModel *_sourceModel)
     d->resetInternalData();
     QAbstractProxyModel::setSourceModel(_sourceModel);
     if (_sourceModel) {
-        d->m_indexMapper = new KModelIndexProxyMapper(_sourceModel, const_cast<QAbstractItemModel *>(d->m_selectionModel.data()->model()), this);
+        d->m_indexMapper = new KModelIndexProxyMapper(_sourceModel, d->m_selectionModel.data()->model(), this);
         if (d->m_selectionModel.data()->hasSelection())
             d->selectionChanged(d->m_selectionModel.data()->selection(), QItemSelection());
 
@@ -2478,4 +2492,4 @@ QItemSelection KSelectionProxyModel::mapSelectionToSource(const QItemSelection& 
     return sourceSelection;
 }
 
-//#include "moc_kselectionproxymodel.cpp"
+#include "moc_kselectionproxymodel.cpp"

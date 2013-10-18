@@ -286,6 +286,7 @@ namespace logs {
 		FindProxyModel * m_find_proxy_model;
 		LogTableModel * m_src_model;
 		LogSelectionProxyModel * m_selection;
+		KLinkItemSelectionModel * m_kselection_model;
 		QItemSelectionModel * m_src_selection;
 		//QItemSelectionModel * m_proxy_selection;
 

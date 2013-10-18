@@ -24,7 +24,7 @@
 
 #include <QObject>
 
-//#include "kdeui_export.h"
+#include "kdeui_export.h"
 
 class QAbstractItemModel;
 class QModelIndex;
@@ -76,14 +76,14 @@ class KModelIndexProxyMapperPrivate;
  * @author Stephen Kelly <steveire@gmail.com>
  *
  */
-class KModelIndexProxyMapper : public QObject
+class KDEUI_EXPORT KModelIndexProxyMapper : public QObject
 {
   Q_OBJECT
 public:
   /**
    * Constructor
    */
-  KModelIndexProxyMapper( QAbstractItemModel *leftModel,  QAbstractItemModel *rightModel, QObject* parent = 0);
+  KModelIndexProxyMapper(const QAbstractItemModel *leftModel, const QAbstractItemModel *rightModel, QObject* parent = 0);
 
   ~KModelIndexProxyMapper();
 

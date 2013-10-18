@@ -94,6 +94,7 @@ set(trace_server_SOURCES
 
 	kde/kselectionproxymodel.cpp
 	kde/kmodelindexproxymapper.cpp
+	kde/klinkitemselectionmodel.cpp
 
 	connection_log.cpp
 	logs/logtablemodel.cpp
@@ -185,6 +186,7 @@ set(trace_server_HEADERS
 	kde/kmodelindexproxymapper.h
 	kde/kselectionproxymodel.h
 	kde/kvoidpointerfactory_p.h
+	kde/klinkitemselectionmodel.h
 
 	plot/curves.h
 	plot/plotwidget.h
