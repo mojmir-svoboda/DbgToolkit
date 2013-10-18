@@ -90,13 +90,11 @@ LogWidget * LogWidget::mkFindAllRefsLogWidget (FindConfig const & fc)
 	child.setFindProxyModel(fc);
 
 	
-
-	child.setSelectionModel(m_selection);
-	child.m_linked_parent->setSelectionModel(m_selection);
+	//child.setSelectionModel(m_selection);
+	//@FIXME: natvrdo m_proxy_model... spatne!
+	child.m_kselection_model = new KLinkItemSelectionModel(m_proxy_model, child.selectionModel());
+	setSelectionModel(child.m_kselection_model);
 	
-	//	m_src_selection = new QItemSelectionModel(m_src_model);
-//		setSelectionModel(m_src_selection);
-//		m_selection = new LogSelectionProxyModel(m_src_model, m_src_selection);
 	return &child;
 }
 
@@ -106,6 +104,8 @@ void LogWidget::setFindProxyModel (FindConfig const & fc)
 	setModel(m_find_proxy_model);
 	m_find_proxy_model->force_update();
 	m_find_proxy_model->resizeToCfg();
+	m_find_proxy_selection = new QItemSelectionModel(m_find_proxy_model);
+	setSelectionModel(m_find_proxy_selection);
 	resizeSections();
 	applyConfig();
 }

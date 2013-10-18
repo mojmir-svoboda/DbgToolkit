@@ -9,6 +9,7 @@
 #include "logctxmenu.h"
 #include "tagconfig.h"
 #include "logselectionproxymodel.h"
+#include <kde/klinkitemselectionmodel.h>
 #include <appdata.h>
 
 class Connection;
@@ -288,7 +289,8 @@ namespace logs {
 		LogSelectionProxyModel * m_selection;
 		KLinkItemSelectionModel * m_kselection_model;
 		QItemSelectionModel * m_src_selection;
-		//QItemSelectionModel * m_proxy_selection;
+		QItemSelectionModel * m_proxy_selection;
+		QItemSelectionModel * m_find_proxy_selection;
 
 		QMenu m_ctx_menu;
 		enum E_Actions {

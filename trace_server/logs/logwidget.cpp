@@ -45,6 +45,8 @@ namespace logs {
 		, m_selection(0)
 		, m_kselection_model(0)
 		, m_src_selection(0)
+		, m_proxy_selection(0)
+		, m_find_proxy_selection(0)
 		, m_ctx_menu()
 		, m_actions()
 		, m_last_clicked()
@@ -153,8 +155,10 @@ namespace logs {
 	void LogWidget::setupLogSelectionProxy ()
 	{
 		m_src_selection = new QItemSelectionModel(m_src_model);
-		setSelectionModel(m_src_selection);
-		m_selection = new LogSelectionProxyModel(m_src_model, m_src_selection);
+		m_proxy_selection = new QItemSelectionModel(m_proxy_model);
+		//setSelectionModel(m_src_selection);
+		//m_selection = new LogSelectionProxyModel(m_src_model, m_src_selection);
+		//m_kselection_model = new KLinkItemSelectionModel(m_src_model, m_);
 	}
 
 	LogWidget::~LogWidget ()
