@@ -50,6 +50,11 @@ void LogWidget::linkToSource (LogWidget * src)
 {
 	m_linked_parent = src;
 	src->registerLinkedLog(this);
+
+	/*setStyleSheet("QHeaderView::section, QHeaderView::section * {\
+		background-color: yellow\
+		border: 1px solid #6c6c6c;\
+	}");*/
 }
 
 LogWidget * LogWidget::mkFindAllRefsLogWidget (FindConfig const & fc)
@@ -88,12 +93,66 @@ LogWidget * LogWidget::mkFindAllRefsLogWidget (FindConfig const & fc)
 		filterMgr()->loadConfig(logpath);*/
 	child.setupLogModel(m_src_model);
 	child.setFindProxyModel(fc);
+	dp->m_wd->setStyleSheet("\
+			QHeaderView::section {\
+			background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,\
+											  stop:0 #616161, stop: 0.5 #505050,\
+											  stop: 0.6 #434343, stop:1 #656565);\
+			color: white;\
+			padding-left: 4px;\
+			border: 1px solid #6c6c6c;\
+		}");
 
-	
 	//child.setSelectionModel(m_selection);
 	//@FIXME: natvrdo m_proxy_model... spatne!
 	child.m_kselection_model = new KLinkItemSelectionModel(m_proxy_model, child.selectionModel());
 	setSelectionModel(child.m_kselection_model);
+	
+	return &child;
+}
+
+LogWidget * LogWidget::mkFindAllCloneLogWidget (FindConfig const & fc)
+{
+	QString tag;
+	if (fc.m_to_widget.isEmpty())
+		tag = "find_all_refs";
+	else
+	{
+		// @TODO: validate widget form: appname/foo
+		tag = fc.m_to_widget;
+	}
+
+	LogConfig cfg;
+	cfg.m_tag = tag;
+	bool const loaded = m_connection->dataWidgetConfigPreload<e_data_log>(tag, cfg);
+	if (!loaded)
+	{
+		cfg = m_config;	// inherit from parent widget if not loaded
+	}
+	cfg.m_tag = tag;
+	cfg.m_show = true;
+	cfg.m_central_widget = false;
+	cfg.m_filter_proxy = false;
+	cfg.m_find_proxy = false;
+	datalogs_t::iterator it = m_connection->dataWidgetFactoryFrom<e_data_log>(tag, cfg);
+
+	DataLog * dp = *it;
+	LogWidget & child = dp->widget();
+	//child.linkToSource(this);
+	/* QString const logpath = preset_dir + "/" + g_presetLogTag;
+		m_config.clear();
+		bool const loaded = logs::loadConfig(m_config, logpath + "/" + m_config.m_tag);
+		if (!loaded)
+			m_connection->defaultConfigFor(m_config);
+		filterMgr()->loadConfig(logpath);*/
+	LogTableModel * clone_model = m_src_model->cloneToNewModel();
+	child.setupLogModel(clone_model);
+	//child.setFindProxyModel(fc);
+
+	//child.setSelectionModel(m_selection);
+	//@FIXME: natvrdo m_proxy_model... spatne!
+	//child.m_kselection_model = new KLinkItemSelectionModel(m_proxy_model, child.selectionModel());
+	//setSelectionModel(child.m_kselection_model);
 	
 	return &child;
 }
@@ -128,7 +187,7 @@ void LogWidget::handleFindAction (FindConfig const & fc)
 		}
 		else // clone
 		{
-			//result_widget = mkFindAllCloneLogWidget(fc);
+			result_widget = mkFindAllCloneLogWidget(fc);
 		}
 	}
 }

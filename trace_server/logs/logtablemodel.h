@@ -53,19 +53,13 @@ struct BatchCmd {
 class LogTableModel : public TableModelView
 {
 public:
-	//explicit LogTableModel (QObject * parent, QVector<QString> & hhdr, QVector<int> & hsize);
-	//~TableModelView ();
-
 	explicit LogTableModel (QObject * parent, logs::LogWidget & lw);
 	~LogTableModel ();
 
-	//void transactionStart (int n);
-	//void appendCommand (DecodedCommand const & cmd);
 	void handleCommand (DecodedCommand const & cmd, E_ReceiveMode mode);
 	void commitCommands (E_ReceiveMode mode);
 	void appendCommand (tlv::StringCommand const & cmd);
 	//void appendCommandCSV (QAbstractProxyModel * filter, tlv::StringCommand const & cmd);
-	//void transactionCommit ();
 
 	//void emitLayoutChanged ();
 
@@ -81,6 +75,7 @@ public:
 	FilterState const & filterState () const { return m_filter_state; }
 
 	dcmds_t const & dcmds () { return m_dcmds; }
+	LogTableModel * cloneToNewModel ();
 
 signals:
 	

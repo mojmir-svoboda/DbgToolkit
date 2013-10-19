@@ -30,6 +30,7 @@ public slots:
 	void onFocusChanged (QWidget * old, QWidget * now);
 	void onReturnPressed ();
 	void onFindAllRefs ();
+	void onFindAllClone ();
 	void onActivate ();
 	
 protected:

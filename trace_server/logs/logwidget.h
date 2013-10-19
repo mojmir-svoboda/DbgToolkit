@@ -69,6 +69,7 @@ namespace logs {
 		void handleFindAction (FindConfig const & fc);
 		void findInWholeTable (FindConfig const & fc, QModelIndexList & result);
 		LogWidget * mkFindAllRefsLogWidget (FindConfig const & fc);
+		LogWidget * mkFindAllCloneLogWidget (FindConfig const & fc);
 		void registerLinkedLog (LogWidget * l);
 		void unregisterLinkedLog (LogWidget * l);
 

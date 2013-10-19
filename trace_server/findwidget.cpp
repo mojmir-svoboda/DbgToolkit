@@ -23,6 +23,7 @@ FindWidget::FindWidget (MainWindow * mw, QWidget * parent)
 	QLineEdit * le = m_ui->findBox->lineEdit();
 	connect(le, SIGNAL(returnPressed()), this, SLOT(onReturnPressed()));
 	connect(m_ui->refsButton, SIGNAL(clicked()), this, SLOT(onFindAllRefs()));
+	connect(m_ui->cloneButton, SIGNAL(clicked()), this, SLOT(onFindAllClone()));
 }
 
 FindWidget::~FindWidget ()
@@ -104,11 +105,29 @@ void FindWidget::onFindAllRefs ()
 		mentionStringInHistory_Ref(str, m_ui->findBox, m_config.m_history);
 		m_config.m_refs = 1;
 		m_config.m_str = str;
+		m_config.m_clone = 0;
 		Action a;
 		makeActionFind(str, a);
 		m_main_window->dockManager().handleAction(&a, e_Sync);
 	}
 }
+
+void FindWidget::onFindAllClone ()
+{
+	QString const str = m_ui->findBox->currentText();
+	if (!str.isEmpty())
+	{
+		mentionStringInHistory_Ref(str, m_ui->findBox, m_config.m_history);
+		m_config.m_refs = 1;
+		m_config.m_clone = 1;
+		m_config.m_str = str;
+		Action a;
+		makeActionFind(str, a);
+		m_main_window->dockManager().handleAction(&a, e_Sync);
+	}
+}
+
+
 
 void FindWidget::setConfigValuesToUI (FindConfig const & cfg)
 {

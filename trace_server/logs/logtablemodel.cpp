@@ -45,6 +45,22 @@ void LogTableModel::handleCommand (DecodedCommand const & cmd, E_ReceiveMode mod
 	}
 }
 
+LogTableModel * LogTableModel::cloneToNewModel ()
+{
+	LogTableModel * new_model = new LogTableModel(this, m_log_widget);
+	//tree_node_ptrs_t m_tree_node_ptrs;
+	new_model->m_rows = m_rows;
+	new_model->m_layers = m_layers;
+	new_model->m_rowTypes = m_rowTypes;
+	new_model->m_dcmds = m_dcmds;
+
+	new_model->m_row_times = m_row_times;
+	new_model->m_col_times = m_col_times;
+	new_model->m_rows = m_rows;
+	new_model->m_columnCount = m_columnCount;
+	return new_model;
+}
+
 void LogTableModel::commitBatchToModel ()
 {
 	int const rows = m_batch.m_rows.size();
@@ -77,7 +93,7 @@ void LogTableModel::commitBatchToModel ()
 	if (new_cols)
 	{
 		beginInsertColumns(QModelIndex(), cols_first, cols_last);
-		qDebug("mod  COL  beginInsertCols(%02i, %02i) ", cols_first, cols_last);
+		//qDebug("mod  COL  beginInsertCols(%02i, %02i) ", cols_first, cols_last);
 		insertColumns(cols_first, cols_last);
 		if (m_columnCount < cols_last + 1)
 			m_columnCount = cols_last + 1;
