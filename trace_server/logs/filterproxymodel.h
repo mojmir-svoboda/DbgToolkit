@@ -26,6 +26,7 @@
 #include <filters/file_filter.hpp>
 #include <filterstate.h>
 #include <table/baseproxymodel.h>
+#include "logtablemodel.h"
 
 class MainWindow;
 
@@ -40,6 +41,7 @@ public:
 
 	Qt::ItemFlags flags (QModelIndex const & index) const;
 	void resizeToCfg ();
+	void commitBatchToModel (int from, int to, BatchCmd const & batch);
 
 protected:
 

@@ -98,14 +98,13 @@ LogWidget * LogWidget::mkFindAllRefsLogWidget (FindConfig const & fc)
 			background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,\
 											  stop:0 #616161, stop: 0.5 #505050,\
 											  stop: 0.6 #434343, stop:1 #656565);\
-			color: white;\
+			color: yellow;\
 			padding-left: 4px;\
 			border: 1px solid #6c6c6c;\
 		}");
 
 	//child.setSelectionModel(m_selection);
-	//@FIXME: natvrdo m_proxy_model... spatne!
-	child.m_kselection_model = new KLinkItemSelectionModel(m_proxy_model, child.selectionModel());
+		child.m_kselection_model = new KLinkItemSelectionModel(model(), child.selectionModel());
 	setSelectionModel(child.m_kselection_model);
 	
 	return &child;

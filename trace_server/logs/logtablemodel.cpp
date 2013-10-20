@@ -2,8 +2,9 @@
 #include <QBrush>
 #include <QColor>
 #include <QAbstractProxyModel>
-#include "../connection.h"
+#include <connection.h>
 #include <trace_client/trace.h>
+#include "filterproxymodel.h"
 
 LogTableModel::LogTableModel (QObject * parent, logs::LogWidget & lw)
 	: TableModelView(parent, lw.m_config.m_columns_setup, lw.m_config.m_columns_sizes)
@@ -65,6 +66,8 @@ void LogTableModel::commitBatchToModel ()
 {
 	int const rows = m_batch.m_rows.size();
 	int const from = m_rows.size();
+	m_dcmds.reserve(from + rows);
+	m_rows.reserve(from + rows);
 	int const to = from + rows - 1;
 	beginInsertRows(QModelIndex(), from, to);
 	int cols = 0;
@@ -100,15 +103,9 @@ void LogTableModel::commitBatchToModel ()
 		endInsertColumns();
 	}
 
-	for (int i = 0, ie = m_batch.m_rows.size(); i < ie; ++i)
-	{
-		for (int ix = 0, ixe = 0 + m_batch.m_rows[i].size(); ix < ixe; ++ix)
-		{
-			QModelIndex const idx = index(i, ix, QModelIndex());
-			if (m_proxy)
-				m_proxy->setData(idx, m_rows[i][ix].m_value, Qt::EditRole);
-		}
-	}
+	FilterProxyModel * pxy = m_log_widget.m_proxy_model;
+	if (m_proxy)
+		pxy->commitBatchToModel(from, to + 1, m_batch);
 
 	m_batch.clear();
 }

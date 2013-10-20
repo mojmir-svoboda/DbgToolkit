@@ -298,20 +298,23 @@ void LogWidget::appendToLvlWidgets (FilteredLevel const & flt)
 
 void LogWidget::appendToLvlFilters (QString const & item)
 {
-	bool enabled = false;
-	E_LevelMode lvlmode = e_LvlInclude;
-	if (filterMgr()->getFilterLvl()->isLvlPresent(item, enabled, lvlmode))
-		return;
-
-	QStandardItem * root = filterMgr()->getFilterLvl()->m_model->invisibleRootItem();
-	QStandardItem * child = findChildByText(root, item);
-	if (child == 0)
+	if (filterMgr()->getFilterLvl())
 	{
-		QList<QStandardItem *> row_items = addTriRow(item, Qt::Checked, true);
-		row_items[0]->setCheckState(Qt::Checked);
-		root->appendRow(row_items);
-		filterMgr()->getFilterLvl()->m_ui->view->sortByColumn(0, Qt::AscendingOrder);
-		filterMgr()->getFilterLvl()->appendLvlFilter(item);
+		bool enabled = false;
+		E_LevelMode lvlmode = e_LvlInclude;
+		if (filterMgr()->getFilterLvl()->isLvlPresent(item, enabled, lvlmode))
+			return;
+
+		QStandardItem * root = filterMgr()->getFilterLvl()->m_model->invisibleRootItem();
+		QStandardItem * child = findChildByText(root, item);
+		if (child == 0)
+		{
+			QList<QStandardItem *> row_items = addTriRow(item, Qt::Checked, true);
+			row_items[0]->setCheckState(Qt::Checked);
+			root->appendRow(row_items);
+			filterMgr()->getFilterLvl()->m_ui->view->sortByColumn(0, Qt::AscendingOrder);
+			filterMgr()->getFilterLvl()->appendLvlFilter(item);
+		}
 	}
 }
 

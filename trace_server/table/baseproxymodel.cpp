@@ -79,7 +79,7 @@ void BaseProxyModel::insertCol (int c)
 		}
 	}
 	//qDebug("  pxy|  beginInsertCols^^^(%02i, %02i)", pos0, pos1);
-	beginInsertColumns(QModelIndex(), pos0, pos0);
+	beginInsertColumns(QModelIndex(), pos1, pos1);
 	m_cmap_from_src.insert(std::make_pair(c, pos1));
 
 	m_cmap_from_tgt.resize(m_cmap_from_src.size()); // ugh

@@ -475,10 +475,16 @@ QModelIndex DockTreeModel::insertItemWithPath (QStringList const & path, bool ch
 		//i.m_path = path;
 	
 		node_t * const n = m_tree_data->set_to_state(name, i);
+		QModelIndex const parent_idx = indexFromItem(n->parent);
+		beginInsertRows(parent_idx, 0, n->parent->count_childs() - 1);
 		n->data.m_path = path;
 
 		QModelIndex const idx = indexFromItem(n);
+		endInsertRows();
 		setData(idx, checked ? Qt::Checked : Qt::Unchecked, Qt::CheckStateRole);
+		//QModelIndex const parent_idx = idx.parent();
+		//if (parent_idx.isValid())
+		//	emit dataChanged(parent_idx, parent_idx);
 		return idx;
 	}
 }
