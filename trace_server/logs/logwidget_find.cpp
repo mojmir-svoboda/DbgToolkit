@@ -115,7 +115,14 @@ LogWidget * LogWidget::mkFindAllCloneLogWidget (FindConfig const & fc)
 {
 	QString tag;
 	if (fc.m_to_widget.isEmpty())
-		tag = "find_all_refs";
+	{
+		if (fc.m_refs)
+			tag = "find_all_refs";
+		else if (fc.m_clone)
+			tag = "find_all_clone";
+		else
+			tag = "noname";
+	}
 	else
 	{
 		// @TODO: validate widget form: appname/foo
@@ -147,6 +154,8 @@ LogWidget * LogWidget::mkFindAllCloneLogWidget (FindConfig const & fc)
 		filterMgr()->loadConfig(logpath);*/
 	LogTableModel * clone_model = m_src_model->cloneToNewModel();
 	child.setupLogModel(clone_model);
+	child.setSrcModel(fc);
+
 	//child.setFindProxyModel(fc);
 
 	//child.setSelectionModel(m_selection);
@@ -155,6 +164,17 @@ LogWidget * LogWidget::mkFindAllCloneLogWidget (FindConfig const & fc)
 	//setSelectionModel(child.m_kselection_model);
 	
 	return &child;
+}
+
+void LogWidget::setSrcModel (FindConfig const & fc)
+{
+	m_config.m_find_config = fc;
+	setModel(m_src_model);
+	m_src_model->resizeToCfg();
+	m_find_proxy_selection = new QItemSelectionModel(m_find_proxy_model);
+	setSelectionModel(m_src_selection);
+	resizeSections();
+	applyConfig();
 }
 
 void LogWidget::setFindProxyModel (FindConfig const & fc)

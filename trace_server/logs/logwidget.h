@@ -66,6 +66,7 @@ namespace logs {
 
 		void setFilteringProxy (bool on);
 		void setFindProxyModel (FindConfig const & fc);
+		void setSrcModel (FindConfig const & fc);
 		void handleFindAction (FindConfig const & fc);
 		void findInWholeTable (FindConfig const & fc, QModelIndexList & result);
 		LogWidget * mkFindAllRefsLogWidget (FindConfig const & fc);

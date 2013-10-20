@@ -118,7 +118,7 @@ void FindWidget::onFindAllClone ()
 	if (!str.isEmpty())
 	{
 		mentionStringInHistory_Ref(str, m_ui->findBox, m_config.m_history);
-		m_config.m_refs = 1;
+		m_config.m_refs = 0;
 		m_config.m_clone = 1;
 		m_config.m_str = str;
 		Action a;
