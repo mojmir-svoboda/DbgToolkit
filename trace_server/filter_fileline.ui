@@ -71,6 +71,9 @@
        <property name="editable">
         <bool>true</bool>
        </property>
+       <property name="frame">
+        <bool>false</bool>
+       </property>
       </widget>
      </item>
      <item row="0" column="1">

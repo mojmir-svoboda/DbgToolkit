@@ -6,22 +6,35 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>587</width>
-    <height>522</height>
+    <width>609</width>
+    <height>341</height>
    </rect>
   </property>
   <property name="floating">
    <bool>true</bool>
   </property>
   <property name="windowTitle">
-   <string>Log settings</string>
+   <string>Log Tools</string>
   </property>
   <widget class="QWidget" name="dockWidgetContents">
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
+     <layout class="QHBoxLayout" name="cacheLayout">
+      <property name="spacing">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+     </layout>
+    </item>
+    <item>
      <layout class="QHBoxLayout" name="horizontalLayout_3">
+      <property name="spacing">
+       <number>0</number>
+      </property>
       <property name="margin">
-       <number>6</number>
+       <number>0</number>
       </property>
       <item>
        <widget class="QListWidget" name="iconWidget">
@@ -41,10 +54,10 @@
          <number>0</number>
         </property>
         <property name="verticalScrollBarPolicy">
-         <enum>Qt::ScrollBarAsNeeded</enum>
+         <enum>Qt::ScrollBarAlwaysOff</enum>
         </property>
         <property name="horizontalScrollBarPolicy">
-         <enum>Qt::ScrollBarAsNeeded</enum>
+         <enum>Qt::ScrollBarAlwaysOff</enum>
         </property>
         <property name="alternatingRowColors">
          <bool>true</bool>
@@ -153,140 +166,20 @@
          <layout class="QVBoxLayout" name="verticalLayout_4">
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout">
+            <property name="spacing">
+             <number>0</number>
+            </property>
             <property name="topMargin">
-             <number>4</number>
+             <number>0</number>
             </property>
             <property name="rightMargin">
-             <number>6</number>
+             <number>0</number>
             </property>
             <property name="bottomMargin">
-             <number>5</number>
+             <number>0</number>
             </property>
             <item>
-             <widget class="QPushButton" name="findPrevButton">
-              <property name="maximumSize">
-               <size>
-                <width>24</width>
-                <height>16777215</height>
-               </size>
-              </property>
-              <property name="font">
-               <font>
-                <family>Verdana</family>
-                <pointsize>7</pointsize>
-               </font>
-              </property>
-              <property name="toolTip">
-               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Find previous occurence of the string&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-              </property>
-              <property name="text">
-               <string/>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QLabel" name="label_3">
-              <property name="font">
-               <font>
-                <family>Verdana</family>
-                <pointsize>7</pointsize>
-               </font>
-              </property>
-              <property name="text">
-               <string>Find</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QComboBox" name="qSearchComboBox">
-              <property name="minimumSize">
-               <size>
-                <width>128</width>
-                <height>0</height>
-               </size>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>128</width>
-                <height>16777215</height>
-               </size>
-              </property>
-              <property name="font">
-               <font>
-                <family>Verdana</family>
-                <pointsize>7</pointsize>
-               </font>
-              </property>
-              <property name="toolTip">
-               <string>search text in logged text</string>
-              </property>
-              <property name="editable">
-               <bool>true</bool>
-              </property>
-              <property name="maxVisibleItems">
-               <number>16</number>
-              </property>
-              <property name="frame">
-               <bool>false</bool>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="findNextButton">
-              <property name="maximumSize">
-               <size>
-                <width>24</width>
-                <height>16777215</height>
-               </size>
-              </property>
-              <property name="font">
-               <font>
-                <family>Verdana</family>
-                <pointsize>7</pointsize>
-               </font>
-              </property>
-              <property name="toolTip">
-               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Find next occurence of the string&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-              </property>
-              <property name="text">
-               <string/>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="findAllButton">
-              <property name="maximumSize">
-               <size>
-                <width>24</width>
-                <height>16777215</height>
-               </size>
-              </property>
-              <property name="font">
-               <font>
-                <family>Verdana</family>
-                <pointsize>7</pointsize>
-               </font>
-              </property>
-              <property name="toolTip">
-               <string>Selects all occurences of searched text at once</string>
-              </property>
-              <property name="text">
-               <string>All</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <spacer name="horizontalSpacer_3">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>40</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
+             <widget class="FindWidget" name="findWidget" native="true"/>
             </item>
            </layout>
           </item>
@@ -846,6 +739,12 @@ p, li { white-space: pre-wrap; }
    <class>FilterMgr</class>
    <extends>QWidget</extends>
    <header location="global">filtermgr.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>FindWidget</class>
+   <extends>QWidget</extends>
+   <header location="global">findwidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

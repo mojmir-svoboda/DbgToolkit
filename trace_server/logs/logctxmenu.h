@@ -24,18 +24,6 @@ namespace logs {
 		{
 			m_widget->setVisible(false);
 			m_ui->setupUi(m_widget);
-
-	connect(m_ui->qSearchComboBox->lineEdit(), SIGNAL(editingFinished()), this, SLOT(onQSearchEditingFinished()));
-	connect(m_ui->qSearchComboBox, SIGNAL(activated(QString const &)), this, SLOT(onQSearchEditingFinished()));
-
-	connect(m_ui->findAllButton, SIGNAL(clicked()), this, SLOT(onFindAllButton()));
-	connect(m_ui->findNextButton, SIGNAL(clicked()), this, SLOT(onEditFindNext()));
-	connect(m_ui->findPrevButton, SIGNAL(clicked()), this, SLOT(onEditFindPrev()));
-
-	QStyle const * const style = QApplication::style();
-	m_ui->findNextButton->setIcon(style->standardIcon(QStyle::SP_ArrowForward));
-	m_ui->findPrevButton->setIcon(style->standardIcon(QStyle::SP_ArrowBack));
-
 		}
 
 		void onInViewStateChanged (int state)

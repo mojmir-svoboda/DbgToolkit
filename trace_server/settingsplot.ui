@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>559</width>
-    <height>298</height>
+    <width>555</width>
+    <height>290</height>
    </rect>
   </property>
   <property name="font">
@@ -31,6 +31,42 @@
      <number>1</number>
     </property>
     <item>
+     <layout class="QHBoxLayout" name="cacheLayout" stretch="0,0">
+      <property name="spacing">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
+      <item>
+       <widget class="QPushButton" name="pushButton">
+        <property name="text">
+         <string>AutoScale</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer_3">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </item>
+    <item>
      <layout class="QHBoxLayout" name="horizontalLayout">
       <property name="margin">
        <number>6</number>
@@ -39,12 +75,12 @@
        <widget class="QListWidget" name="iconWidget">
         <property name="maximumSize">
          <size>
-          <width>16777215</width>
+          <width>64</width>
           <height>16777215</height>
          </size>
         </property>
         <property name="frameShape">
-         <enum>QFrame::StyledPanel</enum>
+         <enum>QFrame::NoFrame</enum>
         </property>
         <property name="frameShadow">
          <enum>QFrame::Plain</enum>
@@ -58,6 +94,9 @@
         <property name="horizontalScrollBarPolicy">
          <enum>Qt::ScrollBarAlwaysOff</enum>
         </property>
+        <property name="alternatingRowColors">
+         <bool>true</bool>
+        </property>
         <property name="iconSize">
          <size>
           <width>48</width>
@@ -65,18 +104,33 @@
          </size>
         </property>
         <property name="flow">
-         <enum>QListView::LeftToRight</enum>
+         <enum>QListView::TopToBottom</enum>
+        </property>
+        <property name="isWrapping" stdset="0">
+         <bool>true</bool>
+        </property>
+        <property name="resizeMode">
+         <enum>QListView::Adjust</enum>
+        </property>
+        <property name="gridSize">
+         <size>
+          <width>64</width>
+          <height>64</height>
+         </size>
         </property>
         <property name="viewMode">
          <enum>QListView::IconMode</enum>
+        </property>
+        <property name="uniformItemSizes">
+         <bool>true</bool>
         </property>
         <item>
          <property name="text">
           <string>Find</string>
          </property>
          <property name="icon">
-          <iconset>
-           <normaloff>:/images/find.ico</normaloff>:/images/find.ico</iconset>
+          <iconset resource="resources.qrc">
+           <normaloff>:/images/find.png</normaloff>:/images/find.png</iconset>
          </property>
         </item>
         <item>
@@ -84,8 +138,8 @@
           <string>Filter</string>
          </property>
          <property name="icon">
-          <iconset>
-           <normaloff>:/images/filter.ico</normaloff>:/images/filter.ico</iconset>
+          <iconset resource="resources.qrc">
+           <normaloff>:/images/filter.png</normaloff>:/images/filter.png</iconset>
          </property>
         </item>
         <item>
@@ -93,8 +147,8 @@
           <string>Tools</string>
          </property>
          <property name="icon">
-          <iconset>
-           <normaloff>:/images/tools.ico</normaloff>:/images/tools.ico</iconset>
+          <iconset resource="resources.qrc">
+           <normaloff>:/images/tools.png</normaloff>:/images/tools.png</iconset>
          </property>
         </item>
         <item>
@@ -102,8 +156,8 @@
           <string>View</string>
          </property>
          <property name="icon">
-          <iconset>
-           <normaloff>:/images/view.ico</normaloff>:/images/view.ico</iconset>
+          <iconset resource="resources.qrc">
+           <normaloff>:/images/view.png</normaloff>:/images/view.png</iconset>
          </property>
         </item>
        </widget>
@@ -111,7 +165,7 @@
       <item>
        <widget class="QStackedWidget" name="stackedWidget">
         <property name="currentIndex">
-         <number>1</number>
+         <number>2</number>
         </property>
         <widget class="QWidget" name="findPage"/>
         <widget class="QWidget" name="filterPage">
@@ -256,7 +310,7 @@
              <enum>QTabWidget::Triangular</enum>
             </property>
             <property name="currentIndex">
-             <number>0</number>
+             <number>1</number>
             </property>
             <property name="documentMode">
              <bool>true</bool>
@@ -935,7 +989,9 @@
    <container>1</container>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="resources.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>iconWidget</sender>

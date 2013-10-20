@@ -506,19 +506,6 @@ p, li { white-space: pre-wrap; }
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="label_6">
-        <property name="font">
-         <font>
-          <family>Verdana</family>
-          <pointsize>7</pointsize>
-         </font>
-        </property>
-        <property name="text">
-         <string>Ctrl</string>
-        </property>
-       </widget>
-      </item>
-      <item>
        <widget class="QCheckBox" name="buffCheckBox">
         <property name="font">
          <font>
@@ -540,6 +527,19 @@ p, li { white-space: pre-wrap; }
         </property>
         <property name="checked">
          <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="label_3">
+        <property name="font">
+         <font>
+          <family>Verdana</family>
+          <pointsize>7</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>Level</string>
         </property>
        </widget>
       </item>

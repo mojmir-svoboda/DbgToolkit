@@ -85,6 +85,7 @@ namespace logs {
 
 
 		QStyle const * const style = QApplication::style();
+		m_config_ui.ui()->findWidget->setMainWindow(m_connection->getMainWindow());
 		connect(m_config_ui.ui()->gotoNextButton, SIGNAL(clicked()), this, SLOT(onNextToView()));
 		m_config_ui.ui()->gotoNextButton->setIcon(style->standardIcon(QStyle::SP_ArrowDown));
 		//connect(ui->autoScrollCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onAutoScrollStateChanged(int)));

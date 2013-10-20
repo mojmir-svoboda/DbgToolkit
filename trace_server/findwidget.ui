@@ -10,15 +10,21 @@
     <height>51</height>
    </rect>
   </property>
+  <property name="focusPolicy">
+   <enum>Qt::TabFocus</enum>
+  </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string>FindBox</string>
   </property>
   <property name="autoFillBackground">
-   <bool>true</bool>
+   <bool>false</bool>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">border-color: rgb(0, 0, 0);</string>
   </property>
   <layout class="QGridLayout" name="gridLayout_2">
    <property name="margin">
-    <number>2</number>
+    <number>0</number>
    </property>
    <property name="spacing">
     <number>0</number>
@@ -123,6 +129,9 @@
          <height>16777215</height>
         </size>
        </property>
+       <property name="toolTip">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Cancels the find action&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
        <property name="text">
         <string/>
        </property>
@@ -136,8 +145,17 @@
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
+       <property name="toolTip">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enter text to find...&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
        <property name="editable">
         <bool>true</bool>
+       </property>
+       <property name="maxVisibleItems">
+        <number>16</number>
+       </property>
+       <property name="frame">
+        <bool>false</bool>
        </property>
       </widget>
      </item>
@@ -149,8 +167,11 @@
          <height>16777215</height>
         </size>
        </property>
+       <property name="toolTip">
+        <string>Find previous</string>
+       </property>
        <property name="text">
-        <string>&lt;-</string>
+        <string/>
        </property>
       </widget>
      </item>
@@ -162,16 +183,25 @@
          <height>16777215</height>
         </size>
        </property>
+       <property name="toolTip">
+        <string>Find next</string>
+       </property>
        <property name="text">
-        <string>-&gt;</string>
+        <string/>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="allRefsCurrentButton">
-       <property name="maximumSize">
+      <widget class="QPushButton" name="selectButton">
+       <property name="minimumSize">
         <size>
          <width>32</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>36</width>
          <height>16777215</height>
         </size>
        </property>
@@ -179,7 +209,7 @@
         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;selects all occurences in current document&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
        <property name="text">
-        <string>All</string>
+        <string>Select</string>
        </property>
       </widget>
      </item>
@@ -192,7 +222,7 @@
         </size>
        </property>
        <property name="toolTip">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;lists all references in new window&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Lists all occurences as references in a new widget. &lt;/p&gt;&lt;p&gt;New widget shares the data with original and propagates selection to source widget.&lt;/p&gt;&lt;p&gt;New widget will be closed if the source widget is closed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
        <property name="text">
         <string>Refs</string>
@@ -208,7 +238,7 @@
         </size>
        </property>
        <property name="toolTip">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;clones all occurences into new window&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Clones all occurences in a new widget. &lt;/p&gt;&lt;p&gt;New widget does &lt;span style=&quot; font-weight:600;&quot;&gt;NOT&lt;/span&gt; share the data with original, so it can be treated independently of source widget.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
        <property name="text">
         <string>Clone</string>

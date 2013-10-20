@@ -16,6 +16,7 @@ class FindWidget : public QWidget
 	
 public:
 	explicit FindWidget (MainWindow * mw, QWidget * parent = 0);
+	FindWidget (QWidget * parent = 0);
 	~FindWidget();
 
 	FindConfig & getConfig () { return m_config; }
@@ -23,6 +24,7 @@ public:
 	void applyConfig (FindConfig & cfg);
 	void applyConfig ();
 	void find ();
+	void setMainWindow (MainWindow * mw) { m_main_window = mw; }
 
 public slots:
 	void onCancel ();
@@ -34,9 +36,11 @@ public slots:
 	void onActivate ();
 	
 protected:
+	void init ();
 	void setConfigValuesToUI (FindConfig const & cfg);
 	void setUIValuesToConfig (FindConfig & cfg);
 	void makeActionFind (QString const & str, Action & a);
+	bool isMovingFindWidget () const { return m_moving_widget; }
 
 private:
 	friend class MainWindow;
@@ -44,5 +48,6 @@ private:
 	MainWindow *		m_main_window;
 	FindConfig			m_config;
 	DockedWidgetBase *	m_dwb;
+	bool				m_moving_widget;
 };
 

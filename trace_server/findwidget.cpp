@@ -6,25 +6,45 @@
 #include <QComboBox>
 #include <QLineEdit>
 
+void FindWidget::init ()
+{
+	m_ui->setupUi(this);
+
+	QStyle const * const style = QApplication::style();
+	m_ui->cancelButton->setIcon(style->standardIcon(QStyle::SP_DockWidgetCloseButton));
+	m_ui->nextButton->setIcon(style->standardIcon(QStyle::SP_ArrowForward));
+	m_ui->prevButton->setIcon(style->standardIcon(QStyle::SP_ArrowBack));
+	//connect(m_ui->findBox, SIGNAL(editTextChanged(QString)), this, SLOT(onEditTextChanged(QString)));
+
+	QLineEdit * le = m_ui->findBox->lineEdit();
+	connect(le, SIGNAL(returnPressed()), this, SLOT(onReturnPressed()));
+	connect(m_ui->refsButton, SIGNAL(clicked()), this, SLOT(onFindAllRefs()));
+	connect(m_ui->cloneButton, SIGNAL(clicked()), this, SLOT(onFindAllClone()));
+	connect(m_ui->cancelButton, SIGNAL(clicked()), this, SLOT(onCancel()));
+
+}
+
 FindWidget::FindWidget (MainWindow * mw, QWidget * parent)
 	: QWidget(parent)
 	, m_ui(new Ui::FindWidget)
 	, m_main_window(mw)
 	, m_dwb(0)
+	, m_moving_widget(true)
 {
 	hide();
-	m_ui->setupUi(this);
-
-	QStyle const * const style = QApplication::style();
-	QIcon icon(style->standardIcon(QStyle::SP_DockWidgetCloseButton));
-	m_ui->cancelButton->setIcon(icon);
-	connect(m_ui->cancelButton, SIGNAL(clicked()), this, SLOT(onCancel()));
-	//connect(m_ui->findBox, SIGNAL(editTextChanged(QString)), this, SLOT(onEditTextChanged(QString)));
-	QLineEdit * le = m_ui->findBox->lineEdit();
-	connect(le, SIGNAL(returnPressed()), this, SLOT(onReturnPressed()));
-	connect(m_ui->refsButton, SIGNAL(clicked()), this, SLOT(onFindAllRefs()));
-	connect(m_ui->cloneButton, SIGNAL(clicked()), this, SLOT(onFindAllClone()));
+	init();
 }
+
+FindWidget::FindWidget (QWidget * parent) // widget coming from Qt creator
+	: QWidget(parent)
+	, m_ui(new Ui::FindWidget)
+	, m_main_window(0)
+	, m_dwb(0)
+	, m_moving_widget(false)
+{
+	init();
+}
+
 
 FindWidget::~FindWidget ()
 {
@@ -45,9 +65,15 @@ void FindWidget::applyConfig ()
 
 void FindWidget::onCancel ()
 {
-	hide();
-	setParent(m_main_window);
-	move(0,0);
+	if (isMovingFindWidget())
+	{
+		hide();
+		setParent(m_main_window);
+		move(0,0);
+	}
+	else
+	{
+	}
 }
 
 void FindWidget::onActivate ()
