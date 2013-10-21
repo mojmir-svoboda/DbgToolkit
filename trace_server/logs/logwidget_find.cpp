@@ -50,11 +50,6 @@ void LogWidget::linkToSource (LogWidget * src)
 {
 	m_linked_parent = src;
 	src->registerLinkedLog(this);
-
-	/*setStyleSheet("QHeaderView::section, QHeaderView::section * {\
-		background-color: yellow\
-		border: 1px solid #6c6c6c;\
-	}");*/
 }
 
 LogWidget * LogWidget::mkFindAllRefsLogWidget (FindConfig const & fc)
@@ -104,7 +99,7 @@ LogWidget * LogWidget::mkFindAllRefsLogWidget (FindConfig const & fc)
 		}");
 
 	//child.setSelectionModel(m_selection);
-		child.m_kselection_model = new KLinkItemSelectionModel(model(), child.selectionModel());
+	child.m_kselection_model = new KLinkItemSelectionModel(model(), child.selectionModel());
 	setSelectionModel(child.m_kselection_model);
 	
 	return &child;
@@ -188,13 +183,34 @@ void LogWidget::setFindProxyModel (FindConfig const & fc)
 	applyConfig();
 }
 
+void LogWidget::findAndSelect (FindConfig const & fc)
+{
+	QModelIndex start = model()->index(0, 0);
+
+	QModelIndexList indexes = model()->match(start, Qt::DisplayRole, QVariant(fc.m_str), -1, Qt::MatchFixedString);
+
+	QItemSelectionModel * selection_model = selectionModel();
+
+	QItemSelection selection;
+
+	foreach(QModelIndex index, indexes) {
+
+		QModelIndex left = model()->index(index.row(), 0);
+		QModelIndex right = model()->index(index.row(), model()->columnCount() - 1);
+
+		QItemSelection sel(left, right);
+		selection.merge(sel, QItemSelectionModel::Select);
+	}
+	selection_model->select(selection, QItemSelectionModel::Select);
+}
+
 void LogWidget::handleFindAction (FindConfig const & fc)
 {
 	bool const select_only = !fc.m_refs && !fc.m_clone;
 
 	if (select_only)
 	{
-		// select(results);
+		findAndSelect(fc);
 	}
 	else
 	{
@@ -202,7 +218,6 @@ void LogWidget::handleFindAction (FindConfig const & fc)
 		if (fc.m_refs)
 		{
 			result_widget = mkFindAllRefsLogWidget(fc);
-			// setup selection
 		}
 		else // clone
 		{

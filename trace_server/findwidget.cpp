@@ -18,6 +18,7 @@ void FindWidget::init ()
 
 	QLineEdit * le = m_ui->findBox->lineEdit();
 	connect(le, SIGNAL(returnPressed()), this, SLOT(onReturnPressed()));
+	connect(m_ui->selectButton, SIGNAL(clicked()), this, SLOT(onFindAllSelect()));
 	connect(m_ui->refsButton, SIGNAL(clicked()), this, SLOT(onFindAllRefs()));
 	connect(m_ui->cloneButton, SIGNAL(clicked()), this, SLOT(onFindAllClone()));
 	connect(m_ui->cancelButton, SIGNAL(clicked()), this, SLOT(onCancel()));
@@ -103,6 +104,7 @@ void FindWidget::find ()
 
 void FindWidget::onReturnPressed ()
 {
+	//@TODO
 	//m_config.saveHistory();
 }
 
@@ -123,37 +125,44 @@ void FindWidget::makeActionFind (QString const & str, Action & a)
 	a.m_args.push_back(fc);
 }
 
-void FindWidget::onFindAllRefs ()
+void FindWidget::find (bool select, bool refs, bool clone)
 {
 	QString const str = m_ui->findBox->currentText();
 	if (!str.isEmpty())
 	{
 		mentionStringInHistory_Ref(str, m_ui->findBox, m_config.m_history);
-		m_config.m_refs = 1;
+		setUIValuesToConfig(m_config);
+		m_config.m_refs = refs;
+		m_config.m_clone = clone;
 		m_config.m_str = str;
-		m_config.m_clone = 0;
 		Action a;
 		makeActionFind(str, a);
 		m_main_window->dockManager().handleAction(&a, e_Sync);
 	}
+}
+
+void FindWidget::onFindAllRefs ()
+{
+	find(0, 1, 0);
 }
 
 void FindWidget::onFindAllClone ()
 {
-	QString const str = m_ui->findBox->currentText();
-	if (!str.isEmpty())
-	{
-		mentionStringInHistory_Ref(str, m_ui->findBox, m_config.m_history);
-		m_config.m_refs = 0;
-		m_config.m_clone = 1;
-		m_config.m_str = str;
-		Action a;
-		makeActionFind(str, a);
-		m_main_window->dockManager().handleAction(&a, e_Sync);
-	}
+	find(0, 0, 1);
 }
 
+void FindWidget::onFindAllSelect ()
+{
+	find(1, 0, 0);
+}
 
+void FindWidget::onFindNext ()
+{
+}
+
+void FindWidget::onFindPrev ()
+{
+}
 
 void FindWidget::setConfigValuesToUI (FindConfig const & cfg)
 {

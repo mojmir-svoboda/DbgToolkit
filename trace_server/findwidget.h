@@ -33,10 +33,14 @@ public slots:
 	void onReturnPressed ();
 	void onFindAllRefs ();
 	void onFindAllClone ();
+	void onFindAllSelect ();
+	void onFindNext ();
+	void onFindPrev ();
 	void onActivate ();
 	
 protected:
 	void init ();
+	void find (bool select, bool refs, bool clone);
 	void setConfigValuesToUI (FindConfig const & cfg);
 	void setUIValuesToConfig (FindConfig & cfg);
 	void makeActionFind (QString const & str, Action & a);

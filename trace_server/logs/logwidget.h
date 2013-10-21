@@ -73,6 +73,7 @@ namespace logs {
 		LogWidget * mkFindAllCloneLogWidget (FindConfig const & fc);
 		void registerLinkedLog (LogWidget * l);
 		void unregisterLinkedLog (LogWidget * l);
+		void findAndSelect (FindConfig const & fc);
 
 
 	void setupSeparatorChar (QString const & c);
