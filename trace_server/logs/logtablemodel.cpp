@@ -62,7 +62,7 @@ LogTableModel * LogTableModel::cloneToNewModel ()
 	return new_model;
 }
 
-LogTableModel * LogTableModel::cloneToNewModel (FindConfig & fc)
+LogTableModel * LogTableModel::cloneToNewModel (FindConfig const & fc)
 {
 	LogTableModel * new_model = new LogTableModel(this, m_log_widget);
 	for (size_t r = 0, re = m_rows.size(); r < re; ++r)

@@ -77,7 +77,7 @@ public:
 
 	dcmds_t const & dcmds () { return m_dcmds; }
 	LogTableModel * cloneToNewModel ();
-	LogTableModel * cloneToNewModel (FindConfig & fc);
+	LogTableModel * cloneToNewModel (FindConfig const & fc);
 
 signals:
 	

@@ -48,6 +48,8 @@ protected:
 	void setUIValuesToConfig (FindConfig & cfg);
 	void makeActionFind (QString const & str, Action & a);
 	bool isMovingFindWidget () const { return m_moving_widget; }
+	void signalRegexpState (E_ExprState state, QString const & reason);
+	void resetRegexpState ();
 
 private:
 	friend class MainWindow;

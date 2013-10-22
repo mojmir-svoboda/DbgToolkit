@@ -39,6 +39,12 @@ enum E_FilterMode {
 	, e_Exclude
 	, e_max_fltmod_enum_value
 };
+
+enum E_ExprState {
+	  e_ExprInvalid
+	, e_ExprValid
+};
+
 static char fltmods[e_max_fltmod_enum_value] = { 'I', 'E' };
 static char const * fltmodsStr[e_max_fltmod_enum_value] = { "Include", "Exclude" };
 inline char fltModToString (E_FilterMode l) { return fltmods[l]; }

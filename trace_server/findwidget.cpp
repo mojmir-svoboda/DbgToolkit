@@ -14,7 +14,7 @@ void FindWidget::init ()
 	m_ui->cancelButton->setIcon(style->standardIcon(QStyle::SP_DockWidgetCloseButton));
 	m_ui->nextButton->setIcon(style->standardIcon(QStyle::SP_ArrowForward));
 	m_ui->prevButton->setIcon(style->standardIcon(QStyle::SP_ArrowBack));
-	//connect(m_ui->findBox, SIGNAL(editTextChanged(QString)), this, SLOT(onEditTextChanged(QString)));
+	connect(m_ui->findBox, SIGNAL(editTextChanged(QString)), this, SLOT(onEditTextChanged(QString)));
 
 	QLineEdit * le = m_ui->findBox->lineEdit();
 	connect(le, SIGNAL(returnPressed()), this, SLOT(onReturnPressed()));
@@ -89,6 +89,7 @@ void FindWidget::onActivate ()
 
 void FindWidget::onEditTextChanged (QString str)
 {
+	resetRegexpState();
 	//qDebug("find!");
 }
 
@@ -127,6 +128,35 @@ void FindWidget::onFocusChanged (QWidget * old, QWidget * now)
 	//m_find_widget->onFocusChanged(old, now);
 }
 
+void FindWidget::resetRegexpState ()
+{
+	m_ui->findBox->setStyleSheet("");
+	m_ui->findBox->setToolTip("");
+}
+
+void FindWidget::signalRegexpState (E_ExprState state, QString const & reason)
+{
+	if (state == e_ExprInvalid)
+	{
+		m_ui->findBox->setStyleSheet(
+			"QComboBox {\
+				 border: 1px solid red;\
+				 border-radius: 3px;\
+			}");
+
+		m_ui->findBox->setToolTip(reason);
+	}
+	else
+	{
+		m_ui->findBox->setStyleSheet(
+			"QComboBox {\
+				 border: 1px solid green;\
+				 border-radius: 3px;\
+			}");
+		m_ui->findBox->setToolTip("");
+	}
+}
+
 void FindWidget::makeActionFind (QString const & str, Action & a)
 {
 	a.m_type = e_Find;
@@ -150,9 +180,24 @@ void FindWidget::find (bool select, bool refs, bool clone)
 		m_config.m_refs = refs;
 		m_config.m_clone = clone;
 		m_config.m_str = str;
+		if (m_config.m_regexp)
+		{
+			m_config.m_regexp_val = QRegExp(m_config.m_str);
+			if (m_config.m_regexp_val.isValid())
+			{
+				signalRegexpState(e_ExprValid, "");
+			}
+			else
+			{
+				QString const & reason = m_config.m_regexp_val.errorString();
+				signalRegexpState(e_ExprInvalid, QString("regexp failed: ") + reason);
+				return;
+			}
+		}
 		Action a;
 		makeActionFind(str, a);
 		m_main_window->dockManager().handleAction(&a, e_Sync);
+		QTimer::singleShot(250, this, SLOT(resetRegexpState()));
 	}
 }
 
@@ -165,6 +210,7 @@ void FindWidget::findAndGo (bool prev, bool next)
 		setUIValuesToConfig(m_config);
 		m_config.m_next = next;
 		m_config.m_prev = prev;
+		m_config.m_select = 1;
 		m_config.m_refs = 0;
 		m_config.m_clone = 0;
 		m_config.m_str = str;

@@ -203,7 +203,6 @@ void LogWidget::handleFindAction (FindConfig const & fc)
 
 	if (fc.m_regexp)
 	{
-		fc.m_regexp_val = QRegExp(fc.m_str);
 		if (fc.m_regexp_val.isEmpty())
 			return;
 		if (!fc.m_regexp_val.isValid())
