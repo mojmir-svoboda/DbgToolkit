@@ -711,7 +711,11 @@ void LogWidget::commitCommands (E_ReceiveMode mode)
 		m_src_model->handleCommand(cmd, mode);
 		appendToFilters(cmd);
 	}
-	m_src_model->commitCommands(mode);
+	if (m_queue.size())
+	{
+		m_src_model->commitCommands(mode);
+		m_queue.clear();
+	}
 }
 
 void LogWidget::handleCommand (DecodedCommand const & cmd, E_ReceiveMode mode)
