@@ -145,11 +145,12 @@ public:
 
 	
 	// drag and drop
-	void changeEvent (QEvent* e);
+	void changeEvent (QEvent * e);
 	void dropEvent (QDropEvent * event);
-	void dragEnterEvent (QDragEnterEvent *event);
+	void dragEnterEvent (QDragEnterEvent * event);
 	bool eventFilter (QObject * o, QEvent * e);
 	void keyPressEvent (QKeyEvent * e);
+	bool handleTab (QKeyEvent * e);
 
 	//OBS Server const * getServer () const { return m_server; }
 	//OBS Server * getServer () { return m_server; }

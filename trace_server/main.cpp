@@ -4,6 +4,7 @@
 #include <QMessageBox>
 #include <QThread>
 #include <QAbstractNativeEventFilter>
+#include <QKeyEvent>
 #include "mainwindow.h"
 #include <sysfn/os.h>
 #include <sysfn/time_query.h>
@@ -54,6 +55,20 @@ struct Application : QApplication, public QAbstractNativeEventFilter
 		return false;	
 	}
 #endif
+
+	virtual bool notify (QObject * receiver, QEvent * e)
+	{
+		if (e->type() == QKeyEvent::KeyPress)
+		{
+			QKeyEvent * ke = static_cast<QKeyEvent *>(e);
+			if (ke->key() == Qt::Key_Tab)
+			{
+				if (m_main_window->handleTab(ke))
+					return true;
+			}
+		}
+		return QApplication::notify(receiver, e);
+	}
 };
 
 void usage ()

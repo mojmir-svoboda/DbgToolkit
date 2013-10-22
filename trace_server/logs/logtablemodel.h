@@ -26,6 +26,7 @@
 #include <tlv_parser/tlv_cmd_qstring.h>
 #include <table/tablemodelview.h>
 #include <filterstate.h>
+#include "findconfig.h"
 #include <cmd.h>
 
 class Connection;
@@ -76,6 +77,7 @@ public:
 
 	dcmds_t const & dcmds () { return m_dcmds; }
 	LogTableModel * cloneToNewModel ();
+	LogTableModel * cloneToNewModel (FindConfig & fc);
 
 signals:
 	

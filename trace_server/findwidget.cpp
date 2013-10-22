@@ -22,6 +22,8 @@ void FindWidget::init ()
 	connect(m_ui->refsButton, SIGNAL(clicked()), this, SLOT(onFindAllRefs()));
 	connect(m_ui->cloneButton, SIGNAL(clicked()), this, SLOT(onFindAllClone()));
 	connect(m_ui->cancelButton, SIGNAL(clicked()), this, SLOT(onCancel()));
+	connect(m_ui->nextButton, SIGNAL(clicked()), this, SLOT(onFindNext()));
+	connect(m_ui->prevButton, SIGNAL(clicked()), this, SLOT(onFindPrev()));
 
 	setAutoFillBackground(true);
 }
@@ -46,7 +48,6 @@ FindWidget::FindWidget (QWidget * parent) // widget coming from Qt creator
 {
 	init();
 }
-
 
 FindWidget::~FindWidget ()
 {
@@ -109,6 +110,18 @@ void FindWidget::onReturnPressed ()
 	//m_config.saveHistory();
 }
 
+void FindWidget::focusNext ()
+{
+	QWidget * w = nextInFocusChain();
+	w->setFocus();
+}
+
+void FindWidget::focusPrev ()
+{
+	QWidget * w = previousInFocusChain();
+	w->setFocus();
+}
+
 void FindWidget::onFocusChanged (QWidget * old, QWidget * now)
 {
 	//m_find_widget->onFocusChanged(old, now);
@@ -133,8 +146,27 @@ void FindWidget::find (bool select, bool refs, bool clone)
 	{
 		mentionStringInHistory_Ref(str, m_ui->findBox, m_config.m_history);
 		setUIValuesToConfig(m_config);
+		m_config.m_select = select;
 		m_config.m_refs = refs;
 		m_config.m_clone = clone;
+		m_config.m_str = str;
+		Action a;
+		makeActionFind(str, a);
+		m_main_window->dockManager().handleAction(&a, e_Sync);
+	}
+}
+
+void FindWidget::findAndGo (bool prev, bool next)
+{
+	QString const str = m_ui->findBox->currentText();
+	if (!str.isEmpty())
+	{
+		mentionStringInHistory_Ref(str, m_ui->findBox, m_config.m_history);
+		setUIValuesToConfig(m_config);
+		m_config.m_next = next;
+		m_config.m_prev = prev;
+		m_config.m_refs = 0;
+		m_config.m_clone = 0;
 		m_config.m_str = str;
 		Action a;
 		makeActionFind(str, a);
@@ -159,10 +191,12 @@ void FindWidget::onFindAllSelect ()
 
 void FindWidget::onFindNext ()
 {
+	findAndGo(0, 1);
 }
 
 void FindWidget::onFindPrev ()
 {
+	findAndGo(1, 0);
 }
 
 void FindWidget::setConfigValuesToUI (FindConfig const & cfg)

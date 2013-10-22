@@ -62,6 +62,37 @@ LogTableModel * LogTableModel::cloneToNewModel ()
 	return new_model;
 }
 
+LogTableModel * LogTableModel::cloneToNewModel (FindConfig & fc)
+{
+	LogTableModel * new_model = new LogTableModel(this, m_log_widget);
+	for (size_t r = 0, re = m_rows.size(); r < re; ++r)
+	{
+		DecodedCommand const & dcmd = m_dcmds[r];
+		for (size_t i = 0, ie = dcmd.m_tvs.size(); i < ie; ++i)
+		{
+			QString const & val = dcmd.m_tvs[i].m_val;
+
+			if (matchToFindConfig(val, fc))
+			{
+				//tree_node_ptrs_t m_tree_node_ptrs;
+				new_model->m_rows = m_rows;
+				new_model->m_layers = m_layers;
+				new_model->m_rowTypes = m_rowTypes;
+				new_model->m_dcmds = m_dcmds;
+
+				new_model->m_row_times = m_row_times;
+				new_model->m_rows = m_rows;
+				break;
+			}
+		}
+	}
+	new_model->m_col_times = m_col_times;
+	new_model->m_columnCount = m_columnCount;
+	return new_model;
+}
+
+
+
 void LogTableModel::commitBatchToModel ()
 {
 	int const rows = m_batch.m_rows.size();

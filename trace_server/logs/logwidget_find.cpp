@@ -16,22 +16,13 @@ void LogWidget::findInWholeTable (FindConfig const & fc, QModelIndexList & resul
 		{
 			QModelIndex const idx = model()->index(i, j, QModelIndex());
 			QModelIndex src_idx = idx; 
+			QString s = model()->data(idx).toString();
 			if (isModelProxy())
 			{
 				src_idx = m_proxy_model->mapFromSource(idx);
 			}
-
-			if (fc.m_regexp)
-			{
-			}
-			else
-			{
-				Qt::CaseSensitivity const cs = fc.m_case_sensitive ? Qt::CaseSensitive : Qt::CaseInsensitive;
-				if (idx.isValid() && model()->data(idx).toString().contains(fc.m_str, cs))
-				{
-					result.push_back(src_idx);
-				}
-			}
+			if (matchToFindConfig(s, fc))
+				result.push_back(src_idx);
 		}
 	}
 }
@@ -146,7 +137,7 @@ LogWidget * LogWidget::mkFindAllCloneLogWidget (FindConfig const & fc)
 		if (!loaded)
 			m_connection->defaultConfigFor(m_config);
 		filterMgr()->loadConfig(logpath);*/
-	LogTableModel * clone_model = m_src_model->cloneToNewModel();
+	LogTableModel * clone_model = m_src_model->cloneToNewModel(fc);
 	child.setupLogModel(clone_model);
 	child.setSrcModel(fc);
 
@@ -209,6 +200,15 @@ void LogWidget::findAndSelect (FindConfig const & fc)
 void LogWidget::handleFindAction (FindConfig const & fc)
 {
 	bool const select_only = !fc.m_refs && !fc.m_clone;
+
+	if (fc.m_regexp)
+	{
+		fc.m_regexp_val = QRegExp(fc.m_str);
+		if (fc.m_regexp_val.isEmpty())
+			return;
+		if (!fc.m_regexp_val.isValid())
+			return;
+	}
 
 	if (select_only)
 	{

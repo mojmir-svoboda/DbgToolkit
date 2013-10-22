@@ -54,8 +54,6 @@ namespace logs {
 		, m_file_csv_stream(0)
 		//, m_file_tlv_stream(0)
 	{
-		//qDebug("%s this=0x%08x", __FUNCTION__, this);
-		//
 		m_queue.reserve(256);
 
 		setContextMenuPolicy(Qt::CustomContextMenu);
