@@ -530,9 +530,9 @@ void LogWidget::onTableFontToolButton ()
 }
 
 
-void LogWidget::onEditFind ()
+/*void LogWidget::onEditFind ()
 {
-	/*bool ok;
+	bool ok;
 	QString search = QInputDialog::getText(this, tr("Find"), tr("Text:"), QLineEdit::Normal, m_last_search, &ok);
 	if (ok)
 	{
@@ -545,7 +545,7 @@ void LogWidget::onEditFind ()
 			ui->qSearchComboBox->setCurrentIndex(ui->qSearchComboBox->findText(search));
 		}
 		onQSearch(search);
-	}*/
+	}
 }
 
 void LogWidget::onQSearch (QString const & text)
@@ -559,14 +559,6 @@ void LogWidget::onQSearch (QString const & text)
 	{
 		findText(text);
 	}
-	/*else
-	{
-		size_t const tag_idx = tlv::tag_for_name(qcolumn.toStdString().c_str());
-		if (tag_idx != tlv::tag_invalid)
-		{
-			conn->findText(text, tag_idx);
-		}
-	}*/
 }
 
 void LogWidget::onQSearchEditingFinished ()
@@ -586,10 +578,10 @@ void LogWidget::onFindAllButton ()
 	//QString const text = ui->qSearchComboBox->currentText();
 	//findAllTexts(text);
 }
-
-void LogWidget::onQFilterLineEditFinished ()
+*/
+/*void LogWidget::onQFilterLineEditFinished ()
 {
-	/*if (ui->qFilterLineEdit->text().size() == 0)
+	if (ui->qFilterLineEdit->text().size() == 0)
 		return;
 
 	QString text = ui->qFilterLineEdit->text();
@@ -615,35 +607,25 @@ void LogWidget::onQFilterLineEditFinished ()
 		}
 	}
 
-	recompileStrings();*/
+	recompileStrings();
 }
 
 void LogWidget::appendToSearchHistory (QString const & str)
 {
-/*	if (str.length() == 0)
+	if (str.length() == 0)
 		return;
 	m_config.m_search_history.insert(str);
 	m_config.saveSearchHistory();
 	updateSearchHistory();
-	ui->qSearchComboBox->setCurrentIndex(ui->qSearchComboBox->findText(str));*/
+	ui->qSearchComboBox->setCurrentIndex(ui->qSearchComboBox->findText(str));
 }
 
 void LogWidget::updateSearchHistory ()
 {
-/*	ui->qSearchComboBox->clear();
+	ui->qSearchComboBox->clear();
 	for (size_t i = 0, ie = m_config.m_search_history.size(); i < ie; ++i)
-		ui->qSearchComboBox->addItem(m_config.m_search_history[i]);*/
-}
-
-void LogWidget::onEditFindNext ()
-{
-	//findNext(ui->qSearchComboBox->currentText());
-}
-
-void LogWidget::onEditFindPrev ()
-{
-	//findPrev(ui->qSearchComboBox->currentText());
-}
+		ui->qSearchComboBox->addItem(m_config.m_search_history[i]);
+}*/
 
 void LogWidget::onDumpFilters ()
 {

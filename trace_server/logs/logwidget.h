@@ -74,6 +74,7 @@ namespace logs {
 		void registerLinkedLog (LogWidget * l);
 		void unregisterLinkedLog (LogWidget * l);
 		void findAndSelect (FindConfig const & fc);
+		void noMoreMatches ();
 
 
 	void setupSeparatorChar (QString const & c);
@@ -108,17 +109,17 @@ namespace logs {
 //bool filterEnabled () const { return m_config_ui->ui()->filterFileCheckBox->isEnabled() && m_config_ui->ui()->filterFileCheckBox->isChecked(); }
 
 	// find
-	void findTextInAllColumns (QString const & text, int from_row, int to_row, bool only_first);
-	bool matchTextInCell (QString const & text, int row, int col);
-	void endOfSearch ();
-	void findTextInColumn (QString const & text, int col, int from_row, int to_row);
-	void findTextInColumnRev (QString const & text, int col, int from_row, int to_row);
+	//void findTextInAllColumns (QString const & text, int from_row, int to_row, bool only_first);
+	//bool matchTextInCell (QString const & text, int row, int col);
+	//void endOfSearch ();
+	//void findTextInColumn (QString const & text, int col, int from_row, int to_row);
+	//void findTextInColumnRev (QString const & text, int col, int from_row, int to_row);
 	void selectionFromTo (int & from, int & to) const;
-	void findAllTexts (QString const & text);
-	void findText (QString const & text, tlv::tag_t tag);
-	void findText (QString const & text);
-	void findNext (QString const & text);
-	void findPrev (QString const & text);
+	//void findAllTexts (QString const & text);
+	//void findText (QString const & text, tlv::tag_t tag);
+	//void findText (QString const & text);
+	//void findNext (QString const & text);
+	//void findPrev (QString const & text);
 	QString findString4Tag (tlv::tag_t tag, QModelIndex const & row_index) const;
 	QVariant findVariant4Tag (tlv::tag_t tag, QModelIndex const & row_index) const;
 	void scrollToCurrentTag ();
@@ -210,16 +211,16 @@ namespace logs {
 		void onInvalidateFilter ();
 		void onFilterEnabledChanged ();
 		void onTableFontToolButton ();
-		void onEditFind ();
-		void onEditFindNext ();
-		void onEditFindPrev ();
-		void onQSearch (QString const & text);
-		void onQSearchEditingFinished ();
-		void setLastSearchIntoCombobox (QString const & txt);
-		void onFindAllButton ();
-		void onQFilterLineEditFinished ();
-		void appendToSearchHistory (QString const & str);
-		void updateSearchHistory ();
+		//void onEditFind ();
+		//void onEditFindNext ();
+		//void onEditFindPrev ();
+		//void onQSearch (QString const & text);
+		//void onQSearchEditingFinished ();
+		//void setLastSearchIntoCombobox (QString const & txt);
+		//void onFindAllButton ();
+		//void onQFilterLineEditFinished ();
+		//void appendToSearchHistory (QString const & str);
+		//void updateSearchHistory ();
 		void onDumpFilters ();
 		void onTableClicked (QModelIndex const & row_index);
 		void onTableDoubleClicked (QModelIndex const & row_index);

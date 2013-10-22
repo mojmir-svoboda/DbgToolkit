@@ -228,8 +228,16 @@ void LogWidget::handleFindAction (FindConfig const & fc)
 	}
 }
 
+void LogWidget::noMoreMatches ()
+{
+	qDebug("end of search");
+	// flash icon
+	m_connection->getMainWindow()->statusBar()->showMessage(tr("End of document!"));
+	m_last_search_row = 0;
+}
 
-void LogWidget::findTextInAllColumns (QString const & text, int from_row, int to_row, bool only_first)
+
+/*void LogWidget::findTextInAllColumns (QString const & text, int from_row, int to_row, bool only_first)
 {
 	for (int i = from_row, ie = to_row; i < ie; ++i)
 	{
@@ -288,17 +296,17 @@ bool LogWidget::matchTextInCell (QString const & text, int row, int col)
 		return true;
 	}
 	return false;
-}
+}*/
 
-void LogWidget::endOfSearch ()
+/*void LogWidget::endOfSearch ()
 {
 	qDebug("end of search");
 	// flash icon
 	//m_connection->getMainWindow()->statusBar()->showMessage(tr("End of document!"));
 	m_last_search_row = 0;
-}
+}*/
 
-void LogWidget::findTextInColumn (QString const & text, int col, int from_row, int to_row)
+/*void LogWidget::findTextInColumn (QString const & text, int col, int from_row, int to_row)
 {
 	for (int i = from_row, ie = to_row; i < ie; ++i)
 		if (matchTextInCell(text, i, col))
@@ -430,7 +438,7 @@ void LogWidget::findPrev (QString const & text)
 	}
 	int const last = m_last_search_row > 0 ? m_last_search_row - 1 : to;
 	findTextInColumnRev(m_last_search, m_last_search_col, last, 0);
-}
+}*/
 
 QString LogWidget::findString4Tag (tlv::tag_t tag, QModelIndex const & row_index) const
 {
