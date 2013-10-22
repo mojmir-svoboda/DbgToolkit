@@ -99,6 +99,7 @@ void FindWidget::find ()
 	if (!str.isEmpty())
 	{
 		mentionStringInHistory_Ref(str, m_ui->findBox, m_config.m_history);
+		m_ui->findBox->setCurrentIndex(m_ui->findBox->findText(str));
 		Action a;
 		makeActionFind(str, a);
 		m_main_window->dockManager().handleAction(&a, e_Sync);
@@ -175,6 +176,7 @@ void FindWidget::find (bool select, bool refs, bool clone)
 	if (!str.isEmpty())
 	{
 		mentionStringInHistory_Ref(str, m_ui->findBox, m_config.m_history);
+		m_ui->findBox->setCurrentIndex(m_ui->findBox->findText(str));
 		setUIValuesToConfig(m_config);
 		m_config.m_select = select;
 		m_config.m_refs = refs;
