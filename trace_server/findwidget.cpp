@@ -23,6 +23,7 @@ void FindWidget::init ()
 	connect(m_ui->cloneButton, SIGNAL(clicked()), this, SLOT(onFindAllClone()));
 	connect(m_ui->cancelButton, SIGNAL(clicked()), this, SLOT(onCancel()));
 
+	setAutoFillBackground(true);
 }
 
 FindWidget::FindWidget (MainWindow * mw, QWidget * parent)
