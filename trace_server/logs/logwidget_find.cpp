@@ -187,12 +187,14 @@ void LogWidget::findAndSelect (FindConfig const & fc)
 {
 	QModelIndex start = model()->index(0, 0);
 
-	QModelIndexList indexes = model()->match(start, Qt::DisplayRole, QVariant(fc.m_str), -1, Qt::MatchFixedString);
+	// if selected column
+	//	QModelIndexList indexes = model()->match(start, Qt::DisplayRole, QVariant(fc.m_str), -1, Qt::MatchFixedString);
+	QModelIndexList indexes;
+	findInWholeTable(fc, indexes);
 
 	QItemSelectionModel * selection_model = selectionModel();
 
 	QItemSelection selection;
-
 	foreach(QModelIndex index, indexes) {
 
 		QModelIndex left = model()->index(index.row(), 0);
