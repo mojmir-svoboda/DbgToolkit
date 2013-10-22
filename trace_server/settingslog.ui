@@ -59,6 +59,12 @@
         <property name="horizontalScrollBarPolicy">
          <enum>Qt::ScrollBarAlwaysOff</enum>
         </property>
+        <property name="showDropIndicator" stdset="0">
+         <bool>false</bool>
+        </property>
+        <property name="dragDropMode">
+         <enum>QAbstractItemView::NoDragDrop</enum>
+        </property>
         <property name="alternatingRowColors">
          <bool>true</bool>
         </property>
@@ -72,7 +78,7 @@
          <enum>Qt::ElideRight</enum>
         </property>
         <property name="movement">
-         <enum>QListView::Free</enum>
+         <enum>QListView::Static</enum>
         </property>
         <property name="flow">
          <enum>QListView::TopToBottom</enum>
@@ -160,7 +166,7 @@
       <item>
        <widget class="QStackedWidget" name="stackedWidget">
         <property name="currentIndex">
-         <number>1</number>
+         <number>0</number>
         </property>
         <widget class="QWidget" name="findPage">
          <layout class="QVBoxLayout" name="verticalLayout_4">

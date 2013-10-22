@@ -82,6 +82,31 @@ void FilterProxyModel::commitBatchToModel (int src_from, int src_to, BatchCmd co
 	}
 	endInsertRows();
 
+	//@FIXME l8r: this does not work in general!
+	if (m_cmap_from_src.size() < m_log_widget.m_src_model->columnCount())
+	{
+		int const from = m_cmap_from_src.size();
+		m_cmap_from_tgt.clear();
+		m_cmap_from_src.clear();
+		m_cmap_from_src.reserve(m_log_widget.m_src_model->columnCount());
+		int ctgt_idx = 0;
+		for (size_t src_idx = 0, se = m_log_widget.m_src_model->columnCount(); src_idx < se; ++src_idx)
+		{
+			if (filterAcceptsColumn(src_idx, QModelIndex()))
+			{
+				m_cmap_from_src.insert(std::make_pair(src_idx, ctgt_idx));
+				++ctgt_idx;
+			}
+		}
+		int const to = ctgt_idx - 1;
+		beginInsertColumns(QModelIndex(), from, to);
+		m_cmap_from_tgt.resize(m_cmap_from_src.size());
+		for (map_t::const_iterator it = m_cmap_from_src.begin(), ite = m_cmap_from_src.end(); it != ite; ++it)
+		{
+			m_cmap_from_tgt[it->second] = it->first;
+		}
+		endInsertColumns();
+	}
 }
 
 

@@ -57,7 +57,6 @@ LogTableModel * LogTableModel::cloneToNewModel ()
 
 	new_model->m_row_times = m_row_times;
 	new_model->m_col_times = m_col_times;
-	new_model->m_rows = m_rows;
 	new_model->m_columnCount = m_columnCount;
 	return new_model;
 }
@@ -68,30 +67,32 @@ LogTableModel * LogTableModel::cloneToNewModel (FindConfig const & fc)
 	for (size_t r = 0, re = m_rows.size(); r < re; ++r)
 	{
 		DecodedCommand const & dcmd = m_dcmds[r];
+		bool row_match = false;
 		for (size_t i = 0, ie = dcmd.m_tvs.size(); i < ie; ++i)
 		{
 			QString const & val = dcmd.m_tvs[i].m_val;
 
 			if (matchToFindConfig(val, fc))
 			{
-				//tree_node_ptrs_t m_tree_node_ptrs;
-				new_model->m_rows = m_rows;
-				new_model->m_layers = m_layers;
-				new_model->m_rowTypes = m_rowTypes;
-				new_model->m_dcmds = m_dcmds;
-
-				new_model->m_row_times = m_row_times;
-				new_model->m_rows = m_rows;
+				row_match = true;
 				break;
 			}
+		}
+
+		if (row_match)
+		{
+			//tree_node_ptrs_t m_tree_node_ptrs;
+			new_model->m_rows.push_back(m_rows[r]);
+			new_model->m_layers.push_back(m_layers[r]);
+			new_model->m_rowTypes.push_back(m_rowTypes[r]);
+			new_model->m_dcmds.push_back(m_dcmds[r]);
+			//new_model->m_row_times.push_back(m_row_times[r]);
 		}
 	}
 	new_model->m_col_times = m_col_times;
 	new_model->m_columnCount = m_columnCount;
 	return new_model;
 }
-
-
 
 void LogTableModel::commitBatchToModel ()
 {

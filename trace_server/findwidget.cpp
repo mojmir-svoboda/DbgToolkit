@@ -89,7 +89,7 @@ void FindWidget::onActivate ()
 
 void FindWidget::onEditTextChanged (QString str)
 {
-	resetRegexpState();
+	onResetRegexpState();
 	//qDebug("find!");
 }
 
@@ -128,7 +128,7 @@ void FindWidget::onFocusChanged (QWidget * old, QWidget * now)
 	//m_find_widget->onFocusChanged(old, now);
 }
 
-void FindWidget::resetRegexpState ()
+void FindWidget::onResetRegexpState ()
 {
 	m_ui->findBox->setStyleSheet("");
 	m_ui->findBox->setToolTip("");
@@ -197,7 +197,7 @@ void FindWidget::find (bool select, bool refs, bool clone)
 		Action a;
 		makeActionFind(str, a);
 		m_main_window->dockManager().handleAction(&a, e_Sync);
-		QTimer::singleShot(250, this, SLOT(resetRegexpState()));
+		QTimer::singleShot(250, this, SLOT(onResetRegexpState()));
 	}
 }
 
