@@ -71,6 +71,7 @@ LogWidget * LogWidget::mkFindAllRefsLogWidget (FindConfig const & fc)
 	DataLog * dp = *it;
 	LogWidget & child = dp->widget();
 	child.linkToSource(this);
+	child.loadAuxConfigs();
 	/* QString const logpath = preset_dir + "/" + g_presetLogTag;
 		m_config.clear();
 		bool const loaded = logs::loadConfig(m_config, logpath + "/" + m_config.m_tag);
@@ -92,7 +93,6 @@ LogWidget * LogWidget::mkFindAllRefsLogWidget (FindConfig const & fc)
 	//child.setSelectionModel(m_selection);
 	child.m_kselection_model = new KLinkItemSelectionModel(model(), child.selectionModel());
 	setSelectionModel(child.m_kselection_model);
-	
 	return &child;
 }
 
@@ -130,6 +130,7 @@ LogWidget * LogWidget::mkFindAllCloneLogWidget (FindConfig const & fc)
 
 	DataLog * dp = *it;
 	LogWidget & child = dp->widget();
+	child.loadAuxConfigs();
 	//child.linkToSource(this);
 	/* QString const logpath = preset_dir + "/" + g_presetLogTag;
 		m_config.clear();
@@ -208,6 +209,8 @@ void LogWidget::handleFindAction (FindConfig const & fc)
 		if (!fc.m_regexp_val.isValid())
 			return;
 	}
+
+	saveFindConfig();
 
 	if (select_only)
 	{

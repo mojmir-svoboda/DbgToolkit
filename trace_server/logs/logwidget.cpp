@@ -395,6 +395,13 @@ namespace logs {
 		//applyConfig();
 	}
 
+	QString LogWidget::getCurrentPresetPath ()
+	{
+		QString const appdir = m_connection->getMainWindow()->getAppDir();
+		QString const logpath = appdir + "/" + m_path.join("/");
+		return logpath;
+	}
+
 	void LogWidget::loadConfig (QString const & preset_dir)
 	{
 		QString const logpath = preset_dir + "/" + g_presetLogTag;
@@ -402,8 +409,26 @@ namespace logs {
 		bool const loaded = logs::loadConfig(m_config, logpath + "/" + m_config.m_tag);
 		if (!loaded)
 			m_connection->defaultConfigFor(m_config);
-
+		
+		loadAuxConfigs();
+	}
+	void LogWidget::loadAuxConfigs ()
+	{
+		QString const logpath = getCurrentPresetPath();
+		m_config.m_find_config.clear();
+		loadConfigTemplate(m_config.m_find_config, logpath + "/" + g_findTag);
 		filterMgr()->loadConfig(logpath);
+	}
+	void LogWidget::saveAuxConfigs ()
+	{
+		QString const logpath = getCurrentPresetPath();
+		saveConfigTemplate(m_config.m_find_config, logpath + "/" + g_findTag);
+		filterMgr()->saveConfig(logpath);
+	}
+	void LogWidget::saveFindConfig ()
+	{
+		QString const logpath = getCurrentPresetPath();
+		saveConfigTemplate(m_config.m_find_config, logpath + "/" + g_findTag);
 	}
 
 	void LogWidget::normalizeConfig (logs::LogConfig & normalized)
@@ -446,7 +471,7 @@ namespace logs {
 		logs::LogConfig tmp = m_config;
 		normalizeConfig(tmp);
 		logs::saveConfig(tmp, logpath + "/" + m_config.m_tag);
-		filterMgr()->saveConfig(logpath);
+		saveAuxConfigs();
 
         //currentIndex  = horizontalHeader()->visualIndex(session.findColumn4Tag(iter.key()));
 		// isSectionHidden

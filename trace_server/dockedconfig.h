@@ -32,11 +32,9 @@ struct DockedConfigBase {
 		ar & boost::serialization::make_nvp("level", m_level);
 		ar & boost::serialization::make_nvp("central_widget", m_central_widget);
 		ar & boost::serialization::make_nvp("time_units", m_time_units);
-		ar & boost::serialization::make_nvp("find_config", m_find_config);
 		//ar & boost::serialization::make_nvp("font", m_font);
 		//ar & boost::serialization::make_nvp("fontsize", m_fontsize);
 	}
-
 };
 
 

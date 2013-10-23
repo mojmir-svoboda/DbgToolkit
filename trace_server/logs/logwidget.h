@@ -28,10 +28,14 @@ namespace logs {
 
 		LogConfig & getConfig () { return m_config; }
 		LogConfig const & getConfig () const { return m_config; }
-		void loadConfig (QString const & path);
-		void saveConfig (QString const & path);
+		void loadConfig (QString const & preset_dir);
+		void loadAuxConfigs ();
+		void saveConfig (QString const & preset_dir);
+		void saveAuxConfigs ();
+		void saveFindConfig ();
 		void applyConfig (LogConfig & pcfg);
 		void applyConfig ();
+		QString getCurrentPresetPath ();
 
 		QList<DecodedCommand> m_queue;
 		void handleCommand (DecodedCommand const & cmd, E_ReceiveMode mode);

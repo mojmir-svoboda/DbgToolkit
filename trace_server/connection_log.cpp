@@ -47,20 +47,15 @@ bool Connection::handleLogCommand (DecodedCommand const & cmd, E_ReceiveMode mod
 	QString const tag("default"); // @FIXME
 	//int const slash_pos = tag.lastIndexOf(QChar('/'));
 	//tag.chop(msg_tag.size() - slash_pos);
-
 	//QString subtag = msg_tag;
 	//subtag.remove(0, slash_pos + 1);
 
 	datalogs_t::iterator it = findOrCreateLog(tag);
-
 	DataLog & dp = **it;
 
 	dp.widget().handleCommand(cmd, mode);
-
-	//m_main_window->getWidgetFile()->hideLinearParents();
 	return true;
 }
-
 
 bool Connection::handleLogClearCommand (DecodedCommand const & cmd, E_ReceiveMode mode)
 {

@@ -199,7 +199,7 @@ void FindWidget::find (bool select, bool refs, bool clone)
 		Action a;
 		makeActionFind(str, a);
 		m_main_window->dockManager().handleAction(&a, e_Sync);
-		QTimer::singleShot(250, this, SLOT(onResetRegexpState()));
+		QTimer::singleShot(750, this, SLOT(onResetRegexpState()));
 	}
 }
 
