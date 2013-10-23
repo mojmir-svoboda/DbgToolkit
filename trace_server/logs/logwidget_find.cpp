@@ -72,12 +72,7 @@ LogWidget * LogWidget::mkFindAllRefsLogWidget (FindConfig const & fc)
 	LogWidget & child = dp->widget();
 	child.linkToSource(this);
 	child.loadAuxConfigs();
-	/* QString const logpath = preset_dir + "/" + g_presetLogTag;
-		m_config.clear();
-		bool const loaded = logs::loadConfig(m_config, logpath + "/" + m_config.m_tag);
-		if (!loaded)
-			m_connection->defaultConfigFor(m_config);
-		filterMgr()->loadConfig(logpath);*/
+
 	child.setupLogModel(m_src_model);
 	child.setFindProxyModel(fc);
 	dp->m_wd->setStyleSheet("\
@@ -131,24 +126,11 @@ LogWidget * LogWidget::mkFindAllCloneLogWidget (FindConfig const & fc)
 	DataLog * dp = *it;
 	LogWidget & child = dp->widget();
 	child.loadAuxConfigs();
-	//child.linkToSource(this);
-	/* QString const logpath = preset_dir + "/" + g_presetLogTag;
-		m_config.clear();
-		bool const loaded = logs::loadConfig(m_config, logpath + "/" + m_config.m_tag);
-		if (!loaded)
-			m_connection->defaultConfigFor(m_config);
-		filterMgr()->loadConfig(logpath);*/
+
 	LogTableModel * clone_model = m_src_model->cloneToNewModel(fc);
 	child.setupLogModel(clone_model);
 	child.setSrcModel(fc);
 
-	//child.setFindProxyModel(fc);
-
-	//child.setSelectionModel(m_selection);
-	//@FIXME: natvrdo m_proxy_model... spatne!
-	//child.m_kselection_model = new KLinkItemSelectionModel(m_proxy_model, child.selectionModel());
-	//setSelectionModel(child.m_kselection_model);
-	
 	return &child;
 }
 

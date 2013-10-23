@@ -136,15 +136,16 @@ void MainWindow::onSaveCurrentStateTo (QString const & preset_name)
 			return;
 		}
 		createPresetPath(m_config.m_appdir, preset_name);
+		conn->m_curr_preset = preset_name;
 		qDebug("save to preset_name=%s", preset_name.toStdString().c_str());
-		
-		QString const path = getPresetPath(getConfig().m_appdir, preset_name);
-		conn->saveConfigs(path);
-		saveLayout(preset_name);
 
 		mentionStringInHistory_Ref(preset_name, ui->presetComboBox, m_config.m_preset_history);
 		m_config.saveHistory();
 		setPresetAsCurrent(preset_name);
+		
+		QString const path = getPresetPath(getConfig().m_appdir, preset_name);
+		conn->saveConfigs(path);
+		saveLayout(preset_name);
 
 		//reloadPresetList ();
 		//setPresetNameIntoComboBox(preset_name);
@@ -212,14 +213,16 @@ void MainWindow::onPresetActivate (Connection * conn, QString const & preset_nam
 
 	if (checkPresetPath(m_config.m_appdir, preset_name))
 	{
-		QString const path = getPresetPath(m_config.m_appdir, preset_name);
-		conn->loadConfigs(path);
-		conn->applyConfigs();
-		loadLayout(preset_name);
+		conn->m_curr_preset = preset_name;
 
 		mentionStringInHistory_Ref(preset_name, ui->presetComboBox, m_config.m_preset_history);
 		m_config.saveHistory();
 		setPresetAsCurrent(preset_name);
+
+		QString const path = getPresetPath(m_config.m_appdir, preset_name);
+		conn->loadConfigs(path);
+		conn->applyConfigs();
+		loadLayout(preset_name);
 	}
 	else
 	{
