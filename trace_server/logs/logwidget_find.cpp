@@ -17,10 +17,6 @@ void LogWidget::findInWholeTable (FindConfig const & fc, QModelIndexList & resul
 			QModelIndex const idx = model()->index(i, j, QModelIndex());
 			QModelIndex src_idx = idx; 
 			QString s = model()->data(idx).toString();
-			if (isModelProxy())
-			{
-				src_idx = m_proxy_model->mapFromSource(idx);
-			}
 			if (matchToFindConfig(s, fc))
 				result.push_back(src_idx);
 		}
