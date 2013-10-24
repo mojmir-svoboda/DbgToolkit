@@ -43,10 +43,10 @@ public:
 	void resizeToCfg ();
 	void commitBatchToModel (int from, int to, BatchCmd const & batch);
 
-protected:
-
 	bool filterAcceptsRow (int sourceRow, QModelIndex const & sourceParent) const;
 	bool filterAcceptsColumn (int sourceColumn, QModelIndex const & source_parent) const;
+
+protected:
 
 	logs::LogWidget & m_log_widget;
 	int m_column_count;

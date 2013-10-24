@@ -766,6 +766,47 @@ void LogWidget::handleCommand (DecodedCommand const & cmd, E_ReceiveMode mode)
 	}*/
 }
 
+LogTableModel * LogWidget::cloneToNewModel (FindConfig const & fc)
+{
+	if (model() == m_src_model)
+	{
+		return m_src_model->cloneToNewModel(fc);
+	}
+	else if (model() == m_proxy_model)
+	{
+		Q_ASSERT(m_src_model);
+		LogTableModel * new_model = new LogTableModel(this, *this);
+		for (size_t r = 0, re = m_src_model->dcmds().size(); r < re; ++r)
+		{
+			DecodedCommand const & dcmd = m_src_model->dcmds()[r];
+			if (m_proxy_model->filterAcceptsRow(r, QModelIndex()))
+			{
+				bool row_match = false;
+				for (size_t i = 0, ie = dcmd.m_tvs.size(); i < ie; ++i)
+				{
+					QString const & val = dcmd.m_tvs[i].m_val;
+
+					if (matchToFindConfig(val, fc))
+					{
+						row_match = true;
+						break;
+					}
+				}
+
+				if (row_match)
+				{
+					new_model->handleCommand(dcmd, e_RecvBatched);
+				}
+			}
+
+		}
+		new_model->commitCommands(e_RecvSync);
+		return new_model;
+	}
+}
+
+
+
 bool LogWidget::handleAction (Action * a, E_ActionHandleType sync)
 {
 	switch (a->type())

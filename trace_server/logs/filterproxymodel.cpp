@@ -111,6 +111,3 @@ void FilterProxyModel::commitBatchToModel (int src_from, int src_to, BatchCmd co
 
 
 
-
-
-

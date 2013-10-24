@@ -84,6 +84,7 @@ signals:
 public slots:
 
 protected:
+	friend class logs::LogWidget;
 
 	void commitBatchToModel ();
 	void parseCommand (DecodedCommand const & cmd, E_ReceiveMode mode, BatchCmd & batch);

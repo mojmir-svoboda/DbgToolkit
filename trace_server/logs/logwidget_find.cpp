@@ -126,8 +126,8 @@ LogWidget * LogWidget::mkFindAllCloneLogWidget (FindConfig const & fc)
 	DataLog * dp = *it;
 	LogWidget & child = dp->widget();
 	child.loadAuxConfigs();
-
-	LogTableModel * clone_model = m_src_model->cloneToNewModel(fc);
+	
+	LogTableModel * clone_model = cloneToNewModel(fc);
 	child.setupLogModel(clone_model);
 	child.setSrcModel(fc);
 

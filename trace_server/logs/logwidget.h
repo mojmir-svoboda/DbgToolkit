@@ -79,6 +79,7 @@ namespace logs {
 		void unregisterLinkedLog (LogWidget * l);
 		void findAndSelect (FindConfig const & fc);
 		void noMoreMatches ();
+		LogTableModel * cloneToNewModel (FindConfig const & fc);
 
 
 	void setupSeparatorChar (QString const & c);
