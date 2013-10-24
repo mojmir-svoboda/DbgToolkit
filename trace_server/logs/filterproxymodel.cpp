@@ -72,15 +72,17 @@ void FilterProxyModel::commitBatchToModel (int src_from, int src_to, BatchCmd co
 		}
 	}
 
-	int const n_accepted = accepted_rows.size();
-	m_map_from_tgt.reserve(from + n_accepted);
-	int const to = from + n_accepted;
-	beginInsertRows(QModelIndex(), from, to);
-	for (int i = 0, ie = n_accepted; i < ie; ++i)
+	if (int const n_accepted = accepted_rows.size())
 	{
-		m_map_from_tgt.push_back(accepted_rows[i]);
+		m_map_from_tgt.reserve(from + n_accepted);
+		int const to = from + n_accepted - 1;
+		beginInsertRows(QModelIndex(), from, to);
+		for (int i = 0, ie = n_accepted; i < ie; ++i)
+		{
+			m_map_from_tgt.push_back(accepted_rows[i]);
+		}
+		endInsertRows();
 	}
-	endInsertRows();
 
 	//@FIXME l8r: this does not work in general!
 	if (m_cmap_from_src.size() < m_log_widget.m_src_model->columnCount())
