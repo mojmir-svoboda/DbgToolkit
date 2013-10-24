@@ -82,7 +82,7 @@ void FilterFileLine::applyConfig ()
 	//merge_with(m_data);
 
 	if (m_model)
-		m_model->syncExpandState(m_ui->view);
+		m_model->syncExpandState(getWidgetFile());
 }
 
 FilterTreeModel::FilterTreeModel (QObject * parent, tree_data_t * data)
@@ -121,6 +121,12 @@ void FilterFileLine::setupModel ()
 	connect(getWidgetFile(), SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtFileTree(QModelIndex)));
 	connect(getWidgetFile(), SIGNAL(doubleClicked(QModelIndex)), this, SLOT(onDoubleClickedAtFileTree(QModelIndex)));
 	getWidgetFile()->header()->hide();
+
+	connect(m_ui->filterFileComboBox, SIGNAL(editTextChanged(QString)), this, SLOT(onFilterFileComboChanged(QString)));
+	bool const cancel_on = !m_ui->filterFileComboBox->currentText().isEmpty();
+	m_ui->cancelFilterButton->setEnabled(cancel_on);
+	connect(m_ui->cancelFilterButton, SIGNAL(clicked()), this, SLOT(onCancelFilterFileButton()));
+
 
 
 	//connect(m_file_model, SIGNAL(invalidateFilter()), this, SLOT(onInvalidateFilter()));
@@ -267,8 +273,6 @@ void FilterFileLine::onCutParentValueChanged (int i)
 
 void FilterFileLine::onCollapseChilds ()
 {
-	//if (Connection * conn = findCurrentConnection())
-	//	conn->onCollapseChilds();
 	m_model->collapseChilds(m_ui->view);
 }
 

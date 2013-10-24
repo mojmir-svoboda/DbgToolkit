@@ -85,7 +85,7 @@ LogWidget * LogWidget::mkFindAllRefsLogWidget (FindConfig const & fc)
 	child.m_kselection_model = new KLinkItemSelectionModel(model(), child.selectionModel());
 	setSelectionModel(child.m_kselection_model);
 
-	m_connection->getMainWindow()->onDockRestoreButton();
+	//m_connection->getMainWindow()->onDockRestoreButton();
 	return &child;
 }
 
