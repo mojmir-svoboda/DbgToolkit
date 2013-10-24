@@ -129,7 +129,8 @@ typename SelectIterator<TypeN>::type  Connection::dataWidgetFactory (QString con
 			if (in_cw)
 				toCentralWidget(dd->m_wd, dd->m_widget, in_cw);
 			else
-				m_main_window->restoreDockWidget(dd->m_wd);
+				getMainWindow()->onDockRestoreButton();
+				//m_main_window->restoreDockWidget(dd->m_wd);
 		}
 		else
 		{
@@ -206,7 +207,10 @@ typename SelectIterator<TypeN>::type  Connection::dataWidgetFactoryFrom (QString
 			if (in_cw)
 				toCentralWidget(dd->m_wd, dd->m_widget, in_cw);
 			else
-				m_main_window->restoreDockWidget(dd->m_wd);
+			{
+				getMainWindow()->onDockRestoreButton();
+				//m_main_window->restoreDockWidget(dd->m_wd);
+			}
 		}
 		else
 		{
