@@ -105,7 +105,7 @@ Connection::~Connection ()
 		m_statswindow = 0;
 	}*/
 
-	recurse(m_data, DestroyDockedWidgets(*m_main_window));
+	//recurse(m_data, DestroyDockedWidgets(*m_main_window));
 
 	if (m_tcpstream)
 	{
