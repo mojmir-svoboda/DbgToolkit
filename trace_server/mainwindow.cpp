@@ -343,11 +343,13 @@ void MainWindow::onDockedWidgetsToolButton ()
 	if (ui->dockedWidgetsToolButton->isChecked())
 	{
 		m_dock_mgr.m_docked_widgets->show();
+		m_dock_mgr.m_config.m_show = true;
 		restoreDockWidget(m_dock_mgr.m_docked_widgets);
 	}
 	else
 	{
 		m_dock_mgr.m_docked_widgets->hide();
+		m_dock_mgr.m_config.m_show = false;
 	}
 }
 
