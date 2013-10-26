@@ -78,9 +78,11 @@ namespace logs {
 		void registerLinkedLog (LogWidget * l);
 		void unregisterLinkedLog (LogWidget * l);
 		void findAndSelect (FindConfig const & fc);
+		void findAndSelectNext (FindConfig const & fc);
+		void findAndSelectPrev (FindConfig const & fc);
+		void currSelection (QModelIndexList & sel) const;
 		void noMoreMatches ();
 		LogTableModel * cloneToNewModel (FindConfig const & fc);
-
 
 	void setupSeparatorChar (QString const & c);
 	QString separatorChar () const;
