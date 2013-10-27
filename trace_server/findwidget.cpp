@@ -93,19 +93,6 @@ void FindWidget::onEditTextChanged (QString str)
 	//qDebug("find!");
 }
 
-void FindWidget::find ()
-{
-	QString str = m_ui->findBox->currentText();
-	if (!str.isEmpty())
-	{
-		mentionStringInHistory_Ref(str, m_ui->findBox, m_config.m_history);
-		m_ui->findBox->setCurrentIndex(m_ui->findBox->findText(str));
-		Action a;
-		makeActionFind(str, a);
-		m_main_window->dockManager().handleAction(&a, e_Sync);
-	}
-}
-
 void FindWidget::onReturnPressed ()
 {
 	//@TODO
@@ -170,7 +157,7 @@ void FindWidget::makeActionFind (QString const & str, Action & a)
 	a.m_args.push_back(fc);
 }
 
-void FindWidget::find (bool select, bool refs, bool clone)
+void FindWidget::find ()
 {
 	QString const str = m_ui->findBox->currentText();
 	if (!str.isEmpty())
@@ -178,11 +165,6 @@ void FindWidget::find (bool select, bool refs, bool clone)
 		mentionStringInHistory_Ref(str, m_ui->findBox, m_config.m_history);
 		m_ui->findBox->setCurrentIndex(m_ui->findBox->findText(str));
 		setUIValuesToConfig(m_config);
-		m_config.m_next = 0;
-		m_config.m_prev = 0;
-		m_config.m_select = select;
-		m_config.m_refs = refs;
-		m_config.m_clone = clone;
 		m_config.m_str = str;
 		if (m_config.m_regexp)
 		{
@@ -203,51 +185,33 @@ void FindWidget::find (bool select, bool refs, bool clone)
 		m_main_window->dockManager().handleAction(&a, e_Sync);
 		QTimer::singleShot(750, this, SLOT(onResetRegexpState()));
 	}
+
 }
 
-void FindWidget::findAndGo (bool prev, bool next)
+void FindWidget::find (bool select, bool refs, bool clone)
 {
-	QString const str = m_ui->findBox->currentText();
-	if (!str.isEmpty())
-	{
-		mentionStringInHistory_Ref(str, m_ui->findBox, m_config.m_history);
-		setUIValuesToConfig(m_config);
-		m_config.m_next = next;
-		m_config.m_prev = prev;
-		m_config.m_select = 1;
-		m_config.m_refs = 0;
-		m_config.m_clone = 0;
-		m_config.m_str = str;
-		Action a;
-		makeActionFind(str, a);
-		m_main_window->dockManager().handleAction(&a, e_Sync);
-	}
+	m_config.m_next = 0;
+	m_config.m_prev = 0;
+	m_config.m_select = select;
+	m_config.m_refs = refs;
+	m_config.m_clone = clone;
+	find();
 }
+void FindWidget::onFindAllSelect () { find(1, 0, 0); }
+void FindWidget::onFindAllRefs () { find(0, 1, 0); }
+void FindWidget::onFindAllClone () { find(0, 0, 1); }
 
-void FindWidget::onFindAllRefs ()
+void FindWidget::find (bool prev, bool next)
 {
-	find(0, 1, 0);
+	m_config.m_next = next;
+	m_config.m_prev = prev;
+	m_config.m_select = 1;
+	m_config.m_refs = 0;
+	m_config.m_clone = 0;
+	find();
 }
-
-void FindWidget::onFindAllClone ()
-{
-	find(0, 0, 1);
-}
-
-void FindWidget::onFindAllSelect ()
-{
-	find(1, 0, 0);
-}
-
-void FindWidget::onFindNext ()
-{
-	findAndGo(0, 1);
-}
-
-void FindWidget::onFindPrev ()
-{
-	findAndGo(1, 0);
-}
+void FindWidget::onFindNext () { find(0, 1); }
+void FindWidget::onFindPrev () { find(1, 0); }
 
 void FindWidget::setConfigValuesToUI (FindConfig const & cfg)
 {
@@ -262,5 +226,6 @@ void FindWidget::setUIValuesToConfig (FindConfig & cfg)
 	cfg.m_case_sensitive = m_ui->caseCheckBox->isChecked();
 	cfg.m_whole_word = m_ui->wholeWordCheckBox->isChecked();
 	cfg.m_regexp = m_ui->regexCheckBox->isChecked();
+	cfg.m_str = m_ui->findBox->currentText();
 }
 

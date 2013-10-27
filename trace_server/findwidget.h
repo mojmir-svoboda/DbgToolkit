@@ -24,7 +24,6 @@ public:
 	void applyConfig (FindConfig & cfg);
 	void applyConfig ();
 	void setMainWindow (MainWindow * mw) { m_main_window = mw; }
-	void find ();
 	void focusNext ();
 	void focusPrev ();
 
@@ -43,8 +42,9 @@ public slots:
 	
 protected:
 	void init ();
+	void find ();
 	void find (bool select, bool refs, bool clone);
-	void findAndGo (bool prev, bool next);
+	void find (bool prev, bool next);
 	void setConfigValuesToUI (FindConfig const & cfg);
 	void setUIValuesToConfig (FindConfig & cfg);
 	void makeActionFind (QString const & str, Action & a);
