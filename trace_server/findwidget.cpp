@@ -178,6 +178,8 @@ void FindWidget::find (bool select, bool refs, bool clone)
 		mentionStringInHistory_Ref(str, m_ui->findBox, m_config.m_history);
 		m_ui->findBox->setCurrentIndex(m_ui->findBox->findText(str));
 		setUIValuesToConfig(m_config);
+		m_config.m_next = 0;
+		m_config.m_prev = 0;
 		m_config.m_select = select;
 		m_config.m_refs = refs;
 		m_config.m_clone = clone;

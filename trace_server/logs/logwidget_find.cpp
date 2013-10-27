@@ -233,15 +233,62 @@ void LogWidget::findAndSelectNext (FindConfig const & fc)
 				selection.merge(sel, QItemSelectionModel::Select);
 			}
 			selection_model->clearSelection();
-			scrollTo(next.at(0), QTableView::PositionAtCenter);
 			selection_model->select(selection, QItemSelectionModel::Select);
-			//scrollTo(, QTableView::PositionAtCenter);
+			scrollTo(next.at(0), QTableView::PositionAtCenter);
 		}
 	}
 }
 
 void LogWidget::findAndSelectPrev (FindConfig const & fc)
 {
+	QModelIndexList l;
+	currSelection(l);
+	if (l.size())
+	{
+		QModelIndex const & curr_idx = l.at(0);
+		QModelIndex const idx = model()->index(curr_idx.row() - 1, curr_idx.column(), QModelIndex());
+		if (!idx.isValid())
+			return;
+
+		QModelIndexList next;
+		/// ????
+		for (int i = curr_idx.row(); i --> 0; )
+		{
+			for (int j = model()->columnCount(); j --> 0; )
+			{
+				QModelIndex const idx = model()->index(i, j, QModelIndex());
+				QString s = model()->data(idx).toString();
+				if (matchToFindConfig(s, fc))
+				{
+					next.push_back(idx);
+					break;
+				}
+			}
+			if (next.size() > 0)
+				break;
+		}
+
+		if (next.size() == 0)
+		{
+			noMoreMatches();
+		}
+		else
+		{
+			QItemSelectionModel * selection_model = selectionModel();
+			QItemSelection selection;
+			foreach(QModelIndex index, next)
+			{
+				QModelIndex left = model()->index(index.row(), 0);
+				QModelIndex right = model()->index(index.row(), model()->columnCount() - 1);
+
+				QItemSelection sel(left, right);
+				selection.merge(sel, QItemSelectionModel::Select);
+			}
+			selection_model->clearSelection();
+			selection_model->select(selection, QItemSelectionModel::Select);
+			scrollTo(next.at(0), QTableView::PositionAtCenter);
+		}
+	}
 }
 
 void LogWidget::handleFindAction (FindConfig const & fc)
