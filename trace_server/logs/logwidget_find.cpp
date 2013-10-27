@@ -181,9 +181,16 @@ void LogWidget::currSelection (QModelIndexList & sel) const
 {
 	sel.clear();
 	QItemSelectionModel const * selection = selectionModel();
-	sel  = selection->selectedIndexes();
-	if (sel.size() < 1)
+	QModelIndexList sel2  = selection->selectedIndexes();
+	if (sel2.size() < 1)
 		return;
+
+	// @FIXME: when proxy is on, there are invalid indexes in the current selection
+	for(int i = 0, ie = sel2.size(); i < ie; ++i)
+	{
+		if (sel2.at(i).isValid())
+			sel.push_back(sel2.at(i));
+	}
 
 	std::sort(sel.begin(), sel.end());
 }
@@ -196,7 +203,7 @@ void LogWidget::findAndSelectNext (FindConfig const & fc)
 	{
 		QModelIndex const & curr_idx = l.at(l.size() - 1);
 		QModelIndex const idx = model()->index(curr_idx.row() + 1, curr_idx.column(), QModelIndex());
-		if (!idx.isValid() && idx.row() + 1 >= model()->rowCount())
+		if (!idx.isValid())
 			return;
 
 		QModelIndexList next;
