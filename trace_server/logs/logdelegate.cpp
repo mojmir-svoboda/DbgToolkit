@@ -138,7 +138,7 @@ namespace logs {
 		initStyleOption(&option4, index);
 
 		// TODO: nonexistent item !!!!!!!!!!!!!!!!!
-		/*
+		
 		QVector<QString> const & column_aligns = m_log_widget.getConfig().m_columns_align;
 		E_Align const align = stringToAlign(column_aligns[index.column()].at(0).toLatin1());
 		option4.displayAlignment = static_cast<Qt::Alignment>(1 << align);
@@ -182,7 +182,7 @@ namespace logs {
 		{
 			paintTime(painter, option4, index);
 		}
-		else*/
+		else
 		{
 			QStyledItemDelegate::paint(painter, option4, index);
 		}

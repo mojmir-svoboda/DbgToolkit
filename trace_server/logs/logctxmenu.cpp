@@ -13,6 +13,7 @@ LogCtxMenu::LogCtxMenu (LogWidget & lw, QWidget * parent)
 {
 	m_widget->setVisible(false);
 	m_ui->setupUi(m_widget);
+	prepareSettingsWidgets();
 }
 
 /*
@@ -112,9 +113,50 @@ void LogCtxMenu::onClickedAtSettingColumnElide (QModelIndex const idx)
 	syncSettingsViews(m_ui->listViewColumnElide, idx);
 }
 
-void LogCtxMenu::onSettingsAppSelectedTLV (int const idx, bool const first_time)
+void LogCtxMenu::prepareSettingsWidgets ()
 {
-	qDebug("settings, clicked idx=%i", idx);
+/*	if (curr_app_idx == -1)
+	{
+		m_ui->appNameComboBox->setEnabled(true);
+		m_ui->appNameComboBox->clear();
+		for (int a = 0, ae = m_config.m_app_names.size(); a < ae; ++a)
+			m_ui->appNameComboBox->addItem(m_config.m_app_names.at(a));
+
+		Connection * conn = m_server->findCurrentConnection();
+		if (conn)
+		{
+			curr_app_idx = conn->sessionState().m_app_idx;
+		}
+	}
+	else
+	{
+		m_ui->appNameComboBox->clear();
+		m_ui->appNameComboBox->addItem(m_config.m_app_names.at(curr_app_idx));
+		m_ui->appNameComboBox->setEnabled(false);
+	}
+
+	connect(m_ui->appNameComboBox, SIGNAL(activated(int)), this, SLOT(onSettingsAppSelected(int)));*/
+
+	MyListModel * model = new MyListModel(this);
+	m_ui->listViewColumnSetup->setModel(model);
+	//m_ui->listViewColumnSetup->model()->setSupportedDragActions(Qt::MoveAction);
+	m_ui->listViewColumnSizes->setModel(new QStandardItemModel(this));
+	m_ui->listViewColumnAlign->setModel(new QStandardItemModel(this));
+	m_ui->listViewColumnElide->setModel(new QStandardItemModel(this));
+	m_ui->listViewColumnSetup->setDropIndicatorShown(true);
+	m_ui->listViewColumnSetup->setMovement(QListView::Snap);
+	m_ui->listViewColumnSetup->setDragDropMode(QAbstractItemView::InternalMove);
+	model->addObserver(m_ui->listViewColumnSizes->model());
+	model->addObserver(m_ui->listViewColumnAlign->model());
+	model->addObserver(m_ui->listViewColumnElide->model());
+	m_ui->listViewColumnSetup->setEditTriggers(QAbstractItemView::NoEditTriggers);
+	m_ui->listViewColumnAlign->setEditTriggers(QAbstractItemView::NoEditTriggers);
+	m_ui->listViewColumnElide->setEditTriggers(QAbstractItemView::NoEditTriggers);
+}
+
+
+void LogCtxMenu::onSettingsAppSelectedTLV (bool const first_time)
+{
 	clearListView(m_ui->listViewColumnSetup);
 	clearListView(m_ui->listViewColumnSizes);
 	clearListView(m_ui->listViewColumnAlign);
@@ -176,9 +218,9 @@ void LogCtxMenu::onSettingsAppSelectedTLV (int const idx, bool const first_time)
 }
 
 
-void LogCtxMenu::onSettingsAppSelectedCSV (int const idx, int const columns, bool const first_time)
+void LogCtxMenu::onSettingsAppSelectedCSV (int const columns, bool const first_time)
 {
-	qDebug("settings, clicked idx=%i", idx);
+	qDebug("settings, csv");
 	clearListView(m_ui->listViewColumnSetup);
 	clearListView(m_ui->listViewColumnSizes);
 	clearListView(m_ui->listViewColumnAlign);
@@ -271,55 +313,54 @@ void LogCtxMenu::onClickedAtAutoSetupButton ()
 
 		QModelIndex const row_idx = m_ui->listViewColumnAlign->model()->index(j, 0, QModelIndex());
 		size_t const tag_val = tlv::tag_for_name(tag.toLatin1());
-		m_ui->listViewColumnAlign->model()->setData(row_idx, QString(alignToString(default_aligns[tag_val])));
+		TagDesc const & td = m_log_widget.m_tagconfig.findOrCreateTag(tag_val);
+
+		m_ui->listViewColumnAlign->model()->setData(row_idx, td.m_align_str);
 
 		QModelIndex const erow_idx = m_ui->listViewColumnElide->model()->index(j, 0, QModelIndex());
-		m_ui->listViewColumnElide->model()->setData(erow_idx, QString(elideToString(default_elides[tag_val])));
+		m_ui->listViewColumnElide->model()->setData(erow_idx, td.m_elide_str);
 
 		QModelIndex const srow_idx = m_ui->listViewColumnSizes->model()->index(j, 0, QModelIndex());
-		m_ui->listViewColumnSizes->model()->setData(srow_idx, tr("%1").arg(default_sizes[tag_val]));
+		m_ui->listViewColumnSizes->model()->setData(srow_idx, tr("%1").arg(td.m_size));
 	}
 }
 
 void LogCtxMenu::onClickedAtApplyButton ()
 {
-	for (int app_idx = 0, app_idxe = m_config.m_app_names.size(); app_idx < app_idxe; ++app_idx)
-	{
-		qDebug("app=%s", m_config.m_app_names.at(app_idx).toStdString().c_str());
-		m_config.m_columns_setup[app_idx].clear();
-		m_config.m_columns_sizes[app_idx].clear();
-		m_config.m_columns_align[app_idx].clear();
-		m_config.m_columns_elide[app_idx].clear();
+	//qDebug("app=%s", m_config.m_app_names.at(app_idx).toStdString().c_str());
+	m_log_widget.m_config.m_columns_setup.clear();
+	m_log_widget.m_config.m_columns_sizes.clear();
+	m_log_widget.m_config.m_columns_align.clear();
+	m_log_widget.m_config.m_columns_elide.clear();
 
-		for (size_t j = 0, je = m_ui->listViewColumnSetup->model()->rowCount(); j < je; ++j)
+	for (size_t j = 0, je = m_ui->listViewColumnSetup->model()->rowCount(); j < je; ++j)
+	{
+		QModelIndex const row_idx = m_ui->listViewColumnSetup->model()->index(j, 0, QModelIndex());
+		QStandardItem * const item = static_cast<QStandardItemModel *>(m_ui->listViewColumnSetup->model())->itemFromIndex(row_idx);
+		if (item->checkState() == Qt::Checked)
 		{
-			QModelIndex const row_idx = m_ui->listViewColumnSetup->model()->index(j, 0, QModelIndex());
-			QStandardItem * const item = static_cast<QStandardItemModel *>(m_ui->listViewColumnSetup->model())->itemFromIndex(row_idx);
-			if (item->checkState() == Qt::Checked)
-			{
-				QString const & d = m_ui->listViewColumnSetup->model()->data(row_idx).toString();
-				m_config.m_columns_setup[app_idx].append(d);
-			}
+			QString const & d = m_ui->listViewColumnSetup->model()->data(row_idx).toString();
+			m_log_widget.m_config.m_columns_setup.append(d);
 		}
-		for (size_t j = 0, je = m_ui->listViewColumnSizes->model()->rowCount(); j < je; ++j)
-		{
-			QModelIndex const row_idx = m_ui->listViewColumnSizes->model()->index(j, 0, QModelIndex());
-			m_config.m_columns_sizes[app_idx].append(m_ui->listViewColumnSizes->model()->data(row_idx).toString().toInt());
-		}
-		for (size_t j = 0, je = m_ui->listViewColumnAlign->model()->rowCount(); j < je; ++j)
-		{
-			QModelIndex const row_idx = m_ui->listViewColumnAlign->model()->index(j, 0, QModelIndex());
-			m_config.m_columns_align[app_idx].append(m_ui->listViewColumnAlign->model()->data(row_idx).toString());
-		}
-		for (size_t j = 0, je = m_ui->listViewColumnElide->model()->rowCount(); j < je; ++j)
-		{
-			QModelIndex const row_idx = m_ui->listViewColumnElide->model()->index(j, 0, QModelIndex());
-			m_config.m_columns_elide[app_idx].append(m_ui->listViewColumnElide->model()->data(row_idx).toString());
-		}
+	}
+	for (size_t j = 0, je = m_ui->listViewColumnSizes->model()->rowCount(); j < je; ++j)
+	{
+		QModelIndex const row_idx = m_ui->listViewColumnSizes->model()->index(j, 0, QModelIndex());
+		m_log_widget.m_config.m_columns_sizes.append(m_ui->listViewColumnSizes->model()->data(row_idx).toString().toInt());
+	}
+	for (size_t j = 0, je = m_ui->listViewColumnAlign->model()->rowCount(); j < je; ++j)
+	{
+		QModelIndex const row_idx = m_ui->listViewColumnAlign->model()->index(j, 0, QModelIndex());
+		m_log_widget.m_config.m_columns_align.append(m_ui->listViewColumnAlign->model()->data(row_idx).toString());
+	}
+	for (size_t j = 0, je = m_ui->listViewColumnElide->model()->rowCount(); j < je; ++j)
+	{
+		QModelIndex const row_idx = m_ui->listViewColumnElide->model()->index(j, 0, QModelIndex());
+		m_log_widget.m_config.m_columns_elide.append(m_ui->listViewColumnElide->model()->data(row_idx).toString());
 	}
 
 	//m_settings_dialog->close();
-	m_server->onApplyColumnSetup();
+	m_log_widget.applyConfig();
 }
 
 void LogCtxMenu::onClickedAtSaveButton ()

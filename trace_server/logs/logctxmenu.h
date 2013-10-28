@@ -49,6 +49,7 @@ namespace logs {
 		{
 			bool const visible = m_widget->isVisible();
 			m_widget->setVisible(!visible);
+			onSettingsAppSelectedTLV(false);
 
 			if (m_widget->isVisible())
 				m_widget->move(pos);
@@ -69,14 +70,18 @@ namespace logs {
 		void onClickedAtSettingColumnSizes (QModelIndex const idx);
 		void onClickedAtSettingColumnAlign (QModelIndex const idx);
 		void onClickedAtSettingColumnElide (QModelIndex const idx);
-		void onSettingsAppSelectedTLV (int const idx, bool const first_time);
-		void onSettingsAppSelectedCSV (int const idx, int const columns, bool const first_time);
+		void onSettingsAppSelectedTLV (bool const first_time);
+		void onSettingsAppSelectedCSV (int const columns, bool const first_time);
 		void clearSettingWidgets ();
 		void onClickedAtAutoSetupButton ();
 		void onClickedAtApplyButton ();
 		void onClickedAtSaveButton ();
 		void onClickedAtCancelButton ();
 
+	protected:
+		void prepareSettingsWidgets ();
+
+	Q_OBJECT
 	};
 }
 

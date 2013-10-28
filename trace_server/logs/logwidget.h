@@ -61,7 +61,7 @@ namespace logs {
 		friend class LogTableModel;
 		friend class FilterProxyModel;
 		friend class FindProxyModel;
-		friend class CtxLogConfig;
+		friend struct LogCtxMenu;
 
 		bool filterEnabled () const { return m_config.m_filtering; }
 		int sizeHintForColumn (int column) const;
