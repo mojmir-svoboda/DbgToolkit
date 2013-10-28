@@ -11,20 +11,15 @@
 
 namespace logs {
 
-	struct CtxLogConfig : QObject
+	class LogWidget;
+
+	struct LogCtxMenu : QObject
 	{
-		LogConfig & m_pcfg;
+		LogWidget & m_log_widget;
 		Ui::SettingsLog * m_ui;
 		QDockWidget * m_widget;
 
-		CtxLogConfig (LogConfig & cfg, QWidget * parent)
-			: m_pcfg(cfg)
-			, m_ui(new Ui::SettingsLog)
-			, m_widget(new QDockWidget(parent))
-		{
-			m_widget->setVisible(false);
-			m_ui->setupUi(m_widget);
-		}
+		LogCtxMenu (LogWidget & cfg, QWidget * parent);
 
 		void onInViewStateChanged (int state)
 		{
@@ -41,7 +36,7 @@ namespace logs {
 				m_ui->inViewCheckBox->setCheckState(Qt::Unchecked);
 		}
 
-		~CtxLogConfig ()
+		~LogCtxMenu ()
 		{
 			m_widget->setVisible(false);
 			delete m_ui;
@@ -65,6 +60,23 @@ namespace logs {
 		}
 
 		Ui::SettingsLog * ui () { return m_ui; }
+
+	public slots:
+		//void setupSeparatorChar (QString const & c);
+		//QString separatorChar () const;
+		void syncSettingsViews (QListView const * const invoker, QModelIndex const idx);
+		void onClickedAtSettingColumnSetup (QModelIndex const idx);
+		void onClickedAtSettingColumnSizes (QModelIndex const idx);
+		void onClickedAtSettingColumnAlign (QModelIndex const idx);
+		void onClickedAtSettingColumnElide (QModelIndex const idx);
+		void onSettingsAppSelectedTLV (int const idx, bool const first_time);
+		void onSettingsAppSelectedCSV (int const idx, int const columns, bool const first_time);
+		void clearSettingWidgets ();
+		void onClickedAtAutoSetupButton ();
+		void onClickedAtApplyButton ();
+		void onClickedAtSaveButton ();
+		void onClickedAtCancelButton ();
+
 	};
 }
 

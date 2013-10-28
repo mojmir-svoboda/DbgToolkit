@@ -61,6 +61,7 @@ namespace logs {
 		friend class LogTableModel;
 		friend class FilterProxyModel;
 		friend class FindProxyModel;
+		friend class CtxLogConfig;
 
 		bool filterEnabled () const { return m_config.m_filtering; }
 		int sizeHintForColumn (int column) const;
@@ -265,7 +266,7 @@ namespace logs {
 	protected:
 		LogConfig & m_config;
 		LogConfig m_config2;
-		logs::CtxLogConfig m_config_ui;
+		logs::LogCtxMenu m_config_ui;
 		QString m_fname;
 		Connection * m_connection;
 		QWidget * m_tab;

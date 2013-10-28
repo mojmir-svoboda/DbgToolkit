@@ -166,7 +166,7 @@
       <item>
        <widget class="QStackedWidget" name="stackedWidget">
         <property name="currentIndex">
-         <number>0</number>
+         <number>2</number>
         </property>
         <widget class="QWidget" name="findPage">
          <layout class="QVBoxLayout" name="verticalLayout_4">
@@ -185,12 +185,29 @@
              <number>0</number>
             </property>
             <item>
-             <widget class="FindWidget" name="findWidget" native="true"/>
+             <widget class="FindWidget" name="findWidget" native="true">
+              <zorder>gridLayoutWidget</zorder>
+             </widget>
             </item>
            </layout>
           </item>
           <item>
-           <widget class="QTreeView" name="findResultTreeView"/>
+           <layout class="QGridLayout" name="gridLayout_7">
+            <item row="0" column="0">
+             <widget class="QCheckBox" name="stickToColumnCheckBox">
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QLabel" name="label">
+              <property name="text">
+               <string>If column selected, find only in selected column</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </item>
          </layout>
         </widget>
@@ -284,7 +301,7 @@
                  </widget>
                 </item>
                 <item row="4" column="2">
-                 <widget class="QPushButton" name="macUserButton">
+                 <widget class="QPushButton" name="autoSetupButton">
                   <property name="toolTip">
                    <string>...!</string>
                   </property>
@@ -616,7 +633,7 @@
             <x>140</x>
             <y>180</y>
             <width>228</width>
-            <height>42</height>
+            <height>64</height>
            </rect>
           </property>
           <layout class="QGridLayout" name="gridLayout">
@@ -645,22 +662,6 @@
              </property>
             </spacer>
            </item>
-           <item row="0" column="1">
-            <widget class="QCheckBox" name="inViewCheckBox">
-             <property name="font">
-              <font>
-               <family>Verdana</family>
-               <pointsize>7</pointsize>
-              </font>
-             </property>
-             <property name="toolTip">
-              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Tries to keep 1) color tag or 2) selection in view. Tag has precedence over selection.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-             </property>
-             <property name="text">
-              <string>keep in view</string>
-             </property>
-            </widget>
-           </item>
            <item row="1" column="0">
             <widget class="QCheckBox" name="filterFileCheckBox">
              <property name="font">
@@ -685,28 +686,6 @@ p, li { white-space: pre-wrap; }
              </property>
             </widget>
            </item>
-           <item row="0" column="2">
-            <widget class="QPushButton" name="gotoNextButton">
-             <property name="maximumSize">
-              <size>
-               <width>24</width>
-               <height>16777215</height>
-              </size>
-             </property>
-             <property name="font">
-              <font>
-               <family>Verdana</family>
-               <pointsize>7</pointsize>
-              </font>
-             </property>
-             <property name="toolTip">
-              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Goto next color tag or selection&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-             </property>
-             <property name="text">
-              <string/>
-             </property>
-            </widget>
-           </item>
            <item row="0" column="0">
             <widget class="QCheckBox" name="autoScrollCheckBox">
              <property name="font">
@@ -727,6 +706,44 @@ p, li { white-space: pre-wrap; }
              </property>
              <property name="checked">
               <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QCheckBox" name="inViewCheckBox">
+             <property name="font">
+              <font>
+               <family>Verdana</family>
+               <pointsize>7</pointsize>
+              </font>
+             </property>
+             <property name="toolTip">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Tries to keep 1) color tag or 2) selection in view. Tag has precedence over selection.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+             <property name="text">
+              <string>keep in view</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QPushButton" name="gotoNextButton">
+             <property name="maximumSize">
+              <size>
+               <width>24</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <family>Verdana</family>
+               <pointsize>7</pointsize>
+              </font>
+             </property>
+             <property name="toolTip">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Goto next color tag or selection&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+             <property name="text">
+              <string/>
              </property>
             </widget>
            </item>
