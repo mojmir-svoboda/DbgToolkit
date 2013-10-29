@@ -644,6 +644,8 @@ void MainWindow::loadState ()
 	m_config.m_app_names.clear();
 	m_config.m_columns_setup.clear();
 	m_config.m_columns_sizes.clear();
+	m_config.m_columns_align.clear();
+	m_config.m_columns_elide.clear();
 	m_config.loadHistory();
 	//updateSearchHistory();
 

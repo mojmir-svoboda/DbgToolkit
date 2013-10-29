@@ -10,6 +10,7 @@
 #include <fstream>
 #include <sstream>
 #include <tlv_parser/tlv.h>
+#include "tagconfig.h"
 
 namespace logs {
 
@@ -48,17 +49,52 @@ namespace logs {
 		same &= cfg.m_columns_sizes.size() == cfg.m_columns_align.size();
 		same &= cfg.m_columns_align.size() == cfg.m_columns_elide.size();
 
-		bool order_sane = true;
+		if (!same)
+			return false;
+
 		for (int i = 0, ie = cfg.m_columns_setup.size(); i < ie; ++i)
 		{
-			QString const & item = cfg.m_columns_setup.at(0);
-			if (!item.isEmpty() && tlv::tag_for_name(item.toStdString().c_str()) != 0)
-				order_sane &= true;
-			else
-				order_sane &= false;
+			QString const & item = cfg.m_columns_setup.at(i);
+			if (item.isEmpty())
+				return false;
+			if (tlv::tag_for_name(item.toStdString().c_str()) == 0)
+				return false;
 		}
 
-		return same;
+		for (int i = 0, ie = cfg.m_columns_sizes.size(); i < ie; ++i)
+		{
+			int const item = cfg.m_columns_sizes.at(i);
+			if (item < 0)
+				return false;
+		}
+
+		for (int i = 0, ie = cfg.m_columns_align.size(); i < ie; ++i)
+		{
+			QString const & item = cfg.m_columns_align.at(i);
+			if (item.isEmpty())
+				return false;
+			bool valid_align = false;
+			for (size_t i = 0; i < e_max_align_enum_value; ++i)
+				if (aligns[i] == item.at(0).toLatin1())
+					valid_align |= true;
+			if (!valid_align)
+				return false;
+		}
+
+		for (int i = 0, ie = cfg.m_columns_elide.size(); i < ie; ++i)
+		{
+			QString const & item = cfg.m_columns_elide.at(i);
+			if (item.isEmpty())
+				return false;
+			bool valid_elide = false;
+			for (size_t i = 0; i < e_max_elide_enum_value; ++i)
+				if (elides[i] == item.at(0).toLatin1())
+					valid_elide |= true;
+			if (!valid_elide)
+				return false;
+		}
+
+		return true;
 	}
 }
 
