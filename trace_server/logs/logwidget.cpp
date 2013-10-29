@@ -408,7 +408,7 @@ namespace logs {
 		m_config.clear();
 		bool const loaded = logs::loadConfig(m_config, logpath + "/" + m_config.m_tag);
 		if (!loaded)
-			m_connection->defaultConfigFor(m_config);
+			defaultConfigFor(m_config);
 		
 		loadAuxConfigs();
 	}

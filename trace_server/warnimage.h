@@ -1,5 +1,6 @@
 #pragma once
-#include <QPixMap
+#include <QPixMap>
+#include <QGraphicsOpacityEffect>
 
 struct WarnImage : QPixMap
 {
@@ -25,5 +26,17 @@ struct WarnImage : QPixMap
 		p.end();
 		 
 		m_image2 = temp;
+	}
+
+	void warningFindNoMoreMatches ()
+	{
+		QGraphicsOpacityEffect * effect = new QGraphicsOpacityEffect(m_image);
+		//QGraphicsOpacityEffect * effect = new QGraphicsOpacityEffect(m_image2);
+		label->setGraphicsEffect(effect);
+		QPropertyAnimation * anim = new QPropertyAnimation(effect, "opacity");
+		anim->setStartValue(0.01);
+		anim->setEndValue(1.0);
+		anim->setDuration(5000);
+		anim->start();
 	}
 }

@@ -45,6 +45,7 @@ protected:
 	void find ();
 	void find (bool select, bool refs, bool clone);
 	void find (bool prev, bool next);
+	void clearUI ();
 	void setConfigValuesToUI (FindConfig const & cfg);
 	void setUIValuesToConfig (FindConfig & cfg);
 	void makeActionFind (QString const & str, Action & a);

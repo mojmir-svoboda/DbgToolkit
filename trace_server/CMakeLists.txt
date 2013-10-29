@@ -104,6 +104,7 @@ set(trace_server_SOURCES
 	logs/logwidget.cpp
 	logs/logwidget_find.cpp
 	logs/logwidget_filtering.cpp
+	logs/logwidget_legacycfg.cpp
 	logs/logconfig.cpp
 	logs/logctxmenu.cpp
 	logs/logwidget_tools.cpp

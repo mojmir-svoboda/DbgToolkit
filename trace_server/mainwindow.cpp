@@ -484,18 +484,6 @@ void MainWindow::storeGeometry ()
 	settings.setValue("windowState", saveState());
 }
 
-void MainWindow::onSaveAllButton ()
-{
-	storeState();
-	qDebug("%s", __FUNCTION__);
-	storeGeometry();
-
-	if (Connection * conn = findCurrentConnection())
-	{
-		conn->onSaveAll();
-	}
-}
-
 void MainWindow::onDockRestoreButton ()
 {
 	qDebug("%s", __FUNCTION__);

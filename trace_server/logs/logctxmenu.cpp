@@ -306,7 +306,7 @@ void LogCtxMenu::clearSettingWidgets ()
 
 void LogCtxMenu::onClickedAtAutoSetupButton ()
 {
-	for (size_t j = 0, je = m_ui->listViewColumnAlign->model()->rowCount(); j < je; ++j)
+	for (int j = 0, je = m_ui->listViewColumnAlign->model()->rowCount(); j < je; ++j)
 	{
 		QModelIndex const tag_idx = m_ui->listViewColumnSetup->model()->index(j, 0, QModelIndex());
 		QString const tag = m_ui->listViewColumnSetup->model()->data(tag_idx).toString();

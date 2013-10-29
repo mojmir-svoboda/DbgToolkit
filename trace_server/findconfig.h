@@ -16,7 +16,7 @@ struct FindConfig
 	bool m_clone;
 	unsigned m_history_ln;
 	History<QString> m_history;
-	QString m_to_widget;
+	QStringList m_to_widgets;
 	QString m_str;
 	QRegExp m_regexp_val;
 
@@ -47,7 +47,7 @@ struct FindConfig
 		ar & boost::serialization::make_nvp("clone", m_clone);
 		ar & boost::serialization::make_nvp("history_ln", m_history_ln);
 		ar & boost::serialization::make_nvp("history", m_history);
-		ar & boost::serialization::make_nvp("to_widget", m_to_widget);
+		ar & boost::serialization::make_nvp("to_widget", m_to_widgets);
 		ar & boost::serialization::make_nvp("str", m_str);
 	}
 

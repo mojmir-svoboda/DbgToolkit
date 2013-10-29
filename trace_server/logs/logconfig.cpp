@@ -31,6 +31,23 @@ namespace logs {
 	{
 		config = LogConfig();
 	}
+
+	bool validateConfig (logs::LogConfig const & cfg)
+	{
+		bool b = true;
+		b &= cfg.m_columns_setup.size() != 0;
+		b &= cfg.m_columns_sizes.size() != 0;
+		b &= cfg.m_columns_align.size() != 0;
+		b &= cfg.m_columns_elide.size() != 0;
+
+		if (!b)
+			return false;
+
+		bool same = cfg.m_columns_setup.size() == cfg.m_columns_sizes.size();
+		same &= cfg.m_columns_sizes.size() == cfg.m_columns_align.size();
+		same &= cfg.m_columns_align.size() == cfg.m_columns_elide.size();
+		return same;
+	}
 }
 
 

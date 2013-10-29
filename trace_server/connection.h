@@ -252,10 +252,10 @@ public:
 	void setMainWindow (MainWindow * w) { m_main_window = w; }
 	MainWindow const * getMainWindow () const { return m_main_window; }
 	MainWindow * getMainWindow () { return m_main_window; }
+	GlobalConfig const & getGlobalConfig () const;
 	
 	QString getAppName () const { return m_app_name; }
 	int getAppIdx () const { return m_app_idx; }
-	int findAppNameInMainWindow (QString const & appname);
 	AppData const & appData () const { return m_app_data; }
 
 	void run ();
@@ -267,8 +267,6 @@ public:
 	void requestTableSynchronization (int sync_group, unsigned long long time);
 	void requestTableWheelEventSync (int sync_group, QWheelEvent * ev, QTableView const * source);
 	void requestTableActionSync (int sync_group, unsigned long long t, int cursorAction, Qt::KeyboardModifiers modifiers, QTableView const * source);
-
-	void defaultConfigFor (logs::LogConfig & config); // loads legacy registry defaults
 
 	// data widget creation functions:
 	template <int TypeN>
@@ -310,8 +308,6 @@ public slots:
 	void onShowLogContextMenu (QPoint const &);
 	void onShowLogs ();
 	void onHideLogs ();
-
-	void onSaveAll ();
 
 	bool tryHandleCommand (DecodedCommand const & cmd, E_ReceiveMode mode);
 
@@ -370,13 +366,9 @@ protected:
 
 	void registerDataMaps ();
 
-	void convertBloodyBollockyBuggeryRegistry (logs::LogConfig & cfg);
-
 	datalogs_t::iterator findOrCreateLog (QString const & tag);
-	//void appendLog (DecodedCommand const &);
 
 	dataplots_t::iterator findOrCreatePlot (QString const & tag);
-	//void appendDataXY (double x, double y, QString const & tag);
 
 	datatables_t::iterator findOrCreateTable (QString const & tag);
 	void appendTableXY (int x, int y, QString const & time, QString const & fgc, QString const & bgc, QString const & tag);
@@ -388,7 +380,6 @@ protected:
 	dataframes_t::iterator findOrCreateFrame (QString const & tag);
 	void appendFrames (gantt::DecodedData &);
 
-	GlobalConfig const & getConfig () const;
 
 	void tryLoadMatchingPreset (QString const & appname);
 	bool setupStorage (QString const & name);
@@ -402,16 +393,7 @@ protected:
 
 	void findTableIndexInFilters (QModelIndex const & row_index, bool scroll_to_item, bool expand);
 
-	void setupModelFile ();
-	void destroyModelFile ();
-	void setupModelCtx ();
-	void setupModelTID ();
-	void setupModelColorRegex ();
-	void setupModelRegex ();
-	void setupModelString ();
-	void setupModelLvl ();
 	void setupColumnSizes (bool force_setup = false);
-
 	bool dumpModeEnabled () const;
 
 private:
@@ -433,20 +415,6 @@ private:
 
 /*
 	SessionState m_session_state;
-	bool m_column_setup_done;
-	QString m_last_search;
-	QTableView * m_table_view_widget;
-	TreeModel * m_file_model;
-	TreeProxyModel * m_file_proxy;
-	QItemSelectionModel * m_proxy_selection;
-	QStandardItemModel * m_ctx_model;
-	QStandardItemModel * m_func_model;
-	QStandardItemModel * m_tid_model;
-	QStandardItemModel * m_color_regex_model;
-	QStandardItemModel * m_regex_model;
-	QStandardItemModel * m_lvl_model;
-	QStandardItemModel * m_string_model;
-
 	enum E_Delegates {
 		  e_delegate_Level
 		, e_delegate_Ctx

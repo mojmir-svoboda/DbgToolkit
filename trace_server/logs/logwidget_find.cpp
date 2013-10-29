@@ -41,12 +41,12 @@ void LogWidget::linkToSource (LogWidget * src)
 LogWidget * LogWidget::mkFindAllRefsLogWidget (FindConfig const & fc)
 {
 	QString tag;
-	if (fc.m_to_widget.isEmpty())
+	if (fc.m_to_widgets.isEmpty())
 		tag = "find_all_refs";
 	else
 	{
-		// @TODO: validate widget form: appname/foo
-		tag = fc.m_to_widget;
+		// @TODO: validate widget form
+		tag = fc.m_to_widgets.at(0);
 	}
 
 	LogConfig cfg;
@@ -91,7 +91,7 @@ LogWidget * LogWidget::mkFindAllRefsLogWidget (FindConfig const & fc)
 LogWidget * LogWidget::mkFindAllCloneLogWidget (FindConfig const & fc)
 {
 	QString tag;
-	if (fc.m_to_widget.isEmpty())
+	if (fc.m_to_widgets.isEmpty())
 	{
 		if (fc.m_refs)
 			tag = "find_all_refs";
@@ -103,7 +103,7 @@ LogWidget * LogWidget::mkFindAllCloneLogWidget (FindConfig const & fc)
 	else
 	{
 		// @TODO: validate widget form: appname/foo
-		tag = fc.m_to_widget;
+		tag = fc.m_to_widgets.at(0);
 	}
 
 	LogConfig cfg;

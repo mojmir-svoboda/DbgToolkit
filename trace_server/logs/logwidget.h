@@ -63,12 +63,17 @@ namespace logs {
 		friend class FindProxyModel;
 		friend struct LogCtxMenu;
 
-		bool filterEnabled () const { return m_config.m_filtering; }
+		// config
 		int sizeHintForColumn (int column) const;
+		void defaultConfigFor (logs::LogConfig & config); // loads legacy registry defaults
+		void reconfigureConfig (logs::LogConfig & cfg);
+		bool convertBloodyBollockyBuggeryRegistry (logs::LogConfig & cfg);
 		void normalizeConfig (logs::LogConfig & normalized);
 		void moveSectionsAccordingTo (logs::LogConfig const & cfg);
 		void resizeSections ();
 
+		// find & filtering
+		bool filterEnabled () const { return m_config.m_filtering; }
 		void setFilteringProxy (bool on);
 		void setFindProxyModel (FindConfig const & fc);
 		void setSrcModel (FindConfig const & fc);
@@ -96,14 +101,7 @@ namespace logs {
 	void onSettingsAppSelectedCSV (int idx, int columns, bool first_time = false);
 	void settingsDisableButSeparator ();
 	void settingsToDefault ();
-	void onClickedAtSettingPooftahButton ();
-	void onClickedAtSettingOkButton ();
-	void onClickedAtSettingOkSaveButton ();
-	void onClickedAtSettingCancelButton ();
-	void onClickedAtSettingColumnSetup (QModelIndex idx);
-	void onClickedAtSettingColumnSizes (QModelIndex idx);
-	void onClickedAtSettingColumnAlign (QModelIndex idx);
-	void onClickedAtSettingColumnElide (QModelIndex idx);
+
 	// setup
 	void onSetupAction ();
 	void onListVisibilityChanged (bool);

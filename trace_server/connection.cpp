@@ -11,7 +11,7 @@
 #include "delegates.h"
 #include "tableview.h"
 
-GlobalConfig const & Connection::getConfig () const { return m_main_window->getConfig(); }
+GlobalConfig const & Connection::getGlobalConfig () const { return m_main_window->getConfig(); }
 
 Connection::Connection (QObject * parent)
 	: QThread(parent)
@@ -163,11 +163,6 @@ void Connection::onDisconnected ()
 	{
 		QString fname = tr("%1_%2.csv").arg(getAppName()).arg(m_pid);
 
-
-
-
-
-
 		//exportStorageToCSV(fname);
 
 		Server * server = static_cast<Server *>(parent());
@@ -264,7 +259,7 @@ struct Apply {
 	}
 };
 
-void Connection::onSaveAll ()
+/*void Connection::onSaveAll ()
 {
 	qDebug("%s", __FUNCTION__);
 	// @TODO: v hhdr bude 0 !
@@ -273,7 +268,7 @@ void Connection::onSaveAll ()
 	//QString const fname = getDataTagFileName(getConfig().m_appdir, preset_name, g_presetTableTag, tag);
 	QString const preset_path = getPresetPath(getConfig().m_appdir, preset_name);
 	saveConfigs(preset_path);
-}
+}*/
 
 
 void Connection::saveConfigs (QString const & path)
@@ -290,35 +285,6 @@ void Connection::applyConfigs ()
 {
 	recurse(m_data, Apply());
 }
-
-// legacy configs
-template <class SrcT, class DstT>
-void assignSrcToDst (SrcT & src, DstT & dst)
-{
-	dst.reserve(src.size());
-	for (int i = 0, ie = src.size(); i < ie; ++i)
-		dst.push_back(src.at(i));
-}
-
-void Connection::convertBloodyBollockyBuggeryRegistry (logs::LogConfig & cfg)
-{
-	qDebug("%s", __FUNCTION__);
-	int const i = m_main_window->findAppName(getAppName());
-	if (i != e_InvalidItem && m_main_window->m_config.m_columns_setup.size() > i)
-	{
-		assignSrcToDst(m_main_window->m_config.m_columns_setup[i], cfg.m_columns_setup);
-		assignSrcToDst(m_main_window->m_config.m_columns_sizes[i], cfg.m_columns_sizes);
-		assignSrcToDst(m_main_window->m_config.m_columns_align[i], cfg.m_columns_align);
-		assignSrcToDst(m_main_window->m_config.m_columns_elide[i], cfg.m_columns_elide);
-	}
-}
-
-
-int Connection::findAppNameInMainWindow (QString const & appname)
-{
-	return m_main_window->findAppName(appname);
-}
-
 
 void Connection::setWidgetToTabWidget (QWidget * w)
 {

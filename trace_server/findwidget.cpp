@@ -57,7 +57,6 @@ FindWidget::~FindWidget ()
 void FindWidget::applyConfig (FindConfig & cfg)
 {
 	m_config = cfg;
-	//applyConfig();
 	setConfigValuesToUI(m_config);
 }
 
@@ -213,12 +212,20 @@ void FindWidget::find (bool prev, bool next)
 void FindWidget::onFindNext () { find(0, 1); }
 void FindWidget::onFindPrev () { find(1, 0); }
 
+void FindWidget::clearUI ()
+{
+	m_ui->widgetComboBox->clear();
+	m_ui->findBox->clear();
+}
+
 void FindWidget::setConfigValuesToUI (FindConfig const & cfg)
 {
+	clearUI();
 	syncHistoryToWidget(m_ui->findBox, cfg.m_history);
 	m_ui->caseCheckBox->setChecked(cfg.m_case_sensitive);
 	m_ui->wholeWordCheckBox->setChecked(cfg.m_whole_word);
 	m_ui->regexCheckBox->setChecked(cfg.m_regexp);
+	m_ui->widgetComboBox->addItems(cfg.m_to_widgets);
 }
 
 void FindWidget::setUIValuesToConfig (FindConfig & cfg)

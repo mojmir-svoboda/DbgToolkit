@@ -221,7 +221,6 @@ private slots:
 
 	// preset
 	void onPresetChanged (int idx);
-	void onSaveAllButton ();
 	void onSaveCurrentState ();
 	void onSaveCurrentStateTo (QString const & name);
 	void onAddPreset ();

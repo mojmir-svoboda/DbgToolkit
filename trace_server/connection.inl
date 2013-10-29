@@ -1,17 +1,6 @@
 #pragma once
 #include <serialize.h>
 
-inline void Connection::defaultConfigFor (logs::LogConfig & config)
-{
-	QString const & appname = getAppName();
-	int const idx = findAppNameInMainWindow(appname);
-	if (idx != e_InvalidItem)
-	{
-		convertBloodyBollockyBuggeryRegistry(config);
-		return;
-	}
-}
-
 template <int TypeN>
 inline QString Connection::getClosestPresetName (QString const & tag)
 {
@@ -29,14 +18,14 @@ inline QString Connection::getClosestPresetName (QString const & tag)
 	if (preset_name.isEmpty())
 	{
 		QStringList subdirs;
-		if (int const n = findPresetsForApp(getConfig().m_appdir, getAppName(), subdirs))
+		if (int const n = findPresetsForApp(getGlobalConfig().m_appdir, getAppName(), subdirs))
 		{
 			bool default_present = false;
 			QStringList candidates;
 			foreach (QString const & s, subdirs)
 			{
 				QString test_preset_name = getAppName() + "/" + s;
-				QString const cfg_fname = getDataTagFileName(getConfig().m_appdir, getAppName(), s, preset_prefix, tag);
+				QString const cfg_fname = getDataTagFileName(getGlobalConfig().m_appdir, getAppName(), s, preset_prefix, tag);
 				if (existsFile(cfg_fname))
 				{
 					if (s == QString(g_defaultPresetName))
@@ -92,7 +81,7 @@ typename SelectIterator<TypeN>::type  Connection::dataWidgetFactory (QString con
 
 		QString const preset_name = getClosestPresetName<TypeN>(tag);
 		char const * preset_prefix = g_fileTags[TypeN];
-		QString const fname = getDataTagFileName(getConfig().m_appdir, getAppName(), preset_name, preset_prefix, tag);
+		QString const fname = getDataTagFileName(getGlobalConfig().m_appdir, getAppName(), preset_name, preset_prefix, tag);
 		
 		typedef typename SelectDockedData<TypeN, dockeddata_t>::type data_t;
 		typedef typename SelectDockedData<TypeN, dockeddataptr_t>::type dataptr_t;
@@ -104,7 +93,7 @@ typename SelectIterator<TypeN>::type  Connection::dataWidgetFactory (QString con
 		dd->m_config.m_tag = tag;
 		if (!preset_name.isEmpty())
 		{
-			QString const cfg_path = getConfig().m_appdir + "/" + getAppName() + "/" + preset_name;
+			QString const cfg_path = getGlobalConfig().m_appdir + "/" + getAppName() + "/" + preset_name;
 			dd->widget().loadConfig(cfg_path);
 		}
 
@@ -151,11 +140,11 @@ bool Connection::dataWidgetConfigPreload (QString const tag, typename SelectConf
 
 	QString const preset_name = getClosestPresetName<TypeN>(tag);
 	char const * preset_prefix = g_fileTags[TypeN];
-	QString const fname = getDataTagFileName(getConfig().m_appdir, getAppName(), preset_name, preset_prefix, tag);
+	QString const fname = getDataTagFileName(getGlobalConfig().m_appdir, getAppName(), preset_name, preset_prefix, tag);
 	
 	if (!preset_name.isEmpty())
 	{
-		QString const cfg_path = getConfig().m_appdir + "/" + getAppName() + "/" + preset_name;
+		QString const cfg_path = getGlobalConfig().m_appdir + "/" + getAppName() + "/" + preset_name;
 		//bool const loaded = logs::loadConfig(m_config, logpath + "/" + m_config.m_tag);
 		//if (!loaded)
 		//	m_connection->defaultConfigFor(m_config);
@@ -179,7 +168,7 @@ typename SelectIterator<TypeN>::type  Connection::dataWidgetFactoryFrom (QString
 
 		QString const preset_name = getClosestPresetName<TypeN>(tag);
 		char const * preset_prefix = g_fileTags[TypeN];
-		QString const fname = getDataTagFileName(getConfig().m_appdir, getAppName(), preset_name, preset_prefix, tag);
+		QString const fname = getDataTagFileName(getGlobalConfig().m_appdir, getAppName(), preset_name, preset_prefix, tag);
 		
 		typedef typename SelectDockedData<TypeN, dockeddata_t>::type data_t;
 		typedef typename SelectDockedData<TypeN, dockeddataptr_t>::type dataptr_t;
