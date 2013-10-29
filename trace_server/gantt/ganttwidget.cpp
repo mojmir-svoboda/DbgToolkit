@@ -80,7 +80,7 @@ namespace gantt {
 	{
 		GanttViewConfig * c = 0;
 		bool found = false;
-		for (size_t i = 0, ie = m_config.m_gvcfg.size(); i < ie; ++i)
+		for (int i = 0, ie = m_config.m_gvcfg.size(); i < ie; ++i)
 			if (m_config.m_gvcfg[i].m_tag == subtag)
 			{
 				c = &m_config.m_gvcfg[i];
@@ -176,7 +176,7 @@ namespace gantt {
 		//qDebug("%s this=0x%08x", __FUNCTION__, this);
 		Ui::SettingsGantt * ui = m_config_ui->ui();
 
-		for (size_t i = 0, ie = m_config.m_gvcfg.size(); i < ie; ++i)
+		for (int i = 0, ie = m_config.m_gvcfg.size(); i < ie; ++i)
 		{
 			GanttViewConfig & gvc = cfg.m_gvcfg[i];
 
@@ -242,7 +242,7 @@ namespace gantt {
 		ui->globalShowCheckBox->blockSignals(false);
 
 		ui->ganttViewComboBox->clear();
-		for (size_t i = 0, ie = cfg.m_gvcfg.size(); i < ie; ++i)
+		for (int i = 0, ie = cfg.m_gvcfg.size(); i < ie; ++i)
 		{
 			GanttViewConfig const & gvcfg = cfg.m_gvcfg[i];
 			ui->ganttViewComboBox->addItem(gvcfg.m_tag);
@@ -257,7 +257,7 @@ namespace gantt {
 		Ui::SettingsGantt * ui = m_config_ui->ui();
 		m_config.m_show = ui->globalShowCheckBox->checkState() == Qt::Checked;
 
-		for (size_t i = 0, ie = cfg.m_gvcfg.size(); i < ie; ++i)
+		for (int i = 0, ie = cfg.m_gvcfg.size(); i < ie; ++i)
 		{
 			GanttViewConfig & gvcfg = cfg.m_gvcfg[i];
 			setUIValuesToViewConfig(gvcfg);
@@ -319,7 +319,7 @@ namespace gantt {
 	{
 		Ui::SettingsGantt * ui = m_config_ui->ui();
 		QString const & gvname = ui->ganttViewComboBox->currentText();
-		for (size_t i = 0, ie = m_config.m_gvcfg.size(); i < ie; ++i)
+		for (int i = 0, ie = m_config.m_gvcfg.size(); i < ie; ++i)
 		{
 			GanttViewConfig const & gvcfg = m_config.m_gvcfg[i];
 			if (gvcfg.m_tag == gvname)
@@ -352,7 +352,7 @@ namespace gantt {
 	{
 		Ui::SettingsGantt * ui = m_config_ui->ui();
 		QString const & gvname = ui->ganttViewComboBox->currentText();
-		for (size_t i = 0, ie = m_config.m_gvcfg.size(); i < ie; ++i)
+		for (int i = 0, ie = m_config.m_gvcfg.size(); i < ie; ++i)
 		{
 			GanttViewConfig const & gvcfg = m_config.m_gvcfg[i];
 			if (gvcfg.m_tag == gvname)
@@ -364,7 +364,7 @@ namespace gantt {
 	{
 		Ui::SettingsGantt * ui = m_config_ui->ui();
 		QString const & gvname = ui->ganttViewComboBox->currentText();
-		for (size_t i = 0, ie = m_config.m_gvcfg.size(); i < ie; ++i)
+		for (int i = 0, ie = m_config.m_gvcfg.size(); i < ie; ++i)
 		{
 			GanttViewConfig const & gvcfg = m_config.m_gvcfg[i];
 			if (gvcfg.m_tag == gvname)
@@ -376,7 +376,7 @@ namespace gantt {
 	{
 		Ui::SettingsGantt * ui = m_config_ui->ui();
 		QString const & gvname = ui->ganttViewComboBox->currentText();
-		for (size_t i = 0, ie = m_config.m_gvcfg.size(); i < ie; ++i)
+		for (int i = 0, ie = m_config.m_gvcfg.size(); i < ie; ++i)
 		{
 			GanttViewConfig const & gvcfg = m_config.m_gvcfg[i];
 			if (gvcfg.m_tag == gvname)
@@ -388,7 +388,7 @@ namespace gantt {
 	{
 		Ui::SettingsGantt * ui = m_config_ui->ui();
 		QString const & gvname = ui->ganttViewComboBox->currentText();
-		for (size_t i = 0, ie = m_config.m_gvcfg.size(); i < ie; ++i)
+		for (int i = 0, ie = m_config.m_gvcfg.size(); i < ie; ++i)
 		{
 			GanttViewConfig const & gvcfg = m_config.m_gvcfg[i];
 			if (gvcfg.m_tag == gvname)
@@ -400,7 +400,7 @@ namespace gantt {
 	{
 		Ui::SettingsGantt * ui = m_config_ui->ui();
 		QString const & gvname = ui->ganttViewComboBox->currentText();
-		for (size_t i = 0, ie = m_config.m_gvcfg.size(); i < ie; ++i)
+		for (int i = 0, ie = m_config.m_gvcfg.size(); i < ie; ++i)
 		{
 			GanttViewConfig const & gvcfg = m_config.m_gvcfg[i];
 			if (gvcfg.m_tag == gvname)
