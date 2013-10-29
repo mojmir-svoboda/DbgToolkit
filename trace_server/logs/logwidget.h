@@ -63,6 +63,8 @@ namespace logs {
 		friend class FindProxyModel;
 		friend struct LogCtxMenu;
 
+		virtual void keyPressEvent (QKeyEvent * event);
+
 		// config
 		int sizeHintForColumn (int column) const;
 		void defaultConfigFor (logs::LogConfig & config); // loads legacy registry defaults

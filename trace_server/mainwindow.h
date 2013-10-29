@@ -217,6 +217,7 @@ private slots:
 	void onFindAllRefs ();
 	void onFindNext ();
 	void onFindPrev ();
+	//void onCopyToClipboard ();
 
 	// preset
 	void onPresetChanged (int idx);
@@ -238,7 +239,6 @@ private slots:
 	//void onTableFontToolButton ();
 	void onTablesStateChanged (int state);
 	//void onAutoScrollStateChanged (int state);
-	//void onCopyToClipboard ();
 
 private:
 	void showServerStatus ();

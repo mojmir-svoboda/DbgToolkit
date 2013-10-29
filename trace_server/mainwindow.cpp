@@ -511,14 +511,11 @@ void MainWindow::setupMenuBar ()
 	editMenu->addAction(tr("Find"), this, SLOT(onFindAllRefs()), Qt::ControlModifier + Qt::ShiftModifier + Qt::Key_F);
 	editMenu->addAction(tr("Find Next"), this, SLOT(onFindNext()), QKeySequence::FindNext);
 	editMenu->addAction(tr("Find Prev"), this, SLOT(onFindPrev()), QKeySequence::FindPrevious);
+	new QShortcut(QKeySequence(Qt::Key_Slash), this, SLOT(onFind()));
 
 	//editMenu->addAction(tr("Find and Select All"), this, SLOT(onFindAllButton()));
 	editMenu->addAction(tr("Goto Next Tag or Selection"), this, SLOT(onNextToView()));
 
-	new QShortcut(QKeySequence(Qt::Key_Slash), this, SLOT(onEditFind()));
-	editMenu->addSeparator();
-	editMenu->addAction(tr("Copy"), m_server, SLOT(onCopyToClipboard()), QKeySequence::Copy);
-	new QShortcut(QKeySequence(Qt::ControlModifier + Qt::Key_Insert), this, SLOT(onCopyToClipboard()));
 	editMenu->addSeparator();
 	editMenu->addAction(tr("Close Tab"), m_server, SLOT(onCloseCurrentTab()), QKeySequence(Qt::ControlModifier + Qt::Key_W));
 
@@ -773,7 +770,7 @@ void MainWindow::closeEvent (QCloseEvent * event)
 void MainWindow::changeEvent (QEvent * e) { QMainWindow::changeEvent(e); }
 bool MainWindow::eventFilter (QObject * target, QEvent * e)
 {
-	if (e->type() == QEvent::Shortcut)
+	/*if (e->type() == QEvent::Shortcut)
 	{
 		QShortcutEvent * se = static_cast<QShortcutEvent *>(e);
 		if (se->key() == QKeySequence(Qt::ControlModifier + Qt::Key_Insert))
@@ -782,7 +779,7 @@ bool MainWindow::eventFilter (QObject * target, QEvent * e)
 			//onCopyToClipboard();
 			return true;
 		}
-	}
+	}*/
 	return false;
 }
 

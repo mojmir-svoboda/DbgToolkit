@@ -973,6 +973,21 @@ QString LogWidget::onCopyToClipboard ()
 	return selected_text;
 }
 
+void LogWidget::keyPressEvent (QKeyEvent * e)
+{
+	//editMenu->addAction(tr("Copy"), this, SLOT(onCopyToClipboard()), QKeySequence::Copy);
+	//new QShortcut(QKeySequence(Qt::ControlModifier + Qt::Key_Insert), this, SLOT(onCopyToClipboard()));
+	if (e->type() == QKeyEvent::KeyPress)
+	{
+		if (e->matches(QKeySequence::Copy))
+		{
+			onCopyToClipboard();
+			e->accept();
+		}
+	}
+	QTableView::keyPressEvent(e);
+}
+
 bool LogWidget::isModelProxy () const
 {
 	if (0 == model())
