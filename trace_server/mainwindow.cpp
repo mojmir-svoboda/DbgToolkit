@@ -744,10 +744,6 @@ void MainWindow::loadState ()
 	RegisterHotKey(getHWNDForWidget(this), 0, mod, LOBYTE(hotkey));
 #endif
 
-	loadPresets();
-	QString const pname = settings.value("presetComboBox").toString();
-	ui->presetComboBox->setCurrentIndex(ui->presetComboBox->findText(pname));
-
 	m_dock_mgr.loadConfig(m_config.m_appdir);
 	m_dock_mgr.applyConfig();
 	ui->dockedWidgetsToolButton->setChecked(m_dock_mgr.m_config.m_show);

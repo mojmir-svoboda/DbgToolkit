@@ -192,7 +192,6 @@ public slots:
 private slots:
 
 	void loadState ();
-	void loadPresets ();
 	void storeGeometry ();
 	void storeState ();
 	//void saveCurrentSession (QString const & preset_name);

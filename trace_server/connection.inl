@@ -97,6 +97,9 @@ typename SelectIterator<TypeN>::type  Connection::dataWidgetFactory (QString con
 			dd->widget().loadConfig(cfg_path);
 		}
 
+		m_main_window->mentionInPresetHistory(getAppName() + "/" + preset_name);
+		m_main_window->setPresetAsCurrent(getAppName() + "/" + preset_name);
+
 		DockedWidgetBase & dwb = *dd;;
 
 		dd->m_wd = m_main_window->m_dock_mgr.mkDockWidget(dwb, (*it)->config().m_show);

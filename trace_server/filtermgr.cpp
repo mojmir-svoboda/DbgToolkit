@@ -36,7 +36,7 @@ FilterMgr::~FilterMgr ()
 bool FilterMgr::accept (DecodedCommand const & cmd) const
 {
 	bool accepted = true;
-	for (size_t i = 0, ie = m_filters.size(); i < ie; ++i)
+	for (int i = 0, ie = m_filters.size(); i < ie; ++i)
 	{
 		FilterBase * b = m_filters[i];
 		if (b->enabled())
@@ -63,7 +63,7 @@ void FilterMgr::loadConfig (QString const & path)
 
 	recreateFilters();
 
-	for (size_t i = 0, ie = m_filters.size(); i < ie; ++i)
+	for (int i = 0, ie = m_filters.size(); i < ie; ++i)
 		m_filters[i]->loadConfig(path);
 }
 
@@ -72,13 +72,13 @@ void FilterMgr::saveConfig (QString const & path)
 	QString const fname = path + "/" + g_filterTag + "/" + typeName();
 	::saveConfigTemplate(*this, fname);
 
-	for (size_t i = 0, ie = m_filters.size(); i < ie; ++i)
+	for (int i = 0, ie = m_filters.size(); i < ie; ++i)
 		m_filters[i]->saveConfig(path);
 }
 
 void FilterMgr::applyConfig ()
 {
-	for (size_t i = 0, ie = m_filters.size(); i < ie; ++i)
+	for (int i = 0, ie = m_filters.size(); i < ie; ++i)
 		m_filters[i]->applyConfig();
 }
 
@@ -86,7 +86,7 @@ void FilterMgr::applyConfig ()
 bool FilterMgr::someFilterEnabled () const
 {
 	bool some_filter_enabled = false;
-	for (size_t i = 0, ie = m_filters.size(); i < ie; ++i)
+	for (int i = 0, ie = m_filters.size(); i < ie; ++i)
 		if (m_filters[i] && m_filters[i]->enabled())
 			some_filter_enabled |= 1;
 	return some_filter_enabled;
@@ -146,13 +146,13 @@ FilterBase * filterFactory (E_FilterType t, QWidget * parent)
 
 void FilterMgr::connectFiltersTo (QWidget * w)
 {
-	for (size_t i = 0, ie = m_filters.size(); i < ie; ++i)
+	for (int i = 0, ie = m_filters.size(); i < ie; ++i)
 		connect(m_filters[i], SIGNAL(filterChangedSignal()), w, SLOT(onFilterChanged()));
 }
 
 void FilterMgr::disconnectFiltersTo (QWidget * w)
 {
-	for (size_t i = 0, ie = m_filters.size(); i < ie; ++i)
+	for (int i = 0, ie = m_filters.size(); i < ie; ++i)
 		disconnect(m_filters[i], SIGNAL(filterChangedSignal()), w, SLOT(onFilterChanged()));
 }
 
@@ -164,13 +164,13 @@ void FilterMgr::recreateFilters ()
 	//m_cache.clear();
 	m_cache.resize(e_filtertype_max_value);
 
-	for (size_t i = 0, ie = m_tabFilters->tabBar()->count(); i < ie; ++i)
+	for (int i = 0, ie = m_tabFilters->tabBar()->count(); i < ie; ++i)
 	{
 		m_tabFilters->tabBar()->setTabButton(i, QTabBar::LeftSide, 0);
 	}
 
 	m_tabFilters->clear();
-	for (size_t i = 0, ie = m_filter_order.size(); i < ie; ++i)
+	for (int i = 0, ie = m_filter_order.size(); i < ie; ++i)
 	{
 		E_FilterType const t = filterName2Type(m_filter_order[i]);
 		FilterBase * fb = 0;
@@ -195,7 +195,7 @@ void FilterMgr::recreateFilters ()
 			continue;
 
 		bool used = 0;
-		for (size_t i = 0, ie = m_filters.size(); i < ie; ++i)
+		for (int i = 0, ie = m_filters.size(); i < ie; ++i)
 			if (m_cache[c] && m_cache[c] == m_filters[i])
 			{
 				used |= 1;
@@ -212,7 +212,7 @@ void FilterMgr::recreateFilters ()
 namespace {
 	void fillComboBoxWithFilters (QComboBox * cbx)
 	{
-		for (size_t i = 0; i < e_filtertype_max_value; ++i)
+		for (int i = 0; i < e_filtertype_max_value; ++i)
 			cbx->addItem(g_filterNames[i]);
 	}
 
@@ -332,7 +332,7 @@ void FilterMgr::clearUI ()
 void FilterMgr::setConfigToUI ()
 {
 	clearUI();
-	for (size_t i = 0, ie = m_filters.size(); i < ie; ++i)
+	for (int i = 0, ie = m_filters.size(); i < ie; ++i)
 	{
 		//QComboBox * cbx = new QComboBox(m_tabCtxMenu);
 		//fillComboBoxWithFilters(cbx);
