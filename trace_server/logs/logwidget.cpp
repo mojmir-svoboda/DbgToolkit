@@ -985,8 +985,8 @@ void LogWidget::keyPressEvent (QKeyEvent * e)
 {
 	if (e->type() == QKeyEvent::KeyPress)
 	{
-		if (e->matches(QKeySequence::Copy))
-	//		e->matches(QKeySequence(Qt::ControlModifier, Qt::Key_Insert)))
+		bool const ctrl_ins = (e->modifiers() & Qt::ControlModifier) == Qt::ControlModifier && e->key() == Qt::Key_Insert;
+		if (e->matches(QKeySequence::Copy) || ctrl_ins)
 		{
 			onCopyToClipboard();
 			e->accept();
