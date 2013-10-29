@@ -25,6 +25,10 @@ bool loadConfigTemplate (T & t, QString const & fname)
 		ifs.close();
 		return true;
 	}
+	catch (boost::archive::archive_exception const & e)
+	{
+		QMessageBox::critical(0, QString(__FUNCTION__), QString("exception during load: %1").arg(e.what()), QMessageBox::Ok, QMessageBox::Ok);	
+	}
 	catch (std::out_of_range const & e)
 	{
 		QMessageBox::critical(0, QString(__FUNCTION__), QString("OOR exception during load: %1").arg(e.what()), QMessageBox::Ok, QMessageBox::Ok);	

@@ -67,7 +67,26 @@ struct Application : QApplication, public QAbstractNativeEventFilter
 					return true;
 			}
 		}
-		return QApplication::notify(receiver, e);
+
+		try
+		{
+			return QApplication::notify(receiver, e);
+		}
+		catch (std::exception & ex)
+		{
+			qFatal("Error %s sending event %s to object %s (%s)", 
+				ex.what(), typeid(*e).name(), qPrintable(receiver->objectName()),
+				typeid(*receiver).name());
+			return true;
+		}
+		catch (...)
+		{
+			qFatal("Error <unknown> sending event %s to object %s (%s)", 
+				typeid(*e).name(), qPrintable(receiver->objectName()),
+				typeid(*receiver).name());
+			return true;
+		}
+		return false;
 	}
 };
 
