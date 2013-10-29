@@ -61,6 +61,7 @@ namespace logs {
 		}
 
 		Ui::SettingsLog * ui () { return m_ui; }
+		void clearUI ();
 
 	public slots:
 		//void setupSeparatorChar (QString const & c);
@@ -72,7 +73,6 @@ namespace logs {
 		void onClickedAtSettingColumnElide (QModelIndex const idx);
 		void onSettingsAppSelectedTLV (bool const first_time);
 		void onSettingsAppSelectedCSV (int const columns, bool const first_time);
-		void clearSettingWidgets ();
 		void onClickedAtAutoSetupButton ();
 		void onClickedAtApplyButton ();
 		void onClickedAtSaveButton ();

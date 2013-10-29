@@ -249,7 +249,6 @@ namespace logs {
 	void LogWidget::onHideContextMenu ()
 	{
 		Ui::SettingsLog * ui = m_config_ui.ui();
-		disconnect(ui->applyButton, SIGNAL(clicked()), this, SLOT(onApplyButton()));
 		disconnect(ui->saveButton, SIGNAL(clicked()), this, SLOT(onSaveButton()));
 		m_config_ui.onHideContextMenu();
 	}
@@ -261,7 +260,6 @@ namespace logs {
 		Ui::SettingsLog * ui = m_config_ui.ui();
 
 		setConfigValuesToUI(m_config);
-		connect(ui->applyButton, SIGNAL(clicked()), this, SLOT(onApplyButton()));
 		connect(ui->saveButton, SIGNAL(clicked()), this, SLOT(onSaveButton()));
 		//connect(ui->logViewComboBox, SIGNAL(activated(int)), this, SLOT(onLogViewActivate(int)));
 	}
