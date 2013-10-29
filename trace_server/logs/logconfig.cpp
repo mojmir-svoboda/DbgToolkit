@@ -9,6 +9,7 @@
 #include <serialize.h>
 #include <fstream>
 #include <sstream>
+#include <tlv_parser/tlv.h>
 
 namespace logs {
 
@@ -46,6 +47,17 @@ namespace logs {
 		bool same = cfg.m_columns_setup.size() == cfg.m_columns_sizes.size();
 		same &= cfg.m_columns_sizes.size() == cfg.m_columns_align.size();
 		same &= cfg.m_columns_align.size() == cfg.m_columns_elide.size();
+
+		bool order_sane = true;
+		for (int i = 0, ie = cfg.m_columns_setup.size(); i < ie; ++i)
+		{
+			QString const & item = cfg.m_columns_setup.at(0);
+			if (!item.isEmpty() && tlv::tag_for_name(item.toStdString().c_str()) != 0)
+				order_sane &= true;
+			else
+				order_sane &= false;
+		}
+
 		return same;
 	}
 }
