@@ -1,6 +1,6 @@
 #include "logwidget.h"
 //#include <QScrollBar>
-//#include <QSplitter>
+#include <QClipboard>
 #include <connection.h>
 #include <utils.h>
 #include <utils_qstandarditem.h>
@@ -945,7 +945,7 @@ int LogWidget::appendColumn (tlv::tag_t tag)
 	return column_index;
 }
 
-QString LogWidget::onCopyToClipboard ()
+QString LogWidget::exportSelection ()
 {
 	QAbstractItemModel * m = model();
 	QItemSelectionModel * selection = selectionModel();
@@ -963,7 +963,8 @@ QString LogWidget::onCopyToClipboard ()
 	for (int i = 0; i < indexes.size(); ++i)
 	{
 		QModelIndex const current = indexes.at(i);
-		selected_text.append(m->data(current).toString());
+		QString const simplified = m->data(current).toString().simplified();
+		selected_text.append(simplified);
 		
 		if (i + 1 < indexes.size() && current.row() != indexes.at(i + 1).row())
 			selected_text.append('\n');	// switching rows
@@ -973,16 +974,23 @@ QString LogWidget::onCopyToClipboard ()
 	return selected_text;
 }
 
+void LogWidget::onCopyToClipboard ()
+{
+	QString const text = exportSelection();
+	QClipboard * clipboard = QApplication::clipboard();
+	clipboard->setText(text);
+}
+
 void LogWidget::keyPressEvent (QKeyEvent * e)
 {
-	//editMenu->addAction(tr("Copy"), this, SLOT(onCopyToClipboard()), QKeySequence::Copy);
-	//new QShortcut(QKeySequence(Qt::ControlModifier + Qt::Key_Insert), this, SLOT(onCopyToClipboard()));
 	if (e->type() == QKeyEvent::KeyPress)
 	{
 		if (e->matches(QKeySequence::Copy))
+	//		e->matches(QKeySequence(Qt::ControlModifier, Qt::Key_Insert)))
 		{
 			onCopyToClipboard();
 			e->accept();
+			return;
 		}
 	}
 	QTableView::keyPressEvent(e);

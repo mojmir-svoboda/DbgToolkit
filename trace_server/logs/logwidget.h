@@ -91,6 +91,7 @@ namespace logs {
 		void currSelection (QModelIndexList & sel) const;
 		void noMoreMatches ();
 		LogTableModel * cloneToNewModel (FindConfig const & fc);
+		QString exportSelection ();
 
 	void setupSeparatorChar (QString const & c);
 	QString separatorChar () const;
@@ -243,7 +244,7 @@ namespace logs {
 
 		//void setupColumns (QList<QString> * cs_template, columns_sizes_t * sizes , columns_align_t * ca_template, columns_elide_t * ce_template);
 		//void setupColumnsCSV (QList<QString> * cs_template, columns_sizes_t * sizes , columns_align_t * ca_template, columns_elide_t * ce_template);
-		QString onCopyToClipboard ();
+		void onCopyToClipboard ();
 		void findTableIndexInFilters (QModelIndex const & src_idx, bool scroll_to_item, bool expand);
 
 

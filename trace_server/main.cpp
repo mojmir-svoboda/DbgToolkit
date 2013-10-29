@@ -72,7 +72,7 @@ struct Application : QApplication, public QAbstractNativeEventFilter
 		{
 			return QApplication::notify(receiver, e);
 		}
-		catch (std::exception & ex)
+		catch (std::exception const & ex)
 		{
 			qFatal("Error %s sending event %s to object %s (%s)", 
 				ex.what(), typeid(*e).name(), qPrintable(receiver->objectName()),
