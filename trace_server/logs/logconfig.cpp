@@ -15,7 +15,10 @@ namespace logs {
 	bool loadConfig (LogConfig & config, QString const & fname)
 	{
 		if (!::loadConfigTemplate(config, fname))
+		{
 			fillDefaultConfig(config);
+			return false;
+		}
 		return true;
 	}
 
