@@ -270,9 +270,9 @@ namespace logs {
 		int const hn = horizontalHeader()->count();
 		for (int hi = 0; hi < hn; ++hi)
 		{
-			int const vi_from = horizontalHeader()->logicalIndex(hi);
-			QString vi_from_str = m_config.m_columns_setup[vi_from]; // from m_config
-			src << vi_from_str;
+			int const li = horizontalHeader()->logicalIndex(hi);
+			QString const li_str = m_config.m_columns_setup[li]; // @note: from m_config
+			src << li_str;
 		}
 	
 		QStringList tgt;
@@ -283,7 +283,6 @@ namespace logs {
 		}
 
 		for (int nj = 0; nj < nn; ++nj)
-		{
 			for (int hi = 0; hi < hn; ++hi)
 				if (src[hi] == tgt[nj])
 				{
@@ -294,10 +293,20 @@ namespace logs {
 						break;
 					}
 				}
+
+		//void LogWidget::resizeSections ()
+		{
+			bool const old = blockSignals(true);
+			for (int c = 0, ce = cfg.m_columns_sizes.size(); c < ce; ++c)
+			{
+				int const li = horizontalHeader()->logicalIndex(c);
+				horizontalHeader()->resizeSection(li, cfg.m_columns_sizes.at(c));
+			}
+			blockSignals(old);
 		}
 	}
 	
-	void LogWidget::moveSectionsAccordingTo (logs::LogConfig const & cfg)
+	/*void LogWidget::moveSectionsAccordingTo (logs::LogConfig const & cfg)
 	{
 
 		QMap<int, int> perms;
@@ -319,7 +328,6 @@ namespace logs {
 		}
 
 		QMapIterator<int, int> iter(perms);
-
 		while (iter.hasNext())
 		{
 			iter.next();
@@ -327,14 +335,13 @@ namespace logs {
 			int const visual = iter.value();
 			horizontalHeader()->moveSection(logical, visual);
 		}
-	}
+	}*/
 
 
 	void LogWidget::applyConfig ()
 	{
 		filterMgr()->disconnectFiltersTo(this);
-		moveSectionsAccordingTo(m_config);
-		//m_config = m_config2;
+		swapSectionsAccordingTo(m_config);
 		applyConfig(m_config);
 		filterMgr()->applyConfig();
 		filterMgr()->connectFiltersTo(this);

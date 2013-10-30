@@ -71,7 +71,7 @@ namespace logs {
 		void reconfigureConfig (logs::LogConfig & cfg);
 		bool convertBloodyBollockyBuggeryRegistry (logs::LogConfig & cfg);
 		void normalizeConfig (logs::LogConfig & normalized);
-		void moveSectionsAccordingTo (logs::LogConfig const & cfg);
+		//void moveSectionsAccordingTo (logs::LogConfig const & cfg);
 		void swapSectionsAccordingTo (logs::LogConfig const & cfg);
 		void resizeSections ();
 

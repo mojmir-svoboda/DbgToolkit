@@ -176,10 +176,11 @@ void LogCtxMenu::onSettingsAppSelectedTLV (bool const first_time)
 	QStandardItem * cel_root = static_cast<QStandardItemModel *>(m_ui->listViewColumnElide->model())->invisibleRootItem();
 	for (int i = 0, ie = m_log_widget.m_config.m_columns_setup.size(); i < ie; ++i)
 	{
-		cs_root->appendRow(addRow(m_log_widget.m_config.m_columns_setup.at(i), true));
-		csz_root->appendRow(addUncheckableRow(tr("%1").arg(m_log_widget.m_config.m_columns_sizes.at(i))));
-		cal_root->appendRow(addUncheckableRow(tr("%1").arg(m_log_widget.m_config.m_columns_align.at(i))));
-		cel_root->appendRow(addUncheckableRow(tr("%1").arg(m_log_widget.m_config.m_columns_elide.at(i))));
+		int const vi = m_log_widget.horizontalHeader()->logicalIndex(i);
+		cs_root->appendRow(addRow(m_log_widget.m_config.m_columns_setup.at(vi), true));
+		csz_root->appendRow(addUncheckableRow(tr("%1").arg(m_log_widget.m_config.m_columns_sizes.at(vi))));
+		cal_root->appendRow(addUncheckableRow(tr("%1").arg(m_log_widget.m_config.m_columns_align.at(vi))));
+		cel_root->appendRow(addUncheckableRow(tr("%1").arg(m_log_widget.m_config.m_columns_elide.at(vi))));
 	}
 
 	//size_t const n = tlv::get_tag_count() - 1; // -1 is for the tag Bool
@@ -226,6 +227,7 @@ void LogCtxMenu::onSettingsAppSelectedCSV (int const columns, bool const first_t
 	QStandardItem * cel_root = static_cast<QStandardItemModel *>(m_ui->listViewColumnElide->model())->invisibleRootItem();
 	for (int i = 0, ie = m_log_widget.m_config.m_columns_setup.size(); i < ie; ++i)
 	{
+		// @FIXME VIS IDX!
 		cs_root->appendRow(addRow(m_log_widget.m_config.m_columns_setup.at(i), true));
 		csz_root->appendRow(addUncheckableRow(tr("%1").arg(m_log_widget.m_config.m_columns_sizes.at(i))));
 		cal_root->appendRow(addUncheckableRow(tr("%1").arg(m_log_widget.m_config.m_columns_align.at(i))));
@@ -345,11 +347,7 @@ void LogCtxMenu::onClickedAtApplyButton ()
 		config.m_columns_elide.append(m_ui->listViewColumnElide->model()->data(row_idx).toString());
 	}
 
-	//m_settings_dialog->close();
 	m_log_widget.swapSectionsAccordingTo(config);
-	//m_log_widget.m_config = config;
-	//m_log_widget.applyConfig();
-	//m_log_widget.moveSectionsAccordingTo(config);
 }
 
 void LogCtxMenu::onClickedAtSaveButton ()
