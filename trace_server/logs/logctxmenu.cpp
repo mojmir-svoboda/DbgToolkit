@@ -346,10 +346,10 @@ void LogCtxMenu::onClickedAtApplyButton ()
 	}
 
 	//m_settings_dialog->close();
-	m_log_widget.moveSectionsAccordingTo(config);
-	m_log_widget.m_config = config;
-	m_log_widget.applyConfig();
-	m_log_widget.moveSectionsAccordingTo(config);
+	m_log_widget.swapSectionsAccordingTo(config);
+	//m_log_widget.m_config = config;
+	//m_log_widget.applyConfig();
+	//m_log_widget.moveSectionsAccordingTo(config);
 }
 
 void LogCtxMenu::onClickedAtSaveButton ()

@@ -263,9 +263,43 @@ namespace logs {
 		connect(ui->saveButton, SIGNAL(clicked()), this, SLOT(onSaveButton()));
 		//connect(ui->logViewComboBox, SIGNAL(activated(int)), this, SLOT(onLogViewActivate(int)));
 	}
+
+	void LogWidget::swapSectionsAccordingTo (logs::LogConfig const & cfg)
+	{
+		QStringList src;
+		int const hn = horizontalHeader()->count();
+		for (int hi = 0; hi < hn; ++hi)
+		{
+			int const vi_from = horizontalHeader()->logicalIndex(hi);
+			QString vi_from_str = m_config.m_columns_setup[vi_from]; // from m_config
+			src << vi_from_str;
+		}
+	
+		QStringList tgt;
+		int const nn = cfg.m_columns_setup.size();
+		for (int nj = 0; nj < nn; ++nj)
+		{
+			tgt << cfg.m_columns_setup[nj];
+		}
+
+		for (int nj = 0; nj < nn; ++nj)
+		{
+			for (int hi = 0; hi < hn; ++hi)
+				if (src[hi] == tgt[nj])
+				{
+					if (hi != nj)
+					{
+						std::swap(src[hi], src[nj]);
+						horizontalHeader()->swapSections(hi, nj);
+						break;
+					}
+				}
+		}
+	}
 	
 	void LogWidget::moveSectionsAccordingTo (logs::LogConfig const & cfg)
 	{
+
 		QMap<int, int> perms;
 		int const hn = horizontalHeader()->count();
 		for (int hi = 0; hi < hn; ++hi)
