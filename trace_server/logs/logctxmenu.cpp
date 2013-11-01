@@ -182,10 +182,10 @@ void LogCtxMenu::prepareSettingsWidgets ()
 	m_ui->listViewColumnSetup->setDragDropMode(QAbstractItemView::InternalMove);
 	m_ui->listViewColumnSetup->setEditTriggers(QAbstractItemView::CurrentChanged);
 	m_ui->listViewColumnSetup->setEditTriggers(QAbstractItemView::SelectedClicked);
-	model->addObserver(m_ui->listViewColumnShow->model());
-	model->addObserver(m_ui->listViewColumnSizes->model());
-	model->addObserver(m_ui->listViewColumnAlign->model());
-	model->addObserver(m_ui->listViewColumnElide->model());
+	model->addObserver(static_cast<QStandardItemModel *>(m_ui->listViewColumnShow->model()));
+	model->addObserver(static_cast<QStandardItemModel *>(m_ui->listViewColumnSizes->model()));
+	model->addObserver(static_cast<QStandardItemModel *>(m_ui->listViewColumnAlign->model()));
+	model->addObserver(static_cast<QStandardItemModel *>(m_ui->listViewColumnElide->model()));
 	m_ui->listViewColumnShow->setEditTriggers(QAbstractItemView::NoEditTriggers);
 	m_ui->listViewColumnAlign->setEditTriggers(QAbstractItemView::NoEditTriggers);
 	m_ui->listViewColumnElide->setEditTriggers(QAbstractItemView::NoEditTriggers);
@@ -330,13 +330,60 @@ void LogCtxMenu::clearUI ()
 	m_ui->listViewColumnElide->reset();
 }
 
+void LogCtxMenu::onAddButton ()
+{
+	QStandardItem * csh_root = static_cast<QStandardItemModel *>(m_ui->listViewColumnShow->model())->invisibleRootItem();
+	QStandardItem * cs_root = static_cast<QStandardItemModel *>(m_ui->listViewColumnSetup->model())->invisibleRootItem();
+	QStandardItem * csz_root = static_cast<QStandardItemModel *>(m_ui->listViewColumnSizes->model())->invisibleRootItem();
+	QStandardItem * cal_root = static_cast<QStandardItemModel *>(m_ui->listViewColumnAlign->model())->invisibleRootItem();
+	QStandardItem * cel_root = static_cast<QStandardItemModel *>(m_ui->listViewColumnElide->model())->invisibleRootItem();
+	bool const hidden = false;
 
+	TagDesc const & desc = m_log_widget.m_tagconfig.findOrCreateTag(tlv::tag_msg);
+
+	csh_root->appendRow(addRow(QString(""), !hidden));
+	cs_root->appendRow(addUncheckableRow(tr("%1"). arg(desc.m_tag_str)));
+	csz_root->appendRow(addUncheckableRow(tr("%1").arg(desc.m_size)));
+	cal_root->appendRow(addUncheckableRow(tr("%1").arg(desc.m_align_str)));
+	cel_root->appendRow(addUncheckableRow(tr("%1").arg(desc.m_elide_str)));
+
+	//QStandardItem * const qitem = new QStandardItem(g_filterNames[1]);
+	//qitem->setCheckable(true);
+	//qitem->setCheckState(Qt::Checked);
+}
+
+void LogCtxMenu::onRmButton ()
+{
+	QModelIndexList const idxs = m_ui->listViewColumnSetup->selectionModel()->selectedIndexes();
+	foreach (QModelIndex index, idxs)
+	{
+		m_ui->listViewColumnShow->model()->removeRow(index.row());
+		m_ui->listViewColumnSetup->model()->removeRow(index.row());
+		m_ui->listViewColumnSizes->model()->removeRow(index.row());
+		m_ui->listViewColumnElide->model()->removeRow(index.row());
+		m_ui->listViewColumnAlign->model()->removeRow(index.row());
+	}
+}
 
 void LogCtxMenu::onClickedAtAutoSetupButton ()
 {
 	LogConfig cfg;
 	m_log_widget.reconfigureConfig(cfg);
-	setConfigValuesToUI(cfg);
+	clearUI();
+
+	QStandardItem * csh_root = static_cast<QStandardItemModel *>(m_ui->listViewColumnShow->model())->invisibleRootItem();
+	QStandardItem * cs_root = static_cast<QStandardItemModel *>(m_ui->listViewColumnSetup->model())->invisibleRootItem();
+	QStandardItem * csz_root = static_cast<QStandardItemModel *>(m_ui->listViewColumnSizes->model())->invisibleRootItem();
+	QStandardItem * cal_root = static_cast<QStandardItemModel *>(m_ui->listViewColumnAlign->model())->invisibleRootItem();
+	QStandardItem * cel_root = static_cast<QStandardItemModel *>(m_ui->listViewColumnElide->model())->invisibleRootItem();
+	for (int i = 0, ie = cfg.m_columns_setup.size(); i < ie; ++i)
+	{
+		csh_root->appendRow(addRow(QString(""), true));
+		cs_root->appendRow(addUncheckableRow(tr("%1").arg(cfg.m_columns_setup.at(i))));
+		csz_root->appendRow(addUncheckableRow(tr("%1").arg(cfg.m_columns_sizes.at(i))));
+		cal_root->appendRow(addUncheckableRow(tr("%1").arg(cfg.m_columns_align.at(i))));
+		cel_root->appendRow(addUncheckableRow(tr("%1").arg(cfg.m_columns_elide.at(i))));
+	}
 }
 
 void LogCtxMenu::onClickedAtApplyButton ()

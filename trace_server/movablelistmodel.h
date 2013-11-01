@@ -6,7 +6,7 @@
 
 class MyListModel : public QStandardItemModel
 {
-	QList<QAbstractItemModel *> m_observers;
+	QList<QStandardItemModel *> m_observers;
 
 public:
 	int m_flags;
@@ -14,7 +14,7 @@ public:
 
 	MyListModel (QObject * parent = 0 );
 
-	void addObserver (QAbstractItemModel * o) { m_observers.append(o); }
+	void addObserver (QStandardItemModel * o) { m_observers.append(o); }
 
 	Qt::ItemFlags flags (QModelIndex const & index) const
 	{
@@ -65,10 +65,12 @@ public:
 
 			for (int i = 0, ie = m_observers.size(); i < ie; ++i)
 			{
-				QString txt = m_observers.at(i)->data(m_observers.at(i)->index(orig_row, 0, QModelIndex())).toString();
+				QModelIndex const obs_idx = m_observers.at(i)->index(orig_row, 0, QModelIndex());
+				QStandardItem * item = m_observers.at(i)->itemFromIndex(obs_idx);
+				QStandardItem * clone = item->clone();
 				m_observers.at(i)->removeRows(orig_row, 1);
 				int const target_row = endRow > orig_row ? endRow - 1 : endRow;
-				static_cast<QStandardItemModel *>(m_observers.at(i))->insertRow(target_row, addUncheckableRow(txt));
+				static_cast<QStandardItemModel *>(m_observers.at(i))->insertRow(target_row, clone);
 			}
 			++endRow;
 		}

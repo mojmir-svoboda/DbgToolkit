@@ -73,6 +73,8 @@ namespace logs {
 		void onClickedAtApplyButton ();
 		void onClickedAtSaveButton ();
 		void onClickedAtCancelButton ();
+		void onAddButton ();
+		void onRmButton ();
 
 	protected:
 		void prepareSettingsWidgets ();
