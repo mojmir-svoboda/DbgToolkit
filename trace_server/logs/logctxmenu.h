@@ -12,6 +12,7 @@
 namespace logs {
 
 	class LogWidget;
+	struct LogConfig;
 
 	struct LogCtxMenu : QObject
 	{
@@ -45,15 +46,9 @@ namespace logs {
 			m_widget = 0;
 		}
 
-		void onShowContextMenu (QPoint const & pos)
-		{
-			bool const visible = m_widget->isVisible();
-			m_widget->setVisible(!visible);
-			onSettingsAppSelectedTLV(false);
+		void onShowContextMenu (QPoint const & pos);
 
-			if (m_widget->isVisible())
-				m_widget->move(pos);
-		}
+		void setConfigValuesToUI (LogConfig const & cfg);
 
 		void onHideContextMenu ()
 		{
@@ -67,11 +62,12 @@ namespace logs {
 		//void setupSeparatorChar (QString const & c);
 		//QString separatorChar () const;
 		void syncSettingsViews (QListView const * const invoker, QModelIndex const idx);
+		void onClickedAtSettingColumnShow (QModelIndex const idx);
 		void onClickedAtSettingColumnSetup (QModelIndex const idx);
 		void onClickedAtSettingColumnSizes (QModelIndex const idx);
 		void onClickedAtSettingColumnAlign (QModelIndex const idx);
 		void onClickedAtSettingColumnElide (QModelIndex const idx);
-		void onSettingsAppSelectedTLV (bool const first_time);
+		//void onSettingsAppSelectedTLV (bool const first_time);
 		void onSettingsAppSelectedCSV (int const columns, bool const first_time);
 		void onClickedAtAutoSetupButton ();
 		void onClickedAtApplyButton ();

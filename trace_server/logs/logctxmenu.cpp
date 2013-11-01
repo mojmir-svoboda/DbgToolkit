@@ -16,6 +16,19 @@ LogCtxMenu::LogCtxMenu (LogWidget & lw, QWidget * parent)
 	prepareSettingsWidgets();
 }
 
+void LogCtxMenu::onShowContextMenu (QPoint const & pos)
+{
+	bool const visible = m_widget->isVisible();
+	m_widget->setVisible(!visible);
+
+	if (m_widget->isVisible())
+	{
+		setConfigValuesToUI(m_log_widget.m_config);
+		m_widget->move(pos);
+	}
+}
+
+
 /*
 void CtxLogConfig::setupSeparatorChar (QString const & c)
 {
@@ -29,9 +42,67 @@ QString CtxLogConfig::separatorChar () const
 }
 */
 
+namespace {
+	void fillComboBoxWithTags (QComboBox * cbx)
+	{
+		cbx->addItem(tlv::get_tag_name(tlv::tag_time));
+		cbx->addItem(tlv::get_tag_name(tlv::tag_tid));
+		cbx->addItem(tlv::get_tag_name(tlv::tag_file));
+		cbx->addItem(tlv::get_tag_name(tlv::tag_line));
+		cbx->addItem(tlv::get_tag_name(tlv::tag_func));
+		cbx->addItem(tlv::get_tag_name(tlv::tag_msg));
+		cbx->addItem(tlv::get_tag_name(tlv::tag_lvl));
+		cbx->addItem(tlv::get_tag_name(tlv::tag_ctx));
+		cbx->addItem(tlv::get_tag_name(tlv::tag_pid));
+	}
+
+	struct ComboBoxDelegate : public QStyledItemDelegate
+	{
+		QComboBox mutable * m_cbx;
+		ComboBoxDelegate (QObject * parent = 0);
+
+		QWidget * createEditor (QWidget * parent, QStyleOptionViewItem const & option, QModelIndex const & index) const;
+		void setEditorData (QWidget * editor, QModelIndex const & index) const;
+		void setModelData (QWidget * editor, QAbstractItemModel * model, QModelIndex const & index) const;
+		void updateEditorGeometry (QWidget * editor, QStyleOptionViewItem const & option, QModelIndex const & index) const;
+		//Q_OBJECT
+	};
+
+	ComboBoxDelegate::ComboBoxDelegate (QObject * parent)
+		: QStyledItemDelegate(parent)
+	{ }
+
+	QWidget * ComboBoxDelegate::createEditor (QWidget * parent, QStyleOptionViewItem const & /* option */, QModelIndex const & /* index */) const
+	{
+		QComboBox * const editor = new QComboBox(parent);
+		fillComboBoxWithTags(editor);
+		return editor;
+	}
+
+	void ComboBoxDelegate::setEditorData (QWidget * editor, QModelIndex const & index) const
+	{
+		QString const value = index.model()->data(index, Qt::EditRole).toString();
+		QComboBox * const cbx = static_cast<QComboBox *>(editor);
+		cbx->setCurrentIndex(cbx->findText(value));
+	}
+
+	void ComboBoxDelegate::setModelData (QWidget * editor, QAbstractItemModel *model, QModelIndex const & index) const
+	{
+		QComboBox * cbx = static_cast<QComboBox *>(editor);
+		QString value = cbx->currentText();
+		model->setData(index, value, Qt::EditRole);
+	}
+
+	void ComboBoxDelegate::updateEditorGeometry(QWidget *editor, QStyleOptionViewItem const & option, QModelIndex const & /* index */) const
+	{
+		editor->setGeometry(option.rect);
+	}
+}
+
+
 void LogCtxMenu::syncSettingsViews (QListView const * const invoker, QModelIndex const idx)
 {
-	QListView * const views[] = { m_ui->listViewColumnSetup, m_ui->listViewColumnSizes, m_ui->listViewColumnAlign, m_ui->listViewColumnElide };
+	QListView * const views[] = { m_ui->listViewColumnShow, m_ui->listViewColumnSetup, m_ui->listViewColumnSizes, m_ui->listViewColumnAlign, m_ui->listViewColumnElide };
 
 	for (size_t i = 0; i < sizeof(views) / sizeof(*views); ++i)
 	{
@@ -44,38 +115,21 @@ void LogCtxMenu::syncSettingsViews (QListView const * const invoker, QModelIndex
 	}
 }
 
+void LogCtxMenu::onClickedAtSettingColumnShow (QModelIndex const idx)
+{
+	syncSettingsViews(m_ui->listViewColumnShow, idx);
+
+	QStandardItem * const item = static_cast<QStandardItemModel *>(m_ui->listViewColumnShow->model())->itemFromIndex(idx);
+	Qt::CheckState const curr = item->checkState();
+
+	item->setCheckState(curr == Qt::Checked ? Qt::Unchecked : Qt::Checked);
+}
 void LogCtxMenu::onClickedAtSettingColumnSetup (QModelIndex const idx)
 {
 	syncSettingsViews(m_ui->listViewColumnSetup, idx);
 
-	QStandardItem * const item = static_cast<QStandardItemModel *>(m_ui->listViewColumnSetup->model())->itemFromIndex(idx);
-	Qt::CheckState const curr = item->checkState();
-
-	item->setCheckState(curr == Qt::Checked ? Qt::Unchecked : Qt::Checked);
-
-	QModelIndex const size_idx = m_ui->listViewColumnSizes->model()->index(idx.row(), idx.column(), QModelIndex());
-	if (curr == Qt::Checked)
-	{
-		//m_ui->listViewColumnSizes->model()->setData(size_idx, QString("0"));
-	}
-	else
-	{
-		// this does not work at all
-		/*int app_idx = 0;
-		Connection * conn = m_server->findCurrentConnection();
-		if (conn)
-			app_idx = conn->sessionState().m_app_idx;
-
-		int size_val = 64;
-		if (app_idx < m_columns_sizes.size())
-		{
-			if (size_idx.row() < m_columns_sizes[app_idx].size())
-			{
-				size_val = m_columns_sizes[app_idx].at(size_idx.row());
-				m_ui->listViewColumnSizes->model()->setData(size_idx, tr("%1").arg(size_val));
-			}
-		}*/
-	}
+	//QStandardItem * const item = static_cast<QStandardItemModel *>(m_ui->listViewColumnSetup->model())->itemFromIndex(idx);
+	//Qt::CheckState const curr = item->checkState();
 }
 void LogCtxMenu::onClickedAtSettingColumnSizes (QModelIndex const idx)
 {
@@ -115,44 +169,32 @@ void LogCtxMenu::onClickedAtSettingColumnElide (QModelIndex const idx)
 
 void LogCtxMenu::prepareSettingsWidgets ()
 {
-/*	if (curr_app_idx == -1)
-	{
-		m_ui->appNameComboBox->setEnabled(true);
-		m_ui->appNameComboBox->clear();
-		for (int a = 0, ae = m_config.m_app_names.size(); a < ae; ++a)
-			m_ui->appNameComboBox->addItem(m_config.m_app_names.at(a));
-
-		Connection * conn = m_server->findCurrentConnection();
-		if (conn)
-		{
-			curr_app_idx = conn->sessionState().m_app_idx;
-		}
-	}
-	else
-	{
-		m_ui->appNameComboBox->clear();
-		m_ui->appNameComboBox->addItem(m_config.m_app_names.at(curr_app_idx));
-		m_ui->appNameComboBox->setEnabled(false);
-	}
-
-	connect(m_ui->appNameComboBox, SIGNAL(activated(int)), this, SLOT(onSettingsAppSelected(int)));*/
-
 	MyListModel * model = new MyListModel(this);
 	m_ui->listViewColumnSetup->setModel(model);
-	//m_ui->listViewColumnSetup->model()->setSupportedDragActions(Qt::MoveAction);
+	m_ui->listViewColumnShow->setModel(new QStandardItemModel(this));
 	m_ui->listViewColumnSizes->setModel(new QStandardItemModel(this));
 	m_ui->listViewColumnAlign->setModel(new QStandardItemModel(this));
 	m_ui->listViewColumnElide->setModel(new QStandardItemModel(this));
+	//m_ui->listViewColumnSetup->setResizeMode(QListView::Adjust);
+	//m_ui->listViewColumnSetup->model()->setSupportedDragActions(Qt::MoveAction);
 	m_ui->listViewColumnSetup->setDropIndicatorShown(true);
 	m_ui->listViewColumnSetup->setMovement(QListView::Snap);
 	m_ui->listViewColumnSetup->setDragDropMode(QAbstractItemView::InternalMove);
+	m_ui->listViewColumnSetup->setEditTriggers(QAbstractItemView::CurrentChanged);
+	m_ui->listViewColumnSetup->setEditTriggers(QAbstractItemView::SelectedClicked);
+	model->addObserver(m_ui->listViewColumnShow->model());
 	model->addObserver(m_ui->listViewColumnSizes->model());
 	model->addObserver(m_ui->listViewColumnAlign->model());
 	model->addObserver(m_ui->listViewColumnElide->model());
-	m_ui->listViewColumnSetup->setEditTriggers(QAbstractItemView::NoEditTriggers);
+	m_ui->listViewColumnShow->setEditTriggers(QAbstractItemView::NoEditTriggers);
 	m_ui->listViewColumnAlign->setEditTriggers(QAbstractItemView::NoEditTriggers);
 	m_ui->listViewColumnElide->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
+	model->m_flags |= Qt::ItemIsEditable;
+	new ComboBoxDelegate(m_ui->listViewColumnSetup);
+	m_ui->listViewColumnSetup->setItemDelegate(new ComboBoxDelegate(m_ui->listViewColumnSetup));
+
+	connect(m_ui->listViewColumnShow, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtSettingColumnShow(QModelIndex)));
 	connect(m_ui->listViewColumnSetup, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtSettingColumnSetup(QModelIndex)));
 	connect(m_ui->listViewColumnSizes, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtSettingColumnSizes(QModelIndex)));
 	connect(m_ui->listViewColumnAlign, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtSettingColumnAlign(QModelIndex)));
@@ -166,21 +208,25 @@ void LogCtxMenu::prepareSettingsWidgets ()
 }
 
 
-void LogCtxMenu::onSettingsAppSelectedTLV (bool const first_time)
+void LogCtxMenu::setConfigValuesToUI (LogConfig const & cfg)
 {
 	clearUI();
 
+	QStandardItem * csh_root = static_cast<QStandardItemModel *>(m_ui->listViewColumnShow->model())->invisibleRootItem();
 	QStandardItem * cs_root = static_cast<QStandardItemModel *>(m_ui->listViewColumnSetup->model())->invisibleRootItem();
 	QStandardItem * csz_root = static_cast<QStandardItemModel *>(m_ui->listViewColumnSizes->model())->invisibleRootItem();
 	QStandardItem * cal_root = static_cast<QStandardItemModel *>(m_ui->listViewColumnAlign->model())->invisibleRootItem();
 	QStandardItem * cel_root = static_cast<QStandardItemModel *>(m_ui->listViewColumnElide->model())->invisibleRootItem();
-	for (int i = 0, ie = m_log_widget.m_config.m_columns_setup.size(); i < ie; ++i)
+	for (int i = 0, ie = cfg.m_columns_setup.size(); i < ie; ++i)
 	{
-		int const vi = m_log_widget.horizontalHeader()->logicalIndex(i);
-		cs_root->appendRow(addRow(m_log_widget.m_config.m_columns_setup.at(vi), true));
-		csz_root->appendRow(addUncheckableRow(tr("%1").arg(m_log_widget.m_config.m_columns_sizes.at(vi))));
-		cal_root->appendRow(addUncheckableRow(tr("%1").arg(m_log_widget.m_config.m_columns_align.at(vi))));
-		cel_root->appendRow(addUncheckableRow(tr("%1").arg(m_log_widget.m_config.m_columns_elide.at(vi))));
+		int const li = m_log_widget.horizontalHeader()->logicalIndex(i);
+		bool const hidden = m_log_widget.horizontalHeader()->isSectionHidden(li);
+		Q_ASSERT(li > -1);
+		csh_root->appendRow(addRow(QString(""), !hidden));
+		cs_root->appendRow(addUncheckableRow(tr("%1").arg(cfg.m_columns_setup.at(li))));
+		csz_root->appendRow(addUncheckableRow(tr("%1").arg(cfg.m_columns_sizes.at(li))));
+		cal_root->appendRow(addUncheckableRow(tr("%1").arg(cfg.m_columns_align.at(li))));
+		cel_root->appendRow(addUncheckableRow(tr("%1").arg(cfg.m_columns_elide.at(li))));
 	}
 
 	//size_t const n = tlv::get_tag_count() - 1; // -1 is for the tag Bool
@@ -196,7 +242,7 @@ void LogCtxMenu::onSettingsAppSelectedTLV (bool const first_time)
 			if (findChildByText(cs_root, QString::fromLatin1(name)))
 				continue;
 
-			QList<QStandardItem *> row_items = addRow(QString::fromLatin1(name), first_time);
+			QList<QStandardItem *> row_items = addRow(QString::fromLatin1(name), true);
 			cs_root->appendRow(row_items);
 			add_tag_indices[add_tag_count++] = i;
 
@@ -210,17 +256,10 @@ void LogCtxMenu::onSettingsAppSelectedTLV (bool const first_time)
 
 void LogCtxMenu::onSettingsAppSelectedCSV (int const columns, bool const first_time)
 {
-	qDebug("settings, csv");
-	clearListView(m_ui->listViewColumnSetup);
-	clearListView(m_ui->listViewColumnSizes);
-	clearListView(m_ui->listViewColumnAlign);
-	clearListView(m_ui->listViewColumnElide);
+/*	qDebug("settings, csv");
+	clearUI();
 
-	m_ui->listViewColumnSetup->reset();
-	m_ui->listViewColumnSizes->reset();
-	m_ui->listViewColumnAlign->reset();
-	m_ui->listViewColumnElide->reset();
-
+	QStandardItem * csh_root = static_cast<QStandardItemModel *>(m_ui->listViewColumnShow->model())->invisibleRootItem();
 	QStandardItem * cs_root = static_cast<QStandardItemModel *>(m_ui->listViewColumnSetup->model())->invisibleRootItem();
 	QStandardItem * csz_root = static_cast<QStandardItemModel *>(m_ui->listViewColumnSizes->model())->invisibleRootItem();
 	QStandardItem * cal_root = static_cast<QStandardItemModel *>(m_ui->listViewColumnAlign->model())->invisibleRootItem();
@@ -233,7 +272,7 @@ void LogCtxMenu::onSettingsAppSelectedCSV (int const columns, bool const first_t
 		cal_root->appendRow(addUncheckableRow(tr("%1").arg(m_log_widget.m_config.m_columns_align.at(i))));
 		cel_root->appendRow(addUncheckableRow(tr("%1").arg(m_log_widget.m_config.m_columns_elide.at(i))));
 	}
-
+*/
 	/*
 	//size_t const n = tlv::get_tag_count() - 1; // -1 is for the tag Bool
 	size_t const n = tlv::tag_bool;
@@ -258,7 +297,7 @@ void LogCtxMenu::onSettingsAppSelectedCSV (int const columns, bool const first_t
 		}
 	}*/
 
-	disconnect(m_ui->listViewColumnSetup, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtSettingColumnSetup(QModelIndex)));
+/*	disconnect(m_ui->listViewColumnSetup, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtSettingColumnSetup(QModelIndex)));
 	disconnect(m_ui->listViewColumnSizes, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtSettingColumnSizes(QModelIndex)));
 	disconnect(m_ui->listViewColumnAlign, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtSettingColumnAlign(QModelIndex)));
 	disconnect(m_ui->listViewColumnElide, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtSettingColumnElide(QModelIndex)));
@@ -266,23 +305,25 @@ void LogCtxMenu::onSettingsAppSelectedCSV (int const columns, bool const first_t
 	connect(m_ui->listViewColumnSizes, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtSettingColumnSizes(QModelIndex)));
 	connect(m_ui->listViewColumnAlign, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtSettingColumnAlign(QModelIndex)));
 	connect(m_ui->listViewColumnElide, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtSettingColumnElide(QModelIndex)));
-
+*/
 	/*connect(m_ui->macUserButton, SIGNAL(clicked()), this, SLOT(onClickedAtSettingPooftahButton()));
 	connect(m_ui->okButton, SIGNAL(clicked()), this, SLOT(onClickedAtSettingOkButton()));
 	connect(m_ui->okSaveButton, SIGNAL(clicked()), this, SLOT(onClickedAtSettingOkSaveButton()));
 	connect(m_ui->cancelButton, SIGNAL(clicked()), this, SLOT(onClickedAtSettingCancelButton()));*/
 
-	connect(m_ui->applyButton, SIGNAL(clicked()), this, SLOT(onClickedAtApplyButton()));
-	connect(m_ui->saveButton, SIGNAL(clicked()), this, SLOT(onClickedAtSaveButton()));
+	//connect(m_ui->applyButton, SIGNAL(clicked()), this, SLOT(onClickedAtApplyButton()));
+	//connect(m_ui->saveButton, SIGNAL(clicked()), this, SLOT(onClickedAtSaveButton()));
 	//connect(m_ui->cancelButton, SIGNAL(clicked()), this, SLOT(onClickedAtCancelButton()));
 }
 
 void LogCtxMenu::clearUI ()
 {
+	clearListView(m_ui->listViewColumnShow);
 	clearListView(m_ui->listViewColumnSetup);
 	clearListView(m_ui->listViewColumnSizes);
 	clearListView(m_ui->listViewColumnAlign);
 	clearListView(m_ui->listViewColumnElide);
+	m_ui->listViewColumnShow->reset();
 	m_ui->listViewColumnSetup->reset();
 	m_ui->listViewColumnSizes->reset();
 	m_ui->listViewColumnAlign->reset();
@@ -293,23 +334,9 @@ void LogCtxMenu::clearUI ()
 
 void LogCtxMenu::onClickedAtAutoSetupButton ()
 {
-	for (int j = 0, je = m_ui->listViewColumnAlign->model()->rowCount(); j < je; ++j)
-	{
-		QModelIndex const tag_idx = m_ui->listViewColumnSetup->model()->index(j, 0, QModelIndex());
-		QString const tag = m_ui->listViewColumnSetup->model()->data(tag_idx).toString();
-
-		QModelIndex const row_idx = m_ui->listViewColumnAlign->model()->index(j, 0, QModelIndex());
-		size_t const tag_val = tlv::tag_for_name(tag.toLatin1());
-		TagDesc const & td = m_log_widget.m_tagconfig.findOrCreateTag(tag_val);
-
-		m_ui->listViewColumnAlign->model()->setData(row_idx, td.m_align_str);
-
-		QModelIndex const erow_idx = m_ui->listViewColumnElide->model()->index(j, 0, QModelIndex());
-		m_ui->listViewColumnElide->model()->setData(erow_idx, td.m_elide_str);
-
-		QModelIndex const srow_idx = m_ui->listViewColumnSizes->model()->index(j, 0, QModelIndex());
-		m_ui->listViewColumnSizes->model()->setData(srow_idx, tr("%1").arg(td.m_size));
-	}
+	LogConfig cfg;
+	m_log_widget.reconfigureConfig(cfg);
+	setConfigValuesToUI(cfg);
 }
 
 void LogCtxMenu::onClickedAtApplyButton ()
@@ -321,15 +348,22 @@ void LogCtxMenu::onClickedAtApplyButton ()
 	config.m_columns_align.clear();
 	config.m_columns_elide.clear();
 
+	for (size_t j = 0, je = m_ui->listViewColumnShow->model()->rowCount(); j < je; ++j)
+	{
+		QModelIndex const row_idx = m_ui->listViewColumnShow->model()->index(j, 0, QModelIndex());
+		QStandardItem * const item = static_cast<QStandardItemModel *>(m_ui->listViewColumnShow->model())->itemFromIndex(row_idx);
+		if (item->checkState() == Qt::Checked)
+		{
+			QString const & d = m_ui->listViewColumnSetup->model()->data(row_idx).toString();
+			//config.m_columns_setup.append(d);
+		}
+	}
 	for (size_t j = 0, je = m_ui->listViewColumnSetup->model()->rowCount(); j < je; ++j)
 	{
 		QModelIndex const row_idx = m_ui->listViewColumnSetup->model()->index(j, 0, QModelIndex());
 		QStandardItem * const item = static_cast<QStandardItemModel *>(m_ui->listViewColumnSetup->model())->itemFromIndex(row_idx);
-		if (item->checkState() == Qt::Checked)
-		{
-			QString const & d = m_ui->listViewColumnSetup->model()->data(row_idx).toString();
-			config.m_columns_setup.append(d);
-		}
+		QString const & d = m_ui->listViewColumnSetup->model()->data(row_idx).toString();
+		config.m_columns_setup.append(d);
 	}
 	for (size_t j = 0, je = m_ui->listViewColumnSizes->model()->rowCount(); j < je; ++j)
 	{
@@ -347,7 +381,14 @@ void LogCtxMenu::onClickedAtApplyButton ()
 		config.m_columns_elide.append(m_ui->listViewColumnElide->model()->data(row_idx).toString());
 	}
 
+	// reorder columns and set to main config
 	m_log_widget.swapSectionsAccordingTo(config);
+	for (int c = 0, ce = config.m_columns_sizes.size(); c < ce; ++c)
+	{
+		int const li = m_log_widget.horizontalHeader()->logicalIndex(c);
+		m_log_widget.m_config.m_columns_align[li] = config.m_columns_align[c];
+		m_log_widget.m_config.m_columns_elide[li] = config.m_columns_elide[c];
+	}
 }
 
 void LogCtxMenu::onClickedAtSaveButton ()

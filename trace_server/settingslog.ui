@@ -222,6 +222,9 @@
          <layout class="QVBoxLayout" name="verticalLayout_2">
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_2">
+            <property name="spacing">
+             <number>6</number>
+            </property>
             <item>
              <widget class="QPushButton" name="applyButton">
               <property name="text">
@@ -279,20 +282,6 @@
              <layout class="QGridLayout" name="gridLayout_3">
               <item row="0" column="0">
                <layout class="QGridLayout" name="gridLayout_8">
-                <item row="0" column="0">
-                 <widget class="QLabel" name="label_15">
-                  <property name="text">
-                   <string>Application Name:</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="4" column="0">
-                 <widget class="QLabel" name="label_19">
-                  <property name="text">
-                   <string/>
-                  </property>
-                 </widget>
-                </item>
                 <item row="1" column="0">
                  <widget class="QLabel" name="label_22">
                   <property name="text">
@@ -307,13 +296,34 @@
                   </property>
                  </widget>
                 </item>
-                <item row="4" column="2">
+                <item row="5" column="0">
+                 <widget class="QPushButton" name="addButton">
+                  <property name="text">
+                   <string>Add Row</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="5" column="2">
                  <widget class="QPushButton" name="autoSetupButton">
                   <property name="toolTip">
                    <string>...!</string>
                   </property>
                   <property name="text">
-                   <string>Auto Setup Attempt</string>
+                   <string>Auto Setup</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="5" column="1">
+                 <widget class="QPushButton" name="rmButton">
+                  <property name="text">
+                   <string>Rm Row</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="0">
+                 <widget class="QLabel" name="label_15">
+                  <property name="text">
+                   <string>Application Name:</string>
                   </property>
                  </widget>
                 </item>
@@ -321,8 +331,13 @@
               </item>
               <item row="5" column="0">
                <layout class="QGridLayout" name="gridColumns">
-                <item row="1" column="3">
+                <item row="1" column="4">
                  <widget class="QListView" name="listViewColumnSetup">
+                  <property name="font">
+                   <font>
+                    <pointsize>10</pointsize>
+                   </font>
+                  </property>
                   <property name="frameShape">
                    <enum>QFrame::StyledPanel</enum>
                   </property>
@@ -361,16 +376,34 @@
                   </property>
                  </widget>
                 </item>
-                <item row="1" column="4">
-                 <widget class="QListView" name="listViewColumnSizes"/>
-                </item>
                 <item row="1" column="5">
-                 <widget class="QListView" name="listViewColumnAlign"/>
+                 <widget class="QListView" name="listViewColumnSizes">
+                  <property name="font">
+                   <font>
+                    <pointsize>10</pointsize>
+                   </font>
+                  </property>
+                 </widget>
                 </item>
                 <item row="1" column="6">
-                 <widget class="QListView" name="listViewColumnElide"/>
+                 <widget class="QListView" name="listViewColumnAlign">
+                  <property name="font">
+                   <font>
+                    <pointsize>10</pointsize>
+                   </font>
+                  </property>
+                 </widget>
                 </item>
-                <item row="0" column="3">
+                <item row="1" column="7">
+                 <widget class="QListView" name="listViewColumnElide">
+                  <property name="font">
+                   <font>
+                    <pointsize>10</pointsize>
+                   </font>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="4">
                  <widget class="QLabel" name="label_7">
                   <property name="font">
                    <font>
@@ -383,7 +416,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="0" column="4">
+                <item row="0" column="5">
                  <widget class="QLabel" name="label_8">
                   <property name="font">
                    <font>
@@ -396,7 +429,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="0" column="5">
+                <item row="0" column="6">
                  <widget class="QLabel" name="label_9">
                   <property name="font">
                    <font>
@@ -409,7 +442,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="0" column="6">
+                <item row="0" column="7">
                  <widget class="QLabel" name="label_10">
                   <property name="font">
                    <font>
@@ -419,6 +452,34 @@
                   </property>
                   <property name="text">
                    <string>Elide</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="3">
+                 <widget class="QListView" name="listViewColumnShow">
+                  <property name="maximumSize">
+                   <size>
+                    <width>48</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <pointsize>10</pointsize>
+                   </font>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="3">
+                 <widget class="QLabel" name="label_11">
+                  <property name="font">
+                   <font>
+                    <weight>75</weight>
+                    <bold>true</bold>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>Show</string>
                   </property>
                  </widget>
                 </item>

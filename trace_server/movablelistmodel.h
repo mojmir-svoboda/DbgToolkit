@@ -10,6 +10,7 @@ class MyListModel : public QStandardItemModel
 
 public:
 	int m_flags;
+	bool m_checkable;
 
 	MyListModel (QObject * parent = 0 );
 
@@ -53,7 +54,14 @@ public:
 			stream >> tlvname >> orig_row >> check_state;
 
 			//qDebug("drop: %s, %i -> %i", tlvname.toStdString().c_str(), orig_row, endRow);
-			insertRow(endRow, addRow(tlvname, check_state == Qt::Checked));
+			if (m_checkable)
+			{
+				insertRow(endRow, addRow(tlvname, check_state == Qt::Checked));
+			}
+			else
+			{
+				insertRow(endRow, addUncheckableRow(tlvname));
+			}
 
 			for (int i = 0, ie = m_observers.size(); i < ie; ++i)
 			{
@@ -102,6 +110,7 @@ public:
 
 inline MyListModel::MyListModel (QObject * parent)
 	: QStandardItemModel(parent)
-	, m_flags(Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled) 
+	, m_flags(Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled)
+	, m_checkable(false)
 { }
 

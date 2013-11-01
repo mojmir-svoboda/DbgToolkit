@@ -34,7 +34,10 @@ QIcon grabIcon (bool enabled)
 void FilterBase::emitFilterChangedSignal ()
 {
 	if (m_enabled)
+	{
+		qDebug("%s %s: emit filterChangedSignal", typeName().toLatin1(), __FUNCTION__);
 		emit filterChangedSignal();
+	}
 }
 
 void FilterBase::onTabButton ()
@@ -46,6 +49,7 @@ void FilterBase::onTabButton ()
 
 	if (change)
 	{
+		qDebug("%s %s: emit filterEnabledChanged", typeName().toLatin1(), __FUNCTION__);
 		emit filterEnabledChanged();
 	}
 }

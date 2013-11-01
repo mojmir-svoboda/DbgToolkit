@@ -256,7 +256,7 @@ namespace {
 		QComboBox * cbx = static_cast<QComboBox *>(editor);
 		QString value = cbx->currentText();
 		model->setData(index, value, Qt::EditRole);
-	}    
+	}
 
 	void ComboBoxDelegate::updateEditorGeometry(QWidget *editor, QStyleOptionViewItem const & option, QModelIndex const & /* index */) const
 	{

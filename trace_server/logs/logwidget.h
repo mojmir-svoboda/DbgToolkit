@@ -96,15 +96,15 @@ namespace logs {
 
 	void setupSeparatorChar (QString const & c);
 	QString separatorChar () const;
-	void onSetup (E_SrcProtocol const proto, int curr_app_idx = -1, bool first_time = false, bool mac_user = false);
+	//void onSetup (E_SrcProtocol const proto, int curr_app_idx = -1, bool first_time = false, bool mac_user = false);
 	//void onSetupCSV (int curr_app_idx = -1, bool first_time = false, bool mac_user = false);
 	//void onSetupCSVSeparator (int curr_app_idx = -1, int column = -1, bool first_time = false);
-	void onSetupCSVColumns (int curr_app_idx, int columns, bool first_time);
-	void onSetupCSVSeparator (int curr_app_idx, bool first_time);
-	void onSettingsAppSelectedTLV (int idx, bool first_time = false);
-	void onSettingsAppSelectedCSV (int idx, int columns, bool first_time = false);
-	void settingsDisableButSeparator ();
-	void settingsToDefault ();
+	//void onSetupCSVColumns (int curr_app_idx, int columns, bool first_time);
+	//void onSetupCSVSeparator (int curr_app_idx, bool first_time);
+	//void onSettingsAppSelectedTLV (int idx, bool first_time = false);
+	//void onSettingsAppSelectedCSV (int idx, int columns, bool first_time = false);
+	//void settingsDisableButSeparator ();
+	//void settingsToDefault ();
 
 	// setup
 	void onSetupAction ();
