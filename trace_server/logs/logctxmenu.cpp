@@ -204,6 +204,8 @@ void LogCtxMenu::prepareSettingsWidgets ()
 	connect(m_ui->autoSetupButton, SIGNAL(clicked()), this, SLOT(onClickedAtAutoSetupButton()));
 	connect(m_ui->applyButton, SIGNAL(clicked()), this, SLOT(onClickedAtApplyButton()));
 	connect(m_ui->saveButton, SIGNAL(clicked()), this, SLOT(onClickedAtSaveButton()));
+	connect(m_ui->addButton, SIGNAL(clicked()), this, SLOT(onAddButton()));
+	connect(m_ui->rmButton, SIGNAL(clicked()), this, SLOT(onRmButton()));
 	//connect(m_ui->cancelButton, SIGNAL(clicked()), this, SLOT(onClickedAtSettingCancelButton()));
 }
 
