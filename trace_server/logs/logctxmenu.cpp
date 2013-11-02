@@ -209,10 +209,10 @@ void LogCtxMenu::setConfigValuesToUI (LogConfig const & cfg)
 	for (int i = 0, ie = cfg.m_columns_setup.size(); i < ie; ++i)
 	{
 		int const li = m_log_widget.horizontalHeader()->logicalIndex(i);
-	
-		bool const hidden = cfg.m_columns_sizes[j] == 0;
-		//bool const hidden = m_log_widget.horizontalHeader()->isSectionHidden(li);
 		Q_ASSERT(li > -1);
+	
+		bool const hidden = cfg.m_columns_sizes[li] == 0;
+		//bool const hidden = m_log_widget.horizontalHeader()->isSectionHidden(li);
 		csh_root->appendRow(addRow(QString(""), !hidden));
 		cs_root->appendRow(addUncheckableRow(tr("%1").arg(cfg.m_columns_setup.at(li))));
 		csz_root->appendRow(addUncheckableRow(tr("%1").arg(cfg.m_columns_sizes.at(li))));
