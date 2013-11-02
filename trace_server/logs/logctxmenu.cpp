@@ -6,6 +6,60 @@
 
 namespace logs {
 
+	namespace {
+		void fillComboBoxWithTags (QComboBox * cbx)
+		{
+			cbx->addItem(tlv::get_tag_name(tlv::tag_time));
+			cbx->addItem(tlv::get_tag_name(tlv::tag_tid));
+			cbx->addItem(tlv::get_tag_name(tlv::tag_file));
+			cbx->addItem(tlv::get_tag_name(tlv::tag_line));
+			cbx->addItem(tlv::get_tag_name(tlv::tag_func));
+			cbx->addItem(tlv::get_tag_name(tlv::tag_msg));
+			cbx->addItem(tlv::get_tag_name(tlv::tag_lvl));
+			cbx->addItem(tlv::get_tag_name(tlv::tag_ctx));
+			cbx->addItem(tlv::get_tag_name(tlv::tag_pid));
+		}
+	}
+
+	ComboBoxDelegate::ComboBoxDelegate (QWidget * parent)
+		: QStyledItemDelegate(parent)
+	{
+	}
+
+	QWidget * ComboBoxDelegate::createEditor (QWidget * parent, QStyleOptionViewItem const & /* option */, QModelIndex const & /* index */) const
+	{
+		QComboBox * cbx = new QComboBox(parent);
+		connect(cbx, SIGNAL(activated(QString const &)), this, SLOT(onCurrentChanged(QString const &)));
+		fillComboBoxWithTags(cbx);
+		return cbx;
+	}
+
+	void ComboBoxDelegate::onCurrentChanged (QString const & s)
+	{
+		emit currentString(s);
+	}
+
+	void ComboBoxDelegate::setEditorData (QWidget * editor, QModelIndex const & index) const
+	{
+		QString const value = index.model()->data(index, Qt::EditRole).toString();
+		QComboBox * const cbx = static_cast<QComboBox *>(editor);
+		//bool const old = cbx->blockSignals(true);
+		cbx->setCurrentIndex(cbx->findText(value));
+		//cbx->blockSignals(old);
+	}
+
+	void ComboBoxDelegate::setModelData (QWidget * editor, QAbstractItemModel *model, QModelIndex const & index) const
+	{
+		QComboBox * cbx = static_cast<QComboBox *>(editor);
+		QString value = cbx->currentText();
+		model->setData(index, value, Qt::EditRole);
+	}
+
+	void ComboBoxDelegate::updateEditorGeometry(QWidget *editor, QStyleOptionViewItem const & option, QModelIndex const & /* index */) const
+	{
+		editor->setGeometry(option.rect);
+	}
+
 LogCtxMenu::LogCtxMenu (LogWidget & lw, QWidget * parent)
 	: m_log_widget(lw)
 	, m_ui(new Ui::SettingsLog)
@@ -41,63 +95,6 @@ QString CtxLogConfig::separatorChar () const
 	return m_ui->protocolComboBox->currentText();
 }
 */
-
-namespace {
-	void fillComboBoxWithTags (QComboBox * cbx)
-	{
-		cbx->addItem(tlv::get_tag_name(tlv::tag_time));
-		cbx->addItem(tlv::get_tag_name(tlv::tag_tid));
-		cbx->addItem(tlv::get_tag_name(tlv::tag_file));
-		cbx->addItem(tlv::get_tag_name(tlv::tag_line));
-		cbx->addItem(tlv::get_tag_name(tlv::tag_func));
-		cbx->addItem(tlv::get_tag_name(tlv::tag_msg));
-		cbx->addItem(tlv::get_tag_name(tlv::tag_lvl));
-		cbx->addItem(tlv::get_tag_name(tlv::tag_ctx));
-		cbx->addItem(tlv::get_tag_name(tlv::tag_pid));
-	}
-
-	struct ComboBoxDelegate : public QStyledItemDelegate
-	{
-		QComboBox mutable * m_cbx;
-		ComboBoxDelegate (QObject * parent = 0);
-
-		QWidget * createEditor (QWidget * parent, QStyleOptionViewItem const & option, QModelIndex const & index) const;
-		void setEditorData (QWidget * editor, QModelIndex const & index) const;
-		void setModelData (QWidget * editor, QAbstractItemModel * model, QModelIndex const & index) const;
-		void updateEditorGeometry (QWidget * editor, QStyleOptionViewItem const & option, QModelIndex const & index) const;
-		//Q_OBJECT
-	};
-
-	ComboBoxDelegate::ComboBoxDelegate (QObject * parent)
-		: QStyledItemDelegate(parent)
-	{ }
-
-	QWidget * ComboBoxDelegate::createEditor (QWidget * parent, QStyleOptionViewItem const & /* option */, QModelIndex const & /* index */) const
-	{
-		QComboBox * const editor = new QComboBox(parent);
-		fillComboBoxWithTags(editor);
-		return editor;
-	}
-
-	void ComboBoxDelegate::setEditorData (QWidget * editor, QModelIndex const & index) const
-	{
-		QString const value = index.model()->data(index, Qt::EditRole).toString();
-		QComboBox * const cbx = static_cast<QComboBox *>(editor);
-		cbx->setCurrentIndex(cbx->findText(value));
-	}
-
-	void ComboBoxDelegate::setModelData (QWidget * editor, QAbstractItemModel *model, QModelIndex const & index) const
-	{
-		QComboBox * cbx = static_cast<QComboBox *>(editor);
-		QString value = cbx->currentText();
-		model->setData(index, value, Qt::EditRole);
-	}
-
-	void ComboBoxDelegate::updateEditorGeometry(QWidget *editor, QStyleOptionViewItem const & option, QModelIndex const & /* index */) const
-	{
-		editor->setGeometry(option.rect);
-	}
-}
 
 
 void LogCtxMenu::syncSettingsViews (QListView const * const invoker, QModelIndex const idx)
@@ -191,8 +188,9 @@ void LogCtxMenu::prepareSettingsWidgets ()
 	m_ui->listViewColumnElide->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
 	model->m_flags |= Qt::ItemIsEditable;
-	new ComboBoxDelegate(m_ui->listViewColumnSetup);
-	m_ui->listViewColumnSetup->setItemDelegate(new ComboBoxDelegate(m_ui->listViewColumnSetup));
+	ComboBoxDelegate * d = new ComboBoxDelegate(m_ui->listViewColumnSetup);
+	connect(d, SIGNAL(currentString(QString const &)), this, SLOT(onCommitTagData(QString const &)));
+	m_ui->listViewColumnSetup->setItemDelegate(d);
 
 	connect(m_ui->listViewColumnShow, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtSettingColumnShow(QModelIndex)));
 	connect(m_ui->listViewColumnSetup, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtSettingColumnSetup(QModelIndex)));
@@ -254,6 +252,31 @@ void LogCtxMenu::setConfigValuesToUI (LogConfig const & cfg)
 		}
 	}
 }
+
+void LogCtxMenu::onClickedAtAutoSetupButton_noreorder ()
+{
+	for (int j = 0, je = m_ui->listViewColumnAlign->model()->rowCount(); j < je; ++j)
+	{
+		//QModelIndex const tag_idx = m_ui->listViewColumnSetup->model()->index(j, 0, QModelIndex());
+		//QString const tag = m_ui->listViewColumnSetup->model()->data(tag_idx).toString();
+
+		QModelIndex const tag_idx = m_ui->listViewColumnSetup->model()->index(j, 0, QModelIndex());
+		QString const tag = m_ui->listViewColumnSetup->model()->data(tag_idx).toString();
+
+		QModelIndex const row_idx = m_ui->listViewColumnAlign->model()->index(j, 0, QModelIndex());
+		size_t const tag_val = tlv::tag_for_name(tag.toLatin1());
+		TagDesc const & td = m_log_widget.m_tagconfig.findOrCreateTag(tag_val);
+
+		m_ui->listViewColumnAlign->model()->setData(row_idx, td.m_align_str);
+
+		QModelIndex const erow_idx = m_ui->listViewColumnElide->model()->index(j, 0, QModelIndex());
+		m_ui->listViewColumnElide->model()->setData(erow_idx, td.m_elide_str);
+
+		QModelIndex const srow_idx = m_ui->listViewColumnSizes->model()->index(j, 0, QModelIndex());
+		m_ui->listViewColumnSizes->model()->setData(srow_idx, tr("%1").arg(td.m_size));
+	}
+}
+
 
 
 void LogCtxMenu::onSettingsAppSelectedCSV (int const columns, bool const first_time)
@@ -330,6 +353,28 @@ void LogCtxMenu::clearUI ()
 	m_ui->listViewColumnSizes->reset();
 	m_ui->listViewColumnAlign->reset();
 	m_ui->listViewColumnElide->reset();
+}
+
+void LogCtxMenu::onCommitTagData (QString const & s)
+{
+	QStandardItem * csh_root = static_cast<QStandardItemModel *>(m_ui->listViewColumnShow->model())->invisibleRootItem();
+	QStandardItem * cs_root = static_cast<QStandardItemModel *>(m_ui->listViewColumnSetup->model())->invisibleRootItem();
+	QStandardItem * csz_root = static_cast<QStandardItemModel *>(m_ui->listViewColumnSizes->model())->invisibleRootItem();
+	QStandardItem * cal_root = static_cast<QStandardItemModel *>(m_ui->listViewColumnAlign->model())->invisibleRootItem();
+	QStandardItem * cel_root = static_cast<QStandardItemModel *>(m_ui->listViewColumnElide->model())->invisibleRootItem();
+
+	QStandardItem * it = findChildByText(cs_root, s);
+	if (!it)
+		return;
+	QModelIndex const idx = m_ui->listViewColumnSetup->currentIndex();
+
+	tlv::tag_t const t = tlv::tag_for_name(s.toLatin1());
+	TagDesc const & desc = m_log_widget.m_tagconfig.findOrCreateTag(t);
+
+	csh_root->child(idx.row())->setData(1, Qt::CheckStateRole);
+	csz_root->child(idx.row())->setData(tr("%1").arg(desc.m_size), Qt::EditRole);
+	cal_root->child(idx.row())->setData(tr("%1").arg(desc.m_align_str), Qt::EditRole);
+	cel_root->child(idx.row())->setData(tr("%1").arg(desc.m_elide_str), Qt::EditRole);
 }
 
 void LogCtxMenu::onAddButton ()

@@ -70,16 +70,35 @@ namespace logs {
 		//void onSettingsAppSelectedTLV (bool const first_time);
 		void onSettingsAppSelectedCSV (int const columns, bool const first_time);
 		void onClickedAtAutoSetupButton ();
+		void onClickedAtAutoSetupButton_noreorder ();
 		void onClickedAtApplyButton ();
 		void onClickedAtSaveButton ();
 		void onClickedAtCancelButton ();
 		void onAddButton ();
 		void onRmButton ();
+		void onCommitTagData (QString const &);
 
 	protected:
 		void prepareSettingsWidgets ();
 
 	Q_OBJECT
 	};
+
+	struct ComboBoxDelegate : public QStyledItemDelegate
+	{
+		ComboBoxDelegate (QWidget * parent = 0);
+
+		QWidget * createEditor (QWidget * parent, QStyleOptionViewItem const & option, QModelIndex const & index) const;
+		void setEditorData (QWidget * editor, QModelIndex const & index) const;
+		void setModelData (QWidget * editor, QAbstractItemModel * model, QModelIndex const & index) const;
+		void updateEditorGeometry (QWidget * editor, QStyleOptionViewItem const & option, QModelIndex const & index) const;
+	Q_OBJECT
+	signals:
+		void currentString (QString const &);
+	public slots:
+		void onCurrentChanged (QString const & s);
+	};
+
+
 }
 
