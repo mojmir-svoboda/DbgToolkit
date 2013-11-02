@@ -5,6 +5,7 @@
 #include <logs/findproxymodel.h>
 #include "utils.h"
 #include "connection.h"
+#include "warnimage.h"
 
 namespace logs {
 
@@ -341,6 +342,9 @@ void LogWidget::noMoreMatches ()
 	// flash icon
 	m_connection->getMainWindow()->statusBar()->showMessage(tr("End of document!"));
 	m_last_search_row = 0;
+
+	WarnImage w;
+	w.warningFindNoMoreMatches();
 }
 
 QString LogWidget::findString4Tag (tlv::tag_t tag, QModelIndex const & row_index) const
