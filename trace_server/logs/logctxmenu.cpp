@@ -475,6 +475,14 @@ void LogCtxMenu::onClickedAtApplyButton ()
 		config.m_columns_elide.append(m_ui->listViewColumnElide->model()->data(row_idx).toString());
 	}
 
+	for (size_t j = 0, je = m_ui->listViewColumnShow->model()->rowCount(); j < je; ++j)
+	{
+		QModelIndex const row_idx = m_ui->listViewColumnShow->model()->index(j, 0, QModelIndex());
+		QStandardItem * const item = static_cast<QStandardItemModel *>(m_ui->listViewColumnShow->model())->itemFromIndex(row_idx);
+		if (item->checkState() == Qt::Unchecked)
+			config.m_columns_sizes[j] = 0;
+	}
+
 	// reorder columns and set to main config
 	m_log_widget.swapSectionsAccordingTo(config);
 	for (int c = 0, ce = config.m_columns_sizes.size(); c < ce; ++c)
