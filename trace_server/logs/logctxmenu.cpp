@@ -473,7 +473,7 @@ void LogCtxMenu::onClickedAtApplyButton ()
 			config.m_columns_sizes[j] = 0;
 	}
 
-	if (m_log_widget.validateConfig(config))
+	if (validateConfig(config))
 	{
 		// reorder columns and set to main config
 		m_log_widget.swapSectionsAccordingTo(config);
