@@ -116,6 +116,9 @@ Connection::~Connection ()
 		m_tcpstream->close();
 	closeStorage();
 
+	delete m_tab_widget;
+	m_tab_widget = 0;
+
 	/*if (m_file_tlv_stream)
 	{
 		QDevice * const f = m_file_tlv_stream->device();
@@ -132,26 +135,7 @@ Connection::~Connection ()
 		delete m_file_csv_stream;
 		m_file_csv_stream = 0;
 		delete f;
-	}
-
-	if (m_main_window->getWidgetColorRegex()->model() == m_color_regex_model)
-		m_main_window->getWidgetColorRegex()->setModel(0);
-	delete m_color_regex_model;
-	m_color_regex_model = 0;
-
-
-	if (m_table_view_proxy)
-	{
-		m_table_view_proxy->setSourceModel(0);
-		delete m_table_view_proxy;
-		m_table_view_proxy = 0;
-	}
-
-	m_table_view_widget->setModel(0);
-	delete m_table_view_src;
-	m_table_view_src = 0;
-
-	m_table_view_widget = 0;*/
+	}*/
 }
 
 void Connection::onDisconnected ()
