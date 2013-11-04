@@ -29,7 +29,7 @@ void WarnImage::warningFindNoMoreMatches ()
 	connect(m_anim, SIGNAL(finished()), this, SLOT(onFinishedFwd()));
 	m_anim->setStartValue(0.01);
 	m_anim->setEndValue(1.0);
-	m_anim->setDuration(25);
+	m_anim->setDuration(42);
 	m_anim->start();
 }
 
@@ -38,7 +38,7 @@ void WarnImage::onFinishedFwd ()
 	connect(m_anim, SIGNAL(finished()), this, SLOT(onFinishedBwd()));
 	m_anim->setStartValue(1.00f);
 	m_anim->setEndValue(0.0f);
-	m_anim->setDuration(100);
+	m_anim->setDuration(143);
 	m_anim->start();
 }
 

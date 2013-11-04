@@ -205,7 +205,10 @@ void LogWidget::findAndSelectNext (FindConfig const & fc)
 		QModelIndex const & curr_idx = l.at(l.size() - 1);
 		QModelIndex const idx = model()->index(curr_idx.row() + 1, curr_idx.column(), QModelIndex());
 		if (!idx.isValid())
+		{
+			noMoreMatches();
 			return;
+		}
 
 		QModelIndexList next;
 		for (int i = idx.row(), ie = model()->rowCount(); i < ie; ++i)
@@ -256,7 +259,10 @@ void LogWidget::findAndSelectPrev (FindConfig const & fc)
 		QModelIndex const & curr_idx = l.at(0);
 		QModelIndex const idx = model()->index(curr_idx.row() - 1, curr_idx.column(), QModelIndex());
 		if (!idx.isValid())
+		{
+			noMoreMatches();
 			return;
+		}
 
 		QModelIndexList next;
 		/// ????
