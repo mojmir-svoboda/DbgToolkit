@@ -9,6 +9,7 @@
 #include "logtablemodel.h"
 #include "filterproxymodel.h"
 #include "findproxymodel.h"
+#include "warnimage.h"
 #include <QInputDialog>
 #include <QFontDialog>
 
@@ -24,6 +25,7 @@ namespace logs {
 		, m_connection(connection)
 		, m_tab(0)
 		, m_linked_parent(0)
+		, m_warnimage(0)
 		, m_filter_state()
 		, m_tagconfig()
 		, m_tags2columns()
@@ -99,6 +101,8 @@ namespace logs {
 		verticalHeader()->hide();	// @NOTE: users want that //@NOTE2: they can't have it because of performance
 		horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
 		setItemDelegate(new LogDelegate(*this, m_connection->appData(), this));
+		
+		m_warnimage = new WarnImage(this);
 
 
 		/*m_actions.resize(e_action_max_enum_value);

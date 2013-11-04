@@ -6,5 +6,6 @@
         <file>images/kchart.ico</file>
         <file>images/tools.png</file>
         <file>images/view.png</file>
+        <file>images/find_stop.png</file>
     </qresource>
 </RCC>

@@ -88,6 +88,7 @@ set(trace_server_SOURCES
 	filter_regex.cpp
 	filter_tid.cpp
 	movabletabwidget.cpp
+	warnimage.cpp
 
 	findwidget.cpp
 	findconfig.cpp
@@ -163,6 +164,7 @@ set(trace_server_HEADERS
 	combolist.h
 	movablelistmodel.h
 	movabletabwidget.h
+	warnimage.h
 
 	findwidget.h
 	findconfig.h

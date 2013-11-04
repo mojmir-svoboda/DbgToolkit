@@ -339,12 +339,18 @@ void LogWidget::handleFindAction (FindConfig const & fc)
 void LogWidget::noMoreMatches ()
 {
 	qDebug("end of search");
-	// flash icon
 	m_connection->getMainWindow()->statusBar()->showMessage(tr("End of document!"));
 	m_last_search_row = 0;
 
-	WarnImage w;
-	w.warningFindNoMoreMatches();
+	// flash icon
+	QPoint const global = rect().center();
+	QPoint const pos(global.x() - m_warnimage->width() / 2, global.y() - m_warnimage->height() / 2);
+    m_warnimage->setParent(this);
+    m_warnimage->move(pos);
+	m_warnimage->show();
+	m_warnimage->activateWindow();
+	m_warnimage->raise();
+	m_warnimage->warningFindNoMoreMatches();
 }
 
 QString LogWidget::findString4Tag (tlv::tag_t tag, QModelIndex const & row_index) const

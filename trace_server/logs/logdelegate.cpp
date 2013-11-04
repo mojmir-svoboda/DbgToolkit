@@ -150,7 +150,7 @@ namespace logs {
 		{	// color tagged line?
 			int row = index.row();
 			if (m_log_widget.isModelProxy())
-				if (QAbstractProxyModel const * proxy = m_log_widget.logProxy())
+				if (FilterProxyModel const * proxy = m_log_widget.logProxy())
 				{
 					QModelIndex const curr = proxy->mapToSource(index);
 					row = curr.row();
