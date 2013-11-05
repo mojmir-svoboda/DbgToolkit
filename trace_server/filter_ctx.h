@@ -5,18 +5,9 @@
 
 #include "config.h"
 #include <QList>
-#include <QStyledItemDelegate>
 #include <QStandardItemModel>
+#include <QStyledItemDelegate>
 #include "appdata.h"
-
-struct CtxDelegate : public QStyledItemDelegate
-{
-	AppData const * m_app_data;
-    CtxDelegate (QObject * parent = 0) : QStyledItemDelegate(parent), m_app_data(0) { }
-    void paint (QPainter * painter, QStyleOptionViewItem const & option, QModelIndex const & index) const;
-
-	void setAppData (AppData const * appdata) { m_app_data = appdata; }
-};
 
 
 struct FilterCtx : FilterBase
@@ -47,7 +38,7 @@ struct FilterCtx : FilterBase
 	}
 
 	// ctx specific
-	void setAppData (AppData const * appdata) { static_cast<CtxDelegate *>(m_delegate)->setAppData(appdata); }
+	void setAppData (AppData const * appdata);
 	void setupModel ();
 	void destroyModel ();
 	bool isCtxPresent (QString const & item, bool & enabled) const;
@@ -60,13 +51,23 @@ struct FilterCtx : FilterBase
 	typedef QList<FilteredContext> ctx_filters_t;
 	ctx_filters_t			m_data;
 	QStandardItemModel *	m_model;
-	QStyledItemDelegate *   m_delegate;
 
 	Q_OBJECT
 public slots:
-	void onClickedAtCtxTree (QModelIndex idx);
+	void onClickedAtCtx (QModelIndex idx);
 	void onSelectAllCtxs ();
 	void onSelectNoCtxs ();
 signals:
 };
+
+struct CtxDelegate : public QStyledItemDelegate
+{
+	AppData const * m_app_data;
+    CtxDelegate (QObject * parent = 0) : QStyledItemDelegate(parent), m_app_data(0) { }
+    ~CtxDelegate ();
+    void paint (QPainter * painter, QStyleOptionViewItem const & option, QModelIndex const & index) const;
+
+	void setAppData (AppData const * appdata) { m_app_data = appdata; }
+};
+
 

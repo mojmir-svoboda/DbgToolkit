@@ -6,11 +6,11 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>264</width>
-    <height>230</height>
+    <width>258</width>
+    <height>225</height>
    </rect>
   </property>
-  <layout class="QHBoxLayout" name="horizontalLayout_7">
+  <layout class="QHBoxLayout" name="horizontalLayout_6">
    <property name="spacing">
     <number>1</number>
    </property>
@@ -18,9 +18,16 @@
     <number>0</number>
    </property>
    <item>
-    <layout class="QGridLayout" name="gL_3">
+    <layout class="QGridLayout" name="gL_4">
+     <item row="1" column="0">
+      <widget class="QTreeView" name="view">
+       <property name="uniformRowHeights">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
      <item row="0" column="0">
-      <layout class="QHBoxLayout" name="hL_10">
+      <layout class="QHBoxLayout" name="hL_11">
        <property name="spacing">
         <number>1</number>
        </property>
@@ -28,7 +35,7 @@
         <number>0</number>
        </property>
        <item>
-        <widget class="QPushButton" name="allLevelButton">
+        <widget class="QPushButton" name="allButton">
          <property name="maximumSize">
           <size>
            <width>32</width>
@@ -41,7 +48,13 @@
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="noLevelButton">
+        <widget class="QPushButton" name="noButton">
+         <property name="minimumSize">
+          <size>
+           <width>32</width>
+           <height>0</height>
+          </size>
+         </property>
          <property name="maximumSize">
           <size>
            <width>32</width>
@@ -54,7 +67,7 @@
         </widget>
        </item>
        <item>
-        <spacer name="hS_9">
+        <spacer name="hS_10">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
@@ -67,13 +80,6 @@
         </spacer>
        </item>
       </layout>
-     </item>
-     <item row="4" column="0" colspan="2">
-      <widget class="QTreeView" name="view">
-       <property name="frameShadow">
-        <enum>QFrame::Sunken</enum>
-       </property>
-      </widget>
      </item>
     </layout>
    </item>

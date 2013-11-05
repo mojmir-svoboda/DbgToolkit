@@ -101,8 +101,9 @@ inline QList<QStandardItem *> addTriRow (QString const & str, Qt::CheckState con
 	name_item->setEditable(false);
 	row_items << name_item;
 	QStandardItem * const mode_item = new QStandardItem(QString(mode));
+	mode_item->setCheckable(false);
+	mode_item->setEditable(false);
 	row_items.append(mode_item);
-	name_item->setCheckable(false);
 	return row_items;
 }
 

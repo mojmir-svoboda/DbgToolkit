@@ -15,6 +15,11 @@ FilterProxyModel::FilterProxyModel (QObject * parent, logs::LogWidget & lw)
 	//, m_filter_state(lw.m_filter_state)
 { }
 
+FilterProxyModel::~FilterProxyModel ()
+{
+	qDebug("%s", __FUNCTION__);
+}
+
 void FilterProxyModel::resizeToCfg ()
 {
 	if (m_log_widget.m_config.m_columns_setup.size() > 0 && m_column_count == 0)

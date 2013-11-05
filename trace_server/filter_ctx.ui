@@ -20,7 +20,11 @@
    <item>
     <layout class="QGridLayout" name="gL_4">
      <item row="1" column="0">
-      <widget class="QTreeView" name="view"/>
+      <widget class="QTreeView" name="view">
+       <property name="uniformRowHeights">
+        <bool>true</bool>
+       </property>
+      </widget>
      </item>
      <item row="0" column="0">
       <layout class="QHBoxLayout" name="hL_11">

@@ -1,25 +1,15 @@
 #include "filter_ctx.h"
-#include <QPainter>
 #include "constants.h"
 #include "serialize.h"
+#include <QPainter>
 #include "utils_qstandarditem.h"
 #include <boost/function.hpp>
-// serialization stuff
-#include <boost/serialization/type_info_implementation.hpp>
-#include <boost/archive/xml_iarchive.hpp>
-#include <boost/archive/xml_oarchive.hpp>
-#include <boost/serialization/utility.hpp>
-#include <boost/serialization/serialization.hpp>
-#include <boost/serialization/vector.hpp>
-#include <serialize/ser_qt.h>
-#include <fstream>
 
 FilterCtx::FilterCtx (QWidget * parent)
 	: FilterBase(parent)
 	, m_ui(new Ui_FilterCtx)
 	, m_data()
 	, m_model(0)
-	, m_delegate(0)
 {
 	initUI();
 	setupModel();
@@ -54,6 +44,7 @@ bool FilterCtx::accept (DecodedCommand const & cmd) const
 
 void FilterCtx::defaultConfig ()
 {
+	m_data.clear();
 }
 
 void FilterCtx::loadConfig (QString const & path)
@@ -109,32 +100,27 @@ void FilterCtx::setupModel ()
 		m_model = new QStandardItemModel;
 	}
 	m_ui->view->setModel(m_model);
+	m_ui->view->setSortingEnabled(true);
 	m_ui->view->expandAll();
 	CtxDelegate * d = new CtxDelegate(this);
-	m_delegate = d;
 	m_ui->view->setItemDelegate(d);
 
 	m_ui->view->setEditTriggers(QAbstractItemView::NoEditTriggers);
-	connect(m_ui->view, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtCtxTree(QModelIndex)));
+	connect(m_ui->view, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtCtx(QModelIndex)));
 	connect(m_ui->allCtxButton, SIGNAL(clicked()), this, SLOT(onSelectAllCtxs()));
 	connect(m_ui->noCtxButton, SIGNAL(clicked()), this, SLOT(onSelectNoCtxs()));
 	m_ui->view->header()->hide();
-
 }
-
 
 void FilterCtx::destroyModel ()
 {
-	if (m_ui->view->itemDelegate())
-		m_ui->view->setItemDelegate(0);
+	//if (m_ui->view->itemDelegate())
+	//	m_ui->view->setItemDelegate(0);
 	if (m_ui->view->model() == m_model)
 		m_ui->view->setModel(0);
 	delete m_model;
 	m_model = 0;
-	delete m_delegate;
-	m_delegate = 0;
 }
-
 
 bool FilterCtx::isCtxPresent (QString const & item, bool & enabled) const
 {
@@ -157,7 +143,8 @@ void FilterCtx::appendCtxFilter (QString const & item)
 			return;
 		}
 	m_data.push_back(FilteredContext(item, true, 0));
-
+	std::sort(m_data.begin(), m_data.end());
+	m_ui->view->sortByColumn(0, Qt::AscendingOrder);
 }
 void FilterCtx::removeCtxFilter (QString const & item)
 {
@@ -170,28 +157,17 @@ void FilterCtx::removeCtxFilter (QString const & item)
 		}
 }
 
-
-//////// slots
-void FilterCtx::onClickedAtCtxTree (QModelIndex idx)
+void FilterCtx::setAppData (AppData const * appdata)
 {
-	QStandardItem * item = m_model->itemFromIndex(idx);
-	Q_ASSERT(item);
-
-	QString const & ctx = m_model->data(idx, Qt::DisplayRole).toString();
-	bool const orig_checked = (item->checkState() == Qt::Checked);
-	if (orig_checked)
-		appendCtxFilter(ctx);
-	else
-		removeCtxFilter(ctx);
-
-	emitFilterChangedSignal();
+	static_cast<CtxDelegate *>(m_ui->view->itemDelegate())->setAppData(appdata);
 }
 
+
+//////// slots
 void FilterCtx::onSelectAllCtxs ()
 {
 	boost::function<void (FilterCtx*, QString)> f = &FilterCtx::appendCtxFilter;
 	applyFnOnAllChildren(f, this, m_model, Qt::Checked);
- 
 	emitFilterChangedSignal();
 }
 
@@ -199,9 +175,24 @@ void FilterCtx::onSelectNoCtxs ()
 {
 	boost::function<void (FilterCtx*, QString)> f = &FilterCtx::removeCtxFilter;
 	applyFnOnAllChildren(f, this, m_model, Qt::Unchecked);
+	emitFilterChangedSignal();
+}
+
+void FilterCtx::onClickedAtCtx (QModelIndex idx)
+{
+	QStandardItem * item = m_model->itemFromIndex(idx);
+	Q_ASSERT(item);
+
+	QString const & ctx = m_model->data(idx, Qt::DisplayRole).toString();
+	bool const checked = (item->checkState() == Qt::Checked);
+	if (checked)
+		appendCtxFilter(ctx);
+	else
+		removeCtxFilter(ctx);
 
 	emitFilterChangedSignal();
 }
+
 
 void FilterCtx::recompile ()
 { }
@@ -222,6 +213,10 @@ void FilterCtx::appendToCtxWidgets (FilteredContext const & flt)
 
 
 //////// delegate
+CtxDelegate::~CtxDelegate ()
+{
+	qDebug("%s", __FUNCTION__);
+}
 void CtxDelegate::paint (QPainter * painter, QStyleOptionViewItem const & option, QModelIndex const & index) const
 {
     painter->save();

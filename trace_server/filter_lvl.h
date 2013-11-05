@@ -38,9 +38,9 @@ struct FilterLvl : FilterBase
 	// lvl specific
 	void setupModel ();
 	void destroyModel ();
+	bool isLvlPresent (QString const & item, bool & enabled, E_LevelMode & lvlmode) const;
 	void appendLvlFilter (QString const & item);
 	void removeLvlFilter (QString const & item);
-	bool isLvlPresent (QString const & item, bool & enabled, E_LevelMode & lvlmode) const;
 	bool setLvlMode (QString const & item, bool enabled, E_LevelMode lvlmode);
 	void recompile ();
 	void setConfigToUI ();
@@ -52,9 +52,9 @@ struct FilterLvl : FilterBase
 
 	Q_OBJECT
 public slots:
+	void onClickedAtLvl (QModelIndex idx);
 	void onSelectAllLevels ();
 	void onSelectNoLevels ();
-	void onClickedAtLvlList (QModelIndex idx);
 signals:
 };
 

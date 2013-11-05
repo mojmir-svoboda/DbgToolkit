@@ -38,6 +38,7 @@ class FilterProxyModel : public BaseProxyModel
 
 public:
 	explicit FilterProxyModel (QObject * parent, logs::LogWidget & lw);
+	~FilterProxyModel ();
 
 	Qt::ItemFlags flags (QModelIndex const & index) const;
 	void resizeToCfg ();

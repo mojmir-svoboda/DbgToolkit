@@ -30,6 +30,7 @@ FilterMgr::FilterMgr (QWidget * parent)
 
 FilterMgr::~FilterMgr ()
 {
+	qDebug("%s", __FUNCTION__);
 }
 
 
@@ -424,9 +425,12 @@ void FilterMgr::onFilterEnabledChanged ()
 	{
 		m_enabled = some_enabled;
 		emit filterEnabledChanged();
+		qDebug("%s signal filterEnabledChanged", __FUNCTION__);
 	}
 	else
+	{
 		emitFilterChangedSignal();
+	}
 }
 
 

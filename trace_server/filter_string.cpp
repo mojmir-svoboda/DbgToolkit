@@ -120,11 +120,11 @@ void FilterString::setupModel ()
 	if (!m_model)
 		m_model = new QStandardItemModel;
 	m_ui->view->setModel(m_model);
-	connect(m_ui->qFilterLineEdit, SIGNAL(returnPressed()), this, SLOT(onQFilterLineEditFinished()));
+	connect(m_ui->qFilterLineEdit, SIGNAL(returnPressed()), this, SLOT(onStringAdd()));
 	m_ui->view->setEditTriggers(QAbstractItemView::NoEditTriggers);
 	m_ui->view->header()->hide();
 	connect(m_ui->view, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtStringList(QModelIndex)));
-	connect(m_ui->view, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(onDoubleClickedAtStringList(QModelIndex)));
+	//connect(m_ui->view, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(onDoubleClickedAtStringList(QModelIndex)));
 	//connect(ui->comboBoxString, SIGNAL(activated(int)), this, SLOT(onStringActivate(int)));
 	connect(m_ui->buttonAddString, SIGNAL(clicked()), this, SLOT(onStringAdd()));
 	connect(m_ui->buttonRmString, SIGNAL(clicked()), this, SLOT(onStringRm()));

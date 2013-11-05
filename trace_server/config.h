@@ -190,6 +190,11 @@ struct FilteredContext {
 	}
 };
 
+inline bool operator< (FilteredContext const & lhs, FilteredContext const & rhs)
+{
+	return lhs.m_ctx < rhs.m_ctx;
+}
+
 struct TreeModelItem {
 	/*@member	state
 	 * duplicates qt enum

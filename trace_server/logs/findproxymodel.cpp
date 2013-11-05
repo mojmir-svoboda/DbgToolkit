@@ -15,6 +15,11 @@ FindProxyModel::FindProxyModel (QObject * parent, logs::LogWidget & lw)
 	, m_column_count(0)
 { }
 
+FindProxyModel::~FindProxyModel ()
+{
+	qDebug("%s", __FUNCTION__);
+}
+
 void FindProxyModel::resizeToCfg ()
 {
 	if (m_log_widget.m_config.m_columns_setup.size() > 0 && m_column_count == 0)

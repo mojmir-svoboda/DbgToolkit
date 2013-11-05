@@ -87,6 +87,7 @@ void LogWidget::setFilteringProxy (bool on)
 
 	if (!on)
 	{
+		qDebug("%s setting source model", __FUNCTION__);
 		QModelIndexList srcs;
 		if (m_proxy_model && indexes.size() > 0)
 		{
@@ -110,6 +111,7 @@ void LogWidget::setFilteringProxy (bool on)
 	}
 	else
 	{
+		qDebug("%s setting proxy model", __FUNCTION__);
 		setModel(m_proxy_model);
 		setSelectionModel(m_proxy_selection);
 		m_src_model->setProxy(m_proxy_model);
@@ -312,7 +314,6 @@ void LogWidget::appendToLvlFilters (QString const & item)
 			QList<QStandardItem *> row_items = addTriRow(item, Qt::Checked, true);
 			row_items[0]->setCheckState(Qt::Checked);
 			root->appendRow(row_items);
-			filterMgr()->getFilterLvl()->m_ui->view->sortByColumn(0, Qt::AscendingOrder);
 			filterMgr()->getFilterLvl()->appendLvlFilter(item);
 		}
 	}

@@ -520,15 +520,15 @@ void MainWindow::setupMenuBar ()
 	editMenu->addAction(tr("Close Tab"), m_server, SLOT(onCloseCurrentTab()), QKeySequence(Qt::ControlModifier + Qt::Key_W));
 
 	// Filter
-	QMenu * filterMenu = menuBar()->addMenu(tr("Fi&lter"));
-	filterMenu->addAction(tr("Hide previous rows"), m_server, SLOT(onHidePrevFromRow()), QKeySequence(Qt::Key_Delete));
-	filterMenu->addAction(tr("Unhide previous rows"), m_server, SLOT(onUnhidePrevFromRow()), QKeySequence(Qt::ControlModifier + Qt::Key_Delete));
-	filterMenu->addAction(tr("Set time reference row"), m_server, SLOT(onTimeRefFromRow()), QKeySequence(Qt::Key_Space));
-	filterMenu->addAction(tr("Exclude file:line row"), m_server, SLOT(onExcludeFileLine()), QKeySequence(Qt::Key_X));
-	filterMenu->addAction(tr("Goto file filter"), this, SLOT(onGotoFileFilter()), QKeySequence(Qt::ControlModifier + Qt::Key_F1));
-	filterMenu->addAction(tr("Goto level filter"), this, SLOT(onGotoLevelFilter()), QKeySequence(Qt::ControlModifier + Qt::Key_F2));
-	filterMenu->addAction(tr("Goto regex filter"), this, SLOT(onGotoRegexFilter()), QKeySequence(Qt::ControlModifier + Qt::Key_F3));
-	filterMenu->addAction(tr("Goto color filter"), this, SLOT(onGotoColorFilter()), QKeySequence(Qt::ControlModifier + Qt::Key_F4));
+	//QMenu * filterMenu = menuBar()->addMenu(tr("Fi&lter"));
+	//filterMenu->addAction(tr("Hide previous rows"), m_server, SLOT(onHidePrevFromRow()), QKeySequence(Qt::Key_Delete));
+	//filterMenu->addAction(tr("Unhide previous rows"), m_server, SLOT(onUnhidePrevFromRow()), QKeySequence(Qt::ControlModifier + Qt::Key_Delete));
+	//filterMenu->addAction(tr("Set time reference row"), m_server, SLOT(onTimeRefFromRow()), QKeySequence(Qt::Key_Space));
+	//filterMenu->addAction(tr("Exclude file:line row"), m_server, SLOT(onExcludeFileLine()), QKeySequence(Qt::Key_X));
+	//filterMenu->addAction(tr("Goto file filter"), this, SLOT(onGotoFileFilter()), QKeySequence(Qt::ControlModifier + Qt::Key_F1));
+	//filterMenu->addAction(tr("Goto level filter"), this, SLOT(onGotoLevelFilter()), QKeySequence(Qt::ControlModifier + Qt::Key_F2));
+	//filterMenu->addAction(tr("Goto regex filter"), this, SLOT(onGotoRegexFilter()), QKeySequence(Qt::ControlModifier + Qt::Key_F3));
+	//filterMenu->addAction(tr("Goto color filter"), this, SLOT(onGotoColorFilter()), QKeySequence(Qt::ControlModifier + Qt::Key_F4));
 
 	QMenu * tailMenu = menuBar()->addMenu(tr("&Tail"));
 	tailMenu->addAction(tr("File &Tail..."), this, SLOT(onFileTail()), QKeySequence(Qt::ControlModifier + Qt::Key_T));
@@ -588,7 +588,7 @@ void MainWindow::storeState ()
 	settings.setValue("onTopCheckBox", ui_settings->onTopCheckBox->isChecked());
 	settings.setValue("presetComboBox", ui->presetComboBox->currentText());
 
-	write_list_of_strings(settings, "known-applications", "application", m_config.m_app_names);
+/*	write_list_of_strings(settings, "known-applications", "application", m_config.m_app_names);
 	for (int i = 0, ie = m_config.m_app_names.size(); i < ie; ++i)
 	{
 		if (i >= m_config.m_columns_setup.size())
@@ -627,7 +627,7 @@ void MainWindow::storeState ()
 			write_list_of_strings(settings, "elides", "column", m_config.m_columns_elide.at(i));
 		}
 		settings.endGroup();
-	}
+	}*/
 	
 	m_dock_mgr.saveConfig(m_config.m_appdir);
 #ifdef WIN32

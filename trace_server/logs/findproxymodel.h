@@ -35,6 +35,7 @@ class FindProxyModel : public BaseProxyModel
 
 public:
 	explicit FindProxyModel (QObject * parent, logs::LogWidget & lw);
+	~FindProxyModel ();
 
 	Qt::ItemFlags flags (QModelIndex const & index) const;
 	void resizeToCfg ();

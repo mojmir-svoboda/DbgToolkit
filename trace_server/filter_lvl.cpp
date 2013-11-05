@@ -4,16 +4,6 @@
 #include <QPainter>
 #include "utils_qstandarditem.h"
 #include <boost/function.hpp>
-// serialization stuff
-#include <boost/serialization/type_info_implementation.hpp>
-#include <boost/archive/xml_iarchive.hpp>
-#include <boost/archive/xml_oarchive.hpp>
-#include <boost/serialization/utility.hpp>
-#include <boost/serialization/serialization.hpp>
-#include <boost/serialization/vector.hpp>
-#include <serialize/ser_qt.h>
-#include <fstream>
-
 
 FilterLvl::FilterLvl (QWidget * parent)
 	: FilterBase(parent)
@@ -84,7 +74,6 @@ void FilterLvl::setConfigToUI ()
 	for (int i = 0, ie = m_data.size(); i < ie; ++i)
 	{
 		QStandardItem * root = m_model->invisibleRootItem();
-
 		QStandardItem * child = findChildByText(root, m_data[i].m_level_str);
 		if (child == 0)
 		{
@@ -115,24 +104,27 @@ void FilterLvl::clear ()
 void FilterLvl::setupModel ()
 {
 	if (!m_model)
+	{
+		qDebug("new tree view lvl model");
 		m_model = new QStandardItemModel;
+	}
 	m_ui->view->setModel(m_model);
 	m_ui->view->setSortingEnabled(true);
-
-	m_ui->view->setItemDelegate(new LevelDelegate(this));
-	m_ui->view->setRootIndex(m_model->indexFromItem(m_model->invisibleRootItem()));
+	m_ui->view->expandAll();
+	LevelDelegate * d = new LevelDelegate(this);
+	m_ui->view->setItemDelegate(d);
+	//m_ui->view->setRootIndex(m_model->indexFromItem(m_model->invisibleRootItem()));
 
 	m_ui->view->setEditTriggers(QAbstractItemView::NoEditTriggers);
-	connect(m_ui->view, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtLvlList(QModelIndex)));
-	connect(m_ui->view, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(onDoubleClickedAtLvlList(QModelIndex)));
-	connect(m_ui->allLevelButton, SIGNAL(clicked()), this, SLOT(onSelectAllLevels()));
-	connect(m_ui->noLevelButton, SIGNAL(clicked()), this, SLOT(onSelectNoLevels()));
+	connect(m_ui->view, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtLvl(QModelIndex)));
+	connect(m_ui->allButton, SIGNAL(clicked()), this, SLOT(onSelectAllLevels()));
+	connect(m_ui->noButton, SIGNAL(clicked()), this, SLOT(onSelectNoLevels()));
 	m_ui->view->header()->hide();
 }
 
 void FilterLvl::destroyModel ()
 {
-	//if (m_ui->view->itemDelegate() == m_delegates.get<e_delegate_Level>())
+	//if (m_ui->view->itemDelegate())
 	//	m_ui->view->setItemDelegate(0);
 	if (m_ui->view->model() == m_model)
 		m_ui->view->setModel(0);
@@ -140,28 +132,6 @@ void FilterLvl::destroyModel ()
 	m_model = 0;
 }
 
-void FilterLvl::appendLvlFilter (QString const & item)
-{
-	for (int i = 0, ie = m_data.size(); i < ie; ++i)
-		if (m_data[i].m_level_str == item)
-		{
-			FilteredLevel & l = m_data[i];
-			l.m_is_enabled = true;
-			return;
-		}
-	m_data.push_back(FilteredLevel(item, true, e_LvlInclude));
-	std::sort(m_data.begin(), m_data.end());
-}
-void FilterLvl::removeLvlFilter (QString const & item)
-{
-	for (int i = 0, ie = m_data.size(); i < ie; ++i)
-		if (m_data[i].m_level_str == item)
-		{
-			FilteredLevel & l = m_data[i];
-			l.m_is_enabled = false;
-			return;
-		}
-}
 bool FilterLvl::isLvlPresent (QString const & item, bool & enabled, E_LevelMode & lvlmode) const
 {
 	for (int i = 0, ie = m_data.size(); i < ie; ++i)
@@ -173,6 +143,29 @@ bool FilterLvl::isLvlPresent (QString const & item, bool & enabled, E_LevelMode 
 			return true;
 		}
 	return false;
+}
+void FilterLvl::appendLvlFilter (QString const & item)
+{
+	for (int i = 0, ie = m_data.size(); i < ie; ++i)
+		if (m_data[i].m_level_str == item)
+		{
+			FilteredLevel & l = m_data[i];
+			l.m_is_enabled = true;
+			return;
+		}
+	m_data.push_back(FilteredLevel(item, true, e_LvlInclude));
+	std::sort(m_data.begin(), m_data.end());
+	m_ui->view->sortByColumn(0, Qt::AscendingOrder);
+}
+void FilterLvl::removeLvlFilter (QString const & item)
+{
+	for (int i = 0, ie = m_data.size(); i < ie; ++i)
+		if (m_data[i].m_level_str == item)
+		{
+			FilteredLevel & l = m_data[i];
+			l.m_is_enabled = false;
+			return;
+		}
 }
 bool FilterLvl::setLvlMode (QString const & item, bool enabled, E_LevelMode lvlmode)
 {
@@ -188,7 +181,6 @@ bool FilterLvl::setLvlMode (QString const & item, bool enabled, E_LevelMode lvlm
 
 }
 
-// slots
 void FilterLvl::onSelectAllLevels ()
 {
 	boost::function<void (FilterLvl *, QString const &)> f = &FilterLvl::appendLvlFilter;
@@ -202,7 +194,7 @@ void FilterLvl::onSelectNoLevels ()
 	emitFilterChangedSignal();
 }
 
-void FilterLvl::onClickedAtLvlList (QModelIndex idx)
+void FilterLvl::onClickedAtLvl (QModelIndex idx)
 {
 	if (!idx.isValid()) return;
 	QStandardItem * item = m_model->itemFromIndex(idx);
@@ -226,12 +218,16 @@ void FilterLvl::onClickedAtLvlList (QModelIndex idx)
 	}
 	else
 	{
+		QStandardItem * item = m_model->itemFromIndex(idx);
+		Q_ASSERT(item);
+
 		QString const & filter_item = m_model->data(idx, Qt::DisplayRole).toString();
-		//item->setCheckState(!checked ? Qt::Checked : Qt::Unchecked);
-		if (checked)
+		bool const orig_checked = (item->checkState() == Qt::Checked);
+		if (orig_checked)
 			appendLvlFilter(filter_item);
 		else
 			removeLvlFilter(filter_item);
+
 		emitFilterChangedSignal();
 	}
 }
