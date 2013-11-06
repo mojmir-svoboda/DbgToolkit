@@ -75,6 +75,12 @@ struct FilterBase : public QWidget
 
 	virtual void clear () = 0;
 
+	template <class ArchiveT>
+	void serialize (ArchiveT & ar, unsigned const version)
+	{
+		ar & boost::serialization::make_nvp("enabled", m_enabled);
+	}
+
 	Q_OBJECT
 public slots:
 	void onTabButton ();

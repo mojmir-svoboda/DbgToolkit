@@ -31,7 +31,7 @@ struct FilterTid : FilterBase
 	template <class ArchiveT>
 	void serialize (ArchiveT & ar, unsigned const version)
 	{
-		ar & boost::serialization::make_nvp("enabled", m_enabled);
+		FilterBase::serialize(ar, version);
 	}
 
 	// tid specific

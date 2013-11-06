@@ -33,7 +33,7 @@ struct FilterCtx : FilterBase
 	template <class ArchiveT>
 	void serialize (ArchiveT & ar, unsigned const version)
 	{
-		ar & boost::serialization::make_nvp("enabled", m_enabled);
+		FilterBase::serialize(ar, version);
 		ar & boost::serialization::make_nvp("ctx_filters", m_data);
 	}
 

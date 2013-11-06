@@ -40,7 +40,9 @@ struct FilterMgr : FilterBase
 	template <class ArchiveT>
 	void serialize (ArchiveT & ar, unsigned const version)
 	{
+		FilterBase::serialize(ar, version);
 		ar & boost::serialization::make_nvp("filter_order", m_filter_order);
+		ar & boost::serialization::make_nvp("curr_tab", m_currTab);
 	}
 
 	void addFilter (FilterBase * b);
@@ -87,6 +89,7 @@ public:
 	ComboList *				m_tabCtxMenu;
 	QStyledItemDelegate *	m_delegate;
 	MyListModel *			m_tabCtxModel;
+	int						m_currTab;
 	Q_OBJECT
 };
 

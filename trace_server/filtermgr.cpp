@@ -21,6 +21,7 @@ FilterMgr::FilterMgr (QWidget * parent)
 	, m_tabCtxMenu(0)
 	, m_delegate(0)
 	, m_tabCtxModel(0)
+	, m_currTab(0)
 {
 	m_filters.reserve(e_filtertype_max_value);
 	m_filter_order.reserve(e_filtertype_max_value);
@@ -70,6 +71,7 @@ void FilterMgr::loadConfig (QString const & path)
 
 void FilterMgr::saveConfig (QString const & path)
 {
+	m_currTab = m_tabFilters->currentIndex();
 	QString const fname = path + "/" + g_filterTag + "/" + typeName();
 	::saveConfigTemplate(*this, fname);
 
@@ -79,6 +81,7 @@ void FilterMgr::saveConfig (QString const & path)
 
 void FilterMgr::applyConfig ()
 {
+	m_tabFilters->setCurrentIndex(m_currTab);
 	for (int i = 0, ie = m_filters.size(); i < ie; ++i)
 		m_filters[i]->applyConfig();
 }

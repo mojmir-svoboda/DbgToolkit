@@ -324,6 +324,12 @@ void MainWindow::onQuit ()
 	m_tray_icon->hide();
 	storeState();
 
+	QWidget * w = 0;
+	while (w = getTabTrace()->currentWidget())
+	{
+		onCloseTab(w);
+	}
+
 	QTimer::singleShot(0, this, SLOT(onQuitReally()));	// trigger lazy quit
 }
 
