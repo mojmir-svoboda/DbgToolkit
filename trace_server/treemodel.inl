@@ -334,13 +334,15 @@ void TreeModel<InfoT>::syncExpandState (QTreeView * tv)
 	if (!m_tree_data->root->children)
 		return;
 	QList<node_t const *> q;
-	q.push_back(m_tree_data->root->children);
+	q.push_back(m_tree_data->root);
+	//m_tree_data->root->data.m_collapsed = false;
 	while (!q.empty())
 	{
 		node_t const * n = q.back();
 		bool const expanded = !static_cast<bool>(n->data.m_collapsed);
 		tv->setExpanded(indexFromItem(n), expanded);
 		q.pop_back();
+		//qDebug("set expand=%i to key=%s", expanded, n->key.toStdString().c_str());
 
 		node_t const * child = n->children;
 		while (child)

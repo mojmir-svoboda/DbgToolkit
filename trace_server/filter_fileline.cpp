@@ -32,6 +32,20 @@ FilterFileLine::~FilterFileLine ()
 void FilterFileLine::initUI ()
 {
 	m_ui->setupUi(this);
+
+	connect(m_ui->cutParentSpinBox, SIGNAL(valueChanged(int)), this, SLOT(onCutParentValueChanged(int)));
+	connect(m_ui->collapseChildsButton, SIGNAL(clicked()), this, SLOT(onCollapseChilds()));
+	getWidgetFile()->setEditTriggers(QAbstractItemView::NoEditTriggers);
+	connect(getWidgetFile(), SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtFileTree(QModelIndex)));
+	connect(getWidgetFile(), SIGNAL(doubleClicked(QModelIndex)), this, SLOT(onDoubleClickedAtFileTree(QModelIndex)));
+	getWidgetFile()->header()->hide();
+
+	connect(m_ui->filterFileComboBox, SIGNAL(editTextChanged(QString)), this, SLOT(onFilterFileComboChanged(QString)));
+	bool const cancel_on = !m_ui->filterFileComboBox->currentText().isEmpty();
+	m_ui->cancelFilterButton->setEnabled(cancel_on);
+	connect(m_ui->cancelFilterButton, SIGNAL(clicked()), this, SLOT(onCancelFilterFileButton()));
+
+	//connect(m_file_model, SIGNAL(invalidateFilter()), this, SLOT(onInvalidateFilter()));
 }
 
 void FilterFileLine::doneUI ()
@@ -66,8 +80,11 @@ void FilterFileLine::defaultConfig ()
 void FilterFileLine::loadConfig (QString const & path)
 {
 	QString const fname = path + "/" + g_filterTag + "/" + typeName();
-	if (!::loadConfigTemplate(*this, fname))
+	FilterFileLine ffl;
+	if (!::loadConfigTemplate(ffl, fname))
 		defaultConfig();
+	m_enabled = ffl.m_enabled;
+	mergeWithConfig(ffl.m_data);
 }
 
 void FilterFileLine::saveConfig (QString const & path)
@@ -79,10 +96,8 @@ void FilterFileLine::saveConfig (QString const & path)
 void FilterFileLine::applyConfig ()
 {
 	FilterBase::applyConfig();
-	//merge_with(m_data);
-
-	if (m_model)
-		m_model->syncExpandState(getWidgetFile());
+	destroyModel();
+	setupModel();
 }
 
 FilterTreeModel::FilterTreeModel (QObject * parent, tree_data_t * data)
@@ -112,24 +127,8 @@ void FilterFileLine::setupModel ()
 		m_proxy = new TreeProxyModel(m_model, m_proxy_selection);
 	}
 	getWidgetFile()->setModel(m_model);
-	getWidgetFile()->syncExpandState();
+	m_model->syncExpandState(getWidgetFile());
 	getWidgetFile()->hideLinearParents();
-
-	connect(m_ui->cutParentSpinBox, SIGNAL(valueChanged(int)), this, SLOT(onCutParentValueChanged(int)));
-	connect(m_ui->collapseChildsButton, SIGNAL(clicked()), this, SLOT(onCollapseChilds()));
-	getWidgetFile()->setEditTriggers(QAbstractItemView::NoEditTriggers);
-	connect(getWidgetFile(), SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtFileTree(QModelIndex)));
-	connect(getWidgetFile(), SIGNAL(doubleClicked(QModelIndex)), this, SLOT(onDoubleClickedAtFileTree(QModelIndex)));
-	getWidgetFile()->header()->hide();
-
-	connect(m_ui->filterFileComboBox, SIGNAL(editTextChanged(QString)), this, SLOT(onFilterFileComboChanged(QString)));
-	bool const cancel_on = !m_ui->filterFileComboBox->currentText().isEmpty();
-	m_ui->cancelFilterButton->setEnabled(cancel_on);
-	connect(m_ui->cancelFilterButton, SIGNAL(clicked()), this, SLOT(onCancelFilterFileButton()));
-
-
-
-	//connect(m_file_model, SIGNAL(invalidateFilter()), this, SLOT(onInvalidateFilter()));
 }
 
 void FilterFileLine::destroyModel ()
@@ -251,7 +250,7 @@ void FilterFileLine::merge (node_t * lhs, node_t const * rhs)
 	merge_state(lhs, rhs);
 }
 
-void FilterFileLine::merge_with (file_filters_t const & rhs)
+void FilterFileLine::mergeWithConfig (file_filters_t const & rhs)
 {   
 	node_t * const rhs_root = rhs.root;
 	if (m_data.root && rhs_root)

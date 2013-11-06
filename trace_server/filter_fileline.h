@@ -73,7 +73,7 @@ struct FilterFileLine : FilterBase
 
 	typedef tree_filter<TreeModelItem> file_filters_t;
 	typedef file_filters_t::node_t node_t;
-	void merge_with (file_filters_t const & rhs);
+	void mergeWithConfig (file_filters_t const & rhs);
 	void merge (node_t * lhs, node_t const * rhs);
 	void merge_state (node_t * lhs, node_t const * rhs);
 	void merge_rhs (node_t * lhs, node_t const * rhs);
