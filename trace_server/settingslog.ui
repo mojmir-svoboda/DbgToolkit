@@ -185,14 +185,19 @@
              <number>0</number>
             </property>
             <item>
-             <widget class="FindWidget" name="findWidget" native="true">
-              <zorder>gridLayoutWidget</zorder>
-             </widget>
+             <widget class="FindWidget" name="findWidget" native="true"/>
             </item>
            </layout>
           </item>
           <item>
            <layout class="QGridLayout" name="gridLayout_7">
+            <item row="0" column="1">
+             <widget class="QLabel" name="label">
+              <property name="text">
+               <string>If column selected, find only in selected column</string>
+              </property>
+             </widget>
+            </item>
             <item row="0" column="0">
              <widget class="QCheckBox" name="stickToColumnCheckBox">
               <property name="text">
@@ -200,10 +205,17 @@
               </property>
              </widget>
             </item>
-            <item row="0" column="1">
-             <widget class="QLabel" name="label">
+            <item row="1" column="0">
+             <widget class="QCheckBox" name="wrapAroundCheckBox">
               <property name="text">
-               <string>If column selected, find only in selected column</string>
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QLabel" name="label_2">
+              <property name="text">
+               <string>Find wrap around</string>
               </property>
              </widget>
             </item>
@@ -522,33 +534,6 @@
                  <widget class="QToolButton" name="tableFontToolButton">
                   <property name="text">
                    <string>...</string>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-             </layout>
-            </widget>
-            <widget class="QWidget" name="tab_2">
-             <attribute name="title">
-              <string>Window</string>
-             </attribute>
-             <layout class="QGridLayout" name="gridLayout_6">
-              <item row="0" column="0">
-               <layout class="QGridLayout" name="gridLayout_5">
-                <item row="0" column="0">
-                 <widget class="QCheckBox" name="reuseTabCheckBox">
-                  <property name="font">
-                   <font>
-                    <family>Verdana</family>
-                    <pointsize>7</pointsize>
-                   </font>
-                  </property>
-                  <property name="text">
-                   <string>Reuse current tab for connections/files from the same application</string>
-                  </property>
-                  <property name="checked">
-                   <bool>true</bool>
                   </property>
                  </widget>
                 </item>

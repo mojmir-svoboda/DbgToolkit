@@ -21,8 +21,6 @@ Connection * MainWindow::findConnectionByName (QString const & app_name)
 	return 0;
 }
 
-
-
 void MainWindow::copyStorageTo (QString const & filename)
 {
 	if (Connection * conn = findCurrentConnection())
@@ -83,19 +81,6 @@ Connection * MainWindow::createNewConnection ()
 	int const n = getTabTrace()->addTab(tab, QString::fromUtf8("???"));
 	qDebug("created new tab at %u for connection @ 0x%08x", n, connection);
 
-	//QString const tag("default"); // @FIXME
-	//datalogs_t::iterator it = connection->findOrCreateLog(tag);
-	//DataLog & d = **it;
-
-	///////////////////////////////
-	//prestehovano do DataLog::DataLog
-	///////////////////////////////
-
-
-	/*if (filterEnabled())
-	{
-		connection->setFilterFile(Qt::Checked);
-	}*/
 	m_connections.insert(std::make_pair(tab, connection));
 	return connection;
 }

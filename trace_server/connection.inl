@@ -4,7 +4,8 @@
 template <int TypeN>
 inline QString Connection::getClosestPresetName (QString const & tag)
 {
-	char const * preset_prefix = g_fileTags[TypeN];
+	char const * widget_prefix = g_fileTags[TypeN];
+	char const * widget_fname = g_fileNames[TypeN];
 	QString preset_name = m_main_window->matchClosestPresetName(getAppName());
 	if (!preset_name.isEmpty())
 	{
@@ -25,7 +26,7 @@ inline QString Connection::getClosestPresetName (QString const & tag)
 			foreach (QString const & s, subdirs)
 			{
 				QString test_preset_name = getAppName() + "/" + s;
-				QString const cfg_fname = getDataTagFileName(getGlobalConfig().m_appdir, getAppName(), s, preset_prefix, tag);
+				QString const cfg_fname = mkWidgetFileName(getGlobalConfig().m_appdir, getAppName(), s, widget_prefix, tag, widget_fname);
 				if (existsFile(cfg_fname))
 				{
 					if (s == QString(g_defaultPresetName))
@@ -56,10 +57,10 @@ inline QString Connection::getClosestPresetName (QString const & tag)
 template <int TypeN>
 void Connection::mkWidgetPath (QString const tag, QStringList & path)
 {
-	char const * preset_prefix = g_fileTags[TypeN];
+	char const * widget_prefix = g_fileTags[TypeN];
 	QString const & name0 = m_main_window->dockedName();
 	QString const & name1 = getAppName();
-	QString const & name2 = preset_prefix;
+	QString const & name2 = widget_prefix;
 	QString const & name3 = tag;
 	path.append(name0);
 	path.append(name1);
@@ -80,8 +81,10 @@ typename SelectIterator<TypeN>::type  Connection::dataWidgetFactory (QString con
 		typedef typename SelectConfig<TypeN>::type config_t;
 
 		QString const preset_name = getClosestPresetName<TypeN>(tag);
-		char const * preset_prefix = g_fileTags[TypeN];
-		QString const fname = getDataTagFileName(getGlobalConfig().m_appdir, getAppName(), preset_name, preset_prefix, tag);
+		char const * widget_prefix = g_fileTags[TypeN];
+		char const * widget_fname = g_fileNames[TypeN];
+		QString const fname = mkWidgetFileName(getGlobalConfig().m_appdir, getAppName(), preset_name, widget_prefix, tag, widget_fname);
+		m_curr_preset = getAppName() + "/" + preset_name;
 		
 		typedef typename SelectDockedData<TypeN, dockeddata_t>::type data_t;
 		typedef typename SelectDockedData<TypeN, dockeddataptr_t>::type dataptr_t;
@@ -93,12 +96,12 @@ typename SelectIterator<TypeN>::type  Connection::dataWidgetFactory (QString con
 		dd->m_config.m_tag = tag;
 		if (!preset_name.isEmpty())
 		{
-			QString const cfg_path = getGlobalConfig().m_appdir + "/" + getAppName() + "/" + preset_name;
+			QString const cfg_path = getGlobalConfig().m_appdir + "/" + m_curr_preset;
 			dd->widget().loadConfig(cfg_path);
 		}
 
-		m_main_window->mentionInPresetHistory(getAppName() + "/" + preset_name);
-		m_main_window->setPresetAsCurrent(getAppName() + "/" + preset_name);
+		m_main_window->mentionInPresetHistory(m_curr_preset);
+		m_main_window->setPresetAsCurrent(m_curr_preset);
 
 		DockedWidgetBase & dwb = *dd;;
 
@@ -142,8 +145,9 @@ bool Connection::dataWidgetConfigPreload (QString const tag, typename SelectConf
 	typedef typename SelectConfig<TypeN>::type config_t;
 
 	QString const preset_name = getClosestPresetName<TypeN>(tag);
-	char const * preset_prefix = g_fileTags[TypeN];
-	QString const fname = getDataTagFileName(getGlobalConfig().m_appdir, getAppName(), preset_name, preset_prefix, tag);
+	char const * widget_prefix = g_fileTags[TypeN];
+	char const * widget_fname = g_fileNames[TypeN];
+	QString const fname = mkWidgetFileName(getGlobalConfig().m_appdir, getAppName(), preset_name, widget_prefix, tag, widget_fname);
 	
 	if (!preset_name.isEmpty())
 	{
@@ -170,8 +174,9 @@ typename SelectIterator<TypeN>::type  Connection::dataWidgetFactoryFrom (QString
 		typedef typename SelectConfig<TypeN>::type config_t;
 
 		QString const preset_name = getClosestPresetName<TypeN>(tag);
-		char const * preset_prefix = g_fileTags[TypeN];
-		QString const fname = getDataTagFileName(getGlobalConfig().m_appdir, getAppName(), preset_name, preset_prefix, tag);
+		char const * widget_prefix = g_fileTags[TypeN];
+		char const * widget_fname = g_fileNames[TypeN];
+		QString const fname = mkWidgetFileName(getGlobalConfig().m_appdir, getAppName(), preset_name, widget_prefix, tag, widget_fname);
 		
 		typedef typename SelectDockedData<TypeN, dockeddata_t>::type data_t;
 		typedef typename SelectDockedData<TypeN, dockeddataptr_t>::type dataptr_t;

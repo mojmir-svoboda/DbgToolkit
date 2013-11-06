@@ -6,6 +6,9 @@
 
 namespace logs {
 
+	//ui_settings->separatorComboBox->addItem("\\t");
+	//ui_settings->separatorComboBox->addItem("\\n");
+
 	namespace {
 		void fillComboBoxWithTags (QComboBox * cbx)
 		{

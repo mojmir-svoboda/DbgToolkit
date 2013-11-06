@@ -59,7 +59,8 @@ class QStandardItem;
 #include <boost/mpl/transform.hpp>
 
 #include "constants.h"
-char const * const g_fileTags[] = { g_presetLogTag, g_presetPlotTag, g_presetTableTag, g_presetGanttTag, g_presetFrameTag };
+char const * const g_fileTags[] = { g_LogTag, g_PlotTag, g_TableTag, g_GanttTag, g_FrameTag };
+char const * const g_fileNames[] = { g_LogFile, g_PlotFile, g_TableFile, g_GanttFile, g_FrameFile };
 
 typedef boost::mpl::vector<
 		boost::mpl::pair<  logs::LogWidget,    logs::LogConfig   >,
@@ -255,6 +256,7 @@ public:
 	GlobalConfig const & getGlobalConfig () const;
 	
 	QString getAppName () const { return m_app_name; }
+	QString const & getCurrPreset () const { return m_curr_preset; }
 	int getAppIdx () const { return m_app_idx; }
 	AppData const & appData () const { return m_app_data; }
 

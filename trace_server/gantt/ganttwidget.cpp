@@ -468,7 +468,7 @@ namespace gantt {
 
 	void GanttWidget::loadConfig (QString const & path)
 	{
-		QString const fname = path + "/" + g_presetGanttTag + "/" + m_config.m_tag;
+		QString const fname = path + "/" + g_GanttTag + "/" + m_config.m_tag;
 		m_config2.clear();
 		gantt::loadConfig(m_config2, fname);
 		filterMgr()->loadConfig(fname);
@@ -476,7 +476,7 @@ namespace gantt {
 
 	void GanttWidget::saveConfig (QString const & path)
 	{
-		QString const fname = path + "/" + g_presetGanttTag + "/" + m_config.m_tag;
+		QString const fname = path + "/" + g_GanttTag + "/" + m_config.m_tag;
 		gantt::GanttConfig tmp = m_config;
 		//normalizeConfig(tmp);
 		gantt::saveConfig(tmp, fname);

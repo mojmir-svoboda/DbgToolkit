@@ -36,7 +36,7 @@ namespace logs {
 		void saveFindConfig ();
 		void applyConfig (LogConfig & pcfg);
 		void applyConfig ();
-		QString getCurrentPresetPath ();
+		QString getCurrentWidgetPath () const;
 
 		QList<DecodedCommand> m_queue;
 		void handleCommand (DecodedCommand const & cmd, E_ReceiveMode mode);
@@ -296,8 +296,6 @@ namespace logs {
 		int m_current_selection;
 		unsigned long long m_time_ref_value;
 
-
-		QString m_curr_preset;
 
 		FilterProxyModel * m_proxy_model;
 		FindProxyModel * m_find_proxy_model;

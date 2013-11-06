@@ -40,7 +40,6 @@ namespace logs {
 		, m_current_tag(-1)
 		, m_current_selection(-1)
 		, m_time_ref_value(0)
-		, m_curr_preset()
 		, m_proxy_model(0)
 		, m_find_proxy_model(0)
 		, m_src_model(0)
@@ -134,16 +133,13 @@ namespace logs {
 
 	void LogWidget::setupLogModel (LogTableModel * linked_model)
 	{
-		LogTableModel * model = 0;
 		if (linked_model)
-			model = linked_model;
+			m_src_model = linked_model;
 		else
 		{
-			model = new LogTableModel(this, *this);
-			QObject::disconnect(model, SIGNAL(rowsInserted(QModelIndex,int,int)), verticalHeader(), SLOT(sectionsInserted(QModelIndex,int,int)));
+			m_src_model = new LogTableModel(this, *this);
+			QObject::disconnect(m_src_model, SIGNAL(rowsInserted(QModelIndex,int,int)), verticalHeader(), SLOT(sectionsInserted(QModelIndex,int,int)));
 		}
-
-		m_src_model = model;
 
 		//m_proxy_selection = new QItemSelectionModel(m_proxy_model);
 		setupLogSelectionProxy();
@@ -438,18 +434,18 @@ namespace logs {
 		//applyConfig();
 	}
 
-	QString LogWidget::getCurrentPresetPath ()
+	QString LogWidget::getCurrentWidgetPath () const
 	{
 		QString const appdir = m_connection->getMainWindow()->getAppDir();
-		QString const logpath = appdir + "/" + m_path.join("/");
+		QString const logpath = appdir + "/" + m_connection->getCurrPreset() + "/" + g_LogTag + "/" + m_config.m_tag;
 		return logpath;
 	}
 
 	void LogWidget::loadConfig (QString const & preset_dir)
 	{
-		QString const logpath = preset_dir + "/" + g_presetLogTag;
+		QString const logpath = preset_dir + "/" + g_LogTag + "/" + m_config.m_tag;
 		m_config.clear();
-		bool const loaded = logs::loadConfig(m_config, logpath + "/" + m_config.m_tag);
+		bool const loaded = logs::loadConfig(m_config, logpath + g_LogFile);
 		if (!loaded)
 			defaultConfigFor(m_config);
 		
@@ -457,20 +453,20 @@ namespace logs {
 	}
 	void LogWidget::loadAuxConfigs ()
 	{
-		QString const logpath = getCurrentPresetPath();
+		QString const logpath = getCurrentWidgetPath();
 		m_config.m_find_config.clear();
 		loadConfigTemplate(m_config.m_find_config, logpath + "/" + g_findTag);
 		filterMgr()->loadConfig(logpath);
 	}
 	void LogWidget::saveAuxConfigs ()
 	{
-		QString const logpath = getCurrentPresetPath();
+		QString const logpath = getCurrentWidgetPath();
 		saveConfigTemplate(m_config.m_find_config, logpath + "/" + g_findTag);
 		filterMgr()->saveConfig(logpath);
 	}
 	void LogWidget::saveFindConfig ()
 	{
-		QString const logpath = getCurrentPresetPath();
+		QString const logpath = getCurrentWidgetPath();
 		saveConfigTemplate(m_config.m_find_config, logpath + "/" + g_findTag);
 	}
 
@@ -508,12 +504,12 @@ namespace logs {
 
 	void LogWidget::saveConfig (QString const & path)
 	{
-		QString const logpath = path + "/" + g_presetLogTag;
+		QString const logpath = getCurrentWidgetPath();
 		mkDir(logpath);
 
 		logs::LogConfig tmp = m_config;
 		normalizeConfig(tmp);
-		logs::saveConfig(tmp, logpath + "/" + m_config.m_tag);
+		logs::saveConfig(tmp, logpath + "/" + g_LogFile);
 		saveAuxConfigs();
 
         //currentIndex  = horizontalHeader()->visualIndex(session.findColumn4Tag(iter.key()));

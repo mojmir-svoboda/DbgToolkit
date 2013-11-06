@@ -64,7 +64,6 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QStri
 {
 	qDebug("================================================================================");
 	qDebug("%s this=0x%08x", __FUNCTION__, this);
-	//QDir::setSearchPaths("icons", QStringList(QDir::currentPath()));
 	ui->setupUi(this);
 	ui->tabTrace->setTabsClosable(true);
 
@@ -72,8 +71,6 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QStri
 	m_settings_dialog->setWindowFlags(Qt::Sheet);
 	ui_settings = new Ui::SettingsDialog();
 	ui_settings->setupUi(m_settings_dialog);
-	//ui_settings->separatorComboBox->addItem("\\t");
-	//ui_settings->separatorComboBox->addItem("\\n");
 
 	QString const homedir = QDir::homePath();
 	m_config.m_appdir = homedir + "/.flogging";
@@ -831,37 +828,12 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
 void MainWindow::addNewApplication (QString const & appname)
 {
 	m_config.m_app_names.push_back(appname);
-	/*m_config.m_columns_setup.push_back(columns_setup_t());
-	m_config.m_columns_sizes.push_back(columns_sizes_t());
-	m_config.m_columns_align.push_back(columns_align_t());
-	m_config.m_columns_elide.push_back(columns_elide_t());*/
 }
 
 int MainWindow::createAppName (QString const & appname, E_SrcProtocol const proto)
 {
 	addNewApplication(appname);
 	int const app_idx = static_cast<int>(m_config.m_app_names.size()) - 1;
-
-	/*if (proto == e_Proto_TLV)
-	{
-		size_t const n = tlv::tag_bool;
-		for (int i = tlv::tag_time; i < n; ++i)
-		{
-			char const * name = tlv::get_tag_name(i);
-			if (name)
-			{
-				m_config.m_columns_setup.back().push_back(QString::fromLatin1(name));
-				m_config.m_columns_sizes.back().push_back(default_sizes[i]);
-				m_config.m_columns_align.back().push_back(QChar(alignToString(default_aligns[i])));
-				m_config.m_columns_elide.back().push_back(QChar(elideToString(default_elides[i])));
-			}
-		}
-		onSetup(proto, static_cast<int>(app_idx), true, true);
-	}
-	else if (proto == e_Proto_CSV)
-	{
-	}*/
-
 	return app_idx;
 }
 

@@ -64,11 +64,11 @@ inline QString createPresetPath (QString const & appdir, QString const & preset_
 	return presetdir;
 }
 
-inline QString getDataTagFileName (QString const & appdir, QString const & app_name, QString const & preset_name, QString const & class_name, QString const & tag)
+inline QString mkWidgetFileName (QString const & appdir, QString const & app_name, QString const & preset_name, QString const & class_name, QString const & tag, QString const & widget_fname)
 {
-	QString presetdir = appdir + "/" + app_name + "/" + preset_name + "/" + class_name;
-	QDir d;
-	QString const fname = presetdir + "/" + tag;
+	QString widgetdir = appdir + "/" + app_name + "/" + preset_name + "/" + class_name + "/" + tag;
+	//QDir d;
+	QString const fname = widgetdir + "/" + widget_fname;
 	qDebug("cfg fname for data: %s", fname.toStdString().c_str());
 	return fname;
 }
@@ -80,20 +80,20 @@ inline QString mkDir (QString const & dir)
 	return dir;
 }
 
-inline QString mkPresetDir (QString const & appdir, QString const & app_name, QString const & preset_name, QString const & class_name)
+inline QString mkWidgetDir (QString const & appdir, QString const & app_name, QString const & preset_name, QString const & class_name, QString const & tag)
 {
-	QString presetdir = appdir + "/" + app_name + "/" + preset_name + "/" + class_name;
+	QString presetdir = appdir + "/" + app_name + "/" + preset_name + "/" + class_name + "/" + tag;
 	QDir d;
 	d.mkpath(presetdir);
 	return presetdir;
 }
 
-inline QString getDataTagFileNameAndMkPath (QString const & appdir, QString const & app_name, QString const & preset_name, QString const & class_name, QString const & tag)
+inline QString getWidgetFileNameAndMkPath (QString const & appdir, QString const & app_name, QString const & preset_name, QString const & class_name, QString const & tag, QString const & widget_fname)
 {
-	QString presetdir = appdir + "/" + app_name + "/" + preset_name + "/" + class_name;
+	QString widgetdir = appdir + "/" + app_name + "/" + preset_name + "/" + class_name + "/" + tag;
 	QDir d;
-	d.mkpath(presetdir);
-	QString const fname = presetdir + "/" + tag;
+	d.mkpath(widgetdir);
+	QString const fname = widgetdir + "/" + widget_fname;
 	qDebug("mk cfg path for fname: %s", fname.toStdString().c_str());
 	return fname;
 }
