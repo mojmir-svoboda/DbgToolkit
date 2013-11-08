@@ -166,152 +166,26 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 				if (conn)
 				{
 					qDebug("cmd setup: looking for app=%s: not found", app_name.toStdString().c_str());
-					/*if (!m_main_window->clrFltEnabled())
-					{
-						m_file_model->beforeLoad();
-						loadSessionState(conn->sessionState(), m_session_state);
-					}*/
 
 					QWidget * w = conn->m_tab_widget;
 					m_main_window->onCloseTab(w);	// close old one
 					// @TODO: delete persistent storage for the tab
 
-					//m_file_model->afterLoad();
 				}
 				else
 				{
 					qDebug("cmd setup: looking for app=%s: found", app_name.toStdString().c_str());
-					//m_file_model->beforeLoad();
 					//QString const pname = m_main_window->matchClosestPresetName(app_name);
 					//m_main_window->onPresetActivate(this, pname);
-					//m_file_model->afterLoad();
 				}
-
 			}
 			else
 			{
 				//tryLoadMatchingPreset(app_name);
 			}
 
-
-			/*{
-				QStandardItemModel * model = static_cast<QStandardItemModel *>(m_main_window->getWidgetColorRegex()->model());
-				if (model)
-				{
-					if (QStandardItem * root = model->invisibleRootItem())
-					{
-						for (int i = 0; i < sessionState().m_colorized_texts.size(); ++i)
-						{
-							ColorizedText & ct = sessionState().m_colorized_texts[i];
-							ct.m_regex = QRegExp(ct.m_regex_str);
-
-							QStandardItem * child = findChildByText(root, ct.m_regex_str);
-							if (child == 0)
-							{
-								QList<QStandardItem *> row_items = addRow(ct.m_regex_str, ct.m_is_enabled);
-								root->appendRow(row_items);
-							}
-						}
-						recompileColorRegexps();
-					}
-					else
-						qWarning("cregexp - nonexistent root");
-				}
-				else
-					qWarning("cregexp - nonexistent model");
-
-			}
-
-			{
-				QStandardItemModel * model = static_cast<QStandardItemModel *>(m_main_window->getWidgetRegex()->model());
-				if (model)
-				{
-					if (QStandardItem * root = model->invisibleRootItem())
-					{
-						for (int i = 0; i < sessionState().m_filtered_regexps.size(); ++i)
-						{
-							FilteredRegex & flt = sessionState().m_filtered_regexps[i];
-							flt.m_regex = QRegExp(flt.m_regex_str);
-
-							QStandardItem * child = findChildByText(root, flt.m_regex_str);
-							if (child == 0)
-							{
-								Qt::CheckState const state = flt.m_is_enabled ? Qt::Checked : Qt::Unchecked;
-								QList<QStandardItem *> row_items = addTriRow(flt.m_regex_str, state, static_cast<bool>(flt.m_state));
-								root->appendRow(row_items);
-								child = findChildByText(root, flt.m_regex_str);
-								child->setCheckState(state);
-							}
-						}
-						recompileRegexps();
-					}
-					else
-						qWarning("regexp - nonexistent root");
-				}
-				else
-					qWarning("regexp - nonexistent model");
-			}
-
-			{
-				QStandardItemModel * model = static_cast<QStandardItemModel *>(m_main_window->getWidgetLvl()->model());
-				if (model)
-				{
-					if (QStandardItem * root = model->invisibleRootItem())
-					{
-						std::sort(sessionState().m_lvl_filters.begin(), sessionState().m_lvl_filters.end());
-						for (int i = 0; i < sessionState().m_lvl_filters.size(); ++i)
-						{
-							FilteredLevel & flt = sessionState().m_lvl_filters[i];
-							appendToLvlWidgets(flt);
-						}
-					}
-					else
-						qWarning("lvl - nonexistent root");
-				}
-				else
-					qWarning("lvl - nonexistent model");
-
-			}
-			{
-				QStandardItemModel * model = static_cast<QStandardItemModel *>(m_main_window->getWidgetCtx()->model());
-				if (model)
-				{
-					if (QStandardItem * root = model->invisibleRootItem())
-					{
-						for (int i = 0; i < sessionState().m_ctx_filters.size(); ++i)
-						{
-							FilteredContext & flt = sessionState().m_ctx_filters[i];
-							appendToCtxWidgets(flt);
-						}
-					}
-					else
-						qWarning("ctx - nonexistent root");
-				}
-				else
-					qWarning("ctx - nonexistent model");
-			}
-			{
-				QStandardItemModel * model = static_cast<QStandardItemModel *>(m_main_window->getWidgetString()->model());
-				if (model)
-				{
-					if (QStandardItem * root = model->invisibleRootItem())
-						for (int i = 0; i < sessionState().m_filtered_strings.size(); ++i)
-						{
-							FilteredString & flt = sessionState().m_filtered_strings[i];
-							appendToStringWidgets(flt);
-						}
-					else
-						qWarning("str - nonexistent root");
-				}
-				else
-					qWarning("str - nonexistent model");
-			}*/
-
-			//this->setupModelFile();
-			//this->setupModelLvl();
-
 			m_app_name = app_name;
-			//sessionState().m_pid = pid;
+			m_pid = pid;
 
 			int const tab_idx = m_main_window->getTabTrace()->indexOf(m_tab_widget);
 			m_main_window->getTabTrace()->setTabText(tab_idx, app_name);

@@ -48,8 +48,6 @@ namespace logs {
 		, m_src_selection(0)
 		, m_proxy_selection(0)
 		, m_find_proxy_selection(0)
-		, m_ctx_menu()
-		, m_actions()
 		, m_last_clicked()
 		, m_csv_separator()
 		, m_file_csv_stream(0)
@@ -87,10 +85,9 @@ namespace logs {
 		m_config_ui.ui()->findWidget->setMainWindow(m_connection->getMainWindow());
 		connect(m_config_ui.ui()->gotoNextButton, SIGNAL(clicked()), this, SLOT(onNextToView()));
 		m_config_ui.ui()->gotoNextButton->setIcon(style->standardIcon(QStyle::SP_ArrowDown));
+		connect(m_config_ui.ui()->saveButton, SIGNAL(clicked()), this, SLOT(onSaveButton()));
 		//connect(ui->autoScrollCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onAutoScrollStateChanged(int)));
 		//connect(ui->inViewCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onInViewStateChanged(int)));
-		//
-		//
 		//connect(m_config_ui.ui()->filterFileCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onFilterFile(int)));
 
 		QObject::connect(horizontalHeader(), SIGNAL(sectionResized(int, int, int)), this, SLOT(onSectionResized(int, int, int)));
@@ -102,28 +99,6 @@ namespace logs {
 		setItemDelegate(new LogDelegate(*this, m_connection->appData(), this));
 		
 		m_warnimage = new WarnImage(this);
-
-
-		/*m_actions.resize(e_action_max_enum_value);
-		m_actions[e_action_ToggleRef] = new QAction("Set as reference time", this);
-		m_actions[e_action_HidePrev] = new QAction("Hide prev rows", this);
-		m_actions[e_action_ExcludeFileLine] = new QAction("Exclude File:Line (x)", this);
-		m_actions[e_action_Copy] = new QAction("Copy", this);
-		m_actions[e_action_Find] = new QAction("Find File:Line in filters", this);
-		m_actions[e_action_ColorTag] = new QAction("Tag row with color", this);
-		m_actions[e_action_Setup] = new QAction("Setup", this);
-		m_ctx_menu.addAction(m_actions[e_action_ExcludeFileLine]);
-		m_ctx_menu.addAction(m_actions[e_action_Find]);
-		m_ctx_menu.addAction(m_actions[e_action_Copy]);
-		m_ctx_menu.addAction(m_actions[e_action_ToggleRef]);
-		m_ctx_menu.addAction(m_actions[e_action_HidePrev]);
-		m_ctx_menu.addAction(m_actions[e_action_ColorTag]);
-		m_ctx_menu.addSeparator();
-		m_ctx_menu.addAction(m_actions[e_action_Setup]);*/
-
-		//m_data_model = new TreeModel(this, &m_session_state.m_data_filters);
-		
-		//applyConfig(m_config);
 	}
 
 	void LogWidget::setupNewLogModel ()
@@ -141,7 +116,6 @@ namespace logs {
 			QObject::disconnect(m_src_model, SIGNAL(rowsInserted(QModelIndex,int,int)), verticalHeader(), SLOT(sectionsInserted(QModelIndex,int,int)));
 		}
 
-		//m_proxy_selection = new QItemSelectionModel(m_proxy_model);
 		setupLogSelectionProxy();
 
 		m_proxy_model = new FilterProxyModel(this, *this);
@@ -165,74 +139,14 @@ namespace logs {
 		//qDebug("%s this=0x%08x", __FUNCTION__, this);
 		disconnect(this, SIGNAL(customContextMenuRequested(QPoint const &)), this, SLOT(onShowContextMenu(QPoint const &)));
 
-/*	if (m_file_csv_stream)
-	{
-		QIODevice * const f = m_file_csv_stream->device();
-		f->close();
-		delete m_file_csv_stream;
-		m_file_csv_stream = 0;
-		delete f;
-	}
-
-	destroyModelFile();
-
-	if (m_main_window->getWidgetLvl()->itemDelegate() == m_delegates.get<e_delegate_Level>())
-		m_main_window->getWidgetLvl()->setItemDelegate(0);
-	if (m_main_window->getWidgetLvl()->model() == m_lvl_model)
-		m_main_window->getWidgetLvl()->setModel(0);
-	delete m_lvl_model;
-	m_lvl_model = 0;
-	delete m_delegates.get<e_delegate_Level>();
-	m_delegates.get<e_delegate_Level>() = 0;
-
-	if (m_main_window->getWidgetCtx()->itemDelegate() == m_delegates.get<e_delegate_Ctx>())
-		m_main_window->getWidgetCtx()->setItemDelegate(0);
-	if (m_main_window->getWidgetCtx()->model() == m_ctx_model)
-		m_main_window->getWidgetCtx()->setModel(0);
-	delete m_ctx_model;
-	m_ctx_model = 0;
-	delete m_delegates.get<e_delegate_Ctx>();
-	m_delegates.get<e_delegate_Ctx>() = 0;
-
-	if (m_main_window->getWidgetTID()->model() == m_tid_model)
-		m_main_window->getWidgetTID()->setModel(0);
-	delete m_tid_model;
-	m_tid_model = 0;
-
-	if (m_main_window->getWidgetColorRegex()->model() == m_color_regex_model)
-		m_main_window->getWidgetColorRegex()->setModel(0);
-	delete m_color_regex_model;
-	m_color_regex_model = 0;
-
-	if (m_main_window->getWidgetRegex()->itemDelegate() == m_delegates.get<e_delegate_Regex>())
-		m_main_window->getWidgetRegex()->setItemDelegate(0);
-	if (m_main_window->getWidgetRegex()->model() == m_regex_model)
-		m_main_window->getWidgetRegex()->setModel(0);
-	delete m_regex_model;
-	m_regex_model = 0;
-	delete m_delegates.get<e_delegate_Regex>();
-	m_delegates.get<e_delegate_Regex>() = 0;
-
-	if (m_main_window->getWidgetString()->itemDelegate() == m_delegates.get<e_delegate_String>())
-		m_main_window->getWidgetString()->setItemDelegate(0);
-	if (m_main_window->getWidgetString()->model() == m_string_model)
-		m_main_window->getWidgetString()->setModel(0);
-	delete m_string_model;
-	m_string_model = 0;
-	delete m_delegates.get<e_delegate_String>();
-	m_delegates.get<e_delegate_String>() = 0;
-
-	if (m_proxy_model)
-	{
-		m_proxy_model->setSourceModel(0);
-		delete m_proxy_model;
-		m_proxy_model = 0;
-	}
-
-	setModel(0);
-	delete m_src_model;
-	m_src_model = 0;
-	*/
+	/*	if (m_file_csv_stream)
+		{
+			QIODevice * const f = m_file_csv_stream->device();
+			f->close();
+			delete m_file_csv_stream;
+			m_file_csv_stream = 0;
+			delete f;
+		}*/
 
 	}
 
@@ -260,7 +174,6 @@ namespace logs {
 		Ui::SettingsLog * ui = m_config_ui.ui();
 
 		setConfigValuesToUI(m_config);
-		connect(ui->saveButton, SIGNAL(clicked()), this, SLOT(onSaveButton()));
 		//connect(ui->logViewComboBox, SIGNAL(activated(int)), this, SLOT(onLogViewActivate(int)));
 	}
 
@@ -305,38 +218,6 @@ namespace logs {
 			blockSignals(old);
 		}
 	}
-	
-	/*void LogWidget::moveSectionsAccordingTo (logs::LogConfig const & cfg)
-	{
-
-		QMap<int, int> perms;
-		int const hn = horizontalHeader()->count();
-		for (int hi = 0; hi < hn; ++hi)
-		{
-			int const currentVisualIndex = horizontalHeader()->visualIndex(hi);
-			//if (currentVisualIndex != i)
-			if (currentVisualIndex > -1 && currentVisualIndex < m_config.m_columns_setup.size())
-			{
-				QString val = m_config.m_columns_setup[hi];
-				
-				int const nn = cfg.m_columns_setup.size();
-				for (int nj = 0; nj < nn; ++nj)
-					if (val == cfg.m_columns_setup[nj] && hi != nj)
-						perms.insert(hi, nj);
-
-			}
-		}
-
-		QMapIterator<int, int> iter(perms);
-		while (iter.hasNext())
-		{
-			iter.next();
-			int const logical = iter.key();
-			int const visual = iter.value();
-			horizontalHeader()->moveSection(logical, visual);
-		}
-	}*/
-
 
 	void LogWidget::applyConfig ()
 	{
@@ -383,12 +264,6 @@ namespace logs {
 
 	int LogWidget::sizeHintForColumn (int column) const
 	{
-		/*if (idx < m_config.m_columns_setup.size())
-		{
-			m_config.m_columns_sizes[idx] = new_size;
-		}*/
-
-		//@TODO: proxy !!!!!!!!!!!!!!!!!!
 		int const idx = !isModelProxy() ? column : m_proxy_model->colToSource(column);
 		//qDebug("table: on rsz hdr[%i -> src=%02i ]  %i->%i\t\t%s", c, idx, old_size, new_size, m_config.m_hhdr.at(idx).toStdSt
 		if (idx < 0) return 64;
@@ -511,9 +386,6 @@ namespace logs {
 		normalizeConfig(tmp);
 		logs::saveConfig(tmp, logpath + "/" + g_LogFile);
 		saveAuxConfigs();
-
-        //currentIndex  = horizontalHeader()->visualIndex(session.findColumn4Tag(iter.key()));
-		// isSectionHidden
 	}
 
 	void LogWidget::onSaveButton ()
@@ -547,147 +419,13 @@ namespace logs {
 		qDebug("%s syncgrp=%i frame=%i", __FUNCTION__, sync_group, frame);
 	}*/
 
-void LogWidget::onNextToView ()
-{
-	nextToView();
-}
-
-void LogWidget::turnOffAutoScroll ()
-{
-	//ui->autoScrollCheckBox->setCheckState(Qt::Unchecked);
-}
-
-void LogWidget::onAutoScrollHotkey ()
-{
-	/*if (ui->autoScrollCheckBox->checkState() == Qt::Checked)
-		turnOffAutoScroll();
-	else
-		ui->autoScrollCheckBox->setCheckState(Qt::Checked);*/
-}
-
-void LogWidget::onFilterEnabledChanged ()
-{
-	applyConfig(m_config);
-	//setupUi
-	//applyConfig();
-}
-
-void LogWidget::onTableFontToolButton ()
-{
-    /*bool ok = false;
-	QFont curr_font;
-	Connection * conn = m_server->findCurrentConnection();
-	if (conn)
+	void LogWidget::onFilterEnabledChanged ()
 	{
-		curr_font = conn->getTableViewWidget()->font();
-		ui_settings->tableFontComboBox->addItem(curr_font.toString());
+		qDebug("%s", __FUNCTION__);
+		applyConfig(m_config);
+		//setupUi
+		//applyConfig();
 	}
-
-    QFont f = QFontDialog::getFont(&ok, curr_font);
-    if (ok)
-	{
-		ui_settings->tableFontComboBox->insertItem(0, curr_font.toString());
-		verticalHeader()->setFont(f);
-    }*/
-}
-
-
-/*void LogWidget::onEditFind ()
-{
-	bool ok;
-	QString search = QInputDialog::getText(this, tr("Find"), tr("Text:"), QLineEdit::Normal, m_last_search, &ok);
-	if (ok)
-	{
-		m_last_search = search;
-		if (int const pos = ui->qSearchComboBox->findText(search) >= 0)
-			ui->qSearchComboBox->setCurrentIndex(pos);
-		else
-		{
-			ui->qSearchComboBox->addItem(search);
-			ui->qSearchComboBox->setCurrentIndex(ui->qSearchComboBox->findText(search));
-		}
-		onQSearch(search);
-	}
-}
-
-void LogWidget::onQSearch (QString const & text)
-{
-	appendToSearchHistory(text);
-	//QString qcolumn = ui->qSearchColumnComboBox->currentText();
-	//qDebug("onQSearch: col=%s text=%s", qcolumn.toStdString().c_str(), text.toStdString().c_str());
-	//bool const search_all = (qcolumn == ".*");
-	bool const search_all = true;
-	if (search_all)
-	{
-		findText(text);
-	}
-}
-
-void LogWidget::onQSearchEditingFinished ()
-{
-	//QString const text = ui->qSearchComboBox->currentText();
-	//onQSearch(text);
-}
-
-void LogWidget::setLastSearchIntoCombobox (QString const & txt)
-{
-	//ui->qSearchComboBox->addItem(txt);
-	//ui->qSearchComboBox->setCurrentIndex(ui->qSearchComboBox->findText(txt));
-}
-
-void LogWidget::onFindAllButton ()
-{
-	//QString const text = ui->qSearchComboBox->currentText();
-	//findAllTexts(text);
-}
-*/
-/*void LogWidget::onQFilterLineEditFinished ()
-{
-	if (ui->qFilterLineEdit->text().size() == 0)
-		return;
-
-	QString text = ui->qFilterLineEdit->text();
-	appendToStringFilters(text, true, true);
-
-	QStandardItemModel * model = static_cast<QStandardItemModel *>(getWidgetString()->model());
-	QStandardItem * root = model->invisibleRootItem();
-	QStandardItem * child = findChildByText(root, text);
-	if (!child)
-	{
-		QList<QStandardItem *> row_items = addTriRow(text, Qt::Checked, true);
-		root->appendRow(row_items);
-		child = findChildByText(root, text);
-		child->setCheckState(Qt::Checked);
-	}
-
-	for (int i = 0, ie = ui->tabFilters->count(); i < ie; ++i)
-	{
-		if (ui->tabFilters->tabText(i) == "String")
-		{
-			ui->tabFilters->setCurrentIndex(i);
-			break;
-		}
-	}
-
-	recompileStrings();
-}
-
-void LogWidget::appendToSearchHistory (QString const & str)
-{
-	if (str.length() == 0)
-		return;
-	m_config.m_search_history.insert(str);
-	m_config.saveSearchHistory();
-	updateSearchHistory();
-	ui->qSearchComboBox->setCurrentIndex(ui->qSearchComboBox->findText(str));
-}
-
-void LogWidget::updateSearchHistory ()
-{
-	ui->qSearchComboBox->clear();
-	for (size_t i = 0, ie = m_config.m_search_history.size(); i < ie; ++i)
-		ui->qSearchComboBox->addItem(m_config.m_search_history[i]);
-}*/
 
 void LogWidget::onDumpFilters ()
 {
@@ -846,38 +584,6 @@ LogTableModel * LogWidget::cloneToNewModel (FindConfig const & fc)
 
 
 
-bool LogWidget::handleAction (Action * a, E_ActionHandleType sync)
-{
-	switch (a->type())
-	{
-		case e_Visibility:
-		{
-			Q_ASSERT(m_args.size() > 0);
-			bool const on = a->m_args.at(0).toBool();
-			setVisible(on);
-			return true;
-		}
-
-		case e_Find:
-		{
-			if (a->m_args.size() > 0)
-			{
-				if (a->m_args.at(0).canConvert<FindConfig>())
-				{
-					 FindConfig const fc = a->m_args.at(0).value<FindConfig>();
-					 handleFindAction(fc);
-					 m_config.m_find_config = fc;
-					// m_config.save
-				}		  
-				return true;
-			}
-		}
-		default:
-			return false;
-	}
-	return false;
-}
-
 /*void LogWidget::applyConfig ()
 {
 	settings.setValue("autoScrollCheckBox", ui->autoScrollCheckBox->isChecked());
@@ -899,56 +605,6 @@ bool LogWidget::handleAction (Action * a, E_ActionHandleType sync)
 }
 
 */
-
-/*void FilterState::setupColumns (QList<QString> * cs_template, columns_sizes_t * sizes , columns_align_t * ca_template, columns_elide_t * ce_template)
-{
-	m_columns_sizes = sizes;
-	m_columns_setup_template = cs_template;
-	m_columns_align_template = ca_template;
-	m_columns_elide_template = ce_template;
-
-	if (!m_columns_setup_current)
-	{
-		m_columns_setup_current = new QList<QString>();
-	}
-	else
-	{
-		m_columns_setup_current->clear();
-	}
-
-	m_tags2columns.clear();
-	*m_columns_setup_current = *m_columns_setup_template;
-	for (size_t i = 0, ie = cs_template->size(); i < ie; ++i)
-	{
-		size_t const tag_idx = tlv::tag_for_name(cs_template->at(i).toStdString().c_str());
-		if (tag_idx != tlv::tag_invalid)
-		{
-			m_tags2columns.insert(tag_idx, static_cast<int>(i)); // column index is int in Qt toolkit
-			//qDebug("FilterState::setupColumns col[%u] tag_idx=%u tag_name=%s", i, tag_idx, cs->at(i).toStdString().c_str());
-		}
-	}
-}
-
-void FilterState::setupColumnsCSV (QList<QString> * cs_template, columns_sizes_t * sizes
-			, columns_align_t * ca_template, columns_elide_t * ce_template)
-{
-	m_columns_sizes = sizes;
-	m_columns_setup_template = cs_template;
-	m_columns_align_template = ca_template;
-	m_columns_elide_template = ce_template;
-
-	if (!m_columns_setup_current)
-	{
-		m_columns_setup_current = new QList<QString>();
-	}
-	else
-	{
-		m_columns_setup_current->clear();
-	}
-
-	m_tags2columns.clear();
-	*m_columns_setup_current = *m_columns_setup_template;
-}*/
 
 int LogWidget::findColumn4Tag (tlv::tag_t tag)
 {
@@ -1047,283 +703,6 @@ void LogWidget::onFilterChanged ()
 	onInvalidateFilter();
 }
 
-void LogWidget::findTableIndexInFilters (QModelIndex const & src_idx, bool scroll_to_item, bool expand)
-{
-/*	{
-		QString const file = findString4Tag(tlv::tag_file, src_idx);
-		QString const line = findString4Tag(tlv::tag_line, src_idx);
-		QString const combined = file + "/" + line;
-		qDebug("findTableIndexInFilters %s in tree", combined.toStdString().c_str());
-		m_file_model->selectItem(m_main_window->getWidgetFile(), combined, scroll_to_item);
-		if (expand)
-			m_file_model->expandItem(m_main_window->getWidgetFile(), combined);
-	}
-	{
-		QString tid = findString4Tag(tlv::tag_tid, src_idx);
-		QModelIndexList indexList = m_tid_model->match(m_tid_model->index(0, 0), Qt::DisplayRole, tid);
-		if (!indexList.empty())
-		{
-			QModelIndex const selectedIndex(indexList.first());
-			m_main_window->getWidgetTID()->setCurrentIndex(selectedIndex);
-		}
-	}
-	{
-		QString lvl = findString4Tag(tlv::tag_lvl, src_idx);
-		QModelIndexList indexList = m_lvl_model->match(m_lvl_model->index(0, 0), Qt::DisplayRole, lvl);
-		if (!indexList.empty())
-		{
-			QModelIndex const selectedIndex(indexList.first());
-			m_main_window->getWidgetLvl()->setCurrentIndex(selectedIndex);
-		}
-	}
-	{
-		QString ctx = findString4Tag(tlv::tag_ctx, src_idx);
-		QModelIndexList indexList = m_ctx_model->match(m_ctx_model->index(0, 0), Qt::DisplayRole, ctx);
-		if (!indexList.empty())
-		{
-			QModelIndex const selectedIndex(indexList.first());
-			m_main_window->getWidgetCtx()->setCurrentIndex(selectedIndex);
-		}
-	}*/
-}
-
-void LogWidget::onTableClicked (QModelIndex const & row_index)
-{
-/*	m_last_clicked = row_index;
-	if (isModelProxy())
-		m_last_clicked = m_proxy_model->mapToSource(row_index);
-
-	m_last_search_row = m_last_clicked.row(); // set search from this line
-	m_last_search_col = m_last_clicked.column();
-
-	bool const scroll_to_item = false;
-	bool const expand = false;
-	findTableIndexInFilters(m_last_clicked, scroll_to_item, expand);*/
-}
-
-void LogWidget::onTableDoubleClicked (QModelIndex const & row_index)
-{
-/*	if (m_proxy_model)
-	{
-		QModelIndex const curr = m_proxy_model->mapToSource(row_index);
-		LogTableModel * model = static_cast<LogTableModel *>(m_proxy_model ? m_proxy_model->sourceModel() : model());
-		qDebug("2c curr: (%i,col) -> (%i,col)", row_index.row(), curr.row());
-
-		int row_bgn = curr.row();
-		int row_end = curr.row();
-		int layer = model->layers()[row_bgn];
-
-		if (model->rowTypes()[row_bgn] == tlv::cmd_scope_exit)
-		{
-			layer += 1;
-			// test na range
-			--row_bgn;
-		}
-
-		QString tid = findString4Tag(tlv::tag_tid, curr);
-		QString file = findString4Tag(tlv::tag_file, curr);
-		QString line = findString4Tag(tlv::tag_line, curr);
-		int from = row_bgn;
-
-		if (model->rowTypes()[from] != tlv::cmd_scope_entry)
-		{
-			while (row_bgn > 0)
-			{
-				QModelIndex const curr_idx = model->index(row_bgn, row_index.column(), QModelIndex());
-				QString curr_tid = findString4Tag(tlv::tag_tid, curr_idx);
-				if (curr_tid == tid)
-				{
-					if (static_cast<int>(model->layers()[row_bgn]) >= layer)
-					{
-						from = row_bgn;
-					}
-					else
-					{	
-						break;
-					}
-				}
-				--row_bgn;
-			}
-		}
-
-		int to = row_end;
-		if (model->rowTypes()[to] != tlv::cmd_scope_exit)
-		{
-			while (row_end < static_cast<int>(model->layers().size()))
-			{
-				QModelIndex const curr_idx = model->index(row_end, row_index.column(), QModelIndex());
-				QString next_tid = findString4Tag(tlv::tag_tid, curr_idx);
-				if (next_tid == tid)
-				{
-					if (model->layers()[row_end] >= layer)
-						to = row_end;
-					else if ((model->layers()[row_end] == layer - 1) && (model->rowTypes()[row_end] == tlv::cmd_scope_exit))
-					{
-						to = row_end;
-						break;
-					}
-					else
-						break;
-				}
-				++row_end;
-			}
-		}
-
-		qDebug("row=%u / curr=%u layer=%u, from,to=(%u, %u)", row_index.row(), curr.row(), layer, from, to);
-		if (m_session_state.findCollapsedBlock(tid, from, to))
-			m_session_state.eraseCollapsedBlock(tid, from, to);
-		else
-			m_session_state.appendCollapsedBlock(tid, from, to, file, line);
-		onInvalidateFilter();
-	}*/
-}
-
-void LogWidget::onApplyColumnSetup ()
-{
-/*	qDebug("%s", __FUNCTION__);
-	for (int i = 0; i < horizontalHeader()->count(); ++i)
-	{
-		//qDebug("column: %s", horizontalHeader()->text());
-	}
-
-	QMap<int, int> order;
-
-	if (sessionState().m_app_idx == -1)
-		sessionState().m_app_idx = m_main_window->m_config.m_columns_setup.size() - 1;
-	
-	columns_setup_t const & new_cs = m_main_window->getColumnSetup(sessionState().m_app_idx);
-
-	for (int i = 0, ie = new_cs.size(); i < ie; ++i)
-	{
-		tlv::tag_t const tag = tlv::tag_for_name(new_cs.at(i).toStdString().c_str());
-		if (tag != tlv::tag_invalid)
-		{
-			order[tag] = i;
-		}
-	}
-
-	if (0 == sessionState().m_columns_setup_current)
-	{
-	}
-	else
-	{
-		columns_setup_t const & old_cs = *sessionState().m_columns_setup_current;
-	}
-*/
-	//static_cast<TableView *>(m_table_view_widget)->setColumnOrder(order, m_session_state);
-}
-
-void LogWidget::onExcludeFileLine ()
-{
-	QModelIndex const current = m_last_clicked;
-	if (current.isValid())
-	{
-		onExcludeFileLine(current);
-		onInvalidateFilter();
-	}
-}
-
-void LogWidget::onToggleRefFromRow ()
-{
-	/*QModelIndex const current = m_last_clicked;
-	if (current.isValid())
-	{
-		qDebug("Toggle Ref from row=%i", current.row());
-		m_session_state.setTimeRefFromRow(current.row());
-
-		//LogTableModel * model = static_cast<LogTableModel *>(m_proxy_model ? m_proxy_model->sourceModel() : model());
-		QString const & strtime = findString4Tag(tlv::tag_time, current);
-		m_session_state.setTimeRefValue(strtime.toULongLong());
-		onInvalidateFilter();
-	}*/
-}
-
-void LogWidget::onColorTagRow (int)
-{
-	/*QModelIndex current = currentIndex();
-	if (isModelProxy())
-	{
-		current = m_proxy_model->mapToSource(current);
-	}
-
-	int const row = current.row(); // set search from this line
-	if (current.isValid())
-	{
-		qDebug("Color tag on row=%i", current.row());
-		m_session_state.addColorTagRow(current.row());
-		onInvalidateFilter();
-	}*/
-}
-
-void LogWidget::onClearCurrentView ()
-{
-	/*LogTableModel * model = static_cast<LogTableModel *>(m_proxy_model ? m_proxy_model->sourceModel() : model());
-	m_session_state.excludeContentToRow(model->rowCount());
-	onInvalidateFilter();*/
-}
-
-void LogWidget::onHidePrevFromRow ()
-{
-	/*QModelIndex const current = m_last_clicked;
-	if (current.isValid())
-	{
-		qDebug("Hide prev from row=%i", current.row());
-		m_session_state.excludeContentToRow(current.row());
-		onInvalidateFilter();
-	}*/
-}
-
-void LogWidget::onUnhidePrevFromRow ()
-{
-	//m_session_state.excludeContentToRow(0);
-	//onInvalidateFilter();
-}
-
-/*
-void LogWidget::onShowContextMenu (QPoint const & pos)
-{
-    QPoint globalPos = mapToGlobal(pos);
-    QAction * selectedItem = m_ctx_menu.exec(globalPos); // @TODO: rather async
-
-	//poas = ui->tableView->viewport()->mapFromGlobal(e->globalPos());
-	QModelIndex const idx = indexAt(pos);
-	qDebug("left click at r=%2i,c=%2i", idx.row(), idx.column());
-
-	onTableClicked(idx);
-
-    if (selectedItem == m_actions[e_action_HidePrev])
-    {
-		onHidePrevFromRow();
-    }
-    else if (selectedItem == m_actions[e_action_ToggleRef])
-    {
-		onToggleRefFromRow();
-    }
-    else if (selectedItem == m_actions[e_action_ExcludeFileLine])
-	{
-		onExcludeFileLine(m_last_clicked);
-	}
-    else if (selectedItem == m_actions[e_action_Find])
-	{
-		onFindFileLine(m_last_clicked);
-	}
-    else if (selectedItem == m_actions[e_action_Copy])
-	{
-		QString const & selection = onCopyToClipboard();
-		qApp->clipboard()->setText(selection);
-	}
-    else if (selectedItem == m_actions[e_action_ColorTag])
-	{
-		onColorTagRow(m_last_clicked.row());
-	}
-    else if (selectedItem == m_actions[e_action_Setup])
-	{
-	}
-    else
-    { }
-}
-*/
-
 void LogWidget::onSectionMoved (int logical, int old_visual, int new_visual)
 {
 	qDebug("log: section moved logical=%i old_visual=%i new_visual=%i", logical, old_visual, new_visual);
@@ -1332,12 +711,6 @@ void LogWidget::onSectionMoved (int logical, int old_visual, int new_visual)
 void LogWidget::onSectionResized (int logical, int old_size, int new_size)
 {
 	qDebug("log: section resized logical=%i old_sz=%i new_sz=%i", logical, old_size, new_size);
-	/*if (idx < m_config.m_columns_setup.size())
-	{
-		m_config.m_columns_sizes[idx] = new_size;
-	}*/
-
-	//@TODO: proxy !!!!!!!!!!!!!!!!!!
 	int const idx = !isModelProxy() ? logical : m_proxy_model->colToSource(logical);
 	//qDebug("table: on rsz hdr[%i -> src=%02i ]  %i->%i\t\t%s", c, idx, old_size, new_size, m_config.m_hhdr.at(idx).toStdString().c_str());
 	if (idx < 0) return;

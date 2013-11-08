@@ -54,6 +54,7 @@ public:
 
 	void onCutParentValueChanged (int i);
 	void collapseChilds (QTreeView * tv);
+	void stateToChildren (node_t * item, Qt::CheckState state);
 
 	void expanded (QModelIndex const & idx);
 	void collapsed (QModelIndex const & idx);
@@ -63,7 +64,6 @@ protected:
 	node_t * itemFromIndex (QModelIndex const & index);
 	QModelIndex indexFromItem (node_t const * item) const;
 
-	void stateToChildren (node_t * item, Qt::CheckState state);
 	void stateToParents (node_t * item, Qt::CheckState state);
 	void expandParents (QTreeView * tv, node_t * item, bool state);
 	void syncParents (node_t * const item, Qt::CheckState state);

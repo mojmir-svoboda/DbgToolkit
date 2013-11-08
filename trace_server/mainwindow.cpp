@@ -147,7 +147,7 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QStri
 	connect(ui->activatePresetButton, SIGNAL(clicked()), this, SLOT(onPresetActivate()));
 	connect(ui->presetComboBox, SIGNAL(activated(int)), this, SLOT(onPresetChanged(int)));
 	connect(ui->presetAddButton, SIGNAL(clicked()), this, SLOT(onAddPreset()));
-	connect(ui->presetRmButton, SIGNAL(clicked()), this, SLOT(onRmCurrentState()));
+	connect(ui->presetRmButton, SIGNAL(clicked()), this, SLOT(onRmCurrentPreset()));
 	connect(ui->presetSaveButton, SIGNAL(clicked()), this, SLOT(onSaveCurrentState()));
 	connect(ui->presetResetButton, SIGNAL(clicked()), this, SLOT(onClearCurrentState()));
 
@@ -537,18 +537,6 @@ void MainWindow::setupMenuBar ()
 	tailMenu->addAction(tr("File &Tail..."), this, SLOT(onFileTail()), QKeySequence(Qt::ControlModifier + Qt::Key_T));
 	tailMenu->addAction(tr("Trace Server Log"), this, SLOT(onLogTail()), QKeySequence(Qt::ControlModifier + Qt::AltModifier + Qt::Key_L));
 		
-	// Clear
-	QMenu * clearMenu = menuBar()->addMenu(tr("&Clear"));
-	clearMenu->addAction(tr("Clear current table view"), m_server, SLOT(onClearCurrentView()), QKeySequence(Qt::Key_C));
-	new QShortcut(QKeySequence(Qt::ControlModifier + Qt::Key_L), this, SLOT(onClearCurrentView()));
-	clearMenu->addAction(tr("Clear current file filter"), m_server, SLOT(onClearCurrentFileFilter()));
-	clearMenu->addAction(tr("Clear current context filter"), m_server, SLOT(onClearCurrentCtxFilter()));
-	clearMenu->addAction(tr("Clear current thread id filter"), m_server, SLOT(onClearCurrentCtxFilter()));
-	clearMenu->addAction(tr("Clear current colorized regexp filter"), m_server, SLOT(onClearCurrentColorizedRegexFilter()));
-	clearMenu->addAction(tr("Clear current regexp filter"), m_server, SLOT(onClearCurrentRegexFilter()));
-	clearMenu->addAction(tr("Clear current collapsed scope filter"), m_server, SLOT(onClearCurrentScopeFilter()));
-	clearMenu->addAction(tr("Clear current ref time"), m_server, SLOT(onClearCurrentRefTime()));
-
 	// Tools
 	QMenu * tools = menuBar()->addMenu(tr("&Settings"));
 	tools->addAction(tr("&Options"), this, SLOT(onSetupAction()), QKeySequence(Qt::AltModifier + Qt::ShiftModifier + Qt::Key_O));

@@ -47,6 +47,9 @@ struct FilterCtx : FilterBase
 	void recompile ();
 	void setConfigToUI ();
 	void appendToCtxWidgets (FilteredContext const & flt);
+	void locateItem (QString const & item, bool scrollto, bool expand);
+	QTreeView * getWidget () { return m_ui->view; }
+	QTreeView const * getWidget () const { return m_ui->view; }
 
 	typedef QList<FilteredContext> ctx_filters_t;
 	ctx_filters_t			m_data;
@@ -55,8 +58,8 @@ struct FilterCtx : FilterBase
 	Q_OBJECT
 public slots:
 	void onClickedAtCtx (QModelIndex idx);
-	void onSelectAllCtxs ();
-	void onSelectNoCtxs ();
+	void onSelectAll ();
+	void onSelectNone ();
 signals:
 };
 

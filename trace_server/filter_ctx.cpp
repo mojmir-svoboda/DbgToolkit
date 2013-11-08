@@ -107,8 +107,8 @@ void FilterCtx::setupModel ()
 
 	m_ui->view->setEditTriggers(QAbstractItemView::NoEditTriggers);
 	connect(m_ui->view, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtCtx(QModelIndex)));
-	connect(m_ui->allCtxButton, SIGNAL(clicked()), this, SLOT(onSelectAllCtxs()));
-	connect(m_ui->noCtxButton, SIGNAL(clicked()), this, SLOT(onSelectNoCtxs()));
+	connect(m_ui->allButton, SIGNAL(clicked()), this, SLOT(onSelectAll()));
+	connect(m_ui->noneButton, SIGNAL(clicked()), this, SLOT(onSelectNone()));
 	m_ui->view->header()->hide();
 }
 
@@ -164,14 +164,14 @@ void FilterCtx::setAppData (AppData const * appdata)
 
 
 //////// slots
-void FilterCtx::onSelectAllCtxs ()
+void FilterCtx::onSelectAll ()
 {
 	boost::function<void (FilterCtx*, QString)> f = &FilterCtx::appendCtxFilter;
 	applyFnOnAllChildren(f, this, m_model, Qt::Checked);
 	emitFilterChangedSignal();
 }
 
-void FilterCtx::onSelectNoCtxs ()
+void FilterCtx::onSelectNone ()
 {
 	boost::function<void (FilterCtx*, QString)> f = &FilterCtx::removeCtxFilter;
 	applyFnOnAllChildren(f, this, m_model, Qt::Unchecked);
@@ -209,7 +209,15 @@ void FilterCtx::appendToCtxWidgets (FilteredContext const & flt)
 	}
 }
 
-
+void FilterCtx::locateItem (QString const & item, bool scrollto, bool expand)
+{
+	QModelIndexList indexList = m_model->match(m_model->index(0, 0), Qt::DisplayRole, item);
+	if (!indexList.empty())
+	{
+		QModelIndex const selectedIndex(indexList.first());
+		getWidget()->setCurrentIndex(selectedIndex);
+	}
+}
 
 
 //////// delegate

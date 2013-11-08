@@ -60,13 +60,14 @@ struct FilterFileLine : FilterBase
 
 	bool isFileLinePresent (fileline_t const & p, TreeModelItem & state) const; /// checks for file:line existence in the tree
 	bool isFileLinePresent (QString const & fileline, TreeModelItem & state) const; /// checks for file:line existence in the tree
+	void locateItem (QString const & item, bool scrollto, bool expand);
 
 	friend class FilterProxyModel;
 
 	FilterTreeModel * fileModel () { return m_model; }
 	FilterTreeModel const * fileModel () const { return m_model; }
-	TreeView * getWidgetFile ();
-	TreeView const * getWidgetFile () const;
+	TreeView * getWidget ();
+	TreeView const * getWidget () const;
 
 	void onGotoFileFilter ();
 	void onExcludeFileLine ();
@@ -91,6 +92,8 @@ public slots:
 	void onCancelFilterFileButton ();
 	void onFilterFileComboChanged (QString str);
 	void onClickedAtFileTree (QModelIndex idx);
+	void onSelectAll ();
+	void onSelectNone ();
 signals:
 };
 

@@ -500,5 +500,30 @@ void LogCtxMenu::onClickedAtCancelButton ()
 	//m_settings_dialog->close();
 }
 
+/*void LogWidget::onFileColOrExp (QModelIndex const & idx, bool collapsed)
+{
+	QStandardItemModel const * const model = static_cast<QStandardItemModel *>(filterMgr()->getFilterFileLine()->getWidgetFile()->model());
+	QStandardItem * const node = model->itemFromIndex(idx);
+
+	std::vector<QString> s;	// @TODO: hey piggy, to member variables
+	s.clear();
+	s.reserve(16);
+	QStandardItem * parent = node;
+	QModelIndex parent_idx = model->indexFromItem(parent);
+	while (parent_idx.isValid())
+	{
+		QString const & val = model->data(parent_idx, Qt::DisplayRole).toString();
+		s.push_back(val);
+		parent = parent->parent();
+		parent_idx = model->indexFromItem(parent);
+	}
+
+	QString file;
+	for (std::vector<QString>::const_reverse_iterator it=s.rbegin(), ite=s.rend(); it != ite; ++it)
+		file += QString("/") + *it;
+
+	filterMgr()->getFilterFileLine()->m_data.set_to_state(file, TreeModelItem(static_cast<E_NodeStates>(node->checkState()), collapsed));
+}*/
+
 }
 

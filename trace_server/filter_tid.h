@@ -41,6 +41,9 @@ struct FilterTid : FilterBase
 	void removeTIDFilter (QString const & item);
 	bool isTIDExcluded (QString const & item) const;
 	void recompile ();
+	QListView * getWidget () { return m_ui->view; }
+	QListView const * getWidget () const { return m_ui->view; }
+	void locateItem (QString const & item, bool scrollto, bool expand);
 
 	typedef std::vector<QString> tid_filters_t;
 	tid_filters_t			m_data;

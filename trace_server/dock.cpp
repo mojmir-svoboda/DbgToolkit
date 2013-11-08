@@ -214,7 +214,6 @@ DockManager::DockManager (MainWindow * mw, QStringList const & path)
 
 	connect(header(), SIGNAL(sectionResized(int, int, int)), this, SLOT(onColumnResized(int, int, int)));
 	connect(this, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtDockedWidgets(QModelIndex)));
-	connect(m_docked_widgets, SIGNAL(visibilityChanged(bool)), this, SLOT(onListVisibilityChanged(bool)));
 	connect(m_docked_widgets, SIGNAL(dockClosed()), mw, SLOT(onDockManagerClosed()));
 }
 
@@ -239,7 +238,6 @@ void DockManager::applyConfig ()
 		header()->resizeSection(i, m_config.m_columns_sizes[i]);
 	}
 
-	//syncExpandState();
 	if (m_docked_widgets_model)
 		m_docked_widgets_model->syncExpandState(this);
 }
@@ -277,7 +275,6 @@ DockWidget * DockManager::mkDockWidget (ActionAble & aa, bool visible, Qt::DockW
 
 	if (visible) 
 		m_main_window->restoreDockWidget(dock);
-	//static_cast<MainWindow *>(window)->onDockedWidgetsToolButton();
 	return dock;
 }
 
@@ -286,12 +283,6 @@ void DockManager::onWidgetClosed (DockWidget * w)
 	qDebug("%s w=%08x", __FUNCTION__, w);
 	m_widgets.remove(w->objectName());
 }
-
-/*void MainWindow::onListVisibilityChanged (bool visible)
-{
-	ui->dockedWidgetsToolButton->setChecked(visible);
-}*/
-
 
 QModelIndex DockManager::addDockedTreeItem (DockedWidgetBase & dwb, bool on)
 {

@@ -63,6 +63,7 @@ namespace logs {
 		friend class FilterProxyModel;
 		friend class FindProxyModel;
 		friend struct LogCtxMenu;
+		friend struct LogDelegate;
 
 		virtual void keyPressEvent (QKeyEvent * event);
 
@@ -72,7 +73,6 @@ namespace logs {
 		void reconfigureConfig (logs::LogConfig & cfg);
 		bool convertBloodyBollockyBuggeryRegistry (logs::LogConfig & cfg);
 		void normalizeConfig (logs::LogConfig & normalized);
-		//void moveSectionsAccordingTo (logs::LogConfig const & cfg);
 		void swapSectionsAccordingTo (logs::LogConfig const & cfg);
 		void resizeSections ();
 
@@ -95,44 +95,27 @@ namespace logs {
 		LogTableModel * cloneToNewModel (FindConfig const & fc);
 		QString exportSelection ();
 
+		// actions
+		void excludeContentToRow (int row) { m_exclude_content_to_row = row; }
+		int excludeContentToRow () const { return m_exclude_content_to_row; }
+		void setTimeRefFromRow (int row) { m_time_ref_row = row; }
+		int timeRefFromRow () const { return m_time_ref_row; }
+		void addColorTagRow (int row);
+		bool findColorTagRow (int row) const;
+		void removeColorTagRow (int row);
+		unsigned long long timeRefValue () const { return m_time_ref_value; }
+		void setTimeRefValue (unsigned long long t) { m_time_ref_value = t; }
+		void findTableIndexInFilters (QModelIndex const & src_idx, bool scroll_to_item, bool expand);
+
+	
 	void setupSeparatorChar (QString const & c);
 	QString separatorChar () const;
-	//void onSetup (E_SrcProtocol const proto, int curr_app_idx = -1, bool first_time = false, bool mac_user = false);
-	//void onSetupCSV (int curr_app_idx = -1, bool first_time = false, bool mac_user = false);
-	//void onSetupCSVSeparator (int curr_app_idx = -1, int column = -1, bool first_time = false);
-	//void onSetupCSVColumns (int curr_app_idx, int columns, bool first_time);
-	//void onSetupCSVSeparator (int curr_app_idx, bool first_time);
-	//void onSettingsAppSelectedTLV (int idx, bool first_time = false);
-	//void onSettingsAppSelectedCSV (int idx, int columns, bool first_time = false);
-	//void settingsDisableButSeparator ();
-	//void settingsToDefault ();
-
-	// setup
-	void onSetupAction ();
-	void onListVisibilityChanged (bool);
-	void prepareSettingsWidgets (int idx, bool first_time = false);
-	void clearSettingWidgets ();
-
-
-
-
-// divny
-//bool filterEnabled () const { return m_config_ui->ui()->filterFileCheckBox->isEnabled() && m_config_ui->ui()->filterFileCheckBox->isChecked(); }
 
 	// find
-	//void findTextInAllColumns (QString const & text, int from_row, int to_row, bool only_first);
-	//bool matchTextInCell (QString const & text, int row, int col);
-	//void endOfSearch ();
-	//void findTextInColumn (QString const & text, int col, int from_row, int to_row);
-	//void findTextInColumnRev (QString const & text, int col, int from_row, int to_row);
 	void selectionFromTo (int & from, int & to) const;
-	//void findAllTexts (QString const & text);
-	//void findText (QString const & text, tlv::tag_t tag);
-	//void findText (QString const & text);
-	//void findNext (QString const & text);
-	//void findPrev (QString const & text);
 	QString findString4Tag (tlv::tag_t tag, QModelIndex const & row_index) const;
 	QVariant findVariant4Tag (tlv::tag_t tag, QModelIndex const & row_index) const;
+
 	void scrollToCurrentTag ();
 	void scrollToCurrentSelection ();
 	void scrollToCurrentTagOrSelection ();
@@ -140,21 +123,12 @@ namespace logs {
 	void onFindFileLine (QModelIndex const &);
 
 	// filtering stuff
+	FilterMgr * filterMgr () { return m_config_ui.m_ui->widget; }
+	FilterMgr const * filterMgr () const { return m_config_ui.m_ui->widget; }
 	void syncSelection (QModelIndexList const & sel);
 	void clearFilters (QStandardItem * node);
 	void clearFilters ();
-	void onClearCurrentFileFilter ();
-	void onClearCurrentCtxFilter ();
-	void onClearCurrentTIDFilter ();
-	void onClearCurrentColorizedRegexFilter ();
-	void onClearCurrentRegexFilter ();
-	void onClearCurrentStringFilter ();
-	void onClearCurrentScopeFilter ();
-	void onClearCurrentRefTime ();
 	void onExcludeFileLine (QModelIndex const & row_index);
-	void onFileColOrExp (QModelIndex const & idx, bool collapsed);
-	void onFileExpanded (QModelIndex const & idx);
-	void onFileCollapsed (QModelIndex const & idx);
 	void appendToTIDFilters (QString const & item);
 	void appendToLvlWidgets (FilteredLevel const & flt);
 	void appendToLvlFilters (QString const & item);
@@ -176,24 +150,13 @@ namespace logs {
 	FilterState & filterState () { return m_filter_state; }
 	FilterState const & filterState () const { return m_filter_state; }
 
-
-
-
 	int findColumn4TagInTemplate (tlv::tag_t tag) const;
 	int appendColumn (tlv::tag_t tag);
 
 	ThreadSpecific & getTLS () { return m_tls; }
 	ThreadSpecific const & getTLS () const { return m_tls; }
 
-	FilterMgr * filterMgr () { return m_config_ui.m_ui->widget; }
-	FilterMgr const * filterMgr () const { return m_config_ui.m_ui->widget; }
-
-
-
-
-
 	public slots:
-
 		void onShow ();
 		void onHide ();
 		void onHideContextMenu ();
@@ -222,20 +185,12 @@ namespace logs {
 		void onInvalidateFilter ();
 		void onFilterEnabledChanged ();
 		void onTableFontToolButton ();
-		//void onEditFind ();
-		//void onEditFindNext ();
-		//void onEditFindPrev ();
-		//void onQSearch (QString const & text);
-		//void onQSearchEditingFinished ();
-		//void setLastSearchIntoCombobox (QString const & txt);
-		//void onFindAllButton ();
-		//void onQFilterLineEditFinished ();
-		//void appendToSearchHistory (QString const & str);
-		//void updateSearchHistory ();
+
 		void onDumpFilters ();
 		void onTableClicked (QModelIndex const & row_index);
 		void onTableDoubleClicked (QModelIndex const & row_index);
-		void onApplyColumnSetup ();
+
+		// actions
 		void onExcludeFileLine ();
 		void onToggleRefFromRow ();
 		void onColorTagRow (int);
@@ -243,23 +198,8 @@ namespace logs {
 		void onHidePrevFromRow ();
 		void onUnhidePrevFromRow ();
 		void exportStorageToCSV (QString const & filename);
-
-		//void setupColumns (QList<QString> * cs_template, columns_sizes_t * sizes , columns_align_t * ca_template, columns_elide_t * ce_template);
-		//void setupColumnsCSV (QList<QString> * cs_template, columns_sizes_t * sizes , columns_align_t * ca_template, columns_elide_t * ce_template);
+		void onClearRefTime () { m_time_ref_row = 0; }
 		void onCopyToClipboard ();
-		void findTableIndexInFilters (QModelIndex const & src_idx, bool scroll_to_item, bool expand);
-
-
-	void excludeContentToRow (int row) { m_exclude_content_to_row = row; }
-	int excludeContentToRow () const { return m_exclude_content_to_row; }
-	void setTimeRefFromRow (int row) { m_time_ref_row = row; }
-	int timeRefFromRow () const { return m_time_ref_row; }
-	void addColorTagRow (int row);
-	bool findColorTagRow (int row) const;
-	void removeColorTagRow (int row);
-	unsigned long long timeRefValue () const { return m_time_ref_value; }
-	void setTimeRefValue (unsigned long long t) { m_time_ref_value = t; }
-	void onClearRefTime () { m_time_ref_row = 0; }
 
 
 	signals:
@@ -306,18 +246,6 @@ namespace logs {
 		QItemSelectionModel * m_proxy_selection;
 		QItemSelectionModel * m_find_proxy_selection;
 
-		QMenu m_ctx_menu;
-		enum E_Actions {
-			  e_action_ToggleRef
-			, e_action_HidePrev
-			, e_action_ExcludeFileLine
-			, e_action_Find
-			, e_action_Copy
-			, e_action_ColorTag
-			, e_action_Setup
-			, e_action_max_enum_value
-		};
-		std::vector<QAction *> m_actions;
 		QModelIndex m_last_clicked;
 
 		QString m_csv_separator;

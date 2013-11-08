@@ -45,6 +45,9 @@ struct FilterString : FilterBase
 	void setStringChecked (QString const & s, bool checked);
 	void setStringState (QString const & s, int state);
 	void recompile ();
+	void locateItem (QString const & item, bool scrollto, bool expand);
+	QTreeView * getWidget () { return m_ui->view; }
+	QTreeView const * getWidget () const { return m_ui->view; }
 
 	QList<FilteredString>	m_data;
 	QStandardItemModel *	m_model;

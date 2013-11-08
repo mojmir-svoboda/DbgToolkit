@@ -250,12 +250,11 @@ public:
 	explicit Connection (QObject * parent = 0);
 	~Connection ();
 
-	void setMainWindow (MainWindow * w) { m_main_window = w; }
 	MainWindow const * getMainWindow () const { return m_main_window; }
 	MainWindow * getMainWindow () { return m_main_window; }
 	GlobalConfig const & getGlobalConfig () const;
 	
-	QString getAppName () const { return m_app_name; }
+	QString const & getAppName () const { return m_app_name; }
 	QString const & getCurrPreset () const { return m_curr_preset; }
 	int getAppIdx () const { return m_app_idx; }
 	AppData const & appData () const { return m_app_data; }
@@ -296,6 +295,7 @@ public slots:
 	void onHandleCommands ();
 	void onHandleCommandsStart ();
 	void onHandleCommandsCommit ();
+	bool tryHandleCommand (DecodedCommand const & cmd, E_ReceiveMode mode);
 
 	//void onShowContextMenu (QPoint const & pos);
 	void onShowPlotContextMenu (QPoint const &);
@@ -311,12 +311,9 @@ public slots:
 	void onShowLogs ();
 	void onHideLogs ();
 
-	bool tryHandleCommand (DecodedCommand const & cmd, E_ReceiveMode mode);
-
-	void setWidgetToTabWidget (QWidget * w);
+	void setWidgetToTabWidget (QWidget * w);	// it means to "central widget"
 	void unsetWidgetFromTabWidget (QWidget * & w);
 	QWidget * toCentralWidget (QDockWidget * wd, QWidget * w, bool on);
-
 
 private slots:
 	void processReadyRead ();
@@ -339,6 +336,7 @@ protected:
 		e_data_decode_error,
 	};
 
+	void setMainWindow (MainWindow * w) { m_main_window = w; }
 	template <class T, typename T_Ret, typename T_Arg0, typename T_Arg1>
 	int processStream (T *, T_Ret (T::*read_member_t)(T_Arg0, T_Arg1));
 	bool enqueueCommand (DecodedCommand const & cmd);
@@ -414,35 +412,6 @@ private:
 	QWidget * m_tab_widget;
 	QTextStream * m_file_csv_stream;
 	QDataStream * m_file_tlv_stream;
-
-/*
-	SessionState m_session_state;
-	enum E_Delegates {
-		  e_delegate_Level
-		, e_delegate_Ctx
-		, e_delegate_String
-		, e_delegate_Regex
-		, e_delegate_max_enum_value
-	};
-	boost::tuple<LevelDelegate *, CtxDelegate *, StringDelegate *, RegexDelegate *> m_delegates;
-	QAbstractProxyModel * m_table_view_proxy;
-	QAbstractItemModel * m_table_view_src;
-
-	QMenu m_ctx_menu;
-	enum E_Actions {
-		  e_action_ToggleRef
-		, e_action_HidePrev
-		, e_action_ExcludeFileLine
-		, e_action_Find
-		, e_action_Copy
-		, e_action_ColorTag
-		, e_action_Setup
-		, e_action_max_enum_value
-	};
-	std::vector<QAction *> m_actions;
-	QModelIndex m_last_clicked;
-*/
-
 
 	// data receiving stuff
 	enum { e_ringbuff_size = 128 * 1024 };

@@ -44,6 +44,8 @@ struct FilterRegex : FilterBase
 	void setRegexChecked (QString const & s, bool checked);
 	void setRegexInclusive (QString const & s, bool inclusive);
 	void recompile ();
+	QTreeView * getWidget () { return m_ui->view; }
+	QTreeView const * getWidget () const { return m_ui->view; }
 
 	void onClearRegexFilter () { m_data.clear(); }
 	QList<FilteredRegex>	m_data;

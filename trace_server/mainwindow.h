@@ -224,7 +224,7 @@ private slots:
 	void onSaveCurrentState ();
 	void onSaveCurrentStateTo (QString const & name);
 	void onAddPreset ();
-	void onRmCurrentState ();
+	void onRmCurrentPreset ();
 
 	void onLevelValueChanged (int i);
 	void onBufferingStateChanged (int state);

@@ -117,8 +117,8 @@ void FilterLvl::setupModel ()
 
 	m_ui->view->setEditTriggers(QAbstractItemView::NoEditTriggers);
 	connect(m_ui->view, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtLvl(QModelIndex)));
-	connect(m_ui->allButton, SIGNAL(clicked()), this, SLOT(onSelectAllLevels()));
-	connect(m_ui->noButton, SIGNAL(clicked()), this, SLOT(onSelectNoLevels()));
+	connect(m_ui->allButton, SIGNAL(clicked()), this, SLOT(onSelectAll()));
+	connect(m_ui->noneButton, SIGNAL(clicked()), this, SLOT(onSelectNone()));
 	m_ui->view->header()->hide();
 }
 
@@ -181,13 +181,13 @@ bool FilterLvl::setLvlMode (QString const & item, bool enabled, E_LevelMode lvlm
 
 }
 
-void FilterLvl::onSelectAllLevels ()
+void FilterLvl::onSelectAll ()
 {
 	boost::function<void (FilterLvl *, QString const &)> f = &FilterLvl::appendLvlFilter;
 	applyFnOnAllChildren(f, this, m_model, Qt::Checked);
 	emitFilterChangedSignal();
 }
-void FilterLvl::onSelectNoLevels ()
+void FilterLvl::onSelectNone ()
 {
 	boost::function<void (FilterLvl *, QString const &)> f = &FilterLvl::removeLvlFilter;
 	applyFnOnAllChildren(f, this, m_model, Qt::Unchecked);
@@ -234,6 +234,16 @@ void FilterLvl::onClickedAtLvl (QModelIndex idx)
 
 void FilterLvl::recompile ()
 { }
+
+void FilterLvl::locateItem (QString const & item, bool scrollto, bool expand)
+{
+	QModelIndexList indexList = m_model->match(m_model->index(0, 0), Qt::DisplayRole, item);
+	if (!indexList.empty())
+	{
+		QModelIndex const selectedIndex(indexList.first());
+		getWidget()->setCurrentIndex(selectedIndex);
+	}
+}
 
 
 

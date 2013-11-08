@@ -42,9 +42,21 @@ DataLog::~DataLog ()
 	//QObject::disconnect(connection->m_table_view_widget->horizontalHeader(), SIGNAL(sectionResized(int, int, int)), this, SLOT(onSectionResized(int, int, int)));
 }
 
+// @FIXME: dodelat!!!!!!!!
+void Connection::onTabTraceFocus ()
+{
+	if (!m_curr_preset.isEmpty())
+		m_main_window->setPresetAsCurrent(m_curr_preset);
+
+	// @TODO: set app level to spinbox
+	// @TODO: set app buffering to spinbox
+
+	//m_main_window->setLastSearchIntoCombobox(m_last_search);
+}
+
 bool Connection::handleLogCommand (DecodedCommand const & cmd, E_ReceiveMode mode)
 {
-	QString const tag("default"); // @FIXME
+	QString const tag(g_MainLogName); // @FIXME
 	//int const slash_pos = tag.lastIndexOf(QChar('/'));
 	//tag.chop(msg_tag.size() - slash_pos);
 	//QString subtag = msg_tag;
@@ -90,31 +102,6 @@ void Connection::onShowLogContextMenu (QPoint const &)
 	}
 }
 
-	/*Connection * conn = server->findConnectionByName(app_name);
-	if (conn)
-	{
-		qDebug("cmd setup: looking for app=%s: not found", app_name.toStdString().c_str());
-		if (!m_main_window->clrFltEnabled())
-		{
-			m_file_model->beforeLoad();
-			loadSessionState(conn->sessionState(), m_session_state);
-		}
-
-		QWidget * w = conn->m_tab_widget;
-		server->onCloseTab(w);	// close old one
-		// @TODO: delete persistent storage for the tab
-
-		m_file_model->afterLoad();
-	}
-	else
-	{
-		qDebug("cmd setup: looking for app=%s: found", app_name.toStdString().c_str());
-		m_file_model->beforeLoad();
-		QString const pname = m_main_window->matchClosestPresetName(app_name);
-		m_main_window->onPresetActivate(this, pname);
-		m_file_model->afterLoad();
-	}*/
-
 datalogs_t::iterator Connection::findOrCreateLog (QString const & tag)
 {
 	typedef SelectIterator<e_data_log>::type iterator;
@@ -126,18 +113,6 @@ datalogs_t::iterator Connection::findOrCreateLog (QString const & tag)
 		(*it)->widget().applyConfig(); // 0 means "create new model"
 	}
 	return it;
-}
-
-
-void Connection::onTabTraceFocus ()
-{
-	if (!m_curr_preset.isEmpty())
-		m_main_window->setPresetAsCurrent(m_curr_preset);
-
-	// @TODO: set app level to spinbox
-	// @TODO: set app buffering to spinbox
-
-	//m_main_window->setLastSearchIntoCombobox(m_last_search);
 }
 
 

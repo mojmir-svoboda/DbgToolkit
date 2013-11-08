@@ -293,6 +293,15 @@ void FilterString::onStringAdd ()
 	}
 }
 
+void FilterString::locateItem (QString const & item, bool scrollto, bool expand)
+{
+	QModelIndexList indexList = m_model->match(m_model->index(0, 0), Qt::DisplayRole, item);
+	if (!indexList.empty())
+	{
+		QModelIndex const selectedIndex(indexList.first());
+		getWidget()->setCurrentIndex(selectedIndex);
+	}
+}
 
 //////// delegate
 void StringDelegate::paint (QPainter * painter, QStyleOptionViewItem const & option, QModelIndex const & index) const

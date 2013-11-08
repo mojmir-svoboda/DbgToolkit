@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>256</width>
-    <height>219</height>
+    <width>328</width>
+    <height>182</height>
    </rect>
   </property>
   <layout class="QVBoxLayout" name="filterFileLayout">
@@ -28,35 +28,6 @@
      <property name="bottomMargin">
       <number>0</number>
      </property>
-     <item row="0" column="2">
-      <spacer name="hS_8">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item row="0" column="4">
-      <widget class="QSpinBox" name="cutParentSpinBox">
-       <property name="maximumSize">
-        <size>
-         <width>36</width>
-         <height>16777215</height>
-        </size>
-       </property>
-       <property name="toolTip">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Clip up to N levels from the root path.&lt;/p&gt;&lt;p&gt;I.e. for long path like /c/devel/qt5/qtbase/include will be stripped to qtbase/include for value 3 in the spinbox. 0 for no clip.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-       </property>
-       <property name="buttonSymbols">
-        <enum>QAbstractSpinBox::UpDownArrows</enum>
-       </property>
-      </widget>
-     </item>
      <item row="0" column="0">
       <widget class="QComboBox" name="filterFileComboBox">
        <property name="minimumSize">
@@ -99,7 +70,7 @@
        </property>
       </widget>
      </item>
-     <item row="0" column="3">
+     <item row="0" column="5">
       <widget class="QPushButton" name="collapseChildsButton">
        <property name="maximumSize">
         <size>
@@ -112,6 +83,61 @@
        </property>
        <property name="text">
         <string>CC</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="4">
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item row="0" column="6">
+      <widget class="QSpinBox" name="cutParentSpinBox">
+       <property name="maximumSize">
+        <size>
+         <width>36</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="toolTip">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Clip up to N levels from the root path.&lt;/p&gt;&lt;p&gt;I.e. for long path like /c/devel/qt5/qtbase/include will be stripped to qtbase/include for value 3 in the spinbox. 0 for no clip.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+       <property name="buttonSymbols">
+        <enum>QAbstractSpinBox::UpDownArrows</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="3">
+      <widget class="QPushButton" name="noneButton">
+       <property name="maximumSize">
+        <size>
+         <width>32</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>None</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="2">
+      <widget class="QPushButton" name="allButton">
+       <property name="maximumSize">
+        <size>
+         <width>32</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>All</string>
        </property>
       </widget>
      </item>

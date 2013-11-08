@@ -44,6 +44,9 @@ struct FilterLvl : FilterBase
 	bool setLvlMode (QString const & item, bool enabled, E_LevelMode lvlmode);
 	void recompile ();
 	void setConfigToUI ();
+	QTreeView * getWidget () { return m_ui->view; }
+	QTreeView const * getWidget () const { return m_ui->view; }
+	void locateItem (QString const & item, bool scrollto, bool expand);
 
 	typedef QList<FilteredLevel> lvl_filters_t;
 	lvl_filters_t			m_data;
@@ -53,8 +56,8 @@ struct FilterLvl : FilterBase
 	Q_OBJECT
 public slots:
 	void onClickedAtLvl (QModelIndex idx);
-	void onSelectAllLevels ();
-	void onSelectNoLevels ();
+	void onSelectAll ();
+	void onSelectNone ();
 signals:
 };
 

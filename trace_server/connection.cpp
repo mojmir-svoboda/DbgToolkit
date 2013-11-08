@@ -42,25 +42,6 @@ Connection::Connection (QObject * parent)
 	static int counter = 0;
 	m_storage_idx = counter;
 	++counter;
-
-	/*m_actions.resize(e_action_max_enum_value);
-	m_actions[e_action_ToggleRef] = new QAction("Set as reference time", this);
-	m_actions[e_action_HidePrev] = new QAction("Hide prev rows", this);
-	m_actions[e_action_ExcludeFileLine] = new QAction("Exclude File:Line (x)", this);
-	m_actions[e_action_Copy] = new QAction("Copy", this);
-	m_actions[e_action_Find] = new QAction("Find File:Line in filters", this);
-	m_actions[e_action_ColorTag] = new QAction("Tag row with color", this);
-	m_actions[e_action_Setup] = new QAction("Setup", this);
-    m_ctx_menu.addAction(m_actions[e_action_ExcludeFileLine]);
-    m_ctx_menu.addAction(m_actions[e_action_Find]);
-    m_ctx_menu.addAction(m_actions[e_action_Copy]);
-    m_ctx_menu.addAction(m_actions[e_action_ToggleRef]);
-    m_ctx_menu.addAction(m_actions[e_action_HidePrev]);
-    m_ctx_menu.addAction(m_actions[e_action_ColorTag]);
-    m_ctx_menu.addSeparator();
-    m_ctx_menu.addAction(m_actions[e_action_Setup]);
-
-	*/
 }
 
 namespace {

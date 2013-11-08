@@ -16,29 +16,6 @@ QString MainWindow::getCurrentPresetName () const
 	return txt;
 }
 
-/*int MainWindow::presetCandidates (QString const & appname, QStringList & candidates, bool & default_present)
-{
-	QStringList subdirs;
-	if (int const n = findPresetsForApp(m_config.m_appdir, appname, subdirs))
-	{
-		default_present = false;
-		QStringList candidates;
-		foreach (QString const & s, subdirs)
-		{
-			QString test_preset_name = getAppName() + "/" + s;
-			QString const cfg_fname = getDataTagFileName(getConfig().m_appdir, test_preset_name, preset_prefix, tag);
-			if (existsFile(cfg_fname))
-			{
-				if (s == QString(g_defaultPresetName))
-					default_present = true;
-				candidates << test_preset_name;
-			}
-			appendPresetNoFocus(test_preset_name);
-		}
-	}
-	return candidates.size();
-}*/
-
 QString MainWindow::promptAndCreatePresetName (QString const & app_name)
 {
 	if (Connection * conn = findCurrentConnection())
@@ -46,7 +23,6 @@ QString MainWindow::promptAndCreatePresetName (QString const & app_name)
 		QString const default_pname = getPresetPath(app_name, g_defaultPresetName);
 
 		// pre-select default_pname (for text-replace mode)
-		//
 		QStringList items;
 		findPresetsForApp(m_config.m_appdir, app_name, items);
 		items.push_front(default_pname);
@@ -128,7 +104,7 @@ void MainWindow::setPresetAsCurrent (QString const & pname)
 
 void MainWindow::onSaveCurrentStateTo (QString const & preset_name)
 {
-	qDebug("%s", __FUNCTION__);
+	qDebug("%s %s", __FUNCTION__, preset_name.toStdString().c_str());
 	if (Connection * conn = findCurrentConnection())
 	{
 		if (!validatePresetName(preset_name))
@@ -146,14 +122,9 @@ void MainWindow::onSaveCurrentStateTo (QString const & preset_name)
 		QString const path = getPresetPath(getConfig().m_appdir, preset_name);
 		conn->saveConfigs(path);
 		saveLayout(preset_name);
-
-		//reloadPresetList ();
-		//setPresetNameIntoComboBox(preset_name);
-		//storePresetNames();
 	}
 	storeState();
 }
-
 
 void MainWindow::onAddPreset ()
 {
@@ -165,17 +136,17 @@ void MainWindow::onAddPreset ()
 	}
 }
 
-void MainWindow::onRmCurrentState ()
+void MainWindow::onRmCurrentPreset ()
 {
 	qDebug("%s", __FUNCTION__);
-/*	QString const preset_name = ui->presetComboBox->currentText();
-	int idx = findPresetName(preset_name);
-	if (idx == -1)
+	QString const preset_name = ui->presetComboBox->currentText();
+
+	if (preset_name.isEmpty())
 		return;
 
-	qDebug("removing preset_name[%i]=%s", idx, preset_name.toStdString().c_str());
+	qDebug("removing preset_name[%i]=%s", preset_name.toStdString().c_str());
 	
-	QString fname = getPresetPath(m_config.m_appdir, preset_name);
+	QString const fname = getPresetPath(m_config.m_appdir, preset_name);
 	qDebug("confirm to remove session file=%s", fname.toStdString().c_str());
 
 	QMessageBox msg_box;
@@ -188,13 +159,9 @@ void MainWindow::onRmCurrentState ()
 	QFile qf(fname);
 	qf.remove();
 
-	ui->presetComboBox->clear();
-
-	m_config.m_preset_names.erase(std::remove(m_config.m_preset_names.begin(), m_config.m_preset_names.end(), preset_name), m_config.m_preset_names.end());
-	for (int i = 0, ie = m_config.m_preset_names.size(); i < ie; ++i)
-		ui->presetComboBox->addItem(m_config.m_preset_names.at(i));
-	//setPresetNameIntoComboBox(preset_name);
-	storePresetNames();*/
+	removeStringFromHistory(preset_name, ui->presetComboBox, m_config.m_preset_history);
+	m_config.saveHistory();
+	ui->presetComboBox->setCurrentIndex(-1);
 }
 
 void MainWindow::onPresetActivate (int idx)
@@ -228,10 +195,9 @@ void MainWindow::onPresetActivate (Connection * conn, QString const & preset_nam
 	{
 		removeStringFromHistory(preset_name, ui->presetComboBox, m_config.m_preset_history);
 		m_config.saveHistory();
-		setPresetAsCurrent(preset_name);
+		ui->presetComboBox->setCurrentIndex(-1);
 	}
 }
-
 
 void MainWindow::onPresetChanged (int idx)
 {
@@ -302,49 +268,4 @@ void MainWindow::loadLayout (QString const & preset_name)
 	}
 }
 
-
-
-/*
-void MainWindow::saveSession (SessionState const & s, QString const & preset_name) const
-{
-	qDebug("%s", __FUNCTION__);
-	QString fname = getPresetFileName(m_config.m_appdir, preset_name);
-	qDebug("store file=%s", fname.toStdString().c_str());
-	saveSessionState(s, fname.toLatin1());
-}
-
-void MainWindow::storePresets ()
-{
-	qDebug("%s", __FUNCTION__);
-	if (!getTabTrace()->currentWidget()) return;
-	Connection * conn = findCurrentConnection();
-	if (!conn) return;
-
-	storePresetNames();
-
-	for (int i = 0, ie = m_config.m_preset_names.size(); i < ie; ++i)
-		if (!m_config.m_preset_names.at(i).isEmpty())
-			saveSession(conn->sessionState(), m_config.m_preset_names.at(i));
-}
-
-void MainWindow::saveCurrentSession (QString const & preset_name)
-{
-	qDebug("%s name=%s", __FUNCTION__, preset_name.toStdString().c_str());
-	if (!getTabTrace()->currentWidget()) return;
-	Connection * conn = findCurrentConnection();
-	if (!conn) return;
-
-	saveSession(conn->sessionState(), preset_name);
-}
-*/
-
-/*bool MainWindow::loadSession (SessionState & s, QString const & preset_name)
-{
-	qDebug("%s name=%s", __FUNCTION__, preset_name.toStdString().c_str());
-	QString fname = getPresetFileName(m_config.m_appdir, preset_name);
-	qDebug("load file=%s", fname.toStdString().c_str());
-	s.m_file_filters.clear();
-	return loadSessionState(s, fname.toLatin1());
-}
-*/
 

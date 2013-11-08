@@ -35,7 +35,7 @@
         <number>0</number>
        </property>
        <item>
-        <widget class="QPushButton" name="allCtxButton">
+        <widget class="QPushButton" name="allButton">
          <property name="maximumSize">
           <size>
            <width>32</width>
@@ -48,7 +48,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="noCtxButton">
+        <widget class="QPushButton" name="noneButton">
          <property name="minimumSize">
           <size>
            <width>32</width>

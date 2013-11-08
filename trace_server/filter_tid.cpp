@@ -104,6 +104,16 @@ void FilterTid::recompile ()
 {
 }
 
+void FilterTid::locateItem (QString const & item, bool scrollto, bool expand)
+{
+	QModelIndexList indexList = m_model->match(m_model->index(0, 0), Qt::DisplayRole, item);
+	if (!indexList.empty())
+	{
+		QModelIndex const selectedIndex(indexList.first());
+		getWidget()->setCurrentIndex(selectedIndex);
+	}
+}
+
 // slots
 void FilterTid::onClickedAtTIDList (QModelIndex idx)
 {
