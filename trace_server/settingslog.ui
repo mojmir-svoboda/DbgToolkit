@@ -34,21 +34,21 @@
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="excludeThisButton">
+       <widget class="QPushButton" name="excludeRowButton">
         <property name="text">
          <string>Excl row</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="locateInFiltersButton">
+       <widget class="QPushButton" name="locateRowButton">
         <property name="text">
          <string>Locate row</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="tagFileLineButton">
+       <widget class="QPushButton" name="colorFileLineButton">
         <property name="text">
          <string>Color file:line</string>
         </property>

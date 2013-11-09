@@ -106,7 +106,28 @@ namespace logs {
 		unsigned long long timeRefValue () const { return m_time_ref_value; }
 		void setTimeRefValue (unsigned long long t) { m_time_ref_value = t; }
 		void findTableIndexInFilters (QModelIndex const & src_idx, bool scroll_to_item, bool expand);
+		void excludeFileLine (QModelIndex const & row_index);
 
+		// filtering stuff
+		FilterMgr * filterMgr () { return m_config_ui.m_ui->widget; }
+		FilterMgr const * filterMgr () const { return m_config_ui.m_ui->widget; }
+		void syncSelection (QModelIndexList const & sel);
+		void clearFilters (QStandardItem * node);
+		void clearFilters ();
+		void appendToTIDFilters (QString const & item);
+		void appendToLvlWidgets (FilteredLevel const & flt);
+		void appendToLvlFilters (QString const & item);
+		void appendToCtxWidgets (FilteredContext const & flt);
+		void appendToCtxFilters (QString const & item, bool checked);
+		bool appendToFilters (DecodedCommand const & cmd);
+		void appendToRegexFilters (QString const & str, bool checked, bool inclusive);
+		void removeFromRegexFilters (QString const & val);
+		void appendToStringFilters (QString const & str, bool checked, int state);
+		void removeFromStringFilters (QString const & val);
+
+		void setRefFromRow ();
+		void clearRefTime () { m_time_ref_row = 0; }
+		void colorRow (int);
 	
 	void setupSeparatorChar (QString const & c);
 	QString separatorChar () const;
@@ -122,24 +143,6 @@ namespace logs {
 	void nextToView ();
 	void onFindFileLine (QModelIndex const &);
 
-	// filtering stuff
-	FilterMgr * filterMgr () { return m_config_ui.m_ui->widget; }
-	FilterMgr const * filterMgr () const { return m_config_ui.m_ui->widget; }
-	void syncSelection (QModelIndexList const & sel);
-	void clearFilters (QStandardItem * node);
-	void clearFilters ();
-	void onExcludeFileLine (QModelIndex const & row_index);
-	void appendToTIDFilters (QString const & item);
-	void appendToLvlWidgets (FilteredLevel const & flt);
-	void appendToLvlFilters (QString const & item);
-	void appendToCtxWidgets (FilteredContext const & flt);
-	void appendToCtxFilters (QString const & item, bool checked);
-	bool appendToFilters (DecodedCommand const & cmd);
-	void appendToRegexFilters (QString const & str, bool checked, bool inclusive);
-	void removeFromRegexFilters (QString const & val);
-	void appendToStringWidgets (FilteredString const & flt);
-	void appendToStringFilters (QString const & str, bool checked, int state);
-	void removeFromStringFilters (QString const & val);
 	void appendToColorRegexFilters (QString const & val);
 	void removeFromColorRegexFilters (QString const & val);
 	void loadToColorRegexps (QString const & filter_item, QString const & color, bool enabled);
@@ -191,15 +194,22 @@ namespace logs {
 		void onTableDoubleClicked (QModelIndex const & row_index);
 
 		// actions
-		void onExcludeFileLine ();
-		void onToggleRefFromRow ();
-		void onColorTagRow (int);
 		void onClearCurrentView ();
 		void onHidePrevFromRow ();
-		void onUnhidePrevFromRow ();
+		//void onUnhidePrevFromRow ();
 		void exportStorageToCSV (QString const & filename);
-		void onClearRefTime () { m_time_ref_row = 0; }
 		void onCopyToClipboard ();
+		void onExcludeFileLine ();
+		void onExcludeRow ();
+		void onLocateRow ();
+		void onColorFileLine ();
+		void onColorRow ();
+		void onUncolorRow ();
+		void onSetRefTime ();
+		void onHidePrev ();
+		void onHideNext ();
+
+
 
 
 	signals:

@@ -196,6 +196,15 @@ void LogCtxMenu::prepareSettingsWidgets ()
 	connect(m_ui->saveButton, SIGNAL(clicked()), this, SLOT(onClickedAtSaveButton()));
 	connect(m_ui->addButton, SIGNAL(clicked()), this, SLOT(onAddButton()));
 	connect(m_ui->rmButton, SIGNAL(clicked()), this, SLOT(onRmButton()));
+	connect(m_ui->excludeFileLineButton, SIGNAL(clicked()), &m_log_widget, SLOT(onExcludeFileLine()));
+	connect(m_ui->excludeRowButton, SIGNAL(clicked()), &m_log_widget, SLOT(onExcludeRow()));
+	connect(m_ui->locateRowButton, SIGNAL(clicked()), &m_log_widget, SLOT(onLocateRow()));
+	connect(m_ui->colorFileLineButton, SIGNAL(clicked()), &m_log_widget, SLOT(onColorFileLine()));
+	connect(m_ui->colorRowButton, SIGNAL(clicked()), &m_log_widget, SLOT(onColorRow()));
+	connect(m_ui->uncolorRowButton, SIGNAL(clicked()), &m_log_widget, SLOT(onUncolorRow()));
+	connect(m_ui->setRefTimeButton, SIGNAL(clicked()), &m_log_widget, SLOT(onSetRefTime()));
+	connect(m_ui->hidePrevButton, SIGNAL(clicked()), &m_log_widget, SLOT(onHidePrev()));
+	connect(m_ui->hideNextButton, SIGNAL(clicked()), &m_log_widget, SLOT(onHideNext()));
 	//connect(m_ui->cancelButton, SIGNAL(clicked()), this, SLOT(onClickedAtSettingCancelButton()));
 }
 
@@ -499,6 +508,11 @@ void LogCtxMenu::onClickedAtCancelButton ()
 {
 	//m_settings_dialog->close();
 }
+
+	//filterMenu->addAction(tr("Hide previous rows"), m_server, SLOT(onHidePrevFromRow()), QKeySequence(Qt::Key_Delete));
+	//filterMenu->addAction(tr("Unhide previous rows"), m_server, SLOT(onUnhidePrevFromRow()), QKeySequence(Qt::ControlModifier + Qt::Key_Delete));
+	//filterMenu->addAction(tr("Set time reference row"), m_server, SLOT(onTimeRefFromRow()), QKeySequence(Qt::Key_Space));
+	//filterMenu->addAction(tr("Exclude file:line row"), m_server, SLOT(onExcludeFileLine()), QKeySequence(Qt::Key_X));
 
 /*void LogWidget::onFileColOrExp (QModelIndex const & idx, bool collapsed)
 {

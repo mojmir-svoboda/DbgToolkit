@@ -110,32 +110,18 @@ void LogWidget::findTableIndexInFilters (QModelIndex const & src_idx, bool scrol
 	}
 }
 
-void LogWidget::onExcludeFileLine ()
+/*void LogWidget::onExcludeFileLine ()
 {
 	QModelIndex const current = m_last_clicked;
 	if (current.isValid())
 	{
-		onExcludeFileLine(current);
+		excludeFileLine(current);
 		onInvalidateFilter();
 	}
-}
+}*/
 
-void LogWidget::onToggleRefFromRow ()
-{
-	QModelIndex const current = m_last_clicked;
-	if (current.isValid())
-	{
-		qDebug("Toggle Ref from row=%i", current.row());
-		setTimeRefFromRow(current.row());
 
-		//LogTableModel * model = static_cast<LogTableModel *>(m_proxy_model ? m_proxy_model->sourceModel() : model());
-		QString const & strtime = findString4Tag(tlv::tag_time, current);
-		setTimeRefValue(strtime.toULongLong());
-		onInvalidateFilter();
-	}
-}
-
-void LogWidget::onColorTagRow (int)
+void LogWidget::colorRow (int)
 {
 	QModelIndex current = currentIndex();
 	if (isModelProxy())
@@ -170,17 +156,17 @@ void LogWidget::onHidePrevFromRow ()
 	}
 }
 
-void LogWidget::onUnhidePrevFromRow ()
-{
-	//m_session_state.excludeContentToRow(0);
-	//onInvalidateFilter();
-}
-
-void LogWidget::onExcludeFileLine (QModelIndex const & row_index)
+void LogWidget::excludeFileLine (QModelIndex const & row_index)
 {
 	if (filterMgr()->getFilterFileLine())
 	{
-		DecodedCommand const * dcmd = getDecodedCommand(row_index);
+		QModelIndex current = currentIndex();
+		if (isModelProxy())
+		{
+			current = m_proxy_model->mapToSource(current);
+		}
+
+		DecodedCommand const * dcmd = getDecodedCommand(current);
 		if (dcmd)
 		{
 
@@ -199,6 +185,56 @@ void LogWidget::onExcludeFileLine (QModelIndex const & row_index)
 			onInvalidateFilter();
 		}
 	}
+}
+
+void LogWidget::onExcludeFileLine ()
+{
+	QModelIndexList l;
+	currSelection(l);
+	foreach(QModelIndex index, l) {
+		excludeFileLine(index);
+		//QModelIndex left = model()->index(index.row(), 0);
+		//QModelIndex right = model()->index(index.row(), model()->columnCount() - 1);
+		//QItemSelection sel(left, right);
+		//selection.merge(sel, QItemSelectionModel::Select);
+	}
+}
+void LogWidget::onExcludeRow ()
+{
+}
+void LogWidget::onLocateRow ()
+{
+}
+void LogWidget::onColorFileLine ()
+{
+}
+void LogWidget::onColorRow ()
+{
+}
+void LogWidget::onUncolorRow ()
+{
+}
+void LogWidget::onSetRefTime ()
+{
+	QModelIndex const current = m_last_clicked;
+	if (current.isValid())
+	{
+		qDebug("Toggle Ref from row=%i", current.row());
+		setTimeRefFromRow(current.row());
+
+		//LogTableModel * model = static_cast<LogTableModel *>(m_proxy_model ? m_proxy_model->sourceModel() : model());
+		QString const & strtime = findString4Tag(tlv::tag_time, current);
+		setTimeRefValue(strtime.toULongLong());
+		onInvalidateFilter();
+	}
+}
+void LogWidget::onHidePrev ()
+{
+	//m_session_state.excludeContentToRow(0);
+
+}
+void LogWidget::onHideNext ()
+{
 }
 
 
