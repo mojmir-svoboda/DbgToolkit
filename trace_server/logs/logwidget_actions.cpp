@@ -37,16 +37,18 @@ bool LogWidget::handleAction (Action * a, E_ActionHandleType sync)
 
 void LogWidget::onTableClicked (QModelIndex const & row_index)
 {
-/*	m_last_clicked = row_index;
+	QModelIndex current = currentIndex();
 	if (isModelProxy())
-		m_last_clicked = m_proxy_model->mapToSource(row_index);
+	{
+		current = m_proxy_model->mapToSource(current);
+	}
 
-	m_last_search_row = m_last_clicked.row(); // set search from this line
-	m_last_search_col = m_last_clicked.column();*/
+	if (!current.isValid())
+		return;
 
 	bool const scroll_to_item = false;
 	bool const expand = false;
-	findTableIndexInFilters(m_last_clicked, scroll_to_item, expand);
+	findTableIndexInFilters(current, scroll_to_item, expand);
 }
 
 void LogWidget::onTableFontToolButton ()
@@ -89,37 +91,34 @@ void LogWidget::onAutoScrollHotkey ()
 
 void LogWidget::findTableIndexInFilters (QModelIndex const & src_idx, bool scroll_to_item, bool expand)
 {
+	DecodedCommand const * dcmd = getDecodedCommand(src_idx);
+	if (dcmd)
 	{
-		QString const file = findString4Tag(tlv::tag_file, src_idx);
-		QString const line = findString4Tag(tlv::tag_line, src_idx);
-		QString const combined = file + "/" + line;
-		qDebug("findTableIndexInFilters %s in tree", combined.toStdString().c_str());
-		filterMgr()->getFilterFileLine()->locateItem(combined, scroll_to_item, expand);
-	}
-	{
-		QString const & item = findString4Tag(tlv::tag_tid, src_idx);
-		filterMgr()->getFilterTid()->locateItem(item, scroll_to_item, expand);;
-	}
-	{
-		QString const & item = findString4Tag(tlv::tag_lvl, src_idx);
-		filterMgr()->getFilterLvl()->locateItem(item, scroll_to_item, expand);;
-	}
-	{
-		QString const & item = findString4Tag(tlv::tag_ctx, src_idx);
-		filterMgr()->getFilterCtx()->locateItem(item, scroll_to_item, expand);;
+		QString file, line;
+		if (dcmd->getString(tlv::tag_file, file) && dcmd->getString(tlv::tag_line, line))
+		{
+			//QString const file = findString4Tag(tlv::tag_file, src_idx);
+			//QString const line = findString4Tag(tlv::tag_line, src_idx);
+			QString const combined = file + "/" + line;
+			qDebug("findTableIndexInFilters %s in tree", combined.toStdString().c_str());
+			if (filterMgr()->getFilterFileLine())
+				filterMgr()->getFilterFileLine()->locateItem(combined, scroll_to_item, expand);
+		}
+/*
+		{
+			QString const & item = findString4Tag(tlv::tag_tid, src_idx);
+			filterMgr()->getFilterTid()->locateItem(item, scroll_to_item, expand);;
+		}
+		{
+			QString const & item = findString4Tag(tlv::tag_lvl, src_idx);
+			filterMgr()->getFilterLvl()->locateItem(item, scroll_to_item, expand);;
+		}
+		{
+			QString const & item = findString4Tag(tlv::tag_ctx, src_idx);
+			filterMgr()->getFilterCtx()->locateItem(item, scroll_to_item, expand);;
+		}*/
 	}
 }
-
-/*void LogWidget::onExcludeFileLine ()
-{
-	QModelIndex const current = m_last_clicked;
-	if (current.isValid())
-	{
-		excludeFileLine(current);
-		onInvalidateFilter();
-	}
-}*/
-
 
 void LogWidget::colorRow (int)
 {
@@ -166,6 +165,9 @@ void LogWidget::excludeFileLine (QModelIndex const & row_index)
 			current = m_proxy_model->mapToSource(current);
 		}
 
+		if (!current.isValid())
+			return;
+
 		DecodedCommand const * dcmd = getDecodedCommand(current);
 		if (dcmd)
 		{
@@ -204,6 +206,18 @@ void LogWidget::onExcludeRow ()
 }
 void LogWidget::onLocateRow ()
 {
+	QModelIndex current = currentIndex();
+	if (isModelProxy())
+	{
+		current = m_proxy_model->mapToSource(current);
+	}
+
+	if (!current.isValid())
+		return;
+
+	bool const scroll_to_item = true;
+	bool const expand = true;
+	findTableIndexInFilters(current, scroll_to_item, expand);
 }
 void LogWidget::onColorFileLine ()
 {

@@ -220,8 +220,6 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 			m_table_view_widget->horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
 			m_table_view_widget->verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
 
-			connect(m_table_view_widget, SIGNAL(clicked(QModelIndex const &)), this, SLOT(onTableClicked(QModelIndex const &)));
-			connect(m_table_view_widget, SIGNAL(doubleClicked(QModelIndex const &)), this, SLOT(onTableDoubleClicked(QModelIndex const &)));
 			m_table_view_widget->setContextMenuPolicy(Qt::CustomContextMenu);
 			connect(m_table_view_widget, SIGNAL(customContextMenuRequested(QPoint const &)), this, SLOT(onShowContextMenu(QPoint const &)));
 

@@ -89,6 +89,8 @@ namespace logs {
 		//connect(ui->autoScrollCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onAutoScrollStateChanged(int)));
 		//connect(ui->inViewCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onInViewStateChanged(int)));
 		//connect(m_config_ui.ui()->filterFileCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onFilterFile(int)));
+		connect(this, SIGNAL(clicked(QModelIndex const &)), this, SLOT(onTableClicked(QModelIndex const &)));
+		//connect(this, SIGNAL(doubleClicked(QModelIndex const &)), this, SLOT(onTableDoubleClicked(QModelIndex const &)));
 
 		QObject::connect(horizontalHeader(), SIGNAL(sectionResized(int, int, int)), this, SLOT(onSectionResized(int, int, int)));
 		QObject::connect(horizontalHeader(), SIGNAL(sectionMoved(int, int, int)), this, SLOT(onSectionMoved(int, int, int)));
@@ -687,6 +689,16 @@ void LogWidget::keyPressEvent (QKeyEvent * e)
 			e->accept();
 			return;
 		}
+
+		bool const ctrl = (e->modifiers() & Qt::ControlModifier) == Qt::ControlModifier;
+		bool const shift = (e->modifiers() & Qt::ShiftModifier) == Qt::ShiftModifier;
+		bool const alt = (e->modifiers() & Qt::AltModifier) == Qt::AltModifier;
+		bool const x = e->key() == Qt::Key_X;
+		if (!ctrl && !shift && !alt && x)
+		{
+			onExcludeFileLine();
+		}
+
 	}
 	QTableView::keyPressEvent(e);
 }
