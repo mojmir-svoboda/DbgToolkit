@@ -97,26 +97,29 @@ void LogWidget::findTableIndexInFilters (QModelIndex const & src_idx, bool scrol
 		QString file, line;
 		if (dcmd->getString(tlv::tag_file, file) && dcmd->getString(tlv::tag_line, line))
 		{
-			//QString const file = findString4Tag(tlv::tag_file, src_idx);
-			//QString const line = findString4Tag(tlv::tag_line, src_idx);
 			QString const combined = file + "/" + line;
 			qDebug("findTableIndexInFilters %s in tree", combined.toStdString().c_str());
 			if (filterMgr()->getFilterFileLine())
 				filterMgr()->getFilterFileLine()->locateItem(combined, scroll_to_item, expand);
 		}
-/*
+		QString tid;
+		if (dcmd->getString(tlv::tag_tid, file))
 		{
-			QString const & item = findString4Tag(tlv::tag_tid, src_idx);
-			filterMgr()->getFilterTid()->locateItem(item, scroll_to_item, expand);;
+			if (filterMgr()->getFilterTid())
+				filterMgr()->getFilterTid()->locateItem(tid, scroll_to_item, expand);;
 		}
+		QString lvl;
+		if (dcmd->getString(tlv::tag_lvl, file))
 		{
-			QString const & item = findString4Tag(tlv::tag_lvl, src_idx);
-			filterMgr()->getFilterLvl()->locateItem(item, scroll_to_item, expand);;
+			if (filterMgr()->getFilterLvl())
+				filterMgr()->getFilterLvl()->locateItem(lvl, scroll_to_item, expand);;
 		}
+		QString ctx;
+		if (dcmd->getString(tlv::tag_ctx, file))
 		{
-			QString const & item = findString4Tag(tlv::tag_ctx, src_idx);
-			filterMgr()->getFilterCtx()->locateItem(item, scroll_to_item, expand);;
-		}*/
+			if (filterMgr()->getFilterCtx())
+				filterMgr()->getFilterCtx()->locateItem(ctx, scroll_to_item, expand);;
+		}
 	}
 }
 
