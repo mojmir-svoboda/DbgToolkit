@@ -38,14 +38,15 @@ class FilterProxyModel : public BaseProxyModel
 
 public:
 	explicit FilterProxyModel (QObject * parent, logs::LogWidget & lw);
-	~FilterProxyModel ();
+	virtual ~FilterProxyModel ();
 
-	Qt::ItemFlags flags (QModelIndex const & index) const;
 	void resizeToCfg ();
 	void commitBatchToModel (int from, int to, BatchCmd const & batch);
 
-	bool filterAcceptsRow (int sourceRow, QModelIndex const & sourceParent) const;
-	bool filterAcceptsColumn (int sourceColumn, QModelIndex const & source_parent) const;
+	virtual Qt::ItemFlags flags (QModelIndex const & index) const;
+	virtual bool filterAcceptsRow (int sourceRow, QModelIndex const & sourceParent) const;
+	virtual bool filterAcceptsColumn (int sourceColumn, QModelIndex const & source_parent) const;
+	virtual QModelIndex sibling(int row, int column, const QModelIndex &idx) const;
 
 protected:
 

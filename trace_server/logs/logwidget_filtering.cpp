@@ -115,12 +115,16 @@ void LogWidget::setFilteringProxy (bool on)
 		setModel(m_proxy_model);
 		setSelectionModel(m_proxy_selection);
 		m_src_model->setProxy(m_proxy_model);
+
 		if (m_proxy_model)
 			m_proxy_model->setSourceModel(m_src_model);
 
 		if (m_proxy_model)
 			m_proxy_model->force_update();
-		//onInvalidateFilter();
+
+		// @TODO: i probably need following
+		//m_kselection_model = new KLinkItemSelectionModel(model(), m_proxy_selection);
+		//setSelectionModel(m_kselection_model);
 
 		QModelIndexList pxys;
 		for (int i = 0, ie = indexes.size(); i < ie; ++i)

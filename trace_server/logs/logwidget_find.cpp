@@ -182,11 +182,10 @@ void LogWidget::currSelection (QModelIndexList & sel) const
 {
 	sel.clear();
 	QItemSelectionModel const * selection = selectionModel();
-	QModelIndexList sel2  = selection->selectedIndexes();
+	QModelIndexList const sel2  = selection->selectedIndexes();
 	if (sel2.size() < 1)
 		return;
 
-	// @FIXME: when proxy is on, there are invalid indexes in the current selection
 	for(int i = 0, ie = sel2.size(); i < ie; ++i)
 	{
 		if (sel2.at(i).isValid())

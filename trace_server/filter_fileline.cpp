@@ -37,7 +37,7 @@ void FilterFileLine::initUI ()
 	connect(m_ui->collapseChildsButton, SIGNAL(clicked()), this, SLOT(onCollapseChilds()));
 	getWidget()->setEditTriggers(QAbstractItemView::NoEditTriggers);
 	connect(getWidget(), SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtFileTree(QModelIndex)));
-	connect(getWidget(), SIGNAL(doubleClicked(QModelIndex)), this, SLOT(onDoubleClickedAtFileTree(QModelIndex)));
+	//connect(getWidget(), SIGNAL(doubleClicked(QModelIndex)), this, SLOT(onDoubleClickedAtFileTree(QModelIndex)));
 	getWidget()->header()->hide();
 
 	connect(m_ui->filterFileComboBox, SIGNAL(editTextChanged(QString)), this, SLOT(onFilterFileComboChanged(QString)));

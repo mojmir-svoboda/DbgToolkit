@@ -118,13 +118,13 @@ namespace logs {
 			QObject::disconnect(m_src_model, SIGNAL(rowsInserted(QModelIndex,int,int)), verticalHeader(), SLOT(sectionsInserted(QModelIndex,int,int)));
 		}
 
-		setupLogSelectionProxy();
-
 		m_proxy_model = new FilterProxyModel(this, *this);
 		m_proxy_model->setSourceModel(m_src_model);
 
 		m_find_proxy_model = new FindProxyModel(this, *this);
 		m_find_proxy_model->setSourceModel(m_src_model);
+
+		setupLogSelectionProxy();
 	}
 
 	void LogWidget::setupLogSelectionProxy ()

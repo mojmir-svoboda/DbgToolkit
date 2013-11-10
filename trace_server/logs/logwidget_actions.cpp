@@ -157,7 +157,7 @@ void LogWidget::onHidePrevFromRow ()
 	}
 }
 
-void LogWidget::excludeFileLine (QModelIndex const & row_index)
+void LogWidget::excludeFileLine (QModelIndex const & src_index)
 {
 	if (filterMgr()->getFilterFileLine())
 	{
@@ -196,7 +196,14 @@ void LogWidget::onExcludeFileLine ()
 	QModelIndexList l;
 	currSelection(l);
 	foreach(QModelIndex index, l) {
-		excludeFileLine(index);
+
+		if (isModelProxy())
+		{
+			index = m_proxy_model->mapToSource(index);
+		}
+
+		if (index.isValid())
+			excludeFileLine(index);
 		//QModelIndex left = model()->index(index.row(), 0);
 		//QModelIndex right = model()->index(index.row(), model()->columnCount() - 1);
 		//QItemSelection sel(left, right);

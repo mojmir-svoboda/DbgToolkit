@@ -32,10 +32,14 @@ void FilterProxyModel::resizeToCfg ()
 	}
 }
 
-
 Qt::ItemFlags FilterProxyModel::flags (QModelIndex const & index) const
 {
 	return sourceModel()->flags(index) | Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+}
+
+QModelIndex FilterProxyModel::sibling (int row, int column, QModelIndex const & idx) const
+{
+	return (row == idx.row() && column == idx.column()) ? idx : index(row, column, parent(idx));
 }
 
 bool FilterProxyModel::filterAcceptsColumn (int sourceColumn, QModelIndex const & source_parent) const
