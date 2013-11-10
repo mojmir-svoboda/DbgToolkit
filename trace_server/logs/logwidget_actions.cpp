@@ -98,24 +98,23 @@ void LogWidget::findTableIndexInFilters (QModelIndex const & src_idx, bool scrol
 		if (dcmd->getString(tlv::tag_file, file) && dcmd->getString(tlv::tag_line, line))
 		{
 			QString const combined = file + "/" + line;
-			qDebug("findTableIndexInFilters %s in tree", combined.toStdString().c_str());
 			if (filterMgr()->getFilterFileLine())
 				filterMgr()->getFilterFileLine()->locateItem(combined, scroll_to_item, expand);
 		}
 		QString tid;
-		if (dcmd->getString(tlv::tag_tid, file))
+		if (dcmd->getString(tlv::tag_tid, tid))
 		{
 			if (filterMgr()->getFilterTid())
 				filterMgr()->getFilterTid()->locateItem(tid, scroll_to_item, expand);;
 		}
 		QString lvl;
-		if (dcmd->getString(tlv::tag_lvl, file))
+		if (dcmd->getString(tlv::tag_lvl, lvl))
 		{
 			if (filterMgr()->getFilterLvl())
 				filterMgr()->getFilterLvl()->locateItem(lvl, scroll_to_item, expand);;
 		}
 		QString ctx;
-		if (dcmd->getString(tlv::tag_ctx, file))
+		if (dcmd->getString(tlv::tag_ctx, ctx))
 		{
 			if (filterMgr()->getFilterCtx())
 				filterMgr()->getFilterCtx()->locateItem(ctx, scroll_to_item, expand);;
