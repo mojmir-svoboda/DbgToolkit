@@ -113,7 +113,7 @@ void LogWidget::setFilteringProxy (bool on)
 	{
 		qDebug("%s setting proxy model", __FUNCTION__);
 		setModel(m_proxy_model);
-		setSelectionModel(m_proxy_selection);
+		//setSelectionModel(m_proxy_selection);
 		m_src_model->setProxy(m_proxy_model);
 
 		if (m_proxy_model)
@@ -123,8 +123,7 @@ void LogWidget::setFilteringProxy (bool on)
 			m_proxy_model->force_update();
 
 		// @TODO: i probably need following
-		//m_kselection_model = new KLinkItemSelectionModel(model(), m_proxy_selection);
-		//setSelectionModel(m_kselection_model);
+		//setSelectionModel(m_kproxy_selection);
 
 		QModelIndexList pxys;
 		for (int i = 0, ie = indexes.size(); i < ie; ++i)

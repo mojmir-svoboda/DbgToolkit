@@ -82,8 +82,8 @@ LogWidget * LogWidget::mkFindAllRefsLogWidget (FindConfig const & fc)
 		}");
 
 	//child.setSelectionModel(m_selection);
-	child.m_kselection_model = new KLinkItemSelectionModel(model(), child.selectionModel());
-	setSelectionModel(child.m_kselection_model);
+	child.m_kfind_proxy_selection = new KLinkItemSelectionModel(model(), child.selectionModel());
+	setSelectionModel(child.m_kfind_proxy_selection);
 
 	//m_connection->getMainWindow()->onDockRestoreButton();
 	return &child;
@@ -182,10 +182,24 @@ void LogWidget::currSelection (QModelIndexList & sel) const
 {
 	sel.clear();
 	QItemSelectionModel const * selection = selectionModel();
-	QModelIndexList const sel2  = selection->selectedIndexes();
+	QItemSelection const sele = selection->selection();
+	QModelIndexList const & sel2 = sele.indexes();
+	//QModelIndexList sel2  = selection->selectedIndexes();
 	if (sel2.size() < 1)
 		return;
+	/*
+	QAbstractItemModel * m = model();
+	QItemSelectionModel * selection = selectionModel();
+	if (!selection)
+		return QString();
+	QModelIndexList indexes = selection->selectedIndexes();
 
+	if (indexes.size() < 1)
+		return QString();
+
+	std::sort(indexes.begin(), indexes.end());*/
+
+	// @FIXME: when proxy is on, there are invalid indexes in the current selection
 	for(int i = 0, ie = sel2.size(); i < ie; ++i)
 	{
 		if (sel2.at(i).isValid())

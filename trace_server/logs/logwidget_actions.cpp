@@ -161,16 +161,10 @@ void LogWidget::excludeFileLine (QModelIndex const & src_index)
 {
 	if (filterMgr()->getFilterFileLine())
 	{
-		QModelIndex current = currentIndex();
-		if (isModelProxy())
-		{
-			current = m_proxy_model->mapToSource(current);
-		}
-
-		if (!current.isValid())
+		if (!src_index.isValid())
 			return;
 
-		DecodedCommand const * dcmd = getDecodedCommand(current);
+		DecodedCommand const * dcmd = getDecodedCommand(src_index);
 		if (dcmd)
 		{
 

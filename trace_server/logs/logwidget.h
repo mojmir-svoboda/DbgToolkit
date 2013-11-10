@@ -251,10 +251,12 @@ namespace logs {
 		FindProxyModel * m_find_proxy_model;
 		LogTableModel * m_src_model;
 		LogSelectionProxyModel * m_selection;
-		KLinkItemSelectionModel * m_kselection_model;
+		KLinkItemSelectionModel * m_ksrc_selection;
+		KLinkItemSelectionModel * m_kproxy_selection;
 		QItemSelectionModel * m_src_selection;
 		QItemSelectionModel * m_proxy_selection;
 		QItemSelectionModel * m_find_proxy_selection;
+		QItemSelectionModel * m_kfind_proxy_selection;
 
 		QModelIndex m_last_clicked;
 

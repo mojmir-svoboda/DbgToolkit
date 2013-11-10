@@ -44,10 +44,12 @@ namespace logs {
 		, m_find_proxy_model(0)
 		, m_src_model(0)
 		, m_selection(0)
-		, m_kselection_model(0)
+		, m_ksrc_selection(0)
+		, m_kproxy_selection(0)
 		, m_src_selection(0)
 		, m_proxy_selection(0)
 		, m_find_proxy_selection(0)
+		, m_kfind_proxy_selection(0)
 		, m_last_clicked()
 		, m_csv_separator()
 		, m_file_csv_stream(0)
@@ -131,9 +133,10 @@ namespace logs {
 	{
 		m_src_selection = new QItemSelectionModel(m_src_model);
 		m_proxy_selection = new QItemSelectionModel(m_proxy_model);
+		m_ksrc_selection = new KLinkItemSelectionModel(m_src_model, m_src_selection);
+		m_kproxy_selection = new KLinkItemSelectionModel(m_proxy_model, m_proxy_selection);
 		//setSelectionModel(m_src_selection);
 		//m_selection = new LogSelectionProxyModel(m_src_model, m_src_selection);
-		//m_kselection_model = new KLinkItemSelectionModel(m_src_model, m_);
 	}
 
 	LogWidget::~LogWidget ()
