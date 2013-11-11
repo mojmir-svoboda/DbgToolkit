@@ -147,8 +147,8 @@ void LogWidget::setFindProxyModel (FindConfig const & fc)
 {
 	m_config.m_find_config = fc;
 	setModel(m_find_proxy_model);
-	m_find_proxy_model->force_update();
 	m_find_proxy_model->resizeToCfg();
+	m_find_proxy_model->force_update();
 	m_find_proxy_selection = new QItemSelectionModel(m_find_proxy_model);
 	setSelectionModel(m_find_proxy_selection);
 	resizeSections();
