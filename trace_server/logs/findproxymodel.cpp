@@ -65,6 +65,7 @@ bool FindProxyModel::filterAcceptsRow (int sourceRow, QModelIndex const & /*sour
 				}
 			}
 		}
+		return false; // no match
 	}
 	qWarning("no dcmd for source row, should not happen!");
 	return false;

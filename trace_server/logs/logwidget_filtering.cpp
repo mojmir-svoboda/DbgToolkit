@@ -113,17 +113,16 @@ void LogWidget::setFilteringProxy (bool on)
 	{
 		qDebug("%s setting proxy model", __FUNCTION__);
 		setModel(m_proxy_model);
-		//setSelectionModel(m_proxy_selection);
+		// selection
+		setSelectionModel(m_proxy_selection);
 		m_src_model->setProxy(m_proxy_model);
+		setSelectionModel(m_kproxy_selection);
 
 		if (m_proxy_model)
 			m_proxy_model->setSourceModel(m_src_model);
 
 		if (m_proxy_model)
 			m_proxy_model->force_update();
-
-		// @TODO: i probably need following
-		//setSelectionModel(m_kproxy_selection);
 
 		QModelIndexList pxys;
 		for (int i = 0, ie = indexes.size(); i < ie; ++i)
@@ -141,9 +140,6 @@ void LogWidget::setFilteringProxy (bool on)
 			selectionModel()->setCurrentIndex(pxys.at(i), QItemSelectionModel::Select);
 		}
 	}
-
-	//if (m_column_setup_done)
-	//	setupColumnSizes(true);
 
 	if (m_config.m_in_view)
 		scrollToCurrentTagOrSelection();
