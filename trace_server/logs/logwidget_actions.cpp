@@ -176,8 +176,7 @@ void LogWidget::excludeFileLine (QModelIndex const & src_index)
 				QModelIndex const result = filterMgr()->getFilterFileLine()->fileModel()->stateToItem(fileline, Qt::Unchecked);
 				if (!result.isValid())
 				{
-					Q_ASSERT("nonexistent index");
-					qFatal("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+					qWarning("%s: nonexistent index!", __FUNCTION__);
 				}
 			}
 			onInvalidateFilter();
@@ -189,8 +188,8 @@ void LogWidget::onExcludeFileLine ()
 {
 	QModelIndexList l;
 	currSelection(l);
-	foreach(QModelIndex index, l) {
-
+	foreach(QModelIndex index, l)
+	{
 		if (isModelProxy())
 		{
 			index = m_proxy_model->mapToSource(index);

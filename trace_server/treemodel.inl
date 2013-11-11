@@ -241,7 +241,10 @@ bool TreeModel<InfoT>::setData (QModelIndex const & index, QVariant const & valu
 			syncParents(item, state);
 		}
 		else if (state == Qt::PartiallyChecked)
-		{ }
+		{
+			stateToParents(item, Qt::PartiallyChecked);
+			syncParents(item, state);
+		}
 		//emit invalidateFilter(); // @TODO: perf problem - do not call recursively!
 	}
 	else
@@ -539,7 +542,7 @@ void TreeModel<InfoT>::collapseChilds (QTreeView * tv)
 		if (!has_children && rows > 0)
 		{
 			QString aa = data(parent, Qt::DisplayRole).toString();
-			qDebug("collapse: %s", aa.toStdString().c_str());
+			//qDebug("collapse: %s", aa.toStdString().c_str());
 			setData(parent, true,   Qt::UserRole);
 			tv->setExpanded(parent, false);
 		}
