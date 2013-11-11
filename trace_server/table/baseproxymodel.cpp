@@ -223,7 +223,7 @@ QModelIndex BaseProxyModel::mapToSource (QModelIndex const & proxyIndex) const
 
 QModelIndex BaseProxyModel::mapFromSource (QModelIndex const & sourceIndex) const
 {
-	if (sourceIndex.isValid() && sourceIndex.row() < static_cast<int>(m_map_from_src.size()))
+	if (sourceIndex.isValid())
 	{
 		map_t::const_iterator rit = m_map_from_src.find(sourceIndex.row());
 		map_t::const_iterator cit = m_cmap_from_src.find(sourceIndex.column());
