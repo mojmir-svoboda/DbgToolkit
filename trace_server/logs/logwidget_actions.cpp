@@ -187,6 +187,7 @@ void LogWidget::excludeFileLine (QModelIndex const & src_index)
 void LogWidget::onExcludeFileLine ()
 {
 	QModelIndexList l;
+	QModelIndexList src_list;
 	currSelection(l);
 	foreach(QModelIndex index, l)
 	{
@@ -196,11 +197,13 @@ void LogWidget::onExcludeFileLine ()
 		}
 
 		if (index.isValid())
+			src_list << index;
+	}
+
+	foreach(QModelIndex index, src_list)
+	{
+		if (index.isValid())
 			excludeFileLine(index);
-		//QModelIndex left = model()->index(index.row(), 0);
-		//QModelIndex right = model()->index(index.row(), model()->columnCount() - 1);
-		//QItemSelection sel(left, right);
-		//selection.merge(sel, QItemSelectionModel::Select);
 	}
 }
 void LogWidget::onExcludeRow ()
