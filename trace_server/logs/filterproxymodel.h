@@ -46,7 +46,7 @@ public:
 	virtual Qt::ItemFlags flags (QModelIndex const & index) const;
 	virtual bool filterAcceptsRow (int sourceRow, QModelIndex const & sourceParent) const;
 	virtual bool filterAcceptsColumn (int sourceColumn, QModelIndex const & source_parent) const;
-	virtual QModelIndex sibling(int row, int column, const QModelIndex &idx) const;
+	virtual QModelIndex sibling (int row, int column, QModelIndex const & idx) const;
 
 protected:
 

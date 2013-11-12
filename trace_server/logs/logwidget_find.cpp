@@ -39,6 +39,27 @@ void LogWidget::linkToSource (LogWidget * src)
 	src->registerLinkedLog(this);
 }
 
+void LogWidget::setSrcModel (FindConfig const & fc)
+{
+	m_config.m_find_config = fc;
+	setModel(m_src_model);
+	m_src_model->resizeToCfg();
+	m_find_proxy_selection = new QItemSelectionModel(m_find_proxy_model);
+	setSelectionModel(m_src_selection);
+	resizeSections();
+	applyConfig();
+}
+
+void LogWidget::setFindProxyModel (FindConfig const & fc)
+{
+	m_config.m_find_config = fc;
+	setModel(m_find_proxy_model);
+	m_find_proxy_model->resizeToCfg();
+	m_find_proxy_model->force_update();
+	resizeSections();
+	applyConfig();
+}
+
 LogWidget * LogWidget::mkFindAllRefsLogWidget (FindConfig const & fc)
 {
 	QString tag;
@@ -71,6 +92,9 @@ LogWidget * LogWidget::mkFindAllRefsLogWidget (FindConfig const & fc)
 
 	child.setupLogModel(m_src_model);
 	child.setFindProxyModel(fc);
+	child.m_kfind_proxy_selection = new KLinkItemSelectionModel(child.model(), selectionModel());
+	child.setSelectionModel(child.m_kfind_proxy_selection);
+
 	dp->m_wd->setStyleSheet("\
 			QHeaderView::section {\
 			background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,\
@@ -80,10 +104,6 @@ LogWidget * LogWidget::mkFindAllRefsLogWidget (FindConfig const & fc)
 			padding-left: 4px;\
 			border: 1px solid #6c6c6c;\
 		}");
-
-	//child.setSelectionModel(m_selection);
-	child.m_kfind_proxy_selection = new KLinkItemSelectionModel(model(), child.selectionModel());
-	setSelectionModel(child.m_kfind_proxy_selection);
 
 	//m_connection->getMainWindow()->onDockRestoreButton();
 	return &child;
@@ -130,29 +150,6 @@ LogWidget * LogWidget::mkFindAllCloneLogWidget (FindConfig const & fc)
 	child.setSrcModel(fc);
 
 	return &child;
-}
-
-void LogWidget::setSrcModel (FindConfig const & fc)
-{
-	m_config.m_find_config = fc;
-	setModel(m_src_model);
-	m_src_model->resizeToCfg();
-	m_find_proxy_selection = new QItemSelectionModel(m_find_proxy_model);
-	setSelectionModel(m_src_selection);
-	resizeSections();
-	applyConfig();
-}
-
-void LogWidget::setFindProxyModel (FindConfig const & fc)
-{
-	m_config.m_find_config = fc;
-	setModel(m_find_proxy_model);
-	m_find_proxy_model->resizeToCfg();
-	m_find_proxy_model->force_update();
-	m_find_proxy_selection = new QItemSelectionModel(m_find_proxy_model);
-	setSelectionModel(m_find_proxy_selection);
-	resizeSections();
-	applyConfig();
 }
 
 void LogWidget::findAndSelect (FindConfig const & fc)

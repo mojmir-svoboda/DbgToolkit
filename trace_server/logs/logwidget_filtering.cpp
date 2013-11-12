@@ -114,15 +114,15 @@ void LogWidget::setFilteringProxy (bool on)
 		qDebug("%s setting proxy model", __FUNCTION__);
 		setModel(m_proxy_model);
 		// selection
-		setSelectionModel(m_proxy_selection);
 		m_src_model->setProxy(m_proxy_model);
-		setSelectionModel(m_kproxy_selection);
 
 		if (m_proxy_model)
 			m_proxy_model->setSourceModel(m_src_model);
 
 		if (m_proxy_model)
 			m_proxy_model->force_update();
+
+		setSelectionModel(m_kproxy_selection);
 
 		QModelIndexList pxys;
 		for (int i = 0, ie = indexes.size(); i < ie; ++i)

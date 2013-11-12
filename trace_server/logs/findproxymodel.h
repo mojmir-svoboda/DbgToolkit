@@ -42,8 +42,9 @@ public:
 
 protected:
 
-	bool filterAcceptsRow (int sourceRow, QModelIndex const & sourceParent) const;
-	bool filterAcceptsColumn (int sourceColumn, QModelIndex const & source_parent) const;
+	virtual bool filterAcceptsRow (int sourceRow, QModelIndex const & sourceParent) const;
+	virtual bool filterAcceptsColumn (int sourceColumn, QModelIndex const & source_parent) const;
+	virtual QModelIndex sibling(int row, int column, const QModelIndex &idx) const;
 
 	logs::LogWidget & m_log_widget;
 	int m_column_count;

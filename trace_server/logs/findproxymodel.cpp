@@ -43,6 +43,11 @@ bool FindProxyModel::filterAcceptsColumn (int sourceColumn, QModelIndex const & 
 	return true;
 }
 
+QModelIndex FindProxyModel::sibling (int row, int column, QModelIndex const & idx) const
+{
+	return (row == idx.row() && column == idx.column()) ? idx : index(row, column, parent(idx));
+}
+
 bool FindProxyModel::filterAcceptsRow (int sourceRow, QModelIndex const & /*sourceParent*/) const
 {
 	if (sourceRow < m_log_widget.m_src_model->dcmds().size())
