@@ -73,6 +73,7 @@ struct FilterMgr : FilterBase
 	void clearUI ();
 	void setConfigToUI ();
 	void setUIToConfig ();
+	void focusToFilter (E_FilterType type);
 
 public slots:
 	void onFilterEnabledChanged ();

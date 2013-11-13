@@ -436,4 +436,15 @@ void FilterMgr::onFilterEnabledChanged ()
 	}
 }
 
+void FilterMgr::focusToFilter (E_FilterType type)
+{
+	for (int i = 0, ie = m_filters.size(); i < ie; ++i)
+	{
+		if (m_filters[i] && m_filters[i]->type() == type)
+		{
+			m_tabFilters->setCurrentIndex(i);
+			return;
+		}
+	}
+}
 

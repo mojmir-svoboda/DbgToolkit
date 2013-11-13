@@ -27,50 +27,111 @@
        <number>0</number>
       </property>
       <item>
-       <widget class="QPushButton" name="excludeFileLineButton">
+       <widget class="QToolButton" name="excludeFileLineButton">
+        <property name="minimumSize">
+         <size>
+          <width>64</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>16</height>
+         </size>
+        </property>
         <property name="text">
          <string>Excl file:line</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="excludeRowButton">
+       <widget class="QToolButton" name="excludeRowButton">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>16</height>
+         </size>
+        </property>
         <property name="text">
          <string>Excl row</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="locateRowButton">
+       <widget class="QToolButton" name="locateRowButton">
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>16</height>
+         </size>
+        </property>
         <property name="text">
          <string>Locate row</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="colorFileLineButton">
+       <widget class="Line" name="line">
+        <property name="minimumSize">
+         <size>
+          <width>7</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QToolButton" name="colorFileLineButton">
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>16</height>
+         </size>
+        </property>
         <property name="text">
          <string>Color file:line</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="colorRowButton">
+       <widget class="QToolButton" name="colorRowButton">
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>16</height>
+         </size>
+        </property>
         <property name="text">
          <string>Color row</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="uncolorRowButton">
+       <widget class="QToolButton" name="uncolorRowButton">
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>16</height>
+         </size>
+        </property>
         <property name="text">
          <string>Uncolor row</string>
-        </property>
-        <property name="default">
-         <bool>false</bool>
-        </property>
-        <property name="flat">
-         <bool>false</bool>
         </property>
        </widget>
       </item>
@@ -99,13 +160,38 @@
       </property>
       <item>
        <widget class="QToolButton" name="setRefTimeButton">
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>16</height>
+         </size>
+        </property>
         <property name="text">
          <string>Reference time</string>
         </property>
        </widget>
       </item>
       <item>
+       <widget class="Line" name="line_2">
+        <property name="minimumSize">
+         <size>
+          <width>7</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QToolButton" name="hidePrevButton">
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>16</height>
+         </size>
+        </property>
         <property name="text">
          <string>Hide previous rows</string>
         </property>
@@ -113,6 +199,12 @@
       </item>
       <item>
        <widget class="QToolButton" name="hideNextButton">
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>16</height>
+         </size>
+        </property>
         <property name="text">
          <string>Hide following rows</string>
         </property>

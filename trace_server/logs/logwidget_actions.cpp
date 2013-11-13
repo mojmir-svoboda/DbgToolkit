@@ -223,6 +223,8 @@ void LogWidget::onLocateRow ()
 	bool const scroll_to_item = true;
 	bool const expand = true;
 	findTableIndexInFilters(current, scroll_to_item, expand);
+	filterMgr()->focusToFilter(e_Filter_FileLine);
+	m_config_ui.ui()->stackedWidget->setCurrentWidget(m_config_ui.ui()->filtersPage);
 }
 void LogWidget::onColorFileLine ()
 {
