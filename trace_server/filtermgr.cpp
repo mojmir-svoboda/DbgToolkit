@@ -133,7 +133,7 @@ FilterBase * filterFactory (E_FilterType t, QWidget * parent)
 	switch (t)
 	{
 		case e_Filter_Mgr: return new FilterMgr (parent);
-		//case e_Filter_Script: return new FilterScript (parent);
+		case e_Filter_Script: return new FilterScript (parent);
 		case e_Filter_String: return new FilterString (parent);
 		case e_Filter_Regex: return new FilterRegex (parent);
 		case e_Filter_Ctx: return new FilterCtx (parent);

@@ -82,6 +82,7 @@ FORMS    += help.ui \
     filter_fileline.ui \
     filter_tid.ui \
     filter_string.ui \
+    filter_script.ui \
     filter_regex.ui \
     filter_lvl.ui \
     filter_ctx.ui \

@@ -85,6 +85,7 @@ set(trace_server_SOURCES
 	filter_ctx.cpp
 	filter_lvl.cpp
 	filter_string.cpp
+	filter_script.cpp
 	filter_regex.cpp
 	filter_tid.cpp
 	movabletabwidget.cpp
@@ -176,6 +177,7 @@ set(trace_server_HEADERS
 	filter_ctx.h
 	filter_lvl.h
 	filter_string.h
+	filter_script.h
 	filter_regex.h
 	filter_tid.h
 
@@ -240,6 +242,7 @@ set(trace_server_UI
 	filter_lvl.ui
 	filter_regex.ui
 	filter_string.ui
+	filter_script.ui
 	filter_tid.ui
 	)
 

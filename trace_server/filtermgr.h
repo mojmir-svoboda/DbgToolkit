@@ -4,7 +4,7 @@
 #include "combolist.h"
 #include "movablelistmodel.h"
 #include "movabletabwidget.h"
-//#include "filter_script.h"
+#include "filter_script.h"
 #include "filter_string.h"
 #include "filter_regex.h"
 #include "filter_ctx.h"
@@ -55,8 +55,8 @@ struct FilterMgr : FilterBase
 
 	//FilterXX *			getFilterXX () { return static_cast<FilterXX *>(m_cache[e_Filter_XX]); }
 	//FilterXX const *		getFilterXX () const { return static_cast<FilterXX const *>(m_cache[e_Filter_XX]); }
-	//FilterScript *		getFilterScript () { return static_cast<FilterScript *>(m_cache[e_Filter_Script]); }
-	//FilterScript const *	getFilterScript () const { return static_cast<FilterScript const *>(m_cache[e_Filter_Script]); }
+	FilterScript *		getFilterScript () { return static_cast<FilterScript *>(m_cache[e_Filter_Script]); }
+	FilterScript const *	getFilterScript () const { return static_cast<FilterScript const *>(m_cache[e_Filter_Script]); }
 	FilterString *			getFilterString () { return static_cast<FilterString *>(m_cache[e_Filter_String]); }
 	FilterString const *	getFilterString () const { return static_cast<FilterString const *>(m_cache[e_Filter_String]); }
 	FilterRegex *			getFilterRegex () { return static_cast<FilterRegex *>(m_cache[e_Filter_Regex]); }

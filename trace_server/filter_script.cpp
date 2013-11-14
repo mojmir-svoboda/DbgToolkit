@@ -1,22 +1,14 @@
-#include "filter_string.h"
+#include "filter_script.h"
 #include "constants.h"
 #include "serialize.h"
 #include "utils_qstandarditem.h"
 #include <boost/function.hpp>
 #include <QPainter>
-// serialization stuff
-#include <boost/serialization/type_info_implementation.hpp>
-#include <boost/archive/xml_iarchive.hpp>
-#include <boost/archive/xml_oarchive.hpp>
-#include <boost/serialization/utility.hpp>
-#include <boost/serialization/serialization.hpp>
-#include <boost/serialization/vector.hpp>
-#include <serialize/ser_qt.h>
-#include <fstream>
+//#include <QScriptEngine>
 
-FilterString::FilterString (QWidget * parent)
+FilterScript::FilterScript (QWidget * parent)
 	: FilterBase(parent)
-	, m_ui(new Ui_FilterString)
+	, m_ui(new Ui_FilterScript)
 	, m_data()
 	, m_model(0)
 	, m_delegate(0)
@@ -25,48 +17,33 @@ FilterString::FilterString (QWidget * parent)
 	setupModel();
 }
 
-FilterString::~FilterString ()
+FilterScript::~FilterScript ()
 {
 	destroyModel();
 	doneUI();
 }
 
-void FilterString::initUI ()
+void FilterScript::initUI ()
 {
 	m_ui->setupUi(this);
 }
 
-void FilterString::doneUI ()
+void FilterScript::doneUI ()
 {
 }
 
-bool FilterString::accept (DecodedCommand const & cmd) const
+bool FilterScript::accept (DecodedCommand const & cmd) const
 {
-	/*bool inclusive_filters = false;
-	for (int i = 0, ie = m_data.size(); i < ie; ++i)
-	{
-		FilteredString const & fr = m_data.at(i);
-		if (!fr.m_is_enabled)
-			continue;
-		else
-		{
-			if (fr.m_state)
-			{
-				inclusive_filters = true;
-				break;
-			}
-		}
-	}*/
 	if (m_data.size() > 0)
 	{
-		QString msg;
+		/*QString msg;
 		if (!cmd.getString(tlv::tag_msg, msg))
-			return true;
+			return true;*/
 
 		for (int i = 0, ie = m_data.size(); i < ie; ++i)
 		{
-			FilteredString const & fr = m_data.at(i);
-			if (fr.match(msg))
+			FilteredScript const & fr = m_data.at(i);
+			/*if (fr.match(msg))
 			{
 				if (!fr.m_is_enabled)
 					continue;
@@ -77,62 +54,62 @@ bool FilterString::accept (DecodedCommand const & cmd) const
 					else
 						return false;
 				}
-			}
+			}*/
 		}
 		return false;
 	}
 	return true; // no strings at all
 }
 
-void FilterString::defaultConfig ()
+void FilterScript::defaultConfig ()
 {
 	m_data.clear();
 }
 
-void FilterString::loadConfig (QString const & path)
+void FilterScript::loadConfig (QString const & path)
 {
 	QString const fname = path + "/" + g_filterTag + "/" + typeName();
 	if (!::loadConfigTemplate(*this, fname))
 		defaultConfig();
 }
 
-void FilterString::saveConfig (QString const & path)
+void FilterScript::saveConfig (QString const & path)
 {
 	QString const fname = path + "/" + g_filterTag + "/" + typeName();
 	::saveConfigTemplate(*this, fname);
 }
 
-void FilterString::applyConfig ()
+void FilterScript::applyConfig ()
 {
 	FilterBase::applyConfig();
 }
 
-void FilterString::clear ()
+void FilterScript::clear ()
 {
 	m_data.clear();
-	// @TODO m_string_model.clear();
+	// @TODO m_name_model.clear();
 }
 
 
 ///////////////////
-void FilterString::setupModel ()
+void FilterScript::setupModel ()
 {
 	if (!m_model)
 		m_model = new QStandardItemModel;
 	m_ui->view->setModel(m_model);
-	connect(m_ui->qFilterLineEdit, SIGNAL(returnPressed()), this, SLOT(onStringAdd()));
+	connect(m_ui->scriptNameLineEdit, SIGNAL(returnPressed()), this, SLOT(onScriptAdd()));
 	m_ui->view->setEditTriggers(QAbstractItemView::NoEditTriggers);
 	m_ui->view->header()->hide();
-	connect(m_ui->view, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtStringList(QModelIndex)));
+	connect(m_ui->view, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtScriptList(QModelIndex)));
 	//connect(m_ui->view, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(onDoubleClickedAtStringList(QModelIndex)));
 	//connect(ui->comboBoxString, SIGNAL(activated(int)), this, SLOT(onStringActivate(int)));
-	connect(m_ui->buttonAddString, SIGNAL(clicked()), this, SLOT(onStringAdd()));
-	connect(m_ui->buttonRmString, SIGNAL(clicked()), this, SLOT(onStringRm()));
+	connect(m_ui->buttonAdd, SIGNAL(clicked()), this, SLOT(onAdd()));
+	connect(m_ui->buttonRm, SIGNAL(clicked()), this, SLOT(onRm()));
 
 	//m_ui->view->setItemDelegate(m_delegates.get<e_delegate_String>());
 }
 
-void FilterString::destroyModel ()
+void FilterScript::destroyModel ()
 {
 	if (m_ui->view->itemDelegate())
 		m_ui->view->setItemDelegate(0);
@@ -145,11 +122,11 @@ void FilterString::destroyModel ()
 }
 
 
-bool FilterString::isMatchedStringExcluded (QString str) const
+/*bool FilterScript::isMatchedStringExcluded (QString str) const
 {
 	for (int i = 0, ie = m_data.size(); i < ie; ++i)
 	{
-		FilteredString const & fr = m_data.at(i);
+		FilteredScript const & fr = m_data.at(i);
 		if (fr.match(str))
 		{
 			if (!fr.m_is_enabled)
@@ -161,35 +138,35 @@ bool FilterString::isMatchedStringExcluded (QString str) const
 		}
 	}
 	return false;
-}
-void FilterString::setStringState (QString const & s, int state)
+}*/
+void FilterScript::setScriptState (QString const & s, int state)
 {
 	for (int i = 0, ie = m_data.size(); i < ie; ++i)
 	{
-		FilteredString & fr = m_data[i];
-		if (fr.m_string == s)
+		FilteredScript & fr = m_data[i];
+		if (fr.m_name == s)
 		{
 			fr.m_state = state;
 		}
 	}
 }
-void FilterString::setStringChecked (QString const & s, bool checked)
+void FilterScript::setScriptChecked (QString const & s, bool checked)
 {
 	for (int i = 0, ie = m_data.size(); i < ie; ++i)
 	{
-		FilteredString & fr = m_data[i];
-		if (fr.m_string == s)
+		FilteredScript & fr = m_data[i];
+		if (fr.m_name == s)
 		{
 			fr.m_is_enabled = checked;
 		}
 	}
 }
-void FilterString::removeFromStringFilters (QString const & s)
+void FilterScript::removeFromScriptFilters (QString const & s)
 {
 	for (int i = 0, ie = m_data.size(); i < ie; ++i)
 	{
-		FilteredString & fr = m_data[i];
-		if (fr.m_string == s)
+		FilteredScript & fr = m_data[i];
+		if (fr.m_name == s)
 		{
 			m_data.removeAt(i);
 			return;
@@ -197,30 +174,30 @@ void FilterString::removeFromStringFilters (QString const & s)
 	}
 	emitFilterChangedSignal();
 }
-void FilterString::appendToStringFilters (QString const & s, bool enabled, int state)
+void FilterScript::appendToScriptFilters (QString const & s, bool enabled, int state)
 {
 	for (int i = 0, ie = m_data.size(); i < ie; ++i)
-		if (m_data[i].m_string == s)
+		if (m_data[i].m_name == s)
 			return;
-	m_data.push_back(FilteredString(s, enabled, state));
+	m_data.push_back(FilteredScript(s, enabled, state));
 	emitFilterChangedSignal();
 }
 
-void FilterString::appendToStringWidgets (FilteredString const & flt)
+void FilterScript::appendToScriptWidgets (FilteredScript const & flt)
 {
 	QStandardItem * root = m_model->invisibleRootItem();
-	QStandardItem * child = findChildByText(root, flt.m_string);
+	QStandardItem * child = findChildByText(root, flt.m_name);
 	if (child == 0)
 	{
 		bool const mode = static_cast<bool>(flt.m_state);
-		QList<QStandardItem *> row_items = addTriRow(flt.m_string, flt.m_is_enabled ? Qt::Checked : Qt::Unchecked, mode);
+		QList<QStandardItem *> row_items = addTriRow(flt.m_name, flt.m_is_enabled ? Qt::Checked : Qt::Unchecked, mode);
 		row_items[0]->setCheckState(flt.m_is_enabled ? Qt::Checked : Qt::Unchecked);
 		root->appendRow(row_items);
 	}
 }
 
 
-void FilterString::onClickedAtStringList (QModelIndex idx)
+void FilterScript::onClickedAtScriptList (QModelIndex idx)
 {
 	if (!idx.isValid())
 		return;
@@ -235,7 +212,7 @@ void FilterString::onClickedAtStringList (QModelIndex idx)
 		m_model->setData(idx, QString(fltModToString(new_mode)));
 
 		bool const is_inclusive = new_mode == e_Include;
-		setStringState(filter_item, is_inclusive);
+		setScriptState(filter_item, is_inclusive);
 		recompile();
 		emitFilterChangedSignal();
 	}
@@ -252,17 +229,17 @@ void FilterString::onClickedAtStringList (QModelIndex idx)
 		bool const is_inclusive = curr == e_Include;
 		QString const & val = m_model->data(idx, Qt::DisplayRole).toString();
 		// @TODO: if state really changed
-		setStringState(val, is_inclusive);
-		setStringChecked(val, checked);
+		setScriptState(val, is_inclusive);
+		setScriptChecked(val, checked);
 		recompile();
 		emitFilterChangedSignal();
 	}
 }
 
-void FilterString::recompile ()
+void FilterScript::recompile ()
 { }
 
-void FilterString::onStringRm ()
+void FilterScript::onScriptRm ()
 {
 	QModelIndex const idx = m_ui->view->currentIndex();
 	QStandardItem * item = m_model->itemFromIndex(idx);
@@ -270,14 +247,14 @@ void FilterString::onStringRm ()
 		return;
 	QString const & val = m_model->data(idx, Qt::DisplayRole).toString();
 	m_model->removeRow(idx.row());
-	removeFromStringFilters(val);
+	removeFromScriptFilters(val);
 	recompile();
 	emitFilterChangedSignal();
 }
 
-void FilterString::onStringAdd ()
+void FilterScript::onScriptAdd ()
 {
-	QString const qItem = m_ui->qFilterLineEdit->text();
+	QString const qItem = m_ui->scriptNameLineEdit->text();
 
 	if (!qItem.length())
 		return;
@@ -287,13 +264,13 @@ void FilterString::onStringAdd ()
 	{
 		QList<QStandardItem *> row_items = addTriRow(qItem, Qt::Checked, true);
 		root->appendRow(row_items);
-		appendToStringFilters(qItem, true, true);
+		appendToScriptFilters(qItem, true, true);
 		row_items[0]->setCheckState(Qt::Checked);
 		recompile();
 	}
 }
 
-void FilterString::locateItem (QString const & item, bool scrollto, bool expand)
+void FilterScript::locateItem (QString const & item, bool scrollto, bool expand)
 {
 	QModelIndexList indexList = m_model->match(m_model->index(0, 0), Qt::DisplayRole, item);
 	if (!indexList.empty())
@@ -304,7 +281,7 @@ void FilterString::locateItem (QString const & item, bool scrollto, bool expand)
 }
 
 //////// delegate
-void StringDelegate::paint (QPainter * painter, QStyleOptionViewItem const & option, QModelIndex const & index) const
+void ScriptDelegate::paint (QPainter * painter, QStyleOptionViewItem const & option, QModelIndex const & index) const
 {
     painter->save();
     QStyleOptionViewItemV4 option4 = option;
