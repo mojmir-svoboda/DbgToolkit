@@ -8,6 +8,31 @@
 #include <QStandardItemModel>
 #include <QStyledItemDelegate>
 
+struct FilteredScript {
+	QString m_name;
+	QString m_script_str;
+	QString m_path;
+	bool m_is_enabled;
+	int m_state;
+
+	//bool match (QString const & str) const { return str.contains(m_string, Qt::CaseInsensitive); }
+
+	FilteredScript () { }
+	FilteredScript (QString const & name, bool enabled, int state)
+		: m_name(name), m_is_enabled(enabled), m_state(state)
+	{ }
+
+	template <class ArchiveT>
+	void serialize (ArchiveT & ar, unsigned const version)
+	{
+		ar & boost::serialization::make_nvp("name", m_name);
+		ar & boost::serialization::make_nvp("path", m_path);
+		ar & boost::serialization::make_nvp("script", m_script_str);
+		ar & boost::serialization::make_nvp("is_enabled", m_is_enabled);
+		ar & boost::serialization::make_nvp("state", m_state);
+	}
+};
+
 class QScriptEngine;
 
 struct FilterScript : FilterBase
@@ -52,9 +77,9 @@ struct FilterScript : FilterBase
 	QTreeView const * getWidget () const { return m_ui->view; }
 
 	QList<FilteredScript>	m_data;
+	QScriptEngine *			m_se;
 	QStandardItemModel *	m_model;
 	QStyledItemDelegate *   m_delegate;
-	QScriptEngine *			m_se;
 
 	Q_OBJECT
 public slots:

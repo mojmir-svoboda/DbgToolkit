@@ -11,6 +11,7 @@
 #include "filter_lvl.h"
 #include "filter_tid.h"
 #include "filter_fileline.h"
+#include "filter_row.h"
 
 struct FilterMgr : FilterBase 
 {
@@ -55,6 +56,8 @@ struct FilterMgr : FilterBase
 
 	//FilterXX *			getFilterXX () { return static_cast<FilterXX *>(m_cache[e_Filter_XX]); }
 	//FilterXX const *		getFilterXX () const { return static_cast<FilterXX const *>(m_cache[e_Filter_XX]); }
+	FilterRow *			getFilterRow () { return static_cast<FilterRow *>(m_cache[e_Filter_Row]); }
+	FilterRow const *		getFilterRow () const { return static_cast<FilterRow const *>(m_cache[e_Filter_Row]); }
 	FilterScript *		getFilterScript () { return static_cast<FilterScript *>(m_cache[e_Filter_Script]); }
 	FilterScript const *	getFilterScript () const { return static_cast<FilterScript const *>(m_cache[e_Filter_Script]); }
 	FilterString *			getFilterString () { return static_cast<FilterString *>(m_cache[e_Filter_String]); }

@@ -40,6 +40,7 @@ struct DecodedCommand : tlv::StringCommand
 	std::vector<char> m_orig_message;
 	bool m_written_hdr;
 	bool m_written_payload;
+	int m_src_row;
 	typedef std::vector<QVariant> tvariants_t;
 	tvariants_t m_variants;
 

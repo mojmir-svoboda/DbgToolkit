@@ -8,6 +8,28 @@
 #include <QStandardItemModel>
 #include <QStyledItemDelegate>
 
+struct FilteredString {
+	QString m_string;
+	bool m_is_enabled;
+	int m_state;
+
+	bool match (QString const & str) const { return str.contains(m_string, Qt::CaseInsensitive); }
+
+	FilteredString () { }
+	FilteredString (QString const & s, bool enabled, int state)
+        : m_string(s), m_is_enabled(enabled), m_state(state)
+	{ }
+
+	template <class ArchiveT>
+	void serialize (ArchiveT & ar, unsigned const version)
+	{
+		ar & boost::serialization::make_nvp("string", m_string);
+		ar & boost::serialization::make_nvp("is_enabled", m_is_enabled);
+		ar & boost::serialization::make_nvp("state", m_state);
+	}
+};
+
+
 struct FilterString : FilterBase
 {
 	Ui_FilterString * m_ui;

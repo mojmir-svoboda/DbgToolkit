@@ -1,51 +1,51 @@
 #pragma once
 #include "filterbase.h"
-#include "ui_filter_lvl.h"
+#include "ui_filter_row.h"
 #include <boost/serialization/nvp.hpp>
 
 #include "config.h"
 #include <QList>
+#include <QObject>
 #include <QStandardItemModel>
 #include <QStyledItemDelegate>
 
-struct FilteredLevel {
-	QString m_level_str;
-	int m_level;
+struct FilteredRow {
+	QString m_row_str;
+	int m_row;
 	bool m_is_enabled;
 	int m_state;
 
-	FilteredLevel () { }
-	FilteredLevel (QString level, bool enabled, int state)
-        : m_level_str(level), m_level(level.toInt()), m_is_enabled(enabled), m_state(state)
+	FilteredRow () { }
+	FilteredRow (int row, bool enabled, int state)
+        : m_row_str(QString::number(row)), m_row(row), m_is_enabled(enabled), m_state(state)
 	{ }
 
 	template <class ArchiveT>
 	void serialize (ArchiveT & ar, unsigned const version)
 	{
-		ar & boost::serialization::make_nvp("level_str", m_level_str);
-		ar & boost::serialization::make_nvp("level", m_level);
+		ar & boost::serialization::make_nvp("row_str", m_row_str);
+		ar & boost::serialization::make_nvp("row", m_row);
 		ar & boost::serialization::make_nvp("is_enabled", m_is_enabled);
 		ar & boost::serialization::make_nvp("state", m_state);
 	}
 };
 
-inline bool operator< (FilteredLevel const & lhs, FilteredLevel const & rhs)
+inline bool operator< (FilteredRow const & lhs, FilteredRow const & rhs)
 {
-	return lhs.m_level < rhs.m_level;
+	return lhs.m_row < rhs.m_row;
 }
 
-
-struct FilterLvl : FilterBase
+struct FilterRow : FilterBase
 {
-	Ui_FilterLvl * m_ui;
+	Ui_FilterRow * m_ui;
 
-	FilterLvl (QWidget * parent = 0);
-	virtual ~FilterLvl ();
+	FilterRow (QWidget * parent = 0);
+	virtual ~FilterRow ();
 
 	virtual void initUI ();
 	virtual void doneUI ();
 
-	virtual E_FilterType type () const { return e_Filter_Lvl; }
+	virtual E_FilterType type () const { return e_Filter_Row; }
 
 	virtual bool accept (DecodedCommand const & cmd) const;
 
@@ -59,38 +59,38 @@ struct FilterLvl : FilterBase
 	void serialize (ArchiveT & ar, unsigned const version)
 	{
 		FilterBase::serialize(ar, version);
-		ar & boost::serialization::make_nvp("lvl_filters", m_data);
+		ar & boost::serialization::make_nvp("row_filters", m_data);
 	}
 
-	// lvl specific
+	// row specific
 	void setupModel ();
 	void destroyModel ();
-	bool isLvlPresent (QString const & item, bool & enabled, E_LevelMode & lvlmode) const;
-	void appendLvlFilter (QString const & item);
-	void removeLvlFilter (QString const & item);
-	bool setLvlMode (QString const & item, bool enabled, E_LevelMode lvlmode);
+	bool isRowPresent (QString const & item, bool & enabled, E_RowMode & rowmode) const;
+	void appendRowFilter (int item);
+	void removeRowFilter (int item);
+	bool setRowMode (QString const & item, bool enabled, E_RowMode rowmode);
 	void recompile ();
 	void setConfigToUI ();
 	QTreeView * getWidget () { return m_ui->view; }
 	QTreeView const * getWidget () const { return m_ui->view; }
 	void locateItem (QString const & item, bool scrollto, bool expand);
 
-	typedef QList<FilteredLevel> lvl_filters_t;
-	lvl_filters_t			m_data;
+	typedef QList<FilteredRow> row_filters_t;
+	row_filters_t			m_data;
 	QStandardItemModel *	m_model;
-	QStyledItemDelegate *   m_delegate;
+	//QStyledItemDelegate *   m_delegate;
 
 	Q_OBJECT
 public slots:
-	void onClickedAtLvl (QModelIndex idx);
+	void onClickedAtRow (QModelIndex idx);
 	void onSelectAll ();
 	void onSelectNone ();
 signals:
 };
 
-struct LevelDelegate : public QStyledItemDelegate
+/*struct RowDelegate : public QStyledItemDelegate
 {
-    LevelDelegate (QObject * parent = 0) : QStyledItemDelegate(parent) { }
+    RowDelegate (QObject * parent = 0) : QStyledItemDelegate(parent) { }
     void paint (QPainter * painter, QStyleOptionViewItem const & option, QModelIndex const & index) const;
 };
-
+*/

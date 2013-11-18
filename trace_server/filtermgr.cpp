@@ -55,6 +55,7 @@ void FilterMgr::defaultConfig ()
 	m_filter_order.push_back(g_filterNames[e_Filter_Ctx]);
 	m_filter_order.push_back(g_filterNames[e_Filter_Lvl]);
 	m_filter_order.push_back(g_filterNames[e_Filter_FileLine]);
+	m_filter_order.push_back(g_filterNames[e_Filter_Row]);
 }
 
 void FilterMgr::loadConfig (QString const & path)
@@ -140,10 +141,10 @@ FilterBase * filterFactory (E_FilterType t, QWidget * parent)
 		case e_Filter_Lvl: return new FilterLvl (parent);
 		case e_Filter_Tid: return new FilterTid (parent);
 		case e_Filter_FileLine: return new FilterFileLine (parent);
+		case e_Filter_Row: return new FilterRow (parent);
 		//case e_Filter_User0: return new Filter (parent);
 		//case e_Filter_User1: return new Filter (parent);
 		//case e_Filter_User2: return new Filter (parent);
-
 		default: return 0;
 	}
 }

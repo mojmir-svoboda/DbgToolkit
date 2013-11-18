@@ -9,6 +9,31 @@
 #include <QStyledItemDelegate>
 #include "appdata.h"
 
+struct FilteredContext {
+	QString m_ctx_str;
+	unsigned long long m_ctx;
+	bool m_is_enabled;
+	int m_state;
+
+	FilteredContext () { }
+	FilteredContext (QString ctx, bool enabled, int state)
+        : m_ctx_str(ctx), m_ctx(ctx.toULongLong()), m_is_enabled(enabled), m_state(state)
+	{ }
+
+	template <class ArchiveT>
+	void serialize (ArchiveT & ar, unsigned const version)
+	{
+		ar & boost::serialization::make_nvp("ctx_str", m_ctx_str);
+		ar & boost::serialization::make_nvp("ctx", m_ctx);
+		ar & boost::serialization::make_nvp("is_enabled", m_is_enabled);
+		ar & boost::serialization::make_nvp("state", m_state);
+	}
+};
+
+inline bool operator< (FilteredContext const & lhs, FilteredContext const & rhs)
+{
+	return lhs.m_ctx < rhs.m_ctx;
+}
 
 struct FilterCtx : FilterBase
 {

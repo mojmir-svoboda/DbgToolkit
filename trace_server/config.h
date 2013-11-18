@@ -62,51 +62,6 @@ struct CollapsedBlock {
 	}
 };
 
-struct FilteredRegex {
-	QString m_regex_str;
-	QRegExp m_regex;
-	bool m_is_enabled;
-	int m_state;
-
-	bool isValid () const { return m_regex.isValid(); }
-	bool exactMatch (QString str) const { return m_regex.exactMatch(str); }
-
-	FilteredRegex () { }
-	FilteredRegex (QString const & rs, bool enabled, int state)
-        : m_regex_str(rs), m_regex(rs), m_is_enabled(enabled), m_state(state)
-	{ }
-
-	template <class ArchiveT>
-	void serialize (ArchiveT & ar, unsigned const version)
-	{
-		ar & boost::serialization::make_nvp("regex_str", m_regex_str);
-		ar & boost::serialization::make_nvp("regex", m_regex);
-		ar & boost::serialization::make_nvp("is_enabled", m_is_enabled);
-		ar & boost::serialization::make_nvp("state", m_state);
-	}
-};
-
-struct FilteredString {
-	QString m_string;
-	bool m_is_enabled;
-	int m_state;
-
-	bool match (QString const & str) const { return str.contains(m_string, Qt::CaseInsensitive); }
-
-	FilteredString () { }
-	FilteredString (QString const & s, bool enabled, int state)
-        : m_string(s), m_is_enabled(enabled), m_state(state)
-	{ }
-
-	template <class ArchiveT>
-	void serialize (ArchiveT & ar, unsigned const version)
-	{
-		ar & boost::serialization::make_nvp("string", m_string);
-		ar & boost::serialization::make_nvp("is_enabled", m_is_enabled);
-		ar & boost::serialization::make_nvp("state", m_state);
-	}
-};
-
 struct ColorizedText {
 	E_ColorRole m_role;
 	QColor m_qcolor;
@@ -143,58 +98,6 @@ struct ColorizedText {
 	}
 };
 
-struct FilteredLevel {
-	QString m_level_str;
-	int m_level;
-	bool m_is_enabled;
-	int m_state;
-
-	FilteredLevel () { }
-	FilteredLevel (QString level, bool enabled, int state)
-        : m_level_str(level), m_level(level.toInt()), m_is_enabled(enabled), m_state(state)
-	{ }
-
-	template <class ArchiveT>
-	void serialize (ArchiveT & ar, unsigned const version)
-	{
-		ar & boost::serialization::make_nvp("level_str", m_level_str);
-		ar & boost::serialization::make_nvp("level", m_level);
-		ar & boost::serialization::make_nvp("is_enabled", m_is_enabled);
-		ar & boost::serialization::make_nvp("state", m_state);
-	}
-};
-
-inline bool operator< (FilteredLevel const & lhs, FilteredLevel const & rhs)
-{
-	return lhs.m_level < rhs.m_level;
-}
-
-struct FilteredContext {
-	QString m_ctx_str;
-	unsigned long long m_ctx;
-	bool m_is_enabled;
-	int m_state;
-
-	FilteredContext () { }
-	FilteredContext (QString ctx, bool enabled, int state)
-        : m_ctx_str(ctx), m_ctx(ctx.toULongLong()), m_is_enabled(enabled), m_state(state)
-	{ }
-
-	template <class ArchiveT>
-	void serialize (ArchiveT & ar, unsigned const version)
-	{
-		ar & boost::serialization::make_nvp("ctx_str", m_ctx_str);
-		ar & boost::serialization::make_nvp("ctx", m_ctx);
-		ar & boost::serialization::make_nvp("is_enabled", m_is_enabled);
-		ar & boost::serialization::make_nvp("state", m_state);
-	}
-};
-
-inline bool operator< (FilteredContext const & lhs, FilteredContext const & rhs)
-{
-	return lhs.m_ctx < rhs.m_ctx;
-}
-
 struct TreeModelItem {
 	/*@member	state
 	 * duplicates qt enum
@@ -217,28 +120,4 @@ struct TreeModelItem {
 	}
 };
 
-struct FilteredScript {
-	QString m_name;
-	QString m_script_str;
-	QString m_path;
-	bool m_is_enabled;
-	int m_state;
-
-	//bool match (QString const & str) const { return str.contains(m_string, Qt::CaseInsensitive); }
-
-	FilteredScript () { }
-	FilteredScript (QString const & name, bool enabled, int state)
-		: m_name(name), m_is_enabled(enabled), m_state(state)
-	{ }
-
-	template <class ArchiveT>
-	void serialize (ArchiveT & ar, unsigned const version)
-	{
-		ar & boost::serialization::make_nvp("name", m_name);
-		ar & boost::serialization::make_nvp("path", m_path);
-		ar & boost::serialization::make_nvp("script", m_script_str);
-		ar & boost::serialization::make_nvp("is_enabled", m_is_enabled);
-		ar & boost::serialization::make_nvp("state", m_state);
-	}
-};
 

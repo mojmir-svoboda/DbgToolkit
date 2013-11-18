@@ -14,9 +14,9 @@ enum E_FilterType {
 	e_Filter_Lvl,
 	e_Filter_Tid,
 	e_Filter_FileLine,
+	e_Filter_Row,
 	e_Filter_User0,
 	e_Filter_User1,
-	e_Filter_User2,
 
 	e_filtertype_max_value
 };
@@ -30,9 +30,9 @@ QString const g_filterNames[] = {
 	QString("Level"),
 	QString("Tid"),
 	QString("FileLn"),
+	QString("Row"),
 	QString("User0"),
 	QString("User1"),
-	QString("User2"),
 	QString("max")
 };
 

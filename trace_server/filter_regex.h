@@ -8,6 +8,30 @@
 #include <QStandardItemModel>
 #include <QStyledItemDelegate>
 
+struct FilteredRegex {
+	QString m_regex_str;
+	QRegExp m_regex;
+	bool m_is_enabled;
+	int m_state;
+
+	bool isValid () const { return m_regex.isValid(); }
+	bool exactMatch (QString str) const { return m_regex.exactMatch(str); }
+
+	FilteredRegex () { }
+	FilteredRegex (QString const & rs, bool enabled, int state)
+        : m_regex_str(rs), m_regex(rs), m_is_enabled(enabled), m_state(state)
+	{ }
+
+	template <class ArchiveT>
+	void serialize (ArchiveT & ar, unsigned const version)
+	{
+		ar & boost::serialization::make_nvp("regex_str", m_regex_str);
+		ar & boost::serialization::make_nvp("regex", m_regex);
+		ar & boost::serialization::make_nvp("is_enabled", m_is_enabled);
+		ar & boost::serialization::make_nvp("state", m_state);
+	}
+};
+
 struct FilterRegex : FilterBase
 {
 	Ui_FilterRegex * m_ui;

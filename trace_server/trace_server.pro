@@ -86,6 +86,7 @@ FORMS    += help.ui \
     filter_regex.ui \
     filter_lvl.ui \
     filter_ctx.ui \
+    filter_row.ui \
     combolist.ui
 
 RESOURCES += \

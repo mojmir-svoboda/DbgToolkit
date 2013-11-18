@@ -55,7 +55,7 @@ inline E_FilterMode stringToFltMod (char c) {
 	return e_Include;
 }
 
-
+// level modes
 enum E_LevelMode {
 	  e_LvlInclude = 0
 	, e_LvlForceInclude = 1
@@ -69,6 +69,22 @@ inline E_LevelMode stringToLvlMod (char c) {
 		if (lvlmods[i] == c)
 			return static_cast<E_LevelMode>(i);
 	return e_LvlInclude;
+}
+
+// row modes
+enum E_RowMode {
+	  e_RowInclude = 0
+	, e_RowForceInclude = 1
+	, e_max_rowmod_enum_value
+};
+static char rowmods[e_max_rowmod_enum_value] = { 'I', 'F' };
+static char const * rowmodsStr[e_max_rowmod_enum_value] = { "Include", "Force" };
+inline char rowModToString (E_RowMode l) { return rowmods[l]; }
+inline E_RowMode stringToRowMod (char c) {
+	for (size_t i = 0; i < e_max_rowmod_enum_value; ++i)
+		if (rowmods[i] == c)
+			return static_cast<E_RowMode>(i);
+	return e_RowInclude;
 }
 
 

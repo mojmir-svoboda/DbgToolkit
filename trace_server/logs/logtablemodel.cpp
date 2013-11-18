@@ -107,6 +107,7 @@ void LogTableModel::commitBatchToModel ()
 	{
 		m_rows.push_back(m_batch.m_rows[r]);
 		m_dcmds.push_back(m_batch.m_dcmds[r]);
+		m_dcmds.back().m_src_row = m_dcmds.size() - 1;
 		int const curr_cols = m_batch.m_rows[r].size();
 		cols = cols < curr_cols ? curr_cols : cols;
 		m_tree_node_ptrs.push_back(m_batch.m_tree_node_ptrs[r]);

@@ -5,6 +5,7 @@ find_package(Qt5Widgets REQUIRED)
 find_package(Qt5Core REQUIRED)
 find_package(Qt5Network REQUIRED)
 find_package(Qt5OpenGL REQUIRED)
+find_package(Qt5Script REQUIRED)
 find_program(QT_QMAKE_EXECUTABLE NAMES qmake qmake5 qmake-qt5 qmake-mac PATHS ${QTROOTS})
 message("qmake: ${QT_QMAKE_EXECUTABLE}")
 
@@ -84,6 +85,7 @@ set(trace_server_SOURCES
 	filter_fileline.cpp
 	filter_ctx.cpp
 	filter_lvl.cpp
+	filter_row.cpp
 	filter_string.cpp
 	filter_script.cpp
 	filter_regex.cpp
@@ -176,6 +178,7 @@ set(trace_server_HEADERS
 	filter_fileline.h
 	filter_ctx.h
 	filter_lvl.h
+	filter_row.h
 	filter_string.h
 	filter_script.h
 	filter_regex.h
@@ -240,6 +243,7 @@ set(trace_server_UI
 	filter_ctx.ui
 	filter_fileline.ui
 	filter_lvl.ui
+	filter_row.ui
 	filter_regex.ui
 	filter_string.ui
 	filter_script.ui
@@ -313,7 +317,7 @@ elseif (APPLE)
 endif()
 ######################## Plugin section ########################
 
-qt5_use_modules(trace_server Widgets Core Gui Network OpenGL)
+qt5_use_modules(trace_server Widgets Core Gui Network OpenGL Script)
 
 target_link_libraries(trace_server ${Boost_LIBRARIES}
 	qwt
