@@ -65,10 +65,11 @@ struct FilterRow : FilterBase
 	// row specific
 	void setupModel ();
 	void destroyModel ();
-	bool isRowPresent (QString const & item, bool & enabled, E_RowMode & rowmode) const;
+	bool isRowPresent (int item, bool & enabled, E_RowMode & rowmode) const;
 	void appendRowFilter (int item);
+	void appendRowToUI (FilteredRow const & f);
 	void removeRowFilter (int item);
-	bool setRowMode (QString const & item, bool enabled, E_RowMode rowmode);
+	bool setRowMode (int item, bool enabled, E_RowMode rowmode);
 	void recompile ();
 	void setConfigToUI ();
 	QTreeView * getWidget () { return m_ui->view; }
@@ -78,7 +79,7 @@ struct FilterRow : FilterBase
 	typedef QList<FilteredRow> row_filters_t;
 	row_filters_t			m_data;
 	QStandardItemModel *	m_model;
-	//QStyledItemDelegate *   m_delegate;
+	QStyledItemDelegate *   m_delegate;
 
 	Q_OBJECT
 public slots:

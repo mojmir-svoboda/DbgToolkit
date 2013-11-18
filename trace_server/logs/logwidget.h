@@ -107,6 +107,7 @@ namespace logs {
 		void setTimeRefValue (unsigned long long t) { m_time_ref_value = t; }
 		void findTableIndexInFilters (QModelIndex const & src_idx, bool scroll_to_item, bool expand);
 		void excludeFileLine (QModelIndex const & row_index);
+		void excludeRow (QModelIndex const & src_index);
 
 		// filtering stuff
 		FilterMgr * filterMgr () { return m_config_ui.m_ui->widget; }

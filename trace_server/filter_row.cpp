@@ -33,7 +33,7 @@ void FilterRow::doneUI ()
 
 bool FilterRow::accept (DecodedCommand const & cmd) const
 {
-	//if (cmd.m_src_row in 
+	int const row = cmd.m_src_row;
 
 	E_RowMode rowmode = e_RowInclude;
 	bool row_enabled = true;
@@ -44,7 +44,7 @@ bool FilterRow::accept (DecodedCommand const & cmd) const
 	{
 		if (row_enabled && rowmode == e_RowForceInclude)
 			return true; // forced levels (errors etc)
-		excluded |= !row_enabled;
+		excluded |= row_enabled;
 	}
 	return !excluded;
 }
@@ -69,14 +69,14 @@ void FilterRow::saveConfig (QString const & path)
 
 void FilterRow::setConfigToUI ()
 {
+	m_model->clear();
 	for (int i = 0, ie = m_data.size(); i < ie; ++i)
 	{
 		QStandardItem * root = m_model->invisibleRootItem();
-		QStandardItem * child = findChildByText(root, m_data[i].m_level_str);
+		QStandardItem * child = findChildByText(root, m_data[i].m_row_str);
 		if (child == 0)
 		{
-			//FilteredContext & fc = m_data[i];
-			QList<QStandardItem *> row_items = addRow(m_data[i].m_level_str, true);
+			QList<QStandardItem *> row_items = addRow(m_data[i].m_row_str, true);
 			row_items[0]->setCheckState(m_data[i].m_is_enabled ? Qt::Checked : Qt::Unchecked);
 			root->appendRow(row_items);
 		}
@@ -88,12 +88,12 @@ void FilterRow::applyConfig ()
 	FilterBase::applyConfig();
 	setConfigToUI();
 	m_ui->view->sortByColumn(0, Qt::AscendingOrder);
-	//m_row_filters = src.m_row_filters;
 }
 
 void FilterRow::clear ()
 {
 	m_data.clear();
+	m_model->clear();
 	// @TODO m_row_model.clear();
 }
 
@@ -130,10 +130,10 @@ void FilterRow::destroyModel ()
 	m_model = 0;
 }
 
-bool FilterRow::isRowPresent (QString const & item, bool & enabled, E_RowMode & rowmode) const
+bool FilterRow::isRowPresent (int item, bool & enabled, E_RowMode & rowmode) const
 {
 	for (int i = 0, ie = m_data.size(); i < ie; ++i)
-		if (m_data.at(i).m_level_str == item)
+		if (m_data.at(i).m_row == item)
 		{
 			FilteredRow const & l = m_data.at(i);
 			rowmode = static_cast<E_RowMode>(l.m_state);
@@ -142,33 +142,49 @@ bool FilterRow::isRowPresent (QString const & item, bool & enabled, E_RowMode & 
 		}
 	return false;
 }
-void FilterRow::appendRowFilter (QString const & item)
+
+void FilterRow::appendRowToUI (FilteredRow const & f)
+{
+	QStandardItem * root = m_model->invisibleRootItem();
+	QStandardItem * child = findChildByText(root, f.m_row_str);
+	if (child == 0)
+	{
+		QList<QStandardItem *> row_items = addRow(f.m_row_str, true);
+		row_items[0]->setCheckState(f.m_is_enabled ? Qt::Checked : Qt::Unchecked);
+		root->appendRow(row_items);
+	}
+}
+
+void FilterRow::appendRowFilter (int item)
 {
 	for (int i = 0, ie = m_data.size(); i < ie; ++i)
-		if (m_data[i].m_level_str == item)
+		if (m_data[i].m_row == item)
 		{
-			FilteredRow & l = m_data[i];
-			l.m_is_enabled = true;
+			FilteredRow & f = m_data[i];
+			f.m_is_enabled = true;
+			appendRowToUI(f);
 			return;
 		}
 	m_data.push_back(FilteredRow(item, true, e_RowInclude));
+	appendRowToUI(m_data.back());
+
 	std::sort(m_data.begin(), m_data.end());
 	m_ui->view->sortByColumn(0, Qt::AscendingOrder);
 }
-void FilterRow::removeRowFilter (QString const & item)
+void FilterRow::removeRowFilter (int item)
 {
 	for (int i = 0, ie = m_data.size(); i < ie; ++i)
-		if (m_data[i].m_level_str == item)
+		if (m_data[i].m_row == item)
 		{
 			FilteredRow & l = m_data[i];
 			l.m_is_enabled = false;
 			return;
 		}
 }
-bool FilterRow::setRowMode (QString const & item, bool enabled, E_RowMode rowmode)
+bool FilterRow::setRowMode (int item, bool enabled, E_RowMode rowmode)
 {
 	for (int i = 0, ie = m_data.size(); i < ie; ++i)
-		if (m_data.at(i).m_level_str == item)
+		if (m_data.at(i).m_row == item)
 		{
 			FilteredRow & l = m_data[i];
 			l.m_state = rowmode;
@@ -179,16 +195,31 @@ bool FilterRow::setRowMode (QString const & item, bool enabled, E_RowMode rowmod
 
 }
 
+template <typename T, typename U>
+void applyFnOnAllChildren_dup (T fn, U instance, QAbstractItemModel * abs_model, Qt::CheckState state)
+{
+	QStandardItemModel * model = static_cast<QStandardItemModel *>(abs_model);
+	QStandardItem * root = model->invisibleRootItem();
+	QList<QStandardItem *> l = listChildren(root);
+
+	for (int i = 0, ie = l.size(); i < ie; ++i)
+	{
+		l.at(i)->setCheckState(state);
+		QString const & data = model->data(l.at(i)->index(), Qt::DisplayRole).toString();
+		fn(instance, data.toInt());
+	}
+}
+
 void FilterRow::onSelectAll ()
 {
-	boost::function<void (FilterRow *, QString const &)> f = &FilterRow::appendRowFilter;
-	applyFnOnAllChildren(f, this, m_model, Qt::Checked);
+	boost::function<void (FilterRow *, int)> f = &FilterRow::appendRowFilter; //@FIXME: inefficient!
+	applyFnOnAllChildren_dup(f, this, m_model, Qt::Checked);
 	emitFilterChangedSignal();
 }
 void FilterRow::onSelectNone ()
 {
-	boost::function<void (FilterRow *, QString const &)> f = &FilterRow::removeRowFilter;
-	applyFnOnAllChildren(f, this, m_model, Qt::Unchecked);
+	boost::function<void (FilterRow *, int)> f = &FilterRow::removeRowFilter;
+	applyFnOnAllChildren_dup(f, this, m_model, Qt::Unchecked);
 	emitFilterChangedSignal();
 }
 
@@ -210,7 +241,7 @@ void FilterRow::onClickedAtRow (QModelIndex idx)
 		E_RowMode const new_mode = static_cast<E_RowMode>(i);
 		m_model->setData(idx, QString(rowModToString(new_mode)));
 
-		setRowMode(filter_item, !checked, new_mode);
+		setRowMode(filter_item.toInt(), !checked, new_mode);
 
 		emitFilterChangedSignal();
 	}
@@ -222,9 +253,9 @@ void FilterRow::onClickedAtRow (QModelIndex idx)
 		QString const & filter_item = m_model->data(idx, Qt::DisplayRole).toString();
 		bool const orig_checked = (item->checkState() == Qt::Checked);
 		if (orig_checked)
-			appendRowFilter(filter_item);
+			appendRowFilter(filter_item.toInt());
 		else
-			removeRowFilter(filter_item);
+			removeRowFilter(filter_item.toInt());
 
 		emitFilterChangedSignal();
 	}

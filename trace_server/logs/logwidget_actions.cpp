@@ -206,8 +206,50 @@ void LogWidget::onExcludeFileLine ()
 			excludeFileLine(index);
 	}
 }
+
+void LogWidget::excludeRow (QModelIndex const & src_index)
+{
+	if (!filterMgr()->getFilterRow())
+	{
+		// request to create filter
+	}
+
+	if (filterMgr()->getFilterRow())
+	{
+		if (!src_index.isValid())
+			return;
+
+		DecodedCommand const * dcmd = getDecodedCommand(src_index);
+		if (dcmd)
+		{
+			qDebug("excluding: %i", dcmd->m_src_row);
+			filterMgr()->getFilterRow()->appendRowFilter(dcmd->m_src_row);
+			onInvalidateFilter(); //@FIXME: performance if selection!
+		}
+	}
+}
+
 void LogWidget::onExcludeRow ()
 {
+	QModelIndexList l;
+	QModelIndexList src_list;
+	currSelection(l);
+	foreach(QModelIndex index, l)
+	{
+		if (isModelProxy())
+		{
+			index = m_proxy_model->mapToSource(index);
+		}
+
+		if (index.isValid())
+			src_list << index;
+	}
+
+	foreach(QModelIndex index, src_list)
+	{
+		if (index.isValid())
+			excludeRow(index);
+	}
 }
 void LogWidget::onLocateRow ()
 {
