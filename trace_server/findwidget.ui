@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>351</width>
-    <height>51</height>
+    <width>297</width>
+    <height>49</height>
    </rect>
   </property>
   <property name="focusPolicy">
@@ -132,11 +132,17 @@
          <height>16777215</height>
         </size>
        </property>
+       <property name="font">
+        <font>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
        <property name="toolTip">
         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Cancels the find action&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
        <property name="text">
-        <string/>
+        <string>X</string>
        </property>
       </widget>
      </item>
@@ -166,7 +172,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="prevButton">
+      <widget class="QToolButton" name="prevButton">
        <property name="maximumSize">
         <size>
          <width>32</width>
@@ -179,10 +185,13 @@
        <property name="text">
         <string/>
        </property>
+       <property name="arrowType">
+        <enum>Qt::LeftArrow</enum>
+       </property>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="nextButton">
+      <widget class="QToolButton" name="nextButton">
        <property name="maximumSize">
         <size>
          <width>32</width>
@@ -194,6 +203,9 @@
        </property>
        <property name="text">
         <string/>
+       </property>
+       <property name="arrowType">
+        <enum>Qt::RightArrow</enum>
        </property>
       </widget>
      </item>

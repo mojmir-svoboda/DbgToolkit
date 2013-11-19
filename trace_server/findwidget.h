@@ -26,6 +26,7 @@ public:
 	void setMainWindow (MainWindow * mw) { m_main_window = mw; }
 	void focusNext ();
 	void focusPrev ();
+	void setDockedWidget (DockedWidgetBase * dwb) { m_dwb = dwb; }
 
 public slots:
 	void onCancel ();

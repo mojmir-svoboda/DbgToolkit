@@ -11,9 +11,6 @@ void FindWidget::init ()
 	m_ui->setupUi(this);
 
 	QStyle const * const style = QApplication::style();
-	m_ui->cancelButton->setIcon(style->standardIcon(QStyle::SP_DockWidgetCloseButton));
-	m_ui->nextButton->setIcon(style->standardIcon(QStyle::SP_ArrowForward));
-	m_ui->prevButton->setIcon(style->standardIcon(QStyle::SP_ArrowBack));
 	connect(m_ui->findBox, SIGNAL(editTextChanged(QString)), this, SLOT(onEditTextChanged(QString)));
 
 	QLineEdit * le = m_ui->findBox->lineEdit();
