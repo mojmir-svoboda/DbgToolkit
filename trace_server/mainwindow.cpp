@@ -622,6 +622,14 @@ void MainWindow::storeState ()
 #endif
 }
 
+void MainWindow::restoreDockedWidgetGeometry ()
+{
+	QSettings settings("MojoMir", "TraceServer");
+
+	//restoreGeometry(settings.value("geometry").toByteArray());
+	restoreState(settings.value("windowState").toByteArray());
+}
+
 void MainWindow::loadState ()
 {
 	qDebug("%s", __FUNCTION__);

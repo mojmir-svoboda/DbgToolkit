@@ -176,6 +176,7 @@ public slots:
 	void showNormal ();
 	void showMaximized ();
 	void onOnTop (int);
+	void restoreDockedWidgetGeometry ();
 	void onDockRestoreButton ();
 	void onDockedWidgetsToolButton ();
 	void onDockManagerClosed ();

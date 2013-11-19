@@ -75,17 +75,17 @@ LogCtxMenu::LogCtxMenu (LogWidget & lw, QWidget * parent)
 	m_cache = new ButtonCache();
 	m_ui->cacheLayout->addLayout(m_cache);
 
-// EXPERIMENTAL
-/*
+	// EXPERIMENTAL
 	QString const name="SettingsLog"; // @NOTE: not nice, dup is in ui_settingslog.h"
 	m_widget->setObjectName(name);
 	m_widget->setWindowTitle(name);
 	m_widget->setAllowedAreas(Qt::AllDockWidgetAreas);
-	m_log_widget.m_connection->getMainWindow()->addDockWidget(Qt::BottomDockWidgetArea, m_widget);
+	//m_log_widget.m_connection->getMainWindow()->addDockWidget(Qt::AllDockWidgetAreas, m_widget);
+	m_log_widget.m_connection->getMainWindow()->addDockWidget(Qt::RightDockWidgetArea, m_widget);
 	//m_actionables.insert(name, this);
 	m_widget->setAttribute(Qt::WA_DeleteOnClose, false);
-	m_log_widget.m_connection->getMainWindow()->restoreDockWidget(m_widget);
-*/
+	//m_log_widget.m_connection->getMainWindow()->restoreDockWidget(m_widget);
+	m_log_widget.m_connection->getMainWindow()->restoreDockedWidgetGeometry();
 	
 	fillButtonCache();
 
@@ -100,7 +100,7 @@ void LogCtxMenu::onShowContextMenu (QPoint const & pos)
 	if (m_widget->isVisible())
 	{
 		setConfigValuesToUI(m_log_widget.m_config);
-		m_widget->move(pos);
+		//m_widget->move(pos);
 	}
 }
 
@@ -634,6 +634,34 @@ void LogCtxMenu::fillButtonCache ()
 	cacheLayout->addWidget(uncolorRowButton);
 
 	horizontalSpacer_3 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+#ifndef QT_NO_TOOLTIP
+	excludeFileLineButton->setToolTip(QApplication::translate("SettingsLog", "<html><head/><body><p>Excludes File:Line combination from current selection from table. This is shortcut for going into Filter/File:Line and click on item</p><p><br/></p><p>Hotkey = <span style=\" font-weight:600;\">x</span></p></body></html>", 0));
+#endif // QT_NO_TOOLTIP
+	excludeFileLineButton->setText(QApplication::translate("SettingsLog", "Excl file:line", 0));
+#ifndef QT_NO_TOOLTIP
+	excludeRowButton->setToolTip(QApplication::translate("SettingsLog", "<html><head/><body><p>Excludes selected row via Filter/Row. This one does not use File:Line information, so it can be used to exclude specific lines while keeping the rest.</p><p>Hotkey = <span style=\" font-weight:600;\">r</span></p></body></html>", 0));
+#endif // QT_NO_TOOLTIP
+	excludeRowButton->setText(QApplication::translate("SettingsLog", "Excl row", 0));
+#ifndef QT_NO_TOOLTIP
+	locateRowButton->setToolTip(QApplication::translate("SettingsLog", "<html><head/><body><p>Locates currently selected row in Filters/File:Line</p><p>Hotkey = <span style=\" font-weight:600;\">?</span></p></body></html>", 0));
+#endif // QT_NO_TOOLTIP
+	locateRowButton->setText(QApplication::translate("SettingsLog", "? row", 0));
+#ifndef QT_NO_TOOLTIP
+	setRefTimeButton->setToolTip(QApplication::translate("SettingsLog", "<html><head/><body><p>Set/Unset reference time (= 0) to currently selected line</p></body></html>", 0));
+#endif // QT_NO_TOOLTIP
+	setRefTimeButton->setText(QApplication::translate("SettingsLog", "Ref time", 0));
+#ifndef QT_NO_TOOLTIP
+	hidePrevButton->setToolTip(QApplication::translate("SettingsLog", "<html><head/><body><p>Hide rows preceeding current selection</p></body></html>", 0));
+#endif // QT_NO_TOOLTIP
+	hidePrevButton->setText(QApplication::translate("SettingsLog", "Hide rows", 0));
+#ifndef QT_NO_TOOLTIP
+	hideNextButton->setToolTip(QApplication::translate("SettingsLog", "Hide lines following current selection", 0));
+#endif // QT_NO_TOOLTIP
+	hideNextButton->setText(QApplication::translate("SettingsLog", "Hide rows", 0));
+	colorRowButton->setText(QApplication::translate("SettingsLog", "Color row", 0));
+	colorFileLineButton->setText(QApplication::translate("SettingsLog", "Color file:line", 0));
+	uncolorRowButton->setText(QApplication::translate("SettingsLog", "Uncolor", 0));
 
 	//cacheLayout->addItem(horizontalSpacer_3);
 

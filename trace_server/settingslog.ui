@@ -12,7 +12,7 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>256</width>
+    <width>128</width>
     <height>307</height>
    </size>
   </property>
@@ -256,7 +256,7 @@
            </layout>
           </item>
           <item>
-           <widget class="QWidget" name="widget_2" native="true"/>
+           <widget class="QTableView" name="tableView"/>
           </item>
          </layout>
         </widget>
