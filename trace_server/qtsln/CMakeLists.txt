@@ -5,10 +5,12 @@ set(CMAKE_AUTOMOC ON)
 
 SET(qtsln_SOURCES
 	qtcolorpicker/qtcolorpicker.cpp
+	flowlayout.cpp
 	)
 
 SET(qtsln_HEADERS
 	qtcolorpicker/qtcolorpicker.h
+	flowlayout.h
 	)
 
 #QT5_WRAP_CPP(qtsln_MOC ${qtsln_HEADERS})

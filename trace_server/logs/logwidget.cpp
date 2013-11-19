@@ -18,11 +18,11 @@ namespace logs {
 
 	LogWidget::LogWidget (Connection * connection, QWidget * wparent, LogConfig & cfg, QString const & fname, QStringList const & path)
 		: TableView(wparent), ActionAble(path)
+		, m_connection(connection)
 		, m_config(cfg)
 		, m_config2(cfg)
 		, m_config_ui(*this, this)
 		, m_fname(fname)
-		, m_connection(connection)
 		, m_tab(0)
 		, m_linked_parent(0)
 		, m_warnimage(0)

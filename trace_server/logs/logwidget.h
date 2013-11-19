@@ -218,11 +218,11 @@ namespace logs {
 		//void requestFrameSynchronization (int sync_group, unsigned long long frame, void * source);
 
 	protected:
+		Connection * m_connection;
 		LogConfig & m_config;
 		LogConfig m_config2;
 		logs::LogCtxMenu m_config_ui;
 		QString m_fname;
-		Connection * m_connection;
 		QWidget * m_tab;
 		LogWidget * m_linked_parent;
 		WarnImage * m_warnimage;

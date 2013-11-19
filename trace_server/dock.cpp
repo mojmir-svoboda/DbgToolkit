@@ -203,10 +203,10 @@ DockManager::DockManager (MainWindow * mw, QStringList const & path)
 	dock->setObjectName(name);
 	dock->setWindowTitle(name);
 	dock->setAllowedAreas(Qt::AllDockWidgetAreas);
-	m_main_window->addDockWidget(Qt::BottomDockWidgetArea, dock);
-	m_actionables.insert(name, this);
 	dock->setAttribute(Qt::WA_DeleteOnClose, false);
-	dock->setWidget(this);
+	m_main_window->addDockWidget(Qt::BottomDockWidgetArea, dock);
+	//m_actionables.insert(name, this);
+	//dock->setWidget(this);
 
 	//if (visible) 
 	//	m_main_window->restoreDockWidget(dock);
