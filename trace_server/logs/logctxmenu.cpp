@@ -100,7 +100,8 @@ void LogCtxMenu::onShowContextMenu (QPoint const & pos)
 	if (m_widget->isVisible())
 	{
 		setConfigValuesToUI(m_log_widget.m_config);
-		//m_widget->move(pos);
+		if (m_widget->isFloating())
+			m_widget->move(pos);
 	}
 }
 
