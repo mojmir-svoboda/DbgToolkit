@@ -20,6 +20,7 @@ DataLog::DataLog (Connection * connection, QString const & confname, QStringList
 	logs::LogWidget * tableView = new logs::LogWidget(connection, tab, this->config(), confname, path);
 	horizontalLayout->addWidget(tableView);
 	m_widget = tableView;
+	tableView->findWidget()->setDockedWidget(this);
 }
 
 DataLog::DataLog (Connection * connection, QString const & confname, QStringList const & path, logs::LogConfig const & config)

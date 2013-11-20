@@ -179,6 +179,9 @@
          <height>16777215</height>
         </size>
        </property>
+       <property name="focusPolicy">
+        <enum>Qt::StrongFocus</enum>
+       </property>
        <property name="toolTip">
         <string>Find previous</string>
        </property>
@@ -197,6 +200,9 @@
          <width>32</width>
          <height>16777215</height>
         </size>
+       </property>
+       <property name="focusPolicy">
+        <enum>Qt::StrongFocus</enum>
        </property>
        <property name="toolTip">
         <string>Find next</string>
@@ -267,6 +273,19 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>findBox</tabstop>
+  <tabstop>prevButton</tabstop>
+  <tabstop>nextButton</tabstop>
+  <tabstop>selectButton</tabstop>
+  <tabstop>refsButton</tabstop>
+  <tabstop>cloneButton</tabstop>
+  <tabstop>caseCheckBox</tabstop>
+  <tabstop>wholeWordCheckBox</tabstop>
+  <tabstop>regexCheckBox</tabstop>
+  <tabstop>widgetComboBox</tabstop>
+  <tabstop>cancelButton</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

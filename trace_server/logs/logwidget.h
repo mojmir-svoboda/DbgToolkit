@@ -58,6 +58,9 @@ namespace logs {
 		DecodedCommand const * getDecodedCommand (QModelIndex const & row_index);
 		DecodedCommand const * getDecodedCommand (int row);
 
+		FindWidget * findWidget () { return m_config_ui.m_ui->findWidget; }
+		FindWidget const * findWidget () const { return m_config_ui.m_ui->findWidget; }
+
 	protected:
 		friend class LogTableModel;
 		friend class FilterProxyModel;
