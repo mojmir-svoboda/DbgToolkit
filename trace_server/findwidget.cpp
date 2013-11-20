@@ -105,8 +105,8 @@ void FindWidget::focusNext ()
 void FindWidget::focusPrev ()
 {
 	QWidget * const curr =  qApp->focusWidget();
-	QWidget * const next = curr->previousInFocusChain();
-	next->setFocus(Qt::TabFocusReason);
+	QWidget * const prev = curr->previousInFocusChain();
+	prev->setFocus(Qt::TabFocusReason);
 }
 
 void FindWidget::onFocusChanged (QWidget * old, QWidget * now)

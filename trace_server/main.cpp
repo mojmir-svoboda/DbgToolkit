@@ -61,7 +61,7 @@ struct Application : QApplication, public QAbstractNativeEventFilter
 		if (e->type() == QKeyEvent::KeyPress)
 		{
 			QKeyEvent * ke = static_cast<QKeyEvent *>(e);
-			if (ke->key() == Qt::Key_Tab)
+			if (ke->key() == Qt::Key_Tab || ke->key() == Qt::Key_Backtab)
 			{
 				if (m_main_window->handleTab(ke))
 					return true;

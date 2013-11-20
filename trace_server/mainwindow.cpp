@@ -786,6 +786,14 @@ bool MainWindow::handleTab (QKeyEvent * e)
 		e->accept();
 		return true;
 	}
+
+	if (e->key() == Qt::Key_Backtab && m_find_widget && m_find_widget->isVisible())
+	{
+		m_find_widget->focusPrev();
+		e->accept();
+		return true;
+	}
+
 	return false;
 }
 
@@ -805,12 +813,6 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
 				m_find_widget->onCancel();
 				e->accept();
 			}
-		}
-
-		if (e->key() == Qt::Key_Tab && m_find_widget && m_find_widget->isVisible())
-		{
-			m_find_widget->focusNext();
-			e->accept();
 		}
 	}
 	QMainWindow::keyPressEvent(e);
