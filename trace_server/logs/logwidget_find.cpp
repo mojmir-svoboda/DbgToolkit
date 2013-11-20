@@ -96,6 +96,7 @@ LogWidget * LogWidget::mkFindAllRefsLogWidget (FindConfig const & fc)
 	child.setSelectionModel(child.m_kfind_proxy_selection);
 	child.applyConfig();
 	child.m_config_ui.refreshUI();
+	child.refreshFilters();
 
 	dp->m_wd->setStyleSheet("\
 			QHeaderView::section {\

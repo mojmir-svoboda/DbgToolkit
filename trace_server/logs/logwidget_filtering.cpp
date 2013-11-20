@@ -274,14 +274,15 @@ bool LogWidget::appendToFilters (DecodedCommand const & cmd)
 	if (cmd.getString(tlv::tag_lvl, lvl))
 		appendToLvlFilters(lvl);
 
-	/*handled already by logtablemodel
-	 * QString file, line;
+	QString file, line;
 	if (cmd.getString(tlv::tag_line, line) && cmd.getString(tlv::tag_file, file))
 	{
-		QModelIndex const ret = m_file_model->insertItem(file + "/" + line);
+		if (filterMgr()->getFilterFileLine())
+			void const * node = filterMgr()->getFilterFileLine()->fileModel()->insertItem(file + "/" + line);
+			//batch.m_tree_node_ptrs.back() = node;
 		//if (ret.isValid())
 			//->hideLinearParents();
-	}*/
+	}
 	return true;
 }
 

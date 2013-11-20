@@ -41,6 +41,10 @@ struct DecodedCommand : tlv::StringCommand
 	bool m_written_hdr;
 	bool m_written_payload;
 	int m_src_row;
+	//void const * m_tree_node;
+	int m_row_type;
+	int m_indent;
+
 	typedef std::vector<QVariant> tvariants_t;
 	tvariants_t m_variants;
 

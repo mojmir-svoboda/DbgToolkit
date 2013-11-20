@@ -49,10 +49,7 @@ void LogTableModel::handleCommand (DecodedCommand const & cmd, E_ReceiveMode mod
 LogTableModel * LogTableModel::cloneToNewModel ()
 {
 	LogTableModel * new_model = new LogTableModel(this, m_log_widget);
-	//tree_node_ptrs_t m_tree_node_ptrs;
 	new_model->m_rows = m_rows;
-	new_model->m_layers = m_layers;
-	new_model->m_rowTypes = m_rowTypes;
 	new_model->m_dcmds = m_dcmds;
 
 	new_model->m_row_times = m_row_times;
@@ -81,10 +78,7 @@ LogTableModel * LogTableModel::cloneToNewModel (FindConfig const & fc)
 
 		if (row_match)
 		{
-			//tree_node_ptrs_t m_tree_node_ptrs;
 			new_model->m_rows.push_back(m_rows[r]);
-			new_model->m_layers.push_back(m_layers[r]);
-			new_model->m_rowTypes.push_back(m_rowTypes[r]);
 			new_model->m_dcmds.push_back(m_dcmds[r]);
 			//new_model->m_row_times.push_back(m_row_times[r]);
 		}
@@ -110,9 +104,6 @@ void LogTableModel::commitBatchToModel ()
 		m_dcmds.back().m_src_row = m_dcmds.size() - 1;
 		int const curr_cols = m_batch.m_rows[r].size();
 		cols = cols < curr_cols ? curr_cols : cols;
-		m_tree_node_ptrs.push_back(m_batch.m_tree_node_ptrs[r]);
-		m_layers.push_back(m_batch.m_layers[r]);
-		m_rowTypes.push_back(m_batch.m_rowTypes[r]);
 	}
 	endInsertRows();
 
@@ -168,9 +159,8 @@ void LogTableModel::parseCommand (DecodedCommand const & cmd, E_ReceiveMode mode
 
 	batch.m_rows.push_back(columns_t(cmd.m_tvs.size()));
 	batch.m_dcmds.push_back(cmd);
-	batch.m_tree_node_ptrs.push_back(0);
-	batch.m_layers.push_back(indent);
-	batch.m_rowTypes.push_back(cmd.m_hdr.cmd);
+	batch.m_dcmds.back().m_indent = indent;
+	batch.m_dcmds.back().m_row_type = cmd.m_hdr.cmd;
 	columns_t & columns = batch.m_rows.back();
 	columns.reserve(cmd.m_tvs.size());
 
@@ -217,7 +207,7 @@ void LogTableModel::parseCommand (DecodedCommand const & cmd, E_ReceiveMode mode
 	if (m_log_widget.filterMgr()->getFilterFileLine())
 	{
 		void const * node = m_log_widget.filterMgr()->getFilterFileLine()->fileModel()->insertItem(file + "/" + line);
-		batch.m_tree_node_ptrs.back() = node;
+		//batch.m_tree_node_ptrs.back() = node;
 	}
 
 	unsigned long long t = time.toULongLong();
