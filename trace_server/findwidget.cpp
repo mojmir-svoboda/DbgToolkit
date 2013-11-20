@@ -66,8 +66,14 @@ void FindWidget::onCancel ()
 {
 	if (isMovingFindWidget())
 	{
-		hide();
-		setParent(m_main_window);
+		if (isVisible())
+		{
+			QObject * o = parent();
+			QWidget * w = qobject_cast<QWidget *>(o);
+			w->setFocus();
+			hide();
+			setParent(m_main_window);
+		}
 		move(0,0);
 	}
 	else
