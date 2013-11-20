@@ -57,6 +57,7 @@ namespace logs {
 		void onShowContextMenu (QPoint const & pos);
 
 		void setConfigValuesToUI (LogConfig const & cfg);
+		void refreshUI ();
 
 		void onHideContextMenu ()
 		{

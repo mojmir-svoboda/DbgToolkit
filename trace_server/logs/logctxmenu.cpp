@@ -68,8 +68,6 @@ LogCtxMenu::LogCtxMenu (LogWidget & lw, QWidget * parent)
 	, m_widget(new QDockWidget(parent))
 	, m_cache(0)
 {
-	m_widget->setVisible(false);
-
 	m_ui->setupUi(m_widget);
 
 	m_cache = new ButtonCache();
@@ -85,11 +83,20 @@ LogCtxMenu::LogCtxMenu (LogWidget & lw, QWidget * parent)
 	//m_actionables.insert(name, this);
 	m_widget->setAttribute(Qt::WA_DeleteOnClose, false);
 	//m_log_widget.m_connection->getMainWindow()->restoreDockWidget(m_widget);
-	m_log_widget.m_connection->getMainWindow()->restoreDockedWidgetGeometry();
+
+	m_widget->setVisible(false);
 	
 	fillButtonCache();
 
 	prepareSettingsWidgets();
+}
+
+void LogCtxMenu::refreshUI ()
+{
+	if (m_widget->isVisible())
+	{
+		setConfigValuesToUI(m_log_widget.m_config);
+	}
 }
 
 void LogCtxMenu::onShowContextMenu (QPoint const & pos)
@@ -99,6 +106,7 @@ void LogCtxMenu::onShowContextMenu (QPoint const & pos)
 
 	if (m_widget->isVisible())
 	{
+		m_log_widget.m_connection->getMainWindow()->restoreDockedWidgetGeometry();
 		setConfigValuesToUI(m_log_widget.m_config);
 		if (m_widget->isFloating())
 			m_widget->move(pos);

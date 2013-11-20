@@ -94,6 +94,7 @@ LogWidget * LogWidget::mkFindAllRefsLogWidget (FindConfig const & fc)
 	child.setFindProxyModel(fc);
 	child.m_kfind_proxy_selection = new KLinkItemSelectionModel(child.model(), selectionModel());
 	child.setSelectionModel(child.m_kfind_proxy_selection);
+	child.m_config_ui.refreshUI();
 
 	dp->m_wd->setStyleSheet("\
 			QHeaderView::section {\
@@ -148,6 +149,7 @@ LogWidget * LogWidget::mkFindAllCloneLogWidget (FindConfig const & fc)
 	LogTableModel * clone_model = cloneToNewModel(fc);
 	child.setupLogModel(clone_model);
 	child.setSrcModel(fc);
+	child.m_config_ui.refreshUI();
 
 	return &child;
 }
