@@ -94,6 +94,7 @@ LogWidget * LogWidget::mkFindAllRefsLogWidget (FindConfig const & fc)
 	child.setFindProxyModel(fc);
 	child.m_kfind_proxy_selection = new KLinkItemSelectionModel(child.model(), selectionModel());
 	child.setSelectionModel(child.m_kfind_proxy_selection);
+	child.applyConfig();
 	child.m_config_ui.refreshUI();
 
 	dp->m_wd->setStyleSheet("\

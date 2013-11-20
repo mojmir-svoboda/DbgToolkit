@@ -151,12 +151,12 @@ bool Connection::dataWidgetConfigPreload (QString const tag, typename SelectConf
 	
 	if (!preset_name.isEmpty())
 	{
-		QString const cfg_path = getGlobalConfig().m_appdir + "/" + getAppName() + "/" + preset_name;
+		//QString const cfg_path = getGlobalConfig().m_appdir + "/" + getAppName() + "/" + preset_name;
 		//bool const loaded = logs::loadConfig(m_config, logpath + "/" + m_config.m_tag);
 		//if (!loaded)
 		//	m_connection->defaultConfigFor(m_config);
 		//filterMgr()->loadConfig(logpath);
-		return ::loadConfigTemplate(config, cfg_path);
+		return ::loadConfigTemplate(config, fname);
 	}
 	return false;
 }
