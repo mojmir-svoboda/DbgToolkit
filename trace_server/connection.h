@@ -174,6 +174,7 @@ struct DataLog : DockedData<e_data_log>
 {
 	DataLog (Connection * parent, QString const & confname, QStringList const & path);
 	DataLog (Connection * parent, QString const & confname, QStringList const & path, config_t const & cfg);
+	void init (Connection * connection, QString const & confname, QStringList const & path);
 	~DataLog ();
 };
 struct DataPlot : DockedData<e_data_plot>

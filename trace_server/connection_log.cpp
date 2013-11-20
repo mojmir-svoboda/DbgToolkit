@@ -7,35 +7,33 @@
 #include "constants.h"
 #include "utils.h"
 
-DataLog::DataLog (Connection * connection, QString const & confname, QStringList const & path)
-	: DockedData<e_data_log>(connection, confname, path)
+void DataLog::init (Connection * connection, QString const & confname, QStringList const & path)
 {
-	qDebug("%s this=0x%08x name=%s", __FUNCTION__, this, confname.toStdString().c_str());
-
 	QWidget * tab = connection->m_tab_widget;
 	QHBoxLayout * horizontalLayout = new QHBoxLayout(tab);
 	horizontalLayout->setSpacing(1);
 	horizontalLayout->setContentsMargins(0, 0, 0, 0);
 	horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
+
 	logs::LogWidget * tableView = new logs::LogWidget(connection, tab, this->config(), confname, path);
+
 	horizontalLayout->addWidget(tableView);
 	m_widget = tableView;
 	tableView->findWidget()->setDockedWidget(this);
+}
+
+DataLog::DataLog (Connection * connection, QString const & confname, QStringList const & path)
+	: DockedData<e_data_log>(connection, confname, path)
+{
+	qDebug("%s this=0x%08x name=%s", __FUNCTION__, this, confname.toStdString().c_str());
+	init(connection, confname, path);
 }
 
 DataLog::DataLog (Connection * connection, QString const & confname, QStringList const & path, logs::LogConfig const & config)
 	: DockedData<e_data_log>(connection, confname, path, config)
 {
 	qDebug("%s this=0x%08x with cfg name=%s", __FUNCTION__, this, confname.toStdString().c_str());
-
-	QWidget * tab = connection->m_tab_widget;
-	QHBoxLayout * horizontalLayout = new QHBoxLayout(tab);
-	horizontalLayout->setSpacing(1);
-	horizontalLayout->setContentsMargins(0, 0, 0, 0);
-	horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
-	logs::LogWidget * tableView = new logs::LogWidget(connection, tab, this->config(), confname, path);
-	horizontalLayout->addWidget(tableView);
-	m_widget = tableView;
+	init(connection, confname, path);
 }
 
 DataLog::~DataLog ()
