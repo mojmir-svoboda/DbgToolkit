@@ -159,6 +159,30 @@ void LogWidget::setFilteringProxy (bool on)
 	}
 }*/
 
+void LogWidget::refreshFilters (BaseProxyModel const * proxy)
+{
+	QAbstractItemModel * m = model();
+	if (m && m == proxy)
+	{
+		Q_ASSERT(m_src_model);
+
+		QModelIndexList src_list;
+		for (int i = 0, ie = model()->rowCount(); i < ie; ++i)
+		{
+			QModelIndex const pxy_idx = model()->index(i, 0);
+			QModelIndex const src_idx = proxy->mapToSource(pxy_idx);
+
+			if (src_idx.isValid())
+				src_list << src_idx;
+		}
+		foreach(QModelIndex index, src_list)
+		{
+			DecodedCommand const & dcmd = m_src_model->dcmds()[index.row()];
+			appendToFilters(dcmd);
+		}
+	}
+}
+
 void LogWidget::clearFilters ()
 {
 	//@TODO: call all functions below
@@ -179,7 +203,7 @@ void LogWidget::appendToTIDFilters (QString const & item)
 	}
 }
 
-void LogWidget::appendToLvlWidgets (FilteredLevel const & flt)
+/*void LogWidget::appendToLvlWidgets (FilteredLevel const & flt)
 {
 	if (filterMgr()->getFilterLvl())
 	{
@@ -194,7 +218,7 @@ void LogWidget::appendToLvlWidgets (FilteredLevel const & flt)
 			filterMgr()->getFilterLvl()->m_ui->view->sortByColumn(0, Qt::AscendingOrder);
 		}
 	}
-}
+}*/
 
 void LogWidget::appendToLvlFilters (QString const & item)
 {
@@ -217,7 +241,7 @@ void LogWidget::appendToLvlFilters (QString const & item)
 	}
 }
 
-void LogWidget::appendToCtxWidgets (FilteredContext const & flt)
+/*void LogWidget::appendToCtxWidgets (FilteredContext const & flt)
 {
 	if (filterMgr()->getFilterCtx())
 	{
@@ -230,7 +254,7 @@ void LogWidget::appendToCtxWidgets (FilteredContext const & flt)
 			root->appendRow(row_items);
 		}
 	}
-}
+}*/
 
 
 void LogWidget::appendToCtxFilters (QString const & item, bool checked)
@@ -251,6 +275,18 @@ void LogWidget::appendToCtxFilters (QString const & item, bool checked)
 			filterMgr()->getFilterCtx()->appendCtxFilter(item);
 		}
 	}
+}
+
+void LogWidget::appendToFileLineFilters (QString const & item)
+{
+	if (filterMgr()->getFilterFileLine())
+	{
+		filterMgr()->getFilterFileLine()->fileModel()->insertItem(item);
+	}
+		//void const * node = filterMgr()->getFilterFileLine()->fileModel()->insertItem(file + "/" + line);
+		//batch.m_tree_node_ptrs.back() = node;
+	//if (ret.isValid())
+		//->hideLinearParents();
 }
 
 bool LogWidget::appendToFilters (DecodedCommand const & cmd)
@@ -276,13 +312,7 @@ bool LogWidget::appendToFilters (DecodedCommand const & cmd)
 
 	QString file, line;
 	if (cmd.getString(tlv::tag_line, line) && cmd.getString(tlv::tag_file, file))
-	{
-		if (filterMgr()->getFilterFileLine())
-			void const * node = filterMgr()->getFilterFileLine()->fileModel()->insertItem(file + "/" + line);
-			//batch.m_tree_node_ptrs.back() = node;
-		//if (ret.isValid())
-			//->hideLinearParents();
-	}
+		appendToFileLineFilters(file + "/" + line);
 	return true;
 }
 

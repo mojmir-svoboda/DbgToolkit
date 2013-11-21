@@ -16,6 +16,7 @@
 class Connection;
 class LogTableModel;
 class FindProxyModel;
+class BaseProxyModel;
 
 namespace logs {
 
@@ -118,16 +119,18 @@ namespace logs {
 		void syncSelection (QModelIndexList const & sel);
 		void clearFilters (QStandardItem * node);
 		void clearFilters ();
-		void appendToTIDFilters (QString const & item);
-		void appendToLvlWidgets (FilteredLevel const & flt);
-		void appendToLvlFilters (QString const & item);
-		void appendToCtxWidgets (FilteredContext const & flt);
-		void appendToCtxFilters (QString const & item, bool checked);
 		bool appendToFilters (DecodedCommand const & cmd);
+		void appendToFileLineFilters (QString const & item);
+		void appendToTIDFilters (QString const & item);
+		//void appendToLvlWidgets (FilteredLevel const & flt);
+		void appendToLvlFilters (QString const & item);
+		//void appendToCtxWidgets (FilteredContext const & flt);
+		void appendToCtxFilters (QString const & item, bool checked);
 		void appendToRegexFilters (QString const & str, bool checked, bool inclusive);
 		void removeFromRegexFilters (QString const & val);
 		void appendToStringFilters (QString const & str, bool checked, int state);
 		void removeFromStringFilters (QString const & val);
+		void refreshFilters (BaseProxyModel const * proxy);
 
 		void setRefFromRow ();
 		void clearRefTime () { m_time_ref_row = 0; }
