@@ -43,6 +43,7 @@ namespace table {
 		void loadConfig (QString const & path);
 		void saveConfig (QString const & path);
 		void applyConfig ();
+    void exportStorageToCSV (QString const & filename) { }
 
 	protected:
 		virtual void wheelEvent (QWheelEvent * event);

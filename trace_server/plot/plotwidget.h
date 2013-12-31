@@ -29,6 +29,8 @@ namespace plot {
 		void saveConfig (QString const & path);
 		void applyConfig ();
 
+    void exportStorageToCSV (QString const & filename) { }
+
 		FilterMgr * filterMgr () { return m_config_ui.m_ui->widget; }
 		FilterMgr const * filterMgr () const { return m_config_ui.m_ui->widget; }
 

@@ -33,6 +33,7 @@ namespace gantt {
 		void loadConfig (QString const & path);
 		void saveConfig (QString const & path);
 		void applyConfig ();
+    void exportStorageToCSV (QString const & filename) { }
 
 		void commitCommands (E_ReceiveMode mode);
 		QList<DecodedCommand> m_queue;

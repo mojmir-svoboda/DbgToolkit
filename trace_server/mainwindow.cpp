@@ -424,7 +424,8 @@ void MainWindow::onFileExportToCSV ()
 
 	if (filename != "")
 	{
-		//exportStorageToCSV(filename);
+    if (Connection * conn = findCurrentConnection())
+      conn->exportStorageToCSV(filename);
 	}
 }
 

@@ -312,6 +312,8 @@ public slots:
 	void onShowLogs ();
 	void onHideLogs ();
 
+  void exportStorageToCSV (QString const & filename);
+
 	void setWidgetToTabWidget (QWidget * w);	// it means to "central widget"
 	void unsetWidgetFromTabWidget (QWidget * & w);
 	QWidget * toCentralWidget (QDockWidget * wd, QWidget * w, bool on);

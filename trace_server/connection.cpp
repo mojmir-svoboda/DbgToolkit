@@ -128,7 +128,7 @@ void Connection::onDisconnected ()
 	{
 		QString fname = tr("%1_%2.csv").arg(getAppName()).arg(m_pid);
 
-		//exportStorageToCSV(fname);
+		exportStorageToCSV(fname);
 
 		Server * server = static_cast<Server *>(parent());
 		m_marked_for_close = true;
@@ -224,6 +224,20 @@ struct Apply {
 	}
 };
 
+struct ExportAsCSV {
+
+	QString const & m_path;
+	ExportAsCSV (QString const & dir) : m_path(dir) { }
+
+	template <class T>
+	void operator() (T const & t)
+	{
+		typedef typename T::const_iterator it_t;
+		for (it_t it = t.begin(), ite = t.end(); it != ite; ++it)
+			(*it)->widget().exportStorageToCSV(m_path);
+	}
+};
+
 /*void Connection::onSaveAll ()
 {
 	qDebug("%s", __FUNCTION__);
@@ -249,6 +263,12 @@ void Connection::loadConfigs (QString const & path)
 void Connection::applyConfigs ()
 {
 	recurse(m_data, Apply());
+}
+
+
+void Connection::exportStorageToCSV (QString const & dir)
+{
+	recurse(m_data, ExportAsCSV(dir));
 }
 
 void Connection::setWidgetToTabWidget (QWidget * w)
