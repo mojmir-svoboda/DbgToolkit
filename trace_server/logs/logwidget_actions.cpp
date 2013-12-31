@@ -37,6 +37,7 @@ bool LogWidget::handleAction (Action * a, E_ActionHandleType sync)
 
 void LogWidget::onTableClicked (QModelIndex const & row_index)
 {
+  autoScrollOff();
 	QModelIndex current = currentIndex();
 	if (isModelProxy())
 	{

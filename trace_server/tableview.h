@@ -11,10 +11,6 @@ public:
 
 	//void setColumnOrder (QMap<int, int> const & columnOrderMap, SessionState const & s);
 
-	virtual void scrollTo (QModelIndex const & index, ScrollHint hint = EnsureVisible);
-
 protected:
-	virtual void keyPressEvent (QKeyEvent * event);
-    virtual QModelIndex moveCursor (CursorAction cursorAction, Qt::KeyboardModifiers modifiers);
 	virtual bool viewportEvent (QEvent * event);
 };

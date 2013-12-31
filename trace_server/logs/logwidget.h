@@ -62,6 +62,8 @@ namespace logs {
 		FindWidget * findWidget () { return m_config_ui.m_ui->findWidget; }
 		FindWidget const * findWidget () const { return m_config_ui.m_ui->findWidget; }
 
+    virtual void scrollTo (QModelIndex const & index, ScrollHint hint = EnsureVisible);
+
 	protected:
 		friend class LogTableModel;
 		friend class FilterProxyModel;
@@ -70,6 +72,7 @@ namespace logs {
 		friend struct LogDelegate;
 
 		virtual void keyPressEvent (QKeyEvent * event);
+    virtual QModelIndex moveCursor (CursorAction cursorAction, Qt::KeyboardModifiers modifiers);
 
 		// config
 		int sizeHintForColumn (int column) const;
@@ -79,6 +82,8 @@ namespace logs {
 		void normalizeConfig (logs::LogConfig & normalized);
 		void swapSectionsAccordingTo (logs::LogConfig const & cfg);
 		void resizeSections ();
+    void autoScrollOn ();
+    void autoScrollOff ();
 
 		// find & filtering
 		bool filterEnabled () const { return m_config.m_filtering; }

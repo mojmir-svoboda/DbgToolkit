@@ -323,7 +323,7 @@ namespace logs {
 
 	void LogWidget::loadConfig (QString const & preset_dir)
 	{
-		QString const logpath = preset_dir + "/" + g_LogTag + "/" + m_config.m_tag;
+		QString const logpath = preset_dir + "/" + g_LogTag + "/" + m_config.m_tag + "/";
 		m_config.clear();
 		bool const loaded = logs::loadConfig(m_config, logpath + g_LogFile);
 		if (!loaded)
@@ -521,6 +521,8 @@ void LogWidget::commitCommands (E_ReceiveMode mode)
 	if (m_queue.size())
 	{
 		m_src_model->commitCommands(mode);
+    if (m_config.m_auto_scroll)
+      scrollToBottom();
 		m_queue.clear();
 	}
 }
@@ -704,6 +706,49 @@ void LogWidget::keyPressEvent (QKeyEvent * e)
 
 	}
 	QTableView::keyPressEvent(e);
+}
+
+void LogWidget::scrollTo (QModelIndex const & index, ScrollHint hint)
+{
+	QTableView::scrollTo(index, hint);
+}
+
+void LogWidget::autoScrollOff ()
+{
+  m_config.m_auto_scroll = false;
+}
+
+void LogWidget::autoScrollOn ()
+{
+  m_config.m_auto_scroll = true;
+}
+
+QModelIndex LogWidget::moveCursor (CursorAction cursorAction, Qt::KeyboardModifiers modifiers)
+{
+  autoScrollOff();
+	if (modifiers & Qt::ControlModifier)
+	{
+		if (cursorAction == MoveHome)
+		{
+			scrollToTop();
+			return QModelIndex(); // @FIXME: should return valid value
+		}
+		else if (cursorAction == MoveEnd)
+		{
+			scrollToBottom();
+      autoScrollOn();
+			return QModelIndex();	// @FIXME too
+		}
+		else
+			return QTableView::moveCursor(cursorAction, modifiers);
+	}
+	else
+		return QTableView::moveCursor(cursorAction, modifiers);
+
+	/*int const value = horizontalScrollBar()->value();
+	QModelIndex const ret = QTableView::moveCursor(cursorAction, modifiers);
+	horizontalScrollBar()->setValue(value);
+	return ret;*/
 }
 
 bool LogWidget::isModelProxy () const
