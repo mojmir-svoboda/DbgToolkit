@@ -812,7 +812,8 @@ void LogWidget::exportStorageToCSV (QString const & filename)
 			QModelIndex current = model()->index(r, c, QModelIndex());
 			// csv nedumpovat pres proxy
 			QString txt = model()->data(current).toString();
-			QString const quoted_txt = txt.replace(regex, to_string);
+      QString simplified = txt.simplified();
+			QString const quoted_txt = simplified.replace(regex, to_string);
 			str << "\"" << quoted_txt << "\"";
 			if (c < ce - 1)
 				str << ",\t";
