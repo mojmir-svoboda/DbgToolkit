@@ -92,16 +92,16 @@ void LogTableModel::commitBatchToModel ()
 {
 	int const rows = m_batch.m_rows.size();
 	int const from = m_rows.size();
-	m_dcmds.reserve(from + rows);
-	m_rows.reserve(from + rows);
+	m_dcmds.resize(from + rows);
+	m_rows.resize(from + rows);
 	int const to = from + rows - 1;
 	beginInsertRows(QModelIndex(), from, to);
 	int cols = 0;
 	for (int r = 0, re = m_batch.m_rows.size(); r < re; ++r)
 	{
-		m_rows.push_back(m_batch.m_rows[r]);
-		m_dcmds.push_back(m_batch.m_dcmds[r]);
-		m_dcmds.back().m_src_row = m_dcmds.size() - 1;
+		m_rows[from + r] = m_batch.m_rows[r];
+		m_dcmds[from + r] = m_batch.m_dcmds[r];
+		m_dcmds[from + r].m_src_row = from + r;
 		int const curr_cols = m_batch.m_rows[r].size();
 		cols = cols < curr_cols ? curr_cols : cols;
 	}
