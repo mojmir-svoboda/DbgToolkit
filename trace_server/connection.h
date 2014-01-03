@@ -282,6 +282,9 @@ public:
 	template <int TypeN>
 	typename SelectIterator<TypeN>::type dataWidgetFactoryFrom (QString const tag, typename SelectConfig<TypeN>::type const & config);
 
+  template <int TypeN>
+  typename SelectIterator<TypeN>::type destroyWidget (QWidget * w);
+
 signals:
 	void readyForUse();
 	void newMessage (QString const & from, QString const & message);

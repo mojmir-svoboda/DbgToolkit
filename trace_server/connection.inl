@@ -139,6 +139,9 @@ typename SelectIterator<TypeN>::type  Connection::dataWidgetFactory (QString con
 }
 
 template <int TypeN>
+destroyWidget
+
+template <int TypeN>
 bool Connection::dataWidgetConfigPreload (QString const tag, typename SelectConfig<TypeN>::type & config)
 {
 	typedef typename SelectWidget<TypeN>::type widget_t;

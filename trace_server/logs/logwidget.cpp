@@ -74,7 +74,7 @@ namespace logs {
 		connect(this, SIGNAL( requestFrameSynchronization(int, unsigned long long, void *) ),
 							 &getSyncWidgets(), SLOT( performFrameSynchronization(int, unsigned long long, void *) ));
 
-		setStyleSheet("QTableView::item{ selection-background-color:	#F5DEB3  } QTableView::item{ selection-color:	#000000 }");
+		setStyleSheet("QTableView::item{ selection-background-color:	#F5DEB3  } QTableView::item{ selection-color: #000000 }");
 		
 		// to ignore 'resizeColumnToContents' when accidentaly double-clicked on header handle
 		QObject::disconnect(horizontalHeader(), SIGNAL(sectionHandleDoubleClicked(int)), this, SLOT(resizeColumnToContents(int)));
@@ -98,7 +98,7 @@ namespace logs {
 		QObject::connect(horizontalHeader(), SIGNAL(sectionMoved(int, int, int)), this, SLOT(onSectionMoved(int, int, int)));
 		verticalHeader()->setFont(cfg.m_font);
 		verticalHeader()->setDefaultSectionSize(cfg.m_row_width);
-		verticalHeader()->hide();	// @NOTE: users want that //@NOTE2: they can't have it because of performance
+		verticalHeader()->hide(); // @NOTE: users want that //@NOTE2: they can't have it because of performance
 		horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
 		setItemDelegate(new LogDelegate(*this, m_connection->appData(), this));
 		
@@ -143,6 +143,21 @@ namespace logs {
 	{
 		//qDebug("%s this=0x%08x", __FUNCTION__, this);
 		disconnect(this, SIGNAL(customContextMenuRequested(QPoint const &)), this, SLOT(onShowContextMenu(QPoint const &)));
+
+		for (linked_widgets_t::iterator it = m_linked_widgets.begin(), ite = m_linked_widgets.end(); it != ite; ++it)
+		{
+			LogWidget * child = *it;
+
+			typedef SelectIterator<e_data_log>::type iterator;
+			iterator it2 = m_connection->m_data.get<e_data_log>().find(tag);
+			if (it2 != m_connection->m_data.get<e_data_log>().end())
+			{
+				delete *it2;
+				(*it2)->widget().setupNewLogModel();
+			}
+			m_data.get<e_data_log>.erase(it2);
+		}
+		m_linked_widgets.clear();
 
 	/*	if (m_file_csv_stream)
 		{
@@ -270,7 +285,7 @@ namespace logs {
 	int LogWidget::sizeHintForColumn (int column) const
 	{
 		int const idx = !isModelProxy() ? column : m_proxy_model->colToSource(column);
-		//qDebug("table: on rsz hdr[%i -> src=%02i ]  %i->%i\t\t%s", c, idx, old_size, new_size, m_config.m_hhdr.at(idx).toStdSt
+		//qDebug("table: on rsz hdr[%i -> src=%02i ]	%i->%i\t\t%s", c, idx, old_size, new_size, m_config.m_hhdr.at(idx).toStdSt
 		if (idx < 0) return 64;
 		int const curr_sz = m_config.m_columns_sizes.size();
 		if (idx < curr_sz)
@@ -521,8 +536,8 @@ void LogWidget::commitCommands (E_ReceiveMode mode)
 	if (m_queue.size())
 	{
 		m_src_model->commitCommands(mode);
-    if (m_config.m_auto_scroll)
-      scrollToBottom();
+		if (m_config.m_auto_scroll)
+			scrollToBottom();
 		m_queue.clear();
 	}
 }
@@ -669,7 +684,7 @@ QString LogWidget::exportSelection ()
 		selected_text.append(simplified);
 		
 		if (i + 1 < indexes.size() && current.row() != indexes.at(i + 1).row())
-			selected_text.append('\n');	// switching rows
+			selected_text.append('\n'); // switching rows
 		else
 			selected_text.append('\t');
 	}
@@ -715,17 +730,17 @@ void LogWidget::scrollTo (QModelIndex const & index, ScrollHint hint)
 
 void LogWidget::autoScrollOff ()
 {
-  m_config.m_auto_scroll = false;
+	m_config.m_auto_scroll = false;
 }
 
 void LogWidget::autoScrollOn ()
 {
-  m_config.m_auto_scroll = true;
+	m_config.m_auto_scroll = true;
 }
 
 QModelIndex LogWidget::moveCursor (CursorAction cursorAction, Qt::KeyboardModifiers modifiers)
 {
-  autoScrollOff();
+	autoScrollOff();
 	if (modifiers & Qt::ControlModifier)
 	{
 		if (cursorAction == MoveHome)
@@ -736,8 +751,8 @@ QModelIndex LogWidget::moveCursor (CursorAction cursorAction, Qt::KeyboardModifi
 		else if (cursorAction == MoveEnd)
 		{
 			scrollToBottom();
-      autoScrollOn();
-			return QModelIndex();	// @FIXME too
+			autoScrollOn();
+			return QModelIndex(); // @FIXME too
 		}
 		else
 			return QTableView::moveCursor(cursorAction, modifiers);
@@ -772,7 +787,7 @@ void LogWidget::onSectionResized (int logical, int old_size, int new_size)
 {
 	qDebug("log: section resized logical=%i old_sz=%i new_sz=%i", logical, old_size, new_size);
 	int const idx = !isModelProxy() ? logical : m_proxy_model->colToSource(logical);
-	//qDebug("table: on rsz hdr[%i -> src=%02i ]  %i->%i\t\t%s", c, idx, old_size, new_size, m_config.m_hhdr.at(idx).toStdString().c_str());
+	//qDebug("table: on rsz hdr[%i -> src=%02i ]	%i->%i\t\t%s", c, idx, old_size, new_size, m_config.m_hhdr.at(idx).toStdString().c_str());
 	if (idx < 0) return;
 	int const curr_sz = m_config.m_columns_sizes.size();
 	if (idx < curr_sz)
@@ -812,7 +827,7 @@ void LogWidget::exportStorageToCSV (QString const & filename)
 			QModelIndex current = model()->index(r, c, QModelIndex());
 			// csv nedumpovat pres proxy
 			QString txt = model()->data(current).toString();
-      QString simplified = txt.simplified();
+			QString simplified = txt.simplified();
 			QString const quoted_txt = simplified.replace(regex, to_string);
 			str << "\"" << quoted_txt << "\"";
 			if (c < ce - 1)

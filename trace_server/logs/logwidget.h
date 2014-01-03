@@ -237,7 +237,8 @@ namespace logs {
 		QWidget * m_tab;
 		LogWidget * m_linked_parent;
 		WarnImage * m_warnimage;
-		std::vector<LogWidget *> m_linked_widgets;
+    typedef std::vector<LogWidget *> linked_widgets_t;
+		linked_widgets_t m_linked_widgets;
 
 		FilterState m_filter_state;
 
