@@ -53,7 +53,7 @@ namespace logs {
 		void setupLogModel (LogTableModel * src_model);
 		void setupNewLogModel ();
 		void setupLogSelectionProxy ();
-		void linkToSource (LogWidget * src);
+		void linkToSource (DockedWidgetBase * src);
 		bool isLinkedWidget () const { return m_linked_parent != 0; }
 
 		DecodedCommand const * getDecodedCommand (QModelIndex const & row_index);
@@ -62,7 +62,9 @@ namespace logs {
 		FindWidget * findWidget () { return m_config_ui.m_ui->findWidget; }
 		FindWidget const * findWidget () const { return m_config_ui.m_ui->findWidget; }
 
-    virtual void scrollTo (QModelIndex const & index, ScrollHint hint = EnsureVisible);
+		void setDockedWidget (DockedWidgetBase * dwb) { m_dwb = dwb; }
+
+		virtual void scrollTo (QModelIndex const & index, ScrollHint hint = EnsureVisible);
 
 	protected:
 		friend class LogTableModel;
@@ -94,8 +96,8 @@ namespace logs {
 		void findInWholeTable (FindConfig const & fc, QModelIndexList & result);
 		LogWidget * mkFindAllRefsLogWidget (FindConfig const & fc);
 		LogWidget * mkFindAllCloneLogWidget (FindConfig const & fc);
-		void registerLinkedLog (LogWidget * l);
-		void unregisterLinkedLog (LogWidget * l);
+		void registerLinkedWidget (DockedWidgetBase * l);
+		void unregisterLinkedWidget (DockedWidgetBase * l);
 		void findAndSelect (FindConfig const & fc);
 		void findAndSelectNext (FindConfig const & fc);
 		void findAndSelectPrev (FindConfig const & fc);
@@ -235,9 +237,10 @@ namespace logs {
 		logs::LogCtxMenu m_config_ui;
 		QString m_fname;
 		QWidget * m_tab;
-		LogWidget * m_linked_parent;
+		DockedWidgetBase * m_linked_parent;
 		WarnImage * m_warnimage;
-    typedef std::vector<LogWidget *> linked_widgets_t;
+		DockedWidgetBase * m_dwb;
+		typedef std::vector<DockedWidgetBase *> linked_widgets_t;
 		linked_widgets_t m_linked_widgets;
 
 		FilterState m_filter_state;

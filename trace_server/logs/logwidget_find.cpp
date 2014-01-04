@@ -23,20 +23,19 @@ void LogWidget::findInWholeTable (FindConfig const & fc, QModelIndexList & resul
 	}
 }
 
-void LogWidget::registerLinkedLog (LogWidget * l)
+void LogWidget::registerLinkedWidget (DockedWidgetBase * l)
 {
 	m_linked_widgets.push_back(l);
 }
 
-void LogWidget::unregisterLinkedLog (LogWidget * l)
+void LogWidget::unregisterLinkedWidget (DockedWidgetBase * l)
 {
 	m_linked_widgets.erase(std::remove(m_linked_widgets.begin(), m_linked_widgets.end(), l), m_linked_widgets.end());
 }
 
-void LogWidget::linkToSource (LogWidget * src)
+void LogWidget::linkToSource (DockedWidgetBase * src)
 {
 	m_linked_parent = src;
-	src->registerLinkedLog(this);
 }
 
 void LogWidget::setSrcModel (FindConfig const & fc)
@@ -87,7 +86,8 @@ LogWidget * LogWidget::mkFindAllRefsLogWidget (FindConfig const & fc)
 
 	DataLog * dp = *it;
 	LogWidget & child = dp->widget();
-	child.linkToSource(this);
+	child.linkToSource(m_dwb);
+	registerLinkedWidget(child.m_dwb);
 	child.loadAuxConfigs();
 
 	child.setupLogModel(m_src_model);

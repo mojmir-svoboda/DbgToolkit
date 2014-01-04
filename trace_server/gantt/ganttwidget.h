@@ -8,7 +8,7 @@
 //#include "frameview.h"
 #include "action.h"
 #include "types.h"
-//#include "dock.h"
+#include "dock.h"
 #include "cmd.h"
 #include "filtermgr.h"
 
@@ -34,6 +34,7 @@ namespace gantt {
 		void saveConfig (QString const & path);
 		void applyConfig ();
     void exportStorageToCSV (QString const & filename) { }
+        void setDockedWidget (DockedWidgetBase * dwb) { m_dwb = dwb; }
 
 		void commitCommands (E_ReceiveMode mode);
 		QList<DecodedCommand> m_queue;
@@ -112,6 +113,7 @@ namespace gantt {
 		QSplitter * m_layout;
 		ganttviews_t m_ganttviews;
 		QVector<QString> m_subtags;
+        DockedWidgetBase * m_dwb;
 	};
 }
 

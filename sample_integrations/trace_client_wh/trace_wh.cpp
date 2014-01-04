@@ -148,7 +148,7 @@ int main ()
 		TRACE_MSG(trace::e_Fatal, trace::CTX_Default,  "First fatal error, errno=%08x", 0xDEAFDAD);
 		TRACE_MSG(trace::e_Error, trace::CTX_Default,  "First error, errno=%08x", 0xBADBEEF);
 		TRACE_MSG(trace::e_Warning, trace::CTX_Default,  "First warning, errno=%x", 0xFEEDDEAD);
-		TRACE_MSG(trace::e_Detail, trace::CTX_Default,	"%s%s", "This message should not appear", ".");
+		TRACE_MSG(trace::e_Detail, trace::CX_Default,	"%s%s", "This message should not appear", ".");
 		TRACE_MSG(trace::e_Info, trace::CTX_Default,  "%s", "This message should appear.");
 		TRACE_MSG(trace::e_Info, trace::CTX_Default,  "%s", "This message should partially appear too, but it's much longer in time and space so that it's very annoying and everyone will hate it as i do hate it now during typing as approaching to some 256 bytes boundary on which this message will be clipped and therefore it does not make any sense at all as all it does do is to show you in a rather graphomaniac light like Robert Smith or this Rowling bitch");*/
 		my_custom_vaarg_fn("using va_arg macro %s and %s", "with some argument", "another one");

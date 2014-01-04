@@ -19,6 +19,7 @@ namespace gantt {
 		, m_config_ui(new CtxGanttConfig(cfg, this))
 		, m_fname(fname)
 		, m_connection(oparent)
+        , m_dwb(0)
 	{
 		//qDebug("%s this=0x%08x", __FUNCTION__, this);
 

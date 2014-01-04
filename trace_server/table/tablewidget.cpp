@@ -18,6 +18,7 @@ namespace table {
 		, m_modelView(0)
 		, m_table_view_proxy(0)
 		, m_connection(oparent)
+        , m_dwb(0)
 	{
 		qDebug("%s this=0x%08x", __FUNCTION__, this);
 

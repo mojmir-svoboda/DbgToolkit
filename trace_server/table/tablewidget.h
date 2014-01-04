@@ -8,6 +8,7 @@
 #include "tablectxmenu.h"
 #include "tablemodelview.h"
 #include "action.h"
+#include "dock.h"
 #include <cmd.h>
 
 class Connection;
@@ -43,7 +44,8 @@ namespace table {
 		void loadConfig (QString const & path);
 		void saveConfig (QString const & path);
 		void applyConfig ();
-    void exportStorageToCSV (QString const & filename) { }
+        void exportStorageToCSV (QString const & filename) { }
+        void setDockedWidget (DockedWidgetBase * dwb) { m_dwb = dwb; }
 
 	protected:
 		virtual void wheelEvent (QWheelEvent * event);
@@ -75,6 +77,7 @@ namespace table {
 		TableModelView * m_modelView;
 		QAbstractProxyModel * m_table_view_proxy;
 		Connection * m_connection;
+        DockedWidgetBase * m_dwb;
 	};
 }
 

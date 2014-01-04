@@ -5,6 +5,7 @@
 #include "frameviewconfig.h"
 #include "frameviewctxmenu.h"
 #include "action.h"
+#include "dock.h"
 
 class Connection;
 
@@ -33,6 +34,8 @@ struct FrameView : QWidget, ActionAble
 	void saveConfig (QString const & path);
 	void applyConfig (FrameViewConfig & cfg);
 	void applyConfig ();
+
+    void setDockedWidget (DockedWidgetBase * dwb) { m_dwb = dwb; }
 
 signals:
 	void requestTimeSynchronization (int sync_group, unsigned long long time, void * source);
@@ -68,6 +71,7 @@ public:
 	BarPlot * m_bars;
 	FrameViewConfig & m_config;
 	frameview::CtxFrameViewConfig m_config_ui;
+    DockedWidgetBase * m_dwb;
 
 	Q_OBJECT
 };

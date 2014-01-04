@@ -103,10 +103,11 @@ typename SelectIterator<TypeN>::type  Connection::dataWidgetFactory (QString con
 		m_main_window->mentionInPresetHistory(m_curr_preset);
 		m_main_window->setPresetAsCurrent(m_curr_preset);
 
-		DockedWidgetBase & dwb = *dd;;
+		DockedWidgetBase & dwb = *dd;
 
 		dd->m_wd = m_main_window->m_dock_mgr.mkDockWidget(dwb, (*it)->config().m_show);
 		dwb.m_wd->setWidget(&(*it)->widget());
+        dd->widget().setDockedWidget(dd);
 		//(*it)->widget().applyConfig(); handled by caller
 
 		bool const visible = (*it)->config().m_show;
@@ -139,7 +140,44 @@ typename SelectIterator<TypeN>::type  Connection::dataWidgetFactory (QString con
 }
 
 template <int TypeN>
-destroyWidget
+void Connection::removeDockWidget (typename SelectDockedData<TypeN, dockeddataptr_t>::type ptr)
+{
+    foreach (QString key, m_data.get<TypeN>().keys() )
+    {
+        if (m_data.get<TypeN>().value(key) == ptr)
+        {
+            m_data.get<TypeN>().remove(key);
+            return;
+        }
+    }
+}
+
+template <int TypeN>
+void Connection::destroyDockedWidget (typename SelectDockedData<TypeN, dockeddataptr_t>::type ptr)
+{
+    if (ptr->m_wd)
+    {
+        m_main_window->removeDockWidget(ptr->m_wd);
+        ptr->widget().setParent(0);
+        ptr->m_wd->setWidget(0);
+        delete ptr->m_wd;
+    }
+    delete ptr;
+}
+
+template <int TypeN>
+typename SelectIterator<TypeN>::type Connection::dockedWidgetEnd ()
+{
+	return m_data.get<TypeN>().end();
+}
+
+template <int TypeN>
+typename SelectIterator<TypeN>::type Connection::findDockedWidget (QString const & tag)
+{
+	typedef typename SelectIterator<TypeN>::type iterator;
+	iterator it = m_data.get<TypeN>().find(tag);
+    return it;
+}
 
 template <int TypeN>
 bool Connection::dataWidgetConfigPreload (QString const tag, typename SelectConfig<TypeN>::type & config)
@@ -191,6 +229,7 @@ typename SelectIterator<TypeN>::type  Connection::dataWidgetFactoryFrom (QString
 		DockedWidgetBase & dwb = *dd;;
 		dd->m_wd = m_main_window->m_dock_mgr.mkDockWidget(dwb, (*it)->config().m_show);
 		dwb.m_wd->setWidget(&(*it)->widget());
+        dd->widget().setDockedWidget(dd);
 		// no applyConfig here!
 
 		bool const visible = (*it)->config().m_show;

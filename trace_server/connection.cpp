@@ -52,14 +52,7 @@ namespace {
 		for (typename ContainerT::iterator it = c.begin(), ite = c.end(); it != ite; ++it)
 		{
 			typename ContainerT::iterator::value_type ptr = *it;
-			if (ptr->m_wd)
-			{
-				mainwin.removeDockWidget(ptr->m_wd);
-				ptr->widget().setParent(0);
-				ptr->m_wd->setWidget(0);
-				delete ptr->m_wd;
-			}
-			delete ptr;
+            destroyDockedWidget(ptr, mainwin);
 		}
 		c.clear();
 	}
@@ -265,6 +258,21 @@ void Connection::applyConfigs ()
 	recurse(m_data, Apply());
 }
 
+void Connection::destroyLinkedDockedWidget (DockedWidgetBase * dwb)
+{
+    switch (dwb->type())
+    {
+        case e_data_log:
+            destroyDockedWidget<e_data_log>(static_cast<DataLog *>(dwb));
+            removeDockWidget<e_data_log>(static_cast<DataLog *>(dwb));
+            break;
+        case e_data_plot:
+        case e_data_table:
+        case e_data_gantt:
+        case e_data_frame:
+        default: break;
+    }
+}
 
 void Connection::exportStorageToCSV (QString const & dir)
 {

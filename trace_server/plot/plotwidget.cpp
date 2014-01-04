@@ -54,6 +54,7 @@ namespace plot {
 		, m_curves()
 		, m_timer(-1)
 		, m_fname(fname)
+        , m_dwb(0)
 	{
 		//qDebug("%s this=0x%08x", __FUNCTION__, this);
 		setAutoReplot(false);

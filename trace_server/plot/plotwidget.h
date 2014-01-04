@@ -10,6 +10,7 @@
 #include "curves.h"
 #include "plotctxmenu.h"
 #include "plottypes.h"
+#include "dock.h"
 
 class QwtPlotCurve;
 class QwtPlotMarker;
@@ -28,6 +29,7 @@ namespace plot {
 		void loadConfig (QString const & path);
 		void saveConfig (QString const & path);
 		void applyConfig ();
+        void setDockedWidget (DockedWidgetBase * dwb) { m_dwb = dwb; }
 
     void exportStorageToCSV (QString const & filename) { }
 
@@ -89,6 +91,7 @@ namespace plot {
 		plot::CtxPlotConfig m_config_ui;
 		QList<QColor> m_colors;
 		QString m_fname;
+        DockedWidgetBase * m_dwb;
 		//std::vector<QwtPlotMarker *> m_markers;
 	};
 }

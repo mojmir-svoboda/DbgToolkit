@@ -281,9 +281,19 @@ public:
 	typename SelectIterator<TypeN>::type dataWidgetFactory (QString const tag);
 	template <int TypeN>
 	typename SelectIterator<TypeN>::type dataWidgetFactoryFrom (QString const tag, typename SelectConfig<TypeN>::type const & config);
+	template <int TypeN>
+	typename SelectIterator<TypeN>::type findDockedWidget (QString const & tag);
+	template <int TypeN>
+	typename SelectIterator<TypeN>::type dockedWidgetEnd ();
+	template <int TypeN>
+	void removeDockWidget (typename SelectDockedData<TypeN, dockeddataptr_t>::type ptr);
 
-  template <int TypeN>
-  typename SelectIterator<TypeN>::type destroyWidget (QWidget * w);
+	//typename SelectIterator<TypeN>::type destroyWidget (QWidget * w);
+
+	template <int TypeN>
+	void destroyDockedWidget (typename SelectDockedData<TypeN, dockeddataptr_t>::type ptr);
+
+	void destroyLinkedDockedWidget (DockedWidgetBase * dwb);
 
 signals:
 	void readyForUse();

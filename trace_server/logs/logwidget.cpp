@@ -25,6 +25,7 @@ namespace logs {
 		, m_fname(fname)
 		, m_tab(0)
 		, m_linked_parent(0)
+		, m_dwb(0)
 		, m_warnimage(0)
 		, m_filter_state()
 		, m_tagconfig()
@@ -146,16 +147,10 @@ namespace logs {
 
 		for (linked_widgets_t::iterator it = m_linked_widgets.begin(), ite = m_linked_widgets.end(); it != ite; ++it)
 		{
-			LogWidget * child = *it;
+			DockedWidgetBase * child = *it;
 
-			typedef SelectIterator<e_data_log>::type iterator;
-			iterator it2 = m_connection->m_data.get<e_data_log>().find(tag);
-			if (it2 != m_connection->m_data.get<e_data_log>().end())
-			{
-				delete *it2;
-				(*it2)->widget().setupNewLogModel();
-			}
-			m_data.get<e_data_log>.erase(it2);
+			//m_connection->removeDockedWidget(child);
+			m_connection->destroyLinkedDockedWidget(child);
 		}
 		m_linked_widgets.clear();
 
