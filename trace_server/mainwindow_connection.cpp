@@ -165,6 +165,7 @@ void MainWindow::onCloseTab (QWidget * w)
 {
 	if (w)
 	{
+        m_find_widget->onCancel(); // @NOTE: this may be too harsh to other widgets, but better than crash
 		int const idx = getTabTrace()->indexOf(w);
 		if (idx != -1)
 		{

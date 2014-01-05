@@ -335,6 +335,12 @@ DockedWidgetBase * DockManager::findDockableForWidget (QWidget * w)
 
 
 
+void DockManager::removeDockable (QString const & dst_joined)
+{
+	dockables_t::iterator it = m_dockables.find(dst_joined);
+	if (it != m_dockables.end() && it.key() == dst_joined)
+		m_dockables.erase(it);
+}
 
 DockedWidgetBase const * DockManager::findDockable (QString const & dst_joined) const
 {

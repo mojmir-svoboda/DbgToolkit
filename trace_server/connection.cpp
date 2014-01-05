@@ -263,8 +263,9 @@ void Connection::destroyLinkedDockedWidget (DockedWidgetBase * dwb)
     switch (dwb->type())
     {
         case e_data_log:
-            destroyDockedWidget<e_data_log>(static_cast<DataLog *>(dwb));
+            m_main_window->dockManager().removeDockable(dwb->path().join("/"));
             removeDockWidget<e_data_log>(static_cast<DataLog *>(dwb));
+            destroyDockedWidget<e_data_log>(static_cast<DataLog *>(dwb));
             break;
         case e_data_plot:
         case e_data_table:
