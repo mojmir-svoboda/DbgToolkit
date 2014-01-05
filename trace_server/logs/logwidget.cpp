@@ -142,15 +142,13 @@ namespace logs {
 
 	LogWidget::~LogWidget ()
 	{
-		//qDebug("%s this=0x%08x", __FUNCTION__, this);
+		qDebug("%s this=0x%08x", __FUNCTION__, this);
 		disconnect(this, SIGNAL(customContextMenuRequested(QPoint const &)), this, SLOT(onShowContextMenu(QPoint const &)));
 
 		for (linked_widgets_t::iterator it = m_linked_widgets.begin(), ite = m_linked_widgets.end(); it != ite; ++it)
 		{
 			DockedWidgetBase * child = *it;
-
-			//m_connection->removeDockedWidget(child);
-			m_connection->destroyLinkedDockedWidget(child);
+			m_connection->destroyDockedWidget(child);
 		}
 		m_linked_widgets.clear();
 
@@ -162,7 +160,6 @@ namespace logs {
 			m_file_csv_stream = 0;
 			delete f;
 		}*/
-
 	}
 
 	void LogWidget::onShow ()

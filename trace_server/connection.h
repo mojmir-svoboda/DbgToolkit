@@ -293,7 +293,7 @@ public:
 	template <int TypeN>
 	void destroyDockedWidget (typename SelectDockedData<TypeN, dockeddataptr_t>::type ptr);
 
-	void destroyLinkedDockedWidget (DockedWidgetBase * dwb);
+	void destroyDockedWidget (DockedWidgetBase * dwb);
 
 signals:
 	void readyForUse();

@@ -47,39 +47,51 @@ Connection::Connection (QObject * parent)
 namespace {
 
 	template <class ContainerT>
-	void destroyDockedWidgets (ContainerT & c, QMainWindow & mainwin)
+	void unregisterDockedWidgets (ContainerT & c, MainWindow & mainwin)
 	{
 		for (typename ContainerT::iterator it = c.begin(), ite = c.end(); it != ite; ++it)
 		{
 			typename ContainerT::iterator::value_type ptr = *it;
-            destroyDockedWidget(ptr, mainwin);
+            mainwin.dockManager().removeDockable(ptr->path().join("/"));
 		}
 		c.clear();
 	}
 }
 
-struct DestroyDockedWidgets {
-	QMainWindow & m_main_window;
+struct UnregisterDockedWidgets {
+	MainWindow & m_main_window;
 
-	DestroyDockedWidgets (QMainWindow & mw) : m_main_window(mw) { }
+	UnregisterDockedWidgets (MainWindow & mw) : m_main_window(mw) { }
 
 	template <typename T>
 	void operator() (T & t)
 	{
-		destroyDockedWidgets(t, m_main_window);
+		unregisterDockedWidgets(t, m_main_window);
 	}
 };
+
+void Connection::destroyDockedWidget (DockedWidgetBase * dwb)
+{
+    switch (dwb->type())
+    {
+        case e_data_log:
+            m_main_window->dockManager().removeDockable(dwb->path().join("/"));
+            removeDockWidget<e_data_log>(static_cast<DataLog *>(dwb));
+            destroyDockedWidget<e_data_log>(static_cast<DataLog *>(dwb));
+            break;
+        case e_data_plot:
+        case e_data_table:
+        case e_data_gantt:
+        case e_data_frame:
+        default: break;
+    }
+}
 
 Connection::~Connection ()
 {
 	qDebug("Connection::~Connection() this=0x%08x", this);
-	/*if (m_statswindow)
-	{
-		delete m_statswindow;
-		m_statswindow = 0;
-	}*/
 
-	//recurse(m_data, DestroyDockedWidgets(*m_main_window));
+	recurse(m_data, UnregisterDockedWidgets(*m_main_window));
 
 	if (m_tcpstream)
 	{
@@ -256,23 +268,6 @@ void Connection::loadConfigs (QString const & path)
 void Connection::applyConfigs ()
 {
 	recurse(m_data, Apply());
-}
-
-void Connection::destroyLinkedDockedWidget (DockedWidgetBase * dwb)
-{
-    switch (dwb->type())
-    {
-        case e_data_log:
-            m_main_window->dockManager().removeDockable(dwb->path().join("/"));
-            removeDockWidget<e_data_log>(static_cast<DataLog *>(dwb));
-            destroyDockedWidget<e_data_log>(static_cast<DataLog *>(dwb));
-            break;
-        case e_data_plot:
-        case e_data_table:
-        case e_data_gantt:
-        case e_data_frame:
-        default: break;
-    }
 }
 
 void Connection::exportStorageToCSV (QString const & dir)
