@@ -25,7 +25,8 @@ void LogWidget::findInWholeTable (FindConfig const & fc, QModelIndexList & resul
 
 void LogWidget::registerLinkedWidget (DockedWidgetBase * l)
 {
-	m_linked_widgets.push_back(l);
+  if (std::find(m_linked_widgets.begin(), m_linked_widgets.end(), l) == m_linked_widgets.end())
+    m_linked_widgets.push_back(l);
 }
 
 void LogWidget::unregisterLinkedWidget (DockedWidgetBase * l)
