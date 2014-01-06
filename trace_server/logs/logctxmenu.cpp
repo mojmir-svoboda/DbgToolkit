@@ -74,7 +74,7 @@ LogCtxMenu::LogCtxMenu (LogWidget & lw, QWidget * parent)
 	m_ui->cacheLayout->addLayout(m_cache);
 
 	// EXPERIMENTAL
-	QString const name="SettingsLog"; // @NOTE: not nice, dup is in ui_settingslog.h"
+	QString const name = lw.path().join("/") + "/utils"; // @NOTE: not nice, dup is in ui_settingslog.h"
 	m_widget->setObjectName(name);
 	m_widget->setWindowTitle(name);
 	m_widget->setAllowedAreas(Qt::AllDockWidgetAreas);
@@ -106,7 +106,7 @@ void LogCtxMenu::onShowContextMenu (QPoint const & pos)
 
 	if (m_widget->isVisible())
 	{
-		m_log_widget.m_connection->getMainWindow()->restoreDockedWidgetGeometry();
+		//m_log_widget.m_connection->getMainWindow()->restoreDockedWidgetGeometry();
 		setConfigValuesToUI(m_log_widget.m_config);
 		if (m_widget->isFloating())
 			m_widget->move(pos);
