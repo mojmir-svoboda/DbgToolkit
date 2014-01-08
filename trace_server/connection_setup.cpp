@@ -160,7 +160,8 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 		if (cmd.m_tvs[i].m_tag == tlv::tag_app)
 		{
 			QString app_name = cmd.m_tvs[i].m_val;
-			if (m_main_window->reuseTabEnabled())
+			//if (m_main_window->reuseTabEnabled())
+			if (1)
 			{
 				Connection * conn = m_main_window->findConnectionByName(app_name);
 				if (conn)

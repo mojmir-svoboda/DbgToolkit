@@ -396,88 +396,6 @@ QVariant LogWidget::findVariant4Tag (tlv::tag_t tag, QModelIndex const & row_ind
 	return QVariant();
 }
 
-
-void LogWidget::scrollToCurrentTag ()
-{
-	if (m_config.m_auto_scroll)
-		return;
-
-	if (m_color_tag_rows.size() == 0)
-		return;
-
-	if (m_current_tag == -1)
-		m_current_tag = 0;
-
-	if (m_current_tag >= m_color_tag_rows.size())
-		m_current_tag = 0;
-
-	if (m_current_tag < m_color_tag_rows.size())
-	{
-		int const tag_row = m_color_tag_rows[m_current_tag];
-		QModelIndex const tag_idx = model()->index(tag_row, 0);
-
-		//qDebug("scrollToCurrentTag: current=%2i src row=%2i ", sessionState().m_current_tag, tag_row);
-
-		if (isModelProxy())
-			scrollTo(m_proxy_model->mapFromSource(tag_idx), QAbstractItemView::PositionAtCenter);
-		else
-			scrollTo(tag_idx, QAbstractItemView::PositionAtCenter);
-	}
-}
-
-void LogWidget::scrollToCurrentSelection ()
-{
-	if (m_config.m_auto_scroll)
-		return;
-
-	QItemSelectionModel const * selection = selectionModel();
-	QModelIndexList indexes = selection->selectedIndexes();
-
-	if (indexes.size() == 0)
-		return;
-
-	if (m_current_selection == -1)
-		m_current_selection = 0;
-
-	if (m_current_selection >= indexes.size())
-		m_current_selection = 0;
-
-	QModelIndex const idx = indexes.at(m_current_selection);
-	qDebug("scrollToSelection[%i] row=%i", m_current_selection, idx.row());
-	if (isModelProxy())
-	{
-		QModelIndex const own_idx = m_proxy_model->index(idx.row(), idx.column());
-		scrollTo(own_idx, QAbstractItemView::PositionAtCenter);
-	}
-	else
-	{
-		QModelIndex const own_idx = model()->index(idx.row(), idx.column());
-		scrollTo(own_idx, QAbstractItemView::PositionAtCenter);
-	}
-}
-
-void LogWidget::scrollToCurrentTagOrSelection ()
-{
-	if (m_color_tag_rows.size() > 0)
-		scrollToCurrentTag();
-	else
-		scrollToCurrentSelection();
-}
-
-void LogWidget::nextToView ()
-{
-	if (m_color_tag_rows.size() > 0)
-	{
-		++m_current_tag;
-		scrollToCurrentTag();
-	}
-	else
-	{
-		++m_current_selection;
-		scrollToCurrentSelection();
-	}
-}
-
 void LogWidget::onFindFileLine (QModelIndex const &)
 {
 	//@FIXME: unused args
@@ -488,31 +406,5 @@ void LogWidget::onFindFileLine (QModelIndex const &)
 	findTableIndexInFilters(m_last_clicked, scroll_to_item, expand);
 }
 
-void LogWidget::addColorTagRow (int row)
-{
-	for (int i = 0, ie = m_color_tag_rows.size(); i < ie; ++i)
-		if (m_color_tag_rows.at(i) == row)
-		{
-			removeColorTagRow(row);
-			return;
-		}
-	m_color_tag_rows.push_back(row);
 }
 
-bool LogWidget::findColorTagRow (int row) const
-{
-	for (int i = 0, ie = m_color_tag_rows.size(); i < ie; ++i)
-		if (m_color_tag_rows.at(i) == row)
-			return true;
-	return false;
-}
-
-void LogWidget::removeColorTagRow (int row)
-{
-	m_color_tag_rows.erase(std::remove(m_color_tag_rows.begin(), m_color_tag_rows.end(), row), m_color_tag_rows.end());
-}
-
-
-
-
-}

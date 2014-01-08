@@ -77,19 +77,6 @@ void LogWidget::onNextToView ()
 	nextToView();
 }
 
-void LogWidget::turnOffAutoScroll ()
-{
-	//ui->autoScrollCheckBox->setCheckState(Qt::Unchecked);
-}
-
-void LogWidget::onAutoScrollHotkey ()
-{
-	/*if (ui->autoScrollCheckBox->checkState() == Qt::Checked)
-		turnOffAutoScroll();
-	else
-		ui->autoScrollCheckBox->setCheckState(Qt::Checked);*/
-}
-
 void LogWidget::findTableIndexInFilters (QModelIndex const & src_idx, bool scroll_to_item, bool expand)
 {
 	DecodedCommand const * dcmd = getDecodedCommand(src_idx);

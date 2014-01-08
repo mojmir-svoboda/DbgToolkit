@@ -51,6 +51,7 @@ namespace logs {
 		, m_proxy_selection(0)
 		, m_find_proxy_selection(0)
 		, m_kfind_proxy_selection(0)
+		, m_color_regex_model(0)
 		, m_last_clicked()
 		, m_csv_separator()
 		, m_file_csv_stream(0)
@@ -94,6 +95,13 @@ namespace logs {
 		//connect(m_config_ui.ui()->filterFileCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onFilterFile(int)));
 		connect(this, SIGNAL(clicked(QModelIndex const &)), this, SLOT(onTableClicked(QModelIndex const &)));
 		//connect(this, SIGNAL(doubleClicked(QModelIndex const &)), this, SLOT(onTableDoubleClicked(QModelIndex const &)));
+
+		m_config_ui.ui()->listViewColorRegex->setEditTriggers(QAbstractItemView::NoEditTriggers);
+		connect(m_config_ui.ui()->listViewColorRegex, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtColorRegexList(QModelIndex)));
+		connect(m_config_ui.ui()->listViewColorRegex, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(onDoubleClickedAtColorRegexList(QModelIndex)));
+		connect(m_config_ui.ui()->comboBoxColorRegex, SIGNAL(activated(int)), this, SLOT(onColorRegexActivate(int)));
+		connect(m_config_ui.ui()->buttonAddColorRegex, SIGNAL(clicked()), this, SLOT(onColorRegexAdd()));
+		connect(m_config_ui.ui()->buttonRmColorRegex, SIGNAL(clicked()), this, SLOT(onColorRegexRm()));
 
 		QObject::connect(horizontalHeader(), SIGNAL(sectionResized(int, int, int)), this, SLOT(onSectionResized(int, int, int)));
 		QObject::connect(horizontalHeader(), SIGNAL(sectionMoved(int, int, int)), this, SLOT(onSectionMoved(int, int, int)));

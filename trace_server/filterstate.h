@@ -68,25 +68,7 @@ public:
 	explicit FilterState (QObject *parent = 0);
 	~FilterState ();
 
-/*		
-	// cfg
-	void setupColumns (QList<QString> * column_setup_template, columns_sizes_t * sizes , columns_align_t * ca_template, columns_elide_t * ce_template);
-	void setupColumnsCSV (QList<QString> * column_setup_template, columns_sizes_t * sizes , columns_align_t * ca_template, columns_elide_t * ce_template);
-	void setupThreadColors (QList<QColor> const & tc);
-	bool isConfigured () const { return m_columns_setup_current && m_columns_setup_current->size(); }
-	QList<QString> const * getColumnsSetupCurrent () const { return m_columns_setup_current; }
-	QList<QString> * getColumnsSetupCurrent () { return m_columns_setup_current; }
-	QList<QString> const * getColumnsSetupTemplate () const { return m_columns_setup_template; }
-	columns_sizes_t const * getColumnSizes () const { return m_columns_sizes; }
-	columns_sizes_t * getColumnSizes () { return m_columns_sizes; }
-	QList<QString> const * getColumnsAlignTemplate () const { return m_columns_align_template; }
-	QList<QString> const * getColumnsElideTemplate () const { return m_columns_elide_template; }
-*/
-
 	// filter state
-
-
-
 
 	// blocks
 	void appendCollapsedBlock (QString tid, int from, int to, QString file, QString line);
@@ -101,8 +83,6 @@ public:
 	bool isMatchedColorizedText (QString str, QColor & color, E_ColorRole & role) const;
 	void setRegexColor (QString const & s, QColor col);
 	void setColorRegexChecked (QString const & s, bool checked);
-
-
 
 	void clearFilters ();
 	void onClearColorizedRegexFilter () { m_colorized_texts.clear(); }
@@ -124,13 +104,11 @@ public:
 	//friend class FilterWidget;
 	friend class PersistentFilter;
 
-
-
 	QList<ColorizedText>	m_colorized_texts;
 	QList<CollapsedBlock>	m_collapse_blocks;
-
 };
 
 bool saveFilterState (FilterState const & s, char const * filename);
 bool loadFilterState (FilterState & s, char const * filename);
 bool loadFilterState (FilterState const & src, FilterState & target);
+

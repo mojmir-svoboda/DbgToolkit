@@ -142,6 +142,14 @@ namespace logs {
 		void setRefFromRow ();
 		void clearRefTime () { m_time_ref_row = 0; }
 		void colorRow (int);
+
+		void appendToColorRegex (QString const & val);
+		void removeFromColorRegex (QString const & val);
+		//void loadToColorRegexps (QString const & filter_item, QString const & color, bool enabled);
+		void onColorRegexChanged ();
+		void recompileColorRegexps ();
+		//void loadToRegexps (QString const & filter_item, bool inclusive, bool enabled);
+
 	
 	void setupSeparatorChar (QString const & c);
 	QString separatorChar () const;
@@ -157,12 +165,6 @@ namespace logs {
 	void nextToView ();
 	void onFindFileLine (QModelIndex const &);
 
-	void appendToColorRegexFilters (QString const & val);
-	void removeFromColorRegexFilters (QString const & val);
-	void loadToColorRegexps (QString const & filter_item, QString const & color, bool enabled);
-	void onColorRegexChanged ();
-	void recompileColorRegexps ();
-	//void loadToRegexps (QString const & filter_item, bool inclusive, bool enabled);
 
 	FilterState & filterState () { return m_filter_state; }
 	FilterState const & filterState () const { return m_filter_state; }
@@ -194,8 +196,6 @@ namespace logs {
 		void onSectionMoved (int logical, int old_visual, int new_visual);
 
 		void onNextToView ();
-		void turnOffAutoScroll ();
-		void onAutoScrollHotkey ();
 		void onFilterChanged ();
 		//void onFilterFile (int state);
 
@@ -223,8 +223,12 @@ namespace logs {
 		void onHidePrev ();
 		void onHideNext ();
 
-
-
+		void onClearCurrentColorizedRegex ();
+		void onClickedAtColorRegexList (QModelIndex idx);
+		void onDoubleClickedAtColorRegexList (QModelIndex);
+		void onColorRegexActivate (int);
+		void onColorRegexAdd ();
+		void onColorRegexRm ();
 
 	signals:
 		//void requestTimeSynchronization (int sync_group, unsigned long long time, void * source);
@@ -262,7 +266,6 @@ namespace logs {
 		int m_current_selection;
 		unsigned long long m_time_ref_value;
 
-
 		FilterProxyModel * m_proxy_model;
 		FindProxyModel * m_find_proxy_model;
 		LogTableModel * m_src_model;
@@ -273,9 +276,9 @@ namespace logs {
 		QItemSelectionModel * m_proxy_selection;
 		QItemSelectionModel * m_find_proxy_selection;
 		QItemSelectionModel * m_kfind_proxy_selection;
+		QStandardItemModel * m_color_regex_model;
 
 		QModelIndex m_last_clicked;
-
 		QString m_csv_separator;
 		QTextStream * m_file_csv_stream;
 	};

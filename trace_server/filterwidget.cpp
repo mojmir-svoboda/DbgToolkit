@@ -18,14 +18,11 @@
 #include "treeproxy.h"
 #include "ui_filterwidget.h"
 
-
-
 FilterWidget::FilterWidget (QWidget * parent)
 	: QWidget(parent)
 	, ui(new Ui::FilterWidget)
 	, m_filter_state()
 	, m_func_model(0)
-	, m_color_regex_model(0)
 {
     ui->setupUi(this);
 }
@@ -34,13 +31,6 @@ FilterWidget::~FilterWidget ()
 {
     delete ui;
 }
-
-QComboBox * FilterWidget::getFilterColorRegex () { return ui->comboBoxColorRegex; }
-QComboBox const * FilterWidget::getFilterColorRegex () const { return ui->comboBoxColorRegex; }
-QListView * FilterWidget::getWidgetColorRegex () { return ui->listViewColorRegex; }
-QListView const * FilterWidget::getWidgetColorRegex () const { return ui->listViewColorRegex; }
-
-
 
 bool saveFilterState (FilterState const & s, std::string const & filename)
 {
@@ -111,65 +101,5 @@ void FilterWidget::loadConfig (QString const & fname)
 void FilterWidget::saveConfig (QString const & fname)
 {
 }
-
-/*void Connection::setupModelColorRegex ()
-{
-	if (!m_color_regex_model)
-		m_color_regex_model = new QStandardItemModel;
-	m_main_window->getWidgetColorRegex()->setModel(m_color_regex_model);
-}
-
-		{
-			QStandardItemModel * model = static_cast<QStandardItemModel *>(m_main_window->getWidgetColorRegex()->model());
-			QStandardItem * root = model->invisibleRootItem();
-			for (int i = 0; i < sessionState().m_colorized_texts.size(); ++i)
-			{
-				ColorizedText & ct = sessionState().m_colorized_texts[i];
-				ct.m_regex = QRegExp(ct.m_regex_str);
-
-				QStandardItem * child = findChildByText(root, ct.m_regex_str);
-				if (child == 0)
-				{
-					QList<QStandardItem *> row_items = addRow(ct.m_regex_str, ct.m_is_enabled);
-					root->appendRow(row_items);
-				}
-			}
-			recompileColorRegexps();
-		}
-
-		{
-			QStandardItemModel * model = static_cast<QStandardItemModel *>(m_main_window->getWidgetRegex()->model());
-			QStandardItem * root = model->invisibleRootItem();
-			for (int i = 0; i < sessionState().m_filtered_regexps.size(); ++i)
-			{
-				FilteredRegex & flt = sessionState().m_filtered_regexps[i];
-				flt.m_regex = QRegExp(flt.m_regex_str);
-
-				QStandardItem * child = findChildByText(root, flt.m_regex_str);
-				if (child == 0)
-				{
-					Qt::CheckState const state = flt.m_is_enabled ? Qt::Checked : Qt::Unchecked;
-					QList<QStandardItem *> row_items = addTriRow(flt.m_regex_str, state, static_cast<bool>(flt.m_state));
-					root->appendRow(row_items);
-					child = findChildByText(root, flt.m_regex_str);
-					child->setCheckState(state);
-				}
-			}
-			recompileRegexps();
-		}
-		{
-			QStandardItemModel * model = static_cast<QStandardItemModel *>(m_main_window->getWidgetString()->model());
-			QStandardItem * root = model->invisibleRootItem();
-			for (int i = 0; i < sessionState().m_filtered_strings.size(); ++i)
-			{
-				FilteredString & flt = sessionState().m_filtered_strings[i];
-				appendToStringWidgets(flt);
-			}
-		}
-
-	}
-
-*/
-
 
 

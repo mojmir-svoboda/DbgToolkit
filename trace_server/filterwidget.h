@@ -27,22 +27,13 @@ public:
 	void saveConfig (QString const & path);
 	void applyConfig (FilterState const & src, FilterState & dst);
 
-    QComboBox * getFilterColorRegex ();
-    QComboBox const * getFilterColorRegex () const;
-	QListView * getWidgetColorRegex ();
-	QListView const * getWidgetColorRegex () const;
-
 	// filtering
 	void onRegexActivate (int idx);
 	void onRegexAdd ();
 	void onRegexRm ();
-	void onColorRegexActivate (int idx);
-	void onColorRegexAdd ();
-	void onColorRegexRm ();
 	//void onStringActivate (int idx);
 	void onStringAdd ();
 	void onStringRm ();
-	void onGotoColorFilter ();
 	void onGotoRegexFilter ();
 	void onGotoLevelFilter ();
 	void syncSettingsViews (QListView const * const invoker, QModelIndex const idx);
@@ -54,12 +45,8 @@ public:
 	void onDoubleClickedAtLvlList (QModelIndex idx);
 	void onClickedAtRegexList (QModelIndex idx);
 	void onDoubleClickedAtRegexList (QModelIndex idx);
-	void onClickedAtColorRegexList (QModelIndex idx);
-	void onDoubleClickedAtColorRegexList (QModelIndex idx);
 	void onClickedAtStringList (QModelIndex idx);
 	void onDoubleClickedAtStringList (QModelIndex idx);
-
-
 
 
 	// sem??
@@ -70,7 +57,6 @@ public:
 	//void onClearCurrentFileFilter ();
 	void onClearCurrentCtxFilter ();
 	void onClearCurrentTIDFilter ();
-	void onClearCurrentColorizedRegexFilter ();
 	void onClearCurrentRegexFilter ();
 	void onClearCurrentStringFilter ();
 	void onClearCurrentScopeFilter ();
@@ -84,7 +70,6 @@ public:
 
 	//QItemSelectionModel * m_proxy_selection;
 	QStandardItemModel * m_func_model;
-	QStandardItemModel * m_color_regex_model;
 };
 
 bool loadFilterState (FilterState & s, std::string const & filename);

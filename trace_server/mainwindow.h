@@ -115,35 +115,9 @@ public:
 
 
 	// log widget
-	bool scopesEnabled () const;
-	//bool indentEnabled () const;
-	//bool cutPathEnabled () const;
-	//bool cutNamespaceEnabled () const;
-	//int cutPathLevel () const;
-	//int cutNamespaceLevel () const;
-	//int indentLevel () const;
-	//int tableRowSize () const;
-	//QString tableFont () const;
-	//bool inViewEnabled () const;
-	bool reuseTabEnabled () const;
-	//bool filterEnabled () const;
-	//bool clrFltEnabled () const;
 	bool dtEnabled () const;
-	//OBS bool statsEnabled () const;
-	//OBS bool filterPaneVertical () const;
 	QList<QColor> const & getThreadColors () const { return m_config.m_thread_colors; }
 
-	/*columns_setup_t const & getColumnSetup (int i) const { return m_config.m_columns_setup.at(i); }
-	columns_setup_t & getColumnSetup (int i) { return m_config.m_columns_setup[i]; }
-	columns_sizes_t const & getColumnSizes (int i) const { return m_config.m_columns_sizes.at(i); }
-	columns_sizes_t & getColumnSizes (int i) { return m_config.m_columns_sizes[i]; }
-	columns_align_t const & getColumnAlign (int i) const { return m_config.m_columns_align.at(i); }
-	columns_align_t & getColumnAlign (int i) { return m_config.m_columns_align[i]; }
-	columns_elide_t const & getColumnElide (int i) const { return m_config.m_columns_elide.at(i); }
-	columns_align_t & getColumnElide (int i) { return m_config.m_columns_elide[i]; }*/
-
-
-	
 	// drag and drop
 	void changeEvent (QEvent * e);
 	void dropEvent (QDropEvent * event);
@@ -163,7 +137,6 @@ public:
 	void createTailLogStream (QString const & fname, QString const & separator);
 	void importDataStream (QString const & fname);
 	void copyStorageTo (QString const & filename);
-	//void exportStorageToCSV (QString const & filename);
 	Connection * findConnectionByName (QString const & app_name);
 	Connection * findCurrentConnection ();
 	Connection * createNewConnection ();
@@ -195,8 +168,6 @@ private slots:
 	void loadState ();
 	void storeGeometry ();
 	void storeState ();
-	//void saveCurrentSession (QString const & preset_name);
-	//void storePresets ();
 	void storePresetNames ();
 	void timerHit ();
 	void onQuit ();
@@ -232,14 +203,10 @@ private slots:
 	void onShowHelp ();
 	void onTabTraceFocus (int i);
 	
-
-
 	//void onReuseTabChanged (int state);
 	//void ondtToolButton ();
 	//void onTimeUnitsChanged (int i);
-	//void onTableFontToolButton ();
 	void onTablesStateChanged (int state);
-	//void onAutoScrollStateChanged (int state);
 
 private:
 	void showServerStatus ();

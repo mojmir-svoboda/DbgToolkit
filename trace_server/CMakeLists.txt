@@ -110,6 +110,7 @@ set(trace_server_SOURCES
 	logs/logwidget_filtering.cpp
 	logs/logwidget_legacycfg.cpp
 	logs/logwidget_actions.cpp
+	logs/logwidget_view.cpp
 	logs/logconfig.cpp
 	logs/logctxmenu.cpp
 	logs/logwidget_tools.cpp

@@ -288,17 +288,10 @@ bool MainWindow::onTopEnabled () const { return ui_settings->onTopCheckBox->isCh
 int MainWindow::plotState () const { return ui->plotSlider->value(); }
 int MainWindow::tableState () const { return ui->tableSlider->value(); }
 int MainWindow::ganttState () const { return ui->ganttSlider->value(); }
-bool MainWindow::reuseTabEnabled () const { return true; 
-	
-	
-	
-	
-	ui_settings->reuseTabCheckBox->isChecked(); }
+
 bool MainWindow::buffEnabled () const { return ui->buffCheckBox->isChecked(); }
 Qt::CheckState MainWindow::buffState () const { return ui->buffCheckBox->checkState(); }
-//bool MainWindow::statsEnabled () const { return ui_settings->traceStatsCheckBox->isChecked(); }
 bool MainWindow::dtEnabled () const { return ui->dtToolButton->isChecked(); }
-
 
 void MainWindow::setLevel (int i)
 {
@@ -306,7 +299,6 @@ void MainWindow::setLevel (int i)
 	ui->levelSpinBox->setValue(i);
 	ui->levelSpinBox->blockSignals(old);
 }
-
 int MainWindow::getLevel () const
 {
 	int const current = ui->levelSpinBox->value();
@@ -335,11 +327,6 @@ void MainWindow::onQuitReally ()
 	qDebug("%s", __FUNCTION__);
 	qApp->quit();
 }
-
-/*void MainWindow::onReuseTabChanged (int state)
-{
-	ui_settings->clrFiltersCheckBox->setEnabled(state);
-}*/
 
 void MainWindow::onDockedWidgetsToolButton ()
 {
@@ -384,7 +371,7 @@ void MainWindow::onFileTail ()
 void MainWindow::onLogTail ()
 {
 	//setupSeparatorChar("|");
-	//createTailLogStream(m_log_name, "|");
+	createTailLogStream(m_log_name, "|");
 }
 
 void MainWindow::openFiles (QStringList const & files)
