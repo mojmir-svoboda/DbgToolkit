@@ -143,6 +143,7 @@ namespace logs {
 		void clearRefTime () { m_time_ref_row = 0; }
 		void colorRow (int);
 
+		void setupColorRegex ();
 		void appendToColorRegex (QString const & val);
 		void removeFromColorRegex (QString const & val);
 		//void loadToColorRegexps (QString const & filter_item, QString const & color, bool enabled);

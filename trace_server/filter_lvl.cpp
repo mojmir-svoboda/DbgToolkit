@@ -200,8 +200,6 @@ void FilterLvl::onClickedAtLvl (QModelIndex idx)
 	QStandardItem * item = m_model->itemFromIndex(idx);
 	Q_ASSERT(item);
 
-	bool checked = (item->checkState() == Qt::Checked);
-
 	if (idx.column() == 1)
 	{
 		QString const & filter_item = m_model->data(m_model->index(idx.row(), 0, QModelIndex()), Qt::DisplayRole).toString();
@@ -212,15 +210,13 @@ void FilterLvl::onClickedAtLvl (QModelIndex idx)
 		E_LevelMode const new_mode = static_cast<E_LevelMode>(i);
 		m_model->setData(idx, QString(lvlModToString(new_mode)));
 
+    bool const checked = (item->checkState() == Qt::Checked);
 		setLvlMode(filter_item, !checked, new_mode);
 
 		emitFilterChangedSignal();
 	}
 	else
 	{
-		QStandardItem * item = m_model->itemFromIndex(idx);
-		Q_ASSERT(item);
-
 		QString const & filter_item = m_model->data(idx, Qt::DisplayRole).toString();
 		bool const orig_checked = (item->checkState() == Qt::Checked);
 		if (orig_checked)

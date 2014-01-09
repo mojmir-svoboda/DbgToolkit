@@ -96,12 +96,7 @@ namespace logs {
 		connect(this, SIGNAL(clicked(QModelIndex const &)), this, SLOT(onTableClicked(QModelIndex const &)));
 		//connect(this, SIGNAL(doubleClicked(QModelIndex const &)), this, SLOT(onTableDoubleClicked(QModelIndex const &)));
 
-		m_config_ui.ui()->listViewColorRegex->setEditTriggers(QAbstractItemView::NoEditTriggers);
-		connect(m_config_ui.ui()->listViewColorRegex, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtColorRegexList(QModelIndex)));
-		connect(m_config_ui.ui()->listViewColorRegex, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(onDoubleClickedAtColorRegexList(QModelIndex)));
-		connect(m_config_ui.ui()->comboBoxColorRegex, SIGNAL(activated(int)), this, SLOT(onColorRegexActivate(int)));
-		connect(m_config_ui.ui()->buttonAddColorRegex, SIGNAL(clicked()), this, SLOT(onColorRegexAdd()));
-		connect(m_config_ui.ui()->buttonRmColorRegex, SIGNAL(clicked()), this, SLOT(onColorRegexRm()));
+		setupColorRegex();
 
 		QObject::connect(horizontalHeader(), SIGNAL(sectionResized(int, int, int)), this, SLOT(onSectionResized(int, int, int)));
 		QObject::connect(horizontalHeader(), SIGNAL(sectionMoved(int, int, int)), this, SLOT(onSectionMoved(int, int, int)));
