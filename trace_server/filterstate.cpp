@@ -6,6 +6,11 @@ FilterState::FilterState (QObject * parent)
 	qDebug("FilterState()");
 	m_colorized_texts.push_back(ColorizedText(".*[Ww]arning.*", QColor(Qt::black), QColor(Qt::yellow)));
 	m_colorized_texts.push_back(ColorizedText(".*[Ee]rror.*", QColor(Qt::black), QColor(Qt::red)));
+  for (int i = 0, ie = m_colorized_texts.size(); i < ie; ++i)
+  {
+    ColorizedText & ct = m_colorized_texts[i];
+    ct.m_is_enabled = 1;
+  }
 }
 
 FilterState::~FilterState ()

@@ -21,7 +21,8 @@ namespace logs {
 		if (!m_color_regex_model)
 			m_color_regex_model = new QStandardItemModel;
 		m_config_ui.ui()->viewColorRegex->setModel(m_color_regex_model);
-		m_color_regex_model->setColumnCount(3);
+		m_color_regex_model->setColumnCount(4);
+		m_config_ui.ui()->viewColorRegex->setColumnWidth(0, 192);
 	}
 
 	void LogWidget::appendToColorRegex (QString const & val)
@@ -121,6 +122,7 @@ namespace logs {
 				continue;
 
 			QRegExp regex(qregex);
+			QString reason;
 			if (regex.isValid())
 			{
 				ct.m_regex = regex;
@@ -129,13 +131,13 @@ namespace logs {
 				if (child && checked)
 				{
 					child->setData(QBrush(Qt::green), Qt::BackgroundRole);
-					child->setToolTip(tr("ok"));
+					reason = "ok";
 					ct.m_is_enabled = true;
 				}
 				else if (child && !checked)
 				{
 					child->setData(QBrush(Qt::yellow), Qt::BackgroundRole);
-					child->setToolTip(tr("not checked"));
+					reason = "not checked";
 				}
 			}
 			else
@@ -143,9 +145,13 @@ namespace logs {
 				if (child)
 				{
 					child->setData(QBrush(Qt::red), Qt::BackgroundRole);
-					child->setToolTip(regex.errorString());
+					reason = regex.errorString();
 				}
 			}
+
+			child->setToolTip(reason);
+			QStandardItem * item = m_color_regex_model->item(child->row(), 3);
+			item->setText(reason);
 		}
 
 		updateColorRegex();
@@ -199,8 +205,11 @@ namespace logs {
 
 			QStandardItem * fgitem = new QStandardItem("fg");
 			QStandardItem * bgitem = new QStandardItem("bg");
+			QStandardItem * stitem = new QStandardItem("status");
+			stitem->setCheckable(false);
 			model->setItem(child->row(), 1, fgitem);
 			model->setItem(child->row(), 2, bgitem);
+			model->setItem(child->row(), 3, stitem);
 			appendToColorRegex(qItem);
 
 			for (int i = 0, ie = m_filter_state.m_colorized_texts.size(); i < ie; ++i)
