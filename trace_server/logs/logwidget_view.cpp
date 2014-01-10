@@ -11,16 +11,17 @@ namespace logs {
 
 	void LogWidget::setupColorRegex ()
 	{
-		m_config_ui.ui()->listViewColorRegex->setEditTriggers(QAbstractItemView::NoEditTriggers);
-		connect(m_config_ui.ui()->listViewColorRegex, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtColorRegexList(QModelIndex)));
-		connect(m_config_ui.ui()->listViewColorRegex, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(onDoubleClickedAtColorRegexList(QModelIndex)));
+		m_config_ui.ui()->viewColorRegex->setEditTriggers(QAbstractItemView::NoEditTriggers);
+		connect(m_config_ui.ui()->viewColorRegex, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtColorRegexList(QModelIndex)));
+		connect(m_config_ui.ui()->viewColorRegex, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(onDoubleClickedAtColorRegexList(QModelIndex)));
 		connect(m_config_ui.ui()->comboBoxColorRegex, SIGNAL(activated(int)), this, SLOT(onColorRegexActivate(int)));
 		connect(m_config_ui.ui()->buttonAddColorRegex, SIGNAL(clicked()), this, SLOT(onColorRegexAdd()));
 		connect(m_config_ui.ui()->buttonRmColorRegex, SIGNAL(clicked()), this, SLOT(onColorRegexRm()));
 
 		if (!m_color_regex_model)
 			m_color_regex_model = new QStandardItemModel;
-		m_config_ui.ui()->listViewColorRegex->setModel(m_color_regex_model);
+		m_config_ui.ui()->viewColorRegex->setModel(m_color_regex_model);
+		m_color_regex_model->setColumnCount(3);
 	}
 
 	void LogWidget::appendToColorRegex (QString const & val)
@@ -33,6 +34,34 @@ namespace logs {
 		m_filter_state.removeFromColorRegexFilters(val);
 	}
 
+	void LogWidget::updateColorRegex ()
+	{
+		for (size_t r = 0, re = m_src_model->dcmds().size(); r < re; ++r)
+		{
+			DecodedCommand const & dcmd = m_src_model->dcmds()[r];
+
+			bool row_match = false;
+			for (size_t i = 0, ie = dcmd.m_tvs.size(); i < ie; ++i)
+			{
+				QString const & val = dcmd.m_tvs[i].m_val;
+
+				QColor color, bgcolor;
+				bool const is_match = m_filter_state.isMatchedColorizedText(val, color, bgcolor);
+				QModelIndex const idx = m_src_model->index(r, i, QModelIndex());
+
+				m_src_model->setData(idx, QColor(Qt::white), Qt::BackgroundRole);
+				m_src_model->setData(idx, QColor(Qt::black), Qt::ForegroundRole);
+				if (is_match)
+				{
+					m_src_model->setData(idx, bgcolor, Qt::BackgroundRole);
+					m_src_model->setData(idx, color, Qt::ForegroundRole);
+				}
+			}
+			//@TODO: if column != level
+			//@TODO: if column != tid
+		}
+	}
+
 	/*void LogWidget::loadToColorRegexps (QString const & filter_item, QString const & color, bool enabled)
 	{
 		//m_filter_state.appendToColorRegexFilters(filter_item);
@@ -40,24 +69,42 @@ namespace logs {
 		//m_filter_state.setRegexChecked(filter_item, enabled);
 	}*/
 
-	void LogWidget::onColorRegexChanged ()
+	void LogWidget::onFgColorRegexChanged () { onColorRegexChanged(Qt::ForegroundRole); }
+	void LogWidget::onBgColorRegexChanged () { onColorRegexChanged(Qt::BackgroundRole); }
+	void LogWidget::onColorRegexChanged (int role)
 	{
 		for (int i = 0, ie = m_filter_state.m_colorized_texts.size(); i < ie; ++i)
 		{
 			ColorizedText & ct = m_filter_state.m_colorized_texts[i];
-			QStandardItem * root = m_color_regex_model->invisibleRootItem();
+			QStandardItem * const root = m_color_regex_model->invisibleRootItem();
 			QString const qregex = ct.m_regex_str;
-			QStandardItem * child = findChildByText(root, qregex);
-			QModelIndex const idx = m_color_regex_model->indexFromItem(child);
+			QStandardItem * const child = findChildByText(root, qregex);
+
 			if (!child)
 				continue;
 
-			if (QtColorPicker * w = static_cast<QtColorPicker *>(m_config_ui.ui()->listViewColorRegex->indexWidget(idx)))
+			QModelIndex const fgidx = m_color_regex_model->index(child->row(), 1);
+			if (fgidx.isValid())
 			{
-				ct.m_qcolor = w->currentColor();
+				if (QtColorPicker * w = static_cast<QtColorPicker *>(m_config_ui.ui()->viewColorRegex->indexWidget(fgidx)))
+					ct.m_qcolor = w->currentColor();
+			}
+			QModelIndex const bgidx = m_color_regex_model->index(child->row(), 2);
+			if (bgidx.isValid())
+			{
+				if (QtColorPicker * w = static_cast<QtColorPicker *>(m_config_ui.ui()->viewColorRegex->indexWidget(bgidx)))
+					ct.m_bgcolor = w->currentColor();
 			}
 		}
-		onInvalidateFilter();
+		updateColorRegex();
+	}
+
+	QtColorPicker * mkColorPicker (QWidget * parent, QString const & txt, QColor const & c)
+	{
+		QtColorPicker * w = new QtColorPicker(parent, txt);
+		w->setStandardColors();
+		w->setCurrentColor(c);
+		return w;
 	}
 
 	void LogWidget::recompileColorRegexps ()
@@ -72,21 +119,6 @@ namespace logs {
 			ct.m_is_enabled = false;
 			if (!child)
 				continue;
-
-			if (m_config_ui.ui()->listViewColorRegex->indexWidget(idx) == 0)
-			{
-				QtColorPicker * w = new QtColorPicker(m_config_ui.ui()->listViewColorRegex, qregex);
-				w->setStandardColors();
-				w->setCurrentColor(ct.m_qcolor);
-
-				connect(w, SIGNAL(colorChanged(const QColor &)), this, SLOT(onColorRegexChanged()));
-				m_config_ui.ui()->listViewColorRegex->setIndexWidget(idx, w);
-			}
-			else
-			{
-				QtColorPicker * w = static_cast<QtColorPicker *>(m_config_ui.ui()->listViewColorRegex->indexWidget(idx));
-				w->setCurrentColor(ct.m_qcolor);
-			}
 
 			QRegExp regex(qregex);
 			if (regex.isValid())
@@ -116,7 +148,7 @@ namespace logs {
 			}
 		}
 
-		onInvalidateFilter();
+		updateColorRegex();
 	}
 
 
@@ -127,7 +159,7 @@ namespace logs {
 	void LogWidget::onClickedAtColorRegexList (QModelIndex idx)
 	{
 		if (!idx.isValid()) return;
-		QStandardItemModel * model = static_cast<QStandardItemModel *>(m_config_ui.ui()->listViewColorRegex->model());
+		QStandardItemModel * model = static_cast<QStandardItemModel *>(m_config_ui.ui()->viewColorRegex->model());
 		QStandardItem * item = model->itemFromIndex(idx);
 		Q_ASSERT(item);
 
@@ -140,7 +172,7 @@ namespace logs {
 		// @TODO: if state really changed
 		m_filter_state.setColorRegexChecked(val, checked);
 		recompileColorRegexps();
-		onInvalidateFilter();
+		updateColorRegex();
 	}
 
 	void LogWidget::onColorRegexActivate (int idx)
@@ -156,22 +188,49 @@ namespace logs {
 		QString qItem = m_config_ui.ui()->comboBoxColorRegex->currentText();
 		if (!qItem.length())
 			return;
-		QStandardItem * root = static_cast<QStandardItemModel *>(m_config_ui.ui()->listViewColorRegex->model())->invisibleRootItem();
+		QStandardItemModel * model = static_cast<QStandardItemModel *>(m_config_ui.ui()->viewColorRegex->model());
+		QStandardItem * root = model->invisibleRootItem();
 		QStandardItem * child = findChildByText(root, qItem);
 		if (child == 0)
 		{
 			QList<QStandardItem *> row_items = addRow(qItem, false);
 			root->appendRow(row_items);
+			child = findChildByText(root, qItem);
 
+			QStandardItem * fgitem = new QStandardItem("fg");
+			QStandardItem * bgitem = new QStandardItem("bg");
+			model->setItem(child->row(), 1, fgitem);
+			model->setItem(child->row(), 2, bgitem);
 			appendToColorRegex(qItem);
+
+			for (int i = 0, ie = m_filter_state.m_colorized_texts.size(); i < ie; ++i)
+			{
+				ColorizedText & ct = m_filter_state.m_colorized_texts[i];
+				if (ct.m_regex_str == qItem)
+				{
+					{
+						QtColorPicker * w = mkColorPicker(m_config_ui.ui()->viewColorRegex, "fg", ct.m_qcolor);
+						connect(w, SIGNAL(colorChanged(const QColor &)), this, SLOT(onFgColorRegexChanged()));
+						QModelIndex const idx = model->indexFromItem(fgitem);
+						m_config_ui.ui()->viewColorRegex->setIndexWidget(idx, w);
+					}
+					{
+						QtColorPicker * w = mkColorPicker(m_config_ui.ui()->viewColorRegex, "bg", ct.m_bgcolor);
+						connect(w, SIGNAL(colorChanged(const QColor &)), this, SLOT(onBgColorRegexChanged()));
+						QModelIndex const idx = model->indexFromItem(bgitem);
+						m_config_ui.ui()->viewColorRegex->setIndexWidget(idx, w);
+					}
+					break;
+				}
+			}
 		}
 		recompileColorRegexps();
 	}
 
 	void LogWidget::onColorRegexRm ()
 	{
-		QStandardItemModel * model = static_cast<QStandardItemModel *>(m_config_ui.ui()->listViewColorRegex->model());
-		QModelIndex const idx = m_config_ui.ui()->listViewColorRegex->currentIndex();
+		QStandardItemModel * model = static_cast<QStandardItemModel *>(m_config_ui.ui()->viewColorRegex->model());
+		QModelIndex const idx = m_config_ui.ui()->viewColorRegex->currentIndex();
 		QStandardItem * item = model->itemFromIndex(idx);
 		if (!item)
 			return;

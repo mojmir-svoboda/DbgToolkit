@@ -264,43 +264,7 @@ void LogTableModel::parseCommand (DecodedCommand const & cmd, E_ReceiveMode mode
 
 }
 
-/*LogTableModel::LogTableModel (QObject * parent, logs::LogWidget & lw)
-	: QAbstractTableModel(parent)
-	, m_log_widget(lw)
-	, m_filter_state(lw.m_filter_state)
-{
-	size_t const prealloc_size = 128 * 1024;
-	m_rows.reserve(prealloc_size); // @TODO: magic const!
-}
-
-LogTableModel::~LogTableModel ()
-{
-	qDebug("%s", __FUNCTION__);
-}
-
-int LogTableModel::rowCount (const QModelIndex & parent) const { return static_cast<int>(m_rows.size()); }
-
-int LogTableModel::columnCount (const QModelIndex & parent) const
-{
-	return m_log_widget.m_config.m_columns_setup.size();
-}
-
-inline bool LogTableModel::checkExistence (QModelIndex const & index) const
-{
-	return index.row() < (int)m_rows.size() && index.column() < (int)m_rows[index.row()].size();
-}
-
-inline bool LogTableModel::checkTagExistence (tlv::tag_t tag, QModelIndex const & index) const
-{
-	int const column_idx = m_log_widget.findColumn4Tag(tag);
-	return column_idx != -1 && column_idx == index.column();
-}
-
-inline bool LogTableModel::checkColumnExistence (tlv::tag_t tag, QModelIndex const & index) const
-{
-	int const column_idx = m_log_widget.findColumn4Tag(tag);
-	return column_idx != -1 && column_idx == index.column() && checkExistence(index);
-}
+/*
 
 QVariant LogTableModel::data (const QModelIndex &index, int role) const
 {
@@ -317,26 +281,6 @@ QVariant LogTableModel::data (const QModelIndex &index, int role) const
 	}
 
 	bool const color_set = (role == Qt::BackgroundRole || role == Qt::ForegroundRole);
-	if (color_set)
-	{
-		if (checkColumnExistence(tlv::tag_msg, index))
-		{
-			QString const & msg = m_rows[index.row()][index.column()];
-
-			QColor color;
-			E_ColorRole color_role = e_Bg;
-			bool const is_match = m_filter_state.isMatchedColorizedText(msg, color, color_role);
-
-			if (is_match && role == Qt::BackgroundRole && color_role == e_Bg)
-			{
-				return QBrush(color);
-			}
-			if (is_match && role == Qt::ForegroundRole && color_role == e_Fg)
-			{
-				return QBrush(color);
-			}
-		}
-	}
 
 	if (role == Qt::BackgroundRole)
 	{
@@ -385,25 +329,6 @@ QVariant LogTableModel::data (const QModelIndex &index, int role) const
 	return QVariant();
 }
 
-
-bool LogTableModel::setData (QModelIndex const & index, QVariant const & value, int role)
-{
-	if (!index.isValid()) return false;
-	if (role == Qt::DisplayRole)
-		return false;
-	else if (role == Qt::EditRole)
-	{
-		if (checkExistence(index))
-		{
-			int const x = index.column();
-			int const y = index.row();
-			m_rows.at(y).at(x) = value.toString();
-			emit dataChanged(index, index);
-		}
-	}
-	return true;	
-}
-
 QVariant LogTableModel::headerData (int section, Qt::Orientation orientation, int role) const
 {
 	if (role == Qt::DisplayRole) {
@@ -413,25 +338,6 @@ QVariant LogTableModel::headerData (int section, Qt::Orientation orientation, in
 		}
 	}
 	return QVariant();
-}
-
-void LogTableModel::transactionStart (int n)
-{
-	int const row = rowCount();
-	beginInsertRows(QModelIndex(), row, row + n);
-
-	//emit layoutAboutToBeChanged();
-}
-
-void LogTableModel::transactionCommit ()
-{
-	endInsertRows();
-	//emit layoutChanged();
-}
-
-void LogTableModel::emitLayoutChanged ()
-{
-	emit layoutChanged();
 }
 
 void LogTableModel::appendCommand (QAbstractProxyModel * filter, tlv::StringCommand const & cmd)
@@ -479,14 +385,10 @@ void LogTableModel::appendCommand (QAbstractProxyModel * filter, tlv::StringComm
 	{
 		tlv::tag_t const tag = cmd.tvs[i].m_tag;
 		QString const & val = cmd.tvs[i].m_val;
-		if (tag == tlv::tag_file)
-			file = val;
-		if (tag == tlv::tag_line)
-			line = val;
-		if (tag == tlv::tag_func)
-			func = val;
-		if (tag == tlv::tag_time)
-			time = val;
+		if (tag == tlv::tag_file) file = val;
+		if (tag == tlv::tag_line) line = val;
+		if (tag == tlv::tag_func) func = val;
+		if (tag == tlv::tag_time) time = val;
 
 		QString qval;
 		if (tag == tlv::tag_msg)
