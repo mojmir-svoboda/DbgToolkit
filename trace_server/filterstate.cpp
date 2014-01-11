@@ -4,8 +4,13 @@
 FilterState::FilterState (QObject * parent)
 {
 	qDebug("FilterState()");
-	m_colorized_texts.push_back(ColorizedText(".*[Ww]arning.*", QColor(Qt::yellow), e_Bg));
-	m_colorized_texts.push_back(ColorizedText(".*[Ee]rror.*", QColor(Qt::red), e_Fg));
+	m_colorized_texts.push_back(ColorizedText(".*[Ww]arning.*", QColor(Qt::black), QColor(Qt::yellow)));
+	m_colorized_texts.push_back(ColorizedText(".*[Ee]rror.*", QColor(Qt::black), QColor(Qt::red)));
+  for (int i = 0, ie = m_colorized_texts.size(); i < ie; ++i)
+  {
+    ColorizedText & ct = m_colorized_texts[i];
+    ct.m_is_enabled = 1;
+  }
 }
 
 FilterState::~FilterState ()
@@ -77,15 +82,16 @@ bool FilterState::isBlockCollapsedIncl (QString tid, int row) const
 }
 
 ///////// color filters
-bool FilterState::isMatchedColorizedText (QString str, QColor & color, E_ColorRole & role) const
+bool FilterState::isMatchedColorizedText (QString str, QColor & fgcolor, QColor & bgcolor) const
 {
 	for (int i = 0, ie = m_colorized_texts.size(); i < ie; ++i)
 	{
 		ColorizedText const & ct = m_colorized_texts.at(i);
 		if (ct.exactMatch(str))
 		{
-			color = ct.m_qcolor;
-			role = ct.m_role;
+			fgcolor = ct.m_qcolor;
+			bgcolor = ct.m_bgcolor;
+			//role = ct.m_role;
 			return ct.m_is_enabled;
 		}
 	}
@@ -133,7 +139,7 @@ void FilterState::appendToColorRegexFilters (QString const & s)
 		if (ct.m_regex_str == s)
 			return;
 	}
-	m_colorized_texts.push_back(ColorizedText(s, e_Fg));
+	m_colorized_texts.push_back(ColorizedText(s, Qt::blue, Qt::white));
 }
 
 

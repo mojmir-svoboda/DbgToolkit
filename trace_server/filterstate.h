@@ -80,7 +80,7 @@ public:
 	// text colorization
 	void appendToColorRegexFilters (QString const & str);
 	void removeFromColorRegexFilters (QString const & str);
-	bool isMatchedColorizedText (QString str, QColor & color, E_ColorRole & role) const;
+	bool isMatchedColorizedText (QString str, QColor & fgcolor, QColor & bgcolor) const;
 	void setRegexColor (QString const & s, QColor col);
 	void setColorRegexChecked (QString const & s, bool checked);
 

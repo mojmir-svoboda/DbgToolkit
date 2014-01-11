@@ -63,7 +63,6 @@ struct CollapsedBlock {
 };
 
 struct ColorizedText {
-	E_ColorRole m_role;
 	QColor m_qcolor;
 	QColor m_bgcolor;
 	QString m_regex_str;
@@ -75,14 +74,12 @@ struct ColorizedText {
 
 	ColorizedText () { }
 
-	ColorizedText (QString const & rs, E_ColorRole r)
-        : m_role(r)
-        , m_qcolor(Qt::magenta), m_regex_str(rs), m_regex(rs), m_is_enabled(0)
-	{ }
+	/*ColorizedText (QString const & rs)
+        , m_qcolor(Qt::blue), m_bgcolor(Qt::white), m_regex_str(rs), m_regex(rs), m_is_enabled(0)
+	{ }*/
 
-	ColorizedText (QString const & rs, QColor const & col, E_ColorRole r)
-        : m_role(r)
-        , m_qcolor(col), m_regex_str(rs), m_regex(rs), m_is_enabled(0)
+	ColorizedText (QString const & rs, QColor const & col, QColor const & bgcol)
+        : m_qcolor(col), m_bgcolor(bgcol), m_regex_str(rs), m_regex(rs), m_is_enabled(0)
 	{ }
 
 	template <class ArchiveT>

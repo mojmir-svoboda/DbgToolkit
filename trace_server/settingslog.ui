@@ -6,13 +6,13 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>562</width>
-    <height>307</height>
+    <width>384</width>
+    <height>310</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
-    <width>562</width>
+    <width>384</width>
     <height>307</height>
    </size>
   </property>
@@ -849,7 +849,7 @@
                  <number>0</number>
                 </property>
                 <item>
-                 <widget class="QListView" name="listViewColorRegex">
+                 <widget class="QTreeView" name="viewColorRegex">
                   <property name="editTriggers">
                    <set>QAbstractItemView::EditKeyPressed</set>
                   </property>

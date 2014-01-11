@@ -147,8 +147,9 @@ namespace logs {
 		void appendToColorRegex (QString const & val);
 		void removeFromColorRegex (QString const & val);
 		//void loadToColorRegexps (QString const & filter_item, QString const & color, bool enabled);
-		void onColorRegexChanged ();
+		void onColorRegexChanged (int role);
 		void recompileColorRegexps ();
+		void updateColorRegex ();
 		//void loadToRegexps (QString const & filter_item, bool inclusive, bool enabled);
 
 	
@@ -230,6 +231,8 @@ namespace logs {
 		void onColorRegexActivate (int);
 		void onColorRegexAdd ();
 		void onColorRegexRm ();
+    void onFgColorRegexChanged ();
+    void onBgColorRegexChanged ();
 
 	signals:
 		//void requestTimeSynchronization (int sync_group, unsigned long long time, void * source);
