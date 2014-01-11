@@ -4,7 +4,7 @@
 #include <QAbstractProxyModel>
 #include <trace_client/trace.h>
 
-TableModelView::TableModelView (QObject * parent, QVector<QString> & hhdr, QVector<int> & hsize)
+TableModel::TableModel (QObject * parent, QVector<QString> & hhdr, QVector<int> & hsize)
 	: QAbstractTableModel(parent)
 	, m_columnCount(0)
 	, m_hhdr(hhdr)
@@ -24,24 +24,24 @@ TableModelView::TableModelView (QObject * parent, QVector<QString> & hhdr, QVect
 	}
 }
 
-TableModelView::~TableModelView ()
+TableModel::~TableModel ()
 {
 	qDebug("%s", __FUNCTION__);
 }
 
-int TableModelView::rowCount (QModelIndex const & /*parent*/) const { return m_rows.size(); }
+int TableModel::rowCount (QModelIndex const & /*parent*/) const { return m_rows.size(); }
 
-int TableModelView::columnCount (QModelIndex const & /*parent*/) const
+int TableModel::columnCount (QModelIndex const & /*parent*/) const
 {
 	return m_columnCount;
 }
 
-inline bool TableModelView::checkExistence (QModelIndex const & index) const
+inline bool TableModel::checkExistence (QModelIndex const & index) const
 {
 	return index.row() < (int)m_rows.size() && index.column() < (int)m_rows[index.row()].size();
 }
 
-QVariant TableModelView::data (QModelIndex const & index, int role) const
+QVariant TableModel::data (QModelIndex const & index, int role) const
 {
 	if (!index.isValid())
 		return QVariant();
@@ -78,7 +78,7 @@ QVariant TableModelView::data (QModelIndex const & index, int role) const
 	return QVariant();
 }
 
-bool TableModelView::setData (QModelIndex const & index, QVariant const & value, int role)
+bool TableModel::setData (QModelIndex const & index, QVariant const & value, int role)
 {
 	if (!index.isValid()) return false;
 	if (!checkExistence(index)) return false;
@@ -105,7 +105,7 @@ bool TableModelView::setData (QModelIndex const & index, QVariant const & value,
 }
 
 
-QVariant TableModelView::headerData (int section, Qt::Orientation orientation, int role) const
+QVariant TableModel::headerData (int section, Qt::Orientation orientation, int role) const
 {
 	if (orientation == Qt::Horizontal)
 	{
@@ -120,7 +120,7 @@ QVariant TableModelView::headerData (int section, Qt::Orientation orientation, i
 	return QVariant();
 }
 
-bool  TableModelView::setHeaderData (int section, Qt::Orientation orientation, QVariant const & value, int role)
+bool  TableModel::setHeaderData (int section, Qt::Orientation orientation, QVariant const & value, int role)
 {
 	if (section == -1)
 		return false;
@@ -148,12 +148,12 @@ bool  TableModelView::setHeaderData (int section, Qt::Orientation orientation, Q
 	return true;
 }
 
-void TableModelView::emitLayoutChanged ()
+void TableModel::emitLayoutChanged ()
 {
 	emit layoutChanged();
 }
 
-void TableModelView::appendTableXY (int x, int y, QString const & time, QString const & fgc, QString const & bgc, QString const & cmd)
+void TableModel::appendTableXY (int x, int y, QString const & time, QString const & fgc, QString const & bgc, QString const & cmd)
 {
 	unsigned long long t = time.toULongLong();
 	QStringList const values = cmd.split("|");
@@ -271,11 +271,11 @@ void TableModelView::appendTableXY (int x, int y, QString const & time, QString 
 	}
 }
 
-void TableModelView::createCell (unsigned long long time, int x, int y)
+void TableModel::createCell (unsigned long long time, int x, int y)
 {
 }
 
-void TableModelView::createRows (unsigned long long time, int first, int last, QModelIndex const &)
+void TableModel::createRows (unsigned long long time, int first, int last, QModelIndex const &)
 {
 	if (first >= m_rows.size())
 	{
@@ -290,7 +290,7 @@ void TableModelView::createRows (unsigned long long time, int first, int last, Q
 	}
 }
 
-void TableModelView::createColumns (unsigned long long time, int first, int last, QModelIndex const & )
+void TableModel::createColumns (unsigned long long time, int first, int last, QModelIndex const & )
 {
 	if (last >= m_rows.back().size())
 	{

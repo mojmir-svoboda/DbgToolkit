@@ -74,7 +74,7 @@ namespace table {
 		table::CtxTableConfig m_config_ui;
 		//QList<QColor> m_colors;
 		QString m_fname;
-		TableModelView * m_modelView;
+		TableModel * m_modelView;
 		QAbstractProxyModel * m_table_view_proxy;
 		Connection * m_connection;
         DockedWidgetBase * m_dwb;

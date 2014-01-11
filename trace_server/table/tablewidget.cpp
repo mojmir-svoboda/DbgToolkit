@@ -45,7 +45,7 @@ namespace table {
 
 		//setHorizontalHeader(new EditableHeaderView(Qt::Horizontal, this));
 
-		m_modelView = new TableModelView(this, m_config.m_hhdr, m_config.m_hsize);
+		m_modelView = new TableModel(this, m_config.m_hhdr, m_config.m_hsize);
 		//setModel(m_modelView);
 		// TMP!
 		//setEditTriggers(QAbstractItemView::NoEditTriggers);

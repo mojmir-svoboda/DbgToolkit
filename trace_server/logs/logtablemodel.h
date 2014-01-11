@@ -44,7 +44,7 @@ struct BatchCmd {
 	void clear () { m_dcmds.clear(); m_rows.clear(); }
 };
 
-class LogTableModel : public TableModelView
+class LogTableModel : public TableModel
 {
 public:
 	explicit LogTableModel (QObject * parent, logs::LogWidget & lw);

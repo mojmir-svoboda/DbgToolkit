@@ -41,12 +41,12 @@ struct Cell
 typedef std::vector<Cell> columns_t;
 typedef std::vector<columns_t> rows_t;
 
-class TableModelView : public QAbstractTableModel
+class TableModel : public QAbstractTableModel
 {
 	//Q_OBJECT
 public:
-	explicit TableModelView (QObject * parent, QVector<QString> & hhdr, QVector<int> & hsize);
-	~TableModelView ();
+	explicit TableModel (QObject * parent, QVector<QString> & hhdr, QVector<int> & hsize);
+	~TableModel ();
 	int rowCount (const QModelIndex & parent = QModelIndex()) const;
 	int columnCount (const QModelIndex & parent = QModelIndex()) const;
 

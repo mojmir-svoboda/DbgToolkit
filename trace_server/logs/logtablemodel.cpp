@@ -7,7 +7,7 @@
 #include "filterproxymodel.h"
 
 LogTableModel::LogTableModel (QObject * parent, logs::LogWidget & lw)
-	: TableModelView(parent, lw.m_config.m_columns_setup, lw.m_config.m_columns_sizes)
+	: TableModel(parent, lw.m_config.m_columns_setup, lw.m_config.m_columns_sizes)
 	, m_log_widget(lw)
 	, m_filter_state(lw.m_filter_state)
 {
