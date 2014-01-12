@@ -4,6 +4,7 @@ char const * g_traceServerName		= "trace_server";
 char const * g_defaultPresetName	= "default";
 char const * g_presetLayoutName		= "layout";
 char const * g_filterTag			= "filter";
+char const * g_colorizerTag			= "colorizer";
 char const * g_findTag				= "find";
 char const * g_MainLogName			= "main_log";
 char const * g_LogTag				= "log";

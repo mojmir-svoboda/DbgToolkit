@@ -30,6 +30,7 @@
 #include <boost/serialization/nvp.hpp>
 #include "tls.h"
 #include "config.h"
+#include "colorizer_regex.h"
 
 class PersistentFilter;
 class MainWindow;
@@ -39,6 +40,31 @@ struct SessionStats {
 	size_t m_Write_B;
 	//hptimer_t m_StartT;
 };
+
+struct CollapsedBlock {
+	QString m_tid;
+	int m_from;
+	int m_to;
+	QString m_file;
+	QString m_line;
+
+	CollapsedBlock () { }
+
+	CollapsedBlock (QString tid, int from, int to, QString file, QString line)
+		: m_tid(tid), m_from(from), m_to(to), m_file(file), m_line(line)
+	{ }
+
+	template <class ArchiveT>
+	void serialize (ArchiveT & ar, unsigned const version)
+	{
+		ar & boost::serialization::make_nvp("tid", m_tid);
+		ar & boost::serialization::make_nvp("from", m_from);
+		ar & boost::serialization::make_nvp("to", m_to);
+		ar & boost::serialization::make_nvp("file", m_file);
+		ar & boost::serialization::make_nvp("line", m_line);
+	}
+};
+
 
 struct Dict {
 	QList<QString> m_names;
@@ -85,7 +111,7 @@ public:
 	void setColorRegexChecked (QString const & s, bool checked);
 
 	void clearFilters ();
-	void onClearColorizedRegexFilter () { m_colorized_texts.clear(); }
+	//void onClearColorizedRegexFilter () { m_colorized_texts.clear(); }
 	void onClearScopeFilter () { m_collapse_blocks.clear(); }
 
 	template <class ArchiveT>
@@ -101,10 +127,9 @@ public:
 
 	friend class Connection;
 	friend class FilterProxyModel;
-	//friend class FilterWidget;
 	friend class PersistentFilter;
 
-	QList<ColorizedText>	m_colorized_texts;
+	ColorizerRegex m_colorizer_regex;
 	QList<CollapsedBlock>	m_collapse_blocks;
 };
 

@@ -87,7 +87,8 @@ FORMS    += help.ui \
     filter_lvl.ui \
     filter_ctx.ui \
     filter_row.ui \
-    combolist.ui
+    combolist.ui \
+    colorizer_regex.ui
 
 RESOURCES += \
     resources.qrc

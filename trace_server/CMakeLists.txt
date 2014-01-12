@@ -92,6 +92,7 @@ set(trace_server_SOURCES
 	filter_tid.cpp
 	movabletabwidget.cpp
 	warnimage.cpp
+	colorizer_regex.cpp
 
 	findwidget.cpp
 	findconfig.cpp
@@ -184,6 +185,7 @@ set(trace_server_HEADERS
 	filter_script.h
 	filter_regex.h
 	filter_tid.h
+	colorizer_regex.h
 
 	logs/logtablemodel.h
 	logs/logselectionproxymodel.h
@@ -249,6 +251,7 @@ set(trace_server_UI
 	filter_string.ui
 	filter_script.ui
 	filter_tid.ui
+	colorizer_regex.ui
 	)
 
 set(trace_server_RESOURCES resources.qrc)

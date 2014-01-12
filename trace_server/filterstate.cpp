@@ -4,13 +4,6 @@
 FilterState::FilterState (QObject * parent)
 {
 	qDebug("FilterState()");
-	m_colorized_texts.push_back(ColorizedText(".*[Ww]arning.*", QColor(Qt::black), QColor(Qt::yellow)));
-	m_colorized_texts.push_back(ColorizedText(".*[Ee]rror.*", QColor(Qt::black), QColor(Qt::red)));
-  for (int i = 0, ie = m_colorized_texts.size(); i < ie; ++i)
-  {
-    ColorizedText & ct = m_colorized_texts[i];
-    ct.m_is_enabled = 1;
-  }
 }
 
 FilterState::~FilterState ()
@@ -21,7 +14,7 @@ FilterState::~FilterState ()
 
 void FilterState::clearFilters ()
 {
-	m_colorized_texts.clear();
+	//m_colorized_texts.clear();
 	m_collapse_blocks.clear();
 }
 
@@ -97,7 +90,7 @@ bool FilterState::isBlockCollapsedIncl (QString tid, int row) const
 	}
 	return false;
 }*/
-void FilterState::setRegexColor (QString const & s, QColor col)
+/*void FilterState::setRegexColor (QString const & s, QColor col)
 {
 	for (int i = 0, ie = m_colorized_texts.size(); i < ie; ++i)
 	{
@@ -118,28 +111,14 @@ void FilterState::setColorRegexChecked (QString const & s, bool checked)
 			ct.m_is_enabled = checked;
 		}
 	}
-}
+}*/
 void FilterState::removeFromColorRegexFilters (QString const & s)
 {
-	for (int i = 0, ie = m_colorized_texts.size(); i < ie; ++i)
-	{
-		ColorizedText & ct = m_colorized_texts[i];
-		if (ct.m_regex_str == s)
-		{
-			m_colorized_texts.removeAt(i);
-			return;
-		}
-	}
+	m_colorizer_regex.remove(s);
 }
 void FilterState::appendToColorRegexFilters (QString const & s)
 {
-	for (int i = 0, ie = m_colorized_texts.size(); i < ie; ++i)
-	{
-		ColorizedText & ct = m_colorized_texts[i];
-		if (ct.m_regex_str == s)
-			return;
-	}
-	m_colorized_texts.push_back(ColorizedText(s, Qt::blue, Qt::white));
+	m_colorizer_regex.append(s);
 }
 
 

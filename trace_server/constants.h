@@ -5,6 +5,7 @@ extern char const * g_defaultPresetName;
 extern char const * g_presetLayoutName;
 extern char const * g_MainLogName;
 extern char const * g_filterTag;
+extern char const * g_colorizerTag;
 extern char const * g_findTag;
 extern char const * g_LogTag;
 extern char const * g_PlotTag;
