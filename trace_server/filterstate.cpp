@@ -82,7 +82,7 @@ bool FilterState::isBlockCollapsedIncl (QString tid, int row) const
 }
 
 ///////// color filters
-bool FilterState::isMatchedColorizedText (QString str, QColor & fgcolor, QColor & bgcolor) const
+/*bool FilterState::isMatchedColorizedText (QString str, QColor & fgcolor, QColor & bgcolor) const
 {
 	for (int i = 0, ie = m_colorized_texts.size(); i < ie; ++i)
 	{
@@ -96,7 +96,7 @@ bool FilterState::isMatchedColorizedText (QString str, QColor & fgcolor, QColor 
 		}
 	}
 	return false;
-}
+}*/
 void FilterState::setRegexColor (QString const & s, QColor col)
 {
 	for (int i = 0, ie = m_colorized_texts.size(); i < ie; ++i)

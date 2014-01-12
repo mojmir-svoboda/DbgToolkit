@@ -70,7 +70,15 @@ struct ColorizedText {
 	bool m_is_enabled;
 
 	bool isValid () const { return m_regex.isValid(); }
-	bool exactMatch (QString str) const { return m_regex.exactMatch(str); }
+
+	bool accept (QString str) const
+	{
+		if (m_is_enabled && m_regex.exactMatch(str))
+		{
+			return true;
+		}
+		return false;
+	}
 
 	ColorizedText () { }
 

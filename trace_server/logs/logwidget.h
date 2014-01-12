@@ -74,7 +74,7 @@ namespace logs {
 		friend struct LogDelegate;
 
 		virtual void keyPressEvent (QKeyEvent * event);
-    virtual QModelIndex moveCursor (CursorAction cursorAction, Qt::KeyboardModifiers modifiers);
+		virtual QModelIndex moveCursor (CursorAction cursorAction, Qt::KeyboardModifiers modifiers);
 
 		// config
 		int sizeHintForColumn (int column) const;
@@ -84,8 +84,8 @@ namespace logs {
 		void normalizeConfig (logs::LogConfig & normalized);
 		void swapSectionsAccordingTo (logs::LogConfig const & cfg);
 		void resizeSections ();
-    void autoScrollOn ();
-    void autoScrollOff ();
+		void autoScrollOn ();
+		void autoScrollOff ();
 
 		// find & filtering
 		bool filterEnabled () const { return m_config.m_filtering; }
@@ -149,7 +149,12 @@ namespace logs {
 		//void loadToColorRegexps (QString const & filter_item, QString const & color, bool enabled);
 		void onColorRegexChanged (int role);
 		void recompileColorRegexps ();
-		void updateColorRegex ();
+		void recompileColorRegex (ColorizedText & ct);
+		void actionColorRegex (DecodedCommand const & cmd, ColorizedText const & ct) const;
+		void actionUncolorRegex (DecodedCommand const & cmd, ColorizedText const & ct) const;
+		void updateColorRegex (ColorizedText const & ct);
+		void uncolorRegex (ColorizedText const & ct);
+
 		//void loadToRegexps (QString const & filter_item, bool inclusive, bool enabled);
 
 	
@@ -231,8 +236,8 @@ namespace logs {
 		void onColorRegexActivate (int);
 		void onColorRegexAdd ();
 		void onColorRegexRm ();
-    void onFgColorRegexChanged ();
-    void onBgColorRegexChanged ();
+		void onFgColorRegexChanged ();
+		void onBgColorRegexChanged ();
 
 	signals:
 		//void requestTimeSynchronization (int sync_group, unsigned long long time, void * source);

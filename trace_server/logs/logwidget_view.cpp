@@ -35,33 +35,65 @@ namespace logs {
 		m_filter_state.removeFromColorRegexFilters(val);
 	}
 
-	void LogWidget::updateColorRegex ()
+	
+	void LogWidget::actionColorRegex (DecodedCommand const & cmd, ColorizedText const & ct) const
 	{
-		for (size_t r = 0, re = m_src_model->dcmds().size(); r < re; ++r)
+		for (size_t i = 0, ie = cmd.m_tvs.size(); i < ie; ++i)
 		{
-			DecodedCommand const & dcmd = m_src_model->dcmds()[r];
+			QString const & val = cmd.m_tvs[i].m_val;
 
-			bool row_match = false;
-			for (size_t i = 0, ie = dcmd.m_tvs.size(); i < ie; ++i)
+			bool const is_match = ct.accept(val);
+			//@TODO: cache QMI in DecodedCommand
+			QModelIndex const idx = m_src_model->index(cmd.m_src_row, i, QModelIndex());
+			if (is_match && idx.isValid())
 			{
-				QString const & val = dcmd.m_tvs[i].m_val;
+				m_src_model->setData(idx, ct.m_bgcolor, Qt::BackgroundRole);
+				m_src_model->setData(idx, ct.m_qcolor, Qt::ForegroundRole);
+			}
 
-				QColor color, bgcolor;
-				bool const is_match = m_filter_state.isMatchedColorizedText(val, color, bgcolor);
-				QModelIndex const idx = m_src_model->index(r, i, QModelIndex());
+			//@TODO: if column != level
+			//@TODO: if column != tid
+		}
+	}
+	void LogWidget::actionUncolorRegex (DecodedCommand const & cmd, ColorizedText const & ct) const
+	{
+		for (size_t i = 0, ie = cmd.m_tvs.size(); i < ie; ++i)
+		{
+			QString const & val = cmd.m_tvs[i].m_val;
 
+			bool const is_match = ct.accept(val);
+			//@TODO: cache QMI in DecodedCommand
+			QModelIndex const idx = m_src_model->index(cmd.m_src_row, i, QModelIndex());
+			if (is_match && idx.isValid())
+			{
 				m_src_model->setData(idx, QColor(Qt::white), Qt::BackgroundRole);
 				m_src_model->setData(idx, QColor(Qt::black), Qt::ForegroundRole);
-				if (is_match)
-				{
-					m_src_model->setData(idx, bgcolor, Qt::BackgroundRole);
-					m_src_model->setData(idx, color, Qt::ForegroundRole);
-				}
 			}
 			//@TODO: if column != level
 			//@TODO: if column != tid
 		}
 	}
+
+
+	void LogWidget::updateColorRegex (ColorizedText const & ct)
+	{
+		for (size_t r = 0, re = m_src_model->dcmds().size(); r < re; ++r)
+		{
+			DecodedCommand const & dcmd = m_src_model->dcmds()[r];
+			actionColorRegex(dcmd, ct);
+		}
+	}
+
+
+	void LogWidget::uncolorRegex (ColorizedText const & ct)
+	{
+		for (size_t r = 0, re = m_src_model->dcmds().size(); r < re; ++r)
+		{
+			DecodedCommand const & dcmd = m_src_model->dcmds()[r];
+			actionUncolorRegex(dcmd, ct);
+		}
+	}
+
 
 	/*void LogWidget::loadToColorRegexps (QString const & filter_item, QString const & color, bool enabled)
 	{
@@ -96,8 +128,9 @@ namespace logs {
 				if (QtColorPicker * w = static_cast<QtColorPicker *>(m_config_ui.ui()->viewColorRegex->indexWidget(bgidx)))
 					ct.m_bgcolor = w->currentColor();
 			}
+			//TODO
+			//updateColorRegex();
 		}
-		updateColorRegex();
 	}
 
 	QtColorPicker * mkColorPicker (QWidget * parent, QString const & txt, QColor const & c)
@@ -108,53 +141,57 @@ namespace logs {
 		return w;
 	}
 
+	void LogWidget::recompileColorRegex (ColorizedText & ct)
+	{
+		QStandardItem * root = m_color_regex_model->invisibleRootItem();
+		QString const qregex = ct.m_regex_str;
+		QStandardItem * child = findChildByText(root, qregex);
+		QModelIndex const idx = m_color_regex_model->indexFromItem(child);
+		ct.m_is_enabled = false;
+		if (!child)
+			return;
+
+		QRegExp regex(qregex);
+		QString reason;
+		if (regex.isValid())
+		{
+			ct.m_regex = regex;
+
+			bool const checked = (child->checkState() == Qt::Checked);
+			if (child && checked)
+			{
+				child->setData(QBrush(Qt::green), Qt::BackgroundRole);
+				reason = "ok";
+				ct.m_is_enabled = true;
+			}
+			else if (child && !checked)
+			{
+				child->setData(QBrush(Qt::yellow), Qt::BackgroundRole);
+				reason = "not checked";
+			}
+		}
+		else
+		{
+			if (child)
+			{
+				child->setData(QBrush(Qt::red), Qt::BackgroundRole);
+				reason = regex.errorString();
+			}
+		}
+
+		child->setToolTip(reason);
+		QStandardItem * item = m_color_regex_model->item(child->row(), 3);
+		item->setText(reason);
+	}
+
 	void LogWidget::recompileColorRegexps ()
 	{
 		for (int i = 0, ie = m_filter_state.m_colorized_texts.size(); i < ie; ++i)
 		{
 			ColorizedText & ct = m_filter_state.m_colorized_texts[i];
-			QStandardItem * root = m_color_regex_model->invisibleRootItem();
-			QString const qregex = ct.m_regex_str;
-			QStandardItem * child = findChildByText(root, qregex);
-			QModelIndex const idx = m_color_regex_model->indexFromItem(child);
-			ct.m_is_enabled = false;
-			if (!child)
-				continue;
-
-			QRegExp regex(qregex);
-			QString reason;
-			if (regex.isValid())
-			{
-				ct.m_regex = regex;
-
-				bool const checked = (child->checkState() == Qt::Checked);
-				if (child && checked)
-				{
-					child->setData(QBrush(Qt::green), Qt::BackgroundRole);
-					reason = "ok";
-					ct.m_is_enabled = true;
-				}
-				else if (child && !checked)
-				{
-					child->setData(QBrush(Qt::yellow), Qt::BackgroundRole);
-					reason = "not checked";
-				}
-			}
-			else
-			{
-				if (child)
-				{
-					child->setData(QBrush(Qt::red), Qt::BackgroundRole);
-					reason = regex.errorString();
-				}
-			}
-
-			child->setToolTip(reason);
-			QStandardItem * item = m_color_regex_model->item(child->row(), 3);
-			item->setText(reason);
+			recompileColorRegex(ct);
+			updateColorRegex(ct);
 		}
-
-		updateColorRegex();
 	}
 
 
@@ -170,15 +207,29 @@ namespace logs {
 		Q_ASSERT(item);
 
 		QString const & val = model->data(idx, Qt::DisplayRole).toString();
-		bool const orig_checked = (item->checkState() == Qt::Checked);
-		Qt::CheckState const checked = orig_checked ? Qt::Unchecked : Qt::Checked;
-		qDebug("color regex click! (checked=%u) %s ", checked, val.toStdString().c_str());
-		item->setCheckState(checked);
+		bool const checked = (item->checkState() == Qt::Checked);
 
 		// @TODO: if state really changed
-		m_filter_state.setColorRegexChecked(val, checked);
-		recompileColorRegexps();
-		updateColorRegex();
+		for (int i = 0, ie = m_filter_state.m_colorized_texts.size(); i < ie; ++i)
+		{
+			ColorizedText & ct = m_filter_state.m_colorized_texts[i];
+			if (ct.m_regex_str == val)
+			{
+				if (checked)
+				{
+					m_filter_state.setColorRegexChecked(val, checked);
+					recompileColorRegex(ct);
+					updateColorRegex(ct);
+				}
+				else
+				{
+					uncolorRegex(ct);
+					m_filter_state.setColorRegexChecked(val, checked);
+					recompileColorRegex(ct);
+				}
+				break;
+			}
+		}
 	}
 
 	void LogWidget::onColorRegexActivate (int idx)
@@ -229,11 +280,12 @@ namespace logs {
 						QModelIndex const idx = model->indexFromItem(bgitem);
 						m_config_ui.ui()->viewColorRegex->setIndexWidget(idx, w);
 					}
+
+					recompileColorRegex(ct);
 					break;
 				}
 			}
 		}
-		recompileColorRegexps();
 	}
 
 	void LogWidget::onColorRegexRm ()
@@ -246,8 +298,17 @@ namespace logs {
 		QString const & val = model->data(idx, Qt::DisplayRole).toString();
 		model->removeRow(idx.row());
 
+		for (int i = 0, ie = m_filter_state.m_colorized_texts.size(); i < ie; ++i)
+		{
+			ColorizedText & ct = m_filter_state.m_colorized_texts[i];
+			if (ct.m_regex_str == val)
+			{
+				uncolorRegex(ct);
+				break;
+			}
+		}
+
 		removeFromColorRegex(val);
-		recompileColorRegexps();
 	}
 
 
