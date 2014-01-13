@@ -58,7 +58,7 @@ struct ColorizerRegex : FilterBase
 	virtual void initUI ();
 	virtual void doneUI ();
 
-	//virtual E_FilterType type () const { return e_Filter_Ctx; }
+	virtual E_FilterType type () const { return e_Filter_ColRegex; }
 
 	virtual bool accept (DecodedCommand const & cmd) const;
 
@@ -76,7 +76,7 @@ struct ColorizerRegex : FilterBase
 	}
 
 	// color_regex specific
-	ColorizedText const & findOrCreateColorizedText (QString const & str);
+	ColorizedText & findOrCreateColorizedText (QString const & str);
 	void setupModel ();
 	void destroyModel ();
 	bool isPresent (QString const & item, bool & enabled) const;
@@ -88,6 +88,8 @@ struct ColorizerRegex : FilterBase
 	//void locateItem (QString const & item, bool scrollto, bool expand);
 	QTreeView * getWidget () { return m_ui->view; }
 	QTreeView const * getWidget () const { return m_ui->view; }
+	void recompileColorRegex (ColorizedText & ct);
+	void onColorRegexChanged (int role);
 
 	typedef QList<ColorizedText> filters_t;
 	filters_t				m_data;
@@ -100,11 +102,11 @@ public slots:
 	void onSelectNone ();
 	void onAdd ();
 	void onRm ();
-	void onColorRegexActivate (int);
+	void onActivate (int);
 		//void onColorRegexAdd ();
 		//void onColorRegexRm ();
-	void onFgColorRegexChanged ();
-	void onBgColorRegexChanged ();
+	void onFgChanged ();
+	void onBgChanged ();
 
 signals:
 };

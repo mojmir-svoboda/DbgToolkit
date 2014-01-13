@@ -143,9 +143,7 @@ namespace logs {
 		void clearRefTime () { m_time_ref_row = 0; }
 		void colorRow (int);
 
-		void setupColorRegex ();
-		void appendToColorRegex (QString const & val);
-		void removeFromColorRegex (QString const & val);
+		/*void removeFromColorRegex (QString const & val);
 		//void loadToColorRegexps (QString const & filter_item, QString const & color, bool enabled);
 		void onColorRegexChanged (int role);
 		void recompileColorRegexps ();
@@ -153,7 +151,7 @@ namespace logs {
 		void actionColorRegex (DecodedCommand const & cmd, ColorizedText const & ct) const;
 		void actionUncolorRegex (DecodedCommand const & cmd, ColorizedText const & ct) const;
 		void updateColorRegex (ColorizedText const & ct);
-		void uncolorRegex (ColorizedText const & ct);
+		void uncolorRegex (ColorizedText const & ct);*/
 
 		//void loadToRegexps (QString const & filter_item, bool inclusive, bool enabled);
 
@@ -230,14 +228,6 @@ namespace logs {
 		void onHidePrev ();
 		void onHideNext ();
 
-		void onClearCurrentColorizedRegex ();
-		void onClickedAtColorRegexList (QModelIndex idx);
-		void onDoubleClickedAtColorRegexList (QModelIndex);
-		void onColorRegexActivate (int);
-		void onColorRegexAdd ();
-		void onColorRegexRm ();
-		void onFgColorRegexChanged ();
-		void onBgColorRegexChanged ();
 
 	signals:
 		//void requestTimeSynchronization (int sync_group, unsigned long long time, void * source);

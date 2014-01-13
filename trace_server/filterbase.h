@@ -17,6 +17,8 @@ enum E_FilterType {
 	e_Filter_Row,
 	e_Filter_User0,
 	e_Filter_User1,
+	e_Filter_ColRegex,
+	e_Filter_ColRow,
 
 	e_filtertype_max_value
 };
@@ -33,6 +35,8 @@ QString const g_filterNames[] = {
 	QString("Row"),
 	QString("User0"),
 	QString("User1"),
+	QString("ColRgx"),
+	QString("ColRow"),
 	QString("max")
 };
 

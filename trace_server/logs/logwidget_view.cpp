@@ -9,25 +9,14 @@
 
 namespace logs {
 
+#if 0
 	void LogWidget::setupColorRegex ()
 	{
-		m_config_ui.ui()->viewColorRegex->setEditTriggers(QAbstractItemView::NoEditTriggers);
-		connect(m_config_ui.ui()->viewColorRegex, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtColorRegexList(QModelIndex)));
-		connect(m_config_ui.ui()->viewColorRegex, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(onDoubleClickedAtColorRegexList(QModelIndex)));
-		connect(m_config_ui.ui()->comboBoxColorRegex, SIGNAL(activated(int)), this, SLOT(onColorRegexActivate(int)));
-		connect(m_config_ui.ui()->buttonAddColorRegex, SIGNAL(clicked()), this, SLOT(onColorRegexAdd()));
-		connect(m_config_ui.ui()->buttonRmColorRegex, SIGNAL(clicked()), this, SLOT(onColorRegexRm()));
-
-		if (!m_color_regex_model)
-			m_color_regex_model = new QStandardItemModel;
-		m_config_ui.ui()->viewColorRegex->setModel(m_color_regex_model);
-		m_color_regex_model->setColumnCount(4);
-		m_config_ui.ui()->viewColorRegex->setColumnWidth(0, 192);
 	}
 
 	void LogWidget::appendToColorRegex (QString const & val)
 	{
-		m_filter_state.appendToColorRegexFilters(val);
+		m_filter_state.m_colorizer_regex.appendToColorRegexFilters(val);
 	}
 
 	void LogWidget::removeFromColorRegex (QString const & val)
@@ -310,7 +299,7 @@ namespace logs {
 
 		removeFromColorRegex(val);
 	}
-
+#endif
 
 	void LogWidget::scrollToCurrentTag ()
 	{
