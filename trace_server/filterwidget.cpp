@@ -68,7 +68,7 @@ void FilterWidget::applyConfig (FilterState const & src, FilterState & dst)
 	//std::swap(conn->m_filter_state.m_file_filters.root, src.m_file_filters.root);
 
 	//setupModelFile();
-	m_filter_state.m_colorized_texts = src.m_colorized_texts;
+	//m_filter_state.m_colorized_texts = src.m_colorized_texts;
 	//@TODO: this blows under linux, i wonder why?
 	//m_filter_state.m_filtered_regexps.swap(src.m_filtered_regexps);
 	//m_filter_state.m_colorized_texts.swap(src.m_colorized_texts);

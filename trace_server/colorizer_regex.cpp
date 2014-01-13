@@ -6,7 +6,7 @@
 #include "utils_qstandarditem.h"
 #include <boost/function.hpp>
 
-/*bool ColorizerRegex::isMatchedColorizedText (QString str, QColor & fgcolor, QColor & bgcolor) const
+/*bool ColorizerRegex::isMatchedColorizerText (QString str, QColor & fgcolor, QColor & bgcolor) const
 {
 	for (int i = 0, ie = m_data.size(); i < ie; ++i)
 	{
@@ -231,7 +231,7 @@ void ColorizerRegex::appendToWidgets (ColorizedText const & ct)
 	}
 }
 
-void ColorizerRegex::locateItem (QString const & item, bool scrollto, bool expand)
+/*void ColorizerRegex::locateItem (QString const & item, bool scrollto, bool expand)
 {
 	QModelIndexList indexList = m_model->match(m_model->index(0, 0), Qt::DisplayRole, item);
 	if (!indexList.empty())
@@ -239,15 +239,15 @@ void ColorizerRegex::locateItem (QString const & item, bool scrollto, bool expan
 		QModelIndex const selectedIndex(indexList.first());
 		getWidget()->setCurrentIndex(selectedIndex);
 	}
-}
+}*/
 
 
 //////// delegate
-ColorizedRegexDelegate::~ColorizedRegexDelegate ()
+ColorizerRegexDelegate::~ColorizerRegexDelegate ()
 {
 	qDebug("%s", __FUNCTION__);
 }
-void ColorizedRegexDelegate::paint (QPainter * painter, QStyleOptionViewItem const & option, QModelIndex const & index) const
+void ColorizerRegexDelegate::paint (QPainter * painter, QStyleOptionViewItem const & option, QModelIndex const & index) const
 {
     painter->save();
     QStyleOptionViewItemV4 option4 = option;
