@@ -261,6 +261,7 @@ void LogWidget::onColorFileLine ()
 }
 void LogWidget::onColorRow ()
 {
+	colorRow(0);
 }
 void LogWidget::onUncolorRow ()
 {

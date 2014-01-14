@@ -13,11 +13,71 @@
 #include "filter_fileline.h"
 #include "filter_row.h"
 
-struct FilterMgr : FilterBase 
+struct FilterMgrBase : FilterBase 
 {
 	QStringList 				m_filter_order;
 	typedef QList<FilterBase *> filters_t;
 	filters_t					m_filters;	/// user-order respecting filters
+
+	FilterMgrBase (QWidget * parent = 0);
+	virtual ~FilterMgrBase () = 0;
+
+	virtual void initUI () = 0;
+	virtual void doneUI () = 0;
+
+	virtual E_FilterType type () const = 0;
+
+	virtual bool accept (DecodedCommand const & cmd) const;
+	virtual bool enabled () const;
+	virtual bool someFilterEnabled () const;
+	virtual void addFilter (FilterBase * b);
+	virtual void rmFilter (FilterBase * & b);
+	virtual void mvFilter (int from, int to);
+	virtual void recreateFilters () = 0;
+
+	virtual void defaultConfig () = 0;
+	virtual void loadConfig (QString const & path);
+	virtual void saveConfig (QString const & path);
+	virtual void applyConfig ();
+	virtual void clear () = 0;
+
+	template <class ArchiveT>
+	void serialize (ArchiveT & ar, unsigned const version)
+	{
+		FilterBase::serialize(ar, version);
+		ar & boost::serialization::make_nvp("filter_order", m_filter_order);
+		ar & boost::serialization::make_nvp("curr_tab", m_currTab);
+	}
+
+	void connectFiltersTo (QWidget * w);
+	void disconnectFiltersTo (QWidget * w);
+
+	void clearUI ();
+	void setConfigToUI ();
+	void setUIToConfig ();
+	void focusToFilter (E_FilterType type);
+
+public slots:
+	void onFilterEnabledChanged ();
+	void onShowContextMenu (QPoint const & pt);
+	void onHideContextMenu ();
+	void onCtxAddButton ();
+	void onCtxRmButton ();
+	void onCtxCommitButton ();
+	void onTabMoved (int from, int to);
+signals:
+
+public:
+    MovableTabWidget *		m_tabFilters;
+	ComboList *				m_tabCtxMenu;
+	QStyledItemDelegate *	m_delegate;
+	MyListModel *			m_tabCtxModel;
+	int						m_currTab;
+	Q_OBJECT
+};
+
+struct FilterMgr : FilterMgrBase
+{
 	std::vector<FilterBase *> 	m_cache;	/// enum ordered cache of m_filters
 
 	FilterMgr (QWidget * parent = 0);
@@ -28,31 +88,18 @@ struct FilterMgr : FilterBase
 
 	virtual E_FilterType type () const { return e_Filter_Mgr; }
 
-	virtual bool accept (DecodedCommand const & cmd) const;
-	virtual bool enabled () const;
-	bool someFilterEnabled () const;
-
 	virtual void defaultConfig ();
-	virtual void loadConfig (QString const & path);
-	virtual void saveConfig (QString const & path);
-	virtual void applyConfig ();
 	virtual void clear ();
 
 	template <class ArchiveT>
 	void serialize (ArchiveT & ar, unsigned const version)
 	{
-		FilterBase::serialize(ar, version);
-		ar & boost::serialization::make_nvp("filter_order", m_filter_order);
-		ar & boost::serialization::make_nvp("curr_tab", m_currTab);
+		FilterMgrBase::serialize(ar, version);
 	}
 
-	void addFilter (FilterBase * b);
-	void rmFilter (FilterBase * & b);
-	void mvFilter (int from, int to);
-	void recreateFilters ();
-
-	void connectFiltersTo (QWidget * w);
-	void disconnectFiltersTo (QWidget * w);
+	virtual void addFilter (FilterBase * b);
+	virtual void rmFilter (FilterBase * & b);
+	virtual void recreateFilters ();
 
 	//FilterXX *			getFilterXX () { return static_cast<FilterXX *>(m_cache[e_Filter_XX]); }
 	//FilterXX const *		getFilterXX () const { return static_cast<FilterXX const *>(m_cache[e_Filter_XX]); }
@@ -73,13 +120,11 @@ struct FilterMgr : FilterBase
 	FilterFileLine *		getFilterFileLine () { return static_cast<FilterFileLine *>(m_cache[e_Filter_FileLine]); }
 	FilterFileLine const *	getFilterFileLine () const { return static_cast<FilterFileLine const *>(m_cache[e_Filter_FileLine]); }
 
-	void clearUI ();
-	void setConfigToUI ();
-	void setUIToConfig ();
-	void focusToFilter (E_FilterType type);
+	//void clearUI ();
+	//void setConfigToUI ();
+	//void setUIToConfig ();
 
 public slots:
-	void onFilterEnabledChanged ();
 	void onShowContextMenu (QPoint const & pt);
 	void onHideContextMenu ();
 	void onCtxAddButton ();

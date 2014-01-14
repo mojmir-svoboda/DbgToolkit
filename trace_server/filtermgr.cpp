@@ -15,7 +15,7 @@
 #include <serialize/ser_qt.h>
 #include <fstream>
 
-FilterMgr::FilterMgr (QWidget * parent)
+FilterMgrBase::FilterMgrBase (QWidget * parent)
 	: FilterBase(parent)
 	, m_tabFilters(0)
 	, m_tabCtxMenu(0)
@@ -25,6 +25,15 @@ FilterMgr::FilterMgr (QWidget * parent)
 {
 	m_filters.reserve(e_filtertype_max_value);
 	m_filter_order.reserve(e_filtertype_max_value);
+}
+FilterMgr::FilterMgr (QWidget * parent)
+	: FilterMgrBase(parent)
+	, m_tabFilters(0)
+	, m_tabCtxMenu(0)
+	, m_delegate(0)
+	, m_tabCtxModel(0)
+	, m_currTab(0)
+{
 	m_cache.resize(e_filtertype_max_value);
 	initUI();
 }
@@ -35,7 +44,7 @@ FilterMgr::~FilterMgr ()
 }
 
 
-bool FilterMgr::accept (DecodedCommand const & cmd) const
+bool FilterMgrBase::accept (DecodedCommand const & cmd) const
 {
 	bool accepted = true;
 	for (int i = 0, ie = m_filters.size(); i < ie; ++i)
@@ -47,18 +56,9 @@ bool FilterMgr::accept (DecodedCommand const & cmd) const
 	return accepted;
 }
 
-void FilterMgr::defaultConfig ()
-{
-	m_filter_order.clear();
-	// @TODO clear others? probably no
-	m_filter_order.push_back(g_filterNames[e_Filter_String]);
-	m_filter_order.push_back(g_filterNames[e_Filter_Ctx]);
-	m_filter_order.push_back(g_filterNames[e_Filter_Lvl]);
-	m_filter_order.push_back(g_filterNames[e_Filter_FileLine]);
-	m_filter_order.push_back(g_filterNames[e_Filter_Row]);
-}
 
-void FilterMgr::loadConfig (QString const & path)
+
+void FilterMgrBase::loadConfig (QString const & path)
 {
 	QString const fname = path + "/" + g_filterTag + "/" + typeName();
 	if (!::loadConfigTemplate(*this, fname))
@@ -70,7 +70,7 @@ void FilterMgr::loadConfig (QString const & path)
 		m_filters[i]->loadConfig(path);
 }
 
-void FilterMgr::saveConfig (QString const & path)
+void FilterMgrBase::saveConfig (QString const & path)
 {
 	m_currTab = m_tabFilters->currentIndex();
 	QString const fname = path + "/" + g_filterTag + "/" + typeName();
@@ -80,7 +80,7 @@ void FilterMgr::saveConfig (QString const & path)
 		m_filters[i]->saveConfig(path);
 }
 
-void FilterMgr::applyConfig ()
+void FilterMgrBase::applyConfig ()
 {
 	m_tabFilters->setCurrentIndex(m_currTab);
 	for (int i = 0, ie = m_filters.size(); i < ie; ++i)
@@ -88,7 +88,7 @@ void FilterMgr::applyConfig ()
 }
 
 
-bool FilterMgr::someFilterEnabled () const
+bool FilterMgrBase::someFilterEnabled () const
 {
 	bool some_filter_enabled = false;
 	for (int i = 0, ie = m_filters.size(); i < ie; ++i)
@@ -97,33 +97,32 @@ bool FilterMgr::someFilterEnabled () const
 	return some_filter_enabled;
 }
 
-bool FilterMgr::enabled () const
+bool FilterMgrBase::enabled () const
 {
 	return m_enabled && someFilterEnabled();
 }
 
-void FilterMgr::addFilter (FilterBase * b)
+
+
+void FilterMgrBase::addFilter (FilterBase * b)
 {
-	E_FilterType const t = b->type();
 	m_filters.push_back(b);
-	m_cache[t] = b;
 }
-void FilterMgr::rmFilter (FilterBase * & b)
+void FilterMgrBase::rmFilter (FilterBase * & b)
 {
-	E_FilterType const t = b->type();
 	m_filters.erase(std::remove(m_filters.begin(), m_filters.end(), b), m_filters.end());
 	delete b;
 	b = 0;
-	m_cache[t] = 0;
 }
 
-void FilterMgr::mvFilter (int from, int to)
+
+void FilterMgrBase::mvFilter (int from, int to)
 {
 	m_filters.move(from, to);
 	m_filter_order.move(from, to);
 }
 
-void FilterMgr::onTabMoved (int from, int to)
+void FilterMgrBase::onTabMoved (int from, int to)
 {
 	mvFilter(from, to);
 	//TODO: emit signal to recalc model?
@@ -145,22 +144,47 @@ FilterBase * filterFactory (E_FilterType t, QWidget * parent)
 		//case e_Filter_User0: return new Filter (parent);
 		//case e_Filter_User1: return new Filter (parent);
 		//case e_Filter_User2: return new Filter (parent);
+		case e_Col_Regex: return new ColorizerRegex (parent);
 		default: return 0;
 	}
 }
 
-void FilterMgr::connectFiltersTo (QWidget * w)
+void FilterMgrBase::connectFiltersTo (QWidget * w)
 {
 	for (int i = 0, ie = m_filters.size(); i < ie; ++i)
 		connect(m_filters[i], SIGNAL(filterChangedSignal()), w, SLOT(onFilterChanged()));
 }
 
-void FilterMgr::disconnectFiltersTo (QWidget * w)
+void FilterMgrBase::disconnectFiltersTo (QWidget * w)
 {
 	for (int i = 0, ie = m_filters.size(); i < ie; ++i)
 		disconnect(m_filters[i], SIGNAL(filterChangedSignal()), w, SLOT(onFilterChanged()));
 }
 
+/////////////////// FILTER MGR ///////////////////////////////
+
+void FilterMgr::addFilter (FilterBase * b)
+{
+	E_FilterType const t = b->type();
+	FilterMgrBase::addFilter(b);
+	m_cache[t] = b;
+}
+void FilterMgr::rmFilter (FilterBase * & b)
+{
+	E_FilterType const t = b->type();
+	FilterMgrBase::rmFilter(b);
+	m_cache[t] = 0;
+}
+void FilterMgr::defaultConfig ()
+{
+	m_filter_order.clear();
+	// @TODO clear others? probably no
+	m_filter_order.push_back(g_filterNames[e_Filter_String]);
+	m_filter_order.push_back(g_filterNames[e_Filter_Ctx]);
+	m_filter_order.push_back(g_filterNames[e_Filter_Lvl]);
+	m_filter_order.push_back(g_filterNames[e_Filter_FileLine]);
+	m_filter_order.push_back(g_filterNames[e_Filter_Row]);
+}
 
 void FilterMgr::recreateFilters ()
 {
@@ -213,6 +237,8 @@ void FilterMgr::recreateFilters ()
 		m_cache[c] = 0;
 	}
 }
+
+/////////////////////////////////////////////////////////////////////
 
 namespace {
 	void fillComboBoxWithFilters (QComboBox * cbx)
@@ -327,14 +353,14 @@ void FilterMgr::doneUI ()
 	disconnect(m_tabCtxMenu->ui->rmButton, SIGNAL(clicked()), this, SLOT(onCtxRmButton()));
 }
 
-void FilterMgr::clearUI ()
+void FilterMgrBase::clearUI ()
 {
 	if (m_tabCtxModel && m_tabCtxModel->hasChildren())
 		m_tabCtxModel->removeRows(0, m_tabCtxModel->rowCount());
 }
 
 
-void FilterMgr::setConfigToUI ()
+void FilterMgrBase::setConfigToUI ()
 {
 	clearUI();
 	for (int i = 0, ie = m_filters.size(); i < ie; ++i)
@@ -352,18 +378,19 @@ void FilterMgr::setConfigToUI ()
 	}
 }
 
-void FilterMgr::onCtxAddButton ()
+void FilterMgrBase::onCtxAddButton ()
 {
 	QComboBox * cbx = new QComboBox(m_tabCtxMenu);
 	fillComboBoxWithFilters(cbx);
 
+//@TODO
 	QStandardItem * const qitem = new QStandardItem(g_filterNames[1]);
 	qitem->setCheckable(true);
 	qitem->setCheckState(Qt::Checked);
 	m_tabCtxModel->appendRow(qitem);
 }
 
-void FilterMgr::onCtxRmButton ()
+void FilterMgrBase::onCtxRmButton ()
 {
 	QModelIndexList const idxs = m_tabCtxMenu->ui->filterView->selectionModel()->selectedIndexes();
 	foreach (QModelIndex index, idxs)
@@ -372,13 +399,13 @@ void FilterMgr::onCtxRmButton ()
 	}
 }
 
-void FilterMgr::onCtxCommitButton ()
+void FilterMgrBase::onCtxCommitButton ()
 {
 	setUIToConfig();
 	applyConfig();
 }
 
-void FilterMgr::setUIToConfig ()
+void FilterMgrBase::setUIToConfig ()
 {
 	m_filter_order.clear();
 	m_filter_order.reserve(e_filtertype_max_value);
@@ -397,7 +424,7 @@ void FilterMgr::setUIToConfig ()
 	//std::vector<FilterBase *> m_origs;
 }
 
-void FilterMgr::onShowContextMenu (QPoint const & pt)
+void FilterMgrBase::onShowContextMenu (QPoint const & pt)
 {
 	setConfigToUI();
 
@@ -413,7 +440,7 @@ void FilterMgr::onShowContextMenu (QPoint const & pt)
 	//connect(ui->logViewComboBox, SIGNAL(activated(int)), this, SLOT(onLogViewActivate(int)));
 }
 
-void FilterMgr::onHideContextMenu ()
+void FilterMgrBase::onHideContextMenu ()
 {
 	m_tabCtxMenu->setVisible(false);
 }
@@ -422,7 +449,7 @@ void FilterMgr::clear ()
 {
 }
 
-void FilterMgr::onFilterEnabledChanged ()
+void FilterMgrBase::onFilterEnabledChanged ()
 {
 	bool const some_enabled = someFilterEnabled();
 	if (m_enabled ^ some_enabled)
@@ -437,7 +464,7 @@ void FilterMgr::onFilterEnabledChanged ()
 	}
 }
 
-void FilterMgr::focusToFilter (E_FilterType type)
+void FilterMgrBase::focusToFilter (E_FilterType type)
 {
 	for (int i = 0, ie = m_filters.size(); i < ie; ++i)
 	{
