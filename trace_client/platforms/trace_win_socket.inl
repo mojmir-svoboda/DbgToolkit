@@ -23,7 +23,7 @@ namespace trace {
 		sys::atomic32_t volatile g_Quit = 0;			/// request to quit
 		sys::atomic32_t volatile g_Flushed = 0;			/// request to quit
 		CACHE_ALIGN sys::atomic32_t volatile m_wr_idx = 0;		// write index
-		MessagePool<msg_t, 1024> g_MessagePool;					// pool of messages
+		MessagePool<msg_t, 16384> g_MessagePool;					// pool of messages
 		CACHE_ALIGN sys::atomic32_t volatile m_rd_idx = 0;		// read index
 
 		sys::Thread g_ThreadSend(THREAD_PRIORITY_HIGHEST);		/// consumer-sender thread (high priority)

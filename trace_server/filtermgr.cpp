@@ -26,23 +26,10 @@ FilterMgrBase::FilterMgrBase (QWidget * parent)
 	m_filters.reserve(e_filtertype_max_value);
 	m_filter_order.reserve(e_filtertype_max_value);
 }
-FilterMgr::FilterMgr (QWidget * parent)
-	: FilterMgrBase(parent)
-	, m_tabFilters(0)
-	, m_tabCtxMenu(0)
-	, m_delegate(0)
-	, m_tabCtxModel(0)
-	, m_currTab(0)
-{
-	m_cache.resize(e_filtertype_max_value);
-	initUI();
-}
-
-FilterMgr::~FilterMgr ()
+FilterMgrBase::~FilterMgrBase ()
 {
 	qDebug("%s", __FUNCTION__);
 }
-
 
 bool FilterMgrBase::accept (DecodedCommand const & cmd) const
 {
@@ -144,7 +131,7 @@ FilterBase * filterFactory (E_FilterType t, QWidget * parent)
 		//case e_Filter_User0: return new Filter (parent);
 		//case e_Filter_User1: return new Filter (parent);
 		//case e_Filter_User2: return new Filter (parent);
-		case e_Col_Regex: return new ColorizerRegex (parent);
+		case e_Filter_ColRegex: return new ColorizerRegex (parent);
 		default: return 0;
 	}
 }
@@ -162,6 +149,18 @@ void FilterMgrBase::disconnectFiltersTo (QWidget * w)
 }
 
 /////////////////// FILTER MGR ///////////////////////////////
+
+FilterMgr::FilterMgr (QWidget * parent)
+	: FilterMgrBase(parent)
+{
+	m_cache.resize(e_filtertype_max_value);
+	initUI();
+}
+
+FilterMgr::~FilterMgr ()
+{
+	qDebug("%s", __FUNCTION__);
+}
 
 void FilterMgr::addFilter (FilterBase * b)
 {

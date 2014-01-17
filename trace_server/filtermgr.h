@@ -125,20 +125,9 @@ struct FilterMgr : FilterMgrBase
 	//void setUIToConfig ();
 
 public slots:
-	void onShowContextMenu (QPoint const & pt);
-	void onHideContextMenu ();
-	void onCtxAddButton ();
-	void onCtxRmButton ();
-	void onCtxCommitButton ();
-	void onTabMoved (int from, int to);
 signals:
 
 public:
-    MovableTabWidget *		m_tabFilters;
-	ComboList *				m_tabCtxMenu;
-	QStyledItemDelegate *	m_delegate;
-	MyListModel *			m_tabCtxModel;
-	int						m_currTab;
 	Q_OBJECT
 };
 
