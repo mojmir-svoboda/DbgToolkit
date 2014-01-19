@@ -32,14 +32,14 @@ bool FilteredTime::match (float f) const
     return res;
 }
 
-FilteredTime::FilteredTime (int op, QString const & rhs, QString const & units, bool enabled)
+FilteredTime::FilteredTime (QString const & op, QString const & rhs, QString const & units, bool enabled)
     : m_string(rhs)
     , m_time_units_str(units)
     , m_src_value(rhs.toULongLong())
     , m_value(static_cast<float>(m_src_value))
     , m_time_units(stringToUnitsValue(units))
     , m_is_enabled(enabled)
-    , m_operator(op)
+    , m_operator(stringToCmpMod(op))
 { }
 
 FilteredTime::FilteredTime (QString const & op, QString const & rhs, QString const & units)
@@ -206,7 +206,7 @@ void FilterTime::remove (QString const & op, QString const & s, QString const & 
 {
 	for (int i = 0, ie = m_data.size(); i < ie; ++i)
 	{
-		if (m_data[i] == FilterTime(op, s, u))
+		if (m_data[i] == FilteredTime(op, s, u))
 		{
 			m_data.removeAt(i);
 			return;
@@ -214,7 +214,7 @@ void FilterTime::remove (QString const & op, QString const & s, QString const & 
 	}
 	emitFilterChangedSignal();
 }
-void FilterTime::append (int op, QString const & s, QString const & units, bool enabled)
+void FilterTime::append (QString const & op, QString const & s, QString const & units, bool enabled)
 {
 	for (int i = 0, ie = m_data.size(); i < ie; ++i)
 		if (m_data[i] == FilteredTime(op, s, units, enabled))
@@ -285,34 +285,67 @@ void FilterTime::recompile ()
 void FilterTime::onRm ()
 {
 	QModelIndex const idx = m_ui->view->currentIndex();
-	QStandardItem * item = m_model->itemFromIndex(idx);
-	if (!item)
+    int const row = idx.row();
+
+    QModelIndex const op_idx = m_model->index(row, 1, QModelIndex());
+    QModelIndex const s_idx = m_model->index(row, 2, QModelIndex());
+    QModelIndex const u_idx = m_model->index(row, 3, QModelIndex());
+
+	QStandardItem * op_item = m_model->itemFromIndex(op_idx);
+	if (!op_item)
 		return;
-	QString const & val = m_model->data(idx, Qt::DisplayRole).toString();
+	QStandardItem * s_item = m_model->itemFromIndex(s_idx);
+	if (!s_item)
+		return;
+	QStandardItem * u_item = m_model->itemFromIndex(u_idx);
+	if (!u_item)
+		return;
+
+	QString const & op_val = m_model->data(op_idx, Qt::DisplayRole).toString();
+	QString const & s_val = m_model->data(s_idx, Qt::DisplayRole).toString();
+	QString const & u_val = m_model->data(u_idx, Qt::DisplayRole).toString();
 	m_model->removeRow(idx.row());
-	remove(val);
+	remove(op_val, s_val, u_val);
 	recompile();
 	emitFilterChangedSignal();
 }
 
-void FilterTime::onAdd ()
+void FilterTime::onAdd (QString const & op, QString const & rhs, QString const & units)
 {
-	QString const qItem = m_ui->qFilterLineEdit->text();
-	QString const qOp = m_ui->opBox->currentText();
-	QString const qUnits = m_ui->timeComboBox->ui->comboBox->currentText();
-
-	if (!qItem.length() && !qOp.length())
+	if (!op.length() && !rhs.length())
 		return;
 	QStandardItem * root = m_model->invisibleRootItem();
-	QStandardItem * child = findChildByText(root, qItem); // @TODO: spatne! hleda se ve spatnem sloupci
-	if (child == 0)
-	{
-		QList<QStandardItem *> row_items = add4Col(Qt::Checked, get_tag_name(tlv::tag_time), qOp, qItem, qUnits);
-		root->appendRow(row_items);
-        E_CmpMode const op = stringToCmpMod(qOp);
-		append(qItem, true, op);
-		recompile();
-	}
+
+    for (int i = 0, ie = m_model->rowCount(); i < ie; ++i)
+    {
+        QStandardItem * op_item = m_model->item(i, 1);
+        if (!op_item)
+            return;
+        QStandardItem * s_item = m_model->item(i, 2);
+        if (!s_item)
+            return;
+        QStandardItem * u_item = m_model->item(i, 3);
+        if (!u_item)
+            return;
+
+        QString const & op_val = op_item->text();
+        QString const & s_val = s_item->text();
+        QString const & u_val = u_item->text();
+
+        if (FilteredTime(op, rhs, units) == FilteredTime(op_val, s_val, u_val))
+        {
+            QList<QStandardItem *> row_items = add4Col(Qt::Checked, get_tag_name(tlv::tag_time), op_val, s_val, u_val);
+            root->appendRow(row_items);
+        }
+    }
+    append(op, rhs, units, true);
+}
+void FilterTime::onAdd ()
+{
+	QString const qOp = m_ui->opBox->currentText();
+	QString const qItem = m_ui->qFilterLineEdit->text();
+	QString const qUnits = m_ui->timeComboBox->comboBox()->currentText();
+    onAdd(qOp, qItem, qUnits);
 }
 
 void FilterTime::locateItem (QString const & item, bool scrollto, bool expand)

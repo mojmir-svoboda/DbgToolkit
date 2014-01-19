@@ -134,17 +134,6 @@ void LogWidget::onClearCurrentView ()
 	onInvalidateFilter();
 }
 
-void LogWidget::onHidePrevFromRow ()
-{
-	QModelIndex const current = m_last_clicked;
-	if (current.isValid())
-	{
-		qDebug("Hide prev from row=%i", current.row());
-		excludeContentToRow(current.row());
-		onInvalidateFilter();
-	}
-}
-
 void LogWidget::excludeFileLine (QModelIndex const & src_index)
 {
 	if (filterMgr()->getFilterFileLine())
@@ -282,7 +271,25 @@ void LogWidget::onSetRefTime ()
 }
 void LogWidget::onHidePrev ()
 {
-	//m_session_state.excludeContentToRow(0);
+	QModelIndex current = currentIndex();
+	if (isModelProxy())
+	{
+		current = m_proxy_model->mapToSource(current);
+	}
+
+	if (!current.isValid())
+		return;
+
+	QString const & strtime = findString4Tag(tlv::tag_time, current);
+
+	filterMgr()->getFilterTime()->append(e_CmpGE, strtime, m_config.m_time_units_str, true);
+	onInvalidateFilter(); //@TODO: should be done by filter?
+
+	//bool const scroll_to_item = true;
+	//bool const expand = true;
+	//findTableIndexInFilters(current, scroll_to_item, expand);
+	//filterMgr()->focusToFilter(e_Filter_FileLine);
+	//m_config_ui.ui()->stackedWidget->setCurrentWidget(m_config_ui.ui()->filtersPage);
 
 }
 void LogWidget::onHideNext ()

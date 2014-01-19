@@ -30,7 +30,7 @@ struct FilteredTime {
 	bool match (float f) const;
 
 	FilteredTime () { }
-	FilteredTime (int op, QString const & rhs, QString const & units, bool enabled);
+	FilteredTime (QString const & op, QString const & rhs, QString const & units, bool enabled);
 	FilteredTime (QString const & op, QString const & rhs, QString const & units);
 
 	template <class ArchiveT>
@@ -82,7 +82,7 @@ struct FilterTime : FilterBase
 	// time filtering
 	void setupModel ();
 	void destroyModel ();
-    void append (int op, QString const & s, QString const & units, bool enabled);
+    void append (QString const & op, QString const & s, QString const & units, bool enabled);
 	void appendToWidgets (FilteredTime const & flt);
     void remove (QString const & op, QString const & s, QString const & u);
 	bool isMatchedTimeExcluded (QString str) const;
@@ -102,6 +102,7 @@ public slots:
 	void onClickedAt (QModelIndex idx);
 	void onRm ();
 	void onAdd ();
+    void onAdd (QString const & op, QString const & rhs, QString const & units);
 signals:
 
 };

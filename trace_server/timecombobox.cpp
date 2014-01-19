@@ -12,3 +12,5 @@ TimeComboBox::~TimeComboBox()
 {
     delete ui;
 }
+
+QComboBox * TimeComboBox::comboBox () { return ui->comboBox; }

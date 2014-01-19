@@ -217,7 +217,6 @@ namespace logs {
 
 		// actions
 		void onClearCurrentView ();
-		void onHidePrevFromRow ();
 		//void onUnhidePrevFromRow ();
 		void exportStorageToCSV (QString const & filename);
 		void onCopyToClipboard ();
