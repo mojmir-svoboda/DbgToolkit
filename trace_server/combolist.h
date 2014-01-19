@@ -1,13 +1,13 @@
 #ifndef COMBOLIST_H
 #define COMBOLIST_H
 
-#include <QDockWidget>
+#include <QWidget>
 
 namespace Ui {
 class ComboList;
 }
 
-class ComboList : public QDockWidget
+class ComboList : public QWidget
 {
     Q_OBJECT
     

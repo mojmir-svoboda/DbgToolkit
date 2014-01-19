@@ -112,14 +112,6 @@ void FilterState::setColorRegexChecked (QString const & s, bool checked)
 		}
 	}
 }*/
-void FilterState::removeFromColorRegexFilters (QString const & s)
-{
-	m_colorizer_regex.remove(s);
-}
-void FilterState::appendToColorRegexFilters (QString const & s)
-{
-	m_colorizer_regex.append(s);
-}
 
 
 

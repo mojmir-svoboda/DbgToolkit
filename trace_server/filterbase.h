@@ -15,10 +15,21 @@ enum E_FilterType {
 	e_Filter_Tid,
 	e_Filter_FileLine,
 	e_Filter_Row,
-	e_Filter_User0,
-	e_Filter_User1,
-	e_Filter_ColRegex,
-	e_Filter_ColRow,
+	e_Filter_Time,
+	e_Filter_Function,
+	e_Filter_dt,
+	e_Colorizer_Mgr,
+	e_Colorizer_Script,
+	e_Colorizer_String,
+	e_Colorizer_Regex,
+	e_Colorizer_Ctx,
+	e_Colorizer_Lvl,
+	e_Colorizer_Tid,
+	e_Colorizer_FileLine,
+	e_Colorizer_Row,
+	e_Colorizer_Time,
+	e_Colorizer_Function,
+	e_Colorizer_dt,
 
 	e_filtertype_max_value
 };
@@ -33,10 +44,21 @@ QString const g_filterNames[] = {
 	QString("Tid"),
 	QString("FileLn"),
 	QString("Row"),
-	QString("User0"),
-	QString("User1"),
-	QString("ColRgx"),
-	QString("ColRow"),
+	QString("Time"),
+	QString("Fn"),
+	QString("dt"),
+	QString("Col_Mgr"),
+	QString("Col_Script"),
+	QString("Col_String"),
+	QString("Col_Regex"),
+	QString("Col_Ctx"),
+	QString("Col_Level"),
+	QString("Col_Tid"),
+	QString("Col_FileLn"),
+	QString("Col_Row"),
+	QString("Col_Time"),
+	QString("Col_Fn"),
+	QString("Col_dt"),
 	QString("max")
 };
 
@@ -68,6 +90,7 @@ struct FilterBase : public QWidget
 	QString typeName () const { return g_filterNames[this->type()]; }
 
 	virtual bool accept (DecodedCommand const & cmd) const = 0;
+	virtual bool action (DecodedCommand const & cmd) { return true; }
 	virtual bool enabled () const { return m_enabled; }
 	virtual void enable (bool state) { m_enabled = state; }
 	virtual void emitFilterChangedSignal ();

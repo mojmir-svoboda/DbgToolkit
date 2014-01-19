@@ -30,7 +30,6 @@
 #include <boost/serialization/nvp.hpp>
 #include "tls.h"
 #include "config.h"
-#include "colorizer_regex.h"
 
 class PersistentFilter;
 class MainWindow;
@@ -129,7 +128,6 @@ public:
 	friend class FilterProxyModel;
 	friend class PersistentFilter;
 
-	ColorizerRegex m_colorizer_regex;
 	QList<CollapsedBlock>	m_collapse_blocks;
 };
 

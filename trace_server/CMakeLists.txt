@@ -80,17 +80,35 @@ set(trace_server_SOURCES
 	dockconfig.cpp
 	syncwidgets.cpp
 	combolist.cpp
-	filtermgr.cpp
+	movabletabwidget.cpp
+
 	filterbase.cpp
-	filter_fileline.cpp
+	filtermgrbase.cpp
+	filtermgr.cpp
+	filter_script.cpp
+	filter_string.cpp
+	filter_regex.cpp
 	filter_ctx.cpp
 	filter_lvl.cpp
-	filter_row.cpp
-	filter_string.cpp
-	filter_script.cpp
-	filter_regex.cpp
 	filter_tid.cpp
-	movabletabwidget.cpp
+	filter_fileline.cpp
+	filter_row.cpp
+	#filter_time.cpp
+	#filter_function.cpp
+	#filter_dt.cpp
+	colorizermgr.cpp
+	#colorizer_script.cpp
+	#colorizer_string.cpp
+	colorizer_regex.cpp
+	#colorizer_ctx.cpp
+	#colorizer_lvl.cpp
+	#colorizer_tid.cpp
+	#colorizer_fileline.cpp
+	#colorizer_row.cpp
+	#colorizer_time.cpp
+	#colorizer_function.cpp
+	#colorizer_dt.cpp
+
 	warnimage.cpp
 	colorizer_regex.cpp
 
@@ -175,17 +193,33 @@ set(trace_server_HEADERS
 	findwidget.h
 	findconfig.h
 
-	filtermgr.h
 	filterbase.h
-	filter_fileline.h
+	filtermgrbase.h
+	filtermgr.h
+	filter_script.h
+	filter_string.h
+	filter_regex.h
 	filter_ctx.h
 	filter_lvl.h
-	filter_row.h
-	filter_string.h
-	filter_script.h
-	filter_regex.h
 	filter_tid.h
+	filter_fileline.h
+	filter_row.h
+	#filter_time.h
+	#filter_function.h
+	#filter_dt.h
+	#colorizer_script.h
+	#colorizer_string.h
+	colorizermgr.h
 	colorizer_regex.h
+	#colorizer_ctx.h
+	#colorizer_lvl.h
+	#colorizer_tid.h
+	#colorizer_fileline.h
+	#colorizer_row.h
+	#colorizer_time.h
+	#colorizer_function.h
+	#colorizer_dt.h
+
 
 	logs/logtablemodel.h
 	logs/logselectionproxymodel.h

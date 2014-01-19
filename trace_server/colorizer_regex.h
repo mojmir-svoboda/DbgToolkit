@@ -58,7 +58,7 @@ struct ColorizerRegex : FilterBase
 	virtual void initUI ();
 	virtual void doneUI ();
 
-	virtual E_FilterType type () const { return e_Filter_ColRegex; }
+	virtual E_FilterType type () const { return e_Colorizer_Regex; }
 
 	virtual bool accept (DecodedCommand const & cmd) const;
 

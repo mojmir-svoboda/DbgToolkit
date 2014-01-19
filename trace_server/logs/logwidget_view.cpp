@@ -1,27 +1,34 @@
 #include "logwidget.h"
 #include <QStatusBar>
 //#include "logs/logtablemodel.h"
-#include <logs/filterproxymodel.h>
-//#include <logs/findproxymodel.h>
+#include "filterproxymodel.h"
 #include "utils.h"
-//#include "connection.h"
-//#include "warnimage.h"
+#include "colorizermgr.h"
 
 namespace logs {
 
-#if 0
-	void LogWidget::setupColorRegex ()
-	{
-	}
+    bool LogWidget::appendToColorizers (DecodedCommand const & cmd)
+    {
+        //if (colorizerMgr()->action(cmd, fg, bg))
+        {
+            
+        }
+        return true;
+    }
 
+#if 0
 	void LogWidget::appendToColorRegex (QString const & val)
 	{
-		m_filter_state.m_colorizer_regex.appendToColorRegexFilters(val);
+        if (colorizerMgr()->getColorizerRegex())
+            colorizerMgr()->getColorizerRegex()->append(str, checked);
+		//m_filter_state.m_colorizer_regex.appendToColorRegexFilters(val);
 	}
 
 	void LogWidget::removeFromColorRegex (QString const & val)
 	{
-		m_filter_state.removeFromColorRegexFilters(val);
+        if (colorizerMgr()->getColorizerRegex())
+            colorizerMgr()->getColorizerRegex()->remove(str, checked);
+		//m_filter_state.removeFromColorRegexFilters(val);
 	}
 
 	

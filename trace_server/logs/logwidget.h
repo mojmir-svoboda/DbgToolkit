@@ -123,10 +123,13 @@ namespace logs {
 		// filtering stuff
 		FilterMgr * filterMgr () { return m_config_ui.m_ui->widget; }
 		FilterMgr const * filterMgr () const { return m_config_ui.m_ui->widget; }
+		ColorizerMgr * colorizerMgr () { return m_config_ui.m_ui->colorizer; }
+		ColorizerMgr const * colorizerMgr () const { return m_config_ui.m_ui->colorizer; }
 		void syncSelection (QModelIndexList const & sel);
 		void clearFilters (QStandardItem * node);
 		void clearFilters ();
 		bool appendToFilters (DecodedCommand const & cmd);
+		bool appendToColorizers (DecodedCommand const & cmd);
 		void appendToFileLineFilters (QString const & item);
 		void appendToTIDFilters (QString const & item);
 		//void appendToLvlWidgets (FilteredLevel const & flt);

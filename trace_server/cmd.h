@@ -3,6 +3,7 @@
 #include <tlv_parser/tlv_cmd_qstring.h>
 #include <vector>
 #include <QVariant>
+#include <QModelIndex>
 
 inline QVariant tag2variant (tlv::tag_t t, QString const & src)
 {

@@ -237,16 +237,27 @@ namespace logs {
 	void LogWidget::applyConfig ()
 	{
 		filterMgr()->disconnectFiltersTo(this);
+		colorizerMgr()->disconnectFiltersTo(this);
+
 		swapSectionsAccordingTo(m_config);
 		applyConfig(m_config);
 		filterMgr()->applyConfig();
+		colorizerMgr()->applyConfig();
+
 		filterMgr()->connectFiltersTo(this);
+		colorizerMgr()->connectFiltersTo(this);
 
 		connect(filterMgr(), SIGNAL(filterEnabledChanged()), this, SLOT(onFilterEnabledChanged()));
 		connect(filterMgr(), SIGNAL(filterChangedSignal()), this, SLOT(onInvalidateFilter()));
+		// @TODO: nesel by mensi brutus nez je invalidate filter?
+		connect(colorizerMgr(), SIGNAL(filterEnabledChanged()), this, SLOT(onFilterEnabledChanged()));
+		connect(colorizerMgr(), SIGNAL(filterChangedSignal()), this, SLOT(onInvalidateFilter()));
 
 		if (filterMgr()->getFilterCtx())
 			filterMgr()->getFilterCtx()->setAppData(&m_connection->appData());
+
+		//if (colorizerMgr()->getFilterCtx())
+		//	colorizerMgr()->getFilterCtx()->setAppData(&m_connection->appData());
 	}
 
 	void LogWidget::resizeSections ()
@@ -347,12 +358,14 @@ namespace logs {
 		m_config.m_find_config.clear();
 		loadConfigTemplate(m_config.m_find_config, logpath + "/" + g_findTag);
 		filterMgr()->loadConfig(logpath);
+		colorizerMgr()->loadConfig(logpath);
 	}
 	void LogWidget::saveAuxConfigs ()
 	{
 		QString const logpath = getCurrentWidgetPath();
 		saveConfigTemplate(m_config.m_find_config, logpath + "/" + g_findTag);
 		filterMgr()->saveConfig(logpath);
+		colorizerMgr()->saveConfig(logpath);
 	}
 	void LogWidget::saveFindConfig ()
 	{
@@ -527,6 +540,7 @@ void LogWidget::commitCommands (E_ReceiveMode mode)
 		DecodedCommand & cmd = m_queue[i];
 		m_src_model->handleCommand(cmd, mode);
 		appendToFilters(cmd);
+		appendToColorizers(cmd);
 	}
 	if (m_queue.size())
 	{
