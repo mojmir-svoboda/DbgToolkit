@@ -282,7 +282,7 @@ void LogWidget::onHidePrev ()
 
 	QString const & strtime = findString4Tag(tlv::tag_time, current);
 
-	filterMgr()->getFilterTime()->append(e_CmpGE, strtime, m_config.m_time_units_str, true);
+	filterMgr()->getFilterTime()->append(cmpModToString(e_CmpGE), strtime, m_config.m_time_units_str, true);
 	onInvalidateFilter(); //@TODO: should be done by filter?
 
 	//bool const scroll_to_item = true;
