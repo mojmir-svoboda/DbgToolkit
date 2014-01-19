@@ -57,7 +57,8 @@ SOURCES += ../version.cpp \
     connection.cpp \
     filterwidget.cpp \
     findwidget.cpp \
-    combolist.cpp
+    combolist.cpp \
+    timecombobox.cpp
 
 HEADERS  += ../version.h \
     mainwindow.h \
@@ -66,7 +67,8 @@ HEADERS  += ../version.h \
     connection.h \
     filterwidget.h \
     findwidget.h \
-    combolist.h
+    combolist.h \
+    timecombobox.h
 
 FORMS    += help.ui \
     mainwindow.ui \
@@ -87,8 +89,10 @@ FORMS    += help.ui \
     filter_lvl.ui \
     filter_ctx.ui \
     filter_row.ui \
+    filter_time.ui \
     combolist.ui \
-    colorizer_regex.ui
+    colorizer_regex.ui \
+    timecombobox.ui
 
 RESOURCES += \
     resources.qrc

@@ -81,6 +81,7 @@ set(trace_server_SOURCES
 	syncwidgets.cpp
 	combolist.cpp
 	movabletabwidget.cpp
+	timecombobox.cpp
 
 	filterbase.cpp
 	filtermgrbase.cpp
@@ -93,7 +94,7 @@ set(trace_server_SOURCES
 	filter_tid.cpp
 	filter_fileline.cpp
 	filter_row.cpp
-	#filter_time.cpp
+	filter_time.cpp
 	#filter_function.cpp
 	#filter_dt.cpp
 	colorizermgr.cpp
@@ -186,6 +187,7 @@ set(trace_server_HEADERS
 	syncwidgets.h
 	config.h
 	combolist.h
+	timecombobox.h
 	movablelistmodel.h
 	movabletabwidget.h
 	warnimage.h
@@ -204,7 +206,7 @@ set(trace_server_HEADERS
 	filter_tid.h
 	filter_fileline.h
 	filter_row.h
-	#filter_time.h
+	filter_time.h
 	#filter_function.h
 	#filter_dt.h
 	#colorizer_script.h
@@ -270,6 +272,7 @@ set(trace_server_UI
 	filterwidget.ui
 	findwidget.ui
 	combolist.ui
+	timecombobox.ui
 	settings.ui
 	settingslog.ui
 	settingsplot.ui
@@ -277,14 +280,15 @@ set(trace_server_UI
 	settingsgantt.ui
 	settingsframeview.ui
 	help.ui
-	filter_ctx.ui
-	filter_fileline.ui
-	filter_lvl.ui
-	filter_row.ui
-	filter_regex.ui
 	filter_string.ui
+	filter_regex.ui
 	filter_script.ui
 	filter_tid.ui
+	filter_lvl.ui
+	filter_ctx.ui
+	filter_fileline.ui
+	filter_row.ui
+	filter_time.ui
 	colorizer_regex.ui
 	)
 

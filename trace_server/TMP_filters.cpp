@@ -20,36 +20,3 @@ void MainWindow::ondtToolButton ()
 	}
 }
 
-void MainWindow::onTimeUnitsChanged (int i)
-{
-	QString unit = ui->timeComboBox->currentText();
-	qDebug("%s unit=%s", __FUNCTION__, unit.toStdString().c_str());
-	if (unit == "ms")
-		m_time_units = 0.001f;
-	if (unit == "us")
-		m_time_units = 0.000001f;
-	if (unit == "s")
-		m_time_units = 1.0f;
-	if (unit == "m")
-		m_time_units = 60.0f;
-}
-
-
-
-
-void MainWindow::connectFiltersToWidget ()
-{
-
-	connect(ui->filterFileComboBox, SIGNAL(editTextChanged(QString)), this, SLOT(onFilterFileComboChanged(QString)));
-	bool const cancel_on = !ui->filterFileComboBox->currentText().isEmpty();
-	ui->cancelFilterButton->setEnabled(cancel_on);
-	connect(ui->cancelFilterButton, SIGNAL(clicked()), this, SLOT(onCancelFilterFileButton()));
-	//connect(ui->filterFileComboBox, SIGNAL(activated(int)), this, SLOT(onTimeUnitsChanged(int)));
-}
-
-
-void MainWindow::onGotoFileFilter () { ui->tabFilters->setCurrentIndex(0); }
-void MainWindow::onGotoLevelFilter () { ui->tabFilters->setCurrentIndex(1); }
-void MainWindow::onGotoColorFilter () { ui->tabFilters->setCurrentIndex(5); }
-void MainWindow::onGotoRegexFilter () { ui->tabFilters->setCurrentIndex(4); }
-

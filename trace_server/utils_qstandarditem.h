@@ -92,7 +92,7 @@ inline QList<QStandardItem *> addTriRow (QString const & str, Qt::CheckState con
 }
 
 
-inline QList<QStandardItem *> addTriRow (QString const & str, Qt::CheckState const checked, char const mode)
+/*inline QList<QStandardItem *> addTriRow (QString const & str, Qt::CheckState const checked, char const mode)
 {
 	QList<QStandardItem *> row_items;
 
@@ -105,25 +105,72 @@ inline QList<QStandardItem *> addTriRow (QString const & str, Qt::CheckState con
 	mode_item->setEditable(false);
 	row_items.append(mode_item);
 	return row_items;
+}*/
+
+inline QList<QStandardItem *> addTriRow (Qt::CheckState const check0, QString const & str0, QString const & str1)
+{
+    QList<QStandardItem *> row_items;
+
+    QStandardItem * const item0 = new QStandardItem(str0);
+    item0->setCheckable(true);
+    item0->setEditable(false);
+    row_items << item0;
+
+    QStandardItem * const item1 = new QStandardItem(str1);
+    row_items.append(item1);
+    item1->setCheckable(false);
+    return row_items;
 }
+
+inline QList<QStandardItem *> addTriRow (Qt::CheckState const check0, QString const & str0, QString const & str1, QString const & str2)
+{
+    QList<QStandardItem *> row_items;
+
+    QStandardItem * const item0 = new QStandardItem(str0);
+    item0->setCheckable(true);
+    item0->setEditable(false);
+    row_items << item0;
+
+    QStandardItem * const item1 = new QStandardItem(str1);
+    row_items.append(item1);
+    item1->setCheckable(false);
+
+    QStandardItem * const item2 = new QStandardItem(str2);
+    row_items.append(item2);
+    item2->setCheckable(false);
+    return row_items;
+}
+
+inline QList<QStandardItem *> add4Col (Qt::CheckState const check0, QString const & str0, QString const & str1, QString const & str2, QString const & str3)
+{
+    QList<QStandardItem *> row_items;
+
+    QStandardItem * const item0 = new QStandardItem(str0);
+    item0->setCheckable(true);
+    item0->setEditable(false);
+    row_items << item0;
+
+    QStandardItem * const item1 = new QStandardItem(str1);
+    row_items.append(item1);
+    item1->setCheckable(false);
+
+    QStandardItem * const item2 = new QStandardItem(str2);
+    row_items.append(item2);
+    item2->setCheckable(false);
+
+    QStandardItem * const item3 = new QStandardItem(str3);
+    row_items.append(item3);
+    item3->setCheckable(false);
+    return row_items;
+}
+
 
 inline QList<QStandardItem *> addTriRow (QString const & str, Qt::CheckState const checked, bool const inclusive)
 {
-	QList<QStandardItem *> row_items;
-
-	QStandardItem * const name_item = new QStandardItem(str);
-	name_item->setCheckable(true);
-	name_item->setEditable(false);
-	row_items << name_item;
-
 	QString mode("E");
 	if (inclusive)
 		mode = "I";
-
-	QStandardItem * const mode_item = new QStandardItem(mode);
-	row_items.append(mode_item);
-	name_item->setCheckable(false);
-	return row_items;
+    return addTriRow(checked, str, mode);
 }
 
 template <typename T, typename U>

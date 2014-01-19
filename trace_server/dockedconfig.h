@@ -11,6 +11,7 @@ struct DockedConfigBase {
 	int		m_sync_group;
 	int		m_level;
 	float	m_time_units;
+    QString m_time_units_str;
 	FindConfig m_find_config;
 
 	DockedConfigBase () 
@@ -20,6 +21,7 @@ struct DockedConfigBase {
 		, m_sync_group(0)
 		, m_level(3)
 		, m_time_units(0.001f)
+		, m_time_units_str("ms")
 		, m_find_config()
 	{ }
 
@@ -32,6 +34,7 @@ struct DockedConfigBase {
 		ar & boost::serialization::make_nvp("level", m_level);
 		ar & boost::serialization::make_nvp("central_widget", m_central_widget);
 		ar & boost::serialization::make_nvp("time_units", m_time_units);
+		ar & boost::serialization::make_nvp("time_units_str", m_time_units);
 		//ar & boost::serialization::make_nvp("font", m_font);
 		//ar & boost::serialization::make_nvp("fontsize", m_fontsize);
 	}

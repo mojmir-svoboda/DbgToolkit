@@ -6,14 +6,6 @@
 #include "ui_combolist.h"
 #include "serialize.h"
 // serialization stuff
-#include <boost/serialization/type_info_implementation.hpp>
-#include <boost/archive/xml_iarchive.hpp>
-#include <boost/archive/xml_oarchive.hpp>
-#include <boost/serialization/utility.hpp>
-#include <boost/serialization/serialization.hpp>
-#include <boost/serialization/vector.hpp>
-#include <serialize/ser_qt.h>
-#include <fstream>
 
 FilterBase * FilterMgr::filterFactory (E_FilterType t, QWidget * parent)
 {
@@ -28,7 +20,7 @@ FilterBase * FilterMgr::filterFactory (E_FilterType t, QWidget * parent)
 		case e_Filter_Tid: return new FilterTid (parent);
 		case e_Filter_FileLine: return new FilterFileLine (parent);
 		case e_Filter_Row: return new FilterRow (parent);
-		//case e_Filter_Time: return new FilterTime (parent);
+		case e_Filter_Time: return new FilterTime (parent);
 		//case e_Filter_Function: return new FilterFunction (parent);
 		//case e_Filter_dt: return new Filterdt (parent);
 		default: return 0;

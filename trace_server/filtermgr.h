@@ -8,6 +8,7 @@
 #include "filter_tid.h"
 #include "filter_fileline.h"
 #include "filter_row.h"
+#include "filter_time.h"
 
 struct FilterMgr : FilterMgrBase
 {
@@ -54,6 +55,8 @@ struct FilterMgr : FilterMgrBase
 	FilterTid const *		getFilterTid () const { return static_cast<FilterTid const *>(m_cache[e_Filter_Tid]); }
 	FilterFileLine *		getFilterFileLine () { return static_cast<FilterFileLine *>(m_cache[e_Filter_FileLine]); }
 	FilterFileLine const *	getFilterFileLine () const { return static_cast<FilterFileLine const *>(m_cache[e_Filter_FileLine]); }
+	FilterTime *			getFilterTime () { return static_cast<FilterTime *>(m_cache[e_Filter_Time]); }
+	FilterTime const *		getFilterTime () const { return static_cast<FilterTime const *>(m_cache[e_Filter_Time]); }
 
 	//void clearUI ();
 	//void setConfigToUI ();

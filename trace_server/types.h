@@ -45,6 +45,34 @@ enum E_ExprState {
 	, e_ExprValid
 };
 
+enum E_TimeUnits {
+	  e_Time_ms
+	, e_Time_us
+	, e_Time_s
+	, e_Time_m
+	, e_max_timeunits_enum_value
+};
+
+QString const timeUnitsStr[] = { "ms", "us", "s", "m" };
+float const timeUnitsVal[] = { 0.001f, 0.000001f, 1.0f, 60.0f };
+
+inline QString const & unitsToString (int i) { return timeUnitsStr[i]; }
+inline float stringToUnitsValue (QString const & unit_str)
+{
+	for (size_t i = 0; i < e_max_timeunits_enum_value; ++i)
+		if (timeUnitsStr[i] == unit_str)
+			return timeUnitsVal[i];
+	return 0.001f;
+}
+inline E_TimeUnits stringToUnits (QString const & unit_str)
+{
+	for (size_t i = 0; i < e_max_timeunits_enum_value; ++i)
+		if (timeUnitsStr[i] == unit_str)
+			return static_cast<E_TimeUnits>(i);
+	return e_Time_ms;
+}
+
+
 static char fltmods[e_max_fltmod_enum_value] = { 'I', 'E' };
 static char const * fltmodsStr[e_max_fltmod_enum_value] = { "Include", "Exclude" };
 inline char fltModToString (E_FilterMode l) { return fltmods[l]; }

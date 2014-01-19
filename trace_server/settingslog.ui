@@ -200,7 +200,7 @@
       <item>
        <widget class="QStackedWidget" name="stackedWidget">
         <property name="currentIndex">
-         <number>3</number>
+         <number>1</number>
         </property>
         <widget class="QWidget" name="findPage">
          <layout class="QVBoxLayout" name="verticalLayout_4">
@@ -343,7 +343,7 @@
              </font>
             </property>
             <property name="currentIndex">
-             <number>2</number>
+             <number>0</number>
             </property>
             <widget class="QWidget" name="tabColumns">
              <attribute name="title">
@@ -854,11 +854,17 @@ p, li { white-space: pre-wrap; }
              </widget>
             </item>
             <item row="0" column="0">
-             <widget class="Line" name="line">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
+             <widget class="QLabel" name="label_3">
+              <property name="text">
+               <string>time units</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
               </property>
              </widget>
+            </item>
+            <item row="0" column="1" colspan="2">
+             <widget class="TimeComboBox" name="timeComboBox"/>
             </item>
            </layout>
           </item>
@@ -889,6 +895,11 @@ p, li { white-space: pre-wrap; }
    <extends>QWidget</extends>
    <header location="global">colorizermgr.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>TimeComboBox</class>
+   <extends>QComboBox</extends>
+   <header location="global">timecombobox.h</header>
   </customwidget>
  </customwidgets>
  <resources>
