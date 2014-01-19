@@ -17,8 +17,8 @@ namespace {
 typedef bool (*cmp_t)(float, float);
 
 cmp_t comparators[e_max_cmpmod_enum_value] = { lesser, lesser_or_eq, eq, greater_or_eq, greater, not_eq };
-QString comparatorsStr[e_max_cmpmod_enum_value] = { "<", "<=", "==", ">=", ">", "!=" };
-inline QString cmpModToString (E_CmpMode l) { return comparatorsStr[l]; }
+//QStringb comparatorsStr[e_max_cmpmod_enum_value] = { "<", "<=", "==", ">=", ">", "!=" };
+//inline QString cmpModToString (E_CmpMode l) { return comparatorsStr[l]; }
 inline E_CmpMode stringToCmpMod (QString const & qstr) {
 	for (size_t i = 0; i < e_max_cmpmod_enum_value; ++i)
 		if (qstr == comparatorsStr[i])

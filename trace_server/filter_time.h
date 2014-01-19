@@ -17,7 +17,7 @@ enum E_CmpMode {
 	, e_CmpNE
 	, e_max_cmpmod_enum_value
 };
-QString comparatorsStr[e_max_cmpmod_enum_value] = { "<", "<=", "==", ">=", ">", "!=" };
+static QString comparatorsStr[e_max_cmpmod_enum_value] = { "<", "<=", "==", ">=", ">", "!=" };
 inline QString cmpModToString (E_CmpMode l) { return comparatorsStr[l]; }
 
 struct FilteredTime {
