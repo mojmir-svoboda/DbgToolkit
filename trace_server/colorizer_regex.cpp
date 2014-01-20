@@ -7,6 +7,8 @@
 #include <boost/function.hpp>
 #include <qtsln/qtcolorpicker/qtcolorpicker.h>
 
+#include <logs/logwidget.h> // @TODO: fuck off
+
 /*bool ColorizerRegex::isMatchedColorizerText (QString str, QColor & fgcolor, QColor & bgcolor) const
 {
 	for (int i = 0, ie = m_data.size(); i < ie; ++i)
@@ -28,6 +30,7 @@ ColorizerRegex::ColorizerRegex (QWidget * parent)
 	, m_ui(new Ui_ColorizerRegex)
 	, m_data()
 	, m_model(0)
+	, m_src_model(0)
 {
 	initUI();
 	setupModel();
@@ -48,17 +51,35 @@ void ColorizerRegex::doneUI ()
 {
 }
 
-bool ColorizerRegex::accept (DecodedCommand const & cmd) const
+bool ColorizerRegex::action (DecodedCommand const & cmd)
 {
 	QString msg;
 	if (!cmd.getString(tlv::tag_msg, msg))
 		return true;
 
-	bool enabled = true;
-	bool const present = isPresent(msg, enabled);
-	return enabled;
+	for (int i = 0, ie = m_data.size(); i < ie; ++i)
+	{
+		ColorizedText const & ct = m_data[i];
+
+		bool const is_match = ct.accept(msg);
+
+		int const col = m_src_model->logWidget().findColumn4TagCst(tlv::tag_msg);
+		QModelIndex const idx = m_src_model->index(cmd.m_src_row, i, QModelIndex());
+		if (is_match && idx.isValid())
+		{
+			m_src_model->setData(idx, ct.m_fgcolor, Qt::ForegroundRole);
+			m_src_model->setData(idx, ct.m_bgcolor, Qt::BackgroundRole);
+			return true;
+		}
+	}
+
+	return false;
 }
 
+bool ColorizerRegex::accept (DecodedCommand const & cmd) const
+{
+	return true;
+}
 
 void ColorizerRegex::defaultConfig ()
 {
@@ -151,6 +172,16 @@ void ColorizerRegex::destroyModel ()
 		m_ui->view->setModel(0);
 	delete m_model;
 	m_model = 0;
+}
+
+ColorizedText const * ColorizerRegex::findMatch (QString const & item) const
+{
+	for (int i = 0, ie = m_data.size(); i < ie; ++i)
+		if (m_data.at(i).m_regex_str == item)
+		{
+			return &m_data.at(i);
+		}
+	return 0;
 }
 
 bool ColorizerRegex::isPresent (QString const & item, bool & enabled) const
@@ -284,7 +315,7 @@ void ColorizerRegex::appendToWidgets (ColorizedText const & ct)
 		getWidget()->setCurrentIndex(selectedIndex);
 	}
 }*/
-/*
+
 	void ColorizerRegex::actionColorRegex (DecodedCommand const & cmd, ColorizedText const & ct) const
 	{
 		for (size_t i = 0, ie = cmd.m_tvs.size(); i < ie; ++i)
@@ -297,7 +328,7 @@ void ColorizerRegex::appendToWidgets (ColorizedText const & ct)
 			if (is_match && idx.isValid())
 			{
 				m_src_model->setData(idx, ct.m_bgcolor, Qt::BackgroundRole);
-				m_src_model->setData(idx, ct.m_qcolor, Qt::ForegroundRole);
+				m_src_model->setData(idx, ct.m_fgcolor, Qt::ForegroundRole);
 			}
 
 			//@TODO: if column != level
@@ -342,15 +373,6 @@ void ColorizerRegex::appendToWidgets (ColorizedText const & ct)
 			actionUncolorRegex(dcmd, ct);
 		}
 	}
-
-
-	//void ColorizerRegex::loadToColorRegexps (QString const & filter_item, QString const & color, bool enabled)
-	//{
-		//m_filter_state.appendToColorRegexFilters(filter_item);
-		//m_filter_state.setRegexColor(filter_item, QColor(color));
-		//m_filter_state.setRegexChecked(filter_item, enabled);
-	//}
-*/
 
 	void ColorizerRegex::onActivate (int)
 	{
@@ -457,7 +479,7 @@ void ColorizerRegex::appendToWidgets (ColorizedText const & ct)
 		QStandardItem * child = findChildByText(root, qItem);
 		if (child == 0)
 		{
-			QList<QStandardItem *> row_items = addRow(qItem, false);
+			QList<QStandardItem *> row_items = addRow(qItem, true);
 			root->appendRow(row_items);
 			child = findChildByText(root, qItem);
 
@@ -484,6 +506,7 @@ void ColorizerRegex::appendToWidgets (ColorizedText const & ct)
                 m_ui->view->setIndexWidget(idx, w);
             }
             recompileColorRegex(ct);
+			updateColorRegex(ct);
 		}
 	}
 
@@ -497,8 +520,8 @@ void ColorizerRegex::appendToWidgets (ColorizedText const & ct)
 		m_model->removeRow(idx.row());
 
         ColorizedText & ct = findOrCreateColorizedText(val);
-        //uncolorRegex(ct);
-		//removeFromColorRegex(val);
+        uncolorRegex(ct);
+		remove(val);
 	}
 
 

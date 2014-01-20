@@ -316,29 +316,36 @@ void FilterTime::onAdd (QString const & op, QString const & rhs, QString const &
 		return;
 	QStandardItem * root = m_model->invisibleRootItem();
 
-    for (int i = 0, ie = m_model->rowCount(); i < ie; ++i)
-    {
-        QStandardItem * op_item = m_model->item(i, 1);
-        if (!op_item)
-            return;
-        QStandardItem * s_item = m_model->item(i, 2);
-        if (!s_item)
-            return;
-        QStandardItem * u_item = m_model->item(i, 3);
-        if (!u_item)
-            return;
+  bool found = false;
+  for (int i = 0, ie = m_model->rowCount(); i < ie; ++i)
+  {
+      QStandardItem * op_item = m_model->item(i, 1);
+      if (!op_item)
+          return;
+      QStandardItem * s_item = m_model->item(i, 2);
+      if (!s_item)
+          return;
+      QStandardItem * u_item = m_model->item(i, 3);
+      if (!u_item)
+          return;
 
-        QString const & op_val = op_item->text();
-        QString const & s_val = s_item->text();
-        QString const & u_val = u_item->text();
+      QString const & op_val = op_item->text();
+      QString const & s_val = s_item->text();
+      QString const & u_val = u_item->text();
 
-        if (FilteredTime(op, rhs, units) == FilteredTime(op_val, s_val, u_val))
-        {
-            QList<QStandardItem *> row_items = add4Col(Qt::Checked, get_tag_name(tlv::tag_time), op_val, s_val, u_val);
-            root->appendRow(row_items);
-        }
-    }
-    append(op, rhs, units, true);
+      if (FilteredTime(op, rhs, units) == FilteredTime(op_val, s_val, u_val))
+      {
+          found = true;
+          //@TODO: kurvadrat
+      }
+  }
+
+  if (!found)
+  {
+      QList<QStandardItem *> row_items = add4Col(Qt::Checked, get_tag_name(tlv::tag_time), op, rhs, units);
+      root->appendRow(row_items);
+  }
+  append(op, rhs, units, true);
 }
 void FilterTime::onAdd ()
 {

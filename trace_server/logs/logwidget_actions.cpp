@@ -271,6 +271,8 @@ void LogWidget::onSetRefTime ()
 }
 void LogWidget::onHidePrev ()
 {
+  bool const checked = m_config_ui.hidePrevButton->isChecked();
+
 	QModelIndex current = currentIndex();
 	if (isModelProxy())
 	{
@@ -282,7 +284,11 @@ void LogWidget::onHidePrev ()
 
 	QString const & strtime = findString4Tag(tlv::tag_time, current);
 
-	filterMgr()->getFilterTime()->append(cmpModToString(e_CmpGE), strtime, m_config.m_time_units_str, true);
+  if (checked)
+    filterMgr()->getFilterTime()->onAdd(cmpModToString(e_CmpGE), strtime, m_config.m_time_units_str);
+  else
+    filterMgr()->getFilterTime()->remove(cmpModToString(e_CmpGE), strtime, m_config.m_time_units_str);
+
 	onInvalidateFilter(); //@TODO: should be done by filter?
 
 	//bool const scroll_to_item = true;

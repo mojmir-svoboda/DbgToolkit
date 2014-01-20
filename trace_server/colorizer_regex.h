@@ -7,6 +7,8 @@
 #include <QStandardItemModel>
 #include <QStyledItemDelegate>
 
+#include <logs/logtablemodel.h>
+
 struct ColorizedText {
 	QColor	m_fgcolor;
 	QColor	m_bgcolor;
@@ -61,6 +63,7 @@ struct ColorizerRegex : FilterBase
 	virtual E_FilterType type () const { return e_Colorizer_Regex; }
 
 	virtual bool accept (DecodedCommand const & cmd) const;
+	virtual bool action (DecodedCommand const & cmd);
 
 	virtual void defaultConfig ();
 	virtual void loadConfig (QString const & path);
@@ -80,6 +83,7 @@ struct ColorizerRegex : FilterBase
 	void setupModel ();
 	void destroyModel ();
 	bool isPresent (QString const & item, bool & enabled) const;
+	ColorizedText const * findMatch (QString const & item) const;
 	void append (QString const & item);
 	void remove (QString const & item);
 	void recompile ();
@@ -91,9 +95,17 @@ struct ColorizerRegex : FilterBase
 	void recompileColorRegex (ColorizedText & ct);
 	void onColorRegexChanged (int role);
 
+	void actionColorRegex (DecodedCommand const & cmd, ColorizedText const & ct) const;
+	void actionUncolorRegex (DecodedCommand const & cmd, ColorizedText const & ct) const;
+	void updateColorRegex (ColorizedText const & ct);
+	void uncolorRegex (ColorizedText const & ct);
+
+	void setSrcModel (LogTableModel * m) { m_src_model = m; }
+
 	typedef QList<ColorizedText> filters_t;
 	filters_t				m_data;
 	QStandardItemModel *	m_model;
+	LogTableModel *			m_src_model; // @FIXME: not happy about this, but i need it fast :/
 
 	Q_OBJECT
 public slots:

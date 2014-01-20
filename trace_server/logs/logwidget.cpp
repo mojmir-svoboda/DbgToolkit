@@ -256,6 +256,9 @@ namespace logs {
 		if (filterMgr()->getFilterCtx())
 			filterMgr()->getFilterCtx()->setAppData(&m_connection->appData());
 
+		if (colorizerMgr()->getColorizerRegex())
+			colorizerMgr()->getColorizerRegex()->setSrcModel(m_src_model);
+
 		//if (colorizerMgr()->getFilterCtx())
 		//	colorizerMgr()->getFilterCtx()->setAppData(&m_connection->appData());
 	}
@@ -636,6 +639,14 @@ LogTableModel * LogWidget::cloneToNewModel (FindConfig const & fc)
 }
 
 */
+
+int LogWidget::findColumn4TagCst (tlv::tag_t tag) const
+{
+	QMap<tlv::tag_t, int>::const_iterator it = m_tags2columns.find(tag);
+	if (it != m_tags2columns.end())
+		return it.value();
+	return -1;
+}
 
 int LogWidget::findColumn4Tag (tlv::tag_t tag)
 {

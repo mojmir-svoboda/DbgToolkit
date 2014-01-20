@@ -64,7 +64,7 @@ public:
 	void resizeToCfg ();
 
 	FilterState const & filterState () const { return m_filter_state; }
-
+  logs::LogWidget const & logWidget () const { return m_log_widget; }
 	dcmds_t const & dcmds () { return m_dcmds; }
 	LogTableModel * cloneToNewModel ();
 	LogTableModel * cloneToNewModel (FindConfig const & fc);

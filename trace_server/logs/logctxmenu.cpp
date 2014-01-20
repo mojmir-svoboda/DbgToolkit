@@ -534,18 +534,10 @@ void LogCtxMenu::onClickedAtCancelButton ()
 void LogCtxMenu::fillButtonCache ()
 {
 	QWidget * dockWidgetContents = m_ui->dockWidgetContents;
-    QToolButton *excludeFileLineButton;
-    QToolButton *excludeRowButton;
-    QToolButton *locateRowButton;
-    QFrame *line;
-    QToolButton *setRefTimeButton;
-    QFrame *line_3;
-    QToolButton *hidePrevButton;
-    QToolButton *hideNextButton;
-    QFrame *line_2;
-    QToolButton *colorRowButton;
-    QToolButton *colorFileLineButton;
-    QToolButton *uncolorRowButton;
+
+  QFrame *line;
+  QFrame *line_3;
+  QFrame *line_2;
 	QSpacerItem *horizontalSpacer_3;
  
 

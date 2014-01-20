@@ -27,6 +27,15 @@ namespace logs {
 		Ui::SettingsLog * m_ui;
 		QDockWidget * m_widget;
 		ButtonCache * m_cache;
+    QToolButton * excludeFileLineButton;
+    QToolButton * excludeRowButton;
+    QToolButton * locateRowButton;
+    QToolButton * setRefTimeButton;
+    QToolButton * hidePrevButton;
+    QToolButton * hideNextButton;
+    QToolButton * colorRowButton;
+    QToolButton * colorFileLineButton;
+    QToolButton * uncolorRowButton;
 
 		LogCtxMenu (LogWidget & cfg, QWidget * parent);
 

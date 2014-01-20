@@ -9,11 +9,7 @@ namespace logs {
 
     bool LogWidget::appendToColorizers (DecodedCommand const & cmd)
     {
-        //if (colorizerMgr()->action(cmd, fg, bg))
-        {
-            
-        }
-        return true;
+        return colorizerMgr()->action(cmd);
     }
 
 #if 0

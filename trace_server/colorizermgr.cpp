@@ -19,12 +19,10 @@ bool ColorizerMgr::action (DecodedCommand const & cmd)
 	{
 		FilterBase * b = m_filters[i];
 		if (b->enabled())
-        {
-			bool const filter_accepted = b->accept(cmd); // @TODO: short circuit?
-            if (filter_accepted)
-                b->action(cmd);
-			accepted |= b->accept(cmd); // @TODO: short circuit?
-        }
+    {
+		  bool const filter_accepted = b->action(cmd); // @TODO: short circuit?
+			accepted |= filter_accepted;
+    }
 	}
 	return accepted;
 }

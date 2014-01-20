@@ -46,6 +46,7 @@ namespace logs {
 		virtual bool handleAction (Action * a, E_ActionHandleType sync);
 
 		int findColumn4Tag (tlv::tag_t tag);
+		int findColumn4TagCst (tlv::tag_t tag) const;
 
 		LogTableModel const * logModel () const { return m_src_model; }
 		FilterProxyModel const * logProxy () const { return m_proxy_model; }
