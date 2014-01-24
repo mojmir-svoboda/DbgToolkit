@@ -82,22 +82,22 @@ struct ColorizerRegex : FilterBase
 	ColorizedText & findOrCreateColorizedText (QString const & str);
 	void setupModel ();
 	void destroyModel ();
-	bool isPresent (QString const & item, bool & enabled) const;
 	ColorizedText const * findMatch (QString const & item) const;
 	void append (QString const & item);
 	void remove (QString const & item);
 	void recompile ();
 	void setConfigToUI ();
-	void appendToWidgets (ColorizedText const & flt);
+
+	ColorizedText & add (QString const & regex, QColor const & fg, QColor const & bg);
 	//void locateItem (QString const & item, bool scrollto, bool expand);
 	QTreeView * getWidget () { return m_ui->view; }
 	QTreeView const * getWidget () const { return m_ui->view; }
-	void recompileColorRegex (ColorizedText & ct);
 	void onColorRegexChanged (int role);
 
 	void actionColorRegex (DecodedCommand const & cmd, ColorizedText const & ct) const;
 	void actionUncolorRegex (DecodedCommand const & cmd, ColorizedText const & ct) const;
 	void updateColorRegex (ColorizedText const & ct);
+	void recompileColorRegex (ColorizedText & ct);
 	void uncolorRegex (ColorizedText const & ct);
 
 	void setSrcModel (LogTableModel * m) { m_src_model = m; }

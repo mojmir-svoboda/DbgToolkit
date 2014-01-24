@@ -20,10 +20,12 @@ namespace trace {
 
 		using namespace sys::socks;
 
+		typedef MessagePool<msg_t, 16384> message_pool_t;
+
 		sys::atomic32_t volatile g_Quit = 0;			/// request to quit
 		sys::atomic32_t volatile g_Flushed = 0;			/// request to quit
 		CACHE_ALIGN sys::atomic32_t volatile m_wr_idx = 0;		// write index
-		MessagePool<msg_t, 16384> g_MessagePool;					// pool of messages
+		message_pool_t g_MessagePool;					// pool of messages
 		CACHE_ALIGN sys::atomic32_t volatile m_rd_idx = 0;		// read index
 
 		sys::Thread g_ThreadSend(THREAD_PRIORITY_HIGHEST);		/// consumer-sender thread (high priority)
@@ -41,7 +43,7 @@ namespace trace {
 		inline msg_t & acquire_msg_buffer ()
 		{
 			sys::atomic32_t wr_idx = InterlockedIncrement(&m_wr_idx);
-			return msg_buffer_at((wr_idx - 1) % MessagePool<msg_t, 1024>::e_size);
+			return msg_buffer_at((wr_idx - 1) % message_pool_t::e_size);
 		}
 
 		inline bool is_file_connected () { return g_LogFile != INVALID_HANDLE_VALUE; }
@@ -79,6 +81,9 @@ namespace trace {
 					{
 #ifdef TRACE_WINDOWS_SOCKET_FAILOVER_TO_FILE
 						WriteToFile(buff, ln);
+#	ifdef TRACE_WINDOWS_SOCKET_FAILOVER_NOTIFY_MSVC
+						OutputDebugStringA("dropped some log messages!");
+#	endif
 #endif
 						return true;
 					}
@@ -94,6 +99,9 @@ namespace trace {
 
 #ifdef TRACE_WINDOWS_SOCKET_FAILOVER_TO_FILE
 					WriteToFile(buff, ln);
+#	ifdef TRACE_WINDOWS_SOCKET_FAILOVER_NOTIFY_MSVC
+					OutputDebugStringA("dropping log messages!");
+#	endif
 #endif
 					return false;
 				}
@@ -106,7 +114,12 @@ namespace trace {
 			}
 #ifdef TRACE_WINDOWS_SOCKET_FAILOVER_TO_FILE
 			else
+			{
 				WriteToFile(buff, ln);
+#	ifdef TRACE_WINDOWS_SOCKET_FAILOVER_NOTIFY_MSVC
+				OutputDebugStringA("dropping log messages!");
+#	endif
+			}
 #endif
 			DBG_OUT(".");
 			return true;
@@ -183,7 +196,7 @@ namespace trace {
 				{
 
 					//DBG_OUT("rd_idx=%10i, wr_idx=%10i, diff=%10i \n", rd_idx, wr_idx, wr_idx - rd_idx);
-					msg_t & msg = socks::msg_buffer_at(rd_idx % MessagePool<msg_t, 1024>::e_size);
+					msg_t & msg = socks::msg_buffer_at(rd_idx % message_pool_t::e_size);
 					msg.ReadLock();
 
 					bool const write_ok = socks::WriteToSocket(msg.m_data, msg.m_length);
