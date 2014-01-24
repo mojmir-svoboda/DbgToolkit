@@ -22,6 +22,7 @@ namespace logs {
 			cbx->addItem(tlv::get_tag_name(tlv::tag_lvl));
 			cbx->addItem(tlv::get_tag_name(tlv::tag_ctx));
 			cbx->addItem(tlv::get_tag_name(tlv::tag_pid));
+			cbx->addItem(tlv::get_tag_name(tlv::tag_dt));
 		}
 	}
 
@@ -200,7 +201,7 @@ void LogCtxMenu::prepareSettingsWidgets ()
 	m_ui->listViewColumnSetup->setMovement(QListView::Snap);
 	m_ui->listViewColumnSetup->setDragDropMode(QAbstractItemView::InternalMove);
 	m_ui->listViewColumnSetup->setEditTriggers(QAbstractItemView::CurrentChanged);
-	m_ui->listViewColumnSetup->setEditTriggers(QAbstractItemView::SelectedClicked);
+	//m_ui->listViewColumnSetup->setEditTriggers(QAbstractItemView::SelectedClicked);
 	model->addObserver(static_cast<QStandardItemModel *>(m_ui->listViewColumnShow->model()));
 	model->addObserver(static_cast<QStandardItemModel *>(m_ui->listViewColumnSizes->model()));
 	model->addObserver(static_cast<QStandardItemModel *>(m_ui->listViewColumnAlign->model()));
@@ -266,13 +267,16 @@ void LogCtxMenu::setConfigValuesToUI (LogConfig const & cfg)
 			if (findChildByText(cs_root, QString::fromLatin1(name)))
 				continue;
 
-			QList<QStandardItem *> row_items = addRow(QString::fromLatin1(name), true);
+			QList<QStandardItem *> row_items = addRow(QString::fromLatin1(name), false);
 			cs_root->appendRow(row_items);
 			add_tag_indices[add_tag_count++] = i;
 
-			csz_root->appendRow(addUncheckableRow(QString("0")));
-			cal_root->appendRow(addUncheckableRow(QString(aligns[0])));
-			cel_root->appendRow(addUncheckableRow(QString(elides[0])));
+      TagDesc const & td = m_log_widget.m_tagconfig.findOrCreateTag(i);
+      bool const hidden = true;
+      csh_root->appendRow(addRow(QString(""), !hidden));
+			csz_root->appendRow(addUncheckableRow(tr("%1").arg(td.m_size)));
+			cal_root->appendRow(addUncheckableRow(td.m_align_str));
+			cel_root->appendRow(addUncheckableRow(td.m_elide_str));
 		}
 	}
 }
@@ -506,8 +510,11 @@ void LogCtxMenu::onClickedAtApplyButton ()
 			config.m_columns_sizes[j] = 0;
 	}
 
+
 	if (validateConfig(config))
 	{
+    m_log_widget.applyConfig(config);
+
 		// reorder columns and set to main config
 		m_log_widget.swapSectionsAccordingTo(config);
 		for (int c = 0, ce = config.m_columns_sizes.size(); c < ce; ++c)

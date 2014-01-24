@@ -77,7 +77,7 @@ protected:
 	times_t m_row_times;
 	times_t m_col_times;
 	rows_t m_rows;
-	int m_columnCount;
+	int m_column_count;
 	QVector<QString> & m_hhdr;
 	QVector<int> & m_hsize;
 	QAbstractProxyModel * m_proxy;

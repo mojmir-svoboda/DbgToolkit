@@ -83,6 +83,7 @@ namespace tlv {
 		tag_msg,          /// logged message
 		tag_lvl,          /// logging level
 		tag_ctx,          /// logging context
+		tag_dt,           /// vertical header
 
 		/// now following tags are considered as "system"
 		tag_bool,         /// bool
@@ -116,11 +117,15 @@ namespace tlv {
 		"Msg",
 		"Lvl",
 		"Ctx",
+		"dt",
+
 		/*sys tags*/
 		"Bool",
 		"Int",
 		"Str",
 		"Flt",
+		"ix",
+		"iy",
 		"x",
 		"y",
 		"z",

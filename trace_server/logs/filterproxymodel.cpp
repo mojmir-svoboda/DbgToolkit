@@ -20,14 +20,23 @@ FilterProxyModel::~FilterProxyModel ()
 	qDebug("%s", __FUNCTION__);
 }
 
-void FilterProxyModel::resizeToCfg ()
+void FilterProxyModel::resizeToCfg (logs::LogConfig const & config)
 {
-	if (m_log_widget.m_config.m_columns_setup.size() > 0 && m_column_count == 0)
+  //@TODO: dedup: logtablemodel, findproxy, filterproxy
+	if (config.m_columns_setup.size() > m_column_count)
 	{
-		int const last = m_log_widget.m_config.m_columns_setup.size() - 1;
+		int const last = config.m_columns_setup.size() - 1;
 		beginInsertColumns(QModelIndex(), m_column_count, last);
 		insertColumns(m_column_count, last);
 		m_column_count = last + 1;
+		endInsertColumns();
+	}
+  else if (config.m_columns_setup.size() < m_column_count)
+	{
+		int const last = config.m_columns_setup.size() + 1;
+		beginRemoveColumns(QModelIndex(), last, m_column_count);
+		removeColumns(last, m_column_count);
+		m_column_count = last - 1;
 		endInsertColumns();
 	}
 }

@@ -122,6 +122,7 @@ int main ()
 #endif
 	TRACE_APPNAME("WarHorse_App");
 	TRACE_CONNECT();
+  TRACE_SCOPE(trace::e_Error, trace::CTX_Default);
 	{
 		TRACE_GANTT_SCOPE(trace::e_Info, trace::CTX_Default, "aa0/g0/%s", __FUNCTION__);
 		//TRACE_GANTT_BGN(trace::e_Info, trace::CTX_Default, "aa0/g0/%s", __FUNCTION__);

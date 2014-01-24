@@ -40,7 +40,7 @@ public:
 	explicit FilterProxyModel (QObject * parent, logs::LogWidget & lw);
 	virtual ~FilterProxyModel ();
 
-	void resizeToCfg ();
+	void resizeToCfg (logs::LogConfig const & config);
 	void commitBatchToModel (int from, int to, BatchCmd const & batch);
 
 	virtual Qt::ItemFlags flags (QModelIndex const & index) const;

@@ -96,6 +96,7 @@ inline TagConfig::TagConfig ()
 	m_tag_desc.push_back(TagDesc( tlv::tag_msg,  e_AlignLeft,  e_ElideRight, 512 ));
 	m_tag_desc.push_back(TagDesc( tlv::tag_lvl,  e_AlignRight, e_ElideLeft,   16 ));
 	m_tag_desc.push_back(TagDesc( tlv::tag_ctx,  e_AlignRight, e_ElideLeft,   16 ));
+	m_tag_desc.push_back(TagDesc( tlv::tag_dt,   e_AlignRight, e_ElideLeft,   64 ));
 	m_tag_desc.push_back(TagDesc( tlv::tag_bool ));
 	m_tag_desc.push_back(TagDesc( tlv::tag_int ));
 	m_tag_desc.push_back(TagDesc( tlv::tag_string ));

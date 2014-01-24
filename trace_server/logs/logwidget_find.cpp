@@ -43,7 +43,7 @@ void LogWidget::setSrcModel (FindConfig const & fc)
 {
 	m_config.m_find_config = fc;
 	setModel(m_src_model);
-	m_src_model->resizeToCfg();
+	m_src_model->resizeToCfg(m_config);
 	m_find_proxy_selection = new QItemSelectionModel(m_find_proxy_model);
 	setSelectionModel(m_src_selection);
 	resizeSections();
@@ -54,7 +54,7 @@ void LogWidget::setFindProxyModel (FindConfig const & fc)
 {
 	m_config.m_find_config = fc;
 	setModel(m_find_proxy_model);
-	m_find_proxy_model->resizeToCfg();
+	m_find_proxy_model->resizeToCfg(m_config);
 	m_find_proxy_model->force_update();
 	resizeSections();
 	applyConfig();

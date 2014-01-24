@@ -33,7 +33,7 @@ class Connection;
 class FilterState;
 class QAbstractProxyModel;
 
-namespace logs { class LogWidget; }
+namespace logs { class LogWidget; struct LogConfig; }
 
 typedef std::vector<DecodedCommand> dcmds_t;
 
@@ -61,7 +61,7 @@ public:
 	//bool checkColumnExistence (tlv::tag_t tag, QModelIndex const & index) const;
 	//bool checkTagExistence (tlv::tag_t tag, QModelIndex const & index) const;
 
-	void resizeToCfg ();
+	void resizeToCfg (logs::LogConfig const & config);
 
 	FilterState const & filterState () const { return m_filter_state; }
   logs::LogWidget const & logWidget () const { return m_log_widget; }

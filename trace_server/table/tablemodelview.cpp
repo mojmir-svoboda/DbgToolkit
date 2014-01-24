@@ -6,7 +6,7 @@
 
 TableModel::TableModel (QObject * parent, QVector<QString> & hhdr, QVector<int> & hsize)
 	: QAbstractTableModel(parent)
-	, m_columnCount(0)
+	, m_column_count(0)
 	, m_hhdr(hhdr)
 	, m_hsize(hsize)
 	, m_proxy(0)
@@ -17,9 +17,9 @@ TableModel::TableModel (QObject * parent, QVector<QString> & hhdr, QVector<int> 
 	if (hsize.size() > 0)
 	{
 		int const last = hsize.size() - 1;
-		beginInsertColumns(QModelIndex(), m_columnCount, last);
-		insertColumns(m_columnCount, last);
-		m_columnCount = last + 1;
+		beginInsertColumns(QModelIndex(), m_column_count, last);
+		insertColumns(m_column_count, last);
+		m_column_count = last + 1;
 		endInsertColumns();
 	}
 }
@@ -33,7 +33,7 @@ int TableModel::rowCount (QModelIndex const & /*parent*/) const { return m_rows.
 
 int TableModel::columnCount (QModelIndex const & /*parent*/) const
 {
-	return m_columnCount;
+	return m_column_count;
 }
 
 inline bool TableModel::checkExistence (QModelIndex const & index) const
@@ -221,10 +221,10 @@ void TableModel::appendTableXY (int x, int y, QString const & time, QString cons
 		}
 	}
 
-	if (m_columnCount < x + n_cols)
+	if (m_column_count < x + n_cols)
 	{
 		new_cols = true;
-		cols_first = m_columnCount;
+		cols_first = m_column_count;
 		cols_last = x + n_cols - 1;
 	}
 	for (int iy = 0, iye = m_rows.size(); iy < iye; ++iy)
@@ -257,8 +257,8 @@ void TableModel::appendTableXY (int x, int y, QString const & time, QString cons
 		beginInsertColumns(QModelIndex(), cols_first, cols_last);
 		qDebug("mod  COL  beginInsertCols(%02i, %02i) ", cols_first, cols_last);
 		insertColumns(cols_first, cols_last);
-		if (m_columnCount < cols_last + 1)
-			m_columnCount = cols_last + 1;
+		if (m_column_count < cols_last + 1)
+			m_column_count = cols_last + 1;
 		endInsertColumns();
 	}
 
@@ -298,11 +298,11 @@ void TableModel::createColumns (unsigned long long time, int first, int last, QM
 		m_col_times.resize(last + 1);
 	}
 
-	if (m_columnCount < last + 1)
+	if (m_column_count < last + 1)
 	{
-		beginInsertColumns(QModelIndex(), m_columnCount, last);
-		insertColumns(m_columnCount, last);
-		m_columnCount = last + 1;
+		beginInsertColumns(QModelIndex(), m_column_count, last);
+		insertColumns(m_column_count, last);
+		m_column_count = last + 1;
 		endInsertColumns();
 	}
 

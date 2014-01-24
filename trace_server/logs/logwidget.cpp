@@ -279,11 +279,11 @@ namespace logs {
 		//horizontalHeader()->resizeSectionItem(c, 32, );
 
 		if (m_src_model)
-			m_src_model->resizeToCfg();
+			m_src_model->resizeToCfg(cfg);
 		if (m_proxy_model)
-			m_proxy_model->resizeToCfg();
+			m_proxy_model->resizeToCfg(cfg);
 		if (m_find_proxy_model)
-			m_find_proxy_model->resizeToCfg();
+			m_find_proxy_model->resizeToCfg(cfg);
 
 		if (!isLinkedWidget())
 			setFilteringProxy(filterMgr()->enabled());
@@ -309,6 +309,8 @@ namespace logs {
 	{
 		//qDebug("%s this=0x%08x", __FUNCTION__, this);
 		Ui::SettingsLog * ui = m_config_ui.ui();
+		ui->dtCheckBox->setCheckState(cfg.m_dt_enabled ? Qt::Checked : Qt::Unchecked);
+		ui->autoScrollCheckBox->setCheckState(cfg.m_auto_scroll ? Qt::Checked : Qt::Unchecked);
 		
 		//ui->globalShowCheckBox->blockSignals(true);
 		//ui->globalShowCheckBox->setCheckState(cfg.m_show ? Qt::Checked : Qt::Unchecked);

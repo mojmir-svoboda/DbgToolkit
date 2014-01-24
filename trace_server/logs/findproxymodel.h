@@ -27,7 +27,7 @@
 
 class MainWindow;
 
-namespace logs { class LogWidget; }
+namespace logs { class LogWidget; struct LogConfig; }
 
 class FindProxyModel : public BaseProxyModel
 {
@@ -38,7 +38,7 @@ public:
 	~FindProxyModel ();
 
 	Qt::ItemFlags flags (QModelIndex const & index) const;
-	void resizeToCfg ();
+	void resizeToCfg (logs::LogConfig const & config);
 
 protected:
 
