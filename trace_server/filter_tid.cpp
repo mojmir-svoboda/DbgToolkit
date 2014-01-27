@@ -5,6 +5,7 @@
 FilterTid::FilterTid (QWidget * parent)
 	: FilterBase(parent)
 	, m_ui(new Ui_FilterTid)
+  , m_model(0)
 {
 	initUI();
 	setupModel();
