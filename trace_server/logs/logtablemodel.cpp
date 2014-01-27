@@ -168,10 +168,6 @@ void LogTableModel::parseCommand (DecodedCommand const & cmd, E_ReceiveMode mode
 			thread_idx = tls.findThreadId(cmd.m_tvs[i].m_val);
 		}
 
-  /////////////
-  /////////////
-
-
 	int indent = 0;
 	QString qindent;
 	if (m_log_widget.m_config.m_indent)
@@ -236,15 +232,12 @@ void LogTableModel::parseCommand (DecodedCommand const & cmd, E_ReceiveMode mode
 		qval.append(val);
 
 		column_index = m_log_widget.findColumn4Tag(tag);
-    // following should not happen, findColumn4Tag appends tag
-		//if (column_index < 0)
-		//	column_index = m_log_widget.appendColumn(tag);
     if (columns.size() <= column_index + 1)
 				columns.resize(column_index + 1);
 		columns[column_index].m_value = qval;
 	}
 
-	if (m_log_widget.m_config.m_dt_enabled)
+  // dt
 	{
 		int const tag = tlv::tag_dt;
 		int const ci = m_log_widget.findColumn4Tag(static_cast<tlv::tag_t>(tag));
@@ -254,44 +247,6 @@ void LogTableModel::parseCommand (DecodedCommand const & cmd, E_ReceiveMode mode
 		columns[ci].m_value = tr("%1").arg(dt);
 		m_log_widget.getTLS().setLastTime(thread_idx, t);
 	}
-
-	//unsigned long long t = time.toULongLong();
-	//if (m_config.m_dt_enabled)
-	//	n = n + 1;
-
-		//m_col_times[ix] = t;
-
-	/*if (new_cols)
-	{
-		beginInsertColumns(QModelIndex(), cols_first, cols_last);
-		qDebug("mod  COL  beginInsertCols(%02i, %02i) ", cols_first, cols_last);
-		insertColumns(cols_first, cols_last);
-		if (m_column_count < cols_last + 1)
-			m_column_count = cols_last + 1;
-		endInsertColumns();
-	}*/
-
-
-/*	if (m_config.m_dt_enabled)
-	{
-		int const tag = tlv::tag_max_value + 1;
-		int ci = m_log_widget.findColumn4Tag(static_cast<tlv::tag_t>(tag));
-		if (ci < 0)
-		{
-			ci = m_log_widget.appendColumn(tag);
-		}
-
-		unsigned long long const last_t = m_log_widget.getTLS().lastTime(thread_idx);
-		unsigned long long const t = time.toULongLong();
-		long long const dt = t - last_t;
-		columns[ci] = tr("%1").arg(dt);
-		m_log_widget.getTLS().setLastTime(thread_idx, t);
-	}
-
-*/
-
-
-
 }
 
 /*
