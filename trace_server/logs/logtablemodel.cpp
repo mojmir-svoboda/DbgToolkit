@@ -131,13 +131,11 @@ void LogTableModel::commitBatchToModel ()
 		cols_last = cols - 1;
 	}
 
-	if (m_log_widget.m_config.m_dt_enabled)
-	{
-    int const dt_col = m_log_widget.findColumn4TagCst(tlv::tag_dt);
-    if (dt_col < 0)
-    {
-      ++cols_last;
-    }
+  int dt_col = m_log_widget.findColumn4TagCst(tlv::tag_dt);
+  if (dt_col < 0)
+  {
+    dt_col = m_log_widget.appendColumn(tlv::tag_dt);
+    ++cols_last;
   }
 
 	if (new_cols)
@@ -239,8 +237,13 @@ void LogTableModel::parseCommand (DecodedCommand const & cmd, E_ReceiveMode mode
 
   // dt
 	{
-		int const tag = tlv::tag_dt;
-		int const ci = m_log_widget.findColumn4Tag(static_cast<tlv::tag_t>(tag));
+		int ci = m_log_widget.findColumn4Tag(tlv::tag_dt);
+    if (ci < 0)
+      ci = m_log_widget.appendColumn(tlv::tag_dt);
+
+    if (columns.size() <= ci + 1)
+        columns.resize(ci + 1);
+
 		unsigned long long const last_t = m_log_widget.getTLS().lastTime(thread_idx);
 		unsigned long long const t = time.toULongLong();
 		long long const dt = t - last_t;
