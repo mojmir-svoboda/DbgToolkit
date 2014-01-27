@@ -22,6 +22,9 @@ LogTableModel::~LogTableModel ()
 
 void LogTableModel::resizeToCfg (logs::LogConfig const & config)
 {
+  //beginResetModel();
+  //emit layoutAboutToBeChanged();
+
   //@TODO: dedup: logtablemodel, findproxy, filterproxy
 	if (config.m_columns_setup.size() > m_column_count)
 	{
@@ -39,6 +42,8 @@ void LogTableModel::resizeToCfg (logs::LogConfig const & config)
 		m_column_count = last - 1;
 		endInsertColumns();
 	}
+
+  //endResetModel();
 }
 
 void LogTableModel::commitCommands (E_ReceiveMode mode)
@@ -175,8 +180,13 @@ void LogTableModel::parseCommand (DecodedCommand const & cmd, E_ReceiveMode mode
 			indent = m_log_widget.getTLS().m_indents[thread_idx];
 
 		if (indent > 0)
+    {
+      if (cmd.m_hdr.cmd == tlv::cmd_scope_exit)
+        --indent; // indent is decreased after this call, that's why
+
 			for(int j = 0; j < indent; ++j)
 				qindent.append("  ");	// @TODO: ugh
+    }
 	}
 
 	batch.m_rows.push_back(columns_t(cmd.m_tvs.size()));
