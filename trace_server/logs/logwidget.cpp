@@ -239,8 +239,8 @@ namespace logs {
 		filterMgr()->disconnectFiltersTo(this);
 		colorizerMgr()->disconnectFiltersTo(this);
 
+		resizeModelToConfig(m_config);
 		swapSectionsAccordingTo(m_config);
-		applyConfig(m_config);
 		filterMgr()->applyConfig();
 		colorizerMgr()->applyConfig();
 
@@ -271,12 +271,23 @@ namespace logs {
 		blockSignals(old);
 	}
 
-	void LogWidget::applyConfig (LogConfig & cfg)
+	void LogWidget::resizeModelToConfig (LogConfig & cfg)
 	{
 		//qDebug("%s this=0x%08x", __FUNCTION__, this);
 		//Ui::SettingsLog * ui = m_config_ui.ui();
 		//horizontalHeader()->resizeSections(QHeaderView::Fixed);
 		//horizontalHeader()->resizeSectionItem(c, 32, );
+		
+		int const new_sz = cfg.m_columns_setup.size();
+		int const cur_sz = m_config.m_columns_setup.size();
+		if (new_sz < cur_sz)
+		{
+			// @TODO
+		}
+		else if (new_sz > cur_sz)
+		{
+			// @TODO
+		}
 
 		if (m_src_model)
 			m_src_model->resizeToCfg(cfg);
@@ -455,7 +466,7 @@ namespace logs {
 	void LogWidget::onFilterEnabledChanged ()
 	{
 		qDebug("%s", __FUNCTION__);
-		applyConfig(m_config);
+		resizeModelToConfig(m_config);
 		//setupUi
 		//applyConfig();
 	}

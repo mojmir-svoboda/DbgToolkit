@@ -35,7 +35,7 @@ namespace logs {
 		void saveConfig (QString const & preset_dir);
 		void saveAuxConfigs ();
 		void saveFindConfig ();
-		void applyConfig (LogConfig & pcfg);
+		void resizeModelToConfig (LogConfig & pcfg);
 		void applyConfig ();
 		QString getCurrentWidgetPath () const;
 

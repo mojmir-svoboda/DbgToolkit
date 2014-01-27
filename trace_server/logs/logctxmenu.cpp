@@ -271,9 +271,9 @@ void LogCtxMenu::setConfigValuesToUI (LogConfig const & cfg)
 			cs_root->appendRow(row_items);
 			add_tag_indices[add_tag_count++] = i;
 
-      TagDesc const & td = m_log_widget.m_tagconfig.findOrCreateTag(i);
-      bool const hidden = true;
-      csh_root->appendRow(addRow(QString(""), !hidden));
+			TagDesc const & td = m_log_widget.m_tagconfig.findOrCreateTag(i);
+			bool const hidden = true;
+			csh_root->appendRow(addRow(QString(""), !hidden));
 			csz_root->appendRow(addUncheckableRow(tr("%1").arg(td.m_size)));
 			cal_root->appendRow(addUncheckableRow(td.m_align_str));
 			cel_root->appendRow(addUncheckableRow(td.m_elide_str));
@@ -476,44 +476,40 @@ void LogCtxMenu::onClickedAtApplyButton ()
 		QStandardItem * const item = static_cast<QStandardItemModel *>(m_ui->listViewColumnShow->model())->itemFromIndex(row_idx);
 		if (item->checkState() == Qt::Checked)
 		{
-			QString const & d = m_ui->listViewColumnSetup->model()->data(row_idx).toString();
+			{
+				QModelIndex const row_idx = m_ui->listViewColumnSetup->model()->index(j, 0, QModelIndex());
+				QString const & d = m_ui->listViewColumnSetup->model()->data(row_idx).toString();
+				config.m_columns_setup.append(d);
+			}
+
+			{
+				QModelIndex const row_idx = m_ui->listViewColumnSizes->model()->index(j, 0, QModelIndex());
+				config.m_columns_sizes.append(m_ui->listViewColumnSizes->model()->data(row_idx).toString().toInt());
+			}
+
+			{
+				QModelIndex const row_idx = m_ui->listViewColumnAlign->model()->index(j, 0, QModelIndex());
+				config.m_columns_align.append(m_ui->listViewColumnAlign->model()->data(row_idx).toString());
+			}
+
+			{
+				QModelIndex const row_idx = m_ui->listViewColumnElide->model()->index(j, 0, QModelIndex());
+				config.m_columns_elide.append(m_ui->listViewColumnElide->model()->data(row_idx).toString());
+			}
 		}
 	}
-	for (size_t j = 0, je = m_ui->listViewColumnSetup->model()->rowCount(); j < je; ++j)
-	{
-		QModelIndex const row_idx = m_ui->listViewColumnSetup->model()->index(j, 0, QModelIndex());
-		QStandardItem * const item = static_cast<QStandardItemModel *>(m_ui->listViewColumnSetup->model())->itemFromIndex(row_idx);
-		QString const & d = m_ui->listViewColumnSetup->model()->data(row_idx).toString();
-		config.m_columns_setup.append(d);
-	}
-	for (size_t j = 0, je = m_ui->listViewColumnSizes->model()->rowCount(); j < je; ++j)
-	{
-		QModelIndex const row_idx = m_ui->listViewColumnSizes->model()->index(j, 0, QModelIndex());
-		config.m_columns_sizes.append(m_ui->listViewColumnSizes->model()->data(row_idx).toString().toInt());
-	}
-	for (size_t j = 0, je = m_ui->listViewColumnAlign->model()->rowCount(); j < je; ++j)
-	{
-		QModelIndex const row_idx = m_ui->listViewColumnAlign->model()->index(j, 0, QModelIndex());
-		config.m_columns_align.append(m_ui->listViewColumnAlign->model()->data(row_idx).toString());
-	}
-	for (size_t j = 0, je = m_ui->listViewColumnElide->model()->rowCount(); j < je; ++j)
-	{
-		QModelIndex const row_idx = m_ui->listViewColumnElide->model()->index(j, 0, QModelIndex());
-		config.m_columns_elide.append(m_ui->listViewColumnElide->model()->data(row_idx).toString());
-	}
 
-	for (size_t j = 0, je = m_ui->listViewColumnShow->model()->rowCount(); j < je; ++j)
+	/*for (size_t j = 0, je = m_ui->listViewColumnShow->model()->rowCount(); j < je; ++j)
 	{
 		QModelIndex const row_idx = m_ui->listViewColumnShow->model()->index(j, 0, QModelIndex());
 		QStandardItem * const item = static_cast<QStandardItemModel *>(m_ui->listViewColumnShow->model())->itemFromIndex(row_idx);
 		if (item->checkState() == Qt::Unchecked)
 			config.m_columns_sizes[j] = 0;
-	}
-
+	}*/
 
 	if (validateConfig(config))
 	{
-    m_log_widget.applyConfig(config);
+		m_log_widget.resizeModelToConfig(config);
 
 		// reorder columns and set to main config
 		m_log_widget.swapSectionsAccordingTo(config);
