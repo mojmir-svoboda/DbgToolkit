@@ -236,12 +236,11 @@ void LogTableModel::parseCommand (DecodedCommand const & cmd, E_ReceiveMode mode
 		qval.append(val);
 
 		column_index = m_log_widget.findColumn4Tag(tag);
-		if (column_index < 0)
-		{
-			column_index = m_log_widget.appendColumn(tag);
-			if (columns.size() < column_index)
-				columns.resize(column_index);
-		}
+    // following should not happen, findColumn4Tag appends tag
+		//if (column_index < 0)
+		//	column_index = m_log_widget.appendColumn(tag);
+    if (columns.size() <= column_index + 1)
+				columns.resize(column_index + 1);
 		columns[column_index].m_value = qval;
 	}
 
