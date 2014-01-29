@@ -109,6 +109,7 @@ void FilterMgrBase::onTabMoved (int from, int to)
 
 void FilterMgrBase::connectFiltersTo (QWidget * w)
 {
+	connect(m_tabCtxMenu->ui->commitButton, SIGNAL(clicked()), w, SLOT(onRefillFilters()));
 	for (int i = 0, ie = m_filters.size(); i < ie; ++i)
 		connect(m_filters[i], SIGNAL(filterChangedSignal()), w, SLOT(onFilterChanged()));
 }
@@ -185,6 +186,7 @@ void FilterMgrBase::setUIToConfig ()
 		}
 	}
 	recreateFilters();
+    emit refillFilters();
 }
 
 void FilterMgrBase::onShowContextMenu (QPoint const & pt)

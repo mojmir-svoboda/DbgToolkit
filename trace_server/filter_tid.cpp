@@ -1,6 +1,8 @@
 #include "filter_tid.h"
 #include "constants.h"
 #include "serialize.h"
+#include "utils_qstandarditem.h"
+#include <boost/function.hpp>
 
 FilterTid::FilterTid (QWidget * parent)
 	: FilterBase(parent)
@@ -76,8 +78,7 @@ void FilterTid::setupModel ()
 	m_ui->view->setModel(m_model);
 
 	m_ui->view->setEditTriggers(QAbstractItemView::NoEditTriggers);
-	connect(m_ui->view, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtTIDList(QModelIndex)));
-	connect(m_ui->view, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(onDoubleClickedAtTIDList(QModelIndex)));
+	connect(m_ui->view, SIGNAL(clicked(QModelIndex)), this, SLOT(onClicked(QModelIndex)));
 }
 
 void FilterTid::destroyModel ()
@@ -88,11 +89,11 @@ void FilterTid::destroyModel ()
 	m_model = 0;
 }
 
-void FilterTid::appendTIDFilter (QString const & item)
+void FilterTid::append (QString const & item)
 {
 	m_data.push_back(item);
 }
-void FilterTid::removeTIDFilter (QString const & item)
+void FilterTid::remove (QString const & item)
 {
 	m_data.erase(std::remove(m_data.begin(), m_data.end(), item), m_data.end());
 }
@@ -116,20 +117,33 @@ void FilterTid::locateItem (QString const & item, bool scrollto, bool expand)
 }
 
 // slots
-void FilterTid::onClickedAtTIDList (QModelIndex idx)
+void FilterTid::onClicked (QModelIndex idx)
 {
-	if (!idx.isValid())
-		return;
+	if (!idx.isValid()) return;
 	QStandardItem * item = m_model->itemFromIndex(idx);
 	Q_ASSERT(item);
 
-	bool const orig_checked = (item->checkState() == Qt::Checked);
-	QString const & val = m_model->data(idx, Qt::DisplayRole).toString();
-	bool const checked = !orig_checked;
-	if (checked)
-		appendTIDFilter(val);
-	else
-		removeTIDFilter(val);
+    QString const & filter_item = m_model->data(idx, Qt::DisplayRole).toString();
+    bool const orig_checked = (item->checkState() == Qt::Checked);
+    if (orig_checked)
+        append(filter_item);
+    else
+        remove(filter_item);
+
+    emitFilterChangedSignal();
+}
+
+void FilterTid::onSelectAll ()
+{
+	boost::function<void (FilterTid *, QString const &)> f = &FilterTid::append;
+	applyFnOnAllChildren(f, this, m_model, Qt::Checked);
 	emitFilterChangedSignal();
 }
+void FilterTid::onSelectNone ()
+{
+	boost::function<void (FilterTid *, QString const &)> f = &FilterTid::remove;
+	applyFnOnAllChildren(f, this, m_model, Qt::Unchecked);
+	emitFilterChangedSignal();
+}
+
 

@@ -183,6 +183,24 @@ void LogWidget::refreshFilters (BaseProxyModel const * proxy)
 	}
 }
 
+void LogWidget::onRefillFilters ()
+{
+	if (model() == m_src_model || model() == m_proxy_model)
+	{
+		for (int i = 0, ie = m_src_model->dcmds().size(); i < ie; ++i)
+		{
+			DecodedCommand const & dcmd = m_src_model->dcmds()[i];
+			appendToFilters(dcmd);
+			appendToColorizers(dcmd);
+		}
+	}
+	else //if (model() == m_find_proxy_model)
+	{
+		//refreshFilters(m_find_proxy_model);
+	}
+}
+
+
 void LogWidget::clearFilters ()
 {
 	//@TODO: call all functions below
@@ -199,6 +217,7 @@ void LogWidget::appendToTIDFilters (QString const & item)
 		{
 			QList<QStandardItem *> row_items = addRow(item, true);
 			root->appendRow(row_items);
+			filterMgr()->getFilterTid()->append(item);
 		}
 	}
 }
@@ -236,7 +255,7 @@ void LogWidget::appendToLvlFilters (QString const & item)
 			QList<QStandardItem *> row_items = addTriRow(item, Qt::Checked, true);
 			row_items[0]->setCheckState(Qt::Checked);
 			root->appendRow(row_items);
-			filterMgr()->getFilterLvl()->appendLvlFilter(item);
+			filterMgr()->getFilterLvl()->append(item);
 		}
 	}
 }

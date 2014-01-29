@@ -37,8 +37,8 @@ struct FilterTid : FilterBase
 	// tid specific
 	void setupModel ();
 	void destroyModel ();
-	void appendTIDFilter (QString const & item);
-	void removeTIDFilter (QString const & item);
+	void append (QString const & item);
+	void remove (QString const & item);
 	bool isTIDExcluded (QString const & item) const;
 	void recompile ();
 	QListView * getWidget () { return m_ui->view; }
@@ -51,7 +51,9 @@ struct FilterTid : FilterBase
 
 	Q_OBJECT
 public slots:
-	void onClickedAtTIDList (QModelIndex idx);
+	void onClicked (QModelIndex idx);
+	void onSelectAll ();
+	void onSelectNone ();
 signals:
 	void filterChangedSignal ();
 };

@@ -116,7 +116,7 @@ void FilterLvl::setupModel ()
 	//m_ui->view->setRootIndex(m_model->indexFromItem(m_model->invisibleRootItem()));
 
 	m_ui->view->setEditTriggers(QAbstractItemView::NoEditTriggers);
-	connect(m_ui->view, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtLvl(QModelIndex)));
+	connect(m_ui->view, SIGNAL(clicked(QModelIndex)), this, SLOT(onClicked(QModelIndex)));
 	connect(m_ui->allButton, SIGNAL(clicked()), this, SLOT(onSelectAll()));
 	connect(m_ui->noneButton, SIGNAL(clicked()), this, SLOT(onSelectNone()));
 	m_ui->view->header()->hide();
@@ -144,7 +144,7 @@ bool FilterLvl::isLvlPresent (QString const & item, bool & enabled, E_LevelMode 
 		}
 	return false;
 }
-void FilterLvl::appendLvlFilter (QString const & item)
+void FilterLvl::append (QString const & item)
 {
 	for (int i = 0, ie = m_data.size(); i < ie; ++i)
 		if (m_data[i].m_level_str == item)
@@ -157,7 +157,7 @@ void FilterLvl::appendLvlFilter (QString const & item)
 	std::sort(m_data.begin(), m_data.end());
 	m_ui->view->sortByColumn(0, Qt::AscendingOrder);
 }
-void FilterLvl::removeLvlFilter (QString const & item)
+void FilterLvl::remove (QString const & item)
 {
 	for (int i = 0, ie = m_data.size(); i < ie; ++i)
 		if (m_data[i].m_level_str == item)
@@ -183,18 +183,18 @@ bool FilterLvl::setLvlMode (QString const & item, bool enabled, E_LevelMode lvlm
 
 void FilterLvl::onSelectAll ()
 {
-	boost::function<void (FilterLvl *, QString const &)> f = &FilterLvl::appendLvlFilter;
+	boost::function<void (FilterLvl *, QString const &)> f = &FilterLvl::append;
 	applyFnOnAllChildren(f, this, m_model, Qt::Checked);
 	emitFilterChangedSignal();
 }
 void FilterLvl::onSelectNone ()
 {
-	boost::function<void (FilterLvl *, QString const &)> f = &FilterLvl::removeLvlFilter;
+	boost::function<void (FilterLvl *, QString const &)> f = &FilterLvl::remove;
 	applyFnOnAllChildren(f, this, m_model, Qt::Unchecked);
 	emitFilterChangedSignal();
 }
 
-void FilterLvl::onClickedAtLvl (QModelIndex idx)
+void FilterLvl::onClicked (QModelIndex idx)
 {
 	if (!idx.isValid()) return;
 	QStandardItem * item = m_model->itemFromIndex(idx);
@@ -210,7 +210,7 @@ void FilterLvl::onClickedAtLvl (QModelIndex idx)
 		E_LevelMode const new_mode = static_cast<E_LevelMode>(i);
 		m_model->setData(idx, QString(lvlModToString(new_mode)));
 
-    bool const checked = (item->checkState() == Qt::Checked);
+		bool const checked = (item->checkState() == Qt::Checked);
 		setLvlMode(filter_item, !checked, new_mode);
 
 		emitFilterChangedSignal();
@@ -220,9 +220,9 @@ void FilterLvl::onClickedAtLvl (QModelIndex idx)
 		QString const & filter_item = m_model->data(idx, Qt::DisplayRole).toString();
 		bool const orig_checked = (item->checkState() == Qt::Checked);
 		if (orig_checked)
-			appendLvlFilter(filter_item);
+			append(filter_item);
 		else
-			removeLvlFilter(filter_item);
+			remove(filter_item);
 
 		emitFilterChangedSignal();
 	}

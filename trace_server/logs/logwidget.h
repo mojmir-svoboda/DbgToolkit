@@ -195,6 +195,7 @@ namespace logs {
 		void onApplyButton ();
 		void onResetButton ();
 		void onDefaultButton ();
+		void onRefillFilters ();
 		//void scrollTo (QModelIndex const & index, ScrollHint hint);
 		
 		//void performTimeSynchronization (int sync_group, unsigned long long time, void * source);

@@ -62,6 +62,7 @@ public slots:
 	void onCtxCommitButton ();
 	void onTabMoved (int from, int to);
 signals:
+    void refillFilters ();
 
 public:
     MovableTabWidget *		m_tabFilters;
