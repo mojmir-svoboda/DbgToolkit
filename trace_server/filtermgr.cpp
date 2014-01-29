@@ -241,4 +241,16 @@ void FilterMgr::clear ()
 {
 }
 
+FilterBase * FilterMgr::mkFilter (E_FilterType t)
+{
+    QString const & name = g_filterNames[t];
+    m_filter_order.push_back(name);
+	recreateFilters();
+    FilterBase * b = m_cache[t];
+    if (b)
+    {
+      b->applyConfig();
+    }
+    return b;
+}
 

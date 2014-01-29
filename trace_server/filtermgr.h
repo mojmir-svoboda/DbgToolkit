@@ -58,6 +58,8 @@ struct FilterMgr : FilterMgrBase
 	FilterTime *			getFilterTime () { return static_cast<FilterTime *>(m_cache[e_Filter_Time]); }
 	FilterTime const *		getFilterTime () const { return static_cast<FilterTime const *>(m_cache[e_Filter_Time]); }
 
+    FilterBase *            mkFilter (E_FilterType t);
+
 	//void clearUI ();
 	//void setConfigToUI ();
 	//void setUIToConfig ();

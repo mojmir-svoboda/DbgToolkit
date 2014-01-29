@@ -284,6 +284,8 @@ void LogWidget::onHidePrev ()
 
 	QString const & strtime = findString4Tag(tlv::tag_time, current);
 
+  filterMgr()->mkFilter(e_Filter_Time);
+
   if (checked)
     filterMgr()->getFilterTime()->onAdd(cmpModToString(e_CmpGE), strtime, m_config.m_time_units_str);
   else
