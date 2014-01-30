@@ -71,6 +71,8 @@ public:
 	int row_time (int const row) const { return m_row_times[row]; }
 	int col_time (int const col) const { return m_col_times[col]; }
 
+	void clearModel ();
+
 protected:
 
 	typedef std::vector<unsigned long long> times_t;

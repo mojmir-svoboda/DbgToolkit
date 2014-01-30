@@ -36,6 +36,7 @@ namespace logs {
 		void saveAuxConfigs ();
 		void saveFindConfig ();
 		void resizeModelToConfig (LogConfig & pcfg);
+		void reloadModelAccordingTo (LogConfig & pcfg);
 		void applyConfig ();
 		QString getCurrentWidgetPath () const;
 

@@ -509,10 +509,11 @@ void LogCtxMenu::onClickedAtApplyButton ()
 
 	if (validateConfig(config))
 	{
-		m_log_widget.resizeModelToConfig(config);
+		m_log_widget.reloadModelAccordingTo(config);
+		//m_log_widget.resizeModelToConfig(config);
 
 		// reorder columns and set to main config
-		m_log_widget.swapSectionsAccordingTo(config);
+		//m_log_widget.swapSectionsAccordingTo(config);
 		for (int c = 0, ce = config.m_columns_sizes.size(); c < ce; ++c)
 		{
 			int const li = m_log_widget.horizontalHeader()->logicalIndex(c);
