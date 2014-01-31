@@ -245,7 +245,7 @@ void LogWidget::appendToLvlFilters (QString const & item)
 	{
 		bool enabled = false;
 		E_LevelMode lvlmode = e_LvlInclude;
-		if (filterMgr()->getFilterLvl()->isLvlPresent(item, enabled, lvlmode))
+		if (filterMgr()->getFilterLvl()->isPresent(item, enabled, lvlmode))
 			return;
 
 		QStandardItem * root = filterMgr()->getFilterLvl()->m_model->invisibleRootItem();

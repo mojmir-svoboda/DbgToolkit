@@ -28,13 +28,35 @@ void FilterTid::doneUI ()
 {
 }
 
+bool FilterTid::isPresent (QString const & item, bool & enabled) const
+{
+	for (int i = 0, ie = m_data.size(); i < ie; ++i)
+		if (m_data.at(i).m_tid_str == item)
+		{
+			FilteredTid const & l = m_data.at(i);
+			//mode = static_cast<E_TidMode>(l.m_state);
+			enabled = l.m_is_enabled;
+			return true;
+		}
+	return false;
+}
+
+
 bool FilterTid::accept (DecodedCommand const & cmd) const
 {
 	QString tid;
 	if (!cmd.getString(tlv::tag_tid, tid))
 		return true;
 
-	bool const excluded = isTIDExcluded(tid);
+	bool enabled = true;
+	bool const present = isPresent(tid, enabled);
+
+	bool excluded = false;
+	if (present)
+	{
+		//if (enabled && lvlmode == e_TidForceInclude) return true; // forced tids (errors etc)
+		excluded |= !enabled;
+	}
 	return !excluded;
 }
 
@@ -91,15 +113,27 @@ void FilterTid::destroyModel ()
 
 void FilterTid::append (QString const & item)
 {
-	m_data.push_back(item);
+	for (int i = 0, ie = m_data.size(); i < ie; ++i)
+		if (m_data[i].m_tid_str == item)
+		{
+			FilteredTid & l = m_data[i];
+			l.m_is_enabled = true;
+			return;
+		}
+	m_data.push_back(FilteredTid(item, true, 0));
+	std::sort(m_data.begin(), m_data.end());
+	m_ui->view->sortByColumn(0, Qt::AscendingOrder);
+
 }
 void FilterTid::remove (QString const & item)
 {
-	m_data.erase(std::remove(m_data.begin(), m_data.end(), item), m_data.end());
-}
-bool FilterTid::isTIDExcluded (QString const & item) const
-{
-	return std::find(m_data.begin(), m_data.end(), item) != m_data.end();
+	for (int i = 0, ie = m_data.size(); i < ie; ++i)
+		if (m_data[i].m_tid_str == item)
+		{
+			FilteredTid & l = m_data[i];
+			l.m_is_enabled = false;
+			return;
+		}
 }
 
 void FilterTid::recompile ()

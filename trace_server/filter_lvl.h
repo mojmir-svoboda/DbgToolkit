@@ -65,10 +65,10 @@ struct FilterLvl : FilterBase
 	// lvl specific
 	void setupModel ();
 	void destroyModel ();
-	bool isLvlPresent (QString const & item, bool & enabled, E_LevelMode & lvlmode) const;
+	bool isPresent (QString const & item, bool & enabled, E_LevelMode & lvlmode) const;
 	void append (QString const & item);
 	void remove (QString const & item);
-	bool setLvlMode (QString const & item, bool enabled, E_LevelMode lvlmode);
+	bool setMode (QString const & item, bool enabled, E_LevelMode lvlmode);
 	void recompile ();
 	void setConfigToUI ();
 	QTreeView * getWidget () { return m_ui->view; }

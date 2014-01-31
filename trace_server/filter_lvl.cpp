@@ -39,7 +39,7 @@ bool FilterLvl::accept (DecodedCommand const & cmd) const
 
 	E_LevelMode lvlmode = e_LvlInclude;
 	bool lvl_enabled = true;
-	bool const lvl_present = isLvlPresent(lvl, lvl_enabled, lvlmode);
+	bool const lvl_present = isPresent(lvl, lvl_enabled, lvlmode);
 
 	bool excluded = false;
 	if (lvl_present)
@@ -132,7 +132,7 @@ void FilterLvl::destroyModel ()
 	m_model = 0;
 }
 
-bool FilterLvl::isLvlPresent (QString const & item, bool & enabled, E_LevelMode & lvlmode) const
+bool FilterLvl::isPresent (QString const & item, bool & enabled, E_LevelMode & lvlmode) const
 {
 	for (int i = 0, ie = m_data.size(); i < ie; ++i)
 		if (m_data.at(i).m_level_str == item)
@@ -167,7 +167,7 @@ void FilterLvl::remove (QString const & item)
 			return;
 		}
 }
-bool FilterLvl::setLvlMode (QString const & item, bool enabled, E_LevelMode lvlmode)
+bool FilterLvl::setMode (QString const & item, bool enabled, E_LevelMode lvlmode)
 {
 	for (int i = 0, ie = m_data.size(); i < ie; ++i)
 		if (m_data.at(i).m_level_str == item)
@@ -211,7 +211,7 @@ void FilterLvl::onClicked (QModelIndex idx)
 		m_model->setData(idx, QString(lvlModToString(new_mode)));
 
 		bool const checked = (item->checkState() == Qt::Checked);
-		setLvlMode(filter_item, !checked, new_mode);
+		setMode(filter_item, !checked, new_mode);
 
 		emitFilterChangedSignal();
 	}
