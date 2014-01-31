@@ -98,6 +98,7 @@ struct ColorizerRegex : FilterBase
 	void actionUncolorRegex (DecodedCommand const & cmd, ColorizedText const & ct) const;
 	void updateColorRegex (ColorizedText const & ct);
 	void recompileColorRegex (ColorizedText & ct);
+	void recompileColorRegexps ();
 	void uncolorRegex (ColorizedText const & ct);
 
 	void setSrcModel (LogTableModel * m) { m_src_model = m; }

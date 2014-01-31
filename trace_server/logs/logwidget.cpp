@@ -555,8 +555,9 @@ void LogWidget::commitCommands (E_ReceiveMode mode)
 	{
 		DecodedCommand & cmd = m_queue[i];
 		m_src_model->handleCommand(cmd, mode);
-		appendToFilters(cmd);
-		appendToColorizers(cmd);
+		// warning: qmodelindex in source does not exist yet here... 
+		//appendToFilters(cmd);
+		//appendToColorizers(cmd);
 	}
 	if (m_queue.size())
 	{

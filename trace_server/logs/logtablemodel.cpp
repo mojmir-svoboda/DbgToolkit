@@ -160,6 +160,14 @@ void LogTableModel::commitBatchToModel ()
 		endInsertColumns();
 	}
 
+	for (int r = 0, re = rows; r < re; ++r)
+	{
+		DecodedCommand const & cmd = m_dcmds[from + r];
+    m_log_widget.appendToFilters(cmd);
+    m_log_widget.appendToColorizers(cmd);
+  }
+
+
 	FilterProxyModel * pxy = m_log_widget.m_proxy_model;
 	if (m_proxy)
 		pxy->commitBatchToModel(from, to + 1, m_batch);
