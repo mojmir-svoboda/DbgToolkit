@@ -144,6 +144,17 @@ void ColorizerRegex::setupModel ()
 		m_model = new QStandardItemModel;
 	}
 	m_ui->view->setModel(m_model);
+	QStringList l;
+	l.append("Enabled");
+	l.append("Reg Exp");
+	l.append("fg");
+	l.append("bg");
+	m_model->setHorizontalHeaderLabels(l);
+
+	//m_ui->view->model()->setHeaderData(0, Qt::Horizontal, "Enabled");
+	//m_ui->view->model()->setHeaderData(1, Qt::Horizontal, "Reg Exp");
+	//m_ui->view->model()->setHeaderData(2, Qt::Horizontal, "fg");
+	//m_ui->view->model()->setHeaderData(3, Qt::Horizontal, "bg");
 	//m_ui->view->setSortingEnabled(true);
 	m_ui->view->expandAll();
 
@@ -159,7 +170,6 @@ void ColorizerRegex::setupModel ()
 	connect(m_ui->view, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAt(QModelIndex)));
 	connect(m_ui->allButton, SIGNAL(clicked()), this, SLOT(onSelectAll()));
 	connect(m_ui->noneButton, SIGNAL(clicked()), this, SLOT(onSelectNone()));
-	m_ui->view->header()->hide();
 	
 	m_ui->fgButton->setStandardColors();
 	m_ui->fgButton->setCurrentColor(QColor(Qt::black));

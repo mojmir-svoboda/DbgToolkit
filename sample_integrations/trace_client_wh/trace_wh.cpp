@@ -127,7 +127,7 @@ int main ()
 	{
 		TRACE_GANTT_SCOPE(trace::e_Info, trace::CTX_Default, "aa0/g0/%s", __FUNCTION__);
 		//TRACE_GANTT_BGN(trace::e_Info, trace::CTX_Default, "aa0/g0/%s", __FUNCTION__);
-		for (int k = 0; k < 1; ++k)
+		for (int k = 0; k <   1; ++k)
 			for (int i = 0; i < 64; ++i)
 			{
 				float x = 3.1415926535f * 2.0f / 128.0f * static_cast<float>(i);
