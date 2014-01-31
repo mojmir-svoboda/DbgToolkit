@@ -243,6 +243,9 @@ void FilterMgr::clear ()
 
 FilterBase * FilterMgr::mkFilter (E_FilterType t)
 {
+    if (FilterBase * existing_filter = m_cache[t])
+        return existing_filter;
+
     QString const & name = g_filterNames[t];
     m_filter_order.push_back(name);
 	recreateFilters();
