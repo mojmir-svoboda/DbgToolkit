@@ -36,6 +36,7 @@ namespace logs {
 		void saveAuxConfigs ();
 		void saveFindConfig ();
 		void resizeModelToConfig (LogConfig & pcfg);
+		void reloadModelAccordingTo (LogConfig & pcfg);
 		void applyConfig ();
 		QString getCurrentWidgetPath () const;
 
@@ -195,6 +196,7 @@ namespace logs {
 		void onApplyButton ();
 		void onResetButton ();
 		void onDefaultButton ();
+		void onRefillFilters ();
 		//void scrollTo (QModelIndex const & index, ScrollHint hint);
 		
 		//void performTimeSynchronization (int sync_group, unsigned long long time, void * source);

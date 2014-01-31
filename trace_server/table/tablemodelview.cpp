@@ -153,6 +153,19 @@ void TableModel::emitLayoutChanged ()
 	emit layoutChanged();
 }
 
+void TableModel::clearModel ()
+{
+	beginResetModel();
+	m_row_times.clear();
+	m_col_times.clear();
+	m_rows.clear();
+	m_column_count = 0;
+	endResetModel();
+	//QVector<QString> & m_hhdr.clear();
+	//QVector<int> & m_hsize;
+	//QAbstractProxyModel * m_proxy;
+}
+
 void TableModel::appendTableXY (int x, int y, QString const & time, QString const & fgc, QString const & bgc, QString const & cmd)
 {
 	unsigned long long t = time.toULongLong();

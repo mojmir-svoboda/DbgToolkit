@@ -60,6 +60,18 @@ void LogTableModel::handleCommand (DecodedCommand const & cmd, E_ReceiveMode mod
 	}
 }
 
+
+void LogTableModel::reloadModelAccordingTo (logs::LogConfig & config)
+{
+	resizeToCfg(config);
+	for (size_t r = 0, re = m_dcmds.size(); r < re; ++r)
+	{
+		DecodedCommand const & dcmd = m_dcmds[r];
+		handleCommand(dcmd, e_RecvBatched);
+	}
+	commitCommands(e_RecvSync);
+}
+
 LogTableModel * LogTableModel::cloneToNewModel ()
 {
 	LogTableModel * new_model = new LogTableModel(this, m_log_widget);
