@@ -83,5 +83,4 @@ public slots:
 	void onSelectAll ();
 	void onSelectNone ();
 signals:
-	void filterChangedSignal ();
 };

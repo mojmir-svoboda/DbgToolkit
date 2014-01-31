@@ -101,6 +101,8 @@ void FilterTid::setupModel ()
 
 	m_ui->view->setEditTriggers(QAbstractItemView::NoEditTriggers);
 	connect(m_ui->view, SIGNAL(clicked(QModelIndex)), this, SLOT(onClicked(QModelIndex)));
+	connect(m_ui->allButton, SIGNAL(clicked()), this, SLOT(onSelectAll()));
+	connect(m_ui->noneButton, SIGNAL(clicked()), this, SLOT(onSelectNone()));
 }
 
 void FilterTid::destroyModel ()

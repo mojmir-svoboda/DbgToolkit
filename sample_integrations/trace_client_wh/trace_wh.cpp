@@ -113,7 +113,7 @@ static int g_ctrl = 0;
 #if defined WIN32 || defined WIN64
 //int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 int main ()
-#elif defined __linux__
+#elif defined __linux__ 
 int main ()
 #endif
 {
