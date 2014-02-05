@@ -15,22 +15,10 @@ namespace logs {
 
 	void LogWidget::addColorTagRow (int src_row)
 	{
-		bool const checked = m_config_ui.hidePrevButton->isChecked();
-
-		/*QModelIndex current = currentIndex();
-		if (isModelProxy())
-			current = m_proxy_model->mapToSource(current);
-		if (!current.isValid())
-			return;*/
-
 		QString const & strrow = QString::number(src_row);
 
 		colorizerMgr()->mkFilter(e_Colorizer_Row);
-
-		if (checked)
-			colorizerMgr()->getColorizerRow()->add(strrow, Qt::black, QColor(202, 225, 255));
-		else
-			colorizerMgr()->getColorizerRow()->remove(strrow);
+		colorizerMgr()->getColorizerRow()->colorize(strrow, Qt::black, QColor(202, 225, 255));
 
 		onInvalidateFilter(); //@TODO: should be done by filter?
 	}
@@ -40,8 +28,14 @@ namespace logs {
 		return false;
 	}
 
-	void LogWidget::removeColorTagRow (int row)
+	void LogWidget::removeColorTagRow (int src_row)
 	{
+		QString const & strrow = QString::number(src_row);
+
+		colorizerMgr()->mkFilter(e_Colorizer_Row);
+		colorizerMgr()->getColorizerRow()->remove(strrow);
+
+		onInvalidateFilter(); //@TODO: should be done by filter?
 	}
 
 

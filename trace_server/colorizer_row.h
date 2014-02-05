@@ -80,6 +80,7 @@ struct ColorizerRow : FilterBase
 	void recompile ();
 	void setConfigToUI ();
 
+	void colorize (QString const & row_str, QColor const & fg, QColor const & bg);
 	ColorizedRow & add (QString const & row_str, QColor const & fg, QColor const & bg);
 	//void locateItem (QString const & item, bool scrollto, bool expand);
 	QTreeView * getWidget () { return m_ui->view; }

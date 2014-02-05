@@ -473,6 +473,8 @@ void ColorizerRow::recompile ()
 			append(row);
 
       ColorizedRow & ct = findOrCreateColorizedRow(row);
+      ct.m_fgcolor = fg;
+      ct.m_bgcolor = bg;
       {
         QtColorPicker * w = mkColorPicker(m_ui->view, "fg", ct.m_fgcolor);
         connect(w, SIGNAL(colorChanged(const QColor &)), this, SLOT(onFgChanged()));
@@ -494,6 +496,14 @@ void ColorizerRow::recompile ()
 		}
 	}
 
+	void ColorizerRow::colorize (QString const & row, QColor const & fg, QColor const & bg)
+  {
+		ColorizedRow & ct = add(row, fg, bg);
+
+		recompileColorRow(ct);
+		updateColorRow(ct);
+  }
+
 	void ColorizerRow::onAdd ()
 	{
 		QString const qItem = m_ui->comboBox->currentText();
@@ -501,10 +511,7 @@ void ColorizerRow::recompile ()
 			return;
 		QColor const qFg = m_ui->fgButton->currentColor();
 		QColor const qBg = m_ui->fgButton->currentColor();
-		ColorizedRow & ct = add(qItem, qFg, qBg);
-
-		recompileColorRow(ct);
-		updateColorRow(ct);
+    colorize(qItem, qFg, qBg);
 	}
 
 	void ColorizerRow::onRm ()
