@@ -715,7 +715,7 @@ inline void simplify_keep_indent (QString const & src, QString & dst)
 	const int n = src.size();
 	for (int i = 0; i < n; ++i)
 	{
-		if (!src.at(n).isSpace())
+		if (!src.at(i).isSpace())
 		{
 			dst = src.right(n - i);
 			return;
