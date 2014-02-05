@@ -710,6 +710,19 @@ int LogWidget::appendColumn (tlv::tag_t tag)
 	return column_index;
 }
 
+inline void simplify_keep_indent (QString const & src, QString & dst)
+{
+	const int n = src.size();
+	for (int i = 0; i < n; ++i)
+	{
+		if (!src.at(n).isSpace())
+		{
+			dst = src.right(n - i);
+			return;
+		}
+	}
+}
+
 QString LogWidget::exportSelection ()
 {
 	QAbstractItemModel * m = model();
@@ -728,7 +741,10 @@ QString LogWidget::exportSelection ()
 	for (int i = 0; i < indexes.size(); ++i)
 	{
 		QModelIndex const current = indexes.at(i);
-		QString const simplified = m->data(current).toString().simplified();
+		QString const str = m->data(current).toString();
+		QString skipped_indent;
+		simplify_keep_indent(str, skipped_indent);
+		QString const simplified = skipped_indent.simplified();
 		selected_text.append(simplified);
 		
 		if (i + 1 < indexes.size() && current.row() != indexes.at(i + 1).row())
