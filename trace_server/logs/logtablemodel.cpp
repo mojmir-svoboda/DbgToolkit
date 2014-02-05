@@ -163,7 +163,6 @@ void LogTableModel::commitBatchToModel ()
 	for (int r = 0, re = rows; r < re; ++r)
 	{
 		DecodedCommand const & cmd = m_dcmds[from + r];
-    m_log_widget.appendToFilters(cmd);
     m_log_widget.appendToColorizers(cmd);
   }
 
