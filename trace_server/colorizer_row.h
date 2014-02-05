@@ -1,6 +1,6 @@
 #pragma once
 #include "filterbase.h"
-#include "ui_colorizer_regex.h"
+#include "ui_colorizer_row.h"
 #include <boost/serialization/nvp.hpp>
 #include "config.h"
 #include <QList>
@@ -9,57 +9,50 @@
 
 #include <logs/logtablemodel.h>
 
-struct ColorizedText {
+struct ColorizedRow {
 	QColor	m_fgcolor;
 	QColor	m_bgcolor;
-	QString m_regex_str;
-	QRegExp m_regex;
+	int m_row;
+	QString m_row_str;
 	bool	m_is_enabled;
 
-	bool isValid () const { return m_regex.isValid(); }
+	ColorizedRow () { }
 
-	bool accept (QString str) const
-	{
-		if (m_is_enabled && m_regex.exactMatch(str))
-		{
-			return true;
-		}
-		return false;
-	}
-
-	ColorizedText () { }
-
-	/*ColorizedText (QString const & rs)
-        , m_fgcolor(Qt::blue), m_bgcolor(Qt::white), m_regex_str(rs), m_regex(rs), m_is_enabled(0)
+	/*ColorizedRow (QString const & rs)
+        , m_fgcolor(Qt::blue), m_bgcolor(Qt::white), m_row_str(rs), m_row(rs), m_is_enabled(0)
 	{ }*/
 
-	ColorizedText (QString const & rs, QColor const & col, QColor const & bgcol)
-        : m_fgcolor(col), m_bgcolor(bgcol), m_regex_str(rs), m_regex(rs), m_is_enabled(0)
+	ColorizedRow (QString const & rs, QColor const & col, QColor const & bgcol)
+        : m_fgcolor(col), m_bgcolor(bgcol), m_row_str(rs), m_row(rs.toInt()), m_is_enabled(0)
+	{ }
+
+	ColorizedRow (int row, QColor const & col, QColor const & bgcol)
+        : m_row_str(QString::number(row)), m_row(row), m_is_enabled(0)
 	{ }
 
 	template <class ArchiveT>
 	void serialize (ArchiveT & ar, unsigned const version)
 	{
+		ar & boost::serialization::make_nvp("row_str", m_row_str);
 		ar & boost::serialization::make_nvp("fgcolor", m_fgcolor);
 		ar & boost::serialization::make_nvp("bgcolor", m_bgcolor);
-		ar & boost::serialization::make_nvp("regex_str", m_regex_str);
-		ar & boost::serialization::make_nvp("regex", m_regex);
+		ar & boost::serialization::make_nvp("row", m_row);
 		ar & boost::serialization::make_nvp("is_enabled", m_is_enabled);
 	}
 };
 
 
-struct ColorizerRegex : FilterBase
+struct ColorizerRow : FilterBase
 {
-	Ui_ColorizerRegex * m_ui;
+	Ui_ColorizerRow * m_ui;
 
-	ColorizerRegex (QWidget * parent = 0);
-	virtual ~ColorizerRegex ();
+	ColorizerRow (QWidget * parent = 0);
+	virtual ~ColorizerRow ();
 
 	virtual void initUI ();
 	virtual void doneUI ();
 
-	virtual E_FilterType type () const { return e_Colorizer_Regex; }
+	virtual E_FilterType type () const { return e_Colorizer_Row; }
 
 	virtual bool accept (DecodedCommand const & cmd) const;
 	virtual bool action (DecodedCommand const & cmd);
@@ -78,31 +71,31 @@ struct ColorizerRegex : FilterBase
 	}
 
 	// color_regex specific
-	ColorizedText & findOrCreateColorizedText (QString const & str);
+	ColorizedRow & findOrCreateColorizedRow (QString const & str);
 	void setupModel ();
 	void destroyModel ();
-	ColorizedText const * findMatch (QString const & item) const;
+	ColorizedRow const * findMatch (QString const & item) const;
 	void append (QString const & item);
 	void remove (QString const & item);
 	void recompile ();
 	void setConfigToUI ();
 
-	ColorizedText & add (QString const & regex, QColor const & fg, QColor const & bg);
+	ColorizedRow & add (QString const & row_str, QColor const & fg, QColor const & bg);
 	//void locateItem (QString const & item, bool scrollto, bool expand);
 	QTreeView * getWidget () { return m_ui->view; }
 	QTreeView const * getWidget () const { return m_ui->view; }
-	void onColorRegexChanged (int role);
+	void onColorRowChanged (int role);
 
-	void actionColorRegex (DecodedCommand const & cmd, ColorizedText const & ct) const;
-	void actionUncolorRegex (DecodedCommand const & cmd, ColorizedText const & ct) const;
-	void updateColorRegex (ColorizedText const & ct);
-	void recompileColorRegex (ColorizedText & ct);
-	void recompileColorRegexps ();
-	void uncolorRegex (ColorizedText const & ct);
+	void actionColorRow (DecodedCommand const & cmd, ColorizedRow const & ct) const;
+	void actionUncolorRow (DecodedCommand const & cmd, ColorizedRow const & ct) const;
+	void updateColorRow (ColorizedRow const & ct);
+	void recompileColorRow (ColorizedRow & ct);
+	void recompileColorRows ();
+	void uncolorRow (ColorizedRow const & ct);
 
 	void setSrcModel (LogTableModel * m) { m_src_model = m; }
 
-	typedef QList<ColorizedText> filters_t;
+	typedef QList<ColorizedRow> filters_t;
 	filters_t				m_data;
 	QStandardItemModel *	m_model;
 	LogTableModel *			m_src_model; // @FIXME: not happy about this, but i need it fast :/
@@ -115,18 +108,18 @@ public slots:
 	void onAdd ();
 	void onRm ();
 	void onActivate (int);
-		//void onColorRegexAdd ();
-		//void onColorRegexRm ();
+		//void onColorRowAdd ();
+		//void onColorRowRm ();
 	void onFgChanged ();
 	void onBgChanged ();
 
 signals:
 };
 
-struct ColorizerRegexDelegate : public QStyledItemDelegate
+struct ColorizerRowDelegate : public QStyledItemDelegate
 {
-    ColorizerRegexDelegate (QObject * parent = 0) : QStyledItemDelegate(parent) { }
-    ~ColorizerRegexDelegate ();
+    ColorizerRowDelegate (QObject * parent = 0) : QStyledItemDelegate(parent) { }
+    ~ColorizerRowDelegate ();
     void paint (QPainter * painter, QStyleOptionViewItem const & option, QModelIndex const & index) const;
 };
 

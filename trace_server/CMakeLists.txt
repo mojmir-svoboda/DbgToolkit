@@ -105,7 +105,7 @@ set(trace_server_SOURCES
 	#colorizer_lvl.cpp
 	#colorizer_tid.cpp
 	#colorizer_fileline.cpp
-	#colorizer_row.cpp
+	colorizer_row.cpp
 	#colorizer_time.cpp
 	#colorizer_function.cpp
 	#colorizer_dt.cpp
@@ -213,6 +213,7 @@ set(trace_server_HEADERS
 	#colorizer_string.h
 	colorizermgr.h
 	colorizer_regex.h
+	colorizer_row.h
 	#colorizer_ctx.h
 	#colorizer_lvl.h
 	#colorizer_tid.h
@@ -290,6 +291,7 @@ set(trace_server_UI
 	filter_row.ui
 	filter_time.ui
 	colorizer_regex.ui
+	colorizer_row.ui
 	)
 
 set(trace_server_RESOURCES resources.qrc)

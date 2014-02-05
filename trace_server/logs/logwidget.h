@@ -265,7 +265,6 @@ namespace logs {
 
 		int m_exclude_content_to_row;
 		int m_time_ref_row;
-		QVector<int> m_color_tag_rows;
 		int m_current_tag;
 		int m_current_selection;
 		unsigned long long m_time_ref_value;

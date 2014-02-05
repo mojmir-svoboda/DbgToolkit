@@ -147,7 +147,7 @@ namespace logs {
 		E_Elide const elide = stringToElide(column_elides[index.column()].at(0).toLatin1());
 		option4.textElideMode = static_cast<Qt::TextElideMode>(elide);
 
-		{	// color tagged line?
+/*		{	// color tagged line?
 			int row = index.row();
 			if (m_log_widget.isModelProxy())
 				if (FilterProxyModel const * proxy = m_log_widget.logProxy())
@@ -160,7 +160,7 @@ namespace logs {
 			{
 				painter->fillRect(option.rect, QColor(202, 225, 255));
 			}	
-		}
+		}*/
 
 		LogWidget & lw = const_cast<LogWidget &>(m_log_widget); // hm
 

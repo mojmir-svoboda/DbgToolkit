@@ -37,7 +37,6 @@ namespace logs {
 		, m_column_setup_done(false)
 		, m_exclude_content_to_row(0)
 		, m_time_ref_row(0)
-		, m_color_tag_rows()
 		, m_current_tag(-1)
 		, m_current_selection(-1)
 		, m_time_ref_value(0)
@@ -258,6 +257,9 @@ namespace logs {
 
 		if (colorizerMgr()->getColorizerRegex())
 			colorizerMgr()->getColorizerRegex()->setSrcModel(m_src_model);
+
+		if (colorizerMgr()->getColorizerRow())
+			colorizerMgr()->getColorizerRow()->setSrcModel(m_src_model);
 
 		//if (colorizerMgr()->getFilterCtx())
 		//	colorizerMgr()->getFilterCtx()->setAppData(&m_connection->appData());

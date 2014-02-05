@@ -7,7 +7,7 @@
 //#include "colorizer_lvl.h"
 //#include "colorizer_tid.h"
 //#include "colorizer_fileline.h"
-//#include "colorizer_row.h"
+#include "colorizer_row.h"
 
 struct ColorizerMgr : FilterMgr
 {
@@ -34,8 +34,8 @@ struct ColorizerMgr : FilterMgr
 
 	//FilterXX *			getFilterXX () { return static_cast<FilterXX *>(m_cache[e_Filter_XX]); }
 	//FilterXX const *		getFilterXX () const { return static_cast<FilterXX const *>(m_cache[e_Filter_XX]); }
-	//ColorizerRow *			getColorizerRow () { return static_cast<ColorizerRow *>(m_cache[e_Colorizer_Row]); }
-	//ColorizerRow const *		getColorizerRow () const { return static_cast<ColorizerRow const *>(m_cache[e_Colorizer_Row]); }
+	ColorizerRow *			getColorizerRow () { return static_cast<ColorizerRow *>(m_cache[e_Colorizer_Row]); }
+	ColorizerRow const *		getColorizerRow () const { return static_cast<ColorizerRow const *>(m_cache[e_Colorizer_Row]); }
 	//ColorizerScript *		getColorizerScript () { return static_cast<ColorizerScript *>(m_cache[e_Colorizer_Script]); }
 	//ColorizerScript const *	getColorizerScript () const { return static_cast<ColorizerScript const *>(m_cache[e_Colorizer_Script]); }
 	//ColorizerString *			getColorizerString () { return static_cast<ColorizerString *>(m_cache[e_Colorizer_String]); }

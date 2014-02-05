@@ -63,7 +63,7 @@ FilterBase * ColorizerMgr::filterFactory (E_FilterType t, QWidget * parent)
 		//case e_Colorizer_Lvl: return new ColorizerLvl (parent);
 		//case e_Colorizer_Tid: return new ColorizerTid (parent);
 		//case e_Colorizer_FileLine: return new ColorizerFileLine (parent);
-		//case e_Colorizer_Row: return new ColorizerRow (parent);
+		case e_Colorizer_Row: return new ColorizerRow (parent);
         // time, fn, dt
 		default: return 0;
 	}
@@ -90,8 +90,8 @@ void ColorizerMgr::defaultConfig ()
 	//m_filter_order.push_back(g_filterNames[e_Colorizer_Ctx]);
 	//m_filter_order.push_back(g_filterNames[e_Colorizer_Lvl]);
 	//m_filter_order.push_back(g_filterNames[e_Colorizer_FileLine]);
-	//m_filter_order.push_back(g_filterNames[e_Colorizer_Row]);
 	m_filter_order.push_back(g_filterNames[e_Colorizer_Regex]);
+	m_filter_order.push_back(g_filterNames[e_Colorizer_Row]);
 }
 
 /////////////////////////////////////////////////////////////////////

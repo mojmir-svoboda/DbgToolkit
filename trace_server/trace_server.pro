@@ -92,6 +92,7 @@ FORMS    += help.ui \
     filter_time.ui \
     combolist.ui \
     colorizer_regex.ui \
+    colorizer_row.ui \
     timecombobox.ui
 
 RESOURCES += \
