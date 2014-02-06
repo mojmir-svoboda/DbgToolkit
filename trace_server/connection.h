@@ -63,7 +63,7 @@ char const * const g_fileTags[] = { g_LogTag, g_PlotTag, g_TableTag, g_GanttTag,
 char const * const g_fileNames[] = { g_LogFile, g_PlotFile, g_TableFile, g_GanttFile, g_FrameFile };
 
 typedef boost::mpl::vector<
-		boost::mpl::pair<  logs::LogWidget,    logs::LogConfig   >,
+		boost::mpl::pair<  logs::LogWidgetWithButtons,    logs::LogConfig   >,
 		boost::mpl::pair<  plot::PlotWidget,   plot::PlotConfig  >,
 		boost::mpl::pair< table::TableWidget, table::TableConfig >,
 		boost::mpl::pair< gantt::GanttWidget, gantt::GanttConfig >,

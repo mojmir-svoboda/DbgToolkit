@@ -15,17 +15,7 @@ void DataLog::init (Connection * connection, QString const & confname, QStringLi
 	vLayout->setContentsMargins(0, 0, 0, 0);
 	vLayout->setObjectName(QString::fromUtf8("verticalLayout"));
 
-	QHBoxLayout * cacheLayout = new QHBoxLayout(tab);
-	cacheLayout->setSpacing(1);
-	cacheLayout->setContentsMargins(0, 0, 0, 0);
-	cacheLayout->setObjectName(QString::fromUtf8("cacheLayout"));
-
-	//logs::LogWidget * tableView = new logs::LogWidget(connection, tab, this->config(), confname, path);
-
-	vLayout->addLayout(cacheLayout);
-
-	logs::LogWidget * tableView = new logs::LogWidget(connection, tab, this->config(), confname, path);
-	tableView->setButtonCache(cacheLayout);
+	logs::LogWidgetWithButtons * tableView = new logs::LogWidgetWithButtons(connection, tab, this->config(), confname, path);
 
 	vLayout->addWidget(tableView);
 	m_widget = tableView;

@@ -13,13 +13,21 @@
 #include <QInputDialog>
 #include <QFontDialog>
 
-
 namespace logs {
 
 	LogWidget::LogWidget (Connection * connection, QWidget * wparent, LogConfig & cfg, QString const & fname, QStringList const & path)
 		: TableView(wparent), ActionAble(path)
 		, m_connection(connection)
 		, m_cacheLayout(0)
+		, m_excludeFileLineButton(0)
+		, m_excludeRowButton(0)
+		, m_locateRowButton(0)
+		, m_setRefTimeButton(0)
+		, m_hidePrevButton(0)
+		, m_hideNextButton(0)
+		, m_colorRowButton(0)
+		, m_colorFileLineButton(0)
+		, m_uncolorRowButton(0)
 		, m_config(cfg)
 		, m_config2(cfg)
 		, m_config_ui(*this, this)
@@ -111,52 +119,40 @@ namespace logs {
 
 	void LogWidget::fillButtonCache ()
 	{
-		QWidget * dockWidgetContents = 0;
+		QWidget * parent_widget = this;
 
-	  QFrame *line;
-	  QFrame *line_3;
-	  QFrame *line_2;
-		QSpacerItem *horizontalSpacer_3;
+	  QFrame * line = 0;
+	  QFrame * line_3 = 0;
+	  QFrame * line_2 = 0;
+		QSpacerItem * horizontalSpacer_3 = 0;
 	 
-    QToolButton * excludeFileLineButton;
-    QToolButton * excludeRowButton;
-    QToolButton * locateRowButton;
-    QToolButton * setRefTimeButton;
-    QToolButton * hidePrevButton;
-    QToolButton * hideNextButton;
-    QToolButton * colorRowButton;
-    QToolButton * colorFileLineButton;
-    QToolButton * uncolorRowButton;
+		ButtonCache * cacheLayout = m_cacheLayout;
+		m_excludeFileLineButton = new QToolButton(parent_widget);
+		m_excludeFileLineButton->setObjectName(QStringLiteral("excludeFileLineButton"));
+		m_excludeFileLineButton->setMinimumSize(QSize(64, 0));
+		m_excludeFileLineButton->setMaximumSize(QSize(16777215, 16));
 
+		cacheLayout->addWidget(m_excludeFileLineButton);
 
-
-		QHBoxLayout * cacheLayout = m_cacheLayout;
-		excludeFileLineButton = new QToolButton(dockWidgetContents);
-		excludeFileLineButton->setObjectName(QStringLiteral("excludeFileLineButton"));
-		excludeFileLineButton->setMinimumSize(QSize(64, 0));
-		excludeFileLineButton->setMaximumSize(QSize(16777215, 16));
-
-		cacheLayout->addWidget(excludeFileLineButton);
-
-		excludeRowButton = new QToolButton(dockWidgetContents);
-		excludeRowButton->setObjectName(QStringLiteral("excludeRowButton"));
+		m_excludeRowButton = new QToolButton(parent_widget);
+		m_excludeRowButton->setObjectName(QStringLiteral("excludeRowButton"));
 		QSizePolicy sizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
 		sizePolicy.setHorizontalStretch(0);
 		sizePolicy.setVerticalStretch(0);
-		sizePolicy.setHeightForWidth(excludeRowButton->sizePolicy().hasHeightForWidth());
-		excludeRowButton->setSizePolicy(sizePolicy);
-		excludeRowButton->setMinimumSize(QSize(0, 0));
-		excludeRowButton->setMaximumSize(QSize(16777215, 16));
+		sizePolicy.setHeightForWidth(m_excludeRowButton->sizePolicy().hasHeightForWidth());
+		m_excludeRowButton->setSizePolicy(sizePolicy);
+		m_excludeRowButton->setMinimumSize(QSize(0, 0));
+		m_excludeRowButton->setMaximumSize(QSize(16777215, 16));
 
-		cacheLayout->addWidget(excludeRowButton);
+		cacheLayout->addWidget(m_excludeRowButton);
 
-		locateRowButton = new QToolButton(dockWidgetContents);
-		locateRowButton->setObjectName(QStringLiteral("locateRowButton"));
-		locateRowButton->setMaximumSize(QSize(16777215, 16));
+		m_locateRowButton = new QToolButton(parent_widget);
+		m_locateRowButton->setObjectName(QStringLiteral("locateRowButton"));
+		m_locateRowButton->setMaximumSize(QSize(16777215, 16));
 
-		cacheLayout->addWidget(locateRowButton);
+		cacheLayout->addWidget(m_locateRowButton);
 
-		line = new QFrame(dockWidgetContents);
+		line = new QFrame(parent_widget);
 		line->setObjectName(QStringLiteral("line"));
 		line->setMinimumSize(QSize(7, 0));
 		line->setFrameShape(QFrame::VLine);
@@ -164,14 +160,14 @@ namespace logs {
 
 		cacheLayout->addWidget(line);
 
-		setRefTimeButton = new QToolButton(dockWidgetContents);
-		setRefTimeButton->setObjectName(QStringLiteral("setRefTimeButton"));
-		setRefTimeButton->setMaximumSize(QSize(16777215, 16));
-		setRefTimeButton->setCheckable(true);
+		m_setRefTimeButton = new QToolButton(parent_widget);
+		m_setRefTimeButton->setObjectName(QStringLiteral("setRefTimeButton"));
+		m_setRefTimeButton->setMaximumSize(QSize(16777215, 16));
+		m_setRefTimeButton->setCheckable(true);
 
-		cacheLayout->addWidget(setRefTimeButton);
+		cacheLayout->addWidget(m_setRefTimeButton);
 
-		line_3 = new QFrame(dockWidgetContents);
+		line_3 = new QFrame(parent_widget);
 		line_3->setObjectName(QStringLiteral("line_3"));
 		line_3->setMinimumSize(QSize(7, 0));
 		line_3->setFrameShape(QFrame::VLine);
@@ -179,25 +175,25 @@ namespace logs {
 
 		cacheLayout->addWidget(line_3);
 
-		hidePrevButton = new QToolButton(dockWidgetContents);
-		hidePrevButton->setObjectName(QStringLiteral("hidePrevButton"));
-		hidePrevButton->setMaximumSize(QSize(16777215, 16));
-		hidePrevButton->setCheckable(true);
-		hidePrevButton->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
-		hidePrevButton->setArrowType(Qt::UpArrow);
+		m_hidePrevButton = new QToolButton(parent_widget);
+		m_hidePrevButton->setObjectName(QStringLiteral("hidePrevButton"));
+		m_hidePrevButton->setMaximumSize(QSize(16777215, 16));
+		m_hidePrevButton->setCheckable(true);
+		m_hidePrevButton->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+		m_hidePrevButton->setArrowType(Qt::UpArrow);
 
-		cacheLayout->addWidget(hidePrevButton);
+		cacheLayout->addWidget(m_hidePrevButton);
 
-		hideNextButton = new QToolButton(dockWidgetContents);
-		hideNextButton->setObjectName(QStringLiteral("hideNextButton"));
-		hideNextButton->setMaximumSize(QSize(16777215, 16));
-		hideNextButton->setCheckable(true);
-		hideNextButton->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
-		hideNextButton->setArrowType(Qt::DownArrow);
+		m_hideNextButton = new QToolButton(parent_widget);
+		m_hideNextButton->setObjectName(QStringLiteral("hideNextButton"));
+		m_hideNextButton->setMaximumSize(QSize(16777215, 16));
+		m_hideNextButton->setCheckable(true);
+		m_hideNextButton->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+		m_hideNextButton->setArrowType(Qt::DownArrow);
 
-		cacheLayout->addWidget(hideNextButton);
+		cacheLayout->addWidget(m_hideNextButton);
 
-		line_2 = new QFrame(dockWidgetContents);
+		line_2 = new QFrame(parent_widget);
 		line_2->setObjectName(QStringLiteral("line_2"));
 		line_2->setMinimumSize(QSize(7, 0));
 		line_2->setFrameShape(QFrame::VLine);
@@ -205,65 +201,65 @@ namespace logs {
 
 		cacheLayout->addWidget(line_2);
 
-		colorRowButton = new QToolButton(dockWidgetContents);
-		colorRowButton->setObjectName(QStringLiteral("colorRowButton"));
-		colorRowButton->setMaximumSize(QSize(16777215, 16));
+		m_colorRowButton = new QToolButton(parent_widget);
+		m_colorRowButton->setObjectName(QStringLiteral("colorRowButton"));
+		m_colorRowButton->setMaximumSize(QSize(16777215, 16));
 
-		cacheLayout->addWidget(colorRowButton);
+		cacheLayout->addWidget(m_colorRowButton);
 
-		colorFileLineButton = new QToolButton(dockWidgetContents);
-		colorFileLineButton->setObjectName(QStringLiteral("colorFileLineButton"));
-		colorFileLineButton->setMaximumSize(QSize(16777215, 16));
+		m_colorFileLineButton = new QToolButton(parent_widget);
+		m_colorFileLineButton->setObjectName(QStringLiteral("colorFileLineButton"));
+		m_colorFileLineButton->setMaximumSize(QSize(16777215, 16));
 
-		cacheLayout->addWidget(colorFileLineButton);
+		cacheLayout->addWidget(m_colorFileLineButton);
 
-		uncolorRowButton = new QToolButton(dockWidgetContents);
-		uncolorRowButton->setObjectName(QStringLiteral("uncolorRowButton"));
-		uncolorRowButton->setMaximumSize(QSize(16777215, 16));
+		m_uncolorRowButton = new QToolButton(parent_widget);
+		m_uncolorRowButton->setObjectName(QStringLiteral("uncolorRowButton"));
+		m_uncolorRowButton->setMaximumSize(QSize(16777215, 16));
 
-		cacheLayout->addWidget(uncolorRowButton);
+		cacheLayout->addWidget(m_uncolorRowButton);
 
 		horizontalSpacer_3 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
 
 #ifndef QT_NO_TOOLTIP
-		excludeFileLineButton->setToolTip(QApplication::translate("SettingsLog", "<html><head/><body><p>Excludes File:Line combination from current selection from table. This is shortcut for going into Filter/File:Line and click on item</p><p><br/></p><p>Hotkey = <span style=\" font-weight:600;\">x</span></p></body></html>", 0));
+		m_excludeFileLineButton->setToolTip(QApplication::translate("SettingsLog", "<html><head/><body><p>Excludes File:Line combination from current selection from table. This is shortcut for going into Filter/File:Line and click on item</p><p><br/></p><p>Hotkey = <span style=\" font-weight:600;\">x</span></p></body></html>", 0));
 #endif // QT_NO_TOOLTIP
-		excludeFileLineButton->setText(QApplication::translate("SettingsLog", "Excl file:line", 0));
+		m_excludeFileLineButton->setText(QApplication::translate("SettingsLog", "Excl file:line", 0));
 #ifndef QT_NO_TOOLTIP
-		excludeRowButton->setToolTip(QApplication::translate("SettingsLog", "<html><head/><body><p>Excludes selected row via Filter/Row. This one does not use File:Line information, so it can be used to exclude specific lines while keeping the rest.</p><p>Hotkey = <span style=\" font-weight:600;\">r</span></p></body></html>", 0));
+		m_excludeRowButton->setToolTip(QApplication::translate("SettingsLog", "<html><head/><body><p>Excludes selected row via Filter/Row. This one does not use File:Line information, so it can be used to exclude specific lines while keeping the rest.</p><p>Hotkey = <span style=\" font-weight:600;\">r</span></p></body></html>", 0));
 #endif // QT_NO_TOOLTIP
-		excludeRowButton->setText(QApplication::translate("SettingsLog", "Excl row", 0));
+		m_excludeRowButton->setText(QApplication::translate("SettingsLog", "Excl row", 0));
 #ifndef QT_NO_TOOLTIP
-		locateRowButton->setToolTip(QApplication::translate("SettingsLog", "<html><head/><body><p>Locates currently selected row in Filters/File:Line</p><p>Hotkey = <span style=\" font-weight:600;\">?</span></p></body></html>", 0));
+		m_locateRowButton->setToolTip(QApplication::translate("SettingsLog", "<html><head/><body><p>Locates currently selected row in Filters/File:Line</p><p>Hotkey = <span style=\" font-weight:600;\">?</span></p></body></html>", 0));
 #endif // QT_NO_TOOLTIP
-		locateRowButton->setText(QApplication::translate("SettingsLog", "? row", 0));
+		m_locateRowButton->setText(QApplication::translate("SettingsLog", "? row", 0));
 #ifndef QT_NO_TOOLTIP
-		setRefTimeButton->setToolTip(QApplication::translate("SettingsLog", "<html><head/><body><p>Set/Unset reference time (= 0) to currently selected line</p></body></html>", 0));
+		m_setRefTimeButton->setToolTip(QApplication::translate("SettingsLog", "<html><head/><body><p>Set/Unset reference time (= 0) to currently selected line</p></body></html>", 0));
 #endif // QT_NO_TOOLTIP
-		setRefTimeButton->setText(QApplication::translate("SettingsLog", "Ref time", 0));
+		m_setRefTimeButton->setText(QApplication::translate("SettingsLog", "Ref time", 0));
 #ifndef QT_NO_TOOLTIP
-		hidePrevButton->setToolTip(QApplication::translate("SettingsLog", "<html><head/><body><p>Hide rows preceeding current selection</p></body></html>", 0));
+		m_hidePrevButton->setToolTip(QApplication::translate("SettingsLog", "<html><head/><body><p>Hide rows preceeding current selection</p></body></html>", 0));
 #endif // QT_NO_TOOLTIP
-		hidePrevButton->setText(QApplication::translate("SettingsLog", "Hide rows", 0));
+		m_hidePrevButton->setText(QApplication::translate("SettingsLog", "Hide rows", 0));
 #ifndef QT_NO_TOOLTIP
-		hideNextButton->setToolTip(QApplication::translate("SettingsLog", "Hide lines following current selection", 0));
+		m_hideNextButton->setToolTip(QApplication::translate("SettingsLog", "Hide lines following current selection", 0));
 #endif // QT_NO_TOOLTIP
-		hideNextButton->setText(QApplication::translate("SettingsLog", "Hide rows", 0));
-		colorRowButton->setText(QApplication::translate("SettingsLog", "Color row", 0));
-		colorFileLineButton->setText(QApplication::translate("SettingsLog", "Color file:line", 0));
-		uncolorRowButton->setText(QApplication::translate("SettingsLog", "Uncolor", 0));
+		m_hideNextButton->setText(QApplication::translate("SettingsLog", "Hide rows", 0));
+		m_colorRowButton->setText(QApplication::translate("SettingsLog", "Color row", 0));
+		m_colorFileLineButton->setText(QApplication::translate("SettingsLog", "Color file:line", 0));
+		m_uncolorRowButton->setText(QApplication::translate("SettingsLog", "Uncolor", 0));
 
 		//cacheLayout->addItem(horizontalSpacer_3);
 
-		connect(excludeFileLineButton, SIGNAL(clicked()), this, SLOT(onExcludeFileLine()));
-		connect(excludeRowButton, SIGNAL(clicked()), this, SLOT(onExcludeRow()));
-		connect(locateRowButton, SIGNAL(clicked()), this, SLOT(onLocateRow()));
-		connect(colorFileLineButton, SIGNAL(clicked()), this, SLOT(onColorFileLine()));
-		connect(colorRowButton, SIGNAL(clicked()), this, SLOT(onColorRow()));
-		connect(uncolorRowButton, SIGNAL(clicked()), this, SLOT(onUncolorRow()));
-		connect(setRefTimeButton, SIGNAL(clicked()), this, SLOT(onSetRefTime()));
-		connect(hidePrevButton, SIGNAL(clicked()), this, SLOT(onHidePrev()));
-		connect(hideNextButton, SIGNAL(clicked()), this, SLOT(onHideNext()));
+		connect(m_excludeFileLineButton, SIGNAL(clicked()), this, SLOT(onExcludeFileLine()));
+		connect(m_excludeRowButton, SIGNAL(clicked()), this, SLOT(onExcludeRow()));
+		connect(m_locateRowButton, SIGNAL(clicked()), this, SLOT(onLocateRow()));
+		connect(m_colorFileLineButton, SIGNAL(clicked()), this, SLOT(onColorFileLine()));
+		connect(m_colorRowButton, SIGNAL(clicked()), this, SLOT(onColorRow()));
+		connect(m_uncolorRowButton, SIGNAL(clicked()), this, SLOT(onUncolorRow()));
+		connect(m_setRefTimeButton, SIGNAL(clicked()), this, SLOT(onSetRefTime()));
+		connect(m_hidePrevButton, SIGNAL(clicked()), this, SLOT(onHidePrev()));
+		connect(m_hideNextButton, SIGNAL(clicked()), this, SLOT(onHideNext()));
 	}
 
 

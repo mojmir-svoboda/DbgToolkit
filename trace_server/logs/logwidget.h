@@ -12,6 +12,7 @@
 #include <kde/klinkitemselectionmodel.h>
 #include <appdata.h>
 #include "warnimage.h"
+#include "buttoncache.h"
 
 class Connection;
 class LogTableModel;
@@ -40,7 +41,7 @@ namespace logs {
 		void applyConfig ();
 		QString getCurrentWidgetPath () const;
 		void fillButtonCache ();
-		void setButtonCache (QHBoxLayout * c) { m_cacheLayout = c; }
+		void setButtonCache (ButtonCache * c) { m_cacheLayout = c; }
 
 		QList<DecodedCommand> m_queue;
 		void handleCommand (DecodedCommand const & cmd, E_ReceiveMode mode);
@@ -242,7 +243,17 @@ namespace logs {
 
 	protected:
 		Connection * m_connection;
-		QHBoxLayout * m_cacheLayout;
+		ButtonCache * m_cacheLayout;
+    QToolButton * m_excludeFileLineButton;
+    QToolButton * m_excludeRowButton;
+    QToolButton * m_locateRowButton;
+    QToolButton * m_setRefTimeButton;
+    QToolButton * m_hidePrevButton;
+    QToolButton * m_hideNextButton;
+    QToolButton * m_colorRowButton;
+    QToolButton * m_colorFileLineButton;
+    QToolButton * m_uncolorRowButton;
+
 		LogConfig & m_config;
 		LogConfig m_config2;
 		logs::LogCtxMenu m_config_ui;
@@ -289,5 +300,58 @@ namespace logs {
 		QTextStream * m_file_csv_stream;
 	};
 
+	class LogWidgetWithButtons : public QWidget, public ActionAble
+	{
+		Q_OBJECT
+	public:
+
+    LogWidget m_lw;
+
+		LogWidgetWithButtons (Connection * oparent, QWidget * wparent, LogConfig & cfg, QString const & fname, QStringList const & path)
+      : m_lw(oparent, wparent, cfg, fname, path)
+      , ActionAble(path)
+    {
+      QVBoxLayout * vLayout = new QVBoxLayout();
+      vLayout->setSpacing(1);
+      vLayout->setContentsMargins(0, 0, 0, 0);
+      vLayout->setObjectName(QString::fromUtf8("verticalLayout"));
+      setLayout(vLayout);
+
+      QWidget * cacheWidget = new QFrame();
+      ButtonCache * cacheLayout = new ButtonCache(cacheWidget);
+      cacheLayout->setSpacing(1);
+      cacheLayout->setContentsMargins(0, 0, 0, 0);
+      cacheLayout->setObjectName(QString::fromUtf8("cacheLayout"));
+
+      cacheWidget->setLayout(cacheLayout);
+      vLayout->addWidget(cacheWidget);
+      vLayout->addWidget(&m_lw);
+
+      m_lw.setButtonCache(cacheLayout);
+      m_lw.fillButtonCache();
+    }
+
+		virtual bool handleAction (Action * a, E_ActionHandleType sync)
+    {
+      return m_lw.handleAction(a, sync);
+    }
+
+		void loadConfig (QString const & preset_dir) { m_lw.loadConfig(preset_dir); }
+		void saveConfig (QString const & preset_dir) { m_lw.saveConfig(preset_dir); }
+		void applyConfig () { m_lw.applyConfig(); }
+
+		void handleCommand (DecodedCommand const & cmd, E_ReceiveMode mode) { m_lw.handleCommand(cmd, mode); }
+		void exportStorageToCSV (QString const & filename) { m_lw.exportStorageToCSV(filename); }
+		void commitCommands (E_ReceiveMode mode) { m_lw.commitCommands(mode); }
+		void setupNewLogModel () { m_lw.setupNewLogModel(); }
+
+		FindWidget * findWidget () { return m_lw.findWidget(); }
+		FindWidget const * findWidget () const { return m_lw.findWidget(); }
+
+		void setDockedWidget (DockedWidgetBase * dwb) { m_lw.setDockedWidget(dwb); }
+
+  public slots:
+		void onHideContextMenu () { m_lw.onHideContextMenu(); }
+  };
 }
 

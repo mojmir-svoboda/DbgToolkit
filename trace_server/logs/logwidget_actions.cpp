@@ -271,7 +271,7 @@ void LogWidget::onSetRefTime ()
 }
 void LogWidget::onHidePrev ()
 {
-  bool const checked = m_config_ui.hidePrevButton->isChecked();
+  bool const checked = m_hidePrevButton->isChecked();
 
 	QModelIndex current = currentIndex();
 	if (isModelProxy())
@@ -292,16 +292,30 @@ void LogWidget::onHidePrev ()
     filterMgr()->getFilterTime()->remove(cmpModToString(e_CmpGE), strtime, m_config.m_time_units_str);
 
 	onInvalidateFilter(); //@TODO: should be done by filter?
-
-	//bool const scroll_to_item = true;
-	//bool const expand = true;
-	//findTableIndexInFilters(current, scroll_to_item, expand);
-	//filterMgr()->focusToFilter(e_Filter_FileLine);
-	//m_config_ui.ui()->stackedWidget->setCurrentWidget(m_config_ui.ui()->filtersPage);
-
 }
-void LogWidget::onHideNext ()
+void LogWidget::onHideNext () //@TODO: dedup
 {
+  bool const checked = m_hidePrevButton->isChecked();
+
+	QModelIndex current = currentIndex();
+	if (isModelProxy())
+	{
+		current = m_proxy_model->mapToSource(current);
+	}
+
+	if (!current.isValid())
+		return;
+
+	QString const & strtime = findString4Tag(tlv::tag_time, current);
+
+  filterMgr()->mkFilter(e_Filter_Time);
+
+  if (checked)
+    filterMgr()->getFilterTime()->onAdd(cmpModToString(e_CmpLE), strtime, m_config.m_time_units_str);
+  else
+    filterMgr()->getFilterTime()->remove(cmpModToString(e_CmpLE), strtime, m_config.m_time_units_str);
+
+	onInvalidateFilter(); //@TODO: should be done by filter?
 }
 
 

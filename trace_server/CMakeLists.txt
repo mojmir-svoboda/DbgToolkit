@@ -82,6 +82,7 @@ set(trace_server_SOURCES
 	combolist.cpp
 	movabletabwidget.cpp
 	timecombobox.cpp
+	buttoncache.cpp
 
 	filterbase.cpp
 	filtermgrbase.cpp
@@ -191,6 +192,7 @@ set(trace_server_HEADERS
 	movablelistmodel.h
 	movabletabwidget.h
 	warnimage.h
+	buttoncache.h
 
 	findwidget.h
 	findconfig.h

@@ -35,7 +35,7 @@ namespace logs {
 		QString m_csv_separator;
 
 		LogConfig ()
-			: m_tag(g_MainLogName)
+			: m_tag()
 			, m_history_ln(128*128)
 			, m_font("Verdana")
 			, m_fontsize(10)
@@ -55,7 +55,7 @@ namespace logs {
 			, m_find_proxy(false)
 			, m_csv_separator(",")
 		{
-			m_central_widget = true;
+			m_central_widget = false;
 		}
 
 		LogConfig (QString const & tag)

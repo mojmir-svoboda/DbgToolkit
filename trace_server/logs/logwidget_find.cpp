@@ -86,7 +86,8 @@ LogWidget * LogWidget::mkFindAllRefsLogWidget (FindConfig const & fc)
 	datalogs_t::iterator it = m_connection->dataWidgetFactoryFrom<e_data_log>(tag, cfg);
 
 	DataLog * dp = *it;
-	LogWidget & child = dp->widget();
+  DataLog::widget_t & child_outer = dp->widget();
+  LogWidget & child = child_outer.m_lw;
 	child.linkToSource(m_dwb);
 	registerLinkedWidget(child.m_dwb);
 	child.loadAuxConfigs();
@@ -146,7 +147,8 @@ LogWidget * LogWidget::mkFindAllCloneLogWidget (FindConfig const & fc)
 	datalogs_t::iterator it = m_connection->dataWidgetFactoryFrom<e_data_log>(tag, cfg);
 
 	DataLog * dp = *it;
-	LogWidget & child = dp->widget();
+  DataLog::widget_t & child_outer = dp->widget();
+  LogWidget & child = child_outer.m_lw;
 	child.loadAuxConfigs();
 	
 	LogTableModel * clone_model = cloneToNewModel(fc);

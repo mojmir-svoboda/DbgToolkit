@@ -8,35 +8,17 @@
 #include <QLabel>
 #include "ui_settingslog.h"
 #include <qtsln/qtcolorpicker/qtcolorpicker.h>
-#include <qtsln/flowlayout.h>
 
 namespace logs {
 
 	class LogWidget;
 	struct LogConfig;
 
-	struct ButtonCache : FlowLayout
-	{
-		ButtonCache (QWidget * parent = 0) : FlowLayout(parent) { }
-	Q_OBJECT
-	};
-
 	struct LogCtxMenu : QObject
 	{
 		LogWidget & m_log_widget;
 		Ui::SettingsLog * m_ui;
 		QDockWidget * m_widget;
-		ButtonCache * m_cache;
-    QToolButton * excludeFileLineButton;
-    QToolButton * excludeRowButton;
-    QToolButton * locateRowButton;
-    QToolButton * setRefTimeButton;
-    QToolButton * hidePrevButton;
-    QToolButton * hideNextButton;
-    QToolButton * colorRowButton;
-    QToolButton * colorFileLineButton;
-    QToolButton * uncolorRowButton;
-
 		LogCtxMenu (LogWidget & cfg, QWidget * parent);
 
 		void onInViewStateChanged (int state)
@@ -98,7 +80,6 @@ namespace logs {
 
 	protected:
 		void prepareSettingsWidgets ();
-		void fillButtonCache();
 
 	Q_OBJECT
 	};
