@@ -39,6 +39,8 @@ namespace logs {
 		void reloadModelAccordingTo (LogConfig & pcfg);
 		void applyConfig ();
 		QString getCurrentWidgetPath () const;
+		void fillButtonCache ();
+		void setButtonCache (QHBoxLayout * c) { m_cacheLayout = c; }
 
 		QList<DecodedCommand> m_queue;
 		void handleCommand (DecodedCommand const & cmd, E_ReceiveMode mode);
@@ -240,6 +242,7 @@ namespace logs {
 
 	protected:
 		Connection * m_connection;
+		QHBoxLayout * m_cacheLayout;
 		LogConfig & m_config;
 		LogConfig m_config2;
 		logs::LogCtxMenu m_config_ui;

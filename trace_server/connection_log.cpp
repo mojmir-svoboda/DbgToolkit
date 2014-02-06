@@ -10,14 +10,24 @@
 void DataLog::init (Connection * connection, QString const & confname, QStringList const & path)
 {
 	QWidget * tab = connection->m_tab_widget;
-	QHBoxLayout * horizontalLayout = new QHBoxLayout(tab);
-	horizontalLayout->setSpacing(1);
-	horizontalLayout->setContentsMargins(0, 0, 0, 0);
-	horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
+	QVBoxLayout * vLayout = new QVBoxLayout(tab);
+	vLayout->setSpacing(1);
+	vLayout->setContentsMargins(0, 0, 0, 0);
+	vLayout->setObjectName(QString::fromUtf8("verticalLayout"));
+
+	QHBoxLayout * cacheLayout = new QHBoxLayout(tab);
+	cacheLayout->setSpacing(1);
+	cacheLayout->setContentsMargins(0, 0, 0, 0);
+	cacheLayout->setObjectName(QString::fromUtf8("cacheLayout"));
+
+	//logs::LogWidget * tableView = new logs::LogWidget(connection, tab, this->config(), confname, path);
+
+	vLayout->addLayout(cacheLayout);
 
 	logs::LogWidget * tableView = new logs::LogWidget(connection, tab, this->config(), confname, path);
+	tableView->setButtonCache(cacheLayout);
 
-	horizontalLayout->addWidget(tableView);
+	vLayout->addWidget(tableView);
 	m_widget = tableView;
 	tableView->findWidget()->setDockedWidget(this);
 }
@@ -55,7 +65,8 @@ void Connection::onTabTraceFocus ()
 
 bool Connection::handleLogCommand (DecodedCommand const & cmd, E_ReceiveMode mode)
 {
-	QString const tag(g_MainLogName); // @FIXME
+	//QString const tag(g_MainLogName); // @FIXME
+	QString const tag("messages"); // @FIXME
 	//int const slash_pos = tag.lastIndexOf(QChar('/'));
 	//tag.chop(msg_tag.size() - slash_pos);
 	//QString subtag = msg_tag;
