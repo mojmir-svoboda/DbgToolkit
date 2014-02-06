@@ -68,9 +68,9 @@ public:
 	bool checkExistence (QModelIndex const & index) const;
 
 	void setProxy (QAbstractProxyModel * pxy) { m_proxy = pxy; }
-	int row_ctime (int const row) const { return m_row_ctimes[row]; }
-	int row_stime (int const row) const { return m_row_stimes[row]; }
-	int col_time (int const col) const { return m_col_times[col]; }
+	unsigned long long row_ctime (int const row) const { return m_row_ctimes[row]; }
+	unsigned long long row_stime (int const row) const { return m_row_stimes[row]; }
+	unsigned long long col_time (int const col) const { return m_col_times[col]; }
 
 	void clearModel ();
 

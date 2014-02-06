@@ -44,7 +44,13 @@ struct BatchCmd {
 	times_t m_row_ctimes;
 	times_t m_row_stimes;
 
-	void clear () { m_dcmds.clear(); m_rows.clear(); }
+	void clear ()
+  {
+    m_dcmds.clear();
+    m_rows.clear();
+    m_row_ctimes.clear();
+    m_row_stimes.clear();
+  }
 };
 
 class LogTableModel : public TableModel

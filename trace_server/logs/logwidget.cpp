@@ -1039,23 +1039,24 @@ void LogWidget::findNearestRow4Time (bool ctime, unsigned long long t)
 	//qDebug("%s this=0x%08x", __FUNCTION__, this);
 	bool const is_proxy = isModelProxy();
 	int closest_i = 0;
-	int closest_dist = 1024 * 1024;
+	unsigned long long closest_dist = std::numeric_limits<unsigned long long>::max();
 	for (int i = 0; i < m_src_model->rowCount(); ++i)
 	{
 		unsigned long long t0 = ctime ? m_src_model->row_ctime(i) : m_src_model->row_stime(i);
-		int const diff = t0 - t;
-		int const d = abs(diff);
+		long long const diff = t0 - t;
+		long long const d = abs(diff);
 		bool const row_exists = is_proxy ? m_proxy_model->rowInProxy(i) : true;
 		if (row_exists && d < closest_dist)
 		{
 			closest_i = i;
 			closest_dist = d;
+			//qDebug("table: nearest index= %i/%i %llu", closest_i, m_src_model->rowCount(), d);
 		}
 	}
 
 	if (is_proxy)
 	{
-		//qDebug("table: pxy nearest index= %i/%i", closest_i, m_modelView->rowCount());
+		qDebug("table: pxy nearest index= %i/%i", closest_i, m_src_model->rowCount());
 		QModelIndex const curr = currentIndex();
 		QModelIndex const idx = m_src_model->index(closest_i, curr.column() < 0 ? 0 : curr.column(), QModelIndex());
 		//qDebug("table: pxy findNearestTime curr=(%i, %i)  new=(%i, %i)", curr.column(), curr.row(), idx.column(), idx.row());
@@ -1072,7 +1073,7 @@ void LogWidget::findNearestRow4Time (bool ctime, unsigned long long t)
 	}
 	else
 	{
-		//qDebug("table: nearest index= %i/%i", closest_i, m_modelView->rowCount());
+		qDebug("table: nearest index= %i/%i", closest_i, m_src_model->rowCount());
 		QModelIndex const curr = currentIndex();
 		QModelIndex const idx = m_src_model->index(closest_i, curr.column() < 0 ? 0 : curr.column(), QModelIndex());
 		//qDebug("table: findNearestTime curr=(%i, %i)  new=(%i, %i)", curr.column(), curr.row(), idx.column(), idx.row());
