@@ -61,7 +61,7 @@ struct DecodedCommand : tlv::StringCommand
 	template <class T>
 	bool get (tlv::tag_t tag, T & t) const
 	{
-		for (size_t i = 0, ie = m_variants.size(); i < ie; ++i)
+		for (size_t i = 0, ie = m_tvs.size(); i < ie; ++i)
 			if (m_tvs[i].m_tag == tag)
 			{
 				t = m_variants[i].value<T>();
@@ -72,7 +72,7 @@ struct DecodedCommand : tlv::StringCommand
 
 	bool getString (tlv::tag_t tag, QString & t) const
 	{
-		for (size_t i = 0, ie = m_variants.size(); i < ie; ++i)
+		for (size_t i = 0, ie = m_tvs.size(); i < ie; ++i)
 			if (m_tvs[i].m_tag == tag)
 			{
 				t = m_tvs[i].m_val;
@@ -84,7 +84,7 @@ struct DecodedCommand : tlv::StringCommand
 
 	void decode_postprocess ()
 	{
-		m_variants.resize(m_tvs.size());
+		m_variants.reserve(m_tvs.size());
 		for (size_t i = 0, ie = m_tvs.size(); i < ie; ++i)
 			m_variants.push_back(tag2variant(m_tvs[i].m_tag, m_tvs[i].m_val));
 	}
