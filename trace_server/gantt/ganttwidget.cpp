@@ -41,14 +41,10 @@ namespace gantt {
 		//horizontalHeader()->setSectionsMovable(true);
 		//setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 
-		connect(&getSyncWidgets(), SIGNAL( requestTimeSynchronization(int, unsigned long long, void *) ),
-							 this, SLOT( performTimeSynchronization(int, unsigned long long, void *) ));
-		connect(this, SIGNAL( requestTimeSynchronization(int, unsigned long long, void *) ),
-							 &getSyncWidgets(), SLOT( performTimeSynchronization(int, unsigned long long, void *) ));
-		connect(&getSyncWidgets(), SIGNAL( requestFrameSynchronization(int, unsigned long long, void *) ),
-							 this, SLOT( performFrameSynchronization(int, unsigned long long, void *) ));
-		connect(this, SIGNAL( requestFrameSynchronization(int, unsigned long long, void *) ),
-							 &getSyncWidgets(), SLOT( performFrameSynchronization(int, unsigned long long, void *) ));
+		connect(&getSyncWidgets(), SIGNAL( requestSynchronization(E_SyncMode mode, int, unsigned long long, void *) ),
+							 this, SLOT( performSynchronization(E_SyncMode mode, int, unsigned long long, void *) ));
+		connect(this, SIGNAL( requestSynchronization(E_SyncMode mode, int, unsigned long long, void *) ),
+							 &getSyncWidgets(), SLOT( performSynchronization(E_SyncMode mode, int, unsigned long long, void *) ));
 	}
 
 	GanttWidget::~GanttWidget ()
@@ -414,7 +410,7 @@ namespace gantt {
 
 
 
-	void GanttWidget::performTimeSynchronization (int sync_group, unsigned long long time, void * source)
+	void GanttWidget::performSynchronization (E_SyncMode mode, int sync_group, unsigned long long n, void * source)
 	{
 		qDebug("%s syncgrp=%i time=%i", __FUNCTION__, sync_group, time);
 		/*for (ganttviews_t::iterator it = m_ganttviews.begin(), ite = m_ganttviews.end(); it != ite; ++it)
@@ -422,21 +418,17 @@ namespace gantt {
 			GanttView * ganttview = *it;
 			ganttview->gotoFrame(frame);
 		}*/
-	}
 
-	void GanttWidget::performFrameSynchronization (int sync_group, unsigned long long frame, void * source)
-	{
-		qDebug("%s syncgrp=%i frame=%i", __FUNCTION__, sync_group, frame);
-		for (ganttviews_t::iterator it = m_ganttviews.begin(), ite = m_ganttviews.end(); it != ite; ++it)
-		{
-			GanttView * ganttview = *it;
-			ganttview->gotoFrame(frame);
-		}
+        if (mode == e_SyncFrame)
+        {
+            qDebug("%s syncgrp=%i frame=%i", __FUNCTION__, sync_group, n);
+            for (ganttviews_t::iterator it = m_ganttviews.begin(), ite = m_ganttviews.end(); it != ite; ++it)
+            {
+                GanttView * ganttview = *it;
+                ganttview->gotoFrame(n);
+            }
+        }
 	}
-
-	/*void BaseGantt::requestFrameSynchronization (int sync_group, unsigned long long time, void * source)
-	{
-	}*/
 
 	/*void BaseGantt::scrollTo (QModelIndex const & index, ScrollHint hint)
 	{

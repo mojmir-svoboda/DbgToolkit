@@ -6,6 +6,7 @@
 #include "frameviewctxmenu.h"
 #include "action.h"
 #include "dock.h"
+#include "syncwidgets.h"
 
 class Connection;
 
@@ -38,13 +39,10 @@ struct FrameView : QWidget, ActionAble
     void setDockedWidget (DockedWidgetBase * dwb) { m_dwb = dwb; }
 
 signals:
-	void requestTimeSynchronization (int sync_group, unsigned long long time, void * source);
-	void requestFrameSynchronization (int sync_group, unsigned long long frame, void * source);
+	void requestSynchronization (E_SyncMode mode, int sync_group, unsigned long long time, void * source);
 
 public slots:
- 
-	void performTimeSynchronization (int sync_group, unsigned long long time, void * source);
-	void performFrameSynchronization (int sync_group, unsigned long long frame, void * source);
+	void performSynchronization (E_SyncMode mode, int sync_group, unsigned long long time, void * source);
 
 	void selected (QRectF const & r);
 	void selected (QVector<QPointF> const & pa);

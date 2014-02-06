@@ -68,7 +68,8 @@ public:
 	bool checkExistence (QModelIndex const & index) const;
 
 	void setProxy (QAbstractProxyModel * pxy) { m_proxy = pxy; }
-	int row_time (int const row) const { return m_row_times[row]; }
+	int row_ctime (int const row) const { return m_row_ctimes[row]; }
+	int row_stime (int const row) const { return m_row_stimes[row]; }
 	int col_time (int const col) const { return m_col_times[col]; }
 
 	void clearModel ();
@@ -76,7 +77,8 @@ public:
 protected:
 
 	typedef std::vector<unsigned long long> times_t;
-	times_t m_row_times;
+	times_t m_row_ctimes;
+	times_t m_row_stimes;
 	times_t m_col_times;
 	rows_t m_rows;
 	int m_column_count;

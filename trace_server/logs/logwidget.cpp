@@ -75,14 +75,10 @@ namespace logs {
 		horizontalHeader()->setSectionsMovable(true);
 		//setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 
-		connect(&getSyncWidgets(), SIGNAL( requestTimeSynchronization(int, unsigned long long, void *) ),
-							 this, SLOT( performTimeSynchronization(int, unsigned long long, void *) ));
-		connect(this, SIGNAL( requestTimeSynchronization(int, unsigned long long, void *) ),
-							 &getSyncWidgets(), SLOT( performTimeSynchronization(int, unsigned long long, void *) ));
-		connect(&getSyncWidgets(), SIGNAL( requestFrameSynchronization(int, unsigned long long, void *) ),
-							 this, SLOT( performFrameSynchronization(int, unsigned long long, void *) ));
-		connect(this, SIGNAL( requestFrameSynchronization(int, unsigned long long, void *) ),
-							 &getSyncWidgets(), SLOT( performFrameSynchronization(int, unsigned long long, void *) ));
+		connect(&getSyncWidgets(), SIGNAL( requestSynchronization(E_SyncMode, int, unsigned long long, void *) ),
+							 this, SLOT( performSynchronization(E_SyncMode, int, unsigned long long, void *) ));
+		connect(this, SIGNAL( requestSynchronization(E_SyncMode, int, unsigned long long, void *) ),
+							 &getSyncWidgets(), SLOT( performSynchronization(E_SyncMode, int, unsigned long long, void *) ));
 
 		setStyleSheet("QTableView::item{ selection-background-color:	#F5DEB3  } QTableView::item{ selection-color: #000000 }");
 		
@@ -102,7 +98,7 @@ namespace logs {
 		//connect(ui->inViewCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onInViewStateChanged(int)));
 		//connect(m_config_ui.ui()->filterFileCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onFilterFile(int)));
 		connect(this, SIGNAL(clicked(QModelIndex const &)), this, SLOT(onTableClicked(QModelIndex const &)));
-		//connect(this, SIGNAL(doubleClicked(QModelIndex const &)), this, SLOT(onTableDoubleClicked(QModelIndex const &)));
+		connect(this, SIGNAL(doubleClicked(QModelIndex const &)), this, SLOT(onTableDoubleClicked(QModelIndex const &)));
 
 		//setupColorRegex();
 
@@ -610,12 +606,29 @@ namespace logs {
 	{
 	}
 
-	/*void BaseLog::performTimeSynchronization (int sync_group, unsigned long long time, void * source)
+	void LogWidget::performSynchronization (E_SyncMode mode, int sync_group, unsigned long long time, void * source)
 	{
 		qDebug("%s syncgrp=%i time=%i", __FUNCTION__, sync_group, time);
+
+		if (this == source)
+			return;
+
+		switch (mode)
+		{
+				case e_SyncClientTime:
+							findNearestRow4Time(true, time);
+							break;
+				case e_SyncServerTime:
+							findNearestRow4Time(false, time);
+				case e_SyncFrame:
+				case e_SyncSourceRow:
+				case e_SyncProxyRow:
+				default:
+							break;
+		}
 	}
 
-	void BaseLog::performFrameSynchronization (int sync_group, unsigned long long frame, void * source)
+	/*void BaseLog::performFrameSynchronization (int sync_group, unsigned long long frame, void * source)
 	{
 		qDebug("%s syncgrp=%i frame=%i", __FUNCTION__, sync_group, frame);
 	}*/
@@ -959,32 +972,114 @@ void LogWidget::autoScrollOn ()
 	m_config.m_auto_scroll = true;
 }
 
-QModelIndex LogWidget::moveCursor (CursorAction cursorAction, Qt::KeyboardModifiers modifiers)
+void LogWidget::wheelEvent (QWheelEvent * event)
+{
+	bool const mod = event->modifiers() & Qt::CTRL;
+
+	if (mod)
+	{
+		CursorAction const a = event->delta() < 0 ? MoveDown : MoveUp;
+		moveCursor(a, Qt::ControlModifier);
+		event->accept();
+	}
+	else
+	{
+		QTableView::wheelEvent(event);
+	}
+}
+
+
+QModelIndex LogWidget::moveCursor (CursorAction cursor_action, Qt::KeyboardModifiers modifiers)
 {
 	autoScrollOff();
 	if (modifiers & Qt::ControlModifier)
 	{
-		if (cursorAction == MoveHome)
+		if (cursor_action == MoveHome)
 		{
 			scrollToTop();
 			return QModelIndex(); // @FIXME: should return valid value
 		}
-		else if (cursorAction == MoveEnd)
+		else if (cursor_action == MoveEnd)
 		{
 			scrollToBottom();
 			autoScrollOn();
 			return QModelIndex(); // @FIXME too
 		}
 		else
-			return QTableView::moveCursor(cursorAction, modifiers);
+			return QTableView::moveCursor(cursor_action, modifiers);
+	}
+	else if (modifiers & Qt::AltModifier)
+	{
+		QModelIndex const curr_idx = QTableView::moveCursor(cursor_action, modifiers);
+		if (curr_idx.isValid())
+			setCurrentIndex(curr_idx);
+		QModelIndex mod_idx = curr_idx;
+		if (isModelProxy())
+			mod_idx = m_proxy_model->mapToSource(curr_idx);
+
+		unsigned long long const t = m_src_model->row_stime(mod_idx.row());
+
+		emit requestSynchronization(e_SyncServerTime, m_config.m_sync_group, t, this);
+		scrollTo(curr_idx, QAbstractItemView::PositionAtCenter);
+		//qDebug("table: pxy findNearestTime curr_idx=(%i, %i)  mod_idx=(%i, %i)", curr_idx.column(), curr_idx.row(), mod_idx.column(), mod_idx.row());
+		return curr_idx;
 	}
 	else
-		return QTableView::moveCursor(cursorAction, modifiers);
+		return QTableView::moveCursor(cursor_action, modifiers);
 
 	/*int const value = horizontalScrollBar()->value();
-	QModelIndex const ret = QTableView::moveCursor(cursorAction, modifiers);
+	QModelIndex const ret = QTableView::moveCursor(cursor_action, modifiers);
 	horizontalScrollBar()->setValue(value);
 	return ret;*/
+}
+
+//@TODO: should be in model probably
+void LogWidget::findNearestRow4Time (bool ctime, unsigned long long t)
+{
+	//qDebug("%s this=0x%08x", __FUNCTION__, this);
+	bool const is_proxy = isModelProxy();
+	int closest_i = 0;
+	int closest_dist = 1024 * 1024;
+	for (int i = 0; i < m_src_model->rowCount(); ++i)
+	{
+		unsigned long long t0 = ctime ? m_src_model->row_ctime(i) : m_src_model->row_stime(i);
+		int const diff = t0 - t;
+		int const d = abs(diff);
+		bool const row_exists = is_proxy ? m_proxy_model->rowInProxy(i) : true;
+		if (row_exists && d < closest_dist)
+		{
+			closest_i = i;
+			closest_dist = d;
+		}
+	}
+
+	if (is_proxy)
+	{
+		//qDebug("table: pxy nearest index= %i/%i", closest_i, m_modelView->rowCount());
+		QModelIndex const curr = currentIndex();
+		QModelIndex const idx = m_src_model->index(closest_i, curr.column() < 0 ? 0 : curr.column(), QModelIndex());
+		//qDebug("table: pxy findNearestTime curr=(%i, %i)  new=(%i, %i)", curr.column(), curr.row(), idx.column(), idx.row());
+
+		QModelIndex const pxy_idx = m_proxy_model->mapFromSource(idx);
+		QModelIndex valid_pxy_idx = pxy_idx;
+		if (!pxy_idx.isValid())
+		{
+			valid_pxy_idx = m_proxy_model->mapNearestFromSource(idx);
+		}
+		//qDebug("table: pxy findNearestTime pxy_new=(%i, %i) valid_pxy_new=(%i, %i)", pxy_idx.column(), pxy_idx.row(), valid_pxy_idx.column(), valid_pxy_idx.row());
+		scrollTo(valid_pxy_idx, QAbstractItemView::PositionAtCenter);
+		selectionModel()->select(valid_pxy_idx, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+	}
+	else
+	{
+		//qDebug("table: nearest index= %i/%i", closest_i, m_modelView->rowCount());
+		QModelIndex const curr = currentIndex();
+		QModelIndex const idx = m_src_model->index(closest_i, curr.column() < 0 ? 0 : curr.column(), QModelIndex());
+		//qDebug("table: findNearestTime curr=(%i, %i)  new=(%i, %i)", curr.column(), curr.row(), idx.column(), idx.row());
+
+		scrollTo(idx, QAbstractItemView::PositionAtCenter);
+		selectionModel()->select(idx, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+	}
 }
 
 bool LogWidget::isModelProxy () const

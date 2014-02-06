@@ -88,7 +88,8 @@ inline TagConfig::TagConfig ()
 	m_tag_desc.push_back(TagDesc( tlv::tag_invalid ));
 	m_tag_desc.push_back(TagDesc( tlv::tag_app     ));
 	m_tag_desc.push_back(TagDesc( tlv::tag_pid     ));
-	m_tag_desc.push_back(TagDesc( tlv::tag_time, e_AlignRight, e_ElideLeft,   64 ));
+	m_tag_desc.push_back(TagDesc( tlv::tag_ctime,e_AlignRight, e_ElideLeft,   80 ));
+	m_tag_desc.push_back(TagDesc( tlv::tag_stime,e_AlignRight, e_ElideLeft,   80 ));
 	m_tag_desc.push_back(TagDesc( tlv::tag_tid,  e_AlignRight, e_ElideLeft,   16 ));
 	m_tag_desc.push_back(TagDesc( tlv::tag_file, e_AlignRight, e_ElideLeft,  192 ));
 	m_tag_desc.push_back(TagDesc( tlv::tag_line, e_AlignRight, e_ElideNone,   32 ));

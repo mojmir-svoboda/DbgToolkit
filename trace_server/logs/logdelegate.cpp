@@ -178,10 +178,14 @@ namespace logs {
 		{
 			paintContext(painter, option4, index);
 		}
-		else if (index.column() == lw.findColumn4Tag(tlv::tag_time))
+		else if (index.column() == lw.findColumn4Tag(tlv::tag_ctime))
 		{
 			paintTime(painter, option4, index);
 		}
+    else if (index.column() == lw.findColumn4Tag(tlv::tag_stime))
+    {
+      paintTime(painter, option4, index);
+    }
 		else
 		{
 			QStyledItemDelegate::paint(painter, option4, index);

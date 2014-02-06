@@ -1,5 +1,6 @@
 #include "logwidget.h"
 #include "filterproxymodel.h"
+#include "connection.h"
 
 namespace logs {
 
@@ -264,7 +265,7 @@ void LogWidget::onSetRefTime ()
 		setTimeRefFromRow(current.row());
 
 		//LogTableModel * model = static_cast<LogTableModel *>(m_proxy_model ? m_proxy_model->sourceModel() : model());
-		QString const & strtime = findString4Tag(tlv::tag_time, current);
+		QString const & strtime = findString4Tag(tlv::tag_ctime, current);
 		setTimeRefValue(strtime.toULongLong());
 		onInvalidateFilter();
 	}
@@ -282,7 +283,7 @@ void LogWidget::onHidePrev ()
 	if (!current.isValid())
 		return;
 
-	QString const & strtime = findString4Tag(tlv::tag_time, current);
+	QString const & strtime = findString4Tag(tlv::tag_ctime, current);
 
   filterMgr()->mkFilter(e_Filter_Time);
 
@@ -306,7 +307,7 @@ void LogWidget::onHideNext () //@TODO: dedup
 	if (!current.isValid())
 		return;
 
-	QString const & strtime = findString4Tag(tlv::tag_time, current);
+	QString const & strtime = findString4Tag(tlv::tag_ctime, current);
 
   filterMgr()->mkFilter(e_Filter_Time);
 
@@ -321,6 +322,28 @@ void LogWidget::onHideNext () //@TODO: dedup
 
 void LogWidget::onTableDoubleClicked (QModelIndex const & row_index)
 {
+		qDebug("%s this=0x%08x", __FUNCTION__, this);
+		if (m_config.m_sync_group == 0)
+			return;	// do not sync groups with zero
+
+    E_SyncMode const mode = e_SyncServerTime;
+    //@TODO: mode from UI
+
+    QModelIndex curr = row_index;
+		if (isModelProxy())
+		{
+			curr = m_proxy_model->mapToSource(row_index);
+		}
+
+    unsigned long long time = 0;
+    if (mode == e_SyncServerTime)
+      time = m_src_model->row_stime(curr.row());
+    else
+      time = m_src_model->row_ctime(curr.row());
+
+    qDebug("table: dblClick curr=(%i, %i)  time=%llu", curr.row(), curr.column(), time);
+    emit requestSynchronization(mode, m_config.m_sync_group, time, this);
+
 /*	if (m_proxy_model)
 	{
 		QModelIndex const curr = m_proxy_model->mapToSource(row_index);

@@ -108,7 +108,7 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QStri
 
 	/*size_t const n = tlv::get_tag_count();
 	QString msg_tag;
-	for (size_t i = tlv::tag_time; i < n; ++i)
+	for (size_t i = tlv::tag_ctime; i < n; ++i)
 	{
 		char const * name = tlv::get_tag_name(i);
 		if (name)

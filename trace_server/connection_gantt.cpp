@@ -98,7 +98,7 @@ bool Connection::handleGanttClearCommand (DecodedCommand const & cmd, E_ReceiveM
 		{
 			if (cmd.m_tvs[i].m_tag == tlv::tag_msg)
 				msg = cmd.m_tvs[i].m_val;
-			else if (cmd.m_tvs[i].m_tag == tlv::tag_time)
+			else if (cmd.m_tvs[i].m_tag == tlv::tag_ctime)
 				time = cmd.m_tvs[i].m_val;
 			else if (cmd.m_tvs[i].m_tag == tlv::tag_tid)
 				tid = cmd.m_tvs[i].m_val;

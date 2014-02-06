@@ -13,7 +13,8 @@ namespace logs {
 	namespace {
 		void fillComboBoxWithTags (QComboBox * cbx)
 		{
-			cbx->addItem(tlv::get_tag_name(tlv::tag_time));
+			cbx->addItem(tlv::get_tag_name(tlv::tag_ctime));
+      cbx->addItem(tlv::get_tag_name(tlv::tag_stime));
 			cbx->addItem(tlv::get_tag_name(tlv::tag_tid));
 			cbx->addItem(tlv::get_tag_name(tlv::tag_file));
 			cbx->addItem(tlv::get_tag_name(tlv::tag_line));
@@ -247,12 +248,13 @@ void LogCtxMenu::setConfigValuesToUI (LogConfig const & cfg)
 		cel_root->appendRow(addUncheckableRow(tr("%1").arg(cfg.m_columns_elide.at(li))));
 	}
 
+  //@FIXME TODO: for fucks sake...
 	//size_t const n = tlv::get_tag_count() - 1; // -1 is for the tag Bool
 	size_t const n = tlv::tag_bool;
 
 	size_t add_tag_count = 0;
 	size_t * const add_tag_indices = static_cast<size_t * const>(alloca(sizeof(size_t) * n));
-	for (size_t i = tlv::tag_time; i < n; ++i)
+	for (size_t i = tlv::tag_ctime; i < n; ++i)
 	{
 		char const * name = tlv::get_tag_name(i);
 		if (name)

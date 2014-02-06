@@ -66,7 +66,7 @@ bool Connection::handleTableXYCommand (DecodedCommand const & cmd, E_ReceiveMode
 			x = cmd.m_tvs[i].m_val.toInt();
 		else if (cmd.m_tvs[i].m_tag == tlv::tag_y)
 			y = cmd.m_tvs[i].m_val.toInt();
-		else if (cmd.m_tvs[i].m_tag == tlv::tag_time)
+		else if (cmd.m_tvs[i].m_tag == tlv::tag_ctime)
 			time = cmd.m_tvs[i].m_val;
 		else if (cmd.m_tvs[i].m_tag == tlv::tag_fgc)
 			fgc = cmd.m_tvs[i].m_val;
@@ -97,7 +97,7 @@ bool Connection::handleTableSetupCommand (DecodedCommand const & cmd, E_ReceiveM
 			x = cmd.m_tvs[i].m_val.toInt();
 		else if (cmd.m_tvs[i].m_tag == tlv::tag_y)
 			y = cmd.m_tvs[i].m_val.toInt();
-		else if (cmd.m_tvs[i].m_tag == tlv::tag_time)
+		else if (cmd.m_tvs[i].m_tag == tlv::tag_ctime)
 			time = cmd.m_tvs[i].m_val;
 		else if (cmd.m_tvs[i].m_tag == tlv::tag_hhdr)
 			hhdr = cmd.m_tvs[i].m_val;
@@ -251,6 +251,8 @@ bool Connection::handleTableClearCommand (DecodedCommand const & cmd, E_ReceiveM
 	}
 	return true;
 }
+
+//@TODO: old call!
 void Connection::requestTableSynchronization (int sync_group, unsigned long long time)
 {
 	for (datatables_t::iterator it = m_data.get<e_data_table>().begin(), ite = m_data.get<e_data_table>().end(); it != ite; ++it)

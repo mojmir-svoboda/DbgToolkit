@@ -5,6 +5,7 @@
 #include <connection.h>
 #include <trace_client/trace.h>
 #include "filterproxymodel.h"
+#include <sysfn/time_query.h>
 
 LogTableModel::LogTableModel (QObject * parent, logs::LogWidget & lw)
 	: TableModel(parent, lw.m_config.m_columns_setup, lw.m_config.m_columns_sizes)
@@ -78,7 +79,8 @@ LogTableModel * LogTableModel::cloneToNewModel ()
 	new_model->m_rows = m_rows;
 	new_model->m_dcmds = m_dcmds;
 
-	new_model->m_row_times = m_row_times;
+	new_model->m_row_ctimes = m_row_ctimes;
+	new_model->m_row_stimes = m_row_stimes;
 	new_model->m_col_times = m_col_times;
 	new_model->m_column_count = m_column_count;
 	return new_model;
@@ -106,7 +108,8 @@ LogTableModel * LogTableModel::cloneToNewModel (FindConfig const & fc)
 		{
 			new_model->m_rows.push_back(m_rows[r]);
 			new_model->m_dcmds.push_back(m_dcmds[r]);
-			//new_model->m_row_times.push_back(m_row_times[r]);
+			new_model->m_row_ctimes.push_back(m_row_ctimes[r]);
+			new_model->m_row_stimes.push_back(m_row_stimes[r]);
 		}
 	}
 	new_model->m_col_times = m_col_times;
@@ -120,6 +123,8 @@ void LogTableModel::commitBatchToModel ()
 	int const from = m_rows.size();
 	m_dcmds.resize(from + rows);
 	m_rows.resize(from + rows);
+	m_row_ctimes.resize(from + rows);
+	m_row_stimes.resize(from + rows);
 	int const to = from + rows - 1;
 	beginInsertRows(QModelIndex(), from, to);
 	int cols = 0;
@@ -128,6 +133,8 @@ void LogTableModel::commitBatchToModel ()
 		m_rows[from + r] = m_batch.m_rows[r];
 		m_dcmds[from + r] = m_batch.m_dcmds[r];
 		m_dcmds[from + r].m_src_row = from + r;
+    m_row_ctimes[from + r] = m_batch.m_row_ctimes[r];
+    m_row_stimes[from + r] = m_batch.m_row_stimes[r];
 		int const curr_cols = m_batch.m_rows[r].size();
 		cols = cols < curr_cols ? curr_cols : cols;
 	}
@@ -227,7 +234,7 @@ void LogTableModel::parseCommand (DecodedCommand const & cmd, E_ReceiveMode mode
 			line = val;
 		if (tag == tlv::tag_func)
 			func = val;
-		if (tag == tlv::tag_time)
+		if (tag == tlv::tag_ctime)
 			time = val;
 
 		QString qval;
@@ -265,9 +272,20 @@ void LogTableModel::parseCommand (DecodedCommand const & cmd, E_ReceiveMode mode
 
 		unsigned long long const last_t = m_log_widget.getTLS().lastTime(thread_idx);
 		unsigned long long const t = time.toULongLong();
+
 		long long const dt = t - last_t;
 		columns[ci].m_value = tr("%1").arg(dt);
 		m_log_widget.getTLS().setLastTime(thread_idx, t);
+
+		m_batch.m_row_ctimes.push_back(t);
+    sys::hptimer_t const now = sys::queryTime_us();
+		m_batch.m_row_stimes.push_back(now);
+
+    // stime
+		int sti = m_log_widget.findColumn4Tag(tlv::tag_stime);
+    if (sti < 0)
+      sti = m_log_widget.appendColumn(tlv::tag_stime);
+		columns[sti].m_value = tr("%1").arg(now);
 	}
 }
 
@@ -395,7 +413,7 @@ void LogTableModel::appendCommand (QAbstractProxyModel * filter, tlv::StringComm
 		if (tag == tlv::tag_file) file = val;
 		if (tag == tlv::tag_line) line = val;
 		if (tag == tlv::tag_func) func = val;
-		if (tag == tlv::tag_time) time = val;
+		if (tag == tlv::tag_ctime) time = val;
 
 		QString qval;
 		if (tag == tlv::tag_msg)

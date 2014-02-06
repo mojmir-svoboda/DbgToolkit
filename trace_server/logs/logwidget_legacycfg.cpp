@@ -46,7 +46,8 @@ void LogWidget::reconfigureConfig (logs::LogConfig & config)
 	fillDefaultConfig(config);
 
 	tlv::tag_t const tags[] = {
-		  tlv::tag_time
+		  tlv::tag_stime
+		, tlv::tag_ctime
 		, tlv::tag_tid
 		, tlv::tag_lvl
 		, tlv::tag_ctx

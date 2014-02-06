@@ -3,6 +3,7 @@
 #include <QColor>
 #include <QAbstractProxyModel>
 #include <trace_client/trace.h>
+#include <sysfn/time_query.h>
 
 TableModel::TableModel (QObject * parent, QVector<QString> & hhdr, QVector<int> & hsize)
 	: QAbstractTableModel(parent)
@@ -156,7 +157,8 @@ void TableModel::emitLayoutChanged ()
 void TableModel::clearModel ()
 {
 	beginResetModel();
-	m_row_times.clear();
+	m_row_ctimes.clear();
+	m_row_stimes.clear();
 	m_col_times.clear();
 	m_rows.clear();
 	m_column_count = 0;
@@ -203,9 +205,14 @@ void TableModel::appendTableXY (int x, int y, QString const & time, QString cons
 		{
 			size_t const curr_sz = m_rows.size();
 			m_rows.resize(y + 1);
-			m_row_times.resize(y + 1);
+			m_row_ctimes.resize(y + 1);
+			m_row_stimes.resize(y + 1);
 			for (size_t r = curr_sz; r < y + 1; ++r)
-				m_row_times[r] = t + r * 10;
+			{
+				m_row_ctimes[r] = t + r * 10;
+				sys::hptimer_t const now = sys::queryTime_us();
+				m_row_stimes[r] = now;
+			}
 
 			new_rows = true;
 			rows_first = curr_sz;
@@ -296,9 +303,15 @@ void TableModel::createRows (unsigned long long time, int first, int last, QMode
 		beginInsertRows(QModelIndex(), m_rows.size(), first);
 		size_t const curr_sz = m_rows.size();
 		m_rows.resize(last + 1);
-		m_row_times.resize(last + 1);
+		m_row_ctimes.resize(last + 1);
+		m_row_stimes.resize(last + 1);
 		for (size_t r = curr_sz; r < last + 1; ++r)
-			m_row_times[r] = time + r * 10;
+		{
+			m_row_ctimes[r] = time + r * 10;
+
+			sys::hptimer_t const now = sys::queryTime_us();
+			m_row_stimes[r] = now;
+		}
 		endInsertRows();
 	}
 }

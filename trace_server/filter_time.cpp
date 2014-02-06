@@ -84,7 +84,7 @@ bool FilterTime::accept (DecodedCommand const & cmd) const
 	{
 		unsigned long long t;
         QString qt;
-		if (!cmd.getString(tlv::tag_time, qt))
+		if (!cmd.getString(tlv::tag_ctime, qt))
 			return true;
         t = qt.toULongLong();
 
@@ -231,7 +231,7 @@ void FilterTime::appendToWidgets (FilteredTime const & flt)
 	{
         QString const & m = cmpModToString(static_cast<E_CmpMode>(flt.m_operator));
 		QList<QStandardItem *> row_items = add4Col(flt.m_is_enabled ? Qt::Checked : Qt::Unchecked
-                , get_tag_name(tlv::tag_time)
+                , get_tag_name(tlv::tag_ctime)
                 , m
                 , flt.m_string
                 , flt.m_time_units_str);
@@ -342,7 +342,7 @@ void FilterTime::onAdd (QString const & op, QString const & rhs, QString const &
 
   if (!found)
   {
-      QList<QStandardItem *> row_items = add4Col(Qt::Checked, get_tag_name(tlv::tag_time), op, rhs, units);
+      QList<QStandardItem *> row_items = add4Col(Qt::Checked, get_tag_name(tlv::tag_ctime), op, rhs, units);
       root->appendRow(row_items);
   }
   append(op, rhs, units, true);

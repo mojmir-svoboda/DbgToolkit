@@ -12,6 +12,7 @@
 #include <kde/klinkitemselectionmodel.h>
 #include <appdata.h>
 #include "warnimage.h"
+#include "syncwidgets.h"
 #include "buttoncache.h"
 
 class Connection;
@@ -78,6 +79,7 @@ namespace logs {
 		friend struct LogCtxMenu;
 		friend struct LogDelegate;
 
+		virtual void wheelEvent (QWheelEvent * event);
 		virtual void keyPressEvent (QKeyEvent * event);
 		virtual QModelIndex moveCursor (CursorAction cursorAction, Qt::KeyboardModifiers modifiers);
 
@@ -202,8 +204,7 @@ namespace logs {
 		void onRefillFilters ();
 		//void scrollTo (QModelIndex const & index, ScrollHint hint);
 		
-		//void performTimeSynchronization (int sync_group, unsigned long long time, void * source);
-		//void performFrameSynchronization (int sync_group, unsigned long long frame, void * source);
+		void performSynchronization (E_SyncMode mode, int sync_group, unsigned long long time, void * source);
 
 		void onClearAllDataButton ();
 		void onSectionResized (int logicalIndex, int oldSize, int newSize);
@@ -236,10 +237,12 @@ namespace logs {
 		void onHidePrev ();
 		void onHideNext ();
 
+		//void requestTableWheelEventSync (QWheelEvent * ev, QTableView const * source);
+		//void requestTableActionSync (unsigned long long t, int cursorAction, Qt::KeyboardModifiers modifiers, QTableView const * source);
+    void findNearestRow4Time (bool ctime, unsigned long long t);
 
 	signals:
-		//void requestTimeSynchronization (int sync_group, unsigned long long time, void * source);
-		//void requestFrameSynchronization (int sync_group, unsigned long long frame, void * source);
+		void requestSynchronization (E_SyncMode mode, int sync_group, unsigned long long time, void * source);
 
 	protected:
 		Connection * m_connection;

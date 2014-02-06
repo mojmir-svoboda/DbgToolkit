@@ -75,7 +75,8 @@ namespace tlv {
 		tag_invalid = 0,  /// invalid tag value
 		tag_app,          /// application name
 		tag_pid,          /// process id
-		tag_time,         /// time
+		tag_ctime,        /// time (client)
+		tag_stime,        /// time (server)
 		tag_tid,          /// thread id
 		tag_file,         /// file name
 		tag_line,         /// line
@@ -109,7 +110,8 @@ namespace tlv {
 		"---",
 		"App",
 		"PID",
-		"Time",
+		"CTime",
+		"STime",
 		"TID",
 		"File",
 		"Line",

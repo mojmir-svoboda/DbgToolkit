@@ -266,7 +266,10 @@ public:
 	void loadConfigs (QString const & preset_name);
 	void applyConfigs ();
 
+
+  //@TODO: old call!!
 	void requestTableSynchronization (int sync_group, unsigned long long time);
+
 	void requestTableWheelEventSync (int sync_group, QWheelEvent * ev, QTableView const * source);
 	void requestTableActionSync (int sync_group, unsigned long long t, int cursorAction, Qt::KeyboardModifiers modifiers, QTableView const * source);
 

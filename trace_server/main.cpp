@@ -18,6 +18,10 @@
 #	include <windows.h>
 #endif
 
+namespace sys {
+  hptimer_t g_Start = 0, g_Freq = 1000000;
+}
+
 FILE * g_LogRedirect = 0;
 
 struct Application : QApplication, public QAbstractNativeEventFilter
@@ -130,6 +134,7 @@ void qDebugHandler (QtMsgType type, QMessageLogContext const & ctx, QString cons
 
 int main (int argc, char * argv[])
 {
+    sys::setTimeStart();
 	QString const log_name = QString("%1.%2").arg(argv[0]).arg("log");
 	g_LogRedirect = fopen(log_name.toLatin1(), "a");
 	bool quit_delay = true;

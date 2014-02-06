@@ -13,7 +13,8 @@ inline QVariant tag2variant (tlv::tag_t t, QString const & src)
 		case tag_invalid:	return QVariant(src);
 		case tag_app:		return QVariant(src);
 		case tag_pid:		return QVariant(src);
-		case tag_time:		return QVariant(src.toLongLong());
+		case tag_ctime:		return QVariant(src.toLongLong());
+		case tag_stime:		return QVariant(src.toLongLong());
 		case tag_tid:		return QVariant(src.toLongLong());
 		case tag_file:		return QVariant(src);
 		case tag_line:		return QVariant(src);

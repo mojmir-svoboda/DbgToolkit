@@ -436,6 +436,7 @@ namespace table {
 		}
 	}
 
+  //@TODO: old code, look in LogWidget::onTableDoubleClicked
 	void TableWidget::onTableDoubleClicked (QModelIndex const & row_index)
 	{
 		qDebug("%s this=0x%08x", __FUNCTION__, this);
@@ -445,20 +446,22 @@ namespace table {
 		if (isModelProxy())
 		{
 			QModelIndex const curr = m_table_view_proxy->mapToSource(row_index);
-			unsigned long long const time = m_modelView->row_time(curr.row());
+			unsigned long long const time = m_modelView->row_ctime(curr.row());
 
 			qDebug("table: dblClick (pxy) curr=(%i, %i)  time=%llu", curr.row(), curr.column(), time);
+      //@TODO: old call!!
 			m_connection->requestTableSynchronization(m_config.m_sync_group, time);
 		}
 		else
 		{
 			QModelIndex const curr = row_index;
-			unsigned long long const time = m_modelView->row_time(curr.row());
+			unsigned long long const time = m_modelView->row_ctime(curr.row());
 			qDebug("table: dblClick curr=(%i, %i)  time=%llu", curr.row(), curr.column(), time);
 			m_connection->requestTableSynchronization(m_config.m_sync_group, time);
 		}
 	}
 
+  //@TODO: old code, look in LogWidget::findNearestRow4Time
 	void TableWidget::findNearestTimeRow (unsigned long long t)
 	{
 		//qDebug("%s this=0x%08x", __FUNCTION__, this);
@@ -467,7 +470,7 @@ namespace table {
 		int closest_dist = 1024 * 1024;
 		for (int i = 0; i < m_modelView->rowCount(); ++i)
 		{
-			int const diff = m_modelView->row_time(i) - t;
+			int const diff = m_modelView->row_ctime(i) - t; //TODO: fixed ctime!!
 			int const d = abs(diff);
 			bool const row_exists = is_proxy ? static_cast<SparseProxyModel const *>(m_table_view_proxy)->rowInProxy(i) : true;
 			if (row_exists && d < closest_dist)
@@ -541,7 +544,7 @@ namespace table {
 			if (isModelProxy())
 				mod_idx = m_table_view_proxy->mapToSource(curr_idx);
 
-			unsigned long long const t = m_modelView->row_time(mod_idx.row());
+			unsigned long long const t = m_modelView->row_ctime(mod_idx.row()); //@TODO: fixed ctime
 			m_connection->requestTableActionSync(m_config.m_sync_group, t, cursor_action, modifiers, this);
 			scrollTo(curr_idx, QAbstractItemView::PositionAtCenter);
 			//qDebug("table: pxy findNearestTime curr_idx=(%i, %i)  mod_idx=(%i, %i)", curr_idx.column(), curr_idx.row(), mod_idx.column(), mod_idx.row());

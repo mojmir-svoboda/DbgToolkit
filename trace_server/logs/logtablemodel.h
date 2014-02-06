@@ -37,9 +37,12 @@ namespace logs { class LogWidget; struct LogConfig; }
 
 typedef std::vector<DecodedCommand> dcmds_t;
 
+typedef std::vector<unsigned long long> times_t;
 struct BatchCmd {
 	dcmds_t m_dcmds;
 	rows_t m_rows;
+	times_t m_row_ctimes;
+	times_t m_row_stimes;
 
 	void clear () { m_dcmds.clear(); m_rows.clear(); }
 };

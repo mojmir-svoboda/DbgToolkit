@@ -284,14 +284,10 @@ FrameView::FrameView (Connection * oparent, QWidget * wparent, FrameViewConfig &
     connect(picker, SIGNAL(appended(QPointF const &) ), this, SLOT(appended(QPointF const &)));
     connect(picker, SIGNAL(selected(QVector<QPointF> const &) ), this, SLOT(selected(QVector<QPointF> const &)));
 
-    connect(&getSyncWidgets(), SIGNAL( requestTimeSynchronization(int, unsigned long long, void *) ),
-						 this, SLOT( performTimeSynchronization(int, unsigned long long, void *) ));
-    connect(this, SIGNAL( requestTimeSynchronization(int, unsigned long long, void *) ),
-						 &getSyncWidgets(), SLOT( performTimeSynchronization(int, unsigned long long, void *) ));
-    connect(&getSyncWidgets(), SIGNAL( requestFrameSynchronization(int, unsigned long long, void *) ),
-						 this, SLOT( performFrameSynchronization(int, unsigned long long, void *) ));
-    connect(this, SIGNAL( requestFrameSynchronization(int, unsigned long long, void *) ),
-						 &getSyncWidgets(), SLOT( performFrameSynchronization(int, unsigned long long, void *) ));
+    connect(&getSyncWidgets(), SIGNAL( requestSynchronization(E_SyncMode mode, int, unsigned long long, void *) ),
+						 this, SLOT( performSynchronization(E_SyncMode mode, int, unsigned long long, void *) ));
+    connect(this, SIGNAL( requestSynchronization(E_SyncMode mode, int, unsigned long long, void *) ),
+						 &getSyncWidgets(), SLOT( performSynchronization(E_SyncMode mode, int, unsigned long long, void *) ));
 }
 
 void FrameView::setNum (double v)
@@ -335,20 +331,15 @@ void FrameView::appended (QPointF const & pa)
 		qDebug("clicked at frame=%i label=%s", index, m_bars->m_strvalues[index].toStdString().c_str());
 		//unsigned long long n =  m_bars->m_begins[index];
 		//emit requestTimeSynchronization(m_config.m_sync_group, n, this);
-		emit requestFrameSynchronization(m_config.m_sync_group, index, this);
+		emit requestSynchronization(e_SyncFrame, m_config.m_sync_group, index, this);
 	}
 }
 
 
-void FrameView::performTimeSynchronization (int sync_group, unsigned long long time, void * source)
+void FrameView::performSynchronization (E_SyncMode mode, int sync_group, unsigned long long time, void * source)
 {
 	qDebug("%s syncgrp=%i time=%i", __FUNCTION__, sync_group, time);
 	// center on index
-}
-
-void FrameView::performFrameSynchronization (int sync_group, unsigned long long frame, void * source)
-{
-	qDebug("%s syncgrp=%i frame=%i", __FUNCTION__, sync_group, frame);
 }
 
 /*void Histogram::setValues (uint numValues, double const * values)

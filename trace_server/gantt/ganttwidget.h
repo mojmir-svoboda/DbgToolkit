@@ -4,6 +4,7 @@
 #include <QFrame>
 #include "ganttconfig.h"
 #include "ganttdata.h"
+#include "syncwidgets.h"
 //#include "ganttctxmenu.h"
 //#include "frameview.h"
 #include "action.h"
@@ -97,12 +98,10 @@ namespace gantt {
 		void onClearAllDataButton ();
 		void onClearGanttViewDataButton ();
 
-		void performTimeSynchronization (int sync_group, unsigned long long time, void * source);
-		void performFrameSynchronization (int sync_group, unsigned long long frame, void * source);
+		void performSynchronization (E_SyncMode mode, int sync_group, unsigned long long time, void * source);
 
 	signals:
-		void requestTimeSynchronization (int sync_group, unsigned long long time, void * source);
-		void requestFrameSynchronization (int sync_group, unsigned long long frame, void * source);
+		void requestSynchronization (E_SyncMode mode, int sync_group, unsigned long long time, void * source);
 
 	protected:
 		GanttConfig & m_config;

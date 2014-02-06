@@ -1,6 +1,14 @@
 #pragma once
 #include <QObject>
 
+enum E_SyncMode {
+    e_SyncClientTime,
+    e_SyncServerTime,
+    e_SyncFrame,
+    e_SyncSourceRow,
+    e_SyncProxyRow
+};
+
 struct SyncWidgets : QObject
 {
 	SyncWidgets::SyncWidgets (QObject * parent = 0)
@@ -14,18 +22,12 @@ struct SyncWidgets : QObject
 	void terminate () { m_terminate = true; }
 
 signals:
-	void requestTimeSynchronization (int sync_group, unsigned long long time, void * source);
-	void requestFrameSynchronization (int sync_group, unsigned long long frame, void * source);
+	void requestSynchronization (E_SyncMode mode, int sync_group, unsigned long long time, void * source);
 
 public slots:
-	void performTimeSynchronization (int sync_group, unsigned long long time, void * source)
+	void performSynchronization (E_SyncMode mode, int sync_group, unsigned long long time, void * source)
 	{
-		emit requestTimeSynchronization(sync_group, time, source);
-	}
-
-	void performFrameSynchronization (int sync_group, unsigned long long frame, void * source)
-	{
-		emit requestFrameSynchronization(sync_group, frame, source);
+		emit requestSynchronization(mode, sync_group, time, source);
 	}
 
 private:
