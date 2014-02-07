@@ -548,61 +548,18 @@ void MainWindow::storeState ()
 
 	settings.setValue("geometry", saveGeometry());
 	settings.setValue("windowState", saveState());
-	//settings.setValue("splitter", ui->splitter->saveState());
 
 	settings.setValue("tableSlider", ui->tableSlider->value());
 	settings.setValue("plotSlider", ui->plotSlider->value());
 	settings.setValue("ganttSlider", ui->ganttSlider->value());
 	settings.setValue("buffCheckBox", ui->buffCheckBox->isChecked());
-	//settings.setValue("filterModeComboBox", ui->filterModeComboBox->currentIndex());
-	//settings.setValue("filterPaneComboBox", ui_settings->filterPaneComboBox->currentIndex());
 	settings.setValue("levelSpinBox", ui->levelSpinBox->value());
 
 	settings.setValue("trace_stats", ui_settings->traceStatsCheckBox->isChecked());
 	settings.setValue("reuseTabCheckBox", ui_settings->reuseTabCheckBox->isChecked());
 	settings.setValue("onTopCheckBox", ui_settings->onTopCheckBox->isChecked());
 	settings.setValue("presetComboBox", ui->presetComboBox->currentText());
-
-/*	write_list_of_strings(settings, "known-applications", "application", m_config.m_app_names);
-	for (int i = 0, ie = m_config.m_app_names.size(); i < ie; ++i)
-	{
-		if (i >= m_config.m_columns_setup.size())
-			break;
-		settings.beginGroup(tr("column_order_%1").arg(m_config.m_app_names[i]));
-		{
-			write_list_of_strings(settings, "orders", "column", m_config.m_columns_setup.at(i));
-		}
-		settings.endGroup();
-
-		settings.beginGroup(tr("column_sizes_%1").arg(m_config.m_app_names[i]));
-		{
-			QList<columns_sizes_t>::const_iterator oi = m_config.m_columns_sizes.constBegin();
-			while (oi != m_config.m_columns_sizes.constEnd())
-			{
-				settings.beginWriteArray("sizes");
-				int const size = (*oi).size();
-				for (int ai = 0; ai < size; ++ai) {
-					settings.setArrayIndex(ai);
-					settings.setValue("column", QString::number((*oi).at(ai)));
-				}
-				settings.endArray();
-				++oi;
-			}
-		}
-		settings.endGroup();
-
-		settings.beginGroup(tr("column_align_%1").arg(m_config.m_app_names[i]));
-		{
-			write_list_of_strings(settings, "aligns", "column", m_config.m_columns_align.at(i));
-		}
-		settings.endGroup();
-
-		settings.beginGroup(tr("column_elide_%1").arg(m_config.m_app_names[i]));
-		{
-			write_list_of_strings(settings, "elides", "column", m_config.m_columns_elide.at(i));
-		}
-		settings.endGroup();
-	}*/
+	settings.setValue("multiTabPresetComboBox", ui->multiTabPresetComboBox->currentText());
 	
 	m_dock_mgr.saveConfig(m_config.m_appdir);
 #ifdef WIN32
@@ -633,15 +590,8 @@ void MainWindow::loadState ()
 	restoreGeometry(settings.value("geometry").toByteArray());
 	restoreState(settings.value("windowState").toByteArray());
 	int const pane_val = settings.value("filterPaneComboBox", 0).toInt();
-	/*ui_settings->filterPaneComboBox->setCurrentIndex(pane_val);
-	if (settings.contains("splitter"))
-	{
-		//ui->splitter->restoreState(settings.value("splitter").toByteArray());
-		//ui->splitter->setOrientation(pane_val ? Qt::Vertical : Qt::Horizontal);
-	}*/
 
 	ui_settings->traceStatsCheckBox->setChecked(settings.value("trace_stats", true).toBool());
-
 	ui_settings->reuseTabCheckBox->setChecked(settings.value("reuseTabCheckBox", true).toBool());
 
 	ui->tableSlider->setValue(settings.value("tableSlider", 0).toInt());
@@ -660,53 +610,6 @@ void MainWindow::loadState ()
 	{
 		qDebug("reading level from command line");
 		ui->levelSpinBox->setValue(m_start_level);
-	}
-
-
-	// @TODO: old code
-	read_list_of_strings(settings, "known-applications", "application", m_config.m_app_names);
-	for (int i = 0, ie = m_config.m_app_names.size(); i < ie; ++i)
-	{
-		m_config.m_columns_setup.push_back(columns_setup_t());
-		settings.beginGroup(tr("column_order_%1").arg(m_config.m_app_names[i]));
-		{
-			read_list_of_strings(settings, "orders", "column", m_config.m_columns_setup.back());
-		}
-		settings.endGroup();
-		
-		m_config.m_columns_sizes.push_back(columns_sizes_t());
-		settings.beginGroup(tr("column_sizes_%1").arg(m_config.m_app_names[i]));
-		{
-			int const size = settings.beginReadArray("sizes");
-			for (int i = 0; i < size; ++i) {
-				settings.setArrayIndex(i);
-				m_config.m_columns_sizes.back().push_back(settings.value("column").toInt());
-			}
-			settings.endArray();
-		}
-		settings.endGroup();
-
-		m_config.m_columns_align.push_back(columns_align_t());
-		settings.beginGroup(tr("column_align_%1").arg(m_config.m_app_names[i]));
-		{
-			read_list_of_strings(settings, "aligns", "column", m_config.m_columns_align.back());
-		}
-		settings.endGroup();
-
-		if (m_config.m_columns_align.back().size() < m_config.m_columns_sizes.back().size())
-			for (int i = 0, ie = m_config.m_columns_sizes.back().size(); i < ie; ++i)
-				m_config.m_columns_align.back().push_back(QString("L"));
-
-		m_config.m_columns_elide.push_back(columns_elide_t());
-		settings.beginGroup(tr("column_elide_%1").arg(m_config.m_app_names[i]));
-		{
-			read_list_of_strings(settings, "elides", "column", m_config.m_columns_elide.back());
-		}
-		settings.endGroup();
-
-		if (m_config.m_columns_elide.back().size() < m_config.m_columns_sizes.back().size())
-			for (int i = 0, ie = m_config.m_columns_sizes.back().size(); i < ie; ++i)
-				m_config.m_columns_elide.back().push_back(QString("R"));
 	}
 
 	if (m_config.m_thread_colors.empty())

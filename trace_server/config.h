@@ -18,6 +18,7 @@ struct GlobalConfig {
 	QString m_last_search;
 	History<QString> m_search_history;
 	History<QString> m_preset_history;
+	History<QString> m_multitab_preset_history;
 
 	QString m_trace_addr;
 	unsigned short m_trace_port;
@@ -32,6 +33,7 @@ struct GlobalConfig {
 		, m_dump_mode(false)
 		, m_search_history(16)
 		, m_preset_history(16)
+		, m_multitab_preset_history(16)
 	{ }
 
 	void loadHistory ();

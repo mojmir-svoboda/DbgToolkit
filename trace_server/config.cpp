@@ -28,17 +28,21 @@ bool loadHistoryState (History<QString> & h, char const * filename)
 void GlobalConfig::loadHistory ()
 {
 	QString const sfilename = m_appdir + "/search_history.xml";
-	loadHistoryState(m_search_history, sfilename.toLatin1());
 	QString const pfilename = m_appdir + "/preset_history.xml";
+	QString const mfilename = m_appdir + "/multitab_preset_history.xml";
+	loadHistoryState(m_search_history, sfilename.toLatin1());
 	loadHistoryState(m_preset_history, pfilename.toLatin1());
+	loadHistoryState(m_multitab_preset_history, mfilename.toLatin1());
 }
 
 void GlobalConfig::saveHistory () const
 {
 	QString const sfilename = m_appdir + "/search_history.xml";
 	QString const pfilename = m_appdir + "/preset_history.xml";
+	QString const mfilename = m_appdir + "/multitab_preset_history.xml";
 	saveHistoryState(m_search_history, sfilename.toLatin1());
 	saveHistoryState(m_preset_history, pfilename.toLatin1());
+	saveHistoryState(m_multitab_preset_history, mfilename.toLatin1());
 }
 
 

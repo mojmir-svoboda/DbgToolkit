@@ -93,6 +93,7 @@ public:
 	QString matchClosestPresetName (QString const & appname);
 	void setPresetAsCurrent (QString const & pname);
 	void mentionInPresetHistory (QString const & str);
+	void mentionInMultiTabPresetHistory (QString const & str);
 
 
 	QTreeView const * getDockedWidgetsTreeView () const;

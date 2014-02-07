@@ -120,7 +120,7 @@ int main ()
 #if defined WIN32
 	setvbuf(stdout, 0, _IONBF, 0);
 #endif
-	TRACE_APPNAME("WarHorse_App1");
+	TRACE_APPNAME("WarHorse_App");
 	TRACE_CONNECT();
   TRACE_SCOPE(trace::e_Error, trace::CTX_Default);
   TRACE_MSG(trace::e_Info, trace::CTX_Default,  "Text with Error inside");
