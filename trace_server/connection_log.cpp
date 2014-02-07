@@ -10,14 +10,19 @@
 void DataLog::init (Connection * connection, QString const & confname, QStringList const & path)
 {
 	QWidget * tab = connection->m_tab_widget;
-	QVBoxLayout * vLayout = new QVBoxLayout(tab);
-	vLayout->setSpacing(1);
-	vLayout->setContentsMargins(0, 0, 0, 0);
-	vLayout->setObjectName(QString::fromUtf8("verticalLayout"));
 
 	logs::LogWidgetWithButtons * tableView = new logs::LogWidgetWithButtons(connection, tab, this->config(), confname, path);
 
-	vLayout->addWidget(tableView);
+	if (tab->layout() == 0)
+	{
+		QHBoxLayout * vLayout = new QHBoxLayout();
+		vLayout->setSpacing(1);
+		vLayout->setContentsMargins(0, 0, 0, 0);
+		vLayout->setObjectName(QString::fromUtf8("verticalLayout"));
+
+		tab->setLayout(vLayout);
+	}
+	tab->layout()->addWidget(tableView);
 	m_widget = tableView;
 	tableView->findWidget()->setDockedWidget(this);
 }

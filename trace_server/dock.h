@@ -122,6 +122,7 @@ public:
 	DockedWidgetBase const * findDockable (QString const & joined_path) const;
 
     void removeDockable (QString const & dst_joined);
+    void removeActionAble (QString const & dst_joined);
 	DockedWidgetBase * findDockable (QString const & joined_path);
 	ActionAble const * findActionAble (QString const & dst_joined) const;
 	DockedWidgetBase const * findDockableForWidget (QWidget * w) const;

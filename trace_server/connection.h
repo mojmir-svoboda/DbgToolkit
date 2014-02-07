@@ -117,8 +117,22 @@ struct DockedData : DockedWidgetBase
 	~DockedData ()
 	{
 		qDebug("%s this=0x%08x", __FUNCTION__, this);
-		delete m_widget;
-		m_widget = 0;
+    if (m_widget)
+    {
+      m_widget->setParent(0);
+    }
+    if (m_wd)
+    {
+        m_parent->getMainWindow()->removeDockWidget(m_wd);
+        m_wd->setWidget(0);
+        delete m_wd;
+        m_wd = 0;
+    }
+    if (m_widget)
+    {
+      delete m_widget;
+      m_widget = 0;
+    }
 	}
 
 	virtual QWidget * dockedWidget () { return m_widget; }

@@ -14,6 +14,8 @@ namespace logs {
 			: QStyledItemDelegate(parent), m_log_widget(lw), m_app_data(ad)
 		{ }
 
+    ~LogDelegate() {}
+
 		void paint (QPainter * painter, QStyleOptionViewItem const & option, QModelIndex const & index) const;
 		void paintCustom (QPainter * painter, QStyleOptionViewItem const & option, QModelIndex const & index) const;
 		void paintTokenized (QPainter * painter, QStyleOptionViewItemV4 & option, QModelIndex const & index, QString const & separator, QString const & out_separator, int level = 1) const;

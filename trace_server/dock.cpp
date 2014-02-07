@@ -160,7 +160,8 @@ DockWidget::DockWidget (DockManager & mgr, QString const & name, QMainWindow * c
 { }
 
 void DockWidget::closeEvent (QCloseEvent * event)
-{	
+{
+    qDebug("%s", __FUNCTION__);
 	static_cast<QMainWindow *>(parent())->removeDockWidget(this);
 	setWidget(0);
 	m_mgr.onWidgetClosed(this);
@@ -176,6 +177,7 @@ DockManager::DockManager (MainWindow * mw, QStringList const & path)
 	, m_config(g_traceServerName)
 	, m_config2(g_traceServerName)
 {
+    qDebug("%s", __FUNCTION__);
 	m_docked_widgets_data = new data_filters_t();
 	m_docked_widgets_model = new DockTreeModel(this, m_docked_widgets_data);
 	setModel(m_docked_widgets_model);
@@ -261,6 +263,7 @@ DockWidget * DockManager::mkDockWidget (DockedWidgetBase & dwb, bool visible)
 
 DockWidget * DockManager::mkDockWidget (ActionAble & aa, bool visible, Qt::DockWidgetArea area)
 {
+    qDebug("%s", __FUNCTION__);
 	Q_ASSERT(aa.path().size() > 0);
 
 	QString const name = aa.path().join("/");
@@ -333,13 +336,20 @@ DockedWidgetBase * DockManager::findDockableForWidget (QWidget * w)
 	return 0;
 }
 
-
-
 void DockManager::removeDockable (QString const & dst_joined)
 {
+    qDebug("%s", __FUNCTION__);
 	dockables_t::iterator it = m_dockables.find(dst_joined);
 	if (it != m_dockables.end() && it.key() == dst_joined)
 		m_dockables.erase(it);
+}
+
+void DockManager::removeActionAble (QString const & dst_joined)
+{
+    qDebug("%s", __FUNCTION__);
+	actionables_t::iterator it = m_actionables.find(dst_joined);
+	if (it != m_actionables.end() && it.key() == dst_joined)
+		m_actionables.erase(it);
 }
 
 DockedWidgetBase const * DockManager::findDockable (QString const & dst_joined) const
@@ -450,6 +460,7 @@ DockTreeModel::DockTreeModel (QObject * parent, tree_data_t * data)
 
 DockTreeModel::~DockTreeModel ()
 {
+	qDebug("%s", __FUNCTION__);
 }
 
 

@@ -14,6 +14,36 @@
 #include <QFontDialog>
 
 namespace logs {
+	LogWidgetWithButtons::LogWidgetWithButtons (Connection * conn, QWidget * wparent, LogConfig & cfg, QString const & fname, QStringList const & path)
+		: m_lw(new LogWidget(conn, 0, cfg, fname, path))
+		, ActionAble(path)
+	{
+		qDebug("%s", __FUNCTION__);
+		QVBoxLayout * vLayout = new QVBoxLayout();
+		vLayout->setSpacing(1);
+		vLayout->setContentsMargins(0, 0, 0, 0);
+		vLayout->setObjectName(QString::fromUtf8("verticalLayout"));
+		setLayout(vLayout);
+
+		QWidget * cacheWidget = new QFrame();
+		ButtonCache * cacheLayout = new ButtonCache();
+		cacheLayout->setSpacing(1);
+		cacheLayout->setContentsMargins(0, 0, 0, 0);
+		cacheLayout->setObjectName(QString::fromUtf8("cacheLayout"));
+
+		cacheWidget->setLayout(cacheLayout);
+		vLayout->addWidget(cacheWidget);
+		vLayout->addWidget(m_lw);
+
+		m_lw->setButtonCache(cacheLayout);
+		m_lw->fillButtonCache();
+	}
+
+	LogWidgetWithButtons::~LogWidgetWithButtons ()
+	{
+		qDebug("%s", __FUNCTION__);
+	}
+
 
 	LogWidget::LogWidget (Connection * connection, QWidget * wparent, LogConfig & cfg, QString const & fname, QStringList const & path)
 		: TableView(wparent), ActionAble(path)
@@ -295,6 +325,7 @@ namespace logs {
 
 	LogWidget::~LogWidget ()
 	{
+		setItemDelegate(0);
 		qDebug("%s this=0x%08x", __FUNCTION__, this);
 		disconnect(this, SIGNAL(customContextMenuRequested(QPoint const &)), this, SLOT(onShowContextMenu(QPoint const &)));
 

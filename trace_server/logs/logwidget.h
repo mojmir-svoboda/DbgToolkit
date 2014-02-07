@@ -26,7 +26,7 @@ namespace logs {
 	{
 		Q_OBJECT
 	public:
-		LogWidget (Connection * oparent, QWidget * wparent, LogConfig & cfg, QString const & fname, QStringList const & path);
+		LogWidget (Connection * conn, QWidget * wparent, LogConfig & cfg, QString const & fname, QStringList const & path);
 
 		virtual ~LogWidget ();
 
@@ -308,53 +308,32 @@ namespace logs {
 		Q_OBJECT
 	public:
 
-    LogWidget m_lw;
+    LogWidget * m_lw;
 
-		LogWidgetWithButtons (Connection * oparent, QWidget * wparent, LogConfig & cfg, QString const & fname, QStringList const & path)
-      : m_lw(oparent, wparent, cfg, fname, path)
-      , ActionAble(path)
-    {
-      QVBoxLayout * vLayout = new QVBoxLayout();
-      vLayout->setSpacing(1);
-      vLayout->setContentsMargins(0, 0, 0, 0);
-      vLayout->setObjectName(QString::fromUtf8("verticalLayout"));
-      setLayout(vLayout);
-
-      QWidget * cacheWidget = new QFrame();
-      ButtonCache * cacheLayout = new ButtonCache(cacheWidget);
-      cacheLayout->setSpacing(1);
-      cacheLayout->setContentsMargins(0, 0, 0, 0);
-      cacheLayout->setObjectName(QString::fromUtf8("cacheLayout"));
-
-      cacheWidget->setLayout(cacheLayout);
-      vLayout->addWidget(cacheWidget);
-      vLayout->addWidget(&m_lw);
-
-      m_lw.setButtonCache(cacheLayout);
-      m_lw.fillButtonCache();
-    }
+		LogWidgetWithButtons (Connection * conn, QWidget * wparent, LogConfig & cfg, QString const & fname, QStringList const & path);
+		~LogWidgetWithButtons ();
 
 		virtual bool handleAction (Action * a, E_ActionHandleType sync)
     {
-      return m_lw.handleAction(a, sync);
+      return m_lw->handleAction(a, sync);
     }
 
-		void loadConfig (QString const & preset_dir) { m_lw.loadConfig(preset_dir); }
-		void saveConfig (QString const & preset_dir) { m_lw.saveConfig(preset_dir); }
-		void applyConfig () { m_lw.applyConfig(); }
+		void loadConfig (QString const & preset_dir) { m_lw->loadConfig(preset_dir); }
+		void saveConfig (QString const & preset_dir) { m_lw->saveConfig(preset_dir); }
+		void applyConfig () { m_lw->applyConfig(); }
 
-		void handleCommand (DecodedCommand const & cmd, E_ReceiveMode mode) { m_lw.handleCommand(cmd, mode); }
-		void exportStorageToCSV (QString const & filename) { m_lw.exportStorageToCSV(filename); }
-		void commitCommands (E_ReceiveMode mode) { m_lw.commitCommands(mode); }
-		void setupNewLogModel () { m_lw.setupNewLogModel(); }
+		void handleCommand (DecodedCommand const & cmd, E_ReceiveMode mode) { m_lw->handleCommand(cmd, mode); }
+		void exportStorageToCSV (QString const & filename) { m_lw->exportStorageToCSV(filename); }
+		void commitCommands (E_ReceiveMode mode) { m_lw->commitCommands(mode); }
+		void setupNewLogModel () { m_lw->setupNewLogModel(); }
 
-		FindWidget * findWidget () { return m_lw.findWidget(); }
-		FindWidget const * findWidget () const { return m_lw.findWidget(); }
+		FindWidget * findWidget () { return m_lw->findWidget(); }
+		FindWidget const * findWidget () const { return m_lw->findWidget(); }
 
-		void setDockedWidget (DockedWidgetBase * dwb) { m_lw.setDockedWidget(dwb); }
+		void setDockedWidget (DockedWidgetBase * dwb) { m_lw->setDockedWidget(dwb); }
 
   public slots:
-		void onHideContextMenu () { m_lw.onHideContextMenu(); }
+		void onHideContextMenu () { m_lw->onHideContextMenu(); }
   };
 }
 
