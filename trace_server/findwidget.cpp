@@ -29,7 +29,7 @@ FindWidget::FindWidget (MainWindow * mw, QWidget * parent)
 	: QWidget(parent)
 	, m_ui(new Ui::FindWidget)
 	, m_main_window(mw)
-	, m_dwb(0)
+	, m_aa(0)
 	, m_moving_widget(true)
 {
 	hide();
@@ -40,7 +40,7 @@ FindWidget::FindWidget (QWidget * parent) // widget coming from Qt creator
 	: QWidget(parent)
 	, m_ui(new Ui::FindWidget)
 	, m_main_window(0)
-	, m_dwb(0)
+	, m_aa(0)
 	, m_moving_widget(false)
 {
 	init();
@@ -64,21 +64,14 @@ void FindWidget::applyConfig ()
 
 void FindWidget::onCancel ()
 {
-	if (isMovingFindWidget())
-	{
-		if (isVisible())
-		{
-			QObject * o = parent();
-			QWidget * w = qobject_cast<QWidget *>(o);
-			w->setFocus();
-			hide();
-			setParent(m_main_window);
-		}
-		move(0,0);
-	}
-	else
-	{
-	}
+  if (isVisible())
+  {
+    QObject * o = parent();
+    QWidget * w = qobject_cast<QWidget *>(o);
+    w->setFocus();
+    hide();
+  }
+  move(0,0);
 }
 
 void FindWidget::onActivate ()
@@ -97,6 +90,7 @@ void FindWidget::onEditTextChanged (QString str)
 
 void FindWidget::onReturnPressed ()
 {
+  onFindNext();
 	//@TODO
 	//m_config.saveHistory();
 }
@@ -154,8 +148,8 @@ void FindWidget::makeActionFind (QString const & str, Action & a)
 	a.m_type = e_Find;
 	//a.m_src_path = path();
 	//a.m_src = this;
-	if (m_dwb)
-		a.m_dst_path = m_dwb->path();
+	if (m_aa)
+		a.m_dst_path = m_aa->path();
 	QVariant fc;
 	fc.setValue(m_config);
 	a.m_args.push_back(fc);

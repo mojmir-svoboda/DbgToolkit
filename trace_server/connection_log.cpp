@@ -24,7 +24,6 @@ void DataLog::init (Connection * connection, QString const & confname, QStringLi
 	}
 	tab->layout()->addWidget(tableView);
 	m_widget = tableView;
-	tableView->findWidget()->setDockedWidget(this);
 }
 
 DataLog::DataLog (Connection * connection, QString const & confname, QStringList const & path)

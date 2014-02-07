@@ -65,8 +65,8 @@ namespace logs {
 		DecodedCommand const * getDecodedCommand (QModelIndex const & row_index);
 		DecodedCommand const * getDecodedCommand (int row);
 
-		FindWidget * findWidget () { return m_config_ui.m_ui->findWidget; }
-		FindWidget const * findWidget () const { return m_config_ui.m_ui->findWidget; }
+		//FindWidget * findWidget () { return m_config_ui.m_ui->findWidget; }
+		//FindWidget const * findWidget () const { return m_config_ui.m_ui->findWidget; }
 
 		void setDockedWidget (DockedWidgetBase * dwb) { m_dwb = dwb; }
 
@@ -180,7 +180,6 @@ namespace logs {
 	void nextToView ();
 	void onFindFileLine (QModelIndex const &);
 
-
 	FilterState & filterState () { return m_filter_state; }
 	FilterState const & filterState () const { return m_filter_state; }
 
@@ -202,6 +201,11 @@ namespace logs {
 		void onResetButton ();
 		void onDefaultButton ();
 		void onRefillFilters ();
+    void onFind ();
+    void onFindNext ();
+    void onFindPrev ();
+    void onFindAllRefs ();
+
 		//void scrollTo (QModelIndex const & index, ScrollHint hint);
 		
 		void performSynchronization (E_SyncMode mode, int sync_group, unsigned long long time, void * source);
@@ -297,6 +301,7 @@ namespace logs {
 		QItemSelectionModel * m_find_proxy_selection;
 		QItemSelectionModel * m_kfind_proxy_selection;
 		QStandardItemModel * m_color_regex_model;
+    FindWidget *		m_find_widget;
 
 		QModelIndex m_last_clicked;
 		QString m_csv_separator;
@@ -327,8 +332,8 @@ namespace logs {
 		void commitCommands (E_ReceiveMode mode) { m_lw->commitCommands(mode); }
 		void setupNewLogModel () { m_lw->setupNewLogModel(); }
 
-		FindWidget * findWidget () { return m_lw->findWidget(); }
-		FindWidget const * findWidget () const { return m_lw->findWidget(); }
+		//FindWidget * findWidget () { return m_lw->findWidget(); }
+		//FindWidget const * findWidget () const { return m_lw->findWidget(); }
 
 		void setDockedWidget (DockedWidgetBase * dwb) { m_lw->setDockedWidget(dwb); }
 

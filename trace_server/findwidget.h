@@ -26,7 +26,7 @@ public:
 	void setMainWindow (MainWindow * mw) { m_main_window = mw; }
 	void focusNext ();
 	void focusPrev ();
-	void setDockedWidget (DockedWidgetBase * dwb) { m_dwb = dwb; }
+	void setActionAbleWidget (ActionAble * aa) { m_aa = aa; }
 
 public slots:
 	void onCancel ();
@@ -58,7 +58,7 @@ private:
 	Ui::FindWidget *	m_ui;
 	MainWindow *		m_main_window;
 	FindConfig			m_config;
-	DockedWidgetBase *	m_dwb;
+	ActionAble *	    m_aa;
 	bool				m_moving_widget;
 };
 

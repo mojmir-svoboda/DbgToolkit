@@ -172,7 +172,7 @@ private slots:
 	void storePresetNames ();
 	void timerHit ();
 	void onQuit ();
-	void onFocusChanged (QWidget * old, QWidget * now);
+	//void onFocusChanged (QWidget * old, QWidget * now);
 	void onQuitReally ();
 	void openFiles (QStringList const & list);
 
@@ -185,11 +185,6 @@ private slots:
 	void closeEvent (QCloseEvent *event);
 	void iconActivated (QSystemTrayIcon::ActivationReason reason);
 
-	void handleFindVisibility();
-	void onFind ();
-	void onFindAllRefs ();
-	void onFindNext ();
-	void onFindPrev ();
 	//void onCopyToClipboard ();
 
 	// preset
@@ -223,7 +218,6 @@ private:
 	Ui::MainWindow * 	ui;
 	Ui::SettingsDialog * ui_settings;
 	QDialog *			m_settings_dialog;
-	FindWidget *		m_find_widget;
 
 	Ui::HelpDialog * 	m_help;
 	GlobalConfig 		m_config;

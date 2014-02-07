@@ -6,7 +6,7 @@ QWidget * getFocusedWidget ()
 	return qApp->focusWidget();
 }
 
-void MainWindow::handleFindVisibility()
+/*void MainWindow::handleFindVisibility()
 {
 	QWidget * w = getFocusedWidget();
 
@@ -36,8 +36,8 @@ void MainWindow::handleFindVisibility()
 	{
 		m_find_widget->onActivate();
 	}
-}
-
+}*/
+/*
 void MainWindow::onFind ()
 {
 	handleFindVisibility();
@@ -60,3 +60,5 @@ void MainWindow::onFindAllRefs ()
 	handleFindVisibility();
 	m_find_widget->onFindAllRefs();
 }
+
+*/

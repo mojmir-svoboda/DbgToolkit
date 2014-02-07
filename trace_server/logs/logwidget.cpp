@@ -12,6 +12,7 @@
 #include "warnimage.h"
 #include <QInputDialog>
 #include <QFontDialog>
+#include <QShortcut>
 
 namespace logs {
 	LogWidgetWithButtons::LogWidgetWithButtons (Connection * conn, QWidget * wparent, LogConfig & cfg, QString const & fname, QStringList const & path)
@@ -90,6 +91,7 @@ namespace logs {
 		, m_find_proxy_selection(0)
 		, m_kfind_proxy_selection(0)
 		, m_color_regex_model(0)
+		, m_find_widget(0)
 		, m_last_clicked()
 		, m_csv_separator()
 		, m_file_csv_stream(0)
@@ -141,6 +143,9 @@ namespace logs {
 		setItemDelegate(new LogDelegate(*this, m_connection->appData(), this));
 		
 		m_warnimage = new WarnImage(this);
+		m_find_widget = new FindWidget(m_connection->getMainWindow(), this);
+		m_find_widget->setParent(this);
+		m_find_widget->setActionAbleWidget(this);
 	}
 
 	void LogWidget::fillButtonCache ()
@@ -984,6 +989,52 @@ void LogWidget::keyPressEvent (QKeyEvent * e)
 			onExcludeFileLine();
 		}
 
+		if (e->key() == Qt::Key_Escape)
+		{
+			if (m_find_widget && m_find_widget->isVisible())
+			{
+				m_find_widget->onCancel();
+				e->accept();
+			}
+		}
+
+		if (e->matches(QKeySequence::Find))
+		{
+			onFind();
+			e->accept();
+		}
+		if (!ctrl && !shift && !alt && e->key() == Qt::Key_Slash)
+		{
+			onFind();
+			e->accept();
+		}
+		if (ctrl && shift && e->key() == Qt::Key_F)
+		{
+			onFindAllRefs();
+			e->accept();
+		}
+
+		if (e->matches(QKeySequence::FindNext))
+		{
+			onFindNext();
+			e->accept();
+		}
+		if (e->matches(QKeySequence::FindPrevious))
+		{
+			onFindPrev();
+			e->accept();
+		}
+		if (e->key() == Qt::Key_Tab && m_find_widget && m_find_widget->isVisible())
+		{
+			m_find_widget->focusNext();
+			e->accept();
+		}
+
+		if (e->key() == Qt::Key_Backtab && m_find_widget && m_find_widget->isVisible())
+		{
+			m_find_widget->focusPrev();
+			e->accept();
+		}
 	}
 	QTableView::keyPressEvent(e);
 }

@@ -56,7 +56,6 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QStri
 	, m_tray_menu(0)
 	, m_tray_icon(0)
 	, m_settings_dialog(0)
-	, m_find_widget(0)
 	, m_dock_mgr(this, QStringList(QString("trace_server")))
 	, m_docked_name(g_traceServerName)
 	, m_log_name(log_name)
@@ -151,7 +150,7 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QStri
 	connect(ui->presetSaveButton, SIGNAL(clicked()), this, SLOT(onSaveCurrentState()));
 	connect(ui->presetResetButton, SIGNAL(clicked()), this, SLOT(onClearCurrentState()));
 
-	connect(qApp, SIGNAL(void focusChanged(QWidget *, QWidget *)), this, SLOT(void onFocusChanged(QWidget *, QWidget *)));
+	//connect(qApp, SIGNAL(void focusChanged(QWidget *, QWidget *)), this, SLOT(void onFocusChanged(QWidget *, QWidget *)));
 
 	/// status bar
 	m_status_label = new QLabel(m_server->getStatus());
@@ -161,19 +160,16 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QStri
 	statusBar()->addPermanentWidget(version_label);
 	statusBar()->addWidget(m_status_label);
 
-	/// find
-	m_find_widget = new FindWidget(this, this);
-
 	QTimer::singleShot(0, this, SLOT(loadState()));	// trigger lazy load of settings
 	setWindowTitle(g_traceServerName);
 	setObjectName(g_traceServerName);
 }
 
-void MainWindow::onFocusChanged (QWidget * old, QWidget * now)
+/*void MainWindow::onFocusChanged (QWidget * old, QWidget * now)
 {
 	//m_find_widget->onFocusChanged(old, now);
 	handleFindVisibility();
-}
+}*/
 
 MainWindow::~MainWindow()
 {
@@ -497,13 +493,14 @@ void MainWindow::setupMenuBar ()
 
 	// Edit
 	QMenu * editMenu = menuBar()->addMenu(tr("&Edit"));
+/*
 	editMenu->addAction(tr("Find"), this, SLOT(onFind()), QKeySequence::Find);
 	//editMenu->addAction(tr("Find"), this, SLOT(onFind()),	Qt::ControlModifier + Qt::Key_F);
 	editMenu->addAction(tr("Find"), this, SLOT(onFindAllRefs()), Qt::ControlModifier + Qt::ShiftModifier + Qt::Key_F);
 	editMenu->addAction(tr("Find Next"), this, SLOT(onFindNext()), QKeySequence::FindNext);
 	editMenu->addAction(tr("Find Prev"), this, SLOT(onFindPrev()), QKeySequence::FindPrevious);
 	new QShortcut(QKeySequence(Qt::Key_Slash), this, SLOT(onFind()));
-
+*/
 	//editMenu->addAction(tr("Find and Select All"), this, SLOT(onFindAllButton()));
 	editMenu->addAction(tr("Goto Next Tag or Selection"), this, SLOT(onNextToView()));
 
@@ -671,7 +668,7 @@ bool MainWindow::eventFilter (QObject * target, QEvent * e)
 
 bool MainWindow::handleTab (QKeyEvent * e)
 {
-	if (e->key() == Qt::Key_Tab && m_find_widget && m_find_widget->isVisible())
+	/*if (e->key() == Qt::Key_Tab && m_find_widget && m_find_widget->isVisible())
 	{
 		m_find_widget->focusNext();
 		e->accept();
@@ -683,7 +680,7 @@ bool MainWindow::handleTab (QKeyEvent * e)
 		m_find_widget->focusPrev();
 		e->accept();
 		return true;
-	}
+	}*/
 
 	return false;
 }
@@ -696,7 +693,7 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
 		{
 			e->accept();
 		}
-		else*/
+		else
 		if (e->key() == Qt::Key_Escape)
 		{
 			if (m_find_widget && m_find_widget->isVisible())
@@ -704,7 +701,7 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
 				m_find_widget->onCancel();
 				e->accept();
 			}
-		}
+		}*/
 	}
 	QMainWindow::keyPressEvent(e);
 }

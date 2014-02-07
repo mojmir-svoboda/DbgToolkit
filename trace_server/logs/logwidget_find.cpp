@@ -9,6 +9,36 @@
 
 namespace logs {
 
+void LogWidget::onFind ()
+{
+  //m_find_widget->onCancel();
+  //w->setFocusProxy(m_find_widget);
+  //m_find_widget->setFocusProxy(w); // dunno what the proxies are for
+  //mk_action configure find widget
+  FindConfig & cfg = m_config.m_find_config;
+  m_find_widget->applyConfig(cfg);
+
+  m_find_widget->onActivate();
+
+  //setFocusProxy(m_find_widget);
+  m_find_widget->setFocusProxy(this); // dunno what the proxies are for
+}
+
+void LogWidget::onFindNext ()
+{
+	m_find_widget->onFindNext();
+}
+
+void LogWidget::onFindPrev ()
+{
+	m_find_widget->onFindPrev();
+}
+
+void LogWidget::onFindAllRefs ()
+{
+	m_find_widget->onFindAllRefs();
+}
+
 void LogWidget::findInWholeTable (FindConfig const & fc, QModelIndexList & result)
 {
 	for (int i = 0, ie = model()->rowCount(); i < ie; ++i)
