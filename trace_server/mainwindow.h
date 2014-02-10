@@ -73,11 +73,6 @@ public:
 	}
 
 
-/*
- *
-*/
-
-
 	// presets
 	int findRegistryPresetName (QString const & name);
 	int addRegistryPresetName (QString const & name);
@@ -95,7 +90,6 @@ public:
 	void mentionInPresetHistory (QString const & str);
 	void mentionInMultiTabPresetHistory (QString const & str);
 
-
 	QTreeView const * getDockedWidgetsTreeView () const;
 
 	// global config
@@ -107,13 +101,12 @@ public:
 
 	// per connection config
 	int getLevel () const; // @TODO: per connection
-	bool buffEnabled () const; 
+	bool buffEnabled () const;
 	Qt::CheckState buffState () const;
 	float getTimeUnits () const { return m_time_units; }
-	int plotState () const;	// @TODO: should be per connection
+	int plotState () const; // @TODO: should be per connection
 	int tableState () const;
 	int ganttState () const;
-
 
 	// log widget
 	bool dtEnabled () const;

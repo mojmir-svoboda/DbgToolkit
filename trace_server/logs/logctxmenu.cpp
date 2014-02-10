@@ -14,7 +14,7 @@ namespace logs {
 		void fillComboBoxWithTags (QComboBox * cbx)
 		{
 			cbx->addItem(tlv::get_tag_name(tlv::tag_ctime));
-      cbx->addItem(tlv::get_tag_name(tlv::tag_stime));
+			cbx->addItem(tlv::get_tag_name(tlv::tag_stime));
 			cbx->addItem(tlv::get_tag_name(tlv::tag_tid));
 			cbx->addItem(tlv::get_tag_name(tlv::tag_file));
 			cbx->addItem(tlv::get_tag_name(tlv::tag_line));
@@ -77,12 +77,12 @@ LogCtxMenu::LogCtxMenu (LogWidget & lw, QWidget * parent)
 	m_widget->setWindowTitle(name);
 	m_widget->setAllowedAreas(Qt::AllDockWidgetAreas);
 	m_log_widget.m_connection->getMainWindow()->addDockWidget(Qt::RightDockWidgetArea, m_widget);
-  m_widget->setFloating(true);
+	m_widget->setFloating(true);
 
 	//m_actionables.insert(name, this);
 	m_widget->setAttribute(Qt::WA_DeleteOnClose, false);
 	m_widget->setVisible(false);
-	
+
 	prepareSettingsWidgets();
 }
 
@@ -248,7 +248,7 @@ void LogCtxMenu::setConfigValuesToUI (LogConfig const & cfg)
 		cel_root->appendRow(addUncheckableRow(tr("%1").arg(cfg.m_columns_elide.at(li))));
 	}
 
-  //@FIXME TODO: for fucks sake...
+	//@FIXME TODO: for fucks sake...
 	//size_t const n = tlv::get_tag_count() - 1; // -1 is for the tag Bool
 	size_t const n = tlv::tag_bool;
 

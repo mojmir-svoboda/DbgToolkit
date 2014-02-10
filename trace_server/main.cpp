@@ -19,7 +19,7 @@
 #endif
 
 namespace sys {
-  hptimer_t g_Start = 0, g_Freq = 1000000;
+	hptimer_t g_Start = 0, g_Freq = 1000000;
 }
 
 FILE * g_LogRedirect = 0;
@@ -56,7 +56,7 @@ struct Application : QApplication, public QAbstractNativeEventFilter
 					m_main_window->onHotkeyShowOrHide();
 			return true;
 		}
-		return false;	
+		return false;
 	}
 #endif
 
@@ -99,9 +99,9 @@ void usage ()
 	printf("\n(f)Logging server, Copyright (C) 2011 Mojmir Svoboda\n");
 	printf("http://developer.berlios.de/projects/flogging\n\n");
 	printf("Available options:\n");
-	printf("	-q	  quit immeadiately if another instance running\n");
-	printf("	-n	  no visible window at start (can be activated by ScrollLock hotkey)\n");
-	printf("	-d	  dump mode (csv by default)\n");
+	printf("\t\t-q\t\tquit immeadiately if another instance running\n");
+	printf("\t\t-n\t\tno visible window at start (can be activated by ScrollLock hotkey)\n");
+	printf("\t\t-d\t\tdump mode (csv by default)\n");
 }
 
 void qDebugHandler (QtMsgType type, QMessageLogContext const & ctx, QString const & msg)
@@ -116,7 +116,7 @@ void qDebugHandler (QtMsgType type, QMessageLogContext const & ctx, QString cons
 	//@TODO: dump context info
 	switch (type)
 	{
-		case QtDebugMsg:	
+		case QtDebugMsg:
 			fprintf(g_LogRedirect, "%s|I|%x|%s\n", t, sys::get_tid(), msg.toLatin1().data());
 			break;
 		case QtWarningMsg:
@@ -134,7 +134,7 @@ void qDebugHandler (QtMsgType type, QMessageLogContext const & ctx, QString cons
 
 int main (int argc, char * argv[])
 {
-    sys::setTimeStart();
+	sys::setTimeStart();
 	QString const log_name = QString("%1.%2").arg(argv[0]).arg("log");
 	g_LogRedirect = fopen(log_name.toLatin1(), "a");
 	bool quit_delay = true;

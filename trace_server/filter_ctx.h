@@ -91,9 +91,9 @@ signals:
 struct CtxDelegate : public QStyledItemDelegate
 {
 	AppData const * m_app_data;
-    CtxDelegate (QObject * parent = 0) : QStyledItemDelegate(parent), m_app_data(0) { }
-    ~CtxDelegate ();
-    void paint (QPainter * painter, QStyleOptionViewItem const & option, QModelIndex const & index) const;
+	CtxDelegate (QObject * parent = 0) : QStyledItemDelegate(parent), m_app_data(0) { }
+	~CtxDelegate ();
+	void paint (QPainter * painter, QStyleOptionViewItem const & option, QModelIndex const & index) const;
 
 	void setAppData (AppData const * appdata) { m_app_data = appdata; }
 };

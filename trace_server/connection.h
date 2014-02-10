@@ -63,11 +63,11 @@ char const * const g_fileTags[] = { g_LogTag, g_PlotTag, g_TableTag, g_GanttTag,
 char const * const g_fileNames[] = { g_LogFile, g_PlotFile, g_TableFile, g_GanttFile, g_FrameFile };
 
 typedef boost::mpl::vector<
-		boost::mpl::pair<  logs::LogWidgetWithButtons,    logs::LogConfig   >,
-		boost::mpl::pair<  plot::PlotWidget,   plot::PlotConfig  >,
-		boost::mpl::pair< table::TableWidget, table::TableConfig >,
-		boost::mpl::pair< gantt::GanttWidget, gantt::GanttConfig >,
-		boost::mpl::pair< FrameView,   FrameViewConfig >
+		boost::mpl::pair<	logs::LogWidgetWithButtons,		logs::LogConfig			>,
+		boost::mpl::pair<	plot::PlotWidget,				plot::PlotConfig		>,
+		boost::mpl::pair<	table::TableWidget,				table::TableConfig		>,
+		boost::mpl::pair<	gantt::GanttWidget,				gantt::GanttConfig		>,
+		boost::mpl::pair<	FrameView,						FrameViewConfig			>
 	>::type datawidgetcfgs_t;
 
 template <int N, typename SeqT>
@@ -117,22 +117,22 @@ struct DockedData : DockedWidgetBase
 	~DockedData ()
 	{
 		qDebug("%s this=0x%08x", __FUNCTION__, this);
-    if (m_widget)
-    {
-      m_widget->setParent(0);
-    }
-    if (m_wd)
-    {
-        m_parent->getMainWindow()->removeDockWidget(m_wd);
-        m_wd->setWidget(0);
-        delete m_wd;
-        m_wd = 0;
-    }
-    if (m_widget)
-    {
-      delete m_widget;
-      m_widget = 0;
-    }
+		if (m_widget)
+		{
+			m_widget->setParent(0);
+		}
+		if (m_wd)
+		{
+			m_parent->getMainWindow()->removeDockWidget(m_wd);
+			m_wd->setWidget(0);
+			delete m_wd;
+			m_wd = 0;
+		}
+		if (m_widget)
+		{
+			delete m_widget;
+			m_widget = 0;
+		}
 	}
 
 	virtual QWidget * dockedWidget () { return m_widget; }
@@ -221,7 +221,7 @@ struct SelectDockedData
 { };
 
 template <int TypeN>
-struct DataMap 
+struct DataMap
 	: QMap<QString, typename SelectDockedData<TypeN, dockeddataptr_t>::type >
 	, ActionAble
 {
@@ -342,7 +342,7 @@ public slots:
 	void onShowLogs ();
 	void onHideLogs ();
 
-  void exportStorageToCSV (QString const & filename);
+	void exportStorageToCSV (QString const & filename);
 
 	void setWidgetToTabWidget (QWidget * w);	// it means to "central widget"
 	void unsetWidgetFromTabWidget (QWidget * & w);

@@ -83,13 +83,11 @@ void FilterCtx::applyConfig ()
 	m_ui->view->sortByColumn(0, Qt::AscendingOrder);
 }
 
-
 void FilterCtx::clear ()
 {
 	m_data.clear();
 	// @TODO m_ctx_model.clear();
 }
-
 
 ///////// ctx filters
 void FilterCtx::setupModel ()
@@ -227,9 +225,9 @@ CtxDelegate::~CtxDelegate ()
 }
 void CtxDelegate::paint (QPainter * painter, QStyleOptionViewItem const & option, QModelIndex const & index) const
 {
-    painter->save();
-    QStyleOptionViewItemV4 option4 = option;
-    initStyleOption(&option4, index);
+	painter->save();
+	QStyleOptionViewItemV4 option4 = option;
+	initStyleOption(&option4, index);
 
 	if (m_app_data && m_app_data->getDictCtx().m_names.size())
 	{

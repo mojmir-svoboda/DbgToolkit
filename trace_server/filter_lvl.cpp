@@ -242,9 +242,6 @@ void FilterLvl::locateItem (QString const & item, bool scrollto, bool expand)
 }
 
 
-
-	
-
 //////// delegate
 // @TODO: tmp, via dictionnary in future
 #include <trace_client/default_levels.h>
@@ -256,9 +253,9 @@ namespace trace {
 void LevelDelegate::paint (QPainter * painter, QStyleOptionViewItem const & option, QModelIndex const & index) const
 {
 	//if (m_app_data && m_app_data->getDictCtx().m_names.size())
-    painter->save();
-    QStyleOptionViewItemV4 option4 = option;
-    initStyleOption(&option4, index);
+	painter->save();
+	QStyleOptionViewItemV4 option4 = option;
+	initStyleOption(&option4, index);
 
 	if (index.column() == 0)
 	{

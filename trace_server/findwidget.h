@@ -13,7 +13,7 @@ namespace Ui {
 class FindWidget : public QWidget
 {
 	Q_OBJECT
-	
+
 public:
 	explicit FindWidget (MainWindow * mw, QWidget * parent = 0);
 	FindWidget (QWidget * parent = 0);
@@ -40,7 +40,7 @@ public slots:
 	void onFindPrev ();
 	void onActivate ();
 	void onResetRegexpState ();
-	
+
 protected:
 	void init ();
 	void find ();
@@ -58,7 +58,7 @@ private:
 	Ui::FindWidget *	m_ui;
 	MainWindow *		m_main_window;
 	FindConfig			m_config;
-	ActionAble *	    m_aa;
+	ActionAble *		m_aa;
 	bool				m_moving_widget;
 };
 

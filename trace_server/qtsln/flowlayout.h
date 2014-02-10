@@ -11,15 +11,15 @@
 ** "Redistribution and use in source and binary forms, with or without
 ** modification, are permitted provided that the following conditions are
 ** met:
-**   * Redistributions of source code must retain the above copyright
-**     notice, this list of conditions and the following disclaimer.
-**   * Redistributions in binary form must reproduce the above copyright
-**     notice, this list of conditions and the following disclaimer in
-**     the documentation and/or other materials provided with the
-**     distribution.
-**   * Neither the name of Digia Plc and its Subsidiary(-ies) nor the names
-**     of its contributors may be used to endorse or promote products derived
-**     from this software without specific prior written permission.
+**	 * Redistributions of source code must retain the above copyright
+**	   notice, this list of conditions and the following disclaimer.
+**	 * Redistributions in binary form must reproduce the above copyright
+**	   notice, this list of conditions and the following disclaimer in
+**	   the documentation and/or other materials provided with the
+**	   distribution.
+**	 * Neither the name of Digia Plc and its Subsidiary(-ies) nor the names
+**	   of its contributors may be used to endorse or promote products derived
+**	   from this software without specific prior written permission.
 **
 **
 ** THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
@@ -48,30 +48,30 @@
 class FlowLayout : public QLayout
 {
 public:
-    explicit FlowLayout(QWidget *parent, int margin = -1, int hSpacing = -1, int vSpacing = -1);
-    explicit FlowLayout(int margin = -1, int hSpacing = -1, int vSpacing = -1);
-    ~FlowLayout ();
+	explicit FlowLayout(QWidget *parent, int margin = -1, int hSpacing = -1, int vSpacing = -1);
+	explicit FlowLayout(int margin = -1, int hSpacing = -1, int vSpacing = -1);
+	~FlowLayout ();
 
-    void addItem (QLayoutItem *item);
-    int horizontalSpacing() const;
-    int verticalSpacing() const;
-    Qt::Orientations expandingDirections() const;
-    bool hasHeightForWidth() const;
-    int heightForWidth(int) const;
-    int count() const;
-    QLayoutItem *itemAt(int index) const;
-    QSize minimumSize() const;
-    void setGeometry(const QRect &rect);
-    QSize sizeHint() const;
-    QLayoutItem *takeAt(int index);
+	void addItem (QLayoutItem *item);
+	int horizontalSpacing() const;
+	int verticalSpacing() const;
+	Qt::Orientations expandingDirections() const;
+	bool hasHeightForWidth() const;
+	int heightForWidth(int) const;
+	int count() const;
+	QLayoutItem *itemAt(int index) const;
+	QSize minimumSize() const;
+	void setGeometry(const QRect &rect);
+	QSize sizeHint() const;
+	QLayoutItem *takeAt(int index);
 
 private:
-    int doLayout(const QRect &rect, bool testOnly) const;
-    int smartSpacing(QStyle::PixelMetric pm) const;
+	int doLayout(const QRect &rect, bool testOnly) const;
+	int smartSpacing(QStyle::PixelMetric pm) const;
 
-    QList<QLayoutItem *> itemList;
-    int m_hSpace;
-    int m_vSpace;
+	QList<QLayoutItem *> itemList;
+	int m_hSpace;
+	int m_vSpace;
 };
 //! [0]
 

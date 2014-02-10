@@ -8,36 +8,27 @@
 #include "mainwindow.h"
 #include "connection.h"
 #include <QStyledItemDelegate>
-// serialization stuff
-#include <boost/serialization/type_info_implementation.hpp>
-#include <boost/archive/xml_iarchive.hpp>
-#include <boost/archive/xml_oarchive.hpp>
-#include <boost/serialization/utility.hpp>
-#include <boost/serialization/serialization.hpp>
-#include <boost/serialization/vector.hpp>
 #include <serialize/ser_qt.h>
 #include <fstream>
 #include "serialize.h"
 
-
-
-    DockedTreeDelegate::DockedTreeDelegate (QObject * parent, QPixmap const & icon)
-        : QStyledItemDelegate(parent)
-        , m_icon(icon)
-    {
-        if (m_icon.isNull())
-        {
-            m_icon = qApp->style()->standardPixmap(QStyle::SP_DialogCloseButton);
-        }
-    }
-
-    QPoint DockedTreeDelegate::calcIconPos (QStyleOptionViewItem const & option) const
+	DockedTreeDelegate::DockedTreeDelegate (QObject * parent, QPixmap const & icon)
+		: QStyledItemDelegate(parent)
+		, m_icon(icon)
 	{
-        return QPoint(option.rect.right() - m_icon.width() - margin,
-                      option.rect.center().y() - m_icon.height()/2);
-    }
+		if (m_icon.isNull())
+		{
+			m_icon = qApp->style()->standardPixmap(QStyle::SP_DialogCloseButton);
+		}
+	}
 
-    void DockedTreeDelegate::paint (QPainter * painter, QStyleOptionViewItem const & option, QModelIndex const & index) const
+	QPoint DockedTreeDelegate::calcIconPos (QStyleOptionViewItem const & option) const
+	{
+		return QPoint(option.rect.right() - m_icon.width() - margin,
+					  option.rect.center().y() - m_icon.height()/2);
+	}
+
+	void DockedTreeDelegate::paint (QPainter * painter, QStyleOptionViewItem const & option, QModelIndex const & index) const
 	{
 		TreeView * t = static_cast<TreeView *>(parent());
 		DockTreeModel * m = static_cast<DockTreeModel *>(t->model());
@@ -50,43 +41,43 @@
 			if (m->data(index, Qt::DisplayRole).toBool())
 				painter->drawPixmap(calcIconPos(option), m_icon);
 		}
-        QStyledItemDelegate::paint(painter, option, index);
-        // Only display the close icon for top level items...
-        //if(!index.parent().isValid()
-                // ...and when the mouse is hovering the item
-                // (mouseTracking must be enabled on the view)
-                //&& (option.state & QStyle::State_MouseOver))
+		QStyledItemDelegate::paint(painter, option, index);
+		// Only display the close icon for top level items...
+		//if(!index.parent().isValid()
+				// ...and when the mouse is hovering the item
+				// (mouseTracking must be enabled on the view)
+				//&& (option.state & QStyle::State_MouseOver))
 				//)
-    }
+	}
 
-    QSize DockedTreeDelegate::sizeHint (QStyleOptionViewItem const & option, QModelIndex const & index) const
-    {
-        QSize size = QStyledItemDelegate::sizeHint(option, index);
+	QSize DockedTreeDelegate::sizeHint (QStyleOptionViewItem const & option, QModelIndex const & index) const
+	{
+		QSize size = QStyledItemDelegate::sizeHint(option, index);
 
-        // Make some room for the close icon
-        if (!index.parent().isValid()) {
-            size.rwidth() += m_icon.width() + margin * 2;
-            size.setHeight(qMax(size.height(), m_icon.height() + margin * 2));
-        }
-        return size;
-    }
+		// Make some room for the close icon
+		if (!index.parent().isValid()) {
+			size.rwidth() += m_icon.width() + margin * 2;
+			size.setHeight(qMax(size.height(), m_icon.height() + margin * 2));
+		}
+		return size;
+	}
 
-    bool DockedTreeDelegate::editorEvent (QEvent * event, QAbstractItemModel * model, QStyleOptionViewItem const & option, QModelIndex const & index)
-    {
-        // Emit a signal when the icon is clicked
-        if (!index.parent().isValid() && event->type() == QEvent::MouseButtonRelease)
+	bool DockedTreeDelegate::editorEvent (QEvent * event, QAbstractItemModel * model, QStyleOptionViewItem const & option, QModelIndex const & index)
+	{
+		// Emit a signal when the icon is clicked
+		if (!index.parent().isValid() && event->type() == QEvent::MouseButtonRelease)
 		{
-            QMouseEvent const * mouseEvent = static_cast<QMouseEvent const *>(event);
-            QRect const closeButtonRect = m_icon.rect().translated(calcIconPos(option));
-            if (closeButtonRect.contains(mouseEvent->pos()))
-            {
-                emit closeIndexClicked(index);
-            }
-        }
-        return false;
-    }
+			QMouseEvent const * mouseEvent = static_cast<QMouseEvent const *>(event);
+			QRect const closeButtonRect = m_icon.rect().translated(calcIconPos(option));
+			if (closeButtonRect.contains(mouseEvent->pos()))
+			{
+				emit closeIndexClicked(index);
+			}
+		}
+		return false;
+	}
 
-	
+
 	DockTreeView::DockTreeView (QWidget * parent)
 		: TreeView(parent)
 	{
@@ -153,7 +144,7 @@
 	}
 
 
-
+///////////////////////////////////////////////////////////////////////////////
 DockWidget::DockWidget (DockManager & mgr, QString const & name, QMainWindow * const window)
 	: QDockWidget(name, window)
 	, m_mgr(mgr)
@@ -161,7 +152,7 @@ DockWidget::DockWidget (DockManager & mgr, QString const & name, QMainWindow * c
 
 void DockWidget::closeEvent (QCloseEvent * event)
 {
-    qDebug("%s", __FUNCTION__);
+	qDebug("%s", __FUNCTION__);
 	static_cast<QMainWindow *>(parent())->removeDockWidget(this);
 	setWidget(0);
 	m_mgr.onWidgetClosed(this);
@@ -177,7 +168,7 @@ DockManager::DockManager (MainWindow * mw, QStringList const & path)
 	, m_config(g_traceServerName)
 	, m_config2(g_traceServerName)
 {
-    qDebug("%s", __FUNCTION__);
+	qDebug("%s", __FUNCTION__);
 	m_docked_widgets_data = new data_filters_t();
 	m_docked_widgets_model = new DockTreeModel(this, m_docked_widgets_data);
 	setModel(m_docked_widgets_model);
@@ -210,7 +201,7 @@ DockManager::DockManager (MainWindow * mw, QStringList const & path)
 	dock->setAttribute(Qt::WA_DeleteOnClose, false);
 	dock->setWidget(this);
 
-	//if (visible) 
+	//if (visible)
 	//	m_main_window->restoreDockWidget(dock);
 	m_docked_widgets = dock;
 
@@ -250,7 +241,6 @@ void DockManager::saveConfig (QString const & path)
 	::saveConfigTemplate(m_config, fpath);
 }
 
-
 DockManager::~DockManager ()
 {
 	disconnect(this, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtDockedWidgets(QModelIndex)));
@@ -263,7 +253,7 @@ DockWidget * DockManager::mkDockWidget (DockedWidgetBase & dwb, bool visible)
 
 DockWidget * DockManager::mkDockWidget (ActionAble & aa, bool visible, Qt::DockWidgetArea area)
 {
-    qDebug("%s", __FUNCTION__);
+	qDebug("%s", __FUNCTION__);
 	Q_ASSERT(aa.path().size() > 0);
 
 	QString const name = aa.path().join("/");
@@ -276,7 +266,7 @@ DockWidget * DockManager::mkDockWidget (ActionAble & aa, bool visible, Qt::DockW
 	m_widgets.insert(name, dock);
 	dock->setAttribute(Qt::WA_DeleteOnClose, false);
 
-	if (visible) 
+	if (visible)
 		m_main_window->restoreDockWidget(dock);
 	return dock;
 }
@@ -292,7 +282,6 @@ QModelIndex DockManager::addDockedTreeItem (DockedWidgetBase & dwb, bool on)
 	m_dockables.insert(dwb.joinedPath(), &dwb);
 	return addActionTreeItem(dwb, on);
 }
-
 
 QModelIndex DockManager::addActionTreeItem (ActionAble & aa, bool on)
 {
@@ -338,7 +327,7 @@ DockedWidgetBase * DockManager::findDockableForWidget (QWidget * w)
 
 void DockManager::removeDockable (QString const & dst_joined)
 {
-    qDebug("%s", __FUNCTION__);
+	qDebug("%s", __FUNCTION__);
 	dockables_t::iterator it = m_dockables.find(dst_joined);
 	if (it != m_dockables.end() && it.key() == dst_joined)
 		m_dockables.erase(it);
@@ -346,7 +335,7 @@ void DockManager::removeDockable (QString const & dst_joined)
 
 void DockManager::removeActionAble (QString const & dst_joined)
 {
-    qDebug("%s", __FUNCTION__);
+	qDebug("%s", __FUNCTION__);
 	actionables_t::iterator it = m_actionables.find(dst_joined);
 	if (it != m_actionables.end() && it.key() == dst_joined)
 		m_actionables.erase(it);
@@ -419,7 +408,6 @@ bool DockManager::handleAction (Action * a, E_ActionHandleType sync)
 			qWarning("DockManager::handleAction hmm? what?");
 		}
 	}
-
 	return false;
 }
 

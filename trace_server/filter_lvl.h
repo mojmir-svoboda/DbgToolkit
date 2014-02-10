@@ -90,7 +90,7 @@ signals:
 
 struct LevelDelegate : public QStyledItemDelegate
 {
-    LevelDelegate (QObject * parent = 0) : QStyledItemDelegate(parent) { }
-    void paint (QPainter * painter, QStyleOptionViewItem const & option, QModelIndex const & index) const;
+	LevelDelegate (QObject * parent = 0) : QStyledItemDelegate(parent) { }
+	void paint (QPainter * painter, QStyleOptionViewItem const & option, QModelIndex const & index) const;
 };
 

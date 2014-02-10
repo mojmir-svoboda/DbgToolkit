@@ -192,7 +192,6 @@ bool FilterRow::setRowMode (int item, bool enabled, E_RowMode rowmode)
 			return true;
 		}
 	return false;
-
 }
 
 template <typename T, typename U>
@@ -273,8 +272,4 @@ void FilterRow::locateItem (QString const & item, bool scrollto, bool expand)
 		getWidget()->setCurrentIndex(selectedIndex);
 	}*/
 }
-
-
-
-	
 
