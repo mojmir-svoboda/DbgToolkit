@@ -78,14 +78,14 @@ struct Application : QApplication, public QAbstractNativeEventFilter
 		}
 		catch (std::exception const & ex)
 		{
-			qFatal("Error %s sending event %s to object %s (%s)", 
+			qFatal("Error %s sending event %s to object %s (%s)",
 				ex.what(), typeid(*e).name(), qPrintable(receiver->objectName()),
 				typeid(*receiver).name());
 			return true;
 		}
 		catch (...)
 		{
-			qFatal("Error <unknown> sending event %s to object %s (%s)", 
+			qFatal("Error <unknown> sending event %s to object %s (%s)",
 				typeid(*e).name(), qPrintable(receiver->objectName()),
 				typeid(*receiver).name());
 			return true;

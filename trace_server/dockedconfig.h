@@ -11,10 +11,10 @@ struct DockedConfigBase {
 	int		m_sync_group;
 	int		m_level;
 	float	m_time_units;
-    QString m_time_units_str;
+	QString m_time_units_str;
 	FindConfig m_find_config;
 
-	DockedConfigBase () 
+	DockedConfigBase ()
 		: m_auto_scroll(false)
 		, m_show(true)
 		, m_central_widget(false)

@@ -39,9 +39,7 @@ namespace logs {
 				{
 					QAbstractItemModel const * model = m_log_widget.model();
 					
-					tlv::tag_t const tag = tlv::tag_max_value + 1;
-					// @TODO: register dynamic tag properly
-					int const col_idx = const_cast<logs::LogWidget &>(m_log_widget).findColumn4Tag(tag); // ehm
+					int const col_idx = const_cast<logs::LogWidget &>(m_log_widget).findColumn4Tag(tlv::tag_dt);
 					
 					if (col_idx >= 0)
 					{
@@ -137,30 +135,19 @@ namespace logs {
 		QStyleOptionViewItemV4 option4 = option;
 		initStyleOption(&option4, index);
 
-		// TODO: nonexistent item !!!!!!!!!!!!!!!!!
-		
 		QVector<QString> const & column_aligns = m_log_widget.getConfig().m_columns_align;
-		E_Align const align = stringToAlign(column_aligns[index.column()].at(0).toLatin1());
-		option4.displayAlignment = static_cast<Qt::Alignment>(1 << align);
+		if (index.column() < column_aligns.size())
+		{
+			E_Align const align = stringToAlign(column_aligns[index.column()].at(0).toLatin1());
+			option4.displayAlignment = static_cast<Qt::Alignment>(1 << align);
+		}
 
 		QVector<QString> const & column_elides = m_log_widget.getConfig().m_columns_elide;
-		E_Elide const elide = stringToElide(column_elides[index.column()].at(0).toLatin1());
-		option4.textElideMode = static_cast<Qt::TextElideMode>(elide);
-
-/*		{	// color tagged line?
-			int row = index.row();
-			if (m_log_widget.isModelProxy())
-				if (FilterProxyModel const * proxy = m_log_widget.logProxy())
-				{
-					QModelIndex const curr = proxy->mapToSource(index);
-					row = curr.row();
-				}
-
-			if (m_log_widget.findColorTagRow(row))
-			{
-				painter->fillRect(option.rect, QColor(202, 225, 255));
-			}	
-		}*/
+		if (index.column() < column_elides.size())
+		{
+			E_Elide const elide = stringToElide(column_elides[index.column()].at(0).toLatin1());
+			option4.textElideMode = static_cast<Qt::TextElideMode>(elide);
+		}
 
 		LogWidget & lw = const_cast<LogWidget &>(m_log_widget); // hm
 
@@ -182,10 +169,10 @@ namespace logs {
 		{
 			paintTime(painter, option4, index);
 		}
-    else if (index.column() == lw.findColumn4Tag(tlv::tag_stime))
-    {
-      paintTime(painter, option4, index);
-    }
+		else if (index.column() == lw.findColumn4Tag(tlv::tag_stime))
+		{
+			paintTime(painter, option4, index);
+		}
 		else
 		{
 			QStyledItemDelegate::paint(painter, option4, index);

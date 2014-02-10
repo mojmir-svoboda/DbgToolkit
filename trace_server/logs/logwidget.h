@@ -87,7 +87,6 @@ namespace logs {
 		int sizeHintForColumn (int column) const;
 		void defaultConfigFor (logs::LogConfig & config); // loads legacy registry defaults
 		void reconfigureConfig (logs::LogConfig & cfg);
-		bool convertBloodyBollockyBuggeryRegistry (logs::LogConfig & cfg);
 		void normalizeConfig (logs::LogConfig & normalized);
 		void swapSectionsAccordingTo (logs::LogConfig const & cfg);
 		void resizeSections ();

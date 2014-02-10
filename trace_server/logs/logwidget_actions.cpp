@@ -275,7 +275,10 @@ void LogWidget::onUncolorRow ()
 
 void LogWidget::onChangeTimeUnits ()
 {
-
+	QString const & curr = m_timeComboBox->comboBox()->currentText();
+	float const t = stringToUnitsValue(curr);
+	m_config.m_time_units_str = curr;
+	m_config.m_time_units = t;
 }
 
 void LogWidget::onSetRefTime ()
