@@ -86,6 +86,7 @@ struct ColorizerRow : FilterBase
 	QTreeView * getWidget () { return m_ui->view; }
 	QTreeView const * getWidget () const { return m_ui->view; }
 	void onColorRowChanged (int role);
+	bool isRowColored (int row) const;
 
 	void actionColorRow (DecodedCommand const & cmd, ColorizedRow const & ct) const;
 	void actionUncolorRow (DecodedCommand const & cmd, ColorizedRow const & ct) const;
@@ -119,8 +120,8 @@ signals:
 
 struct ColorizerRowDelegate : public QStyledItemDelegate
 {
-    ColorizerRowDelegate (QObject * parent = 0) : QStyledItemDelegate(parent) { }
-    ~ColorizerRowDelegate ();
-    void paint (QPainter * painter, QStyleOptionViewItem const & option, QModelIndex const & index) const;
+	ColorizerRowDelegate (QObject * parent = 0) : QStyledItemDelegate(parent) { }
+	~ColorizerRowDelegate ();
+	void paint (QPainter * painter, QStyleOptionViewItem const & option, QModelIndex const & index) const;
 };
 

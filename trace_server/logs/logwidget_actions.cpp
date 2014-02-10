@@ -133,8 +133,8 @@ void LogWidget::colorRow (int)
 void LogWidget::onClearCurrentView ()
 {
 	LogTableModel * model = static_cast<LogTableModel *>(m_proxy_model ? m_proxy_model->sourceModel() : m_src_model);
-	excludeContentToRow(model->rowCount());
-	onInvalidateFilter();
+	//excludeContentToRow(model->rowCount());
+	//onInvalidateFilter();
 }
 
 void LogWidget::excludeFileLine (QModelIndex const & src_index)
@@ -247,6 +247,7 @@ void LogWidget::onLocateRow ()
 	findTableIndexInFilters(current, scroll_to_item, expand);
 	filterMgr()->focusToFilter(e_Filter_FileLine);
 	m_config_ui.ui()->stackedWidget->setCurrentWidget(m_config_ui.ui()->filtersPage);
+	// @TODO: locate in colorizer row
 }
 void LogWidget::onColorFileLine ()
 {
@@ -257,7 +258,21 @@ void LogWidget::onColorRow ()
 }
 void LogWidget::onUncolorRow ()
 {
+	QModelIndex current = currentIndex();
+	if (isModelProxy())
+	{
+		current = m_proxy_model->mapToSource(current);
+	}
+
+	int const row = current.row(); // set search from this line
+	if (current.isValid())
+	{
+		qDebug("uncolor tag on row=%i", current.row());
+		removeColorTagRow(current.row());
+		onInvalidateFilter();
+	}
 }
+
 void LogWidget::onSetRefTime ()
 {
 	QModelIndex const current = m_last_clicked;

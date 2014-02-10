@@ -63,6 +63,8 @@ namespace logs {
 		, m_colorRowButton(0)
 		, m_colorFileLineButton(0)
 		, m_uncolorRowButton(0)
+		, m_gotoPrevColorButton(0)
+		, m_gotoNextColorButton(0)
 		, m_config(cfg)
 		, m_config2(cfg)
 		, m_config_ui(*this, this)
@@ -75,14 +77,7 @@ namespace logs {
 		, m_tagconfig()
 		, m_tags2columns()
 		, m_tls()
-		, m_last_search_row(0)
-		, m_last_search_col(0)
-		, m_last_search()
-		, m_column_setup_done(false)
-		, m_exclude_content_to_row(0)
 		, m_time_ref_row(0)
-		, m_current_tag(-1)
-		, m_current_selection(-1)
 		, m_time_ref_value(0)
 		, m_proxy_model(0)
 		, m_find_proxy_model(0)
@@ -270,6 +265,21 @@ namespace logs {
 		m_colorRowButton->setMaximumSize(QSize(16777215, 16));
 		cacheLayout->addWidget(m_colorRowButton);
 
+		m_gotoPrevColorButton = new QToolButton(parent_widget);
+		m_gotoPrevColorButton->setObjectName(QStringLiteral("gotoPrevColorButton"));
+		m_gotoPrevColorButton->setMaximumSize(QSize(16777215, 16));
+		m_gotoPrevColorButton->setCheckable(false);
+		m_gotoPrevColorButton->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+		m_gotoPrevColorButton->setArrowType(Qt::UpArrow);
+		cacheLayout->addWidget(m_gotoPrevColorButton);
+		m_gotoNextColorButton = new QToolButton(parent_widget);
+		m_gotoNextColorButton->setObjectName(QStringLiteral("gotoNextColorButton"));
+		m_gotoNextColorButton->setMaximumSize(QSize(16777215, 16));
+		m_gotoNextColorButton->setCheckable(false);
+		m_gotoNextColorButton->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+		m_gotoNextColorButton->setArrowType(Qt::DownArrow);
+		cacheLayout->addWidget(m_gotoNextColorButton);
+
 		m_colorFileLineButton = new QToolButton(parent_widget);
 		m_colorFileLineButton->setObjectName(QStringLiteral("colorFileLineButton"));
 		m_colorFileLineButton->setMaximumSize(QSize(16777215, 16));
@@ -310,6 +320,11 @@ namespace logs {
 		m_colorFileLineButton->setText(QApplication::translate("SettingsLog", "Color file:line", 0));
 		m_uncolorRowButton->setText(QApplication::translate("SettingsLog", "Uncolor", 0));
 
+		m_gotoPrevColorButton->setToolTip(QApplication::translate("SettingsLog", "<html><head/><body><p>Goto prev color tag</p><p><br/></p><p>Hotkey = <span style=\" font-weight:600;\"></span></p></body></html>", 0));
+		m_gotoPrevColorButton->setText(QApplication::translate("SettingsLog", "Color", 0));
+		m_gotoNextColorButton->setToolTip(QApplication::translate("SettingsLog", "<html><head/><body><p>Goto next color tag</p><p><br/></p><p>Hotkey = <span style=\" font-weight:600;\"></span></p></body></html>", 0));
+		m_gotoNextColorButton->setText(QApplication::translate("SettingsLog", "Color", 0));
+
 		//cacheLayout->addItem(horizontalSpacer_3);
 
 		connect(m_gotoPrevErrButton, SIGNAL(clicked()), this, SLOT(onGotoPrevErr()));
@@ -325,6 +340,9 @@ namespace logs {
 		connect(m_setRefTimeButton, SIGNAL(clicked()), this, SLOT(onSetRefTime()));
 		connect(m_hidePrevButton, SIGNAL(clicked()), this, SLOT(onHidePrev()));
 		connect(m_hideNextButton, SIGNAL(clicked()), this, SLOT(onHideNext()));
+
+		connect(m_gotoPrevColorButton, SIGNAL(clicked()), this, SLOT(onGotoPrevColor()));
+		connect(m_gotoNextColorButton, SIGNAL(clicked()), this, SLOT(onGotoNextColor()));
 	}
 
 

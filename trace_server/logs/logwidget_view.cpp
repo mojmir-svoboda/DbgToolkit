@@ -7,11 +7,10 @@
 
 namespace logs {
 
-    bool LogWidget::appendToColorizers (DecodedCommand const & cmd)
-    {
-        return colorizerMgr()->action(cmd);
-    }
-
+	bool LogWidget::appendToColorizers (DecodedCommand const & cmd)
+	{
+		return colorizerMgr()->action(cmd);
+	}
 
 	void LogWidget::addColorTagRow (int src_row)
 	{
@@ -70,7 +69,7 @@ namespace logs {
 
 	void LogWidget::scrollToCurrentSelection ()
 	{
-		if (m_config.m_auto_scroll)
+		/*if (m_config.m_auto_scroll)
 			return;
 
 		QItemSelectionModel const * selection = selectionModel();
@@ -78,12 +77,6 @@ namespace logs {
 
 		if (indexes.size() == 0)
 			return;
-
-		if (m_current_selection == -1)
-			m_current_selection = 0;
-
-		if (m_current_selection >= indexes.size())
-			m_current_selection = 0;
 
 		QModelIndex const idx = indexes.at(m_current_selection);
 		qDebug("scrollToSelection[%i] row=%i", m_current_selection, idx.row());
@@ -96,15 +89,15 @@ namespace logs {
 		{
 			QModelIndex const own_idx = model()->index(idx.row(), idx.column());
 			scrollTo(own_idx, QAbstractItemView::PositionAtCenter);
-		}
+		}*/
 	}
 
 	void LogWidget::scrollToCurrentTagOrSelection ()
 	{
 		/*if (m_color_tag_rows.size() > 0)
 			scrollToCurrentTag();
-		else*/
-			scrollToCurrentSelection();
+		else
+			scrollToCurrentSelection();*/
 	}
 
 	void LogWidget::nextToView ()
@@ -114,12 +107,137 @@ namespace logs {
 			++m_current_tag;
 			scrollToCurrentTag();
 		}
-		else*/
+		else
 		{
 			++m_current_selection;
 			scrollToCurrentSelection();
+		}*/
+	}
+
+
+//@TODO: almost duplicate  from logs/logwidget_find.cpp
+void LogWidget::onGotoPrevColor()
+{
+	ColorizerRow const * const col_row = colorizerMgr()->getColorizerRow();
+	if (col_row == 0)
+		return;
+
+	QModelIndexList l;
+	currSelection(l);
+	if (l.size())
+	{
+		QModelIndex const & curr_idx = l.at(0);
+		QModelIndex const idx = model()->index(curr_idx.row() - 1, curr_idx.column(), QModelIndex());
+		if (!idx.isValid())
+		{
+			noMoreMatches();
+			return;
+		}
+
+		QModelIndexList next;
+		/// ????
+		for (int i = curr_idx.row(); i --> 0; )
+		{
+			QModelIndex const idx = model()->index(i, 0, QModelIndex());
+			QModelIndex src_idx = idx;
+			if (isModelProxy())
+				src_idx = m_proxy_model->mapToSource(idx);
+
+			if (col_row->isRowColored(src_idx.row()))
+			{
+				next.push_back(idx);
+				break;
+			}
+		}
+
+		if (next.size() == 0)
+		{
+			noMoreMatches();
+		}
+		else
+		{
+			QItemSelectionModel * selection_model = selectionModel();
+			QItemSelection selection;
+			foreach(QModelIndex index, next)
+			{
+				QModelIndex left = model()->index(index.row(), 0);
+				QModelIndex right = model()->index(index.row(), model()->columnCount() - 1);
+
+				QItemSelection sel(left, right);
+				selection.merge(sel, QItemSelectionModel::Select);
+			}
+			selection_model->clearSelection();
+			selection_model->select(selection, QItemSelectionModel::Select);
+			scrollTo(next.at(0), QTableView::PositionAtCenter);
 		}
 	}
+
+}
+void LogWidget::onGotoNextColor()
+{
+	ColorizerRow const * const col_row = colorizerMgr()->getColorizerRow();
+	if (col_row == 0)
+		return;
+
+	QModelIndexList l;
+	currSelection(l);
+
+	QModelIndex curr_idx;
+	if (l.size())
+		curr_idx = l.at(l.size() - 1);
+	else
+		curr_idx = model()->index(0, 0, QModelIndex());
+
+
+	QModelIndex const next_idx = model()->index(curr_idx.row() + 1, curr_idx.column(), QModelIndex());
+	if (!next_idx.isValid())
+	{
+		noMoreMatches();
+		return;
+	}
+
+	QModelIndexList next;
+	for (int i = next_idx.row(), ie = model()->rowCount(); i < ie; ++i)
+	{
+		// source ? proxy index?
+		QModelIndex const idx = model()->index(i, 0, QModelIndex());
+
+		QModelIndex src_idx = idx;
+		if (isModelProxy())
+			src_idx = m_proxy_model->mapToSource(idx);
+
+		if (col_row->isRowColored(src_idx.row()))
+		{
+			next.push_back(idx);
+			break;
+		}
+	}
+
+	if (next.size() == 0)
+	{
+		noMoreMatches();
+	}
+	else
+	{
+		QItemSelectionModel * selection_model = selectionModel();
+		QItemSelection selection;
+		foreach(QModelIndex index, next)
+		{
+			QModelIndex left = model()->index(index.row(), 0);
+			QModelIndex right = model()->index(index.row(), model()->columnCount() - 1);
+
+			QItemSelection sel(left, right);
+			selection.merge(sel, QItemSelectionModel::Select);
+		}
+		selection_model->clearSelection();
+		selection_model->select(selection, QItemSelectionModel::Select);
+		scrollTo(next.at(0), QTableView::PositionAtCenter);
+	}
+
+}
+
+
+
 
 	/*
 

@@ -62,22 +62,22 @@ bool ColorizerRow::action (DecodedCommand const & cmd)
 	{
 		ColorizedRow const & ct = m_data[i];
 
-    bool const is_match = ct.m_row == cmd.m_src_row;
-    if (!is_match)
-      continue;
-    for (size_t i = 0, ie = cmd.m_tvs.size(); i < ie; ++i)
-    {
-      QString const & val = cmd.m_tvs[i].m_val;
+		bool const is_match = ct.m_row == cmd.m_src_row;
+		if (!is_match)
+			continue;
+		for (size_t i = 0, ie = cmd.m_tvs.size(); i < ie; ++i)
+		{
+			QString const & val = cmd.m_tvs[i].m_val;
 
-      QModelIndex const idx = m_src_model->index(cmd.m_src_row, i, QModelIndex());
+			QModelIndex const idx = m_src_model->index(cmd.m_src_row, i, QModelIndex());
 
-      //@TODO: cache QMI in DecodedCommand
-      m_src_model->setData(idx, ct.m_bgcolor, Qt::BackgroundRole);
-      m_src_model->setData(idx, ct.m_fgcolor, Qt::ForegroundRole);
+			//@TODO: cache QMI in DecodedCommand
+			m_src_model->setData(idx, ct.m_bgcolor, Qt::BackgroundRole);
+			m_src_model->setData(idx, ct.m_fgcolor, Qt::ForegroundRole);
 
-      //@TODO: if column != level
-      //@TODO: if column != tid
-    }
+			//@TODO: if column != level
+			//@TODO: if column != tid
+		}
 
 		/*bool const is_match = cmd.m_src_row == ct.m_row;
 
@@ -208,6 +208,17 @@ ColorizedRow const * ColorizerRow::findMatch (QString const & item) const
 	return 0;
 }
 
+bool ColorizerRow::isRowColored (int row) const
+{
+	for (int i = 0, ie = m_data.size(); i < ie; ++i)
+	{
+		ColorizedRow const & cr = m_data.at(i);
+		if (cr.m_row == row && cr.m_is_enabled)
+			return true;
+	}
+	return false;
+}
+
 void ColorizerRow::append (QString const & item)
 {
 	for (int i = 0, ie = m_data.size(); i < ie; ++i)
@@ -238,7 +249,7 @@ ColorizedRow & ColorizerRow::findOrCreateColorizedRow (QString const & item)
 			return ct;
 		}
 	m_data.push_back(ColorizedRow(item, Qt::blue, Qt::white));
-  return m_data.back();
+	return m_data.back();
 }
 
 //////// slots
@@ -330,40 +341,40 @@ void ColorizerRow::recompile ()
 	//@TODO: dedup
 	void ColorizerRow::actionColorRow (DecodedCommand const & cmd, ColorizedRow const & ct) const
 	{
-    bool const is_match = ct.m_row == cmd.m_src_row;
-    if (!is_match)
-      return;
+		bool const is_match = ct.m_row == cmd.m_src_row;
+		if (!is_match)
+			return;
 
-    for (size_t i = 0, ie = cmd.m_tvs.size(); i < ie; ++i)
-    {
-      QString const & val = cmd.m_tvs[i].m_val;
-      QModelIndex const idx = m_src_model->index(cmd.m_src_row, i, QModelIndex());
+		for (size_t i = 0, ie = cmd.m_tvs.size(); i < ie; ++i)
+		{
+			QString const & val = cmd.m_tvs[i].m_val;
+			QModelIndex const idx = m_src_model->index(cmd.m_src_row, i, QModelIndex());
 
-      //@TODO: cache QMI in DecodedCommand
-      m_src_model->setData(idx, ct.m_bgcolor, Qt::BackgroundRole);
-      m_src_model->setData(idx, ct.m_fgcolor, Qt::ForegroundRole);
+			//@TODO: cache QMI in DecodedCommand
+			m_src_model->setData(idx, ct.m_bgcolor, Qt::BackgroundRole);
+			m_src_model->setData(idx, ct.m_fgcolor, Qt::ForegroundRole);
 
-      //@TODO: if column != level
-      //@TODO: if column != tid
-    }
+			//@TODO: if column != level
+			//@TODO: if column != tid
+		}
 	}
 	void ColorizerRow::actionUncolorRow (DecodedCommand const & cmd, ColorizedRow const & ct) const
 	{
-    bool const is_match = ct.m_row == cmd.m_src_row;
-    if (!is_match)
-      return;
+		bool const is_match = ct.m_row == cmd.m_src_row;
+		if (!is_match)
+			return;
 
-    for (size_t i = 0, ie = cmd.m_tvs.size(); i < ie; ++i)
-    {
-      QString const & val = cmd.m_tvs[i].m_val;
-      QModelIndex const idx = m_src_model->index(cmd.m_src_row, i, QModelIndex());
+		for (size_t i = 0, ie = cmd.m_tvs.size(); i < ie; ++i)
+		{
+			QString const & val = cmd.m_tvs[i].m_val;
+			QModelIndex const idx = m_src_model->index(cmd.m_src_row, i, QModelIndex());
 
-      //@TODO: cache QMI in DecodedCommand
-      m_src_model->setData(idx, QColor(Qt::white), Qt::BackgroundRole);
-      m_src_model->setData(idx, QColor(Qt::black), Qt::ForegroundRole);
-      //@TODO: if column != level
-      //@TODO: if column != tid
-    }
+			//@TODO: cache QMI in DecodedCommand
+			m_src_model->setData(idx, QColor(Qt::white), Qt::BackgroundRole);
+			m_src_model->setData(idx, QColor(Qt::black), Qt::ForegroundRole);
+			//@TODO: if column != level
+			//@TODO: if column != tid
+		}
 		/*for (size_t i = 0, ie = cmd.m_tvs.size(); i < ie; ++i)
 		{
 			QString const & val = cmd.m_tvs[i].m_val;
@@ -382,7 +393,6 @@ void ColorizerRow::recompile ()
 		}*/
 	}
 
-
 	void ColorizerRow::updateColorRow (ColorizedRow const & ct)
 	{
 		for (size_t r = 0, re = m_src_model->dcmds().size(); r < re; ++r)
@@ -391,7 +401,6 @@ void ColorizerRow::recompile ()
 			actionColorRow(dcmd, ct);
 		}
 	}
-
 
 	void ColorizerRow::uncolorRow (ColorizedRow const & ct)
 	{
@@ -404,7 +413,7 @@ void ColorizerRow::recompile ()
 
 	void ColorizerRow::onActivate (int)
 	{
-    }
+	}
 	void ColorizerRow::onFgChanged () { onColorRowChanged(Qt::ForegroundRole); }
 	void ColorizerRow::onBgChanged () { onColorRowChanged(Qt::BackgroundRole); }
 	void ColorizerRow::onColorRowChanged (int role)
@@ -439,7 +448,7 @@ void ColorizerRow::recompile ()
 
 	void ColorizerRow::recompileColorRow (ColorizedRow & ct)
 	{
-    ct.m_is_enabled = true;
+		ct.m_is_enabled = true;
 	}
 
 	void ColorizerRow::recompileColorRows ()
@@ -472,21 +481,21 @@ void ColorizerRow::recompile ()
 			m_model->setItem(child->row(), 3, stitem);
 			append(row);
 
-      ColorizedRow & ct = findOrCreateColorizedRow(row);
-      ct.m_fgcolor = fg;
-      ct.m_bgcolor = bg;
-      {
-        QtColorPicker * w = mkColorPicker(m_ui->view, "fg", ct.m_fgcolor);
-        connect(w, SIGNAL(colorChanged(const QColor &)), this, SLOT(onFgChanged()));
-        QModelIndex const idx = m_model->indexFromItem(fgitem);
-        m_ui->view->setIndexWidget(idx, w);
-      }
-      {
-        QtColorPicker * w = mkColorPicker(m_ui->view, "bg", ct.m_bgcolor);
-        connect(w, SIGNAL(colorChanged(const QColor &)), this, SLOT(onBgChanged()));
-        QModelIndex const idx = m_model->indexFromItem(bgitem);
-        m_ui->view->setIndexWidget(idx, w);
-      }
+			ColorizedRow & ct = findOrCreateColorizedRow(row);
+			ct.m_fgcolor = fg;
+			ct.m_bgcolor = bg;
+			{
+				QtColorPicker * w = mkColorPicker(m_ui->view, "fg", ct.m_fgcolor);
+				connect(w, SIGNAL(colorChanged(const QColor &)), this, SLOT(onFgChanged()));
+				QModelIndex const idx = m_model->indexFromItem(fgitem);
+				m_ui->view->setIndexWidget(idx, w);
+			}
+			{
+				QtColorPicker * w = mkColorPicker(m_ui->view, "bg", ct.m_bgcolor);
+				connect(w, SIGNAL(colorChanged(const QColor &)), this, SLOT(onBgChanged()));
+				QModelIndex const idx = m_model->indexFromItem(bgitem);
+				m_ui->view->setIndexWidget(idx, w);
+			}
 			return ct;
 		}
 		else
@@ -497,12 +506,12 @@ void ColorizerRow::recompile ()
 	}
 
 	void ColorizerRow::colorize (QString const & row, QColor const & fg, QColor const & bg)
-  {
+	{
 		ColorizedRow & ct = add(row, fg, bg);
 
 		recompileColorRow(ct);
 		updateColorRow(ct);
-  }
+	}
 
 	void ColorizerRow::onAdd ()
 	{
@@ -511,7 +520,7 @@ void ColorizerRow::recompile ()
 			return;
 		QColor const qFg = m_ui->fgButton->currentColor();
 		QColor const qBg = m_ui->fgButton->currentColor();
-    colorize(qItem, qFg, qBg);
+		colorize(qItem, qFg, qBg);
 	}
 
 	void ColorizerRow::onRm ()
@@ -523,8 +532,8 @@ void ColorizerRow::recompile ()
 		QString const & val = m_model->data(idx, Qt::DisplayRole).toString();
 		m_model->removeRow(idx.row());
 
-        ColorizedRow & ct = findOrCreateColorizedRow(val);
-        uncolorRow(ct);
+		ColorizedRow & ct = findOrCreateColorizedRow(val);
+		uncolorRow(ct);
 		remove(val);
 	}
 
@@ -537,9 +546,9 @@ ColorizerRowDelegate::~ColorizerRowDelegate ()
 }
 void ColorizerRowDelegate::paint (QPainter * painter, QStyleOptionViewItem const & option, QModelIndex const & index) const
 {
-    painter->save();
-    QStyleOptionViewItemV4 option4 = option;
-    initStyleOption(&option4, index);
+	painter->save();
+	QStyleOptionViewItemV4 option4 = option;
+	initStyleOption(&option4, index);
 
 	/*if (m_app_data && m_app_data->getDictCtx().m_names.size())
 	{
@@ -561,9 +570,4 @@ void ColorizerRowDelegate::paint (QPainter * painter, QStyleOptionViewItem const
 		QStyledItemDelegate::paint(painter, option4, index);
 	painter->restore();
 }
-
-
-
-
-
 

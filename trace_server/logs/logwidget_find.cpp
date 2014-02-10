@@ -395,7 +395,6 @@ void LogWidget::noMoreMatches ()
 {
 	qDebug("end of search");
 	m_connection->getMainWindow()->statusBar()->showMessage(tr("End of document!"));
-	m_last_search_row = 0;
 
 	// flash icon
 	QPoint const global = rect().center();

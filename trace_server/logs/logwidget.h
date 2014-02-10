@@ -114,8 +114,6 @@ namespace logs {
 		QString exportSelection ();
 
 		// actions
-		void excludeContentToRow (int row) { m_exclude_content_to_row = row; }
-		int excludeContentToRow () const { return m_exclude_content_to_row; }
 		void setTimeRefFromRow (int row) { m_time_ref_row = row; }
 		int timeRefFromRow () const { return m_time_ref_row; }
 		void addColorTagRow (int row);
@@ -238,6 +236,8 @@ namespace logs {
 		void onLocateRow ();
 		void onColorFileLine ();
 		void onColorRow ();
+		void onGotoPrevColor();
+		void onGotoNextColor();
 		void onUncolorRow ();
 		void onSetRefTime ();
 		void onHidePrev ();
@@ -267,6 +267,8 @@ namespace logs {
 		QToolButton * m_colorRowButton;
 		QToolButton * m_colorFileLineButton;
 		QToolButton * m_uncolorRowButton;
+		QToolButton * m_gotoPrevColorButton;
+		QToolButton * m_gotoNextColorButton;
 
 		LogConfig & m_config;
 		LogConfig m_config2;
@@ -286,15 +288,7 @@ namespace logs {
 		QMap<tlv::tag_t, int> m_tags2columns;
 		ThreadSpecific m_tls;
 
-		int m_last_search_row;
-		int m_last_search_col;
-		QString m_last_search;
-		bool m_column_setup_done;
-
-		int m_exclude_content_to_row;
 		int m_time_ref_row;
-		int m_current_tag;
-		int m_current_selection;
 		unsigned long long m_time_ref_value;
 
 		FilterProxyModel * m_proxy_model;
