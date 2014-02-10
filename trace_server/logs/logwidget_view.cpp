@@ -29,9 +29,12 @@ namespace logs {
 
 	void LogWidget::removeColorTagRow (int src_row)
 	{
+		ColorizerRow const * const col_row = colorizerMgr()->getColorizerRow();
+		if (col_row == 0)
+			return;
 		QString const & strrow = QString::number(src_row);
 		colorizerMgr()->mkFilter(e_Colorizer_Row);
-		colorizerMgr()->getColorizerRow()->uncolorize (QString const & row)
+		colorizerMgr()->getColorizerRow()->uncolorize(strrow);
 		onInvalidateFilter(); //@TODO: should be done by filter?
 	}
 

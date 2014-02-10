@@ -525,13 +525,18 @@ void ColorizerRow::recompile ()
 
 	void ColorizerRow::uncolorize (QString const & row)
 	{
-		//QString const & val = m_model->data(idx, Qt::DisplayRole).toString();
-		//m_model->removeRow(idx.row());
+		QStandardItem * const root = m_model->invisibleRootItem();
+		QStandardItem * const child = findChildByText(root, row);
+		if (child)
+		{
+			//QModelIndex const idx = m_model->index(child->row(), 1);
+			m_model->removeRow(child->row());
+		}
 
-		ColorizedRow & ct = findOrCreateColorizedRow(val);
+		ColorizedRow & ct = findOrCreateColorizedRow(row);
 		recompileColorRow(ct);
 		uncolorRow(ct);
-		remove(val);
+		remove(row);
 	}
 
 	void ColorizerRow::onRm ()

@@ -23,10 +23,10 @@ LogTableModel::~LogTableModel ()
 
 void LogTableModel::resizeToCfg (logs::LogConfig const & config)
 {
-  //beginResetModel();
-  //emit layoutAboutToBeChanged();
+	//beginResetModel();
+	//emit layoutAboutToBeChanged();
 
-  //@TODO: dedup: logtablemodel, findproxy, filterproxy
+	//@TODO: dedup: logtablemodel, findproxy, filterproxy
 	if (config.m_columns_setup.size() > m_column_count)
 	{
 		int const last = config.m_columns_setup.size() - 1;
@@ -35,7 +35,7 @@ void LogTableModel::resizeToCfg (logs::LogConfig const & config)
 		m_column_count = last + 1;
 		endInsertColumns();
 	}
-  else if (config.m_columns_setup.size() < m_column_count)
+	else if (config.m_columns_setup.size() < m_column_count)
 	{
 		int const last = config.m_columns_setup.size() + 1;
 		beginRemoveColumns(QModelIndex(), last, m_column_count);
@@ -44,7 +44,7 @@ void LogTableModel::resizeToCfg (logs::LogConfig const & config)
 		endInsertColumns();
 	}
 
-  //endResetModel();
+	//endResetModel();
 }
 
 void LogTableModel::commitCommands (E_ReceiveMode mode)
@@ -133,8 +133,8 @@ void LogTableModel::commitBatchToModel ()
 		m_rows[from + r] = m_batch.m_rows[r];
 		m_dcmds[from + r] = m_batch.m_dcmds[r];
 		m_dcmds[from + r].m_src_row = from + r;
-    m_row_ctimes[from + r] = m_batch.m_row_ctimes[r];
-    m_row_stimes[from + r] = m_batch.m_row_stimes[r];
+		m_row_ctimes[from + r] = m_batch.m_row_ctimes[r];
+		m_row_stimes[from + r] = m_batch.m_row_stimes[r];
 		int const curr_cols = m_batch.m_rows[r].size();
 		cols = cols < curr_cols ? curr_cols : cols;
 	}
@@ -150,12 +150,12 @@ void LogTableModel::commitBatchToModel ()
 		cols_last = cols - 1;
 	}
 
-  int dt_col = m_log_widget.findColumn4TagCst(tlv::tag_dt);
-  if (dt_col < 0)
-  {
-    dt_col = m_log_widget.appendColumn(tlv::tag_dt);
-    ++cols_last;
-  }
+	int dt_col = m_log_widget.findColumn4TagCst(tlv::tag_dt);
+	if (dt_col < 0)
+	{
+		dt_col = m_log_widget.appendColumn(tlv::tag_dt);
+		++cols_last;
+	}
 
 	if (new_cols)
 	{
@@ -170,9 +170,8 @@ void LogTableModel::commitBatchToModel ()
 	for (int r = 0, re = rows; r < re; ++r)
 	{
 		DecodedCommand const & cmd = m_dcmds[from + r];
-    m_log_widget.appendToColorizers(cmd);
-  }
-
+		m_log_widget.appendToColorizers(cmd);
+	}
 
 	FilterProxyModel * pxy = m_log_widget.m_proxy_model;
 	if (m_proxy)
@@ -200,13 +199,13 @@ void LogTableModel::parseCommand (DecodedCommand const & cmd, E_ReceiveMode mode
 			indent = m_log_widget.getTLS().m_indents[thread_idx];
 
 		if (indent > 0)
-    {
-      if (cmd.m_hdr.cmd == tlv::cmd_scope_exit)
-        --indent; // indent is decreased after this call, that's why
+		{
+			if (cmd.m_hdr.cmd == tlv::cmd_scope_exit)
+				--indent; // indent is decreased after this call, that's why
 
 			for(int j = 0; j < indent; ++j)
 				qindent.append("  ");	// @TODO: ugh
-    }
+		}
 	}
 
 	batch.m_rows.push_back(columns_t(cmd.m_tvs.size()));
@@ -239,36 +238,36 @@ void LogTableModel::parseCommand (DecodedCommand const & cmd, E_ReceiveMode mode
 
 		QString qval;
 		if (tag == tlv::tag_msg)
-    {
-      if (cmd.m_hdr.cmd == tlv::cmd_scope_entry)
-      {
-        qval = qindent + QString("{ ");
-      }
-      else if (cmd.m_hdr.cmd == tlv::cmd_scope_exit)
-      {
-        qval = qindent + QString("} ");
-      }
-      else
-      {
-        qval.append(qindent);
-      }
-    }
+		{
+			if (cmd.m_hdr.cmd == tlv::cmd_scope_entry)
+			{
+				qval = qindent + QString("{ ");
+			}
+			else if (cmd.m_hdr.cmd == tlv::cmd_scope_exit)
+			{
+				qval = qindent + QString("} ");
+			}
+			else
+			{
+				qval.append(qindent);
+			}
+		}
 		qval.append(val);
 
 		column_index = m_log_widget.findColumn4Tag(tag);
-    if (columns.size() <= column_index + 1)
-				columns.resize(column_index + 1);
+		if (columns.size() <= column_index + 1)
+			columns.resize(column_index + 1);
 		columns[column_index].m_value = qval;
 	}
 
-  // dt
+	// dt
 	{
 		int ci = m_log_widget.findColumn4Tag(tlv::tag_dt);
-    if (ci < 0)
-      ci = m_log_widget.appendColumn(tlv::tag_dt);
+		if (ci < 0)
+			ci = m_log_widget.appendColumn(tlv::tag_dt);
 
-    if (columns.size() <= ci + 1)
-        columns.resize(ci + 1);
+		if (columns.size() <= ci + 1)
+			columns.resize(ci + 1);
 
 		unsigned long long const last_t = m_log_widget.getTLS().lastTime(thread_idx);
 		unsigned long long const t = time.toULongLong();
@@ -278,13 +277,13 @@ void LogTableModel::parseCommand (DecodedCommand const & cmd, E_ReceiveMode mode
 		m_log_widget.getTLS().setLastTime(thread_idx, t);
 
 		m_batch.m_row_ctimes.push_back(t);
-    sys::hptimer_t const now = sys::queryTime_us();
+		sys::hptimer_t const now = sys::queryTime_us();
 		m_batch.m_row_stimes.push_back(now);
 
-    // stime
+		// stime
 		int sti = m_log_widget.findColumn4Tag(tlv::tag_stime);
-    if (sti < 0)
-      sti = m_log_widget.appendColumn(tlv::tag_stime);
+		if (sti < 0)
+			sti = m_log_widget.appendColumn(tlv::tag_stime);
 		columns[sti].m_value = tr("%1").arg(now);
 	}
 }
