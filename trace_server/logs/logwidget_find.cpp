@@ -429,15 +429,5 @@ QVariant LogWidget::findVariant4Tag (tlv::tag_t tag, QModelIndex const & row_ind
 	return QVariant();
 }
 
-void LogWidget::onFindFileLine (QModelIndex const &)
-{
-	//@FIXME: unused args
-	qDebug("find file:line for idx=(%i,col)", m_last_clicked.row());
-
-	bool const scroll_to_item = true;
-	bool const expand = true;
-	findTableIndexInFilters(m_last_clicked, scroll_to_item, expand);
-}
-
 }
 

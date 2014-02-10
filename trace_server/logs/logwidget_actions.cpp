@@ -39,12 +39,8 @@ bool LogWidget::handleAction (Action * a, E_ActionHandleType sync)
 void LogWidget::onTableClicked (QModelIndex const & row_index)
 {
 	autoScrollOff();
-	QModelIndex current = currentIndex();
-	if (isModelProxy())
-	{
-		current = m_proxy_model->mapToSource(current);
-	}
 
+	QModelIndex const current = currentSourceIndex();
 	if (!current.isValid())
 		return;
 
@@ -273,7 +269,7 @@ void LogWidget::onUncolorRow ()
 	}
 }
 
-void LogWidget::onChangeTimeUnits ()
+void LogWidget::onChangeTimeUnits (int)
 {
 	QString const & curr = m_timeComboBox->comboBox()->currentText();
 	float const t = stringToUnitsValue(curr);
@@ -283,16 +279,19 @@ void LogWidget::onChangeTimeUnits ()
 
 void LogWidget::onSetRefTime ()
 {
-	QModelIndex const current = m_last_clicked;
-	if (current.isValid())
+	if (m_setRefTimeButton->isChecked())
 	{
-		qDebug("Toggle Ref from row=%i", current.row());
-		setTimeRefFromRow(current.row());
-
-		//LogTableModel * model = static_cast<LogTableModel *>(m_proxy_model ? m_proxy_model->sourceModel() : model());
-		QString const & strtime = findString4Tag(tlv::tag_ctime, current);
-		setTimeRefValue(strtime.toULongLong());
-		onInvalidateFilter();
+		QModelIndex const current = currentSourceIndex();
+		if (current.isValid())
+		{
+			QString const & strtime = findString4Tag(tlv::tag_ctime, current);
+			setTimeRefValue(strtime.toULongLong());
+			onInvalidateFilter();
+		}
+	}
+	else
+	{
+		clearRefTime();
 	}
 }
 

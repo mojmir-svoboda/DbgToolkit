@@ -77,7 +77,6 @@ namespace logs {
 		, m_tagconfig()
 		, m_tags2columns()
 		, m_tls()
-		, m_time_ref_row(0)
 		, m_time_ref_value(0)
 		, m_proxy_model(0)
 		, m_find_proxy_model(0)
@@ -91,7 +90,6 @@ namespace logs {
 		, m_kfind_proxy_selection(0)
 		, m_color_regex_model(0)
 		, m_find_widget(0)
-		, m_last_clicked()
 		, m_csv_separator()
 		, m_file_csv_stream(0)
 		//, m_file_tlv_stream(0)
@@ -342,7 +340,7 @@ namespace logs {
 		connect(m_excludeFileLineButton, SIGNAL(clicked()), this, SLOT(onExcludeFileLine()));
 		connect(m_excludeRowButton, SIGNAL(clicked()), this, SLOT(onExcludeRow()));
 		connect(m_locateRowButton, SIGNAL(clicked()), this, SLOT(onLocateRow()));
-		connect(m_timeComboBox, SIGNAL(clicked()), this, SLOT(onChangeTimeUnits()));
+		connect(m_timeComboBox, SIGNAL(activated(int)), this, SLOT(onChangeTimeUnits(int)));
 		connect(m_colorFileLineButton, SIGNAL(clicked()), this, SLOT(onColorFileLine()));
 		connect(m_colorRowButton, SIGNAL(clicked()), this, SLOT(onColorRow()));
 		connect(m_uncolorRowButton, SIGNAL(clicked()), this, SLOT(onUncolorRow()));
@@ -354,6 +352,16 @@ namespace logs {
 		connect(m_gotoNextColorButton, SIGNAL(clicked()), this, SLOT(onGotoNextColor()));
 	}
 
+
+	QModelIndex LogWidget::currentSourceIndex () const
+	{
+		QModelIndex current = currentIndex();
+		if (isModelProxy())
+		{
+			current = m_proxy_model->mapToSource(current);
+		}
+		return current;
+	}
 
 	void LogWidget::setupNewLogModel ()
 	{

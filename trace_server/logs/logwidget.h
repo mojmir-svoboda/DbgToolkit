@@ -81,6 +81,7 @@ namespace logs {
 
 		virtual void wheelEvent (QWheelEvent * event);
 		virtual void keyPressEvent (QKeyEvent * event);
+		QModelIndex currentSourceIndex () const;
 		virtual QModelIndex moveCursor (CursorAction cursorAction, Qt::KeyboardModifiers modifiers);
 
 		// config
@@ -113,12 +114,11 @@ namespace logs {
 		QString exportSelection ();
 
 		// actions
-		void setTimeRefFromRow (int row) { m_time_ref_row = row; }
-		int timeRefFromRow () const { return m_time_ref_row; }
 		void addColorTagRow (int row);
 		bool findColorTagRow (int row) const;
 		void removeColorTagRow (int row);
 		unsigned long long timeRefValue () const { return m_time_ref_value; }
+		void clearRefTime () { m_time_ref_value = 0; }
 		void setTimeRefValue (unsigned long long t) { m_time_ref_value = t; }
 		void findTableIndexInFilters (QModelIndex const & src_idx, bool scroll_to_item, bool expand);
 		void excludeFileLine (QModelIndex const & row_index);
@@ -146,8 +146,6 @@ namespace logs {
 		void removeFromStringFilters (QString const & val);
 		void refreshFilters (BaseProxyModel const * proxy);
 
-		void setRefFromRow ();
-		void clearRefTime () { m_time_ref_row = 0; }
 		void colorRow (int);
 
 		/*void removeFromColorRegex (QString const & val);
@@ -174,7 +172,6 @@ namespace logs {
 		void scrollToCurrentSelection ();
 		void scrollToCurrentTagOrSelection ();
 		void nextToView ();
-		void onFindFileLine (QModelIndex const &);
 
 		FilterState & filterState () { return m_filter_state; }
 		FilterState const & filterState () const { return m_filter_state; }
@@ -241,7 +238,7 @@ namespace logs {
 		void onSetRefTime ();
 		void onHidePrev ();
 		void onHideNext ();
-		void onChangeTimeUnits ();
+		void onChangeTimeUnits (int);
 
 		//void requestTableWheelEventSync (QWheelEvent * ev, QTableView const * source);
 		//void requestTableActionSync (unsigned long long t, int cursorAction, Qt::KeyboardModifiers modifiers, QTableView const * source);
@@ -289,7 +286,6 @@ namespace logs {
 		QMap<tlv::tag_t, int> m_tags2columns;
 		ThreadSpecific m_tls;
 
-		int m_time_ref_row;
 		unsigned long long m_time_ref_value;
 
 		FilterProxyModel * m_proxy_model;
@@ -305,7 +301,6 @@ namespace logs {
 		QStandardItemModel * m_color_regex_model;
 		FindWidget * m_find_widget;
 
-		QModelIndex m_last_clicked;
 		QString m_csv_separator;
 		QTextStream * m_file_csv_stream;
 	};
