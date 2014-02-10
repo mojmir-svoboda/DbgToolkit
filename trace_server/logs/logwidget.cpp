@@ -217,6 +217,11 @@ namespace logs {
 		m_locateRowButton->setMaximumSize(QSize(16777215, 16));
 		cacheLayout->addWidget(m_locateRowButton);
 
+		m_timeComboBox = new TimeComboBox(parent_widget);
+		m_timeComboBox->setObjectName(QStringLiteral("timeComboBox"));
+		//m_timeComboBox->setMaximumSize(QSize(16777215, 16));
+		cacheLayout->addWidget(m_timeComboBox);
+
 		line = new QFrame(parent_widget);
 		line->setObjectName(QStringLiteral("line"));
 		line->setMinimumSize(QSize(7, 0));
@@ -308,10 +313,13 @@ namespace logs {
 		m_excludeFileLineButton->setText(QApplication::translate("SettingsLog", "Excl file:line", 0));
 		m_excludeRowButton->setToolTip(QApplication::translate("SettingsLog", "<html><head/><body><p>Excludes selected row via Filter/Row. This one does not use File:Line information, so it can be used to exclude specific lines while keeping the rest.</p><p>Hotkey = <span style=\" font-weight:600;\">r</span></p></body></html>", 0));
 		m_excludeRowButton->setText(QApplication::translate("SettingsLog", "Excl row", 0));
-		m_locateRowButton->setToolTip(QApplication::translate("SettingsLog", "<html><head/><body><p>Locates currently selected row in Filters/File:Line</p><p>Hotkey = <span style=\" font-weight:600;\">?</span></p></body></html>", 0));
-		m_locateRowButton->setText(QApplication::translate("SettingsLog", "? row", 0));
+		m_locateRowButton->setToolTip(QApplication::translate("SettingsLog", "<html><head/><body><p>Change time units</p><p>Hotkey = <span style=\" font-weight:600;\">?</span></p></body></html>", 0));
+		//m_locateRowButton->setText(QApplication::translate("SettingsLog", "? row", 0));
 		m_setRefTimeButton->setToolTip(QApplication::translate("SettingsLog", "<html><head/><body><p>Set/Unset reference time (= 0) to currently selected line</p></body></html>", 0));
 		m_setRefTimeButton->setText(QApplication::translate("SettingsLog", "Ref time", 0));
+		m_timeComboBox->setToolTip(QApplication::translate("SettingsLog", "<html><head/><body><p>Locates currently selected row in Filters/File:Line</p><p>Hotkey = <span style=\" font-weight:600;\">?</span></p></body></html>", 0));
+		m_timeComboBox->setText(QApplication::translate("SettingsLog", "? row", 0));
+		m_setRefTimeButton->setToolTip(QApplication::translate("SettingsLog", "<html><head/><body><p>Set/Unset reference time (= 0) to currently selected line</p></body></html>", 0));
 		m_hidePrevButton->setToolTip(QApplication::translate("SettingsLog", "<html><head/><body><p>Hide rows preceeding current selection</p></body></html>", 0));
 		m_hidePrevButton->setText(QApplication::translate("SettingsLog", "Hide rows", 0));
 		m_hideNextButton->setToolTip(QApplication::translate("SettingsLog", "Hide lines following current selection", 0));
@@ -334,6 +342,7 @@ namespace logs {
 		connect(m_excludeFileLineButton, SIGNAL(clicked()), this, SLOT(onExcludeFileLine()));
 		connect(m_excludeRowButton, SIGNAL(clicked()), this, SLOT(onExcludeRow()));
 		connect(m_locateRowButton, SIGNAL(clicked()), this, SLOT(onLocateRow()));
+		connect(m_timeComboBox, SIGNAL(clicked()), this, SLOT(onChangeTimeUnits()));
 		connect(m_colorFileLineButton, SIGNAL(clicked()), this, SLOT(onColorFileLine()));
 		connect(m_colorRowButton, SIGNAL(clicked()), this, SLOT(onColorRow()));
 		connect(m_uncolorRowButton, SIGNAL(clicked()), this, SLOT(onUncolorRow()));

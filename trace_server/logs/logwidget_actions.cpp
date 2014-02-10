@@ -273,6 +273,11 @@ void LogWidget::onUncolorRow ()
 	}
 }
 
+void LogWidget::onChangeTimeUnits ()
+{
+
+}
+
 void LogWidget::onSetRefTime ()
 {
 	QModelIndex const current = m_last_clicked;

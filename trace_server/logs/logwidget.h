@@ -242,6 +242,7 @@ namespace logs {
 		void onSetRefTime ();
 		void onHidePrev ();
 		void onHideNext ();
+		void onChangeTimeUnits ();
 
 		//void requestTableWheelEventSync (QWheelEvent * ev, QTableView const * source);
 		//void requestTableActionSync (unsigned long long t, int cursorAction, Qt::KeyboardModifiers modifiers, QTableView const * source);
@@ -261,6 +262,7 @@ namespace logs {
 		QToolButton * m_excludeFileLineButton;
 		QToolButton * m_excludeRowButton;
 		QToolButton * m_locateRowButton;
+		TimeComboBox * m_timeComboBox;
 		QToolButton * m_setRefTimeButton;
 		QToolButton * m_hidePrevButton;
 		QToolButton * m_hideNextButton;
