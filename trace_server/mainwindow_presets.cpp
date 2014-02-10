@@ -47,11 +47,11 @@ QString MainWindow::promptAndCreatePresetName (QString const & app_name)
 
 QString MainWindow::matchClosestPresetName (QString const & app_name)
 {
-    QString const multitab_preset_hint = ui->multiTabPresetComboBox->currentText();
-    if (!multitab_preset_hint.isEmpty())
-    {
-        return app_name + "/" + multitab_preset_hint;
-    }
+	QString const multitab_preset_hint = ui->multiTabPresetComboBox->currentText();
+	if (!multitab_preset_hint.isEmpty())
+	{
+		return app_name + "/" + multitab_preset_hint;
+	}
 	QString const saved_preset = getCurrentPresetName();
 	QString preset_appname = saved_preset;
 	int const slash_pos = preset_appname.lastIndexOf(QChar('/'));
@@ -112,7 +112,12 @@ void MainWindow::mentionInMultiTabPresetHistory (QString const & str)
 }
 void MainWindow::setPresetAsCurrent (QString const & pname)
 {
-	ui->presetComboBox->setCurrentIndex(ui->presetComboBox->findText(pname));
+	QString const & curr_tab = getTabTrace()->tabText(getTabTrace()->currentIndex());
+	QStringList list1 = pname.split("/");
+	if (curr_tab == list1.at(0))
+		ui->presetComboBox->setCurrentIndex(ui->presetComboBox->findText(pname));
+	else
+		qDebug("current tab differs in app_name from preset app name");
 }
 
 void MainWindow::onSaveCurrentStateTo (QString const & preset_name)
@@ -196,9 +201,10 @@ void MainWindow::onPresetActivate (Connection * conn, QString const & preset_nam
 		conn->m_curr_preset = preset_name;
 
 		mentionStringInHistory_Ref(preset_name, ui->presetComboBox, m_config.m_preset_history);
-        QStringList list1 = preset_name.split("/");
+		QStringList list1 = preset_name.split("/");
 		mentionStringInHistory_Ref(list1.at(1), ui->multiTabPresetComboBox, m_config.m_multitab_preset_history);
 		m_config.saveHistory();
+
 		setPresetAsCurrent(preset_name);
 
 		QString const path = getPresetPath(m_config.m_appdir, preset_name);

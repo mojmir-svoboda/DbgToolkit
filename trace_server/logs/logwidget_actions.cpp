@@ -275,6 +275,7 @@ void LogWidget::onChangeTimeUnits (int)
 	float const t = stringToUnitsValue(curr);
 	m_config.m_time_units_str = curr;
 	m_config.m_time_units = t;
+	onInvalidateFilter(); // TODO: invalidate only column?
 }
 
 void LogWidget::onSetRefTime ()
