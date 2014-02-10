@@ -232,6 +232,10 @@ namespace logs {
 		void exportStorageToCSV (QString const & filename);
 		void onCopyToClipboard ();
 		void onExcludeFileLine ();
+		void onGotoPrevErr();
+		void onGotoNextErr();
+		void onGotoPrevWarn();
+		void onGotoNextWarn();
 		void onExcludeRow ();
 		void onLocateRow ();
 		void onColorFileLine ();
@@ -251,6 +255,11 @@ namespace logs {
 	protected:
 		Connection * m_connection;
 		ButtonCache * m_cacheLayout;
+
+    QToolButton * m_gotoPrevErrButton;
+    QToolButton * m_gotoNextErrButton;
+    QToolButton * m_gotoPrevWarnButton;
+    QToolButton * m_gotoNextWarnButton;
     QToolButton * m_excludeFileLineButton;
     QToolButton * m_excludeRowButton;
     QToolButton * m_locateRowButton;

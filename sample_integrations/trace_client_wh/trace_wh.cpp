@@ -143,8 +143,10 @@ int main ()
 
 		TRACE_MSG(trace::e_Warning, trace::CTX_Default,	"first message\nsecond line"); // not sure if this is a valid case!
 		TRACE_MSG(trace::e_Warning, trace::CTX_Game,	"first game message\nsecond line"); // not sure if this is a valid case
-		TRACE_MSG(trace::e_Error, trace::CTX_Game,	"first game err\nsecond line");
-		TRACE_MSG(trace::e_Error, trace::CTX_Game,	"second game err\nsecond line of that");
+		TRACE_MSG(trace::e_Error, trace::CTX_Game,	"first game error\nsecond line");
+		TRACE_MSG(trace::e_Error, trace::CTX_Game,	"second game error\nsecond line of that");
+		TRACE_MSG(trace::e_Warning, trace::CTX_Default,  "First warning, errno=%x", 0xFEEDDEAD);
+		TRACE_MSG(trace::e_Warning, trace::CTX_Default,  "Second warning, errno=%x", 0xFEEDDEAD);
 		/*TRACE_MSG(trace::e_Info, trace::CTX_Default,	"this is %s", "first message");
 		TRACE_MSG(trace::				e_Info, trace::CTX_Default,  "args: %s and %s", "first arg", "second arg");
 		TRACE_MSG(trace::e_Fatal, trace::CTX_Default,  "First fatal error, errno=%08x", 0xDEAFDAD);

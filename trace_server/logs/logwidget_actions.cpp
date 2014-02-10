@@ -22,11 +22,11 @@ bool LogWidget::handleAction (Action * a, E_ActionHandleType sync)
 			{
 				if (a->m_args.at(0).canConvert<FindConfig>())
 				{
-					 FindConfig const fc = a->m_args.at(0).value<FindConfig>();
-					 handleFindAction(fc);
-					 m_config.m_find_config = fc;
+					FindConfig const fc = a->m_args.at(0).value<FindConfig>();
+					handleFindAction(fc);
+					m_config.m_find_config = fc;
 					// m_config.save
-				}		  
+				}
 				return true;
 			}
 		}
@@ -38,7 +38,7 @@ bool LogWidget::handleAction (Action * a, E_ActionHandleType sync)
 
 void LogWidget::onTableClicked (QModelIndex const & row_index)
 {
-  autoScrollOff();
+	autoScrollOff();
 	QModelIndex current = currentIndex();
 	if (isModelProxy())
 	{
@@ -55,7 +55,8 @@ void LogWidget::onTableClicked (QModelIndex const & row_index)
 
 void LogWidget::onTableFontToolButton ()
 {
-    /*bool ok = false;
+	/*
+	bool ok = false;
 	QFont curr_font;
 	Connection * conn = m_server->findCurrentConnection();
 	if (conn)
@@ -64,12 +65,13 @@ void LogWidget::onTableFontToolButton ()
 		ui_settings->tableFontComboBox->addItem(curr_font.toString());
 	}
 
-    QFont f = QFontDialog::getFont(&ok, curr_font);
-    if (ok)
+	QFont f = QFontDialog::getFont(&ok, curr_font);
+	if (ok)
 	{
 		ui_settings->tableFontComboBox->insertItem(0, curr_font.toString());
 		verticalHeader()->setFont(f);
-    }*/
+	}
+	*/
 }
 
 
@@ -270,9 +272,67 @@ void LogWidget::onSetRefTime ()
 		onInvalidateFilter();
 	}
 }
+
+void LogWidget::onGotoPrevErr ()
+{
+	FindConfig fc;
+	fc.m_next = 0;
+	fc.m_prev = 1;
+	fc.m_select = 1;
+	fc.m_refs = 0;
+	fc.m_clone = 0;
+	fc.m_case_sensitive = 0;
+	fc.m_whole_word = 0;
+	fc.m_regexp = 0;
+	fc.m_str = "Error";
+	findAndSelectPrev(fc);
+}
+void LogWidget::onGotoNextErr ()
+{
+	FindConfig fc;
+	fc.m_next = 1;
+	fc.m_prev = 0;
+	fc.m_select = 1;
+	fc.m_refs = 0;
+	fc.m_clone = 0;
+	fc.m_case_sensitive = 0;
+	fc.m_whole_word = 0;
+	fc.m_regexp = 0;
+	fc.m_str = "Error";
+	findAndSelectNext(fc);
+}
+void LogWidget::onGotoPrevWarn ()
+{
+	FindConfig fc;
+	fc.m_next = 0;
+	fc.m_prev = 1;
+	fc.m_select = 1;
+	fc.m_refs = 0;
+	fc.m_clone = 0;
+	fc.m_case_sensitive = 0;
+	fc.m_whole_word = 0;
+	fc.m_regexp = 0;
+	fc.m_str = "Warning";
+	findAndSelectPrev(fc);
+}
+void LogWidget::onGotoNextWarn ()
+{
+	FindConfig fc;
+	fc.m_next = 1;
+	fc.m_prev = 0;
+	fc.m_select = 1;
+	fc.m_refs = 0;
+	fc.m_clone = 0;
+	fc.m_case_sensitive = 0;
+	fc.m_whole_word = 0;
+	fc.m_regexp = 0;
+	fc.m_str = "Warning";
+	findAndSelectNext(fc);
+}
+
 void LogWidget::onHidePrev ()
 {
-  bool const checked = m_hidePrevButton->isChecked();
+	bool const checked = m_hidePrevButton->isChecked();
 
 	QModelIndex current = currentIndex();
 	if (isModelProxy())
@@ -285,18 +345,18 @@ void LogWidget::onHidePrev ()
 
 	QString const & strtime = findString4Tag(tlv::tag_ctime, current);
 
-  filterMgr()->mkFilter(e_Filter_Time);
+	filterMgr()->mkFilter(e_Filter_Time);
 
-  if (checked)
-    filterMgr()->getFilterTime()->onAdd(cmpModToString(e_CmpGE), strtime, m_config.m_time_units_str);
-  else
-    filterMgr()->getFilterTime()->remove(cmpModToString(e_CmpGE), strtime, m_config.m_time_units_str);
+	if (checked)
+		filterMgr()->getFilterTime()->onAdd(cmpModToString(e_CmpGE), strtime, m_config.m_time_units_str);
+	else
+		filterMgr()->getFilterTime()->remove(cmpModToString(e_CmpGE), strtime, m_config.m_time_units_str);
 
 	onInvalidateFilter(); //@TODO: should be done by filter?
 }
 void LogWidget::onHideNext () //@TODO: dedup
 {
-  bool const checked = m_hidePrevButton->isChecked();
+	bool const checked = m_hidePrevButton->isChecked();
 
 	QModelIndex current = currentIndex();
 	if (isModelProxy())
@@ -309,12 +369,12 @@ void LogWidget::onHideNext () //@TODO: dedup
 
 	QString const & strtime = findString4Tag(tlv::tag_ctime, current);
 
-  filterMgr()->mkFilter(e_Filter_Time);
+	filterMgr()->mkFilter(e_Filter_Time);
 
-  if (checked)
-    filterMgr()->getFilterTime()->onAdd(cmpModToString(e_CmpLE), strtime, m_config.m_time_units_str);
-  else
-    filterMgr()->getFilterTime()->remove(cmpModToString(e_CmpLE), strtime, m_config.m_time_units_str);
+	if (checked)
+		filterMgr()->getFilterTime()->onAdd(cmpModToString(e_CmpLE), strtime, m_config.m_time_units_str);
+	else
+		filterMgr()->getFilterTime()->remove(cmpModToString(e_CmpLE), strtime, m_config.m_time_units_str);
 
 	onInvalidateFilter(); //@TODO: should be done by filter?
 }
@@ -322,27 +382,27 @@ void LogWidget::onHideNext () //@TODO: dedup
 
 void LogWidget::onTableDoubleClicked (QModelIndex const & row_index)
 {
-		qDebug("%s this=0x%08x", __FUNCTION__, this);
-		if (m_config.m_sync_group == 0)
-			return;	// do not sync groups with zero
+	qDebug("%s this=0x%08x", __FUNCTION__, this);
+	if (m_config.m_sync_group == 0)
+		return;	// do not sync groups with zero
 
-    E_SyncMode const mode = e_SyncServerTime;
-    //@TODO: mode from UI
+	E_SyncMode const mode = e_SyncServerTime;
+	//@TODO: mode from UI
 
-    QModelIndex curr = row_index;
-		if (isModelProxy())
-		{
-			curr = m_proxy_model->mapToSource(row_index);
-		}
+	QModelIndex curr = row_index;
+	if (isModelProxy())
+	{
+		curr = m_proxy_model->mapToSource(row_index);
+	}
 
-    unsigned long long time = 0;
-    if (mode == e_SyncServerTime)
-      time = m_src_model->row_stime(curr.row());
-    else
-      time = m_src_model->row_ctime(curr.row());
+	unsigned long long time = 0;
+	if (mode == e_SyncServerTime)
+		time = m_src_model->row_stime(curr.row());
+	else
+		time = m_src_model->row_ctime(curr.row());
 
-    qDebug("table: dblClick curr=(%i, %i)  time=%llu", curr.row(), curr.column(), time);
-    emit requestSynchronization(mode, m_config.m_sync_group, time, this);
+	qDebug("table: dblClick curr=(%i, %i)  time=%llu", curr.row(), curr.column(), time);
+	emit requestSynchronization(mode, m_config.m_sync_group, time, this);
 
 /*	if (m_proxy_model)
 	{
