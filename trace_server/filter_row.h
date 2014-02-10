@@ -91,7 +91,7 @@ signals:
 
 /*struct RowDelegate : public QStyledItemDelegate
 {
-    RowDelegate (QObject * parent = 0) : QStyledItemDelegate(parent) { }
-    void paint (QPainter * painter, QStyleOptionViewItem const & option, QModelIndex const & index) const;
+	RowDelegate (QObject * parent = 0) : QStyledItemDelegate(parent) { }
+	void paint (QPainter * painter, QStyleOptionViewItem const & option, QModelIndex const & index) const;
 };
 */

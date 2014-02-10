@@ -116,8 +116,8 @@ namespace logs {
 		connect(this, SIGNAL( requestSynchronization(E_SyncMode, int, unsigned long long, void *) ),
 							 &getSyncWidgets(), SLOT( performSynchronization(E_SyncMode, int, unsigned long long, void *) ));
 
-		setStyleSheet("QTableView::item{ selection-background-color:	#F5DEB3  } QTableView::item{ selection-color: #000000 }");
-		
+		setStyleSheet("QTableView::item{ selection-background-color: #F5DEB3  } QTableView::item{ selection-color: #000000 }");
+
 		// to ignore 'resizeColumnToContents' when accidentaly double-clicked on header handle
 		QObject::disconnect(horizontalHeader(), SIGNAL(sectionHandleDoubleClicked(int)), this, SLOT(resizeColumnToContents(int)));
 

@@ -39,9 +39,9 @@ struct FilterMgr : FilterMgrBase
 
 	//FilterXX *			getFilterXX () { return static_cast<FilterXX *>(m_cache[e_Filter_XX]); }
 	//FilterXX const *		getFilterXX () const { return static_cast<FilterXX const *>(m_cache[e_Filter_XX]); }
-	FilterRow *			getFilterRow () { return static_cast<FilterRow *>(m_cache[e_Filter_Row]); }
+	FilterRow *				getFilterRow () { return static_cast<FilterRow *>(m_cache[e_Filter_Row]); }
 	FilterRow const *		getFilterRow () const { return static_cast<FilterRow const *>(m_cache[e_Filter_Row]); }
-	FilterScript *		getFilterScript () { return static_cast<FilterScript *>(m_cache[e_Filter_Script]); }
+	FilterScript *			getFilterScript () { return static_cast<FilterScript *>(m_cache[e_Filter_Script]); }
 	FilterScript const *	getFilterScript () const { return static_cast<FilterScript const *>(m_cache[e_Filter_Script]); }
 	FilterString *			getFilterString () { return static_cast<FilterString *>(m_cache[e_Filter_String]); }
 	FilterString const *	getFilterString () const { return static_cast<FilterString const *>(m_cache[e_Filter_String]); }
@@ -58,7 +58,7 @@ struct FilterMgr : FilterMgrBase
 	FilterTime *			getFilterTime () { return static_cast<FilterTime *>(m_cache[e_Filter_Time]); }
 	FilterTime const *		getFilterTime () const { return static_cast<FilterTime const *>(m_cache[e_Filter_Time]); }
 
-    FilterBase *            mkFilter (E_FilterType t);
+	FilterBase *			mkFilter (E_FilterType t);
 
 	//void clearUI ();
 	//void setConfigToUI ();

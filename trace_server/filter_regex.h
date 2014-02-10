@@ -88,7 +88,7 @@ signals:
 
 struct RegexDelegate : public QStyledItemDelegate
 {
-    RegexDelegate (QObject * parent = 0) : QStyledItemDelegate(parent) { }
-    void paint (QPainter * painter, QStyleOptionViewItem const & option, QModelIndex const & index) const;
+	RegexDelegate (QObject * parent = 0) : QStyledItemDelegate(parent) { }
+	void paint (QPainter * painter, QStyleOptionViewItem const & option, QModelIndex const & index) const;
 };
 

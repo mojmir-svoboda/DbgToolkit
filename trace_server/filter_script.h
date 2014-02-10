@@ -92,7 +92,7 @@ signals:
 
 struct ScriptDelegate : public QStyledItemDelegate
 {
-    ScriptDelegate (QObject * parent = 0) : QStyledItemDelegate(parent) { }
-    void paint (QPainter * painter, QStyleOptionViewItem const & option, QModelIndex const & index) const;
+	ScriptDelegate (QObject * parent = 0) : QStyledItemDelegate(parent) { }
+	void paint (QPainter * painter, QStyleOptionViewItem const & option, QModelIndex const & index) const;
 };
 

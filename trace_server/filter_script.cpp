@@ -285,9 +285,9 @@ void FilterScript::locateItem (QString const & item, bool scrollto, bool expand)
 //////// delegate
 void ScriptDelegate::paint (QPainter * painter, QStyleOptionViewItem const & option, QModelIndex const & index) const
 {
-    painter->save();
-    QStyleOptionViewItemV4 option4 = option;
-    initStyleOption(&option4, index);
+	painter->save();
+	QStyleOptionViewItemV4 option4 = option;
+	initStyleOption(&option4, index);
 
 	if (index.column() == 1)
 	{
@@ -306,7 +306,6 @@ void ScriptDelegate::paint (QPainter * painter, QStyleOptionViewItem const & opt
 				style->drawControl(QStyle::CE_ItemViewItem, &option4, painter, widget);
 			}
 		}
-
 	}
 	else
 		QStyledItemDelegate::paint(painter, option4, index);

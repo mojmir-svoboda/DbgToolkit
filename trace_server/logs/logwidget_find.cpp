@@ -11,17 +11,17 @@ namespace logs {
 
 void LogWidget::onFind ()
 {
-  //m_find_widget->onCancel();
-  //w->setFocusProxy(m_find_widget);
-  //m_find_widget->setFocusProxy(w); // dunno what the proxies are for
-  //mk_action configure find widget
-  FindConfig & cfg = m_config.m_find_config;
-  m_find_widget->applyConfig(cfg);
+	//m_find_widget->onCancel();
+	//w->setFocusProxy(m_find_widget);
+	//m_find_widget->setFocusProxy(w); // dunno what the proxies are for
+	//mk_action configure find widget
+	FindConfig & cfg = m_config.m_find_config;
+	m_find_widget->applyConfig(cfg);
 
-  m_find_widget->onActivate();
+	m_find_widget->onActivate();
 
-  //setFocusProxy(m_find_widget);
-  m_find_widget->setFocusProxy(this); // dunno what the proxies are for
+	//setFocusProxy(m_find_widget);
+	m_find_widget->setFocusProxy(this); // dunno what the proxies are for
 }
 
 void LogWidget::onFindNext ()
@@ -55,8 +55,8 @@ void LogWidget::findInWholeTable (FindConfig const & fc, QModelIndexList & resul
 
 void LogWidget::registerLinkedWidget (DockedWidgetBase * l)
 {
-  if (std::find(m_linked_widgets.begin(), m_linked_widgets.end(), l) == m_linked_widgets.end())
-    m_linked_widgets.push_back(l);
+	if (std::find(m_linked_widgets.begin(), m_linked_widgets.end(), l) == m_linked_widgets.end())
+		m_linked_widgets.push_back(l);
 }
 
 void LogWidget::unregisterLinkedWidget (DockedWidgetBase * l)
@@ -116,8 +116,8 @@ LogWidget * LogWidget::mkFindAllRefsLogWidget (FindConfig const & fc)
 	datalogs_t::iterator it = m_connection->dataWidgetFactoryFrom<e_data_log>(tag, cfg);
 
 	DataLog * dp = *it;
-  DataLog::widget_t & child_outer = dp->widget();
-  LogWidget & child = *child_outer.m_lw;
+	DataLog::widget_t & child_outer = dp->widget();
+	LogWidget & child = *child_outer.m_lw;
 	child.linkToSource(m_dwb);
 	registerLinkedWidget(child.m_dwb);
 	child.loadAuxConfigs();
@@ -177,10 +177,9 @@ LogWidget * LogWidget::mkFindAllCloneLogWidget (FindConfig const & fc)
 	datalogs_t::iterator it = m_connection->dataWidgetFactoryFrom<e_data_log>(tag, cfg);
 
 	DataLog * dp = *it;
-  DataLog::widget_t & child_outer = dp->widget();
-  LogWidget & child = *child_outer.m_lw;
+	DataLog::widget_t & child_outer = dp->widget();
+	LogWidget & child = *child_outer.m_lw;
 	child.loadAuxConfigs();
-	
 	LogTableModel * clone_model = cloneToNewModel(fc);
 	child.setupLogModel(clone_model);
 	child.setSrcModel(fc);

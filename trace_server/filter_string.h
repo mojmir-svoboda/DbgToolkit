@@ -86,7 +86,7 @@ signals:
 
 struct StringDelegate : public QStyledItemDelegate
 {
-    StringDelegate (QObject * parent = 0) : QStyledItemDelegate(parent) { }
-    void paint (QPainter * painter, QStyleOptionViewItem const & option, QModelIndex const & index) const;
+	StringDelegate (QObject * parent = 0) : QStyledItemDelegate(parent) { }
+	void paint (QPainter * painter, QStyleOptionViewItem const & option, QModelIndex const & index) const;
 };
 
