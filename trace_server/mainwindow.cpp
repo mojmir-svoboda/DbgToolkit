@@ -129,9 +129,6 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QStri
 	connect(ui->tabTrace, SIGNAL(currentChanged(int)), this, SLOT(onTabTraceFocus(int)));
 	connect(ui->tabTrace, SIGNAL(tabCloseRequested(int)), this, SLOT(onCloseTabWithIndex(int)));
 
-	connect(ui->dtToolButton, SIGNAL(clicked()), this, SLOT(ondtToolButton()));
-
-	connect(ui->timeComboBox, SIGNAL(activated(int)), this, SLOT(onTimeUnitsChanged(int)));
 	connect(ui->levelSpinBox, SIGNAL(valueChanged(int)), this, SLOT(onLevelValueChanged(int)));
 	connect(ui->plotSlider, SIGNAL(valueChanged(int)), this, SLOT(onPlotStateChanged(int)));
 	connect(ui->tableSlider, SIGNAL(valueChanged(int)), this, SLOT(onTablesStateChanged(int)));
@@ -287,7 +284,6 @@ int MainWindow::ganttState () const { return ui->ganttSlider->value(); }
 
 bool MainWindow::buffEnabled () const { return ui->buffCheckBox->isChecked(); }
 Qt::CheckState MainWindow::buffState () const { return ui->buffCheckBox->checkState(); }
-bool MainWindow::dtEnabled () const { return ui->dtToolButton->isChecked(); }
 
 void MainWindow::setLevel (int i)
 {
