@@ -523,18 +523,26 @@ void ColorizerRow::recompile ()
 		colorize(qItem, qFg, qBg);
 	}
 
+	void ColorizerRow::uncolorize (QString const & row)
+	{
+		//QString const & val = m_model->data(idx, Qt::DisplayRole).toString();
+		//m_model->removeRow(idx.row());
+
+		ColorizedRow & ct = findOrCreateColorizedRow(val);
+		recompileColorRow(ct);
+		uncolorRow(ct);
+		remove(val);
+	}
+
 	void ColorizerRow::onRm ()
 	{
 		QModelIndex const idx = m_ui->view->currentIndex();
 		QStandardItem * item = m_model->itemFromIndex(idx);
 		if (!item)
 			return;
-		QString const & val = m_model->data(idx, Qt::DisplayRole).toString();
-		m_model->removeRow(idx.row());
 
-		ColorizedRow & ct = findOrCreateColorizedRow(val);
-		uncolorRow(ct);
-		remove(val);
+		QString const & val = m_model->data(idx, Qt::DisplayRole).toString();
+		uncolorize(val);
 	}
 
 
