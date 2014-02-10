@@ -16,7 +16,7 @@ namespace trace {
 
 		void mk_name (char * buff, size_t ln)
 		{
-			_snprintf(buff, ln, "%s%s%llu.%s", path, name, sys::queryTime_ms(), ext);
+			_snprintf(buff, ln, "%s%s%llu.%s", path, name, sys::queryTime_us(), ext);
 		}
 
 		void OpenFile ()

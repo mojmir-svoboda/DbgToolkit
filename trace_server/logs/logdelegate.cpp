@@ -74,8 +74,9 @@ namespace logs {
 			if (value.isValid())
 			{
 				QString const & val = option4.text;
-				float const t_ms = val.toFloat();
-				float const t = t_ms / 1000.0f / m_log_widget.getConfig().m_time_units;
+				float const t_us = val.toFloat();
+				float const t_natural_units = 1000000.0f; // microseconds
+				float const t = t_us / t_natural_units / m_log_widget.getConfig().m_time_units;
 				option4.text = QString::number(t, 'f', 3);
 			}
 

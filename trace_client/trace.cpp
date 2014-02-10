@@ -60,7 +60,7 @@
 			va_end(args);
 		}
 		ScopedLog::ScopedLog (level_t level, context_t context, char const * file, int line, char const * fn, char const * fmt, ...)
-			: m_level(level), m_context(context), m_file(file), m_line(line), m_fn(fn), m_start(sys::queryTime_ms())
+			: m_level(level), m_context(context), m_file(file), m_line(line), m_fn(fn), m_start(sys::queryTime_us())
 		{
 			if (RuntimeFilterPredicate(level, context))
 			{
@@ -73,7 +73,7 @@
 		ScopedLog::~ScopedLog ()
 		{
 			if (RuntimeFilterPredicate(m_level, m_context))
-				WriteScope(e_Exit, m_level, m_context, m_file, m_line, m_fn, "dt=%llu", sys::queryTime_ms() - m_start);
+				WriteScope(e_Exit, m_level, m_context, m_file, m_line, m_fn, "dt=%llu", sys::queryTime_us() - m_start);
 		}
 
 

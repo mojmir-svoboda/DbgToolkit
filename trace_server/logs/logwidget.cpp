@@ -340,7 +340,7 @@ namespace logs {
 		connect(m_excludeFileLineButton, SIGNAL(clicked()), this, SLOT(onExcludeFileLine()));
 		connect(m_excludeRowButton, SIGNAL(clicked()), this, SLOT(onExcludeRow()));
 		connect(m_locateRowButton, SIGNAL(clicked()), this, SLOT(onLocateRow()));
-		connect(m_timeComboBox, SIGNAL(activated(int)), this, SLOT(onChangeTimeUnits(int)));
+		connect(m_timeComboBox->comboBox(), SIGNAL(activated(int)), this, SLOT(onChangeTimeUnits(int)));
 		connect(m_colorFileLineButton, SIGNAL(clicked()), this, SLOT(onColorFileLine()));
 		connect(m_colorRowButton, SIGNAL(clicked()), this, SLOT(onColorRow()));
 		connect(m_uncolorRowButton, SIGNAL(clicked()), this, SLOT(onUncolorRow()));
