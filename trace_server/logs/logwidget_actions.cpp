@@ -292,6 +292,7 @@ void LogWidget::onSetRefTime ()
 	else
 	{
 		clearRefTime();
+		onInvalidateFilter(); // TODO: invalidate only column?
 	}
 }
 

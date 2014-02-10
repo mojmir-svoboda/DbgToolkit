@@ -196,6 +196,7 @@ private slots:
 	//void ondtToolButton ();
 	//void onTimeUnitsChanged (int i);
 	void onTablesStateChanged (int state);
+	void onPlotStateChanged (int state);
 
 private:
 	void showServerStatus ();

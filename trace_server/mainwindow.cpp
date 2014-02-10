@@ -339,7 +339,13 @@ void MainWindow::onDockManagerClosed ()
 	ui->dockedWidgetsToolButton->setChecked(false);
 }
 
-void MainWindow::onTablesStateChanged (int state) { }
+void MainWindow::onPlotStateChanged (int state)
+{
+}
+
+void MainWindow::onTablesStateChanged (int state)
+{
+}
 
 void MainWindow::tailFiles (QStringList const & files)
 {
@@ -497,10 +503,10 @@ void MainWindow::setupMenuBar ()
 	new QShortcut(QKeySequence(Qt::Key_Slash), this, SLOT(onFind()));
 */
 	//editMenu->addAction(tr("Find and Select All"), this, SLOT(onFindAllButton()));
-	editMenu->addAction(tr("Goto Next Tag or Selection"), this, SLOT(onNextToView()));
+	//editMenu->addAction(tr("Goto Next Tag or Selection"), this, SLOT(onNextToView()));
 
 	editMenu->addSeparator();
-	editMenu->addAction(tr("Close Tab"), m_server, SLOT(onCloseCurrentTab()), QKeySequence(Qt::ControlModifier + Qt::Key_W));
+	editMenu->addAction(tr("Close Tab"), this, SLOT(onCloseCurrentTab()), QKeySequence(Qt::ControlModifier + Qt::Key_W));
 
 	// Filter
 	//QMenu * filterMenu = menuBar()->addMenu(tr("Fi&lter"));
@@ -514,18 +520,18 @@ void MainWindow::setupMenuBar ()
 	tailMenu->addAction(tr("Trace Server Log"), this, SLOT(onLogTail()), QKeySequence(Qt::ControlModifier + Qt::AltModifier + Qt::Key_L));
 		
 	// Tools
-	QMenu * tools = menuBar()->addMenu(tr("&Settings"));
-	tools->addAction(tr("&Options"), this, SLOT(onSetupAction()), QKeySequence(Qt::AltModifier + Qt::ShiftModifier + Qt::Key_O));
+	//QMenu * tools = menuBar()->addMenu(tr("&Settings"));
+	//tools->addAction(tr("&Options"), this, SLOT(onSetupAction()), QKeySequence(Qt::AltModifier + Qt::ShiftModifier + Qt::Key_O));
 	//tools->addAction(tr("Save Current Filter As..."), this, SLOT(onSaveCurrentFileFilter()));
-	tools->addSeparator();
-	tools->addAction(tr("Save options now (this will NOT save presets)"), this, SLOT(storeState()), QKeySequence(Qt::AltModifier + Qt::ControlModifier + Qt::ShiftModifier + Qt::Key_O));
+	//tools->addSeparator();
+	//tools->addAction(tr("Save options now (this will NOT save presets)"), this, SLOT(storeState()), QKeySequence(Qt::AltModifier + Qt::ControlModifier + Qt::ShiftModifier + Qt::Key_O));
 
 	// Help
 	QMenu * helpMenu = menuBar()->addMenu(tr("&Help"));
 	helpMenu->addAction(tr("Help"), this, SLOT(onShowHelp()));
-	helpMenu->addAction(tr("Dump filters"), this, SLOT(onDumpFilters()));
+	//helpMenu->addAction(tr("Dump filters"), this, SLOT(onDumpFilters()));
 
-	new QShortcut(QKeySequence(Qt::AltModifier + Qt::Key_Space), this, SLOT(onAutoScrollHotkey()));
+	//new QShortcut(QKeySequence(Qt::AltModifier + Qt::Key_Space), this, SLOT(onAutoScrollHotkey()));
 }
 
 void MainWindow::storeState ()
