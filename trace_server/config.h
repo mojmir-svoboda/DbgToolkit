@@ -9,13 +9,13 @@ struct GlobalConfig {
 	bool m_was_maximized;
 	bool m_dump_mode;
 	QList<QString> m_app_names;					/// registered applications
-	QList<columns_setup_t> m_columns_setup;		/// column setup for each registered application
-	QList<columns_sizes_t> m_columns_sizes;		/// column sizes for each registered application
-	QList<columns_align_t> m_columns_align;		/// column align for each registered application
-	QList<columns_elide_t> m_columns_elide;		/// column elide for each registered application
+	//OBSOLETTEQList<columns_setup_t> m_columns_setup;		/// column setup for each registered application
+	//OBSOLETTEQList<columns_sizes_t> m_columns_sizes;		/// column sizes for each registered application
+	//OBSOLETTEQList<columns_align_t> m_columns_align;		/// column align for each registered application
+	//OBSOLETTEQList<columns_elide_t> m_columns_elide;		/// column elide for each registered application
 	QList<QColor> m_thread_colors;				/// predefined coloring of threads
-	QList<QString> m_registry_pnames;			/// legacy preset names from registry
-	QString m_last_search;
+	//QList<QString> m_registry_pnames;			/// legacy preset names from registry
+	//OBSOLETTEQString m_last_search;
 	History<QString> m_search_history;
 	History<QString> m_preset_history;
 	History<QString> m_multitab_preset_history;

@@ -41,6 +41,7 @@ template <typename KeyT>
 struct History
 {
 	unsigned m_key_limit;
+	int m_current_item;
 	typedef KeyT key_t;
 	typedef std::vector<ItemInfo<key_t> > dict_t;
 	typedef typename dict_t::iterator it_t;
@@ -49,6 +50,7 @@ struct History
 
 	History (unsigned item_limit)
 		: m_key_limit(item_limit)
+		, m_current_item(-1)
 	{ 
 		m_dict.reserve(m_key_limit);
 	}
@@ -81,7 +83,6 @@ struct History
 			m_dict.push_back(ItemInfo<KeyT>(key));
 	}
 
-
 	bool find (typename boost::call_traits<KeyT>::param_type key)
 	{
 		unsigned const key_hash = hash<KeyT>()(key);
@@ -100,6 +101,7 @@ struct History
 	void serialize (ArchiveT & ar, unsigned const version)
 	{
 		ar & boost::serialization::make_nvp("dict", m_dict);
+		ar & boost::serialization::make_nvp("current_item", m_current_item);
 	}
 
 	size_t size () const { return m_dict.size(); }

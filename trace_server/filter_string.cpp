@@ -79,7 +79,7 @@ bool FilterString::accept (DecodedCommand const & cmd) const
 				}
 			}
 		}
-		return false;
+		return true;
 	}
 	return true; // no strings at all
 }
@@ -129,7 +129,7 @@ void FilterString::setupModel ()
 	connect(m_ui->buttonAddString, SIGNAL(clicked()), this, SLOT(onStringAdd()));
 	connect(m_ui->buttonRmString, SIGNAL(clicked()), this, SLOT(onStringRm()));
 
-	//m_ui->view->setItemDelegate(m_delegates.get<e_delegate_String>());
+	m_ui->view->setItemDelegate(new StringDelegate(this));
 }
 
 void FilterString::destroyModel ()

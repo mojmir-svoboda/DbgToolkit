@@ -29,7 +29,6 @@
 #include <tlv_parser/tlv_parser.h>
 #include "config.h"
 #include "dock.h"
-#include "findwidget.h"
 
 namespace Ui {
 	class MainWindow;
@@ -44,7 +43,6 @@ class QMenu;
 class QListView;
 class QStandardItemModel;
 class QLabel;
-class SessionState;
 class TreeView;
 class QTreeView;
 class Connection;
@@ -72,15 +70,11 @@ public:
 		return e_InvalidItem;
 	}
 
-
 	// presets
 	int findRegistryPresetName (QString const & name);
 	int addRegistryPresetName (QString const & name);
 	void saveLayout (QString const & preset_name);
 	void loadLayout (QString const & preset_name);
-	void saveSession (SessionState const & s, QString const & preset_name) const;
-	bool loadSession (SessionState & s, QString const & preset_name);
-
 	void onPresetActivate (Connection * conn, QString const & pname);
 	QString getCurrentPresetName () const;
 	QString promptAndCreatePresetName (QString const & app_name);
@@ -90,16 +84,13 @@ public:
 	void mentionInPresetHistory (QString const & str);
 	void mentionInMultiTabPresetHistory (QString const & str);
 
-	QTreeView const * getDockedWidgetsTreeView () const;
-
 	// global config
 	GlobalConfig const & getConfig () const { return m_config; }
 	bool dumpModeEnabled () const { return m_config.m_dump_mode; }
-	void setLevel (int i);
 	unsigned getHotKey () const;
 	bool onTopEnabled () const;
-
 	// per connection config
+	void setLevel (int i);
 	int getLevel () const; // @TODO: per connection
 	bool buffEnabled () const;
 	Qt::CheckState buffState () const;
@@ -107,10 +98,7 @@ public:
 	int plotState () const; // @TODO: should be per connection
 	int tableState () const;
 	int ganttState () const;
-
-	// log widget
-	bool dtEnabled () const;
-	QList<QColor> const & getThreadColors () const { return m_config.m_thread_colors; }
+	//QList<QColor> const & getThreadColors () const { return m_config.m_thread_colors; }
 
 	// drag and drop
 	void changeEvent (QEvent * e);
@@ -120,13 +108,13 @@ public:
 	void keyPressEvent (QKeyEvent * e);
 	bool handleTab (QKeyEvent * e);
 
-	//OBS Server const * getServer () const { return m_server; }
-	//OBS Server * getServer () { return m_server; }
-
+    // docking stuff
+	QTreeView const * getDockedWidgetsTreeView () const;
 	DockManager const & dockManager () const { return m_dock_mgr; }
 	DockManager & dockManager () { return m_dock_mgr; }
 	QString const & dockedName () const { return m_docked_name; }
 
+    // files and streams
 	void createTailDataStream (QString const & fname);
 	void createTailLogStream (QString const & fname, QString const & separator);
 	void importDataStream (QString const & fname);
@@ -162,7 +150,6 @@ private slots:
 	void loadState ();
 	void storeGeometry ();
 	void storeState ();
-	void storePresetNames ();
 	void timerHit ();
 	void onQuit ();
 	//void onFocusChanged (QWidget * old, QWidget * now);
@@ -178,10 +165,9 @@ private slots:
 	void closeEvent (QCloseEvent *event);
 	void iconActivated (QSystemTrayIcon::ActivationReason reason);
 
-	//void onCopyToClipboard ();
-
 	// preset
 	void onPresetChanged (int idx);
+	void onMultiTabPresetChanged (int idx);
 	void onSaveCurrentState ();
 	void onSaveCurrentStateTo (QString const & name);
 	void onAddPreset ();
@@ -204,7 +190,6 @@ private:
 	void setupMenuBar ();
 	void createActions ();
 	void createTrayIcon ();
-	void convertBloodyBollockyBuggeryRegistry ();
 
 	typedef std::map<QWidget *, Connection *> connections_t;
 	connections_t 		m_connections;

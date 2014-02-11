@@ -30,6 +30,7 @@
 #include "utils.h"
 #include "utils_qstandarditem.h"
 #include "utils_qsettings.h"
+#include "utils_history.h"
 #include "qt_plugins.h"
 
 void MainWindow::loadNetworkSettings ()
@@ -74,11 +75,6 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QStri
 	QString const homedir = QDir::homePath();
 	m_config.m_appdir = homedir + "/.flogging";
 	m_config.m_dump_mode = dump_mode;
-
-	m_config.m_columns_setup.reserve(16);
-	m_config.m_columns_sizes.reserve(16);
-	m_config.m_columns_align.reserve(16);
-	m_config.m_columns_elide.reserve(16);
 
 	// tray stuff
 	createActions();
@@ -141,6 +137,7 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QStri
 
 	connect(ui->activatePresetButton, SIGNAL(clicked()), this, SLOT(onPresetActivate()));
 	connect(ui->presetComboBox, SIGNAL(activated(int)), this, SLOT(onPresetChanged(int)));
+	connect(ui->multiTabPresetComboBox, SIGNAL(activated(int)), this, SLOT(onMultiTabPresetChanged(int)));
 	connect(ui->presetAddButton, SIGNAL(clicked()), this, SLOT(onAddPreset()));
 	connect(ui->presetRmButton, SIGNAL(clicked()), this, SLOT(onRmCurrentPreset()));
 	connect(ui->presetSaveButton, SIGNAL(clicked()), this, SLOT(onSaveCurrentState()));
@@ -553,11 +550,10 @@ void MainWindow::storeState ()
 	settings.setValue("buffCheckBox", ui->buffCheckBox->isChecked());
 	settings.setValue("levelSpinBox", ui->levelSpinBox->value());
 
-	settings.setValue("trace_stats", ui_settings->traceStatsCheckBox->isChecked());
+	//OBSOLETTEsettings.setValue("trace_stats", ui_settings->traceStatsCheckBox->isChecked());
 	settings.setValue("reuseTabCheckBox", ui_settings->reuseTabCheckBox->isChecked());
 	settings.setValue("onTopCheckBox", ui_settings->onTopCheckBox->isChecked());
 	settings.setValue("presetComboBox", ui->presetComboBox->currentText());
-	settings.setValue("multiTabPresetComboBox", ui->multiTabPresetComboBox->currentText());
 	
 	m_dock_mgr.saveConfig(m_config.m_appdir);
 #ifdef WIN32
@@ -576,12 +572,13 @@ void MainWindow::restoreDockedWidgetGeometry ()
 void MainWindow::loadState ()
 {
 	qDebug("%s", __FUNCTION__);
-	m_config.m_app_names.clear();
-	m_config.m_columns_setup.clear();
-	m_config.m_columns_sizes.clear();
-	m_config.m_columns_align.clear();
-	m_config.m_columns_elide.clear();
+	//OBSOLETTEm_config.m_app_names.clear();
+	//OBSOLETTEm_config.m_columns_setup.clear();
+	//OBSOLETTEm_config.m_columns_sizes.clear();
+	//OBSOLETTEm_config.m_columns_align.clear();
+	//OBSOLETTEm_config.m_columns_elide.clear();
 	m_config.loadHistory();
+  syncHistoryToWidget(ui->multiTabPresetComboBox, m_config.m_multitab_preset_history);
 	//updateSearchHistory();
 
 	QSettings settings("MojoMir", "TraceServer");
@@ -589,7 +586,7 @@ void MainWindow::loadState ()
 	restoreState(settings.value("windowState").toByteArray());
 	int const pane_val = settings.value("filterPaneComboBox", 0).toInt();
 
-	ui_settings->traceStatsCheckBox->setChecked(settings.value("trace_stats", true).toBool());
+	//OBSOLETTEui_settings->traceStatsCheckBox->setChecked(settings.value("trace_stats", true).toBool());
 	ui_settings->reuseTabCheckBox->setChecked(settings.value("reuseTabCheckBox", true).toBool());
 
 	ui->tableSlider->setValue(settings.value("tableSlider", 0).toInt());

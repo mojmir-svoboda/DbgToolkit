@@ -64,14 +64,21 @@ void FindWidget::applyConfig ()
 
 void FindWidget::onCancel ()
 {
-	if (isVisible())
+	if (isMovingFindWidget())
 	{
-		QObject * o = parent();
-		QWidget * w = qobject_cast<QWidget *>(o);
-		w->setFocus();
-		hide();
+		if (isVisible())
+		{
+			QObject * o = parent();
+			QWidget * w = qobject_cast<QWidget *>(o);
+			w->setFocus();
+			hide();
+			setParent(m_main_window);
+		}
+		move(0,0);
 	}
-	move(0,0);
+	else
+	{
+	}
 }
 
 void FindWidget::onActivate ()
@@ -90,7 +97,6 @@ void FindWidget::onEditTextChanged (QString str)
 
 void FindWidget::onReturnPressed ()
 {
-	onFindNext();
 	//@TODO
 	//m_config.saveHistory();
 }
@@ -183,6 +189,7 @@ void FindWidget::find ()
 		m_main_window->dockManager().handleAction(&a, e_Sync);
 		QTimer::singleShot(750, this, SLOT(onResetRegexpState()));
 	}
+
 }
 
 void FindWidget::find (bool select, bool refs, bool clone)

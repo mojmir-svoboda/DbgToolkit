@@ -108,6 +108,9 @@ void MainWindow::mentionInMultiTabPresetHistory (QString const & str)
 		return;
 
 	mentionStringInHistory_NoRef(str, ui->multiTabPresetComboBox, m_config.m_multitab_preset_history);
+	int const i = ui->multiTabPresetComboBox->findText(str);
+	m_config.m_multitab_preset_history.m_current_item = i;
+	ui->multiTabPresetComboBox->setCurrentIndex(i);
 	m_config.saveHistory();
 }
 void MainWindow::setPresetAsCurrent (QString const & pname)
@@ -203,6 +206,10 @@ void MainWindow::onPresetActivate (Connection * conn, QString const & preset_nam
 		mentionStringInHistory_Ref(preset_name, ui->presetComboBox, m_config.m_preset_history);
 		QStringList list1 = preset_name.split("/");
 		mentionStringInHistory_Ref(list1.at(1), ui->multiTabPresetComboBox, m_config.m_multitab_preset_history);
+
+		int const i = ui->multiTabPresetComboBox->findText(list1.at(1));
+		m_config.m_multitab_preset_history.m_current_item = i;
+		ui->multiTabPresetComboBox->setCurrentIndex(i);
 		m_config.saveHistory();
 
 		setPresetAsCurrent(preset_name);
@@ -222,6 +229,14 @@ void MainWindow::onPresetActivate (Connection * conn, QString const & preset_nam
 
 void MainWindow::onPresetChanged (int idx)
 {
+	m_config.m_preset_history.m_current_item = idx;
+	m_config.saveHistory();
+}
+
+void MainWindow::onMultiTabPresetChanged (int idx)
+{
+	m_config.m_multitab_preset_history.m_current_item = idx;
+	m_config.saveHistory();
 }
 
 void MainWindow::saveLayout (QString const & preset_name)
