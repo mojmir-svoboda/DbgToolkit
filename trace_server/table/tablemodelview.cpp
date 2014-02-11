@@ -163,6 +163,8 @@ void TableModel::clearModel ()
 	m_col_times.clear();
 	m_rows.clear();
 	m_column_count = 0;
+  //m_hhdr.clear();
+  //m_hsize.clear();
 	removeRows(0, rowCount());
 	removeColumns(0, columnCount());
 
