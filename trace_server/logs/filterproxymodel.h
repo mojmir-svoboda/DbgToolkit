@@ -48,6 +48,8 @@ public:
 	virtual bool filterAcceptsColumn (int sourceColumn, QModelIndex const & source_parent) const;
 	virtual QModelIndex sibling (int row, int column, QModelIndex const & idx) const;
 
+	void clearModel ();
+
 protected:
 
 	logs::LogWidget & m_log_widget;

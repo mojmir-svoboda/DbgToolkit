@@ -157,11 +157,15 @@ void TableModel::emitLayoutChanged ()
 void TableModel::clearModel ()
 {
 	beginResetModel();
+
 	m_row_ctimes.clear();
 	m_row_stimes.clear();
 	m_col_times.clear();
 	m_rows.clear();
 	m_column_count = 0;
+	removeRows(0, rowCount());
+	removeColumns(0, columnCount());
+
 	endResetModel();
 	//QVector<QString> & m_hhdr.clear();
 	//QVector<int> & m_hsize;

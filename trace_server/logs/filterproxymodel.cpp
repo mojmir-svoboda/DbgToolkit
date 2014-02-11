@@ -68,6 +68,26 @@ bool FilterProxyModel::filterAcceptsRow (int sourceRow, QModelIndex const & /*so
 	return true;
 }
 
+void FilterProxyModel::clearModel ()
+{
+	beginResetModel();
+
+	m_cmap_from_src.clear();
+	m_cmap_from_tgt.clear();
+	m_map_from_src.clear();
+	m_map_from_tgt.clear();
+	m_allowed_src_cols.clear();
+
+
+	m_column_count = 0;
+	removeRows(0, rowCount());
+	removeColumns(0, columnCount());
+
+	endResetModel();
+	//QVector<QString> & m_hhdr.clear();
+	//QVector<int> & m_hsize;
+	//QAbstractProxyModel * m_proxy;
+}
 
 
 void FilterProxyModel::commitBatchToModel (int src_from, int src_to, BatchCmd const & batch)
