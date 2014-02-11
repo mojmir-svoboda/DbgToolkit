@@ -104,8 +104,9 @@ void MainWindow::mentionInPresetHistory (QString const & str)
 
 void MainWindow::mentionInMultiTabPresetHistory (QString const & str)
 {
-	if (str.isEmpty() || !validatePresetName(str))
-		return;
+	// @TODO: check for non existence of /
+	//if (str.isEmpty())
+	//	return;
 
 	mentionStringInHistory_NoRef(str, ui->multiTabPresetComboBox, m_config.m_multitab_preset_history);
 	int const i = ui->multiTabPresetComboBox->findText(str);
@@ -237,6 +238,12 @@ void MainWindow::onMultiTabPresetChanged (int idx)
 {
 	m_config.m_multitab_preset_history.m_current_item = idx;
 	m_config.saveHistory();
+}
+
+void MainWindow::onMultiTabPresetReturnPressed ()
+{
+	QString const txt = ui->multiTabPresetComboBox->currentText();
+	mentionInMultiTabPresetHistory(txt);
 }
 
 void MainWindow::saveLayout (QString const & preset_name)

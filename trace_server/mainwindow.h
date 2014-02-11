@@ -168,6 +168,7 @@ private slots:
 	// preset
 	void onPresetChanged (int idx);
 	void onMultiTabPresetChanged (int idx);
+	void onMultiTabPresetReturnPressed ();
 	void onSaveCurrentState ();
 	void onSaveCurrentStateTo (QString const & name);
 	void onAddPreset ();

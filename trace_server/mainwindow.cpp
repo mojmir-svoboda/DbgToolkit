@@ -138,6 +138,7 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QStri
 	connect(ui->activatePresetButton, SIGNAL(clicked()), this, SLOT(onPresetActivate()));
 	connect(ui->presetComboBox, SIGNAL(activated(int)), this, SLOT(onPresetChanged(int)));
 	connect(ui->multiTabPresetComboBox, SIGNAL(activated(int)), this, SLOT(onMultiTabPresetChanged(int)));
+	connect(ui->multiTabPresetComboBox->lineEdit(), SIGNAL(returnPressed()), this, SLOT(onMultiTabPresetReturnPressed()));
 	connect(ui->presetAddButton, SIGNAL(clicked()), this, SLOT(onAddPreset()));
 	connect(ui->presetRmButton, SIGNAL(clicked()), this, SLOT(onRmCurrentPreset()));
 	connect(ui->presetSaveButton, SIGNAL(clicked()), this, SLOT(onSaveCurrentState()));
