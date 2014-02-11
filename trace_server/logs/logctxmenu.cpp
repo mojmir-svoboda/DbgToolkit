@@ -238,6 +238,11 @@ void LogCtxMenu::setConfigValuesToUI (LogConfig const & cfg)
 	{
 		int const li = m_log_widget.horizontalHeader()->logicalIndex(i);
 		Q_ASSERT(li > -1);
+    if (li == -1)
+    {
+      qWarning("li == -1 for i=%i", i);
+      continue;
+    }
 	
 		bool const hidden = cfg.m_columns_sizes[li] == 0;
 		//bool const hidden = m_log_widget.horizontalHeader()->isSectionHidden(li);
@@ -512,6 +517,11 @@ void LogCtxMenu::onClickedAtApplyButton ()
 		for (int c = 0, ce = config.m_columns_sizes.size(); c < ce; ++c)
 		{
 			int const li = m_log_widget.horizontalHeader()->logicalIndex(c);
+      if (li == -1)
+      {
+        qWarning("li == -1 for col=%i", c);
+        continue; // @FIXME: this only hotfix
+      }
 			m_log_widget.m_config.m_columns_align[li] = config.m_columns_align[c];
 			m_log_widget.m_config.m_columns_elide[li] = config.m_columns_elide[c];
 		}
