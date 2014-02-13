@@ -194,8 +194,8 @@ namespace logs {
 
 		m_excludeFileLineButton = new QToolButton(parent_widget);
 		m_excludeFileLineButton->setObjectName(QStringLiteral("excludeFileLineButton"));
-		m_excludeFileLineButton->setMinimumSize(QSize(64, 0));
-		m_excludeFileLineButton->setMaximumSize(QSize(16777215, 16));
+		m_excludeFileLineButton->setMinimumSize(QSize(16, 0));
+		m_excludeFileLineButton->setMaximumSize(QSize(16777215, 24));
 
 		cacheLayout->addWidget(m_excludeFileLineButton);
 
@@ -249,12 +249,12 @@ namespace logs {
 		m_hideNextButton->setArrowType(Qt::DownArrow);
 		cacheLayout->addWidget(m_hideNextButton);
 
-		line_2 = new QFrame(parent_widget);
-		line_2->setObjectName(QStringLiteral("line_2"));
-		line_2->setMinimumSize(QSize(3, 0));
-		line_2->setFrameShape(QFrame::VLine);
-		line_2->setFrameShadow(QFrame::Sunken);
-		cacheLayout->addWidget(line_2);
+		//line_2 = new QLine(parent_widget);
+		//line_2->setObjectName(QStringLiteral("line_2"));
+		//line_2->setMinimumSize(QSize(3, 0));
+		//line_2->setFrameShape(QFrame::VLine);
+		//line_2->setFrameShadow(QFrame::Sunken);
+		//cacheLayout->addWidget(line_2);
 
 		m_colorRowButton = new QToolButton(parent_widget);
 		m_colorRowButton->setObjectName(QStringLiteral("colorRowButton"));
@@ -276,10 +276,10 @@ namespace logs {
 		m_gotoNextColorButton->setArrowType(Qt::DownArrow);
 		cacheLayout->addWidget(m_gotoNextColorButton);
 
-		m_colorFileLineButton = new QToolButton(parent_widget);
-		m_colorFileLineButton->setObjectName(QStringLiteral("colorFileLineButton"));
-		m_colorFileLineButton->setMaximumSize(QSize(16777215, 16));
-		cacheLayout->addWidget(m_colorFileLineButton);
+		//m_colorFileLineButton = new QToolButton(parent_widget);
+		//m_colorFileLineButton->setObjectName(QStringLiteral("colorFileLineButton"));
+		//m_colorFileLineButton->setMaximumSize(QSize(16777215, 16));
+		//cacheLayout->addWidget(m_colorFileLineButton);
 
 		m_uncolorRowButton = new QToolButton(parent_widget);
 		m_uncolorRowButton->setObjectName(QStringLiteral("uncolorRowButton"));
@@ -289,40 +289,39 @@ namespace logs {
 		horizontalSpacer_3 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
 
 		m_gotoPrevErrButton->setToolTip(QApplication::translate("SettingsLog", "<html><head/><body><p>Goto prev error</p><p><br/></p><p>Hotkey = <span style=\" font-weight:600;\">Shift + e</span></p></body></html>", 0));
-		m_gotoPrevErrButton->setText(QApplication::translate("SettingsLog", "Err", 0));
+		m_gotoPrevErrButton->setText(QApplication::translate("SettingsLog", "E", 0));
 		m_gotoNextErrButton->setToolTip(QApplication::translate("SettingsLog", "<html><head/><body><p>Goto next error</p><p><br/></p><p>Hotkey = <span style=\" font-weight:600;\">e</span></p></body></html>", 0));
-		m_gotoNextErrButton->setText(QApplication::translate("SettingsLog", "Err", 0));
+		m_gotoNextErrButton->setText(QApplication::translate("SettingsLog", "E", 0));
 
 		m_gotoPrevWarnButton->setToolTip(QApplication::translate("SettingsLog", "<html><head/><body><p>Goto prev warning</p><p><br/></p><p>Hotkey = <span style=\" font-weight:600;\">Shift + w</span></p></body></html>", 0));
-		m_gotoPrevWarnButton->setText(QApplication::translate("SettingsLog", "Warn", 0));
+		m_gotoPrevWarnButton->setText(QApplication::translate("SettingsLog", "W", 0));
 		m_gotoNextWarnButton->setToolTip(QApplication::translate("SettingsLog", "<html><head/><body><p>Goto next warning</p><p><br/></p><p>Hotkey = <span style=\" font-weight:600;\">x</span></p></body></html>", 0));
-		m_gotoNextWarnButton->setText(QApplication::translate("SettingsLog", "Warn", 0));
+		m_gotoNextWarnButton->setText(QApplication::translate("SettingsLog", "W", 0));
 
 #ifndef QT_NO_TOOLTIP
 		m_excludeFileLineButton->setToolTip(QApplication::translate("SettingsLog", "<html><head/><body><p>Excludes File:Line combination from current selection from table. This is shortcut for going into Filter/File:Line and click on item</p><p><br/></p><p>Hotkey = <span style=\" font-weight:600;\">x</span></p></body></html>", 0));
 #endif // QT_NO_TOOLTIP
-		m_excludeFileLineButton->setText(QApplication::translate("SettingsLog", "Excl F:L", 0));
+		m_excludeFileLineButton->setText(QApplication::translate("SettingsLog", "x F:L", 0));
 		m_excludeRowButton->setToolTip(QApplication::translate("SettingsLog", "<html><head/><body><p>Excludes selected row via Filter/Row. This one does not use File:Line information, so it can be used to exclude specific lines while keeping the rest.</p><p>Hotkey = <span style=\" font-weight:600;\">r</span></p></body></html>", 0));
-		m_excludeRowButton->setText(QApplication::translate("SettingsLog", "Excl row", 0));
+		m_excludeRowButton->setText(QApplication::translate("SettingsLog", "x ==", 0));
 		m_locateRowButton->setToolTip(QApplication::translate("SettingsLog", "<html><head/><body><p>Change time units</p><p>Hotkey = <span style=\" font-weight:600;\">?</span></p></body></html>", 0));
-		m_locateRowButton->setText(QApplication::translate("SettingsLog", "? row", 0));
+		m_locateRowButton->setText(QApplication::translate("SettingsLog", "? ==", 0));
 		m_setRefTimeButton->setToolTip(QApplication::translate("SettingsLog", "<html><head/><body><p>Set/Unset reference time (= 0) to currently selected line</p></body></html>", 0));
 		m_setRefTimeButton->setText(QApplication::translate("SettingsLog", "Ref T", 0));
 		m_timeComboBox->setToolTip(QApplication::translate("SettingsLog", "<html><head/><body><p>Locates currently selected row in Filters/File:Line</p><p>Hotkey = <span style=\" font-weight:600;\">?</span></p></body></html>", 0));
-		//m_timeComboBox->setText(QApplication::translate("SettingsLog", "? row", 0));
 		m_setRefTimeButton->setToolTip(QApplication::translate("SettingsLog", "<html><head/><body><p>Set/Unset reference time (= 0) to currently selected line</p></body></html>", 0));
 		m_hidePrevButton->setToolTip(QApplication::translate("SettingsLog", "<html><head/><body><p>Hide rows preceeding current selection</p></body></html>", 0));
 		m_hidePrevButton->setText(QApplication::translate("SettingsLog", "Hide T", 0));
 		m_hideNextButton->setToolTip(QApplication::translate("SettingsLog", "Hide lines following current selection", 0));
 		m_hideNextButton->setText(QApplication::translate("SettingsLog", "Hide T", 0));
-		m_colorRowButton->setText(QApplication::translate("SettingsLog", "Color row", 0));
-		m_colorFileLineButton->setText(QApplication::translate("SettingsLog", "Color F:L", 0));
+		m_colorRowButton->setText(QApplication::translate("SettingsLog", "Color ==", 0));
+		//m_colorFileLineButton->setText(QApplication::translate("SettingsLog", "Color F:L", 0));
 		m_uncolorRowButton->setText(QApplication::translate("SettingsLog", "Uncolor", 0));
 
 		m_gotoPrevColorButton->setToolTip(QApplication::translate("SettingsLog", "<html><head/><body><p>Goto prev color tag</p><p><br/></p><p>Hotkey = <span style=\" font-weight:600;\"></span></p></body></html>", 0));
-		m_gotoPrevColorButton->setText(QApplication::translate("SettingsLog", "Color", 0));
+		m_gotoPrevColorButton->setText(QApplication::translate("SettingsLog", "", 0));
 		m_gotoNextColorButton->setToolTip(QApplication::translate("SettingsLog", "<html><head/><body><p>Goto next color tag</p><p><br/></p><p>Hotkey = <span style=\" font-weight:600;\"></span></p></body></html>", 0));
-		m_gotoNextColorButton->setText(QApplication::translate("SettingsLog", "Color", 0));
+		m_gotoNextColorButton->setText(QApplication::translate("SettingsLog", "", 0));
 
 		//cacheLayout->addItem(horizontalSpacer_3);
 
@@ -334,7 +333,7 @@ namespace logs {
 		connect(m_excludeRowButton, SIGNAL(clicked()), this, SLOT(onExcludeRow()));
 		connect(m_locateRowButton, SIGNAL(clicked()), this, SLOT(onLocateRow()));
 		connect(m_timeComboBox->comboBox(), SIGNAL(activated(int)), this, SLOT(onChangeTimeUnits(int)));
-		connect(m_colorFileLineButton, SIGNAL(clicked()), this, SLOT(onColorFileLine()));
+		//connect(m_colorFileLineButton, SIGNAL(clicked()), this, SLOT(onColorFileLine()));
 		connect(m_colorRowButton, SIGNAL(clicked()), this, SLOT(onColorRow()));
 		connect(m_uncolorRowButton, SIGNAL(clicked()), this, SLOT(onUncolorRow()));
 		connect(m_setRefTimeButton, SIGNAL(clicked()), this, SLOT(onSetRefTime()));
@@ -648,12 +647,16 @@ namespace logs {
 
 	void LogWidget::loadConfig (QString const & preset_dir)
 	{
+		QString const tag_backup = m_config.m_tag;
 		QString const logpath = preset_dir + "/" + g_LogTag + "/" + m_config.m_tag + "/";
 		m_config.clear();
 		bool const loaded = logs::loadConfig(m_config, logpath + g_LogFile);
 		if (!loaded)
+		{
 			defaultConfigFor(m_config);
-		
+			m_config.m_tag = tag_backup; // defaultConfigFor destroys tag
+		}
+
 		loadAuxConfigs();
 	}
 	void LogWidget::loadAuxConfigs ()
