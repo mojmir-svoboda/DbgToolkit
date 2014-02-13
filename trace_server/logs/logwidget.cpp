@@ -906,12 +906,12 @@ void LogWidget::reloadModelAccordingTo (LogConfig & config)
 {
 	//setItemDelegate(new LogDelegate(*this, m_connection->appData(), this));
 	setItemDelegate(0); // @FIXME TMP
-	m_src_model->clearModel();
-	m_proxy_model->clearModel();
 	m_config.m_columns_setup = config.m_columns_setup;
 	m_config.m_columns_sizes = config.m_columns_sizes;
 	m_config.m_columns_align = config.m_columns_align;
 	m_config.m_columns_elide = config.m_columns_elide;
+	m_src_model->clearModel();
+	m_proxy_model->clearModel();
 	m_src_model->reloadModelAccordingTo(config);
 }
 
