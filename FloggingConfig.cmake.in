@@ -5,12 +5,13 @@
 
 # Compute paths
 get_filename_component(FLOGGING_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
-if(EXISTS "${FLOGGING_CMAKE_DIR}/CMakeCache.txt")
+
+#if(EXISTS "${FLOGGING_CMAKE_DIR}/CMakeCache.txt")
    # In build tree
    include("${FLOGGING_CMAKE_DIR}/FloggingBuildTreeSettings.cmake")
-else()
-   set(FLOGGING_INCLUDE_DIRS "${FLOGGING_CMAKE_DIR}/@CONF_REL_INCLUDE_DIR@")
-endif()
+#else()
+   #set(FLOGGING_INCLUDE_DIRS "${FLOGGING_CMAKE_DIR}/@CONF_REL_INCLUDE_DIR@")
+#endif()
 
 # Our library dependencies (contains definitions for IMPORTED targets)
 #include("${FLOGGING_CMAKE_DIR}/FloggingLibraryDepends.cmake")
