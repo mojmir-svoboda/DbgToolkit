@@ -400,30 +400,6 @@
 	}
 
 #else // no tracing at all
-#	define TRACE_APPNAME(name)	((void)0)
-#	define TRACE_SETLEVEL(n)	((void)0)
-#	define TRACE_CONNECT()		((void)0)
-#	define TRACE_DISCONNECT()	((void)0)
-#	define TRACE_MSG(level, context, fmt, ... )		((void)0)
-#	define TRACE_MSG_VA(level, context, fmt, va)	((void)0)
-#	define TRACE_SCOPE(level, context)		((void)0)
-#	define TRACE_SETBUFFERED(on)	((void)0)
-#	define TRACE_CODE(code)		((void)0)
-#	define TRACE_EXPORT_CSV(file)	((void)0)
-#	define TRACE_SET_CTX_DICT()		((void)0)
-#	define TRACE_PLOT_XY(...)	((void)0)
-#	define TRACE_PLOT_XYZ(...)	((void)0)
-#	define TRACE_TABLE(...)		((void)0)
-#	define TRACE_TABLE(...)		((void)0)
-#	define TRACE_TABLE_HHEADER(...)		((void)0)
-#	define TRACE_TABLE_COLOR(...)	((void)0)
-#	define TRACE_SCOPE_MSG(level, context, fmt, ...)	((void)0)
-#	define TRACE_SCOPE(level, context)	((void)0)
-#	define TRACE_GANTT_BGN(fmt, ... )	((void)0)
-#	define TRACE_GANTT_END(fmt, ... )	((void)0)
-#	define TRACE_GANTT_BGN_VA(fmt, va)	((void)0)
-#	define TRACE_GANTT_SCOPE(fmt, ...)	((void)0)
-#	define TRACE_GANTT_FRAME_SCOPE(fmt, ...)	((void)0)
-#	define TRACE_FLUSH()	((void)0)
+# include "trace_dummy.h"
 #endif // !TRACE_ENABLED
 

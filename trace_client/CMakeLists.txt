@@ -3,6 +3,8 @@ add_library (trace_client STATIC trace.cpp)
 #set_target_properties(trace_client PROPERTIES PUBLIC_HEADER "trace.h;${CMAKE_CURRENT_BINARY_DIR}/config.h")
 set_target_properties (trace_client PROPERTIES PUBLIC_HEADER "trace.h")
 
+export (TARGETS trace_client FILE "${PROJECT_BINARY_DIR}/FloggingLibraryDepends.cmake")
+
 install (TARGETS trace_client
   # IMPORTANT: Add the trace_client library to the "export-set"
   EXPORT FloggingLibraryDepends

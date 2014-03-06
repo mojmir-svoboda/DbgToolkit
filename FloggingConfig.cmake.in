@@ -16,4 +16,4 @@ endif()
 include("${FLOGGING_CMAKE_DIR}/FloggingLibraryDepends.cmake")
 
 # These are IMPORTED targets created by FloggingLibraryDepends.cmake
-set(FLOGGING_LIBRARIES trace_client)
+#set(FLOGGING_LIBRARIES trace_client)
