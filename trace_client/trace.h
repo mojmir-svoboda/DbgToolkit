@@ -357,7 +357,7 @@
 		/**@fn		WriteGanttBgn
 		 * @brief	write begin to gantt evet in form (fmt, ...) **/
 #if defined __GCC__ || defined __MINGW32__ || defined __linux__
-		TRACE_API void WriteGanttBgn (level_t level, context_t context, char const * fmt, ...) __attribute__ ((format(printf, 1, 2) ));
+		TRACE_API void WriteGanttBgn (level_t level, context_t context, char const * fmt, ...) __attribute__ ((format(printf, 3, 4) ));
 #elif defined _MSC_VER
 		TRACE_API void WriteGanttBgn (level_t level, context_t context, char const * fmt, ...);
 #endif
@@ -366,7 +366,7 @@
 		TRACE_API void WriteGanttEnd (level_t level, context_t context, char const * fmt, ...);
 
 #if defined __GCC__ || defined __MINGW32__ || defined __linux__
-		TRACE_API void WriteGanttFrameBgn (level_t level, context_t context, char const * fmt, ...) __attribute__ ((format(printf, 1, 2) ));
+		TRACE_API void WriteGanttFrameBgn (level_t level, context_t context, char const * fmt, ...) __attribute__ ((format(printf, 3, 4) ));
 #elif defined _MSC_VER
 		TRACE_API void WriteGanttFrameBgn (level_t level, context_t context, char const * fmt, ...);
 #endif
