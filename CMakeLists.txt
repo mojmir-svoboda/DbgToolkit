@@ -30,10 +30,7 @@ include_directories (
   "${PROJECT_SOURCE_DIR}"   # to find trace_client/trace.h
   "${PROJECT_BINARY_DIR}")  # to find trace_client/config.h
 
-add_subdirectory (trace_client)
-
 # Add all targets to the build-tree export set
-export (TARGETS trace_client FILE "${PROJECT_BINARY_DIR}/FloggingLibraryDepends.cmake")
 
 # Export the package for use from the build-tree (this registers the build-tree with a global CMake-registry)
 export (PACKAGE Flogging)
@@ -47,4 +44,4 @@ configure_file (FloggingConfig.cmake.in "${PROJECT_BINARY_DIR}/FloggingConfig.cm
 configure_file (FloggingConfigVersion.cmake.in "${PROJECT_BINARY_DIR}/FloggingConfigVersion.cmake" @ONLY)
 
 # Install the export set for use with the install-tree
-install (EXPORT FloggingLibraryDepends DESTINATION "${INSTALL_DATA_DIR}/Flogging/CMake" COMPONENT dev)
+#install (EXPORT FloggingLibraryDepends DESTINATION "${INSTALL_DATA_DIR}/Flogging/CMake" COMPONENT dev)
