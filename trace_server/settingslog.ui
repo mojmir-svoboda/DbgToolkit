@@ -145,6 +145,9 @@
         <property name="selectionRectVisible">
          <bool>true</bool>
         </property>
+        <property name="currentRow">
+         <number>1</number>
+        </property>
         <item>
          <property name="text">
           <string>Find</string>

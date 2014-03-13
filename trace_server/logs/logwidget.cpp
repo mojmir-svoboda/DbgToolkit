@@ -904,8 +904,9 @@ void LogWidget::handleCommand (DecodedCommand const & cmd, E_ReceiveMode mode)
 
 void LogWidget::reloadModelAccordingTo (LogConfig & config)
 {
+	horizontalHeader()->reset();
 	//setItemDelegate(new LogDelegate(*this, m_connection->appData(), this));
-	setItemDelegate(0); // @FIXME TMP
+	//setItemDelegate(0); // @FIXME TMP
 	m_config.m_columns_setup = config.m_columns_setup;
 	m_config.m_columns_sizes = config.m_columns_sizes;
 	m_config.m_columns_align = config.m_columns_align;
