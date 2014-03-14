@@ -255,36 +255,45 @@ void LogTableModel::parseCommand (DecodedCommand const & cmd, E_ReceiveMode mode
 		qval.append(val);
 
 		column_index = m_log_widget.findColumn4Tag(tag);
-		if (columns.size() <= column_index + 1)
-			columns.resize(column_index + 1);
-		columns[column_index].m_value = qval;
+		if (column_index >= 0)
+		{
+			if (columns.size() <= column_index + 1)
+				columns.resize(column_index + 1);
+			columns[column_index].m_value = qval;
+		}
 	}
 
+	sys::hptimer_t const now = sys::queryTime_us();
+	unsigned long long const last_t = m_log_widget.getTLS().lastTime(thread_idx);
+	unsigned long long const t = time.toULongLong();
+	long long const dt = t - last_t;
 	// dt
 	{
 		int ci = m_log_widget.findColumn4Tag(tlv::tag_dt);
-		if (ci < 0)
-			ci = m_log_widget.appendColumn(tlv::tag_dt);
+		if (ci >= 0)
+		{
+			//if (ci < 0)
+				//ci = m_log_widget.appendColumn(tlv::tag_dt);
 
-		if (columns.size() <= ci + 1)
-			columns.resize(ci + 1);
+			if (columns.size() <= ci + 1)
+				columns.resize(ci + 1);
 
-		unsigned long long const last_t = m_log_widget.getTLS().lastTime(thread_idx);
-		unsigned long long const t = time.toULongLong();
+			columns[ci].m_value = tr("%1").arg(dt);
+		}
 
-		long long const dt = t - last_t;
-		columns[ci].m_value = tr("%1").arg(dt);
 		m_log_widget.getTLS().setLastTime(thread_idx, t);
 
 		m_batch.m_row_ctimes.push_back(t);
-		sys::hptimer_t const now = sys::queryTime_us();
 		m_batch.m_row_stimes.push_back(now);
 
 		// stime
 		int sti = m_log_widget.findColumn4Tag(tlv::tag_stime);
-		if (sti < 0)
-			sti = m_log_widget.appendColumn(tlv::tag_stime);
-		columns[sti].m_value = tr("%1").arg(now);
+		if (sti >= 0)
+		{
+			if (sti < 0)
+				sti = m_log_widget.appendColumn(tlv::tag_stime);
+			columns[sti].m_value = tr("%1").arg(now);
+		}
 	}
 }
 

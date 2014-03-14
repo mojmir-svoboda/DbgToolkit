@@ -913,6 +913,7 @@ void LogWidget::reloadModelAccordingTo (LogConfig & config)
 	m_config.m_columns_elide = config.m_columns_elide;
 	m_src_model->clearModel();
 	m_proxy_model->clearModel();
+	m_tags2columns.clear();
 	m_src_model->reloadModelAccordingTo(config);
 }
 
