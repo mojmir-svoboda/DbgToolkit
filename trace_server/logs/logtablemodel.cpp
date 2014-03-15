@@ -150,13 +150,6 @@ void LogTableModel::commitBatchToModel ()
 		cols_last = cols - 1;
 	}
 
-	int dt_col = m_log_widget.findColumn4TagCst(tlv::tag_dt);
-	if (dt_col < 0)
-	{
-		dt_col = m_log_widget.appendColumn(tlv::tag_dt);
-		++cols_last;
-	}
-
 	if (new_cols)
 	{
 		beginInsertColumns(QModelIndex(), cols_first, cols_last);
@@ -267,7 +260,7 @@ void LogTableModel::parseCommand (DecodedCommand const & cmd, E_ReceiveMode mode
 	unsigned long long const last_t = m_log_widget.getTLS().lastTime(thread_idx);
 	unsigned long long const t = time.toULongLong();
 	long long const dt = t - last_t;
-	// dt
+	// dt + stime
 	{
 		int ci = m_log_widget.findColumn4Tag(tlv::tag_dt);
 		if (ci >= 0)
