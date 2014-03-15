@@ -127,7 +127,6 @@ void LogTableModel::commitBatchToModel ()
 	m_row_stimes.resize(from + rows);
 	int const to = from + rows - 1;
 	beginInsertRows(QModelIndex(), from, to);
-	int cols = 0;
 	for (int r = 0, re = m_batch.m_rows.size(); r < re; ++r)
 	{
 		m_rows[from + r] = m_batch.m_rows[r];
@@ -135,30 +134,8 @@ void LogTableModel::commitBatchToModel ()
 		m_dcmds[from + r].m_src_row = from + r;
 		m_row_ctimes[from + r] = m_batch.m_row_ctimes[r];
 		m_row_stimes[from + r] = m_batch.m_row_stimes[r];
-		int const curr_cols = m_batch.m_rows[r].size();
-		cols = cols < curr_cols ? curr_cols : cols;
 	}
 	endInsertRows();
-
-	bool new_cols = false;
-	int cols_first = 0;
-	int cols_last = 0;
-	if (m_column_count < cols)
-	{
-		new_cols = true;
-		cols_first = m_column_count;
-		cols_last = cols - 1;
-	}
-
-	if (new_cols)
-	{
-		beginInsertColumns(QModelIndex(), cols_first, cols_last);
-		//qDebug("mod  COL  beginInsertCols(%02i, %02i) ", cols_first, cols_last);
-		insertColumns(cols_first, cols_last);
-		if (m_column_count < cols_last + 1)
-			m_column_count = cols_last + 1;
-		endInsertColumns();
-	}
 
 	for (int r = 0, re = rows; r < re; ++r)
 	{
