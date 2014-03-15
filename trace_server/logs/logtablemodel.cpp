@@ -71,6 +71,7 @@ void LogTableModel::reloadModelAccordingTo (logs::LogConfig & config)
 		handleCommand(dcmd, e_RecvBatched);
 	}
 	commitCommands(e_RecvSync);
+  //emit headerDataChanged(Qt::Horizontal, 0, 10);// TODO TODO TODO TST
 }
 
 LogTableModel * LogTableModel::cloneToNewModel ()

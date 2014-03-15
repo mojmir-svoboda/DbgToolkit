@@ -116,6 +116,10 @@ QVariant TableModel::headerData (int section, Qt::Orientation orientation, int r
 				if (section > -1 && section < m_hhdr.size())
 					return m_hhdr.at(section);
 				break;
+            /*case Qt::SizeHintRole:
+				if (section > -1 && section < m_hhdr.size())
+                  return QSize(m_hsize[section], 12);
+                return 128;*/
 		}
 	}
 	return QVariant();

@@ -915,6 +915,7 @@ void LogWidget::reloadModelAccordingTo (LogConfig & config)
 	m_proxy_model->clearModel();
 	m_tags2columns.clear();
 	m_src_model->reloadModelAccordingTo(config);
+	resizeSections();
 }
 
 LogTableModel * LogWidget::cloneToNewModel (FindConfig const & fc)
