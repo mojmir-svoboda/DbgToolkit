@@ -194,7 +194,8 @@ void LogCtxMenu::prepareSettingsWidgets ()
 	m_ui->listViewColumnSetup->setDropIndicatorShown(true);
 	m_ui->listViewColumnSetup->setMovement(QListView::Snap);
 	m_ui->listViewColumnSetup->setDragDropMode(QAbstractItemView::InternalMove);
-	m_ui->listViewColumnSetup->setEditTriggers(QAbstractItemView::CurrentChanged);
+	m_ui->listViewColumnSetup->setEditTriggers(QAbstractItemView::DoubleClicked);
+	//m_ui->listViewColumnSetup->setEditTriggers(QAbstractItemView::CurrentChanged);
 	//m_ui->listViewColumnSetup->setEditTriggers(QAbstractItemView::SelectedClicked);
 	model->addObserver(static_cast<QStandardItemModel *>(m_ui->listViewColumnShow->model()));
 	model->addObserver(static_cast<QStandardItemModel *>(m_ui->listViewColumnSizes->model()));
@@ -267,7 +268,7 @@ void LogCtxMenu::setConfigValuesToUI (LogConfig const & cfg)
 			if (findChildByText(cs_root, QString::fromLatin1(name)))
 				continue;
 
-			QList<QStandardItem *> row_items = addRow(QString::fromLatin1(name), false);
+			QList<QStandardItem *> row_items = addUncheckableRow(QString::fromLatin1(name));
 			cs_root->appendRow(row_items);
 			add_tag_indices[add_tag_count++] = i;
 
@@ -514,7 +515,7 @@ void LogCtxMenu::onClickedAtApplyButton ()
 
 		// reorder columns and set to main config
 		//m_log_widget.swapSectionsAccordingTo(config);
-		for (int c = 0, ce = config.m_columns_sizes.size(); c < ce; ++c)
+		/*for (int c = 0, ce = config.m_columns_sizes.size(); c < ce; ++c)
 		{
 			int const li = m_log_widget.horizontalHeader()->logicalIndex(c);
 			if (li == -1)
@@ -524,7 +525,7 @@ void LogCtxMenu::onClickedAtApplyButton ()
 			}
 			m_log_widget.m_config.m_columns_align[li] = config.m_columns_align[c];
 			m_log_widget.m_config.m_columns_elide[li] = config.m_columns_elide[c];
-		}
+		}*/
 	}
 }
 
