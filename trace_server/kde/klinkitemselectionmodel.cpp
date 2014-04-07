@@ -99,6 +99,8 @@ static QItemSelection klink_removeInvalidRanges(const QItemSelection &selection)
 void KLinkItemSelectionModel::select(const QItemSelection &selection, QItemSelectionModel::SelectionFlags command)
 {
     Q_D(KLinkItemSelectionModel);
+	if (d->m_ignoreCurrentChanged)
+        return;
     d->m_ignoreCurrentChanged = true;
 #ifdef RANGE_FIX_HACK
     QItemSelection _selection = klink_removeInvalidRanges(selection);
@@ -115,6 +117,8 @@ void KLinkItemSelectionModel::select(const QItemSelection &selection, QItemSelec
 
 void KLinkItemSelectionModelPrivate::slotCurrentChanged(const QModelIndex& current)
 {
+	if (m_ignoreCurrentChanged)
+        return;
     const QModelIndex mappedCurrent = m_indexMapper->mapLeftToRight(current);
     if (!mappedCurrent.isValid()) {
         return;
@@ -124,6 +128,8 @@ void KLinkItemSelectionModelPrivate::slotCurrentChanged(const QModelIndex& curre
 
 void KLinkItemSelectionModelPrivate::sourceSelectionChanged(const QItemSelection& selected, const QItemSelection& deselected)
 {
+	if (m_ignoreCurrentChanged)
+        return;
     Q_Q(KLinkItemSelectionModel);
 #ifdef RANGE_FIX_HACK
     QItemSelection _selected = klink_removeInvalidRanges(selected);
@@ -143,6 +149,8 @@ void KLinkItemSelectionModelPrivate::sourceSelectionChanged(const QItemSelection
 
 void KLinkItemSelectionModelPrivate::sourceCurrentChanged(const QModelIndex& current)
 {
+	if (m_ignoreCurrentChanged)
+        return;
     Q_Q(KLinkItemSelectionModel);
     const QModelIndex mappedCurrent = m_indexMapper->mapRightToLeft(current);
     if (!mappedCurrent.isValid()) {
