@@ -169,10 +169,6 @@ QModelIndex BaseProxyModel::index (int row, int column, QModelIndex const & pare
 		return QAbstractItemModel::createIndex(row, column);
 	return QModelIndex();
 }
-QModelIndex BaseProxyModel::parent (QModelIndex const & child) const
-{
-	return QModelIndex();
-}
 
 int BaseProxyModel::rowCount (QModelIndex const & parent) const
 {

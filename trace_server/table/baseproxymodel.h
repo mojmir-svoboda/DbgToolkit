@@ -32,7 +32,7 @@ public:
 	explicit BaseProxyModel (QObject * parent);
 
 	virtual QModelIndex index (int row, int column, QModelIndex const & parent = QModelIndex()) const;
-	virtual QModelIndex parent (QModelIndex const & child) const;
+	virtual QModelIndex parent (QModelIndex const & child) const { return QModelIndex(); }
 
 	virtual int rowCount (QModelIndex const & parent = QModelIndex()) const;
 	virtual int columnCount (QModelIndex const & parent = QModelIndex()) const;
