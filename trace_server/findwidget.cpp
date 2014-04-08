@@ -30,7 +30,7 @@ FindWidget::FindWidget (MainWindow * mw, QWidget * parent)
 	, m_ui(new Ui::FindWidget)
 	, m_main_window(mw)
 	, m_aa(0)
-	, m_moving_widget(true)
+	, m_moving_widget(false)
 {
 	hide();
 	init();
@@ -43,6 +43,7 @@ FindWidget::FindWidget (QWidget * parent) // widget coming from Qt creator
 	, m_aa(0)
 	, m_moving_widget(false)
 {
+	hide();
 	init();
 }
 
@@ -78,6 +79,10 @@ void FindWidget::onCancel ()
 	}
 	else
 	{
+		QObject * o = parent();
+		QWidget * w = qobject_cast<QWidget *>(o);
+		w->setFocus();
+		hide();
 	}
 }
 
