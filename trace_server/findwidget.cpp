@@ -102,7 +102,7 @@ void FindWidget::onEditTextChanged (QString str)
 
 void FindWidget::onReturnPressed ()
 {
-	//@TODO
+	onFindNext();
 	//m_config.saveHistory();
 }
 

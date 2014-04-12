@@ -1149,13 +1149,15 @@ void LogWidget::keyPressEvent (QKeyEvent * e)
 		if (e->key() == Qt::Key_Tab && m_find_widget && m_find_widget->isVisible())
 		{
 			m_find_widget->focusNext();
-			e->accept();
+			e->ignore();
+			return;
 		}
 
 		if (e->key() == Qt::Key_Backtab && m_find_widget && m_find_widget->isVisible())
 		{
 			m_find_widget->focusPrev();
-			e->accept();
+			e->ignore();
+			return;
 		}
 	}
 	QTableView::keyPressEvent(e);
