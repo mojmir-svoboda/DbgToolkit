@@ -1,4 +1,4 @@
-	#include "wh_trace.h"
+#include "sample_trace.h"
 #include <cmath>
 #include "folder/some_header.h"
 
@@ -45,7 +45,7 @@ char const * GetName () { return "aa"; }
 void TraceVal (int x, int y)
 {
 	TRACE_GANTT_SCOPE(trace::e_Info, trace::CTX_Default, "aa0/g0/filling table[x=%i, y=%i]", x,y);
-	Sleep(100);
+	//Sleep(100);
 	
 	//TRACE_GANTT_BGN(trace::e_Info, trace::CTX_Default, "aa0/g0/table[x=%i y=%i]", x, y);
 	static int n = 0;
@@ -58,7 +58,7 @@ void TraceVal (int x, int y)
 	//TRACE_TABLE_COLOR(trace::e_Info, trace::CTX_Default, x	, y, trace::Color(255,0,255,255), trace::Color(0,0,0,0), "%s0", GetName());
 	TRACE_GANTT_SCOPE(trace::e_Info, trace::CTX_Default, "aa0/g0/tblcolor%i", x);
 	TRACE_TABLE_COLOR(trace::e_Info, trace::CTX_Default, x + 1	, y, trace::Color(255,0,255,255), trace::Color(0,255,0,0), "%s0", GetName());
-	Sleep(50);
+	//Sleep(50);
 	++n;
 	//TRACE_GANTT_END(trace::e_Info, trace::CTX_Default, "aa0/g0/table");
 }
@@ -81,7 +81,7 @@ void * do_something ( void * )
 		TRACE_GANTT_SCOPE(trace::e_Info, trace::CTX_Default, "aa0/g1/thread tick %x[tick=%i]", GetCurrentThreadId	(), i);
 		TRACE_MSG(trace::e_Info, trace::CTX_Default,  "Thread tick i=%u", i);
 #if defined WIN32 || defined WIN64
-		Sleep(3000);
+		Sleep(1);
 #elif defined __linux__
 		usleep(300 * 1000);
 #endif
@@ -205,9 +205,9 @@ int main ()
 				TRACE_TABLE(trace::e_Info, trace::CTX_Default, 1, 1, "%s1/%i|1|2|3|4|5|6",GetName(), 666);
 			}*/
 
-			if (i == 32)
+			if (i == 10)
 			{
-				Sleep(100);
+				//Sleep(100);
 				break;
 			}
 
