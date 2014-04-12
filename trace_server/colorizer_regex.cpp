@@ -173,7 +173,7 @@ void ColorizerRegex::setupModel ()
 	connect(m_ui->noneButton, SIGNAL(clicked()), this, SLOT(onSelectNone()));
 	
 	m_ui->fgButton->setStandardColors();
-	m_ui->fgButton->setCurrentColor(QColor(Qt::black));
+	m_ui->fgButton->setCurrentColor(QColor(Qt::blue));
 	m_ui->bgButton->setStandardColors();
 	m_ui->bgButton->setCurrentColor(QColor(Qt::white));
 }
@@ -380,7 +380,7 @@ void ColorizerRegex::recompile ()
 
 	void ColorizerRegex::onActivate (int)
 	{
-    }
+	}
 	void ColorizerRegex::onFgChanged () { onColorRegexChanged(Qt::ForegroundRole); }
 	void ColorizerRegex::onBgChanged () { onColorRegexChanged(Qt::BackgroundRole); }
 	void ColorizerRegex::onColorRegexChanged (int role)
@@ -486,19 +486,21 @@ void ColorizerRegex::recompile ()
 			m_model->setItem(child->row(), 3, stitem);
 			append(regex);
 
-            ColorizedText & ct = findOrCreateColorizedText(regex);
-            {
-                QtColorPicker * w = mkColorPicker(m_ui->view, "fg", ct.m_fgcolor);
-                connect(w, SIGNAL(colorChanged(const QColor &)), this, SLOT(onFgChanged()));
-                QModelIndex const idx = m_model->indexFromItem(fgitem);
-                m_ui->view->setIndexWidget(idx, w);
-            }
-            {
-                QtColorPicker * w = mkColorPicker(m_ui->view, "bg", ct.m_bgcolor);
-                connect(w, SIGNAL(colorChanged(const QColor &)), this, SLOT(onBgChanged()));
-                QModelIndex const idx = m_model->indexFromItem(bgitem);
-                m_ui->view->setIndexWidget(idx, w);
-            }
+			ColorizedText & ct = findOrCreateColorizedText(regex);
+			ct.m_fgcolor = fg;
+			ct.m_bgcolor = bg;
+			{
+				QtColorPicker * w = mkColorPicker(m_ui->view, "fg", ct.m_fgcolor);
+				connect(w, SIGNAL(colorChanged(const QColor &)), this, SLOT(onFgChanged()));
+				QModelIndex const idx = m_model->indexFromItem(fgitem);
+				m_ui->view->setIndexWidget(idx, w);
+			}
+			{
+				QtColorPicker * w = mkColorPicker(m_ui->view, "bg", ct.m_bgcolor);
+				connect(w, SIGNAL(colorChanged(const QColor &)), this, SLOT(onBgChanged()));
+				QModelIndex const idx = m_model->indexFromItem(bgitem);
+				m_ui->view->setIndexWidget(idx, w);
+			}
 			return ct;
 		}
 		else
@@ -530,8 +532,8 @@ void ColorizerRegex::recompile ()
 		QString const & val = m_model->data(idx, Qt::DisplayRole).toString();
 		m_model->removeRow(idx.row());
 
-        ColorizedText & ct = findOrCreateColorizedText(val);
-        uncolorRegex(ct);
+		ColorizedText & ct = findOrCreateColorizedText(val);
+		uncolorRegex(ct);
 		remove(val);
 	}
 
