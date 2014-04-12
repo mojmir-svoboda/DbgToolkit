@@ -11,10 +11,8 @@ namespace trace {
 
 	typedef uint64_t context_t;
 
-	// @NOTE: all the context types have moved into TraceContexts.inc$
-
 #define DRY(a,b) static context_t const a = b;
-#	include "TraceContexts.inc"
+#	include "contexts.inc"
 #undef DRY
 
 	struct CtxDictPair {
@@ -26,7 +24,7 @@ namespace trace {
 	{
 		static CtxDictPair s_dict[] = {
 #define DRY(a,b) { #a , b },
-#	include "TraceContexts.inc"
+#	include "contexts.inc"
 #undef DRY
 		};
 		out = s_dict;
