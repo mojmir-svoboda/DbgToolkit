@@ -126,12 +126,12 @@ void LogWidget::colorRow (int)
 	}
 }
 
-void LogWidget::onClearCurrentView ()
+/*void LogWidget::onClearCurrentView ()
 {
 	LogTableModel * model = static_cast<LogTableModel *>(m_proxy_model ? m_proxy_model->sourceModel() : m_src_model);
 	//excludeContentToRow(model->rowCount());
 	//onInvalidateFilter();
-}
+}*/
 
 void LogWidget::excludeFileLine (QModelIndex const & src_index)
 {

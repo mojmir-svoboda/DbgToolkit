@@ -202,7 +202,6 @@ namespace logs {
 		//void scrollTo (QModelIndex const & index, ScrollHint hint);
 		void performSynchronization (E_SyncMode mode, int sync_group, unsigned long long time, void * source);
 
-		void onClearAllDataButton ();
 		void onSectionResized (int logicalIndex, int oldSize, int newSize);
 		void onSectionMoved (int logical, int old_visual, int new_visual);
 
@@ -219,7 +218,8 @@ namespace logs {
 		void onTableDoubleClicked (QModelIndex const & row_index);
 
 		// actions
-		void onClearCurrentView ();
+		//void onClearCurrentView ();
+		void onClearAllDataButton ();
 		//void onUnhidePrevFromRow ();
 		void exportStorageToCSV (QString const & filename);
 		void onCopyToClipboard ();
@@ -258,6 +258,7 @@ namespace logs {
 		QToolButton * m_excludeFileLineButton;
 		QToolButton * m_excludeRowButton;
 		QToolButton * m_locateRowButton;
+		QToolButton * m_clrDataButton;
 		TimeComboBox * m_timeComboBox;
 		QToolButton * m_setRefTimeButton;
 		QToolButton * m_hidePrevButton;

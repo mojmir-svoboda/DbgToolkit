@@ -50,25 +50,10 @@ static { # everything below takes effect with CONFIG += static
 }
 
 
-SOURCES += ../version.cpp \
-    main.cpp \
-    mainwindow.cpp \
-    server.cpp \
-    connection.cpp \
-    filterwidget.cpp \
-    findwidget.cpp \
-    combolist.cpp \
-    timecombobox.cpp
+SOURCES += ../version.cpp
 
-HEADERS  += ../version.h \
-    mainwindow.h \
-    modelview.h \
-    server.h \
-    connection.h \
-    filterwidget.h \
-    findwidget.h \
-    combolist.h \
-    timecombobox.h
+HEADERS  += \
+    modelview.h
 
 FORMS    += help.ui \
     mainwindow.ui \

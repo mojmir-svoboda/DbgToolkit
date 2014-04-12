@@ -57,6 +57,7 @@ namespace logs {
 		, m_excludeFileLineButton(0)
 		, m_excludeRowButton(0)
 		, m_locateRowButton(0)
+		, m_clrDataButton(0)
 		, m_setRefTimeButton(0)
 		, m_hidePrevButton(0)
 		, m_hideNextButton(0)
@@ -222,7 +223,21 @@ namespace logs {
 
 		line = new QFrame(parent_widget);
 		line->setObjectName(QStringLiteral("line"));
-		line->setMinimumSize(QSize(3, 0));
+		line->setMinimumSize(QSize(5, 0));
+		line->setMaximumSize(QSize(10, 0));
+		line->setFrameShape(QFrame::VLine);
+		//line->setFrameShadow(QFrame::Sunken);
+		cacheLayout->addWidget(line);
+
+		m_clrDataButton = new QToolButton(parent_widget);
+		m_clrDataButton->setObjectName(QStringLiteral("clrData"));
+		m_clrDataButton->setMaximumSize(QSize(16777215, 16));
+		cacheLayout->addWidget(m_clrDataButton);
+
+
+		line = new QFrame(parent_widget);
+		line->setObjectName(QStringLiteral("line"));
+		line->setMinimumSize(QSize(5, 0));
 		line->setFrameShape(QFrame::VLine);
 		//line->setFrameShadow(QFrame::Sunken);
 		cacheLayout->addWidget(line);
@@ -305,7 +320,10 @@ namespace logs {
 		m_excludeRowButton->setToolTip(QApplication::translate("SettingsLog", "<html><head/><body><p>Excludes selected row via Filter/Row. This one does not use File:Line information, so it can be used to exclude specific lines while keeping the rest.</p><p>Hotkey = <span style=\" font-weight:600;\">r</span></p></body></html>", 0));
 		m_excludeRowButton->setText(QApplication::translate("SettingsLog", "x ==", 0));
 		m_locateRowButton->setToolTip(QApplication::translate("SettingsLog", "<html><head/><body><p>Change time units</p><p>Hotkey = <span style=\" font-weight:600;\">?</span></p></body></html>", 0));
-		m_locateRowButton->setText(QApplication::translate("SettingsLog", "? ==", 0));
+		m_locateRowButton->setText(QApplication::translate("SettingsLog", "DEL", 0));
+
+		m_clrDataButton->setToolTip(QApplication::translate("SettingsLog", "<html><head/><body><p>Delete table data.</p><p>Hotkey = <span style=\" font-weight:600;\">Shift+DEL</span></p></body></html>", 0));
+		m_clrDataButton->setText(QApplication::translate("SettingsLog", "? ==", 0));
 		m_setRefTimeButton->setToolTip(QApplication::translate("SettingsLog", "<html><head/><body><p>Set/Unset reference time (= 0) to currently selected line</p></body></html>", 0));
 		m_setRefTimeButton->setText(QApplication::translate("SettingsLog", "Ref T", 0));
 		m_timeComboBox->setToolTip(QApplication::translate("SettingsLog", "<html><head/><body><p>Locates currently selected row in Filters/File:Line</p><p>Hotkey = <span style=\" font-weight:600;\">?</span></p></body></html>", 0));
@@ -332,6 +350,7 @@ namespace logs {
 		connect(m_excludeFileLineButton, SIGNAL(clicked()), this, SLOT(onExcludeFileLine()));
 		connect(m_excludeRowButton, SIGNAL(clicked()), this, SLOT(onExcludeRow()));
 		connect(m_locateRowButton, SIGNAL(clicked()), this, SLOT(onLocateRow()));
+		connect(m_clrDataButton, SIGNAL(clicked()), this, SLOT(onClearAllDataButton()));
 		connect(m_timeComboBox->comboBox(), SIGNAL(activated(int)), this, SLOT(onChangeTimeUnits(int)));
 		//connect(m_colorFileLineButton, SIGNAL(clicked()), this, SLOT(onColorFileLine()));
 		connect(m_colorRowButton, SIGNAL(clicked()), this, SLOT(onColorRow()));
@@ -755,6 +774,11 @@ namespace logs {
 
 	void LogWidget::onClearAllDataButton ()
 	{
+		//setItemDelegate(new LogDelegate(*this, m_connection->appData(), this));
+		//setItemDelegate(0); // @FIXME TMP
+		m_src_model->clearModel();
+		m_proxy_model->clearModel();
+		//m_linked_model->clear?
 	}
 
 	void LogWidget::performSynchronization (E_SyncMode mode, int sync_group, unsigned long long time, void * source)
@@ -1118,6 +1142,11 @@ void LogWidget::keyPressEvent (QKeyEvent * e)
 				m_find_widget->onCancel();
 				e->accept();
 			}
+		}
+		if (!ctrl && shift && !alt && e->key() == Qt::Key_Delete)
+		{
+			onClearAllDataButton();
+			e->accept();
 		}
 
 		if (e->matches(QKeySequence::Find))
