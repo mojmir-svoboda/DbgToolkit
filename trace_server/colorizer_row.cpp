@@ -65,10 +65,8 @@ bool ColorizerRow::action (DecodedCommand const & cmd)
 		bool const is_match = ct.m_row == cmd.m_src_row;
 		if (!is_match)
 			continue;
-		for (size_t i = 0, ie = cmd.m_tvs.size(); i < ie; ++i)
+		for (size_t i = 0, ie = m_src_model->columnCount(); i < ie; ++i)
 		{
-			QString const & val = cmd.m_tvs[i].m_val;
-
 			QModelIndex const idx = m_src_model->index(cmd.m_src_row, i, QModelIndex());
 
 			//@TODO: cache QMI in DecodedCommand
@@ -345,9 +343,8 @@ void ColorizerRow::recompile ()
 		if (!is_match)
 			return;
 
-		for (size_t i = 0, ie = cmd.m_tvs.size(); i < ie; ++i)
+		for (size_t i = 0, ie = m_src_model->columnCount(); i < ie; ++i)
 		{
-			QString const & val = cmd.m_tvs[i].m_val;
 			QModelIndex const idx = m_src_model->index(cmd.m_src_row, i, QModelIndex());
 
 			//@TODO: cache QMI in DecodedCommand
@@ -364,9 +361,8 @@ void ColorizerRow::recompile ()
 		if (!is_match)
 			return;
 
-		for (size_t i = 0, ie = cmd.m_tvs.size(); i < ie; ++i)
+		for (size_t i = 0, ie = m_src_model->columnCount(); i < ie; ++i)
 		{
-			QString const & val = cmd.m_tvs[i].m_val;
 			QModelIndex const idx = m_src_model->index(cmd.m_src_row, i, QModelIndex());
 
 			//@TODO: cache QMI in DecodedCommand
@@ -375,10 +371,8 @@ void ColorizerRow::recompile ()
 			//@TODO: if column != level
 			//@TODO: if column != tid
 		}
-		/*for (size_t i = 0, ie = cmd.m_tvs.size(); i < ie; ++i)
+		/*for (size_t i = 0, ie = m_src_model->columnCount(); i < ie; ++i)
 		{
-			QString const & val = cmd.m_tvs[i].m_val;
-
 			bool const is_match = ct.accept(val);
 			//@TODO: cache QMI in DecodedCommand?
 			int const col = m_src_model->logWidget().findColumn4TagCst(cmd.m_tvs[i].m_tag);
