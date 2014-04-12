@@ -20,6 +20,6 @@ add_library (flog_client_lib STATIC "${FLOGGING_SOURCE_DIRS}/trace_client/trace.
 add_executable (sample_client main.cpp)
 
 if (MINGW)
-	target_link_libraries (trace_client_wh trace_client "c:/devel/QtSDK/mingw/lib/libws2_32.a")
+	target_link_libraries (sample_client trace_client "c:/devel/QtSDK/mingw/lib/libws2_32.a")
 endif()
-target_link_libraries (trace_client_wh flog_client_lib ${CMAKE_THREAD_LIBS_INIT}) 
+target_link_libraries (sample_client flog_client_lib ${CMAKE_THREAD_LIBS_INIT}) 
