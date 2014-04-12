@@ -195,7 +195,7 @@ namespace logs {
 		m_excludeFileLineButton = new QToolButton(parent_widget);
 		m_excludeFileLineButton->setObjectName(QStringLiteral("excludeFileLineButton"));
 		m_excludeFileLineButton->setMinimumSize(QSize(16, 0));
-		m_excludeFileLineButton->setMaximumSize(QSize(16777215, 24));
+		m_excludeFileLineButton->setMaximumSize(QSize(16777215, 16));
 
 		cacheLayout->addWidget(m_excludeFileLineButton);
 
@@ -217,7 +217,7 @@ namespace logs {
 
 		m_timeComboBox = new TimeComboBox(parent_widget);
 		m_timeComboBox->setObjectName(QStringLiteral("timeComboBox"));
-		//m_timeComboBox->setMaximumSize(QSize(16777215, 16));
+		m_timeComboBox->setMaximumSize(QSize(16777215, 16));
 		cacheLayout->addWidget(m_timeComboBox);
 
 		line = new QFrame(parent_widget);
@@ -375,14 +375,27 @@ namespace logs {
 		m_find_proxy_model = new FindProxyModel(this, *this);
 		m_find_proxy_model->setSourceModel(m_src_model);
 
-		setupLogSelectionProxy();
+		//setupLogSelectionProxy();
+		if (linked_model)
+		{
+			QItemSelectionModel * src_selection = linked_model->m_log_widget.selectionModel();
+			QItemSelectionModel * pxy_selection = linked_model->m_log_widget.m_proxy_selection;
+			//m_proxy_selection = new QItemSelectionModel(m_proxy_model);
+			//m_ksrc_selection = new KLinkItemSelectionModel(m_src_model, src_selection);
+			//m_kproxy_selection = new KLinkItemSelectionModel(m_proxy_model, m_proxy_selection);
+			//m_src_model = linked_model;
+		}
+		else
+		{
+			setupLogSelectionProxy();
+		}
 	}
 
 	void LogWidget::setupLogSelectionProxy ()
 	{
 		m_src_selection = new QItemSelectionModel(m_src_model);
 		m_proxy_selection = new QItemSelectionModel(m_proxy_model);
-		m_ksrc_selection = new KLinkItemSelectionModel(m_src_model, m_src_selection);
+		//m_ksrc_selection = new KLinkItemSelectionModel(m_src_model, m_src_selection);
 		m_kproxy_selection = new KLinkItemSelectionModel(m_proxy_model, m_proxy_selection);
 		//setSelectionModel(m_src_selection);
 		//m_selection = new LogSelectionProxyModel(m_src_model, m_src_selection);
