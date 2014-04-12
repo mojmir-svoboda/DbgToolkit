@@ -516,7 +516,7 @@ void ColorizerRegex::recompile ()
 		if (!qItem.length())
 			return;
 		QColor const qFg = m_ui->fgButton->currentColor();
-		QColor const qBg = m_ui->fgButton->currentColor();
+		QColor const qBg = m_ui->bgButton->currentColor();
 		ColorizedText & ct = add(qItem, qFg, qBg);
 
 		recompileColorRegex(ct);
