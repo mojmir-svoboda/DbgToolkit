@@ -10,22 +10,6 @@
 
 #include <logs/logwidget.h> // @TODO: fuck off
 
-/*bool ColorizerRegex::isMatchedColorizerText (QString str, QColor & fgcolor, QColor & bgcolor) const
-{
-	for (int i = 0, ie = m_data.size(); i < ie; ++i)
-	{
-		ColorizedText const & ct = m_data.at(i);
-		if (ct.exactMatch(str))
-		{
-			fgcolor = ct.m_qcolor;
-			bgcolor = ct.m_bgcolor;
-			//role = ct.m_role;
-			return ct.m_is_enabled;
-		}
-	}
-	return false;
-}*/
-
 ColorizerRegex::ColorizerRegex (QWidget * parent)
 	: FilterBase(parent)
 	, m_ui(new Ui_ColorizerRegex)
@@ -171,7 +155,7 @@ void ColorizerRegex::setupModel ()
 	connect(m_ui->view, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAt(QModelIndex)));
 	connect(m_ui->allButton, SIGNAL(clicked()), this, SLOT(onSelectAll()));
 	connect(m_ui->noneButton, SIGNAL(clicked()), this, SLOT(onSelectNone()));
-	
+
 	m_ui->fgButton->setStandardColors();
 	m_ui->fgButton->setCurrentColor(QColor(Qt::blue));
 	m_ui->bgButton->setStandardColors();
@@ -328,7 +312,7 @@ void ColorizerRegex::recompile ()
 			//@TODO: cache QMI in DecodedCommand
 			int const col = m_src_model->logWidget().findColumn4TagCst(cmd.m_tvs[i].m_tag);
 			QModelIndex const idx = m_src_model->index(cmd.m_src_row, col, QModelIndex());
-			if (is_match && idx.isValid())
+			if (ct.m_is_enabled && is_match && idx.isValid())
 			{
 				m_src_model->setData(idx, ct.m_bgcolor, Qt::BackgroundRole);
 				m_src_model->setData(idx, ct.m_fgcolor, Qt::ForegroundRole);
@@ -546,9 +530,9 @@ ColorizerRegexDelegate::~ColorizerRegexDelegate ()
 }
 void ColorizerRegexDelegate::paint (QPainter * painter, QStyleOptionViewItem const & option, QModelIndex const & index) const
 {
-    painter->save();
-    QStyleOptionViewItemV4 option4 = option;
-    initStyleOption(&option4, index);
+	painter->save();
+	QStyleOptionViewItemV4 option4 = option;
+	initStyleOption(&option4, index);
 
 	/*if (m_app_data && m_app_data->getDictCtx().m_names.size())
 	{
