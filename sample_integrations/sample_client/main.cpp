@@ -81,7 +81,7 @@ void * do_something ( void * )
 		TRACE_GANTT_SCOPE(trace::e_Info, trace::CTX_Default, "aa0/g1/thread tick %x[tick=%i]", GetCurrentThreadId	(), i);
 		TRACE_MSG(trace::e_Info, trace::CTX_Default,  "Thread tick i=%u", i);
 #if defined WIN32 || defined WIN64
-		Sleep(1);
+		Sleep(100);
 #elif defined __linux__
 		usleep(300 * 1000);
 #endif
@@ -205,9 +205,9 @@ int main ()
 				TRACE_TABLE(trace::e_Info, trace::CTX_Default, 1, 1, "%s1/%i|1|2|3|4|5|6",GetName(), 666);
 			}*/
 
-			if (i == 10)
+			if (i == 100)
 			{
-				//Sleep(100);
+				Sleep(100);
 				break;
 			}
 

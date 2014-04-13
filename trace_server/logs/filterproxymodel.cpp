@@ -78,15 +78,22 @@ void FilterProxyModel::clearModel ()
 	m_map_from_tgt.clear();
 	m_allowed_src_cols.clear();
 
-
 	m_column_count = 0;
 	removeRows(0, rowCount());
 	removeColumns(0, columnCount());
 
 	endResetModel();
-	//QVector<QString> & m_hhdr.clear();
-	//QVector<int> & m_hsize;
-	//QAbstractProxyModel * m_proxy;
+}
+
+void FilterProxyModel::clearModelData ()
+{
+	beginResetModel();
+
+	m_map_from_src.clear();
+	m_map_from_tgt.clear();
+	removeRows(0, rowCount());
+
+	endResetModel();
 }
 
 

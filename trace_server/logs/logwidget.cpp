@@ -774,11 +774,8 @@ namespace logs {
 
 	void LogWidget::onClearAllDataButton ()
 	{
-		//setItemDelegate(new LogDelegate(*this, m_connection->appData(), this));
-		//setItemDelegate(0); // @FIXME TMP
-		m_src_model->clearModel();
-		m_proxy_model->clearModel();
-		//m_linked_model->clear?
+		m_proxy_model->clearModelData();
+		m_src_model->clearModelData();
 	}
 
 	void LogWidget::performSynchronization (E_SyncMode mode, int sync_group, unsigned long long time, void * source)

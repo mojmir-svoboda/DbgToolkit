@@ -158,6 +158,18 @@ void TableModel::emitLayoutChanged ()
 	emit layoutChanged();
 }
 
+void TableModel::clearModelData ()
+{
+	beginResetModel();
+
+	removeRows(0, rowCount());
+	m_row_ctimes.clear();
+	m_row_stimes.clear();
+	m_rows.clear();
+
+	endResetModel();
+}
+
 void TableModel::clearModel ()
 {
 	beginResetModel();
@@ -173,9 +185,6 @@ void TableModel::clearModel ()
 	removeColumns(0, columnCount());
 
 	endResetModel();
-	//QVector<QString> & m_hhdr.clear();
-	//QVector<int> & m_hsize;
-	//QAbstractProxyModel * m_proxy;
 }
 
 void TableModel::appendTableXY (int x, int y, QString const & time, QString const & fgc, QString const & bgc, QString const & cmd)

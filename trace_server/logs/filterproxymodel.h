@@ -49,6 +49,7 @@ public:
 	virtual QModelIndex sibling (int row, int column, QModelIndex const & idx) const;
 
 	void clearModel ();
+	void clearModelData ();
 
 protected:
 

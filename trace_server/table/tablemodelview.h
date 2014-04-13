@@ -73,6 +73,7 @@ public:
 	unsigned long long col_time (int const col) const { return m_col_times[col]; }
 
 	void clearModel ();
+	void clearModelData ();
 
 protected:
 
