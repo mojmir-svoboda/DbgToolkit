@@ -101,6 +101,7 @@ namespace logs {
 		connect(this, SIGNAL(customContextMenuRequested(QPoint const &)), this, SLOT(onShowContextMenu(QPoint const &)));
 
 		setConfigValuesToUI(m_config);
+		setAutoScroll(false);
 		//setUpdatesEnabled(true);
 		horizontalHeader()->setSectionsMovable(true);
 		//setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
