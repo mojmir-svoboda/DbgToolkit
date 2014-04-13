@@ -12,7 +12,6 @@ FilterProxyModel::FilterProxyModel (QObject * parent, logs::LogWidget & lw)
 	: BaseProxyModel(parent)
 	, m_log_widget(lw)
 	, m_column_count(0)
-	//, m_filter_state(lw.m_filter_state)
 { }
 
 FilterProxyModel::~FilterProxyModel ()

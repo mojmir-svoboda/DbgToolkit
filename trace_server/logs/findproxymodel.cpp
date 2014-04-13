@@ -10,9 +10,7 @@
 #include "logtablemodel.h"
 
 FindProxyModel::FindProxyModel (QObject * parent, logs::LogWidget & lw)
-	: BaseProxyModel(parent)
-	, m_log_widget(lw)
-	, m_column_count(0)
+	: FilterProxyModel(parent, lw)
 { }
 
 FindProxyModel::~FindProxyModel ()
@@ -20,41 +18,9 @@ FindProxyModel::~FindProxyModel ()
 	qDebug("%s", __FUNCTION__);
 }
 
-void FindProxyModel::resizeToCfg (logs::LogConfig const & config)
-{
-  //@TODO: dedup: logtablemodel, findproxy, filterproxy
-	if (config.m_columns_setup.size() > m_column_count)
-	{
-		int const last = config.m_columns_setup.size() - 1;
-		beginInsertColumns(QModelIndex(), m_column_count, last);
-		insertColumns(m_column_count, last);
-		m_column_count = last + 1;
-		endInsertColumns();
-	}
-  else if (config.m_columns_setup.size() < m_column_count)
-	{
-		int const last = config.m_columns_setup.size() + 1;
-		beginRemoveColumns(QModelIndex(), last, m_column_count);
-		removeColumns(last, m_column_count);
-		m_column_count = last - 1;
-		endInsertColumns();
-	}
-}
-
-
-Qt::ItemFlags FindProxyModel::flags (QModelIndex const & index) const
-{
-	return sourceModel()->flags(index) | Qt::ItemIsEnabled | Qt::ItemIsSelectable;
-}
-
 bool FindProxyModel::filterAcceptsColumn (int sourceColumn, QModelIndex const & source_parent) const
 {
 	return true;
-}
-
-QModelIndex FindProxyModel::sibling (int row, int column, QModelIndex const & idx) const
-{
-	return (row == idx.row() && column == idx.column()) ? idx : index(row, column, parent(idx));
 }
 
 bool FindProxyModel::filterAcceptsRow (int sourceRow, QModelIndex const & /*sourceParent*/) const
@@ -84,3 +50,4 @@ bool FindProxyModel::filterAcceptsRow (int sourceRow, QModelIndex const & /*sour
 	qWarning("no dcmd for source row, should not happen!");
 	return false;
 }
+

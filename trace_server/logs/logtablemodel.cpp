@@ -5,6 +5,7 @@
 #include <connection.h>
 #include <trace_client/trace.h>
 #include "filterproxymodel.h"
+#include "findproxymodel.h"
 #include <sysfn/time_query.h>
 
 LogTableModel::LogTableModel (QObject * parent, logs::LogWidget & lw)
@@ -144,9 +145,13 @@ void LogTableModel::commitBatchToModel ()
 		m_log_widget.appendToColorizers(cmd);
 	}
 
-	FilterProxyModel * pxy = m_log_widget.m_proxy_model;
+	FilterProxyModel * flt_pxy = m_log_widget.m_proxy_model;
 	if (m_proxy)
-		pxy->commitBatchToModel(from, to + 1, m_batch);
+		flt_pxy->commitBatchToModel(from, to + 1, m_batch);
+
+	FindProxyModel * fnd_pxy = m_log_widget.m_find_proxy_model;
+	if (m_proxy)
+		fnd_pxy->commitBatchToModel(from, to + 1, m_batch);
 
 	m_batch.clear();
 }

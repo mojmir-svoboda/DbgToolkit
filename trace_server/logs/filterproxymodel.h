@@ -23,39 +23,31 @@
 #include <QString>
 #include <QAbstractProxyModel>
 #include <QRegExp>
-#include <filters/file_filter.hpp>
-#include <filterstate.h>
 #include <table/baseproxymodel.h>
 #include "logtablemodel.h"
 
-class MainWindow;
-
-namespace logs { class LogWidget; }
+namespace logs { class LogWidget; struct LogConfig; }
 
 class FilterProxyModel : public BaseProxyModel
 {
 	Q_OBJECT
-
 public:
 	explicit FilterProxyModel (QObject * parent, logs::LogWidget & lw);
 	virtual ~FilterProxyModel ();
 
-	void resizeToCfg (logs::LogConfig const & config);
-	void commitBatchToModel (int from, int to, BatchCmd const & batch);
-
-	virtual Qt::ItemFlags flags (QModelIndex const & index) const;
+	virtual QModelIndex sibling (int row, int column, QModelIndex const & idx) const;
 	virtual bool filterAcceptsRow (int sourceRow, QModelIndex const & sourceParent) const;
 	virtual bool filterAcceptsColumn (int sourceColumn, QModelIndex const & source_parent) const;
-	virtual QModelIndex sibling (int row, int column, QModelIndex const & idx) const;
+	virtual Qt::ItemFlags flags (QModelIndex const & index) const;
+	void resizeToCfg (logs::LogConfig const & config);
+	void commitBatchToModel (int from, int to, BatchCmd const & batch);
 
 	void clearModel ();
 	void clearModelData ();
 
 protected:
-
 	logs::LogWidget & m_log_widget;
 	int m_column_count;
-	//FilterState & m_filter_state;
 };
 
 

@@ -23,31 +23,18 @@
 #include <QString>
 #include <QAbstractProxyModel>
 #include <QRegExp>
-#include <table/baseproxymodel.h>
+#include "filterproxymodel.h"
 
-class MainWindow;
-
-namespace logs { class LogWidget; struct LogConfig; }
-
-class FindProxyModel : public BaseProxyModel
+class FindProxyModel : public FilterProxyModel
 {
 	Q_OBJECT
-
 public:
 	explicit FindProxyModel (QObject * parent, logs::LogWidget & lw);
 	~FindProxyModel ();
 
-	Qt::ItemFlags flags (QModelIndex const & index) const;
-	void resizeToCfg (logs::LogConfig const & config);
-
-protected:
-
 	virtual bool filterAcceptsRow (int sourceRow, QModelIndex const & sourceParent) const;
 	virtual bool filterAcceptsColumn (int sourceColumn, QModelIndex const & source_parent) const;
-	virtual QModelIndex sibling(int row, int column, const QModelIndex &idx) const;
 
-	logs::LogWidget & m_log_widget;
-	int m_column_count;
+protected:
 };
-
 
