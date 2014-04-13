@@ -60,13 +60,13 @@ public:
 
 	Qt::ItemFlags flags (QModelIndex const & index) const;
 
+	virtual bool filterAcceptsColumn (int sourceColumn, QModelIndex const & source_parent) const = 0;
+	virtual bool filterAcceptsRow (int sourceRow, QModelIndex const & sourceParent) const = 0;
+
 public slots:
 	void force_update();
 
 protected:
-
-	virtual bool filterAcceptsColumn (int sourceColumn, QModelIndex const & source_parent) const = 0;
-	virtual bool filterAcceptsRow (int sourceRow, QModelIndex const & sourceParent) const = 0;
 
 	typedef Loki::AssocVector<int, int> map_t; // @TODO: reserve
 
