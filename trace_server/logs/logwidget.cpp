@@ -102,6 +102,7 @@ namespace logs {
 
 		setConfigValuesToUI(m_config);
 		setAutoScroll(false);
+		setHorizontalScrollMode(ScrollPerPixel);
 		//setUpdatesEnabled(true);
 		horizontalHeader()->setSectionsMovable(true);
 		//setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
