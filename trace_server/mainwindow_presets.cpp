@@ -166,7 +166,7 @@ void MainWindow::onRmCurrentPreset ()
 	if (preset_name.isEmpty())
 		return;
 
-	qDebug("removing preset_name[%i]=%s", preset_name.toStdString().c_str());
+	qDebug("removing preset_name=%s", preset_name.toStdString().c_str());
 	
 	QString const fname = getPresetPath(m_config.m_appdir, preset_name);
 	qDebug("confirm to remove session file=%s", fname.toStdString().c_str());
