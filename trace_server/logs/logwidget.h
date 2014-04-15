@@ -98,6 +98,8 @@ namespace logs {
 		bool filterEnabled () const { return m_config.m_filtering; }
 		void setFilteringProxy (bool on);
 		void setFindProxyModel (FindConfig const & fc);
+		void commitBatchToLinkedWidgets (int src_from, int src_to, BatchCmd const & batch);
+		void commitBatchToLinkedModel (int src_from, int src_to, BatchCmd const & batch);
 		void setSrcModel (FindConfig const & fc);
 		void handleFindAction (FindConfig const & fc);
 		void findInWholeTable (FindConfig const & fc, QModelIndexList & result);

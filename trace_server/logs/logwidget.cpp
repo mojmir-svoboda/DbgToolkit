@@ -956,6 +956,31 @@ void LogWidget::reloadModelAccordingTo (LogConfig & config)
 	resizeSections();
 }
 
+
+void LogWidget::commitBatchToLinkedWidgets (int src_from, int src_to, BatchCmd const & batch)
+{
+  for (linked_widgets_t::iterator it = m_linked_widgets.begin(), ite = m_linked_widgets.end(); it != ite; ++it)
+  {
+    DockedWidgetBase * child = *it;
+	if (child->type() == e_data_log)
+	{
+		LogWidgetWithButtons * lw = qobject_cast<LogWidgetWithButtons *>(child->dockedWidget());
+		lw->m_lw->commitBatchToLinkedModel(src_from, src_to, batch);  
+	}
+  }
+}
+
+void LogWidget::commitBatchToLinkedModel (int src_from, int src_to, BatchCmd const & batch)
+{
+	FilterProxyModel * flt_pxy = m_proxy_model;
+	if (model() == flt_pxy)
+		flt_pxy->commitBatchToModel(src_from, src_to, batch);
+
+	FindProxyModel * fnd_pxy = m_find_proxy_model;
+	if (model() == fnd_pxy)
+		fnd_pxy->commitBatchToModel(src_from, src_to, batch);
+}
+
 LogTableModel * LogWidget::cloneToNewModel (FindConfig const & fc)
 {
 	if (model() == m_src_model)

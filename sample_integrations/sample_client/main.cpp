@@ -205,7 +205,7 @@ int main ()
 				TRACE_TABLE(trace::e_Info, trace::CTX_Default, 1, 1, "%s1/%i|1|2|3|4|5|6",GetName(), 666);
 			}*/
 
-			if (i == 100)
+			if (i == 1000)
 			{
 				Sleep(100);
 				break;
@@ -225,13 +225,13 @@ int main ()
 			//TRACE_GANTT_END(trace::e_Info, trace::CTX_Default, "aa0/g0/end", i);
 			TRACE_GANTT_FRAME_END(trace::e_Info, trace::CTX_Default, "aa0/g0/frame %i", i);
 
-			if (i==55)
+			/*if (i==55)
 			{
 				TRACE_PLOT_CLEAR(trace::e_Info, trace::CTX_Default, "sample_plot%i/%s", 0, "sin");
 				TRACE_TABLE_CLEAR(trace::e_Info, trace::CTX_Default, "aa0");	
 				TRACE_GANTT_CLEAR(trace::e_Info, trace::CTX_Default, "aa0/g0");
 				break;
-			}		
+			}*/		
 		}
 		//TRACE_GANTT_END(trace::e_Info, trace::CTX_Default, "aa0/g0/%s", __FUNCTION__);
 		//TRACE_GANTT_END(trace::e_Info, trace::CTX_Default, "aa0/g0/Entered %s...", __FUNCTION__);

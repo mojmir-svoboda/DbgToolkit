@@ -146,12 +146,14 @@ void LogTableModel::commitBatchToModel ()
 	}
 
 	FilterProxyModel * flt_pxy = m_log_widget.m_proxy_model;
-	if (m_proxy)
+	if (m_proxy == flt_pxy)
 		flt_pxy->commitBatchToModel(from, to + 1, m_batch);
 
 	FindProxyModel * fnd_pxy = m_log_widget.m_find_proxy_model;
-	if (m_proxy)
+	if (m_proxy == fnd_pxy)
 		fnd_pxy->commitBatchToModel(from, to + 1, m_batch);
+
+  m_log_widget.commitBatchToLinkedWidgets(from, to + 1, m_batch);  
 
 	m_batch.clear();
 }
