@@ -7,6 +7,7 @@
 #include "../qwt/qwt_picker_machine.h"
 #include "../qwt/qwt_plot_marker.h"
 #include <constants.h>
+#include <serialize.h>
 #include <QTimer>
 
 namespace plot {
@@ -378,24 +379,25 @@ namespace plot {
 
 	void PlotWidget::applyConfig ()
 	{
-		m_config = m_config2;
+		//m_config = m_config2;
 		applyConfig(m_config);
 	}
 
 	void PlotWidget::loadConfig (QString const & path)
 	{
-		QString const fname = path + "/" + g_PlotTag + "/" + m_config.m_tag;
-		m_config2.clear();
-		plot::loadConfig(m_config2, fname);
-		filterMgr()->loadConfig(fname);
+		QString const plotpath = path + "/" + g_PlotTag + "/" + m_config.m_tag;
+		//m_config.clear();
+		loadConfigTemplate(m_config, plotpath + g_PlotFile);
+		filterMgr()->loadConfig(plotpath);
 	}
 	void PlotWidget::saveConfig (QString const & path)
 	{
-		QString const fname = path + "/" + g_PlotTag + "/" + m_config.m_tag;
+		QString const plotpath = path + "/" + g_PlotTag + "/" + m_config.m_tag + "/";
 		plot::PlotConfig tmp = m_config;
+		setUIToConfig();
 		//normalizeConfig(tmp);
-		plot::saveConfig(tmp, fname);
-		filterMgr()->saveConfig(fname);
+		saveConfigTemplate(tmp, plotpath + g_PlotFile);
+		filterMgr()->saveConfig(plotpath);
 	}
 
 

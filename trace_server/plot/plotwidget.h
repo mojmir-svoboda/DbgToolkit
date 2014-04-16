@@ -87,7 +87,7 @@ namespace plot {
 		curves_t m_curves;
 		int m_timer;
 		PlotConfig & m_config;
-		PlotConfig m_config2;
+		//PlotConfig m_config2;
 		plot::CtxPlotConfig m_config_ui;
 		QList<QColor> m_colors;
 		QString m_fname;
