@@ -54,6 +54,7 @@ namespace logs {
 		, m_gotoNextErrButton(0)
 		, m_gotoPrevWarnButton(0)
 		, m_gotoNextWarnButton(0)
+		, m_excludeFileButton(0)
 		, m_excludeFileLineButton(0)
 		, m_excludeRowButton(0)
 		, m_locateRowButton(0)
@@ -195,11 +196,16 @@ namespace logs {
 		//line4->setFrameShadow(QFrame::Sunken);
 		cacheLayout->addWidget(line4);
 
+		m_excludeFileButton = new QToolButton(parent_widget);
+		m_excludeFileButton->setObjectName(QStringLiteral("excludeFileButton"));
+		m_excludeFileButton->setMinimumSize(QSize(16, 0));
+		m_excludeFileButton->setMaximumSize(QSize(16777215, 16));
+		cacheLayout->addWidget(m_excludeFileButton);
+
 		m_excludeFileLineButton = new QToolButton(parent_widget);
 		m_excludeFileLineButton->setObjectName(QStringLiteral("excludeFileLineButton"));
 		m_excludeFileLineButton->setMinimumSize(QSize(16, 0));
 		m_excludeFileLineButton->setMaximumSize(QSize(16777215, 16));
-
 		cacheLayout->addWidget(m_excludeFileLineButton);
 
 		m_excludeRowButton = new QToolButton(parent_widget);
@@ -315,6 +321,9 @@ namespace logs {
 		m_gotoNextWarnButton->setToolTip(QApplication::translate("SettingsLog", "<html><head/><body><p>Goto next warning</p><p><br/></p><p>Hotkey = <span style=\" font-weight:600;\">x</span></p></body></html>", 0));
 		m_gotoNextWarnButton->setText(QApplication::translate("SettingsLog", "W", 0));
 
+		m_excludeFileButton->setToolTip(QApplication::translate("SettingsLog", "<html><head/><body><p>Excludes File from current selection from table. This is shortcut for going into Filter/File:Line and click on File tree item</p><p><br/></p><p>Hotkey = <span style=\" font-weight:600;\">h</span></p></body></html>", 0));
+		m_excludeFileButton->setText(QApplication::translate("SettingsLog", "x F", 0));
+
 		m_excludeFileLineButton->setToolTip(QApplication::translate("SettingsLog", "<html><head/><body><p>Excludes File:Line combination from current selection from table. This is shortcut for going into Filter/File:Line and click on item</p><p><br/></p><p>Hotkey = <span style=\" font-weight:600;\">x</span></p></body></html>", 0));
 		m_excludeFileLineButton->setText(QApplication::translate("SettingsLog", "x F:L", 0));
 
@@ -351,6 +360,7 @@ namespace logs {
 		connect(m_gotoNextErrButton, SIGNAL(clicked()), this, SLOT(onGotoNextErr()));
 		connect(m_gotoPrevWarnButton, SIGNAL(clicked()), this, SLOT(onGotoPrevWarn()));
 		connect(m_gotoNextWarnButton, SIGNAL(clicked()), this, SLOT(onGotoNextWarn()));
+		connect(m_excludeFileButton, SIGNAL(clicked()), this, SLOT(onExcludeFile()));
 		connect(m_excludeFileLineButton, SIGNAL(clicked()), this, SLOT(onExcludeFileLine()));
 		connect(m_excludeRowButton, SIGNAL(clicked()), this, SLOT(onExcludeRow()));
 		connect(m_locateRowButton, SIGNAL(clicked()), this, SLOT(onLocateRow()));
@@ -1156,9 +1166,14 @@ void LogWidget::keyPressEvent (QKeyEvent * e)
 		bool const shift = (e->modifiers() & Qt::ShiftModifier) == Qt::ShiftModifier;
 		bool const alt = (e->modifiers() & Qt::AltModifier) == Qt::AltModifier;
 		bool const x = e->key() == Qt::Key_X;
+		bool const h = e->key() == Qt::Key_H;
 		if (!ctrl && !shift && !alt && x)
 		{
 			onExcludeFileLine();
+		}
+		if (!ctrl && !shift && !alt && h)
+		{
+			onExcludeFile();
 		}
 
 		if (e->key() == Qt::Key_Escape)

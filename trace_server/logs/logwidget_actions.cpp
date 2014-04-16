@@ -133,6 +133,56 @@ void LogWidget::colorRow (int)
 	//onInvalidateFilter();
 }*/
 
+void LogWidget::excludeFile (QModelIndex const & src_index)
+{
+	if (filterMgr()->getFilterFileLine())
+	{
+		if (!src_index.isValid())
+			return;
+
+		DecodedCommand const * dcmd = getDecodedCommand(src_index);
+		if (dcmd)
+		{
+
+			QString file;
+			if (dcmd->getString(tlv::tag_file, file))
+			{
+				qDebug("excluding: %s", file.toStdString().c_str());
+				QString const fileline = file;
+				QModelIndex const result = filterMgr()->getFilterFileLine()->fileModel()->stateToItem(fileline, Qt::Unchecked);
+				if (!result.isValid())
+				{
+					qWarning("%s: nonexistent index!", __FUNCTION__);
+				}
+			}
+			onInvalidateFilter();
+		}
+	}
+}
+
+void LogWidget::onExcludeFile ()
+{
+	QModelIndexList l;
+	QModelIndexList src_list;
+	currSelection(l);
+	foreach(QModelIndex index, l)
+	{
+		if (isModelProxy())
+		{
+			index = m_proxy_model->mapToSource(index);
+		}
+
+		if (index.isValid())
+			src_list << index;
+	}
+
+	foreach(QModelIndex index, src_list)
+	{
+		if (index.isValid())
+			excludeFile(index);
+	}
+}
+
 void LogWidget::excludeFileLine (QModelIndex const & src_index)
 {
 	if (filterMgr()->getFilterFileLine())

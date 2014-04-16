@@ -123,6 +123,7 @@ namespace logs {
 		void clearRefTime () { m_time_ref_value = 0; }
 		void setTimeRefValue (unsigned long long t) { m_time_ref_value = t; }
 		void findTableIndexInFilters (QModelIndex const & src_idx, bool scroll_to_item, bool expand);
+		void excludeFile (QModelIndex const & row_index);
 		void excludeFileLine (QModelIndex const & row_index);
 		void excludeRow (QModelIndex const & src_index);
 
@@ -225,6 +226,7 @@ namespace logs {
 		//void onUnhidePrevFromRow ();
 		void exportStorageToCSV (QString const & filename);
 		void onCopyToClipboard ();
+		void onExcludeFile ();
 		void onExcludeFileLine ();
 		void onGotoPrevErr();
 		void onGotoNextErr();
@@ -257,6 +259,7 @@ namespace logs {
 		QToolButton * m_gotoNextErrButton;
 		QToolButton * m_gotoPrevWarnButton;
 		QToolButton * m_gotoNextWarnButton;
+		QToolButton * m_excludeFileButton;
 		QToolButton * m_excludeFileLineButton;
 		QToolButton * m_excludeRowButton;
 		QToolButton * m_locateRowButton;
