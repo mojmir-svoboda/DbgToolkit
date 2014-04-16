@@ -1282,7 +1282,10 @@ QModelIndex LogWidget::moveCursor (CursorAction cursor_action, Qt::KeyboardModif
 			return QModelIndex(); // @FIXME too
 		}
 		else
-			return QTableView::moveCursor(cursor_action, modifiers);
+		{
+			QModelIndex const idx = QTableView::moveCursor(cursor_action, modifiers);
+			return idx;
+		}
 	}
 	else if (modifiers & Qt::AltModifier)
 	{
@@ -1301,12 +1304,13 @@ QModelIndex LogWidget::moveCursor (CursorAction cursor_action, Qt::KeyboardModif
 		return curr_idx;
 	}
 	else
-		return QTableView::moveCursor(cursor_action, modifiers);
-
-	/*int const value = horizontalScrollBar()->value();
-	QModelIndex const ret = QTableView::moveCursor(cursor_action, modifiers);
-	horizontalScrollBar()->setValue(value);
-	return ret;*/
+	{
+		//int const value = horizontalScrollBar()->value();
+		QModelIndex const idx = QTableView::moveCursor(cursor_action, modifiers);
+		scrollTo(idx);
+		//horizontalScrollBar()->setValue(value);
+		return idx;
+	}
 }
 
 //@TODO: should be in model probably
