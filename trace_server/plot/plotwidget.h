@@ -23,15 +23,17 @@ namespace plot {
 	public:
 		typedef QMap<QString, Curve *> curves_t;
 
-		PlotWidget (QObject * oparent, QWidget * wparent, PlotConfig & cfg, QString const & fname, QStringList const & path);
+		PlotWidget (Connection * oparent, QWidget * wparent, PlotConfig & cfg, QString const & fname, QStringList const & path);
 		virtual ~PlotWidget ();
 
 		void loadConfig (QString const & path);
 		void saveConfig (QString const & path);
+		void loadAuxConfigs ();
+		void saveAuxConfigs ();
 		void applyConfig ();
-        void setDockedWidget (DockedWidgetBase * dwb) { m_dwb = dwb; }
-
-    void exportStorageToCSV (QString const & filename) { }
+		void setDockedWidget (DockedWidgetBase * dwb) { m_dwb = dwb; }
+		QString getCurrentWidgetPath () const;
+		void exportStorageToCSV (QString const & filename) { } //TODO
 
 		FilterMgr * filterMgr () { return m_config_ui.m_ui->widget; }
 		FilterMgr const * filterMgr () const { return m_config_ui.m_ui->widget; }
@@ -50,6 +52,8 @@ namespace plot {
 
 		PlotConfig & getConfig () { return m_config; }
 		PlotConfig const & getConfig () const { return m_config; }
+		void setConfigValuesToUI (PlotConfig const & cfg);
+		void setUIValuesToConfig (PlotConfig & cfg);
 		Curve * findCurve (QString const & subtag);
 		Curve * findOrCreateCurve (QString const & subtag);
 		curves_t::iterator mkCurve (QString const & subtag);
@@ -71,7 +75,6 @@ namespace plot {
 		void onHide ();
 		void onHideContextMenu ();
 		void onShowContextMenu (QPoint const & pos);
-		void setConfigValues (PlotConfig const & pcfg);
 		void onXAutoScaleChanged (int state);
 		void onYAutoScaleChanged (int state);
 		void onZAutoScaleChanged (int state);
@@ -84,14 +87,14 @@ namespace plot {
 		void onClearCurveDataButton ();
 
 	protected:
+		Connection * m_connection;
 		curves_t m_curves;
 		int m_timer;
 		PlotConfig & m_config;
-		//PlotConfig m_config2;
 		plot::CtxPlotConfig m_config_ui;
 		QList<QColor> m_colors;
 		QString m_fname;
-        DockedWidgetBase * m_dwb;
+		DockedWidgetBase * m_dwb;
 		//std::vector<QwtPlotMarker *> m_markers;
 	};
 }

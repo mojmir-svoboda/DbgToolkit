@@ -104,8 +104,8 @@ namespace plot {
 	{
 		QString m_tag;
 		QString m_title;
-		QList<CurveConfig> m_ccfg;
-		QList<AxisConfig> m_acfg;
+		std::vector<CurveConfig> m_ccfg;
+		std::vector<AxisConfig> m_acfg;
 
 		int m_timer_delay_ms;
 		int m_history_ln;
@@ -160,7 +160,7 @@ namespace plot {
 
 		bool findCurveConfig (QString const & tag, CurveConfig const * & ccfg)
 		{
-			for (int i = 0, ie = m_ccfg.size(); i < ie; ++i)
+			for (size_t i = 0, ie = m_ccfg.size(); i < ie; ++i)
 				if (m_ccfg.at(i).m_tag == tag)
 				{
 					ccfg = &m_ccfg.at(i);
@@ -174,9 +174,5 @@ namespace plot {
 			*this = PlotConfig();
 		}
 	};
-
-	bool loadConfig (PlotConfig & config, QString const & fname);
-	bool saveConfig (PlotConfig const & config, QString const & fname);
-	void fillDefaultConfig (PlotConfig & config);
 }
 

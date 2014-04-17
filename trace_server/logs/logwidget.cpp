@@ -696,7 +696,7 @@ namespace logs {
 		QString const tag_backup = m_config.m_tag;
 		QString const logpath = preset_dir + "/" + g_LogTag + "/" + m_config.m_tag + "/";
 		m_config.clear();
-		bool const loaded = logs::loadConfig(m_config, logpath + g_LogFile);
+		bool const loaded = loadConfigTemplate(m_config, logpath + g_LogFile);
 		if (!loaded)
 		{
 			defaultConfigFor(m_config);

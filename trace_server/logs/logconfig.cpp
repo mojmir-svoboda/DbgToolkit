@@ -14,7 +14,7 @@
 
 namespace logs {
 
-	bool loadConfig (LogConfig & config, QString const & fname)
+	/*bool loadConfig (LogConfig & config, QString const & fname)
 	{
 		if (!::loadConfigTemplate(config, fname))
 		{
@@ -22,7 +22,7 @@ namespace logs {
 			return false;
 		}
 		return true;
-	}
+	}*/
 
 	bool saveConfig (LogConfig const & config, QString const & fname)
 	{

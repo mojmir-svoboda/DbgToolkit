@@ -1,11 +1,12 @@
 #include "plotwidget.h"
-#include "../qwt/qwt_plot_legenditem.h"
-#include "../qwt/qwt_legend.h"
-#include "../qwt/qwt_plot_panner.h"
-#include "../qwt/qwt_plot_zoomer.h"
-#include "../qwt/qwt_plot_magnifier.h"
-#include "../qwt/qwt_picker_machine.h"
-#include "../qwt/qwt_plot_marker.h"
+#include "connection.h"
+#include <qwt/qwt_plot_legenditem.h>
+#include <qwt/qwt_legend.h>
+#include <qwt/qwt_plot_panner.h>
+#include <qwt/qwt_plot_zoomer.h>
+#include <qwt/qwt_plot_magnifier.h>
+#include <qwt/qwt_picker_machine.h>
+#include <qwt/qwt_plot_marker.h>
 #include <constants.h>
 #include <serialize.h>
 #include <QTimer>
@@ -48,8 +49,9 @@ namespace plot {
 		return c;
 	}
 
-	PlotWidget::PlotWidget (QObject * oparent, QWidget * wparent, PlotConfig & cfg, QString const & fname, QStringList const & path)
+	PlotWidget::PlotWidget (Connection * conn, QWidget * wparent, PlotConfig & cfg, QString const & fname, QStringList const & path)
 		: QwtPlot(wparent), ActionAble(path)
+		, m_connection(conn)
 		, m_config(cfg)
 		, m_config_ui(cfg, this)
 		, m_curves()
@@ -57,7 +59,7 @@ namespace plot {
 		, m_fname(fname)
         , m_dwb(0)
 	{
-		//qDebug("%s this=0x%08x", __FUNCTION__, this);
+		qDebug("%s this=0x%08x", __FUNCTION__, this);
 		setAutoReplot(false);
 		//canvas()->setBorderRadius(0);
 		plotLayout()->setAlignCanvasToScales(true);
@@ -119,13 +121,24 @@ namespace plot {
 
 		//QwtPlotMarker * marker = new QwtPlotMarker();
 
-		setConfigValues(m_config);
+		setConfigValuesToUI(m_config);
 		QTimer::singleShot(0, this, SLOT(onApplyButton()));
+		Ui::SettingsPlot * ui = m_config_ui.ui();
+		connect(ui->applyButton, SIGNAL(clicked()), this, SLOT(onApplyButton()));
+		connect(ui->clearDataButton, SIGNAL(clicked()), this, SLOT(onClearAllDataButton()));
+		connect(ui->saveButton, SIGNAL(clicked()), this, SLOT(onSaveButton()));
+		connect(ui->resetButton, SIGNAL(clicked()), this, SLOT(onResetButton()));
+		connect(ui->defaultButton, SIGNAL(clicked()), this, SLOT(onDefaultButton()));
+		connect(ui->curveComboBox, SIGNAL(activated(int)), this, SLOT(onCurveActivate(int)));
+		connect(ui->clearCurveDataButton, SIGNAL(clicked()), this, SLOT(onClearCurveDataButton()));
+		connect(ui->xAutoScaleCheckBox, SIGNAL(stateChanged(int)), SLOT(onXAutoScaleChanged(int)));
+		connect(ui->yAutoScaleCheckBox, SIGNAL(stateChanged(int)), SLOT(onYAutoScaleChanged(int)));
+		connect(ui->zAutoScaleCheckBox, SIGNAL(stateChanged(int)), SLOT(onZAutoScaleChanged(int)));
 	}
 
 	PlotWidget::~PlotWidget ()
 	{
-		//qDebug("%s this=0x%08x", __FUNCTION__, this);
+		qDebug("%s this=0x%08x", __FUNCTION__, this);
 		stopUpdate();
 		for (curves_t::iterator it = m_curves.begin(), ite = m_curves.end(); it != ite; ++it)
 		{
@@ -154,7 +167,6 @@ namespace plot {
 			setAxisScale(acfg.m_axis_pos, acfg.m_from, acfg.m_to, acfg.m_step);
 		else
 			setAxisAutoScale(acfg.m_axis_pos, true);
-
 		//setAxisScaleDraw(QwtPlot::xBottom, new TimeScaleDraw(cpuStat.upTime()));
 		//setAxisLabelRotation(QwtPlot::xBottom, -50.0);
 		//setAxisLabelAlignment(QwtPlot::xBottom, Qt::AlignLeft | Qt::AlignBottom);
@@ -162,7 +174,7 @@ namespace plot {
 
 	void PlotWidget::applyConfig (PlotConfig const & pcfg)
 	{
-		//qDebug("%s this=0x%08x", __FUNCTION__, this);
+		qDebug("%s this=0x%08x", __FUNCTION__, this);
 		setTitle(pcfg.m_title);
 		for (size_t c = 0, ce = pcfg.m_ccfg.size(); c < ce; ++c)
 		{
@@ -232,7 +244,7 @@ namespace plot {
 			if (!n)
 				continue;
 
-			curve.m_curve->setRawSamples(&data.m_data_x[0], &data.m_data_y[0], n);
+			curve.m_curve->setRawSamples(&data.m_data_x[0], &data.m_data_y[0], static_cast<int>(n));
 		}
 
 		replot();
@@ -241,7 +253,7 @@ namespace plot {
 	void PlotWidget::showCurve (QwtPlotItem * item, bool on)
 	{
 		item->setVisible(on);
-	#pragma message(__LOC__"!!! Qt5 incompatibility !!!")
+	#pragma message("!!! Qt5 incompatibility !!!")
 	/*	if (QwtPlotLegendItem * legendItem = qobject_cast<QwtPlotLegendItem *>( legend()->find(item)))
 			legendItem->setChecked(on);*/
 		replot();
@@ -254,29 +266,16 @@ namespace plot {
 
 	void PlotWidget::onShowContextMenu (QPoint const & pos)
 	{
-		qDebug("%s this=0x%08x", __FUNCTION__, this);
 		QRect widgetRect = geometry();
 		m_config_ui.onShowPlotContextMenu(QCursor::pos());
 		Ui::SettingsPlot * ui = m_config_ui.ui();
 
-		setConfigValues(m_config);
-		connect(ui->applyButton, SIGNAL(clicked()), this, SLOT(onApplyButton()));
-		connect(ui->clearDataButton, SIGNAL(clicked()), this, SLOT(onClearAllDataButton()));
-		connect(ui->saveButton, SIGNAL(clicked()), this, SLOT(onSaveButton()));
-		connect(ui->resetButton, SIGNAL(clicked()), this, SLOT(onResetButton()));
-		connect(ui->defaultButton, SIGNAL(clicked()), this, SLOT(onDefaultButton()));
-		connect(ui->curveComboBox, SIGNAL(activated(int)), this, SLOT(onCurveActivate(int)));
-		connect(ui->clearCurveDataButton, SIGNAL(clicked()), this, SLOT(onClearCurveDataButton()));
-
-
-		connect(ui->xAutoScaleCheckBox, SIGNAL(stateChanged(int)), SLOT(onXAutoScaleChanged(int)));
-		connect(ui->yAutoScaleCheckBox, SIGNAL(stateChanged(int)), SLOT(onYAutoScaleChanged(int)));
-		connect(ui->zAutoScaleCheckBox, SIGNAL(stateChanged(int)), SLOT(onZAutoScaleChanged(int)));
+		setConfigValuesToUI(m_config);
 	}
 
-	void PlotWidget::setConfigValues (PlotConfig const & pcfg)
+	void PlotWidget::setConfigValuesToUI (PlotConfig const & pcfg)
 	{
-		//qDebug("%s this=0x%08x", __FUNCTION__, this);
+		qDebug("%s this=0x%08x", __FUNCTION__, this);
 		Ui::SettingsPlot * ui = m_config_ui.ui();
 		ui->curveComboBox->clear();
 		for (size_t i = 0, ie = pcfg.m_ccfg.size(); i < ie; ++i)
@@ -316,19 +315,19 @@ namespace plot {
 		onCurveActivate(0);
 	}
 
-	void PlotWidget::onApplyButton ()
+	void PlotWidget::setUIValuesToConfig (PlotConfig & pcfg)
 	{
-		//qDebug("%s this=0x%08x", __FUNCTION__, this);
+		qDebug("%s this=0x%08x", __FUNCTION__, this);
 		Ui::SettingsPlot * ui = m_config_ui.ui();
-		m_config.m_auto_scroll = ui->autoScrollCheckBox->checkState() == Qt::Checked;
-		m_config.m_timer_delay_ms = ui->updateTimerSpinBox->value();
-		m_config.m_title = ui->titleLineEdit->text();
-		m_config.m_show = ui->plotShowCheckBox->checkState() == Qt::Checked;
+		pcfg.m_auto_scroll = ui->autoScrollCheckBox->checkState() == Qt::Checked;
+		pcfg.m_timer_delay_ms = ui->updateTimerSpinBox->value();
+		pcfg.m_title = ui->titleLineEdit->text();
+		pcfg.m_show = ui->plotShowCheckBox->checkState() == Qt::Checked;
 
 		int const curveidx = ui->curveComboBox->currentIndex();
-		if (curveidx >= 0 && curveidx < m_config.m_ccfg.size())
+		if (curveidx >= 0 && curveidx < pcfg.m_ccfg.size())
 		{
-			CurveConfig & ccfg = m_config.m_ccfg[curveidx];
+			CurveConfig & ccfg = pcfg.m_ccfg[curveidx];
 			ccfg.m_pen_width = ui->penWidthDblSpinBox->value();
 			ccfg.m_style = ui->styleComboBox->currentIndex();
 			ccfg.m_symbol = ui->symbolComboBox->currentIndex();
@@ -338,19 +337,24 @@ namespace plot {
 			ccfg.m_symbolcolor = m_config_ui.m_symbol_color->currentColor();
 		}
 
-		m_config.m_acfg[0].m_label = ui->xLabelLineEdit->text();
-		m_config.m_acfg[0].m_from = ui->xFromDblSpinBox->value();
-		m_config.m_acfg[0].m_to = ui->xToDblSpinBox->value();
-		m_config.m_acfg[0].m_step = ui->xStepDblSpinBox->value();
-		m_config.m_acfg[0].m_scale_type = ui->xScaleComboBox->currentIndex();
-		m_config.m_acfg[0].m_auto_scale = ui->xAutoScaleCheckBox->checkState() == Qt::Checked;
-		m_config.m_acfg[1].m_label = ui->yLabelLineEdit->text();
-		m_config.m_acfg[1].m_from = ui->yFromDblSpinBox->value();
-		m_config.m_acfg[1].m_to = ui->yToDblSpinBox->value();
-		m_config.m_acfg[1].m_step = ui->yStepDblSpinBox->value();
-		m_config.m_acfg[1].m_scale_type = ui->yScaleComboBox->currentIndex();
-		m_config.m_acfg[1].m_auto_scale = ui->yAutoScaleCheckBox->checkState() == Qt::Checked;
+		pcfg.m_acfg[0].m_label = ui->xLabelLineEdit->text();
+		pcfg.m_acfg[0].m_from = ui->xFromDblSpinBox->value();
+		pcfg.m_acfg[0].m_to = ui->xToDblSpinBox->value();
+		pcfg.m_acfg[0].m_step = ui->xStepDblSpinBox->value();
+		pcfg.m_acfg[0].m_scale_type = ui->xScaleComboBox->currentIndex();
+		pcfg.m_acfg[0].m_auto_scale = ui->xAutoScaleCheckBox->checkState() == Qt::Checked;
+		pcfg.m_acfg[1].m_label = ui->yLabelLineEdit->text();
+		pcfg.m_acfg[1].m_from = ui->yFromDblSpinBox->value();
+		pcfg.m_acfg[1].m_to = ui->yToDblSpinBox->value();
+		pcfg.m_acfg[1].m_step = ui->yStepDblSpinBox->value();
+		pcfg.m_acfg[1].m_scale_type = ui->yScaleComboBox->currentIndex();
+		pcfg.m_acfg[1].m_auto_scale = ui->yAutoScaleCheckBox->checkState() == Qt::Checked;
+	}
 
+	void PlotWidget::onApplyButton ()
+	{
+		qDebug("%s this=0x%08x", __FUNCTION__, this);
+		setUIValuesToConfig(m_config);
 		applyConfig(m_config);
 		replot();
 	}
@@ -373,44 +377,69 @@ namespace plot {
 		ui->yStepDblSpinBox->setEnabled(enabled);
 		ui->yScaleComboBox->setEnabled(enabled);
 	}
-	void PlotWidget::onZAutoScaleChanged (int state)
-	{
-	}
+	void PlotWidget::onZAutoScaleChanged (int state) { }
 
 	void PlotWidget::applyConfig ()
 	{
-		//m_config = m_config2;
+		qDebug("%s this=0x%08x", __FUNCTION__, this);
 		applyConfig(m_config);
 	}
 
-	void PlotWidget::loadConfig (QString const & path)
+	QString PlotWidget::getCurrentWidgetPath () const
 	{
-		QString const plotpath = path + "/" + g_PlotTag + "/" + m_config.m_tag;
-		//m_config.clear();
-		loadConfigTemplate(m_config, plotpath + g_PlotFile);
-		filterMgr()->loadConfig(plotpath);
+		QString const appdir = m_connection->getMainWindow()->getAppDir();
+		QString const plotpath = appdir + "/" + m_connection->getCurrPreset() + "/" + g_PlotTag + "/" + m_config.m_tag;
+		return plotpath;
 	}
+
+	void PlotWidget::loadConfig (QString const & preset_dir)
+	{
+		QString const tag_backup = m_config.m_tag;
+		QString const plotpath = preset_dir + "/" + g_PlotTag + "/" + m_config.m_tag + "/";
+		m_config.clear();
+		bool const loaded = loadConfigTemplate(m_config, plotpath + g_PlotFile);
+		if (!loaded)
+		{
+			m_config = PlotConfig();
+			m_config.m_tag = tag_backup; // defaultConfigFor destroys tag
+		}
+		loadAuxConfigs();
+	}
+	void PlotWidget::loadAuxConfigs ()
+	{
+		QString const plotpath = getCurrentWidgetPath();
+		//m_config.m_find_config.clear();
+		//loadConfigTemplate(m_config.m_find_config, plotpath + "/" + g_findTag);
+		filterMgr()->loadConfig(plotpath);
+		//colorizerMgr()->loadConfig(plotpath);
+	}
+	void PlotWidget::saveAuxConfigs ()
+	{
+		QString const plotpath = getCurrentWidgetPath();
+		//saveConfigTemplate(m_config.m_find_config, plotpath + "/" + g_findTag);
+		filterMgr()->saveConfig(plotpath);
+		//colorizerMgr()->saveConfig(plotpath);
+	}
+
 	void PlotWidget::saveConfig (QString const & path)
 	{
 		QString const plotpath = path + "/" + g_PlotTag + "/" + m_config.m_tag + "/";
 		plot::PlotConfig tmp = m_config;
-		setUIToConfig();
 		//normalizeConfig(tmp);
 		saveConfigTemplate(tmp, plotpath + g_PlotFile);
-		filterMgr()->saveConfig(plotpath);
+		saveAuxConfigs();
 	}
-
 
 	void PlotWidget::onSaveButton ()
 	{
 		//saveConfig(m_config, m_fname);
 	}
-	void PlotWidget::onResetButton () { setConfigValues(m_config); }
+	void PlotWidget::onResetButton () {}
 	void PlotWidget::onDefaultButton ()
 	{
 		PlotConfig defaults;
 		defaults.partialLoadFrom(m_config);
-		setConfigValues(defaults);
+		setConfigValuesToUI(defaults);
 	}
 
 	void PlotWidget::onCurveActivate (int idx)
@@ -443,6 +472,7 @@ namespace plot {
 
 	void PlotWidget::clearCurveData (QString const & subtag)
 	{
+		qDebug("%s this=0x%08x", __FUNCTION__, this);
 		for (curves_t::iterator it = m_curves.begin(), ite = m_curves.end(); it != ite; ++it)
 		{
 			Curve * curve = *it;
