@@ -436,8 +436,17 @@ namespace logs {
 
 	LogWidget::~LogWidget ()
 	{
+		if (m_linked_parent)
+		{
+      // TODO: this LogWidgetWithButtons begins to be really ugly
+			LogWidgetWithButtons * lw = qobject_cast<LogWidgetWithButtons *>(m_linked_parent->dockedWidget());
+			if (lw)
+			{
+				lw->m_lw->unregisterLinkedWidget(m_dwb);
+			}
+		}
 		setItemDelegate(0);
-		qDebug("%s this=0x%08x", __FUNCTION__, this);
+		qDebug("%s this=0x%08x tag=%s", __FUNCTION__, this, m_config.m_tag.toStdString().c_str());
 		disconnect(this, SIGNAL(customContextMenuRequested(QPoint const &)), this, SLOT(onShowContextMenu(QPoint const &)));
 
 		for (linked_widgets_t::iterator it = m_linked_widgets.begin(), ite = m_linked_widgets.end(); it != ite; ++it)
