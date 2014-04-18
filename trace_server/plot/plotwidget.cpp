@@ -162,7 +162,11 @@ namespace plot {
 
 	void PlotWidget::applyAxis (AxisConfig const & acfg)
 	{
-		setAxisTitle(acfg.m_axis_pos, acfg.m_label);
+		QwtText title(acfg.m_label);
+		QFont f = QFont("Verdana", 7);
+		title.setFont(f);
+		setAxisTitle(acfg.m_axis_pos, title);
+		setAxisFont(acfg.m_axis_pos, f);
 		if (!acfg.m_auto_scale)
 			setAxisScale(acfg.m_axis_pos, acfg.m_from, acfg.m_to, acfg.m_step);
 		else
