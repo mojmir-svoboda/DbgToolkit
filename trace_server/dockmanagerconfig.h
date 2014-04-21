@@ -54,8 +54,8 @@ struct DockManagerConfig
 		m_row_width = 24;
 		m_show = true;
 		m_columns_sizes.clear();
-		m_columns_sizes.push_back(512);
 		m_columns_sizes.push_back(128);
+		m_columns_sizes.push_back(512);
 	}
 };
 

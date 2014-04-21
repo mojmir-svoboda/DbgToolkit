@@ -8,10 +8,12 @@
 #include "dockmanagerview.h"
 #include "dockmanagermodel.h"
 #include "dockmanagerconfig.h"
+#include "controlbar_dockmanager.h"
 class QCloseEvent;
 class MainWindow;
 struct DockWidget;
 class ControlBarDockManager;
+namespace Ui { class ControlBarDockManager; }
 
 enum {
 	e_DockRoleCentralWidget = Qt::UserRole + 1,
@@ -53,6 +55,8 @@ public:
 	ActionAble const * findActionAble (QString const & dst_joined) const;
 	DockedWidgetBase const * findDockableForWidget (QWidget * w) const;
 	DockedWidgetBase * findDockableForWidget (QWidget * w);
+	Ui::ControlBarDockManager * controlUI () { return m_control_bar->ui; }
+	Ui::ControlBarDockManager const * controlUI () const { return m_control_bar->ui; }
 
 	void loadConfig (QString const & path);
 	void saveConfig (QString const & path);

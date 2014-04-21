@@ -2,7 +2,7 @@
 #include <QWidget>
 
 namespace Ui {
-class ControlBarDockManager;
+	class ControlBarDockManager;
 }
 
 class ControlBarDockManager : public QWidget
@@ -10,11 +10,10 @@ class ControlBarDockManager : public QWidget
     Q_OBJECT
 
 public:
-    explicit ControlBarDockManager(QWidget *parent = 0);
-    ~ControlBarDockManager();
+    explicit ControlBarDockManager (QWidget *parent = 0);
+    ~ControlBarDockManager ();
 
-private:
-    Ui::ControlBarDockManager *ui;
+    Ui::ControlBarDockManager * ui;
 };
 
 #include <qtsln/flowlayout.h>
@@ -145,7 +144,7 @@ public:
         presetComboBox->setMaximumSize(QSize(192, 16777215));
         presetComboBox->setFont(font);
         presetComboBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
-        presetComboBox->setFrame(false);
+        presetComboBox->setFrame(true);
 
         horizontalLayout->addWidget(presetComboBox);
 

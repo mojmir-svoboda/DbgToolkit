@@ -36,6 +36,10 @@ DockManager::DockManager (MainWindow * mw, QStringList const & path)
 	connect(this, SIGNAL(clicked(QModelIndex)), this, SLOT(onClicked(QModelIndex)));
 	connect(m_docked_widgets, SIGNAL(dockClosed()), mw, SLOT(onDockManagerClosed()));
 	setAllColumnsShowFocus(false);
+	setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+	//setSizeAdjustPolicy(QAbstractScrollArea::AdjustIgnored);
+	//header()->setSectionResizeMode(0, QHeaderView::Interactive);
+	header()->setStretchLastSection(false);
 	setStyleSheet("QTableView::item{ selection-background-color: #F5DEB3  } QTableView::item{ selection-color: #000000 }");
 }
 
