@@ -18,7 +18,16 @@
     <property name="spacing">
      <number>1</number>
     </property>
-    <property name="margin">
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
      <number>0</number>
     </property>
     <item>
@@ -42,12 +51,12 @@
          </font>
         </property>
         <property name="text">
-         <string>Widgets</string>
+         <string>Widget manager</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QToolButton" name="dockedWidgetsToolButton">
+       <widget class="QToolButton" name="dockManagerButton">
         <property name="minimumSize">
          <size>
           <width>0</width>

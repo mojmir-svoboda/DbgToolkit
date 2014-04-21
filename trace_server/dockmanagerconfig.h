@@ -5,9 +5,9 @@
 #include "constants.h"
 #include <filters/file_filter.hpp>
 #include "types.h"
-#include "dockedwidget.h"
+#include "dockedinfo.h"
 
-struct DockConfig
+struct DockManagerConfig
 {
 	QString 		m_tag;
 	QString 		m_font;
@@ -16,15 +16,15 @@ struct DockConfig
 	QVector<int> 	m_columns_sizes;		/// column sizes for each registered application
 	bool 			m_show;
 	typedef tree_filter<DockedInfo> data_filters_t;
-	data_filters_t	m_docked_widgets_data;
+	data_filters_t	m_data;
 
-	DockConfig (QString const & tag)
+	DockManagerConfig (QString const & tag)
 		: m_tag(tag)
 		, m_font("Verdana")
-		, m_fontsize(10)
-		, m_row_width(18)
+		, m_fontsize(12)
+		, m_row_width(24)
 		, m_show(true)
-		, m_docked_widgets_data()
+		, m_data()
 	{ }
 
 	template <class ArchiveT>
@@ -36,34 +36,29 @@ struct DockConfig
 		ar & boost::serialization::make_nvp("row_width", m_row_width);
 		ar & boost::serialization::make_nvp("columns_sizes", m_columns_sizes);
 		ar & boost::serialization::make_nvp("show", m_show);
-		ar & boost::serialization::make_nvp("docked_widgets_data", m_docked_widgets_data);
+		ar & boost::serialization::make_nvp("docked_widgets_data", m_data);
 	}
 
 	void clear ()
 	{
-		m_docked_widgets_data.clear();
-		DockConfig rhs(g_traceServerName);
+		m_data.clear();
+		DockManagerConfig rhs(g_traceServerName);
 		*this = rhs;
-		rhs.m_docked_widgets_data.root = 0;
+		rhs.m_data.root = 0;
 	}
 
 	void defaultConfig ()
 	{
 		m_font = "Verdana";
-		m_fontsize = 10;
-		m_row_width = 18;
+		m_fontsize = 12;
+		m_row_width = 24;
 		m_show = true;
 		m_columns_sizes.clear();
-		m_columns_sizes.push_back(192);
-		m_columns_sizes.push_back(48);
-		m_columns_sizes.push_back(32);
-		m_columns_sizes.push_back(32);
-		m_columns_sizes.push_back(32);
-		m_columns_sizes.push_back(32);
+		m_columns_sizes.push_back(512);
+		m_columns_sizes.push_back(128);
 	}
 };
 
-bool loadConfig (DockConfig & config, QString const & fname);
-bool saveConfig (DockConfig const & config, QString const & fname);
-void fillDefaultConfig (DockConfig & config);
+bool loadConfig (DockManagerConfig & config, QString const & fname);
+bool saveConfig (DockManagerConfig const & config, QString const & fname);
 

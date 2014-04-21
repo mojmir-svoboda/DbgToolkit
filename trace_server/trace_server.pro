@@ -50,10 +50,12 @@ static { # everything below takes effect with CONFIG += static
 }
 
 
-SOURCES += ../version.cpp
+SOURCES += ../version.cpp \
+    controlbarcommon.cpp
 
 HEADERS  += \
-    modelview.h
+    modelview.h \
+    controlbarcommon.h
 
 FORMS    += help.ui \
     mainwindow.ui \
@@ -78,7 +80,8 @@ FORMS    += help.ui \
     combolist.ui \
     colorizer_regex.ui \
     colorizer_row.ui \
-    timecombobox.ui
+    timecombobox.ui \
+    controlbarcommon.ui
 
 RESOURCES += \
     resources.qrc

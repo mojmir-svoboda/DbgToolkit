@@ -22,6 +22,7 @@
 #include <QStandardItemModel>
 #include <QUrl>
 #include <QClipboard>
+#include <QTimer>
 #include <tlv_parser/tlv_parser.h>
 #include "help.h"
 #include "version.h"
@@ -57,7 +58,7 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QStri
 	, m_tray_menu(0)
 	, m_tray_icon(0)
 	, m_settings_dialog(0)
-	, m_dock_mgr(this, QStringList(QString("trace_server")))
+	, m_dock_mgr(this, QStringList(QString(g_traceServerName)))
 	, m_docked_name(g_traceServerName)
 	, m_log_name(log_name)
 	, m_start_level(level)
@@ -128,9 +129,9 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QStri
 	connect(ui->levelSpinBox, SIGNAL(valueChanged(int)), this, SLOT(onLevelValueChanged(int)));
 	connect(ui->plotSlider, SIGNAL(valueChanged(int)), this, SLOT(onPlotStateChanged(int)));
 	connect(ui->tableSlider, SIGNAL(valueChanged(int)), this, SLOT(onTablesStateChanged(int)));
-	connect(ui->dockedWidgetsToolButton, SIGNAL(clicked()), this, SLOT(onDockedWidgetsToolButton()));
+	connect(ui->dockManagerButton, SIGNAL(clicked()), this, SLOT(onDockManagerButton()));
 	connect(ui->buffCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onBufferingStateChanged(int)));
-	
+
 	//connect(ui_settings->tableFontToolButton, SIGNAL(clicked()), this, SLOT(onTableFontToolButton()));
 	connect(ui_settings->onTopCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onOnTop(int)));//@FIXME: this has some issues
 	//connect(ui_settings->reuseTabCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onReuseTabChanged(int)));
@@ -317,9 +318,9 @@ void MainWindow::onQuitReally ()
 	qApp->quit();
 }
 
-void MainWindow::onDockedWidgetsToolButton ()
+void MainWindow::onDockManagerButton ()
 {
-	if (ui->dockedWidgetsToolButton->isChecked())
+	if (ui->dockManagerButton->isChecked())
 	{
 		m_dock_mgr.m_docked_widgets->show();
 		m_dock_mgr.m_config.m_show = true;
@@ -334,7 +335,7 @@ void MainWindow::onDockedWidgetsToolButton ()
 
 void MainWindow::onDockManagerClosed ()
 {
-	ui->dockedWidgetsToolButton->setChecked(false);
+	ui->dockManagerButton->setChecked(false);
 }
 
 void MainWindow::onPlotStateChanged (int state)
@@ -625,7 +626,7 @@ void MainWindow::loadState ()
 
 	m_dock_mgr.loadConfig(m_config.m_appdir);
 	m_dock_mgr.applyConfig();
-	ui->dockedWidgetsToolButton->setChecked(m_dock_mgr.m_config.m_show);
+	ui->dockManagerButton->setChecked(m_dock_mgr.m_config.m_show);
 	qApp->installEventFilter(this);
 }
 

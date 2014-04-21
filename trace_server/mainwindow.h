@@ -19,16 +19,12 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  **/
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
-
+#pragma once
 #include <QMainWindow>
-#include <QTimer>
-#include <QComboBox>
 #include <QSystemTrayIcon>
 #include <tlv_parser/tlv_parser.h>
 #include "config.h"
-#include "dock.h"
+#include "dockmanager.h"
 
 namespace Ui {
 	class MainWindow;
@@ -37,7 +33,6 @@ namespace Ui {
 }
 
 class Server;
-class QSystemTrayIcon;
 class QAction;
 class QMenu;
 class QListView;
@@ -45,6 +40,7 @@ class QStandardItemModel;
 class QLabel;
 class TreeView;
 class QTreeView;
+class QTimer;
 class Connection;
 
 class MainWindow : public QMainWindow
@@ -94,7 +90,6 @@ public:
 	int getLevel () const; // @TODO: per connection
 	bool buffEnabled () const;
 	Qt::CheckState buffState () const;
-	float getTimeUnits () const { return m_time_units; }
 	int plotState () const; // @TODO: should be per connection
 	int tableState () const;
 	int ganttState () const;
@@ -108,13 +103,12 @@ public:
 	void keyPressEvent (QKeyEvent * e);
 	bool handleTab (QKeyEvent * e);
 
-    // docking stuff
-	QTreeView const * getDockedWidgetsTreeView () const;
+	// docking stuff
 	DockManager const & dockManager () const { return m_dock_mgr; }
 	DockManager & dockManager () { return m_dock_mgr; }
 	QString const & dockedName () const { return m_docked_name; }
 
-    // files and streams
+	// files and streams
 	void createTailDataStream (QString const & fname);
 	void createTailLogStream (QString const & fname, QString const & separator);
 	void importDataStream (QString const & fname);
@@ -133,7 +127,7 @@ public slots:
 	void onOnTop (int);
 	void restoreDockedWidgetGeometry ();
 	void onDockRestoreButton ();
-	void onDockedWidgetsToolButton ();
+	void onDockManagerButton ();
 	void onDockManagerClosed ();
 
 	void onCloseTab (int idx, QWidget * w);
@@ -221,4 +215,3 @@ private:
 	float 				m_time_units;
 };
 
-#endif // MAINWINDOW_H

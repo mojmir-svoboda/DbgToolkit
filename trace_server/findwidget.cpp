@@ -5,6 +5,7 @@
 #include "mainwindow.h"
 #include <QComboBox>
 #include <QLineEdit>
+#include <QTimer>
 
 void FindWidget::init ()
 {

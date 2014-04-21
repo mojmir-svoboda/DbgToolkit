@@ -15,7 +15,6 @@ struct DockedInfo
 	int m_state;
 	int m_collapsed;
 	//int m_valid_widget;
-	//int m_centralwidget;
 	//int m_childwidget;
 
 	DockedInfo () : m_state(e_Unchecked), m_collapsed(true) { }
@@ -26,7 +25,6 @@ struct DockedInfo
 		ar & boost::serialization::make_nvp("path", m_path);
 		ar & boost::serialization::make_nvp("state", m_state);
 		ar & boost::serialization::make_nvp("collapsed", m_collapsed);
-		//ar & boost::serialization::make_nvp("centralwidget", m_centralwidget);
 	}
 };
 

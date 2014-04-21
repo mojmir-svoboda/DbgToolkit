@@ -77,12 +77,17 @@ set(trace_server_SOURCES
 	constants.cpp
 	config.cpp
 	dock.cpp
-	dockconfig.cpp
+	dockmanagerconfig.cpp
+  dockmanager.cpp
+  dockmanagerview.cpp
+  dockmanagermodel.cpp
 	syncwidgets.cpp
 	combolist.cpp
 	movabletabwidget.cpp
 	timecombobox.cpp
 	buttoncache.cpp
+  controlbarcommon.cpp
+  controlbar_dockmanager.cpp
 
 	filterbase.cpp
 	filtermgrbase.cpp
@@ -183,7 +188,10 @@ set(trace_server_HEADERS
 	rendezvous.h
 	utils.h
 	dock.h
-	dockconfig.h
+	dockmanagerconfig.h
+  dockmanager.h
+  dockmanagermodel.h
+  dockmanagerview.h
 	constants.h
 	syncwidgets.h
 	config.h
@@ -193,6 +201,8 @@ set(trace_server_HEADERS
 	movabletabwidget.h
 	warnimage.h
 	buttoncache.h
+  controlbarcommon.h
+  controlbar_dockmanager.h
 
 	findwidget.h
 	findconfig.h
@@ -272,6 +282,7 @@ set(trace_server_HEADERS
 
 set(trace_server_UI 
 	mainwindow.ui
+  controlbarcommon.ui
 	filterwidget.ui
 	findwidget.ui
 	combolist.ui
