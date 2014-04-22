@@ -22,13 +22,15 @@ class BaseProxyModel;
 
 namespace logs {
 
-	class LogWidget : public TableView, public ActionAble
+	class LogWidget : public TableView, public DockedWidgetBase
 	{
 		Q_OBJECT
 	public:
 		LogWidget (Connection * conn, QWidget * wparent, LogConfig & cfg, QString const & fname, QStringList const & path);
 
 		virtual ~LogWidget ();
+
+		enum { e_type = e_data_log };
 
 		LogConfig & getConfig () { return m_config; }
 		LogConfig const & getConfig () const { return m_config; }
@@ -338,7 +340,7 @@ namespace logs {
 		//FindWidget * findWidget () { return m_lw->findWidget(); }
 		//FindWidget const * findWidget () const { return m_lw->findWidget(); }
 
-		void setDockedWidget (DockedWidgetBase * dwb) { m_lw->setDockedWidget(dwb); }
+		//void setDockedWidget (DockedWidgetBase * dwb) { m_lw->setDockedWidget(dwb); }
 
 	public slots:
 		void onHideContextMenu () { m_lw->onHideContextMenu(); }

@@ -47,34 +47,11 @@ void Server::incomingConnection (qintptr socketDescriptor)
 	QObject::connect(connection->m_tcpstream, SIGNAL(readyRead()), connection, SLOT(processReadyRead()));
 	QObject::connect(connection->m_tcpstream, SIGNAL(disconnected()), connection, SLOT(onDisconnected()));
 	emit newConnection(connection);
-	
+
 	// this is supposed to use blocking reads in own thread
 	/*Connection * connection = createNewTableView ();
 	connection->setSocketDescriptor(socketDescriptor);
-    connect(connection, SIGNAL(finished()), connection, SLOT(deleteLater()));
+	connect(connection, SIGNAL(finished()), connection, SLOT(deleteLater()));
 	connection->start();*/
 }
-
-// @FIXME: hmmm... iterates over ALL connections, that is not the intent
-/*void Server::onShowPlots ()
-{
-	for (connections_t::iterator it = m_connections.begin(), ite = m_connections.end(); it != ite; ++it)
-		it->second->onShowPlots();
-}
-void Server::onHidePlots ()
-{
-	for (connections_t::iterator it = m_connections.begin(), ite = m_connections.end(); it != ite; ++it)
-		it->second->onHidePlots();
-}
-void Server::onShowTables ()
-{
-	for (connections_t::iterator it = m_connections.begin(), ite = m_connections.end(); it != ite; ++it)
-		it->second->onShowTables();
-}
-void Server::onHideTables ()
-{
-	for (connections_t::iterator it = m_connections.begin(), ite = m_connections.end(); it != ite; ++it)
-		it->second->onHideTables();
-}*/
-
 

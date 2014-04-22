@@ -41,10 +41,12 @@ inline bool existsFile (QString const & fname) { QFile file(fname); return file.
 
 inline bool validatePresetName (QString const & str)
 {
-	int const slash_pos = str.lastIndexOf(QChar('/'));
+	//@TODO: valid filename
+	return true;
+/*	int const slash_pos = str.lastIndexOf(QChar('/'));
 	bool const slash_present = (slash_pos != -1);
 	// @TODO: some more checks? make in tmp, verify in tmp, return result
-	return slash_present;
+	return slash_present;*/
 }
 
 inline bool checkPresetPath (QString const & appdir, QString const & preset_name)

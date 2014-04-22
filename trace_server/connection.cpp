@@ -7,7 +7,6 @@
 #include "utils_boost.h"
 #include "types.h"
 #include "server.h"
-//#include "statswindow.h"
 #include "delegates.h"
 #include "tableview.h"
 
@@ -25,7 +24,6 @@ Connection::Connection (QObject * parent)
 	, m_recv_bytes(0)
 	, m_marked_for_close(false)
 	, m_curr_preset()
-	, m_tab_widget(0)
 	, m_file_tlv_stream(0)
 	, m_file_csv_stream(0)
 	, m_buffer(e_ringbuff_size)
@@ -35,7 +33,6 @@ Connection::Connection (QObject * parent)
 	, m_storage(0)
 	, m_tcp_dump_stream(0)
 	, m_tcpstream(0)
-	//, m_statswindow(0)
 {
 	qDebug("Connection::Connection() this=0x%08x", this);
 
@@ -52,8 +49,8 @@ namespace {
 		for (typename ContainerT::iterator it = c.begin(), ite = c.end(); it != ite; ++it)
 		{
 			typename ContainerT::iterator::value_type ptr = *it;
-            mainwin.dockManager().removeDockable(ptr->path().join("/"));
-            mainwin.dockManager().removeActionAble(ptr->path().join("/"));
+			mainwin.dockManager().removeDockable(ptr->path().join("/"));
+			mainwin.dockManager().removeActionAble(ptr->path().join("/"));
 		}
 		//c.clear(); toto je spatne!
 	}
@@ -73,20 +70,21 @@ struct UnregisterDockedWidgets {
 
 void Connection::destroyDockedWidget (DockedWidgetBase * dwb)
 {
-    switch (dwb->type())
-    {
-        case e_data_log:
-            m_main_window->dockManager().removeDockable(dwb->path().join("/"));
-            m_main_window->dockManager().removeActionAble(dwb->path().join("/"));
-            removeDockWidget<e_data_log>(static_cast<DataLog *>(dwb));
-            destroyDockedWidget<e_data_log>(static_cast<DataLog *>(dwb));
-            break;
-        case e_data_plot:
-        case e_data_table:
-        case e_data_gantt:
-        case e_data_frame:
-        default: break;
-    }
+	switch (dwb->type())
+	{
+		case e_data_log:
+			m_main_window->dockManager().removeDockable(dwb->path().join("/"));
+			m_main_window->dockManager().removeActionAble(dwb->path().join("/"));
+			// @TODO!
+			//removeDockWidget<e_data_log>(static_cast<DataLog *>(dwb));
+			//destroyDockedWidget<e_data_log>(static_cast<DataLog *>(dwb));
+			break;
+		case e_data_plot:
+		case e_data_table:
+		case e_data_gantt:
+		case e_data_frame:
+		default: break;
+	}
 }
 
 namespace {
@@ -97,7 +95,7 @@ namespace {
 		for (typename ContainerT::iterator it = c.begin(), ite = c.end(); it != ite; ++it)
 		{
 			typename ContainerT::iterator::value_type ptr = *it;
-      delete ptr;
+			delete ptr;
 		}
 		c.clear();
 	}
@@ -131,12 +129,8 @@ Connection::~Connection ()
 		m_tcpstream->close();
 	closeStorage();
 
-  qDebug("destroying docked widgets");
+	qDebug("destroying docked widgets");
 	recurse(m_data, DestroyDockedWidgets(*m_main_window, *this));
-
-  qDebug("deleting m_tab_widget w=0x%08x", m_tab_widget);
-	delete m_tab_widget;
-	m_tab_widget = 0;
 
 	/*if (m_file_tlv_stream)
 	{
@@ -157,6 +151,19 @@ Connection::~Connection ()
 	}*/
 }
 
+void Connection::mkWidgetPath (E_DataWidgetType type, QString const tag, QStringList & path)
+{
+	char const * widget_prefix = g_fileTags[type];
+	QString const & name0 = m_main_window->dockedName();
+	QString const & name1 = getAppName();
+	QString const & name2 = widget_prefix;
+	QString const & name3 = tag;
+	path.append(name0);
+	path.append(name1);
+	path.append(name2);
+	path.append(name3);
+}
+
 void Connection::onDisconnected ()
 {
 	qDebug("onDisconnected()");
@@ -174,10 +181,7 @@ void Connection::onDisconnected ()
 	}
 
 	for (dataplots_t::iterator it = m_data.get<e_data_plot>().begin(), ite = m_data.get<e_data_plot>().end(); it != ite; ++it)
-	{
-		DataPlot * dp = (*it);
-		dp->widget().stopUpdate();
-	}
+		(*it)->stopUpdate();
 }
 
 void Connection::onLevelValueChanged (int val)
@@ -290,63 +294,25 @@ struct ExportAsCSV {
 
 void Connection::saveConfigs (QString const & path)
 {
-		qDebug("%s", __FUNCTION__);
+	qDebug("%s", __FUNCTION__);
 	recurse(m_data, Save(path));
 }
 
 void Connection::loadConfigs (QString const & path)
 {
-		qDebug("%s", __FUNCTION__);
+	qDebug("%s", __FUNCTION__);
 	recurse(m_data, Load(path));
 }
 
 void Connection::applyConfigs ()
 {
-		qDebug("%s", __FUNCTION__);
+	qDebug("%s", __FUNCTION__);
 	recurse(m_data, Apply());
 }
 
 void Connection::exportStorageToCSV (QString const & dir)
 {
-		qDebug("%s", __FUNCTION__);
+	qDebug("%s", __FUNCTION__);
 	recurse(m_data, ExportAsCSV(dir));
-}
-
-void Connection::setWidgetToTabWidget (QWidget * w)
-{
-		qDebug("%s", __FUNCTION__);
-	if (m_tab_widget->layout() == 0)
-	{
-		m_tab_widget->setLayout(new QHBoxLayout());
-	}
-	m_tab_widget->layout()->addWidget(w);
-}
-
-void Connection::unsetWidgetFromTabWidget (QWidget * & w)
-{
-		qDebug("%s", __FUNCTION__);
-	if (m_tab_widget->layout() != 0)
-	{
-		w = m_tab_widget->layout()->widget();
-		m_tab_widget->layout()->removeWidget(w);
-	}
-}
-QWidget * Connection::toCentralWidget (QDockWidget * wd, QWidget * w, bool on)
-{
-		qDebug("%s", __FUNCTION__);
-	if (on)
-	{
-		wd->setVisible(false);
-		setWidgetToTabWidget(w);
-		return 0;
-	}
-	else
-	{
-		wd->setVisible(true);
-		wd->setWidget(w);
-		QWidget * oldw;
-		unsetWidgetFromTabWidget(oldw);
-		return oldw;
-	}
 }
 

@@ -1,75 +1,14 @@
 #pragma once
 #include <serialize.h>
 
-template <int TypeN>
-inline QString Connection::getClosestPresetName (QString const & tag)
+
+inline QString Connection::getClosestPresetName (E_DataWidgetType type, QString const & tag)
 {
-	char const * widget_prefix = g_fileTags[TypeN];
-	char const * widget_fname = g_fileNames[TypeN];
-	QString preset_name = m_main_window->matchClosestPresetName(getAppName());
-	if (!preset_name.isEmpty())
-	{
-		QStringList const prs = preset_name.split("/");
-		if (prs.size() == 2 && prs.at(0) == getAppName())
-			preset_name = prs.at(1);
-		else
-			preset_name.clear();
-	}
-
-	if (preset_name.isEmpty())
-	{
-		QStringList subdirs;
-		if (int const n = findPresetsForApp(getGlobalConfig().m_appdir, getAppName(), subdirs))
-		{
-			bool default_present = false;
-			QStringList candidates;
-			foreach (QString const & s, subdirs)
-			{
-				QString test_preset_name = getAppName() + "/" + s;
-				QString const cfg_fname = mkWidgetFileName(getGlobalConfig().m_appdir, getAppName(), s, widget_prefix, tag, widget_fname);
-				if (existsFile(cfg_fname))
-				{
-					if (s == QString(g_defaultPresetName))
-						default_present = true;
-					candidates << s;
-				}
-
-				m_main_window->mentionInPresetHistory(test_preset_name);
-			}
-
-			if (default_present)
-				preset_name = g_defaultPresetName;
-			else
-			{
-				if (candidates.size())
-					preset_name = candidates.at(0);
-			}
-		}
-	}
-
-	if (preset_name.isEmpty())
-		preset_name = g_defaultPresetName; // fallback to default
-
-	m_main_window->mentionInPresetHistory(preset_name);
-	return preset_name;
+	return QString("default");
 }
 
 template <int TypeN>
-void Connection::mkWidgetPath (QString const tag, QStringList & path)
-{
-	char const * widget_prefix = g_fileTags[TypeN];
-	QString const & name0 = m_main_window->dockedName();
-	QString const & name1 = getAppName();
-	QString const & name2 = widget_prefix;
-	QString const & name3 = tag;
-	path.append(name0);
-	path.append(name1);
-	path.append(name2);
-	path.append(name3);
-}
-
-template <int TypeN>
-typename SelectIterator<TypeN>::type  Connection::dataWidgetFactory (QString const tag)
+typename SelectIterator<TypeN>::type Connection::dataWidgetFactory (QString const tag)
 {
 	typedef typename SelectIterator<TypeN>::type iterator;
 	iterator it = m_data.get<TypeN>().find(tag);
@@ -80,7 +19,7 @@ typename SelectIterator<TypeN>::type  Connection::dataWidgetFactory (QString con
 		typedef typename SelectWidget<TypeN>::type widget_t;
 		typedef typename SelectConfig<TypeN>::type config_t;
 
-		QString const preset_name = getClosestPresetName<TypeN>(tag);
+		QString const preset_name = getClosestPresetName(tag);
 		char const * widget_prefix = g_fileTags[TypeN];
 		char const * widget_fname = g_fileNames[TypeN];
 		QString const fname = mkWidgetFileName(getGlobalConfig().m_appdir, getAppName(), preset_name, widget_prefix, tag, widget_fname);
@@ -90,7 +29,7 @@ typename SelectIterator<TypeN>::type  Connection::dataWidgetFactory (QString con
 		typedef typename SelectDockedData<TypeN, dockeddataptr_t>::type dataptr_t;
 		QStringList path;
 		mkWidgetPath<TypeN>(tag, path);
-		dataptr_t const dd = new data_t(this, fname, path);
+		widget_t * const dd = new widget_t(this, fname, path);
 		it = m_data.get<TypeN>().insert(tag, dd);
 
 		dd->m_config.m_tag = tag;
@@ -139,8 +78,8 @@ typename SelectIterator<TypeN>::type  Connection::dataWidgetFactory (QString con
 	return it;
 }
 
-template <int TypeN>
-void Connection::removeDockWidget (typename SelectDockedData<TypeN, dockeddataptr_t>::type ptr)
+/*template <int TypeN>
+void Connection::removeDockWidget (std::tuple_element<TypeN, data_widgets_t>::iterator ptr)
 {
     foreach (QString key, m_data.get<TypeN>().keys() )
     {
@@ -150,41 +89,19 @@ void Connection::removeDockWidget (typename SelectDockedData<TypeN, dockeddatapt
             return;
         }
     }
-}
+}*/
 
-template <int TypeN>
-void Connection::destroyDockedWidget (typename SelectDockedData<TypeN, dockeddataptr_t>::type ptr)
-{
-    if (ptr->m_wd)
-    {
-        m_main_window->removeDockWidget(ptr->m_wd);
-        ptr->widget().setParent(0);
-        ptr->m_wd->setWidget(0);
-        delete ptr->m_wd;
-    }
-    delete ptr;
-}
-
-template <int TypeN>
-typename SelectIterator<TypeN>::type Connection::dockedWidgetEnd ()
-{
-	return m_data.get<TypeN>().end();
-}
-
-template <int TypeN>
-typename SelectIterator<TypeN>::type Connection::findDockedWidget (QString const & tag)
+/*typename std::tuple_element<TypeN, data_widgets_t>::iterator Connection::findDockedWidget (E_DataWidgetType type, QString const & tag)
+#include <boost/tuple/tuple.hpp>
 {
 	typedef typename SelectIterator<TypeN>::type iterator;
 	iterator it = m_data.get<TypeN>().find(tag);
     return it;
-}
+}*/
 
-template <int TypeN>
-bool Connection::dataWidgetConfigPreload (QString const tag, typename SelectConfig<TypeN>::type & config)
+template <class ConfigT>
+bool Connection::dataWidgetConfigPreload (QString const tag, ConfigT & config)
 {
-	typedef typename SelectWidget<TypeN>::type widget_t;
-	typedef typename SelectConfig<TypeN>::type config_t;
-
 	QString const preset_name = getClosestPresetName<TypeN>(tag);
 	char const * widget_prefix = g_fileTags[TypeN];
 	char const * widget_fname = g_fileNames[TypeN];
@@ -192,18 +109,13 @@ bool Connection::dataWidgetConfigPreload (QString const tag, typename SelectConf
 	
 	if (!preset_name.isEmpty())
 	{
-		//QString const cfg_path = getGlobalConfig().m_appdir + "/" + getAppName() + "/" + preset_name;
-		//bool const loaded = logs::loadConfig(m_config, logpath + "/" + m_config.m_tag);
-		//if (!loaded)
-		//	m_connection->defaultConfigFor(m_config);
-		//filterMgr()->loadConfig(logpath);
 		return ::loadConfigTemplate(config, fname);
 	}
 	return false;
 }
 
 template <int TypeN>
-typename SelectIterator<TypeN>::type  Connection::dataWidgetFactoryFrom (QString const tag, typename SelectConfig<TypeN>::type const & config)
+typename SelectIterator<TypeN>::type Connection::dataWidgetFactoryFrom (QString const tag, typename SelectConfig<TypeN>::type const & config)
 {
 	typedef typename SelectIterator<TypeN>::type iterator;
 	iterator it = m_data.get<TypeN>().find(tag);

@@ -124,9 +124,6 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QStri
 	m_timer->start();
 	setupMenuBar();
 
-	connect(ui->tabTrace, SIGNAL(currentChanged(int)), this, SLOT(onTabTraceFocus(int)));
-	connect(ui->tabTrace, SIGNAL(tabCloseRequested(int)), this, SLOT(onCloseTabWithIndex(int)));
-
 	connect(ui->dockManagerButton, SIGNAL(clicked()), this, SLOT(onDockManagerButton()));
 	connect(ui->levelSpinBox, SIGNAL(valueChanged(int)), this, SLOT(onLevelValueChanged(int)));
 	connect(ui->plotSlider, SIGNAL(valueChanged(int)), this, SLOT(onPlotStateChanged(int)));
@@ -321,10 +318,11 @@ void MainWindow::onQuit ()
 	m_tray_icon->hide();
 	storeState();
 
-	QWidget * w = 0;
-	while (w = getTabTrace()->currentWidget())
+	while (!m_connections.empty())
 	{
-		onCloseTab(w);
+		Connection * c = m_connections.back();
+		m_connections.pop_back();
+		destroyConnection(c);
 	}
 
 	QTimer::singleShot(0, this, SLOT(onQuitReally()));	// trigger lazy quit
@@ -421,13 +419,13 @@ void MainWindow::onFileSave ()
 
 void MainWindow::onFileExportToCSV ()
 {
-	QString filename = QFileDialog::getSaveFileName(this, tr("Save File"), "", tr("Trace Files (*.csv)"));
+/*	QString filename = QFileDialog::getSaveFileName(this, tr("Save File"), "", tr("Trace Files (*.csv)"));
 
 	if (filename != "")
 	{
     if (Connection * conn = findCurrentConnection())
       conn->exportStorageToCSV(filename);
-	}
+	}*/
 }
 
 void MainWindow::onOnTop (int const state)
@@ -504,13 +502,14 @@ void MainWindow::setupMenuBar ()
 	QMenu * fileMenu = menuBar()->addMenu(tr("&File"));
 	fileMenu->addAction(tr("File &Load..."), this, SLOT(onFileLoad()), QKeySequence(Qt::ControlModifier + Qt::Key_O));
 	fileMenu->addAction(tr("File &Tail..."), this, SLOT(onFileTail()), QKeySequence(Qt::ControlModifier + Qt::Key_T));
+	fileMenu->addAction(tr("Trace Server Log"), this, SLOT(onLogTail()), QKeySequence(Qt::ControlModifier + Qt::AltModifier + Qt::Key_L));
 	fileMenu->addAction(tr("File &Save..."), this, SLOT(onFileSave()), QKeySequence(Qt::ControlModifier + Qt::Key_S));
 	fileMenu->addAction(tr("File &Save As CSV format"), this, SLOT(onFileExportToCSV()), QKeySequence(Qt::ControlModifier + Qt::ShiftModifier + Qt::Key_S));
 	fileMenu->addSeparator();
 	fileMenu->addAction(tr("Quit program"), this, SLOT(onQuit()), QKeySequence::Quit);
 
 	// Edit
-	QMenu * editMenu = menuBar()->addMenu(tr("&Edit"));
+	//QMenu * editMenu = menuBar()->addMenu(tr("&Edit"));
 /*
 	editMenu->addAction(tr("Find"), this, SLOT(onFind()), QKeySequence::Find);
 	//editMenu->addAction(tr("Find"), this, SLOT(onFind()),	Qt::ControlModifier + Qt::Key_F);
@@ -522,8 +521,8 @@ void MainWindow::setupMenuBar ()
 	//editMenu->addAction(tr("Find and Select All"), this, SLOT(onFindAllButton()));
 	//editMenu->addAction(tr("Goto Next Tag or Selection"), this, SLOT(onNextToView()));
 
-	editMenu->addSeparator();
-	editMenu->addAction(tr("Close Tab"), this, SLOT(onCloseCurrentTab()), QKeySequence(Qt::ControlModifier + Qt::Key_W));
+	//editMenu->addSeparator();
+	//editMenu->addAction(tr("Close Tab"), this, SLOT(onCloseCurrentTab()), QKeySequence(Qt::ControlModifier + Qt::Key_W));
 
 	// Filter
 	//QMenu * filterMenu = menuBar()->addMenu(tr("Fi&lter"));
@@ -532,10 +531,6 @@ void MainWindow::setupMenuBar ()
 	//filterMenu->addAction(tr("Goto regex filter"), this, SLOT(onGotoRegexFilter()), QKeySequence(Qt::ControlModifier + Qt::Key_F3));
 	//filterMenu->addAction(tr("Goto color filter"), this, SLOT(onGotoColorFilter()), QKeySequence(Qt::ControlModifier + Qt::Key_F4));
 
-	QMenu * tailMenu = menuBar()->addMenu(tr("&Tail"));
-	tailMenu->addAction(tr("File &Tail..."), this, SLOT(onFileTail()), QKeySequence(Qt::ControlModifier + Qt::Key_T));
-	tailMenu->addAction(tr("Trace Server Log"), this, SLOT(onLogTail()), QKeySequence(Qt::ControlModifier + Qt::AltModifier + Qt::Key_L));
-		
 	// Tools
 	//QMenu * tools = menuBar()->addMenu(tr("&Settings"));
 	//tools->addAction(tr("&Options"), this, SLOT(onSetupAction()), QKeySequence(Qt::AltModifier + Qt::ShiftModifier + Qt::Key_O));
@@ -544,8 +539,8 @@ void MainWindow::setupMenuBar ()
 	//tools->addAction(tr("Save options now (this will NOT save presets)"), this, SLOT(storeState()), QKeySequence(Qt::AltModifier + Qt::ControlModifier + Qt::ShiftModifier + Qt::Key_O));
 
 	// Help
-	QMenu * helpMenu = menuBar()->addMenu(tr("&Help"));
-	helpMenu->addAction(tr("Help"), this, SLOT(onShowHelp()));
+	//QMenu * helpMenu = menuBar()->addMenu(tr("&Help"));
+	//helpMenu->addAction(tr("Help"), this, SLOT(onShowHelp()));
 	//helpMenu->addAction(tr("Dump filters"), this, SLOT(onDumpFilters()));
 
 	//new QShortcut(QKeySequence(Qt::AltModifier + Qt::Key_Space), this, SLOT(onAutoScrollHotkey()));

@@ -13,6 +13,9 @@
 #include <QInputDialog>
 #include <QFontDialog>
 #include <QShortcut>
+#include "controlbar_log.h"
+#include <ui_controlbarlog.h>
+
 
 namespace logs {
 	LogWidgetWithButtons::LogWidgetWithButtons (Connection * conn, QWidget * wparent, LogConfig & cfg, QString const & fname, QStringList const & path)
@@ -100,6 +103,8 @@ namespace logs {
 
 		setContextMenuPolicy(Qt::CustomContextMenu);
 		connect(this, SIGNAL(customContextMenuRequested(QPoint const &)), this, SLOT(onShowContextMenu(QPoint const &)));
+
+		m_controlwidget = new ControlBarLog(0); // @TODO: delete
 
 		setConfigValuesToUI(m_config);
 		setAutoScroll(false);

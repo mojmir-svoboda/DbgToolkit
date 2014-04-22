@@ -9,22 +9,24 @@ struct DockedWidgetBase : QObject, ActionAble {
 public:
 	DockedWidgetBase (QStringList const & path)
 		: ActionAble(path)
-		, m_wd(0)
+		, m_dockwidget(0)
+		, m_controlwidget(0)
 	{ }
 	virtual ~DockedWidgetBase () { }
 
 	virtual DockedConfigBase const & dockedConfig () const = 0;
 	virtual DockedConfigBase & dockedConfig () = 0;
 	virtual QWidget * dockedWidget () = 0;
+	virtual QWidget * controlWidget () = 0;
 
-	QDockWidget * m_wd;
+	QDockWidget * m_dockwidget;
+    QWidget * m_controlwidget;
 
 	virtual E_DataWidgetType type () const = 0;
 };
 
-class QCloseEvent;
-class QMainWindow;
-struct DockManager;
+
+class QCloseEvent; class QMainWindow; struct DockManager;
 
 struct DockWidget : public QDockWidget
 {

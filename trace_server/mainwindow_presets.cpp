@@ -12,37 +12,33 @@
 
 QString MainWindow::getCurrentPresetName () const
 {
-	QString txt = ui->presetComboBox->currentText();
+	QString txt = m_dock_mgr.controlUI()->presetComboBox->currentText();
 	return txt;
 }
 
 QString MainWindow::promptAndCreatePresetName (QString const & app_name)
 {
-	if (Connection * conn = findCurrentConnection())
+	QString const default_pname = getPresetPath(app_name, g_defaultPresetName);
+
+	// pre-select default_pname (for text-replace mode)
+	QStringList items;
+	findPresetsForApp(m_config.m_appdir, app_name, items);
+	items.push_front(default_pname);
+
+	QString preset_name;
+	bool ok = true;
+	while (ok)
 	{
-		QString const default_pname = getPresetPath(app_name, g_defaultPresetName);
-
-		// pre-select default_pname (for text-replace mode)
-		QStringList items;
-		findPresetsForApp(m_config.m_appdir, app_name, items);
-		items.push_front(default_pname);
-
-		QString preset_name;
-		bool ok = true;
-		while (ok)
+		QString const pname = QInputDialog::getItem(this, tr("Save current preset"), tr("Preset name:"), items, 0, true, &ok);
+		if (ok && validatePresetName(pname))
 		{
-			QString const pname = QInputDialog::getItem(this, tr("Save current preset"), tr("Preset name:"), items, 0, true, &ok);
-			if (ok && validatePresetName(pname))
-			{
-				preset_name = pname;
-				break;
-			}
+			preset_name = pname;
+			break;
 		}
-		if (!validatePresetName(preset_name))
-			return default_pname;
-		return preset_name;
 	}
-	return "unknown";
+	if (!validatePresetName(preset_name))
+		return default_pname;
+	return preset_name;
 }
 
 QString MainWindow::matchClosestPresetName (QString const & app_name)

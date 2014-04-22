@@ -114,7 +114,7 @@ public:
 	void importDataStream (QString const & fname);
 	void copyStorageTo (QString const & filename);
 	Connection * findConnectionByName (QString const & app_name);
-	Connection * findCurrentConnection ();
+	//Connection * findCurrentConnection ();
 	Connection * createNewConnection ();
 	void destroyConnection (Connection * connection);
 
@@ -130,11 +130,11 @@ public slots:
 	void onDockManagerButton ();
 	void onDockManagerClosed ();
 
-	void onCloseTab (int idx, QWidget * w);
-	void onCloseTab (QWidget * w);
-	void onCloseMarkedTabs ();
-	void onCloseTabWithIndex (int idx);
-	void onCloseCurrentTab ();
+	//void onCloseTab (int idx, QWidget * w);
+	//void onCloseTab (QWidget * w);
+	//void onCloseMarkedConnections ();
+	//void onCloseTabWithIndex (int idx);
+	//void onCloseCurrentTab ();
 	void onPresetActivate ();
 	void onPresetActivate (int idx);
 
@@ -171,11 +171,7 @@ private slots:
 	void onLevelValueChanged (int i);
 	void onBufferingStateChanged (int state);
 	void onShowHelp ();
-	void onTabTraceFocus (int i);
 	
-	//void onReuseTabChanged (int state);
-	//void ondtToolButton ();
-	//void onTimeUnitsChanged (int i);
 	void onTablesStateChanged (int state);
 	void onPlotStateChanged (int state);
 
@@ -186,7 +182,7 @@ private:
 	void createActions ();
 	void createTrayIcon ();
 
-	typedef std::map<QWidget *, Connection *> connections_t;
+	typedef std::vector<Connection *> connections_t;
 	connections_t 		m_connections;
 
 	Ui::MainWindow * 	ui;

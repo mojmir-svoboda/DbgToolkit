@@ -40,6 +40,7 @@
 #include "gantt/ganttwidget.h"
 #include "gantt/frameview.h"
 #include "appdata.h"
+#include "constants.h"
 
 class Server;
 class QFile;
@@ -47,189 +48,22 @@ class QDataStream;
 class QTextStream;
 class QStandardItemModel;
 class QStandardItem;
-//namespace stats { class StatsWindow; }
 
-#include <boost/mpl/apply.hpp>
-#include <boost/mpl/placeholders.hpp>
-#include <boost/mpl/int.hpp>
-#include <boost/mpl/at.hpp>
-#include <boost/mpl/vector.hpp>
-#include <boost/mpl/pair.hpp>
-#include <boost/type_traits/add_pointer.hpp>
-#include <boost/mpl/transform.hpp>
-
-#include "constants.h"
-char const * const g_fileTags[] = { g_LogTag, g_PlotTag, g_TableTag, g_GanttTag, g_FrameTag };
+char const * const g_fileTags[] =  { g_LogTag , g_PlotTag , g_TableTag , g_GanttTag , g_FrameTag  };
 char const * const g_fileNames[] = { g_LogFile, g_PlotFile, g_TableFile, g_GanttFile, g_FrameFile };
 
-typedef boost::mpl::vector<
-		boost::mpl::pair<	logs::LogWidgetWithButtons,		logs::LogConfig			>,
-		boost::mpl::pair<	plot::PlotWidget,				plot::PlotConfig		>,
-		boost::mpl::pair<	table::TableWidget,				table::TableConfig		>,
-		boost::mpl::pair<	gantt::GanttWidget,				gantt::GanttConfig		>,
-		boost::mpl::pair<	FrameView,						FrameViewConfig			>
-	>::type datawidgetcfgs_t;
-
-template <int N, typename SeqT>
-struct SelectInternals
-	: boost::mpl::apply<boost::mpl::at<boost::mpl::_1, boost::mpl::_2>, SeqT, boost::mpl::int_<N> >
-{ };
-
-template <int N>
-struct SelectWidget
-	: boost::mpl::apply<boost::mpl::first<boost::mpl::_1>, typename SelectInternals<N, datawidgetcfgs_t>::type >
-{ };
-template <int N>
-struct SelectConfig
-	: boost::mpl::apply<boost::mpl::second<boost::mpl::_1>, typename SelectInternals<N, datawidgetcfgs_t>::type >
-{ };
-
-template <int TypeN>
-struct DockedData : DockedWidgetBase
-{
-	typedef typename SelectWidget<TypeN>::type widget_t;
-	typedef typename SelectConfig<TypeN>::type config_t;
-	enum { e_type = TypeN };
-
-	virtual E_DataWidgetType type () const { return static_cast<E_DataWidgetType>(e_type); }
-
-	Connection * m_parent;
-	widget_t *   m_widget;
-	config_t     m_config;
-	QString      m_confname;
-
-	DockedData (Connection * parent, QString const & confname, QStringList const & dockpath)
-		: DockedWidgetBase(dockpath)
-		, m_parent(parent)
-		, m_widget(0)
-		, m_config()
-		, m_confname(confname)
-	{ }
-
-	DockedData (Connection * parent, QString const & confname, QStringList const & dockpath, config_t const & cfg)
-		: DockedWidgetBase(dockpath)
-		, m_parent(parent)
-		, m_widget(0)
-		, m_config(cfg)
-		, m_confname(confname)
-	{ }
-
-	~DockedData ()
-	{
-		qDebug("%s this=0x%08x", __FUNCTION__, this);
-		if (m_widget)
-		{
-			m_widget->setParent(0);
-		}
-		if (m_wd)
-		{
-			m_parent->getMainWindow()->removeDockWidget(m_wd);
-			m_wd->setWidget(0);
-			delete m_wd;
-			m_wd = 0;
-		}
-		if (m_widget)
-		{
-			delete m_widget;
-			m_widget = 0;
-		}
-	}
-
-	virtual QWidget * dockedWidget () { return m_widget; }
-
-	widget_t & widget () { return *m_widget; }
-	widget_t const & widget () const { return *m_widget; }
-	config_t & config () { return m_config; }
-	config_t const & config () const { return m_config; }
-	virtual DockedConfigBase const & dockedConfig () const { return config(); }
-	virtual DockedConfigBase & dockedConfig () { return config(); }
-
-	virtual bool handleAction (Action * a, E_ActionHandleType sync)
-	{
-		switch (a->type())
-		{
-			case e_Visibility:
-			{
-				Q_ASSERT(m_args.size() > 0);
-				bool const on = a->m_args.at(0).toBool();
-				m_wd->setVisible(on);
-				config().m_show = on;
-				return true;
-			}
-			case e_InCentralWidget:
-			{
-				Q_ASSERT(m_args.size() > 0);
-				bool const on = a->m_args.at(0).toBool();
-				m_parent->toCentralWidget(m_wd, m_widget, on);
-				config().m_central_widget = on;
-				return true;
-			}
-			default:
-				break;
-		}
-
-		return m_widget->handleAction(a, sync);
-	}
-
-	/*virtual void show ()
-	{
-		m_widget->onShow();
-		m_wd->show();
-		m_parent->getMainWindow()->restoreDockWidget(m_wd);
-	}
-	virtual void hide ()
-	{
-		m_widget->onHide();
-		QTimer::singleShot(0, m_wd, SLOT(hide()));
-	}*/
-};
-
-struct DataLog : DockedData<e_data_log>
-{
-	DataLog (Connection * parent, QString const & confname, QStringList const & path);
-	DataLog (Connection * parent, QString const & confname, QStringList const & path, config_t const & cfg);
-	void init (Connection * connection, QString const & confname, QStringList const & path);
-	~DataLog ();
-};
-struct DataPlot : DockedData<e_data_plot>
-{
-	DataPlot (Connection * parent, QString const & confname, QStringList const & path);
-};
-struct DataTable : DockedData<e_data_table>
-{
-	DataTable (Connection * parent, QString const & confname, QStringList const & path);
-	~DataTable ();
-};
-
-struct DataGantt : DockedData<e_data_gantt>
-{
-	DataGantt (Connection * parent, QString const & confname, QStringList const & path);
-};
-
-struct DataFrame : DockedData<e_data_frame>
-{
-	DataFrame (Connection * parent, QString const & confname, QStringList const & path);
-};
-
-
-typedef boost::mpl::vector<DataLog, DataPlot, DataTable, DataGantt, DataFrame>::type dockeddata_t;
-typedef boost::mpl::transform<dockeddata_t, boost::add_pointer<boost::mpl::_1> >::type dockeddataptr_t;
-
-template <int N, typename SeqT>
-struct SelectDockedData
-	: boost::mpl::apply<boost::mpl::at<boost::mpl::_1, boost::mpl::_2>, SeqT, boost::mpl::int_<N> >
-{ };
-
-template <int TypeN>
-struct DataMap
-	: QMap<QString, typename SelectDockedData<TypeN, dockeddataptr_t>::type >
+template <class WidgetT, class ConfigT>
+struct DockedWidgets
+	: QMap<QString, WidgetT *>
 	, ActionAble
 {
-	enum { e_type = TypeN };
-	QList<DecodedCommand> m_queue;
-	typedef typename SelectDockedData<TypeN, dockeddataptr_t>::type widget_t;
+	//enum { e_type = WidgetT::e_type };
+	typedef WidgetT widget_t;
+	typedef ConfigT config_t;
 
-	DataMap () : ActionAble(QStringList()) { m_queue.reserve(256); }
+	QList<DecodedCommand> m_queue;
+
+	DockedWidgets () : ActionAble(QStringList()) { m_queue.reserve(1024); }
 
 	virtual bool handleAction (Action * a, E_ActionHandleType sync)
 	{
@@ -239,19 +73,27 @@ struct DataMap
 	}
 };
 
-typedef DataMap<e_data_log  > datalogs_t;
-typedef DataMap<e_data_plot > dataplots_t;
-typedef DataMap<e_data_table> datatables_t;
-typedef DataMap<e_data_gantt> datagantts_t;
-typedef DataMap<e_data_frame> dataframes_t;
-
+typedef DockedWidgets< logs::LogWidgetWithButtons, logs::LogConfig 		> datalogs_t;
+typedef DockedWidgets< plot::PlotWidget,           plot::PlotConfig     > dataplots_t;
+typedef DockedWidgets< table::TableWidget,         table::TableConfig 	> datatables_t;
+typedef DockedWidgets< gantt::GanttWidget,         gantt::GanttConfig   > datagantts_t;
+typedef DockedWidgets< FrameView,                  FrameViewConfig      > dataframes_t;
 typedef boost::tuple<datalogs_t, dataplots_t, datatables_t, datagantts_t, dataframes_t> data_widgets_t;
 
 template <int TypeN>
+struct SelectWidget
+{
+	typedef typename std::tuple_element<TypeN, data_widgets_t>::widget_t type;
+};
+template <int TypeN>
+struct SelectConfig
+{
+	typedef typename std::tuple_element<TypeN, data_widgets_t>::config_t type;
+};
+template <int TypeN>
 struct SelectIterator
 {
-	typedef typename SelectWidget<TypeN>::type widget_t;
-	typedef typename DataMap<TypeN>::iterator type;
+	typedef typename std::tuple_element<TypeN, data_widgets_t>::iterator type;
 };
 
 
@@ -280,35 +122,33 @@ public:
 	void loadConfigs (QString const & preset_name);
 	void applyConfigs ();
 
-
-  //@TODO: old call!!
+	//@TODO: old call!!
 	void requestTableSynchronization (int sync_group, unsigned long long time);
 
 	void requestTableWheelEventSync (int sync_group, QWheelEvent * ev, QTableView const * source);
 	void requestTableActionSync (int sync_group, unsigned long long t, int cursorAction, Qt::KeyboardModifiers modifiers, QTableView const * source);
 
 	// data widget creation functions:
-	template <int TypeN>
-	bool dataWidgetConfigPreload (QString const tag, typename SelectConfig<TypeN>::type & config);
-	template <int TypeN>
-	QString getClosestPresetName (QString const & tag);
-	template <int TypeN>
-	void mkWidgetPath (QString const tag, QStringList & path);
+	template <class ConfigT>
+	bool dataWidgetConfigPreload (QString const tag, ConfigT & config);
+	QString getClosestPresetName (E_DataWidgetType type, QString const & tag);
+	void mkWidgetPath (E_DataWidgetType type, QString const tag, QStringList & path);
+
 	template <int TypeN>
 	typename SelectIterator<TypeN>::type dataWidgetFactory (QString const tag);
 	template <int TypeN>
 	typename SelectIterator<TypeN>::type dataWidgetFactoryFrom (QString const tag, typename SelectConfig<TypeN>::type const & config);
-	template <int TypeN>
+	/*template <int TypeN>
 	typename SelectIterator<TypeN>::type findDockedWidget (QString const & tag);
 	template <int TypeN>
 	typename SelectIterator<TypeN>::type dockedWidgetEnd ();
 	template <int TypeN>
-	void removeDockWidget (typename SelectDockedData<TypeN, dockeddataptr_t>::type ptr);
+	void removeDockWidget (typename SelectDockedData<TypeN, dockeddataptr_t>::type ptr);*/
 
 	//typename SelectIterator<TypeN>::type destroyWidget (QWidget * w);
 
-	template <int TypeN>
-	void destroyDockedWidget (typename SelectDockedData<TypeN, dockeddataptr_t>::type ptr);
+	//template <int TypeN>
+	//void destroyDockedWidget (typename SelectDockedData<TypeN, dockeddataptr_t>::type ptr);
 
 	void destroyDockedWidget (DockedWidgetBase * dwb);
 
@@ -329,7 +169,7 @@ public slots:
 	bool tryHandleCommand (DecodedCommand const & cmd, E_ReceiveMode mode);
 
 	//void onShowContextMenu (QPoint const & pos);
-	void onShowPlotContextMenu (QPoint const &);
+	/*void onShowPlotContextMenu (QPoint const &);
 	void onShowPlots ();
 	void onHidePlots ();
 	void onShowTableContextMenu (QPoint const &);
@@ -340,13 +180,9 @@ public slots:
 	void onHideGantts ();
 	void onShowLogContextMenu (QPoint const &);
 	void onShowLogs ();
-	void onHideLogs ();
+	void onHideLogs ();*/
 
 	void exportStorageToCSV (QString const & filename);
-
-	void setWidgetToTabWidget (QWidget * w);	// it means to "central widget"
-	void unsetWidgetFromTabWidget (QWidget * & w);
-	QWidget * toCentralWidget (QDockWidget * wd, QWidget * w, bool on);
 
 private slots:
 	void processReadyRead ();
@@ -442,7 +278,6 @@ private:
 	unsigned m_recv_bytes;
 	bool m_marked_for_close;
 	QString m_curr_preset;
-	QWidget * m_tab_widget;
 	QTextStream * m_file_csv_stream;
 	QDataStream * m_file_tlv_stream;
 
