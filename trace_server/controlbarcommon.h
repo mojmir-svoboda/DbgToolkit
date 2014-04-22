@@ -1,11 +1,7 @@
-#ifndef CONTROLBARCOMMON_H
-#define CONTROLBARCOMMON_H
-
+#pragma once
 #include <QWidget>
 
-namespace Ui {
-class ControlBarCommon;
-}
+namespace Ui { class ControlBarCommon; }
 
 class ControlBarCommon : public QWidget
 {
@@ -15,8 +11,6 @@ public:
     explicit ControlBarCommon(QWidget *parent = 0);
     ~ControlBarCommon();
 
-private:
     Ui::ControlBarCommon *ui;
 };
 
-#endif // CONTROLBARCOMMON_H

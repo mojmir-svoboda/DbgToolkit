@@ -4,6 +4,11 @@
 #include "dockmanagerconfig.h"
 #include "controlbar_dockmanager.h"
 #include "serialize.h"
+#include <ui_controlbarcommon.h>
+#include <ui_controlbarlogs.h>
+#include <ui_controlbarplots.h>
+#include <ui_controlbartables.h>
+#include <ui_controlbargantts.h>
 
 DockManager::DockManager (MainWindow * mw, QStringList const & path)
 	: DockManagerView(mw), ActionAble(path)
@@ -29,8 +34,7 @@ DockManager::DockManager (MainWindow * mw, QStringList const & path)
 	//if (visible)
 	//	m_main_window->restoreDockWidget(dock);
 	m_docked_widgets = dock;
-	m_control_bar = new ControlBarDockManager();
-	m_control_bar->setAutoFillBackground(true);
+	m_control_bar = new ControlBarCommon();
 
 	connect(header(), SIGNAL(sectionResized(int, int, int)), this, SLOT(onColumnResized(int, int, int)));
 	connect(this, SIGNAL(clicked(QModelIndex)), this, SLOT(onClicked(QModelIndex)));

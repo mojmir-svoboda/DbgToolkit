@@ -37,7 +37,6 @@ QT_BEGIN_NAMESPACE
 class Ui_ControlBarDockManager
 {
 public:
-    QHBoxLayout *horizontalLayout_2;
     QHBoxLayout *horizontalLayout;
     QLabel *label_3;
     QSpinBox *levelSpinBox;
@@ -69,12 +68,9 @@ public:
         if (ControlBarDockManager->objectName().isEmpty())
             ControlBarDockManager->setObjectName(QStringLiteral("ControlBarDockManager"));
         ControlBarDockManager->resize(582, 30);
-        horizontalLayout_2 = new QHBoxLayout(ControlBarDockManager);
-        horizontalLayout_2->setSpacing(0);
-        horizontalLayout_2->setObjectName(QStringLiteral("horizontalLayout_2"));
-        horizontalLayout_2->setContentsMargins(0, 0, 0, 0);
         horizontalLayout = new QHBoxLayout();
         horizontalLayout->setSpacing(0);
+        horizontalLayout->setContentsMargins(0, 0, 0, 0);
         horizontalLayout->setObjectName(QStringLiteral("horizontalLayout"));
         label_3 = new QLabel(ControlBarDockManager);
         label_3->setObjectName(QStringLiteral("label_3"));
@@ -298,10 +294,7 @@ public:
         ganttSlider->setTickPosition(QSlider::TicksBothSides);
 
         horizontalLayout->addWidget(ganttSlider);
-
-
-        horizontalLayout_2->addLayout(horizontalLayout);
-
+        ControlBarDockManager->setLayout(horizontalLayout);
 
         retranslateUi(ControlBarDockManager);
 

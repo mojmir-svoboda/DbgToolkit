@@ -28,6 +28,7 @@
 #include "version.h"
 #include "constants.h"
 #include "dock.h"
+#include <ui_controlbarcommon.h>
 #include "utils.h"
 #include "utils_qstandarditem.h"
 #include "utils_qsettings.h"

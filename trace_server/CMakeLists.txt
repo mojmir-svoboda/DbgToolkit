@@ -78,16 +78,20 @@ set(trace_server_SOURCES
 	config.cpp
 	dock.cpp
 	dockmanagerconfig.cpp
-  dockmanager.cpp
-  dockmanagerview.cpp
-  dockmanagermodel.cpp
+	dockmanager.cpp
+	dockmanagerview.cpp
+	dockmanagermodel.cpp
 	syncwidgets.cpp
 	combolist.cpp
 	movabletabwidget.cpp
 	timecombobox.cpp
 	buttoncache.cpp
-  controlbarcommon.cpp
-  controlbar_dockmanager.cpp
+	controlbarcommon.cpp
+	controlbarlogs.h
+	controlbarplots.h
+	controlbartables.h
+	controlbargantts.h
+	controlbarlog.h
 
 	filterbase.cpp
 	filtermgrbase.cpp
@@ -170,7 +174,7 @@ set(trace_server_SOURCES
 	)
 
 set(trace_server_HEADERS
-	mainwindow.h 
+	mainwindow.h
 	tableview.h
 	treeview.h
 	treemodel.h
@@ -189,9 +193,9 @@ set(trace_server_HEADERS
 	utils.h
 	dock.h
 	dockmanagerconfig.h
-  dockmanager.h
-  dockmanagermodel.h
-  dockmanagerview.h
+	dockmanager.h
+	dockmanagermodel.h
+	dockmanagerview.h
 	constants.h
 	syncwidgets.h
 	config.h
@@ -201,8 +205,12 @@ set(trace_server_HEADERS
 	movabletabwidget.h
 	warnimage.h
 	buttoncache.h
-  controlbarcommon.h
-  controlbar_dockmanager.h
+	controlbarcommon.h
+	controlbarlog.h
+	controlbarlogs.h
+	controlbarplots.h
+	controlbartables.h
+	controlbargantts.h
 
 	findwidget.h
 	findconfig.h
@@ -280,9 +288,14 @@ set(trace_server_HEADERS
 	gantt/scalewidget.h
 	)
 
-set(trace_server_UI 
+set(trace_server_UI
 	mainwindow.ui
-  controlbarcommon.ui
+	controlbarcommon.ui
+	controlbarlog.ui
+	controlbarlogs.ui
+	controlbarplots.ui
+	controlbartables.ui
+	controlbargantts.ui
 	filterwidget.ui
 	findwidget.ui
 	combolist.ui
@@ -337,7 +350,7 @@ if (WIN32)
 	add_definitions(-DNOMINMAX)
 	add_definitions(-DWIN_LEAN_AND_MEAN)
 	target_link_libraries(trace_server Qt5::WinMain)
-endif (WIN32) 
+endif (WIN32)
 ####################### Platform specific ######################
 
 
