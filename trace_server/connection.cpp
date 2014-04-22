@@ -237,7 +237,7 @@ struct Save {
 	{
 		typedef typename T::const_iterator it_t;
 		for (it_t it = t.begin(), ite = t.end(); it != ite; ++it)
-			(*it)->widget().saveConfig(m_path);
+			(*it)->saveConfig(m_path);
 	}
 };
 
@@ -251,7 +251,7 @@ struct Load {
 	{
 		typedef typename T::const_iterator it_t;
 		for (it_t it = t.begin(), ite = t.end(); it != ite; ++it)
-			(*it)->widget().loadConfig(m_path);
+			(*it)->loadConfig(m_path);
 	}
 };
 
@@ -262,7 +262,7 @@ struct Apply {
 	{
 		typedef typename T::const_iterator it_t;
 		for (it_t it = t.begin(), ite = t.end(); it != ite; ++it)
-			(*it)->widget().applyConfig();
+			(*it)->applyConfig();
 	}
 };
 
@@ -276,7 +276,7 @@ struct ExportAsCSV {
 	{
 		typedef typename T::const_iterator it_t;
 		for (it_t it = t.begin(), ite = t.end(); it != ite; ++it)
-			(*it)->widget().exportStorageToCSV(m_path);
+			(*it)->exportStorageToCSV(m_path);
 	}
 };
 
