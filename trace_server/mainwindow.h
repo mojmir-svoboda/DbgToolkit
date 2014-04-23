@@ -67,18 +67,15 @@ public:
 	}
 
 	// presets
-	int findRegistryPresetName (QString const & name);
-	int addRegistryPresetName (QString const & name);
 	void saveLayout (QString const & preset_name);
 	void loadLayout (QString const & preset_name);
 	void onPresetActivate (Connection * conn, QString const & pname);
 	QString getCurrentPresetName () const;
 	QString promptAndCreatePresetName (QString const & app_name);
 	QString getValidCurrentPresetName ();
-	QString matchClosestPresetName (QString const & appname);
+
 	void setPresetAsCurrent (QString const & pname);
 	void mentionInPresetHistory (QString const & str);
-	void mentionInMultiTabPresetHistory (QString const & str);
 
 	// global config
 	GlobalConfig const & getConfig () const { return m_config; }
@@ -101,7 +98,6 @@ public:
 	void dragEnterEvent (QDragEnterEvent * event);
 	bool eventFilter (QObject * o, QEvent * e);
 	void keyPressEvent (QKeyEvent * e);
-	bool handleTab (QKeyEvent * e);
 
 	// docking stuff
 	DockManager const & dockManager () const { return m_dock_mgr; }
@@ -129,6 +125,8 @@ public slots:
 	void onDockRestoreButton ();
 	void onDockManagerButton ();
 	void onDockManagerClosed ();
+	void onSave ();
+	void onSaveAs (QString const & preset_name);
 
 	//void onCloseTab (int idx, QWidget * w);
 	//void onCloseTab (QWidget * w);
@@ -161,8 +159,6 @@ private slots:
 
 	// preset
 	void onPresetChanged (int idx);
-	void onMultiTabPresetChanged (int idx);
-	void onMultiTabPresetReturnPressed ();
 	void onSaveCurrentState ();
 	void onSaveCurrentStateTo (QString const & name);
 	void onAddPreset ();

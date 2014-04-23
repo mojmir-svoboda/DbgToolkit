@@ -63,6 +63,7 @@ public:
 	void applyConfig ();
 
 	virtual bool handleAction (Action * a, E_ActionHandleType sync);
+	virtual QWidget * controlWidget () { return m_control_bar; }
 
 public slots:
 	void onWidgetClosed (DockWidget * w);

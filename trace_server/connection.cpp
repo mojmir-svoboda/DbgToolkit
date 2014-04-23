@@ -24,6 +24,7 @@ Connection::Connection (QObject * parent)
 	, m_recv_bytes(0)
 	, m_marked_for_close(false)
 	, m_curr_preset()
+	, m_control_bar(0)
 	, m_file_tlv_stream(0)
 	, m_file_csv_stream(0)
 	, m_buffer(e_ringbuff_size)
@@ -35,6 +36,10 @@ Connection::Connection (QObject * parent)
 	, m_tcpstream(0)
 {
 	qDebug("Connection::Connection() this=0x%08x", this);
+
+	m_control_bar = new ControlBarCommon();
+
+	m_main_window->dockManager().addActionTreeItem(this, true);
 
 	static int counter = 0;
 	m_storage_idx = counter;
@@ -280,17 +285,12 @@ struct ExportAsCSV {
 	}
 };
 
-/*void Connection::onSaveAll ()
+void Connection::saveAs (QString const & preset_name)
 {
 	qDebug("%s", __FUNCTION__);
-	// @TODO: v hhdr bude 0 !
-	
-	QString const preset_name = m_curr_preset.isEmpty() ? m_main_window->getValidCurrentPresetName() : m_curr_preset;
-	//QString const fname = getDataTagFileName(getConfig().m_appdir, preset_name, g_presetTableTag, tag);
-	QString const preset_path = getPresetPath(getConfig().m_appdir, preset_name);
-	saveConfigs(preset_path);
-}*/
-
+	QString const path = getPresetPath(getGlobalConfig().m_appdir, preset_name);
+	saveConfigs(path);
+}
 
 void Connection::saveConfigs (QString const & path)
 {

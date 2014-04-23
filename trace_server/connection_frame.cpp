@@ -10,14 +10,6 @@
 #include <syncwidgets.h>
 
 
-DataFrame::DataFrame (Connection * connection, QString const & confname, QStringList const & path)
-	: DockedData<e_data_frame>(connection, confname, path)
-{
-	qDebug("%s this=0x%08x", __FUNCTION__, this);
-	m_widget = new FrameView(connection, 0, m_config, confname, path);
-}
-
-
 dataframes_t::iterator Connection::findOrCreateFrame (QString const & tag)
 {
 	dataframes_t::iterator it = dataWidgetFactory<e_data_frame>(tag);

@@ -86,11 +86,8 @@ set(trace_server_SOURCES
 	timecombobox.cpp
 	buttoncache.cpp
 	controlbarcommon.cpp
-	controlbarlogs.h
-	controlbarplots.h
-	controlbartables.h
-	controlbargantts.h
-	controlbarlog.h
+	controlbardockedwidgets.cpp
+	controlbarlog.cpp
 
 	filterbase.cpp
 	filtermgrbase.cpp
@@ -205,11 +202,8 @@ set(trace_server_HEADERS
 	warnimage.h
 	buttoncache.h
 	controlbarcommon.h
+	controlbardockedwidgets.h
 	controlbarlog.h
-	controlbarlogs.h
-	controlbarplots.h
-	controlbartables.h
-	controlbargantts.h
 
 	findwidget.h
 	findconfig.h
@@ -290,11 +284,8 @@ set(trace_server_HEADERS
 set(trace_server_UI
 	mainwindow.ui
 	controlbarcommon.ui
+	controlbardockedwidgets.ui
 	controlbarlog.ui
-	controlbarlogs.ui
-	controlbarplots.ui
-	controlbartables.ui
-	controlbargantts.ui
 	filterwidget.ui
 	findwidget.ui
 	combolist.ui

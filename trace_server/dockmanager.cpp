@@ -57,12 +57,7 @@ void DockManager::loadConfig (QString const & cfgpath)
 		bool const on = true;
 		m_model = new DockManagerModel(this, &m_config.m_data);
 		setModel(m_model);
-		QModelIndex const idx = m_model->insertItemWithPath(path(), on);
-		QModelIndex const idx1 = m_model->index(idx.row(), 1, idx.parent());
-		setIndexWidget(idx1, m_control_bar);
-		// @TODO: set type=AA into returned node
-		m_model->setData(idx, QVariant(on ? Qt::Checked : Qt::Unchecked), Qt::CheckStateRole);
-		//QString const & name = aa.joinedPath();
+		addActionTreeItem(*this, on);
 	}
 	else
 	{
@@ -135,6 +130,9 @@ QModelIndex DockManager::addDockedTreeItem (DockedWidgetBase & dwb, bool on)
 QModelIndex DockManager::addActionTreeItem (ActionAble & aa, bool on)
 {
 	QModelIndex const idx = m_model->insertItemWithPath(aa.path(), on);
+	QModelIndex const idx1 = m_model->index(idx.row(), 1, idx.parent());
+	setIndexWidget(idx1, aa->controlWidget());
+
 	// @TODO: set type=AA into returned node
 	m_model->setData(idx, QVariant(on ? Qt::Checked : Qt::Unchecked), Qt::CheckStateRole);
 	QString const & name = aa.joinedPath();
@@ -305,4 +303,37 @@ void DockManager::onClicked (QModelIndex idx)
 	//av.m_dst = 0;
 	handleAction(&a, e_Sync);
 }
+
+////////////////////////////////////////
+QString DockManager::matchClosestPresetName (QString const & app_name)
+{
+	QString const top_level_preset = m_main_window->getCurrentPresetName();
+
+	return top_level_preset;
+
+/*	QString const multitab_preset_hint = ui->multiTabPresetComboBox->currentText();
+	if (!multitab_preset_hint.isEmpty())
+	{
+		return app_name + "/" + multitab_preset_hint;
+	}
+
+
+	QString const saved_preset = getCurrentPresetName();
+	QString preset_appname = saved_preset;
+	int const slash_pos = preset_appname.lastIndexOf(QChar('/'));
+	if (slash_pos != -1)
+		preset_appname.chop(preset_appname.size() - slash_pos);
+	qDebug("match preset name: curr=%s app_name=%s", preset_appname.toStdString().c_str(), app_name.toStdString().c_str());
+	if (preset_appname.contains(app_name))
+	{
+		qDebug("got correct preset name appname/.* from combobox");
+		return saved_preset;
+	}
+	else
+	{
+		qDebug("got nonmatching preset name appname/.* from combobox");
+		return QString();
+	}*/
+}
+
 

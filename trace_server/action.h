@@ -50,6 +50,7 @@ struct ActionAble {
 	virtual ~ActionAble () { }
 
 	virtual bool handleAction (Action * a, E_ActionHandleType sync) = 0;
+	virtual QWidget * controlWidget () = 0;
 
 	QStringList const & path () const { return m_path; }
 	QString const & joinedPath () const { return m_joined_path; }

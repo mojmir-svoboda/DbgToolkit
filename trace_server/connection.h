@@ -23,7 +23,6 @@
 #include <QHostAddress>
 #include <QString>
 #include <QTcpSocket>
-#include <QTableView>
 #include <QThread>
 #include <QAbstractItemView>
 #include "mainwindow.h"
@@ -39,6 +38,7 @@
 #include "table/tablewidget.h"
 #include "gantt/ganttwidget.h"
 #include "gantt/frameview.h"
+#include "dockedwidgets.h"
 #include "appdata.h"
 #include "constants.h"
 
@@ -46,32 +46,11 @@ class Server;
 class QFile;
 class QDataStream;
 class QTextStream;
-class QStandardItemModel;
-class QStandardItem;
+//class QStandardItemModel;
+//class QStandardItem;
 
 char const * const g_fileTags[] =  { g_LogTag , g_PlotTag , g_TableTag , g_GanttTag , g_FrameTag  };
 char const * const g_fileNames[] = { g_LogFile, g_PlotFile, g_TableFile, g_GanttFile, g_FrameFile };
-
-template <class WidgetT, class ConfigT>
-struct DockedWidgets
-	: QMap<QString, WidgetT *>
-	, ActionAble
-{
-	//enum { e_type = WidgetT::e_type };
-	typedef WidgetT widget_t;
-	typedef ConfigT config_t;
-
-	QList<DecodedCommand> m_queue;
-
-	DockedWidgets () : ActionAble(QStringList()) { m_queue.reserve(1024); }
-
-	virtual bool handleAction (Action * a, E_ActionHandleType sync)
-	{
-		for (iterator it = begin(), ite = end(); it != ite; ++it)
-			(*it)->handleAction(a, sync);
-		return true;
-	}
-};
 
 typedef DockedWidgets< logs::LogWidgetWithButtons, logs::LogConfig 		> datalogs_t;
 typedef DockedWidgets< plot::PlotWidget,           plot::PlotConfig     > dataplots_t;
@@ -81,26 +60,17 @@ typedef DockedWidgets< FrameView,                  FrameViewConfig      > datafr
 typedef boost::tuple<datalogs_t, dataplots_t, datatables_t, datagantts_t, dataframes_t> data_widgets_t;
 
 template <int TypeN>
-struct SelectWidget
-{
-	typedef typename std::tuple_element<TypeN, data_widgets_t>::widget_t type;
-};
+struct SelectWidget { typedef typename boost::tuples::element<TypeN, data_widgets_t>::type::widget_t type; };
 template <int TypeN>
-struct SelectConfig
-{
-	typedef typename std::tuple_element<TypeN, data_widgets_t>::config_t type;
-};
+struct SelectConfig { typedef typename boost::tuples::element<TypeN, data_widgets_t>::type::config_t type; };
 template <int TypeN>
-struct SelectIterator
-{
-	typedef typename boost::tuples::element<TypeN, data_widgets_t>::iterator type;
-};
+struct SelectIterator { typedef typename boost::tuples::element<TypeN, data_widgets_t>::type::iterator type; };
 
 
 /**@class		Connection
  * @brief		represents incoming connection (or file stream)
  */
-class Connection : public QThread
+class Connection : public QThread, ActionAble
 {
 	Q_OBJECT
 public:
@@ -118,8 +88,9 @@ public:
 
 	void run ();
 
-	void saveConfigs (QString const & preset_name);
-	void loadConfigs (QString const & preset_name);
+	void saveAs (QString const & preset_name);
+	void saveConfigs (QString const & path);
+	void loadConfigs (QString const & path);
 	void applyConfigs ();
 
 	//@TODO: old call!!
@@ -233,22 +204,20 @@ protected:
 	bool handleGanttFrameEndCommand (DecodedCommand const & cmd, E_ReceiveMode mode);
 	bool handleGanttClearCommand (DecodedCommand const & cmd, E_ReceiveMode mode);
 
+	virtual bool handleAction (Action * a, E_ActionHandleType sync);
+	virtual QWidget * controlWidget () { return m_control_bar; }
+
 	void registerDataMaps ();
 
 	datalogs_t::iterator findOrCreateLog (QString const & tag);
-
 	dataplots_t::iterator findOrCreatePlot (QString const & tag);
-
 	datatables_t::iterator findOrCreateTable (QString const & tag);
 	void appendTableXY (int x, int y, QString const & time, QString const & fgc, QString const & bgc, QString const & tag);
 	void appendTableSetup (int x, int y, QString const & time, QString const & fgc, QString const & bgc, QString const & hhdr, QString const & tag);
-
 	datagantts_t::iterator findOrCreateGantt (QString const & tag);
 	void appendGantt (gantt::DecodedData &);
-
 	dataframes_t::iterator findOrCreateFrame (QString const & tag);
 	void appendFrames (gantt::DecodedData &);
-
 
 	void tryLoadMatchingPreset (QString const & appname);
 	bool setupStorage (QString const & name);
@@ -278,6 +247,7 @@ private:
 	unsigned m_recv_bytes;
 	bool m_marked_for_close;
 	QString m_curr_preset;
+	ControlBarCommon * m_control_bar;
 	QTextStream * m_file_csv_stream;
 	QDataStream * m_file_tlv_stream;
 

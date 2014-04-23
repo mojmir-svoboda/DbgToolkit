@@ -67,7 +67,6 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QStri
 	qDebug("================================================================================");
 	qDebug("%s this=0x%08x", __FUNCTION__, this);
 	ui->setupUi(this);
-	ui->tabTrace->setTabsClosable(true);
 
 	m_settings_dialog = new QDialog(this);
 	m_settings_dialog->setWindowFlags(Qt::Sheet);
@@ -96,28 +95,11 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QStri
 	{
 		onOnTop(on_top);
 	}
-	ui_settings->onTopCheckBox->setChecked(on_top);
 
 	loadNetworkSettings();
 	m_server = new Server(m_config.m_trace_addr, m_config.m_trace_port, this, quit_delay);
 	connect(m_server, SIGNAL(newConnection(Connection *)), this, SLOT(newConnection(Connection *)));
 	showServerStatus();
-
-	/*size_t const n = tlv::get_tag_count();
-	QString msg_tag;
-	for (size_t i = tlv::tag_ctime; i < n; ++i)
-	{
-		char const * name = tlv::get_tag_name(i);
-		if (name)
-		{
-			QString qname = QString::fromStdString(name);
-			if (i == tlv::tag_msg)
-				msg_tag = qname;
-			//ui->qSearchColumnComboBox->addItem(qname);
-		}
-	}
-	ui->qSearchColumnComboBox->addItem("trace_server");
-	ui->qSearchColumnComboBox->setCurrentIndex(ui->qSearchColumnComboBox->findText(msg_tag));*/
 
 	m_timer->setInterval(5000);
 	connect(m_timer, SIGNAL(timeout()) , this, SLOT(timerHit()));
@@ -125,39 +107,18 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QStri
 	setupMenuBar();
 
 	connect(ui->dockManagerButton, SIGNAL(clicked()), this, SLOT(onDockManagerButton()));
-	connect(ui->levelSpinBox, SIGNAL(valueChanged(int)), this, SLOT(onLevelValueChanged(int)));
-	connect(ui->plotSlider, SIGNAL(valueChanged(int)), this, SLOT(onPlotStateChanged(int)));
-	connect(ui->tableSlider, SIGNAL(valueChanged(int)), this, SLOT(onTablesStateChanged(int)));
-	connect(ui->dockManagerButton, SIGNAL(clicked()), this, SLOT(onDockManagerButton()));
-	connect(ui->buffCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onBufferingStateChanged(int)));
-
-	//connect(ui_settings->tableFontToolButton, SIGNAL(clicked()), this, SLOT(onTableFontToolButton()));
-	connect(ui_settings->onTopCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onOnTop(int)));//@FIXME: this has some issues
-	//connect(ui_settings->reuseTabCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onReuseTabChanged(int)));
-
-	connect(ui->activatePresetButton, SIGNAL(clicked()), this, SLOT(onPresetActivate()));
-	connect(ui->presetComboBox, SIGNAL(activated(int)), this, SLOT(onPresetChanged(int)));
-	connect(ui->multiTabPresetComboBox, SIGNAL(activated(int)), this, SLOT(onMultiTabPresetChanged(int)));
-	connect(ui->multiTabPresetComboBox->lineEdit(), SIGNAL(returnPressed()), this, SLOT(onMultiTabPresetReturnPressed()));
-	connect(ui->presetAddButton, SIGNAL(clicked()), this, SLOT(onAddPreset()));
-	connect(ui->presetRmButton, SIGNAL(clicked()), this, SLOT(onRmCurrentPreset()));
-	connect(ui->presetSaveButton, SIGNAL(clicked()), this, SLOT(onSaveCurrentState()));
-	//connect(ui->presetResetButton, SIGNAL(clicked()), this, SLOT(onClearCurrentState()));
-
+	connect(ui->saveButton, SIGNAL(clicked()), this, SLOT(onSave()));
+	connect(ui->saveAsButton, SIGNAL(clicked()), this, SLOT(onSaveAs()));
 
 	connect(m_dock_mgr.controlUI()->levelSpinBox, SIGNAL(valueChanged(int)), this, SLOT(onLevelValueChanged(int)));
 	connect(m_dock_mgr.controlUI()->buffCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onBufferingStateChanged(int)));
-
 	connect(m_dock_mgr.controlUI()->presetComboBox, SIGNAL(activated(int)), this, SLOT(onPresetChanged(int)));
 	connect(m_dock_mgr.controlUI()->activatePresetButton, SIGNAL(clicked()), this, SLOT(onPresetActivate()));
 	connect(m_dock_mgr.controlUI()->presetSaveButton, SIGNAL(clicked()), this, SLOT(onSaveCurrentState()));
 	connect(m_dock_mgr.controlUI()->presetAddButton, SIGNAL(clicked()), this, SLOT(onAddPreset()));
 	connect(m_dock_mgr.controlUI()->presetRmButton, SIGNAL(clicked()), this, SLOT(onRmCurrentPreset()));
-
 	connect(m_dock_mgr.controlUI()->plotSlider, SIGNAL(valueChanged(int)), this, SLOT(onPlotStateChanged(int)));
 	connect(m_dock_mgr.controlUI()->tableSlider, SIGNAL(valueChanged(int)), this, SLOT(onTablesStateChanged(int)));
-	//connect(m_dock_mgr.controlUI()->multiTabPresetComboBox, SIGNAL(activated(int)), this, SLOT(onMultiTabPresetChanged(int)));
-	//connect(m_dock_mgr.controlUI()->multiTabPresetComboBox->lineEdit(), SIGNAL(returnPressed()), this, SLOT(onMultiTabPresetReturnPressed()));
 	//connect(ui->presetResetButton, SIGNAL(clicked()), this, SLOT(onClearCurrentState()));
 
 	//connect(qApp, SIGNAL(void focusChanged(QWidget *, QWidget *)), this, SLOT(void onFocusChanged(QWidget *, QWidget *)));
@@ -174,12 +135,6 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QStri
 	setWindowTitle(g_traceServerName);
 	setObjectName(g_traceServerName);
 }
-
-/*void MainWindow::onFocusChanged (QWidget * old, QWidget * now)
-{
-	//m_find_widget->onFocusChanged(old, now);
-	handleFindVisibility();
-}*/
 
 MainWindow::~MainWindow()
 {
@@ -283,30 +238,25 @@ void MainWindow::timerHit ()
 	showServerStatus();
 }
 
-QTabWidget * MainWindow::getTabTrace () { return ui->tabTrace; }
-QTabWidget const * MainWindow::getTabTrace () const { return ui->tabTrace; }
-
-
-
 //QTreeView const * MainWindow::getDockedWidgetsTreeView () const { return m_docked_widgets_tree_view; }
 
 bool MainWindow::onTopEnabled () const { return ui_settings->onTopCheckBox->isChecked(); }
-int MainWindow::plotState () const { return ui->plotSlider->value(); }
-int MainWindow::tableState () const { return ui->tableSlider->value(); }
-int MainWindow::ganttState () const { return ui->ganttSlider->value(); }
+int MainWindow::plotState () const { return m_dock_mgr.controlUI()->plotSlider->value(); }
+int MainWindow::tableState () const { return m_dock_mgr.controlUI()->tableSlider->value(); }
+int MainWindow::ganttState () const { return m_dock_mgr.controlUI()->ganttSlider->value(); }
 
-bool MainWindow::buffEnabled () const { return ui->buffCheckBox->isChecked(); }
-Qt::CheckState MainWindow::buffState () const { return ui->buffCheckBox->checkState(); }
+bool MainWindow::buffEnabled () const { return m_dock_mgr.controlUI()->buffCheckBox->isChecked(); }
+Qt::CheckState MainWindow::buffState () const { return m_dock_mgr.controlUI()->buffCheckBox->checkState(); }
 
 void MainWindow::setLevel (int i)
 {
-	bool const old = ui->levelSpinBox->blockSignals(true);
-	ui->levelSpinBox->setValue(i);
-	ui->levelSpinBox->blockSignals(old);
+	bool const old = m_dock_mgr.controlUI()->levelSpinBox->blockSignals(true);
+	m_dock_mgr.controlUI()->levelSpinBox->setValue(i);
+	m_dock_mgr.controlUI()->levelSpinBox->blockSignals(old);
 }
 int MainWindow::getLevel () const
 {
-	int const current = ui->levelSpinBox->value();
+	int const current = m_dock_mgr.controlUI()->levelSpinBox->value();
 	return current;
 }
 
@@ -559,16 +509,15 @@ void MainWindow::storeState ()
 	settings.setValue("geometry", saveGeometry());
 	settings.setValue("windowState", saveState());
 
-	settings.setValue("tableSlider", ui->tableSlider->value());
-	settings.setValue("plotSlider", ui->plotSlider->value());
-	settings.setValue("ganttSlider", ui->ganttSlider->value());
-	settings.setValue("buffCheckBox", ui->buffCheckBox->isChecked());
-	settings.setValue("levelSpinBox", ui->levelSpinBox->value());
+	settings.setValue("tableSlider", m_dock_mgr.controlUI()->tableSlider->value());
+	settings.setValue("plotSlider", m_dock_mgr.controlUI()->plotSlider->value());
+	settings.setValue("ganttSlider", m_dock_mgr.controlUI()->ganttSlider->value());
+	settings.setValue("buffCheckBox", m_dock_mgr.controlUI()->buffCheckBox->isChecked());
+	settings.setValue("levelSpinBox", m_dock_mgr.controlUI()->levelSpinBox->value());
 
 	//OBSOLETTEsettings.setValue("trace_stats", ui_settings->traceStatsCheckBox->isChecked());
-	settings.setValue("reuseTabCheckBox", ui_settings->reuseTabCheckBox->isChecked());
 	settings.setValue("onTopCheckBox", ui_settings->onTopCheckBox->isChecked());
-	settings.setValue("presetComboBox", ui->presetComboBox->currentText());
+	settings.setValue("presetComboBox", m_dock_mgr.controlUI()->presetComboBox->currentText());
 	
 	m_dock_mgr.saveConfig(m_config.m_appdir);
 #ifdef WIN32
@@ -587,39 +536,30 @@ void MainWindow::restoreDockedWidgetGeometry ()
 void MainWindow::loadState ()
 {
 	qDebug("%s", __FUNCTION__);
-	//OBSOLETTEm_config.m_app_names.clear();
-	//OBSOLETTEm_config.m_columns_setup.clear();
-	//OBSOLETTEm_config.m_columns_sizes.clear();
-	//OBSOLETTEm_config.m_columns_align.clear();
-	//OBSOLETTEm_config.m_columns_elide.clear();
 	m_config.loadHistory();
-  syncHistoryToWidget(ui->multiTabPresetComboBox, m_config.m_multitab_preset_history);
-	//updateSearchHistory();
 
 	QSettings settings("MojoMir", "TraceServer");
 	restoreGeometry(settings.value("geometry").toByteArray());
 	restoreState(settings.value("windowState").toByteArray());
 	int const pane_val = settings.value("filterPaneComboBox", 0).toInt();
 
-	//OBSOLETTEui_settings->traceStatsCheckBox->setChecked(settings.value("trace_stats", true).toBool());
 	ui_settings->reuseTabCheckBox->setChecked(settings.value("reuseTabCheckBox", true).toBool());
 
-	ui->tableSlider->setValue(settings.value("tableSlider", 0).toInt());
-	ui->plotSlider->setValue(settings.value("plotSlider", 0).toInt());
-	ui->ganttSlider->setValue(settings.value("ganttSlider", 0).toInt());
-	ui->buffCheckBox->setChecked(settings.value("buffCheckBox", true).toBool());
-
+	m_dock_mgr.controlUI()->tableSlider->setValue(settings.value("tableSlider", 0).toInt());
+	m_dock_mgr.controlUI()->plotSlider->setValue(settings.value("plotSlider", 0).toInt());
+	m_dock_mgr.controlUI()->ganttSlider->setValue(settings.value("ganttSlider", 0).toInt());
+	m_dock_mgr.controlUI()->buffCheckBox->setChecked(settings.value("buffCheckBox", true).toBool());
 
 	//@TODO: delete filterMode from registry if exists
 	if (m_start_level == -1)
 	{
 		qDebug("reading saved level from cfg");
-		ui->levelSpinBox->setValue(settings.value("levelSpinBox", 3).toInt());
+		m_dock_mgr.controlUI()->levelSpinBox->setValue(settings.value("levelSpinBox", 3).toInt());
 	}
 	else
 	{
 		qDebug("reading level from command line");
-		ui->levelSpinBox->setValue(m_start_level);
+		m_dock_mgr.controlUI()->levelSpinBox->setValue(m_start_level);
 	}
 
 	if (m_config.m_thread_colors.empty())
@@ -676,25 +616,6 @@ bool MainWindow::eventFilter (QObject * target, QEvent * e)
 			return true;
 		}
 	}*/
-	return false;
-}
-
-bool MainWindow::handleTab (QKeyEvent * e)
-{
-	/*if (e->key() == Qt::Key_Tab && m_find_widget && m_find_widget->isVisible())
-	{
-		m_find_widget->focusNext();
-		e->accept();
-		return true;
-	}
-
-	if (e->key() == Qt::Key_Backtab && m_find_widget && m_find_widget->isVisible())
-	{
-		m_find_widget->focusPrev();
-		e->accept();
-		return true;
-	}*/
-
 	return false;
 }
 

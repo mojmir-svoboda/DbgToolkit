@@ -4,6 +4,8 @@
 #include "ui_help.h"
 #include "connection.h"
 #include "dock.h"
+#include "dockmanager.h"
+#include <ui_controlbarcommon.h>
 #include <QMessageBox>
 #include <QInputDialog>
 #include "constants.h"
@@ -18,7 +20,7 @@ QString MainWindow::getCurrentPresetName () const
 
 QString MainWindow::promptAndCreatePresetName (QString const & app_name)
 {
-	QString const default_pname = getPresetPath(app_name, g_defaultPresetName);
+	QString const default_pname = g_defaultPresetName;
 
 	// pre-select default_pname (for text-replace mode)
 	QStringList items;
@@ -41,55 +43,16 @@ QString MainWindow::promptAndCreatePresetName (QString const & app_name)
 	return preset_name;
 }
 
-QString MainWindow::matchClosestPresetName (QString const & app_name)
+void MainWindow::onSave ()
 {
-	QString const multitab_preset_hint = ui->multiTabPresetComboBox->currentText();
-	if (!multitab_preset_hint.isEmpty())
-	{
-		return app_name + "/" + multitab_preset_hint;
-	}
-	QString const saved_preset = getCurrentPresetName();
-	QString preset_appname = saved_preset;
-	int const slash_pos = preset_appname.lastIndexOf(QChar('/'));
-	if (slash_pos != -1)
-		preset_appname.chop(preset_appname.size() - slash_pos);
-	qDebug("match preset name: curr=%s app_name=%s", preset_appname.toStdString().c_str(), app_name.toStdString().c_str());
-	if (preset_appname.contains(app_name))
-	{
-		qDebug("got correct preset name appname/.* from combobox");
-		return saved_preset;
-	}
-	else
-	{
-		qDebug("got nonmatching preset name appname/.* from combobox");
-		return QString();
-	}
-}
-
-QString MainWindow::getValidCurrentPresetName ()
-{
-	QString txt = getCurrentPresetName();
-	if (0 == txt.size())
-	{
-		if (Connection * conn = findCurrentConnection())
-			txt = promptAndCreatePresetName(conn->getAppName());
-	}
-	if (0 == txt.size())
-		if (Connection * conn = findCurrentConnection())
-			txt = getPresetPath(conn->getAppName(), g_defaultPresetName);
-	return txt;
-}
-
-void MainWindow::onSaveCurrentState ()
-{
-	QString const txt = getValidCurrentPresetName();
+	QString const txt = getCurrentPresetName();
 	if (txt.size())
-		onSaveCurrentStateTo(txt);
+		onSaveAs(txt);
 	else
 		storeState();
 }
 
-void MainWindow::mentionInPresetHistory (QString const & str)
+/*void MainWindow::mentionInPresetHistory (QString const & str)
 {
 	if (str.isEmpty() || !validatePresetName(str))
 		return;
@@ -110,6 +73,7 @@ void MainWindow::mentionInMultiTabPresetHistory (QString const & str)
 	ui->multiTabPresetComboBox->setCurrentIndex(i);
 	m_config.saveHistory();
 }
+
 void MainWindow::setPresetAsCurrent (QString const & pname)
 {
 	QString const & curr_tab = getTabTrace()->tabText(getTabTrace()->currentIndex());
@@ -119,45 +83,46 @@ void MainWindow::setPresetAsCurrent (QString const & pname)
 	else
 		qDebug("current tab differs in app_name from preset app name");
 }
-
-void MainWindow::onSaveCurrentStateTo (QString const & preset_name)
+*/
+void MainWindow::onSaveAs (QString const & preset_name)
 {
 	qDebug("%s %s", __FUNCTION__, preset_name.toStdString().c_str());
-	if (Connection * conn = findCurrentConnection())
+	if (!validatePresetName(preset_name))
 	{
-		if (!validatePresetName(preset_name))
-		{
-			return;
-		}
-		createPresetPath(m_config.m_appdir, preset_name);
-		conn->m_curr_preset = preset_name;
-		qDebug("save to preset_name=%s", preset_name.toStdString().c_str());
-
-		mentionStringInHistory_Ref(preset_name, ui->presetComboBox, m_config.m_preset_history);
-		m_config.saveHistory();
-		setPresetAsCurrent(preset_name);
-		
-		QString const path = getPresetPath(getConfig().m_appdir, preset_name);
-		conn->saveConfigs(path);
-		saveLayout(preset_name);
+		return;
 	}
+	qDebug("SaveAs to preset_name=%s", preset_name.toStdString().c_str());
+
+	for (size_t i = 0; i < m_connections.size(); ++i)
+	{
+		Connection * conn = m_connections[i];
+		createPresetPath(m_config.m_appdir, preset_name);
+		
+		//conn->m_curr_preset = preset_name;
+
+		//mentionStringInHistory_Ref(preset_name, ui->presetComboBox, m_config.m_preset_history);
+		//m_config.saveHistory();
+		//setPresetAsCurrent(preset_name);
+		
+		//QString const path = getPresetPath(getConfig().m_appdir, preset_name);
+		conn->saveAs(preset_name);
+	}
+
+	saveLayout(preset_name);
 	storeState();
 }
 
 void MainWindow::onAddPreset ()
 {
 	qDebug("%s", __FUNCTION__);
-	if (Connection * conn = findCurrentConnection())
-	{
-		QString const preset_name = promptAndCreatePresetName(conn->getAppName());
-		onSaveCurrentStateTo(preset_name);		
-	}
+	QString const preset_name = promptAndCreatePresetName();
+	onSaveAs(preset_name);		
 }
 
 void MainWindow::onRmCurrentPreset ()
 {
 	qDebug("%s", __FUNCTION__);
-	QString const preset_name = ui->presetComboBox->currentText();
+	QString const preset_name = m_dock_mgr.controlUI()->presetComboBox->currentText();
 
 	if (preset_name.isEmpty())
 		return;
@@ -177,23 +142,23 @@ void MainWindow::onRmCurrentPreset ()
 	QFile qf(fname);
 	qf.remove();
 
-	removeStringFromHistory(preset_name, ui->presetComboBox, m_config.m_preset_history);
+	removeStringFromHistory(preset_name, m_dock_mgr.controlUI()->presetComboBox, m_config.m_preset_history);
 	m_config.saveHistory();
-	ui->presetComboBox->setCurrentIndex(-1);
+	m_dock_mgr.controlUI()->presetComboBox->setCurrentIndex(-1);
 }
 
 void MainWindow::onPresetActivate (int idx)
 {
-	onPresetActivate(findCurrentConnection(), getCurrentPresetName());
+	//onPresetActivate(findCurrentConnection(), getCurrentPresetName());
 }
 void MainWindow::onPresetActivate ()
 {
-	onPresetActivate(findCurrentConnection(), getCurrentPresetName());
+	//onPresetActivate(findCurrentConnection(), getCurrentPresetName());
 }
 void MainWindow::onPresetActivate (Connection * conn, QString const & preset_name)
 {
 	//@TODO: toto prijde jinam
-	qDebug("%s", __FUNCTION__);
+/*	qDebug("%s", __FUNCTION__);
 	if (!conn) return;
 
 	if (checkPresetPath(m_config.m_appdir, preset_name))
@@ -221,25 +186,13 @@ void MainWindow::onPresetActivate (Connection * conn, QString const & preset_nam
 		removeStringFromHistory(preset_name, ui->presetComboBox, m_config.m_preset_history);
 		m_config.saveHistory();
 		ui->presetComboBox->setCurrentIndex(-1);
-	}
+	}*/
 }
 
 void MainWindow::onPresetChanged (int idx)
 {
 	m_config.m_preset_history.m_current_item = idx;
 	m_config.saveHistory();
-}
-
-void MainWindow::onMultiTabPresetChanged (int idx)
-{
-	m_config.m_multitab_preset_history.m_current_item = idx;
-	m_config.saveHistory();
-}
-
-void MainWindow::onMultiTabPresetReturnPressed ()
-{
-	QString const txt = ui->multiTabPresetComboBox->currentText();
-	mentionInMultiTabPresetHistory(txt);
 }
 
 void MainWindow::saveLayout (QString const & preset_name)

@@ -16,8 +16,8 @@ Connection * MainWindow::findConnectionByName (QString const & app_name)
 	Q_ASSERT(parent());
 
 	for (connections_t::const_iterator it = m_connections.begin(), ite = m_connections.end(); it != ite; ++it)
-		if (it->second->getAppName() == app_name)
-			return it->second;
+		if ((*it)->getAppName() == app_name)
+			return (*it);
 	return 0;
 }
 

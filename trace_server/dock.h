@@ -10,7 +10,6 @@ public:
 	DockedWidgetBase (QStringList const & path)
 		: ActionAble(path)
 		, m_dockwidget(0)
-		, m_controlwidget(0)
 	{ }
 	virtual ~DockedWidgetBase () { }
 
@@ -20,7 +19,6 @@ public:
 	virtual QWidget * controlWidget () = 0;
 
 	QDockWidget * m_dockwidget;
-    QWidget * m_controlwidget;
 
 	virtual E_DataWidgetType type () const = 0;
 };
