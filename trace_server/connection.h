@@ -93,7 +93,7 @@ struct SelectConfig
 template <int TypeN>
 struct SelectIterator
 {
-	typedef typename boost::tuple::element<TypeN, data_widgets_t>::iterator type;
+	typedef typename boost::tuples::element<TypeN, data_widgets_t>::iterator type;
 };
 
 
