@@ -93,17 +93,6 @@ QVariant DockManagerModel::data (QModelIndex const & index, int role) const
 	if (col == e_Visibility)
 		return TreeModel<DockedInfo>::data(index, role);
 
-	if ((col == e_SyncGroup && role == Qt::DisplayRole) || role == e_DockRoleSyncGroup)
-	{
-		if (DockedWidgetBase const * const dwb = getWidgetFromIndex(index))
-			return QVariant(dwb->dockedConfig().m_sync_group);
-	}
-	if ((col == e_InCentralWidget && role == Qt::DisplayRole) || role == e_DockRoleCentralWidget)
-	{
-		if (DockedWidgetBase const * const dwb = getWidgetFromIndex(index))
-			return QVariant(dwb->dockedConfig().m_central_widget);
-	}
-
 
 	/*if (col == e_SyncGroup && role == Qt::EditRole)
 	}*/
@@ -132,7 +121,7 @@ bool DockManagerModel::setData (QModelIndex const & index, QVariant const & valu
 	node_t * const item = itemFromIndex(index);
 	int const col = index.column();
 
-	if (col == e_SyncGroup && role == Qt::EditRole)
+	/*if (col == e_SyncGroup && role == Qt::EditRole)
 	{
 		if (DockedWidgetBase * const dwb = getWidgetFromIndex(index))
 		{
@@ -164,7 +153,7 @@ bool DockManagerModel::setData (QModelIndex const & index, QVariant const & valu
 	{
 	}
 	else
-		return false;
+		return false;*/
 
 	emit dataChanged(index, index);
 	return true;

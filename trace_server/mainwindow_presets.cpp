@@ -11,6 +11,7 @@
 #include "constants.h"
 #include "utils.h"
 #include "utils_history.h"
+#include "serialize.h"
 
 void MainWindow::loadConfig (QString const & path)
 {
@@ -190,7 +191,6 @@ void MainWindow::loadState ()
 	restoreGeometry(settings.value("geometry").toByteArray());
 	restoreState(settings.value("windowState").toByteArray());
 
-	//@TODO: delete filterMode from registry if exists
 	if (m_start_level == -1)
 	{
 		qDebug("reading saved level from cfg");
@@ -209,7 +209,7 @@ void MainWindow::loadState ()
 	unsigned const hotkeyCode = settings.value("hotkeyCode").toInt();
 	m_config.m_hotkey = hotkeyCode ? hotkeyCode : VK_SCROLL;
 	registerHotKey();
-	qApp->uninstallEventFilter(this);
+	//qApp->uninstallEventFilter(this); // @FIXME
 	qApp->installEventFilter(this);
 }
 

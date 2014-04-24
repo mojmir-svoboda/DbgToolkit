@@ -22,6 +22,7 @@ namespace table {
 		enum { e_type = e_data_table };
 		TableWidget (Connection * oparent, QWidget * wparent, TableConfig & cfg, QString const & fname, QStringList const & path);
 
+		virtual E_DataWidgetType type () const { return e_data_table; }
 		void applyConfig (TableConfig & pcfg);
 		virtual ~TableWidget ();
 

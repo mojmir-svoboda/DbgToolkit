@@ -1,8 +1,10 @@
 #include "mainwindow.h"
 #include "connection.h"
 #include "utils_history.h"
+#include "utils.h"
 #include <ui_controlbarcommon.h>
 #include <ui_settings.h>
+#include <QMessageBox>
 
 void MainWindow::onLevelValueChanged (int val)
 {

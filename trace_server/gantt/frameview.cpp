@@ -219,13 +219,12 @@ public:
 
 
 
-FrameView::FrameView (Connection * oparent, QWidget * wparent, FrameViewConfig & cfg, QString const & fname, QStringList const & path)
+FrameView::FrameView (Connection * conn, QString const & fname, QStringList const & path)
 	: ActionAble(path)
 	, m_bars(0)
-	, m_config(cfg)
-	, m_config_ui(cfg, this)
+	, m_config()
+	, m_config_ui(m_config:, this)
 {
-
 	setContextMenuPolicy(Qt::CustomContextMenu);
 	connect(this, SIGNAL(customContextMenuRequested(QPoint const &)), this, SLOT(onShowContextMenu(QPoint const &)));
 

@@ -98,9 +98,9 @@ public:
 	void requestTableActionSync (int sync_group, unsigned long long t, int cursorAction, Qt::KeyboardModifiers modifiers, QTableView const * source);
 
 	// data widget creation functions:
-	template <class ConfigT>
-	bool dataWidgetConfigPreload (QString const tag, ConfigT & config);
-	QString getClosestPresetName (E_DataWidgetType type, QString const & tag);
+	template <int TypeN>
+	bool dataWidgetConfigPreload (QString const tag, typename SelectConfig<TypeN>::type & config);
+	QString getClosestPresetName (QString const & tag);
 	void mkWidgetPath (E_DataWidgetType type, QString const tag, QStringList & path);
 
 	template <int TypeN>
@@ -139,7 +139,7 @@ public slots:
 
 	// control widget
 	void onLevelValueChanged (int i);
-	void onBufferingStateChanged (int state);
+	void onBufferingStateChanged (bool on);
 	void onPresetChanged (int idx);
 	void onPresetApply ();
 	void onPresetSave ();

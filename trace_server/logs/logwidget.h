@@ -27,11 +27,13 @@ namespace logs {
 		Q_OBJECT
 	public:
 		enum { e_type = e_data_log };
-		LogWidget (Connection * conn, QWidget * wparent, LogConfig & cfg, QString const & fname, QStringList const & path);
+		LogWidget (Connection * conn, QString const & fname, QStringList const & path);
 		virtual ~LogWidget ();
 
-		LogConfig & getConfig () { return m_config; }
-		LogConfig const & getConfig () const { return m_config; }
+		virtual E_DataWidgetType type () const { return e_data_log; }
+		virtual QWidget * controlWidget () { return 0; }
+		LogConfig & config () { return m_config; }
+		LogConfig const & config () const { return m_config; }
 		void loadConfig (QString const & preset_dir);
 		void loadAuxConfigs ();
 		void saveConfig (QString const & preset_dir);
@@ -67,8 +69,6 @@ namespace logs {
 
 		//FindWidget * findWidget () { return m_config_ui.m_ui->findWidget; }
 		//FindWidget const * findWidget () const { return m_config_ui.m_ui->findWidget; }
-
-		void setDockedWidget (DockedWidgetBase * dwb) { m_dwb = dwb; }
 
 		virtual void scrollTo (QModelIndex const & index, ScrollHint hint = EnsureVisible);
 
@@ -281,7 +281,6 @@ namespace logs {
 		QWidget * m_tab;
 		DockedWidgetBase * m_linked_parent;
 		WarnImage * m_warnimage;
-		DockedWidgetBase * m_dwb;
 		typedef std::vector<DockedWidgetBase *> linked_widgets_t;
 		linked_widgets_t m_linked_widgets;
 
@@ -311,18 +310,17 @@ namespace logs {
 		QTextStream * m_file_csv_stream;
 	};
 
-	class LogWidgetWithButtons : public QWidget, public ActionAble
+	class LogWidgetWithButtons : public LogWidget
 	{
 		Q_OBJECT
 	public:
 
-		enum { e_type = e_data_log };
-		LogWidget * m_lw;
+		//LogWidget * m_lw;
 
 		LogWidgetWithButtons (Connection * conn, QWidget * wparent, LogConfig & cfg, QString const & fname, QStringList const & path);
 		~LogWidgetWithButtons ();
 
-		virtual bool handleAction (Action * a, E_ActionHandleType sync)
+		/*virtual bool handleAction (Action * a, E_ActionHandleType sync)
 		{
 			return m_lw->handleAction(a, sync);
 		}
@@ -339,10 +337,8 @@ namespace logs {
 		//FindWidget * findWidget () { return m_lw->findWidget(); }
 		//FindWidget const * findWidget () const { return m_lw->findWidget(); }
 
-		//void setDockedWidget (DockedWidgetBase * dwb) { m_lw->setDockedWidget(dwb); }
-
 	public slots:
-		void onHideContextMenu () { m_lw->onHideContextMenu(); }
+		void onHideContextMenu () { m_lw->onHideContextMenu(); }*/
 	};
 }
 

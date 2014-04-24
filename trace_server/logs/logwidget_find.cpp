@@ -4,6 +4,7 @@
 #include <logs/filterproxymodel.h>
 #include <logs/findproxymodel.h>
 #include "utils.h"
+#include <serialize.h>
 #include "connection.h"
 #include "warnimage.h"
 
@@ -110,27 +111,24 @@ LogWidget * LogWidget::mkFindAllRefsLogWidget (FindConfig const & fc)
 	}
 	cfg.m_tag = tag;
 	cfg.m_show = true;
-	cfg.m_central_widget = false;
 	cfg.m_filter_proxy = false;
 	cfg.m_find_proxy = true;
 	datalogs_t::iterator it = m_connection->dataWidgetFactoryFrom<e_data_log>(tag, cfg);
 
-	DataLog * dp = *it;
-	DataLog::widget_t & child_outer = dp->widget();
-	LogWidget & child = *child_outer.m_lw;
-	child.linkToSource(m_dwb);
-	registerLinkedWidget(child.m_dwb);
-	child.loadAuxConfigs();
+	LogWidgetWithButtons * child = *it;
+	child->linkToSource(this);
+	registerLinkedWidget(child);
+	child->loadAuxConfigs();
 
-	child.setupLogModel(m_src_model);
-	child.setFindProxyModel(fc);
-	child.m_kfind_proxy_selection = new KLinkItemSelectionModel(child.model(), selectionModel());
-	child.setSelectionModel(child.m_kfind_proxy_selection);
-	child.applyConfig();
-	child.m_config_ui.refreshUI();
-	child.refreshFilters(child.m_find_proxy_model);
+	child->setupLogModel(m_src_model);
+	child->setFindProxyModel(fc);
+	child->m_kfind_proxy_selection = new KLinkItemSelectionModel(child->model(), selectionModel());
+	child->setSelectionModel(child->m_kfind_proxy_selection);
+	child->applyConfig();
+	child->m_config_ui.refreshUI();
+	child->refreshFilters(child->m_find_proxy_model);
 
-	dp->m_wd->setStyleSheet("\
+	child->setStyleSheet("\
 			QHeaderView::section {\
 			background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,\
 											  stop:0 #616161, stop: 0.5 #505050,\
@@ -141,7 +139,7 @@ LogWidget * LogWidget::mkFindAllRefsLogWidget (FindConfig const & fc)
 		}");
 
 	//m_connection->getMainWindow()->onDockRestoreButton();
-	return &child;
+	return child;
 }
 
 LogWidget * LogWidget::mkFindAllCloneLogWidget (FindConfig const & fc)
@@ -171,21 +169,18 @@ LogWidget * LogWidget::mkFindAllCloneLogWidget (FindConfig const & fc)
 	}
 	cfg.m_tag = tag;
 	cfg.m_show = true;
-	cfg.m_central_widget = false;
 	cfg.m_filter_proxy = false;
 	cfg.m_find_proxy = false;
 	datalogs_t::iterator it = m_connection->dataWidgetFactoryFrom<e_data_log>(tag, cfg);
 
-	DataLog * dp = *it;
-	DataLog::widget_t & child_outer = dp->widget();
-	LogWidget & child = *child_outer.m_lw;
-	child.loadAuxConfigs();
+	LogWidgetWithButtons * child = *it;
+	child->loadAuxConfigs();
 	LogTableModel * clone_model = cloneToNewModel(fc);
-	child.setupLogModel(clone_model);
-	child.setSrcModel(fc);
-	child.m_config_ui.refreshUI();
+	child->setupLogModel(clone_model);
+	child->setSrcModel(fc);
+	child->m_config_ui.refreshUI();
 
-	return &child;
+	return child;
 }
 
 void LogWidget::findAndSelect (FindConfig const & fc)

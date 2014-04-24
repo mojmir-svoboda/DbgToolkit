@@ -131,7 +131,7 @@ QModelIndex DockManager::addActionTreeItem (ActionAble & aa, bool on)
 {
 	QModelIndex const idx = m_model->insertItemWithPath(aa.path(), on);
 	QModelIndex const idx1 = m_model->index(idx.row(), 1, idx.parent());
-	setIndexWidget(idx1, aa->controlWidget());
+	setIndexWidget(idx1, aa.controlWidget());
 
 	// @TODO: set type=AA into returned node
 	m_model->setData(idx, QVariant(on ? Qt::Checked : Qt::Unchecked), Qt::CheckStateRole);
@@ -166,7 +166,7 @@ DockedWidgetBase * DockManager::findDockableForWidget (QWidget * w)
 	for (dockables_t::const_iterator it = m_dockables.begin(), ite = m_dockables.end(); it != ite; ++it)
 	{
 		DockedWidgetBase * const dwb = *it;
-		if (w && dwb && dwb->dockedWidget() == w)
+		if (w && dwb && dwb == w)
 			return dwb;
 	}
 	return 0;
@@ -305,13 +305,13 @@ void DockManager::onClicked (QModelIndex idx)
 }
 
 ////////////////////////////////////////
-QString DockManager::matchClosestPresetName (QString const & app_name)
+/*QString DockManager::matchClosestPresetName (QString const & app_name)
 {
 	QString const top_level_preset = m_main_window->getCurrentPresetName();
 
 	return top_level_preset;
 
-/*	QString const multitab_preset_hint = ui->multiTabPresetComboBox->currentText();
+	QString const multitab_preset_hint = ui->multiTabPresetComboBox->currentText();
 	if (!multitab_preset_hint.isEmpty())
 	{
 		return app_name + "/" + multitab_preset_hint;
@@ -333,7 +333,7 @@ QString DockManager::matchClosestPresetName (QString const & app_name)
 	{
 		qDebug("got nonmatching preset name appname/.* from combobox");
 		return QString();
-	}*/
+	}
 }
 
-
+*/

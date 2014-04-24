@@ -25,18 +25,20 @@ namespace gantt {
 
 namespace gantt {
 
-	class GanttWidget : public QFrame, public ActionAble
+	class GanttWidget : public QFrame, public DockedWidgetBase
 	{
 		Q_OBJECT
 	public:
 		enum { e_type = e_data_gantt };
-		GanttWidget (Connection * oparent, QWidget * wparent, GanttConfig & cfg, QString const & fname, QStringList const & path);
+		GanttWidget (Connection * conn, QString const & fname, QStringList const & path);
 
+		virtual E_DataWidgetType type () const { return e_data_gantt; }
+		GanttConfig & config () { return m_config; }
+		GanttConfig const & config () const { return m_config; }
 		void loadConfig (QString const & path);
 		void saveConfig (QString const & path);
 		void applyConfig ();
 		void exportStorageToCSV (QString const & filename) { }
-		void setDockedWidget (DockedWidgetBase * dwb) { m_dwb = dwb; }
 
 		void commitCommands (E_ReceiveMode mode);
 		QList<DecodedCommand> m_queue;
@@ -113,7 +115,6 @@ namespace gantt {
 		QSplitter * m_layout;
 		ganttviews_t m_ganttviews;
 		QVector<QString> m_subtags;
-        DockedWidgetBase * m_dwb;
 	};
 }
 

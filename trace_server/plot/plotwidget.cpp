@@ -49,15 +49,14 @@ namespace plot {
 		return c;
 	}
 
-	PlotWidget::PlotWidget (Connection * conn, QWidget * wparent, PlotConfig & cfg, QString const & fname, QStringList const & path)
-		: QwtPlot(wparent), ActionAble(path)
+	PlotWidget::PlotWidget (Connection * conn, QString const & fname, QStringList const & path)
+		: QwtPlot(0), DockedWidgetBase(path)
 		, m_connection(conn)
-		, m_config(cfg)
-		, m_config_ui(cfg, this)
+		, m_config()
+		, m_config_ui(m_config, this)
 		, m_curves()
 		, m_timer(-1)
 		, m_fname(fname)
-        , m_dwb(0)
 	{
 		qDebug("%s this=0x%08x", __FUNCTION__, this);
 		setAutoReplot(false);

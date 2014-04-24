@@ -4,6 +4,7 @@
 #include <QColor>
 #include <dockedconfig.h>
 #include <constants.h>
+#include <findconfig.h>
 
 namespace logs {
 
@@ -33,6 +34,7 @@ namespace logs {
 		bool m_filter_proxy;
 		bool m_find_proxy;
 		QString m_csv_separator;
+		FindConfig m_find_config;
 
 		LogConfig ()
 			: m_tag()
@@ -103,6 +105,7 @@ namespace logs {
 			ar & boost::serialization::make_nvp("cut_path", m_cut_path);
 			ar & boost::serialization::make_nvp("cut_namespaces", m_cut_namespaces);
 			ar & boost::serialization::make_nvp("dt_enabled", m_dt_enabled);
+			ar & boost::serialization::make_nvp("find_config", m_find_config);
 		}
 
 		void clear ()

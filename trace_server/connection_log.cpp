@@ -13,8 +13,8 @@ datalogs_t::iterator Connection::findOrCreateLog (QString const & tag)
 	if (it == m_data.get<e_data_log>().end())
 	{
 		it = dataWidgetFactory<e_data_log>(tag);
-		(*it)->widget().setupNewLogModel();
-		(*it)->widget().applyConfig(); // 0 means "create new model"
+		(*it)->setupNewLogModel();
+		(*it)->applyConfig(); // 0 means "create new model"
 	}
 	return it;
 }
@@ -30,9 +30,7 @@ bool Connection::handleLogCommand (DecodedCommand const & cmd, E_ReceiveMode mod
 	//subtag.remove(0, slash_pos + 1);
 
 	datalogs_t::iterator it = findOrCreateLog(tag);
-	DataLog & dp = **it;
-
-	dp.widget().handleCommand(cmd, mode);
+	(*it)->handleCommand(cmd, mode);
 	return true;
 }
 
@@ -40,33 +38,4 @@ bool Connection::handleLogClearCommand (DecodedCommand const & cmd, E_ReceiveMod
 {
 	return true;
 }
-
-/*void Connection::onShowLogs ()
-{
-	qDebug("%s", __FUNCTION__);
-	for (datalogs_t::iterator it = m_data.get<e_data_log>().begin(), ite = m_data.get<e_data_log>().end(); it != ite; ++it)
-	{
-		//(*it)->onShow();
-		m_main_window->restoreDockWidget((*it)->m_wd);
-	}
-}
-
-void Connection::onHideLogs ()
-{
-	qDebug("%s", __FUNCTION__);
-	for (datalogs_t::iterator it = m_data.get<e_data_log>().begin(), ite = m_data.get<e_data_log>().end(); it != ite; ++it)
-	{
-		(*it)->onHide();
-	}
-}
-
-void Connection::onShowLogContextMenu (QPoint const &)
-{
-	qDebug("%s", __FUNCTION__);
-	for (datalogs_t::iterator it = m_data.get<e_data_log>().begin(), ite = m_data.get<e_data_log>().end(); it != ite; ++it)
-	{
-		(*it)->widget().onHideContextMenu();
-	}
-}*/
-
 

@@ -1,7 +1,23 @@
 #include "connection.h"
+#include <QMessageBox>
 #include <tlv_parser/tlv_encoder.h>
+#include "utils.h"
 #include "utils_history.h"
 #include <ui_controlbarcommon.h>
+
+inline QString Connection::getClosestPresetName (QString const & tag)
+{
+	// bit clumsy, but no time to loose
+	QString preset_name;
+	QString const conn_name = m_control_bar->ui->presetComboBox->currentText();
+	QString const parent_name = m_main_window->getCurrentPresetName();
+	if (!conn_name.isEmpty() && validatePresetName(conn_name))
+		preset_name = conn_name;
+	else if (!parent_name.isEmpty() && validatePresetName(parent_name))
+		preset_name = parent_name;
+	else
+		preset_name = g_defaultPresetName;
+}
 
 void Connection::onLevelValueChanged (int val)
 {
@@ -23,9 +39,9 @@ void Connection::onLevelValueChanged (int val)
 	}
 }
 
-void Connection::onBufferingStateChanged (int val)
+void Connection::onBufferingStateChanged (bool on)
 {
-	bool const buffering_enabled = (val == Qt::Checked) ? true : false;
+	bool const buffering_enabled = on;
 
 	char tlv_buff[16];
 #ifdef __linux__

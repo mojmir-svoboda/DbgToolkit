@@ -157,7 +157,7 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 		if (cmd.m_tvs[i].m_tag == tlv::tag_lvl)
 		{
 			int const client_level = cmd.m_tvs[i].m_val.toInt();
-			int const server_level = level();
+			int const server_level = m_config.m_level;
 			if (client_level != server_level)
 			{
 				qDebug("notifying client about new level");
@@ -188,19 +188,11 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 			m_app_name = app_name;
 			m_pid = pid;
 
-			int const tab_idx = m_main_window->getTabTrace()->indexOf(m_tab_widget);
-			m_main_window->getTabTrace()->setTabText(tab_idx, app_name);
 			QString storage_name = createStorageName();
 			setupStorage(storage_name);
 
-			m_app_idx = m_main_window->findAppName(app_name);
-			if (m_app_idx == e_InvalidItem)
-			{
-				m_app_idx = m_main_window->createAppName(app_name, e_Proto_TLV);
-			}
-
-	m_main_window->dockManager().rmActionTreeItem(*this, true); // TODO: m_config.m_show
-	m_main_window->dockManager().addActionTreeItem(*this, true); // TODO: m_config.m_show
+			m_main_window->dockManager().removeActionAble(m_joined_path);
+			m_main_window->dockManager().addActionTreeItem(*this, true); // TODO: m_config.m_show
 
 			registerDataMaps();
 				//m_main_window->onSetup(e_Proto_TLV, sessionState().m_app_idx, true, true);
@@ -243,7 +235,7 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 	//	m_statswindow = new stats::StatsWindow(this, m_session_state);
 
 	qDebug("Server::incomingConnection buffering not enabled, notifying client");
-	onBufferingStateChanged(m_main_window->buffState());
+	onBufferingStateChanged(m_config.m_buffered);
 	return true;
 }
 

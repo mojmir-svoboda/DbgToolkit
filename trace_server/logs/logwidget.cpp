@@ -18,8 +18,8 @@
 
 
 namespace logs {
-	LogWidgetWithButtons::LogWidgetWithButtons (Connection * conn, QWidget * wparent, LogConfig & cfg, QString const & fname, QStringList const & path)
-		: m_lw(new LogWidget(conn, 0, cfg, fname, path))
+	LogWidgetWithButtons::LogWidgetWithButtons (Connection * conn, QString const & fname, QStringList const & path)
+		: m_lw(new LogWidget(conn, fname, path))
 		, ActionAble(path)
 	{
 		qDebug("%s", __FUNCTION__);

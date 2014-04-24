@@ -13,9 +13,9 @@ public:
 	{ }
 	virtual ~DockedWidgetBase () { }
 
-	virtual DockedConfigBase const & dockedConfig () const = 0;
-	virtual DockedConfigBase & dockedConfig () = 0;
-	virtual QWidget * dockedWidget () = 0;
+	//virtual DockedConfigBase const & dockedConfig () const = 0;
+	//virtual DockedConfigBase & dockedConfig () = 0;
+	//virtual QWidget * dockedWidget () = 0;
 	virtual QWidget * controlWidget () = 0;
 
 	QDockWidget * m_dockwidget;
