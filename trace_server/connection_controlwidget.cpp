@@ -1,0 +1,177 @@
+#include "connection.h"
+#include <tlv_parser/tlv_encoder.h>
+#include "utils_history.h"
+#include <ui_controlbarcommon.h>
+
+void Connection::onLevelValueChanged (int val)
+{
+	char tlv_buff[16];
+#ifdef __linux__
+	int const result = snprintf(tlv_buff, 16, "%u", val);
+#else
+	int const result = _snprintf_s(tlv_buff, 16, "%u", val);
+#endif
+
+	if (result > 0)
+	{
+		char buff[256];
+		using namespace tlv;
+		Encoder e(cmd_set_level, buff, 256);
+		e.Encode(TLV(tag_lvl, tlv_buff));
+		if (m_tcpstream && e.Commit())
+			m_tcpstream->write(e.buffer, e.total_len); /// @TODO: async write
+	}
+}
+
+void Connection::onBufferingStateChanged (int val)
+{
+	bool const buffering_enabled = (val == Qt::Checked) ? true : false;
+
+	char tlv_buff[16];
+#ifdef __linux__
+	int const result = snprintf(tlv_buff, 16, "%u", buffering_enabled);
+#else
+	int const result = _snprintf_s(tlv_buff, 16, "%u", buffering_enabled);
+#endif
+
+	if (result > 0)
+	{
+		qDebug("Connection::onBufferingStateChanged to_state=%i", buffering_enabled);
+		char buff[256];
+		using namespace tlv;
+		Encoder e(cmd_set_buffering, buff, 256);
+		e.Encode(TLV(tag_bool, tlv_buff));
+		if (m_tcpstream && e.Commit())
+			m_tcpstream->write(e.buffer, e.total_len); /// @TODO: async write
+	}
+}
+
+void Connection::onPresetChanged (int idx)
+{
+	m_config.m_preset_history.m_current_item = idx;
+	m_config.saveHistory();
+}
+
+void Connection::onPresetApply ()
+{
+	QString const txt = getCurrentPresetName();
+    onPresetApply(txt);
+}
+
+void Connection::onPresetSave ()
+{
+	QString const txt = getCurrentPresetName();
+    onPresetSave(txt);
+}
+
+void Connection::onPresetAdd ()
+{
+	qDebug("%s", __FUNCTION__);
+	QString const preset_name = promptAndCreatePresetName();
+	onPresetSave(preset_name);		
+}
+
+void Connection::onPresetRm ()
+{
+	qDebug("%s", __FUNCTION__);
+	QString const preset_name = m_control_bar->ui->presetComboBox->currentText();
+
+	if (preset_name.isEmpty())
+		return;
+
+	qDebug("removing preset_name=%s", preset_name.toStdString().c_str());
+	
+	QString const fname = mkAppPresetPath(getGlobalConfig().m_appdir, m_app_name, preset_name);
+	qDebug("confirm to remove session file=%s", fname.toStdString().c_str());
+
+	QMessageBox msg_box;
+	QPushButton * b_del = msg_box.addButton(tr("Yes, Delete"), QMessageBox::ActionRole);
+	QPushButton * b_abort = msg_box.addButton(QMessageBox::Abort);
+	msg_box.exec();
+	if (msg_box.clickedButton() == b_abort)
+		return;
+
+	QFile qf(fname);
+	qf.remove();
+
+	removeStringFromHistory(preset_name, m_control_bar->ui->presetComboBox, m_config.m_preset_history);
+	m_config.saveHistory();
+	m_control_bar->ui->presetComboBox->setCurrentIndex(-1);
+}
+
+void Connection::onPresetReset ()
+{
+}
+
+//////////////////////////////////////////////////
+
+QString Connection::getCurrentPresetName () const
+{
+	QString txt = m_control_bar->ui->presetComboBox->currentText();
+    if (txt.isEmpty())
+        txt = g_defaultPresetName;
+	return txt;
+}
+
+void Connection::setPresetAsCurrent (QString const & pname)
+{
+    m_control_bar->ui->presetComboBox->setCurrentIndex(m_control_bar->ui->presetComboBox->findText(pname));
+}
+
+void Connection::onPresetApply (QString const & preset_name)
+{
+    mentionStringInHistory_Ref(preset_name, m_control_bar->ui->presetComboBox, m_config.m_preset_history);
+    m_config.saveHistory();
+    setPresetAsCurrent(preset_name);
+
+    if (checkAppPresetPath(getGlobalConfig().m_appdir, m_app_name, preset_name))
+    {
+        m_curr_preset = preset_name;
+
+        QString const path = mkAppPresetPath(getGlobalConfig().m_appdir, m_app_name, preset_name);
+        loadConfigs(path);
+        applyConfigs();
+    }
+    else
+    {
+        removeStringFromHistory(preset_name, m_control_bar->ui->presetComboBox, m_config.m_preset_history);
+        m_config.saveHistory();
+        m_control_bar->ui->presetComboBox->setCurrentIndex(-1);
+    }
+
+    // FIXME: appname + prs
+	m_main_window->loadLayout(preset_name);
+}
+
+void Connection::onPresetSave (QString const & preset_name)
+{
+	qDebug("%s %s", __FUNCTION__, preset_name.toStdString().c_str());
+	if (!validatePresetName(preset_name))
+		return;
+
+	qDebug("SaveAs to preset_name=%s", preset_name.toStdString().c_str());
+    mentionStringInHistory_Ref(preset_name, m_control_bar->ui->presetComboBox, m_config.m_preset_history);
+    m_config.saveHistory();
+    setPresetAsCurrent(preset_name);
+
+    createAppPresetPath(getGlobalConfig().m_appdir, m_app_name, preset_name);
+		
+    m_curr_preset = preset_name; // @TODO: ?? or only on apply preset?
+
+	QString const path = mkAppPresetPath(getGlobalConfig().m_appdir, m_app_name, preset_name);
+	saveConfigs(path);
+
+    // FIXME: appname + prs
+	m_main_window->saveLayout(preset_name);
+}
+
+/*void Connection::mentionInPresetHistory (QString const & str)
+{
+	if (str.isEmpty() || !validatePresetName(str))
+		return;
+
+	mentionStringInHistory_NoRef(str, m_control_bar->ui->presetComboBox, m_config.m_preset_history);
+	m_config.saveHistory();
+}*/
+
+

@@ -30,8 +30,8 @@ struct DockedWidgetsConfig {
 	bool	m_show;
 	int		m_sync_group;
 	int		m_level;
-	float	m_time_units;
 	QString m_time_units_str;
+	float	m_time_units;
 	int		m_widget_recv_level;
 
 	DockedWidgetsConfig ()
@@ -39,8 +39,8 @@ struct DockedWidgetsConfig {
 		, m_show(true)
 		, m_sync_group(0)
 		, m_level(3)
-		, m_time_units(0.001f)
 		, m_time_units_str("ms")
+		, m_time_units(stringToUnitsValue(m_time_units_str))
 	{ }
 
 	template <class ArchiveT>
@@ -50,8 +50,8 @@ struct DockedWidgetsConfig {
 		ar & boost::serialization::make_nvp("show", m_show);
 		ar & boost::serialization::make_nvp("sync_group", m_sync_group);
 		ar & boost::serialization::make_nvp("level", m_level);
-		ar & boost::serialization::make_nvp("time_units", m_time_units);
 		ar & boost::serialization::make_nvp("time_units_str", m_time_units);
+		ar & boost::serialization::make_nvp("time_units", m_time_units);
 		ar & boost::serialization::make_nvp("widget_recv_level", m_widget_recv_level);
 	}
 };
@@ -61,7 +61,7 @@ struct DockedWidgets
 	: QMap<QString, WidgetT *>
 	, ActionAble
 {
-	//enum { e_type = WidgetT::e_type };
+	enum { e_type = WidgetT::e_type };
 	typedef WidgetT widget_t;
 	typedef ConfigT config_t;
 	DockedWidgetsConfig m_config;

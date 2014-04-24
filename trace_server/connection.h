@@ -24,23 +24,23 @@
 #include <QString>
 #include <QTcpSocket>
 #include <QThread>
-#include <QAbstractItemView>
-#include "mainwindow.h"
 #include <tlv_parser/tlv.h>
 #include <tlv_parser/tlv_cmd_qstring.h>
 #include <boost/circular_buffer.hpp>
 #include <boost/tuple/tuple.hpp>
+#include "mainwindow.h"
 #include "cmd.h"
-#include "gantt/ganttdata.h"
 #include "treeview.h"
 #include "logs/logwidget.h"
 #include "plot/plotwidget.h"
 #include "table/tablewidget.h"
+#include "gantt/ganttdata.h"
 #include "gantt/ganttwidget.h"
 #include "gantt/frameview.h"
 #include "dockedwidgets.h"
 #include "appdata.h"
 #include "constants.h"
+#include "connectionconfig.h"
 
 class Server;
 class QFile;
@@ -74,7 +74,7 @@ class Connection : public QThread, ActionAble
 {
 	Q_OBJECT
 public:
-	explicit Connection (QObject * parent = 0);
+	explicit Connection (QString const & app_name, QObject * parent = 0);
 	~Connection ();
 
 	MainWindow const * getMainWindow () const { return m_main_window; }
@@ -83,12 +83,10 @@ public:
 	
 	QString const & getAppName () const { return m_app_name; }
 	QString const & getCurrPreset () const { return m_curr_preset; }
-	int getAppIdx () const { return m_app_idx; }
 	AppData const & appData () const { return m_app_data; }
 
 	void run ();
 
-	void saveAs (QString const & preset_name);
 	void saveConfigs (QString const & path);
 	void loadConfigs (QString const & path);
 	void applyConfigs ();
@@ -123,21 +121,38 @@ public:
 
 	void destroyDockedWidget (DockedWidgetBase * dwb);
 
+	// control widget
+	void setPresetAsCurrent (QString const & pname);
+	void mentionInPresetHistory (QString const & str);
+	QString getCurrentPresetName () const;
+
 signals:
 	void readyForUse();
 	void newMessage (QString const & from, QString const & message);
 	void handleCommands ();
 	
 public slots:
-	void onTabTraceFocus ();
-	void onBufferingStateChanged (int state);
-	void onLevelValueChanged (int i);
-	//QString onCopyToClipboard ();
-
 	void onHandleCommands ();
 	void onHandleCommandsStart ();
 	void onHandleCommandsCommit ();
 	bool tryHandleCommand (DecodedCommand const & cmd, E_ReceiveMode mode);
+
+	// control widget
+	void onLevelValueChanged (int i);
+	void onBufferingStateChanged (int state);
+	void onPresetChanged (int idx);
+	void onPresetApply ();
+	void onPresetSave ();
+	void onPresetAdd ();
+	void onPresetRm ();
+	void onPresetReset ();
+	void onLogsStateChanged (int state);
+	void onPlotsStateChanged (int state);
+	void onTablesStateChanged (int state);
+	void onGanttsStateChanged (int state);
+	void onPresetApply (QString const & preset_name);
+	void onPresetSave (QString const & preset_name);
+
 
 	//void onShowContextMenu (QPoint const & pos);
 	/*void onShowPlotContextMenu (QPoint const &);
@@ -219,7 +234,7 @@ protected:
 	dataframes_t::iterator findOrCreateFrame (QString const & tag);
 	void appendFrames (gantt::DecodedData &);
 
-	void tryLoadMatchingPreset (QString const & appname);
+	//void tryLoadMatchingPreset (QString const & appname);
 	bool setupStorage (QString const & name);
 	QString createStorageName () const;
 	void processDataStream (QDataStream & stream);
@@ -235,15 +250,15 @@ protected:
 	bool dumpModeEnabled () const;
 
 private:
+	QString m_app_name;
 	MainWindow * m_main_window;
 	E_SrcStream m_src_stream;
 	E_SrcProtocol m_src_protocol;
+	ConnectionConfig m_config;
 
 	AppData m_app_data;
-	int m_app_idx;
 	QString m_pid;
 	int m_storage_idx;
-	QString m_app_name;
 	unsigned m_recv_bytes;
 	bool m_marked_for_close;
 	QString m_curr_preset;

@@ -14,7 +14,7 @@ struct BarPlot : QwtPlotBarChart
 {
 	BarPlot ();
 
-    virtual QwtColumnSymbol * specialSymbol (int index, QPointF const &) const;
+	virtual QwtColumnSymbol * specialSymbol (int index, QPointF const &) const;
 	virtual QwtText barTitle (int idx) const;
 
 	QVector<double> m_values;
@@ -26,6 +26,7 @@ struct BarPlot : QwtPlotBarChart
 
 struct FrameView : QWidget, ActionAble
 {
+	enum { e_type = e_data_frame };
 	FrameView (Connection * oparent, QWidget * wparent, FrameViewConfig & cfg, QString const & fname, QStringList const & path);
 
 	void appendFrame (unsigned long long from, unsigned long long to);
@@ -36,7 +37,7 @@ struct FrameView : QWidget, ActionAble
 	void applyConfig (FrameViewConfig & cfg);
 	void applyConfig ();
 
-    void setDockedWidget (DockedWidgetBase * dwb) { m_dwb = dwb; }
+	void setDockedWidget (DockedWidgetBase * dwb) { m_dwb = dwb; }
 
 signals:
 	void requestSynchronization (E_SyncMode mode, int sync_group, unsigned long long time, void * source);
@@ -64,12 +65,11 @@ private slots:
 	void setNum (double v);
 
 public:
-	
 	QwtPlot * m_plot;
 	BarPlot * m_bars;
 	FrameViewConfig & m_config;
 	frameview::CtxFrameViewConfig m_config_ui;
-    DockedWidgetBase * m_dwb;
+	DockedWidgetBase * m_dwb;
 
 	Q_OBJECT
 };

@@ -25,6 +25,7 @@
 #include <QDirIterator>
 #include <QFile>
 #include <QSettings>
+#include <QInputDialog>
 #include "constants.h"
 
 template<class C>
@@ -49,9 +50,66 @@ inline bool validatePresetName (QString const & str)
 	return slash_present;*/
 }
 
+inline QString promptInputDialog (QStringList const & items)
+{
+	QString const default_pname = g_defaultPresetName;
+	QString preset_name;
+	bool ok = true;
+	while (ok)
+	{
+		QString const pname = QInputDialog::getItem(0, "Save current preset", "Preset name:", items, 0, true, &ok);
+		if (ok && validatePresetName(pname))
+		{
+			preset_name = pname;
+			break;
+		}
+	}
+	if (!validatePresetName(preset_name))
+		return default_pname;
+	return preset_name;
+}
+
+inline int findPresetsForApp (QString const & appdir, QString const & appname, QStringList & presets)
+{
+	QString presetdir = appdir + "/" + appname;
+	//QDirIterator directories(presetdir, QDir::Dirs | QDir::NoDotAndDotDot, QDirIterator::Subdirectories);
+	QDirIterator directories(presetdir, QDir::Dirs | QDir::NoDotAndDotDot, QDirIterator::NoIteratorFlags);
+	while (directories.hasNext()) {
+		directories.next();
+		//qDebug("candidate for preset: %s", directories.fileName().toStdString().c_str());
+		presets << directories.fileName();
+	}
+	return presets.size();
+}
+
+inline QString promptAndCreatePresetName ()
+{
+	QString const default_pname = g_defaultPresetName;
+	QStringList items;
+	items.push_front(default_pname);
+    return promptInputDialog(items);
+}
+inline QString promptAndCreatePresetNameForApp (QString const & app_dir, QString const & app_name)
+{
+	QString const default_pname = g_defaultPresetName;
+	// pre-select default_pname (for text-replace mode)
+	QStringList items;
+	findPresetsForApp(app_dir, app_name, items);
+	items.push_front(default_pname);
+    return promptInputDialog(items);
+}
+
+
 inline bool checkPresetPath (QString const & appdir, QString const & preset_name)
 {
 	QString presetdir = appdir + "/" + preset_name;
+	if (existsFile(presetdir))
+		return true;
+	return false;
+}
+inline bool checkAppPresetPath (QString const & appdir, QString const & app_name, QString const & preset_name)
+{
+	QString presetdir = appdir + "/" + app_name + "/" + preset_name;
 	if (existsFile(presetdir))
 		return true;
 	return false;
@@ -63,6 +121,15 @@ inline QString createPresetPath (QString const & appdir, QString const & preset_
 	QDir d;
 	d.mkpath(presetdir);
 	qDebug("mk preset path: %s", presetdir.toStdString().c_str());
+	return presetdir;
+}
+
+inline QString createAppPresetPath (QString const & appdir, QString const & app_name, QString const & preset_name)
+{
+	QString presetdir = appdir + "/" + app_name + "/" + preset_name;
+	QDir d;
+	d.mkpath(presetdir);
+	qDebug("mk app preset path: %s", presetdir.toStdString().c_str());
 	return presetdir;
 }
 
@@ -100,24 +167,15 @@ inline QString getWidgetFileNameAndMkPath (QString const & appdir, QString const
 	return fname;
 }
 
-inline int findPresetsForApp (QString const & appdir, QString const & appname, QStringList & presets)
+inline QString mkPresetPath (QString const & app_dir, QString const & preset_name)
 {
-	QString presetdir = appdir + "/" + appname;
-
-	//QDirIterator directories(presetdir, QDir::Dirs | QDir::NoDotAndDotDot, QDirIterator::Subdirectories);
-	QDirIterator directories(presetdir, QDir::Dirs | QDir::NoDotAndDotDot, QDirIterator::NoIteratorFlags);
-
-	while (directories.hasNext()) {
-		directories.next();
-		//qDebug("candidate for preset: %s", directories.fileName().toStdString().c_str());
-		presets << directories.fileName();
-	}
-	return presets.size();
+	QString const path = app_dir + "/" + preset_name;
+	return path;
 }
 
-inline QString getPresetPath (QString const & app_name, QString const & name)
+inline QString mkAppPresetPath (QString const & app_dir, QString const & app_name, QString const & name)
 {
-	QString const path = app_name + "/" + name;
+	QString const path = app_dir + "/" + app_name + "/" + name;
 	return path;
 }
 

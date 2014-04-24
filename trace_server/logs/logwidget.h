@@ -26,11 +26,9 @@ namespace logs {
 	{
 		Q_OBJECT
 	public:
-		LogWidget (Connection * conn, QWidget * wparent, LogConfig & cfg, QString const & fname, QStringList const & path);
-
-		virtual ~LogWidget ();
-
 		enum { e_type = e_data_log };
+		LogWidget (Connection * conn, QWidget * wparent, LogConfig & cfg, QString const & fname, QStringList const & path);
+		virtual ~LogWidget ();
 
 		LogConfig & getConfig () { return m_config; }
 		LogConfig const & getConfig () const { return m_config; }
@@ -318,6 +316,7 @@ namespace logs {
 		Q_OBJECT
 	public:
 
+		enum { e_type = e_data_log };
 		LogWidget * m_lw;
 
 		LogWidgetWithButtons (Connection * conn, QWidget * wparent, LogConfig & cfg, QString const & fname, QStringList const & path);

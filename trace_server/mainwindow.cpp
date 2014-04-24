@@ -35,15 +35,6 @@
 #include "utils_history.h"
 #include "qt_plugins.h"
 
-void MainWindow::loadNetworkSettings ()
-{
-	QSettings settings("MojoMir", "TraceServer");
-	m_config.m_trace_addr = settings.value("trace_addr", "127.0.0.1").toString();
-	m_config.m_trace_port = settings.value("trace_port", Server::default_port).toInt();
-	m_config.m_profiler_addr = settings.value("profiler_addr", "127.0.0.1").toString();
-	m_config.m_profiler_port = settings.value("profiler_port", 13147).toInt();
-}
-
 MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QString const & log_name, int level)
 	: QMainWindow(parent)
 	, m_time_units(0.001f)
@@ -74,11 +65,15 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QStri
 	ui_settings->setupUi(m_settings_dialog);
 
 	QString const homedir = QDir::homePath();
-	m_config.m_appdir = homedir + "/.flogging";
+	QString const appdir = homedir + "/" + g_traceServerDirName;
+
+	loadConfig(appdir);
+	m_config.m_appdir = appdir;
 	m_config.m_dump_mode = dump_mode;
+	setConfigValuesToUI(m_config);
 
 	// tray stuff
-	createActions();
+	createTrayActions();
 	createTrayIcon();
 	QIcon icon(":images/Icon1.ico");
 	setWindowIcon(icon);
@@ -89,20 +84,19 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QStri
 	setDockNestingEnabled(true);
 	setAnimated(false);
 
-	QSettings settings("MojoMir", "TraceServer");
-	bool const on_top = settings.value("onTopCheckBox", false).toBool();
+	bool const on_top = m_config.m_on_top;
 	if (on_top)
 	{
 		onOnTop(on_top);
 	}
 
-	loadNetworkSettings();
 	m_server = new Server(m_config.m_trace_addr, m_config.m_trace_port, this, quit_delay);
 	connect(m_server, SIGNAL(newConnection(Connection *)), this, SLOT(newConnection(Connection *)));
+	connect(m_server, SIGNAL(statusChanged(QString const & status)), this, SLOT(onStatusChanged(QString const & status)));
 	showServerStatus();
 
 	m_timer->setInterval(5000);
-	connect(m_timer, SIGNAL(timeout()) , this, SLOT(timerHit()));
+	connect(m_timer, SIGNAL(timeout()) , this, SLOT(onTimerHit()));
 	m_timer->start();
 	setupMenuBar();
 
@@ -113,15 +107,15 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QStri
 	connect(m_dock_mgr.controlUI()->levelSpinBox, SIGNAL(valueChanged(int)), this, SLOT(onLevelValueChanged(int)));
 	connect(m_dock_mgr.controlUI()->buffCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onBufferingStateChanged(int)));
 	connect(m_dock_mgr.controlUI()->presetComboBox, SIGNAL(activated(int)), this, SLOT(onPresetChanged(int)));
-	connect(m_dock_mgr.controlUI()->activatePresetButton, SIGNAL(clicked()), this, SLOT(onPresetActivate()));
-	connect(m_dock_mgr.controlUI()->presetSaveButton, SIGNAL(clicked()), this, SLOT(onSaveCurrentState()));
-	connect(m_dock_mgr.controlUI()->presetAddButton, SIGNAL(clicked()), this, SLOT(onAddPreset()));
-	connect(m_dock_mgr.controlUI()->presetRmButton, SIGNAL(clicked()), this, SLOT(onRmCurrentPreset()));
+	connect(m_dock_mgr.controlUI()->activatePresetButton, SIGNAL(clicked()), this, SLOT(onPresetApply()));
+	connect(m_dock_mgr.controlUI()->presetSaveButton, SIGNAL(clicked()), this, SLOT(onPresetSave()));
+	connect(m_dock_mgr.controlUI()->presetAddButton, SIGNAL(clicked()), this, SLOT(onPresetAdd()));
+	connect(m_dock_mgr.controlUI()->presetRmButton, SIGNAL(clicked()), this, SLOT(onPresetRm()));
+	connect(m_dock_mgr.controlUI()->presetResetButton, SIGNAL(clicked()), this, SLOT(onPresetReset()));
+	connect(m_dock_mgr.controlUI()->logSlider, SIGNAL(valueChanged(int)), this, SLOT(onLogsStateChanged(int)));
 	connect(m_dock_mgr.controlUI()->plotSlider, SIGNAL(valueChanged(int)), this, SLOT(onPlotStateChanged(int)));
 	connect(m_dock_mgr.controlUI()->tableSlider, SIGNAL(valueChanged(int)), this, SLOT(onTablesStateChanged(int)));
-	//connect(ui->presetResetButton, SIGNAL(clicked()), this, SLOT(onClearCurrentState()));
-
-	//connect(qApp, SIGNAL(void focusChanged(QWidget *, QWidget *)), this, SLOT(void onFocusChanged(QWidget *, QWidget *)));
+	connect(m_dock_mgr.controlUI()->ganttSlider, SIGNAL(valueChanged(int)), this, SLOT(onGanttsStateChanged(int)));
 
 	/// status bar
 	m_status_label = new QLabel(m_server->getStatus());
@@ -172,7 +166,7 @@ void MainWindow::showMaximized ()
 	QMainWindow::showMaximized();
 }
 
-void MainWindow::createActions ()
+void MainWindow::createTrayActions ()
 {
 	qDebug("%s", __FUNCTION__);
 	m_minimize_action = new QAction(tr("Mi&nimize"), this);
@@ -206,6 +200,16 @@ void MainWindow::createTrayIcon ()
 	connect(m_tray_icon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)), this, SLOT(iconActivated(QSystemTrayIcon::ActivationReason)));
 }
 
+void MainWindow::registerHotKey ()
+{
+#ifdef WIN32
+	DWORD const hotkey = m_config.m_hotkey;
+	int mod = 0;
+	UnregisterHotKey(getHWNDForWidget(this), 0);
+	RegisterHotKey(getHWNDForWidget(this), 0, mod, LOBYTE(hotkey));
+#endif
+}
+
 void MainWindow::dropEvent (QDropEvent * event)
 {
 	QMimeData const * mimeData = event->mimeData();
@@ -228,36 +232,20 @@ void MainWindow::dragEnterEvent (QDragEnterEvent *event)
 	event->acceptProposedAction();
 }
 
+void MainWindow::onStatusChanged (QString const & status)
+{
+	statusBar()->showMessage(status);
+	m_timer->start(5000);
+}
+
 void MainWindow::showServerStatus ()
 {
 	statusBar()->showMessage(m_server->getStatus());
 }
 
-void MainWindow::timerHit ()
+void MainWindow::onTimerHit ()
 {
 	showServerStatus();
-}
-
-//QTreeView const * MainWindow::getDockedWidgetsTreeView () const { return m_docked_widgets_tree_view; }
-
-bool MainWindow::onTopEnabled () const { return ui_settings->onTopCheckBox->isChecked(); }
-int MainWindow::plotState () const { return m_dock_mgr.controlUI()->plotSlider->value(); }
-int MainWindow::tableState () const { return m_dock_mgr.controlUI()->tableSlider->value(); }
-int MainWindow::ganttState () const { return m_dock_mgr.controlUI()->ganttSlider->value(); }
-
-bool MainWindow::buffEnabled () const { return m_dock_mgr.controlUI()->buffCheckBox->isChecked(); }
-Qt::CheckState MainWindow::buffState () const { return m_dock_mgr.controlUI()->buffCheckBox->checkState(); }
-
-void MainWindow::setLevel (int i)
-{
-	bool const old = m_dock_mgr.controlUI()->levelSpinBox->blockSignals(true);
-	m_dock_mgr.controlUI()->levelSpinBox->setValue(i);
-	m_dock_mgr.controlUI()->levelSpinBox->blockSignals(old);
-}
-int MainWindow::getLevel () const
-{
-	int const current = m_dock_mgr.controlUI()->levelSpinBox->value();
-	return current;
 }
 
 void MainWindow::onQuit ()
@@ -304,14 +292,6 @@ void MainWindow::onDockManagerClosed ()
 	ui->dockManagerButton->setChecked(false);
 }
 
-void MainWindow::onPlotStateChanged (int state)
-{
-}
-
-void MainWindow::onTablesStateChanged (int state)
-{
-}
-
 void MainWindow::tailFiles (QStringList const & files)
 {
 	for (int i = 0, ie = files.size(); i < ie; ++i)
@@ -332,7 +312,6 @@ void MainWindow::onFileTail ()
 
 void MainWindow::onLogTail ()
 {
-	//setupSeparatorChar("|");
 	createTailLogStream(m_log_name, "|");
 }
 
@@ -417,7 +396,6 @@ void MainWindow::onHotkeyShowOrHide ()
 	}
 }
 
-
 void MainWindow::onShowHelp ()
 {
 	QDialog dialog(this);
@@ -496,94 +474,6 @@ void MainWindow::setupMenuBar ()
 	//new QShortcut(QKeySequence(Qt::AltModifier + Qt::Key_Space), this, SLOT(onAutoScrollHotkey()));
 }
 
-void MainWindow::storeState ()
-{
-	qDebug("%s", __FUNCTION__);
-	QSettings settings("MojoMir", "TraceServer");
-
-	settings.setValue("trace_addr", m_config.m_trace_addr);
-	settings.setValue("trace_port", m_config.m_trace_port);
-	settings.setValue("profiler_addr", m_config.m_profiler_addr);
-	settings.setValue("profiler_port", m_config.m_profiler_port);
-
-	settings.setValue("geometry", saveGeometry());
-	settings.setValue("windowState", saveState());
-
-	settings.setValue("tableSlider", m_dock_mgr.controlUI()->tableSlider->value());
-	settings.setValue("plotSlider", m_dock_mgr.controlUI()->plotSlider->value());
-	settings.setValue("ganttSlider", m_dock_mgr.controlUI()->ganttSlider->value());
-	settings.setValue("buffCheckBox", m_dock_mgr.controlUI()->buffCheckBox->isChecked());
-	settings.setValue("levelSpinBox", m_dock_mgr.controlUI()->levelSpinBox->value());
-
-	//OBSOLETTEsettings.setValue("trace_stats", ui_settings->traceStatsCheckBox->isChecked());
-	settings.setValue("onTopCheckBox", ui_settings->onTopCheckBox->isChecked());
-	settings.setValue("presetComboBox", m_dock_mgr.controlUI()->presetComboBox->currentText());
-	
-	m_dock_mgr.saveConfig(m_config.m_appdir);
-#ifdef WIN32
-	settings.setValue("hotkeyCode", m_config.m_hotkey);
-#endif
-}
-
-void MainWindow::restoreDockedWidgetGeometry ()
-{
-	QSettings settings("MojoMir", "TraceServer");
-
-	//restoreGeometry(settings.value("geometry").toByteArray());
-	restoreState(settings.value("windowState").toByteArray());
-}
-
-void MainWindow::loadState ()
-{
-	qDebug("%s", __FUNCTION__);
-	m_config.loadHistory();
-
-	QSettings settings("MojoMir", "TraceServer");
-	restoreGeometry(settings.value("geometry").toByteArray());
-	restoreState(settings.value("windowState").toByteArray());
-	int const pane_val = settings.value("filterPaneComboBox", 0).toInt();
-
-	ui_settings->reuseTabCheckBox->setChecked(settings.value("reuseTabCheckBox", true).toBool());
-
-	m_dock_mgr.controlUI()->tableSlider->setValue(settings.value("tableSlider", 0).toInt());
-	m_dock_mgr.controlUI()->plotSlider->setValue(settings.value("plotSlider", 0).toInt());
-	m_dock_mgr.controlUI()->ganttSlider->setValue(settings.value("ganttSlider", 0).toInt());
-	m_dock_mgr.controlUI()->buffCheckBox->setChecked(settings.value("buffCheckBox", true).toBool());
-
-	//@TODO: delete filterMode from registry if exists
-	if (m_start_level == -1)
-	{
-		qDebug("reading saved level from cfg");
-		m_dock_mgr.controlUI()->levelSpinBox->setValue(settings.value("levelSpinBox", 3).toInt());
-	}
-	else
-	{
-		qDebug("reading level from command line");
-		m_dock_mgr.controlUI()->levelSpinBox->setValue(m_start_level);
-	}
-
-	if (m_config.m_thread_colors.empty())
-	{
-		for (size_t i = Qt::white; i < Qt::transparent; ++i)
-			m_config.m_thread_colors.push_back(QColor(static_cast<Qt::GlobalColor>(i)));
-	}
-
-#ifdef WIN32
-	unsigned const hotkeyCode = settings.value("hotkeyCode").toInt();
-	m_config.m_hotkey = hotkeyCode ? hotkeyCode : VK_SCROLL;
-	DWORD const hotkey = m_config.m_hotkey;
-	int mod = 0;
-	UnregisterHotKey(getHWNDForWidget(this), 0);
-	RegisterHotKey(getHWNDForWidget(this), 0, mod, LOBYTE(hotkey));
-#endif
-
-	m_dock_mgr.loadConfig(m_config.m_appdir);
-	m_dock_mgr.applyConfig();
-	ui->dockManagerButton->setChecked(m_dock_mgr.m_config.m_show);
-	qApp->installEventFilter(this);
-}
-
-
 void MainWindow::iconActivated (QSystemTrayIcon::ActivationReason reason)
 {
 	switch (reason) {
@@ -638,18 +528,5 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
 		}*/
 	}
 	QMainWindow::keyPressEvent(e);
-}
-
-
-void MainWindow::addNewApplication (QString const & appname)
-{
-	m_config.m_app_names.push_back(appname);
-}
-
-int MainWindow::createAppName (QString const & appname, E_SrcProtocol const proto)
-{
-	addNewApplication(appname);
-	int const app_idx = static_cast<int>(m_config.m_app_names.size()) - 1;
-	return app_idx;
 }
 

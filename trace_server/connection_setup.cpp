@@ -99,13 +99,21 @@ void Connection::handleCSVSetup (QString const & fname)
 	onBufferingStateChanged(m_main_window->buffState());*/
 }
 
-void Connection::tryLoadMatchingPreset (QString const & app_name)
+/*void Connection::tryLoadMatchingPreset (QString const & app_name)
 {
-	//m_file_model->beforeLoad();
-	QString const preset_name = m_main_window->matchClosestPresetName(app_name);
-	m_main_window->onPresetActivate(this, preset_name);
-	//m_file_model->afterLoad();
-}
+	// bit clumsy, but no time to loose
+	QString preset_name;
+	QString const conn_name = m_control_bar->ui->presetComboBox->currentText();
+	QString const parent_name = m_main_window->getCurrentPresetName();
+	if (!conn_name.isEmpty() && validatePresetName(conn_name))
+		preset_name = conn_name;
+	else if (!parent_name.isEmpty() && validatePresetName(parent_name))
+		preset_name = parent_name;
+	else
+		preset_name = g_defaultPresetName;
+
+	onPresetApply(preset_name);
+}*/
 
 bool Connection::dumpModeEnabled () const { return m_main_window->dumpModeEnabled(); }
 
@@ -149,7 +157,7 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 		if (cmd.m_tvs[i].m_tag == tlv::tag_lvl)
 		{
 			int const client_level = cmd.m_tvs[i].m_val.toInt();
-			int const server_level = m_main_window->getLevel();
+			int const server_level = level();
 			if (client_level != server_level)
 			{
 				qDebug("notifying client about new level");
@@ -160,29 +168,21 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 		if (cmd.m_tvs[i].m_tag == tlv::tag_app)
 		{
 			QString app_name = cmd.m_tvs[i].m_val;
-			//if (m_main_window->reuseTabEnabled())
-			if (1)
+			Connection * conn = m_main_window->findConnectionByName(app_name);
+			if (conn)
 			{
-				Connection * conn = m_main_window->findConnectionByName(app_name);
-				if (conn)
-				{
-					qDebug("cmd setup: looking for app=%s: not found", app_name.toStdString().c_str());
+				qDebug("cmd setup: looking for app=%s: not found", app_name.toStdString().c_str());
 
-					QWidget * w = conn->m_tab_widget;
-					m_main_window->onCloseTab(w);	// close old one
-					// @TODO: delete persistent storage for the tab
+				//QWidget * w = conn->m_tab_widget;
+				//m_main_window->onCloseTab(w);	// close old one
+				// @TODO: delete persistent storage for the tab
 
-				}
-				else
-				{
-					qDebug("cmd setup: looking for app=%s: found", app_name.toStdString().c_str());
-					//QString const pname = m_main_window->matchClosestPresetName(app_name);
-					//m_main_window->onPresetActivate(this, pname);
-				}
 			}
 			else
 			{
-				//tryLoadMatchingPreset(app_name);
+				qDebug("cmd setup: looking for app=%s: found", app_name.toStdString().c_str());
+				//QString const pname = m_main_window->matchClosestPresetName(app_name);
+				//m_main_window->onPresetActivate(this, pname);
 			}
 
 			m_app_name = app_name;
@@ -198,6 +198,9 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 			{
 				m_app_idx = m_main_window->createAppName(app_name, e_Proto_TLV);
 			}
+
+	m_main_window->dockManager().rmActionTreeItem(*this, true); // TODO: m_config.m_show
+	m_main_window->dockManager().addActionTreeItem(*this, true); // TODO: m_config.m_show
 
 			registerDataMaps();
 				//m_main_window->onSetup(e_Proto_TLV, sessionState().m_app_idx, true, true);

@@ -27,13 +27,6 @@ void MainWindow::copyStorageTo (QString const & filename)
 		conn->copyStorageTo(filename);*/
 }
 
-void MainWindow::onLevelValueChanged (int val)
-{
-/*	qDebug("level changed: %u", val);
-	if (Connection * conn = findCurrentConnection())
-		conn->onLevelValueChanged(val);*/
-}
-
 /*void MainWindow::onCopyToClipboard ()
 {
 	if (Connection * conn = findCurrentConnection())
@@ -43,12 +36,6 @@ void MainWindow::onLevelValueChanged (int val)
 	}
 }*/
 
-void MainWindow::onBufferingStateChanged (int state)
-{
-	for (connections_t::iterator it = m_connections.begin(), ite = m_connections.end(); it != ite; ++it)
-		it->second->onBufferingStateChanged(state);
-}
-
 void MainWindow::newConnection (Connection * c)
 {
 	statusBar()->showMessage(tr("Incomming tcp connection!"));
@@ -56,7 +43,7 @@ void MainWindow::newConnection (Connection * c)
 
 Connection * MainWindow::createNewConnection ()
 {
-	Connection * connection = new Connection(this);
+	Connection * connection = new Connection("unknown", this);
 	m_connections.push_back(connection);
 	qDebug("created new connection[%u] for connection @ 0x%08x", m_connections.size(), connection);
 	return connection;

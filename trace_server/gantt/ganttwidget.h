@@ -29,13 +29,14 @@ namespace gantt {
 	{
 		Q_OBJECT
 	public:
+		enum { e_type = e_data_gantt };
 		GanttWidget (Connection * oparent, QWidget * wparent, GanttConfig & cfg, QString const & fname, QStringList const & path);
 
 		void loadConfig (QString const & path);
 		void saveConfig (QString const & path);
 		void applyConfig ();
-    void exportStorageToCSV (QString const & filename) { }
-        void setDockedWidget (DockedWidgetBase * dwb) { m_dwb = dwb; }
+		void exportStorageToCSV (QString const & filename) { }
+		void setDockedWidget (DockedWidgetBase * dwb) { m_dwb = dwb; }
 
 		void commitCommands (E_ReceiveMode mode);
 		QList<DecodedCommand> m_queue;

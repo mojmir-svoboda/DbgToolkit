@@ -54,9 +54,7 @@ namespace logs {
 			, m_filter_proxy(false)
 			, m_find_proxy(false)
 			, m_csv_separator(",")
-		{
-			m_central_widget = false;
-		}
+		{ }
 
 		LogConfig (QString const & tag)
 			: m_tag(tag)
@@ -78,9 +76,7 @@ namespace logs {
 			, m_filter_proxy(false)
 			, m_find_proxy(false)
 			, m_csv_separator(",")
-		{
-			m_central_widget = tag == g_MainLogName;
-		}
+		{ }
 
 		template <class ArchiveT>
 		void serialize (ArchiveT & ar, unsigned const version)

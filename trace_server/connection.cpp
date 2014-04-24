@@ -1,6 +1,5 @@
 #include "connection.h"
 #include <QtNetwork>
-#include <tlv_parser/tlv_encoder.h>
 #include <trace_client/trace.h>
 #include "utils.h"
 #include "utils_qstandarditem.h"
@@ -12,15 +11,16 @@
 
 GlobalConfig const & Connection::getGlobalConfig () const { return m_main_window->getConfig(); }
 
-Connection::Connection (QObject * parent)
+Connection::Connection (QString const & app_name, QObject * parent)
 	: QThread(parent)
+	, ActionAble(QStringList(qobject_cast<MainWindow *>(parent)->dockManager().path()) << app_name)
+	, m_app_name(app_name)
 	, m_main_window(qobject_cast<MainWindow *>(parent))
 	, m_src_stream(e_Stream_TCP)
 	, m_src_protocol(e_Proto_TLV)
+	, m_config()
 	, m_app_data()
-	, m_app_idx(-1)
 	, m_storage_idx(-2)
-	, m_app_name()
 	, m_recv_bytes(0)
 	, m_marked_for_close(false)
 	, m_curr_preset()
@@ -39,7 +39,14 @@ Connection::Connection (QObject * parent)
 
 	m_control_bar = new ControlBarCommon();
 
-	m_main_window->dockManager().addActionTreeItem(this, true);
+	m_main_window->dockManager().addActionTreeItem(*this, true); // TODO: m_config.m_show
+	m_config.m_auto_scroll = getGlobalConfig().m_auto_scroll;
+	m_config.m_level = getGlobalConfig().m_level;
+	m_config.m_buffered = getGlobalConfig().m_buffered;
+	m_config.m_time_units_str = getGlobalConfig().m_time_units_str;
+	m_config.m_time_units = getGlobalConfig().m_time_units;
+	m_config.m_font = getGlobalConfig().m_font;
+	m_config.m_fontsize = getGlobalConfig().m_fontsize;
 
 	static int counter = 0;
 	m_storage_idx = counter;
@@ -189,48 +196,6 @@ void Connection::onDisconnected ()
 		(*it)->stopUpdate();
 }
 
-void Connection::onLevelValueChanged (int val)
-{
-	char tlv_buff[16];
-#ifdef __linux__
-	int const result = snprintf(tlv_buff, 16, "%u", val);
-#else
-	int const result = _snprintf_s(tlv_buff, 16, "%u", val);
-#endif
-
-	if (result > 0)
-	{
-		char buff[256];
-		using namespace tlv;
-		Encoder e(cmd_set_level, buff, 256);
-		e.Encode(TLV(tag_lvl, tlv_buff));
-		if (m_tcpstream && e.Commit())
-			m_tcpstream->write(e.buffer, e.total_len); /// @TODO: async write
-	}
-}
-
-void Connection::onBufferingStateChanged (int val)
-{
-	bool const buffering_enabled = (val == Qt::Checked) ? true : false;
-
-	char tlv_buff[16];
-#ifdef __linux__
-	int const result = snprintf(tlv_buff, 16, "%u", buffering_enabled);
-#else
-	int const result = _snprintf_s(tlv_buff, 16, "%u", buffering_enabled);
-#endif
-
-	if (result > 0)
-	{
-		qDebug("Connection::onBufferingStateChanged to_state=%i", buffering_enabled);
-		char buff[256];
-		using namespace tlv;
-		Encoder e(cmd_set_buffering, buff, 256);
-		e.Encode(TLV(tag_bool, tlv_buff));
-		if (m_tcpstream && e.Commit())
-			m_tcpstream->write(e.buffer, e.total_len); /// @TODO: async write
-	}
-}
 
 struct Save {
 
@@ -284,13 +249,6 @@ struct ExportAsCSV {
 			(*it)->exportStorageToCSV(m_path);
 	}
 };
-
-void Connection::saveAs (QString const & preset_name)
-{
-	qDebug("%s", __FUNCTION__);
-	QString const path = getPresetPath(getGlobalConfig().m_appdir, preset_name);
-	saveConfigs(path);
-}
 
 void Connection::saveConfigs (QString const & path)
 {

@@ -49,9 +49,9 @@ DockManager::DockManager (MainWindow * mw, QStringList const & path)
 
 void DockManager::loadConfig (QString const & cfgpath)
 {
-	QString const fpath = cfgpath + "/" + g_dockManagerTag;
+	QString const fname = cfgpath + "/" + g_dockManagerTag;
 	DockManagerConfig config2(g_traceServerName);
-	if (!::loadConfigTemplate(config2, fpath))
+	if (!::loadConfigTemplate(config2, fname))
 	{
 		m_config.defaultConfig();
 		bool const on = true;
@@ -81,8 +81,8 @@ void DockManager::applyConfig ()
 
 void DockManager::saveConfig (QString const & path)
 {
-	QString const fpath = path + "/" + g_dockManagerTag;
-	::saveConfigTemplate(m_config, fpath);
+	QString const fname = path + "/" + g_dockManagerTag;
+	::saveConfigTemplate(m_config, fname);
 }
 
 DockManager::~DockManager ()

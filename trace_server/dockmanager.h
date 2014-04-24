@@ -25,7 +25,7 @@ struct DockManager : DockManagerView, ActionAble
 {
 	Q_OBJECT
 public:
-	
+
 	DockManager (MainWindow * mw, QStringList const & path);
 	~DockManager ();
 

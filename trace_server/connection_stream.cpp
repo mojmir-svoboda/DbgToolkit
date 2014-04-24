@@ -6,7 +6,7 @@
 #include "logs/logtablemodel.h"
 #include "cmd.h"
 #include "utils.h"
-#include "utils_std.h"
+#include "utils_boost.h"
 #include "dock.h"
 #include <cstdlib>
 
@@ -188,8 +188,8 @@ namespace {
 				m_conn.tryHandleCommand(cmd, e_RecvBatched);
 				t.m_queue.pop_front();
 			}
-			foreach (typename T::widget_t w, t)
-				w->widget().commitCommands(e_RecvBatched);
+			foreach (typename T::widget_t * w, t)
+				w->commitCommands(e_RecvBatched);
 		}
 	};
 }
@@ -197,18 +197,6 @@ namespace {
 void Connection::onHandleCommandsCommit ()
 {
 	recurse(m_data, DequeueCommand(*this));
-
-
-/*	LogTableModel * model = static_cast<LogTableModel *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
-
-	setupColumnSizes(false);
-	model->transactionCommit();
-
-	if (!m_main_window->filterEnabled() || m_main_window->autoScrollEnabled())
-		model->emitLayoutChanged();
-
-	if (m_main_window->autoScrollEnabled())
-		m_table_view_widget->scrollToBottom();*/
 }
 
 
@@ -496,13 +484,9 @@ bool Connection::handleCSVStreamCommand (DecodedCommand const & cmd)
 bool Connection::handlePingCommand (DecodedCommand const & cmd)
 {
 	qDebug("ping from client!");
-	QWidget * w = m_tab_widget;
-	if (w)
-	{
-		disconnect(m_tcpstream, SIGNAL(disconnected()), this, SLOT(onDisconnected()));
-		m_marked_for_close = true;
-		QTimer::singleShot(0, m_main_window, SLOT(onCloseMarkedTabs()));
-	}
+	disconnect(m_tcpstream, SIGNAL(disconnected()), this, SLOT(onDisconnected()));
+	m_marked_for_close = true;
+	QTimer::singleShot(0, m_main_window, SLOT(onCloseMarkedTabs()));
 	return true;
 }
 
@@ -533,8 +517,6 @@ bool Connection::handleDictionnaryCtx (DecodedCommand const & cmd)
 	m_app_data.addCtxDict(name, value);
 	return true;
 }
-
-
 
 
 //////////////////// storage stuff //////////////////////////////

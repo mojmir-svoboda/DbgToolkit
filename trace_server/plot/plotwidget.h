@@ -21,6 +21,7 @@ namespace plot {
 	{
 		Q_OBJECT
 	public:
+		enum { e_type = e_data_plot };
 		typedef QMap<QString, Curve *> curves_t;
 
 		PlotWidget (Connection * oparent, QWidget * wparent, PlotConfig & cfg, QString const & fname, QStringList const & path);

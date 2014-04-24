@@ -56,26 +56,13 @@ public:
 
 	QString getAppDir () const { return m_config.m_appdir; }
 
-	int createAppName (QString const & appname, E_SrcProtocol const proto);
-	void addNewApplication (QString const & appname);
-	int findAppName (QString const & appname)
-	{
-		for (int i = 0, ie = m_config.m_app_names.size(); i < ie; ++i)
-			if (m_config.m_app_names[i] == appname)
-				return i;
-		return e_InvalidItem;
-	}
-
 	// presets
 	void saveLayout (QString const & preset_name);
 	void loadLayout (QString const & preset_name);
-	void onPresetActivate (Connection * conn, QString const & pname);
-	QString getCurrentPresetName () const;
-	QString promptAndCreatePresetName (QString const & app_name);
-	QString getValidCurrentPresetName ();
 
 	void setPresetAsCurrent (QString const & pname);
 	void mentionInPresetHistory (QString const & str);
+	QString getCurrentPresetName () const;
 
 	// global config
 	GlobalConfig const & getConfig () const { return m_config; }
@@ -83,14 +70,11 @@ public:
 	unsigned getHotKey () const;
 	bool onTopEnabled () const;
 	// per connection config
-	void setLevel (int i);
-	int getLevel () const; // @TODO: per connection
-	bool buffEnabled () const;
-	Qt::CheckState buffState () const;
-	int plotState () const; // @TODO: should be per connection
+	//void setLevel (int i);
+	int logState () const;
+	int plotState () const;
 	int tableState () const;
 	int ganttState () const;
-	//QList<QColor> const & getThreadColors () const { return m_config.m_thread_colors; }
 
 	// drag and drop
 	void changeEvent (QEvent * e);
@@ -110,12 +94,13 @@ public:
 	void importDataStream (QString const & fname);
 	void copyStorageTo (QString const & filename);
 	Connection * findConnectionByName (QString const & app_name);
-	//Connection * findCurrentConnection ();
 	Connection * createNewConnection ();
 	void destroyConnection (Connection * connection);
 
 public slots:
 	void newConnection (Connection * connection);
+	void onStatusChanged (QString const & status);
+
 	void onHotkeyShowOrHide ();
 	void hide ();
 	void showNormal ();
@@ -133,8 +118,6 @@ public slots:
 	//void onCloseMarkedConnections ();
 	//void onCloseTabWithIndex (int idx);
 	//void onCloseCurrentTab ();
-	void onPresetActivate ();
-	void onPresetActivate (int idx);
 
 	friend class Connection;
 private slots:
@@ -142,7 +125,7 @@ private slots:
 	void loadState ();
 	void storeGeometry ();
 	void storeState ();
-	void timerHit ();
+	void onTimerHit ();
 	void onQuit ();
 	//void onFocusChanged (QWidget * old, QWidget * now);
 	void onQuitReally ();
@@ -157,26 +140,37 @@ private slots:
 	void closeEvent (QCloseEvent *event);
 	void iconActivated (QSystemTrayIcon::ActivationReason reason);
 
-	// preset
-	void onPresetChanged (int idx);
-	void onSaveCurrentState ();
-	void onSaveCurrentStateTo (QString const & name);
-	void onAddPreset ();
-	void onRmCurrentPreset ();
-
+	// control widget
 	void onLevelValueChanged (int i);
 	void onBufferingStateChanged (int state);
-	void onShowHelp ();
-	
+	void onPresetChanged (int idx);
+	void onPresetApply ();
+	void onPresetSave ();
+	void onPresetAdd ();
+	void onPresetRm ();
+	void onPresetReset ();
+	void onLogsStateChanged (int state);
+	void onPlotsStateChanged (int state);
 	void onTablesStateChanged (int state);
-	void onPlotStateChanged (int state);
+	void onGanttsStateChanged (int state);
+	void onPresetApply (QString const & preset_name);
+	void onPresetSave (QString const & preset_name);
+
+	//void onSaveCurrentStateTo (QString const & name);
+	//void onPresetActivate (int idx);
+
+	void onShowHelp ();
 
 private:
 	void showServerStatus ();
-	void loadNetworkSettings ();
 	void setupMenuBar ();
-	void createActions ();
+	void createTrayActions ();
 	void createTrayIcon ();
+	void registerHotKey ();
+	void saveConfig (QString const & path);
+	void loadConfig (QString const & path);
+	void setConfigValuesToUI (GlobalConfig const & cfg);
+	void setUIValuesToConfig (GlobalConfig & cfg);
 
 	typedef std::vector<Connection *> connections_t;
 	connections_t 		m_connections;

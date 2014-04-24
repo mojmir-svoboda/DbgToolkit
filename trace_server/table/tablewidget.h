@@ -19,6 +19,7 @@ namespace table {
 	{
 		Q_OBJECT
 	public:
+		enum { e_type = e_data_table };
 		TableWidget (Connection * oparent, QWidget * wparent, TableConfig & cfg, QString const & fname, QStringList const & path);
 
 		void applyConfig (TableConfig & pcfg);
