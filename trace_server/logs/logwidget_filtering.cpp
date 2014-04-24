@@ -12,7 +12,7 @@
 
 namespace logs {
 
-void LogWidget::onInvalidateFilter ()
+void LogTableView::onInvalidateFilter ()
 {
 	QItemSelectionModel const * selection = selectionModel();
 	if (!selection)
@@ -48,7 +48,7 @@ void LogWidget::onInvalidateFilter ()
 	scrollToCurrentTagOrSelection();
 }
 
-void LogWidget::syncSelection (QModelIndexList const & sel)
+void LogTableView::syncSelection (QModelIndexList const & sel)
 {
 	selectionModel()->clearSelection();
 
@@ -67,7 +67,7 @@ void LogWidget::syncSelection (QModelIndexList const & sel)
 	}
 }
 
-/*void LogWidget::setFindProxyModel (FindConfig const & fc)
+/*void LogTableView::setFindProxyModel (FindConfig const & fc)
 {
 	m_config.m_find_config = fc;
 	setModel(m_find_proxy_model);
@@ -78,7 +78,7 @@ void LogWidget::syncSelection (QModelIndexList const & sel)
 }*/
 
 
-void LogWidget::setFilteringProxy (bool on)
+void LogTableView::setFilteringProxy (bool on)
 {
 	QItemSelectionModel const * selection = selectionModel();
 	QModelIndexList indexes;
@@ -146,7 +146,7 @@ void LogWidget::setFilteringProxy (bool on)
 		//QTimer::singleShot(1000, this, SLOT(scrollToCurrentTagOrSelection()));
 }
 
-/*void LogWidget::clearFilters (QStandardItem * node)
+/*void LogTableView::clearFilters (QStandardItem * node)
 {
 	if (node)
 	{
@@ -159,7 +159,7 @@ void LogWidget::setFilteringProxy (bool on)
 	}
 }*/
 
-void LogWidget::refreshFilters (BaseProxyModel const * proxy)
+void LogTableView::refreshFilters (BaseProxyModel const * proxy)
 {
 	QAbstractItemModel * m = model();
 	if (m && m == proxy)
@@ -183,7 +183,7 @@ void LogWidget::refreshFilters (BaseProxyModel const * proxy)
 	}
 }
 
-void LogWidget::onRefillFilters ()
+void LogTableView::onRefillFilters ()
 {
 	if (model() == m_src_model || model() == m_proxy_model)
 	{
@@ -201,13 +201,13 @@ void LogWidget::onRefillFilters ()
 }
 
 
-void LogWidget::clearFilters ()
+void LogTableView::clearFilters ()
 {
 	//@TODO: call all functions below
 	//m_filter_state.clearFilters();
 }
 
-void LogWidget::appendToTIDFilters (QString const & item)
+void LogTableView::appendToTIDFilters (QString const & item)
 {
 	if (filterMgr()->getFilterTid())
 	{
@@ -222,7 +222,7 @@ void LogWidget::appendToTIDFilters (QString const & item)
 	}
 }
 
-/*void LogWidget::appendToLvlWidgets (FilteredLevel const & flt)
+/*void LogTableView::appendToLvlWidgets (FilteredLevel const & flt)
 {
 	if (filterMgr()->getFilterLvl())
 	{
@@ -239,7 +239,7 @@ void LogWidget::appendToTIDFilters (QString const & item)
 	}
 }*/
 
-void LogWidget::appendToLvlFilters (QString const & item)
+void LogTableView::appendToLvlFilters (QString const & item)
 {
 	if (filterMgr()->getFilterLvl())
 	{
@@ -260,7 +260,7 @@ void LogWidget::appendToLvlFilters (QString const & item)
 	}
 }
 
-/*void LogWidget::appendToCtxWidgets (FilteredContext const & flt)
+/*void LogTableView::appendToCtxWidgets (FilteredContext const & flt)
 {
 	if (filterMgr()->getFilterCtx())
 	{
@@ -276,7 +276,7 @@ void LogWidget::appendToLvlFilters (QString const & item)
 }*/
 
 
-void LogWidget::appendToCtxFilters (QString const & item, bool checked)
+void LogTableView::appendToCtxFilters (QString const & item, bool checked)
 {
 	if (filterMgr()->getFilterCtx())
 	{
@@ -296,7 +296,7 @@ void LogWidget::appendToCtxFilters (QString const & item, bool checked)
 	}
 }
 
-void LogWidget::appendToFileLineFilters (QString const & item)
+void LogTableView::appendToFileLineFilters (QString const & item)
 {
 	if (filterMgr()->getFilterFileLine())
 	{
@@ -308,7 +308,7 @@ void LogWidget::appendToFileLineFilters (QString const & item)
 		//->hideLinearParents();
 }
 
-bool LogWidget::appendToFilters (DecodedCommand const & cmd)
+bool LogTableView::appendToFilters (DecodedCommand const & cmd)
 {
 	QString tid;
 	if (cmd.getString(tlv::tag_tid, tid))
@@ -335,19 +335,19 @@ bool LogWidget::appendToFilters (DecodedCommand const & cmd)
 	return true;
 }
 
-void LogWidget::appendToRegexFilters (QString const & str, bool checked, bool inclusive)
+void LogTableView::appendToRegexFilters (QString const & str, bool checked, bool inclusive)
 {
 	if (filterMgr()->getFilterRegex())
 		filterMgr()->getFilterRegex()->appendToRegexFilters(str, checked, inclusive);
 }
 
-void LogWidget::removeFromRegexFilters (QString const & val)
+void LogTableView::removeFromRegexFilters (QString const & val)
 {
 	if (filterMgr()->getFilterRegex())
 		filterMgr()->getFilterRegex()->removeFromRegexFilters(val);
 }
 
-void LogWidget::appendToStringFilters (QString const & str, bool checked, int state)
+void LogTableView::appendToStringFilters (QString const & str, bool checked, int state)
 {
 	if (filterMgr()->getFilterString())
 	{
@@ -355,7 +355,7 @@ void LogWidget::appendToStringFilters (QString const & str, bool checked, int st
 	}
 }
 
-void LogWidget::removeFromStringFilters (QString const & val)
+void LogTableView::removeFromStringFilters (QString const & val)
 {
 	if (filterMgr()->getFilterString())
 	{

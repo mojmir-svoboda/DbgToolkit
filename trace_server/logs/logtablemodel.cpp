@@ -8,7 +8,7 @@
 #include "findproxymodel.h"
 #include <sysfn/time_query.h>
 
-LogTableModel::LogTableModel (QObject * parent, logs::LogWidget & lw)
+LogTableModel::LogTableModel (QObject * parent, logs::LogTableView & lw)
 	: TableModel(parent, lw.m_config.m_columns_setup, lw.m_config.m_columns_sizes)
 	, m_log_widget(lw)
 	, m_filter_state(lw.m_filter_state)

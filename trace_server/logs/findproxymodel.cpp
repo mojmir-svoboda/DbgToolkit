@@ -9,7 +9,7 @@
 #include "logwidget.h"
 #include "logtablemodel.h"
 
-FindProxyModel::FindProxyModel (QObject * parent, logs::LogWidget & lw)
+FindProxyModel::FindProxyModel (QObject * parent, logs::LogTableView & lw)
 	: FilterProxyModel(parent, lw)
 { }
 

@@ -67,15 +67,15 @@ namespace plot {
 		setMinimumSize(64,64);
 		insertLegend(new QwtLegend(this), QwtPlot::BottomLegend);
 
-		for (size_t c = 0, ce = cfg.m_ccfg.size(); c < ce; ++c)
+		for (size_t c = 0, ce = m_config.m_ccfg.size(); c < ce; ++c)
 		{
-			CurveConfig & cc = cfg.m_ccfg[c];
+			CurveConfig & cc = m_config.m_ccfg[c];
 			mkCurve(cc.m_tag); // cc.m_tag is a subtag
 		}
 
-		for (size_t a = 0, ae = cfg.m_acfg.size(); a < ae; ++a)
+		for (size_t a = 0, ae = m_config.m_acfg.size(); a < ae; ++a)
 		{
-			AxisConfig & ac = cfg.m_acfg[a];
+			AxisConfig & ac = m_config.m_acfg[a];
 			// ...
 		}
 

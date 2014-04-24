@@ -94,7 +94,7 @@ namespace plot {
 		Connection * m_connection;
 		curves_t m_curves;
 		int m_timer;
-		PlotConfig & m_config;
+		PlotConfig m_config;
 		plot::CtxPlotConfig m_config_ui;
 		QList<QColor> m_colors;
 		QString m_fname;

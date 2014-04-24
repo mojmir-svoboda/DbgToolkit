@@ -15,19 +15,20 @@ class Connection;
 
 namespace table {
 
-	class TableWidget : public QTableView, public ActionAble
+	class TableWidget : public QTableView, public DockedWidgetBase
 	{
 		Q_OBJECT
 	public:
 		enum { e_type = e_data_table };
-		TableWidget (Connection * oparent, QWidget * wparent, TableConfig & cfg, QString const & fname, QStringList const & path);
+		TableWidget (Connection * conn, QString const & fname, QStringList const & path);
 
 		virtual E_DataWidgetType type () const { return e_data_table; }
+		virtual QWidget * controlWidget () { return 0; }
 		void applyConfig (TableConfig & pcfg);
 		virtual ~TableWidget ();
 
-		TableConfig & getConfig () { return m_config; }
-		TableConfig const & getConfig () const { return m_config; }
+		TableConfig & config () { return m_config; }
+		TableConfig const & config () const { return m_config; }
 
 		void handleCommand (DecodedCommand const & cmd, E_ReceiveMode mode);
 		void commitCommands (E_ReceiveMode mode);
@@ -47,7 +48,6 @@ namespace table {
 		void saveConfig (QString const & path);
 		void applyConfig ();
         void exportStorageToCSV (QString const & filename) { }
-        void setDockedWidget (DockedWidgetBase * dwb) { m_dwb = dwb; }
 
 	protected:
 		virtual void wheelEvent (QWheelEvent * event);
@@ -72,14 +72,13 @@ namespace table {
 		void onClickedAtColumnSetup (QModelIndex const idx);
 
 	protected:
-		TableConfig & m_config;
+		TableConfig m_config;
 		table::CtxTableConfig m_config_ui;
 		//QList<QColor> m_colors;
 		QString m_fname;
 		TableModel * m_modelView;
 		QAbstractProxyModel * m_table_view_proxy;
 		Connection * m_connection;
-        DockedWidgetBase * m_dwb;
 	};
 }
 

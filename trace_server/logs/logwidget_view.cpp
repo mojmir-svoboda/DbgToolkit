@@ -7,12 +7,12 @@
 
 namespace logs {
 
-	bool LogWidget::appendToColorizers (DecodedCommand const & cmd)
+	bool LogTableView::appendToColorizers (DecodedCommand const & cmd)
 	{
 		return colorizerMgr()->action(cmd);
 	}
 
-	void LogWidget::addColorTagRow (int src_row)
+	void LogTableView::addColorTagRow (int src_row)
 	{
 		QString const & strrow = QString::number(src_row);
 
@@ -22,12 +22,12 @@ namespace logs {
 		onInvalidateFilter(); //@TODO: should be done by filter?
 	}
 
-	bool LogWidget::findColorTagRow (int row) const
+	bool LogTableView::findColorTagRow (int row) const
 	{
 		return false;
 	}
 
-	void LogWidget::removeColorTagRow (int src_row)
+	void LogTableView::removeColorTagRow (int src_row)
 	{
 		ColorizerRow const * const col_row = colorizerMgr()->getColorizerRow();
 		if (col_row == 0)
@@ -40,7 +40,7 @@ namespace logs {
 
 
 	/////////////////////////////////////////////
-	void LogWidget::scrollToCurrentTag ()
+	void LogTableView::scrollToCurrentTag ()
 	{
 		/*if (m_config.m_auto_scroll)
 			return;
@@ -68,7 +68,7 @@ namespace logs {
 		}*/
 	}
 
-	void LogWidget::scrollToCurrentSelection ()
+	void LogTableView::scrollToCurrentSelection ()
 	{
 		/*if (m_config.m_auto_scroll)
 			return;
@@ -93,7 +93,7 @@ namespace logs {
 		}*/
 	}
 
-	void LogWidget::scrollToCurrentTagOrSelection ()
+	void LogTableView::scrollToCurrentTagOrSelection ()
 	{
 		/*if (m_color_tag_rows.size() > 0)
 			scrollToCurrentTag();
@@ -101,7 +101,7 @@ namespace logs {
 			scrollToCurrentSelection();*/
 	}
 
-	void LogWidget::nextToView ()
+	void LogTableView::nextToView ()
 	{
 		/*if (m_color_tag_rows.size() > 0)
 		{
@@ -117,7 +117,7 @@ namespace logs {
 
 
 //@TODO: almost duplicate  from logs/logwidget_find.cpp
-void LogWidget::onGotoPrevColor()
+void LogTableView::onGotoPrevColor()
 {
 	ColorizerRow const * const col_row = colorizerMgr()->getColorizerRow();
 	if (col_row == 0)
@@ -174,7 +174,7 @@ void LogWidget::onGotoPrevColor()
 	}
 
 }
-void LogWidget::onGotoNextColor()
+void LogTableView::onGotoNextColor()
 {
 	ColorizerRow const * const col_row = colorizerMgr()->getColorizerRow();
 	if (col_row == 0)

@@ -220,10 +220,10 @@ public:
 
 
 FrameView::FrameView (Connection * conn, QString const & fname, QStringList const & path)
-	: ActionAble(path)
+	: DockedWidgetBase(path)
 	, m_bars(0)
 	, m_config()
-	, m_config_ui(m_config:, this)
+	, m_config_ui(m_config, this)
 {
 	setContextMenuPolicy(Qt::CustomContextMenu);
 	connect(this, SIGNAL(customContextMenuRequested(QPoint const &)), this, SLOT(onShowContextMenu(QPoint const &)));

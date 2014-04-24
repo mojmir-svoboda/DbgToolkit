@@ -4,8 +4,8 @@
 #include "types.h"
 #include "dockedconfig.h"
 
-struct DockedWidgetBase : QObject, ActionAble {
-	Q_OBJECT
+struct DockedWidgetBase : ActionAble {
+	//Q_OBJECT
 public:
 	DockedWidgetBase (QStringList const & path)
 		: ActionAble(path)

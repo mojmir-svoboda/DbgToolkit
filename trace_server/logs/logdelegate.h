@@ -7,10 +7,10 @@ namespace logs {
 
 	class LogDelegate : public QStyledItemDelegate
 	{
-		LogWidget const & m_log_widget;
+		LogTableView const & m_log_widget;
 		AppData const & m_app_data;
 	public: 
-		LogDelegate (LogWidget & lw, AppData const & ad, QObject * parent = 0) 
+		LogDelegate (LogTableView & lw, AppData const & ad, QObject * parent = 0) 
 			: QStyledItemDelegate(parent), m_log_widget(lw), m_app_data(ad)
 		{ }
 

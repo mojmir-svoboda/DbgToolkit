@@ -9,47 +9,6 @@
 #include "delegates.h"
 #include <cstdlib>
 
-DataTable::DataTable (Connection * connection, QString const & confname, QStringList const & path)
-	: DockedData<e_data_table>(connection, confname, path)
-{
-	qDebug("%s this=0x%08x name=%s", __FUNCTION__, this, confname.toStdString().c_str());
-	m_widget = new table::TableWidget(connection, 0, m_config, confname, path);
-	m_widget->setItemDelegate(new SyncedTableItemDelegate(m_widget));
-}
-
-DataTable::~DataTable ()
-{
-	//QObject::disconnect(m_widget->horizontalHeader(), SIGNAL(sectionResized(int, int, int)), this, SLOT(onSectionResized(int, int, int)));
-}
-
-void Connection::onShowTables ()
-{
-	qDebug("%s", __FUNCTION__);
-	/*for (datatables_t::iterator it = m_data.get<e_data_table>().begin(), ite = m_data.get<e_data_table>().end(); it != ite; ++it)
-	{
-		(*it)->onShow();
-		m_main_window->restoreDockWidget((*it)->m_wd);
-	}*/
-}
-
-void Connection::onHideTables ()
-{
-	qDebug("%s", __FUNCTION__);
-	/*for (datatables_t::iterator it = m_data.get<e_data_table>().begin(), ite = m_data.get<e_data_table>().end(); it != ite; ++it)
-	{
-		(*it)->onHide();
-	}*/
-}
-
-void Connection::onShowTableContextMenu (QPoint const &)
-{
-	qDebug("%s", __FUNCTION__);
-	for (datatables_t::iterator it = m_data.get<e_data_table>().begin(), ite = m_data.get<e_data_table>().end(); it != ite; ++it)
-	{
-		(*it)->widget().onHideContextMenu();
-	}
-}
-
 bool Connection::handleTableXYCommand (DecodedCommand const & cmd, E_ReceiveMode mode)
 {
 	QString tag;
@@ -117,7 +76,7 @@ bool Connection::handleTableSetupCommand (DecodedCommand const & cmd, E_ReceiveM
 
 /*bool Connection::loadConfigForTable (QString const & preset_name, table::TableConfig & config, QString const & tag)
 {
-	QString const fname = getDataTagFileName(getConfig().m_appdir, preset_name, g_presetTableTag, tag);
+	QString const fname = getDataTagFileName(config().m_appdir, preset_name, g_presetTableTag, tag);
 	qDebug("table: load cfg file=%s", fname.toStdString().c_str());
 	return loadConfig(config, fname);
 }
@@ -128,9 +87,9 @@ bool Connection::loadConfigForTables (QString const & preset_name)
 	for (datatables_t::iterator it = m_data.get<e_data_table>().begin(), ite = m_data.get<e_data_table>().end(); it != ite; ++it)
 	{
 		DataTable * const tbl = *it;
-		QString const fname = getDataTagFileName(getConfig().m_appdir, preset_name, g_presetTableTag, tbl->m_config.m_tag);
+		QString const fname = getDataTagFileName(config().m_appdir, preset_name, g_presetTableTag, tbl->m_config.m_tag);
 		loadConfig(tbl->m_config, fname);
-		tbl->widget().applyConfig(tbl->m_config);
+		tbl->applyConfig(tbl->m_config);
 		if (tbl->m_config.m_show)
 			tbl->onShow();
 		else
@@ -143,7 +102,7 @@ bool Connection::loadConfigForTables (QString const & preset_name)
 bool Connection::saveConfigForTable (table::TableConfig const & config, QString const & tag)
 {
 	QString const preset_name = m_curr_preset.isEmpty() ? m_main_window->getValidCurrentPresetName() : m_curr_preset;
-	QString const fname = getDataTagFileName(getConfig().m_appdir, preset_name, g_presetTableTag, tag);
+	QString const fname = getDataTagFileName(config().m_appdir, preset_name, g_presetTableTag, tag);
 	qDebug("table save cfg file=%s", fname.toStdString().c_str());
 	return saveConfig(config, fname);
 }
@@ -154,8 +113,8 @@ bool Connection::saveConfigForTables (QString const & preset_name)
 	for (datatables_t::iterator it = m_data.get<e_data_table>().begin(), ite = m_data.get<e_data_table>().end(); it != ite; ++it)
 	{
 		DataTable * const tbl = *it;
-		QString const fname = getDataTagFileName(getConfig().m_appdir, preset_name, g_presetTableTag, tbl->m_config.m_tag);
-		tbl->widget().onSaveButton();
+		QString const fname = getDataTagFileName(config().m_appdir, preset_name, g_presetTableTag, tbl->m_config.m_tag);
+		tbl->onSaveButton();
 	}
 	return true;
 }
@@ -168,18 +127,18 @@ datatables_t::iterator Connection::findOrCreateTable (QString const & tag)
 	if (it == m_data.get<e_data_table>().end())
 	{
 		it = dataWidgetFactory<e_data_table>(tag);
-		//(*it)->widget().setupNewLogModel();
-		(*it)->widget().applyConfig(); // 0 means "create new model"
+		//(*it)->setupNewLogModel();
+		(*it)->applyConfig(); // 0 means "create new model"
 
 		// TMP!
 /*		(*it)->m_widget->setEditTriggers(QAbstractItemView::NoEditTriggers);
 		(*it)->m_widget->verticalHeader()->setFont(m_main_window->tableFont());*/
 		//(*it)->m_widget->verticalHeader()->setDefaultSectionSize(m_main_window->tableRowSize());
-		(*it)->m_widget->verticalHeader()->setDefaultSectionSize(16);
-		(*it)->m_widget->verticalHeader()->hide();	// @NOTE: users want that //@NOTE2: they can't have it because of performance
-		(*it)->m_widget->setSelectionBehavior(QAbstractItemView::SelectRows);
-		(*it)->m_widget->setSelectionMode(QAbstractItemView::SingleSelection);
-		QObject::connect((*it)->widget().horizontalHeader(), SIGNAL(sectionResized(int, int, int)), &(*it)->widget(), SLOT(onSectionResized(int, int, int)));
+		(*it)->verticalHeader()->setDefaultSectionSize(16);
+		(*it)->verticalHeader()->hide();	// @NOTE: users want that //@NOTE2: they can't have it because of performance
+		(*it)->setSelectionBehavior(QAbstractItemView::SelectRows);
+		(*it)->setSelectionMode(QAbstractItemView::SingleSelection);
+		QObject::connect((*it)->horizontalHeader(), SIGNAL(sectionResized(int, int, int)), *it, SLOT(onSectionResized(int, int, int)));
 
 		if (m_main_window->tableState() == e_FtrEnabled && (*it)->config().m_show)
 		{
@@ -204,8 +163,7 @@ void Connection::appendTableXY (int x, int y, QString const & time, QString cons
 
 	datatables_t::iterator it = findOrCreateTable(tag);
 
-	DataTable & dp = **it;
-	dp.widget().appendTableXY(x, y, time, fgc, bgc, subtag);
+	(*it)->appendTableXY(x, y, time, fgc, bgc, subtag);
 }
 
 void Connection::appendTableSetup (int x, int y, QString const & time, QString const & fgc, QString const & bgc, QString const & hhdr, QString const & msg_tag)
@@ -220,9 +178,7 @@ void Connection::appendTableSetup (int x, int y, QString const & time, QString c
 	}
 
 	datatables_t::iterator it = findOrCreateTable(tag);
-
-	DataTable & dp = **it;
-	dp.widget().appendTableSetup(x, y, time, fgc, bgc, hhdr, subtag);
+	(*it)->appendTableSetup(x, y, time, fgc, bgc, hhdr, subtag);
 }
 
 bool Connection::handleTableClearCommand (DecodedCommand const & cmd, E_ReceiveMode mode)
@@ -246,7 +202,7 @@ bool Connection::handleTableClearCommand (DecodedCommand const & cmd, E_ReceiveM
 		//dataplots_t::iterator it = m_dataplots.find(tag);
 		//if (it != m_dataplots.end())
 		//{
-		//	(*it)->widget().clearCurveData(subtag);
+		//	(*it)->clearCurveData(subtag);
 		//}
 	}
 	return true;
@@ -257,9 +213,8 @@ void Connection::requestTableSynchronization (int sync_group, unsigned long long
 {
 	for (datatables_t::iterator it = m_data.get<e_data_table>().begin(), ite = m_data.get<e_data_table>().end(); it != ite; ++it)
 	{
-		DataTable * const tbl = *it;
-		if (tbl->widget().getConfig().m_sync_group == sync_group)
-			tbl->widget().findNearestTimeRow(time);
+		if ((*it)->config().m_sync_group == sync_group)
+			(*it)->findNearestTimeRow(time);
 	}
 }
 
@@ -267,16 +222,15 @@ void Connection::requestTableWheelEventSync (int sync_group, QWheelEvent * ev, Q
 {
 	for (datatables_t::iterator it = m_data.get<e_data_table>().begin(), ite = m_data.get<e_data_table>().end(); it != ite; ++it)
 	{
-		DataTable * const tbl = *it;
-		if (tbl->widget().getConfig().m_sync_group == sync_group)
-			tbl->widget().requestTableWheelEventSync(ev, source);
+		if ((*it)->config().m_sync_group == sync_group)
+			(*it)->requestTableWheelEventSync(ev, source);
 
-		/*int const hmin = tbl->widget().horizontalScrollBar()->minimum();
-		int const hval = tbl->widget().horizontalScrollBar()->value();
-		int const hmax = tbl->widget().horizontalScrollBar()->maximum();
-		int const vmin = tbl->widget().verticalScrollBar()->minimum();
-		int const vval = tbl->widget().verticalScrollBar()->value();
-		int const vmax = tbl->widget().verticalScrollBar()->maximum();
+		/*int const hmin = (*it)->horizontalScrollBar()->minimum();
+		int const hval = (*it)->horizontalScrollBar()->value();
+		int const hmax = (*it)->horizontalScrollBar()->maximum();
+		int const vmin = (*it)->verticalScrollBar()->minimum();
+		int const vval = (*it)->verticalScrollBar()->value();
+		int const vmax = (*it)->verticalScrollBar()->maximum();
 		qDebug("conn wh sync: min=%i val=%i max=%i", vmin, vval, vmax);*/
 	}
 }
@@ -285,8 +239,7 @@ void Connection::requestTableActionSync (int sync_group, unsigned long long t, i
 {
 	for (datatables_t::iterator it = m_data.get<e_data_table>().begin(), ite = m_data.get<e_data_table>().end(); it != ite; ++it)
 	{
-		DataTable * const tbl = *it;
-		if (tbl->widget().getConfig().m_sync_group == sync_group)
-			tbl->widget().requestTableActionSync(t, cursorAction, modifiers, source);
+		if ((*it)->config().m_sync_group == sync_group)
+			(*it)->requestTableActionSync(t, cursorAction, modifiers, source);
 	}
 }

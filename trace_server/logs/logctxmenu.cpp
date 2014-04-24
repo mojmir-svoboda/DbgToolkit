@@ -64,7 +64,7 @@ namespace logs {
 		editor->setGeometry(option.rect);
 	}
 
-LogCtxMenu::LogCtxMenu (LogWidget & lw, QWidget * parent)
+LogCtxMenu::LogCtxMenu (LogTableView & lw, QWidget * parent)
 	: m_log_widget(lw)
 	, m_ui(new Ui::SettingsLog)
 	, m_widget(new QDockWidget(parent))
@@ -545,7 +545,7 @@ void LogCtxMenu::onClickedAtCancelButton ()
 	//filterMenu->addAction(tr("Set time reference row"), m_server, SLOT(onTimeRefFromRow()), QKeySequence(Qt::Key_Space));
 	//filterMenu->addAction(tr("Exclude file:line row"), m_server, SLOT(onExcludeFileLine()), QKeySequence(Qt::Key_X));
 
-/*void LogWidget::onFileColOrExp (QModelIndex const & idx, bool collapsed)
+/*void LogTableView::onFileColOrExp (QModelIndex const & idx, bool collapsed)
 {
 	QStandardItemModel const * const model = static_cast<QStandardItemModel *>(filterMgr()->getFilterFileLine()->getWidgetFile()->model());
 	QStandardItem * const node = model->itemFromIndex(idx);

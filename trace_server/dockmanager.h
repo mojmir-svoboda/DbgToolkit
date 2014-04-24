@@ -53,8 +53,8 @@ public:
 	void removeActionAble (QString const & dst_joined);
 	DockedWidgetBase * findDockable (QString const & joined_path);
 	ActionAble const * findActionAble (QString const & dst_joined) const;
-	DockedWidgetBase const * findDockableForWidget (QWidget * w) const;
-	DockedWidgetBase * findDockableForWidget (QWidget * w);
+	//DockedWidgetBase const * findDockableForWidget (QWidget * w) const;
+	//DockedWidgetBase * findDockableForWidget (QWidget * w);
 	Ui::ControlBarCommon * controlUI () { return m_control_bar->ui; }
 	Ui::ControlBarCommon const * controlUI () const { return m_control_bar->ui; }
 

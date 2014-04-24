@@ -8,7 +8,7 @@
 #include <connection.h>
 #include "logtablemodel.h"
 
-FilterProxyModel::FilterProxyModel (QObject * parent, logs::LogWidget & lw)
+FilterProxyModel::FilterProxyModel (QObject * parent, logs::LogTableView & lw)
 	: BaseProxyModel(parent)
 	, m_log_widget(lw)
 	, m_column_count(0)

@@ -10,15 +10,14 @@
 
 namespace table {
 
-	TableWidget::TableWidget (Connection * oparent, QWidget * wparent, TableConfig & cfg, QString const & fname, QStringList const & path)
-		: QTableView(wparent), ActionAble(path)
-		, m_config(cfg)
-		, m_config_ui(cfg, this)
+	TableWidget::TableWidget (Connection * conn, QString const & fname, QStringList const & path)
+		: QTableView(0), DockedWidgetBase(path)
+		, m_config()
+		, m_config_ui(m_config, this)
 		, m_fname(fname)
 		, m_modelView(0)
 		, m_table_view_proxy(0)
-		, m_connection(oparent)
-        , m_dwb(0)
+		, m_connection(conn)
 	{
 		qDebug("%s this=0x%08x", __FUNCTION__, this);
 
@@ -72,6 +71,8 @@ namespace table {
 		setUpdatesEnabled(true);
 		horizontalHeader()->setSectionsMovable(true);
 		setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+
+		setItemDelegate(new SyncedTableItemDelegate(this));
 	}
 
 	TableWidget::~TableWidget ()

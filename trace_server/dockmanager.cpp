@@ -5,10 +5,10 @@
 #include "controlbar_dockmanager.h"
 #include "serialize.h"
 #include <ui_controlbarcommon.h>
-#include <ui_controlbarlogs.h>
+/*#include <ui_controlbarlogs.h>
 #include <ui_controlbarplots.h>
 #include <ui_controlbartables.h>
-#include <ui_controlbargantts.h>
+#include <ui_controlbargantts.h>*/
 
 DockManager::DockManager (MainWindow * mw, QStringList const & path)
 	: DockManagerView(mw), ActionAble(path)
@@ -150,7 +150,7 @@ ActionAble const * DockManager::findActionAble (QString const & dst_joined) cons
 	return 0;
 }
 
-DockedWidgetBase const * DockManager::findDockableForWidget (QWidget * w) const
+/*DockedWidgetBase const * DockManager::findDockableForWidget (QWidget * w) const
 {
 	for (dockables_t::const_iterator it = m_dockables.begin(), ite = m_dockables.end(); it != ite; ++it)
 	{
@@ -166,11 +166,11 @@ DockedWidgetBase * DockManager::findDockableForWidget (QWidget * w)
 	for (dockables_t::const_iterator it = m_dockables.begin(), ite = m_dockables.end(); it != ite; ++it)
 	{
 		DockedWidgetBase * const dwb = *it;
-		if (w && dwb && dwb == w)
+		if (w && dwb && dwb == qobject_cast<DockedWidgetBase *>(w))
 			return dwb;
 	}
 	return 0;
-}
+}*/
 
 void DockManager::removeDockable (QString const & dst_joined)
 {

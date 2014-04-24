@@ -32,6 +32,7 @@ namespace gantt {
 		enum { e_type = e_data_gantt };
 		GanttWidget (Connection * conn, QString const & fname, QStringList const & path);
 
+		virtual QWidget * controlWidget () { return 0; }
 		virtual E_DataWidgetType type () const { return e_data_gantt; }
 		GanttConfig & config () { return m_config; }
 		GanttConfig const & config () const { return m_config; }
@@ -107,8 +108,7 @@ namespace gantt {
 		void requestSynchronization (E_SyncMode mode, int sync_group, unsigned long long time, void * source);
 
 	protected:
-		GanttConfig & m_config;
-		GanttConfig m_config2;
+		GanttConfig m_config;
 		gantt::CtxGanttConfig * m_config_ui;
 		QString m_fname;
 		Connection * m_connection;

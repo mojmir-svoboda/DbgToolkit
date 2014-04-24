@@ -19,16 +19,19 @@ class Connection;
 class LogTableModel;
 class FindProxyModel;
 class BaseProxyModel;
+class ControlBarLog;
 
 namespace logs {
 
-	class LogWidget : public TableView, public DockedWidgetBase
+	class LogWidgetWithButtons;
+
+	class LogTableView : public TableView
 	{
 		Q_OBJECT
 	public:
 		enum { e_type = e_data_log };
-		LogWidget (Connection * conn, QString const & fname, QStringList const & path);
-		virtual ~LogWidget ();
+		LogTableView (Connection * conn, QString const & fname, QStringList const & path);
+		virtual ~LogTableView ();
 
 		virtual E_DataWidgetType type () const { return e_data_log; }
 		virtual QWidget * controlWidget () { return 0; }
@@ -61,8 +64,6 @@ namespace logs {
 		void setupLogModel (LogTableModel * src_model);
 		void setupNewLogModel ();
 		void setupLogSelectionProxy ();
-		void linkToSource (DockedWidgetBase * src);
-		bool isLinkedWidget () const { return m_linked_parent != 0; }
 
 		DecodedCommand const * getDecodedCommand (QModelIndex const & row_index);
 		DecodedCommand const * getDecodedCommand (int row);
@@ -78,6 +79,7 @@ namespace logs {
 		friend class FindProxyModel;
 		friend struct LogCtxMenu;
 		friend struct LogDelegate;
+		friend class LogWidgetWithButtons;
 
 		virtual void wheelEvent (QWheelEvent * event);
 		virtual void keyPressEvent (QKeyEvent * event);
@@ -103,8 +105,8 @@ namespace logs {
 		void setSrcModel (FindConfig const & fc);
 		void handleFindAction (FindConfig const & fc);
 		void findInWholeTable (FindConfig const & fc, QModelIndexList & result);
-		LogWidget * mkFindAllRefsLogWidget (FindConfig const & fc);
-		LogWidget * mkFindAllCloneLogWidget (FindConfig const & fc);
+		LogWidgetWithButtons * mkFindAllRefsLogWidget (FindConfig const & fc);
+		LogWidgetWithButtons * mkFindAllCloneLogWidget (FindConfig const & fc);
 		void registerLinkedWidget (DockedWidgetBase * l);
 		void unregisterLinkedWidget (DockedWidgetBase * l);
 		void findAndSelect (FindConfig const & fc);
@@ -273,16 +275,13 @@ namespace logs {
 		QToolButton * m_uncolorRowButton;
 		QToolButton * m_gotoPrevColorButton;
 		QToolButton * m_gotoNextColorButton;
+		ControlBarLog * m_control_bar;
 
-		LogConfig & m_config;
-		LogConfig m_config2;
+		LogConfig m_config;
 		logs::LogCtxMenu m_config_ui;
 		QString m_fname;
 		QWidget * m_tab;
-		DockedWidgetBase * m_linked_parent;
 		WarnImage * m_warnimage;
-		typedef std::vector<DockedWidgetBase *> linked_widgets_t;
-		linked_widgets_t m_linked_widgets;
 
 		FilterState m_filter_state;
 
@@ -310,21 +309,27 @@ namespace logs {
 		QTextStream * m_file_csv_stream;
 	};
 
-	class LogWidgetWithButtons : public LogWidget
+	class LogWidgetWithButtons : public QFrame, public DockedWidgetBase
 	{
 		Q_OBJECT
 	public:
 
-		//LogWidget * m_lw;
+		enum { e_type = e_data_log };
+		LogTableView * m_lw;
 
-		LogWidgetWithButtons (Connection * conn, QWidget * wparent, LogConfig & cfg, QString const & fname, QStringList const & path);
+		LogWidgetWithButtons (Connection * conn, QString const & fname, QStringList const & path);
 		~LogWidgetWithButtons ();
 
-		/*virtual bool handleAction (Action * a, E_ActionHandleType sync)
+		virtual bool handleAction (Action * a, E_ActionHandleType sync)
 		{
 			return m_lw->handleAction(a, sync);
 		}
 
+		virtual E_DataWidgetType type () const { return m_lw->type(); }
+		virtual QWidget * controlWidget () { return m_lw->controlWidget(); }
+
+		LogConfig & config () { return m_lw->config(); }
+		LogConfig const & config () const { return m_lw->config(); }
 		void loadConfig (QString const & preset_dir) { m_lw->loadConfig(preset_dir); }
 		void saveConfig (QString const & preset_dir) { m_lw->saveConfig(preset_dir); }
 		void applyConfig () { m_lw->applyConfig(); }
@@ -334,11 +339,24 @@ namespace logs {
 		void commitCommands (E_ReceiveMode mode) { m_lw->commitCommands(mode); }
 		void setupNewLogModel () { m_lw->setupNewLogModel(); }
 
+		void linkToSource (LogWidgetWithButtons * src);
+		bool isLinkedWidget () const { return m_linked_parent != 0; }
+
+		void loadAuxConfigs () { m_lw->loadAuxConfigs(); }
+		void setupLogModel (LogTableModel * src_model) { m_lw->setupLogModel(src_model); }
+		//void setFindProxyModel (FindConfig const & fc) { m_lw->setFindProxyModel(fc); }
+
+
 		//FindWidget * findWidget () { return m_lw->findWidget(); }
 		//FindWidget const * findWidget () const { return m_lw->findWidget(); }
 
 	public slots:
-		void onHideContextMenu () { m_lw->onHideContextMenu(); }*/
+		void onHideContextMenu () { m_lw->onHideContextMenu(); }
+	protected:
+		LogWidgetWithButtons * m_linked_parent; // @TODO: move to LogWidgetWithButtons
+		typedef std::vector<LogWidgetWithButtons *> linked_widgets_t;
+		linked_widgets_t m_linked_widgets;
+		Connection * m_connection;
 	};
 }
 

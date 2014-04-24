@@ -4,7 +4,7 @@
 
 namespace logs {
 
-bool LogWidget::handleAction (Action * a, E_ActionHandleType sync)
+bool LogTableView::handleAction (Action * a, E_ActionHandleType sync)
 {
 	switch (a->type())
 	{
@@ -36,7 +36,7 @@ bool LogWidget::handleAction (Action * a, E_ActionHandleType sync)
 	return false;
 }
 
-void LogWidget::onTableClicked (QModelIndex const & row_index)
+void LogTableView::onTableClicked (QModelIndex const & row_index)
 {
 	autoScrollOff();
 
@@ -49,7 +49,7 @@ void LogWidget::onTableClicked (QModelIndex const & row_index)
 	findTableIndexInFilters(current, scroll_to_item, expand);
 }
 
-void LogWidget::onTableFontToolButton ()
+void LogTableView::onTableFontToolButton ()
 {
 	/*
 	bool ok = false;
@@ -71,12 +71,12 @@ void LogWidget::onTableFontToolButton ()
 }
 
 
-void LogWidget::onNextToView ()
+void LogTableView::onNextToView ()
 {
 	nextToView();
 }
 
-void LogWidget::findTableIndexInFilters (QModelIndex const & src_idx, bool scroll_to_item, bool expand)
+void LogTableView::findTableIndexInFilters (QModelIndex const & src_idx, bool scroll_to_item, bool expand)
 {
 	DecodedCommand const * dcmd = getDecodedCommand(src_idx);
 	if (dcmd)
@@ -109,7 +109,7 @@ void LogWidget::findTableIndexInFilters (QModelIndex const & src_idx, bool scrol
 	}
 }
 
-void LogWidget::colorRow (int)
+void LogTableView::colorRow (int)
 {
 	QModelIndex current = currentIndex();
 	if (isModelProxy())
@@ -126,14 +126,14 @@ void LogWidget::colorRow (int)
 	}
 }
 
-/*void LogWidget::onClearCurrentView ()
+/*void LogTableView::onClearCurrentView ()
 {
 	LogTableModel * model = static_cast<LogTableModel *>(m_proxy_model ? m_proxy_model->sourceModel() : m_src_model);
 	//excludeContentToRow(model->rowCount());
 	//onInvalidateFilter();
 }*/
 
-void LogWidget::excludeFile (QModelIndex const & src_index)
+void LogTableView::excludeFile (QModelIndex const & src_index)
 {
 	if (filterMgr()->getFilterFileLine())
 	{
@@ -160,7 +160,7 @@ void LogWidget::excludeFile (QModelIndex const & src_index)
 	}
 }
 
-void LogWidget::onExcludeFile ()
+void LogTableView::onExcludeFile ()
 {
 	QModelIndexList l;
 	QModelIndexList src_list;
@@ -183,7 +183,7 @@ void LogWidget::onExcludeFile ()
 	}
 }
 
-void LogWidget::excludeFileLine (QModelIndex const & src_index)
+void LogTableView::excludeFileLine (QModelIndex const & src_index)
 {
 	if (filterMgr()->getFilterFileLine())
 	{
@@ -210,7 +210,7 @@ void LogWidget::excludeFileLine (QModelIndex const & src_index)
 	}
 }
 
-void LogWidget::onExcludeFileLine ()
+void LogTableView::onExcludeFileLine ()
 {
 	QModelIndexList l;
 	QModelIndexList src_list;
@@ -233,7 +233,7 @@ void LogWidget::onExcludeFileLine ()
 	}
 }
 
-void LogWidget::excludeRow (QModelIndex const & src_index)
+void LogTableView::excludeRow (QModelIndex const & src_index)
 {
 	if (!filterMgr()->getFilterRow())
 	{
@@ -255,7 +255,7 @@ void LogWidget::excludeRow (QModelIndex const & src_index)
 	}
 }
 
-void LogWidget::onExcludeRow ()
+void LogTableView::onExcludeRow ()
 {
 	QModelIndexList l;
 	QModelIndexList src_list;
@@ -277,7 +277,7 @@ void LogWidget::onExcludeRow ()
 			excludeRow(index);
 	}
 }
-void LogWidget::onLocateRow ()
+void LogTableView::onLocateRow ()
 {
 	QModelIndex current = currentIndex();
 	if (isModelProxy())
@@ -295,14 +295,14 @@ void LogWidget::onLocateRow ()
 	m_config_ui.ui()->stackedWidget->setCurrentWidget(m_config_ui.ui()->filtersPage);
 	// @TODO: locate in colorizer row
 }
-void LogWidget::onColorFileLine ()
+void LogTableView::onColorFileLine ()
 {
 }
-void LogWidget::onColorRow ()
+void LogTableView::onColorRow ()
 {
 	colorRow(0);
 }
-void LogWidget::onUncolorRow ()
+void LogTableView::onUncolorRow ()
 {
 	QModelIndex current = currentIndex();
 	if (isModelProxy())
@@ -319,7 +319,7 @@ void LogWidget::onUncolorRow ()
 	}
 }
 
-void LogWidget::onChangeTimeUnits (int)
+void LogTableView::onChangeTimeUnits (int)
 {
 	QString const & curr = m_timeComboBox->comboBox()->currentText();
 	float const t = stringToUnitsValue(curr);
@@ -328,7 +328,7 @@ void LogWidget::onChangeTimeUnits (int)
 	onInvalidateFilter(); // TODO: invalidate only column?
 }
 
-void LogWidget::onSetRefTime ()
+void LogTableView::onSetRefTime ()
 {
 	if (m_setRefTimeButton->isChecked())
 	{
@@ -347,7 +347,7 @@ void LogWidget::onSetRefTime ()
 	}
 }
 
-void LogWidget::onGotoPrevErr ()
+void LogTableView::onGotoPrevErr ()
 {
 	FindConfig fc;
 	fc.m_next = 0;
@@ -361,7 +361,7 @@ void LogWidget::onGotoPrevErr ()
 	fc.m_str = "Error";
 	findAndSelectPrev(fc);
 }
-void LogWidget::onGotoNextErr ()
+void LogTableView::onGotoNextErr ()
 {
 	FindConfig fc;
 	fc.m_next = 1;
@@ -375,7 +375,7 @@ void LogWidget::onGotoNextErr ()
 	fc.m_str = "Error";
 	findAndSelectNext(fc);
 }
-void LogWidget::onGotoPrevWarn ()
+void LogTableView::onGotoPrevWarn ()
 {
 	FindConfig fc;
 	fc.m_next = 0;
@@ -389,7 +389,7 @@ void LogWidget::onGotoPrevWarn ()
 	fc.m_str = "Warning";
 	findAndSelectPrev(fc);
 }
-void LogWidget::onGotoNextWarn ()
+void LogTableView::onGotoNextWarn ()
 {
 	FindConfig fc;
 	fc.m_next = 1;
@@ -404,7 +404,7 @@ void LogWidget::onGotoNextWarn ()
 	findAndSelectNext(fc);
 }
 
-void LogWidget::onHidePrev ()
+void LogTableView::onHidePrev ()
 {
 	bool const checked = m_hidePrevButton->isChecked();
 
@@ -428,7 +428,7 @@ void LogWidget::onHidePrev ()
 
 	onInvalidateFilter(); //@TODO: should be done by filter?
 }
-void LogWidget::onHideNext () //@TODO: dedup
+void LogTableView::onHideNext () //@TODO: dedup
 {
 	bool const checked = m_hidePrevButton->isChecked();
 
@@ -454,7 +454,7 @@ void LogWidget::onHideNext () //@TODO: dedup
 }
 
 
-void LogWidget::onTableDoubleClicked (QModelIndex const & row_index)
+void LogTableView::onTableDoubleClicked (QModelIndex const & row_index)
 {
 	qDebug("%s this=0x%08x", __FUNCTION__, this);
 	if (m_config.m_sync_group == 0)

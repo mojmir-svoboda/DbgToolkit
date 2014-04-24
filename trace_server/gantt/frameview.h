@@ -69,7 +69,7 @@ private slots:
 public:
 	QwtPlot * m_plot;
 	BarPlot * m_bars;
-	FrameViewConfig & m_config;
+	FrameViewConfig m_config;
 	frameview::CtxFrameViewConfig m_config_ui;
 
 	Q_OBJECT
