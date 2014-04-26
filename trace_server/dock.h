@@ -7,10 +7,7 @@
 struct DockedWidgetBase : ActionAble {
 	//Q_OBJECT
 public:
-	DockedWidgetBase (QStringList const & path)
-		: ActionAble(path)
-		, m_dockwidget(0)
-	{ }
+	DockedWidgetBase (QStringList const & path);
 	virtual ~DockedWidgetBase () { }
 
 	//virtual DockedConfigBase const & dockedConfig () const = 0;

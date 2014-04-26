@@ -24,7 +24,7 @@ void FilterProxyModel::resizeToCfg (logs::LogConfig const & config)
   //@TODO: dedup: logtablemodel, findproxy, filterproxy
 	if (config.m_columns_setup.size() > m_column_count)
 	{
-		int const last = config.m_columns_setup.size() - 1;
+		int const last = static_cast<int>(config.m_columns_setup.size()) - 1;
 		beginInsertColumns(QModelIndex(), m_column_count, last);
 		insertColumns(m_column_count, last);
 		m_column_count = last + 1;
@@ -32,7 +32,7 @@ void FilterProxyModel::resizeToCfg (logs::LogConfig const & config)
 	}
   else if (config.m_columns_setup.size() < m_column_count)
 	{
-		int const last = config.m_columns_setup.size() + 1;
+		size_t const last = static_cast<int>(config.m_columns_setup.size()) + 1;
 		beginRemoveColumns(QModelIndex(), last, m_column_count);
 		removeColumns(last, m_column_count);
 		m_column_count = last - 1;
@@ -99,16 +99,16 @@ void FilterProxyModel::clearModelData ()
 void FilterProxyModel::commitBatchToModel (int src_from, int src_to, BatchCmd const & batch)
 {
 	int const rows = src_to - src_from;
-	int const from = m_map_from_tgt.size();
+	int const from = static_cast<int>(m_map_from_tgt.size());
 
 	m_map_from_src.reserve(m_log_widget.m_src_model->rowCount());
 
-	QVector<int> accepted_rows; // grr
+	std::vector<int> accepted_rows; // grr @FIXME
 	accepted_rows.reserve(32);
-	int tgt_idx = m_map_from_tgt.size();
+	size_t tgt_idx = m_map_from_tgt.size();
 	for (size_t src_idx = src_from; src_idx < src_to; ++src_idx)
 	{
-		if (filterAcceptsRow(src_idx, QModelIndex()))
+		if (filterAcceptsRow(static_cast<int>(src_idx), QModelIndex()))
 		{
 			accepted_rows.push_back(src_idx);
 			m_map_from_src.insert(std::make_pair(src_idx, tgt_idx));
@@ -131,14 +131,14 @@ void FilterProxyModel::commitBatchToModel (int src_from, int src_to, BatchCmd co
 	//@FIXME l8r: this does not work in general!
 	if (m_cmap_from_src.size() < m_log_widget.m_src_model->columnCount())
 	{
-		int const from = m_cmap_from_src.size();
+		size_t const from = m_cmap_from_src.size();
 		m_cmap_from_tgt.clear();
 		m_cmap_from_src.clear();
 		m_cmap_from_src.reserve(m_log_widget.m_src_model->columnCount());
 		int ctgt_idx = 0;
 		for (size_t src_idx = 0, se = m_log_widget.m_src_model->columnCount(); src_idx < se; ++src_idx)
 		{
-			if (filterAcceptsColumn(src_idx, QModelIndex()))
+			if (filterAcceptsColumn(static_cast<int>(src_idx), QModelIndex()))
 			{
 				m_cmap_from_src.insert(std::make_pair(src_idx, ctgt_idx));
 				++ctgt_idx;

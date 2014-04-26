@@ -9,7 +9,7 @@
 
 bool Connection::handlePlotCommand (DecodedCommand const & cmd, E_ReceiveMode mode)
 {
-	if (m_main_window->plotState() == e_FtrDisabled)
+	if (getClosestFeatureState(e_data_plot) == e_FtrDisabled)
 		return true;
 
 	QString tag;

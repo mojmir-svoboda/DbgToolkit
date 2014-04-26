@@ -185,7 +185,7 @@ QModelIndex LogTableView::moveCursor (CursorAction cursor_action, Qt::KeyboardMo
 
 		unsigned long long const t = m_log_widget.m_src_model->row_stime(mod_idx.row());
 
-		emit requestSynchronization(e_SyncServerTime, m_config.m_sync_group, t, this);
+		m_log_widget.emitRequestSynchronization(e_SyncServerTime, m_config.m_sync_group, t, this); // this is ignored in the call
 		scrollTo(curr_idx, QAbstractItemView::PositionAtCenter);
 		//qDebug("table: pxy findNearestTime curr_idx=(%i, %i)  mod_idx=(%i, %i)", curr_idx.column(), curr_idx.row(), mod_idx.column(), mod_idx.row());
 		return curr_idx;
@@ -651,8 +651,8 @@ QModelIndex LogTableView::moveCursor (CursorAction cursor_action, Qt::KeyboardMo
 		}
 	
 		QStringList tgt;
-		int const nn = cfg.m_columns_setup.size();
-		for (int nj = 0; nj < nn; ++nj)
+		size_t const nn = cfg.m_columns_setup.size();
+		for (size_t nj = 0; nj < nn; ++nj)
 		{
 			tgt << cfg.m_columns_setup[nj];
 		}
@@ -672,7 +672,7 @@ QModelIndex LogTableView::moveCursor (CursorAction cursor_action, Qt::KeyboardMo
 		//void LogWidget::resizeSections ()
 		{
 			bool const old = blockSignals(true);
-			for (int c = 0, ce = cfg.m_columns_sizes.size(); c < ce; ++c)
+			for (int c = 0, ce = static_cast<int>(cfg.m_columns_sizes.size()); c < ce; ++c)
 			{
 				int const li = m_tableview->horizontalHeader()->logicalIndex(c);
 				m_tableview->horizontalHeader()->resizeSection(li, cfg.m_columns_sizes.at(c));
@@ -1125,7 +1125,7 @@ void LogWidget::commitBatchToLinkedWidgets (int src_from, int src_to, BatchCmd c
     DockedWidgetBase * child = *it;
 	if (child->type() == e_data_log)
 	{
-		LogWidget * lw = qobject_cast<LogWidget *>(child->dockedWidget());
+		LogWidget * lw = static_cast<LogWidget *>(child);
 		lw->commitBatchToLinkedModel(src_from, src_to, batch);  
 	}
   }

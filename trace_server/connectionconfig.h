@@ -9,6 +9,10 @@ struct ConnectionConfig
 	bool	  m_buffered;
 	bool	  m_show;
 	int		  m_level;
+	int		  m_logs_recv_level;
+	int		  m_plots_recv_level;
+	int		  m_tables_recv_level;
+	int		  m_gantts_recv_level;
 	QString	  m_time_units_str;
 	float	  m_time_units;
 	QString	  m_font;
@@ -24,6 +28,10 @@ struct ConnectionConfig
 		, m_buffered(true)
 		, m_show(true)
 		, m_level(3)
+		, m_logs_recv_level(2)
+		, m_plots_recv_level(0)
+		, m_tables_recv_level(0)
+		, m_gantts_recv_level(0)
 		, m_time_units_str("ms")
 		, m_time_units(stringToUnitsValue(m_time_units_str))
 		, m_font("Verdana")

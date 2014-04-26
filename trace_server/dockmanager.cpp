@@ -70,9 +70,9 @@ void DockManager::loadConfig (QString const & cfgpath)
 
 void DockManager::applyConfig ()
 {
-	for (int i = 0, ie = m_config.m_columns_sizes.size(); i < ie; ++i)
+	for (size_t i = 0, ie = m_config.m_columns_sizes.size(); i < ie; ++i)
 	{
-		header()->resizeSection(i, m_config.m_columns_sizes[i]);
+		header()->resizeSection(static_cast<int>(i), m_config.m_columns_sizes[i]);
 	}
 
 	if (m_model)
@@ -206,7 +206,7 @@ DockedWidgetBase * DockManager::findDockable (QString const & dst_joined)
 void DockManager::onColumnResized (int idx, int , int new_size)
 {
 	if (idx < 0) return;
-	int const curr_sz = m_config.m_columns_sizes.size();
+	size_t const curr_sz = m_config.m_columns_sizes.size();
 	if (idx < curr_sz)
 	{
 		//qDebug("%s this=0x%08x hsize[%i]=%i", __FUNCTION__, this, idx, new_size);
@@ -214,7 +214,7 @@ void DockManager::onColumnResized (int idx, int , int new_size)
 	else
 	{
 		m_config.m_columns_sizes.resize(idx + 1);
-		for (int i = curr_sz; i < idx + 1; ++i)
+		for (size_t i = curr_sz; i < idx + 1; ++i)
 			m_config.m_columns_sizes[i] = 32;
 	}
 	m_config.m_columns_sizes[idx] = new_size;

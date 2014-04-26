@@ -70,6 +70,7 @@ set(trace_server_SOURCES
 	server_filtering.cpp
 	filterwidget.cpp
 	connection.cpp
+	connectionconfig.cpp
 	connection_stream.cpp
 	connection_setup.cpp
 	connection_controlwidget.cpp

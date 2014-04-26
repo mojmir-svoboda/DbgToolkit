@@ -46,7 +46,7 @@ namespace logs {
 		LogConfig & m_config;
 	};
 
-	class LogWidget : public DockedWidgetBase, public QFrame
+	class LogWidget : public QFrame, public DockedWidgetBase
 	{
 		Q_OBJECT
 	public:
@@ -96,7 +96,7 @@ namespace logs {
 		friend class FilterProxyModel;
 		friend class FindProxyModel;
 		friend struct LogCtxMenu;
-		friend struct LogDelegate;
+		friend class LogDelegate;
 		friend class LogWidget;
 		friend class LogTableView;
 
@@ -193,6 +193,7 @@ namespace logs {
 		void scrollToCurrentSelection ();
 		void scrollToCurrentTagOrSelection ();
 		void nextToView ();
+		void emitRequestSynchronization (E_SyncMode mode, int sync_group, unsigned long long time, void * source) { emit requestSynchronization(mode, sync_group, time, this); }
 
 		FilterState & filterState () { return m_filter_state; }
 		FilterState const & filterState () const { return m_filter_state; }

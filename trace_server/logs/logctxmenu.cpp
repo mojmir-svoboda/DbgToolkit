@@ -480,22 +480,22 @@ void LogCtxMenu::onClickedAtApplyButton ()
 			{
 				QModelIndex const row_idx = m_ui->listViewColumnSetup->model()->index(j, 0, QModelIndex());
 				QString const & d = m_ui->listViewColumnSetup->model()->data(row_idx).toString();
-				config.m_columns_setup.append(d);
+				config.m_columns_setup.push_back(d);
 			}
 
 			{
 				QModelIndex const row_idx = m_ui->listViewColumnSizes->model()->index(j, 0, QModelIndex());
-				config.m_columns_sizes.append(m_ui->listViewColumnSizes->model()->data(row_idx).toString().toInt());
+				config.m_columns_sizes.push_back(m_ui->listViewColumnSizes->model()->data(row_idx).toString().toInt());
 			}
 
 			{
 				QModelIndex const row_idx = m_ui->listViewColumnAlign->model()->index(j, 0, QModelIndex());
-				config.m_columns_align.append(m_ui->listViewColumnAlign->model()->data(row_idx).toString());
+				config.m_columns_align.push_back(m_ui->listViewColumnAlign->model()->data(row_idx).toString());
 			}
 
 			{
 				QModelIndex const row_idx = m_ui->listViewColumnElide->model()->index(j, 0, QModelIndex());
-				config.m_columns_elide.append(m_ui->listViewColumnElide->model()->data(row_idx).toString());
+				config.m_columns_elide.push_back(m_ui->listViewColumnElide->model()->data(row_idx).toString());
 			}
 		}
 	}

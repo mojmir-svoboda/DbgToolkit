@@ -30,7 +30,7 @@ void LogTableModel::resizeToCfg (logs::LogConfig const & config)
 	//@TODO: dedup: logtablemodel, findproxy, filterproxy
 	if (config.m_columns_setup.size() > m_column_count)
 	{
-		int const last = config.m_columns_setup.size() - 1;
+		int const last = static_cast<int>(config.m_columns_setup.size()) - 1;
 		beginInsertColumns(QModelIndex(), m_column_count, last);
 		insertColumns(m_column_count, last);
 		m_column_count = last + 1;
@@ -38,7 +38,7 @@ void LogTableModel::resizeToCfg (logs::LogConfig const & config)
 	}
 	else if (config.m_columns_setup.size() < m_column_count)
 	{
-		int const last = config.m_columns_setup.size() + 1;
+		int const last = static_cast<int>(config.m_columns_setup.size()) + 1;
 		beginRemoveColumns(QModelIndex(), last, m_column_count);
 		removeColumns(last, m_column_count);
 		m_column_count = last - 1;
@@ -121,15 +121,15 @@ LogTableModel * LogTableModel::cloneToNewModel (FindConfig const & fc)
 
 void LogTableModel::commitBatchToModel ()
 {
-	int const rows = m_batch.m_rows.size();
-	int const from = m_rows.size();
+	size_t const rows = m_batch.m_rows.size();
+	size_t const from = m_rows.size();
 	m_dcmds.resize(from + rows);
 	m_rows.resize(from + rows);
 	m_row_ctimes.resize(from + rows);
 	m_row_stimes.resize(from + rows);
-	int const to = from + rows - 1;
-	beginInsertRows(QModelIndex(), from, to);
-	for (int r = 0, re = m_batch.m_rows.size(); r < re; ++r)
+	int const to = static_cast<int>(from) + static_cast<int>(rows) - 1;
+	beginInsertRows(QModelIndex(), static_cast<int>(from), to);
+	for (size_t r = 0, re = m_batch.m_rows.size(); r < re; ++r)
 	{
 		m_rows[from + r] = m_batch.m_rows[r];
 		m_dcmds[from + r] = m_batch.m_dcmds[r];

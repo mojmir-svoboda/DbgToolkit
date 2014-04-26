@@ -45,7 +45,7 @@ class TableModel : public QAbstractTableModel
 {
 	//Q_OBJECT
 public:
-	explicit TableModel (QObject * parent, QVector<QString> & hhdr, QVector<int> & hsize);
+	explicit TableModel (QObject * parent, std::vector<QString> & hhdr, std::vector<int> & hsize);
 	~TableModel ();
 	int rowCount (const QModelIndex & parent = QModelIndex()) const;
 	int columnCount (const QModelIndex & parent = QModelIndex()) const;
@@ -83,8 +83,8 @@ protected:
 	times_t m_col_times;
 	rows_t m_rows;
 	int m_column_count;
-	QVector<QString> & m_hhdr;
-	QVector<int> & m_hsize;
+	std::vector<QString> & m_hhdr;
+	std::vector<int> & m_hsize;
 	QAbstractProxyModel * m_proxy;
 };
 

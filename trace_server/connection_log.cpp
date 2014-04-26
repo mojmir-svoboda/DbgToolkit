@@ -22,6 +22,8 @@ datalogs_t::iterator Connection::findOrCreateLog (QString const & tag)
 // @FIXME: dodelat!!!!!!!!
 bool Connection::handleLogCommand (DecodedCommand const & cmd, E_ReceiveMode mode)
 {
+	if (getClosestFeatureState(e_data_log) == e_FtrDisabled) return true;
+
 	//QString const tag(g_MainLogName); // @FIXME
 	QString const tag("messages"); // @FIXME
 	//int const slash_pos = tag.lastIndexOf(QChar('/'));
@@ -36,6 +38,7 @@ bool Connection::handleLogCommand (DecodedCommand const & cmd, E_ReceiveMode mod
 
 bool Connection::handleLogClearCommand (DecodedCommand const & cmd, E_ReceiveMode mode)
 {
+	if (getClosestFeatureState(e_data_log) == e_FtrDisabled) return true;
 	return true;
 }
 

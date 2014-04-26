@@ -33,7 +33,7 @@ bool Connection::handleTableXYCommand (DecodedCommand const & cmd, E_ReceiveMode
 			bgc = cmd.m_tvs[i].m_val;
 	}
 
-	if (m_main_window->tableState() != e_FtrDisabled)
+	if (getClosestFeatureState(e_data_table) != e_FtrDisabled)
 	{
 		appendTableXY(x, y, time, fgc, bgc, tag);
 	}
@@ -68,7 +68,7 @@ bool Connection::handleTableSetupCommand (DecodedCommand const & cmd, E_ReceiveM
 
 	//qDebug("table: setup hdr: x=%i y=%i hhdr=%s fg=%s bg=%s", x, y, hhdr.toStdString().c_str(), fgc.toStdString().c_str(), bgc.toStdString().c_str());
 
-	if (m_main_window->tableState() != e_FtrDisabled)
+	if (getClosestFeatureState(e_data_table) != e_FtrDisabled)
 		appendTableSetup(x, y, time, fgc, bgc, hhdr, tag);
 	return true;
 }
@@ -140,7 +140,7 @@ datatables_t::iterator Connection::findOrCreateTable (QString const & tag)
 		(*it)->setSelectionMode(QAbstractItemView::SingleSelection);
 		QObject::connect((*it)->horizontalHeader(), SIGNAL(sectionResized(int, int, int)), *it, SLOT(onSectionResized(int, int, int)));
 
-		if (m_main_window->tableState() == e_FtrEnabled && (*it)->config().m_show)
+		if (getClosestFeatureState(e_data_table) == e_FtrEnabled && (*it)->config().m_show)
 		{
 			//(*it)->show();
 		}
@@ -190,7 +190,7 @@ bool Connection::handleTableClearCommand (DecodedCommand const & cmd, E_ReceiveM
 			msg = cmd.m_tvs[i].m_val;
 	}
 
-	if (m_main_window->plotState() != e_FtrDisabled)
+	if (getClosestFeatureState(e_data_table) != e_FtrDisabled)
 	{
 		QString tag = msg;
 		int const slash_pos = tag.lastIndexOf(QChar('/'));

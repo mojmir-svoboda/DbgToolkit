@@ -5,7 +5,7 @@
 #include "utils_history.h"
 #include <ui_controlbarcommon.h>
 
-inline QString Connection::getClosestPresetName (QString const & tag)
+QString Connection::getClosestPresetName (QString const & tag)
 {
 	// bit clumsy, but no time to loose
 	QString preset_name;
@@ -17,7 +17,38 @@ inline QString Connection::getClosestPresetName (QString const & tag)
 		preset_name = parent_name;
 	else
 		preset_name = g_defaultPresetName;
+	return preset_name;
 }
+
+E_FeatureStates Connection::getClosestFeatureState (E_DataWidgetType type) const
+{
+	switch (type)
+	{
+		case e_data_log: return static_cast<E_FeatureStates>(m_control_bar->ui->logSlider->value());
+		case e_data_plot: return static_cast<E_FeatureStates>(m_control_bar->ui->plotSlider->value());
+		case e_data_table: return static_cast<E_FeatureStates>(m_control_bar->ui->tableSlider->value());
+		case e_data_gantt: return static_cast<E_FeatureStates>(m_control_bar->ui->ganttSlider->value());
+		case e_data_frame: return static_cast<E_FeatureStates>(m_control_bar->ui->ganttSlider->value());
+	}
+}
+
+void Connection::onLogsStateChanged (int state)
+{
+	m_config.m_logs_recv_level = state;
+}
+void Connection::onPlotsStateChanged (int state)
+{
+	m_config.m_plots_recv_level = state;
+}
+void Connection::onTablesStateChanged (int state)
+{
+	m_config.m_tables_recv_level = state;
+}
+void Connection::onGanttsStateChanged (int state)
+{
+	m_config.m_gantts_recv_level = state;
+}
+
 
 void Connection::onLevelValueChanged (int val)
 {

@@ -8,6 +8,7 @@
 #include "server.h"
 #include "delegates.h"
 #include "tableview.h"
+#include <ui_controlbarcommon.h>
 
 GlobalConfig const & Connection::getGlobalConfig () const { return m_main_window->getConfig(); }
 
@@ -51,6 +52,11 @@ Connection::Connection (QString const & app_name, QObject * parent)
 	static int counter = 0;
 	m_storage_idx = counter;
 	++counter;
+
+	connect(m_control_bar->ui->logSlider, SIGNAL(valueChanged(int)), this, SLOT(onLogsStateChanged(int)));
+	connect(m_control_bar->ui->plotSlider, SIGNAL(valueChanged(int)), this, SLOT(onPlotStateChanged(int)));
+	connect(m_control_bar->ui->tableSlider, SIGNAL(valueChanged(int)), this, SLOT(onTablesStateChanged(int)));
+	connect(m_control_bar->ui->ganttSlider, SIGNAL(valueChanged(int)), this, SLOT(onGanttsStateChanged(int)));
 }
 
 namespace {
@@ -274,3 +280,9 @@ void Connection::exportStorageToCSV (QString const & dir)
 	recurse(m_data, ExportAsCSV(dir));
 }
 
+
+bool Connection::handleAction (Action * a, E_ActionHandleType sync)
+{
+	//recurse(m_data, HandleAction(a, sync));
+	return true;
+}

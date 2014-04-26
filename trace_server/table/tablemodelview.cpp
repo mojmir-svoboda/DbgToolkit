@@ -5,7 +5,7 @@
 #include <trace_client/trace.h>
 #include <sysfn/time_query.h>
 
-TableModel::TableModel (QObject * parent, QVector<QString> & hhdr, QVector<int> & hsize)
+TableModel::TableModel (QObject * parent, std::vector<QString> & hhdr, std::vector<int> & hsize)
 	: QAbstractTableModel(parent)
 	, m_column_count(0)
 	, m_hhdr(hhdr)
@@ -17,7 +17,7 @@ TableModel::TableModel (QObject * parent, QVector<QString> & hhdr, QVector<int> 
 
 	if (hsize.size() > 0)
 	{
-		int const last = hsize.size() - 1;
+		int const last = static_cast<int>(hsize.size()) - 1;
 		beginInsertColumns(QModelIndex(), m_column_count, last);
 		insertColumns(m_column_count, last);
 		m_column_count = last + 1;
@@ -30,7 +30,7 @@ TableModel::~TableModel ()
 	qDebug("%s", __FUNCTION__);
 }
 
-int TableModel::rowCount (QModelIndex const & /*parent*/) const { return m_rows.size(); }
+int TableModel::rowCount (QModelIndex const & /*parent*/) const { return static_cast<int>(m_rows.size()); }
 
 int TableModel::columnCount (QModelIndex const & /*parent*/) const
 {

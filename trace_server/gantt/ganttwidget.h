@@ -20,7 +20,7 @@ QT_FORWARD_DECLARE_CLASS(FilterWidget)
 namespace gantt {
 	QT_FORWARD_DECLARE_CLASS(GanttView)
 	QT_FORWARD_DECLARE_CLASS(FrameView)
-	QT_FORWARD_DECLARE_CLASS(CtxGanttConfig)
+	struct CtxGanttConfig;
 }
 
 namespace gantt {

@@ -101,6 +101,7 @@ public:
 	template <int TypeN>
 	bool dataWidgetConfigPreload (QString const tag, typename SelectConfig<TypeN>::type & config);
 	QString getClosestPresetName (QString const & tag);
+	E_FeatureStates getClosestFeatureState (E_DataWidgetType type) const;
 	void mkWidgetPath (E_DataWidgetType type, QString const tag, QStringList & path);
 
 	template <int TypeN>

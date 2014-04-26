@@ -69,12 +69,6 @@ public:
 	bool dumpModeEnabled () const { return m_config.m_dump_mode; }
 	unsigned getHotKey () const;
 	bool onTopEnabled () const;
-	// per connection config
-	//void setLevel (int i);
-	int logState () const;
-	int plotState () const;
-	int tableState () const;
-	int ganttState () const;
 
 	// drag and drop
 	void changeEvent (QEvent * e);

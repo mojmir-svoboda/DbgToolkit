@@ -136,14 +136,14 @@ namespace logs {
 		QStyleOptionViewItemV4 option4 = option;
 		initStyleOption(&option4, index);
 
-		QVector<QString> const & column_aligns = m_log_widget.config().m_columns_align;
+		std::vector<QString> const & column_aligns = m_log_widget.config().m_columns_align;
 		if (index.column() < column_aligns.size())
 		{
 			E_Align const align = stringToAlign(column_aligns[index.column()].at(0).toLatin1());
 			option4.displayAlignment = static_cast<Qt::Alignment>(1 << align);
 		}
 
-		QVector<QString> const & column_elides = m_log_widget.config().m_columns_elide;
+		std::vector<QString> const & column_elides = m_log_widget.config().m_columns_elide;
 		if (index.column() < column_elides.size())
 		{
 			E_Elide const elide = stringToElide(column_elides[index.column()].at(0).toLatin1());

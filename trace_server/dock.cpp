@@ -3,6 +3,11 @@
 #include <QMainWindow>
 #include "mainwindow.h"
 
+DockedWidgetBase::DockedWidgetBase (QStringList const & path)
+	: ActionAble(path)
+	, m_dockwidget(0)
+{ }
+
 DockWidget::DockWidget (DockManager & mgr, QString const & name, QMainWindow * const window)
 	: QDockWidget(name, window)
 	, m_mgr(mgr)

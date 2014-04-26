@@ -10,10 +10,10 @@ namespace table {
 	{
 		QString m_tag;
 		QString m_title;
-		QVector<QString> m_hhdr;
-		QVector<int> m_hsize;
-		QVector<QString> m_vhdr;
-		QVector<int> m_vsize;
+		std::vector<QString> m_hhdr;
+		std::vector<int> m_hsize;
+		std::vector<QString> m_vhdr;
+		std::vector<int> m_vsize;
 
 		bool m_hide_empty;
 		bool m_unused_b2;

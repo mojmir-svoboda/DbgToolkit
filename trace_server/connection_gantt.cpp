@@ -32,7 +32,7 @@ bool Connection::handleGanttClearCommand (DecodedCommand const & cmd, E_ReceiveM
 			msg = cmd.m_tvs[i].m_val;
 	}
 
-	if (m_main_window->plotState() != e_FtrDisabled)
+	if (getClosestFeatureState(e_data_gantt) != e_FtrDisabled)
 	{
 		QString tag = msg;
 		int const slash_pos = tag.lastIndexOf(QChar('/'));
@@ -95,7 +95,7 @@ bool Connection::handleGanttClearCommand (DecodedCommand const & cmd, E_ReceiveM
 
 	bool Connection::handleGanttBgnCommand (DecodedCommand const & cmd, E_ReceiveMode mode)
 	{
-		if (m_main_window->ganttState() == e_FtrDisabled)
+		if (getClosestFeatureState(e_data_gantt) == e_FtrDisabled)
 			return true;
 
 		gantt::DecodedData dd;
@@ -110,7 +110,7 @@ bool Connection::handleGanttClearCommand (DecodedCommand const & cmd, E_ReceiveM
 
 	bool Connection::handleGanttEndCommand (DecodedCommand const & cmd, E_ReceiveMode mode)
 	{
-		if (m_main_window->ganttState() == e_FtrDisabled)
+		if (getClosestFeatureState(e_data_gantt) == e_FtrDisabled)
 			return true;
 
 		gantt::DecodedData dd;
@@ -123,7 +123,7 @@ bool Connection::handleGanttClearCommand (DecodedCommand const & cmd, E_ReceiveM
 	}
 	bool Connection::handleGanttFrameBgnCommand (DecodedCommand const & cmd, E_ReceiveMode mode)
 	{
-		if (m_main_window->ganttState() == e_FtrDisabled)
+		if (getClosestFeatureState(e_data_gantt) == e_FtrDisabled)
 			return true;
 
 		gantt::DecodedData dd;
@@ -136,7 +136,7 @@ bool Connection::handleGanttClearCommand (DecodedCommand const & cmd, E_ReceiveM
 	}
 	bool Connection::handleGanttFrameEndCommand (DecodedCommand const & cmd, E_ReceiveMode mode)
 	{
-		if (m_main_window->ganttState() == e_FtrDisabled)
+		if (getClosestFeatureState(e_data_gantt) == e_FtrDisabled)
 			return true;
 
 		gantt::DecodedData dd;
