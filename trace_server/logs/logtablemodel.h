@@ -33,7 +33,7 @@ class Connection;
 class FilterState;
 class QAbstractProxyModel;
 
-namespace logs { class LogTableView; struct LogConfig; }
+namespace logs { class LogWidget; struct LogConfig; }
 
 typedef std::vector<DecodedCommand> dcmds_t;
 
@@ -56,7 +56,7 @@ struct BatchCmd {
 class LogTableModel : public TableModel
 {
 public:
-	explicit LogTableModel (QObject * parent, logs::LogTableView & lw);
+	explicit LogTableModel (QObject * parent, logs::LogWidget & lw);
 	~LogTableModel ();
 
 	void handleCommand (DecodedCommand const & cmd, E_ReceiveMode mode);
@@ -73,7 +73,7 @@ public:
 	void resizeToCfg (logs::LogConfig const & config);
 
 	FilterState const & filterState () const { return m_filter_state; }
-    logs::LogTableView const & logWidget () const { return m_log_widget; }
+    logs::LogWidget const & logWidget () const { return m_log_widget; }
 	dcmds_t const & dcmds () { return m_dcmds; }
 	LogTableModel * cloneToNewModel ();
 	LogTableModel * cloneToNewModel (FindConfig const & fc);
@@ -84,12 +84,12 @@ signals:
 public slots:
 
 protected:
-	friend class logs::LogTableView;
+	friend class logs::LogWidget;
 
 	void commitBatchToModel ();
 	void parseCommand (DecodedCommand const & cmd, E_ReceiveMode mode, BatchCmd & batch);
 
-	logs::LogTableView & m_log_widget;
+	logs::LogWidget & m_log_widget;
 	FilterState & m_filter_state;
 	
 	BatchCmd m_batch;

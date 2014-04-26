@@ -52,7 +52,7 @@ class QTextStream;
 char const * const g_fileTags[] =  { g_LogTag , g_PlotTag , g_TableTag , g_GanttTag , g_FrameTag  };
 char const * const g_fileNames[] = { g_LogFile, g_PlotFile, g_TableFile, g_GanttFile, g_FrameFile };
 
-typedef DockedWidgets< logs::LogWidgetWithButtons, logs::LogConfig 		> datalogs_t;
+typedef DockedWidgets< logs::LogWidget,            logs::LogConfig 		> datalogs_t;
 typedef DockedWidgets< plot::PlotWidget,           plot::PlotConfig     > dataplots_t;
 typedef DockedWidgets< table::TableWidget,         table::TableConfig 	> datatables_t;
 typedef DockedWidgets< gantt::GanttWidget,         gantt::GanttConfig   > datagantts_t;

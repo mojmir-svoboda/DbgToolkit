@@ -4,7 +4,7 @@
 
 namespace logs {
 
-bool LogTableView::handleAction (Action * a, E_ActionHandleType sync)
+bool LogWidget::handleAction (Action * a, E_ActionHandleType sync)
 {
 	switch (a->type())
 	{
@@ -36,7 +36,7 @@ bool LogTableView::handleAction (Action * a, E_ActionHandleType sync)
 	return false;
 }
 
-void LogTableView::onTableClicked (QModelIndex const & row_index)
+void LogWidget::onTableClicked (QModelIndex const & row_index)
 {
 	autoScrollOff();
 
@@ -49,7 +49,7 @@ void LogTableView::onTableClicked (QModelIndex const & row_index)
 	findTableIndexInFilters(current, scroll_to_item, expand);
 }
 
-void LogTableView::onTableFontToolButton ()
+void LogWidget::onTableFontToolButton ()
 {
 	/*
 	bool ok = false;
@@ -71,12 +71,12 @@ void LogTableView::onTableFontToolButton ()
 }
 
 
-void LogTableView::onNextToView ()
+void LogWidget::onNextToView ()
 {
 	nextToView();
 }
 
-void LogTableView::findTableIndexInFilters (QModelIndex const & src_idx, bool scroll_to_item, bool expand)
+void LogWidget::findTableIndexInFilters (QModelIndex const & src_idx, bool scroll_to_item, bool expand)
 {
 	DecodedCommand const * dcmd = getDecodedCommand(src_idx);
 	if (dcmd)
@@ -109,13 +109,9 @@ void LogTableView::findTableIndexInFilters (QModelIndex const & src_idx, bool sc
 	}
 }
 
-void LogTableView::colorRow (int)
+void LogWidget::colorRow (int)
 {
-	QModelIndex current = currentIndex();
-	if (isModelProxy())
-	{
-		current = m_proxy_model->mapToSource(current);
-	}
+	QModelIndex current = currentSourceIndex();
 
 	int const row = current.row(); // set search from this line
 	if (current.isValid())
@@ -126,14 +122,14 @@ void LogTableView::colorRow (int)
 	}
 }
 
-/*void LogTableView::onClearCurrentView ()
+/*void LogWidget::onClearCurrentView ()
 {
 	LogTableModel * model = static_cast<LogTableModel *>(m_proxy_model ? m_proxy_model->sourceModel() : m_src_model);
 	//excludeContentToRow(model->rowCount());
 	//onInvalidateFilter();
 }*/
 
-void LogTableView::excludeFile (QModelIndex const & src_index)
+void LogWidget::excludeFile (QModelIndex const & src_index)
 {
 	if (filterMgr()->getFilterFileLine())
 	{
@@ -160,7 +156,7 @@ void LogTableView::excludeFile (QModelIndex const & src_index)
 	}
 }
 
-void LogTableView::onExcludeFile ()
+void LogWidget::onExcludeFile ()
 {
 	QModelIndexList l;
 	QModelIndexList src_list;
@@ -183,7 +179,7 @@ void LogTableView::onExcludeFile ()
 	}
 }
 
-void LogTableView::excludeFileLine (QModelIndex const & src_index)
+void LogWidget::excludeFileLine (QModelIndex const & src_index)
 {
 	if (filterMgr()->getFilterFileLine())
 	{
@@ -210,7 +206,7 @@ void LogTableView::excludeFileLine (QModelIndex const & src_index)
 	}
 }
 
-void LogTableView::onExcludeFileLine ()
+void LogWidget::onExcludeFileLine ()
 {
 	QModelIndexList l;
 	QModelIndexList src_list;
@@ -233,7 +229,7 @@ void LogTableView::onExcludeFileLine ()
 	}
 }
 
-void LogTableView::excludeRow (QModelIndex const & src_index)
+void LogWidget::excludeRow (QModelIndex const & src_index)
 {
 	if (!filterMgr()->getFilterRow())
 	{
@@ -255,7 +251,7 @@ void LogTableView::excludeRow (QModelIndex const & src_index)
 	}
 }
 
-void LogTableView::onExcludeRow ()
+void LogWidget::onExcludeRow ()
 {
 	QModelIndexList l;
 	QModelIndexList src_list;
@@ -277,13 +273,9 @@ void LogTableView::onExcludeRow ()
 			excludeRow(index);
 	}
 }
-void LogTableView::onLocateRow ()
+void LogWidget::onLocateRow ()
 {
-	QModelIndex current = currentIndex();
-	if (isModelProxy())
-	{
-		current = m_proxy_model->mapToSource(current);
-	}
+	QModelIndex current = currentSourceIndex();
 
 	if (!current.isValid())
 		return;
@@ -295,20 +287,16 @@ void LogTableView::onLocateRow ()
 	m_config_ui.ui()->stackedWidget->setCurrentWidget(m_config_ui.ui()->filtersPage);
 	// @TODO: locate in colorizer row
 }
-void LogTableView::onColorFileLine ()
+void LogWidget::onColorFileLine ()
 {
 }
-void LogTableView::onColorRow ()
+void LogWidget::onColorRow ()
 {
 	colorRow(0);
 }
-void LogTableView::onUncolorRow ()
+void LogWidget::onUncolorRow ()
 {
-	QModelIndex current = currentIndex();
-	if (isModelProxy())
-	{
-		current = m_proxy_model->mapToSource(current);
-	}
+	QModelIndex current = currentSourceIndex();
 
 	int const row = current.row(); // set search from this line
 	if (current.isValid())
@@ -319,7 +307,7 @@ void LogTableView::onUncolorRow ()
 	}
 }
 
-void LogTableView::onChangeTimeUnits (int)
+void LogWidget::onChangeTimeUnits (int)
 {
 	QString const & curr = m_timeComboBox->comboBox()->currentText();
 	float const t = stringToUnitsValue(curr);
@@ -328,7 +316,7 @@ void LogTableView::onChangeTimeUnits (int)
 	onInvalidateFilter(); // TODO: invalidate only column?
 }
 
-void LogTableView::onSetRefTime ()
+void LogWidget::onSetRefTime ()
 {
 	if (m_setRefTimeButton->isChecked())
 	{
@@ -347,7 +335,7 @@ void LogTableView::onSetRefTime ()
 	}
 }
 
-void LogTableView::onGotoPrevErr ()
+void LogWidget::onGotoPrevErr ()
 {
 	FindConfig fc;
 	fc.m_next = 0;
@@ -361,7 +349,7 @@ void LogTableView::onGotoPrevErr ()
 	fc.m_str = "Error";
 	findAndSelectPrev(fc);
 }
-void LogTableView::onGotoNextErr ()
+void LogWidget::onGotoNextErr ()
 {
 	FindConfig fc;
 	fc.m_next = 1;
@@ -375,7 +363,7 @@ void LogTableView::onGotoNextErr ()
 	fc.m_str = "Error";
 	findAndSelectNext(fc);
 }
-void LogTableView::onGotoPrevWarn ()
+void LogWidget::onGotoPrevWarn ()
 {
 	FindConfig fc;
 	fc.m_next = 0;
@@ -389,7 +377,7 @@ void LogTableView::onGotoPrevWarn ()
 	fc.m_str = "Warning";
 	findAndSelectPrev(fc);
 }
-void LogTableView::onGotoNextWarn ()
+void LogWidget::onGotoNextWarn ()
 {
 	FindConfig fc;
 	fc.m_next = 1;
@@ -404,15 +392,11 @@ void LogTableView::onGotoNextWarn ()
 	findAndSelectNext(fc);
 }
 
-void LogTableView::onHidePrev ()
+void LogWidget::onHidePrev ()
 {
 	bool const checked = m_hidePrevButton->isChecked();
 
-	QModelIndex current = currentIndex();
-	if (isModelProxy())
-	{
-		current = m_proxy_model->mapToSource(current);
-	}
+	QModelIndex current = currentSourceIndex();
 
 	if (!current.isValid())
 		return;
@@ -428,15 +412,11 @@ void LogTableView::onHidePrev ()
 
 	onInvalidateFilter(); //@TODO: should be done by filter?
 }
-void LogTableView::onHideNext () //@TODO: dedup
+void LogWidget::onHideNext () //@TODO: dedup
 {
 	bool const checked = m_hidePrevButton->isChecked();
 
-	QModelIndex current = currentIndex();
-	if (isModelProxy())
-	{
-		current = m_proxy_model->mapToSource(current);
-	}
+	QModelIndex current = currentSourceIndex();
 
 	if (!current.isValid())
 		return;
@@ -454,7 +434,7 @@ void LogTableView::onHideNext () //@TODO: dedup
 }
 
 
-void LogTableView::onTableDoubleClicked (QModelIndex const & row_index)
+void LogWidget::onTableDoubleClicked (QModelIndex const & row_index)
 {
 	qDebug("%s this=0x%08x", __FUNCTION__, this);
 	if (m_config.m_sync_group == 0)

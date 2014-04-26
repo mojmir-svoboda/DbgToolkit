@@ -16,10 +16,10 @@ namespace logs {
 
 	struct LogCtxMenu : QObject
 	{
-		LogTableView & m_log_widget;
+		LogWidget & m_log_widget;
 		Ui::SettingsLog * m_ui;
 		QDockWidget * m_widget;
-		LogCtxMenu (LogTableView & cfg, QWidget * parent);
+		LogCtxMenu (LogWidget & cfg, QWidget * parent);
 
 		void onInViewStateChanged (int state)
 		{

@@ -19,81 +19,200 @@
 
 
 namespace logs {
-	LogWidgetWithButtons::LogWidgetWithButtons (Connection * conn, QString const & fname, QStringList const & path)
-		: DockedWidgetBase(path)
-		, m_lw(new LogTableView(conn, fname, path))
-		, m_linked_parent(0)
-		, m_connection(0)
-	{
-		qDebug("%s", __FUNCTION__);
-		QVBoxLayout * vLayout = new QVBoxLayout();
-		vLayout->setSpacing(1);
-		vLayout->setContentsMargins(0, 0, 0, 0);
-		vLayout->setObjectName(QString::fromUtf8("verticalLayout"));
-		setLayout(vLayout);
 
-		QWidget * cacheWidget = new QFrame();
-		ButtonCache * cacheLayout = new ButtonCache();
-		cacheLayout->setSpacing(1);
-		cacheLayout->setContentsMargins(0, 0, 0, 0);
-		cacheLayout->setObjectName(QString::fromUtf8("cacheLayout"));
-
-		cacheWidget->setLayout(cacheLayout);
-		vLayout->addWidget(cacheWidget);
-		vLayout->addWidget(m_lw);
-
-		m_lw->setButtonCache(cacheLayout);
-		m_lw->fillButtonCache();
-		m_lw->m_find_widget->setActionAbleWidget(this);
-	}
-
-	LogWidgetWithButtons::~LogWidgetWithButtons ()
-	{
-		qDebug("%s", __FUNCTION__);
-		if (m_linked_parent)
-		{
-			LogWidgetWithButtons * parent = qobject_cast<LogWidgetWithButtons *>(m_linked_parent);
-			if (parent)
-			{
-				parent->m_lw->unregisterLinkedWidget(this);
-			}
-		}
-
-		for (linked_widgets_t::iterator it = m_linked_widgets.begin(), ite = m_linked_widgets.end(); it != ite; ++it)
-		{
-			DockedWidgetBase * child = *it;
-			m_connection->destroyDockedWidget(child);
-		}
-		m_linked_widgets.clear();
-	}
-
-
-	LogTableView::LogTableView (Connection * conn, QString const & fname, QStringList const & path)
+	LogTableView::LogTableView (Connection * conn, LogWidget & logwidget, LogConfig & config)
 		: TableView(0)
 		, m_connection(conn)
+		, m_log_widget(logwidget)
+		, m_config(config)
+	{
+		setAutoScroll(false);
+		setHorizontalScrollMode(ScrollPerPixel);
+		horizontalHeader()->setSectionsMovable(true);
+
+		setStyleSheet("QTableView::item{ selection-background-color: #F5DEB3  } QTableView::item{ selection-color: #000000 }");
+
+		// to ignore 'resizeColumnToContents' when accidentaly double-clicked on header handle
+		QObject::disconnect(horizontalHeader(), SIGNAL(sectionHandleDoubleClicked(int)), this, SLOT(resizeColumnToContents(int)));
+
+		setObjectName(QString::fromUtf8("LogTableView"));
+
+		verticalHeader()->setFont(m_config.m_font);
+		verticalHeader()->setDefaultSectionSize(m_config.m_row_width);
+		verticalHeader()->hide(); // @NOTE: users want that //@NOTE2: they can't have it because of performance
+		horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
+	}
+
+	LogTableView::~LogTableView ()
+	{
+	}
+
+void LogTableView::keyPressEvent (QKeyEvent * e)
+{
+	if (e->type() == QKeyEvent::KeyPress)
+	{
+		bool const ctrl_ins = (e->modifiers() & Qt::ControlModifier) == Qt::ControlModifier && e->key() == Qt::Key_Insert;
+		if (e->matches(QKeySequence::Copy) || ctrl_ins)
+		{
+			m_log_widget.onCopyToClipboard();
+			e->accept();
+			return;
+		}
+
+		bool const ctrl = (e->modifiers() & Qt::ControlModifier) == Qt::ControlModifier;
+		bool const shift = (e->modifiers() & Qt::ShiftModifier) == Qt::ShiftModifier;
+		bool const alt = (e->modifiers() & Qt::AltModifier) == Qt::AltModifier;
+		bool const x = e->key() == Qt::Key_X;
+		bool const h = e->key() == Qt::Key_H;
+		if (!ctrl && !shift && !alt && x)
+		{
+			m_log_widget.onExcludeFileLine();
+		}
+		if (!ctrl && !shift && !alt && h)
+		{
+			m_log_widget.onExcludeFile();
+		}
+
+		if (e->key() == Qt::Key_Escape)
+		{
+			if (m_log_widget.m_find_widget && m_log_widget.m_find_widget->isVisible())
+			{
+				m_log_widget.m_find_widget->onCancel();
+				e->accept();
+			}
+		}
+		if (!ctrl && shift && !alt && e->key() == Qt::Key_Delete)
+		{
+			m_log_widget.onClearAllDataButton();
+			e->accept();
+		}
+
+		if (e->matches(QKeySequence::Find))
+		{
+			m_log_widget.onFind();
+			e->accept();
+		}
+		if (!ctrl && !shift && !alt && e->key() == Qt::Key_Slash)
+		{
+			m_log_widget.onFind();
+			e->accept();
+		}
+		if (ctrl && shift && e->key() == Qt::Key_F)
+		{
+			m_log_widget.onFindAllRefs();
+			e->accept();
+		}
+
+		if (e->matches(QKeySequence::FindNext))
+		{
+			m_log_widget.onFindNext();
+			e->accept();
+		}
+		if (e->matches(QKeySequence::FindPrevious))
+		{
+			m_log_widget.onFindPrev();
+			e->accept();
+		}
+		if (e->key() == Qt::Key_Tab && m_log_widget.m_find_widget && m_log_widget.m_find_widget->isVisible())
+		{
+			m_log_widget.m_find_widget->focusNext();
+			e->ignore();
+			return;
+		}
+
+		if (e->key() == Qt::Key_Backtab && m_log_widget.m_find_widget && m_log_widget.m_find_widget->isVisible())
+		{
+			m_log_widget.m_find_widget->focusPrev();
+			e->ignore();
+			return;
+		}
+	}
+	QTableView::keyPressEvent(e);
+}
+
+void LogTableView::scrollTo (QModelIndex const & index, ScrollHint hint)
+{
+	QTableView::scrollTo(index, hint);
+}
+
+void LogTableView::wheelEvent (QWheelEvent * event)
+{
+	bool const mod = event->modifiers() & Qt::CTRL;
+
+	if (mod)
+	{
+		CursorAction const a = event->delta() < 0 ? MoveDown : MoveUp;
+		moveCursor(a, Qt::ControlModifier);
+		event->accept();
+	}
+	else
+	{
+		QTableView::wheelEvent(event);
+	}
+}
+
+
+QModelIndex LogTableView::moveCursor (CursorAction cursor_action, Qt::KeyboardModifiers modifiers)
+{
+	m_log_widget.autoScrollOff();
+	if (modifiers & Qt::ControlModifier)
+	{
+		if (cursor_action == MoveHome)
+		{
+			scrollToTop();
+			return QModelIndex(); // @FIXME: should return valid value
+		}
+		else if (cursor_action == MoveEnd)
+		{
+			scrollToBottom();
+			m_log_widget.autoScrollOn();
+			return QModelIndex(); // @FIXME too
+		}
+		else
+		{
+			QModelIndex const idx = QTableView::moveCursor(cursor_action, modifiers);
+			return idx;
+		}
+	}
+	else if (modifiers & Qt::AltModifier)
+	{
+		QModelIndex const curr_idx = QTableView::moveCursor(cursor_action, modifiers);
+		if (curr_idx.isValid())
+			setCurrentIndex(curr_idx);
+		QModelIndex mod_idx = curr_idx;
+		if (m_log_widget.isModelProxy())
+			mod_idx = m_log_widget.m_proxy_model->mapToSource(curr_idx);
+
+		unsigned long long const t = m_log_widget.m_src_model->row_stime(mod_idx.row());
+
+		emit requestSynchronization(e_SyncServerTime, m_config.m_sync_group, t, this);
+		scrollTo(curr_idx, QAbstractItemView::PositionAtCenter);
+		//qDebug("table: pxy findNearestTime curr_idx=(%i, %i)  mod_idx=(%i, %i)", curr_idx.column(), curr_idx.row(), mod_idx.column(), mod_idx.row());
+		return curr_idx;
+	}
+	else
+	{
+		//int const value = horizontalScrollBar()->value();
+		QModelIndex const idx = QTableView::moveCursor(cursor_action, modifiers);
+		scrollTo(idx);
+		//horizontalScrollBar()->setValue(value);
+		return idx;
+	}
+}
+
+	LogWidget::LogWidget (Connection * conn, QString const & fname, QStringList const & path)
+		: DockedWidgetBase(path)
+		, m_connection(conn)
+		, m_tableview(0)
 		, m_cacheLayout(0)
-		, m_gotoPrevErrButton(0)
-		, m_gotoNextErrButton(0)
-		, m_gotoPrevWarnButton(0)
-		, m_gotoNextWarnButton(0)
-		, m_excludeFileButton(0)
-		, m_excludeFileLineButton(0)
-		, m_excludeRowButton(0)
-		, m_locateRowButton(0)
-		, m_clrDataButton(0)
-		, m_setRefTimeButton(0)
-		, m_hidePrevButton(0)
-		, m_hideNextButton(0)
-		, m_colorRowButton(0)
-		, m_colorFileLineButton(0)
-		, m_uncolorRowButton(0)
-		, m_gotoPrevColorButton(0)
-		, m_gotoNextColorButton(0)
+		, m_gotoPrevErrButton(0) , m_gotoNextErrButton(0) , m_gotoPrevWarnButton(0) , m_gotoNextWarnButton(0)
+		, m_excludeFileButton(0) , m_excludeFileLineButton(0) , m_excludeRowButton(0) , m_locateRowButton(0)
+		, m_clrDataButton(0) , m_setRefTimeButton(0) , m_hidePrevButton(0) , m_hideNextButton(0)
+		, m_colorRowButton(0) , m_colorFileLineButton(0) , m_uncolorRowButton(0) , m_gotoPrevColorButton(0) , m_gotoNextColorButton(0)
 		, m_control_bar(0)
 		, m_config()
 		, m_config_ui(*this, this)
 		, m_fname(fname)
-		, m_tab(0)
 		, m_warnimage(0)
 		, m_filter_state()
 		, m_tagconfig()
@@ -112,37 +231,48 @@ namespace logs {
 		, m_kfind_proxy_selection(0)
 		, m_color_regex_model(0)
 		, m_find_widget(0)
+		, m_linked_parent(0)
 		, m_csv_separator()
 		, m_file_csv_stream(0)
 		//, m_file_tlv_stream(0)
+
+
 	{
 		m_queue.reserve(256);
+		m_tableview = new LogTableView(conn, *this, m_config);
+
+		QVBoxLayout * vLayout = new QVBoxLayout();
+		vLayout->setSpacing(1);
+		vLayout->setContentsMargins(0, 0, 0, 0);
+		vLayout->setObjectName(QString::fromUtf8("verticalLayout"));
+		setLayout(vLayout);
+		QWidget * cacheWidget = new QFrame();
+		ButtonCache * cacheLayout = new ButtonCache();
+		cacheLayout->setSpacing(1);
+		cacheLayout->setContentsMargins(0, 0, 0, 0);
+		cacheLayout->setObjectName(QString::fromUtf8("cacheLayout"));
+		cacheWidget->setLayout(cacheLayout);
+		vLayout->addWidget(cacheWidget);
+		vLayout->addWidget(m_tableview);
+		fillButtonCache();
+
+		m_find_widget->setActionAbleWidget(this);
 
 		setContextMenuPolicy(Qt::CustomContextMenu);
-		connect(this, SIGNAL(customContextMenuRequested(QPoint const &)), this, SLOT(onShowContextMenu(QPoint const &)));
+		connect(m_tableview, SIGNAL(customContextMenuRequested(QPoint const &)), this, SLOT(onShowContextMenu(QPoint const &)));
 
 		m_control_bar = new ControlBarLog(0); // @TODO: delete
 
 		setConfigValuesToUI(m_config);
-		setAutoScroll(false);
-		setHorizontalScrollMode(ScrollPerPixel);
-		//setUpdatesEnabled(true);
-		horizontalHeader()->setSectionsMovable(true);
-		//setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 
 		connect(&getSyncWidgets(), SIGNAL( requestSynchronization(E_SyncMode, int, unsigned long long, void *) ),
 							 this, SLOT( performSynchronization(E_SyncMode, int, unsigned long long, void *) ));
 		connect(this, SIGNAL( requestSynchronization(E_SyncMode, int, unsigned long long, void *) ),
 							 &getSyncWidgets(), SLOT( performSynchronization(E_SyncMode, int, unsigned long long, void *) ));
 
-		setStyleSheet("QTableView::item{ selection-background-color: #F5DEB3  } QTableView::item{ selection-color: #000000 }");
 
-		// to ignore 'resizeColumnToContents' when accidentaly double-clicked on header handle
-		QObject::disconnect(horizontalHeader(), SIGNAL(sectionHandleDoubleClicked(int)), this, SLOT(resizeColumnToContents(int)));
-
-		setObjectName(QString::fromUtf8("tableView"));
+		setObjectName(QString::fromUtf8("LogWidget"));
 		//setupThreadColors(connection->getMainWindow()->getThreadColors());
-
 
 		QStyle const * const style = QApplication::style();
 		m_config_ui.ui()->findWidget->setMainWindow(m_connection->getMainWindow());
@@ -152,25 +282,19 @@ namespace logs {
 		//connect(ui->autoScrollCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onAutoScrollStateChanged(int)));
 		//connect(ui->inViewCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onInViewStateChanged(int)));
 		//connect(m_config_ui.ui()->filterFileCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onFilterFile(int)));
-		connect(this, SIGNAL(clicked(QModelIndex const &)), this, SLOT(onTableClicked(QModelIndex const &)));
-		connect(this, SIGNAL(doubleClicked(QModelIndex const &)), this, SLOT(onTableDoubleClicked(QModelIndex const &)));
+		connect(m_tableview, SIGNAL(clicked(QModelIndex const &)), this, SLOT(onTableClicked(QModelIndex const &)));
+		connect(m_tableview, SIGNAL(doubleClicked(QModelIndex const &)), this, SLOT(onTableDoubleClicked(QModelIndex const &)));
 
-		//setupColorRegex();
-
-		QObject::connect(horizontalHeader(), SIGNAL(sectionResized(int, int, int)), this, SLOT(onSectionResized(int, int, int)));
-		QObject::connect(horizontalHeader(), SIGNAL(sectionMoved(int, int, int)), this, SLOT(onSectionMoved(int, int, int)));
-		verticalHeader()->setFont(m_config.m_font);
-		verticalHeader()->setDefaultSectionSize(m_config.m_row_width);
-		verticalHeader()->hide(); // @NOTE: users want that //@NOTE2: they can't have it because of performance
-		horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
-		setItemDelegate(new LogDelegate(*this, m_connection->appData(), this));
+		QObject::connect(m_tableview->horizontalHeader(), SIGNAL(sectionResized(int, int, int)), this, SLOT(onSectionResized(int, int, int)));
+		QObject::connect(m_tableview->horizontalHeader(), SIGNAL(sectionMoved(int, int, int)), this, SLOT(onSectionMoved(int, int, int)));
+		m_tableview->setItemDelegate(new LogDelegate(*this, m_connection->appData(), this));
 		
 		m_warnimage = new WarnImage(this);
 		m_find_widget = new FindWidget(m_connection->getMainWindow(), this);
 		m_find_widget->setParent(this);
 	}
 
-	void LogTableView::fillButtonCache ()
+	void LogWidget::fillButtonCache ()
 	{
 		QWidget * parent_widget = this;
 
@@ -398,9 +522,9 @@ namespace logs {
 	}
 
 
-	QModelIndex LogTableView::currentSourceIndex () const
+	QModelIndex LogWidget::currentSourceIndex () const
 	{
-		QModelIndex current = currentIndex();
+		QModelIndex current = m_tableview->currentIndex();
 		if (isModelProxy())
 		{
 			current = m_proxy_model->mapToSource(current);
@@ -408,19 +532,19 @@ namespace logs {
 		return current;
 	}
 
-	void LogTableView::setupNewLogModel ()
+	void LogWidget::setupNewLogModel ()
 	{
 		setupLogModel(0);
 	}
 
-	void LogTableView::setupLogModel (LogTableModel * linked_model)
+	void LogWidget::setupLogModel (LogTableModel * linked_model)
 	{
 		if (linked_model)
 			m_src_model = linked_model;
 		else
 		{
 			m_src_model = new LogTableModel(this, *this);
-			QObject::disconnect(m_src_model, SIGNAL(rowsInserted(QModelIndex,int,int)), verticalHeader(), SLOT(sectionsInserted(QModelIndex,int,int)));
+			QObject::disconnect(m_src_model, SIGNAL(rowsInserted(QModelIndex,int,int)), m_tableview->verticalHeader(), SLOT(sectionsInserted(QModelIndex,int,int)));
 		}
 
 		m_proxy_model = new FilterProxyModel(this, *this);
@@ -432,7 +556,7 @@ namespace logs {
 		//setupLogSelectionProxy();
 		if (linked_model)
 		{
-			QItemSelectionModel * src_selection = linked_model->m_log_widget.selectionModel();
+			QItemSelectionModel * src_selection = linked_model->m_log_widget.m_tableview->selectionModel();
 			QItemSelectionModel * pxy_selection = linked_model->m_log_widget.m_proxy_selection;
 			//m_proxy_selection = new QItemSelectionModel(m_proxy_model);
 			//m_ksrc_selection = new KLinkItemSelectionModel(m_src_model, src_selection);
@@ -445,7 +569,7 @@ namespace logs {
 		}
 	}
 
-	void LogTableView::setupLogSelectionProxy ()
+	void LogWidget::setupLogSelectionProxy ()
 	{
 		m_src_selection = new QItemSelectionModel(m_src_model);
 		m_proxy_selection = new QItemSelectionModel(m_proxy_model);
@@ -455,11 +579,27 @@ namespace logs {
 		//m_selection = new LogSelectionProxyModel(m_src_model, m_src_selection);
 	}
 
-	LogTableView::~LogTableView ()
+	LogWidget::~LogWidget ()
 	{
-		setItemDelegate(0);
+		m_tableview->setItemDelegate(0);
 		qDebug("%s this=0x%08x tag=%s", __FUNCTION__, this, m_config.m_tag.toStdString().c_str());
 		disconnect(this, SIGNAL(customContextMenuRequested(QPoint const &)), this, SLOT(onShowContextMenu(QPoint const &)));
+
+		if (m_linked_parent)
+		{
+			LogWidget * parent = qobject_cast<LogWidget *>(m_linked_parent);
+			if (parent)
+			{
+				parent->unregisterLinkedWidget(this);
+			}
+		}
+
+		for (linked_widgets_t::iterator it = m_linked_widgets.begin(), ite = m_linked_widgets.end(); it != ite; ++it)
+		{
+			DockedWidgetBase * child = *it;
+			m_connection->destroyDockedWidget(child);
+		}
+		m_linked_widgets.clear();
 
 
 	/*	if (m_file_csv_stream)
@@ -472,24 +612,24 @@ namespace logs {
 		}*/
 	}
 
-	void LogTableView::onShow ()
+	void LogWidget::onShow ()
 	{
 		show();
 	}
 
-	void LogTableView::onHide ()
+	void LogWidget::onHide ()
 	{
 		hide();
 	}
 
-	void LogTableView::onHideContextMenu ()
+	void LogWidget::onHideContextMenu ()
 	{
 		Ui::SettingsLog * ui = m_config_ui.ui();
 		disconnect(ui->saveButton, SIGNAL(clicked()), this, SLOT(onSaveButton()));
 		m_config_ui.onHideContextMenu();
 	}
 
-	void LogTableView::onShowContextMenu (QPoint const & pos)
+	void LogWidget::onShowContextMenu (QPoint const & pos)
 	{
 		//qDebug("%s this=0x%08x", __FUNCTION__, this);
 		m_config_ui.onShowContextMenu(QCursor::pos());
@@ -499,13 +639,13 @@ namespace logs {
 		//connect(ui->logViewComboBox, SIGNAL(activated(int)), this, SLOT(onLogViewActivate(int)));
 	}
 
-	void LogTableView::swapSectionsAccordingTo (logs::LogConfig const & cfg)
+	void LogWidget::swapSectionsAccordingTo (logs::LogConfig const & cfg)
 	{
 		QStringList src;
-		int const hn = horizontalHeader()->count();
+		int const hn = m_tableview->horizontalHeader()->count();
 		for (int hi = 0; hi < hn; ++hi)
 		{
-			int const li = horizontalHeader()->logicalIndex(hi);
+			int const li = m_tableview->horizontalHeader()->logicalIndex(hi);
 			QString const li_str = m_config.m_columns_setup[li]; // @note: from m_config
 			src << li_str;
 		}
@@ -524,24 +664,24 @@ namespace logs {
 					if (hi != nj)
 					{
 						std::swap(src[hi], src[nj]);
-						horizontalHeader()->swapSections(hi, nj);
+						m_tableview->horizontalHeader()->swapSections(hi, nj);
 						break;
 					}
 				}
 
-		//void LogTableView::resizeSections ()
+		//void LogWidget::resizeSections ()
 		{
 			bool const old = blockSignals(true);
 			for (int c = 0, ce = cfg.m_columns_sizes.size(); c < ce; ++c)
 			{
-				int const li = horizontalHeader()->logicalIndex(c);
-				horizontalHeader()->resizeSection(li, cfg.m_columns_sizes.at(c));
+				int const li = m_tableview->horizontalHeader()->logicalIndex(c);
+				m_tableview->horizontalHeader()->resizeSection(li, cfg.m_columns_sizes.at(c));
 			}
 			blockSignals(old);
 		}
 	}
 
-	void LogTableView::applyConfig ()
+	void LogWidget::applyConfig ()
 	{
 		filterMgr()->disconnectFiltersTo(this);
 		colorizerMgr()->disconnectFiltersTo(this);
@@ -573,15 +713,15 @@ namespace logs {
 		//	colorizerMgr()->getFilterCtx()->setAppData(&m_connection->appData());
 	}
 
-	void LogTableView::resizeSections ()
+	void LogWidget::resizeSections ()
 	{
 		bool const old = blockSignals(true);
 		for (int c = 0, ce = m_config.m_columns_sizes.size(); c < ce; ++c)
-			horizontalHeader()->resizeSection(c, m_config.m_columns_sizes.at(c));
+			m_tableview->horizontalHeader()->resizeSection(c, m_config.m_columns_sizes.at(c));
 		blockSignals(old);
 	}
 
-	void LogTableView::resizeModelToConfig (LogConfig & cfg)
+	void LogWidget::resizeModelToConfig (LogConfig & cfg)
 	{
 		//qDebug("%s this=0x%08x", __FUNCTION__, this);
 		//Ui::SettingsLog * ui = m_config_ui.ui();
@@ -612,7 +752,7 @@ namespace logs {
 		resizeSections();
 	}
 
-	int LogTableView::sizeHintForColumn (int column) const
+	int LogWidget::sizeHintForColumn (int column) const
 	{
 		int const idx = !isModelProxy() ? column : m_proxy_model->colToSource(column);
 		//qDebug("table: on rsz hdr[%i -> src=%02i ]	%i->%i\t\t%s", c, idx, old_size, new_size, m_config.m_hhdr.at(idx).toStdSt
@@ -626,7 +766,7 @@ namespace logs {
 		return 32;
 	}
 
-	void LogTableView::setConfigValuesToUI (LogConfig const & cfg)
+	void LogWidget::setConfigValuesToUI (LogConfig const & cfg)
 	{
 		//qDebug("%s this=0x%08x", __FUNCTION__, this);
 		Ui::SettingsLog * ui = m_config_ui.ui();
@@ -647,21 +787,21 @@ namespace logs {
 			setViewConfigValuesToUI(cfg.m_gvcfg[0]);*/
 	}
 
-	void LogTableView::setUIValuesToConfig (LogConfig & cfg)
+	void LogWidget::setUIValuesToConfig (LogConfig & cfg)
 	{
 		//qDebug("%s this=0x%08x", __FUNCTION__, this);
 		Ui::SettingsLog * ui = m_config_ui.ui();
 		//m_config.m_show = ui->globalShowCheckBox->checkState() == Qt::Checked;
 	}
 
-	void LogTableView::onApplyButton ()
+	void LogWidget::onApplyButton ()
 	{
 		applyConfig();
 		//setUIValuesToConfig(m_config2);
 		//applyConfig();
 	}
 
-	QString LogTableView::getCurrentWidgetPath () const
+	QString LogWidget::getCurrentWidgetPath () const
 	{
 		QString const appdir = m_connection->getMainWindow()->getAppDir();
 		QString const logpath = appdir + "/" + m_connection->getCurrPreset() + "/" + g_LogTag + "/" + m_config.m_tag;
@@ -675,7 +815,7 @@ namespace logs {
 		config.m_columns_align.push_back(td.m_align_str);
 		config.m_columns_elide.push_back(td.m_elide_str);
 	}
-	void LogTableView::reconfigureConfig (logs::LogConfig & config)
+	void LogWidget::reconfigureConfig (logs::LogConfig & config)
 	{
 		fillDefaultConfig(config);
 		tlv::tag_t const tags[] = {
@@ -695,14 +835,14 @@ namespace logs {
 			addTagToConfig(config, td);
 		}
 	}
-	void LogTableView::defaultConfigFor (logs::LogConfig & config)
+	void LogWidget::defaultConfigFor (logs::LogConfig & config)
 	{
 		QString const & appname = m_connection->getAppName();
 		if (!validateConfig(config))
 			reconfigureConfig(config);
 	}
 
-	void LogTableView::loadConfig (QString const & preset_dir)
+	void LogWidget::loadConfig (QString const & preset_dir)
 	{
 		QString const tag_backup = m_config.m_tag;
 		QString const logpath = preset_dir + "/" + g_LogTag + "/" + m_config.m_tag + "/";
@@ -716,7 +856,7 @@ namespace logs {
 
 		loadAuxConfigs();
 	}
-	void LogTableView::loadAuxConfigs ()
+	void LogWidget::loadAuxConfigs ()
 	{
 		QString const logpath = getCurrentWidgetPath();
 		m_config.m_find_config.clear();
@@ -724,26 +864,26 @@ namespace logs {
 		filterMgr()->loadConfig(logpath);
 		colorizerMgr()->loadConfig(logpath);
 	}
-	void LogTableView::saveAuxConfigs ()
+	void LogWidget::saveAuxConfigs ()
 	{
 		QString const logpath = getCurrentWidgetPath();
 		saveConfigTemplate(m_config.m_find_config, logpath + "/" + g_findTag);
 		filterMgr()->saveConfig(logpath);
 		colorizerMgr()->saveConfig(logpath);
 	}
-	void LogTableView::saveFindConfig ()
+	void LogWidget::saveFindConfig ()
 	{
 		QString const logpath = getCurrentWidgetPath();
 		saveConfigTemplate(m_config.m_find_config, logpath + "/" + g_findTag);
 	}
 
-	void LogTableView::normalizeConfig (logs::LogConfig & normalized)
+	void LogWidget::normalizeConfig (logs::LogConfig & normalized)
 	{
 		QMap<int, int> perms;
-		int const n = horizontalHeader()->count();
+		int const n = m_tableview->horizontalHeader()->count();
 		for (int i = 0; i < n; ++i)
 		{
-			int const currentVisualIndex = horizontalHeader()->visualIndex(i);
+			int const currentVisualIndex = m_tableview->horizontalHeader()->visualIndex(i);
 			if (currentVisualIndex != i)
 			{
 				perms.insert(i, currentVisualIndex);
@@ -769,7 +909,7 @@ namespace logs {
 		}
 	}
 
-	void LogTableView::saveConfig (QString const & path)
+	void LogWidget::saveConfig (QString const & path)
 	{
 		QString const logpath = getCurrentWidgetPath();
 		mkDir(logpath);
@@ -780,7 +920,7 @@ namespace logs {
 		saveAuxConfigs();
 	}
 
-	void LogTableView::onSaveButton ()
+	void LogWidget::onSaveButton ()
 	{
 		/*m_config.m_hsize.clear();
 		m_config.m_hsize.resize(m_modelView->columnCount());
@@ -789,21 +929,21 @@ namespace logs {
 		//saveConfig();
 		//m_pers_filter.saveConfig(
 	}
-	void LogTableView::onResetButton () { setConfigValuesToUI(m_config); }
-	void LogTableView::onDefaultButton ()
+	void LogWidget::onResetButton () { setConfigValuesToUI(m_config); }
+	void LogWidget::onDefaultButton ()
 	{
 		LogConfig defaults;
 		//defaults.partialLoadFrom(m_config);
 		setConfigValuesToUI(defaults);
 	}
 
-	void LogTableView::onClearAllDataButton ()
+	void LogWidget::onClearAllDataButton ()
 	{
 		m_proxy_model->clearModelData();
 		m_src_model->clearModelData();
 	}
 
-	void LogTableView::performSynchronization (E_SyncMode mode, int sync_group, unsigned long long time, void * source)
+	void LogWidget::performSynchronization (E_SyncMode mode, int sync_group, unsigned long long time, void * source)
 	{
 		qDebug("%s syncgrp=%i time=%i", __FUNCTION__, sync_group, time);
 
@@ -831,7 +971,7 @@ namespace logs {
 		qDebug("%s syncgrp=%i frame=%i", __FUNCTION__, sync_group, frame);
 	}*/
 
-	void LogTableView::onFilterEnabledChanged ()
+	void LogWidget::onFilterEnabledChanged ()
 	{
 		qDebug("%s", __FUNCTION__);
 		resizeModelToConfig(m_config);
@@ -839,7 +979,7 @@ namespace logs {
 		//applyConfig();
 	}
 
-void LogTableView::onDumpFilters ()
+void LogWidget::onDumpFilters ()
 {
 	/*
 	QDialog dialog(this);
@@ -907,19 +1047,19 @@ void LogTableView::onDumpFilters ()
 	*/
 }
 
-DecodedCommand const * LogTableView::getDecodedCommand (QModelIndex const & row_index)
+DecodedCommand const * LogWidget::getDecodedCommand (QModelIndex const & row_index)
 {
 	return getDecodedCommand(row_index.row());
 }
 
-DecodedCommand const * LogTableView::getDecodedCommand (int row)
+DecodedCommand const * LogWidget::getDecodedCommand (int row)
 {
 	if (row >= 0 && row < m_src_model->dcmds().size())
 		return &m_src_model->dcmds()[row];
 	return 0;
 }
 
-void LogTableView::commitCommands (E_ReceiveMode mode)
+void LogWidget::commitCommands (E_ReceiveMode mode)
 {
 	for (int i = 0, ie = m_queue.size(); i < ie; ++i)
 	{
@@ -933,12 +1073,12 @@ void LogTableView::commitCommands (E_ReceiveMode mode)
 	{
 		m_src_model->commitCommands(mode);
 		if (m_config.m_auto_scroll)
-			scrollToBottom();
+			m_tableview->scrollToBottom();
 		m_queue.clear();
 	}
 }
 
-void LogTableView::handleCommand (DecodedCommand const & cmd, E_ReceiveMode mode)
+void LogWidget::handleCommand (DecodedCommand const & cmd, E_ReceiveMode mode)
 {
 	if (mode == e_RecvSync)
 		m_src_model->handleCommand(cmd, mode);
@@ -961,9 +1101,9 @@ void LogTableView::handleCommand (DecodedCommand const & cmd, E_ReceiveMode mode
 	}*/
 }
 
-void LogTableView::reloadModelAccordingTo (LogConfig & config)
+void LogWidget::reloadModelAccordingTo (LogConfig & config)
 {
-	horizontalHeader()->reset();
+	m_tableview->horizontalHeader()->reset();
 	//setItemDelegate(new LogDelegate(*this, m_connection->appData(), this));
 	//setItemDelegate(0); // @FIXME TMP
 	m_config.m_columns_setup = config.m_columns_setup;
@@ -978,37 +1118,37 @@ void LogTableView::reloadModelAccordingTo (LogConfig & config)
 }
 
 
-void LogTableView::commitBatchToLinkedWidgets (int src_from, int src_to, BatchCmd const & batch)
+void LogWidget::commitBatchToLinkedWidgets (int src_from, int src_to, BatchCmd const & batch)
 {
   for (linked_widgets_t::iterator it = m_linked_widgets.begin(), ite = m_linked_widgets.end(); it != ite; ++it)
   {
     DockedWidgetBase * child = *it;
 	if (child->type() == e_data_log)
 	{
-		LogWidgetWithButtons * lw = qobject_cast<LogWidgetWithButtons *>(child->dockedWidget());
-		lw->m_lw->commitBatchToLinkedModel(src_from, src_to, batch);  
+		LogWidget * lw = qobject_cast<LogWidget *>(child->dockedWidget());
+		lw->commitBatchToLinkedModel(src_from, src_to, batch);  
 	}
   }
 }
 
-void LogTableView::commitBatchToLinkedModel (int src_from, int src_to, BatchCmd const & batch)
+void LogWidget::commitBatchToLinkedModel (int src_from, int src_to, BatchCmd const & batch)
 {
 	FilterProxyModel * flt_pxy = m_proxy_model;
-	if (model() == flt_pxy)
+	if (m_tableview->model() == flt_pxy)
 		flt_pxy->commitBatchToModel(src_from, src_to, batch);
 
 	FindProxyModel * fnd_pxy = m_find_proxy_model;
-	if (model() == fnd_pxy)
+	if (m_tableview->model() == fnd_pxy)
 		fnd_pxy->commitBatchToModel(src_from, src_to, batch);
 }
 
-LogTableModel * LogTableView::cloneToNewModel (FindConfig const & fc)
+LogTableModel * LogWidget::cloneToNewModel (FindConfig const & fc)
 {
-	if (model() == m_src_model)
+	if (m_tableview->model() == m_src_model)
 	{
 		return m_src_model->cloneToNewModel(fc);
 	}
-	else if (model() == m_proxy_model)
+	else if (m_tableview->model() == m_proxy_model)
 	{
 		Q_ASSERT(m_src_model);
 		LogTableModel * new_model = new LogTableModel(this, *this);
@@ -1043,7 +1183,7 @@ LogTableModel * LogTableView::cloneToNewModel (FindConfig const & fc)
 
 
 
-/*void LogTableView::applyConfig ()
+/*void LogWidget::applyConfig ()
 {
 	settings.setValue("autoScrollCheckBox", ui->autoScrollCheckBox->isChecked());
 	settings.setValue("inViewCheckBox", ui->inViewCheckBox->isChecked());
@@ -1065,7 +1205,7 @@ LogTableModel * LogTableView::cloneToNewModel (FindConfig const & fc)
 
 */
 
-int LogTableView::findColumn4TagCst (tlv::tag_t tag) const
+int LogWidget::findColumn4TagCst (tlv::tag_t tag) const
 {
 	QMap<tlv::tag_t, int>::const_iterator it = m_tags2columns.find(tag);
 	if (it != m_tags2columns.end())
@@ -1073,7 +1213,7 @@ int LogTableView::findColumn4TagCst (tlv::tag_t tag) const
 	return -1;
 }
 
-int LogTableView::findColumn4Tag (tlv::tag_t tag)
+int LogWidget::findColumn4Tag (tlv::tag_t tag)
 {
 	QMap<tlv::tag_t, int>::const_iterator it = m_tags2columns.find(tag);
 	if (it != m_tags2columns.end())
@@ -1090,7 +1230,7 @@ int LogTableView::findColumn4Tag (tlv::tag_t tag)
 	return -1;
 }
 
-int LogTableView::appendColumn (tlv::tag_t tag)
+int LogWidget::appendColumn (tlv::tag_t tag)
 {
 	TagDesc const & desc = m_tagconfig.findOrCreateTag(tag);
 
@@ -1121,10 +1261,10 @@ inline void simplify_keep_indent (QString const & src, QString & indent, QString
 	}
 }
 
-QString LogTableView::exportSelection ()
+QString LogWidget::exportSelection ()
 {
-	QAbstractItemModel * m = model();
-	QItemSelectionModel * selection = selectionModel();
+	QAbstractItemModel * m = m_tableview->model();
+	QItemSelectionModel * selection = m_tableview->selectionModel();
 	if (!selection)
 		return QString();
 	QModelIndexList indexes = selection->selectedIndexes();
@@ -1154,178 +1294,25 @@ QString LogTableView::exportSelection ()
 	return selected_text;
 }
 
-void LogTableView::onCopyToClipboard ()
+void LogWidget::onCopyToClipboard ()
 {
 	QString const text = exportSelection();
 	QClipboard * clipboard = QApplication::clipboard();
 	clipboard->setText(text);
 }
 
-void LogTableView::keyPressEvent (QKeyEvent * e)
-{
-	if (e->type() == QKeyEvent::KeyPress)
-	{
-		bool const ctrl_ins = (e->modifiers() & Qt::ControlModifier) == Qt::ControlModifier && e->key() == Qt::Key_Insert;
-		if (e->matches(QKeySequence::Copy) || ctrl_ins)
-		{
-			onCopyToClipboard();
-			e->accept();
-			return;
-		}
-
-		bool const ctrl = (e->modifiers() & Qt::ControlModifier) == Qt::ControlModifier;
-		bool const shift = (e->modifiers() & Qt::ShiftModifier) == Qt::ShiftModifier;
-		bool const alt = (e->modifiers() & Qt::AltModifier) == Qt::AltModifier;
-		bool const x = e->key() == Qt::Key_X;
-		bool const h = e->key() == Qt::Key_H;
-		if (!ctrl && !shift && !alt && x)
-		{
-			onExcludeFileLine();
-		}
-		if (!ctrl && !shift && !alt && h)
-		{
-			onExcludeFile();
-		}
-
-		if (e->key() == Qt::Key_Escape)
-		{
-			if (m_find_widget && m_find_widget->isVisible())
-			{
-				m_find_widget->onCancel();
-				e->accept();
-			}
-		}
-		if (!ctrl && shift && !alt && e->key() == Qt::Key_Delete)
-		{
-			onClearAllDataButton();
-			e->accept();
-		}
-
-		if (e->matches(QKeySequence::Find))
-		{
-			onFind();
-			e->accept();
-		}
-		if (!ctrl && !shift && !alt && e->key() == Qt::Key_Slash)
-		{
-			onFind();
-			e->accept();
-		}
-		if (ctrl && shift && e->key() == Qt::Key_F)
-		{
-			onFindAllRefs();
-			e->accept();
-		}
-
-		if (e->matches(QKeySequence::FindNext))
-		{
-			onFindNext();
-			e->accept();
-		}
-		if (e->matches(QKeySequence::FindPrevious))
-		{
-			onFindPrev();
-			e->accept();
-		}
-		if (e->key() == Qt::Key_Tab && m_find_widget && m_find_widget->isVisible())
-		{
-			m_find_widget->focusNext();
-			e->ignore();
-			return;
-		}
-
-		if (e->key() == Qt::Key_Backtab && m_find_widget && m_find_widget->isVisible())
-		{
-			m_find_widget->focusPrev();
-			e->ignore();
-			return;
-		}
-	}
-	QTableView::keyPressEvent(e);
-}
-
-void LogTableView::scrollTo (QModelIndex const & index, ScrollHint hint)
-{
-	QTableView::scrollTo(index, hint);
-}
-
-void LogTableView::autoScrollOff ()
+void LogWidget::autoScrollOff ()
 {
 	m_config.m_auto_scroll = false;
 }
 
-void LogTableView::autoScrollOn ()
+void LogWidget::autoScrollOn ()
 {
 	m_config.m_auto_scroll = true;
 }
 
-void LogTableView::wheelEvent (QWheelEvent * event)
-{
-	bool const mod = event->modifiers() & Qt::CTRL;
-
-	if (mod)
-	{
-		CursorAction const a = event->delta() < 0 ? MoveDown : MoveUp;
-		moveCursor(a, Qt::ControlModifier);
-		event->accept();
-	}
-	else
-	{
-		QTableView::wheelEvent(event);
-	}
-}
-
-
-QModelIndex LogTableView::moveCursor (CursorAction cursor_action, Qt::KeyboardModifiers modifiers)
-{
-	autoScrollOff();
-	if (modifiers & Qt::ControlModifier)
-	{
-		if (cursor_action == MoveHome)
-		{
-			scrollToTop();
-			return QModelIndex(); // @FIXME: should return valid value
-		}
-		else if (cursor_action == MoveEnd)
-		{
-			scrollToBottom();
-			autoScrollOn();
-			return QModelIndex(); // @FIXME too
-		}
-		else
-		{
-			QModelIndex const idx = QTableView::moveCursor(cursor_action, modifiers);
-			return idx;
-		}
-	}
-	else if (modifiers & Qt::AltModifier)
-	{
-		QModelIndex const curr_idx = QTableView::moveCursor(cursor_action, modifiers);
-		if (curr_idx.isValid())
-			setCurrentIndex(curr_idx);
-		QModelIndex mod_idx = curr_idx;
-		if (isModelProxy())
-			mod_idx = m_proxy_model->mapToSource(curr_idx);
-
-		unsigned long long const t = m_src_model->row_stime(mod_idx.row());
-
-		emit requestSynchronization(e_SyncServerTime, m_config.m_sync_group, t, this);
-		scrollTo(curr_idx, QAbstractItemView::PositionAtCenter);
-		//qDebug("table: pxy findNearestTime curr_idx=(%i, %i)  mod_idx=(%i, %i)", curr_idx.column(), curr_idx.row(), mod_idx.column(), mod_idx.row());
-		return curr_idx;
-	}
-	else
-	{
-		//int const value = horizontalScrollBar()->value();
-		QModelIndex const idx = QTableView::moveCursor(cursor_action, modifiers);
-		scrollTo(idx);
-		//horizontalScrollBar()->setValue(value);
-		return idx;
-	}
-}
-
 //@TODO: should be in model probably
-void LogTableView::findNearestRow4Time (bool ctime, unsigned long long t)
+void LogWidget::findNearestRow4Time (bool ctime, unsigned long long t)
 {
 	//qDebug("%s this=0x%08x", __FUNCTION__, this);
 	bool const is_proxy = isModelProxy();
@@ -1348,7 +1335,7 @@ void LogTableView::findNearestRow4Time (bool ctime, unsigned long long t)
 	if (is_proxy)
 	{
 		qDebug("table: pxy nearest index= %i/%i", closest_i, m_src_model->rowCount());
-		QModelIndex const curr = currentIndex();
+		QModelIndex const curr = m_tableview->currentIndex();
 		QModelIndex const idx = m_src_model->index(closest_i, curr.column() < 0 ? 0 : curr.column(), QModelIndex());
 		//qDebug("table: pxy findNearestTime curr=(%i, %i)  new=(%i, %i)", curr.column(), curr.row(), idx.column(), idx.row());
 
@@ -1359,39 +1346,39 @@ void LogTableView::findNearestRow4Time (bool ctime, unsigned long long t)
 			valid_pxy_idx = m_proxy_model->mapNearestFromSource(idx);
 		}
 		//qDebug("table: pxy findNearestTime pxy_new=(%i, %i) valid_pxy_new=(%i, %i)", pxy_idx.column(), pxy_idx.row(), valid_pxy_idx.column(), valid_pxy_idx.row());
-		scrollTo(valid_pxy_idx, QAbstractItemView::PositionAtCenter);
-		selectionModel()->select(valid_pxy_idx, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+		m_tableview->scrollTo(valid_pxy_idx, QAbstractItemView::PositionAtCenter);
+		m_tableview->selectionModel()->select(valid_pxy_idx, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
 	}
 	else
 	{
 		qDebug("table: nearest index= %i/%i", closest_i, m_src_model->rowCount());
-		QModelIndex const curr = currentIndex();
+		QModelIndex const curr = m_tableview->currentIndex();
 		QModelIndex const idx = m_src_model->index(closest_i, curr.column() < 0 ? 0 : curr.column(), QModelIndex());
 		//qDebug("table: findNearestTime curr=(%i, %i)  new=(%i, %i)", curr.column(), curr.row(), idx.column(), idx.row());
 
-		scrollTo(idx, QAbstractItemView::PositionAtCenter);
-		selectionModel()->select(idx, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+		m_tableview->scrollTo(idx, QAbstractItemView::PositionAtCenter);
+		m_tableview->selectionModel()->select(idx, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
 	}
 }
 
-bool LogTableView::isModelProxy () const
+bool LogWidget::isModelProxy () const
 {
-	if (0 == model())
+	if (0 == m_tableview->model())
 		return false;
-	return model() == m_proxy_model;
+	return m_tableview->model() == m_proxy_model;
 }
 
-void LogTableView::onFilterChanged ()
+void LogWidget::onFilterChanged ()
 {
 	onInvalidateFilter();
 }
 
-void LogTableView::onSectionMoved (int logical, int old_visual, int new_visual)
+void LogWidget::onSectionMoved (int logical, int old_visual, int new_visual)
 {
 	qDebug("log: section moved logical=%i old_visual=%i new_visual=%i", logical, old_visual, new_visual);
 }
 
-void LogTableView::onSectionResized (int logical, int old_size, int new_size)
+void LogWidget::onSectionResized (int logical, int old_size, int new_size)
 {
 	qDebug("log: section resized logical=%i old_sz=%i new_sz=%i", logical, old_size, new_size);
 	int const idx = !isModelProxy() ? logical : m_proxy_model->colToSource(logical);
@@ -1411,7 +1398,7 @@ void LogTableView::onSectionResized (int logical, int old_size, int new_size)
 	m_config.m_columns_sizes[idx] = new_size;
 }
 
-void LogTableView::exportStorageToCSV (QString const & filename)
+void LogWidget::exportStorageToCSV (QString const & filename)
 {
 	// " --> ""
 	QRegExp regex("\"");
@@ -1428,13 +1415,13 @@ void LogTableView::exportStorageToCSV (QString const & filename)
 	}
 	str << "\n";
 
-	for (int r = 0, re = model()->rowCount(); r < re; ++r)
+	for (int r = 0, re = m_tableview->model()->rowCount(); r < re; ++r)
 	{
-		for (int c = 0, ce = model()->columnCount(); c < ce; ++c)
+		for (int c = 0, ce = m_tableview->model()->columnCount(); c < ce; ++c)
 		{
-			QModelIndex current = model()->index(r, c, QModelIndex());
+			QModelIndex current = m_tableview->model()->index(r, c, QModelIndex());
 			// csv nedumpovat pres proxy
-			QString txt = model()->data(current).toString();
+			QString txt = m_tableview->model()->data(current).toString();
 			QString simplified = txt.simplified();
 			QString const quoted_txt = simplified.replace(regex, to_string);
 			str << "\"" << quoted_txt << "\"";

@@ -10,7 +10,7 @@
 
 namespace logs {
 
-void LogTableView::onFind ()
+void LogWidget::onFind ()
 {
 	//m_find_widget->onCancel();
 	//w->setFocusProxy(m_find_widget);
@@ -25,73 +25,73 @@ void LogTableView::onFind ()
 	m_find_widget->setFocusProxy(this); // dunno what the proxies are for
 }
 
-void LogTableView::onFindNext ()
+void LogWidget::onFindNext ()
 {
 	m_find_widget->onFindNext();
 }
 
-void LogTableView::onFindPrev ()
+void LogWidget::onFindPrev ()
 {
 	m_find_widget->onFindPrev();
 }
 
-void LogTableView::onFindAllRefs ()
+void LogWidget::onFindAllRefs ()
 {
 	m_find_widget->onFindAllRefs();
 }
 
-void LogTableView::findInWholeTable (FindConfig const & fc, QModelIndexList & result)
+void LogWidget::findInWholeTable (FindConfig const & fc, QModelIndexList & result)
 {
-	for (int i = 0, ie = model()->rowCount(); i < ie; ++i)
+	for (int i = 0, ie = m_tableview->model()->rowCount(); i < ie; ++i)
 	{
-		for (int j = 0, je = model()->columnCount(); j < je; ++j)
+		for (int j = 0, je = m_tableview->model()->columnCount(); j < je; ++j)
 		{
-			QModelIndex const idx = model()->index(i, j, QModelIndex());
-			QString s = model()->data(idx).toString();
+			QModelIndex const idx = m_tableview->model()->index(i, j, QModelIndex());
+			QString s = m_tableview->model()->data(idx).toString();
 			if (matchToFindConfig(s, fc))
 				result.push_back(idx);
 		}
 	}
 }
 
-void LogTableView::registerLinkedWidget (DockedWidgetBase * l)
+void LogWidget::registerLinkedWidget (DockedWidgetBase * l)
 {
 	if (std::find(m_linked_widgets.begin(), m_linked_widgets.end(), l) == m_linked_widgets.end())
 		m_linked_widgets.push_back(l);
 }
 
-void LogTableView::unregisterLinkedWidget (DockedWidgetBase * l)
+void LogWidget::unregisterLinkedWidget (DockedWidgetBase * l)
 {
 	m_linked_widgets.erase(std::remove(m_linked_widgets.begin(), m_linked_widgets.end(), l), m_linked_widgets.end());
 }
 
-void LogTableView::linkToSource (LogWidgetWithButtons * src)
+void LogWidget::linkToSource (LogWidget * src)
 {
 	m_linked_parent = src;
 }
 
-void LogTableView::setSrcModel (FindConfig const & fc)
+void LogWidget::setSrcModel (FindConfig const & fc)
 {
 	m_config.m_find_config = fc;
-	setModel(m_src_model);
+	m_tableview->setModel(m_src_model);
 	m_src_model->resizeToCfg(m_config);
 	m_find_proxy_selection = new QItemSelectionModel(m_find_proxy_model);
-	setSelectionModel(m_src_selection);
+	m_tableview->setSelectionModel(m_src_selection);
 	resizeSections();
 	applyConfig();
 }
 
-void LogTableView::setFindProxyModel (FindConfig const & fc)
+void LogWidget::setFindProxyModel (FindConfig const & fc)
 {
 	m_config.m_find_config = fc;
-	setModel(m_find_proxy_model);
+	m_tableview->setModel(m_find_proxy_model);
 	m_find_proxy_model->resizeToCfg(m_config);
 	m_find_proxy_model->force_update();
 	resizeSections();
 	applyConfig();
 }
 
-LogWidgetWithButtons * LogTableView::mkFindAllRefsLogWidget (FindConfig const & fc)
+LogWidget * LogWidget::mkFindAllRefsLogWidget (FindConfig const & fc)
 {
 	QString tag;
 	if (fc.m_to_widgets.isEmpty())
@@ -115,18 +115,18 @@ LogWidgetWithButtons * LogTableView::mkFindAllRefsLogWidget (FindConfig const & 
 	cfg.m_find_proxy = true;
 	datalogs_t::iterator it = m_connection->dataWidgetFactoryFrom<e_data_log>(tag, cfg);
 
-	LogWidgetWithButtons * child = *it;
+	LogWidget * child = *it;
 	child->linkToSource(this);
 	registerLinkedWidget(child);
 	child->loadAuxConfigs();
 
 	child->setupLogModel(m_src_model);
-	child->m_lw->setFindProxyModel(fc);
-	child->m_lw->m_kfind_proxy_selection = new KLinkItemSelectionModel(child->m_lw->model(), selectionModel());
-	child->m_lw->setSelectionModel(child->m_lw->m_kfind_proxy_selection);
+	child->setFindProxyModel(fc);
+	child->m_kfind_proxy_selection = new KLinkItemSelectionModel(child->m_tableview->model(), m_tableview->selectionModel());
+	child->m_tableview->setSelectionModel(child->m_kfind_proxy_selection);
 	child->applyConfig();
-	child->m_lw->m_config_ui.refreshUI();
-	child->m_lw->refreshFilters(child->m_lw->m_find_proxy_model);
+	child->m_config_ui.refreshUI();
+	child->refreshFilters(child->m_find_proxy_model);
 
 	child->setStyleSheet("\
 			QHeaderView::section {\
@@ -142,7 +142,7 @@ LogWidgetWithButtons * LogTableView::mkFindAllRefsLogWidget (FindConfig const & 
 	return child;
 }
 
-LogWidgetWithButtons * LogTableView::mkFindAllCloneLogWidget (FindConfig const & fc)
+LogWidget * LogWidget::mkFindAllCloneLogWidget (FindConfig const & fc)
 {
 	QString tag;
 	if (fc.m_to_widgets.isEmpty())
@@ -173,32 +173,32 @@ LogWidgetWithButtons * LogTableView::mkFindAllCloneLogWidget (FindConfig const &
 	cfg.m_find_proxy = false;
 	datalogs_t::iterator it = m_connection->dataWidgetFactoryFrom<e_data_log>(tag, cfg);
 
-	LogWidgetWithButtons * child = *it;
+	LogWidget * child = *it;
 	child->loadAuxConfigs();
 	LogTableModel * clone_model = cloneToNewModel(fc);
 	child->setupLogModel(clone_model);
-	child->m_lw->setSrcModel(fc);
-	child->m_lw->m_config_ui.refreshUI();
+	child->setSrcModel(fc);
+	child->m_config_ui.refreshUI();
 
 	return child;
 }
 
-void LogTableView::findAndSelect (FindConfig const & fc)
+void LogWidget::findAndSelect (FindConfig const & fc)
 {
-	QModelIndex start = model()->index(0, 0);
+	QModelIndex start = m_tableview->model()->index(0, 0);
 
 	// if selected column
 	//	QModelIndexList indexes = model()->match(start, Qt::DisplayRole, QVariant(fc.m_str), -1, Qt::MatchFixedString);
 	QModelIndexList indexes;
 	findInWholeTable(fc, indexes);
 
-	QItemSelectionModel * selection_model = selectionModel();
+	QItemSelectionModel * selection_model = m_tableview->selectionModel();
 
 	QItemSelection selection;
 	foreach(QModelIndex index, indexes) {
 
-		QModelIndex left = model()->index(index.row(), 0);
-		QModelIndex right = model()->index(index.row(), model()->columnCount() - 1);
+		QModelIndex left = m_tableview->model()->index(index.row(), 0);
+		QModelIndex right = m_tableview->model()->index(index.row(), m_tableview->model()->columnCount() - 1);
 
 		QItemSelection sel(left, right);
 		selection.merge(sel, QItemSelectionModel::Select);
@@ -206,10 +206,10 @@ void LogTableView::findAndSelect (FindConfig const & fc)
 	selection_model->select(selection, QItemSelectionModel::Select);
 }
 
-void LogTableView::currSelection (QModelIndexList & sel) const
+void LogWidget::currSelection (QModelIndexList & sel) const
 {
 	sel.clear();
-	QItemSelectionModel const * selection = selectionModel();
+	QItemSelectionModel const * selection = m_tableview->selectionModel();
 	QItemSelection const sele = selection->selection();
 	QModelIndexList const & sel2 = sele.indexes();
 	//QModelIndexList sel2  = selection->selectedIndexes();
@@ -237,7 +237,7 @@ void LogTableView::currSelection (QModelIndexList & sel) const
 	std::sort(sel.begin(), sel.end());
 }
 
-void LogTableView::findAndSelectNext (FindConfig const & fc)
+void LogWidget::findAndSelectNext (FindConfig const & fc)
 {
 	QModelIndexList l;
 	currSelection(l);
@@ -246,9 +246,9 @@ void LogTableView::findAndSelectNext (FindConfig const & fc)
 	if (l.size())
 		curr_idx = l.at(l.size() - 1);
 	else
-		curr_idx = model()->index(0, 0, QModelIndex());
+		curr_idx = m_tableview->model()->index(0, 0, QModelIndex());
 
-	QModelIndex const idx = model()->index(curr_idx.row() + 1, curr_idx.column(), QModelIndex());
+	QModelIndex const idx = m_tableview->model()->index(curr_idx.row() + 1, curr_idx.column(), QModelIndex());
 	if (!idx.isValid())
 	{
 		noMoreMatches();
@@ -256,12 +256,12 @@ void LogTableView::findAndSelectNext (FindConfig const & fc)
 	}
 
 	QModelIndexList next;
-	for (int i = idx.row(), ie = model()->rowCount(); i < ie; ++i)
+	for (int i = idx.row(), ie = m_tableview->model()->rowCount(); i < ie; ++i)
 	{
-		for (int j = 0, je = model()->columnCount(); j < je; ++j)
+		for (int j = 0, je = m_tableview->model()->columnCount(); j < je; ++j)
 		{
-			QModelIndex const idx = model()->index(i, j, QModelIndex());
-			QString s = model()->data(idx).toString();
+			QModelIndex const idx = m_tableview->model()->index(i, j, QModelIndex());
+			QString s = m_tableview->model()->data(idx).toString();
 			if (matchToFindConfig(s, fc))
 			{
 				next.push_back(idx);
@@ -278,30 +278,30 @@ void LogTableView::findAndSelectNext (FindConfig const & fc)
 	}
 	else
 	{
-		QItemSelectionModel * selection_model = selectionModel();
+		QItemSelectionModel * selection_model = m_tableview->selectionModel();
 		QItemSelection selection;
 		foreach(QModelIndex index, next)
 		{
-			QModelIndex left = model()->index(index.row(), 0);
-			QModelIndex right = model()->index(index.row(), model()->columnCount() - 1);
+			QModelIndex left = m_tableview->model()->index(index.row(), 0);
+			QModelIndex right = m_tableview->model()->index(index.row(), m_tableview->model()->columnCount() - 1);
 
 			QItemSelection sel(left, right);
 			selection.merge(sel, QItemSelectionModel::Select);
 		}
 		selection_model->clearSelection();
 		selection_model->select(selection, QItemSelectionModel::Select);
-		scrollTo(next.at(0), QTableView::PositionAtCenter);
+		m_tableview->scrollTo(next.at(0), QTableView::PositionAtCenter);
 	}
 }
 
-void LogTableView::findAndSelectPrev (FindConfig const & fc)
+void LogWidget::findAndSelectPrev (FindConfig const & fc)
 {
 	QModelIndexList l;
 	currSelection(l);
 	if (l.size())
 	{
 		QModelIndex const & curr_idx = l.at(0);
-		QModelIndex const idx = model()->index(curr_idx.row() - 1, curr_idx.column(), QModelIndex());
+		QModelIndex const idx = m_tableview->model()->index(curr_idx.row() - 1, curr_idx.column(), QModelIndex());
 		if (!idx.isValid())
 		{
 			noMoreMatches();
@@ -312,10 +312,10 @@ void LogTableView::findAndSelectPrev (FindConfig const & fc)
 		/// ????
 		for (int i = curr_idx.row(); i --> 0; )
 		{
-			for (int j = model()->columnCount(); j --> 0; )
+			for (int j = m_tableview->model()->columnCount(); j --> 0; )
 			{
-				QModelIndex const idx = model()->index(i, j, QModelIndex());
-				QString s = model()->data(idx).toString();
+				QModelIndex const idx = m_tableview->model()->index(i, j, QModelIndex());
+				QString s = m_tableview->model()->data(idx).toString();
 				if (matchToFindConfig(s, fc))
 				{
 					next.push_back(idx);
@@ -332,24 +332,24 @@ void LogTableView::findAndSelectPrev (FindConfig const & fc)
 		}
 		else
 		{
-			QItemSelectionModel * selection_model = selectionModel();
+			QItemSelectionModel * selection_model = m_tableview->selectionModel();
 			QItemSelection selection;
 			foreach(QModelIndex index, next)
 			{
-				QModelIndex left = model()->index(index.row(), 0);
-				QModelIndex right = model()->index(index.row(), model()->columnCount() - 1);
+				QModelIndex left = m_tableview->model()->index(index.row(), 0);
+				QModelIndex right = m_tableview->model()->index(index.row(), m_tableview->model()->columnCount() - 1);
 
 				QItemSelection sel(left, right);
 				selection.merge(sel, QItemSelectionModel::Select);
 			}
 			selection_model->clearSelection();
 			selection_model->select(selection, QItemSelectionModel::Select);
-			scrollTo(next.at(0), QTableView::PositionAtCenter);
+			m_tableview->scrollTo(next.at(0), QTableView::PositionAtCenter);
 		}
 	}
 }
 
-void LogTableView::handleFindAction (FindConfig const & fc)
+void LogWidget::handleFindAction (FindConfig const & fc)
 {
 	bool const select_only = !fc.m_refs && !fc.m_clone;
 
@@ -386,7 +386,7 @@ void LogTableView::handleFindAction (FindConfig const & fc)
 	}
 }
 
-void LogTableView::noMoreMatches ()
+void LogWidget::noMoreMatches ()
 {
 	qDebug("end of search");
 	m_connection->getMainWindow()->statusBar()->showMessage(tr("End of document!"));
@@ -402,12 +402,12 @@ void LogTableView::noMoreMatches ()
 	m_warnimage->warningFindNoMoreMatches();
 }
 
-QString LogTableView::findString4Tag (tlv::tag_t tag, QModelIndex const & row_index) const
+QString LogWidget::findString4Tag (tlv::tag_t tag, QModelIndex const & row_index) const
 {
 	return findVariant4Tag(tag, row_index).toString();
 }
 
-QVariant LogTableView::findVariant4Tag (tlv::tag_t tag, QModelIndex const & row_index) const
+QVariant LogWidget::findVariant4Tag (tlv::tag_t tag, QModelIndex const & row_index) const
 {
 	int const idx = m_tags2columns[tag];
 	if (idx == -1)

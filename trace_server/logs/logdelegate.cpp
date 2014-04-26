@@ -37,9 +37,9 @@ namespace logs {
 			{
 				if (ref_dt >= 0)
 				{
-					QAbstractItemModel const * model = m_log_widget.model();
+					QAbstractItemModel const * model = m_log_widget.m_tableview->model();
 					
-					int const col_idx = const_cast<logs::LogTableView &>(m_log_widget).findColumn4Tag(tlv::tag_dt);
+					int const col_idx = const_cast<logs::LogWidget &>(m_log_widget).findColumn4Tag(tlv::tag_dt);
 					
 					if (col_idx >= 0)
 					{
@@ -150,7 +150,7 @@ namespace logs {
 			option4.textElideMode = static_cast<Qt::TextElideMode>(elide);
 		}
 
-		LogTableView & lw = const_cast<LogTableView &>(m_log_widget); // hm
+		LogWidget & lw = const_cast<LogWidget &>(m_log_widget); // hm
 
 		if (m_log_widget.config().m_cut_path && index.column() == lw.findColumn4Tag(tlv::tag_file))
 		{

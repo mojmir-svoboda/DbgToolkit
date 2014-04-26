@@ -23,15 +23,36 @@ class ControlBarLog;
 
 namespace logs {
 
-	class LogWidgetWithButtons;
+	class LogWidget;
 
 	class LogTableView : public TableView
+	{
+	public:
+		LogTableView (Connection * conn, LogWidget & logwidget, LogConfig & config);
+		virtual ~LogTableView ();
+
+		LogConfig & config () { return m_config; }
+		LogConfig const & config () const { return m_config; }
+
+		virtual void scrollTo (QModelIndex const & index, ScrollHint hint = EnsureVisible);
+		virtual void wheelEvent (QWheelEvent * event);
+		virtual void keyPressEvent (QKeyEvent * event);
+		virtual QModelIndex moveCursor (CursorAction cursorAction, Qt::KeyboardModifiers modifiers);
+
+
+	protected:
+		Connection * m_connection;
+		LogWidget & m_log_widget;
+		LogConfig & m_config;
+	};
+
+	class LogWidget : public DockedWidgetBase, public QFrame
 	{
 		Q_OBJECT
 	public:
 		enum { e_type = e_data_log };
-		LogTableView (Connection * conn, QString const & fname, QStringList const & path);
-		virtual ~LogTableView ();
+		LogWidget (Connection * conn, QString const & fname, QStringList const & path);
+		virtual ~LogWidget ();
 
 		virtual E_DataWidgetType type () const { return e_data_log; }
 		virtual QWidget * controlWidget () { return 0; }
@@ -68,10 +89,7 @@ namespace logs {
 		DecodedCommand const * getDecodedCommand (QModelIndex const & row_index);
 		DecodedCommand const * getDecodedCommand (int row);
 
-		//FindWidget * findWidget () { return m_config_ui.m_ui->findWidget; }
-		//FindWidget const * findWidget () const { return m_config_ui.m_ui->findWidget; }
-
-		virtual void scrollTo (QModelIndex const & index, ScrollHint hint = EnsureVisible);
+		///virtual void scrollTo (QModelIndex const & index, ScrollHint hint = EnsureVisible);
 
 	protected:
 		friend class LogTableModel;
@@ -79,12 +97,13 @@ namespace logs {
 		friend class FindProxyModel;
 		friend struct LogCtxMenu;
 		friend struct LogDelegate;
-		friend class LogWidgetWithButtons;
+		friend class LogWidget;
+		friend class LogTableView;
 
-		virtual void wheelEvent (QWheelEvent * event);
-		virtual void keyPressEvent (QKeyEvent * event);
+		///virtual void wheelEvent (QWheelEvent * event);
+		///virtual void keyPressEvent (QKeyEvent * event);
 		QModelIndex currentSourceIndex () const;
-		virtual QModelIndex moveCursor (CursorAction cursorAction, Qt::KeyboardModifiers modifiers);
+		///virtual QModelIndex moveCursor (CursorAction cursorAction, Qt::KeyboardModifiers modifiers);
 
 		// config
 		int sizeHintForColumn (int column) const;
@@ -105,8 +124,8 @@ namespace logs {
 		void setSrcModel (FindConfig const & fc);
 		void handleFindAction (FindConfig const & fc);
 		void findInWholeTable (FindConfig const & fc, QModelIndexList & result);
-		LogWidgetWithButtons * mkFindAllRefsLogWidget (FindConfig const & fc);
-		LogWidgetWithButtons * mkFindAllCloneLogWidget (FindConfig const & fc);
+		LogWidget * mkFindAllRefsLogWidget (FindConfig const & fc);
+		LogWidget * mkFindAllCloneLogWidget (FindConfig const & fc);
 		void registerLinkedWidget (DockedWidgetBase * l);
 		void unregisterLinkedWidget (DockedWidgetBase * l);
 		void findAndSelect (FindConfig const & fc);
@@ -150,20 +169,17 @@ namespace logs {
 		void appendToStringFilters (QString const & str, bool checked, int state);
 		void removeFromStringFilters (QString const & val);
 		void refreshFilters (BaseProxyModel const * proxy);
-
 		void colorRow (int);
-
 		/*void removeFromColorRegex (QString const & val);
-		//void loadToColorRegexps (QString const & filter_item, QString const & color, bool enabled);
+		void loadToColorRegexps (QString const & filter_item, QString const & color, bool enabled);
 		void onColorRegexChanged (int role);
 		void recompileColorRegexps ();
 		void recompileColorRegex (ColorizedText & ct);
 		void actionColorRegex (DecodedCommand const & cmd, ColorizedText const & ct) const;
 		void actionUncolorRegex (DecodedCommand const & cmd, ColorizedText const & ct) const;
 		void updateColorRegex (ColorizedText const & ct);
-		void uncolorRegex (ColorizedText const & ct);*/
-
-		//void loadToRegexps (QString const & filter_item, bool inclusive, bool enabled);
+		void uncolorRegex (ColorizedText const & ct);
+		void loadToRegexps (QString const & filter_item, bool inclusive, bool enabled);*/
 
 		void setupSeparatorChar (QString const & c);
 		QString separatorChar () const;
@@ -187,6 +203,9 @@ namespace logs {
 		ThreadSpecific & getTLS () { return m_tls; }
 		ThreadSpecific const & getTLS () const { return m_tls; }
 
+		void linkToSource (LogWidget * src);
+		bool isLinkedWidget () const { return m_linked_parent != 0; }
+
 	public slots:
 		void onShow ();
 		void onHide ();
@@ -204,7 +223,6 @@ namespace logs {
 		void onFindPrev ();
 		void onFindAllRefs ();
 
-		//void scrollTo (QModelIndex const & index, ScrollHint hint);
 		void performSynchronization (E_SyncMode mode, int sync_group, unsigned long long time, void * source);
 
 		void onSectionResized (int logicalIndex, int oldSize, int newSize);
@@ -212,7 +230,6 @@ namespace logs {
 
 		void onNextToView ();
 		void onFilterChanged ();
-		//void onFilterFile (int state);
 
 		void onInvalidateFilter ();
 		void onFilterEnabledChanged ();
@@ -223,9 +240,9 @@ namespace logs {
 		void onTableDoubleClicked (QModelIndex const & row_index);
 
 		// actions
-		//void onClearCurrentView ();
+		/*void onClearCurrentView ();*/
 		void onClearAllDataButton ();
-		//void onUnhidePrevFromRow ();
+		/*void onUnhidePrevFromRow ();*/
 		void exportStorageToCSV (QString const & filename);
 		void onCopyToClipboard ();
 		void onExcludeFile ();
@@ -246,8 +263,8 @@ namespace logs {
 		void onHideNext ();
 		void onChangeTimeUnits (int);
 
-		//void requestTableWheelEventSync (QWheelEvent * ev, QTableView const * source);
-		//void requestTableActionSync (unsigned long long t, int cursorAction, Qt::KeyboardModifiers modifiers, QTableView const * source);
+		/*void requestTableWheelEventSync (QWheelEvent * ev, QTableView const * source);
+		void requestTableActionSync (unsigned long long t, int cursorAction, Qt::KeyboardModifiers modifiers, QTableView const * source);*/
 		void findNearestRow4Time (bool ctime, unsigned long long t);
 
 	signals:
@@ -255,6 +272,7 @@ namespace logs {
 
 	protected:
 		Connection * m_connection;
+		LogTableView * m_tableview;
 		ButtonCache * m_cacheLayout;
 
 		QToolButton * m_gotoPrevErrButton;
@@ -280,7 +298,6 @@ namespace logs {
 		LogConfig m_config;
 		logs::LogCtxMenu m_config_ui;
 		QString m_fname;
-		QWidget * m_tab;
 		WarnImage * m_warnimage;
 
 		FilterState m_filter_state;
@@ -305,58 +322,12 @@ namespace logs {
 		QStandardItemModel * m_color_regex_model;
 		FindWidget * m_find_widget;
 
+		LogWidget * m_linked_parent; // @TODO: move to LogWidgetWithButtons
+		typedef std::vector<DockedWidgetBase *> linked_widgets_t;
+		linked_widgets_t m_linked_widgets;
+
 		QString m_csv_separator;
 		QTextStream * m_file_csv_stream;
-	};
-
-	class LogWidgetWithButtons : public QFrame, public DockedWidgetBase
-	{
-		Q_OBJECT
-	public:
-
-		enum { e_type = e_data_log };
-		LogTableView * m_lw;
-
-		LogWidgetWithButtons (Connection * conn, QString const & fname, QStringList const & path);
-		~LogWidgetWithButtons ();
-
-		virtual bool handleAction (Action * a, E_ActionHandleType sync)
-		{
-			return m_lw->handleAction(a, sync);
-		}
-
-		virtual E_DataWidgetType type () const { return m_lw->type(); }
-		virtual QWidget * controlWidget () { return m_lw->controlWidget(); }
-
-		LogConfig & config () { return m_lw->config(); }
-		LogConfig const & config () const { return m_lw->config(); }
-		void loadConfig (QString const & preset_dir) { m_lw->loadConfig(preset_dir); }
-		void saveConfig (QString const & preset_dir) { m_lw->saveConfig(preset_dir); }
-		void applyConfig () { m_lw->applyConfig(); }
-
-		void handleCommand (DecodedCommand const & cmd, E_ReceiveMode mode) { m_lw->handleCommand(cmd, mode); }
-		void exportStorageToCSV (QString const & filename) { m_lw->exportStorageToCSV(filename); }
-		void commitCommands (E_ReceiveMode mode) { m_lw->commitCommands(mode); }
-		void setupNewLogModel () { m_lw->setupNewLogModel(); }
-
-		void linkToSource (LogWidgetWithButtons * src);
-		bool isLinkedWidget () const { return m_linked_parent != 0; }
-
-		void loadAuxConfigs () { m_lw->loadAuxConfigs(); }
-		void setupLogModel (LogTableModel * src_model) { m_lw->setupLogModel(src_model); }
-		//void setFindProxyModel (FindConfig const & fc) { m_lw->setFindProxyModel(fc); }
-
-
-		//FindWidget * findWidget () { return m_lw->findWidget(); }
-		//FindWidget const * findWidget () const { return m_lw->findWidget(); }
-
-	public slots:
-		void onHideContextMenu () { m_lw->onHideContextMenu(); }
-	protected:
-		LogWidgetWithButtons * m_linked_parent; // @TODO: move to LogWidgetWithButtons
-		typedef std::vector<LogWidgetWithButtons *> linked_widgets_t;
-		linked_widgets_t m_linked_widgets;
-		Connection * m_connection;
 	};
 }
 

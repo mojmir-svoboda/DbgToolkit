@@ -32,7 +32,7 @@ class FilterProxyModel : public BaseProxyModel
 {
 	Q_OBJECT
 public:
-	explicit FilterProxyModel (QObject * parent, logs::LogTableView & lw);
+	explicit FilterProxyModel (QObject * parent, logs::LogWidget & lw);
 	virtual ~FilterProxyModel ();
 
 	virtual QModelIndex sibling (int row, int column, QModelIndex const & idx) const;
@@ -46,7 +46,7 @@ public:
 	void clearModelData ();
 
 protected:
-	logs::LogTableView & m_log_widget;
+	logs::LogWidget & m_log_widget;
 	int m_column_count;
 };
 

@@ -64,7 +64,7 @@ namespace logs {
 		editor->setGeometry(option.rect);
 	}
 
-LogCtxMenu::LogCtxMenu (LogTableView & lw, QWidget * parent)
+LogCtxMenu::LogCtxMenu (LogWidget & lw, QWidget * parent)
 	: m_log_widget(lw)
 	, m_ui(new Ui::SettingsLog)
 	, m_widget(new QDockWidget(parent))
@@ -237,7 +237,7 @@ void LogCtxMenu::setConfigValuesToUI (LogConfig const & cfg)
 	QStandardItem * cel_root = static_cast<QStandardItemModel *>(m_ui->listViewColumnElide->model())->invisibleRootItem();
 	for (int i = 0, ie = cfg.m_columns_setup.size(); i < ie; ++i)
 	{
-		int const li = m_log_widget.horizontalHeader()->logicalIndex(i);
+		int const li = m_log_widget.m_tableview->horizontalHeader()->logicalIndex(i);
 		Q_ASSERT(li > -1);
     if (li == -1)
     {
