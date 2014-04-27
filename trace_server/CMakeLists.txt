@@ -131,6 +131,7 @@ set(trace_server_SOURCES
 
 	connection_log.cpp
 	logs/logtablemodel.cpp
+	logs/logtableview.cpp
 	logs/filterproxymodel.cpp
 	logs/findproxymodel.cpp
 	logs/logselectionproxymodel.cpp
@@ -241,6 +242,7 @@ set(trace_server_HEADERS
 
 
 	logs/logtablemodel.h
+	logs/logtableview.h
 	logs/logselectionproxymodel.h
 	logs/logwidget.h
 	logs/logconfig.h

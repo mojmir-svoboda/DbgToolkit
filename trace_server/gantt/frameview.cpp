@@ -303,6 +303,12 @@ bool FrameView::handleAction (Action * a, E_ActionHandleType sync)
 	return false;
 }
 
+void FrameView::setVisible (bool visible)
+{
+	m_dockwidget->setVisible(visible);
+	QWidget::setVisible(visible);
+}
+
 void FrameView::selected (QRectF const & r)
 {
 	QPointF const pos = r.topLeft();

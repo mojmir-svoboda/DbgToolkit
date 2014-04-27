@@ -1,13 +1,12 @@
 #include "connection.h"
 #include <QtNetwork>
-#include <trace_client/trace.h>
+//#include <trace_client/trace.h>
 #include "utils.h"
-#include "utils_qstandarditem.h"
+//#include "utils_qstandarditem.h"
 #include "utils_boost.h"
 #include "types.h"
 #include "server.h"
-#include "delegates.h"
-#include "tableview.h"
+#include "serialize.h"
 #include <ui_controlbarcommon.h>
 
 GlobalConfig const & Connection::getGlobalConfig () const { return m_main_window->getConfig(); }
@@ -40,7 +39,7 @@ Connection::Connection (QString const & app_name, QObject * parent)
 
 	m_control_bar = new ControlBarCommon();
 
-	m_main_window->dockManager().addActionTreeItem(*this, true); // TODO: m_config.m_show
+	//m_main_window->dockManager().addActionTreeItem(*this, true); // TODO: m_config.m_show
 	m_config.m_auto_scroll = getGlobalConfig().m_auto_scroll;
 	m_config.m_level = getGlobalConfig().m_level;
 	m_config.m_buffered = getGlobalConfig().m_buffered;
@@ -52,6 +51,8 @@ Connection::Connection (QString const & app_name, QObject * parent)
 	static int counter = 0;
 	m_storage_idx = counter;
 	++counter;
+
+	setConfigValuesToUI(m_config);
 
 	connect(m_control_bar->ui->logSlider, SIGNAL(valueChanged(int)), this, SLOT(onLogsStateChanged(int)));
 	connect(m_control_bar->ui->plotSlider, SIGNAL(valueChanged(int)), this, SLOT(onPlotStateChanged(int)));
@@ -68,7 +69,7 @@ namespace {
 		{
 			typename ContainerT::iterator::value_type ptr = *it;
 			mainwin.dockManager().removeDockable(ptr->path().join("/"));
-			mainwin.dockManager().removeActionAble(ptr->path().join("/"));
+			mainwin.dockManager().removeActionAble(*ptr);
 		}
 		//c.clear(); toto je spatne!
 	}
@@ -88,11 +89,12 @@ struct UnregisterDockedWidgets {
 
 void Connection::destroyDockedWidget (DockedWidgetBase * dwb)
 {
+	m_main_window->dockManager().removeActionAble(*this);
 	switch (dwb->type())
 	{
 		case e_data_log:
-			m_main_window->dockManager().removeDockable(dwb->path().join("/"));
-			m_main_window->dockManager().removeActionAble(dwb->path().join("/"));
+			//m_main_window->dockManager().removeDockable(dwb->path().join("/"));
+			//m_main_window->dockManager().removeActionAble(*this);
 			// @TODO!
 			//removeDockWidget<e_data_log>(static_cast<DataLog *>(dwb));
 			//destroyDockedWidget<e_data_log>(static_cast<DataLog *>(dwb));
@@ -136,6 +138,7 @@ Connection::~Connection ()
 {
 	qDebug("Connection::~Connection() this=0x%08x", this);
 
+	m_main_window->dockManager().removeActionAble(*this);
 	recurse(m_data, UnregisterDockedWidgets(*m_main_window));
 
 	if (m_tcpstream)
@@ -259,12 +262,27 @@ struct ExportAsCSV {
 void Connection::saveConfigs (QString const & path)
 {
 	qDebug("%s", __FUNCTION__);
+
+	mkDir(path);
+	QString const fname = path + "/" + getAppName() + ".xml";
+	saveConfigTemplate(m_config, fname);
+
 	recurse(m_data, Save(path));
 }
 
 void Connection::loadConfigs (QString const & path)
 {
 	qDebug("%s", __FUNCTION__);
+
+	QString const fname = path + "/" + getAppName() + ".xml";
+	bool const loaded = loadConfigTemplate(m_config, fname);
+	if (!loaded)
+	{
+		m_config = ConnectionConfig();
+		//m_config.m_tag = tag_backup; // defaultConfigFor destroys tag
+	}
+	setConfigValuesToUI(m_config);
+
 	recurse(m_data, Load(path));
 }
 

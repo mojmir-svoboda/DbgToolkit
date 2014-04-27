@@ -11,6 +11,7 @@ public:
 	~DockManagerModel ();
 
 	QModelIndex insertItemWithPath (QStringList const & path, bool checked);
+	QModelIndex testItemWithPath (QStringList const & path);
 
 	TreeModel<DockedInfo>::node_t const * getItemFromIndex (QModelIndex const & index) const { return itemFromIndex(index); }
 	DockedWidgetBase const * getWidgetFromIndex (QModelIndex const & index) const;

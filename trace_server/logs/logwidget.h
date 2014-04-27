@@ -14,6 +14,7 @@
 #include "warnimage.h"
 #include "syncwidgets.h"
 #include "buttoncache.h"
+#include "logtableview.h"
 
 class Connection;
 class LogTableModel;
@@ -22,29 +23,6 @@ class BaseProxyModel;
 class ControlBarLog;
 
 namespace logs {
-
-	class LogWidget;
-
-	class LogTableView : public TableView
-	{
-	public:
-		LogTableView (Connection * conn, LogWidget & logwidget, LogConfig & config);
-		virtual ~LogTableView ();
-
-		LogConfig & config () { return m_config; }
-		LogConfig const & config () const { return m_config; }
-
-		virtual void scrollTo (QModelIndex const & index, ScrollHint hint = EnsureVisible);
-		virtual void wheelEvent (QWheelEvent * event);
-		virtual void keyPressEvent (QKeyEvent * event);
-		virtual QModelIndex moveCursor (CursorAction cursorAction, Qt::KeyboardModifiers modifiers);
-
-
-	protected:
-		Connection * m_connection;
-		LogWidget & m_log_widget;
-		LogConfig & m_config;
-	};
 
 	class LogWidget : public QFrame, public DockedWidgetBase
 	{
@@ -67,7 +45,7 @@ namespace logs {
 		void reloadModelAccordingTo (LogConfig & pcfg);
 		void applyConfig ();
 		QString getCurrentWidgetPath () const;
-		void fillButtonCache ();
+		void fillButtonCache (QWidget * parent);
 		void setButtonCache (ButtonCache * c) { m_cacheLayout = c; }
 
 		QList<DecodedCommand> m_queue;
@@ -75,6 +53,7 @@ namespace logs {
 		void commitCommands (E_ReceiveMode mode);
 
 		virtual bool handleAction (Action * a, E_ActionHandleType sync);
+		virtual void setVisible (bool visible);
 
 		int findColumn4Tag (tlv::tag_t tag);
 		int findColumn4TagCst (tlv::tag_t tag) const;

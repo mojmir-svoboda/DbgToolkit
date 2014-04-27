@@ -32,6 +32,7 @@ struct FrameView : QWidget, DockedWidgetBase
 	virtual E_DataWidgetType type () const { return e_data_frame; }
 	void appendFrame (unsigned long long from, unsigned long long to);
 	virtual bool handleAction (Action * a, E_ActionHandleType sync);
+	virtual void setVisible (bool visible);
 
 	FrameViewConfig & config () { return m_config; }
 	FrameViewConfig const & config () const { return m_config; }

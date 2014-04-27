@@ -63,9 +63,9 @@ void MainWindow::onPresetApply (QString const & preset_name)
 	m_config.saveHistory();
 	setPresetAsCurrent(preset_name);
 
-	for (connections_t::iterator it = m_connections.begin(), ite = m_connections.end(); it != ite; ++it)
+	for (size_t i = 0; i < m_connections.size(); ++i)
 	{
-		(*it)->onPresetApply(preset_name);
+		m_connections[i]->onPresetApply(preset_name);
 	}
 
 	loadLayout(preset_name);

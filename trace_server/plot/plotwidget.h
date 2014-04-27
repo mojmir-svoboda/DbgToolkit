@@ -47,6 +47,7 @@ namespace plot {
 		void commitCommands (E_ReceiveMode mode);
 
 		virtual bool handleAction (Action * a, E_ActionHandleType sync);
+		virtual void setVisible (bool visible);
 
 		void stopUpdate ();
 

@@ -56,6 +56,7 @@ namespace gantt {
 		ganttviews_t::iterator mkGanttView (QString const & subtag);
 		void syncGanttViews (GanttView * src, QPointF interval);
 		virtual bool handleAction (Action * a, E_ActionHandleType sync);
+		virtual void setVisible (bool visible);
 		void handleCommand (DecodedCommand const & cmd, E_ReceiveMode mode);
 
 		FrameView * findOrCreateFrameView (int sync_group);

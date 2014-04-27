@@ -13,54 +13,45 @@ typename SelectIterator<TypeN>::type Connection::dataWidgetFactory (QString cons
 		typedef typename SelectConfig<TypeN>::type config_t;
 
 		QString const preset_name = getClosestPresetName(tag);
+		m_curr_preset = preset_name;
 		char const * widget_prefix = g_fileTags[TypeN];
 		char const * widget_fname = g_fileNames[TypeN];
 		QString const fname = mkWidgetFileName(getGlobalConfig().m_appdir, getAppName(), preset_name, widget_prefix, tag, widget_fname);
-		m_curr_preset = preset_name;
 		
 		QStringList path;
 		mkWidgetPath(static_cast<E_DataWidgetType>(TypeN), tag, path);
-		widget_t * const dd = new widget_t(this, fname, path);
-		it = m_data.get<TypeN>().insert(tag, dd);
+		widget_t * const widget = new widget_t(this, fname, path);
+		it = m_data.get<TypeN>().insert(tag, widget);
 
-		dd->config().m_tag = tag;
+		widget->config().m_tag = tag;
 		if (!preset_name.isEmpty())
 		{
 			QString const cfg_path = mkAppPresetPath(getGlobalConfig().m_appdir, getAppName(), m_curr_preset);
-			dd->loadConfig(cfg_path);
+			widget->loadConfig(cfg_path);
 		}
 
 		//@TODO: pozdeji
 		//m_main_window->mentionInPresetHistory(m_curr_preset);
 		//m_main_window->setPresetAsCurrent(m_curr_preset);
 
-		DockedWidgetBase & dwb = *dd;
+		bool const visible = widget->config().m_show;
+		DockWidget * dock = m_main_window->dockManager().mkDockWidget(*widget, visible);
+        widget->setDockWidget(dock);
+		dock->setWidget(widget);
+		//note: applyConfig is handled by the caller
 
-		DockWidget * dockwidget = m_main_window->m_dock_mgr.mkDockWidget(dwb, (*it)->config().m_show);
-		//dwb.m_wd->setWidget(&(*it)->widget());
-        //dd->widget().setDockedWidget(dd);
-		//(*it)->widget().applyConfig(); handled by caller
+		QModelIndex const item_idx = m_main_window->m_dock_mgr.addDockedTreeItem(*widget, visible);
 
-		bool const visible = (*it)->config().m_show;
-		//if (m_main_window->ganttState() == e_FtrEnabled && visible)
-		//dd->m_wd->setVisible(visible);
-		dd->setVisible(visible);
-		QModelIndex const item_idx = m_main_window->m_dock_mgr.addDockedTreeItem(dwb, visible);
-
-		if (/*m_main_window->ganttState() == e_FtrEnabled &&*/ visible)
+		if (getClosestFeatureState(static_cast<E_DataWidgetType>(TypeN)) == e_FtrEnabled && visible)
 		{
-			//dd->m_wd->setVisible(visible);
-			dd->setVisible(visible);
-
+			widget->setVisible(visible);
 			getMainWindow()->onDockRestoreButton();
-			//m_main_window->restoreDockWidget(dd->m_wd);
+			//m_main_window->restoreDockWidget(dock);
 		}
 		else
 		{
-			//dd->m_wd->setVisible(false);
-			dd->setVisible(false);
+			widget->setVisible(false);
 			// @TODO: visible to data_tree?
-			// @TODO: visible to widget conf? probably not..
 		}
 	}
 	return it;
@@ -136,6 +127,7 @@ typename SelectIterator<TypeN>::type Connection::dataWidgetFactoryFrom (QString 
 		if (visible)
 		{
 			//dd->m_wd->setVisible(visible);
+			dw->setVisible(visible);
 			dd->setVisible(visible);
 
 			getMainWindow()->onDockRestoreButton();

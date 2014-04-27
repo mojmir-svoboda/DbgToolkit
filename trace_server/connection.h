@@ -247,6 +247,8 @@ protected:
 
 	void findTableIndexInFilters (QModelIndex const & row_index, bool scroll_to_item, bool expand);
 
+	void setConfigValuesToUI (ConnectionConfig const & cfg);
+	void setUIValuesToConfig (ConnectionConfig & cfg);
 	void setupColumnSizes (bool force_setup = false);
 	bool dumpModeEnabled () const;
 

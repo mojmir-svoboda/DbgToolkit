@@ -528,6 +528,12 @@ namespace plot {
 		return false;
 	}
 
+	void PlotWidget::setVisible (bool visible)
+	{
+		m_dockwidget->setVisible(visible);
+		QwtPlot::setVisible(visible);
+	}
+
 	void PlotWidget::handleCommand (DecodedCommand const & cmd, E_ReceiveMode mode)
 	{
 		if (mode == e_RecvSync)

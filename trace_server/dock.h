@@ -4,20 +4,25 @@
 #include "types.h"
 #include "dockedconfig.h"
 
+struct DockWidget;
+
 struct DockedWidgetBase : ActionAble {
 	//Q_OBJECT
 public:
+	DockWidget * m_dockwidget;
+
 	DockedWidgetBase (QStringList const & path);
 	virtual ~DockedWidgetBase () { }
 
+	virtual E_DataWidgetType type () const = 0;
+	virtual QWidget * controlWidget () = 0;
+
+	void setDockWidget (DockWidget * w) { m_dockwidget = w; }
+	DockWidget * dockWidget () { return m_dockwidget; }
+	DockWidget const * dockWidget () const { return m_dockwidget; }
 	//virtual DockedConfigBase const & dockedConfig () const = 0;
 	//virtual DockedConfigBase & dockedConfig () = 0;
 	//virtual QWidget * dockedWidget () = 0;
-	virtual QWidget * controlWidget () = 0;
-
-	QDockWidget * m_dockwidget;
-
-	virtual E_DataWidgetType type () const = 0;
 };
 
 

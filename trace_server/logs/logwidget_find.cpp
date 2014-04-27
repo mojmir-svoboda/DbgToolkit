@@ -394,7 +394,6 @@ void LogWidget::noMoreMatches ()
 	// flash icon
 	QPoint const global = rect().center();
 	QPoint const pos(global.x() - m_warnimage->width() / 2, global.y() - m_warnimage->height() / 2);
-    m_warnimage->setParent(this);
     m_warnimage->move(pos);
 	m_warnimage->show();
 	m_warnimage->activateWindow();

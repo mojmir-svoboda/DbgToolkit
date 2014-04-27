@@ -24,12 +24,34 @@ E_FeatureStates Connection::getClosestFeatureState (E_DataWidgetType type) const
 {
 	switch (type)
 	{
-		case e_data_log: return static_cast<E_FeatureStates>(m_control_bar->ui->logSlider->value());
-		case e_data_plot: return static_cast<E_FeatureStates>(m_control_bar->ui->plotSlider->value());
+		case e_data_log  : return static_cast<E_FeatureStates>(m_control_bar->ui->logSlider->value());
+		case e_data_plot : return static_cast<E_FeatureStates>(m_control_bar->ui->plotSlider->value());
 		case e_data_table: return static_cast<E_FeatureStates>(m_control_bar->ui->tableSlider->value());
 		case e_data_gantt: return static_cast<E_FeatureStates>(m_control_bar->ui->ganttSlider->value());
 		case e_data_frame: return static_cast<E_FeatureStates>(m_control_bar->ui->ganttSlider->value());
 	}
+}
+
+void Connection::setConfigValuesToUI (ConnectionConfig const & cfg)
+{
+	m_control_bar->ui->levelSpinBox->setValue(m_config.m_level);
+	m_control_bar->ui->buffCheckBox->setChecked(m_config.m_buffered);
+	// preset
+	m_control_bar->ui->logSlider->setValue(m_config.m_logs_recv_level);
+	m_control_bar->ui->plotSlider->setValue(m_config.m_plots_recv_level);
+	m_control_bar->ui->tableSlider->setValue(m_config.m_tables_recv_level);
+	m_control_bar->ui->ganttSlider->setValue(m_config.m_gantts_recv_level);
+}
+
+void Connection::setUIValuesToConfig (ConnectionConfig & cfg)
+{
+	m_config.m_level = m_control_bar->ui->levelSpinBox->value();
+	m_config.m_buffered = m_control_bar->ui->buffCheckBox->isChecked();
+	//
+	m_config.m_logs_recv_level = static_cast<E_FeatureStates>(m_control_bar->ui->logSlider->value());
+	m_config.m_plots_recv_level = static_cast<E_FeatureStates>(m_control_bar->ui->plotSlider->value());
+	m_config.m_tables_recv_level = static_cast<E_FeatureStates>(m_control_bar->ui->tableSlider->value());
+	m_config.m_gantts_recv_level = static_cast<E_FeatureStates>(m_control_bar->ui->ganttSlider->value()); 
 }
 
 void Connection::onLogsStateChanged (int state)
@@ -60,7 +82,8 @@ void Connection::onLevelValueChanged (int val)
 #endif
 
 	if (result > 0)
-	{
+	{	
+		m_config.m_level = val;
 		char buff[256];
 		using namespace tlv;
 		Encoder e(cmd_set_level, buff, 256);
@@ -83,6 +106,8 @@ void Connection::onBufferingStateChanged (bool on)
 
 	if (result > 0)
 	{
+		m_config.m_buffered = on;
+
 		qDebug("Connection::onBufferingStateChanged to_state=%i", buffering_enabled);
 		char buff[256];
 		using namespace tlv;

@@ -191,6 +191,12 @@ namespace gantt {
 		return false;
 	}
 
+	void GanttWidget::setVisible (bool visible)
+	{
+		m_dockwidget->setVisible(visible);
+		QFrame::setVisible(visible);
+	}
+
 	void GanttWidget::commitCommands (E_ReceiveMode mode)
 	{
 		for (int i = 0, ie = m_queue.size(); i < ie; ++i)

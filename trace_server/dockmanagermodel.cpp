@@ -14,7 +14,17 @@ DockManagerModel::~DockManagerModel ()
 {
 	qDebug("%s", __FUNCTION__);
 }
-
+QModelIndex DockManagerModel::testItemWithPath (QStringList const & path)
+{
+	QString const name = path.join("/");
+	DockedInfo const * i = 0;
+	if (node_t const * node = m_tree_data->is_present(name, i))
+	{		
+		return indexFromItem(node);
+	}
+	else
+		return QModelIndex();
+}
 
 QModelIndex DockManagerModel::insertItemWithPath (QStringList const & path, bool checked)
 {
@@ -24,7 +34,7 @@ QModelIndex DockManagerModel::insertItemWithPath (QStringList const & path, bool
 	if (node)
 	{
 		//qDebug("%s path=%s already present", __FUNCTION__, path.toStdString().c_str());
-		return QModelIndex();
+		return indexFromItem(node);
 	}
 	else
 	{

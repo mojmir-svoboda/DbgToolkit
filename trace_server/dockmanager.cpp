@@ -44,7 +44,7 @@ DockManager::DockManager (MainWindow * mw, QStringList const & path)
 	//setSizeAdjustPolicy(QAbstractScrollArea::AdjustIgnored);
 	//header()->setSectionResizeMode(0, QHeaderView::Interactive);
 	header()->setStretchLastSection(false);
-	setStyleSheet("QTableView::item{ selection-background-color: #F5DEB3  } QTableView::item{ selection-color: #000000 }");
+	setStyleSheet("QTreeView::item{ selection-background-color: #F5DEB3  } QTreeView::item{ selection-color: #000000 }");
 }
 
 void DockManager::loadConfig (QString const & cfgpath)
@@ -65,6 +65,8 @@ void DockManager::loadConfig (QString const & cfgpath)
 		config2.m_data.root = 0; // @TODO: promyslet.. takle na to urcite zapomenu
 		m_model = new DockManagerModel(this, &m_config.m_data);
 		setModel(m_model);
+		bool const on = true;
+		addActionTreeItem(*this, on);
 	}
 }
 
@@ -87,6 +89,7 @@ void DockManager::saveConfig (QString const & path)
 
 DockManager::~DockManager ()
 {
+	removeActionAble(*this);
 	disconnect(this, SIGNAL(clicked(QModelIndex)), this, SLOT(onClicked(QModelIndex)));
 }
 
@@ -180,12 +183,20 @@ void DockManager::removeDockable (QString const & dst_joined)
 		m_dockables.erase(it);
 }
 
-void DockManager::removeActionAble (QString const & dst_joined)
+void DockManager::removeActionAble (ActionAble & aa)
 {
 	qDebug("%s", __FUNCTION__);
-	actionables_t::iterator it = m_actionables.find(dst_joined);
-	if (it != m_actionables.end() && it.key() == dst_joined)
+	actionables_t::iterator it = m_actionables.find(aa.joinedPath());
+	if (it != m_actionables.end() && it.key() == aa.joinedPath())
+	{
+		QModelIndex const idx = m_model->testItemWithPath(aa.path());
+		if (idx.isValid())
+		{
+			QModelIndex const idx1 = m_model->index(idx.row(), 1, idx.parent());
+			setIndexWidget(idx1, 0); // reclaim ownership
+		}
 		m_actionables.erase(it);
+	}
 }
 
 DockedWidgetBase const * DockManager::findDockable (QString const & dst_joined) const
@@ -304,36 +315,3 @@ void DockManager::onClicked (QModelIndex idx)
 	handleAction(&a, e_Sync);
 }
 
-////////////////////////////////////////
-/*QString DockManager::matchClosestPresetName (QString const & app_name)
-{
-	QString const top_level_preset = m_main_window->getCurrentPresetName();
-
-	return top_level_preset;
-
-	QString const multitab_preset_hint = ui->multiTabPresetComboBox->currentText();
-	if (!multitab_preset_hint.isEmpty())
-	{
-		return app_name + "/" + multitab_preset_hint;
-	}
-
-
-	QString const saved_preset = getCurrentPresetName();
-	QString preset_appname = saved_preset;
-	int const slash_pos = preset_appname.lastIndexOf(QChar('/'));
-	if (slash_pos != -1)
-		preset_appname.chop(preset_appname.size() - slash_pos);
-	qDebug("match preset name: curr=%s app_name=%s", preset_appname.toStdString().c_str(), app_name.toStdString().c_str());
-	if (preset_appname.contains(app_name))
-	{
-		qDebug("got correct preset name appname/.* from combobox");
-		return saved_preset;
-	}
-	else
-	{
-		qDebug("got nonmatching preset name appname/.* from combobox");
-		return QString();
-	}
-}
-
-*/
