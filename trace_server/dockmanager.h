@@ -23,6 +23,13 @@ public:
 	DockManager (MainWindow * mw, QStringList const & path);
 	~DockManager ();
 
+	enum {
+		e_Column_Name,
+		e_Column_Close,
+		e_Column_ControlWidget,
+		e_max_dockmgr_column
+	};
+
 	typedef QMultiMap<QString, DockWidget *> widgets_t;
 	typedef QMultiMap<QString, ActionAble *> actionables_t;
 	widgets_t			m_widgets; // @TODO: hashed container?
@@ -38,7 +45,7 @@ public:
 	DockWidget * mkDockWidget (DockedWidgetBase & dwb, bool visible);
 	DockWidget * mkDockWidget (ActionAble & aa, bool visible, Qt::DockWidgetArea area);
 
-	QModelIndex addActionTreeItem (ActionAble & aa, bool on);
+	QModelIndex addActionAble (ActionAble & aa, bool on);
 	void removeActionAble (ActionAble & aa);
 	ActionAble const * findActionAble (QString const & dst_joined) const;
 	Ui::ControlBarCommon * controlUI () { return m_control_bar->ui; }

@@ -61,7 +61,7 @@ QModelIndex DockManagerModel::insertItemWithPath (QStringList const & path, bool
 
 int DockManagerModel::columnCount (QModelIndex const & parent) const
 {
-	return 2; // @TODO: not supported yet
+	return DockManager::e_max_dockmgr_column;
 }
 
 Qt::ItemFlags DockManagerModel::flags (QModelIndex const & index) const
@@ -128,44 +128,7 @@ bool DockManagerModel::setData (QModelIndex const & index, QVariant const & valu
 {
 	if (!index.isValid()) return false;
 
-	node_t * const item = itemFromIndex(index);
-	int const col = index.column();
-
-	/*if (col == e_SyncGroup && role == Qt::EditRole)
-	{
-		if (DockedWidgetBase * const dwb = getWidgetFromIndex(index))
-		{
-			int const sg = value.toInt();
-			dwb->dockedConfig().m_sync_group = sg;
-		}
-	}
-	else if (role <= Qt::UserRole)
-	{
-		return TreeModel<DockedInfo>::setData(index, value, role);
-	}
-	else if (role == e_DockRoleCentralWidget)
-	{
-		if (DockedWidgetBase * const dwb = getWidgetFromIndex(index))
-		{
-			int const on = value.toInt();
-			dwb->dockedConfig().m_central_widget = on;
-		}
-	}
-	else if (role == e_DockRoleSyncGroup)
-	{
-		if (DockedWidgetBase * const dwb = getWidgetFromIndex(index))
-		{
-			int const sg = value.toInt();
-			dwb->dockedConfig().m_sync_group = sg;
-		}
-	}
-	else if (role == e_DockRoleSelect)
-	{
-	}
-	else
-		return false;*/
-
-	emit dataChanged(index, index);
+	//emit dataChanged(index, index);
 	return true;
 }
 

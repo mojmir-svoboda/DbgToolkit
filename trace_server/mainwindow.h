@@ -89,7 +89,6 @@ public:
 	void copyStorageTo (QString const & filename);
 	Connection * findConnectionByName (QString const & app_name);
 	Connection * createNewConnection ();
-	void destroyConnection (Connection * connection);
 
 public slots:
 	void newConnection (Connection * connection);

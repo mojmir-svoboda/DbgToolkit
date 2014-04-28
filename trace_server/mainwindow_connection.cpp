@@ -106,10 +106,3 @@ void MainWindow::onCloseTab (int idx, QWidget * w)
 	onTabTraceFocus(getTabTrace()->currentIndex());
 }*/
 
-void MainWindow::destroyConnection (Connection * connection)
-{
-	QObject::disconnect(connection->m_tcpstream, SIGNAL(disconnected()), connection, SLOT(onDisconnected()));
-	QObject::disconnect(connection->m_tcpstream, SIGNAL(readyRead()), connection, SLOT(processReadyRead()));
-	delete connection;
-}
-

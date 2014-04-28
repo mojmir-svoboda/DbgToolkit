@@ -192,6 +192,7 @@ set(trace_server_HEADERS
 	rendezvous.h
 	utils.h
 	dock.h
+	dockedwidgets.h
 	dockmanagerconfig.h
 	dockmanager.h
 	dockmanagermodel.h

@@ -85,20 +85,17 @@ void DockManager::loadConfig (QString const & cfgpath)
 	if (!::loadConfigTemplate(config2, fname))
 	{
 		m_config.defaultConfig();
-		bool const on = true;
-		m_model = new DockManagerModel(this, &m_config.m_data);
-		setModel(m_model);
-		addActionTreeItem(*this, on);
 	}
 	else
 	{
 		m_config = config2;
 		config2.m_data.root = 0; // @TODO: promyslet.. takle na to urcite zapomenu
-		m_model = new DockManagerModel(this, &m_config.m_data);
-		setModel(m_model);
-		bool const on = true;
-		addActionTreeItem(*this, on);
 	}
+
+	m_model = new DockManagerModel(this, &m_config.m_data);
+	setModel(m_model);
+	bool const on = true;
+	addActionAble(*this, on);
 }
 
 void DockManager::applyConfig ()
@@ -155,11 +152,21 @@ void DockManager::onWidgetClosed (DockWidget * w)
 	m_widgets.remove(w->objectName());
 }
 
-QModelIndex DockManager::addActionTreeItem (ActionAble & aa, bool on)
+QModelIndex DockManager::addActionAble (ActionAble & aa, bool on)
 {
+	qDebug("%s aa=%s show=%i", __FUNCTION__, aa.joinedPath().toStdString().c_str(), on);
 	QModelIndex const idx = m_model->insertItemWithPath(aa.path(), on);
-	QModelIndex const idx1 = m_model->index(idx.row(), 1, idx.parent());
-	setIndexWidget(idx1, aa.controlWidget());
+
+	{
+		QModelIndex const jdx = m_model->index(idx.row(), e_Column_ControlWidget, idx.parent());
+		if (jdx.isValid())
+			setIndexWidget(jdx, aa.controlWidget());
+	}
+	{
+		QModelIndex const jdx = m_model->index(idx.row(), e_Column_Close, idx.parent());
+		if (jdx.isValid())
+			setIndexWidget(jdx, aa.closeWidget());
+	}
 
 	// @TODO: set type=AA into returned node
 	m_model->setData(idx, QVariant(on ? Qt::Checked : Qt::Unchecked), Qt::CheckStateRole);
@@ -180,7 +187,7 @@ ActionAble const * DockManager::findActionAble (QString const & dst_joined) cons
 
 void DockManager::removeActionAble (ActionAble & aa)
 {
-	qDebug("%s", __FUNCTION__);
+	qDebug("%s aa=%s", __FUNCTION__, aa.joinedPath().toStdString().c_str());
 	actionables_t::iterator it = m_actionables.find(aa.joinedPath());
 	if (it != m_actionables.end() && it.key() == aa.joinedPath())
 	{
@@ -189,6 +196,7 @@ void DockManager::removeActionAble (ActionAble & aa)
 		{
 			QModelIndex const idx1 = m_model->index(idx.row(), 1, idx.parent());
 			setIndexWidget(idx1, 0); // reclaim ownership
+			//aa.controlWidget()->setparent(0); je to k necemu?
 		}
 		m_actionables.erase(it);
 	}

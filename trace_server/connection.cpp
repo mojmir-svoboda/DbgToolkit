@@ -87,30 +87,19 @@ struct UnregisterDockedWidgets {
 
 void Connection::destroyDockedWidget (DockedWidgetBase * dwb)
 {
-	m_main_window->dockManager().removeActionAble(*this);
+	m_main_window->dockManager().removeActionAble(*dwb);
 	switch (dwb->type())
 	{
-		case e_data_log:
-			removeDockedWidget<e_data_log>(dwb);
-			break;
-		case e_data_plot:
-			removeDockedWidget<e_data_plot>(dwb);
-			break;
-		case e_data_table:
-			removeDockedWidget<e_data_table>(dwb);
-			break;
-		case e_data_gantt:
-			removeDockedWidget<e_data_gantt>(dwb);
-			break;
-		case e_data_frame:
-			removeDockedWidget<e_data_frame>(dwb);
-			break;
+		case e_data_log: removeDockedWidget<e_data_log>(dwb); break;
+		case e_data_plot: removeDockedWidget<e_data_plot>(dwb); break;
+		case e_data_table: removeDockedWidget<e_data_table>(dwb); break;
+		case e_data_gantt: removeDockedWidget<e_data_gantt>(dwb); break;
+		case e_data_frame: removeDockedWidget<e_data_frame>(dwb); break;
 		default: break;
 	}
 }
 
 namespace {
-
 	template <class ContainerT>
 	void destroyDockedWidgets (ContainerT & c, MainWindow & mw, Connection & conn)
 	{

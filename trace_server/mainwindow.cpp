@@ -260,7 +260,7 @@ void MainWindow::onQuit ()
 	{
 		Connection * c = m_connections.back();
 		m_connections.pop_back();
-		destroyConnection(c);
+		delete c;
 	}
 
 	QTimer::singleShot(0, this, SLOT(onQuitReally()));	// trigger lazy quit

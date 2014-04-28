@@ -40,7 +40,7 @@ typename SelectIterator<TypeN>::type Connection::dataWidgetFactory (QString cons
 		dock->setWidget(widget);
 		//note: applyConfig is handled by the caller
 
-		QModelIndex const item_idx = m_main_window->m_dock_mgr.addActionTreeItem(*widget, visible);
+		QModelIndex const item_idx = m_main_window->m_dock_mgr.addActionAble(*widget, visible);
 
 		if (getClosestFeatureState(static_cast<E_DataWidgetType>(TypeN)) == e_FtrEnabled && visible)
 		{
@@ -99,9 +99,6 @@ typename SelectIterator<TypeN>::type Connection::dataWidgetFactoryFrom (QString 
 		DockWidget * dock = m_main_window->m_dock_mgr.mkDockWidget(*widget, visible);
 		// no applyConfig here!
 
-		widget->setVisible(visible);
-		QModelIndex const item_idx = m_main_window->m_dock_mgr.addActionTreeItem(*widget, visible);
-
 		if (visible)
 		{
 			widget->setVisible(visible);
@@ -115,6 +112,8 @@ typename SelectIterator<TypeN>::type Connection::dataWidgetFactoryFrom (QString 
 			// @TODO: visible to data_tree?
 			// @TODO: visible to widget conf? probably not..
 		}
+
+		QModelIndex const item_idx = m_main_window->m_dock_mgr.addActionAble(*widget, visible);
 	}
 	return it;
 }

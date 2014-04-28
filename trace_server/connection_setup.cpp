@@ -27,7 +27,7 @@ namespace {
 			p << g_fileTags[t.e_type];
 			t.m_path = p;
 			t.m_joined_path = p.join("/");
-			m_main_window.dockManager().addActionTreeItem(t, true);
+			m_main_window.dockManager().addActionAble(t, true);
 		}
 	};
 }
@@ -68,19 +68,19 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 			if (conn)
 			{
 				qDebug("cmd setup: looking for app=%s: found", app_name.toStdString().c_str());
-
-				m_main_window->destroyConnection(conn);
+				qDebug("deleting old instance of %s at @ 0x%08x", conn->getAppName().toStdString().c_str(), conn);
+				QString const curr_preset = conn->getCurrentPresetName();
+				delete conn;
 				conn = 0;
-				//QWidget * w = conn->m_tab_widget;
-				//m_main_window->onCloseTab(w);	// close old one
 				// @TODO: delete persistent storage for the tab
-
+				m_curr_preset = curr_preset;
+				onPresetApply(curr_preset);
 			}
 			else
 			{
 				qDebug("cmd setup: looking for app=%s: not found", app_name.toStdString().c_str());
-				//QString const pname = m_main_window->matchClosestPresetName(app_name);
-				//m_main_window->onPresetActivate(this, pname);
+				m_curr_preset = getCurrentPresetName();
+				onPresetApply(m_curr_preset);
 			}
 
 			m_app_name = app_name;
@@ -92,7 +92,7 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 			m_main_window->dockManager().removeActionAble(*this);
 			m_path.last() = m_app_name;
 			m_joined_path = m_path.join("/");
-			m_main_window->dockManager().addActionTreeItem(*this, true); // TODO: m_config.m_show
+			m_main_window->dockManager().addActionAble(*this, true); // TODO: m_config.m_show
 
 			registerDataMaps();
 			//m_main_window->onSetup(e_Proto_TLV, sessionState().m_app_idx, true, true);
