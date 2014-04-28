@@ -5,6 +5,7 @@
 #include "controlbar_dockmanager.h"
 #include "serialize.h"
 #include <ui_controlbarcommon.h>
+#include <QScrollBar>
 /*#include <ui_controlbarlogs.h>
 #include <ui_controlbarplots.h>
 #include <ui_controlbartables.h>
@@ -40,11 +41,41 @@ DockManager::DockManager (MainWindow * mw, QStringList const & path)
 	connect(this, SIGNAL(clicked(QModelIndex)), this, SLOT(onClicked(QModelIndex)));
 	connect(m_docked_widgets, SIGNAL(dockClosed()), mw, SLOT(onDockManagerClosed()));
 	setAllColumnsShowFocus(false);
-	setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+	//setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 	//setSizeAdjustPolicy(QAbstractScrollArea::AdjustIgnored);
 	//header()->setSectionResizeMode(0, QHeaderView::Interactive);
 	header()->setStretchLastSection(false);
-	setStyleSheet("QTreeView::item{ selection-background-color: #F5DEB3  } QTreeView::item{ selection-color: #000000 }");
+	setStyleSheet("QTreeView::item{ selection-background-color: #FFE7BA } QTreeView::item{ selection-color: #000000 }");
+	//horizontalScrollBar()->setStyleSheet("QScrollBar:horizontal { border: 1px solid grey; height: 15px; } QScrollBar::handle:horizontal { background: white; min-width: 10px; }");
+	/*
+	setStyleSheet(QString::fromUtf8("QScrollBar:vertical {               
+		"    border: 1px solid #999999;"
+		"    background:white;"
+		"    width:10px;    "
+		"    margin: 0px 0px 0px 0px;"
+		"}"
+		"QScrollBar::handle:vertical {"
+		"    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,"
+		"    stop: 0  rgb(32, 47, 130), stop: 0.5 rgb(32, 47, 130),  stop:1 rgb(32, 47, 130));"
+		"    min-height: 0px;"
+		""
+		"}"
+		"QScrollBar::add-line:vertical {"
+		"    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,"
+		"    stop: 0  rgb(32, 47, 130), stop: 0.5 rgb(32, 47, 130),  stop:1 rgb(32, 47, 130));"
+		"    height: px;"
+		"    subcontrol-position: bottom;"
+		"    subcontrol-origin: margin;"
+		"}"
+		"QScrollBar::sub-line:vertical {"
+		"    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,"
+		"    stop: 0  rgb(32, 47, 130), stop: 0.5 rgb(32, 47, 130),  stop:1 rgb(32, 47, 130));"
+		"    height: 0px;"
+		"    subcontrol-position: top;"
+		"    subcontrol-origin: margin;"
+		"}"
+		""));
+*/	
 }
 
 void DockManager::loadConfig (QString const & cfgpath)
@@ -124,12 +155,6 @@ void DockManager::onWidgetClosed (DockWidget * w)
 	m_widgets.remove(w->objectName());
 }
 
-QModelIndex DockManager::addDockedTreeItem (DockedWidgetBase & dwb, bool on)
-{
-	m_dockables.insert(dwb.joinedPath(), &dwb);
-	return addActionTreeItem(dwb, on);
-}
-
 QModelIndex DockManager::addActionTreeItem (ActionAble & aa, bool on)
 {
 	QModelIndex const idx = m_model->insertItemWithPath(aa.path(), on);
@@ -153,36 +178,6 @@ ActionAble const * DockManager::findActionAble (QString const & dst_joined) cons
 	return 0;
 }
 
-/*DockedWidgetBase const * DockManager::findDockableForWidget (QWidget * w) const
-{
-	for (dockables_t::const_iterator it = m_dockables.begin(), ite = m_dockables.end(); it != ite; ++it)
-	{
-		DockedWidgetBase const * const dwb = *it;
-		DockedWidgetBase const * const dwbw = qobject_cast<DockedWidgetBase const *>(w);
-		if (w && dwb && dwb == dwbw)
-			return dwb;
-	}
-	return 0;
-}
-DockedWidgetBase * DockManager::findDockableForWidget (QWidget * w)
-{
-	for (dockables_t::const_iterator it = m_dockables.begin(), ite = m_dockables.end(); it != ite; ++it)
-	{
-		DockedWidgetBase * const dwb = *it;
-		if (w && dwb && dwb == qobject_cast<DockedWidgetBase *>(w))
-			return dwb;
-	}
-	return 0;
-}*/
-
-void DockManager::removeDockable (QString const & dst_joined)
-{
-	qDebug("%s", __FUNCTION__);
-	dockables_t::iterator it = m_dockables.find(dst_joined);
-	if (it != m_dockables.end() && it.key() == dst_joined)
-		m_dockables.erase(it);
-}
-
 void DockManager::removeActionAble (ActionAble & aa)
 {
 	qDebug("%s", __FUNCTION__);
@@ -197,21 +192,6 @@ void DockManager::removeActionAble (ActionAble & aa)
 		}
 		m_actionables.erase(it);
 	}
-}
-
-DockedWidgetBase const * DockManager::findDockable (QString const & dst_joined) const
-{
-	dockables_t::const_iterator it = m_dockables.find(dst_joined);
-	if (it != m_dockables.end() && it.key() == dst_joined)
-		return *it;
-	return 0;
-}
-DockedWidgetBase * DockManager::findDockable (QString const & dst_joined)
-{
-	dockables_t::iterator it = m_dockables.find(dst_joined);
-	if (it != m_dockables.end() && it.key() == dst_joined)
-		return *it;
-	return 0;
 }
 
 void DockManager::onColumnResized (int idx, int , int new_size)
@@ -302,14 +282,14 @@ void DockManager::onClicked (QModelIndex idx)
 		int const state = m_model->data(idx, Qt::CheckStateRole).toInt();
 		a.m_args.push_back(state);
 	}
-	if (col == e_InCentralWidget)
+	/*if (col == e_InCentralWidget)
 	{
 		int const state = m_model->data(idx, e_DockRoleCentralWidget).toInt();
 		int const new_state = state == 0 ? 1 : 0;
 
 		m_model->setData(idx, new_state, e_DockRoleCentralWidget);
 		a.m_args.push_back(new_state);
-	}
+	}*/
 
 	//av.m_dst = 0;
 	handleAction(&a, e_Sync);

@@ -113,7 +113,7 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QStri
 	connect(m_dock_mgr.controlUI()->presetRmButton, SIGNAL(clicked()), this, SLOT(onPresetRm()));
 	connect(m_dock_mgr.controlUI()->presetResetButton, SIGNAL(clicked()), this, SLOT(onPresetReset()));
 	connect(m_dock_mgr.controlUI()->logSlider, SIGNAL(valueChanged(int)), this, SLOT(onLogsStateChanged(int)));
-	connect(m_dock_mgr.controlUI()->plotSlider, SIGNAL(valueChanged(int)), this, SLOT(onPlotStateChanged(int)));
+	connect(m_dock_mgr.controlUI()->plotSlider, SIGNAL(valueChanged(int)), this, SLOT(onPlotsStateChanged(int)));
 	connect(m_dock_mgr.controlUI()->tableSlider, SIGNAL(valueChanged(int)), this, SLOT(onTablesStateChanged(int)));
 	connect(m_dock_mgr.controlUI()->ganttSlider, SIGNAL(valueChanged(int)), this, SLOT(onGanttsStateChanged(int)));
 

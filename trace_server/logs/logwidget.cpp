@@ -403,10 +403,6 @@ namespace logs {
 
 		delete m_control_bar;
 		m_control_bar = 0;
-		//@FIXME: ownership problem...:
-		//m_dockwidget->setWidget(0);
-		//delete m_dockwidget;
-		//m_dockwidget = 0;
 
 		qDebug("%s this=0x%08x tag=%s", __FUNCTION__, this, m_config.m_tag.toStdString().c_str());
 		disconnect(this, SIGNAL(customContextMenuRequested(QPoint const &)), this, SLOT(onShowContextMenu(QPoint const &)));

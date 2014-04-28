@@ -32,7 +32,7 @@ void FilterProxyModel::resizeToCfg (logs::LogConfig const & config)
 	}
   else if (config.m_columns_setup.size() < m_column_count)
 	{
-		size_t const last = static_cast<int>(config.m_columns_setup.size()) + 1;
+		int const last = static_cast<int>(config.m_columns_setup.size()) + 1;
 		beginRemoveColumns(QModelIndex(), last, m_column_count);
 		removeColumns(last, m_column_count);
 		m_column_count = last - 1;
@@ -110,13 +110,13 @@ void FilterProxyModel::commitBatchToModel (int src_from, int src_to, BatchCmd co
 	{
 		if (filterAcceptsRow(static_cast<int>(src_idx), QModelIndex()))
 		{
-			accepted_rows.push_back(src_idx);
+			accepted_rows.push_back(static_cast<int>(src_idx));
 			m_map_from_src.insert(std::make_pair(src_idx, tgt_idx));
 			++tgt_idx;
 		}
 	}
 
-	if (int const n_accepted = accepted_rows.size())
+	if (int const n_accepted = static_cast<int>(accepted_rows.size()))
 	{
 		m_map_from_tgt.reserve(from + n_accepted);
 		int const to = from + n_accepted - 1;
@@ -131,7 +131,7 @@ void FilterProxyModel::commitBatchToModel (int src_from, int src_to, BatchCmd co
 	//@FIXME l8r: this does not work in general!
 	if (m_cmap_from_src.size() < m_log_widget.m_src_model->columnCount())
 	{
-		size_t const from = m_cmap_from_src.size();
+		int const from = static_cast<int>(m_cmap_from_src.size());
 		m_cmap_from_tgt.clear();
 		m_cmap_from_src.clear();
 		m_cmap_from_src.reserve(m_log_widget.m_src_model->columnCount());

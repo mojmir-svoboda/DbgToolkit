@@ -75,7 +75,7 @@ Qt::ItemFlags DockManagerModel::flags (QModelIndex const & index) const
 }
 
 
-DockedWidgetBase const * DockManagerModel::getWidgetFromIndex (QModelIndex const & index) const
+/*DockedWidgetBase const * DockManagerModel::getWidgetFromIndex (QModelIndex const & index) const
 {
 	DockManager const * const mgr = static_cast<DockManager const *>(QObject::parent());
 	node_t const * const item = itemFromIndex(index);
@@ -91,7 +91,7 @@ DockedWidgetBase * DockManagerModel::getWidgetFromIndex (QModelIndex const & ind
 	QStringList const & p = item->data.m_path;
 	DockedWidgetBase * dwb = mgr->findDockable(p.join("/"));
 	return dwb;
-}
+}*/
 
 QVariant DockManagerModel::data (QModelIndex const & index, int role) const
 {

@@ -15,12 +15,6 @@ struct DockWidget;
 class ControlBarCommon;
 namespace Ui { class ControlBarCommon; }
 
-enum {
-	e_DockRoleCentralWidget = Qt::UserRole + 1,
-	e_DockRoleSelect,
-	e_DockRoleSyncGroup
-};
-
 struct DockManager : DockManagerView, ActionAble
 {
 	Q_OBJECT
@@ -31,9 +25,7 @@ public:
 
 	typedef QMultiMap<QString, DockWidget *> widgets_t;
 	typedef QMultiMap<QString, ActionAble *> actionables_t;
-	typedef QMultiMap<QString, DockedWidgetBase *> dockables_t;
 	widgets_t			m_widgets; // @TODO: hashed container?
-	dockables_t			m_dockables;
 	actionables_t		m_actionables;
 	MainWindow * 		m_main_window;
 	QDockWidget * 		m_docked_widgets;
@@ -45,16 +37,10 @@ public:
 
 	DockWidget * mkDockWidget (DockedWidgetBase & dwb, bool visible);
 	DockWidget * mkDockWidget (ActionAble & aa, bool visible, Qt::DockWidgetArea area);
-	QModelIndex addDockedTreeItem (DockedWidgetBase & dwb, bool on);
-	QModelIndex addActionTreeItem (ActionAble & aa, bool on);
-	DockedWidgetBase const * findDockable (QString const & joined_path) const;
 
-	void removeDockable (QString const & dst_joined);
+	QModelIndex addActionTreeItem (ActionAble & aa, bool on);
 	void removeActionAble (ActionAble & aa);
-	DockedWidgetBase * findDockable (QString const & joined_path);
 	ActionAble const * findActionAble (QString const & dst_joined) const;
-	//DockedWidgetBase const * findDockableForWidget (QWidget * w) const;
-	//DockedWidgetBase * findDockableForWidget (QWidget * w);
 	Ui::ControlBarCommon * controlUI () { return m_control_bar->ui; }
 	Ui::ControlBarCommon const * controlUI () const { return m_control_bar->ui; }
 

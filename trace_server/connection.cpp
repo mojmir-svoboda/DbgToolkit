@@ -55,7 +55,7 @@ Connection::Connection (QString const & app_name, QObject * parent)
 	setConfigValuesToUI(m_config);
 
 	connect(m_control_bar->ui->logSlider, SIGNAL(valueChanged(int)), this, SLOT(onLogsStateChanged(int)));
-	connect(m_control_bar->ui->plotSlider, SIGNAL(valueChanged(int)), this, SLOT(onPlotStateChanged(int)));
+	connect(m_control_bar->ui->plotSlider, SIGNAL(valueChanged(int)), this, SLOT(onPlotsStateChanged(int)));
 	connect(m_control_bar->ui->tableSlider, SIGNAL(valueChanged(int)), this, SLOT(onTablesStateChanged(int)));
 	connect(m_control_bar->ui->ganttSlider, SIGNAL(valueChanged(int)), this, SLOT(onGanttsStateChanged(int)));
 }
@@ -68,10 +68,8 @@ namespace {
 		for (typename ContainerT::iterator it = c.begin(), ite = c.end(); it != ite; ++it)
 		{
 			typename ContainerT::iterator::value_type ptr = *it;
-			mainwin.dockManager().removeDockable(ptr->path().join("/"));
 			mainwin.dockManager().removeActionAble(*ptr);
 		}
-		//c.clear(); toto je spatne!
 	}
 }
 
@@ -93,16 +91,20 @@ void Connection::destroyDockedWidget (DockedWidgetBase * dwb)
 	switch (dwb->type())
 	{
 		case e_data_log:
-			//m_main_window->dockManager().removeDockable(dwb->path().join("/"));
-			//m_main_window->dockManager().removeActionAble(*this);
-			// @TODO!
-			//removeDockWidget<e_data_log>(static_cast<DataLog *>(dwb));
-			//destroyDockedWidget<e_data_log>(static_cast<DataLog *>(dwb));
+			removeDockedWidget<e_data_log>(dwb);
 			break;
 		case e_data_plot:
+			removeDockedWidget<e_data_plot>(dwb);
+			break;
 		case e_data_table:
+			removeDockedWidget<e_data_table>(dwb);
+			break;
 		case e_data_gantt:
+			removeDockedWidget<e_data_gantt>(dwb);
+			break;
 		case e_data_frame:
+			removeDockedWidget<e_data_frame>(dwb);
+			break;
 		default: break;
 	}
 }
@@ -115,6 +117,7 @@ namespace {
 		for (typename ContainerT::iterator it = c.begin(), ite = c.end(); it != ite; ++it)
 		{
 			typename ContainerT::iterator::value_type ptr = *it;
+			ptr->setParent(0);
 			delete ptr;
 		}
 		c.clear();

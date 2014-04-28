@@ -14,8 +14,8 @@ public:
 	QModelIndex testItemWithPath (QStringList const & path);
 
 	TreeModel<DockedInfo>::node_t const * getItemFromIndex (QModelIndex const & index) const { return itemFromIndex(index); }
-	DockedWidgetBase const * getWidgetFromIndex (QModelIndex const & index) const;
-	DockedWidgetBase * getWidgetFromIndex (QModelIndex const & index);
+	//DockedWidgetBase const * getWidgetFromIndex (QModelIndex const & index) const;
+	//DockedWidgetBase * getWidgetFromIndex (QModelIndex const & index);
 
 	virtual int columnCount (QModelIndex const & parent) const;
 	virtual QVariant data (const QModelIndex & index, int role = Qt::DisplayRole) const;
