@@ -127,13 +127,13 @@ void Connection::onPresetChanged (int idx)
 void Connection::onPresetApply ()
 {
 	QString const txt = getCurrentPresetName();
-    onPresetApply(txt);
+	onPresetApply(txt);
 }
 
 void Connection::onPresetSave ()
 {
 	QString const txt = getCurrentPresetName();
-    onPresetSave(txt);
+	onPresetSave(txt);
 }
 
 void Connection::onPresetAdd ()
@@ -180,39 +180,37 @@ void Connection::onPresetReset ()
 QString Connection::getCurrentPresetName () const
 {
 	QString txt = m_control_bar->ui->presetComboBox->currentText();
-    if (txt.isEmpty())
-        txt = g_defaultPresetName;
+	if (txt.isEmpty())
+		txt = g_defaultPresetName;
 	return txt;
 }
 
 void Connection::setPresetAsCurrent (QString const & pname)
 {
-    m_control_bar->ui->presetComboBox->setCurrentIndex(m_control_bar->ui->presetComboBox->findText(pname));
+	m_control_bar->ui->presetComboBox->setCurrentIndex(m_control_bar->ui->presetComboBox->findText(pname));
 }
 
 void Connection::onPresetApply (QString const & preset_name)
 {
-    mentionStringInHistory_Ref(preset_name, m_control_bar->ui->presetComboBox, m_config.m_preset_history);
-    m_config.saveHistory();
-    setPresetAsCurrent(preset_name);
+	mentionStringInHistory_Ref(preset_name, m_control_bar->ui->presetComboBox, m_config.m_preset_history);
+	m_config.saveHistory();
+	setPresetAsCurrent(preset_name);
 
-    if (checkAppPresetPath(getGlobalConfig().m_appdir, m_app_name, preset_name))
-    {
-        m_curr_preset = preset_name;
+	if (checkAppPresetPath(getGlobalConfig().m_appdir, m_app_name, preset_name))
+	{
+		m_curr_preset = preset_name;
 
-        QString const path = mkAppPresetPath(getGlobalConfig().m_appdir, m_app_name, preset_name);
-        loadConfigs(path);
-        applyConfigs();
-    }
-    else
-    {
-        removeStringFromHistory(preset_name, m_control_bar->ui->presetComboBox, m_config.m_preset_history);
-        m_config.saveHistory();
-        m_control_bar->ui->presetComboBox->setCurrentIndex(-1);
-    }
-
-    // FIXME: appname + prs
-	m_main_window->loadLayout(preset_name);
+		QString const path = mkAppPresetPath(getGlobalConfig().m_appdir, m_app_name, preset_name);
+		loadConfigs(path);
+		applyConfigs();
+		m_main_window->loadLayout(path + "/" + g_presetLayoutName);
+	}
+	else
+	{
+		removeStringFromHistory(preset_name, m_control_bar->ui->presetComboBox, m_config.m_preset_history);
+		m_config.saveHistory();
+		m_control_bar->ui->presetComboBox->setCurrentIndex(-1);
+	}
 }
 
 void Connection::onPresetSave (QString const & preset_name)
@@ -222,19 +220,18 @@ void Connection::onPresetSave (QString const & preset_name)
 		return;
 
 	qDebug("SaveAs to preset_name=%s", preset_name.toStdString().c_str());
-    mentionStringInHistory_Ref(preset_name, m_control_bar->ui->presetComboBox, m_config.m_preset_history);
-    m_config.saveHistory();
-    setPresetAsCurrent(preset_name);
+	mentionStringInHistory_Ref(preset_name, m_control_bar->ui->presetComboBox, m_config.m_preset_history);
+	m_config.saveHistory();
+	setPresetAsCurrent(preset_name);
 
-    createAppPresetPath(getGlobalConfig().m_appdir, m_app_name, preset_name);
+	createAppPresetPath(getGlobalConfig().m_appdir, m_app_name, preset_name);
 		
-    m_curr_preset = preset_name; // @TODO: ?? or only on apply preset?
+	m_curr_preset = preset_name; // @TODO: ?? or only on apply preset?
 
 	QString const path = mkAppPresetPath(getGlobalConfig().m_appdir, m_app_name, preset_name);
 	saveConfigs(path);
 
-    // FIXME: appname + prs
-	m_main_window->saveLayout(preset_name);
+	m_main_window->saveLayout(path + "/" + g_presetLayoutName);
 }
 
 /*void Connection::mentionInPresetHistory (QString const & str)

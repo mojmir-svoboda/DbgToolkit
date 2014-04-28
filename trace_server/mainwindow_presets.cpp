@@ -68,7 +68,7 @@ void MainWindow::onPresetApply (QString const & preset_name)
 		m_connections[i]->onPresetApply(preset_name);
 	}
 
-	loadLayout(preset_name);
+	//loadLayout(preset_name);
 }
 
 void MainWindow::onPresetSave (QString const & preset_name)
@@ -85,7 +85,6 @@ void MainWindow::onPresetSave (QString const & preset_name)
 	for (size_t i = 0; i < m_connections.size(); ++i)
 		m_connections[i]->onPresetSave(preset_name);
 
-	saveLayout(preset_name);
 	storeState();
 }
 
@@ -98,9 +97,8 @@ void MainWindow::onPresetSave (QString const & preset_name)
 	m_config.saveHistory();
 }*/
 
-void MainWindow::saveLayout (QString const & preset_name)
+void MainWindow::saveLayout (QString const & fname)
 {
-	QString fname = mkPresetPath(m_config.m_appdir, preset_name) + "/" + g_presetLayoutName;
 	QFile file(fname);
 	if (!file.open(QFile::WriteOnly))
 	{
@@ -126,16 +124,11 @@ void MainWindow::saveLayout (QString const & preset_name)
 	}
 }
 
-void MainWindow::loadLayout (QString const & preset_name)
+void MainWindow::loadLayout (QString const & fname)
 {
-	QString const fname = mkPresetPath(m_config.m_appdir, preset_name) + "/" + g_presetLayoutName;
 	QFile file(fname);
 	if (!file.open(QFile::ReadOnly))
-	{
-		//QString msg = tr("Failed to open %1\n%2").arg(fname).arg(file.errorString());
-		//QMessageBox::warning(this, tr("Error"), msg);
 		return;
-	}
 
 	uchar geo_size;
 	QByteArray geo_data;
@@ -172,6 +165,9 @@ void MainWindow::storeState ()
 	settings.setValue("windowState", saveState());
 
 	m_dock_mgr.saveConfig(m_config.m_appdir);
+
+	QString const preset_name = getCurrentPresetName();
+	saveLayout(preset_name);
 }
 
 void MainWindow::restoreDockedWidgetGeometry ()
@@ -211,6 +207,9 @@ void MainWindow::loadState ()
 	registerHotKey();
 	//qApp->uninstallEventFilter(this); // @FIXME
 	qApp->installEventFilter(this);
+
+	QString const preset_name = getCurrentPresetName();
+	loadLayout(preset_name);
 }
 
 

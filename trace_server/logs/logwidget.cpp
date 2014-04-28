@@ -626,7 +626,7 @@ namespace logs {
 	QString LogWidget::getCurrentWidgetPath () const
 	{
 		QString const appdir = m_connection->getMainWindow()->getAppDir();
-		QString const logpath = appdir + "/" + m_connection->getCurrPreset() + "/" + g_LogTag + "/" + m_config.m_tag;
+		QString const logpath = appdir + "/" + m_connection->getAppName() + "/" + m_connection->getCurrPreset() + "/" + g_LogTag + "/" + m_config.m_tag;
 		return logpath;
 	}
 

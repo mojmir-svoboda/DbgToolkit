@@ -57,8 +57,8 @@ public:
 	QString getAppDir () const { return m_config.m_appdir; }
 
 	// presets
-	void saveLayout (QString const & preset_name);
-	void loadLayout (QString const & preset_name);
+	void saveLayout (QString const & fname);
+	void loadLayout (QString const & fname);
 
 	void setPresetAsCurrent (QString const & pname);
 	void mentionInPresetHistory (QString const & str);
