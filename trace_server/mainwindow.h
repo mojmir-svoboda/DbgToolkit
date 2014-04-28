@@ -89,10 +89,13 @@ public:
 	void copyStorageTo (QString const & filename);
 	Connection * findConnectionByName (QString const & app_name);
 	Connection * createNewConnection ();
+	Connection * createNewConnection (QString const & app_name);
+	void markConnectionForClose (Connection * conn);
 
 public slots:
 	void newConnection (Connection * connection);
 	void onStatusChanged (QString const & status);
+	void onCloseMarkedConnections ();
 
 	void onHotkeyShowOrHide ();
 	void hide ();
@@ -106,11 +109,6 @@ public slots:
 	void onSave ();
 	void onSaveAs (QString const & preset_name);
 
-	//void onCloseTab (int idx, QWidget * w);
-	//void onCloseTab (QWidget * w);
-	//void onCloseMarkedConnections ();
-	//void onCloseTabWithIndex (int idx);
-	//void onCloseCurrentTab ();
 
 	friend class Connection;
 private slots:
@@ -123,6 +121,7 @@ private slots:
 	//void onFocusChanged (QWidget * old, QWidget * now);
 	void onQuitReally ();
 	void openFiles (QStringList const & list);
+	void onCloseConnection (Connection * c);
 
 	void onFileLoad ();
 	void onFileTail ();

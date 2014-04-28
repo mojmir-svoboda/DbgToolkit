@@ -8,6 +8,12 @@ bool LogWidget::handleAction (Action * a, E_ActionHandleType sync)
 {
 	switch (a->type())
 	{
+		case e_Close:
+		{
+			m_connection->destroyDockedWidget(this);
+			return true;
+		}
+
 		case e_Visibility:
 		{
 			Q_ASSERT(m_args.size() > 0);

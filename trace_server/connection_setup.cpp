@@ -63,15 +63,15 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 
 		if (cmd.m_tvs[i].m_tag == tlv::tag_app)
 		{
-			QString app_name = cmd.m_tvs[i].m_val;
+			QString const app_name = cmd.m_tvs[i].m_val;
 			Connection * conn = m_main_window->findConnectionByName(app_name);
 			if (conn)
 			{
 				qDebug("cmd setup: looking for app=%s: found", app_name.toStdString().c_str());
 				qDebug("deleting old instance of %s at @ 0x%08x", conn->getAppName().toStdString().c_str(), conn);
 				QString const curr_preset = conn->getCurrentPresetName();
+				//m_main_window->markConnectionForClose(this);
 				delete conn;
-				conn = 0;
 				// @TODO: delete persistent storage for the tab
 				m_curr_preset = curr_preset;
 				onPresetApply(curr_preset);

@@ -2,6 +2,7 @@
 #include "connection.h"
 #include <QClipboard>
 #include <QStatusBar>
+#include <QTimer>
 
 /*Connection * MainWindow::findCurrentConnection ()
 {
@@ -43,7 +44,9 @@ void MainWindow::newConnection (Connection * c)
 
 Connection * MainWindow::createNewConnection ()
 {
-	Connection * connection = new Connection("unknown", this);
+	static int conn_counter = 0;
+	QString const tmp_name = QString("new_app_") + QString::number(++conn_counter);
+	Connection * connection = new Connection(tmp_name, this);
 	m_connections.push_back(connection);
 	qDebug("created new connection[%u] for connection @ 0x%08x", m_connections.size(), connection);
 	return connection;
@@ -90,19 +93,42 @@ void MainWindow::createTailDataStream (QString const & fname)
 	emit newConnection(connection);
 }
 
-/*
-void MainWindow::onCloseTab (int idx, QWidget * w)
+
+void MainWindow::onCloseConnection (Connection * c)
 {
-	qDebug("MainWindow::onCloseTab(idx=%i, QWidget *=0x%08x) idx=%i", idx, w, idx);
-	getTabTrace()->removeTab(idx);
-	connections_t::iterator it = m_connections.find(w);
+	qDebug("MainWindow::onCloseConection(Connection *=0x%08x)", c);
+	connections_t::iterator it = std::find(m_connections.begin(), m_connections.end(), c);
 	if (it != m_connections.end())
 	{
-		Connection * connection = it->second;
+		Connection * connection = (*it);
 		m_connections.erase(it);
-		destroyConnection(connection);
+		delete connection;
+		connection = 0;
 	}
-	qDebug("MainWindow::onCloseTab(idx=%i, QWidget *=0x%08x) curr idx=%i", idx, w, getTabTrace()->currentIndex());
-	onTabTraceFocus(getTabTrace()->currentIndex());
-}*/
+}
 
+void MainWindow::onCloseMarkedConnections ()
+{
+	qDebug("%s", __FUNCTION__);
+
+	std::vector<Connection *> to_delete;
+	to_delete.reserve(m_connections.size());
+
+	for (connections_t::iterator it = m_connections.begin(), ite = m_connections.end(); it != ite; ++it)
+	{
+		if ((*it)->m_marked_for_close)
+			to_delete.push_back(*it);
+	}
+
+	while (!to_delete.empty())
+	{
+		onCloseConnection(to_delete.back());
+		to_delete.pop_back();
+	}
+}
+
+void MainWindow::markConnectionForClose (Connection * conn)
+{
+	conn->m_marked_for_close = true;
+	QTimer::singleShot(0, this, SLOT(onCloseMarkedConnections()));
+}

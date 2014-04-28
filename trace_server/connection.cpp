@@ -188,9 +188,7 @@ void Connection::onDisconnected ()
 
 		exportStorageToCSV(fname);
 
-		Server * server = static_cast<Server *>(parent());
-		m_marked_for_close = true;
-		QTimer::singleShot(0, server, SLOT(onCloseMarkedTabs()));
+		m_main_window->markConnectionForClose(this);
 	}
 
 	for (dataplots_t::iterator it = m_data.get<e_data_plot>().begin(), ite = m_data.get<e_data_plot>().end(); it != ite; ++it)
@@ -293,6 +291,11 @@ void Connection::exportStorageToCSV (QString const & dir)
 
 bool Connection::handleAction (Action * a, E_ActionHandleType sync)
 {
+	if (a->type() == e_Close)
+	{
+		m_main_window->markConnectionForClose(this);
+		return true;
+	}
 	//recurse(m_data, HandleAction(a, sync));
 	return true;
 }

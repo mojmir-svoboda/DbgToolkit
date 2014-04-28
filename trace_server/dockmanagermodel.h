@@ -14,6 +14,7 @@ public:
 	QModelIndex testItemWithPath (QStringList const & path);
 
 	TreeModel<DockedInfo>::node_t const * getItemFromIndex (QModelIndex const & index) const { return itemFromIndex(index); }
+	TreeModel<DockedInfo>::node_t * getItemFromIndex (QModelIndex const & index) { return itemFromIndex(index); }
 	//DockedWidgetBase const * getWidgetFromIndex (QModelIndex const & index) const;
 	//DockedWidgetBase * getWidgetFromIndex (QModelIndex const & index);
 

@@ -37,7 +37,7 @@ Server::Server (QString ip, unsigned short port, QObject * parent, bool quit_del
 		return;
 	}
 	m_server_status = tr("Server running at %1 port: %2").arg(serverAddress().toString()).arg(serverPort());
-    emit statusChanged(m_server_status);
+	emit statusChanged(m_server_status);
 }
 
 void Server::incomingConnection (qintptr socketDescriptor)
@@ -48,7 +48,7 @@ void Server::incomingConnection (qintptr socketDescriptor)
 	QObject::connect(connection->m_tcpstream, SIGNAL(readyRead()), connection, SLOT(processReadyRead()));
 	QObject::connect(connection->m_tcpstream, SIGNAL(disconnected()), connection, SLOT(onDisconnected()));
 	emit newConnection(connection);
-    emit statusChanged("New connection from remote application!");
+	emit statusChanged("New connection from remote application!");
 
 	// this is supposed to use blocking reads in own thread
 	/*Connection * connection = createNewTableView ();

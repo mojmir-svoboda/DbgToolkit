@@ -2,7 +2,6 @@
 #include "logwidget.h"
 #include <connection.h>
 
-
 namespace logs {
 
 	LogTableView::LogTableView (Connection * conn, LogWidget & logwidget, LogConfig & config)

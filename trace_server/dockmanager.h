@@ -9,7 +9,7 @@
 #include "dockmanagermodel.h"
 #include "dockmanagerconfig.h"
 #include "controlbarcommon.h"
-class QCloseEvent;
+class QCloseEvent; class QPushButton;
 class MainWindow;
 struct DockWidget;
 class ControlBarCommon;
@@ -38,8 +38,8 @@ public:
 	QDockWidget * 		m_docked_widgets;
 	ControlBarCommon * m_control_bar;
 	DockManagerModel *	m_model;
-	typedef tree_filter<DockedInfo> data_t;
-	data_t *	        m_model_data;
+	//typedef tree_filter<DockedInfo> data_t;
+	//data_t *	        m_data;
 	DockManagerConfig	m_config;
 
 	DockWidget * mkDockWidget (DockedWidgetBase & dwb, bool visible);
@@ -61,10 +61,13 @@ public:
 public slots:
 	void onWidgetClosed (DockWidget * w);
 	void onClicked (QModelIndex idx);
+	void onCloseButton ();
 
 protected slots:
 	void onColumnResized (int column, int oldSize, int newSize);
 
+protected:
+	bool findClickedActionAble (QPushButton const * const b, TreeModel<DockedInfo>::node_t const * node, QStringList & aa) const;
 };
 
 

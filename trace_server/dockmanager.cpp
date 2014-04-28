@@ -165,14 +165,21 @@ QModelIndex DockManager::addActionAble (ActionAble & aa, bool on)
 	{
 		QModelIndex const jdx = m_model->index(idx.row(), e_Column_Close, idx.parent());
 		if (jdx.isValid())
-			setIndexWidget(jdx, aa.closeWidget());
+		{
+			QPushButton * b = new QPushButton("X");
+			b->setStyleSheet("color: rgb(255, 0, 0)");
+			setIndexWidget(jdx, b);
+			connect(b, SIGNAL(clicked()), this, SLOT(onCloseButton()));
+			TreeModel<DockedInfo>::node_t * const n = m_model->getItemFromIndex(idx);
+			n->data.m_close_widget = b;
+		}
 	}
 
 	// @TODO: set type=AA into returned node
 	m_model->setData(idx, QVariant(on ? Qt::Checked : Qt::Unchecked), Qt::CheckStateRole);
 	QString const & name = aa.joinedPath();
 	m_actionables.insert(name, &aa);
-	aa.m_idx = idx;
+	//aa.m_idx = idx;
 	//resizeColumnToContents(0);
 	return idx;
 }
@@ -259,7 +266,7 @@ bool DockManager::handleAction (Action * a, E_ActionHandleType sync)
 				qDebug("delivering action to: %s", dst_joined.toStdString().c_str());
 				ActionAble * const next_hop =  it.value();
 				next_hop->handleAction(a, sync);
-				++it;
+				//++it;
 			}
 			else
 			{
@@ -301,5 +308,41 @@ void DockManager::onClicked (QModelIndex idx)
 
 	//av.m_dst = 0;
 	handleAction(&a, e_Sync);
+}
+
+
+bool DockManager::findClickedActionAble (QPushButton const * const b, TreeModel<DockedInfo>::node_t const * node, QStringList & aa) const
+{
+	node = node->children;
+	while (node)
+	{
+		if (node->data.m_close_widget == b)
+		{
+			aa = node->data.m_path;
+			return true;
+		}
+		if (findClickedActionAble(b, node, aa))
+			return true;
+		node = node->next;
+	}
+}
+
+void DockManager::onCloseButton ()
+{
+	QObject * src = QObject::sender();
+	if (QPushButton * button = qobject_cast<QPushButton *>(src))
+	{
+		QStringList dst_path;
+		if (findClickedActionAble(button, m_config.m_data.root, dst_path))
+		{
+			Action a;
+			a.m_type = e_Close;
+			a.m_src_path = path();
+			a.m_src = this;
+			a.m_dst_path = dst_path;
+			//a.m_args.push_back(state);
+			handleAction(&a, e_Sync);
+		}
+	}
 }
 
