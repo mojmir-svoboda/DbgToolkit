@@ -71,7 +71,8 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 				qDebug("deleting old instance of %s at @ 0x%08x", conn->getAppName().toStdString().c_str(), conn);
 				QString const curr_preset = conn->getCurrentPresetName();
 				//m_main_window->markConnectionForClose(this);
-				delete conn;
+				m_main_window->onCloseConnection(conn); // deletes it immeadiately
+
 				// @TODO: delete persistent storage for the tab
 				m_curr_preset = curr_preset;
 			}
