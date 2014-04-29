@@ -2,6 +2,7 @@
 #include "types.h"
 #include "constants.h"
 #include "history.h"
+#include <QDir>
 
 struct GlobalConfig {
 	unsigned  m_hotkey;
@@ -49,6 +50,7 @@ struct GlobalConfig {
 		, m_trace_port(g_defaultPort)
 		, m_profiler_addr("127.0.0.1")
 		, m_profiler_port(13147)
+		, m_appdir(QDir::homePath() + "/" + g_traceServerDirName)
 		, m_preset_history(16)
 	{ }
 

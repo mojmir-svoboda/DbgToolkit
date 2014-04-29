@@ -424,18 +424,19 @@ namespace plot {
 		//colorizerMgr()->saveConfig(plotpath);
 	}
 
-	void PlotWidget::saveConfig (QString const & path)
+	void PlotWidget::saveConfig (QString const & path) //@FIXME: unused arg
 	{
-		QString const plotpath = path + "/" + g_PlotTag + "/" + m_config.m_tag + "/";
+		QString const plotpath = getCurrentWidgetPath();
+		mkDir(plotpath);
+
 		plot::PlotConfig tmp = m_config;
-		//normalizeConfig(tmp);
-		saveConfigTemplate(tmp, plotpath + g_PlotFile);
+		saveConfigTemplate(tmp, plotpath + "/" + g_PlotFile);
 		saveAuxConfigs();
 	}
 
 	void PlotWidget::onSaveButton ()
 	{
-		//saveConfig(m_config, m_fname);
+		saveConfig(QString());
 	}
 	void PlotWidget::onResetButton () {}
 	void PlotWidget::onDefaultButton ()
