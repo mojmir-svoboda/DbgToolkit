@@ -1,13 +1,15 @@
 #pragma once
 #include "treemodel.h"
 #include "dockedinfo.h"
+struct DockManager;
 
 class DockManagerModel : public TreeModel<DockedInfo>
 {
+	DockManager & m_manager;
 	Q_OBJECT
 public:
 
-	explicit DockManagerModel (QObject * parent = 0, tree_data_t * data = 0);
+	explicit DockManagerModel (DockManager & mgr, QObject * parent = 0, tree_data_t * data = 0);
 	~DockManagerModel ();
 
 	QModelIndex insertItemWithPath (QStringList const & path, bool checked);

@@ -4,8 +4,9 @@
 #include "dockmanager.h"
 #include "dock.h"
 
-DockManagerModel::DockManagerModel (QObject * parent, tree_data_t * data)
+DockManagerModel::DockManagerModel (DockManager & mgr, QObject * parent, tree_data_t * data)
 	: TreeModel<DockedInfo>(parent, data)
+	, m_manager(mgr)
 {
 	qDebug("%s", __FUNCTION__);
 }
@@ -66,12 +67,16 @@ int DockManagerModel::columnCount (QModelIndex const & parent) const
 
 Qt::ItemFlags DockManagerModel::flags (QModelIndex const & index) const
 {
+	if (index.row() == 0 && index.column() == 0)
+		return QAbstractItemModel::flags(index)
+					| Qt::ItemIsEnabled
+					| Qt::ItemIsUserCheckable
+					| Qt::ItemIsSelectable;
+
 	return QAbstractItemModel::flags(index)
 				| Qt::ItemIsEnabled
 				| Qt::ItemIsUserCheckable
-			//	| Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled
-				| Qt::ItemIsSelectable
-				| Qt::ItemIsTristate;
+				| Qt::ItemIsSelectable;
 }
 
 
@@ -80,7 +85,7 @@ Qt::ItemFlags DockManagerModel::flags (QModelIndex const & index) const
 	DockManager const * const mgr = static_cast<DockManager const *>(QObject::parent());
 	node_t const * const item = itemFromIndex(index);
 	QStringList const & p = item->data.m_path;
-	DockedWidgetBase const * const dwb = mgr->findDockable(p.join("/"));
+	DockedWidgetBase const * const dwb = m_manager.findDockable(p.join("/"));
 	return dwb;
 }
 
@@ -89,7 +94,7 @@ DockedWidgetBase * DockManagerModel::getWidgetFromIndex (QModelIndex const & ind
 	DockManager * const mgr = static_cast<DockManager *>(QObject::parent());
 	node_t const * const item = itemFromIndex(index);
 	QStringList const & p = item->data.m_path;
-	DockedWidgetBase * dwb = mgr->findDockable(p.join("/"));
+	DockedWidgetBase * dwb = m_manager.findDockable(p.join("/"));
 	return dwb;
 }*/
 
@@ -97,30 +102,10 @@ QVariant DockManagerModel::data (QModelIndex const & index, int role) const
 {
 	if (!index.isValid())
 		return QVariant();
-	
+
 	int const col = index.column();
-
-	if (col == e_Visibility)
+	if (col == DockManager::e_Column_Name)
 		return TreeModel<DockedInfo>::data(index, role);
-
-
-	/*if (col == e_SyncGroup && role == Qt::EditRole)
-	}*/
-
-
-	/*node_t const * const item = itemFromIndex(index);
-	if (role == Qt::DisplayRole)
-	{
-		return QVariant(item->key);
-	}
-	else if (role == Qt::UserRole) // collapsed or expanded?
-	{
-		return static_cast<bool>(item->data.m_collapsed);
-	}
-	else if (role == Qt::CheckStateRole)
-	{
-		return static_cast<Qt::CheckState>(item->data.m_state);
-	}*/
 	return QVariant();
 }
 
@@ -128,8 +113,23 @@ bool DockManagerModel::setData (QModelIndex const & index, QVariant const & valu
 {
 	if (!index.isValid()) return false;
 
-	//emit dataChanged(index, index);
-	return true;
+	if (role == Qt::CheckStateRole)
+	{
+		node_t const * const n = itemFromIndex(index);
+		QStringList const & dst = n->data.m_path;
+
+		Action a;
+		a.m_type = e_Visibility;
+		a.m_src_path = m_manager.path();
+		a.m_src = &m_manager;
+		a.m_dst_path = dst;
+
+		int const state = value.toInt();
+		a.m_args.push_back(state);
+		m_manager.handleAction(&a, e_Sync);
+	}
+
+	return TreeModel<DockedInfo>::setData(index, value, role);
 }
 
 

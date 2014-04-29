@@ -43,9 +43,6 @@ public:
 	void setDockWidget (DockWidget * w) { m_dockwidget = w; }
 	DockWidget * dockWidget () { return m_dockwidget; }
 	DockWidget const * dockWidget () const { return m_dockwidget; }
-	//virtual DockedConfigBase const & dockedConfig () const = 0;
-	//virtual DockedConfigBase & dockedConfig () = 0;
-	//virtual QWidget * dockedWidget () = 0;
 };
 
 

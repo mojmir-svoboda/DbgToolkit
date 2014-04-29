@@ -39,7 +39,7 @@ DockManager::DockManager (MainWindow * mw, QStringList const & path)
 	m_control_bar = new ControlBarCommon();
 
 	connect(header(), SIGNAL(sectionResized(int, int, int)), this, SLOT(onColumnResized(int, int, int)));
-	connect(this, SIGNAL(clicked(QModelIndex)), this, SLOT(onClicked(QModelIndex)));
+	//connect(this, SIGNAL(clicked(QModelIndex)), this, SLOT(onClicked(QModelIndex)));
 	connect(m_dockwidget, SIGNAL(dockClosed()), mw, SLOT(onDockManagerClosed()));
 	setAllColumnsShowFocus(false);
 	setExpandsOnDoubleClick(false);
@@ -94,7 +94,7 @@ void DockManager::loadConfig (QString const & cfgpath)
 		config2.m_data.root = 0; // @TODO: promyslet.. takle na to urcite zapomenu
 	}
 
-	m_model = new DockManagerModel(this, &m_config.m_data);
+	m_model = new DockManagerModel(*this, this, &m_config.m_data);
 	setModel(m_model);
 	bool const on = true;
 	addActionAble(*this, on);

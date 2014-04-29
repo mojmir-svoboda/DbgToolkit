@@ -44,11 +44,7 @@ struct ActionAble {
 
 	QStringList m_path;
 	QString m_joined_path;
-	//QModelIndex m_idx1;
-	//QWidget * m_close_widget;
 
-	//ActionAble (QStringList const & path) : m_path(path), m_joined_path(path.join("/")), m_idx1(), m_close_widget(0) { }
-	//ActionAble (QStringList const & path, QModelIndex const & idx) : m_path(path), m_joined_path(path.join("/")), m_idx1(idx), m_close_widget(0) { }
 	ActionAble (QStringList const & path) : m_path(path), m_joined_path(path.join("/")) { }
 	ActionAble (QStringList const & path, QModelIndex const & idx) : m_path(path), m_joined_path(path.join("/")) { }
 	virtual ~ActionAble () { }
@@ -58,7 +54,6 @@ struct ActionAble {
 
 	QStringList const & path () const { return m_path; }
 	QString const & joinedPath () const { return m_joined_path; }
-	//QModelIndex const & index () const { return m_idx; }
 };
 
 
