@@ -3,8 +3,9 @@
 #include <QMainWindow>
 #include "mainwindow.h"
 
-DockedWidgetBase::DockedWidgetBase (QStringList const & path)
+DockedWidgetBase::DockedWidgetBase (MainWindow * mw, QStringList const & path)
 	: ActionAble(path)
+	, m_main_window(mw)
 	, m_dockwidget(0)
 {
 	qDebug("%s this=0x%08x", __FUNCTION__, this);
@@ -13,7 +14,7 @@ DockedWidgetBase::DockedWidgetBase (QStringList const & path)
 DockedWidgetBase::~DockedWidgetBase ()
 {
 	qDebug("%s this=0x%08x", __FUNCTION__, this);
-	//removeActionAble(*this); // no access to dock manager or mw
+	m_main_window->dockManager().removeActionAble(*this);
 	m_dockwidget->setWidget(0);
 	delete m_dockwidget;
 	m_dockwidget = 0;

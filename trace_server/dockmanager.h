@@ -30,12 +30,12 @@ public:
 		e_max_dockmgr_column
 	};
 
-	typedef QMultiMap<QString, DockWidget *> widgets_t;
+	//typedef QMultiMap<QString, DockWidget *> widgets_t;
 	typedef QMultiMap<QString, ActionAble *> actionables_t;
-	widgets_t			m_widgets; // @TODO: hashed container?
+	//widgets_t			m_widgets; // @TODO: hashed container?
 	actionables_t		m_actionables;
 	MainWindow * 		m_main_window;
-	QDockWidget * 		m_docked_widgets;
+	QDockWidget * 		m_dockwidget;
 	ControlBarCommon * m_control_bar;
 	DockManagerModel *	m_model;
 	//typedef tree_filter<DockedInfo> data_t;

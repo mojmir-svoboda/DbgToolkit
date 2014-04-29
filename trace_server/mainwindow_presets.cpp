@@ -200,7 +200,10 @@ void MainWindow::loadState ()
 
 	m_dock_mgr.loadConfig(m_config.m_appdir);
 	m_dock_mgr.applyConfig();
+	ui->dockManagerButton->blockSignals(1);
 	ui->dockManagerButton->setChecked(m_dock_mgr.m_config.m_show);
+	ui->dockManagerButton->blockSignals(0);
+	m_dock_mgr.m_dockwidget->setVisible(m_dock_mgr.m_config.m_show);
 
 	unsigned const hotkeyCode = settings.value("hotkeyCode").toInt();
 	m_config.m_hotkey = hotkeyCode ? hotkeyCode : VK_SCROLL;

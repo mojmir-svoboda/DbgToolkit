@@ -89,6 +89,9 @@ public:
 
 	void saveConfigs (QString const & path);
 	void loadConfigs (QString const & path);
+
+	void loadConfig (QString const & preset_name);
+	void saveConfig (QString const & preset_name);
 	void applyConfigs ();
 
 	//@TODO: old call!!
@@ -130,7 +133,7 @@ public slots:
 
 	// control widget
 	void onLevelValueChanged (int i);
-	void onBufferingStateChanged (bool on);
+	void onBufferingStateChanged (int state);
 	void onPresetChanged (int idx);
 	void onPresetApply ();
 	void onPresetSave ();

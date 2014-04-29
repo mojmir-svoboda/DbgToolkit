@@ -50,7 +50,7 @@ namespace plot {
 	}
 
 	PlotWidget::PlotWidget (Connection * conn, QString const & fname, QStringList const & path)
-		: QwtPlot(0), DockedWidgetBase(path)
+		: QwtPlot(0), DockedWidgetBase(conn->getMainWindow(), path)
 		, m_connection(conn)
 		, m_config()
 		, m_config_ui(m_config, this)

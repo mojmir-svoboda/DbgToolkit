@@ -276,13 +276,13 @@ void MainWindow::onDockManagerButton ()
 {
 	if (ui->dockManagerButton->isChecked())
 	{
-		m_dock_mgr.m_docked_widgets->show();
+		m_dock_mgr.m_dockwidget->show();
 		m_dock_mgr.m_config.m_show = true;
-		restoreDockWidget(m_dock_mgr.m_docked_widgets);
+		restoreDockWidget(m_dock_mgr.m_dockwidget);
 	}
 	else
 	{
-		m_dock_mgr.m_docked_widgets->hide();
+		m_dock_mgr.m_dockwidget->hide();
 		m_dock_mgr.m_config.m_show = false;
 	}
 }

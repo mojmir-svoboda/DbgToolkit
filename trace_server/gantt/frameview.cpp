@@ -19,6 +19,7 @@
 #include <syncwidgets.h>
 
 #include "scrollzoomer.h"
+#include <connection.h>
 
 struct FrameScaleDraw : public QwtScaleDraw
 {
@@ -220,7 +221,7 @@ public:
 
 
 FrameView::FrameView (Connection * conn, QString const & fname, QStringList const & path)
-	: DockedWidgetBase(path)
+	: DockedWidgetBase(conn->getMainWindow(), path)
 	, m_bars(0)
 	, m_config()
 	, m_config_ui(m_config, this)

@@ -54,6 +54,14 @@ Connection::Connection (QString const & app_name, QObject * parent)
 
 	setConfigValuesToUI(m_config);
 
+	connect(m_control_bar->ui->levelSpinBox, SIGNAL(valueChanged(int)), this, SLOT(onLevelValueChanged(int)));
+	connect(m_control_bar->ui->buffCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onBufferingStateChanged(int)));
+	connect(m_control_bar->ui->presetComboBox, SIGNAL(activated(int)), this, SLOT(onPresetChanged(int)));
+	connect(m_control_bar->ui->activatePresetButton, SIGNAL(clicked()), this, SLOT(onPresetApply()));
+	connect(m_control_bar->ui->presetSaveButton, SIGNAL(clicked()), this, SLOT(onPresetSave()));
+	connect(m_control_bar->ui->presetAddButton, SIGNAL(clicked()), this, SLOT(onPresetAdd()));
+	connect(m_control_bar->ui->presetRmButton, SIGNAL(clicked()), this, SLOT(onPresetRm()));
+	connect(m_control_bar->ui->presetResetButton, SIGNAL(clicked()), this, SLOT(onPresetReset()));
 	connect(m_control_bar->ui->logSlider, SIGNAL(valueChanged(int)), this, SLOT(onLogsStateChanged(int)));
 	connect(m_control_bar->ui->plotSlider, SIGNAL(valueChanged(int)), this, SLOT(onPlotsStateChanged(int)));
 	connect(m_control_bar->ui->tableSlider, SIGNAL(valueChanged(int)), this, SLOT(onTablesStateChanged(int)));
@@ -81,6 +89,7 @@ struct UnregisterDockedWidgets {
 	template <typename T>
 	void operator() (T & t)
 	{
+		m_main_window.dockManager().removeActionAble(t);
 		unregisterDockedWidgets(t, m_main_window);
 	}
 };
@@ -249,14 +258,25 @@ struct ExportAsCSV {
 	}
 };
 
+struct HandleAction {
+
+	Action * m_action;
+	E_ActionHandleType m_sync;
+	HandleAction (Action * a, E_ActionHandleType sync) : m_action(a), m_sync(sync) { }
+
+	template <class T>
+	void operator() (T & t)
+	{
+	  t.handleAction(m_action, m_sync);
+	}
+};
+
+
 void Connection::saveConfigs (QString const & path)
 {
 	qDebug("%s", __FUNCTION__);
 
-	mkDir(path);
-	QString const fname = path + "/" + getAppName() + ".xml";
-	saveConfigTemplate(m_config, fname);
-
+	saveConfig(m_curr_preset);
 	recurse(m_data, Save(path));
 }
 
@@ -264,6 +284,14 @@ void Connection::loadConfigs (QString const & path)
 {
 	qDebug("%s", __FUNCTION__);
 
+	loadConfig(m_curr_preset);
+
+	recurse(m_data, Load(path));
+}
+
+void Connection::loadConfig (QString const & preset_name)
+{
+	QString const path = mkAppPresetPath(getGlobalConfig().m_appdir, getAppName(), preset_name);
 	QString const fname = path + "/" + getAppName() + ".xml";
 	bool const loaded = loadConfigTemplate(m_config, fname);
 	if (!loaded)
@@ -272,8 +300,14 @@ void Connection::loadConfigs (QString const & path)
 		//m_config.m_tag = tag_backup; // defaultConfigFor destroys tag
 	}
 	setConfigValuesToUI(m_config);
+}
 
-	recurse(m_data, Load(path));
+void Connection::saveConfig (QString const & preset_name)
+{
+	QString const path = mkAppPresetPath(getGlobalConfig().m_appdir, getAppName(), preset_name);
+	mkDir(path);
+	QString const fname = path + "/" + getAppName() + ".xml";
+	saveConfigTemplate(m_config, fname);
 }
 
 void Connection::applyConfigs ()
@@ -288,7 +322,6 @@ void Connection::exportStorageToCSV (QString const & dir)
 	recurse(m_data, ExportAsCSV(dir));
 }
 
-
 bool Connection::handleAction (Action * a, E_ActionHandleType sync)
 {
 	if (a->type() == e_Close)
@@ -296,6 +329,7 @@ bool Connection::handleAction (Action * a, E_ActionHandleType sync)
 		m_main_window->markConnectionForClose(this);
 		return true;
 	}
-	//recurse(m_data, HandleAction(a, sync));
+
+	recurse(m_data, HandleAction(a, sync));
 	return true;
 }

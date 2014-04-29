@@ -11,7 +11,7 @@
 namespace table {
 
 	TableWidget::TableWidget (Connection * conn, QString const & fname, QStringList const & path)
-		: QTableView(0), DockedWidgetBase(path)
+		: QTableView(0), DockedWidgetBase(conn->getMainWindow(), path)
 		, m_config()
 		, m_config_ui(m_config, this)
 		, m_fname(fname)

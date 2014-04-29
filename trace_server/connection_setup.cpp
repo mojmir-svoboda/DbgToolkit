@@ -74,13 +74,11 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 				delete conn;
 				// @TODO: delete persistent storage for the tab
 				m_curr_preset = curr_preset;
-				onPresetApply(curr_preset);
 			}
 			else
 			{
 				qDebug("cmd setup: looking for app=%s: not found", app_name.toStdString().c_str());
 				m_curr_preset = getCurrentPresetName();
-				onPresetApply(m_curr_preset);
 			}
 
 			m_app_name = app_name;
@@ -93,6 +91,9 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 			m_path.last() = m_app_name;
 			m_joined_path = m_path.join("/");
 			m_main_window->dockManager().addActionAble(*this, true); // TODO: m_config.m_show
+
+			loadConfig(m_curr_preset);
+			onPresetApply(m_curr_preset);
 
 			registerDataMaps();
 			//m_main_window->onSetup(e_Proto_TLV, sessionState().m_app_idx, true, true);

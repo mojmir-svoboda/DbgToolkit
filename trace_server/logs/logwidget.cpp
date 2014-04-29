@@ -20,7 +20,7 @@
 namespace logs {
 
 	LogWidget::LogWidget (Connection * conn, QString const & fname, QStringList const & path)
-		: DockedWidgetBase(path)
+		: DockedWidgetBase(conn->getMainWindow(), path)
 		, m_connection(conn)
 		, m_tableview(0)
 		, m_cacheLayout(new ButtonCache)

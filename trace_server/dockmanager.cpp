@@ -14,7 +14,7 @@
 DockManager::DockManager (MainWindow * mw, QStringList const & path)
 	: DockManagerView(mw), ActionAble(path)
 	, m_main_window(mw)
-	, m_docked_widgets(0)
+	, m_dockwidget(0)
 	, m_control_bar(0)
 	, m_model(0)
 	, m_config(g_traceServerName)
@@ -28,19 +28,19 @@ DockManager::DockManager (MainWindow * mw, QStringList const & path)
 	dock->setWindowTitle(name);
 	dock->setAllowedAreas(Qt::AllDockWidgetAreas);
 	m_main_window->addDockWidget(Qt::BottomDockWidgetArea, dock);
-	m_actionables.insert(name, this);
 	dock->setAttribute(Qt::WA_DeleteOnClose, false);
 	dock->setWidget(this);
 
 	//if (visible)
 	//	m_main_window->restoreDockWidget(dock);
-	m_docked_widgets = dock;
+	m_dockwidget = dock;
 	m_control_bar = new ControlBarCommon();
 
 	connect(header(), SIGNAL(sectionResized(int, int, int)), this, SLOT(onColumnResized(int, int, int)));
 	connect(this, SIGNAL(clicked(QModelIndex)), this, SLOT(onClicked(QModelIndex)));
-	connect(m_docked_widgets, SIGNAL(dockClosed()), mw, SLOT(onDockManagerClosed()));
+	connect(m_dockwidget, SIGNAL(dockClosed()), mw, SLOT(onDockManagerClosed()));
 	setAllColumnsShowFocus(false);
+	setExpandsOnDoubleClick(false);
 	//setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 	//setSizeAdjustPolicy(QAbstractScrollArea::AdjustIgnored);
 	//header()->setSectionResizeMode(0, QHeaderView::Interactive);
@@ -138,7 +138,7 @@ DockWidget * DockManager::mkDockWidget (ActionAble & aa, bool visible, Qt::DockW
 	dock->setAllowedAreas(Qt::AllDockWidgetAreas);
 	//dock->setWidget(docked_widget); // set by caller
 	m_main_window->addDockWidget(area, dock);
-	m_widgets.insert(name, dock);
+	//m_widgets.insert(name, dock);
 	dock->setAttribute(Qt::WA_DeleteOnClose, false);
 
 	if (visible)
@@ -149,7 +149,7 @@ DockWidget * DockManager::mkDockWidget (ActionAble & aa, bool visible, Qt::DockW
 void DockManager::onWidgetClosed (DockWidget * w)
 {
 	qDebug("%s w=%08x", __FUNCTION__, w);
-	m_widgets.remove(w->objectName());
+	//m_widgets.remove(w->objectName());
 }
 
 QModelIndex DockManager::addActionAble (ActionAble & aa, bool on)
@@ -201,8 +201,11 @@ void DockManager::removeActionAble (ActionAble & aa)
 		QModelIndex const idx = m_model->testItemWithPath(aa.path());
 		if (idx.isValid())
 		{
-			QModelIndex const idx1 = m_model->index(idx.row(), 1, idx.parent());
-			setIndexWidget(idx1, 0); // reclaim ownership
+			for (int i = 1; i < e_max_dockmgr_column; ++i)
+			{
+				QModelIndex const idx1 = m_model->index(idx.row(), i, idx.parent());
+				setIndexWidget(idx1, 0); // reclaim ownership
+			  }
 			//aa.controlWidget()->setparent(0); je to k necemu?
 		}
 		m_actionables.erase(it);
@@ -265,8 +268,7 @@ bool DockManager::handleAction (Action * a, E_ActionHandleType sync)
 			{
 				qDebug("delivering action to: %s", dst_joined.toStdString().c_str());
 				ActionAble * const next_hop =  it.value();
-				next_hop->handleAction(a, sync);
-				//++it;
+				next_hop->handleAction(a, sync); //@NOTE: e_Close can invalidate iterator
 			}
 			else
 			{
@@ -286,17 +288,20 @@ void DockManager::onClicked (QModelIndex idx)
 	TreeModel<DockedInfo>::node_t const * n = m_model->getItemFromIndex(idx);
 	QStringList const & dst = n->data.m_path;
 
-	int const col = idx.column();
-	Action a;
-	a.m_type = static_cast<E_ActionType>(col);
-	a.m_src_path = path();
-	a.m_src = this;
-	a.m_dst_path = dst;
+	/*int const col = idx.column();
 	if (col == e_Visibility)
 	{
+		Action a;
+		a.m_type = static_cast<E_ActionType>(col);
+		a.m_src_path = path();
+		a.m_src = this;
+		a.m_dst_path = dst;
+
 		int const state = m_model->data(idx, Qt::CheckStateRole).toInt();
 		a.m_args.push_back(state);
+		handleAction(&a, e_Sync);
 	}
+	*/
 	/*if (col == e_InCentralWidget)
 	{
 		int const state = m_model->data(idx, e_DockRoleCentralWidget).toInt();
@@ -307,7 +312,6 @@ void DockManager::onClicked (QModelIndex idx)
 	}*/
 
 	//av.m_dst = 0;
-	handleAction(&a, e_Sync);
 }
 
 

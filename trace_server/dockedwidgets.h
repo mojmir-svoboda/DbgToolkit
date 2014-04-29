@@ -76,11 +76,30 @@ struct DockedWidgets
 		m_control_bar = new ControlBarDockedWidgets();
 	}
 
+	~DockedWidgets ()
+	{
+		//m_main_window->dockManager().removeActionAble(*this);
+	}
+
 	virtual bool handleAction (Action * a, E_ActionHandleType sync)
 	{
-		for (iterator it = begin(), ite = end(); it != ite; ++it)
-			(*it)->handleAction(a, sync);
-		return true;
+		if (a->type() == e_Close)
+		{
+			for (iterator it = begin(), ite = end(); it != ite; ++it)
+			{
+				//m_main_window->dockManager().removeActionAble(*it);
+				(*it)->setParent(0);
+				delete *it;
+			}
+			clear();
+			return true;
+		}
+		else
+		{
+			for (iterator it = begin(), ite = end(); it != ite; ++it)
+				(*it)->handleAction(a, sync);
+			return true;
+		}
 	}
 
 	virtual QWidget * controlWidget () { return m_control_bar; }

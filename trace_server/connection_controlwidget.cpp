@@ -93,9 +93,9 @@ void Connection::onLevelValueChanged (int val)
 	}
 }
 
-void Connection::onBufferingStateChanged (bool on)
+void Connection::onBufferingStateChanged (int state)
 {
-	bool const buffering_enabled = on;
+	bool const buffering_enabled = state == Qt::Checked;
 
 	char tlv_buff[16];
 #ifdef __linux__
@@ -106,7 +106,7 @@ void Connection::onBufferingStateChanged (bool on)
 
 	if (result > 0)
 	{
-		m_config.m_buffered = on;
+		m_config.m_buffered = buffering_enabled;
 
 		qDebug("Connection::onBufferingStateChanged to_state=%i", buffering_enabled);
 		char buff[256];

@@ -22,14 +22,15 @@ private:
 };
 
 
-class QCloseEvent; class QMainWindow; struct DockManager;
+class QCloseEvent; class QMainWindow; struct DockManager; class MainWindow;
 
 struct DockedWidgetBase : ActionAble {
 	//Q_OBJECT
 public:
+	MainWindow * m_main_window;
 	DockWidget * m_dockwidget;
 
-	DockedWidgetBase (QStringList const & path);
+	DockedWidgetBase (MainWindow * mw, QStringList const & path);
 	virtual ~DockedWidgetBase ();
 
 	virtual E_DataWidgetType type () const = 0;

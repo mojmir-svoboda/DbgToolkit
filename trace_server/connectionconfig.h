@@ -51,6 +51,10 @@ struct ConnectionConfig
 		ar & boost::serialization::make_nvp("time_units", m_time_units);
 		ar & boost::serialization::make_nvp("font", m_font);
 		ar & boost::serialization::make_nvp("fontsize", m_fontsize);
+		ar & boost::serialization::make_nvp("logs_recv_level", m_logs_recv_level);
+		ar & boost::serialization::make_nvp("plots_recv_level", m_plots_recv_level);
+		ar & boost::serialization::make_nvp("tables_recv_level", m_tables_recv_level);
+		ar & boost::serialization::make_nvp("gantts_recv_level", m_gantts_recv_level);
 	}
 };
 
