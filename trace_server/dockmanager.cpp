@@ -23,7 +23,7 @@ DockManager::DockManager (MainWindow * mw, QStringList const & path)
 	resizeColumnToContents(0);
 
 	QString const name = path.join("/");
-	QDockWidget * const dock = new QDockWidget(this);
+	QDockWidget * const dock = new DockWidget(*this, name, m_main_window);
 	dock->setObjectName(name);
 	dock->setWindowTitle(name);
 	dock->setAllowedAreas(Qt::AllDockWidgetAreas);
@@ -34,6 +34,8 @@ DockManager::DockManager (MainWindow * mw, QStringList const & path)
 	//if (visible)
 	//	m_main_window->restoreDockWidget(dock);
 	m_dockwidget = dock;
+
+	connect(m_dockwidget, SIGNAL(widgetVisibilityChanged()), m_main_window, SLOT(onDockManagerVisibilityChanged(bool)));
 	m_control_bar = new ControlBarCommon();
 
 	connect(header(), SIGNAL(sectionResized(int, int, int)), this, SLOT(onColumnResized(int, int, int)));

@@ -215,4 +215,8 @@ void MainWindow::loadState ()
 	loadLayout(preset_name);
 }
 
-
+void MainWindow::onDockManagerVisibilityChanged (bool state)
+{
+	m_dock_mgr.m_config.m_show = state;
+	ui->dockManagerButton->setChecked(m_dock_mgr.m_config.m_show);
+}

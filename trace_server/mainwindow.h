@@ -105,6 +105,7 @@ public slots:
 	void restoreDockedWidgetGeometry ();
 	void onDockRestoreButton ();
 	void onDockManagerButton ();
+	void onDockManagerVisibilityChanged (bool state);
 	void onDockManagerClosed ();
 	void onSave ();
 	void onSaveAs (QString const & preset_name);

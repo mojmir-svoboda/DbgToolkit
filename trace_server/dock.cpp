@@ -2,6 +2,7 @@
 #include <QCloseEvent>
 #include <QMainWindow>
 #include "mainwindow.h"
+#include <QApplication>
 
 DockedWidgetBase::DockedWidgetBase (MainWindow * mw, QStringList const & path)
 	: ActionAble(path)
@@ -26,6 +27,7 @@ DockWidget::DockWidget (DockManager & mgr, QString const & name, QMainWindow * c
 	, m_mgr(mgr)
 {
 	qDebug("%s this=0x%08x", __FUNCTION__, this);
+	qApp->installEventFilter(this);
 }
 
 DockWidget::~DockWidget ()

@@ -14,8 +14,12 @@ public:
 	virtual ~DockWidget ();
 	virtual void closeEvent (QCloseEvent * event);
 
-Q_SIGNALS:
+	void hideEvent (QHideEvent *) { emit widgetVisibilityChanged(false); }
+	void showEvent (QShowEvent *) { emit widgetVisibilityChanged(true); }
+
+signals:
 	void dockClosed (DockWidget * w);
+	void widgetVisibilityChanged (bool state);
 
 private:
 	DockManager & m_mgr;
