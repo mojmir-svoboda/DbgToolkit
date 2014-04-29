@@ -19,7 +19,7 @@
 
 namespace logs {
 
-	LogWidget::LogWidget (Connection * conn, QString const & fname, QStringList const & path)
+	LogWidget::LogWidget (Connection * conn, LogConfig const & cfg, QString const & fname, QStringList const & path)
 		: DockedWidgetBase(conn->getMainWindow(), path)
 		, m_connection(conn)
 		, m_tableview(0)
@@ -29,7 +29,7 @@ namespace logs {
 		, m_clrDataButton(0) , m_setRefTimeButton(0) , m_hidePrevButton(0) , m_hideNextButton(0)
 		, m_colorRowButton(0) , m_colorFileLineButton(0) , m_uncolorRowButton(0) , m_gotoPrevColorButton(0) , m_gotoNextColorButton(0)
 		, m_control_bar(0)
-		, m_config()
+		, m_config(cfg)
 		, m_config_ui(*this, this)
 		, m_fname(fname)
 		, m_warnimage(0)
@@ -468,8 +468,11 @@ namespace logs {
 		for (int hi = 0; hi < hn; ++hi)
 		{
 			int const li = m_tableview->horizontalHeader()->logicalIndex(hi);
-			QString const li_str = m_config.m_columns_setup[li]; // @note: from m_config
-			src << li_str;
+			if (li >= 0 && li < m_config.m_columns_setup.size())
+			{
+				QString const li_str = m_config.m_columns_setup[li]; // @note: from m_config
+				src << li_str;
+			}
 		}
 	
 		QStringList tgt;

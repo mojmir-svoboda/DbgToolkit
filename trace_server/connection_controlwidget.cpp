@@ -36,7 +36,7 @@ void Connection::setConfigValuesToUI (ConnectionConfig const & cfg)
 {
 	m_control_bar->ui->levelSpinBox->setValue(m_config.m_level);
 	m_control_bar->ui->buffCheckBox->setChecked(m_config.m_buffered);
-	// preset
+	syncHistoryToWidget(m_control_bar->ui->presetComboBox, cfg.m_preset_history);
 	m_control_bar->ui->logSlider->setValue(m_config.m_logs_recv_level);
 	m_control_bar->ui->plotSlider->setValue(m_config.m_plots_recv_level);
 	m_control_bar->ui->tableSlider->setValue(m_config.m_tables_recv_level);
@@ -121,7 +121,9 @@ void Connection::onBufferingStateChanged (int state)
 void Connection::onPresetChanged (int idx)
 {
 	m_config.m_preset_history.m_current_item = idx;
-	m_config.saveHistory();
+	QString const preset_name = getCurrentPresetName();
+	QString const path = mkAppPresetPath(getGlobalConfig().m_appdir, m_app_name, preset_name);
+	m_config.saveHistory(path);
 }
 
 void Connection::onPresetApply ()
@@ -153,8 +155,8 @@ void Connection::onPresetRm ()
 
 	qDebug("removing preset_name=%s", preset_name.toStdString().c_str());
 	
-	QString const fname = mkAppPresetPath(getGlobalConfig().m_appdir, m_app_name, preset_name);
-	qDebug("confirm to remove session file=%s", fname.toStdString().c_str());
+	QString const path = mkAppPresetPath(getGlobalConfig().m_appdir, m_app_name, preset_name);
+	qDebug("confirm to remove session file=%s", path.toStdString().c_str());
 
 	QMessageBox msg_box;
 	QPushButton * b_del = msg_box.addButton(tr("Yes, Delete"), QMessageBox::ActionRole);
@@ -163,11 +165,10 @@ void Connection::onPresetRm ()
 	if (msg_box.clickedButton() == b_abort)
 		return;
 
-	QFile qf(fname);
+	QFile qf(path);
 	qf.remove();
 
 	removeStringFromHistory(preset_name, m_control_bar->ui->presetComboBox, m_config.m_preset_history);
-	m_config.saveHistory();
 	m_control_bar->ui->presetComboBox->setCurrentIndex(-1);
 }
 
@@ -192,15 +193,15 @@ void Connection::setPresetAsCurrent (QString const & pname)
 
 void Connection::onPresetApply (QString const & preset_name)
 {
+	QString const path = mkAppPresetPath(getGlobalConfig().m_appdir, m_app_name, preset_name);
 	mentionStringInHistory_Ref(preset_name, m_control_bar->ui->presetComboBox, m_config.m_preset_history);
-	m_config.saveHistory();
+	m_config.saveHistory(path);
 	setPresetAsCurrent(preset_name);
 
 	if (checkAppPresetPath(getGlobalConfig().m_appdir, m_app_name, preset_name))
 	{
 		m_curr_preset = preset_name;
 
-		QString const path = mkAppPresetPath(getGlobalConfig().m_appdir, m_app_name, preset_name);
 		loadConfigs(path);
 		applyConfigs();
 		m_main_window->loadLayout(path + "/" + g_presetLayoutName);
@@ -208,7 +209,7 @@ void Connection::onPresetApply (QString const & preset_name)
 	else
 	{
 		removeStringFromHistory(preset_name, m_control_bar->ui->presetComboBox, m_config.m_preset_history);
-		m_config.saveHistory();
+		m_config.saveHistory(path);
 		m_control_bar->ui->presetComboBox->setCurrentIndex(-1);
 	}
 }
@@ -220,17 +221,16 @@ void Connection::onPresetSave (QString const & preset_name)
 		return;
 
 	qDebug("SaveAs to preset_name=%s", preset_name.toStdString().c_str());
+	QString const path = mkAppPresetPath(getGlobalConfig().m_appdir, m_app_name, preset_name);
 	mentionStringInHistory_Ref(preset_name, m_control_bar->ui->presetComboBox, m_config.m_preset_history);
-	m_config.saveHistory();
+	m_config.saveHistory(path);
 	setPresetAsCurrent(preset_name);
 
 	createAppPresetPath(getGlobalConfig().m_appdir, m_app_name, preset_name);
 		
 	m_curr_preset = preset_name; // @TODO: ?? or only on apply preset?
 
-	QString const path = mkAppPresetPath(getGlobalConfig().m_appdir, m_app_name, preset_name);
 	saveConfigs(path);
-
 	m_main_window->saveLayout(path + "/" + g_presetLayoutName);
 }
 
@@ -240,7 +240,8 @@ void Connection::onPresetSave (QString const & preset_name)
 		return;
 
 	mentionStringInHistory_NoRef(str, m_control_bar->ui->presetComboBox, m_config.m_preset_history);
-	m_config.saveHistory();
+	QString const path = mkAppPresetPath(getGlobalConfig().m_appdir, m_app_name, preset_name);
+	m_config.saveHistory(path);
 }*/
 
 

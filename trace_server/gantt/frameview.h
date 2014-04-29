@@ -27,7 +27,7 @@ struct BarPlot : QwtPlotBarChart
 struct FrameView : QWidget, DockedWidgetBase
 {
 	enum { e_type = e_data_frame };
-	FrameView (Connection * oparent, QString const & fname, QStringList const & path);
+	FrameView (Connection * oparent, FrameViewConfig const & cfg, QString const & fname, QStringList const & path);
 
 	virtual E_DataWidgetType type () const { return e_data_frame; }
 	void appendFrame (unsigned long long from, unsigned long long to);

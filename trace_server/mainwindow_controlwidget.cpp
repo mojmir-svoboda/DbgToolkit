@@ -24,7 +24,7 @@ void MainWindow::onBufferingStateChanged (int state)
 void MainWindow::onPresetChanged (int idx)
 {
 	m_config.m_preset_history.m_current_item = idx;
-	m_config.saveHistory();
+	m_config.saveHistory(m_appdir);
 }
 
 void MainWindow::onPresetApply ()
@@ -68,7 +68,7 @@ void MainWindow::onPresetRm ()
 	qf.remove();
 
 	removeStringFromHistory(preset_name, m_dock_mgr.controlUI()->presetComboBox, m_config.m_preset_history);
-	m_config.saveHistory();
+	m_config.saveHistory(m_appdir);
 	m_dock_mgr.controlUI()->presetComboBox->setCurrentIndex(-1);
 }
 

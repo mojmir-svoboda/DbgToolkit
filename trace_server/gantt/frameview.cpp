@@ -220,10 +220,10 @@ public:
 
 
 
-FrameView::FrameView (Connection * conn, QString const & fname, QStringList const & path)
+FrameView::FrameView (Connection * conn, FrameViewConfig const & cfg, QString const & fname, QStringList const & path)
 	: DockedWidgetBase(conn->getMainWindow(), path)
 	, m_bars(0)
-	, m_config()
+	, m_config(cfg)
 	, m_config_ui(m_config, this)
 {
 	setContextMenuPolicy(Qt::CustomContextMenu);

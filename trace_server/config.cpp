@@ -1,27 +1,16 @@
 #include "config.h"
 #include "serialize.h"
 
-bool saveHistoryState (History<QString> const & h, char const * filename)
+void GlobalConfig::loadHistory (QString const & path)
 {
-	return ::saveConfigTemplate(h, filename);
+	QString const pfilename = path + "/preset_history.xml";
+	::loadConfigTemplate(m_preset_history, pfilename.toLatin1());
 }
 
-bool loadHistoryState (History<QString> & h, char const * filename)
+void GlobalConfig::saveHistory (QString const & path) const
 {
-	::loadConfigTemplate(h, filename);
-	return true;
-}
-
-void GlobalConfig::loadHistory ()
-{
-	QString const pfilename = m_appdir + "/preset_history.xml";
-	loadHistoryState(m_preset_history, pfilename.toLatin1());
-}
-
-void GlobalConfig::saveHistory () const
-{
-	QString const pfilename = m_appdir + "/preset_history.xml";
-	saveHistoryState(m_preset_history, pfilename.toLatin1());
+	QString const pfilename = path + "/preset_history.xml";
+	::saveConfigTemplate(m_preset_history, pfilename.toLatin1());
 }
 
 

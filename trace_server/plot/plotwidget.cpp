@@ -49,10 +49,10 @@ namespace plot {
 		return c;
 	}
 
-	PlotWidget::PlotWidget (Connection * conn, QString const & fname, QStringList const & path)
+	PlotWidget::PlotWidget (Connection * conn, PlotConfig const & cfg, QString const & fname, QStringList const & path)
 		: QwtPlot(0), DockedWidgetBase(conn->getMainWindow(), path)
 		, m_connection(conn)
-		, m_config()
+		, m_config(cfg)
 		, m_config_ui(m_config, this)
 		, m_curves()
 		, m_timer(-1)

@@ -10,9 +10,9 @@
 
 namespace table {
 
-	TableWidget::TableWidget (Connection * conn, QString const & fname, QStringList const & path)
+	TableWidget::TableWidget (Connection * conn, TableConfig const & cfg, QString const & fname, QStringList const & path)
 		: QTableView(0), DockedWidgetBase(conn->getMainWindow(), path)
-		, m_config()
+		, m_config(cfg)
 		, m_config_ui(m_config, this)
 		, m_fname(fname)
 		, m_modelView(0)

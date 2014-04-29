@@ -20,7 +20,8 @@ typename SelectIterator<TypeN>::type Connection::dataWidgetFactory (QString cons
 		
 		QStringList path;
 		mkWidgetPath(static_cast<E_DataWidgetType>(TypeN), tag, path);
-		widget_t * const widget = new widget_t(this, fname, path);
+		config_t default_cfg;
+		widget_t * const widget = new widget_t(this, default_cfg, fname, path);
 		it = m_data.get<TypeN>().insert(tag, widget);
 
 		widget->config().m_tag = tag;
@@ -92,11 +93,13 @@ typename SelectIterator<TypeN>::type Connection::dataWidgetFactoryFrom (QString 
 		
 		QStringList path;
 		mkWidgetPath(static_cast<E_DataWidgetType>(TypeN), tag, path);
-		widget_t * const widget = new widget_t(this, fname, path);
+		widget_t * const widget = new widget_t(this, config, fname, path);
 		it = m_data.get<TypeN>().insert(tag, widget);
 		widget->config().m_tag = tag;
 		bool const visible = widget->config().m_show;
 		DockWidget * dock = m_main_window->m_dock_mgr.mkDockWidget(*widget, visible);
+        widget->setDockWidget(dock);
+		dock->setWidget(widget);
 		// no applyConfig here!
 
 		if (visible)

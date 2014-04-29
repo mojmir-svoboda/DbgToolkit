@@ -52,8 +52,8 @@ struct GlobalConfig {
 		, m_preset_history(16)
 	{ }
 
-	void loadHistory ();
-	void saveHistory () const;
+	void loadHistory (QString const & path);
+	void saveHistory (QString const & path) const;
 
 	void fillDefaultConfig ()
 	{

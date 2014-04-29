@@ -14,9 +14,9 @@
 
 namespace gantt {
 
-	GanttWidget::GanttWidget (Connection * conn, QString const & fname, QStringList const & path)
+	GanttWidget::GanttWidget (Connection * conn, GanttConfig const & cfg, QString const & fname, QStringList const & path)
 		: QFrame(0), DockedWidgetBase(conn->getMainWindow(), path)
-		, m_config()
+		, m_config(cfg)
 		, m_config_ui(new CtxGanttConfig(m_config, this))
 		, m_fname(fname)
 		, m_connection(conn)

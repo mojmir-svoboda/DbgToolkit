@@ -13,9 +13,9 @@
 #include "utils_history.h"
 #include "serialize.h"
 
-void MainWindow::loadConfig (QString const & path)
+void MainWindow::loadConfig ()
 {
-	QString const fname = path + "/" + g_MainConfigTag;
+	QString const fname = m_appdir + "/" + g_MainConfigTag;
 	GlobalConfig config2;
 	if (!::loadConfigTemplate(config2, fname))
 	{
@@ -27,9 +27,9 @@ void MainWindow::loadConfig (QString const & path)
 	}
 }
 
-void MainWindow::saveConfig (QString const & path)
+void MainWindow::saveConfig ()
 {
-	QString const fname = path + "/" + g_MainConfigTag;
+	QString const fname = m_appdir + "/" + g_MainConfigTag;
 	::saveConfigTemplate(m_config, fname);
 }
 
@@ -60,7 +60,7 @@ void MainWindow::onSaveAs (QString const & preset_name)
 void MainWindow::onPresetApply (QString const & preset_name)
 {
 	mentionStringInHistory_Ref(preset_name, m_dock_mgr.controlUI()->presetComboBox, m_config.m_preset_history);
-	m_config.saveHistory();
+	m_config.saveHistory(m_appdir);
 	setPresetAsCurrent(preset_name);
 
 	for (size_t i = 0; i < m_connections.size(); ++i)
@@ -79,13 +79,27 @@ void MainWindow::onPresetSave (QString const & preset_name)
 
 	qDebug("SaveAs to preset_name=%s", preset_name.toStdString().c_str());
 	mentionStringInHistory_Ref(preset_name, m_dock_mgr.controlUI()->presetComboBox, m_config.m_preset_history);
-	m_config.saveHistory();
+	m_config.saveHistory(m_appdir);
 	setPresetAsCurrent(preset_name);
 
 	for (size_t i = 0; i < m_connections.size(); ++i)
 		m_connections[i]->onPresetSave(preset_name);
 
+	m_dock_mgr.saveConfig(m_config.m_appdir);
+	saveConfig();
+	saveLayout(preset_name);
+
 	storeState();
+}
+
+void MainWindow::onPresetEdited ()
+{
+	m_dock_mgr.controlUI()->presetComboBox->blockSignals(0);
+	QString const preset_name = getCurrentPresetName();
+	mentionStringInHistory_Ref(preset_name, m_dock_mgr.controlUI()->presetComboBox, m_config.m_preset_history);
+	m_config.saveHistory(m_appdir);
+	setPresetAsCurrent(preset_name);
+	m_dock_mgr.controlUI()->presetComboBox->blockSignals(1);
 }
 
 /*void MainWindow::mentionInPresetHistory (QString const & str)
@@ -164,10 +178,6 @@ void MainWindow::storeState ()
 	settings.setValue("geometry", saveGeometry());
 	settings.setValue("windowState", saveState());
 
-	m_dock_mgr.saveConfig(m_config.m_appdir);
-
-	QString const preset_name = getCurrentPresetName();
-	saveLayout(preset_name);
 }
 
 void MainWindow::restoreDockedWidgetGeometry ()
@@ -181,25 +191,23 @@ void MainWindow::restoreDockedWidgetGeometry ()
 void MainWindow::loadState ()
 {
 	qDebug("%s", __FUNCTION__);
-	m_config.loadHistory();
+	loadConfig();
+	m_config.loadHistory(m_appdir);
+	setConfigValuesToUI(m_config);
+
+	m_dock_mgr.loadConfig(m_config.m_appdir);
+	m_dock_mgr.applyConfig();
 
 	QSettings settings("MojoMir", "TraceServer");
 	restoreGeometry(settings.value("geometry").toByteArray());
 	restoreState(settings.value("windowState").toByteArray());
 
-	if (m_start_level == -1)
-	{
-		qDebug("reading saved level from cfg");
-		m_dock_mgr.controlUI()->levelSpinBox->setValue(settings.value("levelSpinBox", 3).toInt());
-	}
-	else
+	if (m_start_level != -1)
 	{
 		qDebug("reading level from command line");
 		m_dock_mgr.controlUI()->levelSpinBox->setValue(m_start_level);
 	}
 
-	m_dock_mgr.loadConfig(m_config.m_appdir);
-	m_dock_mgr.applyConfig();
 	ui->dockManagerButton->blockSignals(1);
 	ui->dockManagerButton->setChecked(m_dock_mgr.m_config.m_show);
 	ui->dockManagerButton->blockSignals(0);

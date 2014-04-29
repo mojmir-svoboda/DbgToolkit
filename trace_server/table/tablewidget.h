@@ -20,7 +20,7 @@ namespace table {
 		Q_OBJECT
 	public:
 		enum { e_type = e_data_table };
-		TableWidget (Connection * conn, QString const & fname, QStringList const & path);
+		TableWidget (Connection * conn, TableConfig const & cfg, QString const & fname, QStringList const & path);
 
 		virtual E_DataWidgetType type () const { return e_data_table; }
 		virtual QWidget * controlWidget () { return 0; }

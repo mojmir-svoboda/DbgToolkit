@@ -27,7 +27,16 @@ DockWidget::DockWidget (DockManager & mgr, QString const & name, QMainWindow * c
 	, m_mgr(mgr)
 {
 	qDebug("%s this=0x%08x", __FUNCTION__, this);
-	qApp->installEventFilter(this);
+
+    setStyleSheet(" \
+		QDockWidget { color: black; border: 1px solid lightgray; } \
+		QDockWidget::title { text-align: left; background: darkgray; padding-left: 5px; } \
+		QDockWidget::close-button, QDockWidget::float-button { border: 1px solid transparent; background: darkgray; padding: 0px; } \
+		QDockWidget::close-button:hover, QDockWidget::float-button:hover { background: gray; } \
+		QDockWidget::close-button:pressed, QDockWidget::float-button:pressed { padding: 1px -1px -1px 1px; } \
+		");
+		//QDockWidget::title { text-align: left; background: #0068C6; padding-left: 5px; } \
+
 }
 
 DockWidget::~DockWidget ()

@@ -53,6 +53,7 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QStri
 	, m_dock_mgr(this, QStringList(QString(g_traceServerName)))
 	, m_docked_name(g_traceServerName)
 	, m_log_name(log_name)
+	, m_appdir(QDir::homePath() + "/" + g_traceServerDirName)
 	, m_start_level(level)
 {
 	qDebug("================================================================================");
@@ -66,12 +67,9 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QStri
 	ui_settings = new Ui::SettingsDialog();
 	ui_settings->setupUi(m_settings_dialog);
 
-	QString const homedir = QDir::homePath();
-	QString const appdir = homedir + "/" + g_traceServerDirName;
-
-	loadConfig(appdir);
-	m_config.m_appdir = appdir;
+	m_config.m_appdir = m_appdir;
 	m_config.m_dump_mode = dump_mode;
+	loadConfig();
 	setConfigValuesToUI(m_config);
 
 	// tray stuff
@@ -109,6 +107,7 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QStri
 	connect(m_dock_mgr.controlUI()->levelSpinBox, SIGNAL(valueChanged(int)), this, SLOT(onLevelValueChanged(int)));
 	connect(m_dock_mgr.controlUI()->buffCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onBufferingStateChanged(int)));
 	connect(m_dock_mgr.controlUI()->presetComboBox, SIGNAL(activated(int)), this, SLOT(onPresetChanged(int)));
+	connect(m_dock_mgr.controlUI()->presetComboBox->lineEdit(), SIGNAL(returnPressed()), this, SLOT(onPresetAdd()));
 	connect(m_dock_mgr.controlUI()->activatePresetButton, SIGNAL(clicked()), this, SLOT(onPresetApply()));
 	connect(m_dock_mgr.controlUI()->presetSaveButton, SIGNAL(clicked()), this, SLOT(onPresetSave()));
 	connect(m_dock_mgr.controlUI()->presetAddButton, SIGNAL(clicked()), this, SLOT(onPresetAdd()));

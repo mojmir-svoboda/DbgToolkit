@@ -30,7 +30,7 @@ namespace gantt {
 		Q_OBJECT
 	public:
 		enum { e_type = e_data_gantt };
-		GanttWidget (Connection * conn, QString const & fname, QStringList const & path);
+		GanttWidget (Connection * conn, GanttConfig const & cfg, QString const & fname, QStringList const & path);
 
 		virtual QWidget * controlWidget () { return 0; }
 		virtual E_DataWidgetType type () const { return e_data_gantt; }

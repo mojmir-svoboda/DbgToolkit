@@ -29,7 +29,7 @@ namespace logs {
 		Q_OBJECT
 	public:
 		enum { e_type = e_data_log };
-		LogWidget (Connection * conn, QString const & fname, QStringList const & path);
+		LogWidget (Connection * conn, LogConfig const & cfg, QString const & fname, QStringList const & path);
 		virtual ~LogWidget ();
 
 		virtual E_DataWidgetType type () const { return e_data_log; }

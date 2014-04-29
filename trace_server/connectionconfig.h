@@ -19,8 +19,8 @@ struct ConnectionConfig
 	int		  m_fontsize;
 	History<QString> m_preset_history;
 
-	void loadHistory ();
-	void saveHistory () const;
+	void loadHistory (QString const & path);
+	void saveHistory (QString const & path) const;
 
 	ConnectionConfig ()
 		: m_dump_mode(false)

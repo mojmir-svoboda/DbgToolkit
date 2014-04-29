@@ -1,27 +1,16 @@
 #include "connectionconfig.h"
 #include "serialize.h"
 
-inline bool saveHistoryState (History<QString> const & h, char const * filename)
+void ConnectionConfig::loadHistory (QString const & path)
 {
-	//return ::saveConfigTemplate(h, filename);
+	QString const pfilename = path + "/app_preset_history.xml";
+	::loadConfigTemplate(m_preset_history, pfilename.toLatin1());
 }
 
-inline bool loadHistoryState (History<QString> & h, char const * filename)
+void ConnectionConfig::saveHistory (QString const & path) const
 {
-	//::loadConfigTemplate(h, filename);
-	return true;
-}
-
-void ConnectionConfig::loadHistory ()
-{
-	//QString const pfilename = m_appdir + "/preset_history.xml";
-	//loadHistoryState(m_preset_history, pfilename.toLatin1());
-}
-
-void ConnectionConfig::saveHistory () const
-{
-	//QString const pfilename = m_appdir + "/preset_history.xml";
-	//saveHistoryState(m_preset_history, pfilename.toLatin1());
+	QString const pfilename = path + "/app_preset_history.xml";
+	::saveConfigTemplate(m_preset_history, pfilename.toLatin1());
 }
 
 

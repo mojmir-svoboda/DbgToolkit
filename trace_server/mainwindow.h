@@ -137,6 +137,7 @@ private slots:
 	void onLevelValueChanged (int i);
 	void onBufferingStateChanged (int state);
 	void onPresetChanged (int idx);
+	void onPresetEdited ();
 	void onPresetApply ();
 	void onPresetSave ();
 	void onPresetAdd ();
@@ -160,8 +161,8 @@ private:
 	void createTrayActions ();
 	void createTrayIcon ();
 	void registerHotKey ();
-	void saveConfig (QString const & path);
-	void loadConfig (QString const & path);
+	void saveConfig ();
+	void loadConfig ();
 	void setConfigValuesToUI (GlobalConfig const & cfg);
 	void setUIValuesToConfig (GlobalConfig & cfg);
 
@@ -189,6 +190,7 @@ private:
 	DockManager 		m_dock_mgr;
 	QString				m_docked_name;
 	QString 			m_log_name;
+	QString				m_appdir;
 
 	int 				m_start_level; // @TODO: to config?
 	float 				m_time_units;
