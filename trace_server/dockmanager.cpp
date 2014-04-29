@@ -331,6 +331,7 @@ bool DockManager::findClickedActionAble (QPushButton const * const b, TreeModel<
 			return true;
 		node = node->next;
 	}
+	return false;
 }
 
 void DockManager::onCloseButton ()

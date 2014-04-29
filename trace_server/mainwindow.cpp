@@ -437,6 +437,10 @@ void MainWindow::setupMenuBar ()
 	fileMenu->addSeparator();
 	fileMenu->addAction(tr("Quit program"), this, SLOT(onQuit()), QKeySequence::Quit);
 
+	// Panic!
+	QMenu * panicMenu = menuBar()->addMenu(tr("&Panic"));
+	panicMenu->addAction(tr("&Remove configuration files"), this, SLOT(onRemoveConfigurationFiles()));
+
 	// Edit
 	//QMenu * editMenu = menuBar()->addMenu(tr("&Edit"));
 /*
@@ -531,3 +535,22 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
 	QMainWindow::keyPressEvent(e);
 }
 
+
+void MainWindow::onRemoveConfigurationFiles ()
+{
+	QString const path = m_appdir;
+	if (path.isEmpty())
+		return;
+	QMessageBox msg_box;
+	QPushButton * b_del = msg_box.addButton(tr("Yes, Delete"), QMessageBox::ActionRole);
+	QPushButton * b_abort = msg_box.addButton(QMessageBox::Abort);
+	msg_box.exec();
+	if (msg_box.clickedButton() == b_abort)
+		return;
+
+	QDir d_out(path);
+	d_out.removeRecursively();
+
+	QDir d_new;
+	d_new.mkpath(path);
+}

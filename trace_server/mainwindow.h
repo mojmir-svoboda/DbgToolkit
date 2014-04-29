@@ -149,6 +149,7 @@ private slots:
 	void onGanttsStateChanged (int state);
 	void onPresetApply (QString const & preset_name);
 	void onPresetSave (QString const & preset_name);
+	void onRemoveConfigurationFiles ();
 
 	//void onSaveCurrentStateTo (QString const & name);
 	//void onPresetActivate (int idx);
