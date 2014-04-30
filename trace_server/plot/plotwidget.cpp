@@ -67,7 +67,7 @@ namespace plot {
 		setContentsMargins(QMargins(0, 0, 0, 0));
 		setMinimumSize(64,64);
 		m_legend = new QwtLegend(this);
-		if (pcfg.m_legend_show)
+		if (m_config.m_legend_show)
 		{
 			insertLegend(m_legend, static_cast<QwtPlot::LegendPosition>(cfg.m_legend_pos));
 			//m_legend->contentsWidget()->setVisible(cfg.m_legend_show);
