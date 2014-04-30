@@ -14,6 +14,7 @@
 
 class QwtPlotCurve;
 class QwtPlotMarker;
+class QwtLegend;
 
 namespace plot {
 
@@ -99,6 +100,7 @@ namespace plot {
 		plot::CtxPlotConfig m_config_ui;
 		QList<QColor> m_colors;
 		QString m_fname;
+		QwtLegend * m_legend;
 		//std::vector<QwtPlotMarker *> m_markers;
 	};
 }

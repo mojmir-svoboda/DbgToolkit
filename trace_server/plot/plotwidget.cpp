@@ -57,6 +57,7 @@ namespace plot {
 		, m_curves()
 		, m_timer(-1)
 		, m_fname(fname)
+		, m_legend(0)
 	{
 		qDebug("%s this=0x%08x", __FUNCTION__, this);
 		setAutoReplot(false);
@@ -65,7 +66,12 @@ namespace plot {
 
 		setContentsMargins(QMargins(0, 0, 0, 0));
 		setMinimumSize(64,64);
-		insertLegend(new QwtLegend(this), QwtPlot::BottomLegend);
+		m_legend = new QwtLegend(this);
+		if (pcfg.m_legend_show)
+		{
+			insertLegend(m_legend, static_cast<QwtPlot::LegendPosition>(cfg.m_legend_pos));
+			//m_legend->contentsWidget()->setVisible(cfg.m_legend_show);
+		}
 
 		for (size_t c = 0, ce = m_config.m_ccfg.size(); c < ce; ++c)
 		{
@@ -179,6 +185,15 @@ namespace plot {
 	{
 		qDebug("%s this=0x%08x", __FUNCTION__, this);
 		setTitle(pcfg.m_title);
+		if (pcfg.m_legend_show)
+		{
+			plotLayout()->setLegendPosition(static_cast<QwtPlot::LegendPosition>(pcfg.m_legend_pos));
+			//m_legend->contentsWidget()->setVisible(static_cast<QwtPlot::LegendPosition>(pcfg.m_legend_show));
+		}
+		else
+		{
+			insertLegend(0);
+		}
 		for (size_t c = 0, ce = pcfg.m_ccfg.size(); c < ce; ++c)
 		{
 			CurveConfig const & cc = pcfg.m_ccfg[c];
@@ -257,8 +272,8 @@ namespace plot {
 	{
 		item->setVisible(on);
 	#pragma message("!!! Qt5 incompatibility !!!")
-	/*	if (QwtPlotLegendItem * legendItem = qobject_cast<QwtPlotLegendItem *>( legend()->find(item)))
-			legendItem->setChecked(on);*/
+		//if (QwtPlotLegendItem * legendItem = qobject_cast<QwtPlotLegendItem *>(legend()->find(item->winId())))
+		//	legendItem->setChecked(on);
 		replot();
 	}
 
@@ -311,6 +326,9 @@ namespace plot {
 		ui->autoScrollCheckBox->setCheckState(pcfg.m_auto_scroll ? Qt::Checked : Qt::Unchecked);
 		ui->updateTimerSpinBox->setValue(pcfg.m_timer_delay_ms);
 
+		//m_config.m_legend_pos = 
+		ui->legendShowCheckBox->setChecked(pcfg.m_legend_show);
+
 		if (m_config.m_acfg.size() >= 1)
 			ui->xLabelLineEdit->setText(m_config.m_acfg[0].m_label);
 		if (m_config.m_acfg.size() >= 2)
@@ -322,10 +340,12 @@ namespace plot {
 	{
 		qDebug("%s this=0x%08x", __FUNCTION__, this);
 		Ui::SettingsPlot * ui = m_config_ui.ui();
-		pcfg.m_auto_scroll = ui->autoScrollCheckBox->checkState() == Qt::Checked;
+		pcfg.m_auto_scroll = ui->autoScrollCheckBox->isChecked();
 		pcfg.m_timer_delay_ms = ui->updateTimerSpinBox->value();
 		pcfg.m_title = ui->titleLineEdit->text();
-		pcfg.m_show = ui->plotShowCheckBox->checkState() == Qt::Checked;
+		pcfg.m_show = ui->plotShowCheckBox->isChecked();
+		pcfg.m_legend_show = ui->legendShowCheckBox->isChecked();
+		//m_config.m_legend_pos = 
 
 		int const curveidx = ui->curveComboBox->currentIndex();
 		if (curveidx >= 0 && curveidx < pcfg.m_ccfg.size())
@@ -398,13 +418,19 @@ namespace plot {
 	void PlotWidget::loadConfig (QString const & preset_dir)
 	{
 		QString const tag_backup = m_config.m_tag;
-		QString const plotpath = preset_dir + "/" + g_PlotTag + "/" + m_config.m_tag + "/";
-		m_config.clear();
-		bool const loaded = loadConfigTemplate(m_config, plotpath + g_PlotFile);
+		QString const plotpath = getCurrentWidgetPath();
+		PlotConfig config;
+		bool const loaded = loadConfigTemplate(config, plotpath + "/" + g_PlotFile);
 		if (!loaded)
 		{
-			m_config = PlotConfig();
+			m_config.clear();
+			m_config = config;
 			m_config.m_tag = tag_backup; // defaultConfigFor destroys tag
+		}
+		else
+		{
+			m_config.clear();
+			m_config = config;
 		}
 		loadAuxConfigs();
 	}
@@ -526,11 +552,33 @@ namespace plot {
 
 	bool PlotWidget::handleAction (Action * a, E_ActionHandleType sync)
 	{
+		switch (a->type())
+		{
+			case e_Close:
+			{
+				m_connection->destroyDockedWidget(this);
+				return true;
+			}
+
+			case e_Visibility:
+			{
+				m_connection->getMainWindow()->onDockRestoreButton();
+				Q_ASSERT(m_args.size() > 0);
+				bool const on = a->m_args.at(0).toBool();
+				setVisible(on);
+				return true;
+			}
+
+			case e_Find:
+			default:
+				return false;
+		}
 		return false;
 	}
 
 	void PlotWidget::setVisible (bool visible)
 	{
+		m_config.m_show = visible;
 		m_dockwidget->setVisible(visible);
 		QwtPlot::setVisible(visible);
 	}
