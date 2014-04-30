@@ -5,16 +5,16 @@
 #include "utils_history.h"
 #include <ui_controlbarcommon.h>
 
-QString Connection::getClosestPresetName (QString const & tag)
+QString Connection::getClosestPresetName ()
 {
 	// bit clumsy, but no time to loose
 	QString preset_name;
 	QString const conn_name = m_control_bar->ui->presetComboBox->currentText();
 	QString const parent_name = m_main_window->getCurrentPresetName();
-	if (!conn_name.isEmpty() && validatePresetName(conn_name))
-		preset_name = conn_name;
-	else if (!parent_name.isEmpty() && validatePresetName(parent_name))
+	if (!parent_name.isEmpty() && validatePresetName(parent_name))
 		preset_name = parent_name;
+	else if (!conn_name.isEmpty() && validatePresetName(conn_name))
+		preset_name = conn_name;
 	else
 		preset_name = g_defaultPresetName;
 	return preset_name;

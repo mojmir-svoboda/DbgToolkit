@@ -12,7 +12,7 @@ typename SelectIterator<TypeN>::type Connection::dataWidgetFactory (QString cons
 		typedef typename SelectWidget<TypeN>::type widget_t;
 		typedef typename SelectConfig<TypeN>::type config_t;
 
-		QString const preset_name = getClosestPresetName(tag);
+		QString const preset_name = getClosestPresetName();
 		m_curr_preset = preset_name;
 		char const * widget_prefix = g_fileTags[TypeN];
 		char const * widget_fname = g_fileNames[TypeN];
@@ -61,7 +61,7 @@ typename SelectIterator<TypeN>::type Connection::dataWidgetFactory (QString cons
 template <int TypeN>
 bool Connection::dataWidgetConfigPreload (QString const tag, typename SelectConfig<TypeN>::type & config)
 {
-	QString const preset_name = getClosestPresetName(tag);
+	QString const preset_name = getClosestPresetName();
 	char const * widget_prefix = g_fileTags[TypeN];
 	char const * widget_fname = g_fileNames[TypeN];
 	QString const fname = mkWidgetFileName(getGlobalConfig().m_appdir, getAppName(), preset_name, widget_prefix, tag, widget_fname);
@@ -85,7 +85,7 @@ typename SelectIterator<TypeN>::type Connection::dataWidgetFactoryFrom (QString 
 		typedef typename SelectWidget<TypeN>::type widget_t;
 		typedef typename SelectConfig<TypeN>::type config_t;
 
-		QString const preset_name = getClosestPresetName(tag);
+		QString const preset_name = getClosestPresetName();
 		//m_curr_preset = preset_name; // 
 		char const * widget_prefix = g_fileTags[TypeN];
 		char const * widget_fname = g_fileNames[TypeN];

@@ -79,7 +79,7 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 			else
 			{
 				qDebug("cmd setup: looking for app=%s: not found", app_name.toStdString().c_str());
-				m_curr_preset = getCurrentPresetName();
+				m_curr_preset = getClosestPresetName();
 			}
 
 			m_app_name = app_name;

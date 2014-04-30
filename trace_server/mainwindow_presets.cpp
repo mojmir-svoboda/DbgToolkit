@@ -48,12 +48,13 @@ QString MainWindow::getCurrentPresetName () const
 
 void MainWindow::onSave ()
 {
-	QString const txt = getCurrentPresetName();
-	onPresetSave(txt);
+	QString const preset_name = getCurrentPresetName();
+	onPresetSave(preset_name);
 }
 
-void MainWindow::onSaveAs (QString const & preset_name)
+void MainWindow::onSaveAs ()
 {
+	QString const preset_name = getCurrentPresetName();
 	onPresetSave(preset_name);
 }
 

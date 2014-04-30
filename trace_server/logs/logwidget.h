@@ -190,6 +190,7 @@ namespace logs {
 		void onShow ();
 		void onHide ();
 		void onHideContextMenu ();
+		void onWindowActionTriggered ();
 		void onShowContextMenu (QPoint const & pos);
 		void setConfigValuesToUI (LogConfig const & cfg);
 		void setUIValuesToConfig (LogConfig & cfg);
@@ -301,6 +302,7 @@ namespace logs {
 		QItemSelectionModel * m_kfind_proxy_selection;
 		QStandardItemModel * m_color_regex_model;
 		FindWidget * m_find_widget;
+    QAction * m_window_action;
 
 		LogWidget * m_linked_parent; // @TODO: move to LogWidgetWithButtons
 		typedef std::vector<DockedWidgetBase *> linked_widgets_t;

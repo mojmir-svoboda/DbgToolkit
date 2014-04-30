@@ -50,6 +50,7 @@ namespace logs {
 		, m_kfind_proxy_selection(0)
 		, m_color_regex_model(0)
 		, m_find_widget(0)
+		, m_window_action(0)
 		, m_linked_parent(0)
 		, m_csv_separator()
 		, m_file_csv_stream(0)
@@ -107,6 +108,10 @@ namespace logs {
 		m_find_widget = new FindWidget(m_connection->getMainWindow(), this);
 		m_find_widget->setActionAbleWidget(this);
 		m_find_widget->setParent(m_tableview);
+
+		m_window_action = new QAction("Tool widget for " + joinedPath(), this);
+    connect(m_window_action, SIGNAL(triggered()), this, SLOT(onWindowActionTriggered()));
+		m_main_window->addWindowAction(m_window_action);
 	}
 
 	void LogWidget::fillButtonCache (QWidget * parent_widget)
@@ -399,6 +404,7 @@ namespace logs {
 
 	LogWidget::~LogWidget ()
 	{
+		m_main_window->rmWindowAction(m_window_action);
 		m_tableview->setItemDelegate(0);
 
 		delete m_control_bar;
@@ -451,6 +457,13 @@ namespace logs {
 		m_config_ui.onHideContextMenu();
 	}
 
+	void LogWidget::onWindowActionTriggered ()
+	{
+		m_config_ui.onShowContextMenu(QCursor::pos());
+		Ui::SettingsLog * ui = m_config_ui.ui();
+
+		setConfigValuesToUI(m_config);
+	}
 	void LogWidget::onShowContextMenu (QPoint const & pos)
 	{
 		//qDebug("%s this=0x%08x", __FUNCTION__, this);

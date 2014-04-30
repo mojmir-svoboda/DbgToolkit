@@ -43,6 +43,7 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QStri
 	, m_help(new Ui::HelpDialog)
 	, m_timer(new QTimer(this))
 	, m_server(0)
+	, m_windows_menu(0)
 	, m_minimize_action(0)
 	, m_maximize_action(0)
 	, m_restore_action(0)
@@ -437,6 +438,10 @@ void MainWindow::setupMenuBar ()
 	fileMenu->addSeparator();
 	fileMenu->addAction(tr("Quit program"), this, SLOT(onQuit()), QKeySequence::Quit);
 
+	// View
+	m_windows_menu = menuBar()->addMenu(tr("&Windows"));
+	//fileMenu->addAction(tr("Show &Tool Widget"), this, SLOT(onShowToolWidget()), QKeySequence(Qt::ControlModifier + Qt::Key_O));
+
 	// Panic!
 	QMenu * panicMenu = menuBar()->addMenu(tr("&Panic"));
 	panicMenu->addAction(tr("&Remove configuration files"), this, SLOT(onRemoveConfigurationFiles()));
@@ -479,6 +484,15 @@ void MainWindow::setupMenuBar ()
 	//new QShortcut(QKeySequence(Qt::AltModifier + Qt::Key_Space), this, SLOT(onAutoScrollHotkey()));
 }
 
+void MainWindow::addWindowAction (QAction * action)
+{
+	m_windows_menu->addAction(action);
+}
+void MainWindow::rmWindowAction (QAction * action)
+{
+	m_windows_menu->removeAction(action);
+}
+
 void MainWindow::iconActivated (QSystemTrayIcon::ActivationReason reason)
 {
 	switch (reason) {
@@ -501,44 +515,34 @@ void MainWindow::closeEvent (QCloseEvent * event)
 void MainWindow::changeEvent (QEvent * e) { QMainWindow::changeEvent(e); }
 bool MainWindow::eventFilter (QObject * target, QEvent * e)
 {
-	/*if (e->type() == QEvent::Shortcut)
-	{
+	/*if (e->type() == QEvent::Shortcut) {
 		QShortcutEvent * se = static_cast<QShortcutEvent *>(e);
-		if (se->key() == QKeySequence(Qt::ControlModifier + Qt::Key_Insert))
-		{
-
+		if (se->key() == QKeySequence(Qt::ControlModifier + Qt::Key_Insert)) {
 			//onCopyToClipboard();
 			return true;
 		}
 	}*/
 	return false;
 }
-
 void MainWindow::keyPressEvent (QKeyEvent * e)
 {
 	if (e->type() == QKeyEvent::KeyPress)
 	{
 		/*if (e->matches(QKeySequence::Copy))
-		{
 			e->accept();
-		}
-		else
-		if (e->key() == Qt::Key_Escape)
-		{
-			if (m_find_widget && m_find_widget->isVisible())
-			{
+		else if (e->key() == Qt::Key_Escape)
+			if (m_find_widget && m_find_widget->isVisible()) {
 				m_find_widget->onCancel();
 				e->accept();
-			}
-		}*/
+			}*/
 	}
 	QMainWindow::keyPressEvent(e);
 }
 
-
 void MainWindow::onRemoveConfigurationFiles ()
 {
-	QString const path = m_appdir;
+	//QString const path = m_appdir; // @NOTE: rather not.. will not risk deletion of other files than mine
+	QString const path = QDir::homePath() + "/" + g_traceServerDirName;
 	if (path.isEmpty())
 		return;
 	QMessageBox msg_box;
@@ -554,3 +558,5 @@ void MainWindow::onRemoveConfigurationFiles ()
 	QDir d_new;
 	d_new.mkpath(path);
 }
+
+

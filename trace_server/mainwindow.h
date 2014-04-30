@@ -81,6 +81,8 @@ public:
 	DockManager const & dockManager () const { return m_dock_mgr; }
 	DockManager & dockManager () { return m_dock_mgr; }
 	QString const & dockedName () const { return m_docked_name; }
+	void addWindowAction (QAction * action);
+	void rmWindowAction (QAction * action);
 
 	// files and streams
 	void createTailDataStream (QString const & fname);
@@ -108,8 +110,7 @@ public slots:
 	void onDockManagerVisibilityChanged (bool state);
 	void onDockManagerClosed ();
 	void onSave ();
-	void onSaveAs (QString const & preset_name);
-
+	void onSaveAs ();
 
 	friend class Connection;
 private slots:
@@ -179,6 +180,7 @@ private:
 
 	QTimer *  			m_timer;
 	Server *  			m_server;
+	QMenu * 			m_windows_menu;
 	QAction * 			m_minimize_action;
 	QAction * 			m_maximize_action;
 	QAction * 			m_restore_action;
