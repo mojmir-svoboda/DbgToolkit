@@ -1,5 +1,6 @@
 #include "connection.h"
 #include "logs/logwidget.h"
+#include "mainwindow.h"
 #include "constants.h"
 #include "utils.h"
 

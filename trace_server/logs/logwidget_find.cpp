@@ -6,6 +6,7 @@
 #include "utils.h"
 #include <serialize.h>
 #include "connection.h"
+#include "mainwindow.h"
 #include "warnimage.h"
 
 namespace logs {

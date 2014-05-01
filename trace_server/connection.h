@@ -20,17 +20,12 @@
  * SOFTWARE.
  **/
 #pragma once
-#include <QHostAddress>
-#include <QString>
-#include <QTcpSocket>
 #include <QThread>
 #include <tlv_parser/tlv.h>
 #include <tlv_parser/tlv_cmd_qstring.h>
 #include <boost/circular_buffer.hpp>
 #include <boost/tuple/tuple.hpp>
-#include "mainwindow.h"
 #include "cmd.h"
-#include "treeview.h"
 #include "logs/logwidget.h"
 #include "plot/plotwidget.h"
 #include "table/tablewidget.h"
@@ -41,13 +36,9 @@
 #include "appdata.h"
 #include "constants.h"
 #include "connectionconfig.h"
-
-class Server;
-class QFile;
-class QDataStream;
-class QTextStream;
-//class QStandardItemModel;
-//class QStandardItem;
+class MainWindow; class Server;
+class QFile; class QDataStream; class QTextStream; class QTcpSocket;
+class ControlBarCommon;
 
 char const * const g_fileTags[] =  { g_LogTag , g_PlotTag , g_TableTag , g_GanttTag , g_FrameTag  };
 char const * const g_fileNames[] = { g_LogFile, g_PlotFile, g_TableFile, g_GanttFile, g_FrameFile };
@@ -89,7 +80,6 @@ public:
 
 	void saveConfigs (QString const & path);
 	void loadConfigs (QString const & path);
-
 	void loadConfig (QString const & preset_name);
 	void saveConfig (QString const & preset_name);
 	void applyConfigs ();
@@ -106,7 +96,6 @@ public:
 	QString getClosestPresetName ();
 	E_FeatureStates getClosestFeatureState (E_DataWidgetType type) const;
 	void mkWidgetPath (E_DataWidgetType type, QString const tag, QStringList & path);
-
 	template <int TypeN>
 	typename SelectIterator<TypeN>::type dataWidgetFactory (QString const tag);
 	template <int TypeN>
@@ -146,21 +135,6 @@ public slots:
 	void onGanttsStateChanged (int state);
 	void onPresetApply (QString const & preset_name);
 	void onPresetSave (QString const & preset_name);
-
-
-	//void onShowContextMenu (QPoint const & pos);
-	/*void onShowPlotContextMenu (QPoint const &);
-	void onShowPlots ();
-	void onHidePlots ();
-	void onShowTableContextMenu (QPoint const &);
-	void onShowTables ();
-	void onHideTables ();
-	void onShowGanttContextMenu (QPoint const &);
-	void onShowGantts ();
-	void onHideGantts ();
-	void onShowLogContextMenu (QPoint const &);
-	void onShowLogs ();
-	void onHideLogs ();*/
 
 	void exportStorageToCSV (QString const & filename);
 
@@ -214,7 +188,7 @@ protected:
 	bool handleGanttClearCommand (DecodedCommand const & cmd, E_ReceiveMode mode);
 
 	virtual bool handleAction (Action * a, E_ActionHandleType sync);
-	virtual QWidget * controlWidget () { return m_control_bar; }
+	virtual QWidget * controlWidget ();
 
 	void registerDataMaps ();
 
@@ -272,7 +246,6 @@ private:
 	QFile * m_storage;
 	QDataStream * m_tcp_dump_stream;
 	QTcpSocket * m_tcpstream;
-	//stats::StatsWindow * m_statswindow;
 	data_widgets_t m_data;
 };
 

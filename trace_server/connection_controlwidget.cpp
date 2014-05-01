@@ -1,8 +1,11 @@
 #include "connection.h"
+#include <QTcpSocket>
 #include <QMessageBox>
 #include <tlv_parser/tlv_encoder.h>
 #include "utils.h"
 #include "utils_history.h"
+#include "controlbarcommon.h"
+#include "mainwindow.h"
 #include <ui_controlbarcommon.h>
 
 QString Connection::getClosestPresetName ()

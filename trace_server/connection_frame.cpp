@@ -8,7 +8,7 @@
 //#include <gantt/ganttview.h>
 #include <label.h>
 #include <syncwidgets.h>
-
+#include "mainwindow.h"
 
 dataframes_t::iterator Connection::findOrCreateFrame (QString const & tag)
 {

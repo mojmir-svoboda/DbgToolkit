@@ -15,7 +15,7 @@
 #include <QShortcut>
 #include <controlbarlog.h>
 #include <ui_controlbarlog.h>
-
+#include "mainwindow.h"
 
 namespace logs {
 

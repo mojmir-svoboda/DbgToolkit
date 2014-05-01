@@ -1,12 +1,12 @@
 #include "connection.h"
 #include <QtNetwork>
-//#include <trace_client/trace.h>
 #include "utils.h"
-//#include "utils_qstandarditem.h"
 #include "utils_boost.h"
 #include "types.h"
 #include "server.h"
+#include "mainwindow.h"
 #include "serialize.h"
+#include "controlbarcommon.h"
 #include <ui_controlbarcommon.h>
 
 GlobalConfig const & Connection::getGlobalConfig () const { return m_main_window->getConfig(); }
@@ -332,4 +332,9 @@ bool Connection::handleAction (Action * a, E_ActionHandleType sync)
 
 	recurse(m_data, HandleAction(a, sync));
 	return true;
+}
+
+QWidget * Connection::controlWidget ()
+{
+	return m_control_bar;
 }

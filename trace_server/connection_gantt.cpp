@@ -5,6 +5,7 @@
 #include "utils.h"
 #include "dock.h"
 #include "delegates.h"
+#include "mainwindow.h"
 #include "gantt/ganttview.h"
 #include "gantt/ganttwidget.h"
 //#include <cstdlib>

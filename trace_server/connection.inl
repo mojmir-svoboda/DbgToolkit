@@ -1,4 +1,5 @@
 #pragma once
+#include "dockwidget.h"
 
 template <int TypeN>
 typename SelectIterator<TypeN>::type Connection::dataWidgetFactory (QString const tag)

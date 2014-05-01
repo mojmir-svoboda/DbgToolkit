@@ -8,6 +8,7 @@
 #include "utils.h"
 #include "utils_boost.h"
 #include "dock.h"
+#include "mainwindow.h"
 #include <cstdlib>
 
 inline void Dump (DecodedCommand const & c)

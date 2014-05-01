@@ -1,9 +1,6 @@
 #pragma once
 #include <QWidget>
-#include <tableview.h>
 #include <cmd.h>
-#include <QStyledItemDelegate>
-#include <QItemDelegate>
 #include "action.h"
 #include "logconfig.h"
 #include "logctxmenu.h"
@@ -302,7 +299,7 @@ namespace logs {
 		QItemSelectionModel * m_kfind_proxy_selection;
 		QStandardItemModel * m_color_regex_model;
 		FindWidget * m_find_widget;
-    QAction * m_window_action;
+		QAction * m_window_action;
 
 		LogWidget * m_linked_parent; // @TODO: move to LogWidgetWithButtons
 		typedef std::vector<DockedWidgetBase *> linked_widgets_t;

@@ -5,6 +5,7 @@
 #include "cmd.h"
 #include "utils.h"
 #include "dock.h"
+#include "mainwindow.h"
 #include <cstdlib>
 
 bool Connection::handlePlotCommand (DecodedCommand const & cmd, E_ReceiveMode mode)

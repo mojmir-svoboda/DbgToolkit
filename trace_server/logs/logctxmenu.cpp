@@ -3,6 +3,7 @@
 #include "logwidget.h"
 #include "utils.h"
 #include "connection.h"
+#include "mainwindow.h"
 #include <logs/tagconfig.h>
 
 namespace logs {

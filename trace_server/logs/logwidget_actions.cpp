@@ -1,6 +1,7 @@
 #include "logwidget.h"
 #include "filterproxymodel.h"
 #include "connection.h"
+#include "mainwindow.h"
 
 namespace logs {
 

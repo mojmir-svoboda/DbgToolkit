@@ -9,6 +9,7 @@
 #include "utils_boost.h"
 #include "constants.h"
 #include "delegates.h"
+#include "mainwindow.h"
 
 bool Connection::dumpModeEnabled () const { return m_main_window->dumpModeEnabled(); }
 

@@ -7,6 +7,7 @@
 #include "utils.h"
 #include "dock.h"
 #include "delegates.h"
+#include "mainwindow.h"
 #include <cstdlib>
 
 bool Connection::handleTableXYCommand (DecodedCommand const & cmd, E_ReceiveMode mode)

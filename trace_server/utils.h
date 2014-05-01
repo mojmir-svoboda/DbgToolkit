@@ -99,29 +99,12 @@ inline QString promptAndCreatePresetNameForApp (QString const & app_dir, QString
     return promptInputDialog(items);
 }
 
-
-inline bool checkPresetPath (QString const & appdir, QString const & preset_name)
-{
-	QString presetdir = appdir + "/" + preset_name;
-	if (existsFile(presetdir))
-		return true;
-	return false;
-}
 inline bool checkAppPresetPath (QString const & appdir, QString const & app_name, QString const & preset_name)
 {
 	QString presetdir = appdir + "/" + app_name + "/" + preset_name;
 	if (existsFile(presetdir))
 		return true;
 	return false;
-}
-
-inline QString createPresetPath (QString const & appdir, QString const & preset_name)
-{
-	QString presetdir = appdir + "/" + preset_name;
-	QDir d;
-	d.mkpath(presetdir);
-	qDebug("mk preset path: %s", presetdir.toStdString().c_str());
-	return presetdir;
 }
 
 inline QString createAppPresetPath (QString const & appdir, QString const & app_name, QString const & preset_name)
