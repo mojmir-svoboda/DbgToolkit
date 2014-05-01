@@ -14,11 +14,10 @@ struct DockedInfo
 	 */
 	int m_state;
 	int m_collapsed;
-	QWidget * m_close_widget;
 	//int m_valid_widget;
 	//int m_childwidget;
 
-	DockedInfo () : m_state(e_Unchecked), m_collapsed(true), m_close_widget(0) { }
+	DockedInfo () : m_state(e_Unchecked), m_collapsed(true) { }
 
 	template <class ArchiveT>
 	void serialize (ArchiveT & ar, unsigned const version)

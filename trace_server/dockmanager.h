@@ -1,18 +1,14 @@
 #pragma once
 #include <QString>
-#include <QDockWidget>
 #include <QMultiMap>
-#include <QSpinBox>
 #include "action.h"
-#include "dockedconfig.h"
 #include "dockmanagerview.h"
+#include "dockedconfig.h"
 #include "dockmanagermodel.h"
 #include "dockmanagerconfig.h"
 #include "controlbarcommon.h"
-class QCloseEvent; class QPushButton;
 class MainWindow;
 struct DockWidget;
-class ControlBarCommon;
 namespace Ui { class ControlBarCommon; }
 
 struct DockManager : DockManagerView, ActionAble
@@ -30,11 +26,12 @@ public:
 		e_max_dockmgr_column
 	};
 
+	typedef DockManagerModel::node_t node_t;
 	typedef QMultiMap<QString, ActionAble *> actionables_t;
 	actionables_t		m_actionables;
 	MainWindow * 		m_main_window;
-	QDockWidget * 		m_dockwidget;
-	ControlBarCommon * m_control_bar;
+	DockWidget * 		m_dockwidget;
+	ControlBarCommon * 	m_control_bar;
 	DockManagerModel *	m_model;
 	DockManagerConfig	m_config;
 
@@ -44,6 +41,7 @@ public:
 	QModelIndex addActionAble (ActionAble & aa, bool on);
 	void removeActionAble (ActionAble & aa);
 	ActionAble const * findActionAble (QString const & dst_joined) const;
+	ActionAble * findActionAble (QString const & dst_joined);
 	Ui::ControlBarCommon * controlUI () { return m_control_bar->ui; }
 	Ui::ControlBarCommon const * controlUI () const { return m_control_bar->ui; }
 
@@ -56,15 +54,12 @@ public:
 
 public slots:
 	void onWidgetClosed (DockWidget * w);
-	void onClicked (QModelIndex idx);
 	void onCloseButton ();
 
 protected slots:
 	void onColumnResized (int column, int oldSize, int newSize);
 
 protected:
-	bool findClickedActionAble (QPushButton const * const b, TreeModel<DockedInfo>::node_t const * node, QStringList & aa) const;
 };
-
 
 

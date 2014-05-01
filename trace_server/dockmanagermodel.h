@@ -8,6 +8,7 @@ class DockManagerModel : public TreeModel<DockedInfo>
 	DockManager & m_manager;
 	Q_OBJECT
 public:
+	//typedef TreeModel<DockedInfo>::node_t node_t;
 
 	explicit DockManagerModel (DockManager & mgr, QObject * parent = 0, tree_data_t * data = 0);
 	~DockManagerModel ();
@@ -15,8 +16,8 @@ public:
 	QModelIndex insertItemWithPath (QStringList const & path, bool checked);
 	QModelIndex testItemWithPath (QStringList const & path);
 
-	TreeModel<DockedInfo>::node_t const * getItemFromIndex (QModelIndex const & index) const { return itemFromIndex(index); }
-	TreeModel<DockedInfo>::node_t * getItemFromIndex (QModelIndex const & index) { return itemFromIndex(index); }
+	node_t const * getItemFromIndex (QModelIndex const & index) const { return itemFromIndex(index); }
+	node_t * getItemFromIndex (QModelIndex const & index) { return itemFromIndex(index); }
 	//DockedWidgetBase const * getWidgetFromIndex (QModelIndex const & index) const;
 	//DockedWidgetBase * getWidgetFromIndex (QModelIndex const & index);
 

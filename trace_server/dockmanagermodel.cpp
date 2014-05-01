@@ -20,9 +20,7 @@ QModelIndex DockManagerModel::testItemWithPath (QStringList const & path)
 	QString const name = path.join("/");
 	DockedInfo const * i = 0;
 	if (node_t const * node = m_tree_data->is_present(name, i))
-	{		
 		return indexFromItem(node);
-	}
 	else
 		return QModelIndex();
 }
@@ -67,18 +65,11 @@ int DockManagerModel::columnCount (QModelIndex const & parent) const
 
 Qt::ItemFlags DockManagerModel::flags (QModelIndex const & index) const
 {
-	if (index.row() == 0 && index.column() == 0)
-		return QAbstractItemModel::flags(index)
-					| Qt::ItemIsEnabled
-					| Qt::ItemIsUserCheckable
-					| Qt::ItemIsSelectable;
-
 	return QAbstractItemModel::flags(index)
 				| Qt::ItemIsEnabled
 				| Qt::ItemIsUserCheckable
 				| Qt::ItemIsSelectable;
 }
-
 
 /*DockedWidgetBase const * DockManagerModel::getWidgetFromIndex (QModelIndex const & index) const
 {

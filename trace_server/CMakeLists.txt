@@ -79,6 +79,8 @@ set(trace_server_SOURCES
 	constants.cpp
 	config.cpp
 	dock.cpp
+	dockwidget.cpp
+	dockdelegates.cpp
 	dockmanagerconfig.cpp
 	dockmanager.cpp
 	dockmanagerview.cpp
@@ -192,6 +194,8 @@ set(trace_server_HEADERS
 	rendezvous.h
 	utils.h
 	dock.h
+	dockwidget.h
+	dockdelegates.h
 	dockedwidgets.h
 	dockmanagerconfig.h
 	dockmanager.h
