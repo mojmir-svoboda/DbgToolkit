@@ -38,12 +38,22 @@ QWidget * ControlWidgetDelegate::createEditor (QWidget * parent, QStyleOptionVie
 		{
 			QStringList const & dst = n->data.m_path;
 			if (ActionAble * aa = m_dock_mgr.findActionAble(dst.join("/")))
-				return aa->controlWidget();
+			{
+				if (QWidget * w = aa->controlWidget())
+				{
+					w->setParent(parent);
+					return w;
+				}
+			}
 		}
 	}
 	return 0;
 }
 
+void ControlWidgetDelegate::destroyEditor (QWidget * editor, QModelIndex const & index) const
+{
+	// no-op
+}
 void ControlWidgetDelegate::setEditorData (QWidget * editor, QModelIndex const & index) const { }
 void ControlWidgetDelegate::setModelData (QWidget * editor, QAbstractItemModel * model, QModelIndex const & index) const { }
 void ControlWidgetDelegate::updateEditorGeometry(QWidget * editor, QStyleOptionViewItem const & option, QModelIndex const & idx) const { editor->setGeometry(option.rect); }

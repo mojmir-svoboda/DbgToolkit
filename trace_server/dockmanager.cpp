@@ -49,6 +49,7 @@ DockManager::DockManager (MainWindow * mw, QStringList const & path)
 	header()->setStretchLastSection(false);
 	//setItemDelegateForColumn(e_Column_Close, new CloseButtonDelegate(*this, this));
 	setItemDelegateForColumn(e_Column_Close, new CloseButtonDelegate(*this, this));
+	setItemDelegateForColumn(e_Column_ControlWidget, new ControlWidgetDelegate(*this, this));
 	setStyleSheet("QTreeView::item{ selection-background-color: #FFE7BA } QTreeView::item{ selection-color: #000000 }");
 	//horizontalScrollBar()->setStyleSheet("QScrollBar:horizontal { border: 1px solid grey; height: 15px; } QScrollBar::handle:horizontal { background: white; min-width: 10px; }");
 	/*
@@ -155,22 +156,14 @@ QModelIndex DockManager::addActionAble (ActionAble & aa, bool on)
 {
 	qDebug("%s aa=%s show=%i", __FUNCTION__, aa.joinedPath().toStdString().c_str(), on);
 	QModelIndex const idx = m_model->insertItemWithPath(aa.path(), on);
+	QString const & name = aa.joinedPath();
+	m_actionables.insert(name, &aa);
+	m_model->setData(idx, QVariant(on ? Qt::Checked : Qt::Unchecked), Qt::CheckStateRole);
 
 	QModelIndex const jdx = m_model->index(idx.row(), e_Column_Close, idx.parent());
 	openPersistentEditor(jdx);
-
 	QModelIndex const kdx = m_model->index(idx.row(), e_Column_ControlWidget, idx.parent());
-	//openPersistentEditor(kdx);
-
-	/*{
-		QModelIndex const jdx = m_model->index(idx.row(), e_Column_ControlWidget, idx.parent());
-		if (jdx.isValid())
-			setIndexWidget(jdx, aa.controlWidget());
-	}*/
-
-	m_model->setData(idx, QVariant(on ? Qt::Checked : Qt::Unchecked), Qt::CheckStateRole);
-	QString const & name = aa.joinedPath();
-	m_actionables.insert(name, &aa);
+	openPersistentEditor(kdx);
 	return idx;
 }
 
