@@ -45,8 +45,8 @@ QModelIndex DockManagerModel::insertItemWithPath (QStringList const & path, bool
 	
 		node_t * const n = m_tree_data->set_to_state(name, i);
 		QModelIndex const parent_idx = indexFromItem(n->parent);
-		//int const last = n->parent->count_childs() - 1;
-		beginInsertRows(parent_idx, 0, 0);
+		int const last = n->parent->count_childs() - 1;
+		beginInsertRows(parent_idx, last, last);
 		n->data.m_path = path;
 
 		QModelIndex const idx = indexFromItem(n);
