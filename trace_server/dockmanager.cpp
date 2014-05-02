@@ -47,6 +47,7 @@ DockManager::DockManager (MainWindow * mw, QStringList const & path)
 	//setSizeAdjustPolicy(QAbstractScrollArea::AdjustIgnored);
 	//header()->setSectionResizeMode(0, QHeaderView::Interactive);
 	header()->setStretchLastSection(false);
+	setEditTriggers(QAbstractItemView::NoEditTriggers);
 	//setItemDelegateForColumn(e_Column_Close, new CloseButtonDelegate(*this, this));
 	setItemDelegateForColumn(e_Column_Close, new CloseButtonDelegate(*this, this));
 	setItemDelegateForColumn(e_Column_ControlWidget, new ControlWidgetDelegate(*this, this));
@@ -100,7 +101,7 @@ void DockManager::loadConfig (QString const & cfgpath)
 	m_model = new DockManagerModel(*this, this, &m_config.m_data);
 	setModel(m_model);
 	bool const on = true;
-	addActionAble(*this, on);
+	addActionAble(*this, on, false, true);
 }
 
 void DockManager::applyConfig ()
@@ -152,19 +153,31 @@ void DockManager::onWidgetClosed (DockWidget * w)
 	qDebug("%s w=%08x", __FUNCTION__, w);
 }
 
-QModelIndex DockManager::addActionAble (ActionAble & aa, bool on)
+QModelIndex DockManager::addActionAble (ActionAble & aa, bool on, bool close_button, bool control_widget)
 {
 	qDebug("%s aa=%s show=%i", __FUNCTION__, aa.joinedPath().toStdString().c_str(), on);
 	QModelIndex const idx = m_model->insertItemWithPath(aa.path(), on);
 	QString const & name = aa.joinedPath();
 	m_actionables.insert(name, &aa);
-	m_model->setData(idx, QVariant(on ? Qt::Checked : Qt::Unchecked), Qt::CheckStateRole);
+	m_model->initData(idx, QVariant(on ? Qt::Checked : Qt::Unchecked), Qt::CheckStateRole);
 
-	QModelIndex const jdx = m_model->index(idx.row(), e_Column_Close, idx.parent());
-	openPersistentEditor(jdx);
-	QModelIndex const kdx = m_model->index(idx.row(), e_Column_ControlWidget, idx.parent());
-	openPersistentEditor(kdx);
+	if (close_button)
+	{
+		QModelIndex const jdx = m_model->index(idx.row(), e_Column_Close, idx.parent());
+		openPersistentEditor(jdx);
+	}
+	if (control_widget)
+	{
+		QModelIndex const kdx = m_model->index(idx.row(), e_Column_ControlWidget, idx.parent());
+		openPersistentEditor(kdx);
+	}
 	return idx;
+
+}
+
+QModelIndex DockManager::addActionAble (ActionAble & aa, bool on)
+{
+	return addActionAble(aa, on, true, true);
 }
 
 ActionAble const * DockManager::findActionAble (QString const & dst_joined) const

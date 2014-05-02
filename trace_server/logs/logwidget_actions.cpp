@@ -12,6 +12,8 @@ bool LogWidget::handleAction (Action * a, E_ActionHandleType sync)
 		case e_Close:
 		{
 			m_connection->destroyDockedWidget(this);
+			setParent(0);
+			delete this;
 			return true;
 		}
 

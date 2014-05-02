@@ -122,7 +122,7 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QStri
 	/// status bar
 	m_status_label = new QLabel(m_server->getStatus());
 	QString human_version(g_Version);
-	human_version.chop(human_version.lastIndexOf(QChar('-')));
+	human_version.chop(human_version.size() - human_version.lastIndexOf(QChar('-')));
 	QLabel * version_label = new QLabel(tr("Ver: %1").arg(human_version));
 	statusBar()->addPermanentWidget(version_label);
 	statusBar()->addWidget(m_status_label);

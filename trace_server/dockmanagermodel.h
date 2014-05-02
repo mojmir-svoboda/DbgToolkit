@@ -25,6 +25,7 @@ public:
 	virtual QVariant data (const QModelIndex & index, int role = Qt::DisplayRole) const;
 	Qt::ItemFlags flags (QModelIndex const & index) const;
 	virtual bool setData (QModelIndex const & index, QVariant const & value, int role = Qt::EditRole);
+	bool initData (QModelIndex const & index, QVariant const & value, int role = Qt::EditRole);
 
 public slots:
 	void onExpanded (QModelIndex const & idx) { expanded(idx); }

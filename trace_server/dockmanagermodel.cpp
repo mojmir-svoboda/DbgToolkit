@@ -45,12 +45,13 @@ QModelIndex DockManagerModel::insertItemWithPath (QStringList const & path, bool
 	
 		node_t * const n = m_tree_data->set_to_state(name, i);
 		QModelIndex const parent_idx = indexFromItem(n->parent);
-		beginInsertRows(parent_idx, 0, n->parent->count_childs() - 1);
+		//int const last = n->parent->count_childs() - 1;
+		beginInsertRows(parent_idx, 0, 0);
 		n->data.m_path = path;
 
 		QModelIndex const idx = indexFromItem(n);
 		endInsertRows();
-		setData(idx, checked ? Qt::Checked : Qt::Unchecked, Qt::CheckStateRole);
+		initData(idx, checked ? Qt::Checked : Qt::Unchecked, Qt::CheckStateRole);
 		//QModelIndex const parent_idx = idx.parent();
 		//if (parent_idx.isValid())
 		//	emit dataChanged(parent_idx, parent_idx);
@@ -120,6 +121,11 @@ bool DockManagerModel::setData (QModelIndex const & index, QVariant const & valu
 		m_manager.handleAction(&a, e_Sync);
 	}
 
+	return TreeModel<DockedInfo>::setData(index, value, role);
+}
+
+bool DockManagerModel::initData (QModelIndex const & index, QVariant const & value, int role)
+{
 	return TreeModel<DockedInfo>::setData(index, value, role);
 }
 

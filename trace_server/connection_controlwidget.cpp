@@ -32,6 +32,7 @@ E_FeatureStates Connection::getClosestFeatureState (E_DataWidgetType type) const
 		case e_data_table: return static_cast<E_FeatureStates>(m_control_bar->ui->tableSlider->value());
 		case e_data_gantt: return static_cast<E_FeatureStates>(m_control_bar->ui->ganttSlider->value());
 		case e_data_frame: return static_cast<E_FeatureStates>(m_control_bar->ui->ganttSlider->value());
+		default: return e_FtrDisabled;
 	}
 }
 

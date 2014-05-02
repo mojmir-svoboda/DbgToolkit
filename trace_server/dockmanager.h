@@ -39,6 +39,7 @@ public:
 	DockWidget * mkDockWidget (ActionAble & aa, bool visible, Qt::DockWidgetArea area);
 
 	QModelIndex addActionAble (ActionAble & aa, bool on);
+	QModelIndex addActionAble (ActionAble & aa, bool on, bool close_button, bool control_widget);
 	void removeActionAble (ActionAble & aa);
 	ActionAble const * findActionAble (QString const & dst_joined) const;
 	ActionAble * findActionAble (QString const & dst_joined);
