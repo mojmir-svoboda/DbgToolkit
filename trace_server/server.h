@@ -36,7 +36,7 @@ public:
 	explicit Server (QString addr, unsigned short port, QObject * parent = 0, bool quit_delay = true);
 
 	QString const & getStatus () const { return m_server_status; }
-	void stop ();
+	void stop () { close(); }
 
 signals:
 	void newConnection (Connection * connection);

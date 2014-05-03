@@ -254,6 +254,8 @@ void MainWindow::onQuit ()
 {
 	qDebug("onQuit: hide systray, store state, qApp->quit");
 
+	m_server->stop();
+
 	m_tray_icon->setVisible(false);
 	m_tray_icon->hide();
 	storeState();
