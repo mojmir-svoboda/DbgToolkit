@@ -213,7 +213,6 @@ void Connection::onPresetApply (QString const & preset_name)
 	QString const path = mkAppPresetPath(getGlobalConfig().m_appdir, m_app_name, preset_name);
 	mentionStringInHistory_Ref(preset_name, m_control_bar->ui->presetComboBox, m_config.m_preset_history);
 	m_config.saveHistory(path);
-	setPresetAsCurrent(preset_name);
 
 	if (checkAppPresetPath(getGlobalConfig().m_appdir, m_app_name, preset_name))
 	{
@@ -223,12 +222,13 @@ void Connection::onPresetApply (QString const & preset_name)
 		applyConfigs();
 		m_main_window->loadLayout(path + "/" + g_presetLayoutName);
 	}
-	else
+	/*else
 	{
 		removeStringFromHistory(preset_name, m_control_bar->ui->presetComboBox, m_config.m_preset_history);
 		m_config.saveHistory(path);
 		m_control_bar->ui->presetComboBox->setCurrentIndex(-1);
-	}
+	}*/
+	setPresetAsCurrent(preset_name);
 }
 
 void Connection::onPresetSave (QString const & preset_name)
