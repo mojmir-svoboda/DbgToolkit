@@ -121,6 +121,10 @@ void DockManager::saveConfig (QString const & path)
 
 DockManager::~DockManager ()
 {
+	setParent(0);
+	m_dockwidget->setWidget(0);
+	delete m_dockwidget;
+	m_dockwidget= 0;
 	removeActionAble(*this);
 }
 
