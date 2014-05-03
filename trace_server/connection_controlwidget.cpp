@@ -100,7 +100,10 @@ void Connection::onLevelValueChanged (int val)
 		Encoder e(cmd_set_level, buff, 256);
 		e.Encode(TLV(tag_lvl, tlv_buff));
 		if (m_tcpstream && e.Commit())
-			m_tcpstream->write(e.buffer, e.total_len); /// @TODO: async write
+		{
+			m_tcpstream->write(e.buffer, e.total_len);
+			m_tcpstream->flush();
+		}
 	}
 }
 
@@ -125,7 +128,10 @@ void Connection::onBufferingStateChanged (int state)
 		Encoder e(cmd_set_buffering, buff, 256);
 		e.Encode(TLV(tag_bool, tlv_buff));
 		if (m_tcpstream && e.Commit())
-			m_tcpstream->write(e.buffer, e.total_len); /// @TODO: async write
+		{
+			m_tcpstream->write(e.buffer, e.total_len);
+			m_tcpstream->flush();
+		}
 	}
 }
 
