@@ -135,6 +135,12 @@ public slots:
 	void onGanttsStateChanged (int state);
 	void onPresetApply (QString const & preset_name);
 	void onPresetSave (QString const & preset_name);
+	void setLevelValue (int i);
+	void setBufferingState (int state);
+	void setLogsState (int state);
+	void setPlotsState (int state);
+	void setTablesState (int state);
+	void setGanttsState (int state);
 
 	void exportStorageToCSV (QString const & filename);
 

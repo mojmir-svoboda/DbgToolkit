@@ -38,25 +38,32 @@ E_FeatureStates Connection::getClosestFeatureState (E_DataWidgetType type) const
 
 void Connection::setConfigValuesToUI (ConnectionConfig const & cfg)
 {
-	m_control_bar->ui->levelSpinBox->setValue(m_config.m_level);
-	m_control_bar->ui->buffCheckBox->setChecked(m_config.m_buffered);
+	m_control_bar->ui->levelSpinBox->setValue(cfg.m_level);
+	m_control_bar->ui->buffCheckBox->setChecked(cfg.m_buffered);
 	syncHistoryToWidget(m_control_bar->ui->presetComboBox, cfg.m_preset_history);
-	m_control_bar->ui->logSlider->setValue(m_config.m_logs_recv_level);
-	m_control_bar->ui->plotSlider->setValue(m_config.m_plots_recv_level);
-	m_control_bar->ui->tableSlider->setValue(m_config.m_tables_recv_level);
-	m_control_bar->ui->ganttSlider->setValue(m_config.m_gantts_recv_level);
+	m_control_bar->ui->logSlider->setValue(cfg.m_logs_recv_level);
+	m_control_bar->ui->plotSlider->setValue(cfg.m_plots_recv_level);
+	m_control_bar->ui->tableSlider->setValue(cfg.m_tables_recv_level);
+	m_control_bar->ui->ganttSlider->setValue(cfg.m_gantts_recv_level);
 }
 
 void Connection::setUIValuesToConfig (ConnectionConfig & cfg)
 {
-	m_config.m_level = m_control_bar->ui->levelSpinBox->value();
-	m_config.m_buffered = m_control_bar->ui->buffCheckBox->isChecked();
+	cfg.m_level = m_control_bar->ui->levelSpinBox->value();
+	cfg.m_buffered = m_control_bar->ui->buffCheckBox->isChecked();
 	//
-	m_config.m_logs_recv_level = static_cast<E_FeatureStates>(m_control_bar->ui->logSlider->value());
-	m_config.m_plots_recv_level = static_cast<E_FeatureStates>(m_control_bar->ui->plotSlider->value());
-	m_config.m_tables_recv_level = static_cast<E_FeatureStates>(m_control_bar->ui->tableSlider->value());
-	m_config.m_gantts_recv_level = static_cast<E_FeatureStates>(m_control_bar->ui->ganttSlider->value()); 
+	cfg.m_logs_recv_level = static_cast<E_FeatureStates>(m_control_bar->ui->logSlider->value());
+	cfg.m_plots_recv_level = static_cast<E_FeatureStates>(m_control_bar->ui->plotSlider->value());
+	cfg.m_tables_recv_level = static_cast<E_FeatureStates>(m_control_bar->ui->tableSlider->value());
+	cfg.m_gantts_recv_level = static_cast<E_FeatureStates>(m_control_bar->ui->ganttSlider->value()); 
 }
+
+void Connection::setLevelValue (int i) { m_control_bar->ui->levelSpinBox->setValue(i); }
+void Connection::setBufferingState (int state) { m_control_bar->ui->buffCheckBox->setChecked(state); }
+void Connection::setLogsState (int state) { m_control_bar->ui->logSlider->setValue(state); }
+void Connection::setPlotsState (int state) { m_control_bar->ui->plotSlider->setValue(state); }
+void Connection::setTablesState (int state) { m_control_bar->ui->tableSlider->setValue(state); }
+void Connection::setGanttsState (int state) { m_control_bar->ui->ganttSlider->setValue(state); }
 
 void Connection::onLogsStateChanged (int state)
 {

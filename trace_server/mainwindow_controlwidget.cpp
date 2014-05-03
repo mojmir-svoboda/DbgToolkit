@@ -11,14 +11,14 @@ void MainWindow::onLevelValueChanged (int val)
 	qDebug("level changed: %u", val);
 	m_config.m_level = val;
 	for (connections_t::iterator it = m_connections.begin(), ite = m_connections.end(); it != ite; ++it)
-		(*it)->onLevelValueChanged(val);
+		(*it)->setLevelValue(val);
 }
 
 void MainWindow::onBufferingStateChanged (int state)
 {
 	m_config.m_buffered = state == Qt::Checked ? true : false;
 	for (connections_t::iterator it = m_connections.begin(), ite = m_connections.end(); it != ite; ++it)
-		(*it)->onBufferingStateChanged(state);
+		(*it)->setBufferingState(state);
 }
 
 void MainWindow::onPresetChanged (int idx)
@@ -79,20 +79,27 @@ void MainWindow::onPresetReset ()
 void MainWindow::onLogsStateChanged (int state)
 {
 	m_config.m_logs_recv_level = state;
+	for (connections_t::iterator it = m_connections.begin(), ite = m_connections.end(); it != ite; ++it)
+		(*it)->setLogsState(state);
 }
 void MainWindow::onPlotsStateChanged (int state)
 {
 	m_config.m_plots_recv_level = state;
+	for (connections_t::iterator it = m_connections.begin(), ite = m_connections.end(); it != ite; ++it)
+		(*it)->setPlotsState(state);
 }
 void MainWindow::onTablesStateChanged (int state)
 {
 	m_config.m_tables_recv_level = state;
+	for (connections_t::iterator it = m_connections.begin(), ite = m_connections.end(); it != ite; ++it)
+		(*it)->setTablesState(state);
 }
 void MainWindow::onGanttsStateChanged (int state)
 {
 	m_config.m_gantts_recv_level = state;
+	for (connections_t::iterator it = m_connections.begin(), ite = m_connections.end(); it != ite; ++it)
+		(*it)->setGanttsState(state);
 }
-
 
 void MainWindow::setConfigValuesToUI (GlobalConfig const & cfg)
 {
