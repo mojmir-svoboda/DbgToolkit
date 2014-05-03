@@ -139,7 +139,7 @@ void LogTableModel::commitBatchToModel ()
 	}
 	endInsertRows();
 
-	for (int r = 0, re = rows; r < re; ++r)
+	for (size_t r = 0, re = rows; r < re; ++r)
 	{
 		DecodedCommand const & cmd = m_dcmds[from + r];
 		m_log_widget.appendToColorizers(cmd);
@@ -147,7 +147,7 @@ void LogTableModel::commitBatchToModel ()
 
 	FilterProxyModel * flt_pxy = m_log_widget.m_proxy_model;
 	if (m_proxy == flt_pxy)
-		flt_pxy->commitBatchToModel(from, to + 1, m_batch);
+		flt_pxy->commitBatchToModel(static_cast<int>(from), static_cast<int>(to + 1), m_batch);
 
 	FindProxyModel * fnd_pxy = m_log_widget.m_find_proxy_model;
 	if (m_proxy == fnd_pxy)

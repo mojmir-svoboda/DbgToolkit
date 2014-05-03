@@ -121,7 +121,7 @@ LogWidget * LogWidget::mkFindAllRefsLogWidget (FindConfig const & fc)
 	registerLinkedWidget(child);
 	child->loadAuxConfigs();
 
-	child->setupLogModel(m_src_model);
+	child->setupRefsModel(m_src_model);
 	child->setFindProxyModel(fc);
 	child->m_kfind_proxy_selection = new KLinkItemSelectionModel(child->m_tableview->model(), m_tableview->selectionModel());
 	child->m_tableview->setSelectionModel(child->m_kfind_proxy_selection);
@@ -177,7 +177,7 @@ LogWidget * LogWidget::mkFindAllCloneLogWidget (FindConfig const & fc)
 	LogWidget * child = *it;
 	child->loadAuxConfigs();
 	LogTableModel * clone_model = cloneToNewModel(fc);
-	child->setupLogModel(clone_model);
+	child->setupCloneModel(clone_model);
 	child->setSrcModel(fc);
 	child->m_config_ui.refreshUI();
 

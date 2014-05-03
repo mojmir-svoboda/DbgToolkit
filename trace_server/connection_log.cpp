@@ -10,7 +10,7 @@ datalogs_t::iterator Connection::findOrCreateLog (QString const & tag)
 	if (it == m_data.get<e_data_log>().end())
 	{
 		it = dataWidgetFactory<e_data_log>(tag);
-		(*it)->setupNewLogModel();
+		(*it)->setupLogModel();
 		(*it)->applyConfig(); // 0 means "create new model"
 	}
 	return it;

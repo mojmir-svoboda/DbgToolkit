@@ -58,8 +58,9 @@ namespace logs {
 		LogTableModel const * logModel () const { return m_src_model; }
 		FilterProxyModel const * logProxy () const { return m_proxy_model; }
 		bool isModelProxy () const;
-		void setupLogModel (LogTableModel * src_model);
-		void setupNewLogModel ();
+		void setupLogModel ();
+		void setupRefsModel (LogTableModel * linked_model);
+		void setupCloneModel (LogTableModel * src_model);
 		void setupLogSelectionProxy ();
 
 		DecodedCommand const * getDecodedCommand (QModelIndex const & row_index);
@@ -110,6 +111,7 @@ namespace logs {
 		void currSelection (QModelIndexList & sel) const;
 		void noMoreMatches ();
 		LogTableModel * cloneToNewModel (FindConfig const & fc);
+		LogTableModel * cloneToNewModelFromProxy (BaseProxyModel * proxy, FindConfig const & fc);
 		QString exportSelection ();
 
 		// actions

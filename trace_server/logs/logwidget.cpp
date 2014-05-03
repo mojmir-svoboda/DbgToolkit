@@ -110,7 +110,7 @@ namespace logs {
 		m_find_widget->setParent(m_tableview);
 
 		m_window_action = new QAction("Tool widget for " + joinedPath(), this);
-    connect(m_window_action, SIGNAL(triggered()), this, SLOT(onWindowActionTriggered()));
+		connect(m_window_action, SIGNAL(triggered()), this, SLOT(onWindowActionTriggered()));
 		m_main_window->addWindowAction(m_window_action);
 	}
 
@@ -121,7 +121,7 @@ namespace logs {
 		QFrame * line_2 = 0;
 		QSpacerItem * horizontalSpacer_3 = 0;
 		ButtonCache * cacheLayout = m_cacheLayout;
- 
+
 		m_gotoPrevErrButton = new QToolButton(parent_widget);
 		m_gotoPrevErrButton->setObjectName(QStringLiteral("gotoPrevErrButton"));
 		m_gotoPrevErrButton->setMaximumSize(QSize(16777215, 16));
@@ -355,15 +355,27 @@ namespace logs {
 		return current;
 	}
 
-	void LogWidget::setupNewLogModel ()
+	void LogWidget::setupRefsModel (LogTableModel * linked_model)
 	{
-		setupLogModel(0);
+		m_src_model = linked_model;
+		m_proxy_model = new FilterProxyModel(this, *this);
+		m_proxy_model->setSourceModel(m_src_model);
+
+		m_find_proxy_model = new FindProxyModel(this, *this);
+		m_find_proxy_model->setSourceModel(m_src_model);
+
+		QItemSelectionModel * src_selection = linked_model->m_log_widget.m_tableview->selectionModel();
+		QItemSelectionModel * pxy_selection = linked_model->m_log_widget.m_proxy_selection;
+		//m_proxy_selection = new QItemSelectionModel(m_proxy_model);
+		//m_ksrc_selection = new KLinkItemSelectionModel(m_src_model, src_selection);
+		//m_kproxy_selection = new KLinkItemSelectionModel(m_proxy_model, m_proxy_selection);
+		//m_src_model = linked_model;
 	}
 
-	void LogWidget::setupLogModel (LogTableModel * linked_model)
+	void LogWidget::setupCloneModel (LogTableModel * src_model)
 	{
-		if (linked_model)
-			m_src_model = linked_model;
+		if (src_model)
+			m_src_model = src_model;
 		else
 		{
 			m_src_model = new LogTableModel(this, *this);
@@ -376,20 +388,13 @@ namespace logs {
 		m_find_proxy_model = new FindProxyModel(this, *this);
 		m_find_proxy_model->setSourceModel(m_src_model);
 
-		//setupLogSelectionProxy();
-		if (linked_model)
-		{
-			QItemSelectionModel * src_selection = linked_model->m_log_widget.m_tableview->selectionModel();
-			QItemSelectionModel * pxy_selection = linked_model->m_log_widget.m_proxy_selection;
-			//m_proxy_selection = new QItemSelectionModel(m_proxy_model);
-			//m_ksrc_selection = new KLinkItemSelectionModel(m_src_model, src_selection);
-			//m_kproxy_selection = new KLinkItemSelectionModel(m_proxy_model, m_proxy_selection);
-			//m_src_model = linked_model;
-		}
-		else
-		{
-			setupLogSelectionProxy();
-		}
+		setupLogSelectionProxy();
+	}
+
+	void LogWidget::setupLogModel ()
+	{
+		m_src_model = new LogTableModel(this, *this);
+		setupCloneModel(m_src_model);
 	}
 
 	void LogWidget::setupLogSelectionProxy ()
@@ -980,6 +985,39 @@ void LogWidget::commitBatchToLinkedModel (int src_from, int src_to, BatchCmd con
 		fnd_pxy->commitBatchToModel(src_from, src_to, batch);
 }
 
+LogTableModel * LogWidget::cloneToNewModelFromProxy (BaseProxyModel * proxy, FindConfig const & fc)
+{
+	Q_ASSERT(m_src_model);
+	LogTableModel * const new_model = new LogTableModel(this, *this);
+	for (size_t r = 0, re = m_src_model->dcmds().size(); r < re; ++r)
+	{
+		DecodedCommand const & dcmd = m_src_model->dcmds()[r];
+		if (proxy->filterAcceptsRow(static_cast<int>(r), QModelIndex()))
+		{
+			bool row_match = false;
+			for (size_t i = 0, ie = dcmd.m_tvs.size(); i < ie; ++i)
+			{
+				QString const & val = dcmd.m_tvs[i].m_val;
+
+				if (matchToFindConfig(val, fc))
+				{
+					row_match = true;
+					break;
+				}
+			}
+
+			if (row_match)
+			{
+				new_model->handleCommand(dcmd, e_RecvBatched);
+			}
+		}
+
+	}
+	new_model->commitCommands(e_RecvSync);
+	return new_model;
+
+}
+
 LogTableModel * LogWidget::cloneToNewModel (FindConfig const & fc)
 {
 	if (m_tableview->model() == m_src_model)
@@ -988,35 +1026,15 @@ LogTableModel * LogWidget::cloneToNewModel (FindConfig const & fc)
 	}
 	else if (m_tableview->model() == m_proxy_model)
 	{
-		Q_ASSERT(m_src_model);
-		LogTableModel * new_model = new LogTableModel(this, *this);
-		for (size_t r = 0, re = m_src_model->dcmds().size(); r < re; ++r)
-		{
-			DecodedCommand const & dcmd = m_src_model->dcmds()[r];
-			if (m_proxy_model->filterAcceptsRow(static_cast<int>(r), QModelIndex()))
-			{
-				bool row_match = false;
-				for (size_t i = 0, ie = dcmd.m_tvs.size(); i < ie; ++i)
-				{
-					QString const & val = dcmd.m_tvs[i].m_val;
-
-					if (matchToFindConfig(val, fc))
-					{
-						row_match = true;
-						break;
-					}
-				}
-
-				if (row_match)
-				{
-					new_model->handleCommand(dcmd, e_RecvBatched);
-				}
-			}
-
-		}
-		new_model->commitCommands(e_RecvSync);
-		return new_model;
+		return cloneToNewModelFromProxy(m_proxy_model, fc);
 	}
+	else if (m_tableview->model() == m_find_proxy_model)
+	{
+		return cloneToNewModelFromProxy(m_find_proxy_model, fc);
+	}
+	
+	Q_ASSERT(0); // apparently forgot something
+	return 0;
 }
 
 
@@ -1110,7 +1128,7 @@ QString LogWidget::exportSelection ()
 	if (indexes.size() < 1)
 		return QString();
 
-	std::sort(indexes.begin(), indexes.end());
+	qSort(indexes.begin(), indexes.end());
 
 	QString selected_text;
 	selected_text.reserve(4096);

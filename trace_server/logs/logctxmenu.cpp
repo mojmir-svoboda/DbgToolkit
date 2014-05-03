@@ -528,6 +528,11 @@ void LogCtxMenu::onClickedAtApplyButton ()
 			m_log_widget.m_config.m_columns_elide[li] = config.m_columns_elide[c];
 		}*/
 	}
+  else
+  {
+		fillDefaultConfig(config);
+		m_log_widget.reloadModelAccordingTo(config);
+  }
 }
 
 void LogCtxMenu::onClickedAtSaveButton ()

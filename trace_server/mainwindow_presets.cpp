@@ -88,6 +88,8 @@ void MainWindow::onPresetSave (QString const & preset_name)
 
 	m_dock_mgr.saveConfig(m_config.m_appdir);
 	saveConfig();
+
+	QString const fname = m_config.m_appdir + "/" + preset_name + "." + g_presetLayoutName;
 	saveLayout(preset_name);
 
 	storeState();
@@ -114,6 +116,7 @@ void MainWindow::onPresetEdited ()
 
 void MainWindow::saveLayout (QString const & fname)
 {
+	qDebug("%s fname=%s", __FUNCTION__, fname.toStdString().c_str());
 	QFile file(fname);
 	if (!file.open(QFile::WriteOnly))
 	{
@@ -141,6 +144,7 @@ void MainWindow::saveLayout (QString const & fname)
 
 void MainWindow::loadLayout (QString const & fname)
 {
+	qDebug("%s fname=%s", __FUNCTION__, fname.toStdString().c_str());
 	QFile file(fname);
 	if (!file.open(QFile::ReadOnly))
 		return;
@@ -221,7 +225,8 @@ void MainWindow::loadState ()
 	qApp->installEventFilter(this);
 
 	QString const preset_name = getCurrentPresetName();
-	loadLayout(preset_name);
+	QString const fname = m_config.m_appdir + "/" + preset_name + "." + g_presetLayoutName;
+	loadLayout(fname);
 }
 
 void MainWindow::onDockManagerVisibilityChanged (bool state)
