@@ -74,6 +74,7 @@ set(trace_server_SOURCES
 	connection_stream.cpp
 	connection_setup.cpp
 	connection_controlwidget.cpp
+	connection_csv.cpp
 	filterstate.cpp
 	filterstate_serialize.cpp
 	constants.cpp

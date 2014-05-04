@@ -427,61 +427,6 @@ void Connection::processTailCSVStream ()
 	QTimer::singleShot(250, this, SLOT(processTailCSVStream()));
 }
 
-namespace {
-	void item2separator (QString const & item, QString & sep)
-	{
-		if (item == QLatin1String("\\t"))
-			sep = QLatin1String("\t");
-		else if (item == QLatin1String("\\n"))
-			sep = QLatin1String("\n");
-		else
-			sep = item;
-	}
-}
-
-bool Connection::handleCSVStreamCommand (DecodedCommand const & cmd)
-{
-	// TODO
-	/*if (!m_session_state.isConfigured())
-	{
-		if (m_session_state.separatorChar().isEmpty())
-		{
-			m_main_window->onSetupCSVSeparator(m_session_state.getAppIdx(), true);
-			item2separator(m_main_window->separatorChar(), m_session_state.m_csv_separator);
-		}
-
-		QString const & val = cmd.tvs[0].m_val;
-		QStringList const list = val.split(m_session_state.separatorChar());
-		int const cols = list.size();
-
-		int const idx = m_app_idx;
-		if (m_main_window->m_config.m_columns_setup[idx].size() == 0)
-		{
-			m_main_window->m_config.m_columns_setup[idx].reserve(cols);
-			m_main_window->m_config.m_columns_sizes[idx].reserve(cols);
-			m_main_window->m_config.m_columns_align[idx].reserve(cols);
-			m_main_window->m_config.m_columns_elide[idx].reserve(cols);
-
-			if (idx >= 0 && idx < m_main_window->m_config.m_columns_setup.size())
-				for (int i = 0; i < cols; ++i)
-				{
-					m_main_window->m_config.m_columns_setup[idx].push_back(tr("Col_%1").arg(i));
-					m_main_window->m_config.m_columns_sizes[idx].push_back(127);
-					m_main_window->m_config.m_columns_align[idx].push_back(QString(alignToString(e_AlignLeft)));
-					m_main_window->m_config.m_columns_elide[idx].push_back(QString(elideToString(e_ElideRight)));
-				}
-		}
-
-		m_main_window->onSetupCSVColumns(m_session_state.getAppIdx(), cols, true);
-	}
-
-	//appendToFilters(cmd);
-	LogTableModel * model = static_cast<LogTableModel *>(m_table_view_proxy ? m_table_view_proxy->sourceModel() : m_table_view_widget->model());
-	model->appendCommandCSV(m_table_view_proxy, cmd);
-	*/
-	return true;
-}
-
 bool Connection::handlePingCommand (DecodedCommand const & cmd)
 {
 	qDebug("ping from client!");
@@ -530,7 +475,7 @@ bool Connection::setupStorage (QString const & name)
 {
 	if (m_src_stream == e_Stream_TCP && !m_storage)
 	{
-		m_storage = new QFile(name + QLatin1String(".tlv_trace"));
+		m_storage = new QFile(name + "." + g_traceFileExtTLV);
 		m_storage->open(QIODevice::WriteOnly);
 		m_tcp_dump_stream = new QDataStream(m_storage);
 
@@ -552,7 +497,7 @@ void Connection::copyStorageTo (QString const & filename)
 	else
 	{
 		QString name = createStorageName();
-		QFile trc(name + QLatin1String(".tlv_trace"));
+		QFile trc(name + "." + g_traceFileExtTLV);
 		trc.open(QIODevice::ReadOnly);
 		trc.copy(filename);
 		trc.close();
@@ -576,14 +521,9 @@ bool Connection::handleExportCSVCommand (DecodedCommand const & cmd)
 {
 	for (size_t i=0, ie=cmd.m_tvs.size(); i < ie; ++i)
 	{
-		if (cmd.m_tvs[i].m_tag == tlv::tag_file)
+		if (cmd.m_tvs[i].m_tag == tlv::tag_file) // ehm, actually it's a dir
 		{
-
-
-
-
-
-			//exportStorageToCSV(cmd.tvs[i].m_val);
+			onExportDataToCSV(cmd.m_tvs[i].m_val);
 			return true;
 		}
 	}

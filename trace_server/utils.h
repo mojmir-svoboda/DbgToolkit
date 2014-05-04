@@ -125,11 +125,10 @@ inline QString mkWidgetFileName (QString const & appdir, QString const & app_nam
 	return fname;
 }
 
-inline QString mkDir (QString const & dir)
+inline bool mkPath (QString const & dir)
 {
 	QDir d;
-	d.mkpath(dir);
-	return dir;
+	return d.mkpath(dir);
 }
 
 inline QString mkWidgetDir (QString const & appdir, QString const & app_name, QString const & preset_name, QString const & class_name, QString const & tag)

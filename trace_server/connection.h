@@ -142,7 +142,8 @@ public slots:
 	void setTablesState (int state);
 	void setGanttsState (int state);
 
-	void exportStorageToCSV (QString const & filename);
+	void onSaveData (QString const & dir);
+	void onExportDataToCSV (QString const & dir);
 
 private slots:
 	void processReadyRead ();

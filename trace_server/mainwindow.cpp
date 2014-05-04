@@ -334,31 +334,36 @@ void MainWindow::openFiles (QStringList const & files)
 void MainWindow::onFileLoad ()
 {
 	// @TODO: multi-selection?
-	QString fname = QFileDialog::getOpenFileName(this, tr("Open File"), "", tr("TLV Trace Files (*.tlv_trace)"));
+	QString fname = QFileDialog::getOpenFileName(this, tr("Open File"), "", tr("Trace File(s) (*.%1)").arg(g_traceFileExtTLV));
 	QStringList files;
 	files << fname;
 	openFiles(files);
 }
 
-void MainWindow::onFileSave ()
+void MainWindow::onSaveData ()
 {
-	QString filename = QFileDialog::getSaveFileName(this, tr("Save File"), "", tr("Trace Files (*.tlv_trace)"));
+	QString const dir = QFileDialog::getSaveFileName(this, tr("Save to directory"), "", tr("As Trace Files (*.%1)").arg(g_traceFileExtTLV));
+	if (dir.isEmpty())
+		return;
 
-	if (filename != "")
+	if (mkPath(dir))
 	{
-		copyStorageTo(filename);
+		for (connections_t::iterator it = m_connections.begin(), ite = m_connections.end(); it != ite; ++it)
+			(*it)->onSaveData(dir);
 	}
 }
 
-void MainWindow::onFileExportToCSV ()
+void MainWindow::onExportDataToCSV ()
 {
-/*	QString filename = QFileDialog::getSaveFileName(this, tr("Save File"), "", tr("Trace Files (*.csv)"));
+	QString const dir = QFileDialog::getSaveFileName(this, tr("Export csv to directory"), "", tr("As CSV Files (*.%1)").arg(g_traceFileExtCSV));
+	if (dir.isEmpty())
+		return;
 
-	if (filename != "")
+	if (mkPath(dir))
 	{
-    if (Connection * conn = findCurrentConnection())
-      conn->exportStorageToCSV(filename);
-	}*/
+		for (connections_t::iterator it = m_connections.begin(), ite = m_connections.end(); it != ite; ++it)
+			(*it)->onExportDataToCSV(dir);
+	}
 }
 
 void MainWindow::onOnTop (int const state)
@@ -435,8 +440,8 @@ void MainWindow::setupMenuBar ()
 	fileMenu->addAction(tr("File &Load..."), this, SLOT(onFileLoad()), QKeySequence(Qt::ControlModifier + Qt::Key_O));
 	fileMenu->addAction(tr("File &Tail..."), this, SLOT(onFileTail()), QKeySequence(Qt::ControlModifier + Qt::Key_T));
 	fileMenu->addAction(tr("Trace Server Log"), this, SLOT(onLogTail()), QKeySequence(Qt::ControlModifier + Qt::AltModifier + Qt::Key_L));
-	fileMenu->addAction(tr("File &Save..."), this, SLOT(onFileSave()), QKeySequence(Qt::ControlModifier + Qt::Key_S));
-	fileMenu->addAction(tr("File &Save As CSV format"), this, SLOT(onFileExportToCSV()), QKeySequence(Qt::ControlModifier + Qt::ShiftModifier + Qt::Key_S));
+	fileMenu->addAction(tr("&Save data..."), this, SLOT(onFileSave()), QKeySequence(Qt::ControlModifier + Qt::Key_S));
+	fileMenu->addAction(tr("&Export data As CSV format"), this, SLOT(onExportDataToCSV()), QKeySequence(Qt::ControlModifier + Qt::ShiftModifier + Qt::Key_S));
 	fileMenu->addSeparator();
 	fileMenu->addAction(tr("Quit program"), this, SLOT(onQuit()), QKeySequence::Quit);
 

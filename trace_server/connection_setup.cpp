@@ -109,108 +109,41 @@ bool Connection::handleSetupCommand (DecodedCommand const & cmd)
 
 void Connection::handleCSVSetup (QString const & fname)
 {
-/*	qDebug("Connection::handleCSVSetup() this=0x%08x", this);
+	qDebug("Connection::handleCSVSetup() this=0x%08x", this);
 
-	this->setupModelColorRegex();
-	this->setupModelRegex();
-	this->setupModelString();
+	QString const app_name = fname;
 
-	QString app_name = fname;
-	if (m_main_window->reuseTabEnabled())
+	// @TODO: dedup with tcp
+	Connection * conn = m_main_window->findConnectionByName(app_name);
+	if (conn)
 	{
-		Connection * conn = m_main_window->findConnectionByName(app_name);
-		if (conn)
-		{
-			if (!m_main_window->clrFltEnabled())
-			{
-				loadSessionState(conn->sessionState(), m_session_state);
-			}
+		qDebug("cmd setup: looking for app=%s: found", app_name.toStdString().c_str());
+		qDebug("deleting old instance of %s at @ 0x%08x", conn->getAppName().toStdString().c_str(), conn);
+		QString const curr_preset = conn->getCurrentPresetName();
+		//m_main_window->markConnectionForClose(this);
+		m_main_window->onCloseConnection(conn); // deletes it immeadiately
 
-			QWidget * w = conn->m_tab_widget;
-			m_main_window->onCloseTab(w);	// close old one
-			// @TODO: delete persistent storage for the tab
-		}
-		else
-		{
-			QString const pname = m_main_window->matchClosestPresetName(app_name);
-			m_main_window->onPresetActivate(this, pname);
-		}
+		// @TODO: delete persistent storage for the tab
+		m_curr_preset = curr_preset;
+	}
+	else
+	{
+		qDebug("cmd setup: looking for app=%s: not found", app_name.toStdString().c_str());
+		m_curr_preset = getClosestPresetName();
 	}
 
 	m_app_name = app_name;
-	//sessionState().m_pid = pid;
+	//m_pid = pid;
 
-	m_table_view_widget->setVisible(false);
-	int const tab_idx = m_main_window->getTabTrace()->indexOf(m_tab_widget);
-	m_main_window->getTabTrace()->setTabText(tab_idx, app_name);
+	m_main_window->dockManager().removeActionAble(*this);
+	m_path.last() = m_app_name;
+	m_joined_path = m_path.join("/");
+	m_main_window->dockManager().addActionAble(*this, true); // TODO: m_config.m_show
 
-	m_app_idx = m_main_window->findAppName(app_name);
-	if (m_app_idx == e_InvalidItem)
-	{
-		qDebug("Unknown application: requesting user input");
-		m_app_idx = m_main_window->createAppName(app_name, e_Proto_CSV);
-	}
+	loadConfig(m_curr_preset);
+	onPresetApply(m_curr_preset);
 
-	columns_setup_t & cs_setup = m_main_window->getColumnSetup(sessionState().m_app_idx);
-	columns_sizes_t & cs_sizes = m_main_window->getColumnSizes(sessionState().m_app_idx);
-	columns_align_t & cs_align = m_main_window->getColumnAlign(sessionState().m_app_idx);
-	columns_elide_t & cs_elide = m_main_window->getColumnElide(sessionState().m_app_idx);
+	registerDataMaps();
 
-	if (cs_setup.empty() || cs_sizes.empty() || cs_align.empty() || cs_elide.empty())
-	{
-		//m_main_window->onSetup(sessionState().m_app_idx, true, true);
-	}
-
-	sessionState().setupColumnsCSV(&cs_setup, &cs_sizes, &cs_align, &cs_elide); 
-
-	m_current_cmd.tvs.reserve(sessionState().getColumnsSetupCurrent()->size());
-	for (size_t i = 0, ie = sessionState().getColumnsSetupCurrent()->size(); i < ie; ++i)
-	{
-		m_table_view_widget->model()->insertColumn(i);
-	}
-
-	m_table_view_widget->horizontalHeader()->resizeSections(QHeaderView::Fixed);
-
-	columns_sizes_t const & sizes = *sessionState().m_columns_sizes;
-	for (int c = 0, ce = sizes.size(); c < ce; ++c)
-	{
-		m_table_view_widget->horizontalHeader()->resizeSection(c, sizes.at(c));
-		//qDebug("sizes: %u %u %u", sizes.at(0), sizes.at(1), sizes.at(2));
-	}
-
-	m_table_view_widget->horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
-	m_table_view_widget->verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
-
-	//connect(m_table_view_widget, SIGNAL(clicked(QModelIndex const &)), this, SLOT(onTableClicked(QModelIndex const &)));
-	//connect(m_table_view_widget, SIGNAL(doubleClicked(QModelIndex const &)), this, SLOT(onTableDoubleClicked(QModelIndex const &)));
-	//m_table_view_widget->setContextMenuPolicy(Qt::CustomContextMenu);
-	//connect(m_table_view_widget, SIGNAL(customContextMenuRequested(QPoint const &)), this, SLOT(onShowContextMenu(QPoint const &)));
-
-	m_table_view_widget->setVisible(true);
-	//m_table_view_widget->setItemDelegate(new TableItemDelegate(sessionState(), this));
-
-	m_main_window->getTabTrace()->setCurrentIndex(tab_idx);
-	static_cast<LogTableModel *>(m_table_view_widget->model())->emitLayoutChanged();
-
-	qDebug("Server::incomingConnection buffering not enabled, notifying client");
-	onBufferingStateChanged(m_main_window->buffState());*/
 }
-
-/*void Connection::tryLoadMatchingPreset (QString const & app_name)
-{
-	// bit clumsy, but no time to loose
-	QString preset_name;
-	QString const conn_name = m_control_bar->ui->presetComboBox->currentText();
-	QString const parent_name = m_main_window->getCurrentPresetName();
-	if (!conn_name.isEmpty() && validatePresetName(conn_name))
-		preset_name = conn_name;
-	else if (!parent_name.isEmpty() && validatePresetName(parent_name))
-		preset_name = parent_name;
-	else
-		preset_name = g_defaultPresetName;
-
-	onPresetApply(preset_name);
-}*/
-
-
 

@@ -129,8 +129,8 @@ private slots:
 	void onFileTail ();
 	void onLogTail ();
 	void tailFiles (QStringList const & list);
-	void onFileSave ();
-	void onFileExportToCSV ();
+	void onSaveData ();
+	void onExportDataToCSV ();
 	void closeEvent (QCloseEvent *event);
 	void iconActivated (QSystemTrayIcon::ActivationReason reason);
 

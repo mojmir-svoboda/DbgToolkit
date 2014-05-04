@@ -454,7 +454,7 @@ namespace plot {
 	void PlotWidget::saveConfig (QString const & path) //@FIXME: unused arg
 	{
 		QString const plotpath = getCurrentWidgetPath();
-		mkDir(plotpath);
+		mkPath(plotpath);
 
 		plot::PlotConfig tmp = m_config;
 		saveConfigTemplate(tmp, plotpath + "/" + g_PlotFile);

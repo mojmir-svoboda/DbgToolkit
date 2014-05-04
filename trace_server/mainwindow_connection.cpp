@@ -4,14 +4,6 @@
 #include <QStatusBar>
 #include <QTimer>
 
-/*Connection * MainWindow::findCurrentConnection ()
-{
-	Q_ASSERT(parent());
-	QWidget * w = getTabTrace()->currentWidget();
-	connections_t::iterator it = m_connections.find(w);
-	return (it != m_connections.end()) ? it->second : 0;
-}*/
-
 Connection * MainWindow::findConnectionByName (QString const & app_name)
 {
 	Q_ASSERT(parent());
@@ -21,21 +13,6 @@ Connection * MainWindow::findConnectionByName (QString const & app_name)
 			return (*it);
 	return 0;
 }
-
-void MainWindow::copyStorageTo (QString const & filename)
-{
-/*	if (Connection * conn = findCurrentConnection())
-		conn->copyStorageTo(filename);*/
-}
-
-/*void MainWindow::onCopyToClipboard ()
-{
-	if (Connection * conn = findCurrentConnection())
-	{
-		QString selection = conn->onCopyToClipboard();
-        qApp->clipboard()->setText(selection);
-	}
-}*/
 
 void MainWindow::newConnection (Connection * c)
 {
@@ -74,10 +51,13 @@ void MainWindow::createTailLogStream (QString const & fname, QString const & sep
 {
 	Connection * connection = createNewConnection();
 	connection->setTailFile(fname);
-	//connection->m_csv_separator = separator;
+	QFileInfo fi(fname);
+	QString const tag = fi.fileName();
 	
-	statusBar()->showMessage(tr("Tail!"));
-	connection->handleCSVSetup(fname);
+	connection->handleCSVSetup(tag);
+	datalogs_t::iterator it = connection->findOrCreateLog(tag);
+	(*it)->config().m_csv_separator = separator;
+
 	connection->processTailCSVStream();
 	emit newConnection(connection);
 }

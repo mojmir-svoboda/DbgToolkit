@@ -766,7 +766,7 @@ namespace logs {
 	void LogWidget::saveConfig (QString const & path)
 	{
 		QString const logpath = getCurrentWidgetPath();
-		mkDir(logpath);
+		mkPath(logpath);
 
 		logs::LogConfig tmp = m_config;
 		normalizeConfig(tmp);

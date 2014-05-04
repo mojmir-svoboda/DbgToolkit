@@ -193,9 +193,10 @@ void Connection::onDisconnected ()
 
 	if (m_main_window->dumpModeEnabled())
 	{
-		QString fname = tr("%1_%2.csv").arg(getAppName()).arg(m_pid);
+		QString const path = tr("%1_%2").arg(getAppName()).arg(m_pid);
 
-		exportStorageToCSV(fname);
+		if (mkPath(path))
+			onExportDataToCSV(path);
 
 		m_main_window->markConnectionForClose(this);
 	}
@@ -305,7 +306,7 @@ void Connection::loadConfig (QString const & preset_name)
 void Connection::saveConfig (QString const & preset_name)
 {
 	QString const path = mkAppPresetPath(getGlobalConfig().m_appdir, getAppName(), preset_name);
-	mkDir(path);
+	mkPath(path);
 	QString const fname = path + "/" + getAppName() + ".xml";
 	saveConfigTemplate(m_config, fname);
 }
@@ -316,7 +317,13 @@ void Connection::applyConfigs ()
 	recurse(m_data, Apply());
 }
 
-void Connection::exportStorageToCSV (QString const & dir)
+void Connection::onSaveData (QString const & dir)
+{
+	copyStorageTo(dir + "/" + "in_stream." + g_traceFileExtTLV);
+	//recurse(m_data, SaveData(dir));
+}
+
+void Connection::onExportDataToCSV (QString const & dir)
 {
 	qDebug("%s", __FUNCTION__);
 	recurse(m_data, ExportAsCSV(dir));
