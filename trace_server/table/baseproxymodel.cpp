@@ -187,6 +187,12 @@ bool BaseProxyModel::rowInProxy (int row) const
 		return true;
 	return false;
 }
+int BaseProxyModel::rowToSource (int row) const
+{
+	if (row < static_cast<int>(m_map_from_tgt.size()))
+		return m_map_from_tgt[row];
+	return -1;
+}
 
 bool BaseProxyModel::colInProxy (int col) const
 {

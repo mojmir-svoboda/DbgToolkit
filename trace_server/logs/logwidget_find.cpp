@@ -121,7 +121,10 @@ LogWidget * LogWidget::mkFindAllRefsLogWidget (FindConfig const & fc)
 	registerLinkedWidget(child);
 	child->loadAuxConfigs();
 
-	child->setupRefsModel(m_src_model);
+	if (isModelProxy())
+		child->setupRefsProxyModel(m_src_model, m_proxy_model); // @FIXME: could be any proxy, not just m_proxymodel
+	else
+		child->setupRefsModel(m_src_model);
 	child->setFindProxyModel(fc);
 	child->m_kfind_proxy_selection = new KLinkItemSelectionModel(child->m_tableview->model(), m_tableview->selectionModel());
 	child->m_tableview->setSelectionModel(child->m_kfind_proxy_selection);

@@ -60,6 +60,7 @@ namespace logs {
 		bool isModelProxy () const;
 		void setupLogModel ();
 		void setupRefsModel (LogTableModel * linked_model);
+		void setupRefsProxyModel (LogTableModel * linked_model, BaseProxyModel * linked_proxy);
 		void setupCloneModel (LogTableModel * src_model);
 		void setupLogSelectionProxy ();
 

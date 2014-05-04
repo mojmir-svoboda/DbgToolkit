@@ -9,8 +9,9 @@
 #include "logwidget.h"
 #include "logtablemodel.h"
 
-FindProxyModel::FindProxyModel (QObject * parent, logs::LogWidget & lw)
+FindProxyModel::FindProxyModel (QObject * parent, logs::LogWidget & lw, BaseProxyModel * pxy)
 	: FilterProxyModel(parent, lw)
+	, m_src_proxy(pxy)
 { }
 
 FindProxyModel::~FindProxyModel ()
@@ -25,7 +26,9 @@ bool FindProxyModel::filterAcceptsColumn (int sourceColumn, QModelIndex const & 
 
 bool FindProxyModel::filterAcceptsRow (int sourceRow, QModelIndex const & /*sourceParent*/) const
 {
-	if (sourceRow < m_log_widget.m_src_model->dcmds().size())
+	if (m_src_proxy)
+		sourceRow = m_src_proxy->rowToSource(sourceRow);
+	if (sourceRow>= 0 && sourceRow < m_log_widget.m_src_model->dcmds().size())
 	{
 		DecodedCommand const & dcmd = m_log_widget.m_src_model->dcmds()[sourceRow];
 

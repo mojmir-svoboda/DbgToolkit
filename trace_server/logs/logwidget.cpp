@@ -355,13 +355,24 @@ namespace logs {
 		return current;
 	}
 
+	void LogWidget::setupRefsProxyModel (LogTableModel * linked_model, BaseProxyModel * linked_proxy)
+	{
+		m_src_model = linked_model;
+		m_proxy_model = new FilterProxyModel(this, *this);
+		m_proxy_model->setSourceModel(linked_proxy);
+
+		m_find_proxy_model = new FindProxyModel(this, *this, linked_proxy);
+		m_find_proxy_model->setSourceModel(linked_proxy);
+	}
+
+
 	void LogWidget::setupRefsModel (LogTableModel * linked_model)
 	{
 		m_src_model = linked_model;
 		m_proxy_model = new FilterProxyModel(this, *this);
 		m_proxy_model->setSourceModel(m_src_model);
 
-		m_find_proxy_model = new FindProxyModel(this, *this);
+		m_find_proxy_model = new FindProxyModel(this, *this, 0);
 		m_find_proxy_model->setSourceModel(m_src_model);
 
 		QItemSelectionModel * src_selection = linked_model->m_log_widget.m_tableview->selectionModel();
@@ -385,7 +396,7 @@ namespace logs {
 		m_proxy_model = new FilterProxyModel(this, *this);
 		m_proxy_model->setSourceModel(m_src_model);
 
-		m_find_proxy_model = new FindProxyModel(this, *this);
+		m_find_proxy_model = new FindProxyModel(this, *this, 0);
 		m_find_proxy_model->setSourceModel(m_src_model);
 
 		setupLogSelectionProxy();
