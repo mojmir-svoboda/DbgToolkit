@@ -224,7 +224,7 @@ namespace logs {
 		/*void onClearCurrentView ();*/
 		void onClearAllDataButton ();
 		/*void onUnhidePrevFromRow ();*/
-		void exportStorageToCSV (QString const & filename);
+		void exportStorageToCSV (QString const & path);
 		void onCopyToClipboard ();
 		void onExcludeFile ();
 		void onExcludeFileLine ();

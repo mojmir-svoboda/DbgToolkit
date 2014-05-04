@@ -1265,12 +1265,12 @@ void LogWidget::onSectionResized (int logical, int old_size, int new_size)
 	m_config.m_columns_sizes[idx] = new_size;
 }
 
-void LogWidget::exportStorageToCSV (QString const & filename)
+void LogWidget::exportStorageToCSV (QString const & path)
 {
 	// " --> ""
 	QRegExp regex("\"");
 	QString to_string("\"\"");
-	QFile csv(filename);
+	QFile csv(path + "/" + m_config.m_tag + ".csv");
 	csv.open(QIODevice::WriteOnly);
 	QTextStream str(&csv);
 
