@@ -10,7 +10,7 @@ namespace logs {
 		, m_log_widget(logwidget)
 		, m_config(config)
 	{
-		setAutoScroll(false);
+		//setAutoScroll(false); @NOTE: this does not work the way i want
 		setHorizontalScrollMode(ScrollPerPixel);
 		horizontalHeader()->setSectionsMovable(true);
 
