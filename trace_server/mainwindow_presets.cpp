@@ -90,7 +90,7 @@ void MainWindow::onPresetSave (QString const & preset_name)
 	saveConfig();
 
 	QString const fname = m_config.m_appdir + "/" + preset_name + "." + g_presetLayoutName;
-	saveLayout(preset_name);
+	saveLayout(fname);
 
 	storeState();
 }

@@ -122,6 +122,8 @@ namespace logs {
 
 	void LogTableView::scrollTo (QModelIndex const & index, ScrollHint hint)
 	{
+		if (hint == QAbstractItemView::EnsureVisible)
+			QTableView::scrollTo(index, hint); // @TODO: modify qt's default behaviour
 		QTableView::scrollTo(index, hint);
 	}
 
