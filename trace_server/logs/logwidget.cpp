@@ -919,6 +919,8 @@ void LogWidget::commitCommands (E_ReceiveMode mode)
 	{
 		DecodedCommand & cmd = m_queue[i];
 		m_src_model->handleCommand(cmd, mode);
+		if (0 == m_src_model->rowCount())
+			m_tableview->setCurrentIndex(m_src_model->index(0, 0, QModelIndex()));
 		// warning: qmodelindex in source does not exist yet here... 
 		appendToFilters(cmd); // this does not bother filters
 		//appendToColorizers(cmd); // but colorizer needs qmodelindex
