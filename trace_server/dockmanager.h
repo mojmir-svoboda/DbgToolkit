@@ -59,6 +59,7 @@ public slots:
 
 protected slots:
 	void onColumnResized (int column, int oldSize, int newSize);
+	void onRemoveCurrentIndex (QModelIndex const & idx);
 
 protected:
 };

@@ -100,6 +100,7 @@ void DockManager::loadConfig (QString const & cfgpath)
 
 	m_model = new DockManagerModel(*this, this, &m_config.m_data);
 	setModel(m_model);
+	connect(this, SIGNAL(removeCurrentIndex(QModelIndex const &)), this, SLOT(onRemoveCurrentIndex(QModelIndex const &)));
 	bool const on = true;
 	addActionAble(*this, on, false, true);
 }
@@ -303,3 +304,8 @@ void DockManager::onCloseButton ()
 	}
 }
 
+
+void DockManager::onRemoveCurrentIndex (QModelIndex const & idx)
+{
+	//model()->removeRows(idx.row(), 1, idx.parent());
+}
