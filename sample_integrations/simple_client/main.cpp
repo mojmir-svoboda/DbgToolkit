@@ -103,6 +103,7 @@ int main ()
 			sleep_ms(200);
 
 			TRACE_MSG(trace::e_Info, trace::CTX_Default,  "Some message i=%u from main thread", i);
+      TRACE_MSG(trace::e_Debug, trace::CTX_Default,  "Some detailed message i=%u from main thread", i);
 			++i;
 
 			if (i == 1000)

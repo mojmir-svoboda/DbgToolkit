@@ -66,13 +66,16 @@ void MainWindow::createTailDataStream (QString const & fname)
 {
 	Connection * connection = createNewConnection();
 	connection->setTailFile(fname);
+	QFileInfo fi(fname);
+	QString const tag = fi.fileName();
+	
+	connection->handleCSVSetup(tag);
+	datalogs_t::iterator it = connection->findOrCreateLog(tag);
+	//(*it)->config().m_csv_separator = separator;
 
-	statusBar()->showMessage(tr("Tail!"));
-	connection->handleCSVSetup(fname);
 	connection->processTailCSVStream();
 	emit newConnection(connection);
 }
-
 
 void MainWindow::onCloseConnection (Connection * c)
 {

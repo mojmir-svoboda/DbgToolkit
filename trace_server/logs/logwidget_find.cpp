@@ -238,7 +238,7 @@ void LogWidget::currSelection (QModelIndexList & sel) const
 			sel.push_back(sel2.at(i));
 	}
 
-	std::sort(sel.begin(), sel.end());
+  qSort(sel.begin(), sel.end());
 }
 
 void LogWidget::findAndSelectNext (FindConfig const & fc)

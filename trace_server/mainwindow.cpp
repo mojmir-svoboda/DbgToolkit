@@ -300,8 +300,8 @@ void MainWindow::tailFiles (QStringList const & files)
 {
 	for (int i = 0, ie = files.size(); i < ie; ++i)
 	{
-		QString fname = files.at(i);
-		if (fname != "")
+		QString const fname = files.at(i);
+		if (!fname.isEmpty())
 			createTailDataStream(fname);
 	}
 }
