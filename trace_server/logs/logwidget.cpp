@@ -998,10 +998,21 @@ void LogWidget::commitBatchToLinkedModel (int src_from, int src_to, BatchCmd con
 		fnd_pxy->commitBatchToModel(src_from, src_to, batch);
 }
 
-LogTableModel * LogWidget::cloneToNewModelFromProxy (BaseProxyModel * proxy, FindConfig const & fc)
+LogTableModel * LogWidget::cloneToNewModelFromProxy (LogWidget * parent, BaseProxyModel * proxy, FindConfig const & fc)
 {
 	Q_ASSERT(m_src_model);
-	LogTableModel * const new_model = new LogTableModel(this, *this);
+	LogTableModel * const new_model = new LogTableModel(parent, *parent);
+
+	// taken from applyConfig
+	// @FIXME
+	if (parent->filterMgr()->getFilterCtx())
+		parent->filterMgr()->getFilterCtx()->setAppData(&m_connection->appData());
+
+	if (parent->colorizerMgr()->getColorizerRegex())
+		parent->colorizerMgr()->getColorizerRegex()->setSrcModel(new_model);
+
+	if (parent->colorizerMgr()->getColorizerRow())
+		parent->colorizerMgr()->getColorizerRow()->setSrcModel(new_model);
 	for (size_t r = 0, re = m_src_model->dcmds().size(); r < re; ++r)
 	{
 		DecodedCommand const & dcmd = m_src_model->dcmds()[r];
@@ -1031,19 +1042,19 @@ LogTableModel * LogWidget::cloneToNewModelFromProxy (BaseProxyModel * proxy, Fin
 
 }
 
-LogTableModel * LogWidget::cloneToNewModel (FindConfig const & fc)
+LogTableModel * LogWidget::cloneToNewModel (LogWidget * parent, FindConfig const & fc)
 {
 	if (m_tableview->model() == m_src_model)
 	{
-		return m_src_model->cloneToNewModel(fc);
+		return m_src_model->cloneToNewModel(parent, fc);
 	}
 	else if (m_tableview->model() == m_proxy_model)
 	{
-		return cloneToNewModelFromProxy(m_proxy_model, fc);
+		return cloneToNewModelFromProxy(parent, m_proxy_model, fc);
 	}
 	else if (m_tableview->model() == m_find_proxy_model)
 	{
-		return cloneToNewModelFromProxy(m_find_proxy_model, fc);
+		return cloneToNewModelFromProxy(parent, m_find_proxy_model, fc);
 	}
 	
 	Q_ASSERT(0); // apparently forgot something

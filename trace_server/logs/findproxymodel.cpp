@@ -12,11 +12,13 @@
 FindProxyModel::FindProxyModel (QObject * parent, logs::LogWidget & lw, BaseProxyModel * pxy)
 	: FilterProxyModel(parent, lw)
 	, m_src_proxy(pxy)
-{ }
+{
+	qDebug("%s this=0x%08x", __FUNCTION__, this);
+}
 
 FindProxyModel::~FindProxyModel ()
 {
-	qDebug("%s", __FUNCTION__);
+	qDebug("%s this=0x%08x", __FUNCTION__, this);
 }
 
 bool FindProxyModel::filterAcceptsColumn (int sourceColumn, QModelIndex const & source_parent) const

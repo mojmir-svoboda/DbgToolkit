@@ -13,13 +13,14 @@ LogTableModel::LogTableModel (QObject * parent, logs::LogWidget & lw)
 	, m_log_widget(lw)
 	, m_filter_state(lw.m_filter_state)
 {
+	qDebug("%s this=0x%08x", __FUNCTION__, this);
 	size_t const prealloc_size = 128 * 1024;
 	m_rows.reserve(prealloc_size); // @TODO: magic const!
 }
 
 LogTableModel::~LogTableModel ()
 {
-	qDebug("%s", __FUNCTION__);
+	qDebug("%s this=0x%08x", __FUNCTION__, this);
 }
 
 void LogTableModel::resizeToCfg (logs::LogConfig const & config)
@@ -75,7 +76,7 @@ void LogTableModel::reloadModelAccordingTo (logs::LogConfig & config)
   //emit headerDataChanged(Qt::Horizontal, 0, 10);// TODO TODO TODO TST
 }
 
-LogTableModel * LogTableModel::cloneToNewModel ()
+/*LogTableModel * LogTableModel::cloneToNewModel ()
 {
 	LogTableModel * new_model = new LogTableModel(this, m_log_widget);
 	new_model->m_rows = m_rows;
@@ -86,11 +87,11 @@ LogTableModel * LogTableModel::cloneToNewModel ()
 	new_model->m_col_times = m_col_times;
 	new_model->m_column_count = m_column_count;
 	return new_model;
-}
+}*/
 
-LogTableModel * LogTableModel::cloneToNewModel (FindConfig const & fc)
+LogTableModel * LogTableModel::cloneToNewModel (logs::LogWidget * parent, FindConfig const & fc)
 {
-	LogTableModel * new_model = new LogTableModel(this, m_log_widget);
+	LogTableModel * new_model = new LogTableModel(parent, *parent);
 	for (size_t r = 0, re = m_rows.size(); r < re; ++r)
 	{
 		DecodedCommand const & dcmd = m_dcmds[r];
@@ -146,11 +147,11 @@ void LogTableModel::commitBatchToModel ()
 	}
 
 	FilterProxyModel * flt_pxy = m_log_widget.m_proxy_model;
-	if (m_proxy == flt_pxy)
+	if (m_proxy && m_proxy == flt_pxy)
 		flt_pxy->commitBatchToModel(static_cast<int>(from), static_cast<int>(to + 1), m_batch);
 
 	FindProxyModel * fnd_pxy = m_log_widget.m_find_proxy_model;
-	if (m_proxy == fnd_pxy)
+	if (m_proxy && m_proxy == fnd_pxy)
 		fnd_pxy->commitBatchToModel(from, to + 1, m_batch);
 
   m_log_widget.commitBatchToLinkedWidgets(from, to + 1, m_batch);  

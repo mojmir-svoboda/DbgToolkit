@@ -12,6 +12,7 @@ TableModel::TableModel (QObject * parent, std::vector<QString> & hhdr, std::vect
 	, m_hsize(hsize)
 	, m_proxy(0)
 {
+	qDebug("%s this=0x%08x", __FUNCTION__, this);
 	size_t const prealloc_size = 128;
 	m_rows.reserve(prealloc_size);
 
@@ -27,7 +28,7 @@ TableModel::TableModel (QObject * parent, std::vector<QString> & hhdr, std::vect
 
 TableModel::~TableModel ()
 {
-	qDebug("%s", __FUNCTION__);
+	qDebug("%s this=0x%08x", __FUNCTION__, this);
 }
 
 int TableModel::rowCount (QModelIndex const & /*parent*/) const { return static_cast<int>(m_rows.size()); }

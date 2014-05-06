@@ -179,7 +179,8 @@ LogWidget * LogWidget::mkFindAllCloneLogWidget (FindConfig const & fc)
 
 	LogWidget * child = *it;
 	child->loadAuxConfigs();
-	LogTableModel * clone_model = cloneToNewModel(fc);
+	//child->applyConfig();
+	LogTableModel * clone_model = cloneToNewModel(child, fc);
 	child->setupCloneModel(clone_model);
 	child->setSrcModel(fc);
 	child->m_config_ui.refreshUI();

@@ -111,8 +111,8 @@ namespace logs {
 		void findAndSelectPrev (FindConfig const & fc);
 		void currSelection (QModelIndexList & sel) const;
 		void noMoreMatches ();
-		LogTableModel * cloneToNewModel (FindConfig const & fc);
-		LogTableModel * cloneToNewModelFromProxy (BaseProxyModel * proxy, FindConfig const & fc);
+		LogTableModel * cloneToNewModel (LogWidget * parent, FindConfig const & fc);
+		LogTableModel * cloneToNewModelFromProxy (LogWidget * parent, BaseProxyModel * proxy, FindConfig const & fc);
 		QString exportSelection ();
 
 		// actions

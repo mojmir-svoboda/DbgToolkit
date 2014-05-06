@@ -12,11 +12,13 @@ FilterProxyModel::FilterProxyModel (QObject * parent, logs::LogWidget & lw)
 	: BaseProxyModel(parent)
 	, m_log_widget(lw)
 	, m_column_count(0)
-{ }
+{
+	qDebug("%s this=0x%08x", __FUNCTION__, this);
+}
 
 FilterProxyModel::~FilterProxyModel ()
 {
-	qDebug("%s", __FUNCTION__);
+	qDebug("%s this=0x%08x", __FUNCTION__, this);
 }
 
 void FilterProxyModel::resizeToCfg (logs::LogConfig const & config)
@@ -40,9 +42,16 @@ void FilterProxyModel::resizeToCfg (logs::LogConfig const & config)
 	}
 }
 
+void FilterProxyModel::setSourceModel (QAbstractItemModel *sourceModel)
+{
+	qDebug("%s this=0x%08x src_model=0x%08x", __FUNCTION__, this, sourceModel);
+	BaseProxyModel::setSourceModel(sourceModel);
+}
+
 Qt::ItemFlags FilterProxyModel::flags (QModelIndex const & index) const
 {
-	return sourceModel()->flags(index) | Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+	QAbstractItemModel * src_model = sourceModel();
+	return src_model->flags(index) | Qt::ItemIsEnabled | Qt::ItemIsSelectable;
 }
 
 QModelIndex FilterProxyModel::sibling (int row, int column, QModelIndex const & idx) const
