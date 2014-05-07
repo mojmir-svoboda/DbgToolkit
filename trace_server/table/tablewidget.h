@@ -6,7 +6,7 @@
 #include <QAbstractItemView>
 #include "tableconfig.h"
 #include "tablectxmenu.h"
-#include "tablemodelview.h"
+#include "tablemodel.h"
 #include "action.h"
 #include "dock.h"
 #include <cmd.h>

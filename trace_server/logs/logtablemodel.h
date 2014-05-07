@@ -24,7 +24,7 @@
 #include <QString>
 #include <vector>
 #include <tlv_parser/tlv_cmd_qstring.h>
-#include <table/tablemodelview.h>
+#include <table/tablemodel.h>
 #include <filterstate.h>
 #include "findconfig.h"
 #include <cmd.h>

@@ -1,4 +1,4 @@
-#include "tablemodelview.h"
+#include "tablemodel.h"
 #include <QBrush>
 #include <QColor>
 #include <QAbstractProxyModel>
