@@ -13,30 +13,21 @@
 bool Connection::handleTableXYCommand (DecodedCommand const & cmd, E_ReceiveMode mode)
 {
 	QString tag;
-	QString time;
+	if (!cmd.getString(tlv::tag_msg, tag)) return true;
+	QString ctime;
+	if (!cmd.getString(tlv::tag_ctime, ctime)) return true;
 	int x = 0;
+	if (!cmd.get(tlv::tag_ix, x)) return true;
 	int y = 0;
+	if (!cmd.get(tlv::tag_iy, y)) return true;
 	QString fgc;
+	cmd.getString(tlv::tag_fgc, fgc);
 	QString bgc;
-	for (size_t i=0, ie=cmd.m_tvs.size(); i < ie; ++i)
-	{
-		if (cmd.m_tvs[i].m_tag == tlv::tag_msg)
-			tag = cmd.m_tvs[i].m_val;
-		else if (cmd.m_tvs[i].m_tag == tlv::tag_x)
-			x = cmd.m_tvs[i].m_val.toInt();
-		else if (cmd.m_tvs[i].m_tag == tlv::tag_y)
-			y = cmd.m_tvs[i].m_val.toInt();
-		else if (cmd.m_tvs[i].m_tag == tlv::tag_ctime)
-			time = cmd.m_tvs[i].m_val;
-		else if (cmd.m_tvs[i].m_tag == tlv::tag_fgc)
-			fgc = cmd.m_tvs[i].m_val;
-		else if (cmd.m_tvs[i].m_tag == tlv::tag_bgc)
-			bgc = cmd.m_tvs[i].m_val;
-	}
+	cmd.getString(tlv::tag_bgc, bgc);
 
 	if (getClosestFeatureState(e_data_table) != e_FtrDisabled)
 	{
-		appendTableXY(x, y, time, fgc, bgc, tag);
+		appendTableXY(x, y, ctime, fgc, bgc, tag);
 	}
 	return true;
 }
@@ -44,82 +35,27 @@ bool Connection::handleTableXYCommand (DecodedCommand const & cmd, E_ReceiveMode
 bool Connection::handleTableSetupCommand (DecodedCommand const & cmd, E_ReceiveMode mode)
 {
 	QString tag;
-	QString time;
+	if (!cmd.getString(tlv::tag_msg, tag)) return true;
+	QString ctime;
+	if (!cmd.getString(tlv::tag_ctime, ctime)) return true;
 	int x = 0;
+	if (!cmd.get(tlv::tag_ix, x)) return true;
 	int y = 0;
-	QString fgc, bgc;
+	if (!cmd.get(tlv::tag_iy, y)) return true;
+	QString fgc;
+	cmd.getString(tlv::tag_fgc, fgc);
+	QString bgc;
+	cmd.getString(tlv::tag_bgc, bgc);
 	QString hhdr;
-	for (size_t i=0, ie=cmd.m_tvs.size(); i < ie; ++i)
-	{
-		if (cmd.m_tvs[i].m_tag == tlv::tag_msg)
-			tag = cmd.m_tvs[i].m_val;
-		else if (cmd.m_tvs[i].m_tag == tlv::tag_x)
-			x = cmd.m_tvs[i].m_val.toInt();
-		else if (cmd.m_tvs[i].m_tag == tlv::tag_y)
-			y = cmd.m_tvs[i].m_val.toInt();
-		else if (cmd.m_tvs[i].m_tag == tlv::tag_ctime)
-			time = cmd.m_tvs[i].m_val;
-		else if (cmd.m_tvs[i].m_tag == tlv::tag_hhdr)
-			hhdr = cmd.m_tvs[i].m_val;
-		else if (cmd.m_tvs[i].m_tag == tlv::tag_fgc)
-			fgc = cmd.m_tvs[i].m_val;
-		else if (cmd.m_tvs[i].m_tag == tlv::tag_bgc)
-			bgc = cmd.m_tvs[i].m_val;
-	}
-
-	//qDebug("table: setup hdr: x=%i y=%i hhdr=%s fg=%s bg=%s", x, y, hhdr.toStdString().c_str(), fgc.toStdString().c_str(), bgc.toStdString().c_str());
+	cmd.getString(tlv::tag_hhdr, bgc);
 
 	if (getClosestFeatureState(e_data_table) != e_FtrDisabled)
-		appendTableSetup(x, y, time, fgc, bgc, hhdr, tag);
-	return true;
-}
-
-
-/*bool Connection::loadConfigForTable (QString const & preset_name, table::TableConfig & config, QString const & tag)
-{
-	QString const fname = getDataTagFileName(config().m_appdir, preset_name, g_presetTableTag, tag);
-	qDebug("table: load cfg file=%s", fname.toStdString().c_str());
-	return loadConfig(config, fname);
-}
-
-bool Connection::loadConfigForTables (QString const & preset_name)
-{
-	qDebug("%s this=0x%08x", __FUNCTION__, this);
-	for (datatables_t::iterator it = m_data.get<e_data_table>().begin(), ite = m_data.get<e_data_table>().end(); it != ite; ++it)
 	{
-		DataTable * const tbl = *it;
-		QString const fname = getDataTagFileName(config().m_appdir, preset_name, g_presetTableTag, tbl->m_config.m_tag);
-		loadConfig(tbl->m_config, fname);
-		tbl->applyConfig(tbl->m_config);
-		if (tbl->m_config.m_show)
-			tbl->onShow();
-		else
-			tbl->onHide();
-	}
-	return true;
-}*/
-
-/*
-bool Connection::saveConfigForTable (table::TableConfig const & config, QString const & tag)
-{
-	QString const preset_name = m_curr_preset.isEmpty() ? m_main_window->getValidCurrentPresetName() : m_curr_preset;
-	QString const fname = getDataTagFileName(config().m_appdir, preset_name, g_presetTableTag, tag);
-	qDebug("table save cfg file=%s", fname.toStdString().c_str());
-	return saveConfig(config, fname);
-}
-
-bool Connection::saveConfigForTables (QString const & preset_name)
-{
-	qDebug("%s this=0x%08x", __FUNCTION__, this);
-	for (datatables_t::iterator it = m_data.get<e_data_table>().begin(), ite = m_data.get<e_data_table>().end(); it != ite; ++it)
-	{
-		DataTable * const tbl = *it;
-		QString const fname = getDataTagFileName(config().m_appdir, preset_name, g_presetTableTag, tbl->m_config.m_tag);
-		tbl->onSaveButton();
+    //qDebug("table: setup hdr: x=%i y=%i hhdr=%s fg=%s bg=%s", x, y, hhdr.toStdString().c_str(), fgc.toStdString().c_str(), bgc.toStdString().c_str());
+		appendTableSetup(x, y, ctime, fgc, bgc, hhdr, tag);
 	}
 	return true;
 }
-*/
 
 datatables_t::iterator Connection::findOrCreateTable (QString const & tag)
 {
@@ -185,11 +121,7 @@ void Connection::appendTableSetup (int x, int y, QString const & time, QString c
 bool Connection::handleTableClearCommand (DecodedCommand const & cmd, E_ReceiveMode mode)
 {
 	QString msg;
-	for (size_t i=0, ie=cmd.m_tvs.size(); i < ie; ++i)
-	{
-		if (cmd.m_tvs[i].m_tag == tlv::tag_msg)
-			msg = cmd.m_tvs[i].m_val;
-	}
+	if (!cmd.getString(tlv::tag_msg, msg)) return true;
 
 	if (getClosestFeatureState(e_data_table) != e_FtrDisabled)
 	{

@@ -578,4 +578,51 @@ namespace table {
 	}
 }
 
+/*bool Connection::loadConfigForTable (QString const & preset_name, table::TableConfig & config, QString const & tag)
+{
+	QString const fname = getDataTagFileName(config().m_appdir, preset_name, g_presetTableTag, tag);
+	qDebug("table: load cfg file=%s", fname.toStdString().c_str());
+	return loadConfig(config, fname);
+}
+
+bool Connection::loadConfigForTables (QString const & preset_name)
+{
+	qDebug("%s this=0x%08x", __FUNCTION__, this);
+	for (datatables_t::iterator it = m_data.get<e_data_table>().begin(), ite = m_data.get<e_data_table>().end(); it != ite; ++it)
+	{
+		DataTable * const tbl = *it;
+		QString const fname = getDataTagFileName(config().m_appdir, preset_name, g_presetTableTag, tbl->m_config.m_tag);
+		loadConfig(tbl->m_config, fname);
+		tbl->applyConfig(tbl->m_config);
+		if (tbl->m_config.m_show)
+			tbl->onShow();
+		else
+			tbl->onHide();
+	}
+	return true;
+}*/
+
+/*
+bool Connection::saveConfigForTable (table::TableConfig const & config, QString const & tag)
+{
+	QString const preset_name = m_curr_preset.isEmpty() ? m_main_window->getValidCurrentPresetName() : m_curr_preset;
+	QString const fname = getDataTagFileName(config().m_appdir, preset_name, g_presetTableTag, tag);
+	qDebug("table save cfg file=%s", fname.toStdString().c_str());
+	return saveConfig(config, fname);
+}
+
+bool Connection::saveConfigForTables (QString const & preset_name)
+{
+	qDebug("%s this=0x%08x", __FUNCTION__, this);
+	for (datatables_t::iterator it = m_data.get<e_data_table>().begin(), ite = m_data.get<e_data_table>().end(); it != ite; ++it)
+	{
+		DataTable * const tbl = *it;
+		QString const fname = getDataTagFileName(config().m_appdir, preset_name, g_presetTableTag, tbl->m_config.m_tag);
+		tbl->onSaveButton();
+	}
+	return true;
+}
+*/
+
+
 
