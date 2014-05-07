@@ -49,7 +49,9 @@ namespace table {
 		void loadConfig (QString const & path);
 		void saveConfig (QString const & path);
 		void applyConfig ();
-        void exportStorageToCSV (QString const & filename) { }
+		void exportStorageToCSV (QString const & filename) { }
+		void autoScrollOff ();
+		void autoScrollOn ();
 
 	protected:
 		virtual void wheelEvent (QWheelEvent * event);

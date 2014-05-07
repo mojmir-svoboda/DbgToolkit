@@ -94,6 +94,7 @@ set(trace_server_SOURCES
 	controlbarcommon.cpp
 	controlbardockedwidgets.cpp
 	controlbarlog.cpp
+	basetablemodel.cpp
 
 	filterbase.cpp
 	filtermgrbase.cpp
@@ -159,7 +160,7 @@ set(trace_server_SOURCES
 	table/baseproxymodel.cpp
 	table/sparseproxymodel.cpp
 	table/tableconfig.cpp
-	table/tablemodelview.cpp
+	table/tablemodel.cpp
 	table/tablewidget.cpp
 
 	connection_gantt.cpp
@@ -214,6 +215,7 @@ set(trace_server_HEADERS
 	controlbarcommon.h
 	controlbardockedwidgets.h
 	controlbarlog.h
+	basetablemodel.h
 
 	findwidget.h
 	findconfig.h
@@ -273,7 +275,7 @@ set(trace_server_HEADERS
 	table/sparseproxymodel.h
 	table/tableconfig.h
 	table/tablectxmenu.h
-	table/tablemodelview.h
+	table/tablemodel.h
 	table/tablewidget.h
 
 	gantt/arrow.h

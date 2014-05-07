@@ -423,6 +423,45 @@ namespace table {
 		}
 	}
 
+	void TableWidget::handleCommand (DecodedCommand const & cmd, E_ReceiveMode mode)
+	{
+		if (mode == e_RecvSync)
+			m_src_model->handleCommand(cmd, mode);
+		else
+			m_queue.append(cmd);
+	}
+
+	void TableWidget::commitCommands (E_ReceiveMode mode)
+	{
+		for (int i = 0, ie = m_queue.size(); i < ie; ++i)
+		{
+			DecodedCommand & cmd = m_queue[i];
+			m_src_model->handleCommand(cmd, mode);
+			if (0 == m_src_model->rowCount())
+				m_tableview->setCurrentIndex(m_src_model->index(0, 0, QModelIndex()));
+			// warning: qmodelindex in source does not exist yet here... 
+			appendToFilters(cmd); // this does not bother filters
+			//appendToColorizers(cmd); // but colorizer needs qmodelindex
+		}
+		if (m_queue.size())
+		{
+			m_src_model->commitCommands(mode);
+			if (m_config.m_auto_scroll)
+				scrollToBottom();
+			m_queue.clear();
+		}
+	}
+
+	void TableWidget::autoScrollOff ()
+	{
+		m_config.m_auto_scroll = false;
+	}
+
+	void TableWidget::autoScrollOn ()
+	{
+		m_config.m_auto_scroll = true;
+	}
+
 	void TableWidget::scrollTo (QModelIndex const & index, ScrollHint hint)
 	{
 		QTableView::scrollTo(index, hint);
@@ -600,8 +639,5 @@ namespace table {
 		saveConfigTemplate(tmp, tblpath + "/" + g_TableFile);
 	}
 
-	void TableWidget::commitCommands (E_ReceiveMode mode)
-	{
-	}
 }
 
