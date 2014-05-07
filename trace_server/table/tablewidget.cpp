@@ -3,6 +3,8 @@
 #include "editableheaderview.h"
 #include "sparseproxymodel.h"
 #include <connection.h>
+#include <mainwindow.h>
+#include <serialize.h>
 #include <utils.h>
 #include <utils_qstandarditem.h>
 #include <movablelistmodel.h>
@@ -340,7 +342,7 @@ namespace table {
 	void TableWidget::onSectionResized (int c, int old_size, int new_size)
 	{
 		int const idx = !isModelProxy() ? c : static_cast<SparseProxyModel *>(m_table_view_proxy)->colToSource(c);
-		qDebug("table: on rsz hdr[%i -> src=%02i ]  %i->%i\t\t%s", c, idx, old_size, new_size, m_config.m_hhdr.at(idx).toStdString().c_str());
+		//qDebug("table: on rsz hdr[%i -> src=%02i ]  %i->%i\t\t%s", c, idx, old_size, new_size, m_config.m_hhdr.at(idx).toStdString().c_str());
 		if (idx < 0) return;
 		size_t const curr_sz = m_config.m_hsize.size();
 		if (idx < curr_sz)
@@ -350,8 +352,9 @@ namespace table {
 		else
 		{
 			m_config.m_hsize.resize(idx + 1);
+			m_config.m_hhdr.resize(idx + 1);
 			for (size_t i = curr_sz; i < idx + 1; ++i)
-				m_config.m_hsize[i] = 32;
+				m_config.m_hhdr[i] = 32;
 		}
 		m_config.m_hsize[idx] = new_size;
 	}
@@ -565,64 +568,40 @@ namespace table {
 			findNearestTimeRow(t);
 	}
 
-	void TableWidget::loadConfig (QString const & path)
+	QString TableWidget::getCurrentWidgetPath () const
 	{
+		QString const appdir = m_connection->getMainWindow()->getAppDir();
+		QString const logpath = appdir + "/" + m_connection->getAppName() + "/" + m_connection->getCurrPreset() + "/" + g_TableTag + "/" + m_config.m_tag;
+		return logpath;
+	}
+
+	void TableWidget::loadConfig (QString const & preset_dir)
+	{
+		QString const tag_backup = m_config.m_tag;
+		QString const path = preset_dir + "/" + g_TableTag + "/" + m_config.m_tag + "/";
+		m_config.clear();
+		bool const loaded = loadConfigTemplate(m_config, path + g_TableFile);
+		if (!loaded)
+		{
+			TableConfig defaults;
+			m_config = defaults;
+			//defaultConfigFor(m_config);
+			m_config.m_tag = tag_backup; // defaultConfigFor destroys tag
+		}
 	}
 
 	void TableWidget::saveConfig (QString const & path)
 	{
+		QString const tblpath = getCurrentWidgetPath();
+		mkPath(tblpath);
+
+		TableConfig tmp = m_config;
+		//normalizeConfig(tmp);
+		saveConfigTemplate(tmp, tblpath + "/" + g_TableFile);
 	}
 
 	void TableWidget::commitCommands (E_ReceiveMode mode)
 	{
 	}
 }
-
-/*bool Connection::loadConfigForTable (QString const & preset_name, table::TableConfig & config, QString const & tag)
-{
-	QString const fname = getDataTagFileName(config().m_appdir, preset_name, g_presetTableTag, tag);
-	qDebug("table: load cfg file=%s", fname.toStdString().c_str());
-	return loadConfig(config, fname);
-}
-
-bool Connection::loadConfigForTables (QString const & preset_name)
-{
-	qDebug("%s this=0x%08x", __FUNCTION__, this);
-	for (datatables_t::iterator it = m_data.get<e_data_table>().begin(), ite = m_data.get<e_data_table>().end(); it != ite; ++it)
-	{
-		DataTable * const tbl = *it;
-		QString const fname = getDataTagFileName(config().m_appdir, preset_name, g_presetTableTag, tbl->m_config.m_tag);
-		loadConfig(tbl->m_config, fname);
-		tbl->applyConfig(tbl->m_config);
-		if (tbl->m_config.m_show)
-			tbl->onShow();
-		else
-			tbl->onHide();
-	}
-	return true;
-}*/
-
-/*
-bool Connection::saveConfigForTable (table::TableConfig const & config, QString const & tag)
-{
-	QString const preset_name = m_curr_preset.isEmpty() ? m_main_window->getValidCurrentPresetName() : m_curr_preset;
-	QString const fname = getDataTagFileName(config().m_appdir, preset_name, g_presetTableTag, tag);
-	qDebug("table save cfg file=%s", fname.toStdString().c_str());
-	return saveConfig(config, fname);
-}
-
-bool Connection::saveConfigForTables (QString const & preset_name)
-{
-	qDebug("%s this=0x%08x", __FUNCTION__, this);
-	for (datatables_t::iterator it = m_data.get<e_data_table>().begin(), ite = m_data.get<e_data_table>().end(); it != ite; ++it)
-	{
-		DataTable * const tbl = *it;
-		QString const fname = getDataTagFileName(config().m_appdir, preset_name, g_presetTableTag, tbl->m_config.m_tag);
-		tbl->onSaveButton();
-	}
-	return true;
-}
-*/
-
-
 

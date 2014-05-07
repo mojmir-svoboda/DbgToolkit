@@ -117,10 +117,10 @@ QVariant TableModel::headerData (int section, Qt::Orientation orientation, int r
 				if (section > -1 && section < m_hhdr.size())
 					return m_hhdr.at(section);
 				break;
-            /*case Qt::SizeHintRole:
+			/*case Qt::SizeHintRole:
 				if (section > -1 && section < m_hhdr.size())
-                  return QSize(m_hsize[section], 12);
-                return 128;*/
+				  return QSize(m_hsize[section], 12);
+				return 128;*/
 		}
 	}
 	return QVariant();
@@ -180,8 +180,8 @@ void TableModel::clearModel ()
 	m_col_times.clear();
 	m_rows.clear();
 	m_column_count = 0;
-  //m_hhdr.clear();
-  //m_hsize.clear();
+	//m_hhdr.clear();
+	//m_hsize.clear();
 	removeRows(0, rowCount());
 	removeColumns(0, columnCount());
 
@@ -203,23 +203,28 @@ void TableModel::appendTableXY (int x, int y, QString const & time, QString cons
 	int cols_last = 0;
 
 
-/*	if (y < 0)
+	if (y < 0)
 	{
-		transactionStart(0);
+		size_t const curr_sz = m_rows.size();
 		m_rows.push_back(columns_t());
-		transactionCommit();
 		if (x < 0)
 		{
 			m_rows.back().resize(n_cols);
+			m_col_times.resize(n_cols);
 			x = 0;
 		}
 		else
 		{
 			m_rows.back().resize(x + n_cols);
+			m_col_times.resize(x + n_cols);
 		}
 		y = m_rows.size() - 1;
+
+	new_rows = true;
+	rows_first = curr_sz;
+	rows_last = y;
 	}
-	else*/
+	else
 	{
 		if (y >= m_rows.size())
 		{
@@ -250,10 +255,10 @@ void TableModel::appendTableXY (int x, int y, QString const & time, QString cons
 		}
 		else*/
 		{
-			//qDebug("  append: x>=0 ", m_rows.back().size(), x + n_cols);
+			//qDebug("	append: x>=0 ", m_rows.back().size(), x + n_cols);
 			if (x + n_cols >= m_rows.back().size())
 			{
-				//qDebug("  append: x>=0  resize %i -> %i", m_rows.back().size(), x + n_cols);
+				//qDebug("	append: x>=0  resize %i -> %i", m_rows.back().size(), x + n_cols);
 				m_rows.back().resize(x + n_cols);
 				m_col_times.resize(x + n_cols);
 

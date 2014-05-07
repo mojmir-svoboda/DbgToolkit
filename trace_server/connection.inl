@@ -38,7 +38,7 @@ typename SelectIterator<TypeN>::type Connection::dataWidgetFactory (QString cons
 
 		bool const visible = widget->config().m_show;
 		DockWidget * dock = m_main_window->dockManager().mkDockWidget(*widget, visible);
-        widget->setDockWidget(dock);
+		widget->setDockWidget(dock);
 		dock->setWidget(widget);
 		//note: applyConfig is handled by the caller
 
@@ -99,7 +99,7 @@ typename SelectIterator<TypeN>::type Connection::dataWidgetFactoryFrom (QString 
 		widget->config().m_tag = tag;
 		bool const visible = widget->config().m_show;
 		DockWidget * dock = m_main_window->m_dock_mgr.mkDockWidget(*widget, visible);
-        widget->setDockWidget(dock);
+		widget->setDockWidget(dock);
 		dock->setWidget(widget);
 		// no applyConfig here!
 
@@ -125,13 +125,13 @@ typename SelectIterator<TypeN>::type Connection::dataWidgetFactoryFrom (QString 
 template <int TypeN>
 void Connection::removeDockedWidget (DockedWidgetBase * ptr) // ehm
 {
-    foreach (QString key, m_data.get<TypeN>().keys() )
-    {
-        if (m_data.get<TypeN>().value(key) == ptr)
-        {
-            m_data.get<TypeN>().remove(key);
-            return;
-        }
-    }
+	foreach (QString key, m_data.get<TypeN>().keys() )
+	{
+		if (m_data.get<TypeN>().value(key) == ptr)
+		{
+			m_data.get<TypeN>().remove(key);
+			return;
+		}
+	}
 }
 

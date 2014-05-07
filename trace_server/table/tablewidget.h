@@ -45,6 +45,7 @@ namespace table {
 		void requestTableWheelEventSync (QWheelEvent * ev, QTableView const * source);
 		void requestTableActionSync (unsigned long long t, int cursorAction, Qt::KeyboardModifiers modifiers, QTableView const * source);
 
+		QString getCurrentWidgetPath () const;
 		void loadConfig (QString const & path);
 		void saveConfig (QString const & path);
 		void applyConfig ();

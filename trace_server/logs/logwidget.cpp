@@ -1260,9 +1260,8 @@ void LogWidget::onSectionMoved (int logical, int old_visual, int new_visual)
 
 void LogWidget::onSectionResized (int logical, int old_size, int new_size)
 {
-	qDebug("log: section resized logical=%i old_sz=%i new_sz=%i", logical, old_size, new_size);
+	//qDebug("log: section resized logical=%i old_sz=%i new_sz=%i", logical, old_size, new_size);
 	int const idx = !isModelProxy() ? logical : m_proxy_model->colToSource(logical);
-	//qDebug("table: on rsz hdr[%i -> src=%02i ]	%i->%i\t\t%s", c, idx, old_size, new_size, m_config.m_hhdr.at(idx).toStdString().c_str());
 	if (idx < 0) return;
 	int const curr_sz = static_cast<int>(m_config.m_columns_sizes.size());
 	if (idx < curr_sz)
