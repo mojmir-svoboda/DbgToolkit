@@ -207,6 +207,9 @@ void TableModel::appendTableXY (int x, int y, QString const & time, QString cons
 	{
 		size_t const curr_sz = m_rows.size();
 		m_rows.push_back(columns_t());
+		m_row_ctimes.push_back(t);
+		sys::hptimer_t const now = sys::queryTime_us();
+		m_row_stimes.push_back(now);
 		if (x < 0)
 		{
 			m_rows.back().resize(n_cols);
@@ -220,9 +223,9 @@ void TableModel::appendTableXY (int x, int y, QString const & time, QString cons
 		}
 		y = m_rows.size() - 1;
 
-	new_rows = true;
-	rows_first = curr_sz;
-	rows_last = y;
+		new_rows = true;
+		rows_first = curr_sz;
+		rows_last = y;
 	}
 	else
 	{
