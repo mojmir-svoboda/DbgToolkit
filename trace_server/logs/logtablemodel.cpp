@@ -49,8 +49,23 @@ void LogTableModel::resizeToCfg (logs::LogConfig const & config)
 	//endResetModel();
 }
 
-void LogTableModel::commitBatchToLinkedModel (int src_from, int src_to, BatchCmd const & batch)
+void LogTableModel::postProcessBatch (int from, int to, BatchCmd const & batch)
 {
+	size_t const rows = batch.m_rows.size();
+	for (size_t r = 0, re = rows; r < re; ++r)
+	{
+		DecodedCommand const & cmd = m_dcmds[from + r];
+		m_log_widget.appendToColorizers(cmd);
+	}
+
+	FilterProxyModel * flt_pxy = m_log_widget.m_proxy_model;
+	if (m_proxy && m_proxy == flt_pxy)
+		flt_pxy->commitBatchToModel(static_cast<int>(from), static_cast<int>(to + 1), m_batch);
+
+	FindProxyModel * fnd_pxy = m_log_widget.m_find_proxy_model;
+	if (m_proxy && m_proxy == fnd_pxy)
+		fnd_pxy->commitBatchToModel(from, to + 1, m_batch);
+
 	m_log_widget.commitBatchToLinkedWidgets(from, to + 1, m_batch);  
 }
 
@@ -214,8 +229,8 @@ void LogTableModel::parseCommand (DecodedCommand const & cmd, E_ReceiveMode mode
 
 		m_log_widget.getTLS().setLastTime(thread_idx, t);
 
-		m_batch.m_row_ctimes.push_back(t);
-		m_batch.m_row_stimes.push_back(now);
+		batch.m_row_ctimes.push_back(t);
+		batch.m_row_stimes.push_back(now);
 
 		// stime
 		int sti = m_log_widget.findColumn4Tag(tlv::tag_stime);
@@ -227,6 +242,33 @@ void LogTableModel::parseCommand (DecodedCommand const & cmd, E_ReceiveMode mode
 		}
 	}
 }
+
+void LogTableModel::commitBatchToModel (BatchCmd & batch)
+{
+	size_t const rows = batch.m_rows.size();
+	size_t const from = m_rows.size();
+	m_dcmds.resize(from + rows);
+	m_rows.resize(from + rows);
+	m_row_ctimes.resize(from + rows);
+	m_row_stimes.resize(from + rows);
+	int const to = static_cast<int>(from) + static_cast<int>(rows) - 1;
+	beginInsertRows(QModelIndex(), static_cast<int>(from), to);
+	for (size_t r = 0, re = batch.m_rows.size(); r < re; ++r)
+	{
+		m_rows[from + r] = batch.m_rows[r];
+		m_dcmds[from + r] = batch.m_dcmds[r];
+		m_dcmds[from + r].m_src_row = from + r;
+		m_row_ctimes[from + r] = batch.m_row_ctimes[r];
+		m_row_stimes[from + r] = batch.m_row_stimes[r];
+	}
+	endInsertRows();
+
+	postProcessBatch(from, to + 1, batch); // hook to linked models
+
+	batch.clear();
+}
+
+
 
 /*
 

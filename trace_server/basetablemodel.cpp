@@ -190,7 +190,7 @@ void BaseTableModel::clearModel ()
 
 void BaseTableModel::commitCommands (E_ReceiveMode mode)
 {
-	commitBatchToModel();
+	commitBatchToModel(m_batch);
 }
 
 void BaseTableModel::handleCommand (DecodedCommand const & cmd, E_ReceiveMode mode)
@@ -198,49 +198,10 @@ void BaseTableModel::handleCommand (DecodedCommand const & cmd, E_ReceiveMode mo
 	parseCommand(cmd, mode, m_batch);
 	if (mode == e_RecvSync)
 	{
-		commitBatchToModel();
+		commitBatchToModel(m_batch);
+		m_batch.clear();
 	}
 }
-
-void BaseTableModel::commitBatchToModel ()
-{
-	size_t const rows = m_batch.m_rows.size();
-	size_t const from = m_rows.size();
-	m_dcmds.resize(from + rows);
-	m_rows.resize(from + rows);
-	m_row_ctimes.resize(from + rows);
-	m_row_stimes.resize(from + rows);
-	int const to = static_cast<int>(from) + static_cast<int>(rows) - 1;
-	beginInsertRows(QModelIndex(), static_cast<int>(from), to);
-	for (size_t r = 0, re = m_batch.m_rows.size(); r < re; ++r)
-	{
-		m_rows[from + r] = m_batch.m_rows[r];
-		m_dcmds[from + r] = m_batch.m_dcmds[r];
-		m_dcmds[from + r].m_src_row = from + r;
-		m_row_ctimes[from + r] = m_batch.m_row_ctimes[r];
-		m_row_stimes[from + r] = m_batch.m_row_stimes[r];
-	}
-	endInsertRows();
-
-	for (size_t r = 0, re = rows; r < re; ++r)
-	{
-		DecodedCommand const & cmd = m_dcmds[from + r];
-		m_log_widget.appendToColorizers(cmd);
-	}
-
-	FilterProxyModel * flt_pxy = m_log_widget.m_proxy_model;
-	if (m_proxy && m_proxy == flt_pxy)
-		flt_pxy->commitBatchToModel(static_cast<int>(from), static_cast<int>(to + 1), m_batch);
-
-	FindProxyModel * fnd_pxy = m_log_widget.m_find_proxy_model;
-	if (m_proxy && m_proxy == fnd_pxy)
-		fnd_pxy->commitBatchToModel(from, to + 1, m_batch);
-
-	commitBatchToLinkedWidgets(from, to + 1, m_batch); // hook to linked models
-
-	m_batch.clear();
-}
-
 
 void BaseTableModel::createCell (unsigned long long time, int x, int y)
 {

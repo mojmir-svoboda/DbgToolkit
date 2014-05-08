@@ -17,7 +17,7 @@ namespace table {
 		, m_config(cfg)
 		, m_config_ui(m_config, this)
 		, m_fname(fname)
-		, m_modelView(0)
+		, m_src_model(0)
 		, m_table_view_proxy(0)
 		, m_connection(conn)
 	{
@@ -46,8 +46,8 @@ namespace table {
 
 		//setHorizontalHeader(new EditableHeaderView(Qt::Horizontal, this));
 
-		m_modelView = new TableModel(this, m_config.m_hhdr, m_config.m_hsize);
-		//setModel(m_modelView);
+		m_src_model = new TableModel(this, m_config.m_hhdr, m_config.m_hsize);
+		//setModel(m_src_model);
 		// TMP!
 		//setEditTriggers(QAbstractItemView::NoEditTriggers);
 		//setSelectionBehavior(QAbstractItemView::SelectRows);
@@ -63,7 +63,7 @@ namespace table {
 		if (!m_table_view_proxy)
 		{
 			m_table_view_proxy = new SparseProxyModel(this);
-			m_table_view_proxy->setSourceModel(m_modelView);
+			m_table_view_proxy->setSourceModel(m_src_model);
 		}
 
 		verticalHeader()->hide();	// @NOTE: users want that //@NOTE2: they can't have it because of performance
@@ -114,8 +114,8 @@ namespace table {
 		qDebug("%s this=0x%08x", __FUNCTION__, this);
 		Ui::SettingsTable * ui = m_config_ui.ui();
 
-		setModel(m_modelView);
-		m_modelView->setProxy(0);
+		setModel(m_src_model);
+		m_src_model->setProxy(0);
 
 		QStandardItem * name_root = static_cast<QStandardItemModel *>(ui->columnView->model())->invisibleRootItem();
 		QStandardItem * size_root = static_cast<QStandardItemModel *>(ui->columnView->model())->invisibleRootItem();
@@ -159,13 +159,13 @@ namespace table {
 		if (cfg.m_hide_empty)
 		{
 			static_cast<SparseProxyModel *>(m_table_view_proxy)->force_update();
-			m_modelView->setProxy(m_table_view_proxy);
+			m_src_model->setProxy(m_table_view_proxy);
 			setModel(m_table_view_proxy);
 		}
 		else
 		{
-			setModel(m_modelView);
-			m_modelView->setProxy(0);
+			setModel(m_src_model);
+			m_src_model->setProxy(0);
 		}
 
 		static_cast<SparseProxyModel *>(m_table_view_proxy)->force_update();
@@ -192,7 +192,7 @@ namespace table {
 		}
 
 		horizontalHeader()->setVisible(true);
-		m_modelView->emitLayoutChanged();
+		m_src_model->emitLayoutChanged();
 	}
 
 	void TableWidget::onHideContextMenu ()
@@ -252,7 +252,7 @@ namespace table {
 		clearListView(ui->columnView);
 		QStandardItem * name_root = static_cast<QStandardItemModel *>(ui->columnView->model())->invisibleRootItem();
 		
-		for (int i = 0, ie = m_modelView->columnCount(); i < ie; ++i)
+		for (int i = 0, ie = m_src_model->columnCount(); i < ie; ++i)
 		{
 			QString name;
 			if (i < cfg.m_hhdr.size() && !cfg.m_hhdr.at(i).isEmpty())
@@ -319,8 +319,8 @@ namespace table {
 	void TableWidget::onSaveButton ()
 	{
 		/*m_config.m_hsize.clear();
-		m_config.m_hsize.resize(m_modelView->columnCount());
-		for (int i = 0, ie = m_modelView->columnCount(); i < ie; ++i)
+		m_config.m_hsize.resize(m_src_model->columnCount());
+		for (int i = 0, ie = m_src_model->columnCount(); i < ie; ++i)
 			m_config.m_hsize[i] = horizontalHeader()->sectionSize(i);*/
 
 
@@ -359,76 +359,12 @@ namespace table {
 		m_config.m_hsize[idx] = new_size;
 	}
 
-	void TableWidget::appendTableXY (int x, int y, QString const & time, QString const & fgc, QString const & bgc, QString const & msg)
-	{
-		m_modelView->appendTableXY(x, y, time, fgc, bgc, msg);
-
-		if (m_config.m_auto_scroll)
-			scrollToBottom();
-
-		// @FIXME: tmp hack to force resize of columns
-		if (isModelProxy())
-		{
-			horizontalHeader()->blockSignals(1);
-			for (int i = 0, ie = model()->columnCount(); i < ie; ++i)
-			{
-				int const idx = static_cast<SparseProxyModel *>(m_table_view_proxy)->colToSource(i);
-				if (idx > -1 && idx < m_config.m_hsize.size() && m_config.m_hsize[idx] != horizontalHeader()->sectionSize(i))
-				{
-					horizontalHeader()->resizeSection(i, m_config.m_hsize.at(idx));
-					qDebug("table: appnd pxy hdr[%i -> src=%02i ]=%2i\t\t%s", i, idx, m_config.m_hsize.at(idx), m_config.m_hhdr.at(idx).toStdString().c_str());
-				}
-			}
-			horizontalHeader()->blockSignals(0);
-		}
-		else
-		{
-			horizontalHeader()->blockSignals(1);
-			for (size_t i = 0, ie = m_config.m_hsize.size(); i < ie; ++i)
-			{
-				if (i < m_modelView->columnCount())
-					if (m_config.m_hsize[i] != horizontalHeader()->sectionSize(static_cast<int>(i)))
-					{
-						horizontalHeader()->resizeSection(static_cast<int>(i), m_config.m_hsize.at(i));
-						qDebug("table: rsz hdr[%i]=%i", i, m_config.m_hsize.at(i));
-					}
-			}
-			horizontalHeader()->blockSignals(0);
-		}
-	}
-
-	void TableWidget::appendTableSetup (int x, int y, QString const & time, QString const & fgc, QString const & bgc, QString const & hhdr, QString const & tag)
-	{
-		unsigned long long t = time.toULongLong();
-		if (!hhdr.isEmpty() && x > -1)
-		{
-			m_modelView->setHeaderData(x, Qt::Horizontal, hhdr, Qt::EditRole);
-			qDebug("header h[x=%2i, y=%2i] = %s", x, y, hhdr.toStdString().c_str());
-		}
-
-		if (!fgc.isEmpty() && x >= 0 && y >= 0)
-		{
-			m_modelView->createRows(t, y, y, QModelIndex());
-			m_modelView->createColumns(t, x, x, QModelIndex());
-			QModelIndex const & idx = m_modelView->index(y, x, QModelIndex());
-			m_modelView->setData(idx, QColor(fgc), Qt::ForegroundRole);
-		}
-
-		if (!bgc.isEmpty() && x >= 0 && y >= 0)
-		{
-			m_modelView->createRows(t, y, y, QModelIndex());
-			m_modelView->createColumns(t, x, x, QModelIndex());
-			QModelIndex const & idx = m_modelView->index(y, x, QModelIndex());
-			m_modelView->setData(idx, QColor(bgc), Qt::BackgroundRole);
-		}
-	}
-
 	void TableWidget::handleCommand (DecodedCommand const & cmd, E_ReceiveMode mode)
 	{
 		if (mode == e_RecvSync)
 			m_src_model->handleCommand(cmd, mode);
 		else
-			m_queue.append(cmd);
+			m_queue.push_back(cmd);
 	}
 
 	void TableWidget::commitCommands (E_ReceiveMode mode)
@@ -438,9 +374,9 @@ namespace table {
 			DecodedCommand & cmd = m_queue[i];
 			m_src_model->handleCommand(cmd, mode);
 			if (0 == m_src_model->rowCount())
-				m_tableview->setCurrentIndex(m_src_model->index(0, 0, QModelIndex()));
+				setCurrentIndex(m_src_model->index(0, 0, QModelIndex()));
 			// warning: qmodelindex in source does not exist yet here... 
-			appendToFilters(cmd); // this does not bother filters
+			//appendToFilters(cmd); // this does not bother filters
 			//appendToColorizers(cmd); // but colorizer needs qmodelindex
 		}
 		if (m_queue.size())
@@ -449,6 +385,38 @@ namespace table {
 			if (m_config.m_auto_scroll)
 				scrollToBottom();
 			m_queue.clear();
+
+
+			// @FIXME: tmp hack to force resize of columns
+			if (isModelProxy())
+			{
+				horizontalHeader()->blockSignals(1);
+				for (int i = 0, ie = model()->columnCount(); i < ie; ++i)
+				{
+					int const idx = static_cast<SparseProxyModel *>(m_table_view_proxy)->colToSource(i);
+					if (idx > -1 && idx < m_config.m_hsize.size() && m_config.m_hsize[idx] != horizontalHeader()->sectionSize(i))
+					{
+						horizontalHeader()->resizeSection(i, m_config.m_hsize.at(idx));
+						qDebug("table: appnd pxy hdr[%i -> src=%02i ]=%2i\t\t%s", i, idx, m_config.m_hsize.at(idx), m_config.m_hhdr.at(idx).toStdString().c_str());
+					}
+				}
+				horizontalHeader()->blockSignals(0);
+			}
+			else
+			{
+				horizontalHeader()->blockSignals(1);
+				for (size_t i = 0, ie = m_config.m_hsize.size(); i < ie; ++i)
+				{
+					if (i < m_src_model->columnCount())
+						if (m_config.m_hsize[i] != horizontalHeader()->sectionSize(static_cast<int>(i)))
+						{
+							horizontalHeader()->resizeSection(static_cast<int>(i), m_config.m_hsize.at(i));
+							qDebug("table: rsz hdr[%i]=%i", i, m_config.m_hsize.at(i));
+						}
+				}
+				horizontalHeader()->blockSignals(0);
+			}
+
 		}
 	}
 
@@ -481,7 +449,7 @@ namespace table {
 			static_cast<SparseProxyModel *>(m_table_view_proxy)->force_update();
 		else
 		{
-			m_modelView->emitLayoutChanged();
+			m_src_model->emitLayoutChanged();
 		}
 	}
 
@@ -495,7 +463,7 @@ namespace table {
 		if (isModelProxy())
 		{
 			QModelIndex const curr = m_table_view_proxy->mapToSource(row_index);
-			unsigned long long const time = m_modelView->row_ctime(curr.row());
+			unsigned long long const time = m_src_model->row_ctime(curr.row());
 
 			qDebug("table: dblClick (pxy) curr=(%i, %i)  time=%llu", curr.row(), curr.column(), time);
       //@TODO: old call!!
@@ -504,7 +472,7 @@ namespace table {
 		else
 		{
 			QModelIndex const curr = row_index;
-			unsigned long long const time = m_modelView->row_ctime(curr.row());
+			unsigned long long const time = m_src_model->row_ctime(curr.row());
 			qDebug("table: dblClick curr=(%i, %i)  time=%llu", curr.row(), curr.column(), time);
 			m_connection->requestTableSynchronization(m_config.m_sync_group, time);
 		}
@@ -517,9 +485,9 @@ namespace table {
 		bool const is_proxy = isModelProxy();
 		int closest_i = 0;
 		int closest_dist = 1024 * 1024;
-		for (int i = 0; i < m_modelView->rowCount(); ++i)
+		for (int i = 0; i < m_src_model->rowCount(); ++i)
 		{
-			int const diff = m_modelView->row_ctime(i) - t; //TODO: fixed ctime!!
+			int const diff = m_src_model->row_ctime(i) - t; //TODO: fixed ctime!!
 			int const d = abs(diff);
 			bool const row_exists = is_proxy ? static_cast<SparseProxyModel const *>(m_table_view_proxy)->rowInProxy(i) : true;
 			if (row_exists && d < closest_dist)
@@ -531,9 +499,9 @@ namespace table {
 
 		if (is_proxy)
 		{
-			//qDebug("table: pxy nearest index= %i/%i", closest_i, m_modelView->rowCount());
+			//qDebug("table: pxy nearest index= %i/%i", closest_i, m_src_model->rowCount());
 			QModelIndex const curr = currentIndex();
-			QModelIndex const idx = m_modelView->index(closest_i, curr.column() < 0 ? 0 : curr.column(), QModelIndex());
+			QModelIndex const idx = m_src_model->index(closest_i, curr.column() < 0 ? 0 : curr.column(), QModelIndex());
 			//qDebug("table: pxy findNearestTime curr=(%i, %i)  new=(%i, %i)", curr.column(), curr.row(), idx.column(), idx.row());
 
 			QModelIndex const pxy_idx = m_table_view_proxy->mapFromSource(idx);
@@ -548,9 +516,9 @@ namespace table {
 		}
 		else
 		{
-			//qDebug("table: nearest index= %i/%i", closest_i, m_modelView->rowCount());
+			//qDebug("table: nearest index= %i/%i", closest_i, m_src_model->rowCount());
 			QModelIndex const curr = currentIndex();
-			QModelIndex const idx = m_modelView->index(closest_i, curr.column() < 0 ? 0 : curr.column(), QModelIndex());
+			QModelIndex const idx = m_src_model->index(closest_i, curr.column() < 0 ? 0 : curr.column(), QModelIndex());
 			//qDebug("table: findNearestTime curr=(%i, %i)  new=(%i, %i)", curr.column(), curr.row(), idx.column(), idx.row());
 
 			scrollTo(idx, QAbstractItemView::PositionAtCenter);
@@ -593,7 +561,7 @@ namespace table {
 			if (isModelProxy())
 				mod_idx = m_table_view_proxy->mapToSource(curr_idx);
 
-			unsigned long long const t = m_modelView->row_ctime(mod_idx.row()); //@TODO: fixed ctime
+			unsigned long long const t = m_src_model->row_ctime(mod_idx.row()); //@TODO: fixed ctime
 			m_connection->requestTableActionSync(m_config.m_sync_group, t, cursor_action, modifiers, this);
 			scrollTo(curr_idx, QAbstractItemView::PositionAtCenter);
 			//qDebug("table: pxy findNearestTime curr_idx=(%i, %i)  mod_idx=(%i, %i)", curr_idx.column(), curr_idx.row(), mod_idx.column(), mod_idx.row());

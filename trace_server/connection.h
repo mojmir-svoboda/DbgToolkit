@@ -183,9 +183,7 @@ protected:
 
 	bool handleLogCommand (DecodedCommand const & cmd, E_ReceiveMode mode);
 	bool handleLogClearCommand (DecodedCommand const & cmd, E_ReceiveMode mode);
-	bool handleTableXYCommand (DecodedCommand const & cmd, E_ReceiveMode mode);
-	bool handleTableSetupCommand (DecodedCommand const & cmd, E_ReceiveMode mode);
-	bool handleTableClearCommand (DecodedCommand const & cmd, E_ReceiveMode mode);
+	bool handleTableCommand (DecodedCommand const & cmd, E_ReceiveMode mode);
 	bool handlePlotCommand (DecodedCommand const & cmd, E_ReceiveMode mode);
 	bool handleDataXYZCommand (DecodedCommand const & cmd, E_ReceiveMode mode);
 	bool handleGanttBgnCommand (DecodedCommand const & cmd, E_ReceiveMode mode);

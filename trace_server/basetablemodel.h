@@ -53,12 +53,12 @@ struct BatchCmd {
 	times_t m_row_stimes;
 
 	void clear ()
-  {
-    m_dcmds.clear();
-    m_rows.clear();
-    m_row_ctimes.clear();
-    m_row_stimes.clear();
-  }
+	{
+		m_dcmds.clear();
+		m_rows.clear();
+		m_row_ctimes.clear();
+		m_row_stimes.clear();
+	}
 };
 
 class BaseTableModel : public QAbstractTableModel
@@ -97,9 +97,8 @@ public:
 
 protected:
 
-	virtual void commitBatchToModel ();
+	virtual void commitBatchToModel (BatchCmd & batch) = 0; 
 	virtual void parseCommand (DecodedCommand const & cmd, E_ReceiveMode mode, BatchCmd & batch) = 0;
-	virtual void commitBatchToLinkedModel (int src_from, int src_to, BatchCmd const & batch) { }
 
 	typedef std::vector<unsigned long long> times_t;
 	times_t m_row_ctimes;

@@ -34,12 +34,17 @@ public:
 	explicit TableModel (QObject * parent, std::vector<QString> & hhdr, std::vector<int> & hsize);
 	~TableModel ();
 
-	void appendTableXY (int x, int y, QString const &, QString const & fgc, QString const & bgc, QString const & msg_tag);
-	void appendTableSetup (int x, int y, QString const & time, QString const & fgc, QString const & bgc, QString const & hhdr, QString const & tag);
-
 protected:
 
 	virtual void parseCommand (DecodedCommand const & cmd, E_ReceiveMode mode, BatchCmd & batch);
+	virtual void commitBatchToModel (BatchCmd & batch);
+	void postProcessBatch (int src_from, int src_to, BatchCmd const & batch);
 
+	bool handleTableXYCommand (DecodedCommand const & cmd, E_ReceiveMode mode);
+	bool handleTableSetupCommand (DecodedCommand const & cmd, E_ReceiveMode mode);
+	bool handleTableClearCommand (DecodedCommand const & cmd, E_ReceiveMode mode);
+
+	void parseTableXY (int x, int y, QString const &, QString const & fgc, QString const & bgc, QString const & msg_tag, BatchCmd & batch);
+	void parseTableSetup (int x, int y, QString const & time, QString const & fgc, QString const & bgc, QString const & hhdr, QString const & tag, BatchCmd & batch);
 };
 

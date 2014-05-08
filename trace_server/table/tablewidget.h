@@ -80,9 +80,10 @@ namespace table {
 		table::CtxTableConfig m_config_ui;
 		//QList<QColor> m_colors;
 		QString m_fname;
-		TableModel * m_modelView;
+		TableModel * m_src_model;
 		QAbstractProxyModel * m_table_view_proxy;
 		Connection * m_connection;
+		std::vector<DecodedCommand> m_queue;
 	};
 }
 

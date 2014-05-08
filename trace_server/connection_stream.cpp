@@ -134,9 +134,9 @@ bool Connection::tryHandleCommand (DecodedCommand const & cmd, E_ReceiveMode mod
 		case tlv::cmd_plot_xy:			handlePlotCommand(cmd, mode); break;
 		case tlv::cmd_plot_xyz:			handlePlotCommand(cmd, mode); break;
 		case tlv::cmd_plot_clear:		handlePlotCommand(cmd, mode); break;
-		case tlv::cmd_table_xy:			handleTableXYCommand(cmd, mode); break;
-		case tlv::cmd_table_setup:		handleTableSetupCommand(cmd, mode); break;
-		case tlv::cmd_table_clear:		handleTableClearCommand(cmd, mode); break;
+		case tlv::cmd_table_xy:			handleTableCommand(cmd, mode); break;
+		case tlv::cmd_table_setup:		handleTableCommand(cmd, mode); break;
+		case tlv::cmd_table_clear:		handleTableCommand(cmd, mode); break;
 		case tlv::cmd_gantt_bgn:		handleGanttBgnCommand(cmd, mode); break;
 		case tlv::cmd_gantt_end:		handleGanttEndCommand(cmd, mode); break;
 		case tlv::cmd_gantt_frame_bgn:	handleGanttFrameBgnCommand(cmd, mode); break;

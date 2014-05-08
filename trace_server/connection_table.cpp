@@ -10,50 +10,21 @@
 #include "mainwindow.h"
 #include <cstdlib>
 
-bool Connection::handleTableXYCommand (DecodedCommand const & cmd, E_ReceiveMode mode)
+bool Connection::handleTableCommand (DecodedCommand const & cmd, E_ReceiveMode mode)
 {
-	QString tag;
-	if (!cmd.getString(tlv::tag_msg, tag)) return true;
-	QString ctime;
-	if (!cmd.getString(tlv::tag_ctime, ctime)) return true;
-	int x = 0;
-	if (!cmd.get(tlv::tag_ix, x)) return true;
-	int y = 0;
-	if (!cmd.get(tlv::tag_iy, y)) return true;
-	QString fgc;
-	cmd.getString(tlv::tag_fgc, fgc);
-	QString bgc;
-	cmd.getString(tlv::tag_bgc, bgc);
+	if (getClosestFeatureState(e_data_table) == e_FtrDisabled)
+		return true;
 
-	if (getClosestFeatureState(e_data_table) != e_FtrDisabled)
-	{
-		appendTableXY(x, y, ctime, fgc, bgc, tag);
-	}
-	return true;
-}
+	QString msg_tag;
+	if (!cmd.getString(tlv::tag_msg, msg_tag)) return true;
+	QString tag = msg_tag;
+	int const slash_pos = tag.lastIndexOf(QChar('/'));
+	tag.chop(msg_tag.size() - slash_pos);
+	QString subtag = msg_tag;
+	subtag.remove(0, slash_pos + 1);
 
-bool Connection::handleTableSetupCommand (DecodedCommand const & cmd, E_ReceiveMode mode)
-{
-	QString tag;
-	if (!cmd.getString(tlv::tag_msg, tag)) return true;
-	QString ctime;
-	if (!cmd.getString(tlv::tag_ctime, ctime)) return true;
-	int x = 0;
-	if (!cmd.get(tlv::tag_ix, x)) return true;
-	int y = 0;
-	if (!cmd.get(tlv::tag_iy, y)) return true;
-	QString fgc;
-	cmd.getString(tlv::tag_fgc, fgc);
-	QString bgc;
-	cmd.getString(tlv::tag_bgc, bgc);
-	QString hhdr;
-	cmd.getString(tlv::tag_hhdr, bgc);
-
-	if (getClosestFeatureState(e_data_table) != e_FtrDisabled)
-	{
-    //qDebug("table: setup hdr: x=%i y=%i hhdr=%s fg=%s bg=%s", x, y, hhdr.toStdString().c_str(), fgc.toStdString().c_str(), bgc.toStdString().c_str());
-		appendTableSetup(x, y, ctime, fgc, bgc, hhdr, tag);
-	}
+	datatables_t::iterator it = findOrCreateTable(tag);
+	(*it)->handleCommand(cmd, mode);
 	return true;
 }
 
@@ -87,58 +58,6 @@ datatables_t::iterator Connection::findOrCreateTable (QString const & tag)
 		}
 	}
 	return it;
-}
-
-void Connection::appendTableXY (int x, int y, QString const & time, QString const & fgc, QString const & bgc, QString const & msg_tag)
-{
-	QString tag = msg_tag;
-	int const slash_pos = tag.lastIndexOf(QChar('/'));
-	tag.chop(msg_tag.size() - slash_pos);
-
-	QString subtag = msg_tag;
-	subtag.remove(0, slash_pos + 1);
-
-	datatables_t::iterator it = findOrCreateTable(tag);
-
-	(*it)->appendTableXY(x, y, time, fgc, bgc, subtag);
-}
-
-void Connection::appendTableSetup (int x, int y, QString const & time, QString const & fgc, QString const & bgc, QString const & hhdr, QString const & msg_tag)
-{
-	QString tag = msg_tag;
-	QString subtag = msg_tag;
-	int const slash_pos = tag.lastIndexOf(QChar('/'));
-	if (slash_pos >= 0)
-	{
-		tag.chop(msg_tag.size() - slash_pos);
-		subtag.remove(0, slash_pos + 1);
-	}
-
-	datatables_t::iterator it = findOrCreateTable(tag);
-	(*it)->appendTableSetup(x, y, time, fgc, bgc, hhdr, subtag);
-}
-
-bool Connection::handleTableClearCommand (DecodedCommand const & cmd, E_ReceiveMode mode)
-{
-	QString msg;
-	if (!cmd.getString(tlv::tag_msg, msg)) return true;
-
-	if (getClosestFeatureState(e_data_table) != e_FtrDisabled)
-	{
-		QString tag = msg;
-		int const slash_pos = tag.lastIndexOf(QChar('/'));
-		tag.chop(msg.size() - slash_pos);
-
-		QString subtag = msg;
-		subtag.remove(0, slash_pos + 1);
-
-		//dataplots_t::iterator it = m_dataplots.find(tag);
-		//if (it != m_dataplots.end())
-		//{
-		//	(*it)->clearCurveData(subtag);
-		//}
-	}
-	return true;
 }
 
 //@TODO: old call!

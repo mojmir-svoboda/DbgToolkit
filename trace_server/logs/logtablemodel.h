@@ -38,8 +38,6 @@ public:
 	explicit LogTableModel (QObject * parent, logs::LogWidget & lw);
 	~LogTableModel ();
 
-	void handleCommand (DecodedCommand const & cmd, E_ReceiveMode mode);
-	void commitCommands (E_ReceiveMode mode);
 	void appendCommand (tlv::StringCommand const & cmd);
 	//void appendCommandCSV (QAbstractProxyModel * filter, tlv::StringCommand const & cmd);
 
@@ -66,7 +64,8 @@ protected:
 	friend class logs::LogWidget;
 
 	virtual void parseCommand (DecodedCommand const & cmd, E_ReceiveMode mode, BatchCmd & batch);
-	virtual void commitBatchToLinkedModel (int src_from, int src_to, BatchCmd const & batch);
+	virtual void commitBatchToModel (BatchCmd & batch); 
+	void postProcessBatch (int src_from, int src_to, BatchCmd const & batch);
 
 	logs::LogWidget & m_log_widget;
 	FilterState & m_filter_state;

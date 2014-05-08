@@ -56,7 +56,7 @@ namespace logs {
 		, m_file_csv_stream(0)
 		//, m_file_tlv_stream(0)
 	{
-		m_queue.reserve(256);
+		m_queue.reserve(4096);
 		m_tableview = new LogTableView(conn, *this, m_config);
 
 		QVBoxLayout * vLayout = new QVBoxLayout();
@@ -426,7 +426,7 @@ namespace logs {
 		delete m_control_bar;
 		m_control_bar = 0;
 
-		qDebug("%s this=0x%08x tag=%s", __FUNCTION__, this, m_config.m_tag.toStdString().c_str());
+		qDebug("%s this=0x%08x tag=%s queue=%u", __FUNCTION__, this, m_config.m_tag.toStdString().c_str(), m_queue.capacity());
 		disconnect(this, SIGNAL(customContextMenuRequested(QPoint const &)), this, SLOT(onShowContextMenu(QPoint const &)));
 
 		if (m_linked_parent)
@@ -939,7 +939,7 @@ void LogWidget::handleCommand (DecodedCommand const & cmd, E_ReceiveMode mode)
 	if (mode == e_RecvSync)
 		m_src_model->handleCommand(cmd, mode);
 	else
-		m_queue.append(cmd);
+		m_queue.push_back(cmd);
 
 /*	if (cmd.hdr.cmd == tlv::cmd_scope_entry || (cmd.hdr.cmd == tlv::cmd_scope_exit))
 	{

@@ -45,7 +45,7 @@ namespace logs {
 		void fillButtonCache (QWidget * parent);
 		void setButtonCache (ButtonCache * c) { m_cacheLayout = c; }
 
-		QList<DecodedCommand> m_queue;
+		std::vector<DecodedCommand> m_queue;
 		void handleCommand (DecodedCommand const & cmd, E_ReceiveMode mode);
 		void commitCommands (E_ReceiveMode mode);
 
