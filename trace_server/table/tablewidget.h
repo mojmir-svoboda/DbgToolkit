@@ -2,13 +2,14 @@
 #include <QWidget>
 #include <QColorDialog>
 #include <QTableView>
-#include <QAbstractProxyModel>
 #include <QAbstractItemView>
 #include "tableconfig.h"
 #include "tablectxmenu.h"
 #include "tablemodel.h"
-#include "action.h"
-#include "dock.h"
+#include <action.h>
+#include "baseproxymodel.h"
+#include <dock.h>
+#include <syncwidgets.h>
 #include <cmd.h>
 
 class Connection;
@@ -42,8 +43,8 @@ namespace table {
 		void onInvalidateFilter ();
 		void findNearestTimeRow (unsigned long long t);
 
-		void requestTableWheelEventSync (QWheelEvent * ev, QTableView const * source);
-		void requestTableActionSync (unsigned long long t, int cursorAction, Qt::KeyboardModifiers modifiers, QTableView const * source);
+		//void requestTableWheelEventSync (QWheelEvent * ev, QTableView const * source);
+		//void requestTableActionSync (unsigned long long t, int cursorAction, Qt::KeyboardModifiers modifiers, QTableView const * source);
 
 		QString getCurrentWidgetPath () const;
 		void loadConfig (QString const & path);
@@ -52,6 +53,10 @@ namespace table {
 		void exportStorageToCSV (QString const & filename) { }
 		void autoScrollOff ();
 		void autoScrollOn ();
+		QModelIndex currentSourceIndex () const;
+
+		void findNearestRow4Time (bool ctime, unsigned long long t);
+		void performSynchronization (E_SyncMode mode, int sync_group, unsigned long long time, void * source);
 
 	protected:
 		virtual void wheelEvent (QWheelEvent * event);
@@ -75,13 +80,16 @@ namespace table {
 		void onTableDoubleClicked (QModelIndex const & row_index);
 		void onClickedAtColumnSetup (QModelIndex const idx);
 
+	signals:
+		void requestSynchronization (E_SyncMode mode, int sync_group, unsigned long long time, void * source);
+
 	protected:
 		TableConfig m_config;
 		table::CtxTableConfig m_config_ui;
 		//QList<QColor> m_colors;
 		QString m_fname;
 		TableModel * m_src_model;
-		QAbstractProxyModel * m_table_view_proxy;
+		BaseProxyModel * m_proxy_model;
 		Connection * m_connection;
 		std::vector<DecodedCommand> m_queue;
 	};

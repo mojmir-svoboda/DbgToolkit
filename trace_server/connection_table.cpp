@@ -61,6 +61,7 @@ datatables_t::iterator Connection::findOrCreateTable (QString const & tag)
 }
 
 //@TODO: old call!
+#if 0
 void Connection::requestTableSynchronization (int sync_group, unsigned long long time)
 {
 	for (datatables_t::iterator it = m_data.get<e_data_table>().begin(), ite = m_data.get<e_data_table>().end(); it != ite; ++it)
@@ -95,3 +96,5 @@ void Connection::requestTableActionSync (int sync_group, unsigned long long t, i
 			(*it)->requestTableActionSync(t, cursorAction, modifiers, source);
 	}
 }
+#endif
+
