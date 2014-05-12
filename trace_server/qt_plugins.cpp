@@ -2,7 +2,7 @@
 #include <QWindow>
 #include <QWidget>
 #include <QGuiApplication>
-#include <QtGui/5.3.0/QtGui/qpa/qplatformnativeinterface.h>
+#include <qpa/qplatformnativeinterface.h>
 
 static QWindow * windowForWidget(const QWidget* widget)
 {
