@@ -60,13 +60,13 @@ void LogTableModel::postProcessBatch (int from, int to, BatchCmd const & batch)
 
 	FilterProxyModel * flt_pxy = m_log_widget.m_proxy_model;
 	if (m_proxy && m_proxy == flt_pxy)
-		flt_pxy->commitBatchToModel(static_cast<int>(from), static_cast<int>(to + 1), m_batch);
+		flt_pxy->commitBatchToModel(static_cast<int>(from), static_cast<int>(to), batch);
 
 	FindProxyModel * fnd_pxy = m_log_widget.m_find_proxy_model;
 	if (m_proxy && m_proxy == fnd_pxy)
-		fnd_pxy->commitBatchToModel(from, to + 1, m_batch);
+		fnd_pxy->commitBatchToModel(from, to, batch);
 
-	m_log_widget.commitBatchToLinkedWidgets(from, to + 1, m_batch);  
+	m_log_widget.commitBatchToLinkedWidgets(from, to, batch);  
 }
 
 void LogTableModel::reloadModelAccordingTo (logs::LogConfig & config)

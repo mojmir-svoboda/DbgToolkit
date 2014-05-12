@@ -107,7 +107,7 @@ void FilterProxyModel::clearModelData ()
 
 void FilterProxyModel::commitBatchToModel (int src_from, int src_to, BatchCmd const & batch)
 {
-	int const rows = src_to - src_from;
+	int const rows = batch.m_dcmds.size();
 	int const from = static_cast<int>(m_map_from_tgt.size());
 
 	m_map_from_src.reserve(m_log_widget.m_src_model->rowCount());
