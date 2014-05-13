@@ -563,6 +563,8 @@ namespace logs {
 		if (colorizerMgr()->getColorizerRow())
 			colorizerMgr()->getColorizerRow()->setSrcModel(m_src_model);
 
+		setConfigValuesToUI(m_config);
+
 		//if (colorizerMgr()->getFilterCtx())
 		//	colorizerMgr()->getFilterCtx()->setAppData(&m_connection->appData());
 	}
@@ -626,6 +628,7 @@ namespace logs {
 		Ui::SettingsLog * ui = m_config_ui.ui();
 		ui->dtCheckBox->setCheckState(cfg.m_dt_enabled ? Qt::Checked : Qt::Unchecked);
 		ui->autoScrollCheckBox->setCheckState(cfg.m_auto_scroll ? Qt::Checked : Qt::Unchecked);
+		ui->groupingWidget->setCurrentIndex(m_config.m_curr_tooltab);
 		
 		//ui->globalShowCheckBox->blockSignals(true);
 		//ui->globalShowCheckBox->setCheckState(cfg.m_show ? Qt::Checked : Qt::Unchecked);
@@ -646,6 +649,7 @@ namespace logs {
 		//qDebug("%s this=0x%08x", __FUNCTION__, this);
 		Ui::SettingsLog * ui = m_config_ui.ui();
 		//m_config.m_show = ui->globalShowCheckBox->checkState() == Qt::Checked;
+		cfg.m_curr_tooltab = ui->groupingWidget->currentIndex();
 	}
 
 	void LogWidget::onApplyButton ()
@@ -767,6 +771,7 @@ namespace logs {
 	{
 		QString const logpath = getCurrentWidgetPath();
 		mkPath(logpath);
+		setUIValuesToConfig(m_config);
 
 		logs::LogConfig tmp = m_config;
 		normalizeConfig(tmp);

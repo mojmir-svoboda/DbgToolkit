@@ -18,6 +18,7 @@ namespace logs {
 		int m_indent_level;
 		int m_cut_path_level;
 		int m_cut_namespace_level;
+		int m_curr_tooltab;
 		std::vector<QString> 	m_columns_setup;		/// column setup for each registered application
 		std::vector<int> 		m_columns_sizes;		/// column sizes for each registered application
 		std::vector<QString> 	m_columns_align;		/// column align for each registered application
@@ -45,6 +46,7 @@ namespace logs {
 			, m_indent_level(2)
 			, m_cut_path_level(2)
 			, m_cut_namespace_level(3)
+			, m_curr_tooltab(1) // 1 == filters
 			, m_in_view(true)
 			, m_filtering(true)
 			, m_clr_filters(true)
@@ -67,6 +69,7 @@ namespace logs {
 			, m_indent_level(2)
 			, m_cut_path_level(2)
 			, m_cut_namespace_level(3)
+			, m_curr_tooltab(1) // 1 == filters
 			, m_in_view(true)
 			, m_filtering(true)
 			, m_clr_filters(true)
@@ -92,6 +95,7 @@ namespace logs {
 			ar & boost::serialization::make_nvp("indent_level", m_indent_level);
 			ar & boost::serialization::make_nvp("cut_path_level", m_cut_path_level);
 			ar & boost::serialization::make_nvp("cut_namespace_level", m_cut_namespace_level);
+			ar & boost::serialization::make_nvp("curr_tooltab", m_curr_tooltab);
 			ar & boost::serialization::make_nvp("columns_setup", m_columns_setup);
 			ar & boost::serialization::make_nvp("columns_sizes", m_columns_sizes);
 			ar & boost::serialization::make_nvp("columns_align", m_columns_align);
