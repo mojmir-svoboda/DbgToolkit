@@ -36,7 +36,7 @@ DockManager::DockManager (MainWindow * mw, QStringList const & path)
 	//	m_main_window->restoreDockWidget(dock);
 	m_dockwidget = dock;
 
-	connect(m_dockwidget, SIGNAL(widgetVisibilityChanged()), m_main_window, SLOT(onDockManagerVisibilityChanged(bool)));
+	connect(m_dockwidget, SIGNAL(widgetVisibilityChanged(bool)), m_main_window, SLOT(onDockManagerVisibilityChanged(bool)));
 	m_control_bar = new ControlBarCommon();
 
 	connect(header(), SIGNAL(sectionResized(int, int, int)), this, SLOT(onColumnResized(int, int, int)));
