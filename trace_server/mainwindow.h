@@ -38,6 +38,7 @@ class QMenu;
 class QListView;
 class QStandardItemModel;
 class QLabel;
+class QToolButton;
 class TreeView;
 class QTreeView;
 class QTimer;
@@ -186,6 +187,7 @@ private:
 	QAction * 			m_restore_action;
 	QAction * 			m_quit_action;
 	QMenu *   			m_tray_menu;
+	QToolButton *		m_dock_mgr_button;
 	QSystemTrayIcon * 	m_tray_icon;
 	QLabel *			m_status_label;
 

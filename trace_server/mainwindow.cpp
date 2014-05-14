@@ -49,6 +49,7 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QStri
 	, m_restore_action(0)
 	, m_quit_action(0)
 	, m_tray_menu(0)
+	, m_dock_mgr_button(0)
 	, m_tray_icon(0)
 	, m_settings_dialog(0)
 	, m_dock_mgr(this, QStringList(QString(g_traceServerName)))
@@ -100,10 +101,6 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QStri
 	connect(m_timer, SIGNAL(timeout()) , this, SLOT(onTimerHit()));
 	m_timer->start();
 	setupMenuBar();
-
-	connect(ui->dockManagerButton, SIGNAL(clicked()), this, SLOT(onDockManagerButton()));
-	connect(ui->saveButton, SIGNAL(clicked()), this, SLOT(onSave()));
-	connect(ui->saveAsButton, SIGNAL(clicked()), this, SLOT(onSaveAs()));
 
 	connect(m_dock_mgr.controlUI()->levelSpinBox, SIGNAL(valueChanged(int)), this, SLOT(onLevelValueChanged(int)));
 	connect(m_dock_mgr.controlUI()->buffCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onBufferingStateChanged(int)));
@@ -278,7 +275,7 @@ void MainWindow::onQuitReally ()
 
 void MainWindow::onDockManagerButton ()
 {
-	if (ui->dockManagerButton->isChecked())
+	if (m_dock_mgr_button->isChecked())
 	{
 		m_dock_mgr.show();
 		m_dock_mgr.m_dockwidget->show();
@@ -295,7 +292,7 @@ void MainWindow::onDockManagerButton ()
 
 void MainWindow::onDockManagerClosed ()
 {
-	ui->dockManagerButton->setChecked(false);
+	m_dock_mgr_button->setChecked(false);
 }
 
 void MainWindow::tailFiles (QStringList const & files)
@@ -437,6 +434,20 @@ void MainWindow::onDockRestoreButton ()
 void MainWindow::setupMenuBar ()
 {
 	qDebug("%s", __FUNCTION__);
+	m_dock_mgr_button = new QToolButton(0);
+	m_dock_mgr_button->setObjectName(QStringLiteral("dockManagerButton"));
+	m_dock_mgr_button->setMinimumSize(QSize(0, 0));
+	//m_dock_mgr_button->setFont(font);
+	m_dock_mgr_button->setCheckable(true);
+	m_dock_mgr_button->setChecked(false);
+	m_dock_mgr_button->setToolTip(QApplication::translate("MainWindow", "Central management of docked data widgets", 0));
+	m_dock_mgr_button->setText(QApplication::translate("MainWindow", "Widget Manager", 0));
+	menuBar()->setCornerWidget(m_dock_mgr_button, Qt::TopLeftCorner);
+	connect(m_dock_mgr_button, SIGNAL(clicked()), this, SLOT(onDockManagerButton()));
+	m_dock_mgr_button->setStyleSheet("\
+		QToolButton  { border: 1px solid #8f8f91; border-radius: 4px; background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #e6e7fa, stop: 1 #dadbff); } \
+		QToolButton:checked { background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #dadbdd, stop: 1 #d6d7da); }");
+
 	// File
 	QMenu * fileMenu = menuBar()->addMenu(tr("&File"));
 	fileMenu->addAction(tr("Data file &Load..."), this, SLOT(onFileLoad()), QKeySequence(Qt::ControlModifier + Qt::Key_O));
@@ -447,17 +458,20 @@ void MainWindow::setupMenuBar ()
 	fileMenu->addSeparator();
 	fileMenu->addAction(tr("Quit program"), this, SLOT(onQuit()), QKeySequence::Quit);
 
-	// filter widgets
+	// widget's tool dockable widgets.
 	m_windows_menu = menuBar()->addMenu(tr("&Windows"));
 
 	// View
 	QMenu * viewMenu = menuBar()->addMenu(tr("&View"));
-	viewMenu->addAction(tr("TraceServer log"), this, SLOT(onLogTail()), QKeySequence(Qt::ControlModifier + Qt::AltModifier + Qt::Key_L));
-	//fileMenu->addAction(tr("Show &Tool Widget"), this, SLOT(onShowToolWidget()), QKeySequence(Qt::ControlModifier + Qt::Key_O));
+
+	viewMenu->addAction(tr("Save"), this, SLOT(onSave()), QKeySequence::Save);
+	viewMenu->addAction(tr("Save &As..."), this, SLOT(onSaveAs()), QKeySequence::SaveAs);
+	viewMenu->addSeparator();
 
 	// Panic!
 	QMenu * panicMenu = menuBar()->addMenu(tr("&Panic!"));
 	panicMenu->addAction(tr("&Remove configuration files"), this, SLOT(onRemoveConfigurationFiles()));
+	panicMenu->addAction(tr("Show server log"), this, SLOT(onLogTail()), QKeySequence(Qt::ControlModifier + Qt::AltModifier + Qt::Key_L));
 
 	// Edit
 	//QMenu * editMenu = menuBar()->addMenu(tr("&Edit"));
