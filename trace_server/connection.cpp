@@ -318,7 +318,7 @@ void Connection::applyConfigs ()
 
 void Connection::onSaveData (QString const & dir)
 {
-	copyStorageTo(dir + "/" + "in_stream." + g_traceFileExtTLV);
+	copyStorageTo(dir + "/" + "raw_data." + g_traceFileExtTLV);
 	//recurse(m_data, SaveData(dir));
 }
 

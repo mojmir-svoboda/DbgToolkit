@@ -451,27 +451,29 @@ void MainWindow::setupMenuBar ()
 	// File
 	QMenu * fileMenu = menuBar()->addMenu(tr("&File"));
 	fileMenu->addAction(tr("Data file &Load..."), this, SLOT(onFileLoad()), QKeySequence(Qt::ControlModifier + Qt::Key_O));
-	fileMenu->addAction(tr("&Save data..."), this, SLOT(onSaveData()), QKeySequence(Qt::ControlModifier + Qt::Key_S));
-	fileMenu->addAction(tr("&Export data as CSV format"), this, SLOT(onExportDataToCSV()), QKeySequence(Qt::ControlModifier + Qt::ShiftModifier + Qt::Key_S));
+	fileMenu->addAction(tr("&Save raw client data as..."), this, SLOT(onSaveData()));
+	fileMenu->addAction(tr("&Export data as CSV format..."), this, SLOT(onExportDataToCSV()));
 	fileMenu->addSeparator();
-	fileMenu->addAction(tr("&Follow file..."), this, SLOT(onFileTail()), QKeySequence(Qt::ControlModifier + Qt::Key_T));
+	fileMenu->addAction(tr("&Follow text file..."), this, SLOT(onFileTail()), QKeySequence(Qt::ControlModifier + Qt::Key_T));
 	fileMenu->addSeparator();
 	fileMenu->addAction(tr("Quit program"), this, SLOT(onQuit()), QKeySequence::Quit);
+
+	// View
+	QMenu * viewMenu = menuBar()->addMenu(tr("&View"));
+	viewMenu->addAction(tr("&Save preset"), this, SLOT(onSave()), QKeySequence::Save);
+	viewMenu->addAction(tr("Save preset &as..."), this, SLOT(onSaveAs()), QKeySequence(Qt::ControlModifier + Qt::ShiftModifier + Qt::Key_S));
+	viewMenu->addSeparator();
 
 	// widget's tool dockable widgets.
 	m_windows_menu = menuBar()->addMenu(tr("&Windows"));
 
-	// View
-	QMenu * viewMenu = menuBar()->addMenu(tr("&View"));
+	menuBar()->addSeparator();
 
-	viewMenu->addAction(tr("Save"), this, SLOT(onSave()), QKeySequence::Save);
-	viewMenu->addAction(tr("Save &As..."), this, SLOT(onSaveAs()), QKeySequence::SaveAs);
-	viewMenu->addSeparator();
-
-	// Panic!
-	QMenu * panicMenu = menuBar()->addMenu(tr("&Panic!"));
-	panicMenu->addAction(tr("&Remove configuration files"), this, SLOT(onRemoveConfigurationFiles()));
-	panicMenu->addAction(tr("Show server log"), this, SLOT(onLogTail()), QKeySequence(Qt::ControlModifier + Qt::AltModifier + Qt::Key_L));
+	// Help
+	QMenu * helpMenu = menuBar()->addMenu(tr("&Help"));
+	helpMenu->addSeparator();
+	helpMenu->addAction(tr("&Remove configuration files"), this, SLOT(onRemoveConfigurationFiles()));
+	helpMenu->addAction(tr("Show server log"), this, SLOT(onLogTail()), QKeySequence(Qt::ControlModifier + Qt::AltModifier + Qt::Key_L));
 
 	// Edit
 	//QMenu * editMenu = menuBar()->addMenu(tr("&Edit"));
