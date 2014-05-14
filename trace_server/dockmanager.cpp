@@ -122,6 +122,11 @@ void DockManager::saveConfig (QString const & path)
 
 DockManager::~DockManager ()
 {
+	disconnect(m_dockwidget, SIGNAL(dockClosed()), m_main_window, SLOT(onDockManagerClosed()));
+	disconnect(this, SIGNAL(removeCurrentIndex(QModelIndex const &)), this, SLOT(onRemoveCurrentIndex(QModelIndex const &)));
+	disconnect(m_dockwidget, SIGNAL(widgetVisibilityChanged(bool)), m_main_window, SLOT(onDockManagerVisibilityChanged(bool)));
+	disconnect(header(), SIGNAL(sectionResized(int, int, int)), this, SLOT(onColumnResized(int, int, int)));
+
 	setParent(0);
 	m_dockwidget->setWidget(0);
 	delete m_dockwidget;
