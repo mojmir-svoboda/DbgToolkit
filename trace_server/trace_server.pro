@@ -78,7 +78,6 @@ FORMS    += help.ui \
     settingsgantt.ui \
     settingsframeview.ui \
     settingsfilters.ui \
-    filterwidget.ui \
     findwidget.ui \
     filter_fileline.ui \
     filter_tid.ui \

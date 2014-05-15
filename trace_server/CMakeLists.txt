@@ -68,7 +68,6 @@ set(trace_server_SOURCES
 	delegates.cpp
 	server.cpp
 	server_filtering.cpp
-	filterwidget.cpp
 	connection.cpp
 	connectionconfig.cpp
 	connection_stream.cpp
@@ -190,7 +189,6 @@ set(trace_server_HEADERS
 	../tlv_parser/tlv_decoder.h
 	../filters/nnode.hpp
 	../filters/file_filter.hpp
-	filterwidget.h
 	filterstate.h
 	delegates.h
 	rendezvous.h
@@ -299,7 +297,6 @@ set(trace_server_UI
 	controlbarcommon.ui
 	controlbardockedwidgets.ui
 	controlbarlog.ui
-	filterwidget.ui
 	findwidget.ui
 	combolist.ui
 	timecombobox.ui
