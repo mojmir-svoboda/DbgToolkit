@@ -225,9 +225,9 @@ void FilterString::onClickedAtStringList (QModelIndex idx)
 	if (!idx.isValid())
 		return;
 
-	/*if (idx.column() == 1)
+	if (idx.column() == 1)
 	{
-		QString const & filter_item = m_model->data(m_model->index(idx.row(), 0, QModelIndex()), Qt::DisplayRole).toString();
+		/*QString const & filter_item = m_model->data(m_model->index(idx.row(), 0, QModelIndex()), Qt::DisplayRole).toString();
 		QString const & mod = m_model->data(idx, Qt::DisplayRole).toString();
 		E_FilterMode const curr = stringToFltMod(mod.toStdString().c_str()[0]);
 		size_t const i = (curr + 1) % e_max_fltmod_enum_value;
@@ -237,9 +237,9 @@ void FilterString::onClickedAtStringList (QModelIndex idx)
 		bool const is_inclusive = new_mode == e_Include;
 		setStringState(filter_item, is_inclusive);
 		recompile();
-		emitFilterChangedSignal();
+		emitFilterChangedSignal();*/
 	}
-	else*/
+	else
 	{
 		QStandardItem * item = m_model->itemFromIndex(idx);
 		Q_ASSERT(item);
