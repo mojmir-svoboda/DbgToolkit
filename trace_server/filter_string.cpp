@@ -225,7 +225,7 @@ void FilterString::onClickedAtStringList (QModelIndex idx)
 	if (!idx.isValid())
 		return;
 
-	if (idx.column() == 1)
+	/*if (idx.column() == 1)
 	{
 		QString const & filter_item = m_model->data(m_model->index(idx.row(), 0, QModelIndex()), Qt::DisplayRole).toString();
 		QString const & mod = m_model->data(idx, Qt::DisplayRole).toString();
@@ -239,7 +239,7 @@ void FilterString::onClickedAtStringList (QModelIndex idx)
 		recompile();
 		emitFilterChangedSignal();
 	}
-	else
+	else*/
 	{
 		QStandardItem * item = m_model->itemFromIndex(idx);
 		Q_ASSERT(item);
@@ -285,7 +285,7 @@ void FilterString::onStringAdd ()
 	QStandardItem * child = findChildByText(root, qItem);
 	if (child == 0)
 	{
-		QList<QStandardItem *> row_items = addTriRow(qItem, Qt::Checked, true);
+		QList<QStandardItem *> row_items = addTriRow(qItem, Qt::Checked, false);
 		root->appendRow(row_items);
 		appendToStringFilters(qItem, true, true);
 		row_items[0]->setCheckState(Qt::Checked);
