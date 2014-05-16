@@ -98,7 +98,8 @@ FORMS    += help.ui \
     controlbartables.ui \
     controlbargantts.ui \
     controlbarlog.ui \
-    controlbardockedwidgets.ui
+    controlbardockedwidgets.ui \
+    colorizewidget.ui
 
 RESOURCES += \
     resources.qrc
