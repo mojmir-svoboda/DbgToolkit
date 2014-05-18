@@ -34,7 +34,6 @@ namespace logs {
 		bool m_dt_enabled;
 		bool m_filter_proxy;
 		bool m_find_proxy;
-		QString m_csv_separator;
 		FindConfig m_find_config;
 
 		LogConfig ()
@@ -57,7 +56,6 @@ namespace logs {
 			, m_dt_enabled(false)
 			, m_filter_proxy(false)
 			, m_find_proxy(false)
-			, m_csv_separator(",")
 		{ }
 
 		LogConfig (QString const & tag)
@@ -80,7 +78,6 @@ namespace logs {
 			, m_dt_enabled(false)
 			, m_filter_proxy(false)
 			, m_find_proxy(false)
-			, m_csv_separator(",")
 		{ }
 
 		template <class ArchiveT>

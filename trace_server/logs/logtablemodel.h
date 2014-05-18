@@ -56,6 +56,12 @@ public:
 	LogTableModel * cloneToNewModel (logs::LogWidget * parent, FindConfig const & fc);
     void reloadModelAccordingTo (logs::LogConfig & config);
 
+	int findColumn4Tag (int tag);
+	int findColumn4TagCst (int tag) const;
+	int appendColumn (int tag);
+
+	virtual void clearModel ();
+
 signals:
 	
 public slots:
@@ -68,6 +74,7 @@ protected:
 	void postProcessBatch (int src_from, int src_to, BatchCmd const & batch);
 
 	logs::LogWidget & m_log_widget;
+	QMap<int, int> m_tags2columns;
 	FilterState & m_filter_state;
 };
 

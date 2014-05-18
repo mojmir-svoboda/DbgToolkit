@@ -35,7 +35,6 @@ namespace logs {
 		, m_warnimage(0)
 		, m_filter_state()
 		, m_tagconfig()
-		, m_tags2columns()
 		, m_tls()
 		, m_time_ref_value(0)
 		, m_proxy_model(0)
@@ -695,10 +694,22 @@ namespace logs {
 	}
 	void LogWidget::defaultConfigFor (logs::LogConfig & config)
 	{
-		QString const & appname = m_connection->getAppName();
-		if (!validateConfig(config))
-			reconfigureConfig(config);
+		if (m_connection->protocol() == e_Proto_TLV)
+		{
+			QString const & appname = m_connection->getAppName();
+			if (!validateConfig(config))
+				reconfigureConfig(config);
+		}
+		else if (m_connection->protocol() == e_Proto_CSV)
+		{
+		}
 	}
+
+	E_SrcProtocol LogWidget::protocol () const { return m_connection->protocol(); }
+	QString const & LogWidget::separator () const { return m_connection->separator(); } // csv
+	// this is only for delegeate until it moves to better place
+	int LogWidget::findColumn4Tag (int tag) { return (m_src_model) ? m_src_model->findColumn4Tag(tag) : -1; }
+	int LogWidget::findColumn4TagCst (int tag) const { return (m_src_model) ? m_src_model->findColumn4TagCst(tag) : -1; }
 
 	void LogWidget::loadConfig (QString const & preset_dir)
 	{
@@ -973,7 +984,6 @@ void LogWidget::reloadModelAccordingTo (LogConfig & config)
 	m_config.m_columns_elide = config.m_columns_elide;
 	m_src_model->clearModel();
 	m_proxy_model->clearModel();
-	m_tags2columns.clear();
 	m_src_model->reloadModelAccordingTo(config);
 	resizeSections();
 }
@@ -1089,48 +1099,6 @@ LogTableModel * LogWidget::cloneToNewModel (LogWidget * parent, FindConfig const
 }
 
 */
-
-int LogWidget::findColumn4TagCst (tlv::tag_t tag) const
-{
-	QMap<tlv::tag_t, int>::const_iterator it = m_tags2columns.find(tag);
-	if (it != m_tags2columns.end())
-		return it.value();
-	return -1;
-}
-
-int LogWidget::findColumn4Tag (tlv::tag_t tag)
-{
-	QMap<tlv::tag_t, int>::const_iterator it = m_tags2columns.find(tag);
-	if (it != m_tags2columns.end())
-		return it.value();
-
-	char const * name = tlv::get_tag_name(tag);
-	QString const qname = QString(name);
-	for (size_t i = 0, ie = m_config.m_columns_setup.size(); i < ie; ++i)
-		if (m_config.m_columns_setup[i] == qname)
-		{
-			m_tags2columns.insert(tag, static_cast<int>(i));
-			return static_cast<int>(i);
-		}
-	return -1;
-}
-
-int LogWidget::appendColumn (tlv::tag_t tag)
-{
-	TagDesc const & desc = m_tagconfig.findOrCreateTag(tag);
-
-	m_config.m_columns_setup.push_back(desc.m_tag_str);
-	m_config.m_columns_align.push_back(desc.m_align_str);
-	m_config.m_columns_elide.push_back(desc.m_elide_str);
-	m_config.m_columns_sizes.push_back(desc.m_size);
-
-	//qDebug("inserting column and size. tmpl_sz=%u curr_sz=%u sizes_sz=%u", m_columns_setup_template->size(), m_columns_setup_current->size(), m_columns_sizes->size());
-
-	int const column_index = static_cast<int>(m_config.m_columns_setup.size()) - 1;
-	m_tags2columns.insert(tag, column_index);
-
-	return column_index;
-}
 
 inline void simplify_keep_indent (QString const & src, QString & indent, QString & dst)
 {

@@ -56,7 +56,7 @@ void MainWindow::createTailLogStream (QString const & fname, QString const & sep
 	
 	connection->handleCSVSetup(tag);
 	datalogs_t::iterator it = connection->findOrCreateLog(tag);
-	(*it)->config().m_csv_separator = separator;
+	connection->m_config.m_csv_separator = separator;
 
 	connection->processTailCSVStream();
 	emit newConnection(connection);

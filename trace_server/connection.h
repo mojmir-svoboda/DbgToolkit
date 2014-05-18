@@ -73,6 +73,8 @@ public:
 	QString const & getAppName () const { return m_app_name; }
 	QString const & getCurrPreset () const { return m_curr_preset; }
 	AppData const & appData () const { return m_app_data; }
+	E_SrcProtocol protocol () const { return m_src_protocol; }
+	QString const & separator () const { return m_config.m_csv_separator; } // csv
 
 	void run ();
 
@@ -236,8 +238,9 @@ private:
 	bool m_marked_for_close;
 	QString m_curr_preset;
 	ControlBarCommon * m_control_bar;
-	QTextStream * m_file_csv_stream;
 	QDataStream * m_file_tlv_stream;
+	QTextStream * m_file_csv_stream;
+	QString m_csv_separator;
 
 	// data receiving stuff
 	enum { e_ringbuff_size = 128 * 1024 };

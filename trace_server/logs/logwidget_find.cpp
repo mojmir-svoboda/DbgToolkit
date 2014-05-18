@@ -406,14 +406,14 @@ void LogWidget::noMoreMatches ()
 	m_warnimage->warningFindNoMoreMatches();
 }
 
-QString LogWidget::findString4Tag (tlv::tag_t tag, QModelIndex const & row_index) const
+QString LogWidget::findString4Tag (int tag, QModelIndex const & row_index) const
 {
 	return findVariant4Tag(tag, row_index).toString();
 }
 
-QVariant LogWidget::findVariant4Tag (tlv::tag_t tag, QModelIndex const & row_index) const
+QVariant LogWidget::findVariant4Tag (int tag, QModelIndex const & row_index) const
 {
-	int const idx = m_tags2columns[tag];
+	int const idx = findColumn4TagCst(tag);
 	if (idx == -1)
 		return QVariant();
 

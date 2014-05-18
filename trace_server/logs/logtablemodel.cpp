@@ -125,120 +125,225 @@ LogTableModel * LogTableModel::cloneToNewModel (logs::LogWidget * parent, FindCo
 	return new_model;
 }
 
+int LogTableModel::findColumn4TagCst (int tag) const
+{
+	QMap<int, int>::const_iterator it = m_tags2columns.find(tag);
+	if (it != m_tags2columns.end())
+		return it.value();
+	return -1;
+}
+
+int LogTableModel::findColumn4Tag (int tag)
+{
+	QMap<int, int>::const_iterator it = m_tags2columns.find(tag);
+	if (it != m_tags2columns.end())
+		return it.value();
+
+	QString qname;
+	char const * name = tlv::get_tag_name(tag);
+	if (name)
+	{
+		qname = QString(name);
+	}
+	else
+	{
+		qname = tr("Col%1").arg(tag);
+	}
+	
+	for (size_t i = 0, ie = m_log_widget.m_config.m_columns_setup.size(); i < ie; ++i)
+		if (m_log_widget.m_config.m_columns_setup[i] == qname)
+		{
+			m_tags2columns.insert(tag, static_cast<int>(i));
+			return static_cast<int>(i);
+		}
+	return -1;
+}
+
+int LogTableModel::appendColumn (int tag)
+{
+	TagDesc const & desc = m_log_widget.m_tagconfig.findOrCreateTag(tag);
+
+	m_log_widget.m_config.m_columns_setup.push_back(desc.m_tag_str);
+	m_log_widget.m_config.m_columns_align.push_back(desc.m_align_str);
+	m_log_widget.m_config.m_columns_elide.push_back(desc.m_elide_str);
+	m_log_widget.m_config.m_columns_sizes.push_back(desc.m_size);
+
+	//qDebug("inserting column and size. tmpl_sz=%u curr_sz=%u sizes_sz=%u", m_columns_setup_template->size(), m_columns_setup_current->size(), m_columns_sizes->size());
+
+	int const column_index = static_cast<int>(m_log_widget.m_config.m_columns_setup.size()) - 1;
+	m_tags2columns.insert(tag, column_index);
+
+	return column_index;
+}
+
+
 
 void LogTableModel::parseCommand (DecodedCommand const & cmd, E_ReceiveMode mode, BatchCmd & batch)
 {
-	int column_index = -1;
-	int thread_idx = -1;
-	for (size_t i=0, ie=cmd.m_tvs.size(); i < ie; ++i)
-		if (cmd.m_tvs[i].m_tag == tlv::tag_tid)
-		{
-			ThreadSpecific & tls = m_log_widget.getTLS();
-			thread_idx = tls.findThreadId(cmd.m_tvs[i].m_val);
-		}
-
-	int indent = 0;
-	QString qindent;
-	if (m_log_widget.m_config.m_indent)
+	if (m_log_widget.protocol() == e_Proto_CSV) // @TODO: convert to inheritance
 	{
-		if (thread_idx >= 0)
-			indent = m_log_widget.getTLS().m_indents[thread_idx];
+		QString msg;
+		if (!cmd.getString(tlv::tag_msg, msg)) return;
 
-		if (indent > 0)
+		if (m_log_widget.separator().isEmpty())
 		{
-			if (cmd.m_hdr.cmd == tlv::cmd_scope_exit)
-				--indent; // indent is decreased after this call, that's why
+			// treat input as one column
+			tlv::TV tv;
+			tv.m_tag = tlv::tag_msg;
+			tv.m_val = msg;
+			//m_current_cmd.m_tvs.push_back(tv);
+		}
+		else
+		{
+			batch.m_rows.push_back(columns_t(cmd.m_tvs.size()));
+			batch.m_dcmds.push_back(cmd);
+			batch.m_dcmds.back().m_indent = 0;
+			batch.m_dcmds.back().m_row_type = cmd.m_hdr.cmd;
+			columns_t & columns = batch.m_rows.back();
+			columns.reserve(cmd.m_tvs.size());
 
-			for(int j = 0; j < indent; ++j)
-				qindent.append("  ");	// @TODO: ugh
+			QStringList const l = msg.split(m_log_widget.separator());
+			for (int i = 0, ie = l.size(); i < ie; ++i)
+			{
+				tlv::TV tv;
+				tv.m_tag = tlv::tag_max_value + i;
+				tv.m_val = l.at(i);
+				//m_current_cmd.m_tvs.push_back(tv);
+
+				int column_index = findColumn4Tag(tv.m_tag);
+				if (column_index < 0)
+				{
+					column_index = appendColumn(tv.m_tag);
+					resizeToCfg(m_log_widget.m_config);
+				}
+
+				if (column_index >= 0)
+				{
+					if (columns.size() <= column_index + 1)
+						columns.resize(column_index + 1);
+					columns[column_index].m_value = tv.m_val;
+				}
+			}
+
+			sys::hptimer_t const now = sys::queryTime_us();
+			batch.m_row_ctimes.push_back(now); //@TODO: unless there is a time tag assigned to column
+			batch.m_row_stimes.push_back(now);
 		}
 	}
-
-	batch.m_rows.push_back(columns_t(cmd.m_tvs.size()));
-	batch.m_dcmds.push_back(cmd);
-	batch.m_dcmds.back().m_indent = indent;
-	batch.m_dcmds.back().m_row_type = cmd.m_hdr.cmd;
-	columns_t & columns = batch.m_rows.back();
-	columns.reserve(cmd.m_tvs.size());
-
-	size_t n = cmd.m_tvs.size();
-	if (cmd.m_hdr.cmd == tlv::cmd_scope_entry || (cmd.m_hdr.cmd == tlv::cmd_scope_exit))
-		n = n + 1;
-
-	QString file;
-	QString line;
-	QString func;
-	QString time;
-	for (size_t i = 0, ie = cmd.m_tvs.size(); i < ie; ++i)
+	else
 	{
-		tlv::tag_t const tag = cmd.m_tvs[i].m_tag;
-		QString const & val = cmd.m_tvs[i].m_val;
-		if (tag == tlv::tag_file)
-			file = val;
-		if (tag == tlv::tag_line)
-			line = val;
-		if (tag == tlv::tag_func)
-			func = val;
-		if (tag == tlv::tag_ctime)
-			time = val;
+		int column_index = -1;
+		int thread_idx = -1;
+		for (size_t i=0, ie=cmd.m_tvs.size(); i < ie; ++i)
+			if (cmd.m_tvs[i].m_tag == tlv::tag_tid)
+			{
+				ThreadSpecific & tls = m_log_widget.getTLS();
+				thread_idx = tls.findThreadId(cmd.m_tvs[i].m_val);
+			}
 
-		QString qval;
-		if (tag == tlv::tag_msg)
+		int indent = 0;
+		QString qindent;
+		if (m_log_widget.m_config.m_indent)
 		{
-			if (cmd.m_hdr.cmd == tlv::cmd_scope_entry)
+			if (thread_idx >= 0)
+				indent = m_log_widget.getTLS().m_indents[thread_idx];
+
+			if (indent > 0)
 			{
-				qval = qindent + QString("{ ");
-			}
-			else if (cmd.m_hdr.cmd == tlv::cmd_scope_exit)
-			{
-				qval = qindent + QString("} ");
-			}
-			else
-			{
-				qval.append(qindent);
+				if (cmd.m_hdr.cmd == tlv::cmd_scope_exit)
+					--indent; // indent is decreased after this call, that's why
+
+				for(int j = 0; j < indent; ++j)
+					qindent.append("  ");	// @TODO: ugh
 			}
 		}
-		qval.append(val);
 
-		column_index = m_log_widget.findColumn4Tag(tag);
-		if (column_index >= 0)
+		batch.m_rows.push_back(columns_t(cmd.m_tvs.size()));
+		batch.m_dcmds.push_back(cmd);
+		batch.m_dcmds.back().m_indent = indent;
+		batch.m_dcmds.back().m_row_type = cmd.m_hdr.cmd;
+		columns_t & columns = batch.m_rows.back();
+		columns.reserve(cmd.m_tvs.size());
+
+		size_t n = cmd.m_tvs.size();
+		if (cmd.m_hdr.cmd == tlv::cmd_scope_entry || (cmd.m_hdr.cmd == tlv::cmd_scope_exit))
+			n = n + 1;
+
+		QString file;
+		QString line;
+		QString func;
+		QString time;
+		for (size_t i = 0, ie = cmd.m_tvs.size(); i < ie; ++i)
 		{
-			if (columns.size() <= column_index + 1)
-				columns.resize(column_index + 1);
-			columns[column_index].m_value = qval;
+			tlv::tag_t const tag = cmd.m_tvs[i].m_tag;
+			QString const & val = cmd.m_tvs[i].m_val;
+			if (tag == tlv::tag_file)
+				file = val;
+			if (tag == tlv::tag_line)
+				line = val;
+			if (tag == tlv::tag_func)
+				func = val;
+			if (tag == tlv::tag_ctime)
+				time = val;
+
+			QString qval;
+			if (tag == tlv::tag_msg)
+			{
+				if (cmd.m_hdr.cmd == tlv::cmd_scope_entry)
+				{
+					qval = qindent + QString("{ ");
+				}
+				else if (cmd.m_hdr.cmd == tlv::cmd_scope_exit)
+				{
+					qval = qindent + QString("} ");
+				}
+				else
+				{
+					qval.append(qindent);
+				}
+			}
+			qval.append(val);
+
+			column_index = findColumn4Tag(tag);
+			if (column_index >= 0)
+			{
+				if (columns.size() <= column_index + 1)
+					columns.resize(column_index + 1);
+				columns[column_index].m_value = qval;
+			}
 		}
-	}
 
-	sys::hptimer_t const now = sys::queryTime_us();
-	unsigned long long const last_t = m_log_widget.getTLS().lastTime(thread_idx);
-	unsigned long long const t = time.toULongLong();
-	long long const dt = t - last_t;
-	// dt + stime
-	{
-		int ci = m_log_widget.findColumn4Tag(tlv::tag_dt);
-		if (ci >= 0)
+		sys::hptimer_t const now = sys::queryTime_us();
+		unsigned long long const last_t = m_log_widget.getTLS().lastTime(thread_idx);
+		unsigned long long const t = time.toULongLong();
+		long long const dt = t - last_t;
+		// dt + stime
 		{
-			//if (ci < 0)
-				//ci = m_log_widget.appendColumn(tlv::tag_dt);
+			int ci = findColumn4Tag(tlv::tag_dt);
+			if (ci >= 0)
+			{
+				//if (ci < 0)
+					//ci = m_log_widget.appendColumn(tlv::tag_dt);
 
-			if (columns.size() <= ci + 1)
-				columns.resize(ci + 1);
+				if (columns.size() <= ci + 1)
+					columns.resize(ci + 1);
 
-			columns[ci].m_value = tr("%1").arg(dt);
-		}
+				columns[ci].m_value = tr("%1").arg(dt);
+			}
 
-		m_log_widget.getTLS().setLastTime(thread_idx, t);
+			m_log_widget.getTLS().setLastTime(thread_idx, t);
 
-		batch.m_row_ctimes.push_back(t);
-		batch.m_row_stimes.push_back(now);
+			batch.m_row_ctimes.push_back(t);
+			batch.m_row_stimes.push_back(now);
 
-		// stime
-		int sti = m_log_widget.findColumn4Tag(tlv::tag_stime);
-		if (sti >= 0)
-		{
-			if (sti < 0)
-				sti = m_log_widget.appendColumn(tlv::tag_stime);
-			columns[sti].m_value = tr("%1").arg(now);
+			// stime
+			int sti = findColumn4Tag(tlv::tag_stime);
+			if (sti >= 0)
+			{
+				if (sti < 0)
+					sti = appendColumn(tlv::tag_stime);
+				columns[sti].m_value = tr("%1").arg(now);
+			}
 		}
 	}
 }
@@ -268,6 +373,13 @@ void LogTableModel::commitBatchToModel (BatchCmd & batch)
 	batch.clear();
 }
 
+void LogTableModel::clearModel ()
+{
+	BaseTableModel::clearModel();
+	m_tags2columns.clear();
+}
+
+
 
 
 /*
@@ -292,7 +404,7 @@ QVariant LogTableModel::data (const QModelIndex &index, int role) const
 	{
 		if (checkColumnExistence(tlv::tag_msg, index))
 		{
-			int const column_idx = m_log_widget.findColumn4Tag(tlv::tag_tid);
+			int const column_idx = findColumn4Tag(tlv::tag_tid);
 			if (column_idx != -1)
 			{
 				QString const & tid = m_rows[index.row()][column_idx];
@@ -366,7 +478,7 @@ void LogTableModel::appendCommandCSV (QAbstractProxyModel * filter, tlv::StringC
 	for (int i = 0, ie = list.size(); i < ie; ++i)
 	{
 		QString const & col_value = list.at(i);
-		int column_index = m_log_widget.findColumn4Tag(i);
+		int column_index = findColumn4Tag(i);
 		if (column_index < 0)
 		{
 			column_index = m_log_widget.appendColumn(i);

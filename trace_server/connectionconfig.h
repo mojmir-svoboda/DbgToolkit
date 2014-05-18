@@ -17,6 +17,7 @@ struct ConnectionConfig
 	float	  m_time_units;
 	QString	  m_font;
 	int		  m_fontsize;
+	QString m_csv_separator;
 	History<QString> m_preset_history;
 
 	void loadHistory (QString const & path);
@@ -36,6 +37,7 @@ struct ConnectionConfig
 		, m_time_units(stringToUnitsValue(m_time_units_str))
 		, m_font("Verdana")
 		, m_fontsize(10)
+		, m_csv_separator()
 		, m_preset_history(16)
 	{ }
 
@@ -51,6 +53,7 @@ struct ConnectionConfig
 		ar & boost::serialization::make_nvp("time_units", m_time_units);
 		ar & boost::serialization::make_nvp("font", m_font);
 		ar & boost::serialization::make_nvp("fontsize", m_fontsize);
+		ar & boost::serialization::make_nvp("csv_separator", m_csv_separator);
 		ar & boost::serialization::make_nvp("logs_recv_level", m_logs_recv_level);
 		ar & boost::serialization::make_nvp("plots_recv_level", m_plots_recv_level);
 		ar & boost::serialization::make_nvp("tables_recv_level", m_tables_recv_level);
