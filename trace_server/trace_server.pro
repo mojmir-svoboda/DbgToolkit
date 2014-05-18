@@ -57,7 +57,8 @@ SOURCES += ../version.cpp \
     controlbartables.cpp \
     controlbargantts.cpp \
     controlbarlog.cpp \
-    controlbardockedwidgets.cpp
+    controlbardockedwidgets.cpp \
+    setupdialogcsv.cpp
 
 HEADERS  += \
     modelview.h \
@@ -67,7 +68,8 @@ HEADERS  += \
     controlbartables.h \
     controlbargantts.h \
     controlbarlog.h \
-    controlbardockedwidgets.h
+    controlbardockedwidgets.h \
+    setupdialogcsv.h
 
 FORMS    += help.ui \
     mainwindow.ui \
@@ -98,7 +100,8 @@ FORMS    += help.ui \
     controlbartables.ui \
     controlbargantts.ui \
     controlbarlog.ui \
-    controlbardockedwidgets.ui
+    controlbardockedwidgets.ui \
+    setupdialogcsv.ui
 
 RESOURCES += \
     resources.qrc

@@ -3,6 +3,8 @@
 #include <QClipboard>
 #include <QStatusBar>
 #include <QTimer>
+#include "setupdialogcsv.h"
+#include "ui_setupdialogcsv.h"
 
 Connection * MainWindow::findConnectionByName (QString const & app_name)
 {
@@ -62,12 +64,33 @@ void MainWindow::createTailLogStream (QString const & fname, QString const & sep
 	emit newConnection(connection);
 }
 
+void MainWindow::onChangeSetupDialogCSV (int n)
+{
+}
+
 void MainWindow::createTailDataStream (QString const & fname)
 {
 	Connection * connection = createNewConnection();
 	connection->setTailFile(fname);
 	QFileInfo fi(fname);
 	QString const tag = fi.fileName();
+
+	enum { e_min_lines = 3 };
+	QString lines[e_min_lines];
+	int n_lines = 0;
+	while (!connection->m_file_csv_stream->atEnd() && n_lines < e_min_lines)
+	{
+		lines[n_lines] = connection->m_file_csv_stream->readLine(2048);
+		++n_lines;
+	}
+
+	m_setup_dialog_csv->m_data = lines;
+	connect(m_setup_dialog_csv->ui->separatorComboBox, SIGNAL(activated(int)), this, SLOT(onChangeSetupDialogCSV(int)));
+	connect(m_setup_dialog_csv->ui->headerCheckBox, SIGNAL(activated(int)), this, SLOT(onChangeSetupDialogCSV(int)));
+
+	m_setup_dialog_csv->exec();
+
+	connection->m_file_csv_stream->seek(0);
 	
 	connection->handleCSVSetup(tag);
 	datalogs_t::iterator it = connection->findOrCreateLog(tag);

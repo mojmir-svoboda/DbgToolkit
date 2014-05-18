@@ -28,6 +28,8 @@
 #include "version.h"
 #include "constants.h"
 #include "dockwidget.h"
+#include "setupdialogcsv.h"
+#include "ui_setupdialogcsv.h"
 #include <ui_controlbarcommon.h>
 #include "utils.h"
 #include "utils_qstandarditem.h"
@@ -52,6 +54,7 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QStri
 	, m_dock_mgr_button(0)
 	, m_tray_icon(0)
 	, m_settings_dialog(0)
+	, m_setup_dialog_csv(0)
 	, m_dock_mgr(this, QStringList(QString(g_traceServerName)))
 	, m_docked_name(g_traceServerName)
 	, m_log_name(log_name)
@@ -68,6 +71,8 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QStri
 	m_settings_dialog->setWindowFlags(Qt::Sheet);
 	ui_settings = new Ui::SettingsDialog();
 	ui_settings->setupUi(m_settings_dialog);
+
+	m_setup_dialog_csv = new SetupDialogCSV(this);
 
 	m_config.m_appdir = m_appdir;
 	m_config.m_dump_mode = dump_mode;

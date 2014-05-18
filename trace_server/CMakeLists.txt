@@ -94,6 +94,7 @@ set(trace_server_SOURCES
 	controlbardockedwidgets.cpp
 	controlbarlog.cpp
 	basetablemodel.cpp
+	setupdialogcsv.cpp
 
 	filterbase.cpp
 	filtermgrbase.cpp
@@ -214,6 +215,7 @@ set(trace_server_HEADERS
 	controlbardockedwidgets.h
 	controlbarlog.h
 	basetablemodel.h
+	setupdialogcsv.h
 
 	findwidget.h
 	findconfig.h
@@ -300,6 +302,7 @@ set(trace_server_UI
 	findwidget.ui
 	combolist.ui
 	timecombobox.ui
+	setupdialogcsv.ui
 	settings.ui
 	settingslog.ui
 	settingsplot.ui
