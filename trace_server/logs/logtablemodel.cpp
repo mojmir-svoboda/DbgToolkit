@@ -147,7 +147,7 @@ int LogTableModel::findColumn4Tag (int tag)
 	}
 	else
 	{
-		qname = tr("Col%1").arg(tag);
+		qname = tr("%1").arg(tag);
 	}
 	
 	for (size_t i = 0, ie = m_log_widget.m_config.m_columns_setup.size(); i < ie; ++i)
@@ -203,6 +203,8 @@ void LogTableModel::parseCommand (DecodedCommand const & cmd, E_ReceiveMode mode
 			columns.reserve(cmd.m_tvs.size());
 
 			QStringList const l = msg.split(m_log_widget.separator());
+			bool const has_no_setup = m_log_widget.m_config.m_columns_setup.size() == 0;
+
 			for (int i = 0, ie = l.size(); i < ie; ++i)
 			{
 				tlv::TV tv;
@@ -211,7 +213,7 @@ void LogTableModel::parseCommand (DecodedCommand const & cmd, E_ReceiveMode mode
 				//m_current_cmd.m_tvs.push_back(tv);
 
 				int column_index = findColumn4Tag(tv.m_tag);
-				if (column_index < 0)
+				if (has_no_setup && column_index < 0)
 				{
 					column_index = appendColumn(tv.m_tag);
 					resizeToCfg(m_log_widget.m_config);
@@ -357,6 +359,8 @@ void LogTableModel::commitBatchToModel (BatchCmd & batch)
 	m_row_ctimes.resize(from + rows);
 	m_row_stimes.resize(from + rows);
 	int const to = static_cast<int>(from) + static_cast<int>(rows) - 1;
+	if (from == -1 || to == -1)
+		return;
 	beginInsertRows(QModelIndex(), static_cast<int>(from), to);
 	for (size_t r = 0, re = batch.m_rows.size(); r < re; ++r)
 	{
