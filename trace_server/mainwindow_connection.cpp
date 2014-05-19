@@ -178,6 +178,7 @@ void MainWindow::onChangeColumnImport ()
 
 			for (int cl = 0, cle = hdr.size(); cl < cle; ++cl)
 				m_setup_dialog_csv->ui->preView->horizontalHeader()->setSectionResizeMode(cl, QHeaderView::ResizeToContents);
+
 		}
 
 		for (int i = start, ie = m_setup_dialog_csv->m_data.size(); i < ie; ++i)
@@ -189,6 +190,8 @@ void MainWindow::onChangeColumnImport ()
 					l << new QStandardItem(unquoteString(di.at(cl), enable_unquote, enable_simplify));
 			p_model->appendRow(l);
 		}
+
+		//m_setup_dialog_csv->ui->preView->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
 	}
 	else
 	{
@@ -243,6 +246,8 @@ void MainWindow::onChangeSetupDialogCSV (int n)
 			p_model->appendRow(l);
 
 		}
+
+		//m_setup_dialog_csv->ui->preView->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
 
 		if (!has_hdr)
 		{
