@@ -5,6 +5,10 @@
 
 namespace logs {
 
+	LogDelegate::LogDelegate (LogWidget & lw, AppData const & ad, QObject * parent)
+		: QStyledItemDelegate(parent), m_log_widget(lw), m_app_data(ad)
+	{ }
+
 	void LogDelegate::paintContext (QPainter * painter, QStyleOptionViewItemV4 & option4, QModelIndex const & index) const
 	{
 		QVariant const value = index.data(Qt::DisplayRole);

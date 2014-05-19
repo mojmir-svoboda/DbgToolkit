@@ -48,7 +48,7 @@ bool ColorizerRegex::action (DecodedCommand const & cmd)
 
 		bool const is_match = ct.accept(msg);
 
-		int const col = m_src_model->logWidget().findColumn4TagCst(tlv::tag_msg);
+		int const col = m_src_model->findColumn4TagCst(tlv::tag_msg);
 		QModelIndex const idx = m_src_model->index(cmd.m_src_row, col, QModelIndex());
 		if (is_match && idx.isValid())
 		{
@@ -310,7 +310,7 @@ void ColorizerRegex::recompile ()
 
 			bool const is_match = ct.accept(val);
 			//@TODO: cache QMI in DecodedCommand
-			int const col = m_src_model->logWidget().findColumn4TagCst(cmd.m_tvs[i].m_tag);
+			int const col = m_src_model->findColumn4TagCst(cmd.m_tvs[i].m_tag);
 			QModelIndex const idx = m_src_model->index(cmd.m_src_row, col, QModelIndex());
 			if (ct.m_is_enabled && is_match && idx.isValid())
 			{
@@ -330,7 +330,7 @@ void ColorizerRegex::recompile ()
 
 			bool const is_match = ct.accept(val);
 			//@TODO: cache QMI in DecodedCommand?
-			int const col = m_src_model->logWidget().findColumn4TagCst(cmd.m_tvs[i].m_tag);
+			int const col = m_src_model->findColumn4TagCst(cmd.m_tvs[i].m_tag);
 			QModelIndex const idx = m_src_model->index(cmd.m_src_row, col, QModelIndex());
 			if (is_match && idx.isValid())
 			{

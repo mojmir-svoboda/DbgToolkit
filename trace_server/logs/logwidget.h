@@ -52,8 +52,8 @@ namespace logs {
 		virtual bool handleAction (Action * a, E_ActionHandleType sync);
 		virtual void setVisible (bool visible);
 
-		int findColumn4Tag (tlv::tag_t tag);
-		int findColumn4TagCst (tlv::tag_t tag) const;
+		E_SrcProtocol protocol () const;
+		QString const & separator () const;
 
 		LogTableModel const * logModel () const { return m_src_model; }
 		FilterProxyModel const * logProxy () const { return m_proxy_model; }
@@ -165,8 +165,8 @@ namespace logs {
 
 		// find
 		void selectionFromTo (int & from, int & to) const;
-		QString findString4Tag (tlv::tag_t tag, QModelIndex const & row_index) const;
-		QVariant findVariant4Tag (tlv::tag_t tag, QModelIndex const & row_index) const;
+		QString findString4Tag (int tag, QModelIndex const & row_index) const;
+		QVariant findVariant4Tag (int tag, QModelIndex const & row_index) const;
 
 		void scrollToCurrentTag ();
 		void scrollToCurrentSelection ();
@@ -177,8 +177,9 @@ namespace logs {
 		FilterState & filterState () { return m_filter_state; }
 		FilterState const & filterState () const { return m_filter_state; }
 
-		int findColumn4TagInTemplate (tlv::tag_t tag) const;
-		int appendColumn (tlv::tag_t tag);
+		int findColumn4Tag (int tag);
+		int findColumn4TagCst (int tag) const;
+		int findColumn4TagInTemplate (int tag) const;
 
 		ThreadSpecific & getTLS () { return m_tls; }
 		ThreadSpecific const & getTLS () const { return m_tls; }
@@ -285,7 +286,6 @@ namespace logs {
 
 		// mutable state
 		TagConfig m_tagconfig;
-		QMap<tlv::tag_t, int> m_tags2columns;
 		ThreadSpecific m_tls;
 
 		unsigned long long m_time_ref_value;

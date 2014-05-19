@@ -43,6 +43,7 @@ class TreeView;
 class QTreeView;
 class QTimer;
 class Connection;
+class SetupDialogCSV;
 
 class MainWindow : public QMainWindow
 {
@@ -87,6 +88,7 @@ public:
 
 	// files and streams
 	void createTailDataStream (QString const & fname);
+	void onChangeSetupDialogCSV (int n);
 	void createTailLogStream (QString const & fname, QString const & separator);
 	void importDataStream (QString const & fname);
 	void copyStorageTo (QString const & filename);
@@ -175,6 +177,7 @@ private:
 	Ui::MainWindow * 	ui;
 	Ui::SettingsDialog * ui_settings;
 	QDialog *			m_settings_dialog;
+	SetupDialogCSV *	m_setup_dialog_csv;
 
 	Ui::HelpDialog * 	m_help;
 	GlobalConfig 		m_config;
