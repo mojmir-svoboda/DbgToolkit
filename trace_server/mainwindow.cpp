@@ -320,6 +320,14 @@ void MainWindow::onFileTail ()
 	tailFiles(files);
 }
 
+void MainWindow::onFileLoadCSV ()
+{
+	QString fname = QFileDialog::getOpenFileName(this, tr("Open File"), "", tr("CSV File(s) (*.%1)").arg(g_traceFileExtCSV));
+	QStringList files;
+	files << fname;
+	tailFiles(files); // spunt, @TODO
+}
+
 void MainWindow::onLogTail ()
 {
 	createTailLogStream(m_log_name, "|");
@@ -461,6 +469,7 @@ void MainWindow::setupMenuBar ()
 	fileMenu->addAction(tr("&Save raw client data as..."), this, SLOT(onSaveData()));
 	fileMenu->addAction(tr("&Export data as CSV format..."), this, SLOT(onExportDataToCSV()));
 	fileMenu->addSeparator();
+	fileMenu->addAction(tr("Load &CSV file..."), this, SLOT(onFileLoadCSV()));
 	fileMenu->addAction(tr("&Follow text file..."), this, SLOT(onFileTail()), QKeySequence(Qt::ControlModifier + Qt::Key_T));
 	fileMenu->addSeparator();
 	fileMenu->addAction(tr("Quit program"), this, SLOT(onQuit()), QKeySequence::Quit);

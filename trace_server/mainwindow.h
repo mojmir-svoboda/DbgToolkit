@@ -134,6 +134,7 @@ private slots:
 
 	void onFileLoad ();
 	void onFileTail ();
+	void onFileLoadCSV ();
 	void onLogTail ();
 	void tailFiles (QStringList const & list);
 	void onSaveData ();
