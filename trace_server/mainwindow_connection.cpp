@@ -146,6 +146,58 @@ inline QString unquoteString (QString const & str, bool enable_unquote, bool ena
 	return enable_unquote ? unquoteString(simple) : simple;
 }
 
+void MainWindow::onChangeColumnReset ()
+{
+	onChangeSetupDialogCSV(0);
+}
+
+void MainWindow::onChangeColumnImport ()
+{
+	QStandardItemModel * p_model = static_cast<QStandardItemModel *>(m_setup_dialog_csv->ui->preView->model());
+	p_model->clear();
+
+	bool const has_sep = m_setup_dialog_csv->ui->separatorCheckBox->isChecked();
+	bool const enable_unquote = m_setup_dialog_csv->ui->unquoteCheckBox->isChecked();
+	bool const enable_simplify = m_setup_dialog_csv->ui->simplifyCheckBox->isChecked();
+	if (has_sep)
+	{
+		QString separator = getSeparator(m_setup_dialog_csv->ui->separatorComboBox);
+
+		bool const has_hdr = m_setup_dialog_csv->ui->headerCheckBox->isChecked();
+		int start = 0;
+		if (has_hdr)
+		{
+			start = 1;
+			QStringList hdr_src = m_setup_dialog_csv->m_data.at(0).split(separator);
+			QStringList hdr;
+			for (int cl = 0, cle = hdr_src.size(); cl < cle; ++cl)
+				if (e_Action_Import == m_setup_dialog_csv->m_column_actions[cl])
+					hdr << unquoteString(hdr_src.at(cl), enable_unquote, enable_simplify);
+
+			p_model->setHorizontalHeaderLabels(hdr);
+
+			for (int cl = 0, cle = hdr.size(); cl < cle; ++cl)
+				m_setup_dialog_csv->ui->preView->horizontalHeader()->setSectionResizeMode(cl, QHeaderView::ResizeToContents);
+		}
+
+		for (int i = start, ie = m_setup_dialog_csv->m_data.size(); i < ie; ++i)
+		{
+			QStringList di = m_setup_dialog_csv->m_data.at(i).split(separator);
+			QList<QStandardItem *> l;
+			for (int cl = 0, cle = di.size(); cl < cle; ++cl)
+				if (e_Action_Import == m_setup_dialog_csv->m_column_actions[cl])
+					l << new QStandardItem(unquoteString(di.at(cl), enable_unquote, enable_simplify));
+			p_model->appendRow(l);
+		}
+	}
+	else
+	{
+		for (int i = 0, ie = m_setup_dialog_csv->m_data.size(); i < ie; ++i)
+			p_model->appendRow(new QStandardItem(unquoteString(m_setup_dialog_csv->m_data.at(i), enable_unquote, enable_simplify)));
+	}
+
+}
+
 void MainWindow::onChangeSetupDialogCSV (int n)
 {
 	QStandardItemModel * p_model = static_cast<QStandardItemModel *>(m_setup_dialog_csv->ui->preView->model());
@@ -218,6 +270,8 @@ void MainWindow::onChangeColumnRadioDialogCSV (bool toggled)
 		int const row = idx.row();
 		bool const on = m_setup_dialog_csv->ui->importButton->isChecked();
 		m_setup_dialog_csv->m_column_actions[row] = (on) ? e_Action_Import : e_Action_Skip;
+
+		onChangeColumnImport();
 	}
 }
 
@@ -273,6 +327,7 @@ void MainWindow::createTailDataStream (QString const & fname)
 	connect(m_setup_dialog_csv->ui->headerCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onChangeSetupDialogCSV(int)));
 	connect(m_setup_dialog_csv->ui->columnList, SIGNAL(clicked(QModelIndex const &)), this, SLOT(onChangeColumnDialogCSV(QModelIndex const &)));
 	connect(m_setup_dialog_csv->ui->importButton, SIGNAL(toggled(bool)), this, SLOT(onChangeColumnRadioDialogCSV(bool)));
+	connect(m_setup_dialog_csv->ui->resetButton, SIGNAL(clicked()), this, SLOT(onChangeColumnReset()));
 
 	onChangeSetupDialogCSV(0);
 	m_setup_dialog_csv->exec();
@@ -286,6 +341,7 @@ void MainWindow::createTailDataStream (QString const & fname)
 	disconnect(m_setup_dialog_csv->ui->columnList, SIGNAL(clicked(QModelIndex const &)), this, SLOT(onChangeColumnDialogCSV(QModelIndex const &)));
 	disconnect(m_setup_dialog_csv->ui->importButton, SIGNAL(toggled(bool)), this, SLOT(onChangeColumnRadioDialogCSV(bool)));
 	disconnect(m_setup_dialog_csv->ui->skipButton, SIGNAL(toggled(bool)), this, SLOT(onChangeColumnRadioDialogCSV(bool)));
+	disconnect(m_setup_dialog_csv->ui->resetButton, SIGNAL(clicked()), this, SLOT(onChangeColumnReset()));
 
 	if (m_setup_dialog_csv->result() != QDialog::Accepted)
 		return;
@@ -296,10 +352,29 @@ void MainWindow::createTailDataStream (QString const & fname)
 	QFileInfo fi(fname);
 	QString const tag = fi.fileName();
 
-	connection->handleCSVSetup(tag);
 	datalogs_t::iterator it = connection->findOrCreateLog(tag);
-	QString separator = getSeparator(m_setup_dialog_csv->ui->separatorComboBox);
+	connection->handleCSVSetup(tag);
+	QString const separator = getSeparator(m_setup_dialog_csv->ui->separatorComboBox);
 	connection->m_config.m_csv_separator = separator;
+
+	if (0 == (*it)->config().m_columns_setup.size())
+	{
+		QStandardItemModel * p_model = static_cast<QStandardItemModel *>(m_setup_dialog_csv->ui->preView->model());
+		for (int cl = 0, cle = p_model->columnCount(); cl < cle; ++cl)
+		{
+			if (e_Action_Import == m_setup_dialog_csv->m_column_actions[cl])
+			{
+				QString const val = p_model->headerData(cl, Qt::Horizontal).toString();
+				int const size = m_setup_dialog_csv->ui->preView->horizontalHeader()->sectionSize(cl);
+				E_Align const align = e_AlignLeft;
+				E_Elide const elide = e_ElideRight;
+				(*it)->config().m_columns_setup.push_back(val);
+				(*it)->config().m_columns_sizes.push_back(size);
+				(*it)->config().m_columns_align.push_back(QString(alignToString(align)));
+				(*it)->config().m_columns_elide.push_back(QString(elideToString(elide)));
+			}
+		}
+	}
 
 	connection->processTailCSVStream();
 	emit newConnection(connection);

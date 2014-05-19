@@ -118,6 +118,8 @@ public slots:
 	void onChangeSeparatorDialogCSV (int n);
 	void onChangeColumnDialogCSV (QModelIndex const &);
 	void onChangeColumnRadioDialogCSV (bool toggled);
+	void onChangeColumnImport ();
+	void onChangeColumnReset ();
 
 	friend class Connection;
 private slots:
