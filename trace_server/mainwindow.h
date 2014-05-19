@@ -88,7 +88,6 @@ public:
 
 	// files and streams
 	void createTailDataStream (QString const & fname);
-	void onChangeSetupDialogCSV (int n);
 	void createTailLogStream (QString const & fname, QString const & separator);
 	void importDataStream (QString const & fname);
 	void copyStorageTo (QString const & filename);
@@ -114,6 +113,11 @@ public slots:
 	void onDockManagerClosed ();
 	void onSave ();
 	void onSaveAs ();
+
+	void onChangeSetupDialogCSV (int n);
+	void onChangeSeparatorDialogCSV (int n);
+	void onChangeColumnDialogCSV (QModelIndex const &);
+	void onChangeColumnRadioDialogCSV (bool toggled);
 
 	friend class Connection;
 private slots:

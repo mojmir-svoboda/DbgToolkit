@@ -13,7 +13,15 @@ public:
 	explicit SetupDialogCSV(QWidget *parent = 0);
 	~SetupDialogCSV();
 
-	Ui::SetupDialogCSV *ui;
+	void clear ()
+	{
+		m_data.clear();
+		m_column_actions.clear();
+	}
+
+	Ui::SetupDialogCSV * ui;
+
 	QStringList m_data;
+	std::vector<int> 	m_column_actions;
 };
 

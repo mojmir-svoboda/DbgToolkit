@@ -73,6 +73,8 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QStri
 	ui_settings->setupUi(m_settings_dialog);
 
 	m_setup_dialog_csv = new SetupDialogCSV(this);
+	m_setup_dialog_csv->ui->preView->setModel(new QStandardItemModel());
+	m_setup_dialog_csv->ui->columnList->setModel(new QStandardItemModel());
 
 	m_config.m_appdir = m_appdir;
 	m_config.m_dump_mode = dump_mode;

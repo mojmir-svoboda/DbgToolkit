@@ -28,6 +28,16 @@
 #include <QInputDialog>
 #include "constants.h"
 
+inline QString unquoteString (QString const & str)
+{
+	QString result = str;
+	if (result.startsWith("\""))
+		result.remove(0, 1);
+	if (result.endsWith("\""))
+		result.remove(result.size() - 1, 1);
+	return result;
+}
+
 template<class C>
 void clearListView (C * v)
 {

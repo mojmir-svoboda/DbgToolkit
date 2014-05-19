@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>Set CSV properties please...</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <property name="spacing">
@@ -38,22 +38,64 @@
       <property name="leftMargin">
        <number>9</number>
       </property>
-      <item row="2" column="0">
+      <item row="0" column="2">
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="3" column="3">
+       <widget class="QCheckBox" name="unquoteCheckBox">
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Removes leading and trailing quote mark from data.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="text">
+         <string>Unquote strings</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="3">
+       <widget class="QCheckBox" name="simplifyCheckBox">
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Converts data to a string(s) that has whitespace removed from the start and the end, and that has each sequence of internal whitespace replaced with a single space.&lt;/p&gt;&lt;p&gt;Whitespace means any character for which &lt;a href=&quot;http://qt-project.org/doc/qt-5/qchar.html#isSpace&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;QChar::isSpace&lt;/span&gt;&lt;/a&gt;() returns true. This includes the ASCII characters '\t', '\n', '\v', '\f', '\r', and ' '.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="text">
+         <string>Simplify strings</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1">
+       <widget class="QComboBox" name="encodingComboBox"/>
+      </item>
+      <item row="4" column="0">
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>Encoding</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
        <widget class="QCheckBox" name="headerCheckBox">
         <property name="text">
          <string>First row is a header</string>
         </property>
-       </widget>
-      </item>
-      <item row="0" column="0">
-       <widget class="QLabel" name="label">
-        <property name="text">
-         <string>Separator</string>
+        <property name="checked">
+         <bool>true</bool>
         </property>
        </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="QComboBox" name="encodingComboBox"/>
       </item>
       <item row="0" column="1">
        <widget class="QComboBox" name="separatorComboBox">
@@ -82,25 +124,15 @@
         </item>
        </widget>
       </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="label_2">
+      <item row="0" column="0">
+       <widget class="QCheckBox" name="separatorCheckBox">
         <property name="text">
-         <string>Encoding</string>
+         <string>Separator</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
         </property>
        </widget>
-      </item>
-      <item row="1" column="2">
-       <spacer name="horizontalSpacer">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
       </item>
      </layout>
     </widget>
@@ -126,11 +158,8 @@
       <property name="horizontalSpacing">
        <number>6</number>
       </property>
-      <item row="0" column="0">
-       <widget class="QListWidget" name="columnList"/>
-      </item>
       <item row="0" column="1">
-       <widget class="QGroupBox" name="groupBox_4">
+       <widget class="QGroupBox" name="actionGroupBox">
         <property name="minimumSize">
          <size>
           <width>128</width>
@@ -140,7 +169,7 @@
         <property name="title">
          <string>Action</string>
         </property>
-        <widget class="QRadioButton" name="radioButton">
+        <widget class="QRadioButton" name="importButton">
          <property name="geometry">
           <rect>
            <x>10</x>
@@ -156,7 +185,7 @@
           <bool>true</bool>
          </property>
         </widget>
-        <widget class="QRadioButton" name="radioButton_2">
+        <widget class="QRadioButton" name="skipButton">
          <property name="geometry">
           <rect>
            <x>10</x>
@@ -170,6 +199,9 @@
          </property>
         </widget>
        </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QListView" name="columnList"/>
       </item>
      </layout>
     </widget>
