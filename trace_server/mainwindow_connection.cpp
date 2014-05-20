@@ -101,6 +101,27 @@ void MainWindow::createTailLogStream (QString const & fname, QString const & sep
 	datalogs_t::iterator it = connection->findOrCreateLog(tag);
 	connection->m_config.m_csv_separator = separator;
 
+	(*it)->m_storage_order.push_back("Col0");
+	(*it)->m_storage_order.push_back("Lvl");
+	(*it)->m_storage_order.push_back("TID");
+	(*it)->m_storage_order.push_back("Msg");
+
+	int const sizes[4] = { 128, 64, 64, 512 };
+	E_Align const aligns[4] = { e_AlignRight, e_AlignRight, e_AlignRight, e_AlignLeft };
+	E_Elide const elides[4] = { e_ElideLeft, e_ElideLeft, e_ElideLeft, e_ElideRight };
+
+	for (int cl = 0, cle = (*it)->m_storage_order.size(); cl < cle; ++cl)
+	{
+		QString const & val = (*it)->m_storage_order[cl];
+		int const size = sizes[cl];
+		E_Align const align = aligns[cl];
+		E_Elide const elide = elides[cl];
+		(*it)->config().m_columns_setup.push_back(val);
+		(*it)->config().m_columns_sizes.push_back(size);
+		(*it)->config().m_columns_align.push_back(QString(alignToString(align)));
+		(*it)->config().m_columns_elide.push_back(QString(elideToString(elide)));
+	}
+
 	connection->processTailCSVStream();
 	emit newConnection(connection);
 }
@@ -140,15 +161,18 @@ enum {
 	e_Action_Skip
 };
 
-inline QString unquoteString (QString const & str, bool enable_unquote, bool enable_simplify)
-{
-	QString const simple = enable_simplify ? str.simplified() : str;
-	return enable_unquote ? unquoteString(simple) : simple;
-}
-
 void MainWindow::onChangeColumnReset ()
 {
 	onChangeSetupDialogCSV(0);
+}
+
+void MainWindow::onChangeColumnSkipAll ()
+{
+	QStandardItemModel * c_model = static_cast<QStandardItemModel *>(m_setup_dialog_csv->ui->columnList->model());
+	int const rows = c_model->rowCount();
+	for (int i = 0 ; i < rows ; ++i)
+		m_setup_dialog_csv->m_column_actions[i] = e_Action_Skip;
+	onChangeColumnImport();
 }
 
 void MainWindow::onChangeColumnImport ()
@@ -201,6 +225,8 @@ void MainWindow::onChangeColumnImport ()
 
 }
 
+QString get_user_tag_name (size_t i) { return QString("Col") + QString::number(i); }
+
 void MainWindow::onChangeSetupDialogCSV (int n)
 {
 	QStandardItemModel * p_model = static_cast<QStandardItemModel *>(m_setup_dialog_csv->ui->preView->model());
@@ -235,6 +261,15 @@ void MainWindow::onChangeSetupDialogCSV (int n)
 				c_model->appendRow(new QStandardItem(unquoteString(hdr.at(cl), enable_unquote, enable_simplify)));
 				m_setup_dialog_csv->m_column_actions.push_back(e_Action_Import);
 			}
+		}
+		else
+		{
+			QStringList hdr_src = m_setup_dialog_csv->m_data.at(0).split(separator);
+			QStringList hdr;
+			for (int cl = 0, cle = hdr_src.size(); cl < cle; ++cl)
+				hdr << get_user_tag_name(cl);
+
+			p_model->setHorizontalHeaderLabels(hdr);
 		}
 
 		for (int i = start, ie = m_setup_dialog_csv->m_data.size(); i < ie; ++i)
@@ -333,6 +368,7 @@ void MainWindow::createTailDataStream (QString const & fname)
 	connect(m_setup_dialog_csv->ui->columnList, SIGNAL(clicked(QModelIndex const &)), this, SLOT(onChangeColumnDialogCSV(QModelIndex const &)));
 	connect(m_setup_dialog_csv->ui->importButton, SIGNAL(toggled(bool)), this, SLOT(onChangeColumnRadioDialogCSV(bool)));
 	connect(m_setup_dialog_csv->ui->resetButton, SIGNAL(clicked()), this, SLOT(onChangeColumnReset()));
+	connect(m_setup_dialog_csv->ui->skipAllButton, SIGNAL(clicked()), this, SLOT(onChangeColumnSkipAll()));
 
 	onChangeSetupDialogCSV(0);
 	m_setup_dialog_csv->exec();
@@ -347,6 +383,7 @@ void MainWindow::createTailDataStream (QString const & fname)
 	disconnect(m_setup_dialog_csv->ui->importButton, SIGNAL(toggled(bool)), this, SLOT(onChangeColumnRadioDialogCSV(bool)));
 	disconnect(m_setup_dialog_csv->ui->skipButton, SIGNAL(toggled(bool)), this, SLOT(onChangeColumnRadioDialogCSV(bool)));
 	disconnect(m_setup_dialog_csv->ui->resetButton, SIGNAL(clicked()), this, SLOT(onChangeColumnReset()));
+	disconnect(m_setup_dialog_csv->ui->skipAllButton, SIGNAL(clicked()), this, SLOT(onChangeColumnSkipAll()));
 
 	if (m_setup_dialog_csv->result() != QDialog::Accepted)
 		return;
@@ -362,15 +399,33 @@ void MainWindow::createTailDataStream (QString const & fname)
 	QString const separator = getSeparator(m_setup_dialog_csv->ui->separatorComboBox);
 	connection->m_config.m_csv_separator = separator;
 
+	if (0 == (*it)->m_storage_order.size())
+	{
+		QStandardItemModel * c_model = static_cast<QStandardItemModel *>(m_setup_dialog_csv->ui->columnList->model());
+		int const rows = c_model->rowCount();
+		(*it)->m_storage_order.resize(rows);
+		for (int i = 0 ; i < rows ; ++i)
+		{
+			QString const val = c_model->index(i, 0).data(Qt::DisplayRole).toString();
+			(*it)->m_storage_order[i] = val;
+		}
+	}
+
+	bool const enable_unquote = m_setup_dialog_csv->ui->unquoteCheckBox->isChecked();
+	bool const enable_simplify = m_setup_dialog_csv->ui->simplifyCheckBox->isChecked();
+	(*it)->m_simplify_strings = enable_simplify;
+	(*it)->m_unquote_strings = enable_unquote;
+
 	if (0 == (*it)->config().m_columns_setup.size())
 	{
-		QStandardItemModel * p_model = static_cast<QStandardItemModel *>(m_setup_dialog_csv->ui->preView->model());
-		for (int cl = 0, cle = p_model->columnCount(); cl < cle; ++cl)
+		QStandardItemModel * c_model = static_cast<QStandardItemModel *>(m_setup_dialog_csv->ui->columnList->model());
+		for (int cl = 0, cle = c_model->rowCount(); cl < cle; ++cl)
 		{
 			if (e_Action_Import == m_setup_dialog_csv->m_column_actions[cl])
 			{
-				QString const val = p_model->headerData(cl, Qt::Horizontal).toString();
-				int const size = m_setup_dialog_csv->ui->preView->horizontalHeader()->sectionSize(cl);
+				QString const val = c_model->index(cl, 0).data(Qt::DisplayRole).toString();
+				int const size = 128; //@TODO
+				//int const size = m_setup_dialog_csv->ui->preView->horizontalHeader()->sectionSize(cl);
 				E_Align const align = e_AlignLeft;
 				E_Elide const elide = e_ElideRight;
 				(*it)->config().m_columns_setup.push_back(val);

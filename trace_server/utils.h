@@ -38,6 +38,13 @@ inline QString unquoteString (QString const & str)
 	return result;
 }
 
+inline QString unquoteString (QString const & str, bool enable_unquote, bool enable_simplify)
+{
+	//QString const simple = enable_simplify ? str.simplified() : str;
+	QString const simple = enable_simplify ? str.trimmed() : str;
+	return enable_unquote ? unquoteString(simple) : simple;
+}
+
 template<class C>
 void clearListView (C * v)
 {

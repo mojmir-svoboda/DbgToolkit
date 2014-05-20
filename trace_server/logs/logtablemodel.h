@@ -75,6 +75,7 @@ protected:
 
 	logs::LogWidget & m_log_widget;
 	QMap<int, int> m_tags2columns;
+	std::vector<int> m_columns2storage;
 	FilterState & m_filter_state;
 };
 

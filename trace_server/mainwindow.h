@@ -120,6 +120,7 @@ public slots:
 	void onChangeColumnRadioDialogCSV (bool toggled);
 	void onChangeColumnImport ();
 	void onChangeColumnReset ();
+	void onChangeColumnSkipAll ();
 
 	friend class Connection;
 private slots:

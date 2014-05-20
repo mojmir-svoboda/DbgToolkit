@@ -52,6 +52,8 @@ namespace logs {
 		, m_window_action(0)
 		, m_linked_parent(0)
 		, m_csv_separator()
+		, m_simplify_strings(false)
+		, m_unquote_strings(false)
 		, m_file_csv_stream(0)
 		//, m_file_tlv_stream(0)
 	{
