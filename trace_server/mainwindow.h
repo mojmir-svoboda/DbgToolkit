@@ -144,6 +144,7 @@ private slots:
 	void onExportDataToCSV ();
 	void closeEvent (QCloseEvent *event);
 	void iconActivated (QSystemTrayIcon::ActivationReason reason);
+	void onRecentFile ();
 
 	// control widget
 	void onLevelValueChanged (int i);
@@ -193,6 +194,7 @@ private:
 	QTimer *  			m_timer;
 	Server *  			m_server;
 	QMenu * 			m_windows_menu;
+	std::vector<QAction *> m_recent_files;
 	QAction * 			m_minimize_action;
 	QAction * 			m_maximize_action;
 	QAction * 			m_restore_action;

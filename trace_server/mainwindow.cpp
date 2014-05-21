@@ -446,6 +446,13 @@ void MainWindow::onDockRestoreButton ()
 	restoreGeometry(settings.value("geometry").toByteArray());
 }
 
+void MainWindow::onRecentFile()
+{
+	QAction * action = qobject_cast<QAction *>(sender());
+	if (action)
+		onFileTail(action->data().toString());
+}
+
 void MainWindow::setupMenuBar ()
 {
 	qDebug("%s", __FUNCTION__);
@@ -471,6 +478,17 @@ void MainWindow::setupMenuBar ()
 	fileMenu->addSeparator();
 	fileMenu->addAction(tr("Load &CSV file..."), this, SLOT(onFileLoadCSV()));
 	fileMenu->addAction(tr("&Follow text file..."), this, SLOT(onFileTail()), QKeySequence(Qt::ControlModifier + Qt::Key_T));
+	fileMenu->addSeparator();
+
+	m_recent_files.clear();
+	for (int i = 0; i < MaxRecentFiles; ++i)
+	{
+		m_recent_files.push_back(new QAction(this));
+		m_recent_files.back()->setVisible(false);
+		connect(m_recent_files.back(), SIGNAL(triggered()), this, SLOT(openRecentFile()));
+		fileMenu->addAction(m_recent_files.back());
+	}
+
 	fileMenu->addSeparator();
 	fileMenu->addAction(tr("Quit program"), this, SLOT(onQuit()), QKeySequence::Quit);
 
