@@ -101,25 +101,30 @@ void MainWindow::createTailLogStream (QString const & fname, QString const & sep
 	datalogs_t::iterator it = connection->findOrCreateLog(tag);
 	connection->m_config.m_csv_separator = separator;
 
+	// the order is imposed in main.cpp, in the Qt log redirector
+	(*it)->m_storage_order.clear();
 	(*it)->m_storage_order.push_back("Col0");
 	(*it)->m_storage_order.push_back("Lvl");
 	(*it)->m_storage_order.push_back("TID");
 	(*it)->m_storage_order.push_back("Msg");
 
-	int const sizes[4] = { 128, 64, 64, 512 };
-	E_Align const aligns[4] = { e_AlignRight, e_AlignRight, e_AlignRight, e_AlignLeft };
-	E_Elide const elides[4] = { e_ElideLeft, e_ElideLeft, e_ElideLeft, e_ElideRight };
-
-	for (int cl = 0, cle = (*it)->m_storage_order.size(); cl < cle; ++cl)
+	if (bool const has_no_setup = (*it)->config().m_columns_setup.size() == 0)
 	{
-		QString const & val = (*it)->m_storage_order[cl];
-		int const size = sizes[cl];
-		E_Align const align = aligns[cl];
-		E_Elide const elide = elides[cl];
-		(*it)->config().m_columns_setup.push_back(val);
-		(*it)->config().m_columns_sizes.push_back(size);
-		(*it)->config().m_columns_align.push_back(QString(alignToString(align)));
-		(*it)->config().m_columns_elide.push_back(QString(elideToString(elide)));
+		int const sizes[4] = { 128, 64, 64, 512 };
+		E_Align const aligns[4] = { e_AlignRight, e_AlignRight, e_AlignRight, e_AlignLeft };
+		E_Elide const elides[4] = { e_ElideLeft, e_ElideLeft, e_ElideLeft, e_ElideRight };
+
+		for (int cl = 0, cle = (*it)->m_storage_order.size(); cl < cle; ++cl)
+		{
+			QString const & val = (*it)->m_storage_order[cl];
+			int const size = sizes[cl];
+			E_Align const align = aligns[cl];
+			E_Elide const elide = elides[cl];
+			(*it)->config().m_columns_setup.push_back(val);
+			(*it)->config().m_columns_sizes.push_back(size);
+			(*it)->config().m_columns_align.push_back(QString(alignToString(align)));
+			(*it)->config().m_columns_elide.push_back(QString(elideToString(elide)));
+		}
 	}
 
 	connection->processTailCSVStream();
@@ -420,7 +425,7 @@ void MainWindow::createTailDataStream (QString const & fname)
 	(*it)->m_simplify_strings = enable_simplify;
 	(*it)->m_unquote_strings = enable_unquote;
 
-	if (0 == (*it)->config().m_columns_setup.size())
+	if (bool const has_no_setup = (*it)->config().m_columns_setup.size() == 0)
 	{
 		QStandardItemModel * c_model = static_cast<QStandardItemModel *>(m_setup_dialog_csv->ui->columnList->model());
 		for (int cl = 0, cle = c_model->rowCount(); cl < cle; ++cl)
