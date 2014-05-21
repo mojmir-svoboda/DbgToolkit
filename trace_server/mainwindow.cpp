@@ -450,7 +450,7 @@ void MainWindow::onRecentFile()
 {
 	QAction * action = qobject_cast<QAction *>(sender());
 	if (action)
-		onFileTail(action->data().toString());
+		createTailDataStream(action->data().toString());
 }
 
 void MainWindow::setupMenuBar ()
@@ -481,7 +481,7 @@ void MainWindow::setupMenuBar ()
 	fileMenu->addSeparator();
 
 	m_recent_files.clear();
-	for (int i = 0; i < MaxRecentFiles; ++i)
+	for (int i = 0; i < m_config.m_recent_history.size(); ++i)
 	{
 		m_recent_files.push_back(new QAction(this));
 		m_recent_files.back()->setVisible(false);

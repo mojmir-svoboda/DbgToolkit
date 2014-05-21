@@ -417,44 +417,53 @@ void MainWindow::createTailDataStream (QString const & fname)
 
 	datalogs_t::iterator it = connection->findOrCreateLog(tag);
 	connection->handleCSVSetup(tag);
-	QString const separator = getSeparator(m_setup_dialog_csv->ui->separatorComboBox);
-	connection->m_config.m_csv_separator = separator;
 
-	if (0 == (*it)->m_storage_order.size())
+	bool const has_sep = m_setup_dialog_csv->ui->separatorCheckBox->isChecked();
+	if (has_sep)
 	{
-		QStandardItemModel * c_model = static_cast<QStandardItemModel *>(m_setup_dialog_csv->ui->columnList->model());
-		int const rows = c_model->rowCount();
-		(*it)->m_storage_order.resize(rows);
-		for (int i = 0 ; i < rows ; ++i)
-		{
-			QString const val = c_model->index(i, 0).data(Qt::DisplayRole).toString();
-			(*it)->m_storage_order[i] = val;
-		}
-	}
+		QString const separator = getSeparator(m_setup_dialog_csv->ui->separatorComboBox);
+		connection->m_config.m_csv_separator = separator;
 
-	bool const enable_unquote = m_setup_dialog_csv->ui->unquoteCheckBox->isChecked();
-	bool const enable_simplify = m_setup_dialog_csv->ui->simplifyCheckBox->isChecked();
-	(*it)->m_simplify_strings = enable_simplify;
-	(*it)->m_unquote_strings = enable_unquote;
-
-	if (bool const has_no_setup = (*it)->config().m_columns_setup.size() == 0)
-	{
-		QStandardItemModel * c_model = static_cast<QStandardItemModel *>(m_setup_dialog_csv->ui->columnList->model());
-		for (int cl = 0, cle = c_model->rowCount(); cl < cle; ++cl)
+		if (0 == (*it)->m_storage_order.size())
 		{
-			if (e_Action_Import == m_setup_dialog_csv->m_column_actions[cl])
+			QStandardItemModel * c_model = static_cast<QStandardItemModel *>(m_setup_dialog_csv->ui->columnList->model());
+			int const rows = c_model->rowCount();
+			(*it)->m_storage_order.resize(rows);
+			for (int i = 0 ; i < rows ; ++i)
 			{
-				QString const val = c_model->index(cl, 0).data(Qt::DisplayRole).toString();
-				int const size = 128; //@TODO
-				//int const size = m_setup_dialog_csv->ui->preView->horizontalHeader()->sectionSize(cl);
-				E_Align const align = e_AlignLeft;
-				E_Elide const elide = e_ElideRight;
-				(*it)->config().m_columns_setup.push_back(val);
-				(*it)->config().m_columns_sizes.push_back(size);
-				(*it)->config().m_columns_align.push_back(QString(alignToString(align)));
-				(*it)->config().m_columns_elide.push_back(QString(elideToString(elide)));
+				QString const val = c_model->index(i, 0).data(Qt::DisplayRole).toString();
+				(*it)->m_storage_order[i] = val;
 			}
 		}
+
+		bool const enable_unquote = m_setup_dialog_csv->ui->unquoteCheckBox->isChecked();
+		bool const enable_simplify = m_setup_dialog_csv->ui->simplifyCheckBox->isChecked();
+		(*it)->m_simplify_strings = enable_simplify;
+		(*it)->m_unquote_strings = enable_unquote;
+
+		if (bool const has_no_setup = (*it)->config().m_columns_setup.size() == 0)
+		{
+			QStandardItemModel * c_model = static_cast<QStandardItemModel *>(m_setup_dialog_csv->ui->columnList->model());
+			for (int cl = 0, cle = c_model->rowCount(); cl < cle; ++cl)
+			{
+				if (e_Action_Import == m_setup_dialog_csv->m_column_actions[cl])
+				{
+					QString const val = c_model->index(cl, 0).data(Qt::DisplayRole).toString();
+					int const size = 128; //@TODO
+					//int const size = m_setup_dialog_csv->ui->preView->horizontalHeader()->sectionSize(cl);
+					E_Align const align = e_AlignLeft;
+					E_Elide const elide = e_ElideRight;
+					(*it)->config().m_columns_setup.push_back(val);
+					(*it)->config().m_columns_sizes.push_back(size);
+					(*it)->config().m_columns_align.push_back(QString(alignToString(align)));
+					(*it)->config().m_columns_elide.push_back(QString(elideToString(elide)));
+				}
+			}
+		}
+	}
+	else
+	{
+		(*it)->m_storage_order.push_back("Col0");
 	}
 
 	connection->processTailCSVStream();
