@@ -260,25 +260,15 @@ void LogTableModel::parseCommand (DecodedCommand const & cmd, E_ReceiveMode mode
 				}*/
 			}
 
-			/*for (int i = 0, ie = l.size(); i < ie; ++i)
+			for (int i = 0, ie = l.size(); i < ie; ++i)
 			{
+				tlv::TV tv;
 				tv.m_val = l.at(i);
-				//m_current_cmd.m_tvs.push_back(tv);
-
-				int column_index = findColumn4Tag(tv.m_tag);
-				if (has_no_setup && column_index < 0)
-				{
-					column_index = appendColumn(tv.m_tag);
-					resizeToCfg(m_log_widget.m_config);
-				}
-
-				if (column_index >= 0)
-				{
-					if (columns.size() <= column_index + 1)
-						columns.resize(column_index + 1);
-					columns[column_index].m_value = tv.m_val;
-				}
-			}*/
+				// @TODO: if tag is known tag such as STime, CTime, ... then make it that one
+				tlv::tag_t const tag = tlv::tag_max_value + i;
+				tv.m_tag = tag;
+				batch.m_dcmds.back().m_tvs.push_back(tv);
+			}
 
 			sys::hptimer_t const now = sys::queryTime_us();
 			batch.m_row_ctimes.push_back(now); //@TODO: unless there is a time tag assigned to column
