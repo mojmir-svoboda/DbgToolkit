@@ -270,6 +270,9 @@ void MainWindow::onChangeSetupDialogCSV (int n)
 				hdr << get_user_tag_name(cl);
 
 			p_model->setHorizontalHeaderLabels(hdr);
+
+			for (int cl = 0, cle = hdr_src.size(); cl < cle; ++cl)
+				m_setup_dialog_csv->ui->preView->horizontalHeader()->setSectionResizeMode(cl, QHeaderView::ResizeToContents);
 		}
 
 		for (int i = start, ie = m_setup_dialog_csv->m_data.size(); i < ie; ++i)
@@ -298,6 +301,7 @@ void MainWindow::onChangeSetupDialogCSV (int n)
 	{
 		for (int i = 0, ie = m_setup_dialog_csv->m_data.size(); i < ie; ++i)
 			p_model->appendRow(new QStandardItem(unquoteString(m_setup_dialog_csv->m_data.at(i), enable_unquote, enable_simplify)));
+		m_setup_dialog_csv->ui->preView->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
 	}
 }
 
@@ -363,7 +367,7 @@ void MainWindow::createTailDataStream (QString const & fname)
 	connect(m_setup_dialog_csv->ui->unquoteCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onChangeSetupDialogCSV(int)));
 	connect(m_setup_dialog_csv->ui->separatorCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onChangeSeparatorDialogCSV(int)));
 	connect(m_setup_dialog_csv->ui->separatorComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(onChangeSetupDialogCSV(int)));
-	connect(m_setup_dialog_csv->ui->separatorComboBox->lineEdit(), SIGNAL(returnPressed()), this, SLOT(onChangeSetupDialogCSV(int)));
+	//connect(m_setup_dialog_csv->ui->separatorComboBox->lineEdit(), SIGNAL(returnPressed()), this, SLOT(onChangeSetupDialogCSV(int)));
 	connect(m_setup_dialog_csv->ui->headerCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onChangeSetupDialogCSV(int)));
 	connect(m_setup_dialog_csv->ui->columnList, SIGNAL(clicked(QModelIndex const &)), this, SLOT(onChangeColumnDialogCSV(QModelIndex const &)));
 	connect(m_setup_dialog_csv->ui->importButton, SIGNAL(toggled(bool)), this, SLOT(onChangeColumnRadioDialogCSV(bool)));
@@ -377,7 +381,7 @@ void MainWindow::createTailDataStream (QString const & fname)
 	disconnect(m_setup_dialog_csv->ui->unquoteCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onChangeSetupDialogCSV(int)));
 	disconnect(m_setup_dialog_csv->ui->separatorCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onChangeSeparatorDialogCSV(int)));
 	disconnect(m_setup_dialog_csv->ui->separatorComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(onChangeSetupDialogCSV(int)));
-	disconnect(m_setup_dialog_csv->ui->separatorComboBox->lineEdit(), SIGNAL(returnPressed()), this, SLOT(onChangeSetupDialogCSV(int)));
+	//disconnect(m_setup_dialog_csv->ui->separatorComboBox->lineEdit(), SIGNAL(returnPressed()), this, SLOT(onChangeSetupDialogCSV(int)));
 	disconnect(m_setup_dialog_csv->ui->headerCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onChangeSetupDialogCSV(int)));
 	disconnect(m_setup_dialog_csv->ui->columnList, SIGNAL(clicked(QModelIndex const &)), this, SLOT(onChangeColumnDialogCSV(QModelIndex const &)));
 	disconnect(m_setup_dialog_csv->ui->importButton, SIGNAL(toggled(bool)), this, SLOT(onChangeColumnRadioDialogCSV(bool)));

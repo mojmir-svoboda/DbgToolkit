@@ -7,7 +7,7 @@
 #include <QLineEdit>
 #include <QTimer>
 
-void FindWidget::init ()
+void ColorizeWidget::init ()
 {
 	m_ui->setupUi(this);
 
@@ -26,68 +26,51 @@ void FindWidget::init ()
 	setAutoFillBackground(true);
 }
 
-FindWidget::FindWidget (MainWindow * mw, QWidget * parent)
+ColorizeWidget::ColorizeWidget (MainWindow * mw, QWidget * parent)
 	: QWidget(parent)
-	, m_ui(new Ui::FindWidget)
+	, m_ui(new Ui::ColorizeWidget)
 	, m_main_window(mw)
 	, m_aa(0)
-	, m_moving_widget(false)
 {
 	hide();
 	init();
 }
 
-FindWidget::FindWidget (QWidget * parent) // widget coming from Qt creator
+ColorizeWidget::ColorizeWidget (QWidget * parent) // widget coming from Qt creator
 	: QWidget(parent)
-	, m_ui(new Ui::FindWidget)
+	, m_ui(new Ui::ColorizeWidget)
 	, m_main_window(0)
 	, m_aa(0)
-	, m_moving_widget(false)
 {
 	hide();
 	init();
 }
 
-FindWidget::~FindWidget ()
+ColorizeWidget::~ColorizeWidget ()
 {
 	delete m_ui;
 }
 
-void FindWidget::applyConfig (FindConfig & cfg)
+void ColorizeWidget::applyConfig (FindConfig & cfg)
 {
 	m_config = cfg;
 	setConfigValuesToUI(m_config);
 }
 
-void FindWidget::applyConfig ()
+void ColorizeWidget::applyConfig ()
 {
 	applyConfig(m_config);
 }
 
-void FindWidget::onCancel ()
+void ColorizeWidget::onCancel ()
 {
-	if (isMovingFindWidget())
-	{
-		if (isVisible())
-		{
-			QObject * o = parent();
-			QWidget * w = qobject_cast<QWidget *>(o);
-			w->setFocus();
-			hide();
-			setParent(m_main_window);
-		}
-		move(0,0);
-	}
-	else
-	{
-		QObject * o = parent();
-		QWidget * w = qobject_cast<QWidget *>(o);
-		w->setFocus();
-		hide();
-	}
+  QObject * o = parent();
+  QWidget * w = qobject_cast<QWidget *>(o);
+  w->setFocus();
+  hide();
 }
 
-void FindWidget::onActivate ()
+void ColorizeWidget::onActivate ()
 {
 	show();
 	activateWindow();
@@ -95,44 +78,44 @@ void FindWidget::onActivate ()
 	raise();
 }
 
-void FindWidget::onEditTextChanged (QString str)
+void ColorizeWidget::onEditTextChanged (QString str)
 {
 	onResetRegexpState();
 	//qDebug("find!");
 }
 
-void FindWidget::onReturnPressed ()
+void ColorizeWidget::onReturnPressed ()
 {
 	onFindNext();
 	//m_config.saveHistory();
 }
 
-void FindWidget::focusNext ()
+/*void ColorizeWidget::focusNext ()
 {
 	QWidget * const curr =  qApp->focusWidget();
 	QWidget * const next = curr->nextInFocusChain();
 	next->setFocus(Qt::TabFocusReason);
 }
 
-void FindWidget::focusPrev ()
+void ColorizeWidget::focusPrev ()
 {
 	QWidget * const curr =  qApp->focusWidget();
 	QWidget * const prev = curr->previousInFocusChain();
 	prev->setFocus(Qt::TabFocusReason);
 }
 
-void FindWidget::onFocusChanged (QWidget * old, QWidget * now)
+void ColorizeWidget::onFocusChanged (QWidget * old, QWidget * now)
 {
 	//m_find_widget->onFocusChanged(old, now);
-}
+}*/
 
-void FindWidget::onResetRegexpState ()
+void ColorizeWidget::onResetRegexpState ()
 {
 	m_ui->findBox->setStyleSheet("");
 	m_ui->findBox->setToolTip("");
 }
 
-void FindWidget::signalRegexpState (E_ExprState state, QString const & reason)
+void ColorizeWidget::signalRegexpState (E_ExprState state, QString const & reason)
 {
 	if (state == e_ExprInvalid)
 	{
@@ -155,7 +138,7 @@ void FindWidget::signalRegexpState (E_ExprState state, QString const & reason)
 	}
 }
 
-void FindWidget::makeActionFind (QString const & str, Action & a)
+void ColorizeWidget::makeActionFind (QString const & str, Action & a)
 {
 	a.m_type = e_Find;
 	//a.m_src_path = path();
@@ -167,7 +150,7 @@ void FindWidget::makeActionFind (QString const & str, Action & a)
 	a.m_args.push_back(fc);
 }
 
-void FindWidget::find ()
+void ColorizeWidget::find ()
 {
 	QString const str = m_ui->findBox->currentText();
 	if (!str.isEmpty())
@@ -198,7 +181,7 @@ void FindWidget::find ()
 
 }
 
-void FindWidget::find (bool select, bool refs, bool clone)
+void ColorizeWidget::find (bool select, bool refs, bool clone)
 {
 	m_config.m_next = 0;
 	m_config.m_prev = 0;
@@ -207,11 +190,11 @@ void FindWidget::find (bool select, bool refs, bool clone)
 	m_config.m_clone = clone;
 	find();
 }
-void FindWidget::onFindAllSelect () { find(1, 0, 0); }
-void FindWidget::onFindAllRefs () { find(0, 1, 0); }
-void FindWidget::onFindAllClone () { find(0, 0, 1); }
+void ColorizeWidget::onFindAllSelect () { find(1, 0, 0); }
+void ColorizeWidget::onFindAllRefs () { find(0, 1, 0); }
+void ColorizeWidget::onFindAllClone () { find(0, 0, 1); }
 
-void FindWidget::find (bool prev, bool next)
+void ColorizeWidget::find (bool prev, bool next)
 {
 	m_config.m_next = next;
 	m_config.m_prev = prev;
@@ -220,16 +203,16 @@ void FindWidget::find (bool prev, bool next)
 	m_config.m_clone = 0;
 	find();
 }
-void FindWidget::onFindNext () { find(0, 1); }
-void FindWidget::onFindPrev () { find(1, 0); }
+void ColorizeWidget::onFindNext () { find(0, 1); }
+void ColorizeWidget::onFindPrev () { find(1, 0); }
 
-void FindWidget::clearUI ()
+void ColorizeWidget::clearUI ()
 {
 	m_ui->widgetComboBox->clear();
 	m_ui->findBox->clear();
 }
 
-void FindWidget::setConfigValuesToUI (FindConfig const & cfg)
+void ColorizeWidget::setConfigValuesToUI (FindConfig const & cfg)
 {
 	clearUI();
 	syncHistoryToWidget(m_ui->findBox, cfg.m_history);
@@ -239,7 +222,7 @@ void FindWidget::setConfigValuesToUI (FindConfig const & cfg)
 	m_ui->widgetComboBox->addItems(cfg.m_to_widgets);
 }
 
-void FindWidget::setUIValuesToConfig (FindConfig & cfg)
+void ColorizeWidget::setUIValuesToConfig (FindConfig & cfg)
 {
 	cfg.m_case_sensitive = m_ui->caseCheckBox->isChecked();
 	cfg.m_whole_word = m_ui->wholeWordCheckBox->isChecked();

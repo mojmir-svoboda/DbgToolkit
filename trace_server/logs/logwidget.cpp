@@ -558,9 +558,10 @@ namespace logs {
 		if (filterMgr()->getFilterCtx())
 			filterMgr()->getFilterCtx()->setAppData(&m_connection->appData());
 
+    if (colorizerMgr()->getColorizerString())
+      colorizerMgr()->getColorizerString()->setSrcModel(m_src_model);
 		if (colorizerMgr()->getColorizerRegex())
 			colorizerMgr()->getColorizerRegex()->setSrcModel(m_src_model);
-
 		if (colorizerMgr()->getColorizerRow())
 			colorizerMgr()->getColorizerRow()->setSrcModel(m_src_model);
 

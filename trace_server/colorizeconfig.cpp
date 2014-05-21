@@ -1,5 +1,5 @@
 #include "colorizeconfig.h"
-#include <boost/serialization/type_info_implementation.hpp>
+/*#include <boost/serialization/type_info_implementation.hpp>
 #include <boost/archive/xml_iarchive.hpp>
 #include <boost/archive/xml_oarchive.hpp>
 #include <boost/serialization/utility.hpp>
@@ -31,5 +31,5 @@ void fillDefaultConfig (ColorizeConfig & config)
 {
 	config = ColorizeConfig();
 }
-
+*/
 

@@ -112,7 +112,7 @@ set(trace_server_SOURCES
 	#filter_dt.cpp
 	colorizermgr.cpp
 	#colorizer_script.cpp
-	#colorizer_string.cpp
+	colorizer_string.cpp
 	colorizer_regex.cpp
 	#colorizer_ctx.cpp
 	#colorizer_lvl.cpp
@@ -127,6 +127,7 @@ set(trace_server_SOURCES
 	colorizer_regex.cpp
 
 	findwidget.cpp
+	colorizewidget.cpp
 	findconfig.cpp
 
 	kde/kselectionproxymodel.cpp
@@ -218,6 +219,7 @@ set(trace_server_HEADERS
 	setupdialogcsv.h
 
 	findwidget.h
+	colorizewidget.h
 	findconfig.h
 
 	filterbase.h
@@ -235,7 +237,7 @@ set(trace_server_HEADERS
 	#filter_function.h
 	#filter_dt.h
 	#colorizer_script.h
-	#colorizer_string.h
+	colorizer_string.h
 	colorizermgr.h
 	colorizer_regex.h
 	colorizer_row.h
@@ -300,6 +302,7 @@ set(trace_server_UI
 	controlbardockedwidgets.ui
 	controlbarlog.ui
 	findwidget.ui
+	colorizewidget.ui
 	combolist.ui
 	timecombobox.ui
 	setupdialogcsv.ui
@@ -321,6 +324,7 @@ set(trace_server_UI
 	filter_time.ui
 	colorizer_regex.ui
 	colorizer_row.ui
+	colorizer_string.ui
 	)
 
 set(trace_server_RESOURCES resources.qrc)

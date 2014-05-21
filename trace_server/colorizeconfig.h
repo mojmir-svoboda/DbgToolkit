@@ -4,7 +4,7 @@
 #include <QVector>
 #include "history.h"
 
-struct ColorizeConfig
+/*struct ColorizeConfig
 {
 	bool m_whole_word;
 	bool m_case_sensitive;
@@ -79,5 +79,5 @@ Q_DECLARE_METATYPE(ColorizeConfig)
 
 bool loadConfig (ColorizeConfig & config, QString const & fname);
 bool saveConfig (ColorizeConfig const & config, QString const & fname);
-void fillDefaultConfig (ColorizeConfig & config);
+void fillDefaultConfig (ColorizeConfig & config);*/
 

@@ -239,9 +239,15 @@ void LogTableModel::parseCommand (DecodedCommand const & cmd, E_ReceiveMode mode
 			for (int i = 0, ie = m_columns2storage.size(); i < ie; ++i)
 			{
 				int const src = m_columns2storage[i];
-
-				QString const str =  unquoteString(l.at(src), m_log_widget.m_unquote_strings, m_log_widget.m_simplify_strings);
-				columns[i].m_value = str;
+				if (src < l.size())
+				{
+					QString const str =  unquoteString(l.at(src), m_log_widget.m_unquote_strings, m_log_widget.m_simplify_strings);
+					columns[i].m_value = str;
+				}
+				else
+				{
+					qWarning("CSV parsing error at line: %s", qPrintable(msg));
+				}
 
 				/*tlv::tag_t const tag = tlv::tag_max_value + i;
 				int column_index = findColumn4Tag(tag);

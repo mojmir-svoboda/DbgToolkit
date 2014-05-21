@@ -67,7 +67,7 @@
       <item row="0" column="3">
        <widget class="QCheckBox" name="simplifyCheckBox">
         <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Converts data to a string(s) that has whitespace removed from the start and the end, and that has each sequence of internal whitespace replaced with a single space.&lt;/p&gt;&lt;p&gt;Whitespace means any character for which &lt;a href=&quot;http://qt-project.org/doc/qt-5/qchar.html#isSpace&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;QChar::isSpace&lt;/span&gt;&lt;/a&gt;() returns true. This includes the ASCII characters '\t', '\n', '\v', '\f', '\r', and ' '.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Converts data to a string(s) that has whitespace removed from the start and the end.&lt;/p&gt;&lt;p&gt;Whitespace means any character for which &lt;a href=&quot;http://qt-project.org/doc/qt-5/qchar.html#isSpace&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;QChar::isSpace&lt;/span&gt;&lt;/a&gt;() returns true. This includes the ASCII characters '\t', '\n', '\v', '\f', '\r', and ' '.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="text">
          <string>Simplify strings</string>
