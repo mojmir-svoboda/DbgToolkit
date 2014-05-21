@@ -71,6 +71,10 @@ public:
 	bool dumpModeEnabled () const { return m_config.m_dump_mode; }
 	unsigned getHotKey () const;
 	bool onTopEnabled () const;
+	void mentionStringInRecentHistory_NoRef (QString const & str, History<QString> & h);
+	void removeStringFromRecentHistory (QString const & str, History<QString> & h);
+	void mentionStringInRecentHistory_Ref (QString const & str, History<QString> & h);
+	void syncHistoryToRecent (History<QString> const & h);
 
 	// drag and drop
 	void changeEvent (QEvent * e);
@@ -194,6 +198,8 @@ private:
 	QTimer *  			m_timer;
 	Server *  			m_server;
 	QMenu * 			m_windows_menu;
+	QMenu * 			m_file_menu;
+	QAction * 			m_before_action;
 	std::vector<QAction *> m_recent_files;
 	QAction * 			m_minimize_action;
 	QAction * 			m_maximize_action;

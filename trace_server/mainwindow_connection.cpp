@@ -343,6 +343,56 @@ void MainWindow::onChangeColumnDialogCSV (QModelIndex const & idx)
 	}
 }
 
+void MainWindow::syncHistoryToRecent (History<QString> const & h)
+{
+	for (int i = 0; i < m_recent_files.size(); ++i)
+	{
+		disconnect(m_recent_files[i], SIGNAL(triggered()), this, SLOT(onRecentFile()));
+		m_file_menu->removeAction(m_recent_files[i]);
+		delete m_recent_files[i];
+		m_recent_files[i] = 0;
+	}
+
+	m_recent_files.clear();
+	for (int i = 0; i < m_config.m_recent_history.size(); ++i)
+	{
+		m_recent_files.push_back(new QAction(this));
+		m_recent_files.back()->setVisible(true);
+		QString const fname = QFileInfo(h[i]).fileName();
+		m_recent_files.back()->setText(tr("&%1 %2").arg(i + 1).arg(fname));
+		m_recent_files.back()->setData(h[i]);
+		connect(m_recent_files.back(), SIGNAL(triggered()), this, SLOT(onRecentFile()));
+		m_file_menu->insertAction(m_before_action, m_recent_files.back());
+	}
+}
+
+void MainWindow::mentionStringInRecentHistory_NoRef (QString const & str, History<QString> & h)
+{
+	if (str.isEmpty())
+		return;
+	h.insert_no_refcount(str);
+	syncHistoryToRecent(h);
+}
+
+void MainWindow::mentionStringInRecentHistory_Ref (QString const & str, History<QString> & h)
+{
+	if (str.isEmpty())
+		return;
+	h.insert(str);
+	syncHistoryToRecent(h);
+	m_config.saveHistory(m_appdir);
+}
+
+void MainWindow::removeStringFromRecentHistory (QString const & str, History<QString> & h)
+{
+	if (str.isEmpty())
+		return;
+
+	h.remove(str);
+	syncHistoryToRecent(h);
+	m_config.saveHistory(m_appdir);
+}
+
 void MainWindow::createTailDataStream (QString const & fname)
 {
 	// the csv dialogue
@@ -368,7 +418,7 @@ void MainWindow::createTailDataStream (QString const & fname)
 		QString const line = file_csv_stream->readLine(2048);
 		if (!line.isEmpty())
 		{
-			lines << file_csv_stream->readLine(2048);
+			lines << line;
 			++n_lines;
 		}
 		++n_read;
@@ -418,6 +468,8 @@ void MainWindow::createTailDataStream (QString const & fname)
 	datalogs_t::iterator it = connection->findOrCreateLog(tag);
 	connection->handleCSVSetup(tag);
 
+	mentionStringInRecentHistory_Ref(fname, m_config.m_recent_history);
+
 	bool const has_sep = m_setup_dialog_csv->ui->separatorCheckBox->isChecked();
 	if (has_sep)
 	{
@@ -443,17 +495,23 @@ void MainWindow::createTailDataStream (QString const & fname)
 
 		if (bool const has_no_setup = (*it)->config().m_columns_setup.size() == 0)
 		{
+			QStandardItemModel * p_model = static_cast<QStandardItemModel *>(m_setup_dialog_csv->ui->preView->model());
 			QStandardItemModel * c_model = static_cast<QStandardItemModel *>(m_setup_dialog_csv->ui->columnList->model());
 			for (int cl = 0, cle = c_model->rowCount(); cl < cle; ++cl)
 			{
 				if (e_Action_Import == m_setup_dialog_csv->m_column_actions[cl])
 				{
-					QString const val = c_model->index(cl, 0).data(Qt::DisplayRole).toString();
-					int const size = 128; //@TODO
-					//int const size = m_setup_dialog_csv->ui->preView->horizontalHeader()->sectionSize(cl);
+					QString const c_val = c_model->index(cl, 0).data(Qt::DisplayRole).toString();
+					int size = 128;
+					for (int pc = 0, pce = p_model->columnCount(); pc < pce; ++pc)
+					{
+						QString const p_val = p_model->headerData(pc, Qt::Horizontal).toString();
+						if (p_val == c_val)
+							size = m_setup_dialog_csv->ui->preView->horizontalHeader()->sectionSize(pc);
+					}
 					E_Align const align = e_AlignLeft;
 					E_Elide const elide = e_ElideRight;
-					(*it)->config().m_columns_setup.push_back(val);
+					(*it)->config().m_columns_setup.push_back(c_val);
 					(*it)->config().m_columns_sizes.push_back(size);
 					(*it)->config().m_columns_align.push_back(QString(alignToString(align)));
 					(*it)->config().m_columns_elide.push_back(QString(elideToString(elide)));

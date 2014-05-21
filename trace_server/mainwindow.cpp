@@ -46,6 +46,8 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QStri
 	, m_timer(new QTimer(this))
 	, m_server(0)
 	, m_windows_menu(0)
+	, m_file_menu(0)
+	, m_before_action(0)
 	, m_minimize_action(0)
 	, m_maximize_action(0)
 	, m_restore_action(0)
@@ -79,6 +81,7 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QStri
 	m_config.m_appdir = m_appdir;
 	m_config.m_dump_mode = dump_mode;
 	loadConfig();
+	m_config.loadHistory(m_appdir);
 	setConfigValuesToUI(m_config);
 
 	// tray stuff
@@ -446,11 +449,23 @@ void MainWindow::onDockRestoreButton ()
 	restoreGeometry(settings.value("geometry").toByteArray());
 }
 
-void MainWindow::onRecentFile()
+void MainWindow::onRecentFile ()
 {
 	QAction * action = qobject_cast<QAction *>(sender());
 	if (action)
-		createTailDataStream(action->data().toString());
+	{
+		QString const fname = action->data().toString();
+		QString const ext = QFileInfo(fname).suffix();
+
+		bool const is_tlv = (0 == QString::compare(ext, g_traceFileExtTLV, Qt::CaseInsensitive));
+		bool const is_csv = (0 == QString::compare(ext, g_traceFileExtCSV, Qt::CaseInsensitive));
+		if (is_tlv)
+			importDataStream(fname);
+		else if (is_csv)
+			createTailDataStream(fname);
+		else
+			createTailDataStream(fname);
+	}
 }
 
 void MainWindow::setupMenuBar ()
@@ -471,26 +486,19 @@ void MainWindow::setupMenuBar ()
 		QToolButton:checked { background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #dadbdd, stop: 1 #d6d7da); }");
 
 	// File
-	QMenu * fileMenu = menuBar()->addMenu(tr("&File"));
-	fileMenu->addAction(tr("Data file &Load..."), this, SLOT(onFileLoad()), QKeySequence(Qt::ControlModifier + Qt::Key_O));
-	fileMenu->addAction(tr("&Save raw client data as..."), this, SLOT(onSaveData()));
-	fileMenu->addAction(tr("&Export data as CSV format..."), this, SLOT(onExportDataToCSV()));
-	fileMenu->addSeparator();
-	fileMenu->addAction(tr("Load &CSV file..."), this, SLOT(onFileLoadCSV()));
-	fileMenu->addAction(tr("&Follow text file..."), this, SLOT(onFileTail()), QKeySequence(Qt::ControlModifier + Qt::Key_T));
-	fileMenu->addSeparator();
+	m_file_menu = menuBar()->addMenu(tr("&File"));
+	m_file_menu->addAction(tr("Data file &Load..."), this, SLOT(onFileLoad()), QKeySequence(Qt::ControlModifier + Qt::Key_O));
+	m_file_menu->addAction(tr("&Save raw client data as..."), this, SLOT(onSaveData()));
+	m_file_menu->addAction(tr("&Export data as CSV format..."), this, SLOT(onExportDataToCSV()));
+	m_file_menu->addSeparator();
+	m_file_menu->addAction(tr("Load &CSV file..."), this, SLOT(onFileLoadCSV()));
+	m_file_menu->addAction(tr("&Follow text file..."), this, SLOT(onFileTail()), QKeySequence(Qt::ControlModifier + Qt::Key_T));
 
-	m_recent_files.clear();
-	for (int i = 0; i < m_config.m_recent_history.size(); ++i)
-	{
-		m_recent_files.push_back(new QAction(this));
-		m_recent_files.back()->setVisible(false);
-		connect(m_recent_files.back(), SIGNAL(triggered()), this, SLOT(openRecentFile()));
-		fileMenu->addAction(m_recent_files.back());
-	}
+	m_file_menu->addSeparator();
+	syncHistoryToRecent(m_config.m_recent_history);
 
-	fileMenu->addSeparator();
-	fileMenu->addAction(tr("Quit program"), this, SLOT(onQuit()), QKeySequence::Quit);
+	m_before_action = m_file_menu->addSeparator();
+	m_file_menu->addAction(tr("Quit program"), this, SLOT(onQuit()), QKeySequence::Quit);
 
 	// View
 	QMenu * viewMenu = menuBar()->addMenu(tr("&View"));
@@ -501,36 +509,11 @@ void MainWindow::setupMenuBar ()
 	// widget's tool dockable widgets.
 	m_windows_menu = menuBar()->addMenu(tr("&Windows"));
 
-	menuBar()->addSeparator();
-
 	// Help
 	QMenu * helpMenu = menuBar()->addMenu(tr("&Help"));
 	helpMenu->addSeparator();
 	helpMenu->addAction(tr("&Remove configuration files"), this, SLOT(onRemoveConfigurationFiles()));
 	helpMenu->addAction(tr("Show server log"), this, SLOT(onLogTail()), QKeySequence(Qt::ControlModifier + Qt::AltModifier + Qt::Key_L));
-
-	// Edit
-	//QMenu * editMenu = menuBar()->addMenu(tr("&Edit"));
-/*
-	editMenu->addAction(tr("Find"), this, SLOT(onFind()), QKeySequence::Find);
-	//editMenu->addAction(tr("Find"), this, SLOT(onFind()),	Qt::ControlModifier + Qt::Key_F);
-	editMenu->addAction(tr("Find"), this, SLOT(onFindAllRefs()), Qt::ControlModifier + Qt::ShiftModifier + Qt::Key_F);
-	editMenu->addAction(tr("Find Next"), this, SLOT(onFindNext()), QKeySequence::FindNext);
-	editMenu->addAction(tr("Find Prev"), this, SLOT(onFindPrev()), QKeySequence::FindPrevious);
-	new QShortcut(QKeySequence(Qt::Key_Slash), this, SLOT(onFind()));
-*/
-	//editMenu->addAction(tr("Find and Select All"), this, SLOT(onFindAllButton()));
-	//editMenu->addAction(tr("Goto Next Tag or Selection"), this, SLOT(onNextToView()));
-
-	//editMenu->addSeparator();
-	//editMenu->addAction(tr("Close Tab"), this, SLOT(onCloseCurrentTab()), QKeySequence(Qt::ControlModifier + Qt::Key_W));
-
-	// Filter
-	//QMenu * filterMenu = menuBar()->addMenu(tr("Fi&lter"));
-	//filterMenu->addAction(tr("Goto file filter"), this, SLOT(onGotoFileFilter()), QKeySequence(Qt::ControlModifier + Qt::Key_F1));
-	//filterMenu->addAction(tr("Goto level filter"), this, SLOT(onGotoLevelFilter()), QKeySequence(Qt::ControlModifier + Qt::Key_F2));
-	//filterMenu->addAction(tr("Goto regex filter"), this, SLOT(onGotoRegexFilter()), QKeySequence(Qt::ControlModifier + Qt::Key_F3));
-	//filterMenu->addAction(tr("Goto color filter"), this, SLOT(onGotoColorFilter()), QKeySequence(Qt::ControlModifier + Qt::Key_F4));
 
 	// Tools
 	//QMenu * tools = menuBar()->addMenu(tr("&Settings"));
@@ -542,9 +525,6 @@ void MainWindow::setupMenuBar ()
 	// Help
 	//QMenu * helpMenu = menuBar()->addMenu(tr("&Help"));
 	//helpMenu->addAction(tr("Help"), this, SLOT(onShowHelp()));
-	//helpMenu->addAction(tr("Dump filters"), this, SLOT(onDumpFilters()));
-
-	//new QShortcut(QKeySequence(Qt::AltModifier + Qt::Key_Space), this, SLOT(onAutoScrollHotkey()));
 }
 
 void MainWindow::addWindowAction (QAction * action)

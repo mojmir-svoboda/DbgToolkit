@@ -230,11 +230,13 @@ void LogTableModel::parseCommand (DecodedCommand const & cmd, E_ReceiveMode mode
 						}
 
 					resizeToCfg(m_log_widget.m_config);
+
+					//@TODO: ask on forum what is the correct way
+					//for (size_t i = 0, ie = m_log_widget.m_config.m_columns_setup.size(); i < ie; ++i)
+					//	m_log_widget.m_tableview->horizontalHeader()->resizeSection(i, m_log_widget.m_config.m_columns_sizes[i]);
 				}
 			}
 
-
-			resizeToCfg(m_log_widget.m_config);
 			columns.resize(m_columns2storage.size());
 			for (int i = 0, ie = m_columns2storage.size(); i < ie; ++i)
 			{
