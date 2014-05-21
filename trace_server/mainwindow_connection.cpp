@@ -355,15 +355,23 @@ void MainWindow::createTailDataStream (QString const & fname)
 		delete f;
 		return;
 	}
+	QFileInfo fi(fname);
+	QString const ext = fi.suffix();
+	bool const is_csv = (0 == QString::compare(ext, g_traceFileExtCSV, Qt::CaseInsensitive));
 	QTextStream * file_csv_stream = new QTextStream(f);
 
-	enum { e_min_lines = 3 };
+	enum { e_min_lines = 3, e_max_read = 32 };
 	QStringList lines;
-	int n_lines = 0;
-	while (!file_csv_stream->atEnd() && n_lines < e_min_lines)
+	int n_lines = 0, n_read = 0;
+	while (!file_csv_stream->atEnd() && n_lines < e_min_lines && n_read < e_max_read)
 	{
-		lines << file_csv_stream->readLine(2048);
-		++n_lines;
+		QString const line = file_csv_stream->readLine(2048);
+		if (!line.isEmpty())
+		{
+			lines << file_csv_stream->readLine(2048);
+			++n_lines;
+		}
+		++n_read;
 	}
 	delete file_csv_stream;
 
@@ -378,6 +386,11 @@ void MainWindow::createTailDataStream (QString const & fname)
 	connect(m_setup_dialog_csv->ui->importButton, SIGNAL(toggled(bool)), this, SLOT(onChangeColumnRadioDialogCSV(bool)));
 	connect(m_setup_dialog_csv->ui->resetButton, SIGNAL(clicked()), this, SLOT(onChangeColumnReset()));
 	connect(m_setup_dialog_csv->ui->skipAllButton, SIGNAL(clicked()), this, SLOT(onChangeColumnSkipAll()));
+
+	if (!is_csv)
+	{
+		m_setup_dialog_csv->ui->separatorCheckBox->setChecked(false);
+	}
 
 	onChangeSetupDialogCSV(0);
 	m_setup_dialog_csv->exec();
@@ -400,7 +413,6 @@ void MainWindow::createTailDataStream (QString const & fname)
 	// everything ok, setup connection and widget
 	Connection * connection = createNewConnection();
 	connection->setTailFile(fname);
-	QFileInfo fi(fname);
 	QString const tag = fi.fileName();
 
 	datalogs_t::iterator it = connection->findOrCreateLog(tag);
