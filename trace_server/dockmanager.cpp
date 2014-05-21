@@ -28,7 +28,7 @@ DockManager::DockManager (MainWindow * mw, QStringList const & path)
 	dock->setObjectName(name);
 	dock->setWindowTitle(name);
 	dock->setAllowedAreas(Qt::AllDockWidgetAreas);
-	m_main_window->addDockWidget(Qt::BottomDockWidgetArea, dock);
+	m_main_window->addDockWidget(Qt::TopDockWidgetArea, dock);
 	dock->setAttribute(Qt::WA_DeleteOnClose, false);
 	dock->setWidget(this);
 
