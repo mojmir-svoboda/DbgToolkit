@@ -22,7 +22,7 @@ struct ColorizedString {
 	bool accept (QString str) const
 	{
 		Qt::CaseSensitivity const cs = m_case_sensitive ? Qt::CaseSensitive : Qt::CaseInsensitive;
-		if (m_is_enabled && m_str.contains(str, cs))
+		if (m_is_enabled && str.contains(m_str, cs))
 		{
 			return true;
 		}

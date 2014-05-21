@@ -102,7 +102,8 @@ FORMS    += help.ui \
     controlbarlog.ui \
     controlbardockedwidgets.ui \
     setupdialogcsv.ui \
-    colorizer_string.ui
+    colorizer_string.ui \
+    colorizewidget.ui
     colorizewidget.ui
 
 RESOURCES += \
