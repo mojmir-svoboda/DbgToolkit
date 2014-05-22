@@ -96,8 +96,8 @@ struct Application : QApplication, public QAbstractNativeEventFilter
 
 void usage ()
 {
-	printf("\n(f)Logging server, Copyright (C) 2011 Mojmir Svoboda\n");
-	printf("http://developer.berlios.de/projects/flogging\n\n");
+	printf("\nDbgToolkit's trace server, Copyright (C) 2011-2014 Mojmir Svoboda\n");
+	printf("https://github.com/mojmir-svoboda/DbgToolkit\n\n");
 	printf("Available options:\n");
 	printf("\t\t-q\t\tquit immeadiately if another instance running\n");
 	printf("\t\t-n\t\tno visible window at start (can be activated by ScrollLock hotkey)\n");
