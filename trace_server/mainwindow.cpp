@@ -305,6 +305,17 @@ void MainWindow::onDockManagerClosed ()
 	m_dock_mgr_button->setChecked(false);
 }
 
+void MainWindow::onReloadFile ()
+{
+	for (int i = 0, ie = m_reload_fnames.size(); i < ie; ++i)
+	{
+		QString const fname = m_reload_fnames.at(i);
+		if (!fname.isEmpty())
+			createTailDataStream(fname);
+	}
+	m_reload_fnames.clear();
+}
+
 void MainWindow::tailFiles (QStringList const & files)
 {
 	for (int i = 0, ie = files.size(); i < ie; ++i)

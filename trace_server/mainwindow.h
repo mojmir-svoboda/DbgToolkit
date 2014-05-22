@@ -104,6 +104,8 @@ public slots:
 	void newConnection (Connection * connection);
 	void onStatusChanged (QString const & status);
 	void onCloseMarkedConnections ();
+	void onReloadFile ();
+	void requestReloadFile (QString const & fname) { m_reload_fnames.push_back(fname); }
 
 	void onHotkeyShowOrHide ();
 	void hide ();
@@ -209,6 +211,7 @@ private:
 	QToolButton *		m_dock_mgr_button;
 	QSystemTrayIcon * 	m_tray_icon;
 	QLabel *			m_status_label;
+	std::vector<QString> m_reload_fnames;
 
 	// docked widgets
 	DockManager 		m_dock_mgr;

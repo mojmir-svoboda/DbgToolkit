@@ -229,6 +229,7 @@ private:
 	MainWindow * m_main_window;
 	E_SrcStream m_src_stream;
 	E_SrcProtocol m_src_protocol;
+	QString m_src_name;
 	ConnectionConfig m_config;
 
 	AppData m_app_data;
@@ -240,6 +241,7 @@ private:
 	ControlBarCommon * m_control_bar;
 	QDataStream * m_file_tlv_stream;
 	QTextStream * m_file_csv_stream;
+	qint64 m_file_size;
 	QString m_csv_separator;
 
 	// data receiving stuff
