@@ -186,94 +186,85 @@ void LogTableModel::parseCommand (DecodedCommand const & cmd, E_ReceiveMode mode
 		QString msg;
 		if (!cmd.getString(tlv::tag_msg, msg)) return;
 
+		batch.m_rows.push_back(columns_t(cmd.m_tvs.size()));
+		batch.m_dcmds.push_back(cmd);
+		batch.m_dcmds.back().m_indent = 0;
+		batch.m_dcmds.back().m_row_type = cmd.m_hdr.cmd;
+		columns_t & columns = batch.m_rows.back();
+		columns.reserve(cmd.m_tvs.size());
+
+		QStringList l;
+
 		if (m_log_widget.separator().isEmpty())
 		{
-			// treat input as one column
-			tlv::TV tv;
-			tv.m_tag = tlv::tag_msg;
-			tv.m_val = msg;
-			//m_current_cmd.m_tvs.push_back(tv);
+			l << msg;
 		}
 		else
 		{
-			batch.m_rows.push_back(columns_t(cmd.m_tvs.size()));
-			batch.m_dcmds.push_back(cmd);
-			batch.m_dcmds.back().m_indent = 0;
-			batch.m_dcmds.back().m_row_type = cmd.m_hdr.cmd;
-			columns_t & columns = batch.m_rows.back();
-			columns.reserve(cmd.m_tvs.size());
+			l = msg.split(m_log_widget.separator());
+		}
 
-			QStringList const l = msg.split(m_log_widget.separator());
-			bool const has_no_setup = m_log_widget.m_config.m_columns_setup.size() == 0;
+		bool const has_no_setup = m_log_widget.m_config.m_columns_setup.size() == 0;
 
-
-			if (has_no_setup)
+		if (has_no_setup)
+		{
+			m_columns2storage.clear();
+			m_columns2storage.resize(m_log_widget.m_storage_order.size());
+			for (int c = 0, ce = m_log_widget.m_storage_order.size(); c < ce; ++c)
+				m_columns2storage[c] = c;
+			resizeToCfg(m_log_widget.m_config);
+		}
+		else
+		{
+			if (m_columns2storage.size() == 0)
 			{
-				m_columns2storage.clear();
-				m_columns2storage.resize(m_log_widget.m_storage_order.size());
-				for (int c = 0, ce = m_log_widget.m_storage_order.size(); c < ce; ++c)
-					m_columns2storage[c] = c;
+				m_columns2storage.resize(m_log_widget.m_config.m_columns_setup.size());
+				for (size_t i = 0, ie = m_log_widget.m_config.m_columns_setup.size(); i < ie; ++i)
+					for (int c = 0, ce = m_log_widget.m_storage_order.size(); c < ce; ++c)
+					{
+						if (m_log_widget.m_config.m_columns_setup[i] == m_log_widget.m_storage_order[c])
+						{
+							m_columns2storage[i] = c;
+							break;
+						}
+					}
+
+				resizeToCfg(m_log_widget.m_config);
+
+				//@TODO: ask on forum what is the correct way
+				//for (size_t i = 0, ie = m_log_widget.m_config.m_columns_setup.size(); i < ie; ++i)
+				//	m_log_widget.m_tableview->horizontalHeader()->resizeSection(i, m_log_widget.m_config.m_columns_sizes[i]);
+			}
+		}
+
+		columns.resize(m_columns2storage.size());
+		for (int i = 0, ie = m_columns2storage.size(); i < ie; ++i)
+		{
+			int const src = m_columns2storage[i];
+			if (src < l.size())
+			{
+				QString const str =  unquoteString(l.at(src), m_log_widget.m_unquote_strings, m_log_widget.m_simplify_strings);
+				columns[i].m_value = str;
 			}
 			else
 			{
-				if (m_columns2storage.size() == 0)
-				{
-					m_columns2storage.resize(m_log_widget.m_config.m_columns_setup.size());
-					for (size_t i = 0, ie = m_log_widget.m_config.m_columns_setup.size(); i < ie; ++i)
-						for (int c = 0, ce = m_log_widget.m_storage_order.size(); c < ce; ++c)
-						{
-							if (m_log_widget.m_config.m_columns_setup[i] == m_log_widget.m_storage_order[c])
-							{
-								m_columns2storage[i] = c;
-								break;
-							}
-						}
-
-					resizeToCfg(m_log_widget.m_config);
-
-					//@TODO: ask on forum what is the correct way
-					//for (size_t i = 0, ie = m_log_widget.m_config.m_columns_setup.size(); i < ie; ++i)
-					//	m_log_widget.m_tableview->horizontalHeader()->resizeSection(i, m_log_widget.m_config.m_columns_sizes[i]);
-				}
+				qWarning("CSV parsing error at line: %s", qPrintable(msg));
 			}
-
-			columns.resize(m_columns2storage.size());
-			for (int i = 0, ie = m_columns2storage.size(); i < ie; ++i)
-			{
-				int const src = m_columns2storage[i];
-				if (src < l.size())
-				{
-					QString const str =  unquoteString(l.at(src), m_log_widget.m_unquote_strings, m_log_widget.m_simplify_strings);
-					columns[i].m_value = str;
-				}
-				else
-				{
-					qWarning("CSV parsing error at line: %s", qPrintable(msg));
-				}
-
-				/*tlv::tag_t const tag = tlv::tag_max_value + i;
-				int column_index = findColumn4Tag(tag);
-				if (column_index < 0)
-				{
-					column_index = appendColumn(tag);
-					//resizeToCfg(m_log_widget.m_config);
-				}*/
-			}
-
-			for (int i = 0, ie = l.size(); i < ie; ++i)
-			{
-				tlv::TV tv;
-				tv.m_val = l.at(i);
-				// @TODO: if tag is known tag such as STime, CTime, ... then make it that one
-				tlv::tag_t const tag = tlv::tag_max_value + i;
-				tv.m_tag = tag;
-				batch.m_dcmds.back().m_tvs.push_back(tv);
-			}
-
-			sys::hptimer_t const now = sys::queryTime_us();
-			batch.m_row_ctimes.push_back(now); //@TODO: unless there is a time tag assigned to column
-			batch.m_row_stimes.push_back(now);
 		}
+
+		for (int i = 0, ie = l.size(); i < ie; ++i)
+		{
+			tlv::TV tv;
+			tv.m_val = l.at(i);
+			// @TODO: if tag is known tag such as STime, CTime, ... then make it that one
+			tlv::tag_t const tag = tlv::tag_max_value + i;
+			tv.m_tag = tag;
+			batch.m_dcmds.back().m_tvs.push_back(tv);
+		}
+
+		sys::hptimer_t const now = sys::queryTime_us();
+		batch.m_row_ctimes.push_back(now); //@TODO: unless there is a time tag assigned to column
+		batch.m_row_stimes.push_back(now);
 	}
 	else
 	{
