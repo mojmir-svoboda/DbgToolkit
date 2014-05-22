@@ -409,6 +409,9 @@ void LogTableModel::commitBatchToModel (BatchCmd & batch)
 	postProcessBatch(from, to + 1, batch); // hook to linked models
 
 	batch.clear();
+
+	if (from == 0)
+		m_log_widget.resizeSections(); // @NOTE: QHeaderView::resizeSection does not work if there are no physical section
 }
 
 void LogTableModel::clearModel ()

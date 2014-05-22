@@ -99,6 +99,7 @@ public:
 	Connection * createNewConnection ();
 	Connection * createNewConnection (QString const & app_name);
 	void markConnectionForClose (Connection * conn);
+	bool executeSetupDialogCSV (QString const & fname);
 
 public slots:
 	void newConnection (Connection * connection);

@@ -16,7 +16,7 @@ void ColorizeWidget::init ()
 
 	QLineEdit * le = m_ui->findBox->lineEdit();
 	connect(le, SIGNAL(returnPressed()), this, SLOT(onReturnPressed()));
-	connect(m_ui->selectButton, SIGNAL(clicked()), this, SLOT(onFindAllSelect()));
+	connect(m_ui->colorizeButton, SIGNAL(clicked()), this, SLOT(onFindAllSelect()));
 	connect(m_ui->refsButton, SIGNAL(clicked()), this, SLOT(onFindAllRefs()));
 	connect(m_ui->cloneButton, SIGNAL(clicked()), this, SLOT(onFindAllClone()));
 	connect(m_ui->cancelButton, SIGNAL(clicked()), this, SLOT(onCancel()));
