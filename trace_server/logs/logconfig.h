@@ -24,6 +24,7 @@ namespace logs {
 		std::vector<QString> 	m_columns_align;		/// column align for each registered application
 		std::vector<QString> 	m_columns_elide;		/// column elide for each registered application
 		std::vector<QColor> 	m_thread_colors;		/// predefined coloring of threads
+		std::vector<QString> 	m_storage_order;
 		bool m_in_view;
 		bool m_filtering;
 		bool m_clr_filters;
@@ -99,6 +100,7 @@ namespace logs {
 			ar & boost::serialization::make_nvp("columns_align", m_columns_align);
 			ar & boost::serialization::make_nvp("columns_elide", m_columns_elide);
 			ar & boost::serialization::make_nvp("thread_colors", m_thread_colors);
+			ar & boost::serialization::make_nvp("storage_order", m_storage_order);
 			ar & boost::serialization::make_nvp("in_view", m_in_view);
 			ar & boost::serialization::make_nvp("filtering", m_filtering);
 			ar & boost::serialization::make_nvp("clr_filters", m_clr_filters);

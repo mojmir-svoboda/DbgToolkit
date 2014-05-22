@@ -209,8 +209,8 @@ void LogTableModel::parseCommand (DecodedCommand const & cmd, E_ReceiveMode mode
 		if (has_no_setup)
 		{
 			m_columns2storage.clear();
-			m_columns2storage.resize(m_log_widget.m_storage_order.size());
-			for (int c = 0, ce = m_log_widget.m_storage_order.size(); c < ce; ++c)
+			m_columns2storage.resize(m_log_widget.m_config.m_storage_order.size());
+			for (int c = 0, ce = m_log_widget.m_config.m_storage_order.size(); c < ce; ++c)
 				m_columns2storage[c] = c;
 			resizeToCfg(m_log_widget.m_config);
 		}
@@ -220,9 +220,9 @@ void LogTableModel::parseCommand (DecodedCommand const & cmd, E_ReceiveMode mode
 			{
 				m_columns2storage.resize(m_log_widget.m_config.m_columns_setup.size());
 				for (size_t i = 0, ie = m_log_widget.m_config.m_columns_setup.size(); i < ie; ++i)
-					for (int c = 0, ce = m_log_widget.m_storage_order.size(); c < ce; ++c)
+					for (int c = 0, ce = m_log_widget.m_config.m_storage_order.size(); c < ce; ++c)
 					{
-						if (m_log_widget.m_config.m_columns_setup[i] == m_log_widget.m_storage_order[c])
+						if (m_log_widget.m_config.m_columns_setup[i] == m_log_widget.m_config.m_storage_order[c])
 						{
 							m_columns2storage[i] = c;
 							break;

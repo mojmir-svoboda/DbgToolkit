@@ -312,7 +312,6 @@ namespace logs {
 		QString m_csv_separator;
 		bool m_simplify_strings;
 		bool m_unquote_strings;
-		std::vector<QString> 	m_storage_order;
 		QTextStream * m_file_csv_stream;
 	};
 }

@@ -103,11 +103,11 @@ void MainWindow::createTailLogStream (QString const & fname, QString const & sep
 	connection->m_config.m_csv_separator = separator;
 
 	// the order is imposed in main.cpp, in the Qt log redirector
-	(*it)->m_storage_order.clear();
-	(*it)->m_storage_order.push_back("Col0");
-	(*it)->m_storage_order.push_back("Lvl");
-	(*it)->m_storage_order.push_back("TID");
-	(*it)->m_storage_order.push_back("Msg");
+	(*it)->m_config.m_storage_order.clear();
+	(*it)->m_config.m_storage_order.push_back("Col0");
+	(*it)->m_config.m_storage_order.push_back("Lvl");
+	(*it)->m_config.m_storage_order.push_back("TID");
+	(*it)->m_config.m_storage_order.push_back("Msg");
 
 	if (bool const has_no_setup = (*it)->config().m_columns_setup.size() == 0)
 	{
@@ -115,9 +115,9 @@ void MainWindow::createTailLogStream (QString const & fname, QString const & sep
 		E_Align const aligns[4] = { e_AlignRight, e_AlignRight, e_AlignRight, e_AlignLeft };
 		E_Elide const elides[4] = { e_ElideLeft, e_ElideLeft, e_ElideLeft, e_ElideRight };
 
-		for (int cl = 0, cle = (*it)->m_storage_order.size(); cl < cle; ++cl)
+		for (int cl = 0, cle = (*it)->m_config.m_storage_order.size(); cl < cle; ++cl)
 		{
-			QString const & val = (*it)->m_storage_order[cl];
+			QString const & val = (*it)->m_config.m_storage_order[cl];
 			int const size = sizes[cl];
 			E_Align const align = aligns[cl];
 			E_Elide const elide = elides[cl];
@@ -496,15 +496,15 @@ void MainWindow::createTailDataStream (QString const & fname)
 			connection->m_config.m_csv_separator = separator;
 		}
 
-		if (0 == (*it)->m_storage_order.size())
+		if (0 == (*it)->m_config.m_storage_order.size())
 		{
 			QStandardItemModel * c_model = static_cast<QStandardItemModel *>(m_setup_dialog_csv->ui->columnList->model());
 			int const rows = c_model->rowCount();
-			(*it)->m_storage_order.resize(rows);
+			(*it)->m_config.m_storage_order.resize(rows);
 			for (int i = 0 ; i < rows ; ++i)
 			{
 				QString const val = c_model->index(i, 0).data(Qt::DisplayRole).toString();
-				(*it)->m_storage_order[i] = val;
+				(*it)->m_config.m_storage_order[i] = val;
 			}
 		}
 
