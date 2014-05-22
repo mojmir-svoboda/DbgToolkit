@@ -94,6 +94,13 @@
         </widget>
        </item>
        <item>
+        <widget class="QCheckBox" name="caseBox">
+         <property name="text">
+          <string>Aa</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QPushButton" name="addButton">
          <property name="maximumSize">
           <size>

@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>349</width>
+    <width>369</width>
     <height>49</height>
    </rect>
   </property>
@@ -205,6 +205,31 @@
       </widget>
      </item>
      <item>
+      <widget class="QPushButton" name="colorizeButton">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>48</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>48</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="toolTip">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Selects all occurences in current document&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+       <property name="text">
+        <string>Colorize</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QToolButton" name="prevButton">
        <property name="maximumSize">
         <size>
@@ -249,29 +274,10 @@
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="selectButton">
-       <property name="minimumSize">
-        <size>
-         <width>32</width>
-         <height>0</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>36</width>
-         <height>16777215</height>
-        </size>
-       </property>
-       <property name="toolTip">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Selects all occurences in current document&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-       </property>
-       <property name="text">
-        <string>Select</string>
-       </property>
-      </widget>
-     </item>
-     <item>
       <widget class="QPushButton" name="refsButton">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="maximumSize">
         <size>
          <width>32</width>
@@ -288,6 +294,9 @@
      </item>
      <item>
       <widget class="QPushButton" name="cloneButton">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="maximumSize">
         <size>
          <width>32</width>
@@ -317,7 +326,6 @@
   <tabstop>findBox</tabstop>
   <tabstop>prevButton</tabstop>
   <tabstop>nextButton</tabstop>
-  <tabstop>selectButton</tabstop>
   <tabstop>refsButton</tabstop>
   <tabstop>cloneButton</tabstop>
   <tabstop>caseCheckBox</tabstop>
