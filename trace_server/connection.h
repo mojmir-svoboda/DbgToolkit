@@ -235,14 +235,13 @@ private:
 	AppData m_app_data;
 	QString m_pid;
 	int m_storage_idx;
-	unsigned m_recv_bytes;
+	qint64 m_recv_bytes;
 	bool m_marked_for_close;
 	QString m_curr_preset;
 	ControlBarCommon * m_control_bar;
 	QDataStream * m_file_tlv_stream;
 	QTextStream * m_file_csv_stream;
 	qint64 m_file_size;
-	//QString m_csv_separator;
 
 	// data receiving stuff
 	enum { e_ringbuff_size = 128 * 1024 };
