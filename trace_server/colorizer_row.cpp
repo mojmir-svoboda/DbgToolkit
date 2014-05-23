@@ -277,12 +277,12 @@ void ColorizerRow::onClickedAt (QModelIndex idx)
 	{
 		append(str);
 		recompileColorRow(ct);
-		updateColorRow(ct);
+		updateColor(ct);
 	}
 	else
 	{
 		recompileColorRow(ct);
-		updateColorRow(ct);
+		updateColor(ct);
 		remove(str);
 	}
 
@@ -307,11 +307,11 @@ void ColorizerRow::onClickedAt (QModelIndex idx)
 				{
 					m_filter_state.setColorRowChecked(val, checked);
 					recompileColorRow(ct);
-					updateColorRow(ct);
+					updateColor(ct);
 				}
 				else
 				{
-					uncolorRow(ct);
+					uncolor(ct);
 					m_filter_state.setColorRowChecked(val, checked);
 					recompileColorRow(ct);
 				}
@@ -337,7 +337,7 @@ void ColorizerRow::recompile ()
 }*/
 
 	//@TODO: dedup
-	void ColorizerRow::actionColorRow (DecodedCommand const & cmd, ColorizedRow const & ct) const
+	void ColorizerRow::actionColor (DecodedCommand const & cmd, ColorizedRow const & ct) const
 	{
 		bool const is_match = ct.m_row == cmd.m_src_row;
 		if (!is_match)
@@ -355,7 +355,7 @@ void ColorizerRow::recompile ()
 			//@TODO: if column != tid
 		}
 	}
-	void ColorizerRow::actionUncolorRow (DecodedCommand const & cmd, ColorizedRow const & ct) const
+	void ColorizerRow::actionUncolor (DecodedCommand const & cmd, ColorizedRow const & ct) const
 	{
 		bool const is_match = ct.m_row == cmd.m_src_row;
 		if (!is_match)
@@ -387,30 +387,30 @@ void ColorizerRow::recompile ()
 		}*/
 	}
 
-	void ColorizerRow::updateColorRow (ColorizedRow const & ct)
+	void ColorizerRow::updateColor (ColorizedRow const & ct)
 	{
 		for (size_t r = 0, re = m_src_model->dcmds().size(); r < re; ++r)
 		{
 			DecodedCommand const & dcmd = m_src_model->dcmds()[r];
-			actionColorRow(dcmd, ct);
+			actionColor(dcmd, ct);
 		}
 	}
 
-	void ColorizerRow::uncolorRow (ColorizedRow const & ct)
+	void ColorizerRow::uncolor (ColorizedRow const & ct)
 	{
 		for (size_t r = 0, re = m_src_model->dcmds().size(); r < re; ++r)
 		{
 			DecodedCommand const & dcmd = m_src_model->dcmds()[r];
-			actionUncolorRow(dcmd, ct);
+			actionUncolor(dcmd, ct);
 		}
 	}
 
 	void ColorizerRow::onActivate (int)
 	{
 	}
-	void ColorizerRow::onFgChanged () { onColorRowChanged(Qt::ForegroundRole); }
-	void ColorizerRow::onBgChanged () { onColorRowChanged(Qt::BackgroundRole); }
-	void ColorizerRow::onColorRowChanged (int role)
+	void ColorizerRow::onFgChanged () { onColorButtonChanged(Qt::ForegroundRole); }
+	void ColorizerRow::onBgChanged () { onColorButtonChanged(Qt::BackgroundRole); }
+	void ColorizerRow::onColorButtonChanged (int role)
 	{
 		for (int i = 0, ie = m_data.size(); i < ie; ++i)
 		{
@@ -435,8 +435,9 @@ void ColorizerRow::recompile ()
 					ct.m_bgcolor = w->currentColor();
 			}
 
-			//TODO: this updates all of them, fixit
-			updateColorRow(ct);
+			//TODO: this updates all of them, fixit:413
+			//
+			updateColor(ct);
 		}
 	}
 
@@ -451,7 +452,7 @@ void ColorizerRow::recompile ()
 		{
 			ColorizedRow & ct = m_data[i];
 			recompileColorRow(ct);
-			//updateColorRow(ct);
+			//updateColor(ct);
 		}
 	}
 	//void ColorizerRow::onDoubleClickedAtColorRowList (QModelIndex idx) { }
@@ -504,7 +505,7 @@ void ColorizerRow::recompile ()
 		ColorizedRow & ct = add(row, fg, bg);
 
 		recompileColorRow(ct);
-		updateColorRow(ct);
+		updateColor(ct);
 	}
 
 	void ColorizerRow::onAdd ()
@@ -529,7 +530,7 @@ void ColorizerRow::recompile ()
 
 		ColorizedRow & ct = findOrCreateColorizedRow(row);
 		recompileColorRow(ct);
-		uncolorRow(ct);
+		uncolor(ct);
 		remove(row);
 	}
 

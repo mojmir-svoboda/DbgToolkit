@@ -37,7 +37,7 @@ void ColorizerRegex::doneUI ()
 }
 
 //@TODO: dedup
-void ColorizerRegex::actionColorRegex (DecodedCommand const & cmd, ColorizedText const & ct, QColor const & fg, QColor const & bg) const
+void ColorizerRegex::actionColor (DecodedCommand const & cmd, ColorizedText const & ct, QColor const & fg, QColor const & bg) const
 {
 	for (size_t i = 0, ie = cmd.m_tvs.size(); i < ie; ++i)
 	{
@@ -57,9 +57,9 @@ void ColorizerRegex::actionColorRegex (DecodedCommand const & cmd, ColorizedText
 		}
 	}
 }
-void ColorizerRegex::actionUncolorRegex (DecodedCommand const & cmd, ColorizedText const & ct) const
+void ColorizerRegex::actionUncolor (DecodedCommand const & cmd, ColorizedText const & ct) const
 {
-	actionColorRegex(cmd, ct, QColor(Qt::black), QColor(Qt::white));
+	actionColor(cmd, ct, QColor(Qt::black), QColor(Qt::white));
 }
 
 bool ColorizerRegex::action (DecodedCommand const & cmd)
@@ -67,7 +67,7 @@ bool ColorizerRegex::action (DecodedCommand const & cmd)
 	for (size_t i = 0, ie = m_data.size(); i < ie; ++i)
 	{
 		ColorizedText const & ct = m_data[i];
-		actionColorRegex(cmd, ct, ct.m_fgcolor, ct.m_bgcolor);
+		actionColor(cmd, ct, ct.m_fgcolor, ct.m_bgcolor);
 	}
 	return false;
 }
@@ -253,12 +253,12 @@ void ColorizerRegex::onClickedAt (QModelIndex idx)
 	{
 		append(str);
 		recompileColorRegex(ct);
-		updateColorRegex(ct);
+		updateColor(ct);
 	}
 	else
 	{
 		recompileColorRegex(ct);
-		updateColorRegex(ct);
+		updateColor(ct);
 		remove(str);
 	}
 
@@ -283,11 +283,11 @@ void ColorizerRegex::onClickedAt (QModelIndex idx)
 				{
 					m_filter_state.setColorRegexChecked(val, checked);
 					recompileColorRegex(ct);
-					updateColorRegex(ct);
+					updateColor(ct);
 				}
 				else
 				{
-					uncolorRegex(ct);
+					uncolor(ct);
 					m_filter_state.setColorRegexChecked(val, checked);
 					recompileColorRegex(ct);
 				}
@@ -315,31 +315,31 @@ void ColorizerRegex::recompile ()
 
 
 
-void ColorizerRegex::updateColorRegex (ColorizedText const & ct)
+void ColorizerRegex::updateColor (ColorizedText const & ct)
 {
 	for (size_t r = 0, re = m_src_model->dcmds().size(); r < re; ++r)
 	{
 		DecodedCommand const & dcmd = m_src_model->dcmds()[r];
-		actionColorRegex(dcmd, ct, ct.m_fgcolor, ct.m_bgcolor);
+		actionColor(dcmd, ct, ct.m_fgcolor, ct.m_bgcolor);
 	}
 }
 
 
-void ColorizerRegex::uncolorRegex (ColorizedText const & ct)
+void ColorizerRegex::uncolor (ColorizedText const & ct)
 {
 	for (size_t r = 0, re = m_src_model->dcmds().size(); r < re; ++r)
 	{
 		DecodedCommand const & dcmd = m_src_model->dcmds()[r];
-		actionUncolorRegex(dcmd, ct);
+		actionUncolor(dcmd, ct);
 	}
 }
 
 void ColorizerRegex::onActivate (int)
 {
 }
-void ColorizerRegex::onFgChanged () { onColorRegexChanged(Qt::ForegroundRole); }
-void ColorizerRegex::onBgChanged () { onColorRegexChanged(Qt::BackgroundRole); }
-void ColorizerRegex::onColorRegexChanged (int role)
+void ColorizerRegex::onFgChanged () { onColorButtonChanged(Qt::ForegroundRole); }
+void ColorizerRegex::onBgChanged () { onColorButtonChanged(Qt::BackgroundRole); }
+void ColorizerRegex::onColorButtonChanged (int role)
 {
 	for (int i = 0, ie = m_data.size(); i < ie; ++i)
 	{
@@ -365,7 +365,7 @@ void ColorizerRegex::onColorRegexChanged (int role)
 		}
 
 		//TODO: this updates all of them, fixit
-		updateColorRegex(ct);
+		updateColor(ct);
 	}
 }
 
@@ -418,7 +418,7 @@ void ColorizerRegex::recompileColorRegexps ()
 	{
 		ColorizedText & ct = m_data[i];
 		recompileColorRegex(ct);
-		//updateColorRegex(ct);
+		//updateColor(ct);
 	}
 }
 //void ColorizerRegex::onDoubleClickedAtColorRegexList (QModelIndex idx) { }
@@ -477,7 +477,7 @@ void ColorizerRegex::onAdd ()
 	ColorizedText & ct = add(qItem, qFg, qBg);
 
 	recompileColorRegex(ct);
-	updateColorRegex(ct);
+	updateColor(ct);
 }
 
 void ColorizerRegex::onRm ()
@@ -490,7 +490,7 @@ void ColorizerRegex::onRm ()
 	m_model->removeRow(idx.row());
 
 	ColorizedText & ct = findOrCreateColorizedText(val);
-	uncolorRegex(ct);
+	uncolor(ct);
 	remove(val);
 }
 

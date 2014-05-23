@@ -291,9 +291,9 @@ void MainWindow::onDockManagerClosed ()
 
 void MainWindow::onReloadFile ()
 {
-	for (int i = 0, ie = m_reload_fnames.size(); i < ie; ++i)
+	for (size_t i = 0, ie = m_reload_fnames.size(); i < ie; ++i)
 	{
-		QString const fname = m_reload_fnames.at(i);
+		QString const fname = m_reload_fnames[i];
 		if (!fname.isEmpty())
 			createTailDataStream(fname);
 	}

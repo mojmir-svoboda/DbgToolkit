@@ -36,7 +36,7 @@ void ColorizerString::doneUI ()
 {
 }
 
-void ColorizerString::actionColorString (DecodedCommand const & cmd, ColorizedString const & ct, QColor const & fg, QColor const & bg) const
+void ColorizerString::actionColor (DecodedCommand const & cmd, ColorizedString const & ct, QColor const & fg, QColor const & bg) const
 {
 	for (size_t i = 0, ie = cmd.m_tvs.size(); i < ie; ++i)
 	{
@@ -56,9 +56,9 @@ void ColorizerString::actionColorString (DecodedCommand const & cmd, ColorizedSt
 		}
 	}
 }
-void ColorizerString::actionUncolorString (DecodedCommand const & cmd, ColorizedString const & ct) const
+void ColorizerString::actionUncolor (DecodedCommand const & cmd, ColorizedString const & ct) const
 {
-	actionColorString(cmd, ct, QColor(Qt::black), QColor(Qt::white));
+	actionColor(cmd, ct, QColor(Qt::black), QColor(Qt::white));
 }
 
 bool ColorizerString::action (DecodedCommand const & cmd)
@@ -66,7 +66,7 @@ bool ColorizerString::action (DecodedCommand const & cmd)
 	for (size_t i = 0, ie = m_data.size(); i < ie; ++i)
 	{
 		ColorizedString const & ct = m_data[i];
-		actionColorString(cmd, ct, ct.m_fgcolor, ct.m_bgcolor);
+		actionColor(cmd, ct, ct.m_fgcolor, ct.m_bgcolor);
 	}
 	return false;
 }
@@ -245,11 +245,11 @@ void ColorizerString::onClickedAt (QModelIndex idx)
 	if (checked)
 	{
 		append(str);
-		updateColorString(ct);
+		updateColor(ct);
 	}
 	else
 	{
-		updateColorString(ct);
+		updateColor(ct);
 		remove(str);
 	}
 
@@ -272,29 +272,29 @@ void ColorizerString::recompile ()
 }*/
 
 
-void ColorizerString::updateColorString (ColorizedString const & ct)
+void ColorizerString::updateColor (ColorizedString const & ct)
 {
 	for (size_t r = 0, re = m_src_model->dcmds().size(); r < re; ++r)
 	{
 		DecodedCommand const & dcmd = m_src_model->dcmds()[r];
-		actionColorString(dcmd, ct, ct.m_fgcolor, ct.m_bgcolor);
+		actionColor(dcmd, ct, ct.m_fgcolor, ct.m_bgcolor);
 	}
 }
 
-void ColorizerString::uncolorString (ColorizedString const & ct)
+void ColorizerString::uncolor (ColorizedString const & ct)
 {
 	for (size_t r = 0, re = m_src_model->dcmds().size(); r < re; ++r)
 	{
 		DecodedCommand const & dcmd = m_src_model->dcmds()[r];
-		actionUncolorString(dcmd, ct);
+		actionUncolor(dcmd, ct);
 	}
 }
 
 void ColorizerString::onActivate (int)
 { }
-void ColorizerString::onFgChanged () { onColorStringChanged(Qt::ForegroundRole); }
-void ColorizerString::onBgChanged () { onColorStringChanged(Qt::BackgroundRole); }
-void ColorizerString::onColorStringChanged (int role)
+void ColorizerString::onFgChanged () { onColorButtonChanged(Qt::ForegroundRole); }
+void ColorizerString::onBgChanged () { onColorButtonChanged(Qt::BackgroundRole); }
+void ColorizerString::onColorButtonChanged (int role)
 {
 	for (size_t i = 0, ie = m_data.size(); i < ie; ++i)
 	{
@@ -319,7 +319,7 @@ void ColorizerString::onColorStringChanged (int role)
 		}
 
 		//TODO: this updates all of them, fixit
-		updateColorString(ct);
+		updateColor(ct);
 	}
 }
 
@@ -378,7 +378,7 @@ void ColorizerString::onAdd ()
 	QColor const qBg = m_ui->bgButton->currentColor();
 	ColorizedString & ct = add(qItem, qFg, qBg);
 
-	updateColorString(ct);
+	updateColor(ct);
 }
 
 void ColorizerString::onRm ()
@@ -391,7 +391,7 @@ void ColorizerString::onRm ()
 	m_model->removeRow(idx.row());
 
 	ColorizedString & ct = findOrCreateColorizedString(val);
-	uncolorString(ct);
+	uncolor(ct);
 	remove(val);
 }
 

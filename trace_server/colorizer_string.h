@@ -3,17 +3,17 @@
 #include "ui_colorizer_string.h"
 #include <boost/serialization/nvp.hpp>
 #include "config.h"
-#include <QList>
+#include <vector>
 #include <QStandardItemModel>
 #include <QStyledItemDelegate>
 
 #include <logs/logtablemodel.h>
 
 struct ColorizedString {
+	bool	m_is_enabled;
 	QColor	m_fgcolor;
 	QColor	m_bgcolor;
 	QString m_str;
-	bool	m_is_enabled;
 	bool	m_case_sensitive;
 	bool	m_whole_word;
 
@@ -29,10 +29,7 @@ struct ColorizedString {
 		return false;
 	}
 
-	ColorizedString ()
-        : m_fgcolor(Qt::blue), m_bgcolor(Qt::white), m_str(), m_is_enabled(0), m_case_sensitive(false), m_whole_word(false)
-	{ }
-
+	ColorizedString () { }
 	ColorizedString (QString const & s, QColor const & col, QColor const & bgcol)
         : m_fgcolor(col), m_bgcolor(bgcol), m_str(s), m_is_enabled(0), m_case_sensitive(false), m_whole_word(false)
 	{ }
@@ -40,10 +37,10 @@ struct ColorizedString {
 	template <class ArchiveT>
 	void serialize (ArchiveT & ar, unsigned const version)
 	{
+		ar & boost::serialization::make_nvp("is_enabled", m_is_enabled);
 		ar & boost::serialization::make_nvp("fgcolor", m_fgcolor);
 		ar & boost::serialization::make_nvp("bgcolor", m_bgcolor);
 		ar & boost::serialization::make_nvp("str", m_str);
-		ar & boost::serialization::make_nvp("is_enabled", m_is_enabled);
 		ar & boost::serialization::make_nvp("case_sensitive", m_case_sensitive);
 		ar & boost::serialization::make_nvp("whole_word", m_whole_word);
 	}
@@ -75,12 +72,13 @@ struct ColorizerString : FilterBase
 	void serialize (ArchiveT & ar, unsigned const version)
 	{
 		FilterBase::serialize(ar, version);
-		ar & boost::serialization::make_nvp("colorizer_regex", m_data);
+		ar & boost::serialization::make_nvp("colorizer_string", m_data);
 	}
 
-	// color_regex specific
+	// color_string specific
 	ColorizedString & findOrCreateColorizedString (QString const & str);
 	void setupModel ();
+	void setSrcModel (LogTableModel * m) { m_src_model = m; }
 	void destroyModel ();
 	ColorizedString const * findMatch (QString const & item) const;
 	void append (QString const & item);
@@ -88,17 +86,16 @@ struct ColorizerString : FilterBase
 	void recompile ();
 	void setConfigToUI ();
 
-	ColorizedString & add (QString const & regex, QColor const & fg, QColor const & bg);
+	ColorizedString & add (QString const & str, QColor const & fg, QColor const & bg);
 	QTreeView * getWidget () { return m_ui->view; }
 	QTreeView const * getWidget () const { return m_ui->view; }
-	void onColorStringChanged (int role);
+	void onColorButtonChanged (int role);
 
-	void actionColorString (DecodedCommand const & cmd, ColorizedString const & ct, QColor const & fg, QColor const & bg) const;
-	void actionUncolorString (DecodedCommand const & cmd, ColorizedString const & ct) const;
-	void updateColorString (ColorizedString const & ct);
-	void uncolorString (ColorizedString const & ct);
+	void actionColor (DecodedCommand const & cmd, ColorizedString const & ct, QColor const & fg, QColor const & bg) const;
+	void actionUncolor (DecodedCommand const & cmd, ColorizedString const & ct) const;
+	void updateColor (ColorizedString const & ct);
+	void uncolor (ColorizedString const & ct);
 
-	void setSrcModel (LogTableModel * m) { m_src_model = m; }
 
 	typedef std::vector<ColorizedString> filters_t;
 	filters_t				m_data;
