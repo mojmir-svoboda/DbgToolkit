@@ -404,9 +404,25 @@ void Connection::processDataStream (QDataStream & stream)
 	}
 }
 
+#ifdef WIN32
+#	include <io.h>
+	inline qint64 getFileSize (QFile * f)
+	{
+		qint64 sz = -1;
+		if (f)
+		{
+			LARGE_INTEGER arg;
+			HANDLE h = (HANDLE)_get_osfhandle(f->handle());
+			if (::GetFileSizeEx(h, &arg) != 0)
+				sz = arg.QuadPart;
+		}
+		return sz;
+	}
+#endif
+
 void Connection::processTailCSVStream ()
 {
-	qint64 const sz = m_file_csv_stream->device()->size();
+	qint64 const sz = getFileSize(qobject_cast<QFile *>(m_file_csv_stream->device()));
 	if (sz > m_file_size)
 		m_file_size = sz;
 	

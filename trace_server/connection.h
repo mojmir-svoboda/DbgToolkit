@@ -74,7 +74,7 @@ public:
 	QString const & getCurrPreset () const { return m_curr_preset; }
 	AppData const & appData () const { return m_app_data; }
 	E_SrcProtocol protocol () const { return m_src_protocol; }
-	QString const & separator () const { return m_config.m_csv_separator; } // csv
+	//QString const & separator () const { return m_config.m_csv_separator; } // csv
 
 	void run ();
 
@@ -242,7 +242,7 @@ private:
 	QDataStream * m_file_tlv_stream;
 	QTextStream * m_file_csv_stream;
 	qint64 m_file_size;
-	QString m_csv_separator;
+	//QString m_csv_separator;
 
 	// data receiving stuff
 	enum { e_ringbuff_size = 128 * 1024 };

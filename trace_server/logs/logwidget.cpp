@@ -51,9 +51,6 @@ namespace logs {
 		, m_find_widget(0)
 		, m_window_action(0)
 		, m_linked_parent(0)
-		, m_csv_separator()
-		, m_simplify_strings(false)
-		, m_unquote_strings(false)
 		, m_file_csv_stream(0)
 		//, m_file_tlv_stream(0)
 	{
@@ -709,7 +706,6 @@ namespace logs {
 	}
 
 	E_SrcProtocol LogWidget::protocol () const { return m_connection->protocol(); }
-	QString const & LogWidget::separator () const { return m_connection->separator(); } // csv
 	// this is only for delegeate until it moves to better place
 	int LogWidget::findColumn4Tag (int tag) { return (m_src_model) ? m_src_model->findColumn4Tag(tag) : -1; }
 	int LogWidget::findColumn4TagCst (int tag) const { return (m_src_model) ? m_src_model->findColumn4TagCst(tag) : -1; }

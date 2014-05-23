@@ -53,7 +53,6 @@ namespace logs {
 		virtual void setVisible (bool visible);
 
 		E_SrcProtocol protocol () const;
-		QString const & separator () const;
 
 		LogTableModel const * logModel () const { return m_src_model; }
 		FilterProxyModel const * logProxy () const { return m_proxy_model; }
@@ -160,9 +159,6 @@ namespace logs {
 		void updateColorRegex (ColorizedText const & ct);
 		void uncolorRegex (ColorizedText const & ct);
 		void loadToRegexps (QString const & filter_item, bool inclusive, bool enabled);*/
-
-		void setupSeparatorChar (QString const & c);
-		QString separatorChar () const;
 
 		// find
 		void selectionFromTo (int & from, int & to) const;
@@ -309,9 +305,6 @@ namespace logs {
 		typedef std::vector<DockedWidgetBase *> linked_widgets_t;
 		linked_widgets_t m_linked_widgets;
 
-		QString m_csv_separator;
-		bool m_simplify_strings;
-		bool m_unquote_strings;
 		QTextStream * m_file_csv_stream;
 	};
 }

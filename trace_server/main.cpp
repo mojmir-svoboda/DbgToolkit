@@ -96,7 +96,7 @@ void qDebugHandler (QtMsgType type, QMessageLogContext const & ctx, QString cons
 	time(&timer);
 	tm_info = localtime(&timer);
 	char t[48];
-	strftime(t, 25, "%Y:%m:%d%H:%M:%S", tm_info);
+	strftime(t, 25, "%Y:%m:%d %H:%M:%S", tm_info);
 
 	//@TODO: dump context info
 	switch (type)

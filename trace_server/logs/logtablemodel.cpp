@@ -195,13 +195,13 @@ void LogTableModel::parseCommand (DecodedCommand const & cmd, E_ReceiveMode mode
 
 		QStringList l;
 
-		if (m_log_widget.separator().isEmpty())
+		if (m_log_widget.m_config.m_csv_separator.isEmpty())
 		{
 			l << msg;
 		}
 		else
 		{
-			l = msg.split(m_log_widget.separator());
+			l = msg.split(m_log_widget.m_config.m_csv_separator);
 		}
 
 		bool const has_no_setup = m_log_widget.m_config.m_columns_setup.size() == 0;
@@ -243,7 +243,7 @@ void LogTableModel::parseCommand (DecodedCommand const & cmd, E_ReceiveMode mode
 			int const src = m_columns2storage[i];
 			if (src < l.size())
 			{
-				QString const str =  unquoteString(l.at(src), m_log_widget.m_unquote_strings, m_log_widget.m_simplify_strings);
+				QString const str =  unquoteString(l.at(src), m_log_widget.m_config.m_unquote_strings, m_log_widget.m_config.m_simplify_strings);
 				columns[i].m_value = str;
 			}
 			else

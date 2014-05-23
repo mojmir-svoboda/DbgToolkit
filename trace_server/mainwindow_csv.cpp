@@ -18,7 +18,12 @@ void MainWindow::createTailLogStream (QString const & fname, QString const & sep
 	
 	connection->handleCSVSetup(tag);
 	datalogs_t::iterator it = connection->findOrCreateLog(tag);
-	connection->m_config.m_csv_separator = separator;
+	//connection->m_config.m_csv_separator = separator;
+	(*it)->m_config.m_csv_separator = separator;
+	(*it)->m_config.m_csv_has_header = false;
+	(*it)->m_config.m_simplify_strings = false;
+	(*it)->m_config.m_unquote_strings = false;
+	(*it)->m_config.m_auto_scroll = true;
 
 	// the order is imposed in main.cpp, in the Qt log redirector
 	(*it)->m_config.m_storage_order.clear();
@@ -29,11 +34,11 @@ void MainWindow::createTailLogStream (QString const & fname, QString const & sep
 
 	if (bool const has_no_setup = (*it)->config().m_columns_setup.size() == 0)
 	{
-		int const sizes[4] = { 128, 64, 64, 512 };
+		int const sizes[4] = { 128, 16, 32, 640 };
 		E_Align const aligns[4] = { e_AlignRight, e_AlignRight, e_AlignRight, e_AlignLeft };
 		E_Elide const elides[4] = { e_ElideLeft, e_ElideLeft, e_ElideLeft, e_ElideRight };
 
-		for (int cl = 0, cle = (*it)->m_config.m_storage_order.size(); cl < cle; ++cl)
+		for (size_t cl = 0, cle = (*it)->m_config.m_storage_order.size(); cl < cle; ++cl)
 		{
 			QString const & val = (*it)->m_config.m_storage_order[cl];
 			int const size = sizes[cl];
@@ -83,12 +88,19 @@ void MainWindow::createTailDataStream (QString const & fname)
 
 		mentionStringInRecentHistory_Ref(fname, m_config.m_recent_history);
 
+		bool const enable_unquote = m_setup_dialog_csv->ui->unquoteCheckBox->isChecked();
+		bool const enable_simplify = m_setup_dialog_csv->ui->simplifyCheckBox->isChecked();
 		bool const has_sep = m_setup_dialog_csv->ui->separatorCheckBox->isChecked();
+		bool const has_hdr = m_setup_dialog_csv->ui->headerCheckBox->isChecked();
 		if (has_sep)
 		{
 			QString const separator = getSeparator(m_setup_dialog_csv->ui->separatorComboBox);
-			connection->m_config.m_csv_separator = separator;
+			//connection->m_config.m_csv_separator = separator;
+			(*it)->m_config.m_csv_separator = separator;
 		}
+		(*it)->m_config.m_csv_has_header = has_hdr;
+		(*it)->m_config.m_simplify_strings = enable_simplify;
+		(*it)->m_config.m_unquote_strings = enable_unquote;
 
 		if (0 == (*it)->m_config.m_storage_order.size())
 		{
@@ -101,11 +113,6 @@ void MainWindow::createTailDataStream (QString const & fname)
 				(*it)->m_config.m_storage_order[i] = val;
 			}
 		}
-
-		bool const enable_unquote = m_setup_dialog_csv->ui->unquoteCheckBox->isChecked();
-		bool const enable_simplify = m_setup_dialog_csv->ui->simplifyCheckBox->isChecked();
-		(*it)->m_simplify_strings = enable_simplify;
-		(*it)->m_unquote_strings = enable_unquote;
 
 		if (bool const has_no_setup = (*it)->config().m_columns_setup.size() == 0)
 		{
@@ -133,7 +140,6 @@ void MainWindow::createTailDataStream (QString const & fname)
 			}
 		}
 	}
-
 
 	connection->processTailCSVStream();
 	emit newConnection(connection);
