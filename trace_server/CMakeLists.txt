@@ -70,6 +70,7 @@ set(trace_server_SOURCES
 	mainwindow_presets.cpp
 	mainwindow_controlwidget.cpp
 	mainwindow_connection.cpp
+	mainwindow_csv.cpp
 	mainwindow_docking.cpp
 	mainwindow_find.cpp
 	tableview.cpp
