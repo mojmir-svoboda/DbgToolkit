@@ -39,12 +39,12 @@
 set(PROJECT_STABLE False)
 
 # Check if a version is embedded in the project.
-if(EXISTS ${CMAKE_SOURCE_DIR}/version.h)
-	# Yes, use it. This is a stable version.
-	FILE(COPY ${CMAKE_SOURCE_DIR}/version.h DESTINATION ${CMAKE_BINARY_DIR})
-	SET(PROJECT_STABLE True)
-else(EXISTS ${CMAKE_SOURCE_DIR}/version.h)
-	# No, there is no 'version.h' file. Deduce the version from git.
+#if(EXISTS ${CMAKE_SOURCE_DIR}/version.cpp)
+#	# Yes, use it. This is a stable version.
+#	FILE(COPY ${CMAKE_SOURCE_DIR}/version.cpp DESTINATION ${CMAKE_BINARY_DIR})
+#	SET(PROJECT_STABLE True)
+#else(EXISTS ${CMAKE_SOURCE_DIR}/version.cpp)
+	# No, there is no 'version.cpp' file. Deduce the version from git.
 
 	# Search for git.
 	find_program(GIT git)
@@ -131,8 +131,9 @@ else(EXISTS ${CMAKE_SOURCE_DIR}/version.h)
 	if(PROJECT_DIRTY)
 		set(PROJECT_VERSION "${PROJECT_VERSION}-dirty")
 	endif()
-	file(WRITE version.cpp "char const g_Version[] = \"${PROJECT_VERSION}\";\n")
+	file(WRITE version.cpp "#include <version.h>\n")
+	file(APPEND version.cpp "char const g_Version[] = \"${PROJECT_VERSION}\";\n")
 
 	message("DbgToolkit version : ${PROJECT_VERSION}")
 
-endif(EXISTS ${CMAKE_SOURCE_DIR}/version.h)
+#endif(EXISTS ${CMAKE_SOURCE_DIR}/version.cpp)

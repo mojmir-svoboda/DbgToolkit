@@ -1,5 +1,4 @@
 #include <QApplication>
-//#include <QtGui/QTableWidget.h>
 #include <QSystemTrayIcon>
 #include <QMessageBox>
 #include <QThread>
@@ -9,8 +8,6 @@
 #include <sysfn/os.h>
 #include <sysfn/time_query.h>
 #include <time.h>
-
-#include "version.cpp"
 
 #ifdef WIN32
 #	define WIN32_LEAN_AND_MEAN
@@ -28,14 +25,12 @@ struct Application : QApplication, public QAbstractNativeEventFilter
 {
 	MainWindow * m_main_window;
 
-	Application (int & argc, char *argv[])
+	Application (int & argc, char * argv[])
 		: QApplication(argc, argv)
 		, m_main_window(0)
 	{}
 
-	~Application ()
-	{
-	}
+	~Application () { }
 
 	void setMainWindow (MainWindow * mw)
 	{
@@ -62,16 +57,6 @@ struct Application : QApplication, public QAbstractNativeEventFilter
 
 	virtual bool notify (QObject * receiver, QEvent * e)
 	{
-		/*if (e->type() == QKeyEvent::KeyPress)
-		{
-			QKeyEvent * ke = static_cast<QKeyEvent *>(e);
-			if (ke->key() == Qt::Key_Tab || ke->key() == Qt::Key_Backtab)
-			{
-				if (m_main_window->handleTab(ke))
-					return true;
-			}
-		}*/
-
 		try
 		{
 			return QApplication::notify(receiver, e);
@@ -182,7 +167,7 @@ int main (int argc, char * argv[])
 
 	qInstallMessageHandler(qDebugHandler);
 
-	Application a(argc, argv);
+	Application app(argc, argv);
 
 #ifdef WIN32
 	if (!QSystemTrayIcon::isSystemTrayAvailable()) {
@@ -198,10 +183,12 @@ int main (int argc, char * argv[])
 		w.setVisible(true);
 		w.show();
 	}
-	a.setMainWindow(&w);
+	app.setMainWindow(&w);
 	if (start_hidden)
 		w.onHotkeyShowOrHide();
-	bool const retval = a.exec();
+
+	bool const retval = app.exec(); // main loop
+
 	qInstallMessageHandler(0);
 	fclose(g_LogRedirect);
 	return retval;

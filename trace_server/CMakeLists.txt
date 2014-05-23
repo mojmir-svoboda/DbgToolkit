@@ -49,8 +49,8 @@ message("boost: ${Boost_LIBRARIES}")
 
 ### version generator
 include("${CMAKE_SOURCE_DIR}/../build/version.cmake")
-add_custom_target(version_h ALL)
-add_custom_command(TARGET version_h COMMAND ${CMAKE_COMMAND}
+add_custom_target(version_cpp ALL)
+add_custom_command(TARGET version_cpp COMMAND ${CMAKE_COMMAND}
          -DSOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR}
          -P ${CMAKE_SOURCE_DIR}/../build/version.cmake)
 

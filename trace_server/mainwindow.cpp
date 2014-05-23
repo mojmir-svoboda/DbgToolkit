@@ -5,23 +5,9 @@
 #include "server.h"
 #include "connection.h"
 #include <QTime>
-#include <QTableView>
-#include <QListView>
 #include <QShortcut>
-#include <QInputDialog>
 #include <QFileDialog>
-#include <QFontDialog>
 #include <QMessageBox>
-#include <QSettings>
-#include <QMetaType>
-#include <QMimeData>
-#include <QVariant>
-#include <QDropEvent>
-#include <QDragEnterEvent>
-#include <QItemDelegate>
-#include <QStandardItemModel>
-#include <QUrl>
-#include <QClipboard>
 #include <QTimer>
 #include <tlv_parser/tlv_parser.h>
 #include "help.h"
@@ -67,7 +53,7 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QStri
 	qDebug("%s this=0x%08x", __FUNCTION__, this);
 	ui->setupUi(this);
 
-    setStyleSheet( "QMainWindow::separator { background: rgb(150, 150, 150); width: 1px; height: 1px; }");
+	setStyleSheet( "QMainWindow::separator { background: rgb(150, 150, 150); width: 1px; height: 1px; }");
 
 	m_settings_dialog = new QDialog(this);
 	m_settings_dialog->setWindowFlags(Qt::Sheet);
@@ -128,9 +114,7 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QStri
 
 	/// status bar
 	m_status_label = new QLabel(m_server->getStatus());
-	QString human_version(g_Version);
-	human_version.chop(human_version.size() - human_version.lastIndexOf(QChar('-')));
-	QLabel * version_label = new QLabel(tr("Ver: %1").arg(human_version));
+	QLabel * version_label = new QLabel(tr("Ver: %1").arg(g_Version));
 	statusBar()->addPermanentWidget(version_label);
 	statusBar()->addWidget(m_status_label);
 
