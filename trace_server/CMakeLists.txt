@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 2.8.9)
 project(trace_server)
 set (CMAKE_VERBOSE_MAKEFILE on)
+
+### Qt
 find_package(Qt5Widgets REQUIRED)
 find_package(Qt5Core REQUIRED)
 find_package(Qt5Network REQUIRED)
@@ -32,14 +34,7 @@ set(EXECUTABLE_OUTPUT_PATH
    "Single Directory for all Executables."
    )
 
-add_subdirectory("qwt")
-add_subdirectory("qtsln")
-
-add_definitions("-DTRACE_ENABLED")
-add_definitions("-DTRACE_STATIC")
-
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/..)
-
+### boost
 set(Boost_DEBUG 0)
 set(Boost_USE_STATIC_LIBS 1)
 find_package(Boost)
@@ -52,8 +47,23 @@ if (Boost_FOUND)
 endif()
 message("boost: ${Boost_LIBRARIES}")
 
+### version generator
+include("${CMAKE_SOURCE_DIR}/../build/version.cmake")
+add_custom_target(version_h ALL)
+add_custom_command(TARGET version_h COMMAND ${CMAKE_COMMAND}
+         -DSOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR}
+         -P ${CMAKE_SOURCE_DIR}/../build/version.cmake)
 
+### trace server files
+add_subdirectory("qwt")
+add_subdirectory("qtsln")
+
+add_definitions("-DTRACE_ENABLED")
+add_definitions("-DTRACE_STATIC")
+
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/..)
 set(trace_server_SOURCES
+  version.cpp
 	main.cpp
 	qt_plugins.cpp
 	mainwindow.cpp
@@ -179,6 +189,7 @@ set(trace_server_SOURCES
 	)
 
 set(trace_server_HEADERS
+  ../version.h
 	mainwindow.h
 	tableview.h
 	treeview.h
@@ -405,30 +416,12 @@ target_link_libraries(trace_server ${Boost_LIBRARIES}
 	${QICO}
 	Qt5::WinMain)
 
-message("src_dir: ${CMAKE_CURRENT_SOURCE_DIR}")
-
-if (WIN32 AND NOT MINGW)
-	find_program(GIT_EXECUTABLE
-		NAMES "git.exe"
-		HINTS "C:/Program Files (x86)/git/bin/"
-		DOC "git x86 command line client")
-
-	if (NOT GIT_FOUND)
-		find_program(GIT_EXECUTABLE
-			NAMES "git.exe"
-			HINTS "C:/Program Files/git/bin/"
-			DOC "git x64 command line client")
-	endif (NOT GIT_FOUND)
-
-	message("git: ${GIT_EXECUTABLE}")
-endif (WIN32 AND NOT MINGW)
-
-if (WIN32 AND NOT MINGW)
-	get_filename_component(MK_VERSION_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../build/mk_version.bat" ABSOLUTE)
-	message("mk_version.bat: ${MK_VERSION_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/")
-	add_custom_command(TARGET trace_server PRE_BUILD
-		COMMAND cmd /c ${MK_VERSION_PATH} ${GIT_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/)
-endif (WIN32 AND NOT MINGW)
+#if (WIN32 AND NOT MINGW)
+#	get_filename_component(MK_VERSION_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../build/mk_version.bat" ABSOLUTE)
+#	message("mk_version.bat: ${MK_VERSION_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/")
+#	add_custom_command(TARGET trace_server PRE_BUILD
+#		COMMAND cmd /c ${MK_VERSION_PATH} ${GIT_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/)
+#endif (WIN32 AND NOT MINGW)
 
 
 
