@@ -59,23 +59,23 @@ bool FilterString::accept (DecodedCommand const & cmd) const
 	}*/
 	if (m_data.size() > 0)
 	{
-		QString msg;
-		if (!cmd.getString(tlv::tag_msg, msg))
-			return true;
-
 		for (int i = 0, ie = m_data.size(); i < ie; ++i)
 		{
 			FilteredString const & fr = m_data.at(i);
-			if (fr.match(msg))
+			for (size_t c = 0, ce = cmd.m_tvs.size(); c < ce; ++c)
 			{
-				if (!fr.m_is_enabled)
-					continue;
-				else
+				QString const & val = cmd.m_tvs[c].m_val;
+				if (fr.match(val))
 				{
-					if (fr.m_state)
-						return true;
+					if (!fr.m_is_enabled)
+						continue;
 					else
-						return false;
+					{
+						if (fr.m_state)
+							return true;
+						else
+							return false;
+					}
 				}
 			}
 		}
@@ -287,7 +287,7 @@ void FilterString::onStringAdd ()
 	{
 		QList<QStandardItem *> row_items = addTriRow(qItem, Qt::Checked, false);
 		root->appendRow(row_items);
-		appendToStringFilters(qItem, true, true);
+		appendToStringFilters(qItem, true, false);
 		row_items[0]->setCheckState(Qt::Checked);
 		recompile();
 	}
