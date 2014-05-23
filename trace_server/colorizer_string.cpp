@@ -36,28 +36,38 @@ void ColorizerString::doneUI ()
 {
 }
 
-bool ColorizerString::action (DecodedCommand const & cmd)
+void ColorizerString::actionColorString (DecodedCommand const & cmd, ColorizedString const & ct, QColor const & fg, QColor const & bg) const
 {
-	QString msg;
-	if (!cmd.getString(tlv::tag_msg, msg))
-		return true;
-
-	for (int i = 0, ie = m_data.size(); i < ie; ++i)
+	for (size_t i = 0, ie = cmd.m_tvs.size(); i < ie; ++i)
 	{
-		ColorizedString const & ct = m_data[i];
+		QString const & val = cmd.m_tvs[i].m_val;
 
-		bool const is_match = ct.accept(msg);
-
-		int const col = m_src_model->findColumn4TagCst(tlv::tag_msg);
-		QModelIndex const idx = m_src_model->index(cmd.m_src_row, col, QModelIndex());
-		if (is_match && idx.isValid())
+		if (bool const is_match = ct.accept(val))
 		{
-			m_src_model->setData(idx, ct.m_fgcolor, Qt::ForegroundRole);
-			m_src_model->setData(idx, ct.m_bgcolor, Qt::BackgroundRole);
-			return true;
+			int const col = m_src_model->storage2Column(i);
+			//@TODO: if column != level
+			//@TODO: if column != tid
+			QModelIndex const idx = m_src_model->index(cmd.m_src_row, col, QModelIndex());
+			if (ct.m_is_enabled && is_match && idx.isValid())
+			{
+				m_src_model->setData(idx, bg, Qt::BackgroundRole);
+				m_src_model->setData(idx, fg, Qt::ForegroundRole);
+			}
 		}
 	}
+}
+void ColorizerString::actionUncolorString (DecodedCommand const & cmd, ColorizedString const & ct) const
+{
+	actionColorString(cmd, ct, QColor(Qt::black), QColor(Qt::white));
+}
 
+bool ColorizerString::action (DecodedCommand const & cmd)
+{
+	for (size_t i = 0, ie = m_data.size(); i < ie; ++i)
+	{
+		ColorizedString const & ct = m_data[i];
+		actionColorString(cmd, ct, ct.m_fgcolor, ct.m_bgcolor);
+	}
 	return false;
 }
 
@@ -94,7 +104,7 @@ void ColorizerString::saveConfig (QString const & path)
 void ColorizerString::setConfigToUI ()
 {
 	m_model->clear();
-	for (int i = 0, ie = m_data.size(); i < ie; ++i)
+	for (size_t i = 0, ie = m_data.size(); i < ie; ++i)
 	{
 		QStandardItem * root = m_model->invisibleRootItem();
 		QStandardItem * child = findChildByText(root, m_data[i].m_str);
@@ -119,7 +129,7 @@ void ColorizerString::clear ()
 }
 
 
-///////// colorizer 
+///////// colorizer
 void ColorizerString::setupModel ()
 {
 	if (!m_model)
@@ -168,8 +178,8 @@ void ColorizerString::destroyModel ()
 
 ColorizedString const * ColorizerString::findMatch (QString const & item) const
 {
-	for (int i = 0, ie = m_data.size(); i < ie; ++i)
-		if (m_data.at(i).m_str == item)
+	for (size_t i = 0, ie = m_data.size(); i < ie; ++i)
+		if (m_data[i].m_str == item)
 		{
 			return &m_data.at(i);
 		}
@@ -178,7 +188,7 @@ ColorizedString const * ColorizerString::findMatch (QString const & item) const
 
 void ColorizerString::append (QString const & item)
 {
-	for (int i = 0, ie = m_data.size(); i < ie; ++i)
+	for (size_t i = 0, ie = m_data.size(); i < ie; ++i)
 		if (m_data[i].m_str == item)
 		{
 			ColorizedString & ct = m_data[i];
@@ -189,7 +199,7 @@ void ColorizerString::append (QString const & item)
 }
 void ColorizerString::remove (QString const & item)
 {
-	for (int i = 0, ie = m_data.size(); i < ie; ++i)
+	for (size_t i = 0, ie = m_data.size(); i < ie; ++i)
 		if (m_data[i].m_str == item)
 		{
 			ColorizedString & item = m_data[i];
@@ -199,14 +209,14 @@ void ColorizerString::remove (QString const & item)
 }
 ColorizedString & ColorizerString::findOrCreateColorizedString (QString const & item)
 {
-	for (int i = 0, ie = m_data.size(); i < ie; ++i)
+	for (size_t i = 0, ie = m_data.size(); i < ie; ++i)
 		if (m_data[i].m_str == item)
 		{
 			ColorizedString & ct = m_data[i];
 			return ct;
 		}
 	m_data.push_back(ColorizedString(item, Qt::blue, Qt::white));
-    return m_data.back();
+	return m_data.back();
 }
 
 //////// slots
@@ -261,171 +271,129 @@ void ColorizerString::recompile ()
 	}
 }*/
 
-	//@TODO: dedup
-	void ColorizerString::actionColorString (DecodedCommand const & cmd, ColorizedString const & ct) const
+
+void ColorizerString::updateColorString (ColorizedString const & ct)
+{
+	for (size_t r = 0, re = m_src_model->dcmds().size(); r < re; ++r)
 	{
-		for (size_t i = 0, ie = cmd.m_tvs.size(); i < ie; ++i)
-		{
-			QString const & val = cmd.m_tvs[i].m_val;
-
-			bool const is_match = ct.accept(val);
-			//@TODO: cache QMI in DecodedCommand
-			int const col = m_src_model->findColumn4TagCst(cmd.m_tvs[i].m_tag);
-			QModelIndex const idx = m_src_model->index(cmd.m_src_row, col, QModelIndex());
-			if (ct.m_is_enabled && is_match && idx.isValid())
-			{
-				m_src_model->setData(idx, ct.m_bgcolor, Qt::BackgroundRole);
-				m_src_model->setData(idx, ct.m_fgcolor, Qt::ForegroundRole);
-			}
-
-			//@TODO: if column != level
-			//@TODO: if column != tid
-		}
+		DecodedCommand const & dcmd = m_src_model->dcmds()[r];
+		actionColorString(dcmd, ct, ct.m_fgcolor, ct.m_bgcolor);
 	}
-	void ColorizerString::actionUncolorString (DecodedCommand const & cmd, ColorizedString const & ct) const
-	{
-		for (size_t i = 0, ie = cmd.m_tvs.size(); i < ie; ++i)
-		{
-			QString const & val = cmd.m_tvs[i].m_val;
+}
 
-			bool const is_match = ct.accept(val);
-			//@TODO: cache QMI in DecodedCommand?
-			int const col = m_src_model->findColumn4TagCst(cmd.m_tvs[i].m_tag);
-			QModelIndex const idx = m_src_model->index(cmd.m_src_row, col, QModelIndex());
-			if (is_match && idx.isValid())
-			{
-				m_src_model->setData(idx, QColor(Qt::white), Qt::BackgroundRole);
-				m_src_model->setData(idx, QColor(Qt::black), Qt::ForegroundRole);
-			}
-			//@TODO: if column != level
-			//@TODO: if column != tid
-		}
+void ColorizerString::uncolorString (ColorizedString const & ct)
+{
+	for (size_t r = 0, re = m_src_model->dcmds().size(); r < re; ++r)
+	{
+		DecodedCommand const & dcmd = m_src_model->dcmds()[r];
+		actionUncolorString(dcmd, ct);
 	}
+}
 
-
-	void ColorizerString::updateColorString (ColorizedString const & ct)
+void ColorizerString::onActivate (int)
+{ }
+void ColorizerString::onFgChanged () { onColorStringChanged(Qt::ForegroundRole); }
+void ColorizerString::onBgChanged () { onColorStringChanged(Qt::BackgroundRole); }
+void ColorizerString::onColorStringChanged (int role)
+{
+	for (size_t i = 0, ie = m_data.size(); i < ie; ++i)
 	{
-		for (size_t r = 0, re = m_src_model->dcmds().size(); r < re; ++r)
+		ColorizedString & ct = m_data[i];
+		QStandardItem * const root = m_model->invisibleRootItem();
+		QStandardItem * const child = findChildByText(root, ct.m_str);
+
+		if (!child)
+			continue;
+
+		QModelIndex const fgidx = m_model->index(child->row(), 1);
+		if (fgidx.isValid())
 		{
-			DecodedCommand const & dcmd = m_src_model->dcmds()[r];
-			actionColorString(dcmd, ct);
+			if (QtColorPicker * w = static_cast<QtColorPicker *>(m_ui->view->indexWidget(fgidx)))
+				ct.m_fgcolor = w->currentColor();
 		}
-	}
-
-
-	void ColorizerString::uncolorString (ColorizedString const & ct)
-	{
-		for (size_t r = 0, re = m_src_model->dcmds().size(); r < re; ++r)
+		QModelIndex const bgidx = m_model->index(child->row(), 2);
+		if (bgidx.isValid())
 		{
-			DecodedCommand const & dcmd = m_src_model->dcmds()[r];
-			actionUncolorString(dcmd, ct);
+			if (QtColorPicker * w = static_cast<QtColorPicker *>(m_ui->view->indexWidget(bgidx)))
+				ct.m_bgcolor = w->currentColor();
 		}
-	}
 
-	void ColorizerString::onActivate (int)
-	{
-	}
-	void ColorizerString::onFgChanged () { onColorStringChanged(Qt::ForegroundRole); }
-	void ColorizerString::onBgChanged () { onColorStringChanged(Qt::BackgroundRole); }
-	void ColorizerString::onColorStringChanged (int role)
-	{
-		for (int i = 0, ie = m_data.size(); i < ie; ++i)
-		{
-			ColorizedString & ct = m_data[i];
-			QStandardItem * const root = m_model->invisibleRootItem();
-			QStandardItem * const child = findChildByText(root, ct.m_str);
-
-			if (!child)
-				continue;
-
-			QModelIndex const fgidx = m_model->index(child->row(), 1);
-			if (fgidx.isValid())
-			{
-				if (QtColorPicker * w = static_cast<QtColorPicker *>(m_ui->view->indexWidget(fgidx)))
-					ct.m_fgcolor = w->currentColor();
-			}
-			QModelIndex const bgidx = m_model->index(child->row(), 2);
-			if (bgidx.isValid())
-			{
-				if (QtColorPicker * w = static_cast<QtColorPicker *>(m_ui->view->indexWidget(bgidx)))
-					ct.m_bgcolor = w->currentColor();
-			}
-
-			//TODO: this updates all of them, fixit
-			updateColorString(ct);
-		}
-	}
-
-	//void ColorizerString::onDoubleClickedAtColorStringList (QModelIndex idx) { }
-
-	ColorizedString & ColorizerString::add (QString const & str, QColor const & fg, QColor const & bg)
-	{
-		QStandardItem * root = m_model->invisibleRootItem();
-		QStandardItem * child = findChildByText(root, str);
-		if (child == 0)
-		{
-			QList<QStandardItem *> row_items = addRow(str, true);
-			root->appendRow(row_items);
-			child = findChildByText(root, str);
-
-			QStandardItem * fgitem = new QStandardItem("fg");
-			QStandardItem * bgitem = new QStandardItem("bg");
-			QStandardItem * stitem = new QStandardItem("status");
-			stitem->setCheckable(false);
-			m_model->setItem(child->row(), 1, fgitem);
-			m_model->setItem(child->row(), 2, bgitem);
-			m_model->setItem(child->row(), 3, stitem);
-			append(str);
-
-			ColorizedString & ct = findOrCreateColorizedString(str);
-			ct.m_fgcolor = fg;
-			ct.m_bgcolor = bg;
-			{
-				QtColorPicker * w = mkColorPicker(m_ui->view, "fg", ct.m_fgcolor);
-				connect(w, SIGNAL(colorChanged(const QColor &)), this, SLOT(onFgChanged()));
-				QModelIndex const idx = m_model->indexFromItem(fgitem);
-				m_ui->view->setIndexWidget(idx, w);
-			}
-			{
-				QtColorPicker * w = mkColorPicker(m_ui->view, "bg", ct.m_bgcolor);
-				connect(w, SIGNAL(colorChanged(const QColor &)), this, SLOT(onBgChanged()));
-				QModelIndex const idx = m_model->indexFromItem(bgitem);
-				m_ui->view->setIndexWidget(idx, w);
-			}
-			return ct;
-		}
-		else
-		{
-			ColorizedString & ct = findOrCreateColorizedString(str);
-			return ct;
-		}
-	}
-
-	void ColorizerString::onAdd ()
-	{
-		QString const qItem = m_ui->comboBox->currentText();
-		if (!qItem.length())
-			return;
-		QColor const qFg = m_ui->fgButton->currentColor();
-		QColor const qBg = m_ui->bgButton->currentColor();
-		ColorizedString & ct = add(qItem, qFg, qBg);
-
+		//TODO: this updates all of them, fixit
 		updateColorString(ct);
 	}
+}
 
-	void ColorizerString::onRm ()
+//void ColorizerString::onDoubleClickedAtColorStringList (QModelIndex idx) { }
+
+ColorizedString & ColorizerString::add (QString const & str, QColor const & fg, QColor const & bg)
+{
+	QStandardItem * root = m_model->invisibleRootItem();
+	QStandardItem * child = findChildByText(root, str);
+	if (child == 0)
 	{
-		QModelIndex const idx = m_ui->view->currentIndex();
-		QStandardItem * item = m_model->itemFromIndex(idx);
-		if (!item)
-			return;
-		QString const & val = m_model->data(idx, Qt::DisplayRole).toString();
-		m_model->removeRow(idx.row());
+		QList<QStandardItem *> row_items = addRow(str, true);
+		root->appendRow(row_items);
+		child = findChildByText(root, str);
 
-		ColorizedString & ct = findOrCreateColorizedString(val);
-		uncolorString(ct);
-		remove(val);
+		QStandardItem * fgitem = new QStandardItem("fg");
+		QStandardItem * bgitem = new QStandardItem("bg");
+		QStandardItem * stitem = new QStandardItem("status");
+		stitem->setCheckable(false);
+		m_model->setItem(child->row(), 1, fgitem);
+		m_model->setItem(child->row(), 2, bgitem);
+		m_model->setItem(child->row(), 3, stitem);
+		append(str);
+
+		ColorizedString & ct = findOrCreateColorizedString(str);
+		ct.m_fgcolor = fg;
+		ct.m_bgcolor = bg;
+		ct.m_is_enabled = true;
+		{
+			QtColorPicker * w = mkColorPicker(m_ui->view, "fg", ct.m_fgcolor);
+			connect(w, SIGNAL(colorChanged(const QColor &)), this, SLOT(onFgChanged()));
+			QModelIndex const idx = m_model->indexFromItem(fgitem);
+			m_ui->view->setIndexWidget(idx, w);
+		}
+		{
+			QtColorPicker * w = mkColorPicker(m_ui->view, "bg", ct.m_bgcolor);
+			connect(w, SIGNAL(colorChanged(const QColor &)), this, SLOT(onBgChanged()));
+			QModelIndex const idx = m_model->indexFromItem(bgitem);
+			m_ui->view->setIndexWidget(idx, w);
+		}
+		return ct;
 	}
+	else
+	{
+		ColorizedString & ct = findOrCreateColorizedString(str);
+		return ct;
+	}
+}
+
+void ColorizerString::onAdd ()
+{
+	QString const qItem = m_ui->comboBox->currentText();
+	if (!qItem.length())
+		return;
+	QColor const qFg = m_ui->fgButton->currentColor();
+	QColor const qBg = m_ui->bgButton->currentColor();
+	ColorizedString & ct = add(qItem, qFg, qBg);
+
+	updateColorString(ct);
+}
+
+void ColorizerString::onRm ()
+{
+	QModelIndex const idx = m_ui->view->currentIndex();
+	QStandardItem * item = m_model->itemFromIndex(idx);
+	if (!item)
+		return;
+	QString const & val = m_model->data(idx, Qt::DisplayRole).toString();
+	m_model->removeRow(idx.row());
+
+	ColorizedString & ct = findOrCreateColorizedString(val);
+	uncolorString(ct);
+	remove(val);
+}
 
 
 

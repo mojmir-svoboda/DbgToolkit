@@ -183,18 +183,10 @@ void LogTableModel::parseCommand (DecodedCommand const & cmd, E_ReceiveMode mode
 {
 	if (m_log_widget.protocol() == e_Proto_CSV) // @TODO: convert to inheritance
 	{
-		QString msg;
-		if (!cmd.getString(tlv::tag_msg, msg)) return;
-
-		batch.m_rows.push_back(columns_t(cmd.m_tvs.size()));
-		batch.m_dcmds.push_back(cmd);
-		batch.m_dcmds.back().m_indent = 0;
-		batch.m_dcmds.back().m_row_type = cmd.m_hdr.cmd;
-		columns_t & columns = batch.m_rows.back();
-		columns.reserve(cmd.m_tvs.size());
+		// parse the raw message
+		QString msg = QString(QLatin1String(&cmd.m_orig_message[0]));
 
 		QStringList l;
-
 		if (m_log_widget.m_config.m_csv_separator.isEmpty())
 		{
 			l << msg;
@@ -204,14 +196,36 @@ void LogTableModel::parseCommand (DecodedCommand const & cmd, E_ReceiveMode mode
 			l = msg.split(m_log_widget.m_config.m_csv_separator);
 		}
 
+		batch.m_rows.push_back(columns_t(l.size()));
+		batch.m_dcmds.push_back(cmd);
+		batch.m_dcmds.back().m_indent = 0;
+		batch.m_dcmds.back().m_row_type = cmd.m_hdr.cmd;
+		columns_t & columns = batch.m_rows.back();
+
+		for (int i = 0, ie = l.size(); i < ie; ++i)
+		{
+			tlv::TV tv;
+			tv.m_val = l.at(i);
+			// @TODO: if tag is known tag such as STime, CTime, ... then make it that one
+			tlv::tag_t const tag = tlv::tag_max_value + i;
+			tv.m_tag = tag;
+			batch.m_dcmds.back().m_tvs.push_back(tv);
+		}
+
+
 		bool const has_no_setup = m_log_widget.m_config.m_columns_setup.size() == 0;
 
 		if (has_no_setup)
 		{
 			m_columns2storage.clear();
+			m_storage2columns.clear();
 			m_columns2storage.resize(m_log_widget.m_config.m_storage_order.size());
+			m_storage2columns.resize(m_log_widget.m_config.m_storage_order.size());
 			for (int c = 0, ce = m_log_widget.m_config.m_storage_order.size(); c < ce; ++c)
+			{
 				m_columns2storage[c] = c;
+				m_storage2columns[c] = c;
+			}
 			resizeToCfg(m_log_widget.m_config);
 		}
 		else
@@ -219,12 +233,14 @@ void LogTableModel::parseCommand (DecodedCommand const & cmd, E_ReceiveMode mode
 			if (m_columns2storage.size() == 0)
 			{
 				m_columns2storage.resize(m_log_widget.m_config.m_columns_setup.size());
+				m_storage2columns.resize(m_log_widget.m_config.m_columns_setup.size());
 				for (size_t i = 0, ie = m_log_widget.m_config.m_columns_setup.size(); i < ie; ++i)
 					for (int c = 0, ce = m_log_widget.m_config.m_storage_order.size(); c < ce; ++c)
 					{
 						if (m_log_widget.m_config.m_columns_setup[i] == m_log_widget.m_config.m_storage_order[c])
 						{
 							m_columns2storage[i] = c;
+							m_storage2columns[c] = i;
 							break;
 						}
 					}
@@ -237,7 +253,6 @@ void LogTableModel::parseCommand (DecodedCommand const & cmd, E_ReceiveMode mode
 			}
 		}
 
-		columns.resize(m_columns2storage.size());
 		for (int i = 0, ie = m_columns2storage.size(); i < ie; ++i)
 		{
 			int const src = m_columns2storage[i];
@@ -252,15 +267,6 @@ void LogTableModel::parseCommand (DecodedCommand const & cmd, E_ReceiveMode mode
 			}
 		}
 
-		for (int i = 0, ie = l.size(); i < ie; ++i)
-		{
-			tlv::TV tv;
-			tv.m_val = l.at(i);
-			// @TODO: if tag is known tag such as STime, CTime, ... then make it that one
-			tlv::tag_t const tag = tlv::tag_max_value + i;
-			tv.m_tag = tag;
-			batch.m_dcmds.back().m_tvs.push_back(tv);
-		}
 
 		sys::hptimer_t const now = sys::queryTime_us();
 		batch.m_row_ctimes.push_back(now); //@TODO: unless there is a time tag assigned to column

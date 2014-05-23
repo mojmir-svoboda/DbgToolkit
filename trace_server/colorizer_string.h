@@ -33,10 +33,6 @@ struct ColorizedString {
         : m_fgcolor(Qt::blue), m_bgcolor(Qt::white), m_str(), m_is_enabled(0), m_case_sensitive(false), m_whole_word(false)
 	{ }
 
-	/*ColorizedString (QString const & rs)
-        , m_fgcolor(Qt::blue), m_bgcolor(Qt::white), m_regex_str(rs), m_regex(rs), m_is_enabled(0)
-	{ }*/
-
 	ColorizedString (QString const & s, QColor const & col, QColor const & bgcol)
         : m_fgcolor(col), m_bgcolor(bgcol), m_str(s), m_is_enabled(0), m_case_sensitive(false), m_whole_word(false)
 	{ }
@@ -97,7 +93,7 @@ struct ColorizerString : FilterBase
 	QTreeView const * getWidget () const { return m_ui->view; }
 	void onColorStringChanged (int role);
 
-	void actionColorString (DecodedCommand const & cmd, ColorizedString const & ct) const;
+	void actionColorString (DecodedCommand const & cmd, ColorizedString const & ct, QColor const & fg, QColor const & bg) const;
 	void actionUncolorString (DecodedCommand const & cmd, ColorizedString const & ct) const;
 	void updateColorString (ColorizedString const & ct);
 	void uncolorString (ColorizedString const & ct);

@@ -58,6 +58,7 @@ public:
 
 	int findColumn4Tag (int tag);
 	int findColumn4TagCst (int tag) const;
+	int storage2Column (int storage_col) const { return storage_col < m_storage2columns.size() ? m_storage2columns[storage_col] : -1; }
 	int appendColumn (int tag);
 
 	virtual void clearModel ();
@@ -76,6 +77,7 @@ protected:
 	logs::LogWidget & m_log_widget;
 	QMap<int, int> m_tags2columns;
 	std::vector<int> m_columns2storage;
+	std::vector<int> m_storage2columns;
 	FilterState & m_filter_state;
 };
 

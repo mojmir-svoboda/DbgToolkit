@@ -29,10 +29,6 @@ struct ColorizedText {
 
 	ColorizedText () { }
 
-	/*ColorizedText (QString const & rs)
-        , m_fgcolor(Qt::blue), m_bgcolor(Qt::white), m_regex_str(rs), m_regex(rs), m_is_enabled(0)
-	{ }*/
-
 	ColorizedText (QString const & rs, QColor const & col, QColor const & bgcol)
         : m_fgcolor(col), m_bgcolor(bgcol), m_regex_str(rs), m_regex(rs), m_is_enabled(0)
 	{ }
@@ -93,7 +89,7 @@ struct ColorizerRegex : FilterBase
 	QTreeView const * getWidget () const { return m_ui->view; }
 	void onColorRegexChanged (int role);
 
-	void actionColorRegex (DecodedCommand const & cmd, ColorizedText const & ct) const;
+	void actionColorRegex (DecodedCommand const & cmd, ColorizedText const & ct, QColor const & fg, QColor const & bg) const;
 	void actionUncolorRegex (DecodedCommand const & cmd, ColorizedText const & ct) const;
 	void updateColorRegex (ColorizedText const & ct);
 	void recompileColorRegex (ColorizedText & ct);
@@ -115,8 +111,6 @@ public slots:
 	void onAdd ();
 	void onRm ();
 	void onActivate (int);
-		//void onColorRegexAdd ();
-		//void onColorRegexRm ();
 	void onFgChanged ();
 	void onBgChanged ();
 
@@ -125,8 +119,8 @@ signals:
 
 struct ColorizerRegexDelegate : public QStyledItemDelegate
 {
-    ColorizerRegexDelegate (QObject * parent = 0) : QStyledItemDelegate(parent) { }
-    ~ColorizerRegexDelegate ();
-    void paint (QPainter * painter, QStyleOptionViewItem const & option, QModelIndex const & index) const;
+	ColorizerRegexDelegate (QObject * parent = 0) : QStyledItemDelegate(parent) { }
+	~ColorizerRegexDelegate ();
+	void paint (QPainter * painter, QStyleOptionViewItem const & option, QModelIndex const & index) const;
 };
 

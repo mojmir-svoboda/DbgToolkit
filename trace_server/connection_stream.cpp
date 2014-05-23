@@ -439,11 +439,8 @@ void Connection::processTailCSVStream ()
 		while (!m_decoded_cmds.full() && !m_file_csv_stream->atEnd())
 		{
 			QString const data = m_file_csv_stream->readLine(2048);
-
-			tlv::TV tv;
-			tv.m_tag = tlv::tag_msg;
-			tv.m_val = data;
-			m_current_cmd.m_tvs.push_back(tv);
+			QByteArray ba = data.toLatin1();
+			memcpy(&m_current_cmd.m_orig_message[0], ba.data(), ba.size() < 2048? ba.size() : 2048 - 1);
 
 			m_decoded_cmds.push_back(m_current_cmd);
 			m_current_cmd.reset(); // reset current command for another decoding pass
