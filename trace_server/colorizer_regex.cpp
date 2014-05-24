@@ -263,38 +263,6 @@ void ColorizerRegex::onClickedAt (QModelIndex idx)
 	}
 
 	emitFilterChangedSignal();
-
-/*
-		if (!idx.isValid()) return;
-		QStandardItemModel * model = static_cast<QStandardItemModel *>(m_config_ui.ui()->viewColorRegex->model());
-		QStandardItem * item = model->itemFromIndex(idx);
-		Q_ASSERT(item);
-
-		QString const & val = model->data(idx, Qt::DisplayRole).toString();
-		bool const checked = (item->checkState() == Qt::Checked);
-
-		// @TODO: if state really changed
-		for (int i = 0, ie = m_filter_state.m_colorized_texts.size(); i < ie; ++i)
-		{
-			ColorizedText & ct = m_filter_state.m_colorized_texts[i];
-			if (ct.m_regex_str == val)
-			{
-				if (checked)
-				{
-					m_filter_state.setColorRegexChecked(val, checked);
-					recompileColorRegex(ct);
-					updateColor(ct);
-				}
-				else
-				{
-					uncolor(ct);
-					m_filter_state.setColorRegexChecked(val, checked);
-					recompileColorRegex(ct);
-				}
-				break;
-			}
-		}
-*/
 }
 
 
@@ -312,9 +280,6 @@ void ColorizerRegex::recompile ()
 	}
 }*/
 
-
-
-
 void ColorizerRegex::updateColor (ColorizedText const & ct)
 {
 	for (size_t r = 0, re = m_src_model->dcmds().size(); r < re; ++r)
@@ -323,7 +288,6 @@ void ColorizerRegex::updateColor (ColorizedText const & ct)
 		actionColor(dcmd, ct, ct.m_fgcolor, ct.m_bgcolor);
 	}
 }
-
 
 void ColorizerRegex::uncolor (ColorizedText const & ct)
 {

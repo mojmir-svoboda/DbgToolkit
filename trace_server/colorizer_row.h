@@ -15,6 +15,8 @@ struct ColorizedRow {
 	int m_row;
 	QString m_row_str;
 
+	//bool accept (QString str) const {...}
+
 	ColorizedRow () { }
 
 	ColorizedRow (QString const & rs, QColor const & col, QColor const & bgcol)
@@ -82,7 +84,7 @@ struct ColorizerRow : FilterBase
 	QTreeView const * getWidget () const { return m_ui->view; }
 	void onColorButtonChanged (int role);
 
-	void actionColor (DecodedCommand const & cmd, ColorizedRow const & ct) const;
+	void actionColor (DecodedCommand const & cmd, ColorizedRow const & ct, QColor const & fg, QColor const & bg) const;
 	void actionUncolor (DecodedCommand const & cmd, ColorizedRow const & ct) const;
 	void updateColor (ColorizedRow const & ct);
 	void uncolor (ColorizedRow const & ct);
