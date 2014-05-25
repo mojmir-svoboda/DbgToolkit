@@ -23,7 +23,16 @@
    <string notr="true"/>
   </property>
   <layout class="QGridLayout" name="gridLayout_2">
-   <property name="margin">
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
     <number>0</number>
    </property>
    <property name="spacing">
@@ -179,7 +188,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QtColorPicker" name="pushButton">
+      <widget class="QtColorPicker" name="fgButton">
        <property name="maximumSize">
         <size>
          <width>32</width>
@@ -192,7 +201,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QtColorPicker" name="pushButton_2">
+      <widget class="QtColorPicker" name="bgButton">
        <property name="maximumSize">
         <size>
          <width>32</width>

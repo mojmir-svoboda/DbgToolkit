@@ -35,9 +35,7 @@ public slots:
 	void onReturnPressed ();
 	void onColorizeNext ();
 	void onColorizePrev ();
-	void onColorizeAllRefs ();
-	void onColorizeAllSelect ();
-	void onColorizeAllClone ();
+	void onColorizeString ();
 	void onActivate ();
 	void onResetRegexpState ();
 

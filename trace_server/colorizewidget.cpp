@@ -16,12 +16,15 @@ void ColorizeWidget::init ()
 
 	QLineEdit * le = m_ui->findBox->lineEdit();
 	connect(le, SIGNAL(returnPressed()), this, SLOT(onReturnPressed()));
-	connect(m_ui->colorizeButton, SIGNAL(clicked()), this, SLOT(onColorizeAllSelect()));
-	connect(m_ui->refsButton, SIGNAL(clicked()), this, SLOT(onColorizeAllRefs()));
-	connect(m_ui->cloneButton, SIGNAL(clicked()), this, SLOT(onColorizeAllClone()));
+	connect(m_ui->colorizeButton, SIGNAL(clicked()), this, SLOT(onColorizeString()));
+	//connect(m_ui->refsButton, SIGNAL(clicked()), this, SLOT(onColorizeAllRefs()));
+	//connect(m_ui->cloneButton, SIGNAL(clicked()), this, SLOT(onColorizeAllClone()));
 	connect(m_ui->cancelButton, SIGNAL(clicked()), this, SLOT(onCancel()));
 	connect(m_ui->nextButton, SIGNAL(clicked()), this, SLOT(onColorizeNext()));
 	connect(m_ui->prevButton, SIGNAL(clicked()), this, SLOT(onColorizePrev()));
+
+	m_ui->fgButton->setStandardColors();
+	m_ui->bgButton->setStandardColors();
 
 	setAutoFillBackground(true);
 }
@@ -190,9 +193,9 @@ void ColorizeWidget::colorize (bool select, bool refs, bool clone)
 	m_config.m_clone = clone;
 	colorize();
 }
-void ColorizeWidget::onColorizeAllSelect () { colorize(1, 0, 0); }
-void ColorizeWidget::onColorizeAllRefs () { colorize(0, 1, 0); }
-void ColorizeWidget::onColorizeAllClone () { colorize(0, 0, 1); }
+void ColorizeWidget::onColorizeString () { colorize(1, 0, 0); }
+//void ColorizeWidget::onColorizeAllRefs () { colorize(0, 1, 0); }
+//void ColorizeWidget::onColorizeAllClone () { colorize(0, 0, 1); }
 
 void ColorizeWidget::colorize (bool prev, bool next)
 {

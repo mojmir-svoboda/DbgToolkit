@@ -99,7 +99,7 @@ namespace logs {
 				e->accept();
 			}
 
-			if (ctrl && e->key() == Qt::Key_S)
+			if (ctrl && e->key() == Qt::Key_D)
 			{
 				m_log_widget.onColorize();
 				e->accept();

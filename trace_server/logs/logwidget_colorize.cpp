@@ -37,15 +37,15 @@ void LogWidget::onColorizePrev ()
 }
 */
 
-void LogWidget::handleColorizeAction (ColorizeConfig const & fc)
+void LogWidget::handleColorizeAction (ColorizeConfig const & cc)
 {
-	bool const select_only = !fc.m_refs && !fc.m_clone;
+	bool const select_only = !cc.m_refs && !cc.m_clone;
 
-	if (fc.m_regexp)
+	if (cc.m_regexp)
 	{
-		if (fc.m_regexp_val.isEmpty())
+		if (cc.m_regexp_val.isEmpty())
 			return;
-		if (!fc.m_regexp_val.isValid())
+		if (!cc.m_regexp_val.isValid())
 			return;
 	}
 
@@ -53,12 +53,18 @@ void LogWidget::handleColorizeAction (ColorizeConfig const & fc)
 
 	if (select_only)
 	{
-/*		if (fc.m_next)
-			findAndSelectNext(fc);
-		else if (fc.m_prev)
-			findAndSelectPrev(fc);
+		colorizerMgr()->mkFilter(e_Colorizer_String);
+
+
+		colorizerMgr()->getColorizerString()->add(cc.m_str, cc.m_fgcolor, cc.m_bgcolor);
+		onInvalidateFilter(); //@TODO: should be done by filter?
+
+/*		if (cc.m_next)
+			findAndSelectNext(cc);
+		else if (cc.m_prev)
+			findAndSelectPrev(cc);
 		else
-			findAndSelect(fc);*/
+			findAndSelect(cc);*/
 	}
 	else
 	{
