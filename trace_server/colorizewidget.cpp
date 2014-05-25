@@ -24,7 +24,9 @@ void ColorizeWidget::init ()
 	connect(m_ui->prevButton, SIGNAL(clicked()), this, SLOT(onColorizePrev()));
 
 	m_ui->fgButton->setStandardColors();
+	m_ui->fgButton->setCurrentColor(QColor(Qt::blue));
 	m_ui->bgButton->setStandardColors();
+	m_ui->bgButton->setCurrentColor(QColor(Qt::white));
 
 	setAutoFillBackground(true);
 }
