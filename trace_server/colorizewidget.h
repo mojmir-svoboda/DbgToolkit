@@ -1,6 +1,6 @@
 #pragma once
 #include <QWidget>
-#include "findconfig.h"
+#include "colorizeconfig.h"
 #include "action.h"
 #include "dock.h"
 
@@ -19,13 +19,13 @@ public:
 	ColorizeWidget (QWidget * parent = 0);
 	~ColorizeWidget();
 
-	FindConfig & getConfig () { return m_config; }
-	FindConfig const & getConfig () const { return m_config; }
-	void applyConfig (FindConfig & cfg);
+	ColorizeConfig & getConfig () { return m_config; }
+	ColorizeConfig const & getConfig () const { return m_config; }
+	void applyConfig (ColorizeConfig & cfg);
 	void applyConfig ();
 	void setMainWindow (MainWindow * mw) { m_main_window = mw; }
-	//void focusNext ();
-	//void focusPrev ();
+	void focusNext ();
+	void focusPrev ();
 	void setActionAbleWidget (ActionAble * aa) { m_aa = aa; }
 
 public slots:
@@ -33,30 +33,30 @@ public slots:
 	void onEditTextChanged (QString str);
 	//void onFocusChanged (QWidget * old, QWidget * now);
 	void onReturnPressed ();
-	void onFindAllRefs ();
-	void onFindAllClone ();
-	void onFindAllSelect ();
-	void onFindNext ();
-	void onFindPrev ();
+	void onColorizeNext ();
+	void onColorizePrev ();
+	void onColorizeAllRefs ();
+	void onColorizeAllSelect ();
+	void onColorizeAllClone ();
 	void onActivate ();
 	void onResetRegexpState ();
 
 protected:
 	void init ();
-	void find ();
-	void find (bool select, bool refs, bool clone);
-	void find (bool prev, bool next);
+	void colorize ();
+	void colorize (bool select, bool refs, bool clone);
+	void colorize (bool prev, bool next);
 	void clearUI ();
-	void setConfigValuesToUI (FindConfig const & cfg);
-	void setUIValuesToConfig (FindConfig & cfg);
-	void makeActionFind (QString const & str, Action & a);
+	void setConfigValuesToUI (ColorizeConfig const & cfg);
+	void setUIValuesToConfig (ColorizeConfig & cfg);
+	void makeActionColorize (QString const & str, Action & a);
 	void signalRegexpState (E_ExprState state, QString const & reason);
 
 private:
 	friend class MainWindow;
 	Ui::ColorizeWidget *	m_ui;
 	MainWindow *		m_main_window;
-	FindConfig			m_config;
+	ColorizeConfig			m_config;
 	ActionAble *		m_aa;
 };
 

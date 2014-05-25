@@ -18,6 +18,8 @@ class LogTableModel;
 class FindProxyModel;
 class BaseProxyModel;
 class ControlBarLog;
+class ColorizeWidget;
+struct ColorizeConfig;
 
 namespace logs {
 
@@ -38,6 +40,7 @@ namespace logs {
 		void saveConfig (QString const & preset_dir);
 		void saveAuxConfigs ();
 		void saveFindConfig ();
+		void saveColorizeConfig ();
 		void resizeModelToConfig (LogConfig & pcfg);
 		void reloadModelAccordingTo (LogConfig & pcfg);
 		void applyConfig ();
@@ -103,6 +106,7 @@ namespace logs {
 		void commitBatchToLinkedModel (int src_from, int src_to, BatchCmd const & batch);
 		void setSrcModel (FindConfig const & fc);
 		void handleFindAction (FindConfig const & fc);
+		void handleColorizeAction (ColorizeConfig const & fc);
 		void findInWholeTable (FindConfig const & fc, QModelIndexList & result);
 		LogWidget * mkFindAllRefsLogWidget (FindConfig const & fc);
 		LogWidget * mkFindAllCloneLogWidget (FindConfig const & fc);
@@ -204,6 +208,10 @@ namespace logs {
 		void onFindPrev ();
 		void onFindAllRefs ();
 
+		void onColorize ();
+		void onColorizeNext ();
+		void onColorizePrev ();
+
 		void performSynchronization (E_SyncMode mode, int sync_group, unsigned long long time, void * source);
 
 		void onSectionResized (int logicalIndex, int oldSize, int newSize);
@@ -301,6 +309,7 @@ namespace logs {
 		QItemSelectionModel * m_kfind_proxy_selection;
 		QStandardItemModel * m_color_regex_model;
 		FindWidget * m_find_widget;
+		ColorizeWidget * m_colorize_widget;
 		QAction * m_window_action;
 
 		LogWidget * m_linked_parent; // @TODO: move to LogWidgetWithButtons

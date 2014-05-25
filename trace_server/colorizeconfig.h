@@ -4,7 +4,7 @@
 #include <QVector>
 #include "history.h"
 
-/*struct ColorizeConfig
+struct ColorizeConfig
 {
 	bool m_whole_word;
 	bool m_case_sensitive;
@@ -19,6 +19,8 @@
 	QStringList m_to_widgets;
 	QString m_str;
 	QRegExp m_regexp_val;
+	QColor m_fgcolor;
+	QColor m_bgcolor;
 
 	ColorizeConfig ()
 		: m_whole_word(false)
@@ -31,6 +33,8 @@
 		, m_clone(false)
 		, m_history_ln(32)
 		, m_history(m_history_ln)
+		, m_fgcolor(Qt::blue)
+		, m_bgcolor(Qt::white)
 	{
 	}
 
@@ -49,6 +53,8 @@
 		ar & boost::serialization::make_nvp("history", m_history);
 		ar & boost::serialization::make_nvp("to_widget", m_to_widgets);
 		ar & boost::serialization::make_nvp("str", m_str);
+		ar & boost::serialization::make_nvp("fgcolor", m_fgcolor);
+		ar & boost::serialization::make_nvp("bgcolor", m_bgcolor);
 	}
 
 	void clear ();
@@ -79,5 +85,5 @@ Q_DECLARE_METATYPE(ColorizeConfig)
 
 bool loadConfig (ColorizeConfig & config, QString const & fname);
 bool saveConfig (ColorizeConfig const & config, QString const & fname);
-void fillDefaultConfig (ColorizeConfig & config);*/
+void fillDefaultConfig (ColorizeConfig & config);
 

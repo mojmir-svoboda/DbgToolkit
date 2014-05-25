@@ -140,6 +140,7 @@ set(trace_server_SOURCES
 	findwidget.cpp
 	colorizewidget.cpp
 	findconfig.cpp
+	colorizeconfig.cpp
 
 	kde/kselectionproxymodel.cpp
 	kde/kmodelindexproxymapper.cpp
@@ -153,6 +154,7 @@ set(trace_server_SOURCES
 	logs/logselectionproxymodel.cpp
 	logs/logwidget.cpp
 	logs/logwidget_find.cpp
+	logs/logwidget_colorize.cpp
 	logs/logwidget_filtering.cpp
 	logs/logwidget_legacycfg.cpp
 	logs/logwidget_actions.cpp

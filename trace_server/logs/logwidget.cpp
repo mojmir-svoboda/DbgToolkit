@@ -16,6 +16,7 @@
 #include <controlbarlog.h>
 #include <ui_controlbarlog.h>
 #include "mainwindow.h"
+#include "colorizewidget.h"
 
 namespace logs {
 
@@ -49,6 +50,7 @@ namespace logs {
 		, m_kfind_proxy_selection(0)
 		, m_color_regex_model(0)
 		, m_find_widget(0)
+		, m_colorize_widget(0)
 		, m_window_action(0)
 		, m_linked_parent(0)
 		, m_file_csv_stream(0)
@@ -106,6 +108,9 @@ namespace logs {
 		m_find_widget = new FindWidget(m_connection->getMainWindow(), this);
 		m_find_widget->setActionAbleWidget(this);
 		m_find_widget->setParent(m_tableview);
+		m_colorize_widget = new ColorizeWidget(m_connection->getMainWindow(), this);
+		m_colorize_widget->setActionAbleWidget(this);
+		m_colorize_widget->setParent(m_tableview);
 
 		m_window_action = new QAction("Tool widget for " + joinedPath(), this);
 		connect(m_window_action, SIGNAL(triggered()), this, SLOT(onWindowActionTriggered()));
@@ -745,6 +750,8 @@ namespace logs {
 		QString const logpath = getCurrentWidgetPath();
 		m_config.m_find_config.clear();
 		loadConfigTemplate(m_config.m_find_config, logpath + "/" + g_findTag);
+		m_config.m_colorize_config.clear();
+		loadConfigTemplate(m_config.m_colorize_config, logpath + "/" + g_colorizeTag);
 		filterMgr()->loadConfig(logpath);
 		colorizerMgr()->loadConfig(logpath);
 	}
@@ -752,6 +759,7 @@ namespace logs {
 	{
 		QString const logpath = getCurrentWidgetPath();
 		saveConfigTemplate(m_config.m_find_config, logpath + "/" + g_findTag);
+		saveConfigTemplate(m_config.m_colorize_config, logpath + "/" + g_colorizeTag);
 		filterMgr()->saveConfig(logpath);
 		colorizerMgr()->saveConfig(logpath);
 	}
@@ -759,6 +767,11 @@ namespace logs {
 	{
 		QString const logpath = getCurrentWidgetPath();
 		saveConfigTemplate(m_config.m_find_config, logpath + "/" + g_findTag);
+	}
+	void LogWidget::saveColorizeConfig ()
+	{
+		QString const logpath = getCurrentWidgetPath();
+		saveConfigTemplate(m_config.m_colorize_config, logpath + "/" + g_colorizeTag);
 	}
 
 	void LogWidget::normalizeConfig (logs::LogConfig & normalized)

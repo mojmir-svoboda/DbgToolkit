@@ -5,6 +5,7 @@
 #include <dockedconfig.h>
 #include <constants.h>
 #include <findconfig.h>
+#include <colorizeconfig.h>
 
 namespace logs {
 
@@ -40,7 +41,7 @@ namespace logs {
 		bool m_csv_has_header;
 		QString m_csv_separator;
 		FindConfig m_find_config;
-		FindConfig m_colorize_config;
+		ColorizeConfig m_colorize_config;
 
 		LogConfig ()
 			: m_tag()

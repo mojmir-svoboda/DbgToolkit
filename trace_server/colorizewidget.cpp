@@ -16,12 +16,12 @@ void ColorizeWidget::init ()
 
 	QLineEdit * le = m_ui->findBox->lineEdit();
 	connect(le, SIGNAL(returnPressed()), this, SLOT(onReturnPressed()));
-	connect(m_ui->colorizeButton, SIGNAL(clicked()), this, SLOT(onFindAllSelect()));
-	connect(m_ui->refsButton, SIGNAL(clicked()), this, SLOT(onFindAllRefs()));
-	connect(m_ui->cloneButton, SIGNAL(clicked()), this, SLOT(onFindAllClone()));
+	connect(m_ui->colorizeButton, SIGNAL(clicked()), this, SLOT(onColorizeAllSelect()));
+	connect(m_ui->refsButton, SIGNAL(clicked()), this, SLOT(onColorizeAllRefs()));
+	connect(m_ui->cloneButton, SIGNAL(clicked()), this, SLOT(onColorizeAllClone()));
 	connect(m_ui->cancelButton, SIGNAL(clicked()), this, SLOT(onCancel()));
-	connect(m_ui->nextButton, SIGNAL(clicked()), this, SLOT(onFindNext()));
-	connect(m_ui->prevButton, SIGNAL(clicked()), this, SLOT(onFindPrev()));
+	connect(m_ui->nextButton, SIGNAL(clicked()), this, SLOT(onColorizeNext()));
+	connect(m_ui->prevButton, SIGNAL(clicked()), this, SLOT(onColorizePrev()));
 
 	setAutoFillBackground(true);
 }
@@ -51,7 +51,7 @@ ColorizeWidget::~ColorizeWidget ()
 	delete m_ui;
 }
 
-void ColorizeWidget::applyConfig (FindConfig & cfg)
+void ColorizeWidget::applyConfig (ColorizeConfig & cfg)
 {
 	m_config = cfg;
 	setConfigValuesToUI(m_config);
@@ -86,11 +86,11 @@ void ColorizeWidget::onEditTextChanged (QString str)
 
 void ColorizeWidget::onReturnPressed ()
 {
-	onFindNext();
+	onColorizeNext();
 	//m_config.saveHistory();
 }
 
-/*void ColorizeWidget::focusNext ()
+void ColorizeWidget::focusNext ()
 {
 	QWidget * const curr =  qApp->focusWidget();
 	QWidget * const next = curr->nextInFocusChain();
@@ -104,7 +104,7 @@ void ColorizeWidget::focusPrev ()
 	prev->setFocus(Qt::TabFocusReason);
 }
 
-void ColorizeWidget::onFocusChanged (QWidget * old, QWidget * now)
+/*void ColorizeWidget::onFocusChanged (QWidget * old, QWidget * now)
 {
 	//m_find_widget->onFocusChanged(old, now);
 }*/
@@ -138,9 +138,9 @@ void ColorizeWidget::signalRegexpState (E_ExprState state, QString const & reaso
 	}
 }
 
-void ColorizeWidget::makeActionFind (QString const & str, Action & a)
+void ColorizeWidget::makeActionColorize (QString const & str, Action & a)
 {
-	a.m_type = e_Find;
+	a.m_type = e_Colorize;
 	//a.m_src_path = path();
 	//a.m_src = this;
 	if (m_aa)
@@ -150,7 +150,7 @@ void ColorizeWidget::makeActionFind (QString const & str, Action & a)
 	a.m_args.push_back(fc);
 }
 
-void ColorizeWidget::find ()
+void ColorizeWidget::colorize ()
 {
 	QString const str = m_ui->findBox->currentText();
 	if (!str.isEmpty())
@@ -174,37 +174,37 @@ void ColorizeWidget::find ()
 			}
 		}
 		Action a;
-		makeActionFind(str, a);
+		makeActionColorize(str, a);
 		m_main_window->dockManager().handleAction(&a, e_Sync);
 		QTimer::singleShot(750, this, SLOT(onResetRegexpState()));
 	}
 
 }
 
-void ColorizeWidget::find (bool select, bool refs, bool clone)
+void ColorizeWidget::colorize (bool select, bool refs, bool clone)
 {
 	m_config.m_next = 0;
 	m_config.m_prev = 0;
 	m_config.m_select = select;
 	m_config.m_refs = refs;
 	m_config.m_clone = clone;
-	find();
+	colorize();
 }
-void ColorizeWidget::onFindAllSelect () { find(1, 0, 0); }
-void ColorizeWidget::onFindAllRefs () { find(0, 1, 0); }
-void ColorizeWidget::onFindAllClone () { find(0, 0, 1); }
+void ColorizeWidget::onColorizeAllSelect () { colorize(1, 0, 0); }
+void ColorizeWidget::onColorizeAllRefs () { colorize(0, 1, 0); }
+void ColorizeWidget::onColorizeAllClone () { colorize(0, 0, 1); }
 
-void ColorizeWidget::find (bool prev, bool next)
+void ColorizeWidget::colorize (bool prev, bool next)
 {
 	m_config.m_next = next;
 	m_config.m_prev = prev;
 	m_config.m_select = 1;
 	m_config.m_refs = 0;
 	m_config.m_clone = 0;
-	find();
+	colorize();
 }
-void ColorizeWidget::onFindNext () { find(0, 1); }
-void ColorizeWidget::onFindPrev () { find(1, 0); }
+void ColorizeWidget::onColorizeNext () { colorize(0, 1); }
+void ColorizeWidget::onColorizePrev () { colorize(1, 0); }
 
 void ColorizeWidget::clearUI ()
 {
@@ -212,7 +212,7 @@ void ColorizeWidget::clearUI ()
 	m_ui->findBox->clear();
 }
 
-void ColorizeWidget::setConfigValuesToUI (FindConfig const & cfg)
+void ColorizeWidget::setConfigValuesToUI (ColorizeConfig const & cfg)
 {
 	clearUI();
 	syncHistoryToWidget(m_ui->findBox, cfg.m_history);
@@ -220,13 +220,15 @@ void ColorizeWidget::setConfigValuesToUI (FindConfig const & cfg)
 	m_ui->wholeWordCheckBox->setChecked(cfg.m_whole_word);
 	m_ui->regexCheckBox->setChecked(cfg.m_regexp);
 	m_ui->widgetComboBox->addItems(cfg.m_to_widgets);
+	// TODO: color
 }
 
-void ColorizeWidget::setUIValuesToConfig (FindConfig & cfg)
+void ColorizeWidget::setUIValuesToConfig (ColorizeConfig & cfg)
 {
 	cfg.m_case_sensitive = m_ui->caseCheckBox->isChecked();
 	cfg.m_whole_word = m_ui->wholeWordCheckBox->isChecked();
 	cfg.m_regexp = m_ui->regexCheckBox->isChecked();
 	cfg.m_str = m_ui->findBox->currentText();
+	// TODO: color
 }
 
