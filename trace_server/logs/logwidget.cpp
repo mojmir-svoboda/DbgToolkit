@@ -353,6 +353,24 @@ namespace logs {
 		return current;
 	}
 
+	QModelIndex LogWidget::mapToSourceIndexIfProxy (QModelIndex const & idx) const
+	{
+		if (m_tableview->model() == m_src_model)
+			return idx;
+
+		if (m_tableview->model() == logProxy())
+		{
+			QModelIndex const src = m_proxy_model->mapToSource(idx);
+			return src;
+		}
+		if (m_tableview->model() == findProxy())
+		{
+			QModelIndex const src = m_find_proxy_model->mapToSource(idx);
+			return src;
+		}
+		return QModelIndex();
+	}
+
 	void LogWidget::setupRefsProxyModel (LogTableModel * linked_model, BaseProxyModel * linked_proxy)
 	{
 		m_src_model = linked_model;
@@ -706,9 +724,7 @@ namespace logs {
 	}
 
 	E_SrcProtocol LogWidget::protocol () const { return m_connection->protocol(); }
-	// this is only for delegeate until it moves to better place
-	int LogWidget::findColumn4Tag (int tag) { return (m_src_model) ? m_src_model->findColumn4Tag(tag) : -1; }
-	int LogWidget::findColumn4TagCst (int tag) const { return (m_src_model) ? m_src_model->findColumn4TagCst(tag) : -1; }
+	int LogWidget::column2Tag (int col) const { return (m_src_model) ? m_src_model->column2Tag(col) : -1; }
 
 	void LogWidget::loadConfig (QString const & preset_dir)
 	{
@@ -916,12 +932,12 @@ void LogWidget::onDumpFilters ()
 	*/
 }
 
-DecodedCommand const * LogWidget::getDecodedCommand (QModelIndex const & row_index)
+DecodedCommand const * LogWidget::getDecodedCommand (QModelIndex const & row_index) const
 {
 	return getDecodedCommand(row_index.row());
 }
 
-DecodedCommand const * LogWidget::getDecodedCommand (int row)
+DecodedCommand const * LogWidget::getDecodedCommand (int row) const
 {
 	if (row >= 0 && row < m_src_model->dcmds().size())
 		return &m_src_model->dcmds()[row];

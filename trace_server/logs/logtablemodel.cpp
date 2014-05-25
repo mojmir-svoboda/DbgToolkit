@@ -94,7 +94,6 @@ void LogTableModel::reloadModelAccordingTo (logs::LogConfig & config)
 	new_model->m_column_count = m_column_count;
 	return new_model;
 }*/
-
 LogTableModel * LogTableModel::cloneToNewModel (logs::LogWidget * parent, FindConfig const & fc)
 {
 	LogTableModel * new_model = new LogTableModel(parent, *parent);
@@ -126,14 +125,45 @@ LogTableModel * LogTableModel::cloneToNewModel (logs::LogWidget * parent, FindCo
 	return new_model;
 }
 
-int LogTableModel::findColumn4TagCst (int tag) const
+
+int LogTableModel::column2Tag (int col) const
 {
-	QMap<int, int>::const_iterator it = m_tags2columns.find(tag);
-	if (it != m_tags2columns.end())
-		return it.value();
+	if (col >= 0 && col < m_columns2tag.size())
+		return m_columns2tag[col];
+	return -1;
+}
+int LogTableModel::tag2Column (int tag) const
+{
+	tags2column_t::const_iterator it = m_tags2column.find(tag);
+	if (it != m_tags2column.end())
+		return it->second;
+
 	return -1;
 }
 
+/*
+int LogTableModel::appendColumnAndTag (int tag)
+{
+	TagDesc const & desc = m_log_widget.m_tagconfig.findOrCreateTag(tag);
+
+	m_log_widget.m_config.m_columns_setup.push_back(desc.m_tag_str);
+	m_log_widget.m_config.m_columns_align.push_back(desc.m_align_str);
+	m_log_widget.m_config.m_columns_elide.push_back(desc.m_elide_str);
+	m_log_widget.m_config.m_columns_sizes.push_back(desc.m_size);
+
+	//qDebug("inserting column and size. tmpl_sz=%u curr_sz=%u sizes_sz=%u", m_columns_setup_template->size(), m_columns_setup_current->size(), m_columns_sizes->size());
+	int const column_index = static_cast<int>(m_log_widget.m_config.m_columns_setup.size()) - 1;
+	m_tags2columns.insert(std::make_pair(tag, column_index));
+	m_columns2tag.resize(column_index);
+	m_columns2tag[column_index] = tag;
+	//m_columns2storage ?
+	//rest?
+	return column_index;
+}
+*/
+
+
+/*
 int LogTableModel::findColumn4Tag (int tag)
 {
 	QMap<int, int>::const_iterator it = m_tags2columns.find(tag);
@@ -154,13 +184,13 @@ int LogTableModel::findColumn4Tag (int tag)
 	for (size_t i = 0, ie = m_log_widget.m_config.m_columns_setup.size(); i < ie; ++i)
 		if (m_log_widget.m_config.m_columns_setup[i] == qname)
 		{
-			m_tags2columns.insert(tag, static_cast<int>(i));
+			m_tags2columns.insert(std::make_pair(tag, static_cast<int>(i)));
 			return static_cast<int>(i);
 		}
 	return -1;
-}
+}*/
 
-int LogTableModel::appendColumn (int tag)
+/*int LogTableModel::appendColumn (int tag)
 {
 	TagDesc const & desc = m_log_widget.m_tagconfig.findOrCreateTag(tag);
 
@@ -170,14 +200,32 @@ int LogTableModel::appendColumn (int tag)
 	m_log_widget.m_config.m_columns_sizes.push_back(desc.m_size);
 
 	//qDebug("inserting column and size. tmpl_sz=%u curr_sz=%u sizes_sz=%u", m_columns_setup_template->size(), m_columns_setup_current->size(), m_columns_sizes->size());
-
 	int const column_index = static_cast<int>(m_log_widget.m_config.m_columns_setup.size()) - 1;
-	m_tags2columns.insert(tag, column_index);
-
+	//m_tags2columns.insert(std::make_pair(tag, column_index));
+	m_columns2tag.resize(column_index);
+	m_columns2tag[column_index] = tag;
 	return column_index;
+}*/
+
+namespace tlv {
+	inline size_t name_to_tag (QString const & str)
+	{
+		for (size_t i = 0; i < tlv::tag_max_value; ++i)
+			if (str == QString(tag_names[i]))
+				return i;
+
+		if (str.size() >= 4)
+		{
+			QStringRef num = str.rightRef(4); // skipping the "Col" part
+			bool ok = false;
+			int col_n = num.toInt(&ok);
+			if (ok)
+				return tlv::tag_max_value + col_n;
+		}
+
+		return tag_invalid;
+	}
 }
-
-
 
 void LogTableModel::parseCommand (DecodedCommand const & cmd, E_ReceiveMode mode, BatchCmd & batch)
 {
@@ -218,13 +266,19 @@ void LogTableModel::parseCommand (DecodedCommand const & cmd, E_ReceiveMode mode
 		if (has_no_setup)
 		{
 			m_columns2storage.clear();
+			m_columns2tag.clear();
 			m_storage2columns.clear();
+			m_tags2column.clear();
 			m_columns2storage.resize(m_log_widget.m_config.m_storage_order.size());
+			m_columns2tag.resize(m_log_widget.m_config.m_storage_order.size());
 			m_storage2columns.resize(m_log_widget.m_config.m_storage_order.size());
 			for (int c = 0, ce = m_log_widget.m_config.m_storage_order.size(); c < ce; ++c)
 			{
+				tlv::tag_t const tag = tlv::name_to_tag(m_log_widget.m_config.m_storage_order[c]);
 				m_columns2storage[c] = c;
+				m_columns2tag[c] = tag;
 				m_storage2columns[c] = c;
+				m_tags2column.insert(std::make_pair(tag, c));
 			}
 			resizeToCfg(m_log_widget.m_config);
 		}
@@ -233,14 +287,18 @@ void LogTableModel::parseCommand (DecodedCommand const & cmd, E_ReceiveMode mode
 			if (m_columns2storage.size() == 0)
 			{
 				m_columns2storage.resize(m_log_widget.m_config.m_columns_setup.size());
+				m_columns2tag.resize(m_log_widget.m_config.m_columns_setup.size());
 				m_storage2columns.resize(m_log_widget.m_config.m_storage_order.size());
 				for (size_t i = 0, ie = m_log_widget.m_config.m_columns_setup.size(); i < ie; ++i)
 					for (int c = 0, ce = m_log_widget.m_config.m_storage_order.size(); c < ce; ++c)
 					{
 						if (m_log_widget.m_config.m_columns_setup[i] == m_log_widget.m_config.m_storage_order[c])
 						{
+							tlv::tag_t const tag = tlv::name_to_tag(m_log_widget.m_config.m_storage_order[c]);
 							m_columns2storage[i] = c;
+							m_columns2tag[i] = tag;
 							m_storage2columns[c] = i;
+							m_tags2column.insert(std::make_pair(tag, i));
 							break;
 						}
 					}
@@ -298,13 +356,19 @@ void LogTableModel::parseCommand (DecodedCommand const & cmd, E_ReceiveMode mode
 		if (has_no_setup)
 		{
 			m_columns2storage.clear();
+			m_columns2tag.clear();
 			m_storage2columns.clear();
+			m_tags2column.clear();
 			m_columns2storage.resize(m_log_widget.m_config.m_storage_order.size());
+			m_columns2tag.resize(m_log_widget.m_config.m_storage_order.size());
 			m_storage2columns.resize(m_log_widget.m_config.m_storage_order.size());
 			for (int c = 0, ce = m_log_widget.m_config.m_storage_order.size(); c < ce; ++c)
 			{
+				tlv::tag_t const tag = tlv::name_to_tag(m_log_widget.m_config.m_storage_order[c]);
 				m_columns2storage[c] = c;
+				m_columns2tag[c] = tag;
 				m_storage2columns[c] = c;
+				m_tags2column.insert(std::make_pair(tag, c));
 			}
 			resizeToCfg(m_log_widget.m_config);
 		}
@@ -313,14 +377,18 @@ void LogTableModel::parseCommand (DecodedCommand const & cmd, E_ReceiveMode mode
 			if (m_columns2storage.size() == 0)
 			{
 				m_columns2storage.resize(m_log_widget.m_config.m_columns_setup.size());
+				m_columns2tag.resize(m_log_widget.m_config.m_columns_setup.size());
 				m_storage2columns.resize(m_log_widget.m_config.m_storage_order.size());
 				for (size_t i = 0, ie = m_log_widget.m_config.m_columns_setup.size(); i < ie; ++i)
 					for (int c = 0, ce = m_log_widget.m_config.m_storage_order.size(); c < ce; ++c)
 					{
 						if (m_log_widget.m_config.m_columns_setup[i] == m_log_widget.m_config.m_storage_order[c])
 						{
+							tlv::tag_t const tag = tlv::name_to_tag(m_log_widget.m_config.m_storage_order[c]);
 							m_columns2storage[i] = c;
+							m_columns2tag[i] = tag;
 							m_storage2columns[c] = i;
+							m_tags2column.insert(std::make_pair(tag, i));
 							break;
 						}
 					}
@@ -444,8 +512,8 @@ void LogTableModel::commitBatchToModel (BatchCmd & batch)
 void LogTableModel::clearModel ()
 {
 	BaseTableModel::clearModel();
-	m_tags2columns.clear();
 	m_columns2storage.clear();
+	m_columns2tag.clear();
 }
 
 

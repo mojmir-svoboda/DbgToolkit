@@ -56,6 +56,8 @@ namespace logs {
 
 		LogTableModel const * logModel () const { return m_src_model; }
 		FilterProxyModel const * logProxy () const { return m_proxy_model; }
+		FindProxyModel const * findProxy () const { return m_find_proxy_model; }
+		QModelIndex mapToSourceIndexIfProxy (QModelIndex const & idx) const;
 		bool isModelProxy () const;
 		void setupLogModel ();
 		void setupRefsModel (LogTableModel * linked_model);
@@ -63,8 +65,8 @@ namespace logs {
 		void setupCloneModel (LogTableModel * src_model);
 		void setupLogSelectionProxy ();
 
-		DecodedCommand const * getDecodedCommand (QModelIndex const & row_index);
-		DecodedCommand const * getDecodedCommand (int row);
+		DecodedCommand const * getDecodedCommand (QModelIndex const & row_index) const;
+		DecodedCommand const * getDecodedCommand (int row) const;
 
 		///virtual void scrollTo (QModelIndex const & index, ScrollHint hint = EnsureVisible);
 
@@ -163,7 +165,7 @@ namespace logs {
 		// find
 		void selectionFromTo (int & from, int & to) const;
 		QString findString4Tag (int tag, QModelIndex const & row_index) const;
-		QVariant findVariant4Tag (int tag, QModelIndex const & row_index) const;
+		//QVariant findVariant4Tag (int tag, QModelIndex const & row_index) const;
 
 		void scrollToCurrentTag ();
 		void scrollToCurrentSelection ();
@@ -174,9 +176,9 @@ namespace logs {
 		FilterState & filterState () { return m_filter_state; }
 		FilterState const & filterState () const { return m_filter_state; }
 
-		int findColumn4Tag (int tag);
-		int findColumn4TagCst (int tag) const;
-		int findColumn4TagInTemplate (int tag) const;
+		int column2Tag (int tag) const;
+		//int findColumn4Tag (int tag);
+		//int findColumn4TagInTemplate (int tag) const;
 
 		ThreadSpecific & getTLS () { return m_tls; }
 		ThreadSpecific const & getTLS () const { return m_tls; }
