@@ -53,18 +53,25 @@ void LogWidget::handleColorizeAction (ColorizeConfig const & cc)
 
 	if (select_only)
 	{
-		colorizerMgr()->mkFilter(e_Colorizer_String);
+		if (cc.m_regexp)
+		{
+			colorizerMgr()->mkFilter(e_Colorizer_Regex);
+			colorizerMgr()->getColorizerRegex()->add(cc.m_str, cc.m_fgcolor, cc.m_bgcolor);
+			//onInvalidateFilter(); //@TODO: should be done by filter?
+		}
+		else
+		{
+			colorizerMgr()->mkFilter(e_Colorizer_String);
+			colorizerMgr()->getColorizerString()->add(cc.m_str, cc.m_fgcolor, cc.m_bgcolor);
+			//onInvalidateFilter(); //@TODO: should be done by filter?
+		}
 
-
-		colorizerMgr()->getColorizerString()->add(cc.m_str, cc.m_fgcolor, cc.m_bgcolor);
-		onInvalidateFilter(); //@TODO: should be done by filter?
-
-/*		if (cc.m_next)
+		if (cc.m_next)
 			findAndSelectNext(cc);
 		else if (cc.m_prev)
 			findAndSelectPrev(cc);
-		else
-			findAndSelect(cc);*/
+		//else
+			//findAndSelect(cc)
 	}
 	else
 	{

@@ -1,60 +1,30 @@
 #pragma once
-#include <QString>
-#include <QColor>
-#include <QVector>
-#include "history.h"
+#include "findconfig.h"
 
-struct ColorizeConfig
+struct ColorizeConfig : FindConfig
 {
-	bool m_whole_word;
-	bool m_case_sensitive;
-	bool m_regexp;
-	bool m_prev;
-	bool m_next;
-	bool m_select;
-	bool m_refs;
-	bool m_clone;
-	unsigned m_history_ln;
-	History<QString> m_history;
-	QStringList m_to_widgets;
-	QString m_str;
-	QRegExp m_regexp_val;
 	QColor m_fgcolor;
 	QColor m_bgcolor;
+	History<QString> m_fghistory;
+	History<QString> m_bghistory;
 
 	ColorizeConfig ()
-		: m_whole_word(false)
-		, m_case_sensitive(false)
-		, m_regexp(false)
-		, m_prev(false)
-		, m_next(false)
-		, m_select(false)
-		, m_refs(true)
-		, m_clone(false)
-		, m_history_ln(32)
-		, m_history(m_history_ln)
+		: FindConfig()
 		, m_fgcolor(Qt::blue)
 		, m_bgcolor(Qt::white)
+		, m_fghistory(m_history_ln)
+		, m_bghistory(m_history_ln)
 	{
 	}
 
 	template <class ArchiveT>
 	void serialize (ArchiveT & ar, unsigned const version)
 	{
-		ar & boost::serialization::make_nvp("whole_word", m_whole_word);
-		ar & boost::serialization::make_nvp("case_sensitive", m_case_sensitive);
-		ar & boost::serialization::make_nvp("regexp", m_regexp);
-		ar & boost::serialization::make_nvp("prev", m_prev);
-		ar & boost::serialization::make_nvp("next", m_next);
-		ar & boost::serialization::make_nvp("select", m_select);
-		ar & boost::serialization::make_nvp("refs", m_refs);
-		ar & boost::serialization::make_nvp("clone", m_clone);
-		ar & boost::serialization::make_nvp("history_ln", m_history_ln);
-		ar & boost::serialization::make_nvp("history", m_history);
-		ar & boost::serialization::make_nvp("to_widget", m_to_widgets);
-		ar & boost::serialization::make_nvp("str", m_str);
+		FindConfig::serialize(ar, version);
 		ar & boost::serialization::make_nvp("fgcolor", m_fgcolor);
 		ar & boost::serialization::make_nvp("bgcolor", m_bgcolor);
+		ar & boost::serialization::make_nvp("fghistory", m_fghistory);
+		ar & boost::serialization::make_nvp("bghistory", m_bghistory);
 	}
 
 	void clear ();
