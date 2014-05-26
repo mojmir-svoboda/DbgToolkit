@@ -5,15 +5,11 @@ struct ColorizeConfig : FindConfig
 {
 	QColor m_fgcolor;
 	QColor m_bgcolor;
-	History<QString> m_fghistory;
-	History<QString> m_bghistory;
 
 	ColorizeConfig ()
 		: FindConfig()
 		, m_fgcolor(Qt::blue)
 		, m_bgcolor(Qt::white)
-		, m_fghistory(m_history_ln)
-		, m_bghistory(m_history_ln)
 	{
 	}
 
@@ -23,8 +19,6 @@ struct ColorizeConfig : FindConfig
 		FindConfig::serialize(ar, version);
 		ar & boost::serialization::make_nvp("fgcolor", m_fgcolor);
 		ar & boost::serialization::make_nvp("bgcolor", m_bgcolor);
-		ar & boost::serialization::make_nvp("fghistory", m_fghistory);
-		ar & boost::serialization::make_nvp("bghistory", m_bghistory);
 	}
 
 	void clear ();

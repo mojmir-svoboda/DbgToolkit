@@ -225,7 +225,8 @@ void ColorizeWidget::setConfigValuesToUI (ColorizeConfig const & cfg)
 	m_ui->wholeWordCheckBox->setChecked(cfg.m_whole_word);
 	m_ui->regexCheckBox->setChecked(cfg.m_regexp);
 	m_ui->widgetComboBox->addItems(cfg.m_to_widgets);
-	// TODO: color
+	m_ui->fgButton->setCurrentColor(cfg.m_fgcolor);
+	m_ui->bgButton->setCurrentColor(cfg.m_bgcolor);
 }
 
 void ColorizeWidget::setUIValuesToConfig (ColorizeConfig & cfg)
@@ -234,6 +235,7 @@ void ColorizeWidget::setUIValuesToConfig (ColorizeConfig & cfg)
 	cfg.m_whole_word = m_ui->wholeWordCheckBox->isChecked();
 	cfg.m_regexp = m_ui->regexCheckBox->isChecked();
 	cfg.m_str = m_ui->findBox->currentText();
-	// TODO: color
+	cfg.m_fgcolor = m_ui->fgButton->currentColor();
+	cfg.m_bgcolor = m_ui->bgButton->currentColor();
 }
 
