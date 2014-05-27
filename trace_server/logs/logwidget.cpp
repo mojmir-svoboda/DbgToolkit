@@ -91,8 +91,8 @@ namespace logs {
 
 		QStyle const * const style = QApplication::style();
 		m_config_ui.ui()->findWidget->setMainWindow(m_connection->getMainWindow());
-		connect(m_config_ui.ui()->gotoNextButton, SIGNAL(clicked()), this, SLOT(onNextToView()));
-		m_config_ui.ui()->gotoNextButton->setIcon(style->standardIcon(QStyle::SP_ArrowDown));
+		//connect(m_config_ui.ui()->gotoNextButton, SIGNAL(clicked()), this, SLOT(onNextToView()));
+		//m_config_ui.ui()->gotoNextButton->setIcon(style->standardIcon(QStyle::SP_ArrowDown));
 		connect(m_config_ui.ui()->saveButton, SIGNAL(clicked()), this, SLOT(onSaveButton()));
 		//connect(ui->autoScrollCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onAutoScrollStateChanged(int)));
 		//connect(ui->inViewCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onInViewStateChanged(int)));
@@ -648,7 +648,7 @@ namespace logs {
 	{
 		//qDebug("%s this=0x%08x", __FUNCTION__, this);
 		Ui::SettingsLog * ui = m_config_ui.ui();
-		ui->dtCheckBox->setCheckState(cfg.m_dt_enabled ? Qt::Checked : Qt::Unchecked);
+		//ui->dtCheckBox->setCheckState(cfg.m_dt_enabled ? Qt::Checked : Qt::Unchecked);
 		ui->autoScrollCheckBox->setCheckState(cfg.m_auto_scroll ? Qt::Checked : Qt::Unchecked);
 		ui->groupingWidget->setCurrentIndex(m_config.m_curr_tooltab);
 		
