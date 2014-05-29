@@ -251,6 +251,7 @@ namespace logs {
 		void onHidePrev ();
 		void onHideNext ();
 		void onChangeTimeUnits (int);
+		void onOpenFileLine ();
 
 		/*void requestTableWheelEventSync (QWheelEvent * ev, QTableView const * source);
 		void requestTableActionSync (unsigned long long t, int cursorAction, Qt::KeyboardModifiers modifiers, QTableView const * source);*/
@@ -268,6 +269,7 @@ namespace logs {
 		QToolButton * m_gotoNextErrButton;
 		QToolButton * m_gotoPrevWarnButton;
 		QToolButton * m_gotoNextWarnButton;
+		QToolButton * m_openFileLineButton;
 		QToolButton * m_excludeFileButton;
 		QToolButton * m_excludeFileLineButton;
 		QToolButton * m_excludeRowButton;

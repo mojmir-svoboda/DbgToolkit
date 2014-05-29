@@ -8,5 +8,6 @@
         <file>images/view.png</file>
         <file>images/find_stop.png</file>
         <file>images/colorize.png</file>
+        <file>images/open_file.png</file>
     </qresource>
 </RCC>

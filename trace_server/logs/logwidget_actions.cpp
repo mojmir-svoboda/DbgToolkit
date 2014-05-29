@@ -558,5 +558,21 @@ void LogWidget::onTableDoubleClicked (QModelIndex const & row_index)
 	}*/
 }
 
+void LogWidget::onOpenFileLine ()
+{
+	QModelIndex const curr_src_idx = currentSourceIndex();
+	if (!curr_src_idx.isValid())
+		return;
+
+	DecodedCommand const * dcmd = getDecodedCommand(curr_src_idx);
+	if (dcmd)
+	{
+		QString file, line;
+		if (dcmd->getString(tlv::tag_file, file) && dcmd->getString(tlv::tag_line, line))
+		{
+		}
+	}
+}
+
 }
 

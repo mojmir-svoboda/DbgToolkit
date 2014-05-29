@@ -26,6 +26,7 @@ namespace logs {
 		, m_tableview(0)
 		, m_cacheLayout(new ButtonCache)
 		, m_gotoPrevErrButton(0) , m_gotoNextErrButton(0) , m_gotoPrevWarnButton(0) , m_gotoNextWarnButton(0)
+		, m_openFileLineButton(0)
 		, m_excludeFileButton(0) , m_excludeFileLineButton(0) , m_excludeRowButton(0) , m_locateRowButton(0)
 		, m_clrDataButton(0) , m_setRefTimeButton(0) , m_hidePrevButton(0) , m_hideNextButton(0)
 		, m_colorRowButton(0) , m_colorFileLineButton(0) , m_uncolorRowButton(0) , m_gotoPrevColorButton(0) , m_gotoNextColorButton(0)
@@ -154,6 +155,16 @@ namespace logs {
 		m_gotoNextWarnButton->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
 		m_gotoNextWarnButton->setArrowType(Qt::DownArrow);
 		cacheLayout->addWidget(m_gotoNextWarnButton);
+
+		m_openFileLineButton = new QToolButton(parent_widget);
+		m_openFileLineButton->setObjectName(QStringLiteral("openFileLineButton"));
+		m_openFileLineButton->setMaximumSize(QSize(16777215, 16));
+		m_openFileLineButton->setCheckable(false);
+		//m_openFileLineButton->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+		//m_openFileLineButton->setArrowType(Qt::DownArrow);
+		QIcon icon(":images/open_file.png");
+		m_openFileLineButton->setIcon(icon);
+		cacheLayout->addWidget(m_openFileLineButton);
 
 		QFrame * line4 = new QFrame(parent_widget);
 		line4->setObjectName(QStringLiteral("line4"));
@@ -326,6 +337,7 @@ namespace logs {
 		connect(m_gotoNextErrButton, SIGNAL(clicked()), this, SLOT(onGotoNextErr()));
 		connect(m_gotoPrevWarnButton, SIGNAL(clicked()), this, SLOT(onGotoPrevWarn()));
 		connect(m_gotoNextWarnButton, SIGNAL(clicked()), this, SLOT(onGotoNextWarn()));
+		connect(m_openFileLineButton, SIGNAL(clicked()), this, SLOT(onOpenFileLine()));
 		connect(m_excludeFileButton, SIGNAL(clicked()), this, SLOT(onExcludeFile()));
 		connect(m_excludeFileLineButton, SIGNAL(clicked()), this, SLOT(onExcludeFileLine()));
 		connect(m_excludeRowButton, SIGNAL(clicked()), this, SLOT(onExcludeRow()));
