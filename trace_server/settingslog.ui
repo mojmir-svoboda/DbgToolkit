@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>526</width>
-    <height>308</height>
+    <height>305</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -35,16 +35,7 @@
     <property name="spacing">
      <number>0</number>
     </property>
-    <property name="leftMargin">
-     <number>0</number>
-    </property>
-    <property name="topMargin">
-     <number>0</number>
-    </property>
-    <property name="rightMargin">
-     <number>0</number>
-    </property>
-    <property name="bottomMargin">
+    <property name="margin">
      <number>0</number>
     </property>
     <item>
@@ -52,23 +43,14 @@
       <property name="spacing">
        <number>0</number>
       </property>
-      <property name="leftMargin">
-       <number>0</number>
-      </property>
-      <property name="topMargin">
-       <number>0</number>
-      </property>
-      <property name="rightMargin">
-       <number>0</number>
-      </property>
-      <property name="bottomMargin">
+      <property name="margin">
        <number>0</number>
       </property>
       <item>
        <widget class="QTabWidget" name="groupingWidget">
         <property name="font">
          <font>
-          <family>Verdana</family>
+          <family>MS Shell Dlg 2</family>
           <pointsize>7</pointsize>
          </font>
         </property>
@@ -102,16 +84,7 @@
           <property name="spacing">
            <number>0</number>
           </property>
-          <property name="leftMargin">
-           <number>0</number>
-          </property>
-          <property name="topMargin">
-           <number>0</number>
-          </property>
-          <property name="rightMargin">
-           <number>0</number>
-          </property>
-          <property name="bottomMargin">
+          <property name="margin">
            <number>0</number>
           </property>
           <item>
@@ -185,16 +158,7 @@
           <property name="spacing">
            <number>0</number>
           </property>
-          <property name="leftMargin">
-           <number>0</number>
-          </property>
-          <property name="topMargin">
-           <number>0</number>
-          </property>
-          <property name="rightMargin">
-           <number>0</number>
-          </property>
-          <property name="bottomMargin">
+          <property name="margin">
            <number>0</number>
           </property>
           <item>
@@ -214,16 +178,7 @@
           <property name="spacing">
            <number>0</number>
           </property>
-          <property name="leftMargin">
-           <number>0</number>
-          </property>
-          <property name="topMargin">
-           <number>0</number>
-          </property>
-          <property name="rightMargin">
-           <number>0</number>
-          </property>
-          <property name="bottomMargin">
+          <property name="margin">
            <number>0</number>
           </property>
           <item>
@@ -243,16 +198,7 @@
           <property name="spacing">
            <number>0</number>
           </property>
-          <property name="leftMargin">
-           <number>0</number>
-          </property>
-          <property name="topMargin">
-           <number>0</number>
-          </property>
-          <property name="rightMargin">
-           <number>0</number>
-          </property>
-          <property name="bottomMargin">
+          <property name="margin">
            <number>0</number>
           </property>
           <item>
@@ -308,16 +254,7 @@
              </font>
             </property>
             <layout class="QGridLayout" name="gridLayout_3">
-             <property name="leftMargin">
-              <number>0</number>
-             </property>
-             <property name="topMargin">
-              <number>0</number>
-             </property>
-             <property name="rightMargin">
-              <number>0</number>
-             </property>
-             <property name="bottomMargin">
+             <property name="margin">
               <number>0</number>
              </property>
              <property name="spacing">
@@ -530,41 +467,38 @@
           <property name="spacing">
            <number>0</number>
           </property>
-          <property name="leftMargin">
-           <number>0</number>
-          </property>
-          <property name="topMargin">
-           <number>0</number>
-          </property>
-          <property name="rightMargin">
-           <number>0</number>
-          </property>
-          <property name="bottomMargin">
+          <property name="margin">
            <number>0</number>
           </property>
           <item>
            <layout class="QGridLayout" name="gridLayout">
-            <property name="leftMargin">
-             <number>0</number>
-            </property>
-            <property name="topMargin">
-             <number>0</number>
-            </property>
-            <property name="rightMargin">
-             <number>0</number>
-            </property>
-            <property name="bottomMargin">
+            <property name="margin">
              <number>0</number>
             </property>
             <property name="spacing">
              <number>0</number>
             </property>
+            <item row="7" column="1">
+             <widget class="QToolButton" name="tableFontToolButton">
+              <property name="font">
+               <font>
+                <family>MS Shell Dlg 2</family>
+               </font>
+              </property>
+              <property name="layoutDirection">
+               <enum>Qt::LeftToRight</enum>
+              </property>
+              <property name="text">
+               <string>...</string>
+              </property>
+             </widget>
+            </item>
             <item row="3" column="0">
              <widget class="QCheckBox" name="indentCheckBox">
               <property name="font">
                <font>
-                <family>Verdana</family>
-                <pointsize>7</pointsize>
+                <family>MS Shell Dlg 2</family>
+                <pointsize>8</pointsize>
                </font>
               </property>
               <property name="text">
@@ -579,8 +513,8 @@
              <widget class="QCheckBox" name="scopesCheckBox">
               <property name="font">
                <font>
-                <family>Verdana</family>
-                <pointsize>7</pointsize>
+                <family>MS Shell Dlg 2</family>
+                <pointsize>8</pointsize>
                </font>
               </property>
               <property name="text">
@@ -593,6 +527,12 @@
             </item>
             <item row="1" column="0">
              <widget class="QLabel" name="label_3">
+              <property name="font">
+               <font>
+                <family>MS Shell Dlg 2</family>
+                <pointsize>8</pointsize>
+               </font>
+              </property>
               <property name="text">
                <string>Display time units</string>
               </property>
@@ -602,8 +542,8 @@
              <widget class="QCheckBox" name="cutPathCheckBox">
               <property name="font">
                <font>
-                <family>Verdana</family>
-                <pointsize>7</pointsize>
+                <family>MS Shell Dlg 2</family>
+                <pointsize>8</pointsize>
                </font>
               </property>
               <property name="text">
@@ -616,6 +556,11 @@
             </item>
             <item row="6" column="1">
              <widget class="QSpinBox" name="tableRowSizeSpinBox">
+              <property name="font">
+               <font>
+                <family>MS Shell Dlg 2</family>
+               </font>
+              </property>
               <property name="value">
                <number>18</number>
               </property>
@@ -623,6 +568,11 @@
             </item>
             <item row="4" column="1">
              <widget class="QSpinBox" name="cutPathSpinBox">
+              <property name="font">
+               <font>
+                <family>MS Shell Dlg 2</family>
+               </font>
+              </property>
               <property name="minimum">
                <number>1</number>
               </property>
@@ -636,6 +586,11 @@
             </item>
             <item row="5" column="1">
              <widget class="QSpinBox" name="cutNamespaceSpinBox">
+              <property name="font">
+               <font>
+                <family>MS Shell Dlg 2</family>
+               </font>
+              </property>
               <property name="minimum">
                <number>1</number>
               </property>
@@ -651,8 +606,8 @@
              <widget class="QCheckBox" name="cutNamespaceCheckBox">
               <property name="font">
                <font>
-                <family>Verdana</family>
-                <pointsize>7</pointsize>
+                <family>MS Shell Dlg 2</family>
+                <pointsize>8</pointsize>
                </font>
               </property>
               <property name="text">
@@ -665,6 +620,11 @@
             </item>
             <item row="3" column="1">
              <widget class="QSpinBox" name="indentSpinBox">
+              <property name="font">
+               <font>
+                <family>MS Shell Dlg 2</family>
+               </font>
+              </property>
               <property name="minimum">
                <number>0</number>
               </property>
@@ -677,14 +637,20 @@
              </widget>
             </item>
             <item row="1" column="1">
-             <widget class="TimeComboBox" name="timeComboBox"/>
+             <widget class="TimeComboBox" name="timeComboBox">
+              <property name="font">
+               <font>
+                <family>MS Shell Dlg 2</family>
+               </font>
+              </property>
+             </widget>
             </item>
             <item row="0" column="0">
              <widget class="QCheckBox" name="autoScrollCheckBox">
               <property name="font">
                <font>
-                <family>Verdana</family>
-                <pointsize>7</pointsize>
+                <family>MS Shell Dlg 2</family>
+                <pointsize>8</pointsize>
                </font>
               </property>
               <property name="toolTip">
@@ -704,6 +670,12 @@ p, li { white-space: pre-wrap; }
             </item>
             <item row="6" column="0">
              <widget class="QLabel" name="label_17">
+              <property name="font">
+               <font>
+                <family>MS Shell Dlg 2</family>
+                <pointsize>8</pointsize>
+               </font>
+              </property>
               <property name="text">
                <string>Table row size:</string>
               </property>
@@ -711,23 +683,24 @@ p, li { white-space: pre-wrap; }
             </item>
             <item row="7" column="0">
              <widget class="QLabel" name="label_18">
+              <property name="font">
+               <font>
+                <family>MS Shell Dlg 2</family>
+                <pointsize>8</pointsize>
+               </font>
+              </property>
               <property name="text">
                <string>Table font</string>
               </property>
              </widget>
             </item>
-            <item row="7" column="1">
-             <widget class="QComboBox" name="tableFontComboBox"/>
-            </item>
-            <item row="7" column="2">
-             <widget class="QToolButton" name="tableFontToolButton">
-              <property name="text">
-               <string>...</string>
-              </property>
-             </widget>
-            </item>
-            <item row="9" column="0">
+            <item row="10" column="0">
              <spacer name="verticalSpacer">
+              <property name="font">
+               <font>
+                <family>MS Shell Dlg 2</family>
+               </font>
+              </property>
               <property name="orientation">
                <enum>Qt::Vertical</enum>
               </property>
@@ -739,8 +712,50 @@ p, li { white-space: pre-wrap; }
               </property>
              </spacer>
             </item>
+            <item row="9" column="0">
+             <widget class="QLabel" name="label_4">
+              <property name="font">
+               <font>
+                <family>MS Shell Dlg 2</family>
+                <pointsize>8</pointsize>
+               </font>
+              </property>
+              <property name="text">
+               <string>Open File:Line with</string>
+              </property>
+             </widget>
+            </item>
+            <item row="9" column="1" colspan="2">
+             <widget class="QComboBox" name="openFileWithComboBox">
+              <item>
+               <property name="text">
+                <string>Visual Studio 2012</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Visual Studio 2010</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Visual Studio 2008</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>gVim</string>
+               </property>
+              </item>
+             </widget>
+            </item>
             <item row="5" column="2">
              <spacer name="horizontalSpacer_2">
+              <property name="font">
+               <font>
+                <family>MS Shell Dlg 2</family>
+               </font>
+              </property>
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
               </property>
@@ -752,20 +767,13 @@ p, li { white-space: pre-wrap; }
               </property>
              </spacer>
             </item>
-            <item row="8" column="0">
-             <widget class="QLabel" name="label_4">
-              <property name="text">
-               <string>Open File:Line with</string>
+            <item row="7" column="2">
+             <widget class="QComboBox" name="tableFontComboBox">
+              <property name="font">
+               <font>
+                <family>MS Shell Dlg 2</family>
+               </font>
               </property>
-             </widget>
-            </item>
-            <item row="8" column="1">
-             <widget class="QComboBox" name="comboBox">
-              <item>
-               <property name="text">
-                <string>Visual Studio</string>
-               </property>
-              </item>
              </widget>
             </item>
            </layout>

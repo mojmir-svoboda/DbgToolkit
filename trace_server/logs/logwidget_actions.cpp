@@ -2,6 +2,7 @@
 #include "filterproxymodel.h"
 #include "connection.h"
 #include "mainwindow.h"
+#include "utils_openfilelinewith.h"
 
 namespace logs {
 
@@ -570,6 +571,7 @@ void LogWidget::onOpenFileLine ()
 		QString file, line;
 		if (dcmd->getString(tlv::tag_file, file) && dcmd->getString(tlv::tag_line, line))
 		{
+			openFileLineWith(m_config_ui.ui()->openFileWithComboBox->currentText(), file, line);
 		}
 	}
 }
