@@ -663,19 +663,22 @@ namespace logs {
 		//ui->dtCheckBox->setCheckState(cfg.m_dt_enabled ? Qt::Checked : Qt::Unchecked);
 		ui->autoScrollCheckBox->setCheckState(cfg.m_auto_scroll ? Qt::Checked : Qt::Unchecked);
 		ui->groupingWidget->setCurrentIndex(m_config.m_curr_tooltab);
-		
-		//ui->globalShowCheckBox->blockSignals(true);
-		//ui->globalShowCheckBox->setCheckState(cfg.m_show ? Qt::Checked : Qt::Unchecked);
-		//ui->globalShowCheckBox->blockSignals(false);
 
-		//ui->logViewComboBox->clear();
-		/*for (size_t i = 0, ie = cfg.m_gvcfg.size(); i < ie; ++i)
-		{
-			LogViewConfig const & gvcfg = cfg.m_gvcfg[i];
-			ui->logViewComboBox->addItem(gvcfg.m_tag);
-		}
-		if (cfg.m_gvcfg.size())
-			setViewConfigValuesToUI(cfg.m_gvcfg[0]);*/
+		// TODO: block signals
+		//bool const old = m_table_view_widget->blockSignals(true);
+		//m_table_view_widget->blockSignals(old);
+		ui->autoScrollCheckBox->setChecked(cfg.m_auto_scroll);
+		ui->cutNamespaceCheckBox->setChecked(m_config.m_cut_namespaces);
+		ui->cutNamespaceSpinBox->setValue(m_config.m_cut_namespace_level);
+		ui->cutPathCheckBox->setChecked(m_config.m_cut_path);
+		ui->cutPathSpinBox->setValue(m_config.m_cut_path_level);
+		ui->indentCheckBox->setChecked(m_config.m_indent);
+		ui->indentSpinBox->setValue(m_config.m_indent_level);
+		ui->scopesCheckBox->setChecked(m_config.m_scopes);
+		//ui->tableFontComboBox->
+		//ui->tableFontToolButton->
+		ui->tableRowSizeSpinBox->setValue(m_config.m_row_width);
+		ui->timeComboBox->comboBox()->setCurrentIndex(ui->timeComboBox->comboBox()->findText(m_config.m_time_units_str));
 	}
 
 	void LogWidget::setUIValuesToConfig (LogConfig & cfg)
@@ -684,6 +687,19 @@ namespace logs {
 		Ui::SettingsLog * ui = m_config_ui.ui();
 		//m_config.m_show = ui->globalShowCheckBox->checkState() == Qt::Checked;
 		cfg.m_curr_tooltab = ui->groupingWidget->currentIndex();
+
+		cfg.m_auto_scroll = ui->autoScrollCheckBox->isChecked();
+		m_config.m_cut_namespaces = ui->cutNamespaceCheckBox->isChecked();
+		m_config.m_cut_namespace_level = ui->cutNamespaceSpinBox->value();
+		m_config.m_cut_path = ui->cutPathCheckBox->isChecked();
+		m_config.m_cut_path_level = ui->cutPathSpinBox->value();
+		m_config.m_indent = ui->indentCheckBox->isChecked();
+		m_config.m_indent_level = ui->indentSpinBox->value();
+		m_config.m_scopes = ui->scopesCheckBox->isChecked();
+		//ui->tableFontComboBox->
+		//ui->tableFontToolButton->
+		m_config.m_row_width = ui->tableRowSizeSpinBox->value();
+		m_config.m_time_units_str = ui->timeComboBox->comboBox()->currentText();
 	}
 
 	void LogWidget::onApplyButton ()
