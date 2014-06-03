@@ -2,6 +2,10 @@ cmake_minimum_required(VERSION 2.8.9)
 project(trace_server)
 set (CMAKE_VERBOSE_MAKEFILE on)
 
+# use this for develoment, if you do not pass it from command line:
+set(CMAKE_INSTALL_PREFIX "c:/_builds/trace_server/")
+message("trace_server install path=${CMAKE_INSTALL_PREFIX}")
+
 ### Qt
 find_package(Qt5Widgets REQUIRED)
 find_package(Qt5Core REQUIRED)
@@ -418,6 +422,19 @@ target_link_libraries(trace_server ${Boost_LIBRARIES}
 	${Qt5Widgets_LIBRARIES}
 	${QICO}
 	Qt5::WinMain)
+
+install(TARGETS trace_server
+	RUNTIME DESTINATION .
+	LIBRARY DESTINATION lib
+	ARCHIVE DESTINATION lib/static)
+
+if(MSVC)
+	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/../utils/VisualStudioFileOpenTool/VisualStudioFileOpenTool.all.exe
+		DESTINATION .)
+	install(FILES ${CMAKE_CURRENT_BINARY_DIR}/Debug/trace_server.pdb
+		DESTINATION .
+		CONFIGURATIONS Debug)
+endif(MSVC)
 
 #if (WIN32 AND NOT MINGW)
 #	get_filename_component(MK_VERSION_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../build/mk_version.bat" ABSOLUTE)

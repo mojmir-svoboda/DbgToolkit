@@ -13,6 +13,8 @@ void MainWindow::createTailLogStream (QString const & fname, QString const & sep
 {
 	Connection * connection = createNewConnection();
 	connection->setTailFile(fname);
+	if (0 == connection->m_file_csv_stream)
+		return;
 	QFileInfo fi(fname);
 	QString const tag = fi.fileName();
 	

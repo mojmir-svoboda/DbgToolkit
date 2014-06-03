@@ -5,6 +5,7 @@
 #include <QAbstractNativeEventFilter>
 #include <QKeyEvent>
 #include "mainwindow.h"
+#include "utils.h"
 #include <sysfn/os.h>
 #include <sysfn/time_query.h>
 #include <time.h>
@@ -120,9 +121,12 @@ void qDebugHandler (QtMsgType type, QMessageLogContext const & ctx, QString cons
 int main (int argc, char * argv[])
 {
 	sys::setTimeStart();
+
+	QString const path = QDir::homePath() + "/" + g_traceServerDirName + "/logs";
+	mkPath(path);
 	QFileInfo fi(argv[0]);
-	QString const log_name = QString("%1.%2").arg(fi.completeBaseName()).arg("log");
-	g_LogRedirect = fopen(log_name.toLatin1(), "a");
+	QString const log_name = path + "/" + QString("%1.%2").arg(fi.completeBaseName()).arg("log");
+	g_LogRedirect = fopen(log_name.toLatin1(), "w");
 	bool quit_delay = true;
 	bool start_hidden = false;
 	bool dump_mode = false;
@@ -165,7 +169,8 @@ int main (int argc, char * argv[])
 		}
 	}
 
-	qInstallMessageHandler(qDebugHandler);
+	if (g_LogRedirect)
+		qInstallMessageHandler(qDebugHandler);
 
 	Application app(argc, argv);
 
@@ -190,6 +195,7 @@ int main (int argc, char * argv[])
 	bool const retval = app.exec(); // main loop
 
 	qInstallMessageHandler(0);
-	fclose(g_LogRedirect);
+	if (g_LogRedirect)
+		fclose(g_LogRedirect);
 	return retval;
 }
