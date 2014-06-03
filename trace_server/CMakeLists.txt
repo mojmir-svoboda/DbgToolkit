@@ -347,6 +347,12 @@ set(trace_server_UI
 
 set(trace_server_RESOURCES resources.qrc)
 
+if (WIN32)
+	set(trace_server_WIN32_RESOURCES resources_win.rc)
+	set(CMAKE_RC_COMPILER_INIT windres)
+	enable_language(RC)
+endif (WIN32)
+
 qt5_wrap_ui(trace_server_UI_HDRS ${trace_server_UI})
 qt5_wrap_cpp(trace_server_MOC ${trace_server_HEADERS})
 qt5_add_resources(trace_server_RESOURCES_RCC ${trace_server_RESOURCES})
@@ -355,8 +361,18 @@ add_executable(trace_server WIN32
 		${trace_server_UI_HDRS}
 		${trace_server_UI_SRCS}
 		${trace_server_RESOURCES_RCC}
-		${trace_server_SOURCES})
+		${trace_server_SOURCES}
+		${trace_server_WIN32_RESOURCES}
+)
 
+####################### Platform specific ######################
+if (WIN32)
+	set (QT_USE_QTMAIN TRUE)
+	add_definitions(-DNOMINMAX)
+	add_definitions(-DWIN_LEAN_AND_MEAN)
+	target_link_libraries(trace_server Qt5::WinMain)
+endif (WIN32)
+####################### Platform specific ######################
 
 include_directories(${QT_USE_FILE} ${Qt5Gui_PRIVATE_INCLUDE_DIRS})
 add_definitions(${QT_DEFINITIONS})
@@ -368,15 +384,6 @@ add_definitions(-DQT_PLUGIN)
 add_definitions(-DQT_NO_DEBUG)
 add_definitions(-DQT_STATIC)
 add_definitions(-DSTATIC)
-
-####################### Platform specific ######################
-if (WIN32)
-	set (QT_USE_QTMAIN TRUE)
-	add_definitions(-DNOMINMAX)
-	add_definitions(-DWIN_LEAN_AND_MEAN)
-	target_link_libraries(trace_server Qt5::WinMain)
-endif (WIN32)
-####################### Platform specific ######################
 
 
 ######################## Plugin section ########################

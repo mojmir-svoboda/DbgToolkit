@@ -73,7 +73,7 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QStri
 	// tray stuff
 	createTrayActions();
 	createTrayIcon();
-	QIcon icon(":images/Icon1.ico");
+	QIcon icon(":images/Icon.ico");
 	setWindowIcon(icon);
 	m_tray_icon->setVisible(true);
 	m_tray_icon->show();
@@ -185,7 +185,7 @@ void MainWindow::createTrayIcon ()
 	m_tray_menu->addSeparator();
 	m_tray_menu->addAction(m_quit_action);
 
-	QIcon icon(":/images/Icon1.ico");
+	QIcon icon(":/images/Icon.ico");
 	m_tray_icon = new QSystemTrayIcon(icon, this);
 	m_tray_icon->setContextMenu(m_tray_menu);
 

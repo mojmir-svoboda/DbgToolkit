@@ -3,9 +3,6 @@
 # where to create install.exe
 OutFile "c:\_builds\trace_server\install_trace_server.exe"
 
-# where to install program
-#InstallDir c:\bbzero_beta
-
 # good for debugging
 ShowInstDetails Show
 
@@ -61,8 +58,8 @@ ShowInstDetails "nevershow"
 ShowUninstDetails "nevershow"
 ;SetCompressor "bzip2"
 
-!define ICON "Icon1.ico"
-!define UNICON "Icon1.ico"
+!define ICON "Icon.ico"
+!define UNICON "Icon.ico"
 #!define SPECIALBITMAP "Bitmap.bmp"
 
 
@@ -132,7 +129,7 @@ SectionEnd
 ;--------------------------------
 ;Uninstaller Section
 Section "Uninstall"
-  ;Delete Files 
+  ;Delete Files
   RMDir /r "$INSTDIR\*.*"
   ;Remove the installation directory
   RMDir "$INSTDIR"
