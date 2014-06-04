@@ -455,7 +455,7 @@ install(TARGETS trace_server
 	ARCHIVE DESTINATION lib/static)
 
 if(MSVC)
-	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/../utils/VisualStudioFileOpenTool/VisualStudioFileOpenTool.all.exe
+	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/../utils/bin/VisualStudioFileOpenTool.all.exe
 		DESTINATION .)
 	install(FILES ${CMAKE_CURRENT_BINARY_DIR}/Debug/trace_server.pdb
 		DESTINATION .
