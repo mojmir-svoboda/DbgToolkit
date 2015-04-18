@@ -4,7 +4,7 @@
 #include "utils_qstandarditem.h"
 #include <boost/function.hpp>
 #include <QPainter>
-#include <QScriptEngine>
+//#include <QScriptEngine>
 
 FilterScript::FilterScript (QWidget * parent)
 	: FilterBase(parent)
@@ -16,7 +16,7 @@ FilterScript::FilterScript (QWidget * parent)
 {
 	initUI();
 	setupModel();
-	m_se = new QScriptEngine();
+	//m_se = new QScriptEngine();
 }
 
 FilterScript::~FilterScript ()
