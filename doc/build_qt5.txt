@@ -1,5 +1,5 @@
-B. Qt5
-======
+A. Qt5 prerequisities
+=====================
 
 For doing a static build of Qt 5 you need:
 
@@ -22,49 +22,32 @@ For doing a static build of Qt 5 you need:
 
 You can find more details on:
 	http://qt-project.org/wiki/Building_Qt_5_from_Git
+  http://doc.qt.io/qt-5/windows-building.html
+  doc.qt.io/qt-5/configure-options.html
 
 More brief version goes here:
 
 
+B. Qt5 static build
+===================
 
-B1. 32b build
--------------
+To do 32b run:
+----------------
 
-Run:
 	Start Menu/Programs/Microsoft Visual Studio 2012/Visual Studio Tools/VS2012 x86 Native Tools Command Prompt
 
-Set paths:
-	set PATH=c:/Program Files (x86)/Git/bin;%PATH%
-	set PATH=C:/strawberry/perl/bin;%PATH%
-	set PATH=e:\qt5\qtbase\gnuwin32\bin;%PATH%
-	set PATH=C:\Python33;%PATH%
-
-cd to future qt5 location:
-	cd c:/devel/qt5
-
-Clone git of Qt5:
-	git clone git://gitorious.org/qt/qt5.git qt5
-
-cd to qt5:
-	cd qt5
-
-init subrepositories:
-	perl init-repository --no-webkit
-init subrepositories:
-	configure.bat -debug-and-release -opensource -platform win32-msvc2012 -static -ltcg -no-accessibility -no-openvg -no-gif -no-dbus -no-audio-backend -no-sql-sqlite -no-qml-debug -nomake examples -nomake tests -no-icu
-
-
-B2. 64b build
--------------
-
-Run
+To do 64b run:
+----------------
 
 	Start Menu/Programs/Microsoft Visual Studio 2012/Visual Studio Tools/VS2012 x64 Cross Tools Command Prompt
 
+Common part:
+------------
+
 Set paths:
 	set PATH=c:/Program Files (x86)/Git/bin;%PATH%
-	set PATH=C:/strawberry/perl/bin;%PATH%
-	set PATH=e:\qt5\qtbase\gnuwin32\bin;%PATH%
+	set PATH=C:\strawberry\perl\bin;%PATH%
+	set PATH=c:\qt5\qtbase\gnuwin32\bin;%PATH%
 	set PATH=C:\Python33;%PATH%
 
 cd to future qt5 location:
@@ -79,6 +62,12 @@ cd to qt5:
 init subrepositories:
 	perl init-repository --no-webkit
 init subrepositories:
-	configure.bat -debug-and-release -opensource -platform win32-msvc2012 -static -ltcg -no-accessibility -no-openvg -no-gif -no-dbus -no-audio-backend -no-sql-sqlite -no-qml-debug -nomake examples -nomake tests -no-icu
+  configure.bat -debug-and-release -opensource -c++11 -platform win32-msvc2013 -static -ltcg -no-accessibility -no-openvg -no-gif -no-dbus -no-audio-backend -no-sql-sqlite -no-qml-debug -qt-pcre -no-icu -nomake examples -nomake tests -mp
+
+More on config options at http://doc.qt.io/qt-5/configure-options.html
+
+cd qtbase/src/3rdparty/pcre
+qmake -project pcre.pro -r -spec win32-msvc2012
+nmake
 
 
