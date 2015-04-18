@@ -16,7 +16,7 @@ find_package(Qt5Widgets REQUIRED)
 find_package(Qt5Core REQUIRED)
 find_package(Qt5Network REQUIRED)
 find_package(Qt5OpenGL REQUIRED)
-find_package(Qt5Script REQUIRED)
+#find_package(Qt5Script REQUIRED)
 find_program(QT_QMAKE_EXECUTABLE NAMES qmake qmake5 qmake-qt5 qmake-mac PATHS ${QTROOTS})
 message("qmake: ${QT_QMAKE_EXECUTABLE}")
 
@@ -408,6 +408,7 @@ if (WIN32)
 	FIND_PLUGINS(QTRANS_COMMON NAMES translator_common      DEFAULT_SUFFIXES PATHS ${QT_LIB_PATH})
 	FIND_PLUGINS(QTRANS_HLSL   NAMES translator_hlsl        DEFAULT_SUFFIXES PATHS ${QT_LIB_PATH})
 	FIND_PLUGINS(QPREPROC      NAMES preprocessor           DEFAULT_SUFFIXES PATHS ${QT_LIB_PATH})
+	FIND_PLUGINS(QTRANSLATOR   NAMES translator             DEFAULT_SUFFIXES PATHS ${QT_LIB_PATH})
 	message("QPA plugin for win: ${QWINDOWS_LIBRARIES}")
 
 	FIND_LIBRARY(DXGUID_LIBRARY      NAMES dxguid      PATHS ${DirectX_LIBRARY_PATHS})
@@ -424,13 +425,21 @@ if (WIN32)
 		set(TRANSLATOR_LIBRARIES ${TRANSLATOR_LIBRARIES} ${QTRANS_HLSL_LIBRARY})
 	endif()
 
+  FIND_PLUGINS(QPCRE         NAMES qtpcre                DEFAULT_SUFFIXES PATHS ${QT_LIB_PATH})
+  FIND_PLUGINS(QHARFBUZZ     NAMES qtharfbuzzng          DEFAULT_SUFFIXES PATHS ${QT_LIB_PATH})
+  FIND_PLUGINS(QFREETYPE     NAMES qtfreetype            DEFAULT_SUFFIXES PATHS ${QT_LIB_PATH})
+
 	target_link_libraries(trace_server
 		wsock32 ws2_32
 		imm32 winmm d3d9 ${DXGUID_LIBRARY} ${D3DCOMPILER_LIBRARY}
 		${QPLATFORM_LIBRARY}
 		${TRANSLATOR_LIBRARIES}
 		${QPREPROC_LIBRARY}
-		${QWINDOWS_LIBRARY})
+		${QWINDOWS_LIBRARY}
+    ${QPCRE_LIBRARY}
+    ${QHARFBUZZ_LIBRARY}
+    ${QFREETYPE_LIBRARY}
+    )
 elseif (UNIX)
 	message("not implemented yet, but should be trivial to do so")
 elseif (APPLE)
@@ -438,7 +447,8 @@ elseif (APPLE)
 endif()
 ######################## Plugin section ########################
 
-qt5_use_modules(trace_server Widgets Core Gui Network OpenGL Script)
+#qt5_use_modules(trace_server Widgets Core Gui Network OpenGL Script)
+qt5_use_modules(trace_server Widgets Core Gui Network OpenGL)
 
 target_link_libraries(trace_server ${Boost_LIBRARIES}
 	qwt
