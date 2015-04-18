@@ -212,6 +212,12 @@ double QwtPlotAbstractBarChart::baseline() const
 /*!
    Calculate the width for a sample in paint device coordinates
 
+   \param map Scale map for the corresponding scale
+   \param canvasSize Size of the canvas in paint device coordinates
+   \param boundingSize Bounding size of the chart in plot coordinates
+                       ( used in AutoAdjustSamples mode )
+   \param value Value of the sample
+
    \return Sample width
    \sa layoutPolicy(), layoutHint()
 */
@@ -250,6 +256,7 @@ double QwtPlotAbstractBarChart::sampleWidth( const QwtScaleMap &map,
 
             width = qwtTransformWidth( map, value, w );
             width -= d_data->spacing;
+            width = qMax( width, d_data->layoutHint );
         }
     }
 

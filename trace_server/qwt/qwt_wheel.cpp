@@ -119,6 +119,7 @@ QwtWheel::~QwtWheel()
 
   The wheelMoved() signal is emitted regardless id tracking is enabled or not.
 
+  \param enable On/Off
   \sa isTracking()
  */
 void QwtWheel::setTracking( bool enable )
@@ -949,7 +950,7 @@ QSize QwtWheel::sizeHint() const
 }
 
 /*!
-  \brief Return a minimum size hint
+  \return Minimum size hint
   \warning The return value is based on the wheel width.
 */
 QSize QwtWheel::minimumSizeHint() const
@@ -991,6 +992,7 @@ double QwtWheel::singleStep() const
   user input ( mouse, keyboard, wheel ) are aligned to
   the multiples of the single step.
 
+  \param on On/Off
   \sa stepAlignment(), setSingleStep()
  */
 void QwtWheel::setStepAlignment( bool on )
@@ -1277,13 +1279,19 @@ double QwtWheel::alignedValue( double value ) const
         value = d_data->minimum +
             qRound( ( value - d_data->minimum ) / stepSize ) * stepSize;
 
-        // correct rounding error at the border
-        if ( qFuzzyCompare( value, d_data->maximum ) )
-            value = d_data->maximum;
-            
-        // correct rounding error if value = 0
-        if ( qFuzzyCompare( value + 1.0, 1.0 ) )
-            value = 0.0;
+        if ( stepSize > 1e-12 )
+        {
+            if ( qFuzzyCompare( value + 1.0, 1.0 ) )
+            {
+                // correct rounding error if value = 0
+                value = 0.0;
+            }
+            else if ( qFuzzyCompare( value, d_data->maximum ) )
+            {
+                // correct rounding error at the border
+                value = d_data->maximum;
+            }
+        }
     }       
 
     return value;

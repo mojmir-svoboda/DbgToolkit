@@ -15,11 +15,9 @@
 #include <qpainter.h>
 #include <qpaintengine.h>
 #include <qmath.h>
-#if QT_VERSION >= 0x040400
 #include <qthread.h>
 #include <qfuture.h>
 #include <qtconcurrentrun.h>
-#endif
 #include <float.h>
 
 class QwtPlotRasterItem::PrivateData
@@ -472,7 +470,7 @@ void QwtPlotRasterItem::setPaintAttribute( PaintAttribute attribute, bool on )
 }
 
 /*!
-    \brief Return the current paint attributes
+    \return True, when attribute is enabled
     \sa PaintAttribute, setPaintAttribute()
 */
 bool QwtPlotRasterItem::testPaintAttribute( PaintAttribute attribute ) const
@@ -850,7 +848,7 @@ QImage QwtPlotRasterItem::compose(
     {
         QImage alphaImage( image.size(), QImage::Format_ARGB32 );
 
-#if QT_VERSION >= 0x040400 && !defined(QT_NO_QFUTURE)
+#if !defined(QT_NO_QFUTURE)
         uint numThreads = renderThreadCount();
 
         if ( numThreads <= 0 )
@@ -896,6 +894,8 @@ QImage QwtPlotRasterItem::compose(
    \param area Area to be painted on the image
    \param imageSize Image size
    \param pixelSize Width/Height of a data pixel
+
+   \return Calculated scale map
 */
 QwtScaleMap QwtPlotRasterItem::imageMap(
     Qt::Orientation orientation,

@@ -66,7 +66,8 @@ void QwtLegendLabel::setData( const QwtLegendData &legendData )
     d_data->legendData = legendData;
 
     const bool doUpdate = updatesEnabled();
-    setUpdatesEnabled( false );
+    if ( doUpdate )
+        setUpdatesEnabled( false );
 
     setText( legendData.title() );
     setIcon( legendData.icon().toPixmap() );
@@ -75,10 +76,7 @@ void QwtLegendLabel::setData( const QwtLegendData &legendData )
         setItemMode( legendData.mode() );
 
     if ( doUpdate )
-    {
         setUpdatesEnabled( true );
-        update();
-    }
 }
 
 /*!
@@ -148,8 +146,7 @@ void QwtLegendLabel::setItemMode( QwtLegendData::Mode mode )
 }
 
 /*!
-   Return the item mode
-
+   \return Item mode
    \sa setItemMode()
 */
 QwtLegendData::Mode QwtLegendLabel::itemMode() const
@@ -185,7 +182,8 @@ QPixmap QwtLegendLabel::icon() const
 }
 
 /*!
-   Change the spacing
+   \brief Change the spacing between icon and text
+
    \param spacing Spacing
    \sa spacing(), QwtTextLabel::margin()
 */
@@ -205,7 +203,7 @@ void QwtLegendLabel::setSpacing( int spacing )
 }
 
 /*!
-   Return the spacing
+   \return Spacing between icon and text
    \sa setSpacing(), QwtTextLabel::margin()
 */
 int QwtLegendLabel::spacing() const

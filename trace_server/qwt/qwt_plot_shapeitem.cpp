@@ -10,7 +10,7 @@
 #include "qwt_plot_shapeitem.h"
 #include "qwt_scale_map.h"
 #include "qwt_painter.h"
-#include "qwt_curve_fitter.h"
+#include "qwt_weeding_curve_fitter.h"
 #include "qwt_clipper.h"
 
 static QPainterPath qwtTransformPath( const QwtScaleMap &xMap,
@@ -163,7 +163,7 @@ void QwtPlotShapeItem::setPaintAttribute( PaintAttribute attribute, bool on )
 }
 
 /*!
-  \brief Return if a paint attributes is enabled
+  \return True, when attribute is enabled
   \sa setPaintAttribute()
 */
 bool QwtPlotShapeItem::testPaintAttribute( PaintAttribute attribute ) const
@@ -242,7 +242,7 @@ void QwtPlotShapeItem::setShape( const QPainterPath &shape )
         d_data->shape = shape;
         if ( shape.isEmpty() )
         {
-            d_data->boundingRect == QwtPlotItem::boundingRect();
+            d_data->boundingRect = QwtPlotItem::boundingRect();
         }
         else
         {

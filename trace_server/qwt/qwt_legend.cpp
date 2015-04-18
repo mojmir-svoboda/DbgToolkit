@@ -285,6 +285,8 @@ QwtLegend::~QwtLegend()
   F.e when the maximum is set to 1 all items are aligned
   vertically. 0 means unlimited
 
+  \param numColums Maximum number of entries in a row
+
   \sa maxColumns(), QwtDynGridLayout::setMaxColumns()
  */
 void QwtLegend::setMaxColumns( uint numColums )
@@ -414,6 +416,16 @@ void QwtLegend::updateLegend( const QVariant &itemInfo,
             if ( contentsLayout )
                 contentsLayout->addWidget( widget );
 
+            if ( isVisible() )
+            {
+                // QLayout does a delayed show, with the effect, that
+                // the size hint will be wrong, when applications
+                // call replot() right after changing the list
+                // of plot items. So we better do the show now.
+
+                widget->setVisible( true );
+            }
+
             widgetList += widget;
         }
 
@@ -439,6 +451,7 @@ void QwtLegend::updateLegend( const QVariant &itemInfo,
   The default implementation returns a QwtLegendLabel.
 
   \param data Attributes of the legend entry
+  \return Widget representing data on the legend
   
   \note updateWidget() will called soon after createWidget()
         with the same attributes.
@@ -532,6 +545,8 @@ int QwtLegend::heightForWidth( int width ) const
 
   \param object Object to be filtered
   \param event Event
+
+  \return Forwarded to QwtAbstractLegend::eventFilter()
 */
 bool QwtLegend::eventFilter( QObject *object, QEvent *event )
 {
@@ -676,7 +691,7 @@ void QwtLegend::renderLegend( QPainter *painter,
         {
             painter->save();
 
-            painter->setClipRect( itemRects[index] );
+            painter->setClipRect( itemRects[index], Qt::IntersectClip );
             renderItem( painter, w, itemRects[index], fillBackground );
 
             index++;

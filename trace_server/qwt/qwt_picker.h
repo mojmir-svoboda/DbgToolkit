@@ -220,6 +220,7 @@ public:
     virtual void drawRubberBand( QPainter * ) const;
     virtual void drawTracker( QPainter * ) const;
 
+    virtual QRegion trackerMask() const;
     virtual QRegion rubberBandMask() const;
 
     virtual QwtText trackerText( const QPoint &pos ) const;
@@ -270,6 +271,7 @@ Q_SIGNALS:
       A signal emitted whenever the last appended point of the
       selection has been removed.
 
+      \param pos Position of the point, that has been removed
       \sa remove(), appended()
     */
     void removed( const QPoint &pos );

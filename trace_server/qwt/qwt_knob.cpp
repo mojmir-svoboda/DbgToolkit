@@ -267,6 +267,9 @@ void QwtKnob::setScaleDraw( QwtRoundScaleDraw *scaleDraw )
 {
     setAbstractScaleDraw( scaleDraw );
     setTotalAngle( d_data->totalAngle );
+
+    updateGeometry();
+    update();
 }
 
 /*!
@@ -356,7 +359,7 @@ bool QwtKnob::isScrollPosition( const QPoint &pos ) const
     if ( region.contains( pos ) && ( pos != kr.center() ) )
     {
         const double angle = QLineF( kr.center(), pos ).angle();
-        const double valueAngle = qwtToDegrees( transform( value() ) );
+        const double valueAngle = qwtToDegrees( scaleMap().transform( value() ) );
 
         d_data->mouseOffset = qwtNormalizeDegrees( angle - valueAngle );
 
@@ -383,7 +386,7 @@ double QwtKnob::scrolledTo( const QPoint &pos ) const
     {
         angle = qwtToDegrees( angle );
 
-        const double v = transform( value() );
+        const double v = scaleMap().transform( value() );
 
         int numTurns = qFloor( ( v - scaleMap().p1() ) / 360.0 );
 
@@ -408,16 +411,24 @@ double QwtKnob::scrolledTo( const QPoint &pos ) const
     {
         angle = qwtToScaleAngle( angle );
 
-        const double boundedAngle = 
-            qBound( scaleMap().p1(), angle, scaleMap().p2() );
+        double boundedAngle = qBound( scaleMap().p1(), angle, scaleMap().p2() );
 
         if ( !wrapping() )
+        {
+            const double currentAngle = scaleMap().transform( value() );
+
+            if ( ( currentAngle > 90.0 ) && ( boundedAngle < -90.0 ) )
+                boundedAngle = scaleMap().p2();
+            else if ( ( currentAngle < -90.0 ) && ( boundedAngle > 90.0 ) )
+                boundedAngle = scaleMap().p1();
+
             d_data->mouseOffset += ( boundedAngle - angle );
+        }
 
         angle = boundedAngle;
     }
 
-    return invTransform( angle );
+    return scaleMap().invTransform( angle );
 }
 
 /*! 
@@ -468,7 +479,7 @@ void QwtKnob::paintEvent( QPaintEvent *event )
     drawKnob( &painter, knobRect );
 
     drawMarker( &painter, knobRect, 
-        qwtNormalizeDegrees( transform( value() ) ) );
+        qwtNormalizeDegrees( scaleMap().transform( value() ) ) );
 
     painter.setRenderHint( QPainter::Antialiasing, false );
 
@@ -516,6 +527,24 @@ void QwtKnob::drawKnob( QPainter *painter, const QRectF &knobRect ) const
             
             gradient.setColorAt( 0.0, palette().color( QPalette::Midlight ) );
             gradient.setColorAt( 1.0, palette().color( QPalette::Button ) );
+
+            brush = QBrush( gradient );
+
+            break;
+        }
+        case QwtKnob::Styled:
+        {
+            QRadialGradient gradient(knobRect.center().x() - knobRect.width() / 3,
+                knobRect.center().y() - knobRect.height() / 2,
+                knobRect.width() * 1.3,
+                knobRect.center().x(),
+                knobRect.center().y() - knobRect.height() / 2);
+
+            const QColor c = palette().color( QPalette::Button );
+            gradient.setColorAt(0, c.lighter(110));
+            gradient.setColorAt(qreal(0.5), c);
+            gradient.setColorAt(qreal(0.501), c.darker(102));
+            gradient.setColorAt(1, c.darker(115));
 
             brush = QBrush( gradient );
 
@@ -569,13 +598,17 @@ void QwtKnob::drawMarker( QPainter *painter,
     if ( radius < 1.0 )
         radius = 1.0;
 
+    int markerSize = d_data->markerSize;
+    if ( markerSize <= 0 )
+        markerSize = qRound( 0.4 * radius );
+
     switch ( d_data->markerStyle )
     {
         case Notch:
         case Nub:
         {
             const double dotWidth = 
-                qMin( double( d_data->markerSize ), radius);
+                qMin( double( markerSize ), radius);
 
             const double dotCenterDist = radius - 0.5 * dotWidth;
             if ( dotCenterDist > 0.0 )
@@ -607,7 +640,7 @@ void QwtKnob::drawMarker( QPainter *painter,
         case Dot:
         {
             const double dotWidth = 
-                qMin( double( d_data->markerSize ), radius);
+                qMin( double( markerSize ), radius);
 
             const double dotCenterDist = radius - 0.5 * dotWidth;
             if ( dotCenterDist > 0.0 )
@@ -627,7 +660,7 @@ void QwtKnob::drawMarker( QPainter *painter,
         }
         case Tick:
         {
-            const double rb = qMax( radius - d_data->markerSize, 1.0 );
+            const double rb = qMax( radius - markerSize, 1.0 );
             const double re = radius;
 
             const QLineF line( xm - sinA * rb, ym - cosA * rb,
@@ -642,7 +675,7 @@ void QwtKnob::drawMarker( QPainter *painter,
         }
         case Triangle:
         {
-            const double rb = qMax( radius - d_data->markerSize, 1.0 );
+            const double rb = qMax( radius - markerSize, 1.0 );
             const double re = radius;
 
             painter->translate( rect.center() );
@@ -769,7 +802,6 @@ void QwtKnob::setBorderWidth( int borderWidth )
 
     updateGeometry();
     update();
-
 }
 
 //! Return the border width
@@ -780,6 +812,10 @@ int QwtKnob::borderWidth() const
 
 /*!
   \brief Set the size of the marker
+
+  When setting a size <= 0 the marker will
+  automatically scaled to 40% of the radius of the knob.
+
   \sa markerSize(), markerStyle()
 */
 void QwtKnob::setMarkerSize( int size )

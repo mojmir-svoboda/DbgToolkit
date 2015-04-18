@@ -112,8 +112,7 @@ public:
    \param widget Parent widget, where the overlay is aligned to
 */
 QwtWidgetOverlay::QwtWidgetOverlay( QWidget* widget ):
-    QWidget( widget ),
-    m_rgbaBuffer( NULL )
+    QWidget( widget )
 {
     d_data = new PrivateData;
 
@@ -313,15 +312,18 @@ void QwtWidgetOverlay::draw( QPainter *painter ) const
         painter->setClipRect( parentWidget()->contentsRect() );
 
         // something special for the plot canvas
-        QPainterPath clipPath;
 
-        ( void )QMetaObject::invokeMethod(
-            widget, "borderPath", Qt::DirectConnection,
-            Q_RETURN_ARG( QPainterPath, clipPath ), Q_ARG( QRect, rect() ) );
-
-        if (!clipPath.isEmpty())
+        const int idx = widget->metaObject()->indexOfMethod( "borderPath(QRect)" );
+        if ( idx >= 0 )
         {
-            painter->setClipPath( clipPath, Qt::IntersectClip );
+            QPainterPath clipPath;
+
+            ( void )QMetaObject::invokeMethod(
+                widget, "borderPath", Qt::DirectConnection,
+                Q_RETURN_ARG( QPainterPath, clipPath ), Q_ARG( QRect, rect() ) );
+
+            if (!clipPath.isEmpty())
+                painter->setClipPath( clipPath, Qt::IntersectClip );
         }
     }
 
@@ -343,6 +345,8 @@ void QwtWidgetOverlay::draw( QPainter *painter ) const
 
    The default implementation returns an invalid region
    indicating no hint.
+
+   \return Hint for the mask
  */
 QRegion QwtWidgetOverlay::maskHint() const
 {
@@ -356,6 +360,8 @@ QRegion QwtWidgetOverlay::maskHint() const
 
   \param object Object to be filtered
   \param event Event
+
+  \return See QObject::eventFilter()
 */
 
 bool QwtWidgetOverlay::eventFilter( QObject* object, QEvent* event )

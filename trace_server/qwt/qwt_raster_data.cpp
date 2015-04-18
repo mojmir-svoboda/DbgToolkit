@@ -9,6 +9,7 @@
 
 #include "qwt_raster_data.h"
 #include "qwt_point_3d.h"
+#include <qnumeric.h>
 
 class QwtRasterData::ContourPlane
 {
@@ -154,14 +155,47 @@ inline QPointF QwtRasterData::ContourPlane::intersection(
     return QPointF( x, y );
 }
 
+class QwtRasterData::PrivateData
+{
+public:
+    QwtRasterData::Attributes attributes;
+    QwtInterval intervals[3];
+};  
+
 //! Constructor
 QwtRasterData::QwtRasterData()
 {
+    d_data = new PrivateData();
 }
 
 //! Destructor
 QwtRasterData::~QwtRasterData()
 {
+    delete d_data;
+}
+
+/*!
+  Specify an attribute of the data
+
+  \param attribute Attribute
+  \param on On/Off
+  /sa Attribute, testAttribute()
+*/
+void QwtRasterData::setAttribute( Attribute attribute, bool on )
+{
+    if ( on )
+        d_data->attributes |= attribute;
+    else
+        d_data->attributes &= ~attribute;
+}
+
+/*!
+    \return True, when attribute is enabled
+    \sa Attribute, setAttribute()
+*/
+bool QwtRasterData::testAttribute( Attribute attribute ) const
+{
+    return d_data->attributes & attribute;
 }
 
 /*!
@@ -174,7 +208,18 @@ QwtRasterData::~QwtRasterData()
 */
 void QwtRasterData::setInterval( Qt::Axis axis, const QwtInterval &interval )
 {
-    d_intervals[axis] = interval;
+    if ( axis >= 0 && axis <= 2 )
+        d_data->intervals[axis] = interval;
+}
+
+/*!
+   \return Bounding interval for an axis
+   \sa setInterval
+*/
+const QwtInterval &QwtRasterData::interval( Qt::Axis axis) const
+{
+    const int index = qBound( 0, static_cast<int>( axis ), 2 );
+    return d_data->intervals[index];
 }
 
 /*!
@@ -246,6 +291,13 @@ QRectF QwtRasterData::pixelHint( const QRectF &area ) const
 
 /*!
    Calculate contour lines
+
+   \param rect Bounding rectangle for the contour lines
+   \param raster Number of data pixels of the raster data
+   \param levels List of limits, where to insert contour lines
+   \param flags Flags to customize the contouring algorithm
+
+   \return Calculated contour lines
 
    An adaption of CONREC, a simple contouring algorithm.
    http://local.wasp.uwa.edu.au/~pbourke/papers/conrec/
@@ -336,6 +388,12 @@ QwtRasterData::ContourLines QwtRasterData::contourLines(
                     zMin = z;
                 if ( z > zMax )
                     zMax = z;
+            }
+
+            if ( qIsNaN( zSum ) )
+            {
+                // one of the points is NaN
+                continue;
             }
 
             if ( ignoreOutOfRange )

@@ -1,7 +1,7 @@
 /* -*- mode: C++ ; c-file-style: "stroustrup" -*- *****************************
  * Qwt Widget Library
  * Copyright (C) 1997   Josef Wilgen
- * Copyright (C) 2003   Uwe Rathmann
+ * Copyright (C) 2002   Uwe Rathmann
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the Qwt License, Version 1.0
@@ -250,7 +250,7 @@ void QwtText::setText( const QString &text,
 }
 
 /*!
-   Return the text.
+   \return Text as QString.
    \sa setText()
 */
 QString QwtText::text() const
@@ -306,11 +306,13 @@ QFont QwtText::font() const
 }
 
 /*!
-  Return the font of the text, if it has one.
-  Otherwise return defaultFont.
+   Return the font of the text, if it has one.
+   Otherwise return defaultFont.
 
-  \param defaultFont Default font
-  \sa setFont(), font(), PaintAttributes
+   \param defaultFont Default font
+   \return Font used for drawing the text
+
+   \sa setFont(), font(), PaintAttributes
 */
 QFont QwtText::usedFont( const QFont &defaultFont ) const
 {
@@ -321,7 +323,7 @@ QFont QwtText::usedFont( const QFont &defaultFont ) const
 }
 
 /*!
-   Set the pen color used for painting the text.
+   Set the pen color used for drawing the text.
 
    \param color Color
    \note Setting the color might have no effect, when
@@ -344,6 +346,8 @@ QColor QwtText::color() const
   Otherwise return defaultColor.
 
   \param defaultColor Default color
+  \return Color used for drawing the text
+
   \sa setColor(), color(), PaintAttributes
 */
 QColor QwtText::usedColor( const QColor &defaultColor ) const
@@ -637,6 +641,8 @@ void QwtText::draw( QPainter *painter, const QRectF &rect ) const
 
    \param text Text, needed in case of AutoText
    \param format Text format
+
+   \return Corresponding text engine
 */
 const QwtTextEngine *QwtText::textEngine( const QString &text,
     QwtText::TextFormat format )

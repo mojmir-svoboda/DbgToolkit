@@ -26,6 +26,12 @@
 #include <qmath.h>
 #include "qwt_global.h"
 
+#ifndef M_PI_2
+// For Qt <= 4.8.4 M_PI_2 is not known by MinGW-w64 
+// when compiling with -std=c++11
+#define M_PI_2 (1.57079632679489661923)
+#endif
+
 #ifndef LOG_MIN
 //! Minimum value for logarithmic scales
 #define LOG_MIN 1.0e-100
@@ -65,17 +71,6 @@ inline int qwtFuzzyCompare( double value1, double value2, double intervalSize )
         return 1;
 
     return 0;
-}
-
-
-inline bool qwtFuzzyGreaterOrEqual( double d1, double d2 )
-{
-    return ( d1 >= d2 ) || qFuzzyCompare( d1, d2 );
-}
-
-inline bool qwtFuzzyLessOrEqual( double d1, double d2 )
-{
-    return ( d1 <= d2 ) || qFuzzyCompare( d1, d2 );
 }
 
 //! Return the sign
@@ -128,13 +123,30 @@ inline double qwtFastAtan2( double y, double x )
     return 0.0;
 }
 
-// Translate degrees into radians
+/* !
+   \brief Calculate a value of a cubic polynom 
+
+   \param x Value
+   \param a Cubic coefficient
+   \param b Quadratic coefficient
+   \param c Linear coefficient
+   \param d Connstant offset
+
+   \return Value of the polyonom for x
+*/
+inline double qwtCubicPolynom( double x, 
+    double a, double b, double c, double d )
+{
+    return ( ( ( a * x ) + b ) * x + c ) * x + d;
+}
+
+//! Translate degrees into radians
 inline double qwtRadians( double degrees )
 {
     return degrees * M_PI / 180.0;
 }
 
-// Translate radians into degrees
+//! Translate radians into degrees
 inline double qwtDegrees( double degrees )
 {
     return degrees * 180.0 / M_PI;

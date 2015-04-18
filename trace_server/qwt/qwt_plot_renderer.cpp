@@ -20,10 +20,8 @@
 #include <qpainter.h>
 #include <qpaintengine.h>
 #include <qtransform.h>
-#ifndef QT_NO_PRINTER
-#	include <qprinter.h>
-#	include <qprintdialog.h>
-#endif
+#include <qprinter.h>
+#include <qprintdialog.h>
 #include <qfiledialog.h>
 #include <qfileinfo.h>
 #include <qstyle.h>
@@ -105,8 +103,7 @@ void QwtPlotRenderer::setDiscardFlag( DiscardFlag flag, bool on )
 }
 
 /*!
-  Check if a flag is set.
-
+  \return True, if flag is enabled.
   \param flag Flag to be tested
   \sa DiscardFlag, setDiscardFlag(), setDiscardFlags(), discardFlags()
 */
@@ -152,8 +149,7 @@ void QwtPlotRenderer::setLayoutFlag( LayoutFlag flag, bool on )
 }
 
 /*!
-  Check if a flag is set.
-
+  \return True, if flag is enabled.
   \param flag Flag to be tested
   \sa LayoutFlag, setLayoutFlag(), setLayoutFlags(), layoutFlags()
 */
@@ -246,12 +242,12 @@ void QwtPlotRenderer::renderDocument( QwtPlot *plot,
     {
 #ifndef QT_NO_PRINTER
         QPrinter printer;
+        printer.setOutputFormat( QPrinter::PdfFormat );
         printer.setColorMode( QPrinter::Color );
         printer.setFullPage( true );
         printer.setPaperSize( sizeMM, QPrinter::Millimeter );
         printer.setDocName( title );
         printer.setOutputFileName( fileName );
-        printer.setOutputFormat( QPrinter::PdfFormat );
         printer.setResolution( resolution );
 
         QPainter painter( &printer );
@@ -263,12 +259,12 @@ void QwtPlotRenderer::renderDocument( QwtPlot *plot,
 #if QT_VERSION < 0x050000
 #ifndef QT_NO_PRINTER
         QPrinter printer;
+        printer.setOutputFormat( QPrinter::PostScriptFormat );
         printer.setColorMode( QPrinter::Color );
         printer.setFullPage( true );
         printer.setPaperSize( sizeMM, QPrinter::Millimeter );
         printer.setDocName( title );
         printer.setOutputFileName( fileName );
-        printer.setOutputFormat( QPrinter::PostScriptFormat );
         printer.setResolution( resolution );
 
         QPainter painter( &printer );
@@ -961,6 +957,7 @@ bool QwtPlotRenderer::updateCanvasMargins( QwtPlot *plot,
    \param sizeMM Size for the document in millimeters.
    \param resolution Resolution in dots per Inch (dpi)
 
+   \return True, when exporting was successful
    \sa renderDocument()
 */
 bool QwtPlotRenderer::exportTo( QwtPlot *plot, const QString &documentName,

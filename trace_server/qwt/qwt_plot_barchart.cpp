@@ -184,15 +184,19 @@ QRectF QwtPlotBarChart::boundingRect() const
     if ( numSamples == 0 )
         return QwtPlotSeriesItem::boundingRect();
 
-    const double baseLine = baseline();
-
     QRectF rect = QwtPlotSeriesItem::boundingRect();
-    if ( rect.bottom() < baseLine )
-        rect.setBottom( baseLine );
-    if ( rect.top() > baseLine )
-        rect.setTop( baseLine );
+    if ( rect.height() >= 0 )
+    {
+        const double baseLine = baseline();
 
-    if ( rect.isValid() && ( orientation() == Qt::Horizontal ) )
+        if ( rect.bottom() < baseLine )
+            rect.setBottom( baseLine );
+
+        if ( rect.top() > baseLine )
+            rect.setTop( baseLine );
+    }
+
+    if ( orientation() == Qt::Horizontal )
         rect.setRect( rect.y(), rect.x(), rect.height(), rect.width() );
 
     return rect;
@@ -379,6 +383,7 @@ QwtText QwtPlotBarChart::barTitle( int sampleIndex ) const
    otherwise the chart is represented like any other plot item
    from its title() and the legendIcon().
 
+   \return Information, that is needed to represent the item on the legend
    \sa title(), setLegendMode(), barTitle(), QwtLegend, QwtPlotLegendItem
  */
 QList<QwtLegendData> QwtPlotBarChart::legendData() const

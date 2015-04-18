@@ -127,6 +127,7 @@ QwtPlot::QwtPlot( const QwtText &title, QWidget *parent ):
 //! Destructor
 QwtPlot::~QwtPlot()
 {
+    setAutoReplot( false );
     detachItems( QwtPlotItem::Rtti_PlotItem, autoDelete() );
 
     delete d_data->layout;
@@ -234,6 +235,8 @@ void QwtPlot::setCanvas( QWidget *canvas )
 /*!
   \brief Adds handling of layout requests
   \param event Event
+
+  \return See QFrame::event()
 */
 bool QwtPlot::event( QEvent *event )
 {
@@ -264,6 +267,8 @@ bool QwtPlot::event( QEvent *event )
 
   \param object Object to be filtered
   \param event Event
+
+  \return See QFrame::eventFilter()
 
   \sa updateCanvasMargins(), updateLayout()
 */
@@ -419,7 +424,7 @@ void QwtPlot::setPlotLayout( QwtPlotLayout *layout )
     if ( layout != d_data->layout )
     {
         delete d_data->layout;
-        layout = d_data->layout;
+        d_data->layout = layout;
 
         updateLayout();
     }
@@ -473,10 +478,9 @@ const QWidget *QwtPlot::canvas() const
 }
 
 /*!
-  Return sizeHint
+  \return Size hint for the plot widget
   \sa minimumSizeHint()
 */
-
 QSize QwtPlot::sizeHint() const
 {
     int dw = 0;
@@ -537,8 +541,7 @@ void QwtPlot::resizeEvent( QResizeEvent *e )
   or if any curves are attached to raw data, the plot has to
   be refreshed explicitly in order to make changes visible.
 
-  \sa setAutoReplot()
-  \warning Calls canvas()->repaint, take care of infinite recursions
+  \sa updateAxes(), setAutoReplot()
 */
 void QwtPlot::replot()
 {
@@ -652,6 +655,13 @@ void QwtPlot::updateLayout()
 /*!
   \brief Calculate the canvas margins
 
+  \param maps QwtPlot::axisCnt maps, mapping between plot and paint device coordinates
+  \param canvasRect Bounding rectangle where to paint
+  \param left Return parameter for the left margin
+  \param top Return parameter for the top margin
+  \param right Return parameter for the right margin
+  \param bottom Return parameter for the bottom margin
+
   Plot items might indicate, that they need some extra space
   at the borders of the canvas by the QwtPlotItem::Margins flag.
 
@@ -736,9 +746,10 @@ void QwtPlot::drawCanvas( QPainter *painter )
 
 /*!
   Redraw the canvas items.
+
   \param painter Painter used for drawing
   \param canvasRect Bounding rectangle where to paint
-  \param map QwtPlot::axisCnt maps, mapping between plot and paint device coordinates
+  \param maps QwtPlot::axisCnt maps, mapping between plot and paint device coordinates
 
   \note Usually canvasRect is contentsRect() of the plot canvas.
         Due to a bug in Qt this rectangle might be wrong for certain 
@@ -747,7 +758,7 @@ void QwtPlot::drawCanvas( QPainter *painter )
 */
 
 void QwtPlot::drawItems( QPainter *painter, const QRectF &canvasRect,
-        const QwtScaleMap map[axisCnt] ) const
+        const QwtScaleMap maps[axisCnt] ) const
 {
     const QwtPlotItemList& itmList = itemList();
     for ( QwtPlotItemIterator it = itmList.begin();
@@ -764,7 +775,7 @@ void QwtPlot::drawItems( QPainter *painter, const QRectF &canvasRect,
                 item->testRenderHint( QwtPlotItem::RenderAntialiased ) );
 
             item->draw( painter,
-                map[item->xAxis()], map[item->yAxis()],
+                maps[item->xAxis()], maps[item->yAxis()],
                 canvasRect );
 
             painter->restore();
@@ -808,22 +819,35 @@ QwtScaleMap QwtPlot::canvasMap( int axisId ) const
     }
     else
     {
-        int margin = 0;
-        if ( !plotLayout()->alignCanvasToScale( axisId ) )
-            margin = plotLayout()->canvasMargin( axisId );
-
         const QRect &canvasRect = d_data->canvas->contentsRect();
         if ( axisId == yLeft || axisId == yRight )
         {
-            map.setPaintInterval( canvasRect.bottom() - margin,
-                canvasRect.top() + margin );
+            int top = 0;
+            if ( !plotLayout()->alignCanvasToScale( xTop ) )
+                top = plotLayout()->canvasMargin( xTop );
+
+            int bottom = 0;
+            if ( !plotLayout()->alignCanvasToScale( xBottom ) )
+                bottom = plotLayout()->canvasMargin( xBottom );
+
+            map.setPaintInterval( canvasRect.bottom() - bottom,
+                canvasRect.top() + top );
         }
         else
         {
-            map.setPaintInterval( canvasRect.left() + margin,
-                canvasRect.right() - margin );
+            int left = 0;
+            if ( !plotLayout()->alignCanvasToScale( yLeft ) )
+                left = plotLayout()->canvasMargin( yLeft );
+
+            int right = 0;
+            if ( !plotLayout()->alignCanvasToScale( yRight ) )
+                right = plotLayout()->canvasMargin( yRight );
+
+            map.setPaintInterval( canvasRect.left() + left,
+                canvasRect.right() - right );
         }
     }
+
     return map;
 }
 
@@ -1098,8 +1122,7 @@ void QwtPlot::attachItem( QwtPlotItem *plotItem, bool on )
         }
     }
 
-    if ( autoReplot() )
-        update();
+    autoRefresh();
 }
 
 /*!
@@ -1116,6 +1139,7 @@ void QwtPlot::attachItem( QwtPlotItem *plotItem, bool on )
 \endcode
 
   \param plotItem Plot item
+  \return Plot item embedded in a QVariant
   \sa infoToItem()
  */
 QVariant QwtPlot::itemToInfo( QwtPlotItem *plotItem ) const
