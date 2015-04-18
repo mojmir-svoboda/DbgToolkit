@@ -92,6 +92,7 @@ void FindWidget::onActivate ()
 	show();
 	activateWindow();
 	m_ui->findBox->setFocus();
+	m_ui->findBox->lineEdit()->selectAll();
 	raise();
 }
 
