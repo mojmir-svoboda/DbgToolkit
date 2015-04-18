@@ -43,8 +43,8 @@ public:
 	void resizeToCfg (logs::LogConfig const & config);
 	void commitBatchToModel (int from, int to, BatchCmd const & batch);
 
-	void clearModel ();
-	void clearModelData ();
+	virtual void clearModel () override;
+	virtual void clearModelData () override;
 
 protected:
 	logs::LogWidget & m_log_widget;

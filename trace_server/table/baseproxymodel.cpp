@@ -282,3 +282,29 @@ void BaseProxyModel::removeAllowedColumn (int src_col)
 	m_allowed_src_cols[src_col] = 0;
 }
 
+void BaseProxyModel::clearModel()
+{
+	beginResetModel();
+
+	m_cmap_from_src.clear();
+	m_cmap_from_tgt.clear();
+	m_map_from_src.clear();
+	m_map_from_tgt.clear();
+	m_allowed_src_cols.clear();
+
+	removeRows(0, rowCount());
+	removeColumns(0, columnCount());
+
+	endResetModel();
+}
+
+void BaseProxyModel::clearModelData()
+{
+	beginResetModel();
+
+	m_map_from_src.clear();
+	m_map_from_tgt.clear();
+	removeRows(0, rowCount());
+
+	endResetModel();
+}

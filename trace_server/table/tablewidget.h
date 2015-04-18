@@ -60,6 +60,7 @@ namespace table {
 
 	protected:
 		virtual void wheelEvent (QWheelEvent * event);
+    virtual void keyPressEvent (QKeyEvent * event);
 		virtual QModelIndex	moveCursor (CursorAction cursorAction, Qt::KeyboardModifiers modifiers);
 
 	public Q_SLOTS:
@@ -79,6 +80,7 @@ namespace table {
 		void scrollTo (QModelIndex const & index, ScrollHint hint);
 		void onTableDoubleClicked (QModelIndex const & row_index);
 		void onClickedAtColumnSetup (QModelIndex const idx);
+		void onClearAllData ();
 
 	signals:
 		void requestSynchronization (E_SyncMode mode, int sync_group, unsigned long long time, void * source);

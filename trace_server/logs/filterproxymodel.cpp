@@ -78,30 +78,13 @@ bool FilterProxyModel::filterAcceptsRow (int sourceRow, QModelIndex const & /*so
 
 void FilterProxyModel::clearModel ()
 {
-	beginResetModel();
-
-	m_cmap_from_src.clear();
-	m_cmap_from_tgt.clear();
-	m_map_from_src.clear();
-	m_map_from_tgt.clear();
-	m_allowed_src_cols.clear();
-
+	BaseProxyModel::clearModel();
 	m_column_count = 0;
-	removeRows(0, rowCount());
-	removeColumns(0, columnCount());
-
-	endResetModel();
 }
 
 void FilterProxyModel::clearModelData ()
 {
-	beginResetModel();
-
-	m_map_from_src.clear();
-	m_map_from_tgt.clear();
-	removeRows(0, rowCount());
-
-	endResetModel();
+	BaseProxyModel::clearModelData();
 }
 
 

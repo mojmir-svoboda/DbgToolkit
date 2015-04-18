@@ -64,6 +64,9 @@ public:
 	virtual bool filterAcceptsColumn (int sourceColumn, QModelIndex const & source_parent) const = 0;
 	virtual bool filterAcceptsRow (int sourceRow, QModelIndex const & sourceParent) const = 0;
 
+	virtual void clearModel ();
+	virtual void clearModelData ();
+
 public slots:
 	void force_update();
 
