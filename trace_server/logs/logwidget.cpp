@@ -95,7 +95,13 @@ namespace logs {
 		//connect(m_config_ui.ui()->gotoNextButton, SIGNAL(clicked()), this, SLOT(onNextToView()));
 		//m_config_ui.ui()->gotoNextButton->setIcon(style->standardIcon(QStyle::SP_ArrowDown));
 		connect(m_config_ui.ui()->saveButton, SIGNAL(clicked()), this, SLOT(onSaveButton()));
-		//connect(ui->autoScrollCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onAutoScrollStateChanged(int)));
+		connect(m_config_ui.ui()->autoScrollCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onCtxMenuAutoScrollStateChanged(int)));
+		connect(m_config_ui.ui()->timeComboBox, SIGNAL(activated(int)), this, SLOT(onChangeTimeUnits(int)));
+		connect(m_config_ui.ui()->autoScrollCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onCtxMenuShowScopesChanged(int)));
+		connect(m_config_ui.ui()->indentSpinBox, SIGNAL(valueChanged(int)), this, SLOT(onCtxMenuIndentChanged(int)));
+		connect(m_config_ui.ui()->cutPathSpinBox, SIGNAL(valueChanged(int)), this, SLOT(onCtxMenuCutPathChanged(int)));
+		connect(m_config_ui.ui()->cutNamespaceSpinBox, SIGNAL(valueChanged(int)), this, SLOT(onCtxMenuCutNamespaceChanged(int)));
+		connect(m_config_ui.ui()->tableRowSizeSpinBox, SIGNAL(valueChanged(int)), this, SLOT(onCtxMenuTableRowSizeChanged(int)));
 		//connect(ui->inViewCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onInViewStateChanged(int)));
 		//connect(m_config_ui.ui()->filterFileCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onFilterFile(int)));
 		connect(m_tableview, SIGNAL(clicked(QModelIndex const &)), this, SLOT(onTableClicked(QModelIndex const &)));
@@ -590,8 +596,8 @@ namespace logs {
 		if (filterMgr()->getFilterCtx())
 			filterMgr()->getFilterCtx()->setAppData(&m_connection->appData());
 
-    if (colorizerMgr()->getColorizerString())
-      colorizerMgr()->getColorizerString()->setSrcModel(m_src_model);
+		if (colorizerMgr()->getColorizerString())
+			colorizerMgr()->getColorizerString()->setSrcModel(m_src_model);
 		if (colorizerMgr()->getColorizerRegex())
 			colorizerMgr()->getColorizerRegex()->setSrcModel(m_src_model);
 		if (colorizerMgr()->getColorizerRow())
@@ -656,29 +662,49 @@ namespace logs {
 		return 32;
 	}
 
+	inline void setCheckedWithBlockedSignals (QCheckBox * w, bool val)
+	{
+		bool const old = w->blockSignals(true);
+		w->setChecked(val);
+		w->blockSignals(old);
+	}
+	template<typename T>
+	inline void setValueWithBlockedSignals (QSpinBox * w, T const & val)
+	{
+		bool const old = w->blockSignals(true);
+		w->setValue(val);
+		w->blockSignals(old);
+	}
+	template<class C, typename T>
+	inline void setCurrentIndexWithBlockedSignals (C * w, T const & index)
+	{
+		bool const old = w->blockSignals(true);
+		w->setCurrentIndex(index);
+		w->blockSignals(old);
+	}
+
+
+
 	void LogWidget::setConfigValuesToUI (LogConfig const & cfg)
 	{
 		//qDebug("%s this=0x%08x", __FUNCTION__, this);
 		Ui::SettingsLog * ui = m_config_ui.ui();
-		//ui->dtCheckBox->setCheckState(cfg.m_dt_enabled ? Qt::Checked : Qt::Unchecked);
-		ui->autoScrollCheckBox->setCheckState(cfg.m_auto_scroll ? Qt::Checked : Qt::Unchecked);
-		ui->groupingWidget->setCurrentIndex(m_config.m_curr_tooltab);
-
+		//setCheckedWithBlockedSignals(ui->dtCheckBox, cfg.m_dt_enabled);
+		setCheckedWithBlockedSignals(ui->autoScrollCheckBox, cfg.m_auto_scroll);
+		setCheckedWithBlockedSignals(ui->cutNamespaceCheckBox, m_config.m_cut_namespaces);
+		setCheckedWithBlockedSignals(ui->cutPathCheckBox, m_config.m_cut_path);
+		setCheckedWithBlockedSignals(ui->indentCheckBox, m_config.m_indent);
+		setCheckedWithBlockedSignals(ui->scopesCheckBox, m_config.m_scopes);
+		setValueWithBlockedSignals(ui->cutNamespaceSpinBox, m_config.m_cut_namespace_level);
+		setValueWithBlockedSignals(ui->cutPathSpinBox, m_config.m_cut_path_level);
+		setValueWithBlockedSignals(ui->indentSpinBox, m_config.m_indent_level);
+		setValueWithBlockedSignals(ui->tableRowSizeSpinBox, m_config.m_row_width);
+		setCurrentIndexWithBlockedSignals(ui->groupingWidget, m_config.m_curr_tooltab);
 		// TODO: block signals
 		//bool const old = m_table_view_widget->blockSignals(true);
 		//m_table_view_widget->blockSignals(old);
-		ui->autoScrollCheckBox->setChecked(cfg.m_auto_scroll);
-		ui->cutNamespaceCheckBox->setChecked(m_config.m_cut_namespaces);
-		ui->cutNamespaceSpinBox->setValue(m_config.m_cut_namespace_level);
-		ui->cutPathCheckBox->setChecked(m_config.m_cut_path);
-		ui->cutPathSpinBox->setValue(m_config.m_cut_path_level);
-		ui->indentCheckBox->setChecked(m_config.m_indent);
-		ui->indentSpinBox->setValue(m_config.m_indent_level);
-		ui->scopesCheckBox->setChecked(m_config.m_scopes);
-		//ui->tableFontComboBox->
-		//ui->tableFontToolButton->
-		ui->tableRowSizeSpinBox->setValue(m_config.m_row_width);
-		ui->timeComboBox->comboBox()->setCurrentIndex(ui->timeComboBox->comboBox()->findText(m_config.m_time_units_str));
+		int const time_idx = ui->timeComboBox->comboBox()->findText(m_config.m_time_units_str);
+		setCurrentIndexWithBlockedSignals(ui->timeComboBox->comboBox(), time_idx);
 	}
 
 	void LogWidget::setUIValuesToConfig (LogConfig & cfg)
@@ -705,7 +731,7 @@ namespace logs {
 	void LogWidget::onApplyButton ()
 	{
 		applyConfig();
-		//setUIValuesToConfig(m_config2);
+		setUIValuesToConfig(m_config);
 		//applyConfig();
 	}
 
@@ -838,7 +864,6 @@ namespace logs {
 	{
 		QString const logpath = getCurrentWidgetPath();
 		mkPath(logpath);
-		setUIValuesToConfig(m_config);
 
 		logs::LogConfig tmp = m_config;
 		normalizeConfig(tmp);
@@ -1047,15 +1072,15 @@ void LogWidget::reloadModelAccordingTo (LogConfig & config)
 
 void LogWidget::commitBatchToLinkedWidgets (int src_from, int src_to, BatchCmd const & batch)
 {
-  for (linked_widgets_t::iterator it = m_linked_widgets.begin(), ite = m_linked_widgets.end(); it != ite; ++it)
-  {
-    DockedWidgetBase * child = *it;
+	for (linked_widgets_t::iterator it = m_linked_widgets.begin(), ite = m_linked_widgets.end(); it != ite; ++it)
+	{
+		DockedWidgetBase * child = *it;
 	if (child->type() == e_data_log)
 	{
 		LogWidget * lw = static_cast<LogWidget *>(child);
-		lw->commitBatchToLinkedModel(src_from, src_to, batch);  
+		lw->commitBatchToLinkedModel(src_from, src_to, batch);	
 	}
-  }
+	}
 }
 
 void LogWidget::commitBatchToLinkedModel (int src_from, int src_to, BatchCmd const & batch)
@@ -1246,7 +1271,7 @@ void LogWidget::findNearestRow4Time (bool ctime, unsigned long long t)
 		qDebug("table: pxy nearest index= %i/%i", closest_i, m_src_model->rowCount());
 		QModelIndex const curr = m_tableview->currentIndex();
 		QModelIndex const idx = m_src_model->index(closest_i, curr.column() < 0 ? 0 : curr.column(), QModelIndex());
-		//qDebug("table: pxy findNearestTime curr=(%i, %i)  new=(%i, %i)", curr.column(), curr.row(), idx.column(), idx.row());
+		//qDebug("table: pxy findNearestTime curr=(%i, %i)	new=(%i, %i)", curr.column(), curr.row(), idx.column(), idx.row());
 
 		QModelIndex const pxy_idx = m_proxy_model->mapFromSource(idx);
 		QModelIndex valid_pxy_idx = pxy_idx;
@@ -1263,7 +1288,7 @@ void LogWidget::findNearestRow4Time (bool ctime, unsigned long long t)
 		qDebug("table: nearest index= %i/%i", closest_i, m_src_model->rowCount());
 		QModelIndex const curr = m_tableview->currentIndex();
 		QModelIndex const idx = m_src_model->index(closest_i, curr.column() < 0 ? 0 : curr.column(), QModelIndex());
-		//qDebug("table: findNearestTime curr=(%i, %i)  new=(%i, %i)", curr.column(), curr.row(), idx.column(), idx.row());
+		//qDebug("table: findNearestTime curr=(%i, %i)	new=(%i, %i)", curr.column(), curr.row(), idx.column(), idx.row());
 
 		m_tableview->scrollTo(idx, QAbstractItemView::PositionAtCenter);
 		m_tableview->selectionModel()->select(idx, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
@@ -1339,6 +1364,37 @@ void LogWidget::exportStorageToCSV (QString const & path)
 		str << "\n";
 	}
 	csv.close();
+}
+
+void LogWidget::onCtxMenuAutoScrollStateChanged(int state)
+{
+	if (state == Qt::Checked)
+		m_config.m_auto_scroll = true;
+	else
+		m_config.m_auto_scroll = false;
+}
+void LogWidget::onCtxMenuShowScopesChanged(int state)
+{
+	if (state == Qt::Checked)
+		m_config.m_scopes = true;
+	else
+		m_config.m_scopes = false;
+}
+void LogWidget::onCtxMenuIndentChanged (int value)
+{
+	m_config.m_indent = value;
+}
+void LogWidget::onCtxMenuCutPathChanged (int value)
+{
+	m_config.m_cut_path = value;
+}
+void LogWidget::onCtxMenuCutNamespaceChanged (int value)
+{
+	m_config.m_cut_namespaces = value;
+}
+void LogWidget::onCtxMenuTableRowSizeChanged (int value)
+{
+	m_config.m_row_width = value;
 }
 
 

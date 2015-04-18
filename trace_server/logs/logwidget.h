@@ -198,6 +198,12 @@ namespace logs {
 		void onShowContextMenu (QPoint const & pos);
 		void setConfigValuesToUI (LogConfig const & cfg);
 		void setUIValuesToConfig (LogConfig & cfg);
+		void onCtxMenuAutoScrollStateChanged (int state);
+		void onCtxMenuShowScopesChanged (int value);
+		void onCtxMenuIndentChanged (int value);
+		void onCtxMenuCutPathChanged (int value);
+		void onCtxMenuCutNamespaceChanged (int value);
+		void onCtxMenuTableRowSizeChanged (int value);
 		void onSaveButton ();
 		void onApplyButton ();
 		void onResetButton ();
