@@ -258,7 +258,7 @@ void FilterRegex::recompile ()
 		fr.m_is_enabled = false;
 		if (!child)
 			continue;
-		QRegExp regex(qregex);
+		QRegularExpression regex(qregex);
 		if (regex.isValid())
 		{
 			fr.m_regex = regex;

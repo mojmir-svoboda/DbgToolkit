@@ -2,6 +2,8 @@
 #include <QString>
 #include <QColor>
 #include <QVector>
+#include <QMetaType>
+#include <QRegularExpression>
 #include "history.h"
 
 struct FindConfig
@@ -18,7 +20,7 @@ struct FindConfig
 	History<QString> m_history;
 	QStringList m_to_widgets;
 	QString m_str;
-	QRegExp m_regexp_val;
+	QRegularExpression m_regexp_val;
 
 	FindConfig ()
 		: m_whole_word(false)
@@ -54,14 +56,17 @@ struct FindConfig
 	void clear ();
 };
 
+Q_DECLARE_METATYPE(FindConfig);
+
 inline bool matchToFindConfig (QString const & str, FindConfig const & fc)
 {
 	if (fc.m_regexp)
 	{
-		QRegExp const & r = fc.m_regexp_val;
-		if (fc.m_regexp_val.isValid())
+		QRegularExpression const & r = fc.m_regexp_val;
+		if (r.isValid())
 		{
-			return r.exactMatch(str);
+			QRegularExpressionMatch m = r.match(str);
+			return m.hasMatch();
 		}
 	}
 	else
@@ -74,8 +79,6 @@ inline bool matchToFindConfig (QString const & str, FindConfig const & fc)
 	}
 	return false;
 }
-
-Q_DECLARE_METATYPE(FindConfig)
 
 bool loadConfig (FindConfig & config, QString const & fname);
 bool saveConfig (FindConfig const & config, QString const & fname);

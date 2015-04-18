@@ -1309,7 +1309,7 @@ void LogWidget::onSectionResized (int logical, int old_size, int new_size)
 void LogWidget::exportStorageToCSV (QString const & path)
 {
 	// " --> ""
-	QRegExp regex("\"");
+	QRegularExpression regex("\"");
 	QString to_string("\"\"");
 	QFile csv(path + "/" + m_config.m_tag + ".csv");
 	csv.open(QIODevice::WriteOnly);

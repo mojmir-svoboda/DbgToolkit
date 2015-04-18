@@ -1,7 +1,7 @@
 #include "logwidget.h"
 #include <QListView>
 #include <QFile>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <tlv_parser/tlv_encoder.h>
 #include "utils.h"
 #include "utils_qstandarditem.h"

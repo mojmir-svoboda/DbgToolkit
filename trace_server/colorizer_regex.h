@@ -14,16 +14,18 @@ struct ColorizedText {
 	QColor	m_fgcolor;
 	QColor	m_bgcolor;
 	QString m_regex_str;
-	QRegExp m_regex;
+	QRegularExpression m_regex;
 
 	bool isValid () const { return m_regex.isValid(); }
 
 	bool accept (QString str) const
 	{
-		if (m_is_enabled && m_regex.exactMatch(str))
-		{
-			return true;
-		}
+		if (m_is_enabled)
+			if (m_regex.isValid())
+			{
+				QRegularExpressionMatch m = m_regex.match(str);
+				return m.hasMatch();
+			}
 		return false;
 	}
 

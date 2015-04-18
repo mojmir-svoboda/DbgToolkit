@@ -360,7 +360,7 @@ void LogWidget::handleFindAction (FindConfig const & fc)
 
 	if (fc.m_regexp)
 	{
-		if (fc.m_regexp_val.isEmpty())
+		if (fc.m_regexp_val.pattern().isEmpty())
 			return;
 		if (!fc.m_regexp_val.isValid())
 			return;

@@ -43,7 +43,7 @@ void LogWidget::handleColorizeAction (ColorizeConfig const & cc)
 
 	if (cc.m_regexp)
 	{
-		if (cc.m_regexp_val.isEmpty())
+		if (cc.m_regexp_val.pattern().isEmpty())
 			return;
 		if (!cc.m_regexp_val.isValid())
 			return;

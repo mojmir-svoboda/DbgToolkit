@@ -28,10 +28,11 @@ inline bool matchToColorizeConfig (QString const & str, ColorizeConfig const & f
 {
 	if (fc.m_regexp)
 	{
-		QRegExp const & r = fc.m_regexp_val;
-		if (fc.m_regexp_val.isValid())
+		QRegularExpression const & r = fc.m_regexp_val;
+		if (r.isValid())
 		{
-			return r.exactMatch(str);
+			QRegularExpressionMatch m = r.match(str);
+			return m.hasMatch();
 		}
 	}
 	else

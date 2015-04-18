@@ -166,7 +166,7 @@ void ColorizeWidget::colorize ()
 		m_config.m_str = str;
 		if (m_config.m_regexp)
 		{
-			m_config.m_regexp_val = QRegExp(m_config.m_str);
+			m_config.m_regexp_val = QRegularExpression(m_config.m_str);
 			if (m_config.m_regexp_val.isValid())
 			{
 				signalRegexpState(e_ExprValid, "");

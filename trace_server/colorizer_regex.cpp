@@ -343,7 +343,7 @@ void ColorizerRegex::recompileColorRegex (ColorizedText & ct)
 	if (!child)
 		return;
 
-	QRegExp regex(qregex);
+	QRegularExpression regex(qregex);
 	QString reason;
 	if (regex.isValid())
 	{

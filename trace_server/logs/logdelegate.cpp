@@ -98,7 +98,7 @@ namespace logs {
 		QVariant value = index.data(Qt::DisplayRole);
 		if (value.isValid() && !value.isNull())
 		{
-			QStringList list = value.toString().split(QRegExp(separator), QString::SkipEmptyParts);
+			QStringList list = value.toString().split(QRegularExpression(separator), QString::SkipEmptyParts);
 			if (level < list.size())
 			{
 				QString p;

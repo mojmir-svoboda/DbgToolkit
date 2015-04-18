@@ -249,7 +249,7 @@ void LogWidget::onGotoNextColor()
 				for (int i = 0; i < sessionState().m_colorized_texts.size(); ++i)
 				{
 					ColorizedText & ct = sessionState().m_colorized_texts[i];
-					ct.m_regex = QRegExp(ct.m_regex_str);
+					ct.m_regex = QRegularExpression(ct.m_regex_str);
 
 					QStandardItem * child = findChildByText(root, ct.m_regex_str);
 					if (child == 0)
@@ -267,7 +267,7 @@ void LogWidget::onGotoNextColor()
 				for (int i = 0; i < sessionState().m_filtered_regexps.size(); ++i)
 				{
 					FilteredRegex & flt = sessionState().m_filtered_regexps[i];
-					flt.m_regex = QRegExp(flt.m_regex_str);
+					flt.m_regex = QRegularExpression(flt.m_regex_str);
 
 					QStandardItem * child = findChildByText(root, flt.m_regex_str);
 					if (child == 0)

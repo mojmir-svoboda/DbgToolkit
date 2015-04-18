@@ -10,12 +10,20 @@
 
 struct FilteredRegex {
 	QString m_regex_str;
-	QRegExp m_regex;
+	QRegularExpression m_regex;
 	bool m_is_enabled;
 	int m_state;
 
 	bool isValid () const { return m_regex.isValid(); }
-	bool exactMatch (QString str) const { return m_regex.exactMatch(str); }
+	bool exactMatch (QString str) const
+	{
+		QRegularExpression const & r = m_regex;
+		if (r.isValid())
+		{
+			QRegularExpressionMatch m = r.match(str);
+			return m.hasMatch();
+		}
+	}
 
 	FilteredRegex () { }
 	FilteredRegex (QString const & rs, bool enabled, int state)
