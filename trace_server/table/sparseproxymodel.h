@@ -23,6 +23,7 @@
 #include <vector>
 #include <3rd/assocvector.h>
 #include "baseproxymodel.h"
+#include "../logs/filterproxymodel.h"
 
 class SparseProxyModel : public BaseProxyModel
 {
@@ -36,5 +37,19 @@ protected:
 	virtual bool filterAcceptsColumn (int sourceColumn, QModelIndex const & source_parent) const;
 	virtual bool filterAcceptsRow (int sourceRow, QModelIndex const & sourceParent) const;
 };
+
+class SparseFilterProxyModel : public FilterProxyModel
+{
+	Q_OBJECT
+
+public:
+	explicit SparseFilterProxyModel (QObject * parent);
+
+protected:
+
+	virtual bool filterAcceptsColumn (int sourceColumn, QModelIndex const & source_parent) const;
+	virtual bool filterAcceptsRow (int sourceRow, QModelIndex const & sourceParent) const;
+};
+
 
 

@@ -8,10 +8,11 @@
 #include <connection.h>
 #include "logtablemodel.h"
 
-FilterProxyModel::FilterProxyModel (QObject * parent, logs::LogWidget & lw)
+FilterProxyModel::FilterProxyModel (QObject * parent, FilterMgr const * f, BaseTableModel * m)
 	: BaseProxyModel(parent)
-	, m_log_widget(lw)
+	, m_dcmds_model(m)
 	, m_column_count(0)
+	, m_filter_mgr(f)
 {
 	qDebug("%s this=0x%08x", __FUNCTION__, this);
 }
@@ -66,10 +67,10 @@ bool FilterProxyModel::filterAcceptsColumn (int sourceColumn, QModelIndex const 
 
 bool FilterProxyModel::filterAcceptsRow (int sourceRow, QModelIndex const & /*sourceParent*/) const
 {
-	if (sourceRow < m_log_widget.m_src_model->dcmds().size())
+	if (sourceRow < m_dcmds_model->dcmds().size())
 	{
-		DecodedCommand const & dcmd = m_log_widget.m_src_model->dcmds()[sourceRow];
-		bool const accepted = m_log_widget.filterMgr()->accept(dcmd);
+		DecodedCommand const & dcmd = m_dcmds_model->dcmds()[sourceRow];
+		bool const accepted = m_filter_mgr->accept(dcmd);
 		return accepted;
 	}
 	qWarning("no dcmd for source row, should not happen!");
@@ -93,7 +94,7 @@ void FilterProxyModel::commitBatchToModel (int src_from, int src_to, BatchCmd co
 	int const rows = batch.m_dcmds.size();
 	int const from = static_cast<int>(m_map_from_tgt.size());
 
-	m_map_from_src.reserve(m_log_widget.m_src_model->rowCount());
+	m_map_from_src.reserve(m_dcmds_model->rowCount());
 
 	std::vector<int> accepted_rows; // grr @FIXME
 	accepted_rows.reserve(32);
@@ -121,14 +122,14 @@ void FilterProxyModel::commitBatchToModel (int src_from, int src_to, BatchCmd co
 	}
 
 	//@FIXME l8r: this does not work in general!
-	if (m_cmap_from_src.size() < m_log_widget.m_src_model->columnCount())
+	if (m_cmap_from_src.size() < m_dcmds_model->columnCount())
 	{
 		int const from = static_cast<int>(m_cmap_from_src.size());
 		m_cmap_from_tgt.clear();
 		m_cmap_from_src.clear();
-		m_cmap_from_src.reserve(m_log_widget.m_src_model->columnCount());
+		m_cmap_from_src.reserve(m_dcmds_model->columnCount());
 		int ctgt_idx = 0;
-		for (size_t src_idx = 0, se = m_log_widget.m_src_model->columnCount(); src_idx < se; ++src_idx)
+		for (size_t src_idx = 0, se = m_dcmds_model->columnCount(); src_idx < se; ++src_idx)
 		{
 			if (filterAcceptsColumn(static_cast<int>(src_idx), QModelIndex()))
 			{

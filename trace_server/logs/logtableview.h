@@ -19,6 +19,7 @@ namespace logs {
 		virtual void wheelEvent (QWheelEvent * event);
 		virtual void keyPressEvent (QKeyEvent * event);
 		virtual QModelIndex moveCursor (CursorAction cursorAction, Qt::KeyboardModifiers modifiers);
+		virtual void showWarningSign () override;
 
 	protected:
 		Connection * m_connection;

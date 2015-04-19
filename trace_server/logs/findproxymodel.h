@@ -29,7 +29,7 @@ class FindProxyModel : public FilterProxyModel
 {
 	Q_OBJECT
 public:
-	explicit FindProxyModel (QObject * parent, logs::LogWidget & lw, BaseProxyModel * pxy);
+	explicit FindProxyModel (QObject * parent, FindConfig const & fc, FilterMgr const * f, BaseTableModel * m, BaseProxyModel * pxy);
 	~FindProxyModel ();
 
 	virtual bool filterAcceptsRow (int sourceRow, QModelIndex const & sourceParent) const;
@@ -37,5 +37,6 @@ public:
 
 protected:
   BaseProxyModel * m_src_proxy;
+	FindConfig const & m_find_config;
 };
 

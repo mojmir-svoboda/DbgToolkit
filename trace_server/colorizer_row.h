@@ -70,7 +70,7 @@ struct ColorizerRow : FilterBase
 	// color_regex specific
 	ColorizedRow & findOrCreateColorizedRow (QString const & str);
 	void setupModel ();
-	void setSrcModel (LogTableModel * m) { m_src_model = m; }
+	void setSrcModel (BaseTableModel * m) { m_src_model = m; }
 	void destroyModel ();
 	ColorizedRow const * findMatch (QString const & item) const;
 	void append (QString const & item);
@@ -99,7 +99,7 @@ struct ColorizerRow : FilterBase
 	typedef std::vector<ColorizedRow> filters_t;
 	filters_t				m_data;
 	QStandardItemModel *	m_model;
-	LogTableModel *			m_src_model; // @FIXME: not happy about this, but i need it fast :/
+	BaseTableModel *			m_src_model; // @FIXME: not happy about this, but i need it fast :/
 
 	Q_OBJECT
 public slots:

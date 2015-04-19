@@ -227,6 +227,7 @@ namespace logs {
 		}
 	}
 
+	void LogTableView::showWarningSign () { m_log_widget.showWarningSign(); } 
 }
 
 

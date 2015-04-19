@@ -11,12 +11,15 @@
 #include <dock.h>
 #include <syncwidgets.h>
 #include <cmd.h>
+#include <findwidget.h>
+#include <tableview.h>
+#include <warnimage.h>
 
 class Connection;
 
 namespace table {
 
-	class TableWidget : public QTableView, public DockedWidgetBase
+	class TableWidget : public TableView, public DockedWidgetBase
 	{
 		Q_OBJECT
 	public:
@@ -47,6 +50,9 @@ namespace table {
 		//void requestTableActionSync (unsigned long long t, int cursorAction, Qt::KeyboardModifiers modifiers, QTableView const * source);
 
 		QString getCurrentWidgetPath () const;
+		void loadAuxConfigs ();
+		void saveAuxConfigs ();
+		void saveFindConfig ();
 		void loadConfig (QString const & path);
 		void saveConfig (QString const & path);
 		void applyConfig ();
@@ -58,10 +64,17 @@ namespace table {
 		void findNearestRow4Time (bool ctime, unsigned long long t);
 		void performSynchronization (E_SyncMode mode, int sync_group, unsigned long long time, void * source);
 
+		FilterMgr * filterMgr () { return m_config_ui.m_ui->widget; }
+		FilterMgr const * filterMgr () const { return m_config_ui.m_ui->widget; }
+		ColorizerMgr * colorizerMgr () { return m_config_ui.m_ui->colorizer; }
+		ColorizerMgr const * colorizerMgr () const { return m_config_ui.m_ui->colorizer; }
+
 	protected:
 		virtual void wheelEvent (QWheelEvent * event);
     virtual void keyPressEvent (QKeyEvent * event);
 		virtual QModelIndex	moveCursor (CursorAction cursorAction, Qt::KeyboardModifiers modifiers);
+
+    virtual void showWarningSign ();
 
 	public Q_SLOTS:
 
@@ -81,6 +94,11 @@ namespace table {
 		void onTableDoubleClicked (QModelIndex const & row_index);
 		void onClickedAtColumnSetup (QModelIndex const idx);
 		void onClearAllData ();
+		void handleFindAction (FindConfig const & fc);
+		void onFind();
+		void onFindNext();
+		void onFindPrev();
+		void onFindAllRefs();
 
 	signals:
 		void requestSynchronization (E_SyncMode mode, int sync_group, unsigned long long time, void * source);
@@ -90,6 +108,9 @@ namespace table {
 		table::CtxTableConfig m_config_ui;
 		//QList<QColor> m_colors;
 		QString m_fname;
+		FindWidget * m_find_widget;
+		WarnImage * m_warnimage;
+		//ColorizeWidget * m_colorize_widget;
 		TableModel * m_src_model;
 		BaseProxyModel * m_proxy_model;
 		Connection * m_connection;

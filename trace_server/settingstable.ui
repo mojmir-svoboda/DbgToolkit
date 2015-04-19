@@ -17,114 +17,143 @@
    <set>Qt::NoDockWidgetArea</set>
   </property>
   <property name="windowTitle">
-   <string>Gantt Settings</string>
+   <string>Table Settings</string>
   </property>
   <widget class="QWidget" name="dockWidgetContents">
    <layout class="QGridLayout" name="gridLayout_2">
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
+     <number>0</number>
+    </property>
+    <property name="spacing">
+     <number>0</number>
+    </property>
     <item row="0" column="0">
      <layout class="QHBoxLayout" name="horizontalLayout_2">
-      <property name="margin">
-       <number>6</number>
+      <property name="spacing">
+       <number>0</number>
+      </property>
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
       </property>
       <item>
-       <widget class="QListWidget" name="iconWidget">
-        <property name="maximumSize">
-         <size>
-          <width>16777215</width>
-          <height>16777215</height>
-         </size>
+       <widget class="QTabWidget" name="tabWidget">
+        <property name="currentIndex">
+         <number>1</number>
         </property>
-        <property name="frameShape">
-         <enum>QFrame::StyledPanel</enum>
-        </property>
-        <property name="frameShadow">
-         <enum>QFrame::Plain</enum>
-        </property>
-        <property name="lineWidth">
-         <number>0</number>
-        </property>
-        <property name="verticalScrollBarPolicy">
-         <enum>Qt::ScrollBarAlwaysOff</enum>
-        </property>
-        <property name="horizontalScrollBarPolicy">
-         <enum>Qt::ScrollBarAlwaysOff</enum>
-        </property>
-        <property name="iconSize">
-         <size>
-          <width>48</width>
-          <height>48</height>
-         </size>
-        </property>
-        <property name="movement">
-         <enum>QListView::Static</enum>
-        </property>
-        <property name="flow">
-         <enum>QListView::TopToBottom</enum>
-        </property>
-        <property name="isWrapping" stdset="0">
-         <bool>false</bool>
-        </property>
-        <property name="resizeMode">
-         <enum>QListView::Fixed</enum>
-        </property>
-        <property name="viewMode">
-         <enum>QListView::IconMode</enum>
-        </property>
-        <property name="selectionRectVisible">
-         <bool>true</bool>
-        </property>
-        <item>
-         <property name="text">
+        <widget class="QWidget" name="findPage" native="true">
+         <attribute name="icon">
+          <iconset resource="resources.qrc">
+           <normaloff>:/images/find.png</normaloff>:/images/find.png</iconset>
+         </attribute>
+         <attribute name="title">
           <string>Find</string>
-         </property>
-         <property name="icon">
-          <iconset>
-           <normaloff>:/images/find.ico</normaloff>:/images/find.ico</iconset>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Filters</string>
-         </property>
-         <property name="icon">
-          <iconset>
-           <normaloff>:/images/filter.ico</normaloff>:/images/filter.ico</iconset>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Tools</string>
-         </property>
-         <property name="icon">
-          <iconset>
-           <normaloff>:/images/tools.ico</normaloff>:/images/tools.ico</iconset>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>View</string>
-         </property>
-         <property name="icon">
-          <iconset>
-           <normaloff>:/images/view.ico</normaloff>:/images/view.ico</iconset>
-         </property>
-        </item>
-       </widget>
-      </item>
-      <item>
-       <widget class="QStackedWidget" name="stackedWidget">
-        <widget class="QWidget" name="findPage"/>
-        <widget class="QWidget" name="filtersPage">
+         </attribute>
+        </widget>
+        <widget class="QWidget" name="filterPage" native="true">
+         <attribute name="icon">
+          <iconset resource="resources.qrc">
+           <normaloff>:/images/filter.png</normaloff>:/images/filter.png</iconset>
+         </attribute>
+         <attribute name="title">
+          <string>Filter</string>
+         </attribute>
          <layout class="QGridLayout" name="gridLayout_4">
+          <property name="leftMargin">
+           <number>0</number>
+          </property>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <property name="bottomMargin">
+           <number>0</number>
+          </property>
+          <property name="spacing">
+           <number>0</number>
+          </property>
           <item row="0" column="0">
            <widget class="FilterMgr" name="widget" native="true"/>
           </item>
          </layout>
         </widget>
-        <widget class="QWidget" name="toolsPage">
+        <widget class="QWidget" name="colorizerPage">
+         <attribute name="icon">
+          <iconset resource="resources.qrc">
+           <normaloff>:/images/colorize.png</normaloff>:/images/colorize.png</iconset>
+         </attribute>
+         <attribute name="title">
+          <string>Colorizer</string>
+         </attribute>
+         <layout class="QVBoxLayout" name="verticalLayout">
+          <property name="spacing">
+           <number>0</number>
+          </property>
+          <property name="leftMargin">
+           <number>0</number>
+          </property>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <property name="bottomMargin">
+           <number>0</number>
+          </property>
+          <item>
+           <widget class="ColorizerMgr" name="colorizer" native="true"/>
+          </item>
+         </layout>
+        </widget>
+        <widget class="QWidget" name="toolPage" native="true">
+         <attribute name="icon">
+          <iconset resource="resources.qrc">
+           <normaloff>:/images/tools.png</normaloff>:/images/tools.png</iconset>
+         </attribute>
+         <attribute name="title">
+          <string>Tools</string>
+         </attribute>
          <layout class="QGridLayout" name="gridLayout_3">
+          <property name="leftMargin">
+           <number>0</number>
+          </property>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <property name="bottomMargin">
+           <number>0</number>
+          </property>
+          <property name="spacing">
+           <number>0</number>
+          </property>
           <item row="0" column="0">
            <layout class="QHBoxLayout" name="horizontalLayout">
+            <property name="spacing">
+             <number>0</number>
+            </property>
             <item>
              <widget class="QPushButton" name="applyButton">
               <property name="maximumSize">
@@ -206,6 +235,9 @@
           </item>
           <item row="1" column="0">
            <layout class="QGridLayout" name="gridLayout">
+            <property name="spacing">
+             <number>0</number>
+            </property>
             <item row="2" column="2">
              <widget class="QLabel" name="label">
               <property name="font">
@@ -304,7 +336,15 @@ All tables with the same number will have inputs synchronized.
           </item>
          </layout>
         </widget>
-        <widget class="QWidget" name="viewPage"/>
+        <widget class="QWidget" name="viewPage" native="true">
+         <attribute name="icon">
+          <iconset resource="resources.qrc">
+           <normaloff>:/images/view.png</normaloff>:/images/view.png</iconset>
+         </attribute>
+         <attribute name="title">
+          <string>View</string>
+         </attribute>
+        </widget>
        </widget>
       </item>
      </layout>
@@ -319,24 +359,15 @@ All tables with the same number will have inputs synchronized.
    <header location="global">filtermgr.h</header>
    <container>1</container>
   </customwidget>
+  <customwidget>
+   <class>ColorizerMgr</class>
+   <extends>QWidget</extends>
+   <header location="global">colorizermgr.h</header>
+   <container>1</container>
+  </customwidget>
  </customwidgets>
- <resources/>
- <connections>
-  <connection>
-   <sender>iconWidget</sender>
-   <signal>currentRowChanged(int)</signal>
-   <receiver>stackedWidget</receiver>
-   <slot>setCurrentIndex(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>45</x>
-     <y>148</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>283</x>
-     <y>148</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <resources>
+  <include location="resources.qrc"/>
+ </resources>
+ <connections/>
 </ui>

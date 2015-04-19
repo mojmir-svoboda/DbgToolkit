@@ -3,6 +3,7 @@
 #include "connection.h"
 #include "mainwindow.h"
 #include "utils_openfilelinewith.h"
+#include "find_utils_table.h"
 
 namespace logs {
 
@@ -186,7 +187,7 @@ void LogWidget::onExcludeFile ()
 {
 	QModelIndexList l;
 	QModelIndexList src_list;
-	currSelection(l);
+	currSelection(m_tableview, l);
 	foreach(QModelIndex index, l)
 	{
 		if (isModelProxy())
@@ -236,7 +237,7 @@ void LogWidget::onExcludeFileLine ()
 {
 	QModelIndexList l;
 	QModelIndexList src_list;
-	currSelection(l);
+	currSelection(m_tableview, l);
 	foreach(QModelIndex index, l)
 	{
 		if (isModelProxy())
@@ -281,7 +282,7 @@ void LogWidget::onExcludeRow ()
 {
 	QModelIndexList l;
 	QModelIndexList src_list;
-	currSelection(l);
+	currSelection(m_tableview, l);
 	foreach(QModelIndex index, l)
 	{
 		if (isModelProxy())
@@ -373,7 +374,7 @@ void LogWidget::onGotoPrevErr ()
 	fc.m_whole_word = 0;
 	fc.m_regexp = 0;
 	fc.m_str = "Error";
-	findAndSelectPrev(fc);
+	findAndSelectPrev(m_tableview, fc);
 }
 void LogWidget::onGotoNextErr ()
 {
@@ -387,7 +388,7 @@ void LogWidget::onGotoNextErr ()
 	fc.m_whole_word = 0;
 	fc.m_regexp = 0;
 	fc.m_str = "Error";
-	findAndSelectNext(fc);
+	findAndSelectNext(m_tableview, fc);
 }
 void LogWidget::onGotoPrevWarn ()
 {
@@ -401,7 +402,7 @@ void LogWidget::onGotoPrevWarn ()
 	fc.m_whole_word = 0;
 	fc.m_regexp = 0;
 	fc.m_str = "Warning";
-	findAndSelectPrev(fc);
+	findAndSelectPrev(m_tableview, fc);
 }
 void LogWidget::onGotoNextWarn ()
 {
@@ -415,7 +416,7 @@ void LogWidget::onGotoNextWarn ()
 	fc.m_whole_word = 0;
 	fc.m_regexp = 0;
 	fc.m_str = "Warning";
-	findAndSelectNext(fc);
+	findAndSelectNext(m_tableview, fc);
 }
 
 void LogWidget::onHidePrev ()

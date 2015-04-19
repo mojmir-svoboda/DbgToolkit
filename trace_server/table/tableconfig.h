@@ -3,6 +3,7 @@
 #include <QColor>
 #include <QVector>
 #include <dockedconfig.h>
+#include <findconfig.h>
 
 namespace table {
 
@@ -16,13 +17,12 @@ namespace table {
 		std::vector<int> m_vsize;
 
 		bool m_hide_empty;
-		bool m_unused_b2;
+		FindConfig m_find_config;
 
 		TableConfig ()
 			: m_tag()
 			, m_title()
 			, m_hide_empty(false)
-			, m_unused_b2(false)
 		{
 	/*		m_hhdr.reserve(32);
 			m_hsize.reserve(32);
@@ -48,7 +48,7 @@ namespace table {
 			//ar & boost::serialization::make_nvp("central_widget", m_central_widget);
 			ar & boost::serialization::make_nvp("show", m_show);
 			ar & boost::serialization::make_nvp("hide_empty", m_hide_empty);
-			ar & boost::serialization::make_nvp("flag2", m_unused_b2);
+			ar & boost::serialization::make_nvp("find_config", m_find_config);
 		}
 
 		void clear ()

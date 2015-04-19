@@ -78,7 +78,7 @@ struct ColorizerRegex : FilterBase
 	// color_regex specific
 	ColorizedText & findOrCreateColorizedText (QString const & str);
 	void setupModel ();
-	void setSrcModel (LogTableModel * m) { m_src_model = m; }
+	void setSrcModel (BaseTableModel * m) { m_src_model = m; }
 	void destroyModel ();
 	ColorizedText const * findMatch (QString const & item) const;
 	void append (QString const & item);
@@ -105,7 +105,7 @@ struct ColorizerRegex : FilterBase
 	typedef std::vector<ColorizedText> filters_t;
 	filters_t				m_data;
 	QStandardItemModel *	m_model;
-	LogTableModel *			m_src_model; // @FIXME: not happy about this, but i need it fast :/
+	BaseTableModel *			m_src_model; // @FIXME: not happy about this, but i need it fast :/
 
 	Q_OBJECT
 public slots:

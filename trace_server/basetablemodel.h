@@ -72,6 +72,7 @@ public:
 
 	QVariant data (const QModelIndex & index, int role = Qt::DisplayRole) const;
 	bool setData (QModelIndex const & index, QVariant const & value, int role = Qt::EditRole);
+	dcmds_t const & dcmds() { return m_dcmds; }
 
 	QVariant headerData (int section, Qt::Orientation orientation, int role) const;
 	bool  setHeaderData (int section, Qt::Orientation orientation, QVariant const & value, int role = Qt::EditRole);
@@ -94,6 +95,7 @@ public:
 
 	virtual void clearModel ();
 	void clearModelData ();
+	virtual int storage2Column (int storage_col) const = 0;
 
 protected:
 

@@ -27,12 +27,13 @@
 #include "logtablemodel.h"
 
 namespace logs { class LogTableView; struct LogConfig; }
+struct FilterMgr;
 
 class FilterProxyModel : public BaseProxyModel
 {
 	Q_OBJECT
 public:
-	explicit FilterProxyModel (QObject * parent, logs::LogWidget & lw);
+	explicit FilterProxyModel (QObject * parent, FilterMgr const * f, BaseTableModel * m);
 	virtual ~FilterProxyModel ();
 
 	virtual QModelIndex sibling (int row, int column, QModelIndex const & idx) const;
@@ -47,8 +48,9 @@ public:
 	virtual void clearModelData () override;
 
 protected:
-	logs::LogWidget & m_log_widget;
+	BaseTableModel * m_dcmds_model;
 	int m_column_count;
+	FilterMgr const * m_filter_mgr;
 };
 
 

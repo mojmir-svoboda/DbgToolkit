@@ -9,6 +9,7 @@
 #include "mainwindow.h"
 #include "warnimage.h"
 #include "colorizewidget.h"
+#include "find_utils_table.h"
 
 namespace logs {
 
@@ -67,9 +68,9 @@ void LogWidget::handleColorizeAction (ColorizeConfig const & cc)
 		}
 
 		if (cc.m_next)
-			findAndSelectNext(cc);
+			findAndSelectNext(m_tableview, cc);
 		else if (cc.m_prev)
-			findAndSelectPrev(cc);
+			findAndSelectPrev(m_tableview, cc);
 		//else
 			//findAndSelect(cc)
 	}

@@ -49,7 +49,6 @@ public:
 
 	FilterState const & filterState () const { return m_filter_state; }
     logs::LogWidget const & logWidget () const { return m_log_widget; }
-	dcmds_t const & dcmds () { return m_dcmds; }
 	LogTableModel * cloneToNewModel (logs::LogWidget * parent, FindConfig const & fc);
     void reloadModelAccordingTo (logs::LogConfig & config);
 

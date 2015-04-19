@@ -46,5 +46,6 @@ protected:
 
 	void parseTableXY (int x, int y, QString const &, QString const & fgc, QString const & bgc, QString const & msg_tag, BatchCmd & batch);
 	void parseTableSetup (int x, int y, QString const & time, QString const & fgc, QString const & bgc, QString const & hhdr, QString const & tag, BatchCmd & batch);
+	int storage2Column (int storage_col) const { return storage_col; }
 };
 

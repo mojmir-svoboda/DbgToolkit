@@ -4,6 +4,7 @@
 #include "filterproxymodel.h"
 #include "utils.h"
 #include "colorizermgr.h"
+#include "find_utils_table.h"
 
 namespace logs {
 
@@ -124,14 +125,14 @@ void LogWidget::onGotoPrevColor()
 		return;
 
 	QModelIndexList l;
-	currSelection(l);
+	currSelection(m_tableview, l);
 	if (l.size())
 	{
 		QModelIndex const & curr_idx = l.at(0);
 		QModelIndex const idx = m_tableview->model()->index(curr_idx.row() - 1, curr_idx.column(), QModelIndex());
 		if (!idx.isValid())
 		{
-			noMoreMatches();
+			showWarningSign();
 			return;
 		}
 
@@ -153,7 +154,7 @@ void LogWidget::onGotoPrevColor()
 
 		if (next.size() == 0)
 		{
-			noMoreMatches();
+			showWarningSign();
 		}
 		else
 		{
@@ -181,7 +182,7 @@ void LogWidget::onGotoNextColor()
 		return;
 
 	QModelIndexList l;
-	currSelection(l);
+	currSelection(m_tableview, l);
 
 	QModelIndex curr_idx;
 	if (l.size())
@@ -193,7 +194,7 @@ void LogWidget::onGotoNextColor()
 	QModelIndex const next_idx = m_tableview->model()->index(curr_idx.row() + 1, curr_idx.column(), QModelIndex());
 	if (!next_idx.isValid())
 	{
-		noMoreMatches();
+		showWarningSign();
 		return;
 	}
 
@@ -216,7 +217,7 @@ void LogWidget::onGotoNextColor()
 
 	if (next.size() == 0)
 	{
-		noMoreMatches();
+		showWarningSign();
 	}
 	else
 	{

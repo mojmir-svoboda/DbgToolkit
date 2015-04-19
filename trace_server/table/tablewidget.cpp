@@ -9,19 +9,36 @@
 #include <utils_qstandarditem.h>
 #include <movablelistmodel.h>
 #include <delegates.h>
+#include "../logs/filterproxymodel.h"
+#include <find_utils_table.h>
 
 namespace table {
 
 	TableWidget::TableWidget (Connection * conn, TableConfig const & cfg, QString const & fname, QStringList const & path)
-		: QTableView(0), DockedWidgetBase(conn->getMainWindow(), path)
+		: TableView(0), DockedWidgetBase(conn->getMainWindow(), path)
 		, m_config(cfg)
 		, m_config_ui(m_config, this)
 		, m_fname(fname)
+		, m_find_widget(0)
 		, m_src_model(0)
 		, m_proxy_model(0)
 		, m_connection(conn)
 	{
 		qDebug("%s this=0x%08x", __FUNCTION__, this);
+
+		filterMgr()->m_filter_order.clear();
+		filterMgr()->m_filter_order.push_back(g_filterNames[e_Filter_String]);
+		filterMgr()->m_filter_order.push_back(g_filterNames[e_Filter_Ctx]);
+		filterMgr()->m_filter_order.push_back(g_filterNames[e_Filter_Lvl]);
+		filterMgr()->m_filter_order.push_back(g_filterNames[e_Filter_Row]);
+
+		m_warnimage = new WarnImage(this);
+		m_find_widget = new FindWidget(m_connection->getMainWindow(), this);
+		m_find_widget->setActionAbleWidget(this);
+		m_find_widget->setParent(this);
+		//m_colorize_widget = new ColorizeWidget(m_connection->getMainWindow(), this);
+		//m_colorize_widget->setActionAbleWidget(this);
+		//m_colorize_widget->setParent(m_tableview);
 
 		MyListModel * model = new MyListModel(this);
 		m_config_ui.ui()->columnView->setModel(model);
@@ -62,7 +79,7 @@ namespace table {
 
 		if (!m_proxy_model)
 		{
-			m_proxy_model = new SparseProxyModel(this);
+			m_proxy_model = new FilterProxyModel(this, filterMgr(), m_src_model);
 			m_proxy_model->setSourceModel(m_src_model);
 		}
 
@@ -100,6 +117,57 @@ namespace table {
 
 	bool TableWidget::handleAction (Action * a, E_ActionHandleType sync)
 	{
+		switch (a->type())
+		{
+			case e_Close:
+			{
+				m_connection->destroyDockedWidget(this);
+				setParent(0);
+				delete this;
+				return true;
+			}
+
+			case e_Visibility:
+			{
+				Q_ASSERT(a->m_args.size() > 0);
+				bool const on = a->m_args.at(0).toBool();
+				setVisible(on);
+				m_connection->getMainWindow()->onDockRestoreButton();
+				return true;
+			}
+
+			case e_Find:
+			{
+				if (a->m_args.size() > 0)
+				{
+					if (a->m_args.at(0).canConvert<FindConfig>())
+					{
+						FindConfig const fc = a->m_args.at(0).value<FindConfig>();
+						handleFindAction(fc);
+						m_config.m_find_config = fc;
+						// m_config.save
+					}
+					return true;
+				}
+			}
+			case e_Colorize:
+			{
+				/*if (a->m_args.size() > 0)
+				{
+					if (a->m_args.at(0).canConvert<ColorizeConfig>())
+					{
+						ColorizeConfig const cc = a->m_args.at(0).value<ColorizeConfig>();
+						handleColorizeAction(cc);
+						m_config.m_colorize_config = cc;
+						// m_config.save
+					}
+					return true;
+				}*/
+			}
+
+			default:
+				return false;
+		}
 		return false;
 	}
 
@@ -118,6 +186,10 @@ namespace table {
 	{
 		qDebug("%s this=0x%08x", __FUNCTION__, this);
 		Ui::SettingsTable * ui = m_config_ui.ui();
+
+		filterMgr()->disconnectFiltersTo(this);
+		colorizerMgr()->disconnectFiltersTo(this);
+
 
 		setModel(m_src_model);
 		m_src_model->setProxy(0);
@@ -172,6 +244,29 @@ namespace table {
 			setModel(m_src_model);
 			m_src_model->setProxy(0);
 		}
+
+		filterMgr()->applyConfig();
+		colorizerMgr()->applyConfig();
+
+		filterMgr()->connectFiltersTo(this);
+		colorizerMgr()->connectFiltersTo(this);
+
+		connect(filterMgr(), SIGNAL(filterEnabledChanged()), this, SLOT(onFilterEnabledChanged()));
+		connect(filterMgr(), SIGNAL(filterChangedSignal()), this, SLOT(onInvalidateFilter()));
+		// @TODO: nesel by mensi brutus nez je invalidate filter?
+		connect(colorizerMgr(), SIGNAL(filterEnabledChanged()), this, SLOT(onFilterEnabledChanged()));
+		connect(colorizerMgr(), SIGNAL(filterChangedSignal()), this, SLOT(onInvalidateFilter()));
+
+		if (filterMgr()->getFilterCtx())
+			filterMgr()->getFilterCtx()->setAppData(&m_connection->appData());
+
+		if (colorizerMgr()->getColorizerString())
+			colorizerMgr()->getColorizerString()->setSrcModel(m_src_model);
+		if (colorizerMgr()->getColorizerRegex())
+			colorizerMgr()->getColorizerRegex()->setSrcModel(m_src_model);
+		if (colorizerMgr()->getColorizerRow())
+			colorizerMgr()->getColorizerRow()->setSrcModel(m_src_model);
+
 
 		static_cast<SparseProxyModel *>(m_proxy_model)->force_update();
 
@@ -636,6 +731,36 @@ namespace table {
 		return logpath;
 	}
 
+	void TableWidget::loadAuxConfigs()
+	{
+		QString const logpath = getCurrentWidgetPath();
+		m_config.m_find_config.clear();
+		loadConfigTemplate(m_config.m_find_config, logpath + "/" + g_findTag);
+		//m_config.m_colorize_config.clear();
+		//loadConfigTemplate(m_config.m_colorize_config, logpath + "/" + g_colorizeTag);
+		filterMgr()->loadConfig(logpath);
+		colorizerMgr()->loadConfig(logpath);
+	}
+
+	void TableWidget::saveAuxConfigs()
+	{
+		QString const logpath = getCurrentWidgetPath();
+		saveConfigTemplate(m_config.m_find_config, logpath + "/" + g_findTag);
+		//saveConfigTemplate(m_config.m_colorize_config, logpath + "/" + g_colorizeTag);
+		filterMgr()->saveConfig(logpath);
+		colorizerMgr()->saveConfig(logpath);
+	}
+	void TableWidget::saveFindConfig()
+	{
+		QString const logpath = getCurrentWidgetPath();
+		saveConfigTemplate(m_config.m_find_config, logpath + "/" + g_findTag);
+	}
+	/*void TableWidget::saveColorizeConfig()
+	{
+		QString const logpath = getCurrentWidgetPath();
+		saveConfigTemplate(m_config.m_colorize_config, logpath + "/" + g_colorizeTag);
+	}*/
+
 	void TableWidget::loadConfig (QString const & preset_dir)
 	{
 		QString const tag_backup = m_config.m_tag;
@@ -649,6 +774,7 @@ namespace table {
 			//defaultConfigFor(m_config);
 			m_config.m_tag = tag_backup; // defaultConfigFor destroys tag
 		}
+		loadAuxConfigs();
 	}
 
 	void TableWidget::saveConfig (QString const & path)
@@ -659,6 +785,7 @@ namespace table {
 		TableConfig tmp = m_config;
 		//normalizeConfig(tmp);
 		saveConfigTemplate(tmp, tblpath + "/" + g_TableFile);
+		saveAuxConfigs();
 	}
 
 	void TableWidget::findNearestRow4Time (bool ctime, unsigned long long t)
@@ -758,23 +885,23 @@ namespace table {
 				e->accept();
 			}
 
-			/*if (e->matches(QKeySequence::Find))
+			if (e->matches(QKeySequence::Find))
 			{
-				m_log_widget.onFind();
+				onFind();
 				e->accept();
 			}
 			if (!ctrl && !shift && !alt && e->key() == Qt::Key_Slash)
 			{
-				m_log_widget.onFind();
+				onFind();
 				e->accept();
 			}
 			if (ctrl && shift && e->key() == Qt::Key_F)
 			{
-				m_log_widget.onFindAllRefs();
+				onFindAllRefs();
 				e->accept();
 			}
 
-			if (ctrl && e->key() == Qt::Key_D)
+			/*if (ctrl && e->key() == Qt::Key_D)
 			{
 				m_log_widget.onColorize();
 				e->accept();
@@ -832,6 +959,88 @@ namespace table {
 		QTableView::keyPressEvent(e);
 	}
 
+	void TableWidget::onFind()
+	{
+		//m_find_widget->onCancel();
+		//w->setFocusProxy(m_find_widget);
+		//m_find_widget->setFocusProxy(w); // dunno what the proxies are for
+		//mk_action configure find widget
+		FindConfig & cfg = m_config.m_find_config;
+		m_find_widget->applyConfig(cfg);
+
+		m_find_widget->onActivate();
+
+		//setFocusProxy(m_find_widget);
+		m_find_widget->setFocusProxy(this); // dunno what the proxies are for
+	}
+
+	void TableWidget::onFindNext()
+	{
+		m_find_widget->onFindNext();
+	}
+
+	void TableWidget::onFindPrev()
+	{
+		m_find_widget->onFindPrev();
+	}
+
+	void TableWidget::onFindAllRefs()
+	{
+		m_find_widget->onFindAllRefs();
+	}
+
+
+	void TableWidget::handleFindAction (FindConfig const & fc)
+	{
+		bool const select_only = !fc.m_refs && !fc.m_clone;
+
+		if (fc.m_regexp)
+		{
+			if (fc.m_regexp_val.pattern().isEmpty())
+				return;
+			if (!fc.m_regexp_val.isValid())
+				return;
+		}
+
+		saveFindConfig();
+
+		if (select_only)
+		{
+			if (fc.m_next)
+				findAndSelectNext(this, fc);
+			else if (fc.m_prev)
+				findAndSelectPrev(this, fc);
+			else
+				findAndSelect(this, fc);
+		}
+		/*else
+		{
+			LogWidget * result_widget = 0;
+			if (fc.m_refs)
+			{
+				result_widget = mkFindAllRefsLogWidget(fc);
+			}
+			else // clone
+			{
+				result_widget = mkFindAllCloneLogWidget(fc);
+			}
+		}*/
+	}
+
+	void TableWidget::showWarningSign ()
+	{
+		qDebug("end of search");
+		m_connection->getMainWindow()->statusBar()->showMessage(tr("End of document!"));
+
+		// flash icon
+		QPoint const global = rect().center();
+		QPoint const pos(global.x() - m_warnimage->width() / 2, global.y() - m_warnimage->height() / 2);
+			m_warnimage->move(pos);
+		m_warnimage->show();
+		m_warnimage->activateWindow();
+		m_warnimage->raise();
+		m_warnimage->warningFindNoMoreMatches();
+	}
 
 }
 

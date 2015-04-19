@@ -9,9 +9,10 @@
 #include "logwidget.h"
 #include "logtablemodel.h"
 
-FindProxyModel::FindProxyModel (QObject * parent, logs::LogWidget & lw, BaseProxyModel * pxy)
-	: FilterProxyModel(parent, lw)
+FindProxyModel::FindProxyModel (QObject * parent, FindConfig const & fc, FilterMgr const * f, BaseTableModel * m, BaseProxyModel * pxy)
+	: FilterProxyModel(parent, nullptr, m)
 	, m_src_proxy(pxy)
+	, m_find_config(fc)
 {
 	qDebug("%s this=0x%08x", __FUNCTION__, this);
 }
@@ -30,14 +31,14 @@ bool FindProxyModel::filterAcceptsRow (int sourceRow, QModelIndex const & /*sour
 {
 	if (m_src_proxy)
 		sourceRow = m_src_proxy->rowToSource(sourceRow);
-	if (sourceRow>= 0 && sourceRow < m_log_widget.m_src_model->dcmds().size())
+	if (sourceRow >= 0 && sourceRow < m_dcmds_model->dcmds().size())
 	{
-		DecodedCommand const & dcmd = m_log_widget.m_src_model->dcmds()[sourceRow];
+		DecodedCommand const & dcmd = m_dcmds_model->dcmds()[sourceRow];
 
 		for (size_t i = 0, ie = dcmd.m_tvs.size(); i < ie; ++i)
 		{
 			QString const & val = dcmd.m_tvs[i].m_val;
-			FindConfig const & fc = m_log_widget.m_config.m_find_config;
+			FindConfig const & fc = m_find_config;
 			if (fc.m_regexp)
 			{
 			}
