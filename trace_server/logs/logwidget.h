@@ -205,6 +205,7 @@ namespace logs {
 		void onCtxMenuCutPathChanged (int value);
 		void onCtxMenuCutNamespaceChanged (int value);
 		void onCtxMenuTableRowSizeChanged (int value);
+		void onCtxMenuSyncGroupChanged (int value);
 		void onSaveButton ();
 		void onApplyButton ();
 		void onResetButton ();

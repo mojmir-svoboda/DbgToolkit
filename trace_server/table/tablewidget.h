@@ -62,7 +62,6 @@ namespace table {
 		QModelIndex currentSourceIndex () const;
 
 		void findNearestRow4Time (bool ctime, unsigned long long t);
-		void performSynchronization (E_SyncMode mode, int sync_group, unsigned long long time, void * source);
 
 		FilterMgr * filterMgr () { return m_config_ui.m_ui->widget; }
 		FilterMgr const * filterMgr () const { return m_config_ui.m_ui->widget; }
@@ -93,7 +92,11 @@ namespace table {
 		void scrollTo (QModelIndex const & index, ScrollHint hint);
 		void onTableDoubleClicked (QModelIndex const & row_index);
 		void onClickedAtColumnSetup (QModelIndex const idx);
+		void onCtxMenuAutoScrollStateChanged (int state);
+		void onCtxMenuSparseStateChanged (int state);
+		void onCtxMenuSyncGroupChanged (int value);
 		void onClearAllData ();
+		void performSynchronization (E_SyncMode mode, int sync_group, unsigned long long time, void * source);
 		void handleFindAction (FindConfig const & fc);
 		void onFind();
 		void onFindNext();

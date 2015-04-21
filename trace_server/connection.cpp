@@ -60,7 +60,7 @@ Connection::Connection (QString const & app_name, QObject * parent)
 	connect(m_control_bar->ui->presetSaveButton, SIGNAL(clicked()), this, SLOT(onPresetSave()));
 	connect(m_control_bar->ui->presetAddButton, SIGNAL(clicked()), this, SLOT(onPresetAdd()));
 	connect(m_control_bar->ui->presetRmButton, SIGNAL(clicked()), this, SLOT(onPresetRm()));
-	connect(m_control_bar->ui->presetResetButton, SIGNAL(clicked()), this, SLOT(onPresetReset()));
+	//connect(m_control_bar->ui->presetResetButton, SIGNAL(clicked()), this, SLOT(onPresetReset()));
 	connect(m_control_bar->ui->logSlider, SIGNAL(valueChanged(int)), this, SLOT(onLogsStateChanged(int)));
 	connect(m_control_bar->ui->plotSlider, SIGNAL(valueChanged(int)), this, SLOT(onPlotsStateChanged(int)));
 	connect(m_control_bar->ui->tableSlider, SIGNAL(valueChanged(int)), this, SLOT(onTablesStateChanged(int)));
