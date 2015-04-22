@@ -36,11 +36,11 @@ A2. 64b build
 -------------
 
 Run
-	Start Menu/Programs/Microsoft Visual Studio 2012/Visual Studio Tools/VS2012 x64 Cross Tools Command Prompt
+	Start Menu/Programs/Microsoft Visual Studio 2013/Visual Studio Tools/VS2013 x64 Native Tools Command Prompt
 
 Build 64bit boost
 
-	bjam --toolset=msvc-9.0 address-model=64 --build-type=complete stage
+	bjam --toolset=msvc-12.0 address-model=64 --build-type=complete stage
 
 Follow instructions
 
