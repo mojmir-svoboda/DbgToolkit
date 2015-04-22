@@ -1,3 +1,4 @@
+#pragma once
 #include <sysfn/enum_factory.h>
 #include <cstdlib>
 

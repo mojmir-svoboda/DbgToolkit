@@ -1,4 +1,5 @@
 #pragma once
+#include <boost/serialization/collections_load_imp.hpp>
 
 namespace boost { namespace serialization {
 
