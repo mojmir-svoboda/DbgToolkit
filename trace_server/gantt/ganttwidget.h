@@ -41,6 +41,8 @@ namespace gantt {
 		void applyConfig ();
 		void exportStorageToCSV (QString const & filename) { }
 
+		void clearAllData ();
+
 		void commitCommands (E_ReceiveMode mode);
 		QList<DecodedCommand> m_queue;
 

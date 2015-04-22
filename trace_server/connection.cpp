@@ -339,6 +339,24 @@ bool Connection::handleAction (Action * a, E_ActionHandleType sync)
 	return true;
 }
 
+struct ClearAllData
+{
+	ClearAllData () { }
+
+	template <class T>
+	void operator() (T const & t)
+	{
+		typedef typename T::const_iterator it_t;
+		for (it_t it = t.begin(), ite = t.end(); it != ite; ++it)
+			(*it)->clearAllData();
+	}
+};
+
+void Connection::clearAllData ()
+{
+	recurse(m_data, ClearAllData());
+}
+
 QWidget * Connection::controlWidget ()
 {
 	return m_control_bar;

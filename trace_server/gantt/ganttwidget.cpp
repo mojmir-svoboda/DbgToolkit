@@ -333,7 +333,7 @@ namespace gantt {
 		}
 	}
 
-	void GanttWidget::onClearAllDataButton ()
+	void GanttWidget::clearAllData ()
 	{
 		for (ganttviews_t::iterator it = m_ganttviews.begin(), ite = m_ganttviews.end(); it != ite; ++it)
 		{
@@ -345,6 +345,11 @@ namespace gantt {
 			}
 		}
 		//update();
+	}
+
+	void GanttWidget::onClearAllDataButton ()
+	{
+		clearAllData();
 	}
 
 	void GanttWidget::onClearGanttViewDataButton ()

@@ -38,6 +38,7 @@ namespace table {
 		void commitCommands (E_ReceiveMode mode);
 		virtual bool handleAction (Action * a, E_ActionHandleType sync);
 		virtual void setVisible (bool visible);
+		void clearAllData ();
 
 		void appendTableXY (int x, int y, QString const & time, QString const & fgc, QString const & bgc, QString const & msg);
 		void appendTableSetup (int x, int y, QString const & time, QString const & fgc, QString const & bgc, QString const & hhdr, QString const & tag);

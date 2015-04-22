@@ -4,6 +4,7 @@
 #include <tlv_parser/tlv_encoder.h>
 #include "utils.h"
 #include "utils_history.h"
+#include "utils_boost.h"
 #include "controlbarcommon.h"
 #include "mainwindow.h"
 #include <ui_controlbarcommon.h>
@@ -133,6 +134,25 @@ void Connection::onBufferingStateChanged (int state)
 			m_tcpstream->flush();
 		}
 	}
+}
+
+struct ClearAllData
+{
+	ClearAllData () { }
+
+	template <class T>
+	void operator() (T const & t)
+	{
+		typedef typename T::const_iterator it_t;
+		for (it_t it = t.begin(), ite = t.end(); it != ite; ++it)
+			(*it)->clearAllData();
+	}
+};
+
+
+void Connection::onClearAllData ()
+{
+	recurse(m_data, ClearAllData());
 }
 
 void Connection::onPresetChanged (int idx)

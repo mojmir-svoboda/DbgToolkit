@@ -54,6 +54,7 @@ namespace logs {
 
 		virtual bool handleAction (Action * a, E_ActionHandleType sync);
 		virtual void setVisible (bool visible);
+		void clearAllData ();
 
 		E_SrcProtocol protocol () const;
 

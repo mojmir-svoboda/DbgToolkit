@@ -49,6 +49,7 @@ namespace plot {
 
 		virtual bool handleAction (Action * a, E_ActionHandleType sync);
 		virtual void setVisible (bool visible);
+		void clearAllData ();
 
 		void stopUpdate ();
 
@@ -67,7 +68,6 @@ namespace plot {
 		bool handleDataXYCommand (DecodedCommand const & cmd);
 		bool handlePlotClearCommand (DecodedCommand const & cmd);
 
-		void clearAllData ();
 		void clearCurveData (QString const & subtag);
 
 		void timerEvent (QTimerEvent * e);

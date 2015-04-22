@@ -109,6 +109,8 @@ public:
 	void mentionInPresetHistory (QString const & str);
 	QString getCurrentPresetName () const;
 
+	void clearAllData ();
+
 signals:
 	void readyForUse();
 	void newMessage (QString const & from, QString const & message);
@@ -142,6 +144,7 @@ public slots:
 	void setTablesState (int state);
 	void setGanttsState (int state);
 
+	void onClearAllData ();
 	void onSaveData (QString const & dir);
 	void onExportDataToCSV (QString const & dir);
 

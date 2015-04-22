@@ -840,10 +840,15 @@ namespace table {
 		}
 	}
 
-	void TableWidget::onClearAllData ()
+	void TableWidget::clearAllData ()
 	{
 		m_proxy_model->clearModelData();
 		m_src_model->clearModelData();
+	}
+
+	void TableWidget::onClearAllData ()
+	{
+		clearAllData();
 	}
 
 	void TableWidget::keyPressEvent (QKeyEvent * e)

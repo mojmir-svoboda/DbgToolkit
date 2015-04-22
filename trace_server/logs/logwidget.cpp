@@ -868,10 +868,15 @@ namespace logs {
 		setConfigValuesToUI(defaults);
 	}
 
-	void LogWidget::onClearAllDataButton ()
+	void LogWidget::clearAllData ()
 	{
 		m_proxy_model->clearModelData();
 		m_src_model->clearModelData();
+	}
+
+	void LogWidget::onClearAllDataButton ()
+	{
+		clearAllData();
 	}
 
 	void LogWidget::performSynchronization (E_SyncMode mode, int sync_group, unsigned long long time, void * source)
