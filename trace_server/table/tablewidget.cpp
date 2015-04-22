@@ -11,6 +11,7 @@
 #include <delegates.h>
 #include "../logs/filterproxymodel.h"
 #include <find_utils_table.h>
+#include "set_with_blocked_signals.h"
 
 namespace table {
 
@@ -51,15 +52,17 @@ namespace table {
 		m_config_ui.ui()->columnView->setDragDropMode(QAbstractItemView::InternalMove);
 
 		connect(m_config_ui.ui()->columnView, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtColumnSetup(QModelIndex)));
+		connect(m_config_ui.ui()->autoScrollCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onCtxMenuAutoScrollStateChanged(int)));
+		connect(m_config_ui.ui()->sparseCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onCtxMenuSparseStateChanged(int)));
+		connect(m_config_ui.ui()->syncGroupSpinBox, SIGNAL(valueChanged(int)), this, SLOT(onCtxMenuSyncGroupChanged(int)));
 
 		//model->addObserver(ui_settings->listViewColumnSizes->model());
 		m_config_ui.ui()->columnView->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
-
 		setContextMenuPolicy(Qt::CustomContextMenu);
 		connect(this, SIGNAL(customContextMenuRequested(QPoint const &)), this, SLOT(onShowContextMenu(QPoint const &)));
 		connect(this, SIGNAL(doubleClicked(QModelIndex const &)), this, SLOT(onTableDoubleClicked(QModelIndex const &)));
-		connect(m_config_ui.ui()->filteringCheckBox, SIGNAL(stateChanged(int)), this, SLOT(filteringStateChanged(int)));
+		connect(m_config_ui.ui()->sparseCheckBox, SIGNAL(stateChanged(int)), this, SLOT(filteringStateChanged(int)));
 
 		//setHorizontalHeader(new EditableHeaderView(Qt::Horizontal, this));
 
@@ -328,26 +331,34 @@ namespace table {
 		}
 	}
 
+  void TableWidget::onCtxMenuAutoScrollStateChanged(int state)
+  {
+    if (state == Qt::Checked)
+      m_config.m_auto_scroll = true;
+    else
+      m_config.m_auto_scroll = false;
+  }
+  void TableWidget::onCtxMenuSparseStateChanged(int state)
+  {
+    if (state == Qt::Checked)
+      m_config.m_hide_empty = true;
+    else
+      m_config.m_hide_empty = false;
+  }
+  void TableWidget::onCtxMenuSyncGroupChanged (int value)
+  {
+    m_config.m_sync_group = value;
+  }
+
 	void TableWidget::setConfigValuesToUI (TableConfig const & cfg)
 	{
 		qDebug("%s this=0x%08x", __FUNCTION__, this);
 		Ui::SettingsTable * ui = m_config_ui.ui();
 		
-		ui->tableShowCheckBox->blockSignals(true);
-		ui->tableShowCheckBox->setCheckState(cfg.m_show ? Qt::Checked : Qt::Unchecked);
-		ui->tableShowCheckBox->blockSignals(false);
-
-		ui->filteringCheckBox->blockSignals(true);
-		ui->filteringCheckBox->setCheckState(cfg.m_hide_empty ? Qt::Checked : Qt::Unchecked);
-		ui->filteringCheckBox->blockSignals(false);
-
-		ui->autoScrollCheckBox->blockSignals(true);
-		ui->autoScrollCheckBox->setCheckState(cfg.m_auto_scroll ? Qt::Checked : Qt::Unchecked);
-		ui->autoScrollCheckBox->blockSignals(false);
-
-		ui->syncGroupSpinBox->blockSignals(true);
-		ui->syncGroupSpinBox->setValue(cfg.m_sync_group);
-		ui->syncGroupSpinBox->blockSignals(false);
+		setCheckedWithBlockedSignals(ui->tableShowCheckBox, cfg.m_show);
+		setCheckedWithBlockedSignals(ui->autoScrollCheckBox, cfg.m_auto_scroll);
+		setCheckedWithBlockedSignals(ui->sparseCheckBox, cfg.m_hide_empty);
+		setValueWithBlockedSignals(ui->syncGroupSpinBox, cfg.m_sync_group);
 
 		clearListView(ui->columnView);
 		QStandardItem * name_root = static_cast<QStandardItemModel *>(ui->columnView->model())->invisibleRootItem();
@@ -405,7 +416,7 @@ namespace table {
 	{
 		qDebug("%s this=0x%08x", __FUNCTION__, this);
 		Ui::SettingsTable * ui = m_config_ui.ui();
-		m_config.m_hide_empty = ui->filteringCheckBox->checkState() == Qt::Checked;
+		m_config.m_hide_empty = ui->sparseCheckBox->checkState() == Qt::Checked;
 		m_config.m_auto_scroll = ui->autoScrollCheckBox->checkState() == Qt::Checked;
 		m_config.m_sync_group = ui->syncGroupSpinBox->value();
 	}
@@ -560,22 +571,14 @@ namespace table {
 		if (m_config.m_sync_group == 0)
 			return;	// do not sync groups with zero
 
-		if (isModelProxy())
-		{
-			QModelIndex const curr = m_proxy_model->mapToSource(row_index);
-			unsigned long long const time = m_src_model->row_ctime(curr.row());
+		// @TODO dedup
+		QModelIndex const curr_idx = currentIndex();
+		QModelIndex mod_idx = currentSourceIndex();
 
-			qDebug("table: dblClick (pxy) curr=(%i, %i)  time=%llu", curr.row(), curr.column(), time);
-      //@TODO: old call!!
-			//m_connection->requestTableSynchronization(m_config.m_sync_group, time);
-		}
-		else
-		{
-			QModelIndex const curr = row_index;
-			unsigned long long const time = m_src_model->row_ctime(curr.row());
-			qDebug("table: dblClick curr=(%i, %i)  time=%llu", curr.row(), curr.column(), time);
-			//m_connection->requestTableSynchronization(m_config.m_sync_group, time);
-		}
+		unsigned long long const t = m_src_model->row_stime(mod_idx.row());
+
+		emit requestSynchronization(e_SyncServerTime, m_config.m_sync_group, t, this);
+		scrollTo(curr_idx, QAbstractItemView::PositionAtCenter);
 	}
 
   //@TODO: old code, look in LogWidget::findNearestRow4Time

@@ -17,6 +17,7 @@
 #include <ui_controlbarlog.h>
 #include "mainwindow.h"
 #include "colorizewidget.h"
+#include "set_with_blocked_signals.h"
 
 namespace logs {
 
@@ -97,11 +98,12 @@ namespace logs {
 		connect(m_config_ui.ui()->saveButton, SIGNAL(clicked()), this, SLOT(onSaveButton()));
 		connect(m_config_ui.ui()->autoScrollCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onCtxMenuAutoScrollStateChanged(int)));
 		connect(m_config_ui.ui()->timeComboBox, SIGNAL(activated(int)), this, SLOT(onChangeTimeUnits(int)));
-		connect(m_config_ui.ui()->autoScrollCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onCtxMenuShowScopesChanged(int)));
+		connect(m_config_ui.ui()->scopesCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onCtxMenuShowScopesChanged(int)));
 		connect(m_config_ui.ui()->indentSpinBox, SIGNAL(valueChanged(int)), this, SLOT(onCtxMenuIndentChanged(int)));
 		connect(m_config_ui.ui()->cutPathSpinBox, SIGNAL(valueChanged(int)), this, SLOT(onCtxMenuCutPathChanged(int)));
 		connect(m_config_ui.ui()->cutNamespaceSpinBox, SIGNAL(valueChanged(int)), this, SLOT(onCtxMenuCutNamespaceChanged(int)));
 		connect(m_config_ui.ui()->tableRowSizeSpinBox, SIGNAL(valueChanged(int)), this, SLOT(onCtxMenuTableRowSizeChanged(int)));
+		connect(m_config_ui.ui()->syncGroupSpinBox, SIGNAL(valueChanged(int)), this, SLOT(onCtxMenuSyncGroupChanged(int)));
 		//connect(ui->inViewCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onInViewStateChanged(int)));
 		//connect(m_config_ui.ui()->filterFileCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onFilterFile(int)));
 		connect(m_tableview, SIGNAL(clicked(QModelIndex const &)), this, SLOT(onTableClicked(QModelIndex const &)));
@@ -662,29 +664,6 @@ namespace logs {
 		return 32;
 	}
 
-	inline void setCheckedWithBlockedSignals (QCheckBox * w, bool val)
-	{
-		bool const old = w->blockSignals(true);
-		w->setChecked(val);
-		w->blockSignals(old);
-	}
-	template<typename T>
-	inline void setValueWithBlockedSignals (QSpinBox * w, T const & val)
-	{
-		bool const old = w->blockSignals(true);
-		w->setValue(val);
-		w->blockSignals(old);
-	}
-	template<class C, typename T>
-	inline void setCurrentIndexWithBlockedSignals (C * w, T const & index)
-	{
-		bool const old = w->blockSignals(true);
-		w->setCurrentIndex(index);
-		w->blockSignals(old);
-	}
-
-
-
 	void LogWidget::setConfigValuesToUI (LogConfig const & cfg)
 	{
 		//qDebug("%s this=0x%08x", __FUNCTION__, this);
@@ -699,6 +678,7 @@ namespace logs {
 		setValueWithBlockedSignals(ui->cutPathSpinBox, m_config.m_cut_path_level);
 		setValueWithBlockedSignals(ui->indentSpinBox, m_config.m_indent_level);
 		setValueWithBlockedSignals(ui->tableRowSizeSpinBox, m_config.m_row_width);
+		setValueWithBlockedSignals(ui->syncGroupSpinBox, m_config.m_sync_group);
 		setCurrentIndexWithBlockedSignals(ui->groupingWidget, m_config.m_curr_tooltab);
 		// TODO: block signals
 		//bool const old = m_table_view_widget->blockSignals(true);
@@ -1396,6 +1376,11 @@ void LogWidget::onCtxMenuTableRowSizeChanged (int value)
 {
 	m_config.m_row_width = value;
 }
+void LogWidget::onCtxMenuSyncGroupChanged (int value)
+{
+	m_config.m_sync_group = value;
+}
+
 
 
 }
