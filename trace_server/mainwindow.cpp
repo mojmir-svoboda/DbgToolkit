@@ -502,6 +502,10 @@ void MainWindow::setupMenuBar ()
 	viewMenu->addAction(tr("Save preset &as..."), this, SLOT(onSaveAs()), QKeySequence(Qt::ControlModifier + Qt::ShiftModifier + Qt::Key_S));
 	viewMenu->addSeparator();
 
+	// View
+	QMenu * actionMenu = menuBar()->addMenu(tr("&Actions"));
+	actionMenu->addAction(tr("&Clear All Data"), this, SLOT(onClearAllData()), QKeySequence(Qt::ControlModifier + Qt::ShiftModifier + Qt::Key_Delete));
+
 	// widget's tool dockable widgets.
 	m_windows_menu = menuBar()->addMenu(tr("&Windows"));
 
