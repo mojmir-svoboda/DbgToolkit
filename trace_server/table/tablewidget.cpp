@@ -54,6 +54,7 @@ namespace table {
 		connect(m_config_ui.ui()->columnView, SIGNAL(clicked(QModelIndex)), this, SLOT(onClickedAtColumnSetup(QModelIndex)));
 		connect(m_config_ui.ui()->autoScrollCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onCtxMenuAutoScrollStateChanged(int)));
 		connect(m_config_ui.ui()->sparseCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onCtxMenuSparseStateChanged(int)));
+		connect(m_config_ui.ui()->filteringEnabledCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onCtxMenuFilteringStateChanged(int)));
 		connect(m_config_ui.ui()->syncGroupSpinBox, SIGNAL(valueChanged(int)), this, SLOT(onCtxMenuSyncGroupChanged(int)));
 
 		//model->addObserver(ui_settings->listViewColumnSizes->model());
@@ -62,7 +63,7 @@ namespace table {
 		setContextMenuPolicy(Qt::CustomContextMenu);
 		connect(this, SIGNAL(customContextMenuRequested(QPoint const &)), this, SLOT(onShowContextMenu(QPoint const &)));
 		connect(this, SIGNAL(doubleClicked(QModelIndex const &)), this, SLOT(onTableDoubleClicked(QModelIndex const &)));
-		connect(m_config_ui.ui()->sparseCheckBox, SIGNAL(stateChanged(int)), this, SLOT(filteringStateChanged(int)));
+		connect(m_config_ui.ui()->sparseCheckBox, SIGNAL(stateChanged(int)), this, SLOT(sparseStateChanged(int)));
 
 		//setHorizontalHeader(new EditableHeaderView(Qt::Horizontal, this));
 
@@ -76,7 +77,7 @@ namespace table {
 		//horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
 
 		verticalHeader()->setDefaultSectionSize(16);
-		horizontalHeader()->setDefaultSectionSize(32);
+		horizontalHeader()->setDefaultSectionSize(64);
 		horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
 		verticalHeader()->setSectionResizeMode(QHeaderView::Interactive);
 
@@ -88,8 +89,9 @@ namespace table {
 
 		verticalHeader()->hide();	// @NOTE: users want that //@NOTE2: they can't have it because of performance
 
-		setConfigValuesToUI(m_config);
-		onApplyButton();
+		//setConfigValuesToUI(m_config);
+		//onApplyButton();
+		applyConfig(m_config);
 		setUpdatesEnabled(true);
 		horizontalHeader()->setSectionsMovable(true);
 		setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
@@ -236,7 +238,7 @@ namespace table {
 			//qDebug("apply ui->cfg [%i]: %s sz=%d", i, ch->text(), cfg.m_hsize[i]);
 		}
 
-		if (cfg.m_hide_empty)
+		if (cfg.m_filtering_enabled)
 		{
 			static_cast<SparseProxyModel *>(m_proxy_model)->force_update();
 			m_src_model->setProxy(m_proxy_model);
@@ -320,30 +322,46 @@ namespace table {
 		//connect(ui->defaultButton, SIGNAL(clicked()), this, SLOT(onDefaultButton()));
 	}
 
-	void TableWidget::filteringStateChanged (int state)
+	void TableWidget::setUIValuesToConfig (TableConfig & cfg)
 	{
-		if (m_config.m_hide_empty ^ state)
-		{
-			setUIValuesToConfig(m_config);
-			m_config.m_hide_empty = state;
-			applyConfig(m_config);
-			setConfigValuesToUI(m_config);
-		}
+		qDebug("%s this=0x%08x", __FUNCTION__, this);
+		Ui::SettingsTable * ui = m_config_ui.ui();
+		m_config.m_sparse_table = ui->sparseCheckBox->checkState() == Qt::Checked;
+		m_config.m_filtering_enabled = ui->filteringEnabledCheckBox->checkState() == Qt::Checked;
+		m_config.m_auto_scroll = ui->autoScrollCheckBox->checkState() == Qt::Checked;
+		m_config.m_sync_group = ui->syncGroupSpinBox->value();
 	}
 
-  void TableWidget::onCtxMenuAutoScrollStateChanged(int state)
+	void TableWidget::onApplyButton ()
+	{
+		setUIValuesToConfig(m_config);
+		applyConfig(m_config);
+	}
+
+  void TableWidget::onCtxMenuFilteringStateChanged(int state)
+	{
+		if (m_config.m_sparse_table ^ state)
+		{
+			//setUIValuesToConfig(m_config);
+			m_config.m_filtering_enabled = state;
+			applyConfig(m_config);
+			//setConfigValuesToUI(m_config);
+		}
+	}
+  void TableWidget::onCtxMenuAutoScrollStateChanged (int state)
   {
-    if (state == Qt::Checked)
-      m_config.m_auto_scroll = true;
-    else
-      m_config.m_auto_scroll = false;
+		m_config.m_auto_scroll = state == Qt::Checked;
+		// scroll to bottom?
   }
   void TableWidget::onCtxMenuSparseStateChanged(int state)
   {
-    if (state == Qt::Checked)
-      m_config.m_hide_empty = true;
-    else
-      m_config.m_hide_empty = false;
+		if (m_config.m_sparse_table ^ state)
+		{
+			//setUIValuesToConfig(m_config);
+			m_config.m_sparse_table = state;
+			applyConfig(m_config);
+			//setConfigValuesToUI(m_config);
+		}
   }
   void TableWidget::onCtxMenuSyncGroupChanged (int value)
   {
@@ -357,7 +375,8 @@ namespace table {
 		
 		setCheckedWithBlockedSignals(ui->tableShowCheckBox, cfg.m_show);
 		setCheckedWithBlockedSignals(ui->autoScrollCheckBox, cfg.m_auto_scroll);
-		setCheckedWithBlockedSignals(ui->sparseCheckBox, cfg.m_hide_empty);
+		setCheckedWithBlockedSignals(ui->sparseCheckBox, cfg.m_sparse_table);
+		setCheckedWithBlockedSignals(ui->filteringEnabledCheckBox, cfg.m_filtering_enabled);
 		setValueWithBlockedSignals(ui->syncGroupSpinBox, cfg.m_sync_group);
 
 		clearListView(ui->columnView);
@@ -385,7 +404,7 @@ namespace table {
 				}
 				else
 				{
-					if (cfg.m_hsize[i] == 0)
+					if (cfg.m_hsize.size() > 0 && cfg.m_hsize[i] == 0)
 					{
 						qDebug("cfg->ui pxy col=%i     in pxy, but 0 size", i);
 						state = Qt::Unchecked;
@@ -410,21 +429,6 @@ namespace table {
 		QStandardItem * const item = static_cast<QStandardItemModel *>(m_config_ui.ui()->columnView->model())->itemFromIndex(idx);
 		Qt::CheckState const curr = item->checkState();
 		item->setCheckState(curr == Qt::Checked ? Qt::Unchecked : Qt::Checked);
-	}
-
-	void TableWidget::setUIValuesToConfig (TableConfig & cfg)
-	{
-		qDebug("%s this=0x%08x", __FUNCTION__, this);
-		Ui::SettingsTable * ui = m_config_ui.ui();
-		m_config.m_hide_empty = ui->sparseCheckBox->checkState() == Qt::Checked;
-		m_config.m_auto_scroll = ui->autoScrollCheckBox->checkState() == Qt::Checked;
-		m_config.m_sync_group = ui->syncGroupSpinBox->value();
-	}
-
-	void TableWidget::onApplyButton ()
-	{
-		setUIValuesToConfig(m_config);
-		applyConfig(m_config);
 	}
 
 	void TableWidget::onSaveButton ()
@@ -739,8 +743,8 @@ namespace table {
 		QString const logpath = getCurrentWidgetPath();
 		m_config.m_find_config.clear();
 		loadConfigTemplate(m_config.m_find_config, logpath + "/" + g_findTag);
-		//m_config.m_colorize_config.clear();
-		//loadConfigTemplate(m_config.m_colorize_config, logpath + "/" + g_colorizeTag);
+		m_config.m_colorize_config.clear();
+		loadConfigTemplate(m_config.m_colorize_config, logpath + "/" + g_colorizeTag);
 		filterMgr()->loadConfig(logpath);
 		colorizerMgr()->loadConfig(logpath);
 	}
@@ -749,7 +753,7 @@ namespace table {
 	{
 		QString const logpath = getCurrentWidgetPath();
 		saveConfigTemplate(m_config.m_find_config, logpath + "/" + g_findTag);
-		//saveConfigTemplate(m_config.m_colorize_config, logpath + "/" + g_colorizeTag);
+		saveConfigTemplate(m_config.m_colorize_config, logpath + "/" + g_colorizeTag);
 		filterMgr()->saveConfig(logpath);
 		colorizerMgr()->saveConfig(logpath);
 	}
@@ -758,11 +762,11 @@ namespace table {
 		QString const logpath = getCurrentWidgetPath();
 		saveConfigTemplate(m_config.m_find_config, logpath + "/" + g_findTag);
 	}
-	/*void TableWidget::saveColorizeConfig()
+	void TableWidget::saveColorizeConfig()
 	{
 		QString const logpath = getCurrentWidgetPath();
 		saveConfigTemplate(m_config.m_colorize_config, logpath + "/" + g_colorizeTag);
-	}*/
+	}
 
 	void TableWidget::loadConfig (QString const & preset_dir)
 	{
@@ -776,6 +780,12 @@ namespace table {
 			m_config = defaults;
 			//defaultConfigFor(m_config);
 			m_config.m_tag = tag_backup; // defaultConfigFor destroys tag
+			filterMgr()->m_filter_order.clear();
+			filterMgr()->m_filter_order.push_back(g_filterNames[e_Filter_String]);
+			filterMgr()->m_filter_order.push_back(g_filterNames[e_Filter_Ctx]);
+			filterMgr()->m_filter_order.push_back(g_filterNames[e_Filter_Lvl]);
+			filterMgr()->m_filter_order.push_back(g_filterNames[e_Filter_Row]);
+			//filterMgr()->m_filter_order.push_back(g_filterNames[e_Filter_Col]);
 		}
 		loadAuxConfigs();
 	}
@@ -858,7 +868,7 @@ namespace table {
 			bool const ctrl_ins = (e->modifiers() & Qt::ControlModifier) == Qt::ControlModifier && e->key() == Qt::Key_Insert;
 			if (e->matches(QKeySequence::Copy) || ctrl_ins)
 			{
-				//m_log_widget.onCopyToClipboard();
+				//onCopyToClipboard();
 				e->accept();
 				return;
 			}
@@ -870,19 +880,19 @@ namespace table {
 			bool const h = e->key() == Qt::Key_H;
 			if (!ctrl && !shift && !alt && x)
 			{
-				//m_log_widget.onExcludeFileLine();
+				//onExcludeFileLine();
 			}
 
 			/*if (e->key() == Qt::Key_Escape)
 			{
-				if (m_log_widget.m_find_widget && m_log_widget.m_find_widget->isVisible())
+				if (m_find_widget && m_find_widget->isVisible())
 				{
-					m_log_widget.m_find_widget->onCancel();
+					m_find_widget->onCancel();
 					e->accept();
 				}
-				if (m_log_widget.m_colorize_widget && m_log_widget.m_colorize_widget->isVisible())
+				if (m_colorize_widget && m_colorize_widget->isVisible())
 				{
-					m_log_widget.m_colorize_widget->onCancel();
+					m_colorize_widget->onCancel();
 					e->accept();
 				}
 			}*/
@@ -911,58 +921,58 @@ namespace table {
 
 			/*if (ctrl && e->key() == Qt::Key_D)
 			{
-				m_log_widget.onColorize();
+				onColorize();
 				e->accept();
 			}*/
-			/*if (!ctrl && !shift && !alt && e->key() == Qt::Key_Slash)
+			if (!ctrl && !shift && !alt && e->key() == Qt::Key_Slash)
 			{
-				m_log_widget.onFind();
+				onFind();
 				e->accept();
 			}
-			if (ctrl && shift && e->key() == Qt::Key_F)
+			/*if (ctrl && shift && e->key() == Qt::Key_F)
 			{
-				m_log_widget.onFindAllRefs();
+				onFindAllRefs();
 				e->accept();
 			}*/
 
 
-			/*if (e->matches(QKeySequence::FindNext))
+			if (e->matches(QKeySequence::FindNext))
 			{
-				m_log_widget.onFindNext();
+				onFindNext();
 				e->accept();
 			}
 			if (e->matches(QKeySequence::FindPrevious))
 			{
-				m_log_widget.onFindPrev();
+				onFindPrev();
 				e->accept();
 			}
 			// findwidget Tab navigation
-			if (e->key() == Qt::Key_Tab && m_log_widget.m_find_widget && m_log_widget.m_find_widget->isVisible())
+			if (e->key() == Qt::Key_Tab && m_find_widget && m_find_widget->isVisible())
 			{
-				m_log_widget.m_find_widget->focusNext();
+				m_find_widget->focusNext();
 				e->ignore();
 				return;
 			}
-			if (e->key() == Qt::Key_Backtab && m_log_widget.m_find_widget && m_log_widget.m_find_widget->isVisible())
+			if (e->key() == Qt::Key_Backtab && m_find_widget && m_find_widget->isVisible())
 			{
-				m_log_widget.m_find_widget->focusPrev();
+				m_find_widget->focusPrev();
 				e->ignore();
 				return;
 			}
 			// colorizewidget Tab navigation
-			if (e->key() == Qt::Key_Tab && m_log_widget.m_colorize_widget && m_log_widget.m_colorize_widget->isVisible())
+			if (e->key() == Qt::Key_Tab && m_colorize_widget && m_colorize_widget->isVisible())
 			{
-				m_log_widget.m_colorize_widget->focusNext();
+				m_colorize_widget->focusNext();
 				e->ignore();
 				return;
 			}
-			if (e->key() == Qt::Key_Backtab && m_log_widget.m_colorize_widget && m_log_widget.m_colorize_widget->isVisible())
+			if (e->key() == Qt::Key_Backtab && m_colorize_widget && m_colorize_widget->isVisible())
 			{
-				m_log_widget.m_colorize_widget->focusPrev();
+				m_colorize_widget->focusPrev();
 				e->ignore();
 				return;
 			}
-*/
+
 		}
 		QTableView::keyPressEvent(e);
 	}

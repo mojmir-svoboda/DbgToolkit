@@ -54,16 +54,7 @@ void FilterMgr::rmFilter (FilterBase * & b)
 	FilterMgrBase::rmFilter(b);
 	m_cache[t] = 0;
 }
-void FilterMgr::defaultConfig ()
-{
-	m_filter_order.clear();
-	// @TODO clear others? probably no
-	m_filter_order.push_back(g_filterNames[e_Filter_String]);
-	m_filter_order.push_back(g_filterNames[e_Filter_Ctx]);
-	m_filter_order.push_back(g_filterNames[e_Filter_Lvl]);
-	m_filter_order.push_back(g_filterNames[e_Filter_FileLine]);
-	m_filter_order.push_back(g_filterNames[e_Filter_Row]);
-}
+void FilterMgr::defaultConfig () { }
 
 void FilterMgr::fillComboBoxWithFilters (QComboBox * cbx)
 {

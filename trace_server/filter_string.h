@@ -70,6 +70,7 @@ struct FilterString : FilterBase
 	void locateItem (QString const & item, bool scrollto, bool expand);
 	QTreeView * getWidget () { return m_ui->view; }
 	QTreeView const * getWidget () const { return m_ui->view; }
+	void setConfigToUI ();
 
 	QList<FilteredString>	m_data;
 	QStandardItemModel *	m_model;

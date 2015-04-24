@@ -21,16 +21,7 @@
   </property>
   <widget class="QWidget" name="dockWidgetContents">
    <layout class="QGridLayout" name="gridLayout_2">
-    <property name="leftMargin">
-     <number>0</number>
-    </property>
-    <property name="topMargin">
-     <number>0</number>
-    </property>
-    <property name="rightMargin">
-     <number>0</number>
-    </property>
-    <property name="bottomMargin">
+    <property name="margin">
      <number>0</number>
     </property>
     <property name="spacing">
@@ -41,16 +32,7 @@
       <property name="spacing">
        <number>0</number>
       </property>
-      <property name="leftMargin">
-       <number>0</number>
-      </property>
-      <property name="topMargin">
-       <number>0</number>
-      </property>
-      <property name="rightMargin">
-       <number>0</number>
-      </property>
-      <property name="bottomMargin">
+      <property name="margin">
        <number>0</number>
       </property>
       <item>
@@ -76,16 +58,7 @@
           <string>Filter</string>
          </attribute>
          <layout class="QGridLayout" name="gridLayout_4">
-          <property name="leftMargin">
-           <number>0</number>
-          </property>
-          <property name="topMargin">
-           <number>0</number>
-          </property>
-          <property name="rightMargin">
-           <number>0</number>
-          </property>
-          <property name="bottomMargin">
+          <property name="margin">
            <number>0</number>
           </property>
           <property name="spacing">
@@ -108,16 +81,7 @@
           <property name="spacing">
            <number>0</number>
           </property>
-          <property name="leftMargin">
-           <number>0</number>
-          </property>
-          <property name="topMargin">
-           <number>0</number>
-          </property>
-          <property name="rightMargin">
-           <number>0</number>
-          </property>
-          <property name="bottomMargin">
+          <property name="margin">
            <number>0</number>
           </property>
           <item>
@@ -134,16 +98,7 @@
           <string>Tools</string>
          </attribute>
          <layout class="QGridLayout" name="gridLayout_3">
-          <property name="leftMargin">
-           <number>0</number>
-          </property>
-          <property name="topMargin">
-           <number>0</number>
-          </property>
-          <property name="rightMargin">
-           <number>0</number>
-          </property>
-          <property name="bottomMargin">
+          <property name="margin">
            <number>0</number>
           </property>
           <property name="spacing">
@@ -277,15 +232,15 @@
           <string>View</string>
          </attribute>
          <layout class="QGridLayout" name="gridLayout_7">
-          <item row="0" column="1">
-           <spacer name="horizontalSpacer_3">
+          <item row="1" column="0">
+           <spacer name="verticalSpacer">
             <property name="orientation">
-             <enum>Qt::Horizontal</enum>
+             <enum>Qt::Vertical</enum>
             </property>
             <property name="sizeHint" stdset="0">
              <size>
-              <width>40</width>
-              <height>20</height>
+              <width>20</width>
+              <height>40</height>
              </size>
             </property>
            </spacer>
@@ -295,7 +250,19 @@
             <property name="spacing">
              <number>9</number>
             </property>
-            <item row="1" column="0">
+            <item row="4" column="1">
+             <widget class="QSpinBox" name="syncGroupSpinBox">
+              <property name="toolTip">
+               <string>Identifier of the synchronization group.
+All tables with the same number will have inputs synchronized.
+0 means no synchronization with other tables.</string>
+              </property>
+              <property name="prefix">
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="0">
              <widget class="QLabel" name="label_3">
               <property name="font">
                <font>
@@ -308,7 +275,7 @@
               </property>
              </widget>
             </item>
-            <item row="2" column="0">
+            <item row="4" column="0">
              <widget class="QLabel" name="label">
               <property name="font">
                <font>
@@ -321,7 +288,7 @@
               </property>
              </widget>
             </item>
-            <item row="0" column="0">
+            <item row="2" column="0">
              <widget class="QLabel" name="label_2">
               <property name="font">
                <font>
@@ -334,7 +301,7 @@
               </property>
              </widget>
             </item>
-            <item row="0" column="1">
+            <item row="2" column="1">
              <widget class="QCheckBox" name="sparseCheckBox">
               <property name="toolTip">
                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enables proxy mode that performs auto-hiding of empty columns/rows&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -344,36 +311,38 @@
               </property>
              </widget>
             </item>
-            <item row="1" column="1">
+            <item row="3" column="1">
              <widget class="QCheckBox" name="autoScrollCheckBox">
               <property name="text">
                <string/>
               </property>
              </widget>
             </item>
-            <item row="2" column="1">
-             <widget class="QSpinBox" name="syncGroupSpinBox">
-              <property name="toolTip">
-               <string>Identifier of the synchronization group.
-All tables with the same number will have inputs synchronized.
-0 means no synchronization with other tables.</string>
+            <item row="0" column="0">
+             <widget class="QLabel" name="label_4">
+              <property name="text">
+               <string>Filter enabled</string>
               </property>
-              <property name="prefix">
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QCheckBox" name="filteringEnabledCheckBox">
+              <property name="text">
                <string/>
               </property>
              </widget>
             </item>
            </layout>
           </item>
-          <item row="1" column="0">
-           <spacer name="verticalSpacer">
+          <item row="0" column="1">
+           <spacer name="horizontalSpacer_3">
             <property name="orientation">
-             <enum>Qt::Vertical</enum>
+             <enum>Qt::Horizontal</enum>
             </property>
             <property name="sizeHint" stdset="0">
              <size>
-              <width>20</width>
-              <height>40</height>
+              <width>40</width>
+              <height>20</height>
              </size>
             </property>
            </spacer>

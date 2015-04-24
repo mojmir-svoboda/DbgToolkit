@@ -775,6 +775,13 @@ namespace logs {
 		{
 			defaultConfigFor(m_config);
 			m_config.m_tag = tag_backup; // defaultConfigFor destroys tag
+
+			filterMgr()->m_filter_order.clear();
+			filterMgr()->m_filter_order.push_back(g_filterNames[e_Filter_String]);
+			filterMgr()->m_filter_order.push_back(g_filterNames[e_Filter_Ctx]);
+			filterMgr()->m_filter_order.push_back(g_filterNames[e_Filter_Lvl]);
+			filterMgr()->m_filter_order.push_back(g_filterNames[e_Filter_FileLine]);
+			filterMgr()->m_filter_order.push_back(g_filterNames[e_Filter_Row]);
 		}
 
 		loadAuxConfigs();

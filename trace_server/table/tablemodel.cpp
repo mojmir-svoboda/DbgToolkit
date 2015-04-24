@@ -41,6 +41,7 @@ bool TableModel::handleTableXYCommand (DecodedCommand const & cmd, E_ReceiveMode
 	QString bgc;
 	cmd.getString(tlv::tag_bgc, bgc);
 
+	m_dcmds.push_back(cmd);
 	parseTableXY(x, y, ctime, fgc, bgc, tag, m_batch);
 	return true;
 }

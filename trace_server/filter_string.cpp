@@ -105,6 +105,7 @@ void FilterString::saveConfig (QString const & path)
 void FilterString::applyConfig ()
 {
 	FilterBase::applyConfig();
+	setConfigToUI();
 }
 
 void FilterString::clear ()
@@ -274,6 +275,23 @@ void FilterString::onStringRm ()
 	recompile();
 	emitFilterChangedSignal();
 }
+
+void FilterString::setConfigToUI()
+{
+	for (size_t i = 0, ie = m_data.size(); i < ie; ++i)
+	{
+		QStandardItem * root = m_model->invisibleRootItem();
+		QStandardItem * child = findChildByText(root, m_data[i].m_string);
+		if (child == 0)
+		{
+			//FilteredContext & fc = m_data[i];
+			QList<QStandardItem *> row_items = addTriRow(m_data[i].m_string, Qt::Checked, true);
+			row_items[0]->setCheckState(m_data[i].m_is_enabled ? Qt::Checked : Qt::Unchecked);
+			root->appendRow(row_items);
+		}
+	}
+}
+
 
 void FilterString::onStringAdd ()
 {

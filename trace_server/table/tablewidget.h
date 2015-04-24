@@ -12,6 +12,7 @@
 #include <syncwidgets.h>
 #include <cmd.h>
 #include <findwidget.h>
+#include <colorizewidget.h>
 #include <tableview.h>
 #include <warnimage.h>
 
@@ -54,6 +55,7 @@ namespace table {
 		void loadAuxConfigs ();
 		void saveAuxConfigs ();
 		void saveFindConfig ();
+		void saveColorizeConfig ();
 		void loadConfig (QString const & path);
 		void saveConfig (QString const & path);
 		void applyConfig ();
@@ -84,7 +86,6 @@ namespace table {
 		void onShowContextMenu (QPoint const & pos);
 		void setConfigValuesToUI (TableConfig const & cfg);
 		void setUIValuesToConfig (TableConfig & cfg);
-		void filteringStateChanged (int);
 		void onSaveButton ();
 		void onApplyButton ();
 		void onResetButton ();
@@ -96,6 +97,7 @@ namespace table {
 		void onCtxMenuAutoScrollStateChanged (int state);
 		void onCtxMenuSparseStateChanged (int state);
 		void onCtxMenuSyncGroupChanged (int value);
+		void onCtxMenuFilteringStateChanged (int state);
 		void onClearAllData ();
 		void performSynchronization (E_SyncMode mode, int sync_group, unsigned long long time, void * source);
 		void handleFindAction (FindConfig const & fc);
@@ -114,7 +116,7 @@ namespace table {
 		QString m_fname;
 		FindWidget * m_find_widget;
 		WarnImage * m_warnimage;
-		//ColorizeWidget * m_colorize_widget;
+		ColorizeWidget * m_colorize_widget;
 		TableModel * m_src_model;
 		BaseProxyModel * m_proxy_model;
 		Connection * m_connection;

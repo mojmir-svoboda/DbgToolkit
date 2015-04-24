@@ -7,7 +7,7 @@
 #include "movablelistmodel.h"
 #include "movabletabwidget.h"
 
-struct FilterMgrBase : FilterBase 
+struct FilterMgrBase : FilterBase
 {
 	QStringList 				m_filter_order;
 	typedef QList<FilterBase *> filters_t;
@@ -62,10 +62,10 @@ public slots:
 	void onCtxCommitButton ();
 	void onTabMoved (int from, int to);
 signals:
-    void refillFilters ();
+	void refillFilters ();
 
 public:
-    MovableTabWidget *		m_tabFilters;
+	MovableTabWidget *		m_tabFilters;
 	ComboList *				m_tabCtxMenu;
 	QStyledItemDelegate *	m_delegate;
 	MyListModel *			m_tabCtxModel;
