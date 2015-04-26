@@ -482,8 +482,20 @@ namespace table {
 			m_queue.push_back(cmd);
 	}
 
+	bool TableWidget::appendToColorizers (DecodedCommand const & cmd)
+	{
+		return colorizerMgr()->action(cmd);
+	}
+
 	void TableWidget::commitCommands (E_ReceiveMode mode)
 	{
+		size_t const rows = m_queue.size();
+		for (size_t r = 0, re = rows; r < re; ++r)
+		{
+			DecodedCommand const & cmd = m_queue[r];
+			appendToColorizers(cmd);
+		}
+
 		for (int i = 0, ie = m_queue.size(); i < ie; ++i)
 		{
 			DecodedCommand & cmd = m_queue[i];

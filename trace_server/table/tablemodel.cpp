@@ -170,6 +170,8 @@ void TableModel::parseTableXY (int x, int y, QString const & time, QString const
 		}
 	}
 
+	m_dcmds.back().m_src_row = y;
+
 	if (m_column_count < x + n_cols)
 	{
 		new_cols = true;

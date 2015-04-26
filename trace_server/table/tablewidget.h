@@ -79,6 +79,7 @@ namespace table {
     virtual void showWarningSign ();
 
 		bool appendToFilters (DecodedCommand const & cmd);
+		bool appendToColorizers (DecodedCommand const & cmd);
 		void appendToFileLineFilters (QString const & item);
 		void appendToTIDFilters (QString const & item);
 		void appendToLvlFilters (QString const & item);
