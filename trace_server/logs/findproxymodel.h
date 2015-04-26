@@ -25,6 +25,8 @@
 #include <QRegExp>
 #include "filterproxymodel.h"
 
+struct FindConfig;
+
 class FindProxyModel : public FilterProxyModel
 {
 	Q_OBJECT

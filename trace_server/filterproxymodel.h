@@ -24,7 +24,7 @@
 #include <QAbstractProxyModel>
 #include <QRegExp>
 #include <table/baseproxymodel.h>
-#include "logtablemodel.h"
+#include "basetablemodel.h"
 
 namespace logs { class LogTableView; struct LogConfig; }
 struct FilterMgr;

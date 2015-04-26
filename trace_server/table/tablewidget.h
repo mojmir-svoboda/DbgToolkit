@@ -78,6 +78,16 @@ namespace table {
 
     virtual void showWarningSign ();
 
+		bool appendToFilters (DecodedCommand const & cmd);
+		void appendToFileLineFilters (QString const & item);
+		void appendToTIDFilters (QString const & item);
+		void appendToLvlFilters (QString const & item);
+		void appendToCtxFilters (QString const & item, bool checked);
+		void appendToRegexFilters (QString const & str, bool checked, bool inclusive);
+		void removeFromRegexFilters (QString const & val);
+		void appendToStringFilters (QString const & str, bool checked, int state);
+		void removeFromStringFilters (QString const & val);
+
 	public Q_SLOTS:
 
 		void onShow ();
@@ -101,10 +111,11 @@ namespace table {
 		void onClearAllData ();
 		void performSynchronization (E_SyncMode mode, int sync_group, unsigned long long time, void * source);
 		void handleFindAction (FindConfig const & fc);
-		void onFind();
-		void onFindNext();
-		void onFindPrev();
-		void onFindAllRefs();
+		void onFind ();
+		void onFindNext ();
+		void onFindPrev ();
+		void onFindAllRefs ();
+		void onFilterChanged ();
 
 	signals:
 		void requestSynchronization (E_SyncMode mode, int sync_group, unsigned long long time, void * source);

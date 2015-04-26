@@ -6,7 +6,7 @@
 #include <tlv_parser/tlv_encoder.h>
 #include <trace_client/trace.h>
 #include <connection.h>
-#include "logtablemodel.h"
+#include "basetablemodel.h"
 
 FilterProxyModel::FilterProxyModel (QObject * parent, FilterMgr const * f, BaseTableModel * m)
 	: BaseProxyModel(parent)

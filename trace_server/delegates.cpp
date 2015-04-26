@@ -2,7 +2,7 @@
 #include <QObject>
 #include <QPainter>
 #include "connection.h"
-#include <logs/filterproxymodel.h>
+#include <filterproxymodel.h>
 
 
 void SyncedTableItemDelegate::paintHilited (QPainter * painter, QStyleOptionViewItemV4 & option, QModelIndex const & index) const

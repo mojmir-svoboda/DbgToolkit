@@ -1,7 +1,7 @@
 #include "logdelegate.h"
 #include <QObject>
 #include <QPainter>
-#include <logs/filterproxymodel.h>
+#include <filterproxymodel.h>
 
 namespace logs {
 

@@ -9,7 +9,7 @@
 #include <utils_qstandarditem.h>
 #include <movablelistmodel.h>
 #include <delegates.h>
-#include "../logs/filterproxymodel.h"
+#include <filterproxymodel.h>
 #include <find_utils_table.h>
 #include "set_with_blocked_signals.h"
 
@@ -174,6 +174,11 @@ namespace table {
 				return false;
 		}
 		return false;
+	}
+
+	void TableWidget::onFilterChanged ()
+	{
+		onInvalidateFilter();
 	}
 
 	void TableWidget::setVisible (bool visible)
@@ -438,11 +443,6 @@ namespace table {
 		for (int i = 0, ie = m_src_model->columnCount(); i < ie; ++i)
 			m_config.m_hsize[i] = horizontalHeader()->sectionSize(i);*/
 
-
-
-
-
-
 		//saveConfigForTable(m_config, m_config.m_tag);
 
 	}
@@ -491,7 +491,7 @@ namespace table {
 			if (0 == m_src_model->rowCount())
 				setCurrentIndex(m_src_model->index(0, 0, QModelIndex()));
 			// warning: qmodelindex in source does not exist yet here... 
-			//appendToFilters(cmd); // this does not bother filters
+			appendToFilters(cmd); // this does not bother filters
 			//appendToColorizers(cmd); // but colorizer needs qmodelindex
 		}
 		if (m_queue.size())

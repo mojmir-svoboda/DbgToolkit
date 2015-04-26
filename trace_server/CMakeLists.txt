@@ -117,6 +117,7 @@ set(trace_server_SOURCES
 	basetablemodel.cpp
 	setupdialogcsv.cpp
 
+	filterproxymodel.cpp
 	filterbase.cpp
 	filtermgrbase.cpp
 	filtermgr.cpp
@@ -159,7 +160,6 @@ set(trace_server_SOURCES
 	connection_log.cpp
 	logs/logtablemodel.cpp
 	logs/logtableview.cpp
-	logs/filterproxymodel.cpp
 	logs/findproxymodel.cpp
 	logs/logselectionproxymodel.cpp
 	logs/logwidget.cpp
@@ -186,6 +186,7 @@ set(trace_server_SOURCES
 	table/tableconfig.cpp
 	table/tablemodel.cpp
 	table/tablewidget.cpp
+	table/tablewidget_filtering.cpp
 
 	connection_gantt.cpp
 	connection_frame.cpp
@@ -246,6 +247,7 @@ set(trace_server_HEADERS
 	colorizewidget.h
 	findconfig.h
 
+	filterproxymodel.h
 	filterbase.h
 	filtermgrbase.h
 	filtermgr.h
@@ -281,7 +283,6 @@ set(trace_server_HEADERS
 	logs/logwidget.h
 	logs/logconfig.h
 	logs/logctxmenu.h
-	logs/filterproxymodel.h
 	logs/findproxymodel.h
 	logs/logdelegate.h
 

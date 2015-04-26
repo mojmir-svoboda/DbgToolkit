@@ -23,7 +23,7 @@
 #include <vector>
 #include <3rd/assocvector.h>
 #include "baseproxymodel.h"
-#include "../logs/filterproxymodel.h"
+#include <filterproxymodel.h>
 
 class SparseProxyModel : public BaseProxyModel
 {
