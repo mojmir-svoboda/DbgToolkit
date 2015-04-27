@@ -46,6 +46,16 @@ Connection::Connection (QString const & app_name, QObject * parent)
 	m_config.m_time_units = getGlobalConfig().m_time_units;
 	m_config.m_font = getGlobalConfig().m_font;
 	m_config.m_fontsize = getGlobalConfig().m_fontsize;
+	m_config.m_logs_recv_level = getGlobalConfig().m_logs_recv_level;
+	m_config.m_plots_recv_level = getGlobalConfig().m_plots_recv_level;
+	m_config.m_tables_recv_level = getGlobalConfig().m_tables_recv_level;
+	m_config.m_gantts_recv_level = getGlobalConfig().m_gantts_recv_level;
+
+	QString	  m_trace_addr;
+	unsigned short m_trace_port;
+	QString	  m_profiler_addr;
+	unsigned short m_profiler_port;
+	QString	  m_appdir;
 
 	static int counter = 0;
 	m_storage_idx = counter;
@@ -295,7 +305,7 @@ void Connection::loadConfig (QString const & preset_name)
 	bool const loaded = loadConfigTemplate(m_config, fname);
 	if (!loaded)
 	{
-		m_config = ConnectionConfig();
+		//m_config = ConnectionConfig();
 		//m_config.m_tag = tag_backup; // defaultConfigFor destroys tag
 	}
 	setConfigValuesToUI(m_config);
