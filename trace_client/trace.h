@@ -89,6 +89,13 @@
  **/
 #	define TRACE_MSG(level, context, fmt, ... )	\
 		trace::Write(static_cast<trace::level_t>(level), context, __FILE__, __LINE__, __FUNCTION__, fmt, __VA_ARGS__)
+/**	@macro		TRACE_MSG_IF
+ *	@brief		logging of the form TRACE_MSG_IF((foo == bar), lvl, ctx, fmt, ...)
+ **/
+#	define TRACE_MSG_IF(condition, level, context, fmt, ... )	\
+		if (condition)	\
+			trace::Write(static_cast<trace::level_t>(level), context, __FILE__, __LINE__, __FUNCTION__, fmt, __VA_ARGS__)
+
 /**	@macro		TRACE_MSG_VA
  *	@brief		logging of the form TRACE_MSG_VA(lvl, ctx, fmt, va_list)
  **/
@@ -101,10 +108,23 @@
  **/
 #	define TRACE_SCOPE_MSG(level, context, fmt, ...)	\
 		trace::ScopedLog TRACE_UNIQUE(entry_guard_)(static_cast<trace::level_t>(level), context, __FILE__, __LINE__, __FUNCTION__, fmt, __VA_ARGS__)
+
+/**	@macro		TRACE_SCOPE_MSG_IF
+ *	@brief		logs "entry to" and "exit from" scope if condition is true
+ *	@param[in]	fmt			formatted message appended to the scope
+ **/
+#	define TRACE_SCOPE_MSG_IF(condition, level, context, fmt, ...)	\
+		trace::ScopedLog TRACE_UNIQUE(entry_guard_)(condition, static_cast<trace::level_t>(level), context, __FILE__, __LINE__, __FUNCTION__, fmt, __VA_ARGS__)
+
 /**	@macro		TRACE_SCOPE
  *	@brief		logs "entry to" and "exit from" scope
  **/
 #	define TRACE_SCOPE(level, context)	TRACE_SCOPE_MSG(level, context, "%s", __FUNCTION__)
+
+/**	@macro		TRACE_SCOPE_IF
+ *	@brief		logs "entry to" and "exit from" scope
+ **/
+#	define TRACE_SCOPE_IF(condition, level, context)	TRACE_SCOPE_MSG(condition, level, context, "%s", __FUNCTION__)
 
 /**	@macro		TRACE_CODE
  *	@brief		code that is executed only when trace is enabled
@@ -312,8 +332,10 @@
 			int m_line;
 			char const * m_fn;
 			unsigned long long m_start;
+			bool m_enabled;
 
 			ScopedLog (level_t level, context_t context, char const * file, int line, char const * fn, char const * fmt, ...);
+			ScopedLog (bool enabled, level_t level, context_t context, char const * file, int line, char const * fn, char const * fmt, ...);
 			~ScopedLog ();
 		};
 

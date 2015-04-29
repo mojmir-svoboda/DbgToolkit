@@ -69,9 +69,9 @@
 			va_end(args);
 		}
 		ScopedLog::ScopedLog (level_t level, context_t context, char const * file, int line, char const * fn, char const * fmt, ...)
-			: m_level(level), m_context(context), m_file(file), m_line(line), m_fn(fn), m_start(sys::queryTime_us())
+			: m_level(level), m_context(context), m_file(file), m_line(line), m_fn(fn), m_start(sys::queryTime_us()), m_enabled(true)
 		{
-			if (RuntimeFilterPredicate(level, context))
+			if (m_enabled && RuntimeFilterPredicate(level, context))
 			{
 				va_list args;
 				va_start(args, fmt);
@@ -79,9 +79,21 @@
 				va_end(args);
 			}
 		}
+		ScopedLog::ScopedLog (bool enabled, level_t level, context_t context, char const * file, int line, char const * fn, char const * fmt, ...)
+			: m_level(level), m_context(context), m_file(file), m_line(line), m_fn(fn), m_start(sys::queryTime_us()), m_enabled(enabled)
+		{
+			if (m_enabled && RuntimeFilterPredicate(level, context))
+			{
+				va_list args;
+				va_start(args, fmt);
+				WriteScopeVA(e_Entry, level, context, file, line, fn, fmt, args);
+				va_end(args);
+			}
+		}
+
 		ScopedLog::~ScopedLog ()
 		{
-			if (RuntimeFilterPredicate(m_level, m_context))
+			if (m_enabled && RuntimeFilterPredicate(m_level, m_context))
 				WriteScope(e_Exit, m_level, m_context, m_file, m_line, m_fn, "dt=%llu", sys::queryTime_us() - m_start);
 		}
 
