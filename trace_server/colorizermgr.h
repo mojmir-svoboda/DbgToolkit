@@ -23,6 +23,7 @@ struct ColorizerMgr : FilterMgr
 	virtual void saveConfig (QString const & path);
 	virtual bool accept (DecodedCommand const & cmd) const;
 	virtual bool action (DecodedCommand const & cmd);
+	virtual bool action (QModelIndex const & idx);
 	virtual void clear ();
 	virtual FilterBase * filterFactory (E_FilterType t, QWidget * parent);
 

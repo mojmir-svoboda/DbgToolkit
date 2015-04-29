@@ -5,8 +5,9 @@
 #include <trace_client/trace.h>
 #include <sysfn/time_query.h>
 
-TableModel::TableModel (QObject * parent, std::vector<QString> & hhdr, std::vector<int> & hsize)
+TableModel::TableModel (QObject * parent, ColorizerMgr * m, std::vector<QString> & hhdr, std::vector<int> & hsize)
 	: BaseTableModel(parent, hhdr, hsize)
+	, m_colorizer(m)
 {
 	qDebug("%s this=0x%08x", __FUNCTION__, this);
 }
@@ -170,7 +171,7 @@ void TableModel::parseTableXY (int x, int y, QString const & time, QString const
 		}
 	}
 
-	m_dcmds.back().m_src_row = y;
+	//m_dcmds.back().m_src_row = y;
 
 	if (m_column_count < x + n_cols)
 	{
@@ -216,6 +217,7 @@ void TableModel::parseTableXY (int x, int y, QString const & time, QString const
 	for (int ix = x, ixe = x + n_cols; ix < ixe; ++ix)
 	{
 		QModelIndex const idx = index(y, ix, QModelIndex());
+		m_colorizer->action(idx);
 		emit dataChanged(idx, idx);
 		if (m_proxy)
 			m_proxy->setData(idx, m_rows[y][ix].m_value, Qt::EditRole);

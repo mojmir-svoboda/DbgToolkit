@@ -26,6 +26,20 @@ bool ColorizerMgr::action (DecodedCommand const & cmd)
 	}
 	return accepted;
 }
+bool ColorizerMgr::action (QModelIndex const & idx)
+{
+	bool accepted = true;
+	for (int i = 0, ie = m_filters.size(); i < ie; ++i)
+	{
+		FilterBase * b = m_filters[i];
+		if (b->enabled())
+		{
+			bool const filter_accepted = b->action(idx); // @TODO: short circuit?
+			accepted |= filter_accepted;
+		}
+	}
+	return accepted;
+}
 
 
 // @TODO: to base l8r (tag to virtual fn)

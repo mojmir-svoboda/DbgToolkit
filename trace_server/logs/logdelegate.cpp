@@ -162,7 +162,7 @@ namespace logs {
 					paintTokenized(painter, option4, index, QString("[:/\\\\]"), "/", m_log_widget.config().m_cut_path_level);
 					break;
 				case tlv::tag_func:
-					paintTokenized(painter, option4, index, QString("[::]"), "::",  m_log_widget.config().m_cut_namespaces);
+					paintTokenized(painter, option4, index, QString("::"), "::",  m_log_widget.config().m_cut_namespaces);
 					break;
 				case tlv::tag_ctx:
 					if (m_app_data.getDictCtx().m_names.size())

@@ -26,12 +26,13 @@
 #include <QColor>
 #include <vector>
 #include <tlv_parser/tlv_parser.h>
+#include <colorizermgr.h>
 
 class TableModel : public BaseTableModel
 {
 	//Q_OBJECT
 public:
-	explicit TableModel (QObject * parent, std::vector<QString> & hhdr, std::vector<int> & hsize);
+	explicit TableModel (QObject * parent, ColorizerMgr * m, std::vector<QString> & hhdr, std::vector<int> & hsize);
 	~TableModel ();
 
 protected:
@@ -46,6 +47,10 @@ protected:
 
 	void parseTableXY (int x, int y, QString const &, QString const & fgc, QString const & bgc, QString const & msg_tag, BatchCmd & batch);
 	void parseTableSetup (int x, int y, QString const & time, QString const & fgc, QString const & bgc, QString const & hhdr, QString const & tag, BatchCmd & batch);
+
+	ColorizerMgr * m_colorizer;
+
+	// @TODO: remove
 	int storage2Column (int storage_col) const { return storage_col; }
 };
 

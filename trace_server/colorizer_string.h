@@ -54,19 +54,21 @@ struct ColorizerString : FilterBase
 	ColorizerString (QWidget * parent = 0);
 	virtual ~ColorizerString ();
 
-	virtual void initUI ();
-	virtual void doneUI ();
+	virtual void initUI () override;
+	virtual void doneUI () override;
 
 	virtual E_FilterType type () const { return e_Colorizer_String; }
 
-	virtual bool accept (DecodedCommand const & cmd) const;
-	virtual bool action (DecodedCommand const & cmd);
+	virtual bool accept (DecodedCommand const & cmd) const override;
+	virtual bool action (DecodedCommand const & cmd) override;
+	virtual bool accept (QModelIndex const & idx) const override;
+	virtual bool action (QModelIndex const & idx) override;
 
-	virtual void defaultConfig ();
-	virtual void loadConfig (QString const & path);
-	virtual void saveConfig (QString const & path);
-	virtual void applyConfig ();
-	virtual void clear ();
+	virtual void defaultConfig () override;
+	virtual void loadConfig (QString const & path) override;
+	virtual void saveConfig (QString const & path) override;
+	virtual void applyConfig () override;
+	virtual void clear () override;
 
 	template <class ArchiveT>
 	void serialize (ArchiveT & ar, unsigned const version)

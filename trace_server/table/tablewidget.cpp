@@ -67,7 +67,7 @@ namespace table {
 
 		//setHorizontalHeader(new EditableHeaderView(Qt::Horizontal, this));
 
-		m_src_model = new TableModel(this, m_config.m_hhdr, m_config.m_hsize);
+		m_src_model = new TableModel(this, colorizerMgr(), m_config.m_hhdr, m_config.m_hsize);
 		//setModel(m_src_model);
 		// TMP!
 		//setEditTriggers(QAbstractItemView::NoEditTriggers);
@@ -489,12 +489,12 @@ namespace table {
 
 	void TableWidget::commitCommands (E_ReceiveMode mode)
 	{
-		size_t const rows = m_queue.size();
+		/*size_t const rows = m_queue.size();
 		for (size_t r = 0, re = rows; r < re; ++r)
 		{
 			DecodedCommand const & cmd = m_queue[r];
 			appendToColorizers(cmd);
-		}
+		}*/
 
 		for (int i = 0, ie = m_queue.size(); i < ie; ++i)
 		{

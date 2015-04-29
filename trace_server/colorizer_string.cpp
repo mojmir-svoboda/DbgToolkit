@@ -38,23 +38,7 @@ void ColorizerString::doneUI ()
 
 void ColorizerString::actionColor (DecodedCommand const & cmd, ColorizedString const & ct, QColor const & fg, QColor const & bg) const
 {
-	int const cols = m_src_model->columnCount();
-	int const rows = m_src_model->rowCount();
-	for (int r = 0; r < rows; ++r)
-	{
-		for (int c = 0; c < cols; ++c)
-		{
-			QModelIndex const idx = m_src_model->index(r, c, QModelIndex());
-			const QVariant & v = m_src_model->data(idx, Qt::DisplayRole);
-			QString const & val = v.toString();
-			if (ct.accept(val))
-			{
-				m_src_model->setData(idx, bg, Qt::BackgroundRole);
-				m_src_model->setData(idx, fg, Qt::ForegroundRole);
-			}
-		}
-	}
-	/*for (size_t i = 0, ie = cmd.m_tvs.size(); i < ie; ++i)
+	for (size_t i = 0, ie = cmd.m_tvs.size(); i < ie; ++i)
 	{
 		QString const & val = cmd.m_tvs[i].m_val;
 
@@ -70,7 +54,7 @@ void ColorizerString::actionColor (DecodedCommand const & cmd, ColorizedString c
 				m_src_model->setData(idx, fg, Qt::ForegroundRole);
 			}
 		}
-	}*/
+	}
 }
 void ColorizerString::actionUncolor (DecodedCommand const & cmd, ColorizedString const & ct) const
 {
@@ -88,6 +72,30 @@ bool ColorizerString::action (DecodedCommand const & cmd)
 }
 
 bool ColorizerString::accept (DecodedCommand const & cmd) const
+{
+	return true;
+}
+
+bool ColorizerString::action (QModelIndex const & idx)
+{
+	for (size_t i = 0, ie = m_data.size(); i < ie; ++i)
+	{
+		ColorizedString const & ct = m_data[i];
+
+		const QVariant & v = m_src_model->data(idx, Qt::DisplayRole);
+		QString const & val = v.toString();
+		if (ct.accept(val))
+		{
+			m_src_model->setData(idx, ct.m_bgcolor, Qt::BackgroundRole);
+			m_src_model->setData(idx, ct.m_fgcolor, Qt::ForegroundRole);
+		}
+
+		//actionColor(cmd, ct, ct.m_fgcolor, ct.m_bgcolor);
+	}
+	return false;
+}
+
+bool ColorizerString::accept (QModelIndex const & idx) const
 {
 	return true;
 }
@@ -290,10 +298,27 @@ void ColorizerString::recompile ()
 
 void ColorizerString::updateColor (ColorizedString const & ct)
 {
-	for (size_t r = 0, re = m_src_model->dcmds().size(); r < re; ++r)
+	/*for (size_t r = 0, re = m_src_model->dcmds().size(); r < re; ++r)
 	{
 		DecodedCommand const & dcmd = m_src_model->dcmds()[r];
 		actionColor(dcmd, ct, ct.m_fgcolor, ct.m_bgcolor);
+	}*/
+
+	int const cols = m_src_model->columnCount();
+	int const rows = m_src_model->rowCount();
+	for (int r = 0; r < rows; ++r)
+	{
+		for (int c = 0; c < cols; ++c)
+		{
+			QModelIndex const idx = m_src_model->index(r, c, QModelIndex());
+			const QVariant & v = m_src_model->data(idx, Qt::DisplayRole);
+			QString const & val = v.toString();
+			if (ct.accept(val))
+			{
+				m_src_model->setData(idx, ct.m_bgcolor, Qt::BackgroundRole);
+				m_src_model->setData(idx, ct.m_fgcolor, Qt::ForegroundRole);
+			}
+		}
 	}
 }
 

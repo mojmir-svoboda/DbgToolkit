@@ -91,6 +91,8 @@ struct FilterBase : public QWidget
 
 	virtual bool accept (DecodedCommand const & cmd) const = 0;
 	virtual bool action (DecodedCommand const & cmd) { return true; }
+	virtual bool accept (QModelIndex const & idx) const { return true; }
+	virtual bool action (QModelIndex const & idx) { return true; }
 	virtual bool enabled () const { return m_enabled; }
 	virtual void enable (bool state) { m_enabled = state; }
 	virtual void emitFilterChangedSignal ();
