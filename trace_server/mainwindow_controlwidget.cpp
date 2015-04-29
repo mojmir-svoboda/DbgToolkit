@@ -73,13 +73,15 @@ void MainWindow::onPresetRm ()
 }
 
 void MainWindow::onPresetReset ()
-{
-}
+{ }
 
+void performTimeReset ();
 void MainWindow::onClearAllData ()
 {
 	for (connections_t::iterator it = m_connections.begin(), ite = m_connections.end(); it != ite; ++it)
 		(*it)->clearAllData();
+
+	performTimeReset();
 }
 
 void MainWindow::onLogsStateChanged (int state)

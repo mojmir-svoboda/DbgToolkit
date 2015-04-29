@@ -118,6 +118,12 @@ void qDebugHandler (QtMsgType type, QMessageLogContext const & ctx, QString cons
 	fflush(g_LogRedirect);
 }
 
+void performTimeReset ()
+{
+	sys::g_Start = 0;
+	sys::setTimeStart();
+}
+
 int main (int argc, char * argv[])
 {
 	sys::setTimeStart();
