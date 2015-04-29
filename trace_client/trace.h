@@ -27,7 +27,7 @@
 
 #	if defined (__GNUC__) && defined(__unix__)
 #		define TRACE_API __attribute__ ((__visibility__("default")))
-#	elif defined (WIN32)
+#	elif defined (WIN32) || defined (WIN64)
 #		if defined TRACE_STATIC
 #			define TRACE_API
 #		elif defined TRACE_DLL
