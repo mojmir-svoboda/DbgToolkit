@@ -134,6 +134,39 @@ namespace logs {
 		QApplication::style()->drawControl(QStyle::CE_ItemViewItem, &option, painter);
 	}
 
+	void LogDelegate::paintMessage (QPainter * painter, QStyleOptionViewItemV4 & option4, QModelIndex const & index) const
+	{
+		QVariant const value = index.data(Qt::DisplayRole);
+		if (value.isValid() && !value.isNull())
+		{
+      QString const & s = value.toString();
+      option4.text = s;
+      int const row = index.row();
+      if (row >= 0 && row < m_log_widget.m_src_model->dcmds().size())
+      {
+        DecodedCommand const & dcmd = m_log_widget.m_src_model->dcmds()[row];
+
+        bool const is_scope = dcmd.m_hdr.cmd == tlv::cmd_scope_exit;
+        if (is_scope)
+        {
+          if (!m_log_widget.config().m_dt_scopes_enabled)
+          {
+            int const c = s.indexOf('}');
+            if (c != -1)
+              option4.text = s.left(c + 1);
+          }
+        }
+      }
+
+			QWidget const * widget = option4.widget;
+			if (widget)
+			{
+				QStyle * style = widget->style();
+				style->drawControl(QStyle::CE_ItemViewItem, &option4, painter, widget);
+			}
+		}
+	}
+
 	void LogDelegate::paint (QPainter * painter, QStyleOptionViewItem const & option, QModelIndex const & index) const
 	{
 		painter->save();
@@ -159,10 +192,16 @@ namespace logs {
 			switch (tag)
 			{
 				case tlv::tag_file:
-					paintTokenized(painter, option4, index, QString("[:/\\\\]"), "/", m_log_widget.config().m_cut_path_level);
+					if (m_log_widget.config().m_cut_path)
+						paintTokenized(painter, option4, index, QString("[:/\\\\]"), "/", m_log_widget.config().m_cut_path_level);
+					else
+						QStyledItemDelegate::paint(painter, option4, index); // no cutting
 					break;
 				case tlv::tag_func:
-					paintTokenized(painter, option4, index, QString("::"), "::",  m_log_widget.config().m_cut_namespaces);
+					if (m_log_widget.config().m_cut_namespaces)
+						paintTokenized(painter, option4, index, QString("::"), "::",  m_log_widget.config().m_cut_namespace_level);
+					else
+						QStyledItemDelegate::paint(painter, option4, index); // no cutting
 					break;
 				case tlv::tag_ctx:
 					if (m_app_data.getDictCtx().m_names.size())
@@ -173,6 +212,10 @@ namespace logs {
 				case tlv::tag_ctime:
 				case tlv::tag_stime:
 					paintTime(painter, option4, index);
+					break;
+
+				case tlv::tag_msg:
+					paintMessage(painter, option4, index);
 					break;
 				
 				default:

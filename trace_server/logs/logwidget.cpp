@@ -101,8 +101,10 @@ namespace logs {
 		connect(m_config_ui.ui()->scopesCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onCtxMenuShowScopesChanged(int)));
 		connect(m_config_ui.ui()->dtScopesCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onCtxMenuShowdtScopesChanged(int)));
 		connect(m_config_ui.ui()->indentSpinBox, SIGNAL(valueChanged(int)), this, SLOT(onCtxMenuIndentChanged(int)));
-		connect(m_config_ui.ui()->cutPathSpinBox, SIGNAL(valueChanged(int)), this, SLOT(onCtxMenuCutPathChanged(int)));
-		connect(m_config_ui.ui()->cutNamespaceSpinBox, SIGNAL(valueChanged(int)), this, SLOT(onCtxMenuCutNamespaceChanged(int)));
+		connect(m_config_ui.ui()->cutPathCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onCtxMenuCutPathChanged(int)));
+		connect(m_config_ui.ui()->cutPathSpinBox, SIGNAL(valueChanged(int)), this, SLOT(onCtxMenuCutPathLevelChanged(int)));
+		connect(m_config_ui.ui()->cutNamespaceCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onCtxMenuCutNamespaceChanged(int)));
+		connect(m_config_ui.ui()->cutNamespaceSpinBox, SIGNAL(valueChanged(int)), this, SLOT(onCtxMenuCutNamespaceLevelChanged(int)));
 		connect(m_config_ui.ui()->tableRowSizeSpinBox, SIGNAL(valueChanged(int)), this, SLOT(onCtxMenuTableRowSizeChanged(int)));
 		connect(m_config_ui.ui()->syncGroupSpinBox, SIGNAL(valueChanged(int)), this, SLOT(onCtxMenuSyncGroupChanged(int)));
 		//connect(ui->inViewCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onInViewStateChanged(int)));
@@ -586,7 +588,6 @@ namespace logs {
 		filterMgr()->applyConfig();
 		colorizerMgr()->applyConfig();
 		m_proxy_model->m_scopes_enabled = m_config.m_scopes_enabled;
-		m_proxy_model->m_dt_scopes_enabled = m_config.m_dt_scopes_enabled;
 
 		filterMgr()->connectFiltersTo(this);
 		colorizerMgr()->connectFiltersTo(this);
@@ -1296,20 +1297,31 @@ void LogWidget::onCtxMenuShowScopesChanged(int state)
 void LogWidget::onCtxMenuShowdtScopesChanged(int state)
 {
 	m_config.m_dt_scopes_enabled = state == Qt::Checked;
-	m_proxy_model->m_dt_scopes_enabled = m_config.m_dt_scopes_enabled;
 	onInvalidateFilter();
 }
 void LogWidget::onCtxMenuIndentChanged (int value)
 {
 	m_config.m_indent = value;
 }
-void LogWidget::onCtxMenuCutPathChanged (int value)
+void LogWidget::onCtxMenuCutPathChanged (int state)
 {
-	m_config.m_cut_path = value;
+	m_config.m_cut_path = state == Qt::Checked;
+	onInvalidateFilter();
 }
-void LogWidget::onCtxMenuCutNamespaceChanged (int value)
+void LogWidget::onCtxMenuCutPathLevelChanged (int value)
 {
-	m_config.m_cut_namespaces = value;
+	m_config.m_cut_path_level = value;
+	onInvalidateFilter();
+}
+void LogWidget::onCtxMenuCutNamespaceChanged (int state)
+{
+	m_config.m_cut_namespaces = state == Qt::Checked;
+	onInvalidateFilter();
+}
+void LogWidget::onCtxMenuCutNamespaceLevelChanged (int value)
+{
+	m_config.m_cut_namespace_level = value;
+	onInvalidateFilter();
 }
 void LogWidget::onCtxMenuTableRowSizeChanged (int value)
 {

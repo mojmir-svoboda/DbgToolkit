@@ -152,7 +152,6 @@ void FilterProxyModel::commitBatchToModel (int src_from, int src_to, BatchCmd co
 ExtFilterProxyModel::ExtFilterProxyModel (QObject * parent, FilterMgr const * f, BaseTableModel * m)
 	: FilterProxyModel(parent, f, m)
   , m_scopes_enabled(true)
-  , m_dt_scopes_enabled(true)
 {
 	qDebug("%s this=0x%08x", __FUNCTION__, this);
 }

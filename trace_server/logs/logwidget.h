@@ -205,8 +205,10 @@ namespace logs {
 		void onCtxMenuShowScopesChanged (int value);
 		void onCtxMenuShowdtScopesChanged (int value);
 		void onCtxMenuIndentChanged (int value);
-		void onCtxMenuCutPathChanged (int value);
+		void onCtxMenuCutPathChanged (int state);
+		void onCtxMenuCutPathLevelChanged (int value);
 		void onCtxMenuCutNamespaceChanged (int value);
+		void onCtxMenuCutNamespaceLevelChanged (int value);
 		void onCtxMenuTableRowSizeChanged (int value);
 		void onCtxMenuSyncGroupChanged (int value);
 		void onSaveButton ();
