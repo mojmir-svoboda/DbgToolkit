@@ -587,7 +587,7 @@ namespace logs {
 		{
 			HSV hsv;
 			hsv.h = hi / 360.0f;
-			hsv.s = 0.85f + tmp_randf() * 0.2f - 0.05f;
+			hsv.s = 0.15f + tmp_randf() * 0.2f - 0.05f;
 			hsv.v = 0.85f + tmp_randf() * 0.2f - 0.05f;
 			QColor qcolor;
 			qcolor.setHsvF(hsv.h, hsv.s, hsv.v);
