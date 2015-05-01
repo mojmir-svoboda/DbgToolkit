@@ -48,9 +48,11 @@ public:
 	void resizeToCfg (logs::LogConfig const & config);
 
 	FilterState const & filterState () const { return m_filter_state; }
-    logs::LogWidget const & logWidget () const { return m_log_widget; }
+	logs::LogWidget const & logWidget () const { return m_log_widget; }
 	LogTableModel * cloneToNewModel (logs::LogWidget * parent, FindConfig const & fc);
-    void reloadModelAccordingTo (logs::LogConfig & config);
+	void reloadModelAccordingTo (logs::LogConfig & config);
+
+	virtual QVariant data (const QModelIndex & index, int role = Qt::DisplayRole) const override;
 
 	int column2Tag (int col) const;
 	int tag2Column (int tag) const;

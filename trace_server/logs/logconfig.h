@@ -24,7 +24,7 @@ namespace logs {
 		std::vector<int> 		m_columns_sizes;		/// column sizes for each registered application
 		std::vector<QString> 	m_columns_align;		/// column align for each registered application
 		std::vector<QString> 	m_columns_elide;		/// column elide for each registered application
-		std::vector<QColor> 	m_thread_colors;		/// predefined coloring of threads
+		std::vector<std::pair<QColor, QColor>> 	m_thread_colors;		/// predefined coloring of threads
 		std::vector<QString> 	m_storage_order;
 		bool m_in_view;
 		bool m_filtering;

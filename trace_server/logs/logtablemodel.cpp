@@ -475,6 +475,12 @@ void LogTableModel::parseCommand (DecodedCommand const & cmd, E_ReceiveMode mode
 
 			columns.push_back(Cell());
 			columns.back().m_value = indented_val;
+
+			if (tag == tlv::tag_tid && thread_idx != -1 && thread_idx < m_log_widget.m_config.m_thread_colors.size())
+			{
+				columns.back().m_fgc = QBrush(m_log_widget.m_config.m_thread_colors[thread_idx].first);
+				columns.back().m_bgc = QBrush(m_log_widget.m_config.m_thread_colors[thread_idx].second);
+			}
 		}
 	}
 }
@@ -516,8 +522,10 @@ void LogTableModel::clearModel ()
 	m_columns2tag.clear();
 }
 
-
-
+QVariant LogTableModel::data (QModelIndex const & index, int role) const
+{
+  return BaseTableModel::data(index, role);
+}
 
 /*
 

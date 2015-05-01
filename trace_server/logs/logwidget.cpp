@@ -17,6 +17,7 @@
 #include <ui_controlbarlog.h>
 #include "mainwindow.h"
 #include "colorizewidget.h"
+#include <hsv.h>
 #include "set_with_blocked_signals.h"
 
 namespace logs {
@@ -578,8 +579,27 @@ namespace logs {
 		}
 	}
 
+	void fillColorsForThreads (int i, std::vector<std::pair<QColor, QColor>> & cols)
+	{
+		// pick colors for unique clusters
+		cols.reserve(i);
+		for (size_t hi = 0; hi < 360; hi += 360 / i)
+		{
+			HSV hsv;
+			hsv.h = hi / 360.0f;
+			hsv.s = 0.85f + tmp_randf() * 0.2f - 0.05f;
+			hsv.v = 0.85f + tmp_randf() * 0.2f - 0.05f;
+			QColor qcolor;
+			qcolor.setHsvF(hsv.h, hsv.s, hsv.v);
+			cols.push_back(std::make_pair(Qt::black, qcolor));
+		}
+		std::random_shuffle(cols.begin(), cols.end());
+	}
+
 	void LogWidget::applyConfig ()
 	{
+		if (m_config.m_thread_colors.size() == 0)
+			fillColorsForThreads(8, m_config.m_thread_colors);
 		filterMgr()->disconnectFiltersTo(this);
 		colorizerMgr()->disconnectFiltersTo(this);
 

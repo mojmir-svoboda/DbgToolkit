@@ -31,13 +31,13 @@ class BaseProxyModel : public QAbstractProxyModel
 public:
 	explicit BaseProxyModel (QObject * parent);
 
-	virtual QModelIndex index (int row, int column, QModelIndex const & parent = QModelIndex()) const;
-	virtual QModelIndex parent (QModelIndex const & child) const { return QModelIndex(); }
+	virtual QModelIndex index (int row, int column, QModelIndex const & parent = QModelIndex()) const override;
+	virtual QModelIndex parent (QModelIndex const & child) const override { return QModelIndex(); }
 
-	virtual int rowCount (QModelIndex const & parent = QModelIndex()) const;
-	virtual int columnCount (QModelIndex const & parent = QModelIndex()) const;
+	virtual int rowCount (QModelIndex const & parent = QModelIndex()) const override;
+	virtual int columnCount (QModelIndex const & parent = QModelIndex()) const override;
 
-	virtual QModelIndex mapToSource (QModelIndex const & proxyIndex) const;
+	virtual QModelIndex mapToSource (QModelIndex const & proxyIndex) const override;
 
 	QModelIndex mapNearestFromSource (QModelIndex const & sourceIndex) const;
 	virtual QModelIndex mapFromSource (QModelIndex const & sourceIndex) const;
@@ -50,8 +50,8 @@ public:
 	//QVariant headerData (int section, Qt::Orientation orientation, int role) const;
 	//bool  setHeaderData (int section, Qt::Orientation orientation, QVariant const & value, int role = Qt::EditRole);
 
-	virtual bool insertRows (int first, int last, QModelIndex const &);
-	virtual bool insertColumns (int first, int last, QModelIndex const & parent = QModelIndex());
+	virtual bool insertRows (int first, int last, QModelIndex const &) override;
+	virtual bool insertColumns (int first, int last, QModelIndex const & parent = QModelIndex()) override;
 
 	void insertAllowedColumn (int src_col);
 	void removeAllowedColumn (int src_col);
