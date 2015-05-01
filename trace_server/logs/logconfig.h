@@ -29,7 +29,8 @@ namespace logs {
 		bool m_in_view;
 		bool m_filtering;
 		bool m_clr_filters;
-		bool m_scopes;
+		bool m_scopes_enabled;
+		bool m_dt_scopes_enabled;
 		bool m_indent;
 		bool m_cut_path;
 		bool m_cut_namespaces;
@@ -56,7 +57,8 @@ namespace logs {
 			, m_in_view(true)
 			, m_filtering(true)
 			, m_clr_filters(true)
-			, m_scopes(true)
+			, m_scopes_enabled(true)
+			, m_dt_scopes_enabled(true)
 			, m_indent(true)
 			, m_cut_path(true)
 			, m_cut_namespaces(true)
@@ -70,30 +72,10 @@ namespace logs {
 		{ }
 
 		LogConfig (QString const & tag)
-			: m_tag(tag)
-			, m_history_ln(128*128)
-			, m_font("Verdana")
-			, m_fontsize(10)
-			, m_row_width(18)
-			, m_indent_level(2)
-			, m_cut_path_level(2)
-			, m_cut_namespace_level(3)
-			, m_curr_tooltab(1) // 1 == filters
-			, m_in_view(true)
-			, m_filtering(true)
-			, m_clr_filters(true)
-			, m_scopes(true)
-			, m_indent(true)
-			, m_cut_path(true)
-			, m_cut_namespaces(true)
-			, m_dt_enabled(false)
-			, m_filter_proxy(false)
-			, m_find_proxy(false)
-			, m_simplify_strings(false)
-			, m_unquote_strings(false)
-			, m_csv_has_header(false)
-			, m_csv_separator()
-		{ }
+			: LogConfig()
+		{
+			m_tag = tag;
+		}
 
 		template <class ArchiveT>
 		void serialize (ArchiveT & ar, unsigned const version)
@@ -117,7 +99,8 @@ namespace logs {
 			ar & boost::serialization::make_nvp("in_view", m_in_view);
 			ar & boost::serialization::make_nvp("filtering", m_filtering);
 			ar & boost::serialization::make_nvp("clr_filters", m_clr_filters);
-			ar & boost::serialization::make_nvp("scopes", m_scopes);
+			ar & boost::serialization::make_nvp("scopes", m_scopes_enabled);
+			ar & boost::serialization::make_nvp("dt_scopes", m_dt_scopes_enabled);
 			ar & boost::serialization::make_nvp("indent", m_indent);
 			ar & boost::serialization::make_nvp("cut_path", m_cut_path);
 			ar & boost::serialization::make_nvp("cut_namespaces", m_cut_namespaces);

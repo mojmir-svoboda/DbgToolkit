@@ -149,4 +149,24 @@ void FilterProxyModel::commitBatchToModel (int src_from, int src_to, BatchCmd co
 }
 
 
+ExtFilterProxyModel::ExtFilterProxyModel (QObject * parent, FilterMgr const * f, BaseTableModel * m)
+	: FilterProxyModel(parent, f, m)
+  , m_scopes_enabled(true)
+  , m_dt_scopes_enabled(true)
+{
+	qDebug("%s this=0x%08x", __FUNCTION__, this);
+}
+
+bool ExtFilterProxyModel::filterAcceptsRow (int sourceRow, QModelIndex const & sourceParent) const
+{
+	if (sourceRow < m_dcmds_model->dcmds().size())
+	{
+		DecodedCommand const & dcmd = m_dcmds_model->dcmds()[sourceRow];
+
+    bool const is_scope = (dcmd.m_hdr.cmd == tlv::cmd_scope_entry || dcmd.m_hdr.cmd == tlv::cmd_scope_exit);
+    if (is_scope && !m_scopes_enabled)
+			return false;
+	}
+  return FilterProxyModel::filterAcceptsRow(sourceRow, sourceParent);
+}
 

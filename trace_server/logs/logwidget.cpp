@@ -99,6 +99,7 @@ namespace logs {
 		connect(m_config_ui.ui()->autoScrollCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onCtxMenuAutoScrollStateChanged(int)));
 		connect(m_config_ui.ui()->timeComboBox, SIGNAL(activated(int)), this, SLOT(onChangeTimeUnits(int)));
 		connect(m_config_ui.ui()->scopesCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onCtxMenuShowScopesChanged(int)));
+		connect(m_config_ui.ui()->dtScopesCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onCtxMenuShowdtScopesChanged(int)));
 		connect(m_config_ui.ui()->indentSpinBox, SIGNAL(valueChanged(int)), this, SLOT(onCtxMenuIndentChanged(int)));
 		connect(m_config_ui.ui()->cutPathSpinBox, SIGNAL(valueChanged(int)), this, SLOT(onCtxMenuCutPathChanged(int)));
 		connect(m_config_ui.ui()->cutNamespaceSpinBox, SIGNAL(valueChanged(int)), this, SLOT(onCtxMenuCutNamespaceChanged(int)));
@@ -399,7 +400,7 @@ namespace logs {
 	void LogWidget::setupRefsProxyModel (LogTableModel * linked_model, BaseProxyModel * linked_proxy)
 	{
 		m_src_model = linked_model;
-		m_proxy_model = new FilterProxyModel(this, filterMgr(), m_src_model);
+		m_proxy_model = new ExtFilterProxyModel(this, filterMgr(), m_src_model);
 		m_proxy_model->setSourceModel(linked_proxy);
 
 		m_find_proxy_model = new FindProxyModel(this, m_config.m_find_config, filterMgr(), m_src_model, linked_proxy);
@@ -410,7 +411,7 @@ namespace logs {
 	void LogWidget::setupRefsModel (LogTableModel * linked_model)
 	{
 		m_src_model = linked_model;
-		m_proxy_model = new FilterProxyModel(this, filterMgr(), m_src_model);
+		m_proxy_model = new ExtFilterProxyModel(this, filterMgr(), m_src_model);
 		m_proxy_model->setSourceModel(m_src_model);
 
 		m_find_proxy_model = new FindProxyModel(this, m_config.m_find_config, filterMgr(), m_src_model, 0);
@@ -434,7 +435,7 @@ namespace logs {
 			QObject::disconnect(m_src_model, SIGNAL(rowsInserted(QModelIndex,int,int)), m_tableview->verticalHeader(), SLOT(sectionsInserted(QModelIndex,int,int)));
 		}
 
-		m_proxy_model = new FilterProxyModel(this, filterMgr(), m_src_model);
+		m_proxy_model = new ExtFilterProxyModel(this, filterMgr(), m_src_model);
 		m_proxy_model->setSourceModel(m_src_model);
 
 		m_find_proxy_model = new FindProxyModel(this, m_config.m_find_config, filterMgr(), m_src_model, 0);
@@ -485,7 +486,6 @@ namespace logs {
 			m_connection->destroyDockedWidget(child);
 		}
 		m_linked_widgets.clear();
-
 
 	/*	if (m_file_csv_stream)
 		{
@@ -585,6 +585,8 @@ namespace logs {
 		swapSectionsAccordingTo(m_config);
 		filterMgr()->applyConfig();
 		colorizerMgr()->applyConfig();
+		m_proxy_model->m_scopes_enabled = m_config.m_scopes_enabled;
+		m_proxy_model->m_dt_scopes_enabled = m_config.m_dt_scopes_enabled;
 
 		filterMgr()->connectFiltersTo(this);
 		colorizerMgr()->connectFiltersTo(this);
@@ -673,7 +675,8 @@ namespace logs {
 		setCheckedWithBlockedSignals(ui->cutNamespaceCheckBox, m_config.m_cut_namespaces);
 		setCheckedWithBlockedSignals(ui->cutPathCheckBox, m_config.m_cut_path);
 		setCheckedWithBlockedSignals(ui->indentCheckBox, m_config.m_indent);
-		setCheckedWithBlockedSignals(ui->scopesCheckBox, m_config.m_scopes);
+		setCheckedWithBlockedSignals(ui->scopesCheckBox, m_config.m_scopes_enabled);
+		setCheckedWithBlockedSignals(ui->dtScopesCheckBox, m_config.m_dt_scopes_enabled);
 		setValueWithBlockedSignals(ui->cutNamespaceSpinBox, m_config.m_cut_namespace_level);
 		setValueWithBlockedSignals(ui->cutPathSpinBox, m_config.m_cut_path_level);
 		setValueWithBlockedSignals(ui->indentSpinBox, m_config.m_indent_level);
@@ -701,7 +704,8 @@ namespace logs {
 		m_config.m_cut_path_level = ui->cutPathSpinBox->value();
 		m_config.m_indent = ui->indentCheckBox->isChecked();
 		m_config.m_indent_level = ui->indentSpinBox->value();
-		m_config.m_scopes = ui->scopesCheckBox->isChecked();
+		m_config.m_scopes_enabled = ui->scopesCheckBox->isChecked();
+		m_config.m_dt_scopes_enabled = ui->dtScopesCheckBox->isChecked();
 		//ui->tableFontComboBox->
 		//ui->tableFontToolButton->
 		m_config.m_row_width = ui->tableRowSizeSpinBox->value();
@@ -923,72 +927,7 @@ namespace logs {
 	}
 
 void LogWidget::onDumpFilters ()
-{
-	/*
-	QDialog dialog(this);
-	dialog.setWindowFlags(Qt::Sheet);
-	m_help->setupUi(&dialog);
-	m_help->helpTextEdit->clear();
-
-	QString text(tr("Dumping current filters:\n"));
-	QString session_string;
-
-	if (Connection * conn = m_server->findCurrentConnection())
-	{
-		SessionState const & ss = conn->sessionState();
-		QString ff;
-		ss.m_file_filters.dump_filter(ff);
-
-		QString cols;
-		for (int i = 0, ie = ss.m_colorized_texts.size(); i < ie; ++i)
-		{
-			ColorizedText const & x = ss.m_colorized_texts.at(i);
-			cols += QString("%1 %2 %3\n")
-						.arg(x.m_regex_str)
-						.arg(x.m_qcolor.name())
-						.arg(x.m_is_enabled ? " on" : "off");
-		}
-		QString regs;
-		for (int i = 0, ie = ss.m_filtered_regexps.size(); i < ie; ++i)
-		{
-			FilteredRegex const & x = ss.m_filtered_regexps.at(i);
-			regs += QString("%1 %2 %3\n")
-						.arg(x.m_regex_str)
-						.arg(x.m_state ? "incl" : "excl")
-						.arg(x.m_is_enabled ? " on" : "off");
-		}
-		QString lvls;
-		for (int i = 0, ie = ss.m_lvl_filters.size(); i < ie; ++i)
-		{
-			FilteredLevel const & x = ss.m_lvl_filters.at(i);
-			lvls += QString("%1 %2 %3\n")
-						.arg(x.m_level_str)
-						.arg(x.m_is_enabled ? " on" : "off")
-						.arg(x.m_state ? "incl" : "excl");
-		}
-		QString ctxs;
-		for (int i = 0, ie = ss.m_ctx_filters.size(); i < ie; ++i)
-		{
-			FilteredContext const & x = ss.m_ctx_filters.at(i);
-			ctxs += QString("%1 %2 %3\n")
-						.arg(x.m_ctx_str)
-						.arg(x.m_state)
-						.arg(x.m_is_enabled ? " on" : "off");
-		}
-
-		session_string = QString("Files:\n%1\n\nColors:\n%2\n\nRegExps:\n%3\n\nLevels:\n%4\n\nContexts:\n%5\n\n")
-				.arg(ff)
-				.arg(cols)
-				.arg(regs)
-				.arg(lvls)
-				.arg(ctxs);
-	}
-
-	m_help->helpTextEdit->setPlainText(text + session_string);
-	m_help->helpTextEdit->setReadOnly(true);
-	dialog.exec();
-	*/
-}
+{ }
 
 DecodedCommand const * LogWidget::getDecodedCommand (QModelIndex const & row_index) const
 {
@@ -1030,20 +969,6 @@ void LogWidget::handleCommand (DecodedCommand const & cmd, E_ReceiveMode mode)
 	else
 		m_queue.push_back(cmd);
 
-/*	if (cmd.hdr.cmd == tlv::cmd_scope_entry || (cmd.hdr.cmd == tlv::cmd_scope_exit))
-	{
-		if (m_config.m_scopes)
-		{
-			LogTableModel * m = static_cast<LogTableModel *>(m_proxy_model ? m_proxy_model->sourceModel() : model());
-			//dp.widget().model()->appendCommand(m_proxy_model, cmd);
-			m->appendCommand(m_proxy_model, cmd);
-		}
-	}
-	else if (cmd.hdr.cmd == tlv::cmd_log)
-	{
-		m_src_model->handleCommand(cmd);
-		//m_src_model->appendCommand(m_proxy_model, cmd);
-	}*/
 }
 
 void LogWidget::reloadModelAccordingTo (LogConfig & config)
@@ -1067,11 +992,11 @@ void LogWidget::commitBatchToLinkedWidgets (int src_from, int src_to, BatchCmd c
 	for (linked_widgets_t::iterator it = m_linked_widgets.begin(), ite = m_linked_widgets.end(); it != ite; ++it)
 	{
 		DockedWidgetBase * child = *it;
-	if (child->type() == e_data_log)
-	{
-		LogWidget * lw = static_cast<LogWidget *>(child);
-		lw->commitBatchToLinkedModel(src_from, src_to, batch);	
-	}
+		if (child->type() == e_data_log)
+		{
+			LogWidget * lw = static_cast<LogWidget *>(child);
+			lw->commitBatchToLinkedModel(src_from, src_to, batch);
+		}
 	}
 }
 
@@ -1360,17 +1285,19 @@ void LogWidget::exportStorageToCSV (QString const & path)
 
 void LogWidget::onCtxMenuAutoScrollStateChanged(int state)
 {
-	if (state == Qt::Checked)
-		m_config.m_auto_scroll = true;
-	else
-		m_config.m_auto_scroll = false;
+	m_config.m_auto_scroll = state == Qt::Checked;
 }
 void LogWidget::onCtxMenuShowScopesChanged(int state)
 {
-	if (state == Qt::Checked)
-		m_config.m_scopes = true;
-	else
-		m_config.m_scopes = false;
+	m_config.m_scopes_enabled = state == Qt::Checked;
+	m_proxy_model->m_scopes_enabled = m_config.m_scopes_enabled;
+	onInvalidateFilter();
+}
+void LogWidget::onCtxMenuShowdtScopesChanged(int state)
+{
+	m_config.m_dt_scopes_enabled = state == Qt::Checked;
+	m_proxy_model->m_dt_scopes_enabled = m_config.m_dt_scopes_enabled;
+	onInvalidateFilter();
 }
 void LogWidget::onCtxMenuIndentChanged (int value)
 {
@@ -1392,8 +1319,6 @@ void LogWidget::onCtxMenuSyncGroupChanged (int value)
 {
 	m_config.m_sync_group = value;
 }
-
-
 
 }
 

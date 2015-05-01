@@ -36,9 +36,9 @@ public:
 	explicit FilterProxyModel (QObject * parent, FilterMgr const * f, BaseTableModel * m);
 	virtual ~FilterProxyModel ();
 
-	virtual QModelIndex sibling (int row, int column, QModelIndex const & idx) const;
-	virtual bool filterAcceptsRow (int sourceRow, QModelIndex const & sourceParent) const;
-	virtual bool filterAcceptsColumn (int sourceColumn, QModelIndex const & source_parent) const;
+	virtual QModelIndex sibling (int row, int column, QModelIndex const & idx) const override;
+	virtual bool filterAcceptsRow (int sourceRow, QModelIndex const & sourceParent) const override;
+	virtual bool filterAcceptsColumn (int sourceColumn, QModelIndex const & source_parent) const override;
 	void setSourceModel (QAbstractItemModel *sourceModel);
 	virtual Qt::ItemFlags flags (QModelIndex const & index) const;
 	void resizeToCfg (logs::LogConfig const & config);
@@ -53,4 +53,12 @@ protected:
 	FilterMgr const * m_filter_mgr;
 };
 
-
+// extended filter with scopes and maybe more
+struct ExtFilterProxyModel : FilterProxyModel
+{
+	bool m_scopes_enabled;
+	bool m_dt_scopes_enabled;
+	
+	explicit ExtFilterProxyModel (QObject * parent, FilterMgr const * f, BaseTableModel * m);
+	virtual bool filterAcceptsRow (int sourceRow, QModelIndex const & sourceParent) const override;
+};

@@ -16,6 +16,7 @@
 class Connection;
 class LogTableModel;
 class FindProxyModel;
+struct ExtFilterProxyModel;
 class BaseProxyModel;
 class ControlBarLog;
 class ColorizeWidget;
@@ -59,7 +60,7 @@ namespace logs {
 		E_SrcProtocol protocol () const;
 
 		LogTableModel const * logModel () const { return m_src_model; }
-		FilterProxyModel const * logProxy () const { return m_proxy_model; }
+		ExtFilterProxyModel const * logProxy () const { return m_proxy_model; }
 		FindProxyModel const * findProxy () const { return m_find_proxy_model; }
 		QModelIndex mapToSourceIndexIfProxy (QModelIndex const & idx) const;
 		bool isModelProxy () const;
@@ -202,6 +203,7 @@ namespace logs {
 		void setUIValuesToConfig (LogConfig & cfg);
 		void onCtxMenuAutoScrollStateChanged (int state);
 		void onCtxMenuShowScopesChanged (int value);
+		void onCtxMenuShowdtScopesChanged (int value);
 		void onCtxMenuIndentChanged (int value);
 		void onCtxMenuCutPathChanged (int value);
 		void onCtxMenuCutNamespaceChanged (int value);
@@ -308,7 +310,7 @@ namespace logs {
 
 		unsigned long long m_time_ref_value;
 
-		FilterProxyModel * m_proxy_model;
+		ExtFilterProxyModel * m_proxy_model;
 		FindProxyModel * m_find_proxy_model;
 		LogTableModel * m_src_model;
 		LogSelectionProxyModel * m_selection;
