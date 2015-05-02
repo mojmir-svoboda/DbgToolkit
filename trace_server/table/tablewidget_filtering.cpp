@@ -58,8 +58,7 @@ void TableWidget::appendToLvlFilters (QString const & item)
 		QStandardItem * child = findChildByText(root, item);
 		if (child == 0)
 		{
-			QList<QStandardItem *> row_items = addTriRow(item, Qt::Checked, true);
-			row_items[0]->setCheckState(Qt::Checked);
+			QList<QStandardItem *> row_items = addCheckableRow(Qt::Checked, item);
 			root->appendRow(row_items);
 			filterMgr()->getFilterLvl()->append(item);
 		}

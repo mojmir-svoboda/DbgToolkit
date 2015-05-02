@@ -71,7 +71,7 @@ bool FilterString::accept (DecodedCommand const & cmd) const
 						continue;
 					else
 					{
-						if (fr.m_state)
+						if (fr.m_mode)
 							return true;
 						else
 							return false;
@@ -157,7 +157,7 @@ bool FilterString::isMatchedStringExcluded (QString str) const
 				return false;
 			else
 			{
-				return fr.m_state ? false : true;
+				return fr.m_mode ? false : true;
 			}
 		}
 	}
@@ -170,7 +170,7 @@ void FilterString::setStringState (QString const & s, int state)
 		FilteredString & fr = m_data[i];
 		if (fr.m_string == s)
 		{
-			fr.m_state = state;
+			fr.m_mode = state;
 		}
 	}
 }
@@ -207,15 +207,26 @@ void FilterString::appendToStringFilters (QString const & s, bool enabled, int s
 	emitFilterChangedSignal();
 }
 
+void FilterString::appendToStringFilters (QString const & s, QString const & col)
+{
+	for (int i = 0, ie = m_data.size(); i < ie; ++i)
+		if (m_data[i].m_string == s)
+			return;
+	m_data.push_back(FilteredString(s, true));
+	emitFilterChangedSignal();
+}
+
 void FilterString::appendToStringWidgets (FilteredString const & flt)
 {
 	QStandardItem * root = m_model->invisibleRootItem();
 	QStandardItem * child = findChildByText(root, flt.m_string);
 	if (child == 0)
 	{
-		bool const mode = static_cast<bool>(flt.m_state);
-		QList<QStandardItem *> row_items = addTriRow(flt.m_string, flt.m_is_enabled ? Qt::Checked : Qt::Unchecked, mode);
-		row_items[0]->setCheckState(flt.m_is_enabled ? Qt::Checked : Qt::Unchecked);
+		bool const inclusive = static_cast<bool>(flt.m_mode);
+
+		QString mode = inclusive ? QString("E") : QString("I");
+		QString col_str = flt.m_column;
+		QList<QStandardItem *> row_items = addCheckableRow(flt.m_is_enabled ? Qt::Checked : Qt::Unchecked, flt.m_string, mode, col_str);
 		root->appendRow(row_items);
 	}
 }
@@ -293,7 +304,7 @@ void FilterString::onStringAdd ()
 	QStandardItem * child = findChildByText(root, qItem);
 	if (child == 0)
 	{
-		QList<QStandardItem *> row_items = addTriRow(qItem, Qt::Checked, false);
+		QList<QStandardItem *> row_items = addCheckableRow(Qt::Checked, qItem);
 		root->appendRow(row_items);
 		appendToStringFilters(qItem, true, false);
 		row_items[0]->setCheckState(Qt::Checked);

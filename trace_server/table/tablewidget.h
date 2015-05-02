@@ -88,6 +88,7 @@ namespace table {
 		void removeFromRegexFilters (QString const & val);
 		void appendToStringFilters (QString const & str, bool checked, int state);
 		void removeFromStringFilters (QString const & val);
+		void excludeStringInColumn (QModelIndex const & src_index);
 
 	public Q_SLOTS:
 
@@ -117,6 +118,7 @@ namespace table {
 		void onFindPrev ();
 		void onFindAllRefs ();
 		void onFilterChanged ();
+		void onExcludeStringInColumn ();
 
 	signals:
 		void requestSynchronization (E_SyncMode mode, int sync_group, unsigned long long time, void * source);

@@ -22,6 +22,8 @@ namespace logs {
 		virtual void showWarningSign () override;
 
 	protected:
+		virtual bool viewportEvent (QEvent * event) override;
+
 		Connection * m_connection;
 		LogWidget & m_log_widget;
 		LogConfig & m_config;

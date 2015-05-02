@@ -191,9 +191,8 @@ void FilterScript::appendToScriptWidgets (FilteredScript const & flt)
 	QStandardItem * child = findChildByText(root, flt.m_name);
 	if (child == 0)
 	{
-		bool const mode = static_cast<bool>(flt.m_state);
-		QList<QStandardItem *> row_items = addTriRow(flt.m_name, flt.m_is_enabled ? Qt::Checked : Qt::Unchecked, mode);
-		row_items[0]->setCheckState(flt.m_is_enabled ? Qt::Checked : Qt::Unchecked);
+		//bool const mode = static_cast<bool>(flt.m_state);
+		QList<QStandardItem *> row_items = addCheckableRow(flt.m_is_enabled ? Qt::Checked : Qt::Unchecked, flt.m_name);
 		root->appendRow(row_items);
 	}
 }
@@ -264,7 +263,7 @@ void FilterScript::onScriptAdd ()
 	QStandardItem * child = findChildByText(root, qItem);
 	if (child == 0)
 	{
-		QList<QStandardItem *> row_items = addTriRow(qItem, Qt::Checked, true);
+		QList<QStandardItem *> row_items = addCheckableRow(Qt::Checked, qItem);
 		root->appendRow(row_items);
 		appendToScriptFilters(qItem, true, true);
 		row_items[0]->setCheckState(Qt::Checked);

@@ -424,7 +424,7 @@ namespace table {
 					state = Qt::Unchecked;
 			}
 
-			QList<QStandardItem *> lst = addTriRow(name, state);
+			QList<QStandardItem *> lst = addCheckableRow(state, name);
 			name_root->appendRow(lst);
 		}
 	}
@@ -873,6 +873,44 @@ namespace table {
 		clearAllData();
 	}
 
+	void TableWidget::excludeStringInColumn (QModelIndex const & src_index)
+	{
+		if (filterMgr()->getFilterString())
+		{
+			if (!src_index.isValid())
+				return;
+
+			QString d = m_src_model->data(src_index).toString();
+			QString col = m_src_model->headerData(src_index.row(), Qt::Horizontal, Qt::DisplayRole).toString();
+
+			filterMgr()->getFilterString()->appendToStringFilters(d, col);
+			onInvalidateFilter();		
+		}
+	}
+
+	void TableWidget::onExcludeStringInColumn ()
+	{
+		QModelIndexList l;
+		QModelIndexList src_list;
+		currSelection(this, l);
+		foreach(QModelIndex index, l)
+		{
+			if (isModelProxy())
+			{
+				index = m_proxy_model->mapToSource(index);
+			}
+
+			if (index.isValid())
+				src_list << index;
+		}
+
+		foreach(QModelIndex index, src_list)
+		{
+			if (index.isValid())
+				excludeStringInColumn(index);
+		}
+	}
+
 	void TableWidget::keyPressEvent (QKeyEvent * e)
 	{
 		if (e->type() == QKeyEvent::KeyPress)
@@ -888,11 +926,13 @@ namespace table {
 			bool const ctrl = (e->modifiers() & Qt::ControlModifier) == Qt::ControlModifier;
 			bool const shift = (e->modifiers() & Qt::ShiftModifier) == Qt::ShiftModifier;
 			bool const alt = (e->modifiers() & Qt::AltModifier) == Qt::AltModifier;
-			bool const x = e->key() == Qt::Key_X;
+			//bool const x = e->key() == Qt::Key_X;
+			bool const s = e->key() == Qt::Key_S;
 			bool const h = e->key() == Qt::Key_H;
-			if (!ctrl && !shift && !alt && x)
+			//if (ctrl && !shift && !alt && s)
+			if (s)
 			{
-				//onExcludeFileLine();
+				onExcludeStringInColumn();
 			}
 
 			/*if (e->key() == Qt::Key_Escape)

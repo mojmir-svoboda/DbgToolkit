@@ -12,7 +12,4 @@ public:
 	virtual void showWarningSign () = 0;
 
 	//void setColumnOrder (QMap<int, int> const & columnOrderMap, SessionState const & s);
-
-protected:
-	virtual bool viewportEvent (QEvent * event);
 };

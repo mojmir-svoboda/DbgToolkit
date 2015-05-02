@@ -80,7 +80,7 @@ inline QList<QStandardItem *> addUncheckableRow (QString const & str)
 	return row_items;
 }
 
-inline QList<QStandardItem *> addTriRow (QString const & str, Qt::CheckState const state)
+inline QList<QStandardItem *> addCheckableRow (Qt::CheckState const state, QString const & str)
 {
 	QList<QStandardItem *> row_items;
 	QStandardItem * const name_item = new QStandardItem(str);
@@ -107,7 +107,7 @@ inline QList<QStandardItem *> addTriRow (QString const & str, Qt::CheckState con
 	return row_items;
 }*/
 
-inline QList<QStandardItem *> addTriRow (Qt::CheckState const check0, QString const & str0, QString const & str1)
+inline QList<QStandardItem *> addCheckableRow (Qt::CheckState const check0, QString const & str0, QString const & str1)
 {
     QList<QStandardItem *> row_items;
 
@@ -122,7 +122,7 @@ inline QList<QStandardItem *> addTriRow (Qt::CheckState const check0, QString co
     return row_items;
 }
 
-inline QList<QStandardItem *> addTriRow (Qt::CheckState const check0, QString const & str0, QString const & str1, QString const & str2)
+inline QList<QStandardItem *> addCheckableRow (Qt::CheckState const check0, QString const & str0, QString const & str1, QString const & str2)
 {
     QList<QStandardItem *> row_items;
 
@@ -165,13 +165,13 @@ inline QList<QStandardItem *> add4Col (Qt::CheckState const check0, QString cons
 }
 
 
-inline QList<QStandardItem *> addTriRow (QString const & str, Qt::CheckState const checked, bool const inclusive)
+/*inline QList<QStandardItem *> addTriRow (QString const & str, Qt::CheckState const checked, bool const inclusive)
 {
 	QString mode("E");
 	if (inclusive)
 		mode = "I";
     return addTriRow(checked, str, mode);
-}
+}*/
 
 template <typename T, typename U>
 void applyFnOnAllChildren (T fn, U instance, QAbstractItemModel * abs_model, Qt::CheckState state)

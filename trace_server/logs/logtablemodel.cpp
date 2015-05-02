@@ -528,66 +528,15 @@ QVariant LogTableModel::data (QModelIndex const & index, int role) const
 }
 
 /*
-
 QVariant LogTableModel::data (const QModelIndex &index, int role) const
 {
-	if (!index.isValid())
-		return QVariant();
-	if (role == Qt::DisplayRole || role == Qt::ToolTipRole)
-	{
-		QString str("");
-		if (checkExistence(index))
-		{
-			return m_rows[index.row()][index.column()];
-		}
-		return str;
-	}
+  bool const is_collapsed = m_filter_state.isBlockCollapsedIncl(tid, index.row());
+  if (is_collapsed)
+    return QBrush(Qt::lightGray);
 
-	bool const color_set = (role == Qt::BackgroundRole || role == Qt::ForegroundRole);
-
-	if (role == Qt::BackgroundRole)
-	{
-		if (checkColumnExistence(tlv::tag_msg, index))
-		{
-			int const column_idx = findColumn4Tag(tlv::tag_tid);
-			if (column_idx != -1)
-			{
-				QString const & tid = m_rows[index.row()][column_idx];
-
-				bool const is_collapsed = m_filter_state.isBlockCollapsedIncl(tid, index.row());
-				if (is_collapsed)
-					return QBrush(Qt::lightGray);
-			}
-		}
-
-		if (checkColumnExistence(tlv::tag_tid, index))
-		{
-			QString const & tid = m_rows[index.row()][index.column()];
-			int const idx = m_log_widget.getTLS().findThreadId(tid);
-			if (idx >= 0)
-				return QBrush(m_log_widget.m_config.m_thread_colors[idx]);
-		}
-		if (checkColumnExistence(tlv::tag_lvl, index))
-		{
-			QString const & lvl = m_rows[index.row()][index.column()];
-            if (lvl.toInt() == trace::e_Fatal)
-				return QBrush(Qt::black);
-			if (lvl.toInt() == trace::e_Error)
-				return QBrush(Qt::red);
-			if (lvl.toInt() == trace::e_Warning)
-				return QBrush(Qt::yellow);
-		}
-
-	}
-	if (role == Qt::ForegroundRole)
-	{
-		if (checkColumnExistence(tlv::tag_lvl, index))
-		{
-			QString const & lvl = m_rows[index.row()][index.column()];
-			if (lvl.toInt() == trace::e_Fatal)
-				return QBrush(Qt::white);
-		}
-	}
+  QString const & lvl = m_rows[index.row()][index.column()];
+  if (lvl.toInt() == trace::e_Fatal)
+    return QBrush(Qt::white);
 
 	return QVariant();
 }
@@ -602,6 +551,5 @@ QVariant LogTableModel::headerData (int section, Qt::Orientation orientation, in
 	}
 	return QVariant();
 }
-
-
 */
+
