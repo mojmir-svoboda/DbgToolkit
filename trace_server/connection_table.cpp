@@ -44,8 +44,8 @@ datatables_t::iterator Connection::findOrCreateTable (QString const & tag)
 		//(*it)->m_widget->verticalHeader()->setDefaultSectionSize(m_main_window->tableRowSize());
 		(*it)->verticalHeader()->setDefaultSectionSize(16);
 		(*it)->verticalHeader()->hide();	// @NOTE: users want that //@NOTE2: they can't have it because of performance
-		(*it)->setSelectionBehavior(QAbstractItemView::SelectRows);
-		(*it)->setSelectionMode(QAbstractItemView::SingleSelection);
+		//(*it)->setSelectionBehavior(QAbstractItemView::SelectRows);
+		//(*it)->setSelectionMode(QAbstractItemView::SingleSelection);
 		QObject::connect((*it)->horizontalHeader(), SIGNAL(sectionResized(int, int, int)), *it, SLOT(onSectionResized(int, int, int)));
 
 		if (getClosestFeatureState(e_data_table) == e_FtrEnabled && (*it)->config().m_show)

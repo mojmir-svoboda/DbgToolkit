@@ -71,8 +71,6 @@ namespace table {
 		//setModel(m_src_model);
 		// TMP!
 		//setEditTriggers(QAbstractItemView::NoEditTriggers);
-		//setSelectionBehavior(QAbstractItemView::SelectRows);
-		//setSelectionMode(QAbstractItemView::SingleSelection);
 		//verticalHeader()->setResizeMode(QHeaderView::ResizeToContents);
 		//horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
 
@@ -96,7 +94,10 @@ namespace table {
 		horizontalHeader()->setSectionsMovable(true);
 		setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 
-		setItemDelegate(new SyncedTableItemDelegate(this));
+		setSelectionBehavior(QAbstractItemView::SelectItems);
+		setSelectionMode(QAbstractItemView::ExtendedSelection);
+
+		//setItemDelegate(new SyncedTableItemDelegate(this));
 
 		connect(&getSyncWidgets(), SIGNAL( requestSynchronization(E_SyncMode, int, unsigned long long, void *) ),
 							 this, SLOT( performSynchronization(E_SyncMode, int, unsigned long long, void *) ));
@@ -631,7 +632,7 @@ namespace table {
 			}
 			//qDebug("table: pxy findNearestTime pxy_new=(%i, %i) valid_pxy_new=(%i, %i)", pxy_idx.column(), pxy_idx.row(), valid_pxy_idx.column(), valid_pxy_idx.row());
 			scrollTo(valid_pxy_idx, QAbstractItemView::PositionAtCenter);
-			selectionModel()->select(valid_pxy_idx, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+			selectionModel()->select(valid_pxy_idx, QItemSelectionModel::ClearAndSelect);
 		}
 		else
 		{
@@ -641,7 +642,7 @@ namespace table {
 			//qDebug("table: findNearestTime curr=(%i, %i)  new=(%i, %i)", curr.column(), curr.row(), idx.column(), idx.row());
 
 			scrollTo(idx, QAbstractItemView::PositionAtCenter);
-			selectionModel()->select(idx, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+			selectionModel()->select(idx, QItemSelectionModel::ClearAndSelect);
 		}
 	}
 
@@ -848,7 +849,7 @@ namespace table {
 			}
 			//qDebug("table: pxy findNearestTime pxy_new=(%i, %i) valid_pxy_new=(%i, %i)", pxy_idx.column(), pxy_idx.row(), valid_pxy_idx.column(), valid_pxy_idx.row());
 			scrollTo(valid_pxy_idx, QAbstractItemView::PositionAtCenter);
-			selectionModel()->select(valid_pxy_idx, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+			selectionModel()->select(valid_pxy_idx, QItemSelectionModel::ClearAndSelect);
 		}
 		else
 		{
@@ -858,7 +859,7 @@ namespace table {
 			//qDebug("table: findNearestTime curr=(%i, %i)  new=(%i, %i)", curr.column(), curr.row(), idx.column(), idx.row());
 
 			scrollTo(idx, QAbstractItemView::PositionAtCenter);
-			selectionModel()->select(idx, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+			selectionModel()->select(idx, QItemSelectionModel::ClearAndSelect);
 		}
 	}
 
