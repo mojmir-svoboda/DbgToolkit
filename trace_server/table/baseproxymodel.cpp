@@ -87,6 +87,7 @@ void BaseProxyModel::insertCol (int c)
 	{
 		m_cmap_from_tgt[it->second] = it->first;
 	}
+
 	endInsertColumns();
 }
 

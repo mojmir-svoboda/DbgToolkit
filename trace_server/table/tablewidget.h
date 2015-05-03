@@ -17,6 +17,7 @@
 #include <warnimage.h>
 
 class Connection;
+class SparseFilterProxyModel;
 
 namespace table {
 
@@ -132,7 +133,7 @@ namespace table {
 		WarnImage * m_warnimage;
 		ColorizeWidget * m_colorize_widget;
 		TableModel * m_src_model;
-		BaseProxyModel * m_proxy_model;
+		SparseFilterProxyModel * m_proxy_model;
 		Connection * m_connection;
 		std::vector<DecodedCommand> m_queue;
 	};

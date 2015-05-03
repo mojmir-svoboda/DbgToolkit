@@ -43,7 +43,12 @@ class SparseFilterProxyModel : public FilterProxyModel
 	Q_OBJECT
 
 public:
-	explicit SparseFilterProxyModel (QObject * parent);
+	explicit SparseFilterProxyModel (QObject * parent, FilterMgr const * f, BaseTableModel * m)
+		: FilterProxyModel(parent, f, m)
+		, m_sparse_table(true)
+	{ }
+
+	bool m_sparse_table;
 
 protected:
 

@@ -211,6 +211,15 @@ void TableModel::parseTableXY (int x, int y, QString const & time, QString const
 		insertColumns(cols_first, cols_last);
 		if (m_column_count < cols_last + 1)
 			m_column_count = cols_last + 1;
+
+		if (cols_last >= m_hhdr.size())
+			m_hhdr.resize(cols_last + 1);
+		for (int i = cols_first; i < cols_last + 1; ++i)
+		{
+			if (m_hhdr[i].isEmpty())
+				setHeaderData(i, Qt::Horizontal, QString::number(i), Qt::EditRole);
+		}
+
 		endInsertColumns();
 	}
 

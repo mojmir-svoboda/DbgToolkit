@@ -71,7 +71,7 @@ bool FilterString::accept (DecodedCommand const & cmd) const
 						continue;
 					else
 					{
-						if (fr.m_mode)
+						if (fr.m_mode == e_Include)
 							return true;
 						else
 							return false;
@@ -157,7 +157,7 @@ bool FilterString::isMatchedStringExcluded (QString str) const
 				return false;
 			else
 			{
-				return fr.m_mode ? false : true;
+				return fr.m_mode == e_Include ? false : true;
 			}
 		}
 	}
@@ -204,15 +204,28 @@ void FilterString::appendToStringFilters (QString const & s, bool enabled, int s
 		if (m_data[i].m_string == s)
 			return;
 	m_data.push_back(FilteredString(s, enabled, state));
+
+	setConfigToUI();
 	emitFilterChangedSignal();
 }
 
-void FilterString::appendToStringFilters (QString const & s, QString const & col)
+/*void FilterString::appendToStringFilters (QString const & s, QString const & col)
 {
 	for (int i = 0, ie = m_data.size(); i < ie; ++i)
 		if (m_data[i].m_string == s)
 			return;
-	m_data.push_back(FilteredString(s, true));
+	m_data.push_back(FilteredString(s, true, col));
+	emitFilterChangedSignal();
+}*/
+
+void FilterString::appendToStringFilters (QString const & s, QString const & col, int src_idx)
+{
+	for (int i = 0, ie = m_data.size(); i < ie; ++i)
+		if (m_data[i].m_string == s)
+			return;
+	m_data.push_back(FilteredString(s, true, e_Exclude, col, src_idx));
+
+	setConfigToUI();
 	emitFilterChangedSignal();
 }
 
@@ -222,9 +235,9 @@ void FilterString::appendToStringWidgets (FilteredString const & flt)
 	QStandardItem * child = findChildByText(root, flt.m_string);
 	if (child == 0)
 	{
-		bool const inclusive = static_cast<bool>(flt.m_mode);
+		bool const inclusive = flt.m_mode == e_Include;
 
-		QString mode = inclusive ? QString("E") : QString("I");
+		QString mode = inclusive ? QString("I") : QString("E");
 		QString col_str = flt.m_column;
 		QList<QStandardItem *> row_items = addCheckableRow(flt.m_is_enabled ? Qt::Checked : Qt::Unchecked, flt.m_string, mode, col_str);
 		root->appendRow(row_items);
@@ -233,6 +246,7 @@ void FilterString::appendToStringWidgets (FilteredString const & flt)
 
 void FilterString::setConfigToUI ()
 {
+	m_model->clear();
 	for (size_t i = 0, ie = m_data.size(); i < ie; ++i)
 	{
 		appendToStringWidgets(m_data[i]);
@@ -306,7 +320,7 @@ void FilterString::onStringAdd ()
 	{
 		QList<QStandardItem *> row_items = addCheckableRow(Qt::Checked, qItem);
 		root->appendRow(row_items);
-		appendToStringFilters(qItem, true, false);
+		appendToStringFilters(qItem, true, e_Exclude);
 		row_items[0]->setCheckState(Qt::Checked);
 		recompile();
 	}

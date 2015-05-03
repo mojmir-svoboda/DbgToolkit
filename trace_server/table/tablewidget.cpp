@@ -81,7 +81,7 @@ namespace table {
 
 		if (!m_proxy_model)
 		{
-			m_proxy_model = new FilterProxyModel(this, filterMgr(), m_src_model);
+			m_proxy_model = new SparseFilterProxyModel(this, filterMgr(), m_src_model);
 			m_proxy_model->setSourceModel(m_src_model);
 		}
 
@@ -220,12 +220,12 @@ namespace table {
 			{
 				cfg.m_hhdr[i] = ch->text();
 
-				bool const in_pxy = static_cast<SparseProxyModel const *>(m_proxy_model)->colFromSource(i) != -1;
+				bool const in_pxy = m_proxy_model->colFromSource(i) != -1;
 				if (m_proxy_model)
 					if (!in_pxy)
 					{
 						qDebug("col %i not in pxy, adding", i);
-						static_cast<SparseProxyModel *>(m_proxy_model)->insertAllowedColumn(i);
+						m_proxy_model->insertAllowedColumn(i);
 
 					}
 
@@ -237,7 +237,7 @@ namespace table {
 				cfg.m_hsize[i] = 0;
 				if (m_proxy_model)
 				{
-					static_cast<SparseProxyModel *>(m_proxy_model)->removeAllowedColumn(i);
+					m_proxy_model->removeAllowedColumn(i);
 				}
 			}
 
@@ -246,7 +246,7 @@ namespace table {
 
 		if (cfg.m_filtering_enabled)
 		{
-			static_cast<SparseProxyModel *>(m_proxy_model)->force_update();
+			m_proxy_model->force_update();
 			m_src_model->setProxy(m_proxy_model);
 			setModel(m_proxy_model);
 		}
@@ -279,7 +279,7 @@ namespace table {
 			colorizerMgr()->getColorizerRow()->setSrcModel(m_src_model);
 
 
-		static_cast<SparseProxyModel *>(m_proxy_model)->force_update();
+		m_proxy_model->force_update();
 
 		qDebug("hHeader.size=%i", horizontalHeader()->count());
 		for (size_t i = 0, ie = cfg.m_hsize.size(); i < ie; ++i)
@@ -288,7 +288,7 @@ namespace table {
 			horizontalHeader()->blockSignals(1);
 			if (isModelProxy())
 			{
-				int const src_i = static_cast<SparseProxyModel *>(m_proxy_model)->colToSource(static_cast<int>(i));
+				int const src_i = m_proxy_model->colToSource(static_cast<int>(i));
 				if (src_i != -1)
 				{
 					horizontalHeader()->resizeSection(static_cast<int>(i), cfg.m_hsize.at(src_i));
@@ -363,10 +363,9 @@ namespace table {
   {
 		if (m_config.m_sparse_table ^ state)
 		{
-			//setUIValuesToConfig(m_config);
 			m_config.m_sparse_table = state;
-			applyConfig(m_config);
-			//setConfigValuesToUI(m_config);
+			m_proxy_model->m_sparse_table = state;
+			onInvalidateFilter();
 		}
   }
   void TableWidget::onCtxMenuSyncGroupChanged (int value)
@@ -403,7 +402,7 @@ namespace table {
 			Qt::CheckState state = Qt::Checked;
 			if (isModelProxy())
 			{
-				if (static_cast<SparseProxyModel const *>(m_proxy_model)->colFromSource(i) == -1)
+				if (m_proxy_model->colFromSource(i) == -1)
 				{
 					qDebug("cfg->ui pxy col=%i NOT in pxy", i);
 					state = Qt::Unchecked;
@@ -457,7 +456,7 @@ namespace table {
 
 	void TableWidget::onSectionResized (int c, int old_size, int new_size)
 	{
-		int const idx = !isModelProxy() ? c : static_cast<SparseProxyModel *>(m_proxy_model)->colToSource(c);
+		int const idx = !isModelProxy() ? c : m_proxy_model->colToSource(c);
 		//qDebug("table: on rsz hdr[%i -> src=%02i ]  %i->%i\t\t%s", c, idx, old_size, new_size, m_config.m_hhdr.at(idx).toStdString().c_str());
 		if (idx < 0) return;
 		size_t const curr_sz = m_config.m_hsize.size();
@@ -521,7 +520,7 @@ namespace table {
 				horizontalHeader()->blockSignals(1);
 				for (int i = 0, ie = model()->columnCount(); i < ie; ++i)
 				{
-					int const idx = static_cast<SparseProxyModel *>(m_proxy_model)->colToSource(i);
+					int const idx = m_proxy_model->colToSource(i);
 					if (idx > -1 && idx < m_config.m_hsize.size() && m_config.m_hsize[idx] != horizontalHeader()->sectionSize(i))
 					{
 						horizontalHeader()->resizeSection(i, m_config.m_hsize.at(idx));
@@ -574,7 +573,7 @@ namespace table {
 	{
 		qDebug("%s this=0x%08x", __FUNCTION__, this);
 		if (isModelProxy())
-			static_cast<SparseProxyModel *>(m_proxy_model)->force_update();
+			m_proxy_model->force_update();
 		else
 		{
 			m_src_model->emitLayoutChanged();
@@ -609,7 +608,7 @@ namespace table {
 		{
 			int const diff = m_src_model->row_ctime(i) - t; //TODO: fixed ctime!!
 			int const d = abs(diff);
-			bool const row_exists = is_proxy ? static_cast<SparseProxyModel const *>(m_proxy_model)->rowInProxy(i) : true;
+			bool const row_exists = is_proxy ? m_proxy_model->rowInProxy(i) : true;
 			if (row_exists && d < closest_dist)
 			{
 				closest_i = i;
@@ -628,7 +627,7 @@ namespace table {
 			QModelIndex valid_pxy_idx = pxy_idx;
 			if (!pxy_idx.isValid())
 			{
-				valid_pxy_idx = static_cast<SparseProxyModel const *>(m_proxy_model)->mapNearestFromSource(idx);
+				valid_pxy_idx = m_proxy_model->mapNearestFromSource(idx);
 			}
 			//qDebug("table: pxy findNearestTime pxy_new=(%i, %i) valid_pxy_new=(%i, %i)", pxy_idx.column(), pxy_idx.row(), valid_pxy_idx.column(), valid_pxy_idx.row());
 			scrollTo(valid_pxy_idx, QAbstractItemView::PositionAtCenter);
@@ -882,9 +881,12 @@ namespace table {
 				return;
 
 			QString d = m_src_model->data(src_index).toString();
-			QString col = m_src_model->headerData(src_index.row(), Qt::Horizontal, Qt::DisplayRole).toString();
+			QString col = m_src_model->headerData(src_index.column(), Qt::Horizontal, Qt::DisplayRole).toString();
 
-			filterMgr()->getFilterString()->appendToStringFilters(d, col);
+			if (filterMgr()->getFilterString())
+			{
+				filterMgr()->getFilterString()->appendToStringFilters(d, col, src_index.column());
+			}
 			onInvalidateFilter();		
 		}
 	}

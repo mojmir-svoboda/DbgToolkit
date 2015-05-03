@@ -114,6 +114,7 @@ inline QList<QStandardItem *> addCheckableRow (Qt::CheckState const check0, QStr
     QStandardItem * const item0 = new QStandardItem(str0);
     item0->setCheckable(true);
     item0->setEditable(false);
+		item0->setCheckState(check0);
     row_items << item0;
 
     QStandardItem * const item1 = new QStandardItem(str1);
@@ -129,6 +130,7 @@ inline QList<QStandardItem *> addCheckableRow (Qt::CheckState const check0, QStr
     QStandardItem * const item0 = new QStandardItem(str0);
     item0->setCheckable(true);
     item0->setEditable(false);
+		item0->setCheckState(check0);
     row_items << item0;
 
     QStandardItem * const item1 = new QStandardItem(str1);
@@ -148,6 +150,7 @@ inline QList<QStandardItem *> add4Col (Qt::CheckState const check0, QString cons
     QStandardItem * const item0 = new QStandardItem(str0);
     item0->setCheckable(true);
     item0->setEditable(false);
+		item0->setCheckState(check0);
     row_items << item0;
 
     QStandardItem * const item1 = new QStandardItem(str1);
