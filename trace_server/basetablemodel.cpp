@@ -61,9 +61,16 @@ QVariant BaseTableModel::data (QModelIndex const & index, int role) const
 		return QVariant();
 	}
 
-	if (c && (role == Qt::DisplayRole || role == Qt::ToolTipRole))
+	if (role == Qt::DisplayRole)
 	{
 		return c->m_value;
+	}
+	else if (role == Qt::ToolTipRole)
+	{
+		QString ttip("<pre>");
+		ttip.append(c->m_value.toString());
+		ttip.append(QString("</pre>"));
+		return ttip;
 	}
 	else if (role == Qt::BackgroundRole)
 	{

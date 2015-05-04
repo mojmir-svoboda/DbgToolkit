@@ -54,6 +54,7 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QStri
 	ui->setupUi(this);
 
 	setStyleSheet( "QMainWindow::separator { background: rgb(150, 150, 150); width: 1px; height: 1px; }");
+	qApp->setStyleSheet("QToolTip { color: #efc090; background-color: #000066; border: 1px solid #efc090; }");
 
 	m_settings_dialog = new QDialog(this);
 	m_settings_dialog->setWindowFlags(Qt::Sheet);
@@ -401,7 +402,7 @@ void MainWindow::onHotkeyShowOrHide ()
 	bool const not_on_top = !isActiveWindow();
 	qDebug("onHotkeyShowOrHide() isActive=%u", not_on_top);
 	m_config.m_hidden = !m_config.m_hidden;
-		
+
 	if (m_config.m_hidden)
 	{
 		m_config.m_was_maximized = isMaximized();
