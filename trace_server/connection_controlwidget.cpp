@@ -56,7 +56,7 @@ void Connection::setUIValuesToConfig (ConnectionConfig & cfg)
 	cfg.m_logs_recv_level = static_cast<E_FeatureStates>(m_control_bar->ui->logSlider->value());
 	cfg.m_plots_recv_level = static_cast<E_FeatureStates>(m_control_bar->ui->plotSlider->value());
 	cfg.m_tables_recv_level = static_cast<E_FeatureStates>(m_control_bar->ui->tableSlider->value());
-	cfg.m_gantts_recv_level = static_cast<E_FeatureStates>(m_control_bar->ui->ganttSlider->value()); 
+	cfg.m_gantts_recv_level = static_cast<E_FeatureStates>(m_control_bar->ui->ganttSlider->value());
 }
 
 void Connection::setLevelValue (int i) { m_control_bar->ui->levelSpinBox->setValue(i); }
@@ -94,7 +94,7 @@ void Connection::onLevelValueChanged (int val)
 #endif
 
 	if (result > 0)
-	{	
+	{
 		m_config.m_level = val;
 		char buff[256];
 		using namespace tlv;
@@ -149,10 +149,13 @@ struct ClearAllData
 	}
 };
 
-
-void Connection::onClearAllData ()
+void Connection::clearAllData()
 {
 	recurse(m_data, ClearAllData());
+}
+void Connection::onClearAllData()
+{
+	clearAllData();
 }
 
 void Connection::onPresetChanged (int idx)
@@ -179,7 +182,7 @@ void Connection::onPresetAdd ()
 {
 	qDebug("%s", __FUNCTION__);
 	QString const preset_name = promptAndCreatePresetName();
-	onPresetSave(preset_name);		
+	onPresetSave(preset_name);
 }
 
 void Connection::onPresetRm ()
@@ -191,7 +194,7 @@ void Connection::onPresetRm ()
 		return;
 
 	qDebug("removing preset_name=%s", preset_name.toStdString().c_str());
-	
+
 	QString const path = mkAppPresetPath(getGlobalConfig().m_appdir, m_app_name, preset_name);
 	qDebug("confirm to remove session file=%s", path.toStdString().c_str());
 
@@ -264,7 +267,7 @@ void Connection::onPresetSave (QString const & preset_name)
 	setPresetAsCurrent(preset_name);
 
 	createAppPresetPath(getGlobalConfig().m_appdir, m_app_name, preset_name);
-		
+
 	m_curr_preset = preset_name; // @TODO: ?? or only on apply preset?
 
 	saveConfigs(path);
