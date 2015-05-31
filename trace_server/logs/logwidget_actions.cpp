@@ -57,6 +57,21 @@ bool LogWidget::handleAction (Action * a, E_ActionHandleType sync)
 			}
 		}
 
+		case e_ColorTagLastLine:
+      onColorLastRow();
+			return true;
+
+    case e_DeleteAllData:
+      onClearAllDataButton();
+      return true;
+
+		case e_SetRefSTime:
+		{
+			Q_ASSERT(a->m_args.size() > 0);
+			unsigned long long const t = a->m_args.at(0).toULongLong();
+			setSTimeRefValue(t);
+			return true;
+		}
 		default:
 			return false;
 	}
@@ -343,23 +358,60 @@ void LogWidget::onChangeTimeUnits (int)
 	onInvalidateFilter(); // TODO: invalidate only column?
 }
 
-void LogWidget::onSetRefTime ()
+void LogWidget::onSetRefCTime ()
 {
-	if (m_setRefTimeButton->isChecked())
+	if (m_setRefCTimeButton->isChecked())
 	{
 		QModelIndex const curr_src_idx = currentSourceIndex();
 		if (curr_src_idx.isValid())
 		{
 			QString const & strtime = findString4Tag(tlv::tag_ctime, curr_src_idx);
-			setTimeRefValue(strtime.toULongLong());
+			setCTimeRefValue(strtime.toULongLong());
 			onInvalidateFilter();
 		}
 	}
 	else
 	{
-		clearRefTime();
+		clearRefCTime();
 		onInvalidateFilter(); // TODO: invalidate only column?
 	}
+}
+
+void LogWidget::onSetRefSTime()
+{
+	if (m_setRefSTimeButton->isChecked())
+	{
+		QModelIndex const curr_src_idx = currentSourceIndex();
+		if (curr_src_idx.isValid())
+		{
+			QString const & strtime = findString4Tag(tlv::tag_stime, curr_src_idx);
+			unsigned long long t = strtime.toULongLong();
+			emitRequestSynchronization(e_SyncRefSTime, m_config.m_sync_group, t, this); // this is ignored in the call
+			setSTimeRefValue(t);
+			onInvalidateFilter();
+		}
+	}
+	else
+	{
+		emitRequestSynchronization(e_SyncRefSTime, m_config.m_sync_group, 0, this); // this is ignored in the call
+		clearRefSTime();
+		onInvalidateFilter(); // TODO: invalidate only column?
+	}
+}
+
+void LogWidget::onColorLastRow ()
+{
+	QModelIndex bottom = m_tableview->model()->index(m_tableview->model()->rowCount() - 1, 0);
+
+	if (isModelProxy())
+	{
+		QModelIndex bottom_in_src = m_proxy_model->mapToSource(bottom);
+		addColorTagRow(bottom_in_src.row());
+	}
+  else
+		addColorTagRow(bottom.row());
+
+	//onInvalidateFilter();
 }
 
 void LogWidget::onGotoPrevErr ()

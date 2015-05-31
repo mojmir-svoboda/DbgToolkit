@@ -26,15 +26,14 @@ namespace logs {
 		}
 	}
 
-	void LogDelegate::paintTime (QPainter * painter, QStyleOptionViewItemV4 & option4, QModelIndex const & index) const
+	void LogDelegate::paintTime (QPainter * painter, QStyleOptionViewItemV4 & option4, QModelIndex const & index, unsigned long long ref_t) const
 	{
 		QVariant const value = index.data(Qt::DisplayRole);
 		if (value.isValid() && !value.isNull())
 		{
-			unsigned long long const ref_value = m_log_widget.timeRefValue();
 			QVariant value = index.data(Qt::DisplayRole);
 
-			long long const ref_dt = value.toString().toULongLong() - ref_value;
+			long long const ref_dt = value.toString().toULongLong() - ref_t;
 
 			option4.text.clear();
 			/*if (m_log_widget.config().m_dt_enabled)
@@ -210,10 +209,17 @@ namespace logs {
 						QStyledItemDelegate::paint(painter, option4, index); // no dictionnary
 					break;
 				case tlv::tag_ctime:
-				case tlv::tag_stime:
-					paintTime(painter, option4, index);
+				{
+					unsigned long long const ref_t = m_log_widget.ctimeRefValue();
+					paintTime(painter, option4, index, ref_t);
 					break;
-
+				}
+				case tlv::tag_stime:
+				{
+					unsigned long long const ref_t = m_log_widget.stimeRefValue();
+					paintTime(painter, option4, index, ref_t);
+					break;
+				}
 				case tlv::tag_msg:
 					paintMessage(painter, option4, index);
 					break;

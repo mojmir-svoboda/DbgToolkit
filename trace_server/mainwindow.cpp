@@ -504,8 +504,11 @@ void MainWindow::setupMenuBar ()
 	viewMenu->addSeparator();
 
 	// View
-	QMenu * actionMenu = menuBar()->addMenu(tr("&Actions"));
-	actionMenu->addAction(tr("&Clear All Data"), this, SLOT(onClearAllData()), QKeySequence(Qt::ControlModifier + Qt::ShiftModifier + Qt::Key_Delete));
+	QMenu * actionMenu = menuBar()->addMenu(tr("Actions"));
+	QKeySequence all_deldata(Qt::CTRL + Qt::Key_A, Qt::CTRL + Qt::Key_D);
+	QKeySequence all_colorlast(Qt::CTRL + Qt::Key_A, Qt::CTRL + Qt::Key_E);
+	actionMenu->addAction(tr("All widgets - Clear Data"), this, SLOT(onClearAllData()), all_deldata);
+	actionMenu->addAction(tr("All widgets - Color last line "), this, SLOT(onColorAllLastLine()), all_colorlast);
 
 	// widget's tool dockable widgets.
 	m_windows_menu = menuBar()->addMenu(tr("&Windows"));

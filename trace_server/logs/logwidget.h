@@ -128,9 +128,12 @@ namespace logs {
 		void addColorTagRow (int row);
 		bool findColorTagRow (int row) const;
 		void removeColorTagRow (int row);
-		unsigned long long timeRefValue () const { return m_time_ref_value; }
-		void clearRefTime () { m_time_ref_value = 0; }
-		void setTimeRefValue (unsigned long long t) { m_time_ref_value = t; }
+		unsigned long long stimeRefValue () const { return m_stime_ref_value; }
+		void clearRefSTime () { m_stime_ref_value = 0; }
+		void setSTimeRefValue (unsigned long long t) { m_stime_ref_value = t; }
+		unsigned long long ctimeRefValue() const { return m_ctime_ref_value; }
+		void clearRefCTime() { m_ctime_ref_value = 0; }
+		void setCTimeRefValue(unsigned long long t) { m_ctime_ref_value = t; }
 		void findTableIndexInFilters (QModelIndex const & src_idx, bool scroll_to_item, bool expand);
 		void excludeFile (QModelIndex const & row_index);
 		void excludeFileLine (QModelIndex const & row_index);
@@ -257,10 +260,12 @@ namespace logs {
 		void onLocateRow ();
 		void onColorFileLine ();
 		void onColorRow ();
+		void onColorLastRow ();
 		void onGotoPrevColor();
 		void onGotoNextColor();
 		void onUncolorRow ();
-		void onSetRefTime ();
+		void onSetRefCTime ();
+		void onSetRefSTime ();
 		void onHidePrev ();
 		void onHideNext ();
 		void onChangeTimeUnits (int);
@@ -289,7 +294,8 @@ namespace logs {
 		QToolButton * m_locateRowButton;
 		QToolButton * m_clrDataButton;
 		TimeComboBox * m_timeComboBox;
-		QToolButton * m_setRefTimeButton;
+		QToolButton * m_setRefCTimeButton;
+		QToolButton * m_setRefSTimeButton;
 		QToolButton * m_hidePrevButton;
 		QToolButton * m_hideNextButton;
 		QToolButton * m_colorRowButton;
@@ -310,7 +316,8 @@ namespace logs {
 		TagConfig m_tagconfig;
 		ThreadSpecific m_tls;
 
-		unsigned long long m_time_ref_value;
+		unsigned long long m_ctime_ref_value;
+		unsigned long long m_stime_ref_value;
 
 		ExtFilterProxyModel * m_proxy_model;
 		FindProxyModel * m_find_proxy_model;

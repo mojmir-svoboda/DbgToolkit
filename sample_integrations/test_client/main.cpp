@@ -120,7 +120,7 @@ int main ()
 #if defined WIN32
 	setvbuf(stdout, 0, _IONBF, 0);
 #endif
-	TRACE_APPNAME("Sample_App");
+	TRACE_APPNAME("Test_App");
 	TRACE_CONNECT();
 	TRACE_SCOPE(e_Error, trace::CTX_Default);
 	TRACE_MSG(e_Info, trace::CTX_Default,  "Text with Error inside");

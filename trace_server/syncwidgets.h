@@ -4,6 +4,7 @@
 enum E_SyncMode {
     e_SyncClientTime,
     e_SyncServerTime,
+		e_SyncRefSTime,
     e_SyncFrame,
     e_SyncSourceRow,
     e_SyncProxyRow

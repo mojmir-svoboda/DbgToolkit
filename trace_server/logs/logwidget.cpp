@@ -30,7 +30,7 @@ namespace logs {
 		, m_gotoPrevErrButton(0) , m_gotoNextErrButton(0) , m_gotoPrevWarnButton(0) , m_gotoNextWarnButton(0)
 		, m_openFileLineButton(0)
 		, m_excludeFileButton(0) , m_excludeFileLineButton(0) , m_excludeRowButton(0) , m_locateRowButton(0)
-		, m_clrDataButton(0) , m_setRefTimeButton(0) , m_hidePrevButton(0) , m_hideNextButton(0)
+		, m_clrDataButton(0), m_setRefCTimeButton(0), m_setRefSTimeButton(0), m_hidePrevButton(0), m_hideNextButton(0)
 		, m_colorRowButton(0) , m_colorFileLineButton(0) , m_uncolorRowButton(0) , m_gotoPrevColorButton(0) , m_gotoNextColorButton(0)
 		, m_control_bar(0)
 		, m_config(cfg)
@@ -40,7 +40,8 @@ namespace logs {
 		, m_filter_state()
 		, m_tagconfig()
 		, m_tls()
-		, m_time_ref_value(0)
+		, m_ctime_ref_value(0)
+		, m_stime_ref_value(0)
 		, m_proxy_model(0)
 		, m_find_proxy_model(0)
 		, m_src_model(0)
@@ -239,11 +240,17 @@ namespace logs {
 		//line->setFrameShadow(QFrame::Sunken);
 		cacheLayout->addWidget(line);
 
-		m_setRefTimeButton = new QToolButton(parent_widget);
-		m_setRefTimeButton->setObjectName(QStringLiteral("setRefTimeButton"));
-		m_setRefTimeButton->setMaximumSize(QSize(16777215, 16));
-		m_setRefTimeButton->setCheckable(true);
-		cacheLayout->addWidget(m_setRefTimeButton);
+		m_setRefCTimeButton = new QToolButton(parent_widget);
+		m_setRefCTimeButton->setObjectName(QStringLiteral("setRefCTimeButton"));
+		m_setRefCTimeButton->setMaximumSize(QSize(16777215, 16));
+		m_setRefCTimeButton->setCheckable(true);
+		cacheLayout->addWidget(m_setRefCTimeButton);
+
+		m_setRefSTimeButton = new QToolButton(parent_widget);
+		m_setRefSTimeButton->setObjectName(QStringLiteral("setRefSTimeButton"));
+		m_setRefSTimeButton->setMaximumSize(QSize(16777215, 16));
+		m_setRefSTimeButton->setCheckable(true);
+		cacheLayout->addWidget(m_setRefSTimeButton);
 
 		m_hidePrevButton = new QToolButton(parent_widget);
 		m_hidePrevButton->setObjectName(QStringLiteral("hidePrevButton"));
@@ -327,8 +334,11 @@ namespace logs {
 		m_locateRowButton->setToolTip(QApplication::translate("SettingsLog", "<html><head/><body><p>Locates currently selected row in Filters/File:Line</p><p>Hotkey = <span style=\" font-weight:600;\">?</span></p></body></html>", 0));
 		m_locateRowButton->setText(QApplication::translate("SettingsLog", "? ==", 0));
 
-		m_setRefTimeButton->setToolTip(QApplication::translate("SettingsLog", "<html><head/><body><p>Set/Unset reference time (= 0) to currently selected line</p></body></html>", 0));
-		m_setRefTimeButton->setText(QApplication::translate("SettingsLog", "Ref T", 0));
+		m_setRefCTimeButton->setToolTip(QApplication::translate("SettingsLog", "<html><head/><body><p>Set/Unset reference client time (= 0) to currently selected line</p></body></html>", 0));
+		m_setRefCTimeButton->setText(QApplication::translate("SettingsLog", "Ref CT", 0));
+
+		m_setRefSTimeButton->setToolTip(QApplication::translate("SettingsLog", "<html><head/><body><p>Set/Unset reference server time (= 0) to currently selected line</p></body></html>", 0));
+		m_setRefSTimeButton->setText(QApplication::translate("SettingsLog", "Ref ST", 0));
 
 		m_hidePrevButton->setToolTip(QApplication::translate("SettingsLog", "<html><head/><body><p>Hide rows preceeding current selection</p></body></html>", 0));
 		m_hidePrevButton->setText(QApplication::translate("SettingsLog", "Hide T", 0));
@@ -359,7 +369,8 @@ namespace logs {
 		//connect(m_colorFileLineButton, SIGNAL(clicked()), this, SLOT(onColorFileLine()));
 		connect(m_colorRowButton, SIGNAL(clicked()), this, SLOT(onColorRow()));
 		connect(m_uncolorRowButton, SIGNAL(clicked()), this, SLOT(onUncolorRow()));
-		connect(m_setRefTimeButton, SIGNAL(clicked()), this, SLOT(onSetRefTime()));
+		connect(m_setRefCTimeButton, SIGNAL(clicked()), this, SLOT(onSetRefCTime()));
+		connect(m_setRefSTimeButton, SIGNAL(clicked()), this, SLOT(onSetRefSTime()));
 		connect(m_hidePrevButton, SIGNAL(clicked()), this, SLOT(onHidePrev()));
 		connect(m_hideNextButton, SIGNAL(clicked()), this, SLOT(onHideNext()));
 		connect(m_gotoPrevColorButton, SIGNAL(clicked()), this, SLOT(onGotoPrevColor()));
@@ -925,6 +936,10 @@ namespace logs {
 				break;
 			case e_SyncServerTime:
 				findNearestRow4Time(false, time);
+				break;
+			case e_SyncRefSTime:
+				setSTimeRefValue(time);
+				onInvalidateFilter();
 				break;
 			case e_SyncFrame:
 			case e_SyncSourceRow:

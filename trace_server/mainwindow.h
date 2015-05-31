@@ -164,6 +164,7 @@ private slots:
 	void onPresetRm ();
 	void onPresetReset ();
 	void onClearAllData ();
+	void onColorAllLastLine ();
 	void onLogsStateChanged (int state);
 	void onPlotsStateChanged (int state);
 	void onTablesStateChanged (int state);
