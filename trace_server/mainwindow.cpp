@@ -506,9 +506,11 @@ void MainWindow::setupMenuBar ()
 	// View
 	QMenu * actionMenu = menuBar()->addMenu(tr("Actions"));
 	QKeySequence all_deldata(Qt::CTRL + Qt::Key_A, Qt::CTRL + Qt::Key_D);
-	QKeySequence all_colorlast(Qt::CTRL + Qt::Key_A, Qt::CTRL + Qt::Key_E);
 	actionMenu->addAction(tr("All widgets - Clear Data"), this, SLOT(onClearAllData()), all_deldata);
+	QKeySequence all_colorlast(Qt::CTRL + Qt::Key_A, Qt::CTRL + Qt::Key_E);
 	actionMenu->addAction(tr("All widgets - Color last line "), this, SLOT(onColorAllLastLine()), all_colorlast);
+	QKeySequence all_scrolllast(Qt::CTRL + Qt::Key_A, Qt::CTRL + Qt::Key_Z);
+	actionMenu->addAction(tr("All widgets - Scroll to last "), this, SLOT(onAllScrollToLast()), all_scrolllast);
 
 	// widget's tool dockable widgets.
 	m_windows_menu = menuBar()->addMenu(tr("&Windows"));

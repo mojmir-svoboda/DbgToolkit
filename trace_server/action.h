@@ -21,6 +21,7 @@ enum E_ActionType {
 	, e_FindAllRefs
 	, e_Colorize
 	, e_ColorTagLastLine
+	, e_ScrollToLastLine
   , e_DeleteAllData
   , e_SetRefSTime
 	, e_max_action_type

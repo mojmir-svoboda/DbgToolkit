@@ -61,6 +61,11 @@ bool LogWidget::handleAction (Action * a, E_ActionHandleType sync)
       onColorLastRow();
 			return true;
 
+		case e_ScrollToLastLine:
+			autoScrollOn();
+			m_tableview->scrollToBottom();
+			return true;
+
     case e_DeleteAllData:
       onClearAllDataButton();
       return true;

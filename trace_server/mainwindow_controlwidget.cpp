@@ -95,6 +95,18 @@ void MainWindow::onColorAllLastLine ()
 		(*it)->handleAction(&a, e_Sync);
 }
 
+void MainWindow::onAllScrollToLast ()
+{
+	Action a;
+	a.m_type = e_ScrollToLastLine;
+	a.m_src_path = dockManager().path();
+	a.m_src = &m_dock_mgr;
+	//a.m_dst_path = dst_path;
+
+	for (auto it = m_dock_mgr.m_actionables.begin(), ite = m_dock_mgr.m_actionables.end(); it != ite; ++it)
+		(*it)->handleAction(&a, e_Sync);
+}
+
 
 void MainWindow::onLogsStateChanged (int state)
 {
