@@ -134,6 +134,6 @@ set(PROJECT_STABLE False)
 	file(WRITE trace_version.cpp "#include \"trace_version.h\"\n")
 	file(APPEND trace_version.cpp "char const g_Version[] = \"${PROJECT_VERSION}\";\n")
 
-	message("DbgT00lkit version : ${PROJECT_VERSION}")
+	message("DbgToolkit version : ${PROJECT_VERSION}")
 
 #endif(EXISTS ${CMAKE_SOURCE_DIR}/version.cpp)

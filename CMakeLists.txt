@@ -1,5 +1,5 @@
 cmake_policy(SET CMP0048 NEW)
-project (DbgT00lkit VERSION 1.1.0)
+project (DbgToolkit VERSION 1.1.0)
 
 set(CMAKE_INSTALL_PREFIX "c:/opt/")
 option(BUILD_SERVER "Builds server (requires Boost and Qt5)." OFF)
@@ -8,7 +8,7 @@ option(BUILD_QT_TESTS "Builds qt tests (requires Boost and Qt5)." OFF)
 
 cmake_minimum_required (VERSION 3.1)
 set (CMAKE_VERBOSE_MAKEFILE on)
-set (DbgT00lkit_VERSION 1.1.0)
+set (DbgToolkit_VERSION 1.1.0)
 
 # set up include-directories
 include_directories (
