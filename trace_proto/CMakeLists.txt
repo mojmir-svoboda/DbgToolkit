@@ -102,13 +102,13 @@ set(GENERATED_SRC ${ASN1_SOURCES} ${TRACE_ASN1_SOURCES})
 
 set(ASN1_PROTOCOL_FILE ${CMAKE_CURRENT_SOURCE_DIR}/trace_proto.asn1)
 
-message("asn1c cmd: asn1c -gen-PER -S ${ASN1C_DATA} ${ASN1_PROTOCOL_FILE}")
+message("asn1c cmd: asn1c -gen-PER -fuse-int64 -S ${ASN1C_DATA} ${ASN1_PROTOCOL_FILE}")
 message("*** GENERATOR TEMPORARILY TURNED OFF *** uncomment to re-generate and suffer")
-#add_custom_command(
-#  OUTPUT ${GENERATED_SRC}
-#  COMMAND asn1c -gen-PER -S ${ASN1C_DATA} ${ASN1_PROTOCOL_FILE}
-#	DEPENDS trace_proto.asn1
-#)
+add_custom_command(
+  OUTPUT ${GENERATED_SRC}
+  COMMAND asn1c -gen-PER -fuse-int64 -S ${ASN1C_DATA} ${ASN1_PROTOCOL_FILE}
+	DEPENDS trace_proto.asn1
+)
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 add_library(trace_proto ${GENERATED_SRC})
