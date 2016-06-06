@@ -1,5 +1,5 @@
 #include "connectionconfig.h"
-#include "serialize.h"
+#include <serialize/serialize.h>
 
 void ConnectionConfig::loadHistory (QString const & path)
 {

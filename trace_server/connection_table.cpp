@@ -2,11 +2,7 @@
 #include <QtNetwork>
 #include <QHeaderView>
 #include <QScrollBar>
-#include <tlv_parser/tlv_encoder.h>
-#include "cmd.h"
-#include "utils.h"
-#include "dock.h"
-#include "delegates.h"
+//#include "cmd.h"
 #include "mainwindow.h"
 #include <cstdlib>
 
@@ -15,24 +11,24 @@ bool Connection::handleTableCommand (DecodedCommand const & cmd, E_ReceiveMode m
 	if (getClosestFeatureState(e_data_table) == e_FtrDisabled)
 		return true;
 
-	QString msg_tag;
-	if (!cmd.getString(tlv::tag_msg, msg_tag)) return true;
-	QString tag = msg_tag;
-	int const slash_pos = tag.lastIndexOf(QChar('/'));
-	tag.chop(msg_tag.size() - slash_pos);
-	QString subtag = msg_tag;
-	subtag.remove(0, slash_pos + 1);
-
-	datatables_t::iterator it = findOrCreateTable(tag);
-	(*it)->handleCommand(cmd, mode);
+// 	QString msg_tag;
+// 	if (!cmd.getString(tlv::tag_msg, msg_tag)) return true;
+// 	QString tag = msg_tag;
+// 	int const slash_pos = tag.lastIndexOf(QChar('/'));
+// 	tag.chop(msg_tag.size() - slash_pos);
+// 	QString subtag = msg_tag;
+// 	subtag.remove(0, slash_pos + 1);
+// 
+// 	datatables_t::iterator it = findOrCreateTable(tag);
+// 	(*it)->handleCommand(cmd, mode);
 	return true;
 }
 
 datatables_t::iterator Connection::findOrCreateTable (QString const & tag)
 {
 	typedef SelectIterator<e_data_table>::type iterator;
-	iterator it = m_data.get<e_data_table>().find(tag);
-	if (it == m_data.get<e_data_table>().end())
+	iterator it = m_data_widgets.get<e_data_table>().find(tag);
+	if (it == m_data_widgets.get<e_data_table>().end())
 	{
 		it = dataWidgetFactory<e_data_table>(tag);
 		//(*it)->setupNewLogModel();
@@ -64,7 +60,7 @@ datatables_t::iterator Connection::findOrCreateTable (QString const & tag)
 #if 0
 void Connection::requestTableSynchronization (int sync_group, unsigned long long time)
 {
-	for (datatables_t::iterator it = m_data.get<e_data_table>().begin(), ite = m_data.get<e_data_table>().end(); it != ite; ++it)
+	for (datatables_t::iterator it = m_data_widgets.get<e_data_table>().begin(), ite = m_data_widgets.get<e_data_table>().end(); it != ite; ++it)
 	{
 		if ((*it)->config().m_sync_group == sync_group)
 			(*it)->findNearestTimeRow(time);
@@ -73,7 +69,7 @@ void Connection::requestTableSynchronization (int sync_group, unsigned long long
 
 void Connection::requestTableWheelEventSync (int sync_group, QWheelEvent * ev, QTableView const * source)
 {
-	for (datatables_t::iterator it = m_data.get<e_data_table>().begin(), ite = m_data.get<e_data_table>().end(); it != ite; ++it)
+	for (datatables_t::iterator it = m_data_widgets.get<e_data_table>().begin(), ite = m_data_widgets.get<e_data_table>().end(); it != ite; ++it)
 	{
 		if ((*it)->config().m_sync_group == sync_group)
 			(*it)->requestTableWheelEventSync(ev, source);
@@ -90,7 +86,7 @@ void Connection::requestTableWheelEventSync (int sync_group, QWheelEvent * ev, Q
 
 void Connection::requestTableActionSync (int sync_group, unsigned long long t, int cursorAction, Qt::KeyboardModifiers modifiers, QTableView const * source)
 {
-	for (datatables_t::iterator it = m_data.get<e_data_table>().begin(), ite = m_data.get<e_data_table>().end(); it != ite; ++it)
+	for (datatables_t::iterator it = m_data_widgets.get<e_data_table>().begin(), ite = m_data_widgets.get<e_data_table>().end(); it != ite; ++it)
 	{
 		if ((*it)->config().m_sync_group == sync_group)
 			(*it)->requestTableActionSync(t, cursorAction, modifiers, source);

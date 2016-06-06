@@ -1,13 +1,16 @@
 #include "connection.h"
 #include <QtNetwork>
-#include "utils.h"
-#include "utils_boost.h"
+#include <utils/utils.h>
+#include <utils/utils_boost.h>
 #include "types.h"
-#include "server.h"
+#include <server/server.h>
 #include "mainwindow.h"
-#include "serialize.h"
-#include "controlbarcommon.h"
+#include <serialize/serialize.h>
+#include <widgets/controlbar/controlbarcommon.h>
+#include <widgets/mixer.h>
+#include "ui_mixer.h"
 #include <ui_controlbarcommon.h>
+#include "wavetable.h"
 
 GlobalConfig const & Connection::getGlobalConfig () const { return m_main_window->getConfig(); }
 
@@ -17,30 +20,36 @@ Connection::Connection (QString const & app_name, QObject * parent)
 	, m_app_name(app_name)
 	, m_main_window(qobject_cast<MainWindow *>(parent))
 	, m_src_stream(e_Stream_TCP)
-	, m_src_protocol(e_Proto_TLV)
+	, m_src_protocol(e_Proto_ASN1)
 	, m_config()
 	, m_app_data()
 	, m_storage_idx(-2)
-	, m_recv_bytes(0)
 	, m_marked_for_close(false)
 	, m_curr_preset()
-	, m_control_bar(0)
-	, m_file_tlv_stream(0)
-	, m_file_csv_stream(0)
+	, m_control_bar(nullptr)
+	, m_mixer(nullptr)
+	, m_file_tlv_stream(nullptr)
+	, m_file_csv_stream(nullptr)
 	, m_file_size(0)
-	, m_buffer(e_ringbuff_size)
 	, m_current_cmd()
-	, m_decoded_cmds(e_ringcmd_size)
-	, m_storage(0)
-	, m_tcp_dump_stream(0)
-	, m_tcpstream(0)
+	, m_storage(nullptr)
+// 	, m_availableAudioOutputDevices(QAudioDeviceInfo::availableDevices(QAudio::AudioOutput))
+// 	, m_audioOutputDevice(QAudioDeviceInfo::defaultOutputDevice())
+// 	, m_audioOutput(nullptr)
+	, m_wavetable(nullptr)
+	, m_tcp_dump_stream(nullptr)
+	, m_tcpstream(nullptr)
 {
 	qDebug("Connection::Connection() this=0x%08x", this);
 
-	m_control_bar = new ControlBarCommon();
+	m_asn1_allocator.resizeStorage(64 * 1024);
+
+	m_control_bar = new ControlBarCommon;
+	initSound();
+	m_wavetable = new WaveTable;
 
 	m_config.m_auto_scroll = getGlobalConfig().m_auto_scroll;
-	m_config.m_level = getGlobalConfig().m_level;
+	m_config.m_mixer = getGlobalConfig().m_mixer;
 	m_config.m_buffered = getGlobalConfig().m_buffered;
 	m_config.m_time_units_str = getGlobalConfig().m_time_units_str;
 	m_config.m_time_units = getGlobalConfig().m_time_units;
@@ -51,19 +60,14 @@ Connection::Connection (QString const & app_name, QObject * parent)
 	m_config.m_tables_recv_level = getGlobalConfig().m_tables_recv_level;
 	m_config.m_gantts_recv_level = getGlobalConfig().m_gantts_recv_level;
 
-	QString	  m_trace_addr;
-	unsigned short m_trace_port;
-	QString	  m_profiler_addr;
-	unsigned short m_profiler_port;
-	QString	  m_appdir;
-
 	static int counter = 0;
 	m_storage_idx = counter;
 	++counter;
 
 	setConfigValuesToUI(m_config);
 
-	connect(m_control_bar->ui->levelSpinBox, SIGNAL(valueChanged(int)), this, SLOT(onLevelValueChanged(int)));
+	connect(m_control_bar->ui->mixerButton, SIGNAL(clicked()), this, SLOT(onMixerButton()));
+	//connect(m_control_bar->ui->levelSpinBox, SIGNAL(valueChanged(int)), this, SLOT(onLevelValueChanged(int)));
 	connect(m_control_bar->ui->buffCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onBufferingStateChanged(int)));
 	connect(m_control_bar->ui->presetComboBox, SIGNAL(activated(int)), this, SLOT(onPresetChanged(int)));
 	connect(m_control_bar->ui->activatePresetButton, SIGNAL(clicked()), this, SLOT(onPresetApply()));
@@ -75,6 +79,13 @@ Connection::Connection (QString const & app_name, QObject * parent)
 	connect(m_control_bar->ui->plotSlider, SIGNAL(valueChanged(int)), this, SLOT(onPlotsStateChanged(int)));
 	connect(m_control_bar->ui->tableSlider, SIGNAL(valueChanged(int)), this, SLOT(onTablesStateChanged(int)));
 	connect(m_control_bar->ui->ganttSlider, SIGNAL(valueChanged(int)), this, SLOT(onGanttsStateChanged(int)));
+	connect(m_control_bar->ui->clrDataButton, SIGNAL(clicked()), this, SLOT(onClearAllData()));
+
+	m_mixer = new Mixer(nullptr, m_control_bar->ui->mixerButton, sizeof(context_t) * CHAR_BIT, sizeof(level_t) * CHAR_BIT);
+	Ui::Mixer * ui_mixer = new Ui::Mixer();
+	m_mixer->setupMixer(m_config.m_mixer);
+	connect(m_mixer, SIGNAL(mixerChanged()), this, SLOT(onMixerApplied()));
+	connect(this, SIGNAL(dictionaryArrived(int, Dict const &)), m_mixer, SLOT(onDictionaryArrived(int, Dict const &)));
 }
 
 namespace {
@@ -149,7 +160,7 @@ Connection::~Connection ()
 	qDebug("Connection::~Connection() this=0x%08x", this);
 
 	m_main_window->dockManager().removeActionAble(*this);
-	recurse(m_data, UnregisterDockedWidgets(*m_main_window));
+	recurse(m_data_widgets, UnregisterDockedWidgets(*m_main_window));
 
 	if (m_tcpstream)
 	{
@@ -161,7 +172,7 @@ Connection::~Connection ()
 	closeStorage();
 
 	qDebug("destroying docked widgets");
-	recurse(m_data, DestroyDockedWidgets(*m_main_window, *this));
+	recurse(m_data_widgets, DestroyDockedWidgets(*m_main_window, *this));
 
 	if (m_file_tlv_stream)
 	{
@@ -180,6 +191,9 @@ Connection::~Connection ()
 		m_file_csv_stream = 0;
 		delete f;
 	}
+
+	delete m_wavetable;
+	m_wavetable = nullptr;
 }
 
 void Connection::mkWidgetPath (E_DataWidgetType type, QString const tag, QStringList & path)
@@ -209,7 +223,7 @@ void Connection::onDisconnected ()
 		m_main_window->markConnectionForClose(this);
 	}
 
-	for (dataplots_t::iterator it = m_data.get<e_data_plot>().begin(), ite = m_data.get<e_data_plot>().end(); it != ite; ++it)
+	for (dataplots_t::iterator it = m_data_widgets.get<e_data_plot>().begin(), ite = m_data_widgets.get<e_data_plot>().end(); it != ite; ++it)
 		(*it)->stopUpdate();
 }
 
@@ -286,7 +300,7 @@ void Connection::saveConfigs (QString const & path)
 	qDebug("%s", __FUNCTION__);
 
 	saveConfig(m_curr_preset);
-	recurse(m_data, Save(path));
+	recurse(m_data_widgets, Save(path));
 }
 
 void Connection::loadConfigs (QString const & path)
@@ -295,7 +309,8 @@ void Connection::loadConfigs (QString const & path)
 
 	loadConfig(m_curr_preset);
 
-	recurse(m_data, Load(path));
+	recurse(m_data_widgets, Load(path));
+	loadWaveTable(m_config.m_wavetable);
 }
 
 void Connection::loadConfig (QString const & preset_name)
@@ -322,19 +337,20 @@ void Connection::saveConfig (QString const & preset_name)
 void Connection::applyConfigs ()
 {
 	qDebug("%s", __FUNCTION__);
-	recurse(m_data, Apply());
+	recurse(m_data_widgets, Apply());
+	m_wavetable->apply(m_config.m_wavetable);
 }
 
 void Connection::onSaveData (QString const & dir)
 {
 	copyStorageTo(dir + "/" + "raw_data." + g_traceFileExtTLV);
-	//recurse(m_data, SaveData(dir));
+	//recurse(m_data_widgets, SaveData(dir));
 }
 
 void Connection::onExportDataToCSV (QString const & dir)
 {
 	qDebug("%s", __FUNCTION__);
-	recurse(m_data, ExportAsCSV(dir));
+	recurse(m_data_widgets, ExportAsCSV(dir));
 }
 
 bool Connection::handleAction (Action * a, E_ActionHandleType sync)
@@ -345,7 +361,7 @@ bool Connection::handleAction (Action * a, E_ActionHandleType sync)
 		return true;
 	}
 
-	recurse(m_data, HandleAction(a, sync));
+	recurse(m_data_widgets, HandleAction(a, sync));
 	return true;
 }
 

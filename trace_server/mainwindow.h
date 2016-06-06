@@ -22,14 +22,14 @@
 #pragma once
 #include <QMainWindow>
 #include <QSystemTrayIcon>
-#include <tlv_parser/tlv_parser.h>
 #include "config.h"
-#include "dockmanager.h"
+#include <dock/dockmanager.h>
 
 namespace Ui {
 	class MainWindow;
 	class SettingsDialog;
 	class HelpDialog;
+	class  Mixer;
 }
 
 class Server;
@@ -44,13 +44,14 @@ class QTreeView;
 class QTimer;
 class Connection;
 class SetupDialogCSV;
+struct Mixer;
 
 class MainWindow : public QMainWindow
 {
 	Q_OBJECT
 
 public:
-	explicit MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QString const & log_name, int level);
+	explicit MainWindow (QWidget * parent, QString const & iface, unsigned short port, bool quit_delay, bool dump_mode, QString const & log_name, int level);
 	~MainWindow ();
 
 	QTabWidget * getTabTrace ();
@@ -118,6 +119,8 @@ public slots:
 	void onDockManagerButton ();
 	void onDockManagerVisibilityChanged (bool state);
 	void onDockManagerClosed ();
+	void onMixerButton ();
+	void onMixerClosed();
 	void onSave ();
 	void onSaveAs ();
 
@@ -154,7 +157,7 @@ private slots:
 	void onRecentFile ();
 
 	// control widget
-	void onLevelValueChanged (int i);
+	void onMixerChanged (MixerConfig const & config);
 	void onBufferingStateChanged (int state);
 	void onPresetChanged (int idx);
 	void onPresetEdited ();
@@ -195,6 +198,7 @@ private:
 
 	Ui::MainWindow * 	ui;
 	Ui::SettingsDialog * ui_settings;
+	Ui::Mixer * ui_mixer;
 	QDialog *			m_settings_dialog;
 	SetupDialogCSV *	m_setup_dialog_csv;
 
@@ -213,8 +217,9 @@ private:
 	QAction * 			m_quit_action;
 	QMenu *   			m_tray_menu;
 	QToolButton *		m_dock_mgr_button;
+	QLabel *			m_status_widget;
 	QSystemTrayIcon * 	m_tray_icon;
-	QLabel *			m_status_label;
+	Mixer	*				m_mixer;
 	std::vector<QString> m_reload_fnames;
 
 	// docked widgets

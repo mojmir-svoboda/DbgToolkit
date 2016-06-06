@@ -1,48 +1,55 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "ui_settings.h"
+#include "ui_mixer.h"
 #include "ui_help.h"
-#include "server.h"
+#include <server/server.h>
 #include "connection.h"
 #include <QTime>
 #include <QShortcut>
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QTimer>
-#include <tlv_parser/tlv_parser.h>
-#include "help.h"
-#include "version.h"
+#include <QLabel>
+#include <QDropEvent>
+#include <QMimeData>
+#include <QStatusBar>
+#include <widgets/help.h>
+#include <widgets/mixer.h>
+#include <trace_version/trace_version.h>
 #include "constants.h"
-#include "dockwidget.h"
-#include "setupdialogcsv.h"
+#include <dock/dockwidget.h>
+#include <widgets/setupdialogcsv.h>
 #include "ui_setupdialogcsv.h"
 #include <ui_controlbarcommon.h>
-#include "utils.h"
-#include "utils_qstandarditem.h"
-#include "utils_qsettings.h"
-#include "utils_history.h"
+#include <utils/utils.h>
+#include <utils/utils_qstandarditem.h>
+#include <utils/utils_qsettings.h>
+#include <utils/utils_history.h>
 #include "qt_plugins.h"
+#include "platform.h"
 
-MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QString const & log_name, int level)
+MainWindow::MainWindow (QWidget * parent, QString const & iface, unsigned short port, bool quit_delay, bool dump_mode, QString const & log_name, int level)
 	: QMainWindow(parent)
 	, m_time_units(0.001f)
 	, ui(new Ui::MainWindow)
-	, ui_settings(0)
+	, ui_settings(nullptr)
 	, m_help(new Ui::HelpDialog)
 	, m_timer(new QTimer(this))
-	, m_server(0)
-	, m_windows_menu(0)
-	, m_file_menu(0)
-	, m_before_action(0)
-	, m_minimize_action(0)
-	, m_maximize_action(0)
-	, m_restore_action(0)
-	, m_quit_action(0)
-	, m_tray_menu(0)
-	, m_dock_mgr_button(0)
-	, m_tray_icon(0)
-	, m_settings_dialog(0)
-	, m_setup_dialog_csv(0)
+	, m_server(nullptr)
+	, m_windows_menu(nullptr)
+	, m_file_menu(nullptr)
+	, m_before_action(nullptr)
+	, m_minimize_action(nullptr)
+	, m_maximize_action(nullptr)
+	, m_restore_action(nullptr)
+	, m_quit_action(nullptr)
+	, m_tray_menu(nullptr)
+	, m_dock_mgr_button(nullptr)
+	, m_status_widget(nullptr)
+	, m_tray_icon(nullptr)
+	, m_settings_dialog(nullptr)
+	, m_setup_dialog_csv(nullptr)
 	, m_dock_mgr(this, QStringList(QString(g_traceServerName)))
 	, m_docked_name(g_traceServerName)
 	, m_log_name(log_name)
@@ -65,8 +72,14 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QStri
 	m_setup_dialog_csv->ui->preView->setModel(new QStandardItemModel());
 	m_setup_dialog_csv->ui->columnList->setModel(new QStandardItemModel());
 
+	//m_mixer = new Mixer(nullptr, m_dock_mgr.controlUI()->mixerButton, sizeof(context_t) * CHAR_BIT, sizeof(level_t) * CHAR_BIT);
+	//Ui::Mixer * ui_mixer = new Ui::Mixer();
+	//m_mixer->setupMixer(m_config.m_mixer);
+
 	m_config.m_appdir = m_appdir;
 	m_config.m_dump_mode = dump_mode;
+	m_config.m_trace_addr = iface;
+	m_config.m_trace_port = port;
 	loadConfig();
 	m_config.loadHistory(m_appdir);
 	setConfigValuesToUI(m_config);
@@ -91,15 +104,22 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QStri
 
 	m_server = new Server(m_config.m_trace_addr, m_config.m_trace_port, this, quit_delay);
 	connect(m_server, SIGNAL(newConnection(Connection *)), this, SLOT(newConnection(Connection *)));
-	connect(m_server, SIGNAL(statusChanged(QString const & status)), this, SLOT(onStatusChanged(QString const & status)));
-	showServerStatus();
+	connect(m_server, SIGNAL(statusChanged(QString const &)), this, SLOT(onStatusChanged(QString const &)));
 
-	m_timer->setInterval(5000);
-	connect(m_timer, SIGNAL(timeout()) , this, SLOT(onTimerHit()));
-	m_timer->start();
+ 	m_timer->setInterval(5000);
+ 	connect(m_timer, SIGNAL(timeout()) , this, SLOT(onTimerHit()));
+ 	m_timer->start();
+
+	/// status widget
+	m_status_widget = new QLabel(m_server->getRunningStatus());
+	m_status_widget->setAlignment(Qt::AlignRight);
+	if (statusBar())
+		statusBar()->hide();
+
 	setupMenuBar();
 
-	connect(m_dock_mgr.controlUI()->levelSpinBox, SIGNAL(valueChanged(int)), this, SLOT(onLevelValueChanged(int)));
+	//connect(m_dock_mgr.controlUI()->levelSpinBox, SIGNAL(valueChanged(int)), this, SLOT(onLevelValueChanged(int)));
+	connect(m_dock_mgr.controlUI()->mixerButton, SIGNAL(clicked()), this, SLOT(onMixerButton()));
 	connect(m_dock_mgr.controlUI()->buffCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onBufferingStateChanged(int)));
 	connect(m_dock_mgr.controlUI()->clrDataButton, SIGNAL(clicked()), this, SLOT(onClearAllData()));
 	connect(m_dock_mgr.controlUI()->presetComboBox, SIGNAL(activated(int)), this, SLOT(onPresetChanged(int)));
@@ -113,12 +133,6 @@ MainWindow::MainWindow (QWidget * parent, bool quit_delay, bool dump_mode, QStri
 	connect(m_dock_mgr.controlUI()->plotSlider, SIGNAL(valueChanged(int)), this, SLOT(onPlotsStateChanged(int)));
 	connect(m_dock_mgr.controlUI()->tableSlider, SIGNAL(valueChanged(int)), this, SLOT(onTablesStateChanged(int)));
 	connect(m_dock_mgr.controlUI()->ganttSlider, SIGNAL(valueChanged(int)), this, SLOT(onGanttsStateChanged(int)));
-
-	/// status bar
-	m_status_label = new QLabel(m_server->getStatus());
-	QLabel * version_label = new QLabel(tr("Ver: %1").arg(g_Version));
-	statusBar()->addPermanentWidget(version_label);
-	statusBar()->addWidget(m_status_label);
 
 	QTimer::singleShot(0, this, SLOT(loadState()));	// trigger lazy load of settings
 	setWindowTitle(g_traceServerName);
@@ -163,7 +177,6 @@ void MainWindow::showMaximized ()
 
 void MainWindow::createTrayActions ()
 {
-	qDebug("%s", __FUNCTION__);
 	m_minimize_action = new QAction(tr("Mi&nimize"), this);
 	connect(m_minimize_action, SIGNAL(triggered()), this, SLOT(hide()));
 
@@ -179,7 +192,6 @@ void MainWindow::createTrayActions ()
 
 void MainWindow::createTrayIcon ()
 {
-	qDebug("%s", __FUNCTION__);
 	m_tray_menu = new QMenu(this);
 	m_tray_menu->addAction(m_minimize_action);
 	m_tray_menu->addAction(m_maximize_action);
@@ -191,7 +203,7 @@ void MainWindow::createTrayIcon ()
 	m_tray_icon = new QSystemTrayIcon(icon, this);
 	m_tray_icon->setContextMenu(m_tray_menu);
 
-	connect(m_tray_icon, SIGNAL(messageClicked()), this, SLOT(messageClicked()));
+	//connect(m_tray_icon, SIGNAL(messageClicked()), this, SLOT(messageClicked()));
 	connect(m_tray_icon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)), this, SLOT(iconActivated(QSystemTrayIcon::ActivationReason)));
 }
 
@@ -229,13 +241,13 @@ void MainWindow::dragEnterEvent (QDragEnterEvent *event)
 
 void MainWindow::onStatusChanged (QString const & status)
 {
-	statusBar()->showMessage(status);
+	m_status_widget->setText(status);
 	m_timer->start(5000);
 }
 
 void MainWindow::showServerStatus ()
 {
-	statusBar()->showMessage(m_server->getStatus());
+	m_status_widget->setText(m_server->getRunningStatus());
 }
 
 void MainWindow::onTimerHit ()
@@ -482,6 +494,12 @@ void MainWindow::setupMenuBar ()
 		QToolButton  { border: 1px solid #8f8f91; border-radius: 4px; background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #e6e7fa, stop: 1 #dadbff); } \
 		QToolButton:checked { background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #dadbdd, stop: 1 #d6d7da); }");
 
+	menuBar()->setCornerWidget(m_status_widget, Qt::TopRightCorner);
+	connect(m_status_widget, SIGNAL(clicked()), this, SLOT(onDockManagerButton()));
+	m_status_widget->setStyleSheet("\
+		QToolButton  { border: 1px solid #8f8f91; border-radius: 2px; } \
+		QToolButton:checked { background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #dadbdd, stop: 1 #d6d7da); }");
+
 	// File
 	m_file_menu = menuBar()->addMenu(tr("&File"));
 	m_file_menu->addAction(tr("Data file &Load..."), this, SLOT(onFileLoad()), QKeySequence(Qt::ControlModifier + Qt::Key_O));
@@ -520,6 +538,8 @@ void MainWindow::setupMenuBar ()
 	helpMenu->addSeparator();
 	helpMenu->addAction(tr("&Remove configuration files"), this, SLOT(onRemoveConfigurationFiles()));
 	helpMenu->addAction(tr("Show server log"), this, SLOT(onLogTail()), QKeySequence(Qt::ControlModifier + Qt::AltModifier + Qt::Key_L));
+	QAction * ver = helpMenu->addAction(tr("Version %1").arg(g_Version));
+	ver->setEnabled(false);
 
 	// Tools
 	//QMenu * tools = menuBar()->addMenu(tr("&Settings"));

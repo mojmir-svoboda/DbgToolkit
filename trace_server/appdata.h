@@ -1,25 +1,46 @@
 #pragma once
-#include "filterstate.h"
+#include <vector>
+#include <QString>
+#include <cstdint>
+#include <3rd/assocvector.h>
 
-struct AppData {
+struct Dict : Loki::AssocVector<uint64_t, QString>
+{
+// 	QString findNameFor (QString const & strval) const
+// 	{
+// 		for (int i = 0, ie = m_dict.size(); i < ie; ++i)
+// 			if (m_dict[i].first == strval)
+// 				return m_dict[i].second;
+// 		return QString();
+// 	}
 
-	void addCtxDict (QList<QString> const & names, QList<QString> const & strvalues)
+	void add (uint64_t val, QString const & name) { insert(std::make_pair(val, name)); }
+
+	QString findNameFor (uint64_t val) const
 	{
-		m_dict_ctx.m_names = names;
-		m_dict_ctx.m_strvalues = strvalues;
-		
-		foreach (QString const & item, m_dict_ctx.m_strvalues)
-			m_dict_ctx.m_values.append(item.toInt());
+		auto it = find(val);
+		if (it != end())
+			return it->second;
+		return QString();
 	}
-
-	Dict const & getDictCtx () const { return m_dict_ctx; }
 
 	template <class ArchiveT>
 	void serialize (ArchiveT & ar, unsigned const version)
 	{
+		ar & boost::serialization::make_nvp("dict", m_dict);
+	}
+};
+
+struct AppData
+{
+	template <class ArchiveT>
+	void serialize (ArchiveT & ar, unsigned const version)
+	{
+		ar & boost::serialization::make_nvp("dict_lvl", m_dict_lvl);
 		ar & boost::serialization::make_nvp("dict_ctx", m_dict_ctx);
 	}
 
+	Dict		m_dict_lvl;
 	Dict		m_dict_ctx;
 };
 

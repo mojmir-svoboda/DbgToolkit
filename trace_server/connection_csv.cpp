@@ -1,8 +1,8 @@
 #include "connection.h"
-#include "logs/logwidget.h"
+//#include "logs/logwidget.h"
 #include "mainwindow.h"
 #include "constants.h"
-#include "utils.h"
+//#include "utils.h"
 
 namespace {
 	void item2separator (QString const & item, QString & sep)

@@ -1,6 +1,14 @@
 #include "trace.h"
 #include <stdarg.h>
+#include <array>
+#include <vector>
 #include <sysfn/time_query.h>
+#include <trace_proto/encoder.h>
+#include <trace_proto/header.h>
+#include <trace_proto/dictionary.h>
+#include <trace_proto/encode_config.h>
+#include <trace_proto/encode_log.h>
+#include <trace_proto/encode_dictionary.h>
 
 	namespace sys {
 		hptimer_t g_Start = 0, g_Freq = 1000000;
@@ -9,40 +17,126 @@
 #if defined TRACE_ENABLED
 	namespace trace {
 
-		level_t      g_RuntimeLevel       = static_cast<level_t>(e_max_trace_level);
-		context_t    g_RuntimeContextMask = ~(0U);
-		char const * g_AppName            = "trace_client";
-		bool         g_RuntimeBuffering   = true;
+		using mixervalues_t = std::array<level_t, sizeof(context_t) * CHAR_BIT>;
 
+		struct ClientConfig
+		{
+			bool m_buffered;
+			std::string  m_appName;
+			std::string  m_hostName;
+			std::string  m_hostPort;
+			mixervalues_t m_mixer;
+			std::vector<DictionaryPair> m_levelDict;
+			std::vector<DictionaryPair> m_ctxDict;
+
+			ClientConfig ()
+				: m_appName("trace_client")
+				, m_hostName("localhost")
+				, m_hostPort("13127")
+				, m_buffered(false)
+				, m_mixer()
+			{ }
+		};
+		ClientConfig g_Config;
 
 		// setup and utils
-		void SetAppName (char const * name) { g_AppName = name; }
-		char const * GetAppName () { return g_AppName; }
+		void SetAppName (char const * name) { g_Config.m_appName = name; }
+		char const * GetAppName () { return g_Config.m_appName.c_str(); }
 
-		void SetRuntimeLevel (level_t level) { g_RuntimeLevel = level; }
-		level_t GetRuntimeLevel () { return g_RuntimeLevel; }
+		void SetHostName (char const * addr) { g_Config.m_hostName = addr; }
+		char const * GetHostName () { return g_Config.m_hostName.c_str(); }
 
-		void SetRuntimeBuffering (bool buffered) { g_RuntimeBuffering = buffered; }
-		bool GetRuntimeBuffering () { return g_RuntimeBuffering; }
+		void SetHostPort (char const * port) { g_Config.m_hostPort = port; }
+		char const * GetHostPort () { return g_Config.m_hostPort.c_str(); }
 
-		void SetRuntimeContextMask (context_t mask) { g_RuntimeContextMask = mask; }
-		context_t GetRuntimeContextMask () { return g_RuntimeContextMask; }
-
-		inline void SetCustomUserDictionnary (CtxDictPair const * ptr, size_t n);
-		inline void SetCustomUserDictionnary (LvlDictPair const * ptr, size_t n);
-		void SetCustomUserDictionnary ()
+		void SetRuntimeLevelForContext (context_t ctx, level_t level)
 		{
+			for (unsigned b = 0; ctx; ++b, ctx >>= 1)
 			{
-				CtxDictPair const * ptr = 0;
-				size_t const n = getContextDictionnary(ptr);
-				SetCustomUserDictionnary(ptr, n);
+				if (ctx & 1)
+					g_Config.m_mixer[b] = level;
+			}
+		}
+		level_t GetRuntimeLevelForContext (context_t ctx)
+		{
+			for (unsigned b = 0; ctx; ++b, ctx >>= 1)
+			{
+				if (ctx & 1)
+					return g_Config.m_mixer[b];
+			}
+			return 0;
+		}
+		level_t * GetRuntimeCfgData () { return g_Config.m_mixer.data(); }
+		size_t GetRuntimeCfgSize () { return g_Config.m_mixer.size(); }
+
+		void SetRuntimeBuffering (bool buffered) { g_Config.m_buffered = buffered; }
+		bool GetRuntimeBuffering () { return g_Config.m_buffered; }
+		void SetLevelDictionary (DictionaryPair const * pairs, size_t sz)
+		{
+			std::vector<DictionaryPair> tmp(pairs, pairs + sz);
+			g_Config.m_levelDict = std::move(tmp);
+		}
+		void SetContextDictionary (DictionaryPair const * pairs, size_t sz)
+		{
+			std::vector<DictionaryPair> tmp(pairs, pairs + sz);
+			g_Config.m_ctxDict = std::move(tmp);
+		}
+	
+		namespace socks {
+			bool WriteToSocket (char const * buff, size_t ln);
+		}
+
+		void SendDictionary (int type, DictionaryPair const * dict_ptr, size_t dict_sz)
+		{
+			// send config message
+			enum : size_t { max_msg_size = 8192 };
+			char msg[max_msg_size];
+			asn1::Header & hdr = asn1::encode_header(msg, max_msg_size);
+			asn1::DictPair const * const asn1_dict_ptr = reinterpret_cast<asn1::DictPair const *>(dict_ptr); // cast between layout compatible classes
+			if (const size_t n = asn1::encode_dictionary(msg + sizeof(asn1::Header), max_msg_size - sizeof(asn1::Header), type, asn1_dict_ptr, dict_sz))
+			{
+				hdr.m_len = n;
+				socks::WriteToSocket(msg, n + sizeof(asn1::Header));
+			}
+		}
+
+		// on connect (to server) callback
+		void OnConnectionEstablished ()
+		{
+			OutputDebugStringA("LOG: connected, sending config to server\n");
+			enum : size_t { max_msg_size = 1024 };
+			char msg[max_msg_size];
+			asn1::Header & hdr = asn1::encode_header(msg, max_msg_size);
+			char const * mixer_ptr = reinterpret_cast<char const *>(g_Config.m_mixer.data());
+			size_t const mixer_sz = g_Config.m_mixer.size() * sizeof(level_t);
+			if (const size_t n = asn1::encode_config(msg + sizeof(asn1::Header), max_msg_size - sizeof(asn1::Header), GetAppName(), mixer_ptr, mixer_sz, g_Config.m_buffered, sys::get_pid()))
+			{
+				hdr.m_len = n;
+				socks::WriteToSocket(msg, n + sizeof(asn1::Header));
 			}
 
-			{
-				LvlDictPair const * ptr = 0;
-				size_t const n = getLevelDictionnary(ptr);
-				SetCustomUserDictionnary(ptr, n);
-			}
+			if (size_t n = g_Config.m_levelDict.size())
+				SendDictionary(0, &g_Config.m_levelDict[0], n);
+			if (size_t n = g_Config.m_ctxDict.size())
+				SendDictionary(1, &g_Config.m_ctxDict[0], n);
+		}
+
+		// on config received (from server) callback
+		void OnConnectionConfigCommand (Command const & cmd)
+		{
+			bool buffered = cmd.choice.config.buffered == 1;
+			char grr[256];
+			_snprintf_s(grr, 256, "LOG: received config command: buff=%u\n", buffered);
+			OutputDebugString(grr);
+
+/*			SetRuntimeBuffering(buffered);*/ // %%#$#$#&#@^#!^#@%^#%^@#%^@#%^@#%^
+
+			OCTET_STRING const & omixer = cmd.choice.config.mixer;
+			char const * const ptr = reinterpret_cast<char const *>(omixer.buf);
+			level_t const * levels = reinterpret_cast<level_t const *>(ptr);
+			assert(g_Config.m_mixer.size() == omixer.size / sizeof(level_t));
+			for (level_t & l : g_Config.m_mixer)
+				l = *levels++;
 		}
 
 		// message logging
@@ -110,6 +204,19 @@
 			va_list args;
 			va_start(args, fmt);
 			WritePlotVA(level, context, x, y, fmt, args);
+			va_end(args);
+		}
+		inline void WritePlotMarker_impl (level_t level, context_t context, float x, float y, char const * fmt, va_list args);
+		void WritePlotMarkerVA (level_t level, context_t context, float x, float y, char const * fmt, va_list args)
+		{
+			if (RuntimeFilterPredicate(level, context))
+				WritePlotMarker_impl(level, context, x, y, fmt, args);
+		}
+		void WritePlotMarker (level_t level, context_t context, float x, float y, char const * fmt, ...)
+		{
+			va_list args;
+			va_start(args, fmt);
+			WritePlotMarkerVA(level, context, x, y, fmt, args);
 			va_end(args);
 		}
 
@@ -339,7 +446,7 @@
 			WriteGanttScopeBgnVA(level, context, m_tag, 256, fmt, args);
 			va_end(args);
 		}
-		
+
 		ScopedGantt::~ScopedGantt ()
 		{
 			WriteGanttEnd(m_level, m_context, "%s", m_tag);
@@ -358,8 +465,23 @@
 			WriteGanttFrameEnd(m_level, m_context);
 		}
 
+		inline void WriteSound_impl (level_t level, context_t context, float vol, int loop, char const * fmt, va_list args);
+		void WriteSoundVA (level_t level, context_t context, float vol, int loop, char const * fmt, va_list args)
+		{
+			if (RuntimeFilterPredicate(level, context))
+				WriteSound_impl(level, context, vol, loop, fmt, args);
+		}
+		void WriteSound (level_t level, context_t context, float vol, int loop, char const * fmt, ...)
+		{
+			va_list args;
+			va_start(args, fmt);
+			WriteSoundVA(level, context, vol, loop, fmt, args);
+			va_end(args);
+		}
+
+
+
 	}
-#	include "platforms/select_platform.inl"
 
 #else // tracing is NOT enabled
 	; // the perfect line

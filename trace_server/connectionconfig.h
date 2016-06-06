@@ -1,6 +1,8 @@
 #pragma once
 #include "types.h"
-#include "history.h"
+#include "mixerconfig.h"
+#include <utils/history.h>
+#include "wavetableconfig.h"
 
 struct ConnectionConfig
 {
@@ -8,7 +10,7 @@ struct ConnectionConfig
 	bool	  m_auto_scroll;
 	bool	  m_buffered;
 	bool	  m_show;
-	int		  m_level;
+	MixerConfig m_mixer;
 	int		  m_logs_recv_level;
 	int		  m_plots_recv_level;
 	int		  m_tables_recv_level;
@@ -18,6 +20,7 @@ struct ConnectionConfig
 	QString	  m_font;
 	int		  m_fontsize;
 	History<QString> m_preset_history;
+	WaveTableConfig m_wavetable;
 
 	void loadHistory (QString const & path);
 	void saveHistory (QString const & path) const;
@@ -27,7 +30,6 @@ struct ConnectionConfig
 		, m_auto_scroll(false)
 		, m_buffered(true)
 		, m_show(true)
-		, m_level(3)
 		, m_logs_recv_level(2)
 		, m_plots_recv_level(0)
 		, m_tables_recv_level(0)
@@ -46,8 +48,8 @@ struct ConnectionConfig
 		ar & boost::serialization::make_nvp("autoscroll", m_auto_scroll);
 		ar & boost::serialization::make_nvp("buffered", m_buffered);
 		ar & boost::serialization::make_nvp("show", m_show);
-		ar & boost::serialization::make_nvp("level", m_level);
-		ar & boost::serialization::make_nvp("time_units_str", m_time_units);
+		ar & boost::serialization::make_nvp("mixer", m_mixer);
+		ar & boost::serialization::make_nvp("time_units_str", m_time_units_str);
 		ar & boost::serialization::make_nvp("time_units", m_time_units);
 		ar & boost::serialization::make_nvp("font", m_font);
 		ar & boost::serialization::make_nvp("fontsize", m_fontsize);
@@ -55,6 +57,7 @@ struct ConnectionConfig
 		ar & boost::serialization::make_nvp("plots_recv_level", m_plots_recv_level);
 		ar & boost::serialization::make_nvp("tables_recv_level", m_tables_recv_level);
 		ar & boost::serialization::make_nvp("gantts_recv_level", m_gantts_recv_level);
+		ar & boost::serialization::make_nvp("wavetable", m_wavetable);
 	}
 };
 

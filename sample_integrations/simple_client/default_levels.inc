@@ -1,0 +1,6 @@
+DRY(LL_VERBOSE		, (1 <<  0))
+DRY(LL_DEBUG		, (1 <<  1))
+DRY(LL_NORMAL		, (1 <<  2))
+DRY(LL_WARNING		, (1 <<  3))
+DRY(LL_ERROR		, (1 <<  4))
+DRY(LL_FATAL		, (1 <<  5))

@@ -2,94 +2,70 @@
 #include <QtNetwork>
 #include <QMessageBox>
 #include <QHeaderView>
-#include <tlv_parser/tlv.h>
-#include <tlv_parser/tlv_cmd_qstring.h>
-#include <tlv_parser/tlv_encoder.h>
-#include "logs/logtablemodel.h"
-#include "cmd.h"
-#include "utils.h"
-#include "utils_boost.h"
-#include "dock.h"
+#include <trace_proto/trace_proto.h>
+//#include "utils.h"
+#include <utils/utils_boost.h>
+//#include "dock.h"
 #include "mainwindow.h"
 #include <cstdlib>
 
-inline void Dump (DecodedCommand const & c)
-{
-	qDebug("command.hdr.cmd = 0x%x command.hdr.len = 0x%x", c.m_hdr.cmd, c.m_hdr.len);
-	for (size_t i = 0; i < c.m_tvs.size(); ++i)
-		qDebug("tlv[%u] t=%02x val=%s", i, c.m_tvs[i].m_tag, c.m_tvs[i].m_val.toStdString().c_str());
-}
+// bool isCommandQueuable (tlv::tag_t cmd)
+// {
+// 	switch (cmd)
+// 	{
+// 		case tlv::cmd_setup:			return false;
+// 		case tlv::cmd_ping:				return false;
+// 		case tlv::cmd_shutdown:			return false;
+// 		case tlv::cmd_dict_ctx:			return false;
+// 		case tlv::cmd_save_tlv:			return false;
+// 		case tlv::cmd_export_csv:		return false;
+// 		case tlv::cmd_plot_clear:		return false;
+// 		case tlv::cmd_table_setup:		return false;
+// 		case tlv::cmd_table_clear:		return false;
+// 		case tlv::cmd_log_clear:		return false;
+// 		case tlv::cmd_log:
+// 		case tlv::cmd_scope_entry:
+// 		case tlv::cmd_scope_exit:
+// 		case tlv::cmd_plot_xy:
+// 		case tlv::cmd_plot_xyz:	
+// 		case tlv::cmd_table_xy:	
+// 		case tlv::cmd_gantt_bgn:
+// 		case tlv::cmd_gantt_end:
+// 		case tlv::cmd_gantt_frame_bgn:
+// 		case tlv::cmd_gantt_frame_end:
+// 		case tlv::cmd_gantt_clear:		return true;
+// 
+// 		default:
+// 			qWarning("unknown command!\n"); 
+// 			return true;
+// 	}
+// }
 
-inline size_t read_min (boost::circular_buffer<char> & ring, char * dst, size_t min)
-{
-	if (ring.size() < min)
-		return 0;
-
-	for (size_t i = 0; i < min; ++i)
-	{
-		dst[i] = ring.front();
-		ring.pop_front();
-	}
-	return min;
-}
-
-bool isCommandQueuable (tlv::tag_t cmd)
-{
-	switch (cmd)
-	{
-		case tlv::cmd_setup:			return false;
-		case tlv::cmd_ping:				return false;
-		case tlv::cmd_shutdown:			return false;
-		case tlv::cmd_dict_ctx:			return false;
-		case tlv::cmd_save_tlv:			return false;
-		case tlv::cmd_export_csv:		return false;
-		case tlv::cmd_plot_clear:		return false;
-		case tlv::cmd_table_setup:		return false;
-		case tlv::cmd_table_clear:		return false;
-		case tlv::cmd_log_clear:		return false;
-		case tlv::cmd_log:
-		case tlv::cmd_scope_entry:
-		case tlv::cmd_scope_exit:
-		case tlv::cmd_plot_xy:
-		case tlv::cmd_plot_xyz:	
-		case tlv::cmd_table_xy:	
-		case tlv::cmd_gantt_bgn:
-		case tlv::cmd_gantt_end:
-		case tlv::cmd_gantt_frame_bgn:
-		case tlv::cmd_gantt_frame_end:
-		case tlv::cmd_gantt_clear:		return true;
-
-		default:
-			qWarning("unknown command!\n"); 
-			return true;
-	}
-}
-
-E_DataWidgetType queueForCommand (tlv::tag_t cmd)
-{
-	switch (cmd)
-	{
-		case tlv::cmd_save_tlv:			return e_data_log;
-		case tlv::cmd_export_csv:		return e_data_log; 
-		case tlv::cmd_log:				return e_data_log;
-		case tlv::cmd_log_clear:		return e_data_log;
-		case tlv::cmd_scope_entry:		return e_data_log;
-		case tlv::cmd_scope_exit:		return e_data_log;
-		case tlv::cmd_plot_xy:			return e_data_plot;
-		case tlv::cmd_plot_xyz:			return e_data_plot;
-		case tlv::cmd_plot_clear:		return e_data_plot;
-		case tlv::cmd_table_xy:			return e_data_table;
-		case tlv::cmd_table_setup:		return e_data_table;
-		case tlv::cmd_table_clear:		return e_data_table;
-		case tlv::cmd_gantt_bgn:		return e_data_gantt;
-		case tlv::cmd_gantt_end:		return e_data_gantt;
-		case tlv::cmd_gantt_frame_bgn:	return e_data_gantt;
-		case tlv::cmd_gantt_frame_end:	return e_data_gantt;
-		case tlv::cmd_gantt_clear:		return e_data_gantt;
-
-		default: qWarning("unknown command!\n"); return e_data_widget_max_value;
-	}
-}
+// E_DataWidgetType queueForCommand (tlv::tag_t cmd)
+// {
+// 	switch (cmd)
+// 	{
+// 		case tlv::cmd_save_tlv:			return e_data_log;
+// 		case tlv::cmd_export_csv:		return e_data_log; 
+// 		case tlv::cmd_log:				return e_data_log;
+// 		case tlv::cmd_log_clear:		return e_data_log;
+// 		case tlv::cmd_scope_entry:		return e_data_log;
+// 		case tlv::cmd_scope_exit:		return e_data_log;
+// 		case tlv::cmd_plot_xy:			return e_data_plot;
+// 		case tlv::cmd_plot_xyz:			return e_data_plot;
+// 		case tlv::cmd_plot_clear:		return e_data_plot;
+// 		case tlv::cmd_table_xy:			return e_data_table;
+// 		case tlv::cmd_table_setup:		return e_data_table;
+// 		case tlv::cmd_table_clear:		return e_data_table;
+// 		case tlv::cmd_gantt_bgn:		return e_data_gantt;
+// 		case tlv::cmd_gantt_end:		return e_data_gantt;
+// 		case tlv::cmd_gantt_frame_bgn:	return e_data_gantt;
+// 		case tlv::cmd_gantt_frame_end:	return e_data_gantt;
+// 		case tlv::cmd_gantt_clear:		return e_data_gantt;
+// 
+// 		default: qWarning("unknown command!\n"); return e_data_widget_max_value;
+// 	}
+// }
 
 namespace {
 	struct EnqueueCommand {
@@ -109,41 +85,41 @@ namespace {
 
 bool Connection::enqueueCommand (DecodedCommand const & cmd)
 {
-	E_DataWidgetType const queue_type = queueForCommand(cmd.m_hdr.cmd);
-	if (queue_type == e_data_widget_max_value)
-		return false;
-
-	recurse(m_data, EnqueueCommand(queue_type, cmd));
+// 	E_DataWidgetType const queue_type = queueForCommand(cmd.m_hdr.cmd);
+// 	if (queue_type == e_data_widget_max_value)
+// 		return false;
+// 
+// 	recurse(m_data_widgets, EnqueueCommand(queue_type, cmd));
 	return true;
 }
 
 
 bool Connection::tryHandleCommand (DecodedCommand const & cmd, E_ReceiveMode mode)
 {
-	switch (cmd.m_hdr.cmd)
+	switch (cmd.present)
 	{
-		case tlv::cmd_setup:			handleSetupCommand(cmd); break;
-		case tlv::cmd_shutdown:			handleShutdownCommand(cmd); break;
-		case tlv::cmd_ping:				handlePingCommand(cmd); break;
-		case tlv::cmd_save_tlv:			handleSaveTLVCommand(cmd); break;
-		case tlv::cmd_export_csv:		handleExportCSVCommand(cmd); break;
-		case tlv::cmd_dict_ctx:			handleDictionnaryCtx(cmd); break;
+		case Command_PR_config:			handleConfigCommand(cmd); break;
+//		case tlv::cmd_shutdown:			handleShutdownCommand(cmd); break;
+// 		case tlv::cmd_ping:				handlePingCommand(cmd); break;
+// 		case tlv::cmd_save_tlv:			handleSaveTLVCommand(cmd); break;
+// 		case tlv::cmd_export_csv:		handleExportCSVCommand(cmd); break;
+		case Command_PR_dict:				handleDictionary(cmd); break;
 
-		case tlv::cmd_log:				handleLogCommand(cmd, mode); break;
-		case tlv::cmd_log_clear:		handleLogClearCommand(cmd, mode); break;
-		case tlv::cmd_scope_entry:		handleLogCommand(cmd, mode); break;
-		case tlv::cmd_scope_exit:		handleLogCommand(cmd, mode); break;
-		case tlv::cmd_plot_xy:			handlePlotCommand(cmd, mode); break;
-		case tlv::cmd_plot_xyz:			handlePlotCommand(cmd, mode); break;
-		case tlv::cmd_plot_clear:		handlePlotCommand(cmd, mode); break;
-		case tlv::cmd_table_xy:			handleTableCommand(cmd, mode); break;
-		case tlv::cmd_table_setup:		handleTableCommand(cmd, mode); break;
-		case tlv::cmd_table_clear:		handleTableCommand(cmd, mode); break;
-		case tlv::cmd_gantt_bgn:		handleGanttBgnCommand(cmd, mode); break;
-		case tlv::cmd_gantt_end:		handleGanttEndCommand(cmd, mode); break;
-		case tlv::cmd_gantt_frame_bgn:	handleGanttFrameBgnCommand(cmd, mode); break;
-		case tlv::cmd_gantt_frame_end:	handleGanttFrameEndCommand(cmd, mode); break;
-		case tlv::cmd_gantt_clear:		handleGanttClearCommand(cmd, mode); break;
+		case Command_PR_log:				handleLogCommand(cmd, mode); break;
+// 		case tlv::cmd_log_clear:		handleLogClearCommand(cmd, mode); break;
+ 		case Command_PR_plot:				handlePlotCommand(cmd, mode); break;
+		case Command_PR_plotm:			handlePlotCommand(cmd, mode); break;
+		case Command_PR_snd:				handleSoundCommand(cmd, mode); break;
+// 		case tlv::cmd_plot_xyz:			handlePlotCommand(cmd, mode); break;
+// 		case tlv::cmd_plot_clear:		handlePlotCommand(cmd, mode); break;
+// 		case tlv::cmd_table_xy:			handleTableCommand(cmd, mode); break;
+// 		case tlv::cmd_table_setup:		handleTableCommand(cmd, mode); break;
+// 		case tlv::cmd_table_clear:		handleTableCommand(cmd, mode); break;
+// 		case tlv::cmd_gantt_bgn:		handleGanttBgnCommand(cmd, mode); break;
+// 		case tlv::cmd_gantt_end:		handleGanttEndCommand(cmd, mode); break;
+// 		case tlv::cmd_gantt_frame_bgn:	handleGanttFrameBgnCommand(cmd, mode); break;
+// 		case tlv::cmd_gantt_frame_end:	handleGanttFrameEndCommand(cmd, mode); break;
+// 		case tlv::cmd_gantt_clear:		handleGanttClearCommand(cmd, mode); break;
 
 		default: qDebug("unknown command, ignoring\n"); break;
 	}
@@ -152,24 +128,24 @@ bool Connection::tryHandleCommand (DecodedCommand const & cmd, E_ReceiveMode mod
 
 void Connection::onHandleCommands ()
 {
-	size_t const rows = m_decoded_cmds.size();
-	for (size_t i = 0; i < rows; ++i)
-	{
-		DecodedCommand & cmd = m_decoded_cmds.front();
-		if (isCommandQueuable(cmd.m_hdr.cmd))
-		{
-			enqueueCommand(cmd);
-		}
-		else
-		{
-			tryHandleCommand(cmd, e_RecvSync);
-		}
-
-		if (m_src_stream == e_Stream_TCP && m_tcp_dump_stream)
-			m_tcp_dump_stream->writeRawData(&cmd.m_orig_message[0], cmd.m_hdr.len + tlv::Header::e_Size);
-
-		m_decoded_cmds.pop_front();
-	}
+// 	size_t const rows = m_decoded_cmds.size();
+// 	for (size_t i = 0; i < rows; ++i)
+// 	{
+// 		DecodedCommand & cmd = m_decoded_cmds.front();
+// 		if (isCommandQueuable(cmd.m_hdr.cmd))
+// 		{
+// 			enqueueCommand(cmd);
+// 		}
+// 		else
+// 		{
+// 			tryHandleCommand(cmd, e_RecvSync);
+// 		}
+// 
+// 		if (m_src_stream == e_Stream_TCP && m_tcp_dump_stream)
+// 			m_tcp_dump_stream->writeRawData(&cmd.m_orig_message[0], cmd.m_hdr.len + tlv::Header::e_Size);
+// 
+// 		m_decoded_cmds.pop_front();
+// 	}
 }
 
 void Connection::onHandleCommandsStart ()
@@ -185,12 +161,6 @@ namespace {
 		template <typename T>
 		void operator() (T & t)
 		{
-			while (!t.m_queue.isEmpty())
-			{
-				DecodedCommand const & cmd = t.m_queue.front();
-				m_conn.tryHandleCommand(cmd, e_RecvBatched);
-				t.m_queue.pop_front();
-			}
 			foreach (typename T::widget_t * w, t)
 				w->commitCommands(e_RecvBatched);
 		}
@@ -199,99 +169,150 @@ namespace {
 
 void Connection::onHandleCommandsCommit ()
 {
-	recurse(m_data, DequeueCommand(*this));
+	recurse(m_data_widgets, DequeueCommand(*this));
 }
 
 
 template <class T, typename T_Ret, typename T_Arg0, typename T_Arg1>
 int Connection::processStream (T * t, T_Ret (T::*read_member_fn)(T_Arg0, T_Arg1))
 {
-	enum { local_buff_sz = 128 };
-	char local_buff[local_buff_sz];
 	try {
+		emit onHandleCommandsStart(); // @TODO unused, remove
+		size_t const hdr_sz = sizeof(asn1::Header);
+		size_t batch_size = 0;
 
-		emit onHandleCommandsStart();
-		bool data_in_stream = true;
-		while (data_in_stream)
+		while (1)
 		{
-			// read data into ring buffer
-			while (!m_buffer.full())
+			if (!m_dcd_ctx.m_has_hdr)
 			{
-				size_t const free_space = m_buffer.reserve();
-				size_t const to_read = free_space < local_buff_sz ? free_space : local_buff_sz;
-
-				qint64 const count = (t->*read_member_fn)(local_buff, static_cast<int>(to_read));
-				m_recv_bytes += count;			
-
+				char * const buff_ptr = m_dcd_ctx.getEndPtr();
+				size_t const curr_sz = m_dcd_ctx.getSize();
+				size_t const to_recv = hdr_sz - curr_sz;
+				qint64 const count = (t->*read_member_fn)(buff_ptr, to_recv); // read header
 				if (count <= 0)
 				{
-					data_in_stream = false;
-					break;	// no more data in stream
+					break;	 // not enough data (can use break, no data was read)
 				}
-
-				for (int i = 0; i < count; ++i)
-					m_buffer.push_back(local_buff[i]);
-			}
-
-			// try process data in ring buffer
-			while (!m_decoded_cmds.full())
-			{
-				if (!m_current_cmd.m_written_hdr)
+				else
 				{
-					size_t const count_hdr = read_min(m_buffer, &m_current_cmd.m_orig_message[0], tlv::Header::e_Size);
-					if (count_hdr == tlv::Header::e_Size)
+					m_dcd_ctx.moveEndPtr(count);
+					Stats::get().m_received_bytes += count;
+
+					if (m_dcd_ctx.getSize() == hdr_sz)
 					{
-						tlv::HeaderDecoder hdr_decoder;
-						hdr_decoder.decode_header(&m_current_cmd.m_orig_message[0], tlv::Header::e_Size, m_current_cmd.m_hdr);
-						if (m_current_cmd.m_hdr.cmd == 0 || m_current_cmd.m_hdr.len == 0)
-						{
-							Q_ASSERT(false);
-							//@TODO: parsing error, discard everything and re-request stop sequence
-							break;
-						}
-						m_current_cmd.m_written_hdr = true;
+						m_dcd_ctx.m_has_hdr = true; // message header ready
 					}
 					else
-						break; // not enough data
-				}
-
-				if (m_current_cmd.m_written_hdr && !m_current_cmd.m_written_payload)
-				{
-					size_t const count_payload = read_min(m_buffer, &m_current_cmd.m_orig_message[0] + tlv::Header::e_Size, m_current_cmd.m_hdr.len);
-					if (count_payload == m_current_cmd.m_hdr.len)
-						m_current_cmd.m_written_payload = true;
-					else
-						break; // not enough data
-				}
-
-				if (m_current_cmd.m_written_hdr && m_current_cmd.m_written_payload)
-				{
-					if (m_current_cmd.m_hdr.version == 1)
 					{
-						tlv::TVDecoder_v1 decoder;
-						if (decoder.decode_payload(&m_current_cmd.m_orig_message[0] + tlv::Header::e_Size, m_current_cmd.m_hdr.len, m_current_cmd))
+						// @TODO: maybe use same algo as in (**) i.e. flush and return
+						return e_data_need_more; // not enough data
+					}
+				}
+			}
+			else
+			{
+				if (!m_dcd_ctx.m_has_payload)
+				{
+					char * const buff_ptr = m_dcd_ctx.getEndPtr();
+					asn1::Header const & hdr = m_dcd_ctx.getHeader();
+					size_t const curr_sz = m_dcd_ctx.getSize() - hdr_sz;
+					size_t const to_recv = hdr.m_len - curr_sz;
+					qint64 const count = (t->*read_member_fn)(buff_ptr, to_recv); // read payload
+					if (count <= 0)
+					{
+						// @TODO: maybe use same algo as in (**) i.e. flush and return
+						return e_data_need_more; // not enough data
+					}
+					else
+					{
+						m_dcd_ctx.moveEndPtr(count);
+						Stats::get().m_received_bytes += count;
+
+						if (m_dcd_ctx.getSize() == hdr_sz + hdr.m_len)
 						{
-							//qDebug("CONN: hdr_sz=%u payload_sz=%u buff_sz=%u ",  tlv::Header::e_Size, m_current_cmd.hdr.len, m_buffer.size());
-							m_decoded_cmds.push_back(m_current_cmd);
-							m_decoded_cmds.back().decode_postprocess();
+							m_dcd_ctx.m_has_payload = true; // message payload ready
 						}
 						else
 						{
-							Q_ASSERT(false);
-							//@TODO: parsing error, discard everything and re-request stop sequence
-							break;
+							// @TODO: maybe use same algo as in (**) i.e. flush and return
+							return e_data_need_more; // not enough data
+						}
+					}
+				}
+
+				if (m_dcd_ctx.m_has_payload)
+				{
+					asn1::Header const & hdr = m_dcd_ctx.getHeader();
+					assert(hdr.m_version == 1);
+					if (hdr.m_version == 1)
+					{
+						Command * cmd_ptr = &m_dcd_ctx.m_command;
+						void * cmd_void_ptr = cmd_ptr;
+						char const * payload = m_dcd_ctx.getPayload();
+						asn1::Header const & hdr = m_dcd_ctx.getHeader();
+						size_t const av = m_asn1_allocator.available();
+						size_t const size_estimate = hdr.m_len * 4; // at most
+						sys::hptimer_t const now = sys::queryTime_us();
+						m_dcd_ctx.m_command.m_stime = now;
+						if (av < size_estimate)
+						{	
+							// not enough memory for asn1 decoder (**)
+							Stats::get().m_decoder_mem_asn1_realloc_count++;
+							// 1) flush everything
+							emit onHandleCommandsCommit();
+							batch_size = 0;
+							Stats::get().m_received_batches++;
+							// 2) resize 
+							m_asn1_allocator.Reset();
+							//m_dcd_ctx.resetCurrentCommand();
+							m_asn1_allocator.resizeStorage(m_asn1_allocator.calcNextSize());
+							Stats::get().updateDecoderMemAsn1Max(m_asn1_allocator.capacity());
+							// 3) check
+							size_t const av = m_asn1_allocator.available();
+							if (av < size_estimate)
+							{
+								Q_ASSERT(0);
+							}
 						}
 
-						m_current_cmd.reset(); // reset current command for another decoding pass
+						const asn_dec_rval_t rval = ber_decode(&m_asn1_allocator, 0, &asn_DEF_Command, &cmd_void_ptr, payload, hdr.m_len);
+						if (rval.code != RC_OK)
+						{
+							QMessageBox::critical(0, tr("trace server"), tr("Decoder exception: Error while decoding ASN1: err=%1, consumed %2 bytes").arg(rval.code).arg(rval.consumed), QMessageBox::Ok, QMessageBox::Ok);
+
+							m_dcd_ctx.resetCurrentCommand();
+							m_asn1_allocator.Reset();
+							Stats::get().m_received_failed_cmds++;
+							return e_data_decode_oor;
+						}
+						else
+							Stats::get().m_received_cmds++;
+
+						tryHandleCommand(m_dcd_ctx.m_command, e_RecvBatched);
+						batch_size++;
+
+						Stats::get().updateDecoderMemRecvBuffMax(m_dcd_ctx.capacity());
+						m_dcd_ctx.resetCurrentCommand(); // reset current decoder command for another decoding pass
+
+						if (batch_size >= 128)
+						{
+							break;
+						}
 					}
 				}
 			}
-
-			if (m_decoded_cmds.size() > 0)
-				emit handleCommands();
 		}
-		
-		emit onHandleCommandsCommit();
+
+		if (batch_size > 0)
+		{		
+			emit onHandleCommandsCommit();
+
+			m_dcd_ctx.resetCurrentCommand();
+			Stats::get().updateDecoderMemAsn1Max(m_asn1_allocator.capacity());
+			Stats::get().m_received_batches++;
+			m_asn1_allocator.Reset();
+		}
+
 		return e_data_ok;
 	}
 	catch (std::out_of_range const & e)
@@ -333,7 +354,7 @@ void Connection::processReadyRead ()
 void Connection::setSocketDescriptor (int sd)
 {
 	m_src_stream = e_Stream_TCP;
-	m_src_protocol = e_Proto_TLV;
+	m_src_protocol = e_Proto_ASN1;
 	m_src_name = QString("tcp ").arg(sd);
 
 	m_tcpstream = new QTcpSocket(this);
@@ -344,7 +365,7 @@ void Connection::setSocketDescriptor (int sd)
 void Connection::setImportFile (QString const & fname)
 {
 	m_src_stream = e_Stream_File;
-	m_src_protocol = e_Proto_TLV;
+	m_src_protocol = e_Proto_TraceFile;
 	m_src_name = fname;
 }
 
@@ -371,7 +392,7 @@ void Connection::run ()
 	while (1)
 	{
 		const int Timeout = 5 * 1000;
-		while (m_tcpstream->bytesAvailable() < tlv::Header::e_Size)
+		while (m_tcpstream->bytesAvailable() < sizeof(asn1::Header))
 			m_tcpstream->waitForReadyRead(Timeout);
 
 		processReadyRead();
@@ -406,6 +427,7 @@ void Connection::processDataStream (QDataStream & stream)
 
 #ifdef WIN32
 #	include <io.h>
+# include "platform.h"
 	inline qint64 getFileSize (QFile * f)
 	{
 		qint64 sz = -1;
@@ -422,44 +444,44 @@ void Connection::processDataStream (QDataStream & stream)
 
 void Connection::processTailCSVStream ()
 {
-	qint64 const sz = getFileSize(qobject_cast<QFile *>(m_file_csv_stream->device()));
-	if (sz > m_file_size)
-		m_file_size = sz;
-	
-	if (sz < m_file_size)
-	{
-		m_file_size = 0;
-		m_main_window->requestReloadFile(m_src_name);
-		QTimer::singleShot(32, m_main_window, SLOT(onReloadFile()));
-		m_main_window->onCloseConnection(this); // deletes it immeadiately
-		return;
-	}
-	while (!m_file_csv_stream->atEnd())
-	{
-		while (!m_decoded_cmds.full() && !m_file_csv_stream->atEnd())
-		{
-			QString const data = m_file_csv_stream->readLine(2048);
-			QByteArray ba = data.toLatin1();
-			memcpy(&m_current_cmd.m_orig_message[0], ba.data(), ba.size() < 2048? ba.size() : 2048 - 1);
-
-			m_decoded_cmds.push_back(m_current_cmd);
-			m_current_cmd.reset(); // reset current command for another decoding pass
-		}
-
-		if (m_decoded_cmds.size() > 0)
-		{
-			emit onHandleCommandsStart();
-
-			for (size_t i = 0, ie = m_decoded_cmds.size(); i < ie; ++i)
-			{
-				DecodedCommand & cmd = m_decoded_cmds.front();
-				handleCSVStreamCommand(cmd);
-				m_decoded_cmds.pop_front();
-			}
-
-			emit onHandleCommandsCommit();
-		}
-	}
+// 	qint64 const sz = getFileSize(qobject_cast<QFile *>(m_file_csv_stream->device()));
+// 	if (sz > m_file_size)
+// 		m_file_size = sz;
+// 	
+// 	if (sz < m_file_size)
+// 	{
+// 		m_file_size = 0;
+// 		m_main_window->requestReloadFile(m_src_name);
+// 		QTimer::singleShot(32, m_main_window, SLOT(onReloadFile()));
+// 		m_main_window->onCloseConnection(this); // deletes it immeadiately
+// 		return;
+// 	}
+// 	while (!m_file_csv_stream->atEnd())
+// 	{
+// 		while (!m_decoded_cmds.full() && !m_file_csv_stream->atEnd())
+// 		{
+// 			QString const data = m_file_csv_stream->readLine(2048);
+// 			QByteArray ba = data.toLatin1();
+// 			memcpy(&m_current_cmd.m_orig_message[0], ba.data(), ba.size() < 2048? ba.size() : 2048 - 1);
+// 
+// 			m_decoded_cmds.push_back(m_current_cmd);
+// 			m_current_cmd.reset(); // reset current command for another decoding pass
+// 		}
+// 
+// 		if (m_decoded_cmds.size() > 0)
+// 		{
+// 			emit onHandleCommandsStart();
+// 
+// 			for (size_t i = 0, ie = m_decoded_cmds.size(); i < ie; ++i)
+// 			{
+// 				DecodedCommand & cmd = m_decoded_cmds.front();
+// 				handleCSVStreamCommand(cmd);
+// 				m_decoded_cmds.pop_front();
+// 			}
+// 
+// 			emit onHandleCommandsCommit();
+// 		}
+// 	}
 
 	QTimer::singleShot(250, this, SLOT(processTailCSVStream()));
 }
@@ -479,28 +501,6 @@ bool Connection::handleShutdownCommand (DecodedCommand const & cmd)
 	m_main_window->onQuit();
 	return true;
 }
-
-bool Connection::handleDictionnaryCtx (DecodedCommand const & cmd)
-{
-	qDebug("received custom context dictionnary");
-	QList<QString> name;
-	QList<QString> value;
-	for (size_t i=0, ie=cmd.m_tvs.size(); i < ie; i+=2)
-	{
-		if (cmd.m_tvs[i].m_tag == tlv::tag_string)
-		{
-			name.append(cmd.m_tvs[i].m_val);
-		}
-
-		if (cmd.m_tvs[i+1].m_tag == tlv::tag_int)
-		{
-			value.append(cmd.m_tvs[i+1].m_val);
-		}
-	}
-	m_app_data.addCtxDict(name, value);
-	return true;
-}
-
 
 //////////////////// storage stuff //////////////////////////////
 QString Connection::createStorageName () const
@@ -541,31 +541,31 @@ void Connection::copyStorageTo (QString const & filename)
 	}
 }
 
-bool Connection::handleSaveTLVCommand (DecodedCommand const & cmd)
-{
-	for (size_t i=0, ie=cmd.m_tvs.size(); i < ie; ++i)
-	{
-		if (cmd.m_tvs[i].m_tag == tlv::tag_file)
-		{
-			copyStorageTo(cmd.m_tvs[i].m_val);
-			return true;
-		}
-	}
-	return true;
-}
+// bool Connection::handleSaveTLVCommand (DecodedCommand const & cmd)
+// {
+// 	for (size_t i=0, ie=cmd.m_tvs.size(); i < ie; ++i)
+// 	{
+// 		if (cmd.m_tvs[i].m_tag == tlv::tag_file)
+// 		{
+// 			copyStorageTo(cmd.m_tvs[i].m_val);
+// 			return true;
+// 		}
+// 	}
+// 	return true;
+// }
 
-bool Connection::handleExportCSVCommand (DecodedCommand const & cmd)
-{
-	for (size_t i=0, ie=cmd.m_tvs.size(); i < ie; ++i)
-	{
-		if (cmd.m_tvs[i].m_tag == tlv::tag_file) // ehm, actually it's a dir
-		{
-			onExportDataToCSV(cmd.m_tvs[i].m_val);
-			return true;
-		}
-	}
-	return false;
-}
+// bool Connection::handleExportCSVCommand (DecodedCommand const & cmd)
+// {
+// 	for (size_t i=0, ie=cmd.m_tvs.size(); i < ie; ++i)
+// 	{
+// 		if (cmd.m_tvs[i].m_tag == tlv::tag_file) // ehm, actually it's a dir
+// 		{
+// 			onExportDataToCSV(cmd.m_tvs[i].m_val);
+// 			return true;
+// 		}
+// 	}
+// 	return false;
+// }
 
 void Connection::closeStorage ()
 {

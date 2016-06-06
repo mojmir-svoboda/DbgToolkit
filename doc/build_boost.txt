@@ -30,6 +30,8 @@ cd into BOOST_ROOT (cd c:/devel/boost_1_54_0 for example)
 Run
 	bootstrap.bat
 
+	bjam --toolset=msvc-14.0 --build-type=complete stage
+
 Follow instructions
 
 A2. 64b build
@@ -40,7 +42,7 @@ Run
 
 Build 64bit boost
 
-	bjam --toolset=msvc-12.0 address-model=64 --build-type=complete stage
+	bjam --toolset=msvc-14.0 address-model=64 --build-type=complete stage
 
 Follow instructions
 

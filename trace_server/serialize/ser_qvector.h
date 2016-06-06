@@ -1,4 +1,5 @@
 #pragma once
+#include <QVector>
 
 namespace boost { namespace serialization {
 
@@ -23,5 +24,5 @@ namespace boost { namespace serialization {
 
 } }
 
-BOOST_SERIALIZATION_COLLECTION_TRAITS(QVector)
+//BOOST_SERIALIZATION_COLLECTION_TRAITS(QVector)
 

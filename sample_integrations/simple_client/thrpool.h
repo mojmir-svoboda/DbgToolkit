@@ -1,7 +1,7 @@
 #pragma once
 #if defined WIN32 || defined WIN64
 #	define WIN32_LEAN_AND_MEAN
-#	include <windows.h>	
+#	include <windows.h>
 #	include <cstdio>
 
 namespace {
@@ -15,9 +15,9 @@ namespace {
 		ThreadPool () { memset(this, 0, sizeof(*this)); }
 		~ThreadPool () { Close(); }
 		void Create (DWORD (WINAPI * fn) (void *), void * ) {
-			TRACE_SCOPE(trace::e_Info, trace::CTX_Default);
+			TRACE_SCOPE(LL_NORMAL, CTX_Default);
 			for (size_t i = 0; i < e_thread_count; i++ )
-				m_handles[i] = CreateThread( NULL, 0, fn, 0, 0, &m_tids[i]); 
+				m_handles[i] = CreateThread( NULL, 0, fn, 0, 0, &m_tids[i]);
 		}
 		void WaitForTerminate () { WaitForMultipleObjects(e_thread_count, m_handles, TRUE, INFINITE); }
 		void Close () {

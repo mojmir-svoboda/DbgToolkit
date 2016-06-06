@@ -1,8 +1,9 @@
 #pragma once
 #include "types.h"
 #include "constants.h"
-#include "history.h"
+#include <utils/history.h>
 #include <QDir>
+#include "mixerconfig.h"
 
 struct GlobalConfig {
 	unsigned  m_hotkey;
@@ -13,6 +14,7 @@ struct GlobalConfig {
 	bool	  m_buffered;
 	bool	  m_on_top;
 	int		  m_level;
+	MixerConfig m_mixer;
 	int		  m_logs_recv_level;
 	int		  m_plots_recv_level;
 	int		  m_tables_recv_level;
@@ -75,6 +77,7 @@ struct GlobalConfig {
 		ar & boost::serialization::make_nvp("buffered", m_buffered);
 		ar & boost::serialization::make_nvp("on_top", m_on_top);
 		ar & boost::serialization::make_nvp("level", m_level);
+		ar & boost::serialization::make_nvp("mixer", m_mixer);
 		ar & boost::serialization::make_nvp("m_logs_recv_level", m_logs_recv_level);
 		ar & boost::serialization::make_nvp("m_plots_recv_level", m_plots_recv_level);
 		ar & boost::serialization::make_nvp("m_tables_recv_level", m_tables_recv_level);
@@ -102,7 +105,7 @@ struct TreeModelItem {
 	int m_state;
 	int m_collapsed;
 
-	TreeModelItem () : m_state(e_Unchecked), m_collapsed(true) { }
+	TreeModelItem () : m_state(0), m_collapsed(true) { }
 	TreeModelItem (int s) : m_state(s), m_collapsed(true) { }
 	TreeModelItem (int s, bool c) : m_state(s), m_collapsed(c) { }
 

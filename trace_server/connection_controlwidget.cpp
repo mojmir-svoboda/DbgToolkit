@@ -1,13 +1,15 @@
 #include "connection.h"
 #include <QTcpSocket>
 #include <QMessageBox>
-#include <tlv_parser/tlv_encoder.h>
-#include "utils.h"
-#include "utils_history.h"
-#include "utils_boost.h"
-#include "controlbarcommon.h"
+#include <utils/utils.h>
+#include <utils/utils_history.h>
+#include <utils/utils_boost.h>
+//#include "controlbarcommon.h"
 #include "mainwindow.h"
 #include <ui_controlbarcommon.h>
+#include <trace_proto/trace_proto.h>
+#include <trace_proto/encode_config.h>
+#include <widgets/mixer.h>
 
 QString Connection::getClosestPresetName ()
 {
@@ -39,7 +41,7 @@ E_FeatureStates Connection::getClosestFeatureState (E_DataWidgetType type) const
 
 void Connection::setConfigValuesToUI (ConnectionConfig const & cfg)
 {
-	m_control_bar->ui->levelSpinBox->setValue(cfg.m_level);
+	//m_control_bar->ui->levelSpinBox->setValue(cfg.m_level);
 	m_control_bar->ui->buffCheckBox->setChecked(cfg.m_buffered);
 	syncHistoryToWidget(m_control_bar->ui->presetComboBox, cfg.m_preset_history);
 	m_control_bar->ui->logSlider->setValue(cfg.m_logs_recv_level);
@@ -50,7 +52,7 @@ void Connection::setConfigValuesToUI (ConnectionConfig const & cfg)
 
 void Connection::setUIValuesToConfig (ConnectionConfig & cfg)
 {
-	cfg.m_level = m_control_bar->ui->levelSpinBox->value();
+	//cfg.m_level = m_control_bar->ui->levelSpinBox->value();
 	cfg.m_buffered = m_control_bar->ui->buffCheckBox->isChecked();
 	//
 	cfg.m_logs_recv_level = static_cast<E_FeatureStates>(m_control_bar->ui->logSlider->value());
@@ -59,12 +61,12 @@ void Connection::setUIValuesToConfig (ConnectionConfig & cfg)
 	cfg.m_gantts_recv_level = static_cast<E_FeatureStates>(m_control_bar->ui->ganttSlider->value());
 }
 
-void Connection::setLevelValue (int i) { m_control_bar->ui->levelSpinBox->setValue(i); }
-void Connection::setBufferingState (int state) { m_control_bar->ui->buffCheckBox->setChecked(state); }
-void Connection::setLogsState (int state) { m_control_bar->ui->logSlider->setValue(state); }
-void Connection::setPlotsState (int state) { m_control_bar->ui->plotSlider->setValue(state); }
-void Connection::setTablesState (int state) { m_control_bar->ui->tableSlider->setValue(state); }
-void Connection::setGanttsState (int state) { m_control_bar->ui->ganttSlider->setValue(state); }
+void Connection::setMixerUI (MixerConfig const & cfg) { /*m_control_bar->ui->levelSpinBox->setValue(i);*/ }
+void Connection::setBufferedUI (int state) { m_control_bar->ui->buffCheckBox->setChecked(state); }
+void Connection::setLogsUI (int state) { m_control_bar->ui->logSlider->setValue(state); }
+void Connection::setPlotsUI (int state) { m_control_bar->ui->plotSlider->setValue(state); }
+void Connection::setTablesUI (int state) { m_control_bar->ui->tableSlider->setValue(state); }
+void Connection::setGanttsUI (int state) { m_control_bar->ui->ganttSlider->setValue(state); }
 
 void Connection::onLogsStateChanged (int state)
 {
@@ -84,56 +86,38 @@ void Connection::onGanttsStateChanged (int state)
 }
 
 
-void Connection::onLevelValueChanged (int val)
+void Connection::onMixerChanged (MixerConfig const & config)
 {
-	char tlv_buff[16];
-#ifdef __linux__
-	int const result = snprintf(tlv_buff, 16, "%u", val);
-#else
-	int const result = _snprintf_s(tlv_buff, 16, "%u", val);
-#endif
+	m_config.m_mixer = config;
+	sendConfigCommand(m_config);
+}
 
-	if (result > 0)
+void Connection::onMixerButton ()
+{
+	if (m_control_bar->ui->mixerButton->isChecked())
 	{
-		m_config.m_level = val;
-		char buff[256];
-		using namespace tlv;
-		Encoder_v1 e(cmd_set_level, buff, 256);
-		e.Encode(TLV(tag_lvl, tlv_buff));
-		if (m_tcpstream && e.Commit())
-		{
-			m_tcpstream->write(e.buffer, e.total_len);
-			m_tcpstream->flush();
-		}
+		m_mixer->applyConfig(m_config.m_mixer);
+		QPoint pt = m_control_bar->ui->mixerButton->pos();
+		pt.setX(pt.x() + 32);
+		//m_mixer->move(pt);
+		m_mixer->move(m_control_bar->ui->mixerButton->mapToGlobal(pt));
+		m_mixer->show();
 	}
+	else
+	{
+		m_mixer->hide();
+	}
+}
+
+void Connection::onMixerClosed ()
+{
+	m_control_bar->ui->mixerButton->setChecked(false);
 }
 
 void Connection::onBufferingStateChanged (int state)
 {
-	bool const buffering_enabled = state == Qt::Checked;
-
-	char tlv_buff[16];
-#ifdef __linux__
-	int const result = snprintf(tlv_buff, 16, "%u", buffering_enabled);
-#else
-	int const result = _snprintf_s(tlv_buff, 16, "%u", buffering_enabled);
-#endif
-
-	if (result > 0)
-	{
-		m_config.m_buffered = buffering_enabled;
-
-		qDebug("Connection::onBufferingStateChanged to_state=%i", buffering_enabled);
-		char buff[256];
-		using namespace tlv;
-		Encoder_v1 e(cmd_set_buffering, buff, 256);
-		e.Encode(TLV(tag_bool, tlv_buff));
-		if (m_tcpstream && e.Commit())
-		{
-			m_tcpstream->write(e.buffer, e.total_len);
-			m_tcpstream->flush();
-		}
-	}
+	m_config.m_buffered = state;
+	sendConfigCommand(m_config);
 }
 
 struct ClearAllData
@@ -151,7 +135,7 @@ struct ClearAllData
 
 void Connection::clearAllData()
 {
-	recurse(m_data, ClearAllData());
+	recurse(m_data_widgets, ClearAllData());
 }
 void Connection::onClearAllData()
 {

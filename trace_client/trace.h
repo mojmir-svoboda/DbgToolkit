@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011 Mojmir Svoboda
+ * Copyright (C) 2011-2016 Mojmir Svoboda
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -18,8 +18,6 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- *
- * Thanks to WarHorse Studios http://warhorsestudios.cz/ who funded initial ver
  **/
 #pragma once
 
@@ -51,7 +49,8 @@
 #		include <stdarg.h>	// for va_args
 #	endif
 
-#include "common.h"
+#include "trace_scope_guard.h"
+#include <cstdint>
 
 /**	@macro		TRACE_CONFIG_INCLUDE
  *	@brief		overrides default config with user-specified one
@@ -140,6 +139,10 @@
  *	@brief		logging of 2d xy data in the form of 2d plot
  **/
 #	define TRACE_PLOT_XY	trace::WritePlot
+/**	@macro		TRACE_PLOT_XY_MARKER
+ *	@brief		place marker on 2d plot
+ **/
+#	define TRACE_PLOT_XY_MARKER	trace::WritePlotMarker
 /**	@macro		TRACE_PLOT_XYZ
  *	@brief		logging of 3d xyz data
  **/
@@ -193,6 +196,16 @@
 
 #	define TRACE_GANTT_CLEAR                trace::WriteGanttClear
 
+/*****************************************************************************/
+/* Misc notification macros                                                  */
+/*****************************************************************************/
+
+/**	@macro		TRACE_SOUND.*
+ *	@brief		logging of the form TRACE_SOUND(lvl, ctx, fmt, ...)
+ **/
+#	define TRACE_SOUND                      trace::WriteSound
+
+
 
 /*****************************************************************************/
 /* Basic setup and utilitary macros                                          */
@@ -205,16 +218,20 @@
 /**	@macro		TRACE_CONNECT
  *	@brief		connects to server and sends application name to server
  **/
-#	define TRACE_CONNECT() trace::Connect()
+#	define TRACE_CONNECT(addr, port) trace::Connect(addr, port)
 /**	@macro		TRACE_DISCONNECT
  *	@brief		disconnects from server
  **/
 #	define TRACE_DISCONNECT() trace::Disconnect()
 
-/**	@macro		TRACE_SETLEVEL
- *	@brief		switch level to another value
+/**	@macro		TRACE_SET_LEVEL_MASK
+ *	@brief		sets initial level mask
  **/
-#	define TRACE_SETLEVEL(n) trace::SetRuntimeLevel(n)
+#	define TRACE_SET_LEVEL(ctx, lvl) trace::SetRuntimeLevelForContext(ctx, lvl)
+/**	@macro		TRACE_SET_CONTEXT_MASK
+ *	@brief		set initial context mask
+ **/
+#	define TRACE_SET_CONTEXT_MASK(n) trace::SetRuntimeContextMask(n)
 /**	@macro		TRACE_SETBUFFERED
  *	@brief		switch between buffered/unbuffered
  **/
@@ -225,10 +242,11 @@
  */
 #	define TRACE_EXPORT_CSV(file)	trace::ExportToCSV(file)
 
-/** @macro		TRACE_SET_CTX_DICT
- *  @brief      causes export of current server content as csv format
+/** @macro		TRACE_SET_LEVEL_DICT
+ *  @brief      
  */
-#	define TRACE_SET_CTX_DICT()		trace::SetCustomUserDictionnary()
+#	define TRACE_SET_LEVEL_DICTIONARY(dictpairs, size)		trace::SetLevelDictionary(dictpairs, size)
+#	define TRACE_SET_CONTEXT_DICTIONARY(dictpairs, size)		trace::SetContextDictionary(dictpairs, size)
 
 /** @macro		TRACE_FLUSH
  *  @brief      forces flush of all buffers into socket
@@ -239,20 +257,43 @@
 #	define TRACE_FLUSH()		trace::Flush()
 
 
-
 	namespace trace {
 
+		/**@fn		SetAppName
+		 * @brief	sets identification string of client application
+		 **/
 		TRACE_API void SetAppName (char const *);
 		TRACE_API char const * GetAppName ();
 
-		TRACE_API void Connect ();
+		/**@fn		SetHostName
+		 * @brief	sets address of the host the client will connect to
+		 *				if not specified client will connect to "localhost" by default
+		 **/
+		TRACE_API void SetHostName (char const * addr);
+		TRACE_API char const * GetHostName ();
+
+		/**@fn		SetHostPort
+		 * @brief	sets port of the host the client will connect to
+		 *				if not specified client will connect to "13127" by default
+		 **/
+		TRACE_API void SetHostPort (char const * port);
+		TRACE_API char const * GetHostPort ();
+
+		TRACE_API void Connect (char const * host, char const * port);
 		TRACE_API void Disconnect ();
 
-		/**@fn		SetRuntimeLevel
-		 * @brief	adjusts run-time level of log message filtering
+		/**@fn		SetRuntimeLevelForContext
+		 * @brief	adjusts run-time context of log message filtering
 		 **/
-		TRACE_API void SetRuntimeLevel (level_t level);
-		TRACE_API level_t GetRuntimeLevel ();
+		TRACE_API void SetRuntimeLevelForContext (context_t ctx, level_t level);
+		TRACE_API level_t GetRuntimeLevelForContext (context_t ctx);
+
+		struct DictionaryPair {
+			uint64_t first;
+			char const * second;
+		};
+		TRACE_API void SetLevelDictionary (DictionaryPair const * pairs, size_t sz);
+		TRACE_API void SetContextDictionary (DictionaryPair const * pairs, size_t sz);
 
 		/**@fn		SetRuntimeBuffering
 		 * @brief	adjusts run-time buffering of log message filtering
@@ -265,13 +306,6 @@
 		 **/
 		TRACE_API void ExportToCSV (char const *);
 
-		/**@fn		SetRuntimeContextMask
-		 * @brief	adjusts run-time context of log message filtering
-		 **/
-		TRACE_API void SetRuntimeContextMask (context_t mask);
-		TRACE_API context_t GetRuntimeContextMask ();
-
-		TRACE_API void SetCustomUserDictionnary ();
 
 		TRACE_API void Flush ();
 
@@ -280,9 +314,10 @@
 		 */
 		inline bool RuntimeFilterPredicate (level_t level, context_t context)
 		{
-			return (level <= GetRuntimeLevel() && ((context & GetRuntimeContextMask()) != 0));
+			const context_t curr_level_in_ctx = GetRuntimeLevelForContext(context);
+			return (level & curr_level_in_ctx) != 0;
 		}
-		
+
 		/**@fn		Write to log
 		 * @brief	write to log of the form (fmt, va_list)
 		 **/
@@ -313,11 +348,13 @@
 		 *		WritePlot(lvl, ctx, 1.0f, 2.0f, "my_plot/curve1");
 		 *		WritePlot(lvl, ctx, 1.0f, 6.0f, "my_plot/curve2");
 		 *		WritePlot(lvl, ctx, 1.0f,-1.0f, "my_plot2/c");
+		 *		WritePlotMarker(lvl, ctx, 1.0f,-1.0f, "my_plot2");
 		 *		will add value 2 in curve1 and value in curve2, but they will be in the same
 		 *		plot "my_plot"
 		 *		third value of -1 will take place into another plot widget.
 		 */
 		TRACE_API void WritePlot (level_t level, context_t context, float x, float y, char const * fmt, ...);
+		TRACE_API void WritePlotMarker (level_t level, context_t context, float x, float y, char const * fmt, ...);
 		TRACE_API void WritePlot (level_t level, context_t context, float x, float y, float z, char const * fmt, ...);
 		TRACE_API void WritePlotClear (level_t level, context_t context, char const * fmt, ...);
 
@@ -325,7 +362,7 @@
 		 * @brief	RAII class for logging entry on construction and exit on destruction **/
 		struct TRACE_API ScopedLog
 		{
-			enum E_Type { e_Entry = 0, e_Exit = 1 };
+			enum E_Type { e_None = 0, e_Entry = 1, e_Exit = 2 };
 			level_t m_level;
 			context_t m_context;
 			char const * m_file;
@@ -351,7 +388,7 @@
 		 *	if x or y >= 0 appropriate cell is found (created if not found) and value
 		 *  is set onto that cell
 		 *
-		 * @param[in]	fmt format for the value to be written 
+		 * @param[in]	fmt format for the value to be written
 		 * Note:
 		 *	Message can set values more cells at once separating them by the
 		 *	colum. For example:
@@ -419,6 +456,8 @@
 			TRACE_API ScopedGanttFrame (level_t level, context_t context, char const * fmt, ...);
 			TRACE_API ~ScopedGanttFrame ();
 		};
+
+		TRACE_API void WriteSound (level_t level, context_t context, float vol, int loop, char const * fmt, ...);
 	}
 
 #else // no tracing at all

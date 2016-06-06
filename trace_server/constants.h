@@ -11,6 +11,7 @@ extern char const * g_dockManagerTag;
 extern char const * g_MainConfigTag;
 extern char const * g_filterTag;
 extern char const * g_colorizerTag;
+extern char const * g_soundTag;
 extern char const * g_findTag;
 extern char const * g_colorizeTag;
 extern char const * g_LogTag;

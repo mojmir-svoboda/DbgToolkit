@@ -1,150 +1,151 @@
 #include "mainwindow.h"
-#include "serialize.h"
+#include <serialize/serialize.h>
 #include "connection.h"
 #include <QStatusBar>
 #include <QMessageBox>
 #include <QTimer>
-#include "setupdialogcsv.h"
+#include <widgets/setupdialogcsv.h>
 #include "ui_setupdialogcsv.h"
-#include "utils.h"
+#include <utils/utils.h>
+#include <widgets/logs/logconfig.h>
 
 // log csv file
 void MainWindow::createTailLogStream (QString const & fname, QString const & separator)
 {
-	Connection * connection = createNewConnection();
-	connection->setTailFile(fname);
-	if (0 == connection->m_file_csv_stream)
-		return;
-	QFileInfo fi(fname);
-	QString const tag = fi.fileName();
-	
-	connection->handleCSVSetup(tag);
-	datalogs_t::iterator it = connection->findOrCreateLog(tag);
-	//connection->m_config.m_csv_separator = separator;
-	(*it)->m_config.m_csv_separator = separator;
-	(*it)->m_config.m_csv_has_header = false;
-	(*it)->m_config.m_simplify_strings = false;
-	(*it)->m_config.m_unquote_strings = false;
-	(*it)->m_config.m_auto_scroll = true;
-
-	// the order is imposed in main.cpp, in the Qt log redirector
-	(*it)->m_config.m_storage_order.clear();
-	(*it)->m_config.m_storage_order.push_back("Col0");
-	(*it)->m_config.m_storage_order.push_back("Lvl");
-	(*it)->m_config.m_storage_order.push_back("TID");
-	(*it)->m_config.m_storage_order.push_back("Msg");
-
-	if (bool const has_no_setup = (*it)->config().m_columns_setup.size() == 0)
-	{
-		int const sizes[4] = { 128, 16, 32, 640 };
-		E_Align const aligns[4] = { e_AlignRight, e_AlignRight, e_AlignRight, e_AlignLeft };
-		E_Elide const elides[4] = { e_ElideLeft, e_ElideLeft, e_ElideLeft, e_ElideRight };
-
-		for (size_t cl = 0, cle = (*it)->m_config.m_storage_order.size(); cl < cle; ++cl)
-		{
-			QString const & val = (*it)->m_config.m_storage_order[cl];
-			int const size = sizes[cl];
-			E_Align const align = aligns[cl];
-			E_Elide const elide = elides[cl];
-			(*it)->config().m_columns_setup.push_back(val);
-			(*it)->config().m_columns_sizes.push_back(size);
-			(*it)->config().m_columns_align.push_back(QString(alignToString(align)));
-			(*it)->config().m_columns_elide.push_back(QString(elideToString(elide)));
-		}
-	}
-
-	connection->processTailCSVStream();
-	emit newConnection(connection);
+// 	Connection * connection = createNewConnection();
+// 	connection->setTailFile(fname);
+// 	if (0 == connection->m_file_csv_stream)
+// 		return;
+// 	QFileInfo fi(fname);
+// 	QString const tag = fi.fileName();
+// 	
+// 	connection->handleCSVSetup(tag);
+// 	datalogs_t::iterator it = connection->findOrCreateLog(tag);
+// 	//connection->m_config.m_csv_separator = separator;
+// 	(*it)->m_config.m_csv_separator = separator;
+// 	(*it)->m_config.m_csv_has_header = false;
+// 	(*it)->m_config.m_simplify_strings = false;
+// 	(*it)->m_config.m_unquote_strings = false;
+// 	(*it)->m_config.m_auto_scroll = true;
+// 
+// 	// the order is imposed in main.cpp, in the Qt log redirector
+// // 	(*it)->m_config.m_storage_order.clear();
+// // 	(*it)->m_config.m_storage_order.push_back("Col0");
+// // 	(*it)->m_config.m_storage_order.push_back("Lvl");
+// // 	(*it)->m_config.m_storage_order.push_back("TID");
+// // 	(*it)->m_config.m_storage_order.push_back("Msg");
+// 
+// 	if (bool const has_no_setup = (*it)->config().m_columns_setup.size() == 0)
+// 	{
+// 		int const sizes[4] = { 128, 16, 32, 640 };
+// 		E_Align const aligns[4] = { e_AlignRight, e_AlignRight, e_AlignRight, e_AlignLeft };
+// 		E_Elide const elides[4] = { e_ElideLeft, e_ElideLeft, e_ElideLeft, e_ElideRight };
+// 
+// 		for (size_t cl = 0, cle = (*it)->m_config.m_storage_order.size(); cl < cle; ++cl)
+// 		{
+// 			QString const & val = (*it)->m_config.m_storage_order[cl];
+// 			int const size = sizes[cl];
+// 			E_Align const align = aligns[cl];
+// 			E_Elide const elide = elides[cl];
+// 			(*it)->config().m_columns_setup.push_back(val);
+// 			(*it)->config().m_columns_sizes.push_back(size);
+// 			(*it)->config().m_columns_align.push_back(QString(alignToString(align)));
+// 			(*it)->config().m_columns_elide.push_back(QString(elideToString(elide)));
+// 		}
+// 	}
+// 
+// 	connection->processTailCSVStream();
+// 	emit newConnection(connection);
 }
 
 // csv or txt file
 void MainWindow::createTailDataStream (QString const & fname)
 {
-	QString const tag = QFileInfo(fname).fileName();
-
-	Connection * connection = createNewConnection();
-	connection->handleCSVSetup(tag);
-
-	logs::LogConfig cfg;
-	cfg.m_tag = tag;
-	bool const loaded = connection->dataWidgetConfigPreload<e_data_log>(tag, cfg);
-	cfg.m_tag = tag;
-	if (loaded)
-	{
-		connection->setTailFile(fname);
-		datalogs_t::iterator it = connection->findOrCreateLog(tag);
-
-		mentionStringInRecentHistory_Ref(fname, m_config.m_recent_history);
-	}
-	else
-	{
-		bool const file_ready = executeSetupDialogCSV(fname);
-		if (!file_ready)
-		{
-			onCloseConnection(connection); // deletes it immeadiately
-			return;
-		}
-
-		connection->setTailFile(fname);
-		datalogs_t::iterator it = connection->findOrCreateLog(tag);
-
-		mentionStringInRecentHistory_Ref(fname, m_config.m_recent_history);
-
-		bool const enable_unquote = m_setup_dialog_csv->ui->unquoteCheckBox->isChecked();
-		bool const enable_simplify = m_setup_dialog_csv->ui->simplifyCheckBox->isChecked();
-		bool const has_sep = m_setup_dialog_csv->ui->separatorCheckBox->isChecked();
-		bool const has_hdr = m_setup_dialog_csv->ui->headerCheckBox->isChecked();
-		if (has_sep)
-		{
-			QString const separator = getSeparator(m_setup_dialog_csv->ui->separatorComboBox);
-			//connection->m_config.m_csv_separator = separator;
-			(*it)->m_config.m_csv_separator = separator;
-		}
-		(*it)->m_config.m_csv_has_header = has_hdr;
-		(*it)->m_config.m_simplify_strings = enable_simplify;
-		(*it)->m_config.m_unquote_strings = enable_unquote;
-
-		if (0 == (*it)->m_config.m_storage_order.size())
-		{
-			QStandardItemModel * c_model = static_cast<QStandardItemModel *>(m_setup_dialog_csv->ui->columnList->model());
-			int const rows = c_model->rowCount();
-			(*it)->m_config.m_storage_order.resize(rows);
-			for (int i = 0 ; i < rows ; ++i)
-			{
-				QString const val = c_model->index(i, 0).data(Qt::DisplayRole).toString();
-				(*it)->m_config.m_storage_order[i] = val;
-			}
-		}
-
-		if (bool const has_no_setup = (*it)->config().m_columns_setup.size() == 0)
-		{
-			QStandardItemModel * p_model = static_cast<QStandardItemModel *>(m_setup_dialog_csv->ui->preView->model());
-			QStandardItemModel * c_model = static_cast<QStandardItemModel *>(m_setup_dialog_csv->ui->columnList->model());
-			for (int cl = 0, cle = c_model->rowCount(); cl < cle; ++cl)
-			{
-				if (e_Action_Import == m_setup_dialog_csv->m_column_actions[cl])
-				{
-					QString const c_val = c_model->index(cl, 0).data(Qt::DisplayRole).toString();
-					int size = 128;
-					for (int pc = 0, pce = p_model->columnCount(); pc < pce; ++pc)
-					{
-						QString const p_val = p_model->headerData(pc, Qt::Horizontal).toString();
-						if (p_val == c_val)
-							size = m_setup_dialog_csv->ui->preView->horizontalHeader()->sectionSize(pc);
-					}
-					E_Align const align = e_AlignLeft;
-					E_Elide const elide = e_ElideRight;
-					(*it)->config().m_columns_setup.push_back(c_val);
-					(*it)->config().m_columns_sizes.push_back(size);
-					(*it)->config().m_columns_align.push_back(QString(alignToString(align)));
-					(*it)->config().m_columns_elide.push_back(QString(elideToString(elide)));
-				}
-			}
-		}
-	}
-
-	connection->processTailCSVStream();
-	emit newConnection(connection);
+// 	QString const tag = QFileInfo(fname).fileName();
+// 
+// 	Connection * connection = createNewConnection();
+// 	connection->handleCSVSetup(tag);
+// 
+// 	logs::LogConfig cfg;
+// 	cfg.m_tag = tag;
+// 	bool const loaded = connection->dataWidgetConfigPreload<e_data_log>(tag, cfg);
+// 	cfg.m_tag = tag;
+// 	if (loaded)
+// 	{
+// 		connection->setTailFile(fname);
+// 		datalogs_t::iterator it = connection->findOrCreateLog(tag);
+// 
+// 		mentionStringInRecentHistory_Ref(fname, m_config.m_recent_history);
+// 	}
+// 	else
+// 	{
+// 		bool const file_ready = executeSetupDialogCSV(fname);
+// 		if (!file_ready)
+// 		{
+// 			onCloseConnection(connection); // deletes it immeadiately
+// 			return;
+// 		}
+// 
+// 		connection->setTailFile(fname);
+// 		datalogs_t::iterator it = connection->findOrCreateLog(tag);
+// 
+// 		mentionStringInRecentHistory_Ref(fname, m_config.m_recent_history);
+// 
+// 		bool const enable_unquote = m_setup_dialog_csv->ui->unquoteCheckBox->isChecked();
+// 		bool const enable_simplify = m_setup_dialog_csv->ui->simplifyCheckBox->isChecked();
+// 		bool const has_sep = m_setup_dialog_csv->ui->separatorCheckBox->isChecked();
+// 		bool const has_hdr = m_setup_dialog_csv->ui->headerCheckBox->isChecked();
+// 		if (has_sep)
+// 		{
+// 			QString const separator = getSeparator(m_setup_dialog_csv->ui->separatorComboBox);
+// 			//connection->m_config.m_csv_separator = separator;
+// 			(*it)->m_config.m_csv_separator = separator;
+// 		}
+// 		(*it)->m_config.m_csv_has_header = has_hdr;
+// 		(*it)->m_config.m_simplify_strings = enable_simplify;
+// 		(*it)->m_config.m_unquote_strings = enable_unquote;
+// 
+// 		if (0 == (*it)->m_config.m_storage_order.size())
+// 		{
+// 			QStandardItemModel * c_model = static_cast<QStandardItemModel *>(m_setup_dialog_csv->ui->columnList->model());
+// 			int const rows = c_model->rowCount();
+// 			(*it)->m_config.m_storage_order.resize(rows);
+// 			for (int i = 0 ; i < rows ; ++i)
+// 			{
+// 				QString const val = c_model->index(i, 0).data(Qt::DisplayRole).toString();
+// 				(*it)->m_config.m_storage_order[i] = val;
+// 			}
+// 		}
+// 
+// 		if (bool const has_no_setup = (*it)->config().m_columns_setup.size() == 0)
+// 		{
+// 			QStandardItemModel * p_model = static_cast<QStandardItemModel *>(m_setup_dialog_csv->ui->preView->model());
+// 			QStandardItemModel * c_model = static_cast<QStandardItemModel *>(m_setup_dialog_csv->ui->columnList->model());
+// 			for (int cl = 0, cle = c_model->rowCount(); cl < cle; ++cl)
+// 			{
+// 				if (e_Action_Import == m_setup_dialog_csv->m_column_actions[cl])
+// 				{
+// 					QString const c_val = c_model->index(cl, 0).data(Qt::DisplayRole).toString();
+// 					int size = 128;
+// 					for (int pc = 0, pce = p_model->columnCount(); pc < pce; ++pc)
+// 					{
+// 						QString const p_val = p_model->headerData(pc, Qt::Horizontal).toString();
+// 						if (p_val == c_val)
+// 							size = m_setup_dialog_csv->ui->preView->horizontalHeader()->sectionSize(pc);
+// 					}
+// 					E_Align const align = e_AlignLeft;
+// 					E_Elide const elide = e_ElideRight;
+// 					(*it)->config().m_columns_setup.push_back(c_val);
+// 					(*it)->config().m_columns_sizes.push_back(size);
+// 					(*it)->config().m_columns_align.push_back(QString(alignToString(align)));
+// 					(*it)->config().m_columns_elide.push_back(QString(elideToString(elide)));
+// 				}
+// 			}
+// 		}
+// 	}
+// 
+// 	connection->processTailCSVStream();
+// 	emit newConnection(connection);
 }
 
 
@@ -333,7 +334,7 @@ void MainWindow::onChangeColumnDialogCSV (QModelIndex const & idx)
 
 void MainWindow::syncHistoryToRecent (History<QString> const & h)
 {
-	for (int i = 0; i < m_recent_files.size(); ++i)
+	for (size_t i = 0; i < m_recent_files.size(); ++i)
 	{
 		disconnect(m_recent_files[i], SIGNAL(triggered()), this, SLOT(onRecentFile()));
 		m_file_menu->removeAction(m_recent_files[i]);

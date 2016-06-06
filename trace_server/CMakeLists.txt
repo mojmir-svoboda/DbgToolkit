@@ -1,10 +1,10 @@
 cmake_minimum_required(VERSION 2.8.9)
 project(trace_server)
 set (CMAKE_VERBOSE_MAKEFILE on)
-include("${CMAKE_CURRENT_SOURCE_DIR}/cotire.cmake")
+#include("${CMAKE_CURRENT_SOURCE_DIR}/cotire.cmake")
+include("${CMAKE_SOURCE_DIR}/build/msvc_pch.cmake")
 
 # use this for develoment, if you do not pass it from command line:
-set(CMAKE_INSTALL_PREFIX "c:/_builds/trace_server/")
 message("trace_server install path=${CMAKE_INSTALL_PREFIX}")
 
 ### directX
@@ -17,7 +17,7 @@ find_package(Qt5Widgets REQUIRED)
 find_package(Qt5Core REQUIRED)
 find_package(Qt5Network REQUIRED)
 find_package(Qt5OpenGL REQUIRED)
-#find_package(Qt5Script REQUIRED)
+find_package(Qt5Multimedia REQUIRED)
 find_program(QT_QMAKE_EXECUTABLE NAMES qmake qmake5 qmake-qt5 qmake-mac PATHS ${QTROOTS})
 message("qmake: ${QT_QMAKE_EXECUTABLE}")
 
@@ -52,310 +52,339 @@ if (Boost_FOUND)
 	include_directories(${Boost_INCLUDE_DIR})
 	add_definitions( "-DHAS_BOOST" )
 
-	set(BOOST_LIBS thread date_time system regex serialization)
+	set(BOOST_LIBS thread date_time system regex serialization filesystem)
 	find_package(Boost COMPONENTS ${BOOST_LIBS} REQUIRED)
 endif()
 message("boost: ${Boost_LIBRARIES}")
 
-### version generator
-include("${CMAKE_SOURCE_DIR}/../build/version.cmake")
-add_custom_target(version_cpp ALL)
-add_custom_command(TARGET version_cpp COMMAND ${CMAKE_COMMAND}
-         -DSOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR}
-         -P ${CMAKE_SOURCE_DIR}/../build/version.cmake)
+# 3rd party components
+add_subdirectory("3rd")
 
 ### trace server files
-add_subdirectory("qwt")
-add_subdirectory("qtsln")
 
 add_definitions("-DTRACE_ENABLED")
 add_definitions("-DTRACE_STATIC")
+add_definitions("-DUSE_CXX_ALLOCATOR")
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/..)
+#include_directories(${CMAKE_CURRENT_SOURCE_DIR}/..)
 set(trace_server_SOURCES
-  version.cpp
 	main.cpp
+	types.cpp
 	qt_plugins.cpp
+	decoder_alloc.cpp
+	server/server.cpp
 	mainwindow.cpp
+
 	mainwindow_presets.cpp
 	mainwindow_controlwidget.cpp
 	mainwindow_connection.cpp
 	mainwindow_csv.cpp
 	mainwindow_docking.cpp
 	mainwindow_find.cpp
-	tableview.cpp
-	treeview.cpp
-	treeproxy.cpp
-	delegates.cpp
-	server.cpp
-	server_filtering.cpp
+
+	widgets/tableview.cpp
+	widgets/treeview.cpp
+
+	utils/delegates.cpp
 	connection.cpp
 	connectionconfig.cpp
 	connection_stream.cpp
-	connection_setup.cpp
+	connection_config.cpp
 	connection_controlwidget.cpp
 	connection_csv.cpp
-	filterstate.cpp
-	filterstate_serialize.cpp
+	connection_sound.cpp
 	constants.cpp
 	config.cpp
-	dock.cpp
-	dockwidget.cpp
-	dockdelegates.cpp
-	dockmanagerconfig.cpp
-	dockmanager.cpp
-	dockmanagerview.cpp
-	dockmanagermodel.cpp
+
+	dock/dock.cpp
+	dock/dockwidget.cpp
+	dock/dockdelegates.cpp
+	dock/dockmanagerconfig.cpp
+	dock/dockmanager.cpp
+	dock/dockmanagerview.cpp
+	dock/dockmanagermodel.cpp
+
+	models/basetablemodel.cpp
+	models/baseproxymodel.cpp
+	models/sparseproxymodel.cpp
+	models/treeproxy.cpp
+	models/filterproxymodel.cpp
+
 	syncwidgets.cpp
-	combolist.cpp
-	movabletabwidget.cpp
-	timecombobox.cpp
-	buttoncache.cpp
-	controlbarcommon.cpp
-	controlbardockedwidgets.cpp
-	controlbarlog.cpp
-	basetablemodel.cpp
-	setupdialogcsv.cpp
+	widgets/combolist.cpp
+	widgets/movabletabwidget.cpp
+	widgets/timecombobox.cpp
+	widgets/buttoncache.cpp
+	widgets/controlbar/controlbarcommon.cpp
+	widgets/controlbar/controlbardockedwidgets.cpp
+	widgets/controlbar/controlbarlog.cpp
+	widgets/setupdialogcsv.cpp
 
-	filterproxymodel.cpp
-	filterbase.cpp
-	filtermgrbase.cpp
-	filtermgr.cpp
-	filter_script.cpp
-	filter_string.cpp
-	filter_regex.cpp
-	filter_ctx.cpp
-	filter_lvl.cpp
-	filter_tid.cpp
-	filter_fileline.cpp
-	filter_row.cpp
-	filter_time.cpp
-	#filter_function.cpp
-	#filter_dt.cpp
-	colorizermgr.cpp
-	#colorizer_script.cpp
-	colorizer_string.cpp
-	colorizer_regex.cpp
-	#colorizer_ctx.cpp
-	#colorizer_lvl.cpp
-	#colorizer_tid.cpp
-	#colorizer_fileline.cpp
-	colorizer_row.cpp
-	#colorizer_time.cpp
-	#colorizer_function.cpp
-	#colorizer_dt.cpp
+	filters/filterbase.cpp
+	filters/filtermgrbase.cpp
+	widgets/logs/filters/filtermgr.cpp
+	widgets/logs/filters/filter_script.cpp
+	widgets/logs/filters/filter_string.cpp
+	#widgets/logs/filters/filter_regex.cpp
+	widgets/logs/filters/filter_ctx.cpp
+	widgets/logs/filters/filter_lvl.cpp
+	widgets/logs/filters/filter_tid.cpp
+	widgets/logs/filters/filter_fileline.cpp
+	widgets/logs/filters/filter_row.cpp
+	widgets/logs/filters/filter_time.cpp
+	#filters/colorizers/filter_function.cpp
+	#filters/colorizers/filter_dt.cpp
+	filters/colorizers/colorizermgr.cpp
+	#filters/colorizers/colorizer_script.cpp
+	filters/colorizers/colorizer_string.cpp
+	filters/colorizers/colorizer_regex.cpp
+	#filters/colorizers/colorizer_ctx.cpp
+	#filters/colorizers/colorizer_lvl.cpp
+	#filters/colorizers/colorizer_tid.cpp
+	#filters/colorizers/colorizer_fileline.cpp
+	filters/colorizers/colorizer_row.cpp
+	#filters/colorizers/colorizer_time.cpp
+	#filters/colorizers/colorizer_function.cpp
+	#filters/colorizers/colorizer_dt.cpp
+	filters/colorizers/colorizer_regex.cpp
+	widgets/logs/sounds/soundmgr.cpp
+	widgets/logs/sounds/sound_regex.cpp
 
-	warnimage.cpp
-	colorizer_regex.cpp
-
-	findwidget.cpp
-	colorizewidget.cpp
-	findconfig.cpp
-	colorizeconfig.cpp
-
-	kde/kselectionproxymodel.cpp
-	kde/kmodelindexproxymapper.cpp
-	kde/klinkitemselectionmodel.cpp
+	widgets/warnimage.cpp
+	widgets/mixer.cpp
+	widgets/mixerbutton.cpp
+	widgets/mixerbar.cpp
+	widgets/mixerbarv.cpp
+	widgets/findwidget.cpp
+	widgets/colorizewidget.cpp
+	widgets/findconfig.cpp
+	widgets/colorizeconfig.cpp
 
 	connection_log.cpp
-	logs/logtablemodel.cpp
-	logs/logtableview.cpp
-	logs/findproxymodel.cpp
-	logs/logselectionproxymodel.cpp
-	logs/logwidget.cpp
-	logs/logwidget_find.cpp
-	logs/logwidget_colorize.cpp
-	logs/logwidget_filtering.cpp
-	logs/logwidget_legacycfg.cpp
-	logs/logwidget_actions.cpp
-	logs/logwidget_view.cpp
-	logs/logconfig.cpp
-	logs/logctxmenu.cpp
-	logs/logwidget_tools.cpp
-	logs/logdelegate.cpp
+	widgets/logs/logtablemodel.cpp
+	widgets/logs/logfilterproxymodel.cpp
+	widgets/logs/logtableview.cpp
+	widgets/logs/findproxymodel.cpp
+	widgets/logs/logselectionproxymodel.cpp
+	widgets/logs/logwidget.cpp
+	widgets/logs/logwidget_find.cpp
+	widgets/logs/logwidget_colorize.cpp
+	widgets/logs/logwidget_filtering.cpp
+	widgets/logs/logwidget_legacycfg.cpp
+	widgets/logs/logwidget_actions.cpp
+	widgets/logs/logwidget_view.cpp
+	widgets/logs/logconfig.cpp
+	widgets/logs/logctxmenu.cpp
+	widgets/logs/loghheaderctxmenu.cpp
+	widgets/logs/logwidget_tools.cpp
+	widgets/logs/logdelegate.cpp
 
 	connection_plot.cpp
-	plot/plotwidget.cpp
-	plot/plotconfig.cpp
-	plot/plottypes.cpp
+	widgets/plot/plotwidget.cpp
+	widgets/plot/plotconfig.cpp
+	widgets/plot/plottypes.cpp
 
 	connection_table.cpp
-	table/editableheaderview.cpp
-	table/baseproxymodel.cpp
-	table/sparseproxymodel.cpp
-	table/tableconfig.cpp
-	table/tablemodel.cpp
-	table/tablewidget.cpp
-	table/tablewidget_filtering.cpp
+	widgets/table/editableheaderview.cpp
+	widgets/table/tableconfig.cpp
+	widgets/table/tablemodel.cpp
+	widgets/table/tablewidget.cpp
+	widgets/table/tablewidget_filtering.cpp
 
 	connection_gantt.cpp
 	connection_frame.cpp
-	gantt/arrow.cpp
-	gantt/scrollzoomer.cpp
-	gantt/scrollbar.cpp
-	gantt/frameview.cpp
-	gantt/frameviewconfig.cpp
-	gantt/ganttconfig.cpp
-	gantt/ganttitem.cpp
-	gantt/ganttview.cpp
-	gantt/ganttwidget.cpp
-	gantt/histogram.cpp
+	widgets/gantt/arrow.cpp
+	widgets/gantt/scrollzoomer.cpp
+	widgets/gantt/scrollbar.cpp
+	widgets/gantt/frameview.cpp
+	widgets/gantt/frameviewconfig.cpp
+	widgets/gantt/ganttconfig.cpp
+	widgets/gantt/ganttitem.cpp
+	widgets/gantt/ganttview.cpp
+	widgets/gantt/ganttwidget.cpp
+	widgets/gantt/histogram.cpp
 	)
 
 set(trace_server_HEADERS
-  ../version.h
-	mainwindow.h
-	tableview.h
-	treeview.h
-	treemodel.h
-	treeproxy.h
-	server.h
-	connection.h
-	../tlv_parser/tlv_parser.h
-	../tlv_parser/tlv_encoder.h
-	../tlv_parser/tlv_decoder.h
-	../filters/nnode.hpp
-	../filters/file_filter.hpp
-	filterstate.h
-	delegates.h
-	rendezvous.h
-	utils.h
-	dock.h
-	dockwidget.h
-	dockdelegates.h
-	dockedwidgets.h
-	dockmanagerconfig.h
-	dockmanager.h
-	dockmanagermodel.h
-	dockmanagerview.h
-	constants.h
-	syncwidgets.h
-	config.h
-	combolist.h
-	timecombobox.h
-	movablelistmodel.h
-	movabletabwidget.h
-	warnimage.h
-	buttoncache.h
-	controlbarcommon.h
-	controlbardockedwidgets.h
-	controlbarlog.h
-	basetablemodel.h
-	setupdialogcsv.h
-
-	findwidget.h
-	colorizewidget.h
-	findconfig.h
-
-	filterproxymodel.h
-	filterbase.h
-	filtermgrbase.h
-	filtermgr.h
-	filter_script.h
-	filter_string.h
-	filter_regex.h
-	filter_ctx.h
-	filter_lvl.h
-	filter_tid.h
-	filter_fileline.h
-	filter_row.h
-	filter_time.h
-	#filter_function.h
-	#filter_dt.h
-	#colorizer_script.h
-	colorizer_string.h
-	colorizermgr.h
-	colorizer_regex.h
-	colorizer_row.h
-	#colorizer_ctx.h
-	#colorizer_lvl.h
-	#colorizer_tid.h
-	#colorizer_fileline.h
-	#colorizer_row.h
-	#colorizer_time.h
-	#colorizer_function.h
-	#colorizer_dt.h
-
-
-	logs/logtablemodel.h
-	logs/logtableview.h
-	logs/logselectionproxymodel.h
-	logs/logwidget.h
-	logs/logconfig.h
-	logs/logctxmenu.h
-	logs/findproxymodel.h
-	logs/logdelegate.h
-
-	kde/kbihash_p.h
-	kde/kmodelindexproxymapper.h
-	kde/kselectionproxymodel.h
-	kde/kvoidpointerfactory_p.h
-	kde/klinkitemselectionmodel.h
-
-	plot/curves.h
-	plot/plotwidget.h
-	plot/plotconfig.h
-	plot/plotctxmenu.h
-
-	table/editableheaderview.h
-	table/baseproxymodel.h
-	table/sparseproxymodel.h
-	table/tableconfig.h
-	table/tablectxmenu.h
-	table/tablemodel.h
-	table/tablewidget.h
-
-	gantt/arrow.h
-	gantt/frameview.h
-	gantt/frameviewconfig.h
-	gantt/frameviewctxmenu.h
-	gantt/scrollzoomer.h
-	gantt/scrollbar.h
-	gantt/ganttconfig.h
-	gantt/ganttctxmenu.h
-	gantt/ganttdata.h
-	gantt/ganttitem.h
-	gantt/ganttview.h
-	gantt/ganttwidget.h
-	gantt/histogram.h
-	gantt/scalewidget.h
+  action.h
+  config.h
+  connection.h
+  connectionconfig.h
+  constants.h
+  dock/dock.h
+  dock/dockdelegates.h
+  dock/dockedconfig.h
+  dock/dockedinfo.h
+  dock/dockedwidgets.h
+  dock/dockmanager.h
+  dock/dockmanagerconfig.h
+  dock/dockmanagermodel.h
+  dock/dockmanagerview.h
+  dock/dockwidget.h
+  filters/colorizers/colorizermgr.h
+  filters/colorizers/colorizer_regex.h
+  filters/colorizers/colorizer_row.h
+  filters/colorizers/colorizer_string.h
+  filters/file_filter.hpp
+  filters/filterbase.h
+  widgets/logs/filters/filtermgr.h
+  filters/filtermgrbase.h
+  filters/filtersctxmenu.h
+  widgets/logs/filters/filter_ctx.h
+  widgets/logs/filters/filter_fileline.h
+  widgets/logs/filters/filter_lvl.h
+	#widgets/logs/filters/filter_regex.h
+  widgets/logs/filters/filter_row.h
+  widgets/logs/filters/filter_script.h
+  widgets/logs/filters/filter_string.h
+  widgets/logs/filters/filter_tid.h
+  widgets/logs/filters/filter_time.h
+	widgets/logs/sounds/soundmgr.h
+	widgets/logs/sounds/sound_regex.h
+  filters/nnode.hpp
+  mainwindow.h
+  models/baseproxymodel.h
+  models/basetablemodel.h
+  models/filterproxymodel.h
+  models/movablelistmodel.h
+  models/sparseproxymodel.h
+  models/treemodel.h
+  models/treeproxy.h
+  platform.h
+  qt_plugins.h
+  serialize/serialize.h
+  serialize/ser_qbytearray.h
+  serialize/ser_qcolor.h
+  serialize/ser_qlist.h
+  serialize/ser_qregexp.h
+  serialize/ser_qstring.h
+  serialize/ser_qstringlist.h
+  serialize/ser_qt.h
+  serialize/ser_qvector.h
+  server/server.h
+  syncwidgets.h
+  types.h
+  utils/delegates.h
+  utils/find_utils_table.h
+  utils/hash.h
+  utils/history.h
+  utils/hsv.h
+  utils/set_with_blocked_signals.h
+  utils/utils.h
+  utils/utils_boost.h
+  utils/utils_color.h
+  utils/utils_file_filters.h
+  utils/utils_history.h
+  utils/utils_openfilelinewith.h
+  utils/utils_qsettings.h
+  utils/utils_qstandarditem.h
+  utils/utils_std.h
+  widgets/buttoncache.h
+  widgets/colorizeconfig.h
+  widgets/colorizewidget.h
+  widgets/combolist.h
+  widgets/controlbar/controlbarcommon.h
+  widgets/controlbar/controlbardockedwidgets.h
+  widgets/controlbar/controlbargantts.h
+  widgets/controlbar/controlbarlog.h
+  widgets/controlbar/controlbarlogs.h
+  widgets/controlbar/controlbarplots.h
+  widgets/controlbar/controlbartables.h
+  widgets/controlbar/controlbar_dockmanager.h
+  widgets/findconfig.h
+  widgets/findwidget.h
+  widgets/gantt/arrow.h
+  widgets/gantt/frameview.h
+  widgets/gantt/frameviewconfig.h
+  widgets/gantt/frameviewctxmenu.h
+  widgets/gantt/ganttconfig.h
+  widgets/gantt/ganttctxmenu.h
+  widgets/gantt/ganttdata.h
+  widgets/gantt/ganttitem.h
+  widgets/gantt/ganttview.h
+  widgets/gantt/ganttwidget.h
+  widgets/gantt/histogram.h
+  widgets/gantt/scalewidget.h
+  widgets/gantt/scrollbar.h
+  widgets/gantt/scrollzoomer.h
+  widgets/help.h
+  widgets/label.h
+  widgets/mixer.h
+  widgets/mixerbutton.h
+  widgets/mixerbar.h
+  widgets/mixerbarv.h
+  widgets/logs/findproxymodel.h
+  widgets/logs/logconfig.h
+  widgets/logs/logctxmenu.h
+  widgets/logs/loghheaderctxmenu.h
+  widgets/logs/logdelegate.h
+  widgets/logs/logfile.h
+  widgets/logs/logfile_protocol.h
+  widgets/logs/logfilterproxymodel.h
+  widgets/logs/logselectionproxymodel.h
+  widgets/logs/logtablemodel.h
+  widgets/logs/logtableview.h
+  widgets/logs/logwidget.h
+  widgets/logs/tls.h
+  widgets/movabletabwidget.h
+  widgets/plot/curves.h
+  widgets/plot/plotconfig.h
+  widgets/plot/plotctxmenu.h
+  widgets/plot/plottypes.h
+  widgets/plot/plotwidget.h
+  widgets/setupdialogcsv.h
+  widgets/table/editableheaderview.h
+  widgets/table/tableconfig.h
+  widgets/table/tablectxmenu.h
+  widgets/table/tablemodel.h
+  widgets/table/tablewidget.h
+  widgets/tableview.h
+  widgets/timecombobox.h
+  widgets/treeview.h
+  widgets/warnimage.h
+  winpch.h
 	)
 
 set(trace_server_UI
 	mainwindow.ui
-	controlbarcommon.ui
-	controlbardockedwidgets.ui
-	controlbarlog.ui
-	findwidget.ui
-	colorizewidget.ui
-	combolist.ui
-	timecombobox.ui
-	setupdialogcsv.ui
-	settings.ui
-	settingslog.ui
-	settingsplot.ui
-	settingstable.ui
-	settingsgantt.ui
-	settingsframeview.ui
-	help.ui
-	filter_string.ui
-	filter_regex.ui
-	filter_script.ui
-	filter_tid.ui
-	filter_lvl.ui
-	filter_ctx.ui
-	filter_fileline.ui
-	filter_row.ui
-	filter_time.ui
-	colorizer_regex.ui
-	colorizer_row.ui
-	colorizer_string.ui
+	widgets/controlbar/controlbarcommon.ui
+	widgets/controlbar/controlbardockedwidgets.ui
+	widgets/controlbar/controlbarlog.ui
+	widgets/findwidget.ui
+	widgets/mixer.ui
+	widgets/mixerbar.ui
+	widgets/mixerbarv.ui
+	widgets/colorizewidget.ui
+	widgets/combolist.ui
+	widgets/timecombobox.ui
+	widgets/setupdialogcsv.ui
+	widgets/settings.ui
+	widgets/logs/settingslog.ui
+	widgets/logs/loghheaderctxmenu.ui
+	widgets/plot/settingsplot.ui
+	widgets/table/settingstable.ui
+	widgets/gantt/settingsgantt.ui
+	widgets/gantt/settingsframeview.ui
+	widgets/help.ui
+	widgets/logs/filters/filter_string.ui
+	#widgets/logs/filters/filter_regex.ui
+	widgets/logs/filters/filter_script.ui
+	widgets/logs/filters/filter_tid.ui
+	widgets/logs/filters/filter_lvl.ui
+	widgets/logs/filters/filter_ctx.ui
+	widgets/logs/filters/filter_fileline.ui
+	widgets/logs/filters/filter_row.ui
+	widgets/logs/filters/filter_time.ui
+	filters/colorizers/colorizer_regex.ui
+	filters/colorizers/colorizer_row.ui
+	filters/colorizers/colorizer_string.ui
+	widgets/logs/sounds/sound_regex.ui
 	)
 
-set(trace_server_RESOURCES resources.qrc)
+set(trace_server_RESOURCES resources/resources.qrc)
 
 if (WIN32)
-	set(trace_server_WIN32_RESOURCES resources_win.rc)
+	set(trace_server_WIN32_RESOURCES resources/resources_win.rc)
 	set(CMAKE_RC_COMPILER_INIT windres)
 	enable_language(RC)
 endif (WIN32)
@@ -364,11 +393,15 @@ qt5_wrap_ui(trace_server_UI_HDRS ${trace_server_UI})
 qt5_wrap_cpp(trace_server_MOC ${trace_server_HEADERS})
 qt5_add_resources(trace_server_RESOURCES_RCC ${trace_server_RESOURCES})
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zm300 /bigobj")
+ADD_MSVC_PRECOMPILED_HEADER("winpch.h" "winpch.cpp" trace_server_SOURCES)
+
 add_executable(trace_server WIN32
 		${trace_server_UI_HDRS}
 		${trace_server_UI_SRCS}
 		${trace_server_RESOURCES_RCC}
 		${trace_server_SOURCES}
+    ${trace_server_HEADERS}
 		${trace_server_WIN32_RESOURCES}
 )
 
@@ -383,13 +416,15 @@ endif (WIN32)
 
 include_directories(${QT_USE_FILE} ${Qt5Gui_PRIVATE_INCLUDE_DIRS})
 add_definitions(${QT_DEFINITIONS})
-include_directories(${CMAKE_BINARY_DIR})
+include_directories(${CMAKE_CURRENT_BINARY_DIR})
+include_directories(${CMAKE_BINARY_DIR}/trace_proto)
 include_directories(${trace_server_SOURCE_DIR})
 
 add_definitions(${QT_DEFINITIONS})
 add_definitions(-DQT_PLUGIN)
 add_definitions(-DQT_NO_DEBUG)
 add_definitions(-DQT_STATIC)
+add_definitions(-DQT_NO_SVGRENDERER)
 add_definitions(-DSTATIC)
 
 
@@ -398,6 +433,7 @@ add_definitions(-DSTATIC)
 add_definitions(-DQT_STATICPLUGIN)
 get_filename_component(QT_IMG_PLUGINS_PATH "${QT_PLUGINS_PATH}/imageformats" ABSOLUTE)
 get_filename_component(QT_PLATFORM_PLUGINS_PATH "${QT_PLUGINS_PATH}/platforms" ABSOLUTE)
+get_filename_component(QT_AUDIO_PLUGINS_PATH "${QT_PLUGINS_PATH}/audio" ABSOLUTE)
 
 FIND_PLUGINS(QICO          NAMES qico                   DEFAULT_SUFFIXES PATHS ${QT_IMG_PLUGINS_PATH})
 message("plugin ico: ${QICO_LIBRARIES}")
@@ -405,12 +441,12 @@ target_link_libraries(trace_server ${QICO_LIBRARIES})
 
 if (WIN32)
 	FIND_PLUGINS(QWINDOWS      NAMES qwindows               DEFAULT_SUFFIXES PATHS ${QT_PLATFORM_PLUGINS_PATH})
+  FIND_PLUGINS(QAUDIOWINDOWS NAMES qtaudio_windows        DEFAULT_SUFFIXES PATHS ${QT_AUDIO_PLUGINS_PATH})
 	FIND_PLUGINS(QPLATFORM     NAMES Qt5PlatformSupport     DEFAULT_SUFFIXES PATHS ${QT_LIB_PATH})
 	FIND_PLUGINS(QTRANSLATOR   NAMES translator             DEFAULT_SUFFIXES PATHS ${QT_LIB_PATH})
 	FIND_PLUGINS(QTRANS_COMMON NAMES translator_common      DEFAULT_SUFFIXES PATHS ${QT_LIB_PATH})
 	FIND_PLUGINS(QTRANS_HLSL   NAMES translator_hlsl        DEFAULT_SUFFIXES PATHS ${QT_LIB_PATH})
 	FIND_PLUGINS(QPREPROC      NAMES preprocessor           DEFAULT_SUFFIXES PATHS ${QT_LIB_PATH})
-	FIND_PLUGINS(QTRANSLATOR   NAMES translator             DEFAULT_SUFFIXES PATHS ${QT_LIB_PATH})
 	message("QPA plugin for win: ${QWINDOWS_LIBRARIES}")
 
 	FIND_LIBRARY(DXGUID_LIBRARY      NAMES dxguid      PATHS ${DirectX_LIBRARY_PATHS})
@@ -432,8 +468,8 @@ if (WIN32)
   FIND_PLUGINS(QFREETYPE     NAMES qtfreetype            DEFAULT_SUFFIXES PATHS ${QT_LIB_PATH})
 
 	target_link_libraries(trace_server
-		wsock32 ws2_32
-		imm32 winmm d3d9 ${DXGUID_LIBRARY} ${D3DCOMPILER_LIBRARY}
+		wsock32 ws2_32 Iphlpapi
+		imm32 winmm d3d9 ${DXGUID_LIBRARY} ${D3DCOMPILER_LIBRARY} dwrite
 		${QPLATFORM_LIBRARY}
 		${TRANSLATOR_LIBRARIES}
 		${QPREPROC_LIBRARY}
@@ -441,6 +477,7 @@ if (WIN32)
     ${QPCRE_LIBRARY}
     ${QHARFBUZZ_LIBRARY}
     ${QFREETYPE_LIBRARY}
+    ${QAUDIOWINDOWS_LIBRARY} Strmiids
     )
 elseif (UNIX)
 	message("not implemented yet, but should be trivial to do so")
@@ -449,17 +486,19 @@ elseif (APPLE)
 endif()
 ######################## Plugin section ########################
 
-#qt5_use_modules(trace_server Widgets Core Gui Network OpenGL Script)
-qt5_use_modules(trace_server Widgets Core Gui Network OpenGL)
+qt5_use_modules(trace_server Widgets Core Gui Network OpenGL Multimedia)
 
 target_link_libraries(trace_server ${Boost_LIBRARIES}
 	qwt
 	qtsln
+	kde
 	${Qt5Gui_EGL_LIBRARIES}
 	${Qt5Gui_OPENGL_LIBRARIES}
 	${Qt5Widgets_LIBRARIES}
 	${QICO}
 	Qt5::WinMain)
+
+target_link_libraries(trace_server trace_proto trace_version)
 
 install(TARGETS trace_server
 	RUNTIME DESTINATION .
@@ -467,14 +506,16 @@ install(TARGETS trace_server
 	ARCHIVE DESTINATION lib/static)
 
 if(MSVC)
-	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/../utils/bin/VisualStudioFileOpenTool.all.exe
-		DESTINATION .)
+  add_definitions("-D_SCL_SECURE_NO_WARNINGS")
+  set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+	#install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/../utils/bin/VisualStudioFileOpenTool.all.exe
+	#	DESTINATION .)
 	install(FILES ${CMAKE_CURRENT_BINARY_DIR}/Debug/trace_server.pdb
 		DESTINATION .
 		CONFIGURATIONS Debug)
 endif(MSVC)
 
-cotire(trace_server)
+#cotire(trace_server)
 
 #if (WIN32 AND NOT MINGW)
 #	get_filename_component(MK_VERSION_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../build/mk_version.bat" ABSOLUTE)
@@ -499,3 +540,4 @@ cotire(trace_server)
 #foreach (_variableName ${_variableNames})
 #	message(STATUS "${_variableName}=${${_variableName}}")
 #endforeach()
+

@@ -51,23 +51,37 @@ Set paths:
 	set PATH=C:\Python33;%PATH%
 
 cd to future qt5 location:
-	cd c:/devel/qt5
+	cd c:/devel
 
 Clone git of Qt5:
-	git clone git://gitorious.org/qt/qt5.git qt5
+	git clone git://code.qt.io/qt/qt5.git
 
 cd to qt5:
 	cd qt5
 
 init subrepositories:
-	perl init-repository --no-webkit
+	perl init-repository @-skip qtwebkit@
 init subrepositories:
-  configure.bat -debug-and-release -opensource -c++11 -platform win32-msvc2013 -static -ltcg -no-accessibility -no-openvg -no-gif -no-dbus -no-audio-backend -no-sql-sqlite -no-qml-debug -qt-pcre -no-icu -nomake examples -nomake tests -mp
+
+	set QTDIR=c:\devel\qt5
+	set PATH=%QTDIR%\bin;%PATH%
+	set QMAKESPEC=win32-msvc2015
+
+  configure.bat -debug-and-release -opensource -confirm-license -c++11 -platform win32-msvc2015 -static -ltcg -no-accessibility -no-openvg -no-gif -no-dbus -no-sql-sqlite -no-qml-debug -qt-pcre -no-icu -nomake examples -nomake tests -mp
+
 
 More on config options at http://doc.qt.io/qt-5/configure-options.html
+(like -prefix "c:\qt\qt5.0.0b" etc)
 
 cd qtbase/src/3rdparty/pcre
-qmake -project pcre.pro -r -spec win32-msvc2012
+qmake -project pcre.pro -r -spec win32-msvc2015
+nmake
+
+cd qtmultimedia
+qmake -project qtmultimedia.pro -r -spec win32-msvc2015
 nmake
 
 
+Clean:
+------
+git submodule foreach --recursive "git clean -dfx" && git clean -dfx

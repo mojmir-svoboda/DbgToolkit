@@ -1,5 +1,5 @@
 #include "config.h"
-#include "serialize.h"
+#include <serialize/serialize.h>
 
 void GlobalConfig::loadHistory (QString const & path)
 {

@@ -42,7 +42,12 @@ if(WIN32) # The only platform it makes sense to check for DirectX SDK
 	set(DirectX_LIBRARY_PATHS)
 
 	if(WIN81)
-		set(DirectX_LIBRARY_PATHS "${DirectX_ROOT_DIR}/Lib/winv6.3/um/x64")
+		if(CMAKE_CL_64)
+      set(DirectX_LIBRARY_PATHS "${DirectX_ROOT_DIR}/Lib/winv6.3/um/x64")
+		else(CMAKE_CL_64)
+			set(DirectX_LIBRARY_PATHS "${DirectX_ROOT_DIR}/Lib/winv6.3/um/x86" "${DirectX_ROOT_DIR}/Lib")
+		endif(CMAKE_CL_64)
+
 	else(WIN81)
 		if(CMAKE_CL_64)
 			set(DirectX_LIBRARY_PATHS "${DirectX_ROOT_DIR}/Lib/x64")

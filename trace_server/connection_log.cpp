@@ -1,13 +1,13 @@
 #include "connection.h"
-#include "logs/logwidget.h"
+#include <widgets/logs/logwidget.h>
 #include "mainwindow.h"
 #include "constants.h"
-#include "utils.h"
+#include <utils/utils.h>
 
 datalogs_t::iterator Connection::findOrCreateLog (QString const & tag)
 {
-	datalogs_t::iterator it = m_data.get<e_data_log>().find(tag);
-	if (it == m_data.get<e_data_log>().end())
+	datalogs_t::iterator it = m_data_widgets.get<e_data_log>().find(tag);
+	if (it == m_data_widgets.get<e_data_log>().end())
 	{
 		it = dataWidgetFactory<e_data_log>(tag);
 		(*it)->setupLogModel();
@@ -21,8 +21,9 @@ bool Connection::handleLogCommand (DecodedCommand const & cmd, E_ReceiveMode mod
 {
 	if (getClosestFeatureState(e_data_log) == e_FtrDisabled) return true;
 
-	//QString const tag(g_MainLogName); // @FIXME
-	QString const tag("messages"); // @FIXME
+	OCTET_STRING const widget = cmd.choice.log.wdgt;
+	QString const tag(g_MainLogName); // @FIXME
+	//QString const tag("log"); // @FIXME
 	//int const slash_pos = tag.lastIndexOf(QChar('/'));
 	//tag.chop(msg_tag.size() - slash_pos);
 	//QString subtag = msg_tag;

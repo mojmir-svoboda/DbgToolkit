@@ -1,24 +1,24 @@
 #include "mainwindow.h"
 #include "connection.h"
-#include "utils_history.h"
-#include "utils.h"
+#include <utils/utils_history.h>
+#include <utils/utils.h>
 #include <ui_controlbarcommon.h>
 #include <ui_settings.h>
 #include <QMessageBox>
+#include "widgets/mixer.h"
 
-void MainWindow::onLevelValueChanged (int val)
+void MainWindow::onMixerChanged (MixerConfig const & config)
 {
-	qDebug("level changed: %u", val);
-	m_config.m_level = val;
-	for (connections_t::iterator it = m_connections.begin(), ite = m_connections.end(); it != ite; ++it)
-		(*it)->setLevelValue(val);
+// 	m_config.m_mixer = config;
+// 	for (connections_t::iterator it = m_connections.begin(), ite = m_connections.end(); it != ite; ++it)
+// 		(*it)->onMixerChanged(config);
 }
 
 void MainWindow::onBufferingStateChanged (int state)
 {
 	m_config.m_buffered = state == Qt::Checked ? true : false;
 	for (connections_t::iterator it = m_connections.begin(), ite = m_connections.end(); it != ite; ++it)
-		(*it)->setBufferingState(state);
+		(*it)->onBufferingStateChanged(state);
 }
 
 void MainWindow::onPresetChanged (int idx)
@@ -112,30 +112,31 @@ void MainWindow::onLogsStateChanged (int state)
 {
 	m_config.m_logs_recv_level = state;
 	for (connections_t::iterator it = m_connections.begin(), ite = m_connections.end(); it != ite; ++it)
-		(*it)->setLogsState(state);
+		(*it)->setLogsUI(state);
 }
 void MainWindow::onPlotsStateChanged (int state)
 {
 	m_config.m_plots_recv_level = state;
 	for (connections_t::iterator it = m_connections.begin(), ite = m_connections.end(); it != ite; ++it)
-		(*it)->setPlotsState(state);
+		(*it)->setPlotsUI(state);
 }
 void MainWindow::onTablesStateChanged (int state)
 {
 	m_config.m_tables_recv_level = state;
 	for (connections_t::iterator it = m_connections.begin(), ite = m_connections.end(); it != ite; ++it)
-		(*it)->setTablesState(state);
+		(*it)->setTablesUI(state);
 }
 void MainWindow::onGanttsStateChanged (int state)
 {
 	m_config.m_gantts_recv_level = state;
 	for (connections_t::iterator it = m_connections.begin(), ite = m_connections.end(); it != ite; ++it)
-		(*it)->setGanttsState(state);
+		(*it)->setGanttsUI(state);
 }
 
 void MainWindow::setConfigValuesToUI (GlobalConfig const & cfg)
 {
-	m_dock_mgr.controlUI()->levelSpinBox->setValue(cfg.m_level);
+	//m_dock_mgr.controlUI()->levelSpinBox->setValue(cfg.m_level);
+	//m_dock_mgr.controlUI()->mixerButton
 	m_dock_mgr.controlUI()->buffCheckBox->setChecked(cfg.m_buffered);
 	syncHistoryToWidget(m_dock_mgr.controlUI()->presetComboBox, cfg.m_preset_history);
 	m_dock_mgr.controlUI()->logSlider->setValue(cfg.m_logs_recv_level);
@@ -147,6 +148,24 @@ void MainWindow::setConfigValuesToUI (GlobalConfig const & cfg)
 void MainWindow::setUIValuesToConfig (GlobalConfig & cfg)
 {
 }
+
+void MainWindow::onMixerButton ()
+{
+// 	if (m_dock_mgr.controlUI()->mixerButton->isChecked())
+// 	{
+// 		m_mixer->show();
+// 	}
+// 	else
+// 	{
+// 		m_mixer->hide();
+// 	}
+}
+
+void MainWindow::onMixerClosed ()
+{
+	m_dock_mgr.controlUI()->mixerButton->setChecked(false);
+}
+
 
 //bool MainWindow::onTopEnabled () const { return ui_settings->onTopCheckBox->isChecked(); }
 

@@ -1,12 +1,12 @@
 #include "connection.h"
-#include <gantt/frameview.h>
+#include <widgets/gantt/frameview.h>
 #include <QScrollBar>
 #include <QSplitter>
-#include <utils.h>
-#include <utils_qstandarditem.h>
+#include <utils/utils.h>
+#include <utils/utils_qstandarditem.h>
 //#include <delegates.h>
 //#include <gantt/ganttview.h>
-#include <label.h>
+#include <widgets/label.h>
 #include <syncwidgets.h>
 #include "mainwindow.h"
 

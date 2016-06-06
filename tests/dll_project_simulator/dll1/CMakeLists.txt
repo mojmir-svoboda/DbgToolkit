@@ -1,5 +1,0 @@
-add_definitions("-DBUILD_DLL")
-include_directories (${TRACE_CLIENT_SOURCE_DIR}/trace_client)
-link_directories (${TRACE_CLIENT_BINARY_DIR}/trace_client)
-add_library (user_dll_1 SHARED user_dll_1.cpp)
-target_link_libraries (user_dll_1 trace_client)

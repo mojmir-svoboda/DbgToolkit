@@ -3,10 +3,10 @@
 #include <QStatusBar>
 #include <QMessageBox>
 #include <QTimer>
-#include "setupdialogcsv.h"
+#include <widgets/setupdialogcsv.h>
 #include "ui_setupdialogcsv.h"
-#include "utils.h"
-#include "serialize.h"
+#include <utils/utils.h>
+#include <serialize/serialize.h>
 
 Connection * MainWindow::findConnectionByName (QString const & app_name)
 {

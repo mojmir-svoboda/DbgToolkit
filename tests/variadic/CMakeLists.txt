@@ -1,8 +1,0 @@
-cmake_minimum_required (VERSION 2.6)
-project (variadic)
-set (CMAKE_VERBOSE_MAKEFILE on)
-add_definitions("-DTRACE_ENABLED")
-add_definitions("-DTRACE_STATIC")
-#link_directories (${TRACE_CLIENT_BINARY_DIR}/trace_client)
-#link_directories (${ARCHIVE_OUTPUT_DIRECTORY}/trace_client)
-add_executable (variadic variadic.cpp)

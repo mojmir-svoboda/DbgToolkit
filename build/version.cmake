@@ -131,9 +131,9 @@ set(PROJECT_STABLE False)
 	if(PROJECT_DIRTY)
 		set(PROJECT_VERSION "${PROJECT_VERSION}-dirty")
 	endif()
-	file(WRITE version.cpp "#include <version.h>\n")
-	file(APPEND version.cpp "char const g_Version[] = \"${PROJECT_VERSION}\";\n")
+	file(WRITE trace_version.cpp "#include \"trace_version.h\"\n")
+	file(APPEND trace_version.cpp "char const g_Version[] = \"${PROJECT_VERSION}\";\n")
 
-	message("DbgToolkit version : ${PROJECT_VERSION}")
+	message("DbgT00lkit version : ${PROJECT_VERSION}")
 
 #endif(EXISTS ${CMAKE_SOURCE_DIR}/version.cpp)

@@ -21,22 +21,27 @@
  **/
 #pragma once
 #include <QThread>
-#include <boost/circular_buffer.hpp>
-#include <boost/tuple/tuple.hpp>
-#include "cmd.h"
-#include "logs/logwidget.h"
-#include "plot/plotwidget.h"
-#include "table/tablewidget.h"
-#include "gantt/ganttdata.h"
-#include "gantt/ganttwidget.h"
-#include "gantt/frameview.h"
-#include "dockedwidgets.h"
-#include "appdata.h"
+#include <widgets/logs/logwidget.h>
+#include <widgets/plot/plotwidget.h>
+#include <widgets/table/tablewidget.h>
+#include <widgets/gantt/ganttdata.h>
+#include <widgets/gantt/ganttwidget.h>
+#include <widgets/gantt/frameview.h>
+#include <dock/dockedwidgets.h>
 #include "constants.h"
 #include "connectionconfig.h"
+#include "types.h"
+#include "config.h"
+#include "wavetableconfig.h"
+#include "stats.h"
+#include <trace_proto/decoder_alloc.h>
+// #include <QtMultimedia/QAudioOutput>
+// #include <QtMultimedia/QAudioDeviceInfo>
+
 class MainWindow; class Server;
 class QFile; class QDataStream; class QTextStream; class QTcpSocket;
-class ControlBarCommon;
+class ControlBarCommon; struct Mixer;
+struct WaveTable;
 
 char const * const g_fileTags[] =  { g_LogTag , g_PlotTag , g_TableTag , g_GanttTag , g_FrameTag  };
 char const * const g_fileNames[] = { g_LogFile, g_PlotFile, g_TableFile, g_GanttFile, g_FrameFile };
@@ -69,7 +74,7 @@ public:
 	MainWindow const * getMainWindow () const { return m_main_window; }
 	MainWindow * getMainWindow () { return m_main_window; }
 	GlobalConfig const & getGlobalConfig () const;
-	
+
 	QString const & getAppName () const { return m_app_name; }
 	QString const & getCurrPreset () const { return m_curr_preset; }
 	AppData const & appData () const { return m_app_data; }
@@ -83,6 +88,9 @@ public:
 	void loadConfig (QString const & preset_name);
 	void saveConfig (QString const & preset_name);
 	void applyConfigs ();
+	bool loadWaveTable (WaveTableConfig & cfg);
+	WaveTable * waveTable () { return m_wavetable; }
+	WaveTable const * waveTable () const { return m_wavetable; }
 
 	//@TODO: old call!!
 	void requestTableSynchronization (int sync_group, unsigned long long time);
@@ -112,10 +120,11 @@ public:
 	void clearAllData ();
 
 signals:
-	void readyForUse();
+	void readyForUse ();
 	void newMessage (QString const & from, QString const & message);
 	void handleCommands ();
-	
+	void dictionaryArrived (int type, Dict const & d);
+
 public slots:
 	void onHandleCommands ();
 	void onHandleCommandsStart ();
@@ -123,7 +132,11 @@ public slots:
 	bool tryHandleCommand (DecodedCommand const & cmd, E_ReceiveMode mode);
 
 	// control widget
-	void onLevelValueChanged (int i);
+	//void onLevelValueChanged (int i);
+	void onMixerChanged (MixerConfig const & config);
+	void onMixerApplied ();
+	void onMixerButton ();
+	void onMixerClosed ();
 	void onBufferingStateChanged (int state);
 	void onPresetChanged (int idx);
 	void onPresetApply ();
@@ -137,12 +150,12 @@ public slots:
 	void onGanttsStateChanged (int state);
 	void onPresetApply (QString const & preset_name);
 	void onPresetSave (QString const & preset_name);
-	void setLevelValue (int i);
-	void setBufferingState (int state);
-	void setLogsState (int state);
-	void setPlotsState (int state);
-	void setTablesState (int state);
-	void setGanttsState (int state);
+	void setMixerUI (MixerConfig const & cfg);
+	void setBufferedUI (int state);
+	void setLogsUI (int state);
+	void setPlotsUI (int state);
+	void setTablesUI (int state);
+	void setGanttsUI (int state);
 
 	void onClearAllData ();
 	void onSaveData (QString const & dir);
@@ -162,6 +175,7 @@ protected:
 	enum {
 		e_data_ok = 0,
 		e_data_pipe_full,
+		e_data_need_more,
 		e_data_decode_oor,
 		e_data_decode_lnerr,
 		e_data_decode_captain_failure,
@@ -176,10 +190,10 @@ protected:
 	bool dequeueCommand (DecodedCommand & cmd);
 	//void preparseCommand (DecodedCommand & cmd);
 
-	bool handleSetupCommand (DecodedCommand const & cmd);
+	bool handleConfigCommand (DecodedCommand const & cmd);
 	bool handlePingCommand (DecodedCommand const & cmd);
 	bool handleShutdownCommand (DecodedCommand const & cmd);
-	bool handleDictionnaryCtx (DecodedCommand const & cmd);
+	bool handleDictionary (DecodedCommand const & cmd);
 	bool handleCSVStreamCommand (DecodedCommand const & cmd);
 	bool handleExportCSVCommand (DecodedCommand const & cmd);
 	bool handleSaveTLVCommand (DecodedCommand const & cmd);
@@ -188,12 +202,14 @@ protected:
 	bool handleLogClearCommand (DecodedCommand const & cmd, E_ReceiveMode mode);
 	bool handleTableCommand (DecodedCommand const & cmd, E_ReceiveMode mode);
 	bool handlePlotCommand (DecodedCommand const & cmd, E_ReceiveMode mode);
-	bool handleDataXYZCommand (DecodedCommand const & cmd, E_ReceiveMode mode);
+	bool handleSoundCommand (DecodedCommand const & cmd, E_ReceiveMode mode);
 	bool handleGanttBgnCommand (DecodedCommand const & cmd, E_ReceiveMode mode);
 	bool handleGanttEndCommand (DecodedCommand const & cmd, E_ReceiveMode mode);
 	bool handleGanttFrameBgnCommand (DecodedCommand const & cmd, E_ReceiveMode mode);
 	bool handleGanttFrameEndCommand (DecodedCommand const & cmd, E_ReceiveMode mode);
 	bool handleGanttClearCommand (DecodedCommand const & cmd, E_ReceiveMode mode);
+
+	bool sendConfigCommand (ConnectionConfig const & config);
 
 	virtual bool handleAction (Action * a, E_ActionHandleType sync);
 	virtual QWidget * controlWidget ();
@@ -226,6 +242,8 @@ protected:
 	void setUIValuesToConfig (ConnectionConfig & cfg);
 	void setupColumnSizes (bool force_setup = false);
 	bool dumpModeEnabled () const;
+	bool initSound ();
+	void destroySound ();
 
 private:
 	QString m_app_name;
@@ -238,24 +256,27 @@ private:
 	AppData m_app_data;
 	QString m_pid;
 	int m_storage_idx;
-	qint64 m_recv_bytes;
 	bool m_marked_for_close;
 	QString m_curr_preset;
 	ControlBarCommon * m_control_bar;
+	Mixer	* m_mixer;
 	QDataStream * m_file_tlv_stream;
 	QTextStream * m_file_csv_stream;
 	qint64 m_file_size;
 
 	// data receiving stuff
-	enum { e_ringbuff_size = 128 * 1024 };
-	boost::circular_buffer<char> m_buffer;
 	DecodedCommand m_current_cmd;
-	enum { e_ringcmd_size = 16384 };
-	boost::circular_buffer<DecodedCommand> m_decoded_cmds;
+	DecodingContext m_dcd_ctx;
+	Asn1Allocator m_asn1_allocator;
 	QFile * m_storage;
+// 	QList<QAudioDeviceInfo> m_availableAudioOutputDevices;
+// 	QAudioDeviceInfo m_audioOutputDevice;
+// 	QAudioFormat m_audioFormat;
+// 	QAudioOutput * m_audioOutput;
+	WaveTable * m_wavetable;
 	QDataStream * m_tcp_dump_stream;
 	QTcpSocket * m_tcpstream;
-	data_widgets_t m_data;
+	data_widgets_t m_data_widgets;
 };
 
 #include "connection.inl"

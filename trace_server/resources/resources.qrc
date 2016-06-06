@@ -1,0 +1,20 @@
+<RCC>
+    <qresource prefix="/">
+        <file>images/filter.png</file>
+        <file>images/find.png</file>
+        <file>images/kchart.ico</file>
+        <file>images/tools.png</file>
+        <file>images/view.png</file>
+        <file>images/find_stop.png</file>
+        <file>images/colorize.png</file>
+        <file>images/open_file.png</file>
+        <file>images/audio_off.ico</file>
+        <file>images/audio_lo.ico</file>
+        <file>images/audio_mid.ico</file>
+        <file>images/audio_max.ico</file>
+        <file>images/audio_off.png</file>
+        <file>images/audio_lo.png</file>
+        <file>images/audio_mid.png</file>
+        <file>images/audio_max.png</file>
+    </qresource>
+</RCC>

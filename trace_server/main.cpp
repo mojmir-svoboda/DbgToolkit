@@ -5,16 +5,11 @@
 #include <QAbstractNativeEventFilter>
 #include <QKeyEvent>
 #include "mainwindow.h"
-#include "utils.h"
+#include <utils/utils.h>
 #include <sysfn/os.h>
 #include <sysfn/time_query.h>
 #include <time.h>
-
-#ifdef WIN32
-#	define WIN32_LEAN_AND_MEAN
-//# define NOMINMAX
-#	include <windows.h>
-#endif
+#include "platform.h"
 
 namespace sys {
 	hptimer_t g_Start = 0, g_Freq = 1000000;
@@ -40,7 +35,7 @@ struct Application : QApplication, public QAbstractNativeEventFilter
 	}
 
 #ifdef WIN32
-	virtual bool nativeEventFilter(QByteArray const & eventType, void * message, long * result)
+	virtual bool nativeEventFilter (QByteArray const & eventType, void * message, long * result)
 	{
 		DWORD const hotkey = VK_SCROLL;
 		MSG * msg = static_cast<MSG *>(message);
@@ -64,16 +59,12 @@ struct Application : QApplication, public QAbstractNativeEventFilter
 		}
 		catch (std::exception const & ex)
 		{
-			qFatal("Error %s sending event %s to object %s (%s)",
-				ex.what(), typeid(*e).name(), qPrintable(receiver->objectName()),
-				typeid(*receiver).name());
+			qFatal("Error %s sending event %s to object %s (%s)", ex.what(), typeid(*e).name(), qPrintable(receiver->objectName()), typeid(*receiver).name());
 			return true;
 		}
 		catch (...)
 		{
-			qFatal("Error <unknown> sending event %s to object %s (%s)",
-				typeid(*e).name(), qPrintable(receiver->objectName()),
-				typeid(*receiver).name());
+			qFatal("Error <unknown> sending event %s to object %s (%s)", typeid(*e).name(), qPrintable(receiver->objectName()), typeid(*receiver).name());
 			return true;
 		}
 		return false;
@@ -82,12 +73,14 @@ struct Application : QApplication, public QAbstractNativeEventFilter
 
 void usage ()
 {
-	printf("\nDbgToolkit's trace server, Copyright (C) 2011-2014 Mojmir Svoboda\n");
+	printf("\nDbgToolkit's trace server, Copyright (C) 2011-2016 Mojmir Svoboda\n");
 	printf("https://github.com/mojmir-svoboda/DbgToolkit\n\n");
 	printf("Available options:\n");
 	printf("\t\t-q\t\tquit immeadiately if another instance running\n");
 	printf("\t\t-n\t\tno visible window at start (can be activated by ScrollLock hotkey)\n");
 	printf("\t\t-d\t\tdump mode (csv by default)\n");
+	printf("\t\t-i\t\tinterface to use (localhost by default)\n");
+	printf("\t\t-p\t\tport to use (13197 by default)\n");
 }
 
 void qDebugHandler (QtMsgType type, QMessageLogContext const & ctx, QString const & msg)
@@ -133,6 +126,8 @@ int main (int argc, char * argv[])
 	QFileInfo fi(argv[0]);
 	QString const log_name = path + "/" + QString("%1.%2").arg(fi.completeBaseName()).arg("log");
 	g_LogRedirect = fopen(log_name.toLatin1(), "w");
+	QString iface("127.0.0.1");
+	unsigned short port = g_defaultPort;
 	bool quit_delay = true;
 	bool start_hidden = false;
 	bool dump_mode = false;
@@ -141,7 +136,7 @@ int main (int argc, char * argv[])
 	{
 		if (argv[i][0] != '-')
 		{
-			//foo.push_back(argv[i]);
+			//args.push_back(argv[i]);
 			continue;
 		}
 
@@ -166,6 +161,14 @@ int main (int argc, char * argv[])
 				level = std::atoi(arg);
 				printf("cmd arg: -l, start at level %i\n", level);
 				break;
+			case 'i':
+				iface = QString::fromLatin1(arg);
+				printf("cmd arg: -i, server is using interface %s\n", arg);
+				break;
+			case 'p':
+				port = std::atoi(arg);
+				printf("cmd arg: -p, server is listening on port %i\n", port);
+				break;
 			case 'h':
 				usage();
 				return 0;
@@ -187,7 +190,7 @@ int main (int argc, char * argv[])
 	}
 #endif
 
-	MainWindow w(0, quit_delay, dump_mode, log_name, level);
+	MainWindow w(0, iface, port, quit_delay, dump_mode, log_name, level);
 
 	if (!start_hidden)
 	{

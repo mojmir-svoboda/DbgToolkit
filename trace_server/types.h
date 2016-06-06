@@ -5,6 +5,11 @@
 #include <QColor>
 #include <vector>
 
+using level_t = uint32_t;
+using context_t = uint32_t; // see default_config.h // @TODO @FIXME
+
+using mixervalues_t = std::array<level_t, sizeof(context_t) * CHAR_BIT>;
+
 // available widget types @TODO: frameview
 enum E_DataWidgetType {
 	  e_data_log
@@ -32,12 +37,6 @@ enum E_NodeStates {
 	  e_Unchecked
 	, e_PartialCheck
 	, e_Checked
-};
-
-enum E_FilterMode {
-	  e_Include
-	, e_Exclude
-	, e_max_fltmod_enum_value
 };
 
 enum E_ExprState {
@@ -72,51 +71,51 @@ inline E_TimeUnits stringToUnits (QString const & unit_str)
 	return e_Time_ms;
 }
 
-
-static char fltmods[e_max_fltmod_enum_value] = { 'I', 'E' };
-static char const * fltmodsStr[e_max_fltmod_enum_value] = { "Include", "Exclude" };
-inline char fltModToString (E_FilterMode l) { return fltmods[l]; }
-inline E_FilterMode stringToFltMod (char c) {
-	for (size_t i = 0; i < e_max_fltmod_enum_value; ++i)
-		if (fltmods[i] == c)
+enum class E_FilterMode : unsigned {
+	e_Default
+	, e_Negate
+	, e_max_enum_value
+};
+QString const fltmodsStr[E_FilterMode::e_max_enum_value] = { "default", "Negate" };
+inline QString fltModToString (E_FilterMode l) { return fltmodsStr[static_cast<unsigned>(l)]; }
+inline E_FilterMode stringToFltMod (QString const & s) {
+	for (size_t i = 0; i < static_cast<unsigned>(E_FilterMode::e_max_enum_value); ++i)
+		if (fltmodsStr[i] == s)
 			return static_cast<E_FilterMode>(i);
-	return e_Include;
+	return E_FilterMode::e_Default;
 }
 
 // level modes
-enum E_LevelMode {
+enum class E_LevelMode : unsigned {
 	  e_LvlInclude = 0
 	, e_LvlForceInclude = 1
-	, e_max_lvlmod_enum_value
+	, e_max_enum_value
 };
-static char lvlmods[e_max_lvlmod_enum_value] = { 'I', 'F' };
-static char const * lvlmodsStr[e_max_lvlmod_enum_value] = { "Include", "Force" };
-inline char lvlModToString (E_LevelMode l) { return lvlmods[l]; }
-inline E_LevelMode stringToLvlMod (char c) {
-	for (size_t i = 0; i < e_max_lvlmod_enum_value; ++i)
-		if (lvlmods[i] == c)
+QString const lvlmodsStr[E_LevelMode::e_max_enum_value] = { "Include", "Force" };
+inline QString lvlModToString (E_LevelMode l) { return lvlmodsStr[static_cast<unsigned>(l)]; }
+inline E_LevelMode stringToLvlMod (QString const & s) {
+	for (size_t i = 0; i < static_cast<unsigned>(E_LevelMode::e_max_enum_value); ++i)
+		if (lvlmodsStr[i] == s)
 			return static_cast<E_LevelMode>(i);
-	return e_LvlInclude;
+	return E_LevelMode::e_LvlInclude;
 }
 
 // row modes
-enum E_RowMode {
+enum class E_RowMode : unsigned {
 	  e_RowInclude = 0
 	, e_RowForceInclude = 1
-	, e_max_rowmod_enum_value
+	, e_max_enum_value
 };
-static char rowmods[e_max_rowmod_enum_value] = { 'I', 'F' };
-static char const * rowmodsStr[e_max_rowmod_enum_value] = { "Include", "Force" };
-inline char rowModToString (E_RowMode l) { return rowmods[l]; }
-inline E_RowMode stringToRowMod (char c) {
-	for (size_t i = 0; i < e_max_rowmod_enum_value; ++i)
-		if (rowmods[i] == c)
+QString const rowmodsStr[E_RowMode::e_max_enum_value] = { "Include", "Force" };
+inline QString rowModToString (E_RowMode l) { return rowmodsStr[static_cast<unsigned>(l)]; }
+inline E_RowMode stringToRowMod (QString const & s) {
+	for (size_t i = 0; i < static_cast<unsigned>(E_RowMode::e_max_enum_value); ++i)
+		if (rowmodsStr[i] == s)
 			return static_cast<E_RowMode>(i);
-	return e_RowInclude;
+	return E_RowMode::e_RowInclude;
 }
 
 
-inline E_FilterMode invert (E_FilterMode m) { return m == e_Include ? e_Include : e_Exclude; }
 enum E_ColorRole { e_Bg, e_Fg };
 
 typedef QList<QString>			columns_setup_t;
@@ -125,7 +124,6 @@ typedef QList<QString>			columns_align_t;
 typedef QList<QString>			columns_elide_t;
 
 typedef std::pair<QString, QString> fileline_t;
-typedef unsigned long long context_t;
 
 typedef std::vector<std::string> strings_t;
 
@@ -135,7 +133,41 @@ enum E_SrcStream {
 };
 
 enum E_SrcProtocol {
-	e_Proto_TLV,
+	e_Proto_ASN1,
+	e_Proto_TraceFile,
 	e_Proto_CSV
 };
+
+
+enum E_Align { e_AlignLeft, e_AlignRight, E_AlignMid, e_max_align_enum_value };
+typedef char T_Aligns[e_max_align_enum_value];
+static T_Aligns aligns = { 'L', 'R', 'M' };
+static char const * alignsStr[e_max_align_enum_value] = { "Left", "Right", "Middle" };
+inline char alignToString(E_Align a)
+{
+	return a < e_max_align_enum_value ? aligns[a] : aligns[e_AlignLeft];
+}
+inline E_Align stringToAlign(char c) {
+	for (size_t i = 0; i < e_max_align_enum_value; ++i)
+		if (aligns[i] == c)
+			return static_cast<E_Align>(i);
+	return e_AlignLeft; // default
+}
+
+enum E_Elide { e_ElideLeft = 0, e_ElideRight, e_ElideMiddle, e_ElideNone, e_max_elide_enum_value }; // synchronized with Qt::TextElideMode
+typedef char T_Elides[e_max_elide_enum_value];
+static T_Elides elides = { 'L', 'R', 'M', '-' };
+static char const * elidesStr[e_max_elide_enum_value] = { "Left", "Right", "Middle", "-" };
+
+inline char elideToString(E_Elide e)
+{
+	return e < e_max_elide_enum_value ? elides[e] : elides[e_ElideRight];
+}
+inline E_Elide stringToElide(char c) {
+	for (size_t i = 0; i < e_max_elide_enum_value; ++i)
+		if (elides[i] == c)
+			return static_cast<E_Elide>(i);
+	return e_ElideLeft; // default
+}
+
 

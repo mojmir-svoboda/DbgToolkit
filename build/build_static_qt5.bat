@@ -6,7 +6,7 @@ set PATH=c:/Program Files (x86)/Git/bin;%PATH%
 set PATH=C:/strawberry/perl/bin;%PATH%
 set PATH=c:\devel\qt5\qtbase\gnuwin32\bin;%PATH%
 set PATH=C:\Python33;%PATH%
-git clone git://gitorious.org/qt/qt5.git qt5
+git clone git://code.qt.io/qt/qt5.git qt5
 cd qt5
 perl init-repository --no-webkit
 

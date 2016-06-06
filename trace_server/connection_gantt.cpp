@@ -1,13 +1,12 @@
 #include "connection.h"
 #include "constants.h"
-#include <tlv_parser/tlv_encoder.h>
-#include "cmd.h"
-#include "utils.h"
-#include "dock.h"
-#include "delegates.h"
+//#include "cmd.h"
+//#include <utils/utils.h>
+#include <dock/dock.h>
+//#include <utils/delegates.h>
 #include "mainwindow.h"
-#include "gantt/ganttview.h"
-#include "gantt/ganttwidget.h"
+#include <widgets/gantt/ganttview.h>
+#include <widgets/gantt/ganttwidget.h>
 //#include <cstdlib>
 
 datagantts_t::iterator Connection::findOrCreateGantt (QString const & tag)
@@ -26,71 +25,71 @@ void Connection::appendGantt (gantt::DecodedData & dd)
 
 bool Connection::handleGanttClearCommand (DecodedCommand const & cmd, E_ReceiveMode mode)
 {
-	QString msg;
-	for (size_t i=0, ie=cmd.m_tvs.size(); i < ie; ++i)
-	{
-		if (cmd.m_tvs[i].m_tag == tlv::tag_msg)
-			msg = cmd.m_tvs[i].m_val;
-	}
-
-	if (getClosestFeatureState(e_data_gantt) != e_FtrDisabled)
-	{
-		QString tag = msg;
-		int const slash_pos = tag.lastIndexOf(QChar('/'));
-		tag.chop(msg.size() - slash_pos);
-
-		QString subtag = msg;
-		subtag.remove(0, slash_pos + 1);
-
-		//dataplots_t::iterator it = m_dataplots.find(tag);
-		//if (it != m_dataplots.end())
-		//{
-		//	(*it)->widget().clearCurveData(subtag);
-		//}
-	}
+// 	QString msg;
+// 	for (size_t i=0, ie=cmd.m_tvs.size(); i < ie; ++i)
+// 	{
+// 		if (cmd.m_tvs[i].m_tag == tlv::tag_msg)
+// 			msg = cmd.m_tvs[i].m_val;
+// 	}
+// 
+// 	if (getClosestFeatureState(e_data_gantt) != e_FtrDisabled)
+// 	{
+// 		QString tag = msg;
+// 		int const slash_pos = tag.lastIndexOf(QChar('/'));
+// 		tag.chop(msg.size() - slash_pos);
+// 
+// 		QString subtag = msg;
+// 		subtag.remove(0, slash_pos + 1);
+// 
+// 		//dataplots_t::iterator it = m_dataplots.find(tag);
+// 		//if (it != m_dataplots.end())
+// 		//{
+// 		//	(*it)->widget().clearCurveData(subtag);
+// 		//}
+// 	}
 	return true;
 }
 
 	bool parseCommand (DecodedCommand const & cmd, gantt::DecodedData & dd)
 	{
-		QString msg;
-		QString tid;
-		QString time;
-		QString fgc;
-		QString bgc;
-		for (size_t i=0, ie=cmd.m_tvs.size(); i < ie; ++i)
-		{
-			if (cmd.m_tvs[i].m_tag == tlv::tag_msg)
-				msg = cmd.m_tvs[i].m_val;
-			else if (cmd.m_tvs[i].m_tag == tlv::tag_ctime)
-				time = cmd.m_tvs[i].m_val;
-			else if (cmd.m_tvs[i].m_tag == tlv::tag_tid)
-				tid = cmd.m_tvs[i].m_val;
-			else if (cmd.m_tvs[i].m_tag == tlv::tag_fgc)
-				fgc = cmd.m_tvs[i].m_val;
-			else if (cmd.m_tvs[i].m_tag == tlv::tag_bgc)
-				bgc = cmd.m_tvs[i].m_val;
-		}
-
-		QString subtag = msg;
-		int const slash_pos0 = subtag.lastIndexOf(QChar('/'));
-		subtag.chop(msg.size() - slash_pos0);
-
-		QString tag = subtag;
-		int const slash_pos1 = tag.lastIndexOf(QChar('/'));
-		tag.chop(tag.size() - slash_pos1);
-
-		subtag.remove(0, slash_pos1 + 1);
-		msg.remove(0, slash_pos0 + 1);
-
-		//if (!subtag.contains("Dude"))
-		//	return false;
-
-		dd.m_time = time.toULongLong();
-		dd.m_ctx = tid.toULongLong();
-		dd.m_tag = tag;
-		dd.m_subtag = subtag;
-		dd.m_text = msg;
+// 		QString msg;
+// 		QString tid;
+// 		QString time;
+// 		QString fgc;
+// 		QString bgc;
+// 		for (size_t i=0, ie=cmd.m_tvs.size(); i < ie; ++i)
+// 		{
+// 			if (cmd.m_tvs[i].m_tag == tlv::tag_msg)
+// 				msg = cmd.m_tvs[i].m_val;
+// 			else if (cmd.m_tvs[i].m_tag == tlv::tag_ctime)
+// 				time = cmd.m_tvs[i].m_val;
+// 			else if (cmd.m_tvs[i].m_tag == tlv::tag_tid)
+// 				tid = cmd.m_tvs[i].m_val;
+// 			else if (cmd.m_tvs[i].m_tag == tlv::tag_fgc)
+// 				fgc = cmd.m_tvs[i].m_val;
+// 			else if (cmd.m_tvs[i].m_tag == tlv::tag_bgc)
+// 				bgc = cmd.m_tvs[i].m_val;
+// 		}
+// 
+// 		QString subtag = msg;
+// 		int const slash_pos0 = subtag.lastIndexOf(QChar('/'));
+// 		subtag.chop(msg.size() - slash_pos0);
+// 
+// 		QString tag = subtag;
+// 		int const slash_pos1 = tag.lastIndexOf(QChar('/'));
+// 		tag.chop(tag.size() - slash_pos1);
+// 
+// 		subtag.remove(0, slash_pos1 + 1);
+// 		msg.remove(0, slash_pos0 + 1);
+// 
+// 		//if (!subtag.contains("Dude"))
+// 		//	return false;
+// 
+// 		dd.m_time = time.toULongLong();
+// 		dd.m_ctx = tid.toULongLong();
+// 		dd.m_tag = tag;
+// 		dd.m_subtag = subtag;
+// 		dd.m_text = msg;
 		return true;
 	}
 

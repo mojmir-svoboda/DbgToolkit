@@ -3,15 +3,15 @@
 #include "ui_settings.h"
 #include "ui_help.h"
 #include "connection.h"
-#include "dock.h"
-#include "dockmanager.h"
+#include <dock/dock.h>
+#include <dock/dockmanager.h>
 #include <ui_controlbarcommon.h>
 #include <QMessageBox>
 #include <QInputDialog>
 #include "constants.h"
-#include "utils.h"
-#include "utils_history.h"
-#include "serialize.h"
+#include <utils/utils.h>
+#include <utils/utils_history.h>
+#include <serialize/serialize.h>
 
 void MainWindow::loadConfig ()
 {
@@ -210,7 +210,7 @@ void MainWindow::loadState ()
 	if (m_start_level != -1)
 	{
 		qDebug("reading level from command line");
-		m_dock_mgr.controlUI()->levelSpinBox->setValue(m_start_level);
+		//m_dock_mgr.controlUI()->levelSpinBox->setValue(m_start_level);
 	}
 
 	m_dock_mgr_button->blockSignals(1);
