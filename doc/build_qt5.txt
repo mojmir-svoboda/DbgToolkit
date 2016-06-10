@@ -67,19 +67,8 @@ init subrepositories:
 	set PATH=%QTDIR%\bin;%PATH%
 	set QMAKESPEC=win32-msvc2015
 
-  configure.bat -debug-and-release -opensource -confirm-license -c++11 -platform win32-msvc2015 -static -ltcg -no-accessibility -no-openvg -no-gif -no-dbus -no-sql-sqlite -no-qml-debug -qt-pcre -no-icu -nomake examples -nomake tests -mp
-
-
 More on config options at http://doc.qt.io/qt-5/configure-options.html
 (like -prefix "c:\qt\qt5.0.0b" etc)
-
-cd qtbase/src/3rdparty/pcre
-qmake -project pcre.pro -r -spec win32-msvc2015
-nmake
-
-cd qtmultimedia
-qmake -project qtmultimedia.pro -r -spec win32-msvc2015
-nmake
 
 
 Clean:

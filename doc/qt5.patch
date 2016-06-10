@@ -1,0 +1,26 @@
+diff --git a/src/widgets/styles/qcommonstyle.cpp b/src/widgets/styles/qcommonstyle.cpp
+index 355a3d2..5aad83b 100644
+--- a/src/widgets/styles/qcommonstyle.cpp
++++ b/src/widgets/styles/qcommonstyle.cpp
+@@ -2978,14 +2978,14 @@ QRect QCommonStyle::subElementRect(SubElement sr, const QStyleOption *opt,
+     case SE_ItemViewItemText:
+     case SE_ItemViewItemFocusRect:
+         if (const QStyleOptionViewItem *vopt = qstyleoption_cast<const QStyleOptionViewItem *>(opt)) {
+-            if (!d->isViewItemCached(*vopt)) {
++//            if (!d->isViewItemCached(*vopt)) {
+                 d->viewItemLayout(vopt, &d->checkRect, &d->decorationRect, &d->displayRect, false);
+-                if (d->cachedOption) {
+-                    delete d->cachedOption;
+-                    d->cachedOption = 0;
+-                }
+-                d->cachedOption = new QStyleOptionViewItem(*vopt);
+-            }
++//                if (d->cachedOption) {
++//                    delete d->cachedOption;
++//                    d->cachedOption = 0;
++//                }
++//                d->cachedOption = new QStyleOptionViewItem(*vopt);
++//            }
+             if (sr == SE_ViewItemCheckIndicator)
+                 r = d->checkRect;
+             else if (sr == SE_ItemViewItemDecoration)
