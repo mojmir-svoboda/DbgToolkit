@@ -208,7 +208,7 @@ namespace logs { namespace proto {
 		{
 			size_t const sz = m_data.m_records.m_end_offset;
 			size_t const n = sz / sizeof(values_t);
-			return n;
+			return static_cast<int>(n);
 		}
 
 		int rowCount () const
