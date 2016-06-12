@@ -89,8 +89,8 @@ public:
 	void saveConfig (QString const & preset_name);
 	void applyConfigs ();
 	bool loadWaveTable (WaveTableConfig & cfg);
-	WaveTable * waveTable () { return m_wavetable; }
-	WaveTable const * waveTable () const { return m_wavetable; }
+	WaveTable * waveTable () { return m_wavetable.get(); }
+	WaveTable const * waveTable () const { return m_wavetable.get(); }
 
 	//@TODO: old call!!
 	void requestTableSynchronization (int sync_group, unsigned long long time);
@@ -258,8 +258,8 @@ private:
 	int m_storage_idx;
 	bool m_marked_for_close;
 	QString m_curr_preset;
-	ControlBarCommon * m_control_bar;
-	Mixer	* m_mixer;
+	std::unique_ptr<ControlBarCommon> m_control_bar;
+	std::unique_ptr<Mixer> m_mixer;
 	QDataStream * m_file_tlv_stream;
 	QTextStream * m_file_csv_stream;
 	qint64 m_file_size;
@@ -268,14 +268,14 @@ private:
 	DecodedCommand m_current_cmd;
 	DecodingContext m_dcd_ctx;
 	Asn1Allocator m_asn1_allocator;
-	QFile * m_storage;
+	std::unique_ptr<QFile> m_storage;
 // 	QList<QAudioDeviceInfo> m_availableAudioOutputDevices;
 // 	QAudioDeviceInfo m_audioOutputDevice;
 // 	QAudioFormat m_audioFormat;
 // 	QAudioOutput * m_audioOutput;
-	WaveTable * m_wavetable;
+	std::unique_ptr<WaveTable> m_wavetable;
 	QDataStream * m_tcp_dump_stream;
-	QTcpSocket * m_tcpstream;
+	QTcpSocket * m_tcpstream; // std::unique_ptr< ?
 	data_widgets_t m_data_widgets;
 };
 

@@ -26,8 +26,8 @@ Connection::Connection (QString const & app_name, QObject * parent)
 	, m_storage_idx(-2)
 	, m_marked_for_close(false)
 	, m_curr_preset()
-	, m_control_bar(nullptr)
-	, m_mixer(nullptr)
+	, m_control_bar(new ControlBarCommon)
+	, m_mixer(new Mixer(nullptr, m_control_bar->ui->mixerButton, sizeof(context_t) * CHAR_BIT, sizeof(level_t) * CHAR_BIT))
 	, m_file_tlv_stream(nullptr)
 	, m_file_csv_stream(nullptr)
 	, m_file_size(0)
@@ -36,7 +36,7 @@ Connection::Connection (QString const & app_name, QObject * parent)
 // 	, m_availableAudioOutputDevices(QAudioDeviceInfo::availableDevices(QAudio::AudioOutput))
 // 	, m_audioOutputDevice(QAudioDeviceInfo::defaultOutputDevice())
 // 	, m_audioOutput(nullptr)
-	, m_wavetable(nullptr)
+	, m_wavetable(new WaveTable)
 	, m_tcp_dump_stream(nullptr)
 	, m_tcpstream(nullptr)
 {
@@ -44,9 +44,7 @@ Connection::Connection (QString const & app_name, QObject * parent)
 
 	m_asn1_allocator.resizeStorage(64 * 1024);
 
-	m_control_bar = new ControlBarCommon;
 	initSound();
-	m_wavetable = new WaveTable;
 
 	m_config.m_auto_scroll = getGlobalConfig().m_auto_scroll;
 	m_config.m_mixer = getGlobalConfig().m_mixer;
@@ -81,11 +79,9 @@ Connection::Connection (QString const & app_name, QObject * parent)
 	connect(m_control_bar->ui->ganttSlider, SIGNAL(valueChanged(int)), this, SLOT(onGanttsStateChanged(int)));
 	connect(m_control_bar->ui->clrDataButton, SIGNAL(clicked()), this, SLOT(onClearAllData()));
 
-	m_mixer = new Mixer(nullptr, m_control_bar->ui->mixerButton, sizeof(context_t) * CHAR_BIT, sizeof(level_t) * CHAR_BIT);
-	Ui::Mixer * ui_mixer = new Ui::Mixer();
 	m_mixer->setupMixer(m_config.m_mixer);
-	connect(m_mixer, SIGNAL(mixerChanged()), this, SLOT(onMixerApplied()));
-	connect(this, SIGNAL(dictionaryArrived(int, Dict const &)), m_mixer, SLOT(onDictionaryArrived(int, Dict const &)));
+	connect(m_mixer.get(), SIGNAL(mixerChanged()), this, SLOT(onMixerApplied()));
+	connect(this, SIGNAL(dictionaryArrived(int, Dict const &)), m_mixer.get(), SLOT(onDictionaryArrived(int, Dict const &)));
 }
 
 namespace {
@@ -192,8 +188,7 @@ Connection::~Connection ()
 		delete f;
 	}
 
-	delete m_wavetable;
-	m_wavetable = nullptr;
+	delete m_tcpstream;
 }
 
 void Connection::mkWidgetPath (E_DataWidgetType type, QString const tag, QStringList & path)
@@ -367,5 +362,5 @@ bool Connection::handleAction (Action * a, E_ActionHandleType sync)
 
 QWidget * Connection::controlWidget ()
 {
-	return m_control_bar;
+	return m_control_bar.get();
 }

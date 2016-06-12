@@ -512,9 +512,9 @@ bool Connection::setupStorage (QString const & name)
 {
 	if (m_src_stream == e_Stream_TCP && !m_storage)
 	{
-		m_storage = new QFile(name + "." + g_traceFileExtTLV);
+		m_storage = std::make_unique<QFile>(new QFile(name + "." + g_traceFileExtTLV));
 		m_storage->open(QIODevice::WriteOnly);
-		m_tcp_dump_stream = new QDataStream(m_storage);
+		m_tcp_dump_stream = std::move(new QDataStream(m_storage.get()));
 
 		if (!m_tcp_dump_stream)
 		{
@@ -574,8 +574,7 @@ void Connection::closeStorage ()
 		delete m_tcp_dump_stream;
 		m_storage->close();
 		m_storage->remove();
-		delete m_storage;
-		m_storage = 0;
+		m_storage.reset();
 	}
 }
 
