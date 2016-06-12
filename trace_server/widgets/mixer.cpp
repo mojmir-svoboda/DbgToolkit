@@ -55,7 +55,7 @@ void Mixer::setupMixer (MixerConfig & config)
 		if (m_config.m_cols[c] == -1)
 			continue;
 		m_config.m_cols[c] = c;
-		VerticalLabel * top_label = new VerticalLabel(this, 7);
+		VerticalLabel * top_label = new VerticalLabel(nullptr, 7);
 		m_col_labels[c] = top_label;
 		//top_label->setText(tr("%1").arg(c));
 		top_label->setAlignment(Qt::AlignLeft);
@@ -64,7 +64,7 @@ void Mixer::setupMixer (MixerConfig & config)
 		top_label->setMaximumSize(QSize(17, 96));
 		grid->addWidget(top_label, 0, c + 2);
 
-		MixerBarV * top_bar = new MixerBarV(this, c);
+		MixerBarV * top_bar = new MixerBarV(nullptr, this, c);
 		grid->addWidget(top_bar, 1, c + 2);
 		connect(top_bar->ui()->offButton, SIGNAL(clicked()), top_bar, SLOT(onClickedOnOff()));
 		connect(top_bar->ui()->onButton, SIGNAL(clicked()), top_bar, SLOT(onClickedOnOn()));
@@ -75,13 +75,15 @@ void Mixer::setupMixer (MixerConfig & config)
 		if (m_config.m_rows[r] == -1)
 			continue;
 		m_config.m_rows[r] = r;
-		QLabel * left_label = new QLabel(this);
+		QLabel * left_label = new QLabel(nullptr);
+		m_mixerWidgets.push_back(left_label);
 		m_row_labels[r] = left_label;
 		//left_label->setText(tr("%1").arg(r));
 		left_label->setAlignment(Qt::AlignRight);
 		grid->addWidget(left_label, r + 2, 0);
 
-		MixerBar * left_bar = new MixerBar(this, r);
+		MixerBar * left_bar = new MixerBar(nullptr, this, r);
+		m_mixerWidgets.push_back(left_bar);
 		grid->addWidget(left_bar, r + 2, 1);
 		connect(left_bar->ui()->offButton, SIGNAL(clicked()), left_bar, SLOT(onClickedOnOff()));
 		connect(left_bar->ui()->onButton, SIGNAL(clicked()), left_bar, SLOT(onClickedOnOn()));
@@ -91,7 +93,7 @@ void Mixer::setupMixer (MixerConfig & config)
 			if (m_config.m_cols[c] == -1)
 				continue;
 
-			MixerButton * w = new MixerButton(this, r, c);
+			MixerButton * w = new MixerButton(nullptr, r, c);
 			//QToolButton:pressed{ background-color:rgb(0, 88, 64)); }
 			w->setStyleSheet("QToolButton:checked{background-color:rgb(0, 88, 64); color:rgb(0, 255, 127);}");
 			m_buttons[r][c] = w;
@@ -99,7 +101,7 @@ void Mixer::setupMixer (MixerConfig & config)
 			grid->addWidget(w, r + 2, c + 2);
 		}
 
-		MixerBar * right_bar = new MixerBar(this, r);
+		MixerBar * right_bar = new MixerBar(nullptr, this, r);
 		grid->addWidget(right_bar, r + 2, m_cols + 2);
 	}
 }

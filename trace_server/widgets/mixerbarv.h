@@ -8,7 +8,7 @@ class MixerBarV : public QWidget
 {
     Q_OBJECT
 public:
-    explicit MixerBarV (Mixer * parent, int col);
+    explicit MixerBarV (QWidget * parent, Mixer * mixer, int col);
     ~MixerBarV ();
 
 		Ui::MixerBarV * ui () { return m_ui; }

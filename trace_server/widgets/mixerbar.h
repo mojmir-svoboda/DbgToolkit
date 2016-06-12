@@ -9,7 +9,7 @@ class MixerBar : public QWidget
     Q_OBJECT
 
 public:
-    explicit MixerBar (Mixer * parent, int row);
+    explicit MixerBar (QWidget * parent, Mixer * mixer, int row);
     ~MixerBar ();
 		Ui::MixerBar * ui () { return m_ui; }
 public slots:
