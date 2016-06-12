@@ -65,15 +65,14 @@ struct DockedWidgets
 	typedef WidgetT widget_t;
 	typedef ConfigT config_t;
 	DockedWidgetsConfig m_config;
-	ControlBarDockedWidgets * m_control_bar;
+	std::unique_ptr<ControlBarDockedWidgets> m_control_bar;
 	QList<DecodedCommand> m_queue;
 
 	DockedWidgets ()
 		: ActionAble(QStringList())
-		, m_control_bar(0)
+		, m_control_bar(new ControlBarDockedWidgets)
 	{
 		m_queue.reserve(1024);
-		m_control_bar = new ControlBarDockedWidgets();
 	}
 
 	~DockedWidgets ()
@@ -102,7 +101,7 @@ struct DockedWidgets
 		}
 	}
 
-	virtual QWidget * controlWidget () { return m_control_bar; }
+	virtual QWidget * controlWidget () { return m_control_bar.get(); }
 };
 
 

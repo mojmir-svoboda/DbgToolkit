@@ -161,7 +161,7 @@ namespace {
 		template <typename T>
 		void operator() (T & t)
 		{
-			foreach (typename T::widget_t * w, t)
+			for (typename T::widget_t * w : t)
 				w->commitCommands(e_RecvBatched);
 		}
 	};
@@ -188,7 +188,7 @@ int Connection::processStream (T * t, T_Ret (T::*read_member_fn)(T_Arg0, T_Arg1)
 				char * const buff_ptr = m_dcd_ctx.getEndPtr();
 				size_t const curr_sz = m_dcd_ctx.getSize();
 				size_t const to_recv = hdr_sz - curr_sz;
-				qint64 const count = (t->*read_member_fn)(buff_ptr, to_recv); // read header
+				qint64 const count = (t->*read_member_fn)(buff_ptr, static_cast<int>(to_recv)); // read header
 				if (count <= 0)
 				{
 					break;	 // not enough data (can use break, no data was read)
@@ -217,7 +217,7 @@ int Connection::processStream (T * t, T_Ret (T::*read_member_fn)(T_Arg0, T_Arg1)
 					asn1::Header const & hdr = m_dcd_ctx.getHeader();
 					size_t const curr_sz = m_dcd_ctx.getSize() - hdr_sz;
 					size_t const to_recv = hdr.m_len - curr_sz;
-					qint64 const count = (t->*read_member_fn)(buff_ptr, to_recv); // read payload
+					qint64 const count = (t->*read_member_fn)(buff_ptr, static_cast<int>(to_recv)); // read payload
 					if (count <= 0)
 					{
 						// @TODO: maybe use same algo as in (**) i.e. flush and return
