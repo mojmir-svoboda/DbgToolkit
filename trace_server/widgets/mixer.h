@@ -15,12 +15,12 @@ struct Mixer : QWidget
     Ui::Mixer * ui;
 		RubberBand * m_rubberBand;
 		QToolButton * m_button;
-		unsigned m_rows;
-		unsigned m_cols;
 		QPoint m_origin;
-		std::array<std::array<MixerButton *, sizeof(context_t) * CHAR_BIT>, sizeof(level_t) * CHAR_BIT> m_buttons;
-		std::array<VerticalLabel *, sizeof(context_t) * CHAR_BIT> m_col_labels;
-		std::array<QLabel *, sizeof(level_t) * CHAR_BIT> m_row_labels;
+		constexpr unsigned static const n_levels = sizeof(level_t) * CHAR_BIT;
+		constexpr unsigned static const n_contexts = sizeof(context_t) * CHAR_BIT;
+		std::array<std::array<MixerButton *, n_contexts>, n_levels> m_buttons;
+		std::array<VerticalLabel *, n_contexts> m_col_labels;
+		std::array<QLabel *, n_levels> m_row_labels;
 		MixerConfig m_config;
 		QPixmap m_pixmap;
 		bool m_has_dict_x;
@@ -45,6 +45,26 @@ struct Mixer : QWidget
 		void addYDictionary (Dict const & d);
 		void addXDictionary (Dict const & d);
 		void hideUnknownLabels ();
+
+		template<typename T0, typename T1>
+		void dataInput (T0 row, T1 col)
+		{
+			for (T0 b = 0; row; ++b, row >>= 1)
+				if (row & 1)
+				{
+					for (T0 c = 0; col; ++c, col >>= 1)
+						if (col & 1)
+							dataInputRowCol(b, c);
+				}
+		}
+
+		void addCol (unsigned c);
+		void addRow (unsigned r);
+		void dataInputRowCol (unsigned row, unsigned col);
+
+		void addLeftLabel (unsigned r);
+		void addTopLabel (unsigned c);
+		void addButtons (unsigned r, unsigned c);
 
 Q_OBJECT
 public slots:

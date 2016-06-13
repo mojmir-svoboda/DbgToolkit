@@ -13,8 +13,8 @@
 Mixer::Mixer (QWidget * parent, QToolButton * butt, unsigned rows, unsigned cols)
 	: QWidget(parent)
 	, ui(new Ui::Mixer)
-	, m_rows(rows)
-	, m_cols(cols)
+// 	, m_rows(rows)
+// 	, m_cols(cols)
 	, m_rubberBand(new RubberBand(QRubberBand::Rectangle, this))
 	, m_button(butt)
 	, m_pixmap(cols, rows)
@@ -40,21 +40,21 @@ Mixer::~Mixer ()
 		delete m_rubberBand;
 }
 
-void Mixer::setupMixer (MixerConfig & config)
-{
-	m_config = config;
 
-	for (auto outer : m_buttons)
-		for (MixerButton * & b : outer)
-			b = nullptr;
+void Mixer::addTopLabel (unsigned c)
+{
+	if (m_config.m_cols[c] == -1)
+		return;
+
+	m_config.m_cols[c] = c;
 
 	QGridLayout * grid = ui->grid;
 
-	for (unsigned c = 0; c < m_cols; ++c)
+	if (QLayoutItem * li = grid->itemAtPosition(0, c + 2))
 	{
-		if (m_config.m_cols[c] == -1)
-			continue;
-		m_config.m_cols[c] = c;
+	}
+	else
+	{
 		VerticalLabel * top_label = new VerticalLabel(this, 7);
 		m_col_labels[c] = top_label;
 		//top_label->setText(tr("%1").arg(c));
@@ -63,44 +63,101 @@ void Mixer::setupMixer (MixerConfig & config)
 		top_label->setMinimumSize(QSize(17, 64));
 		top_label->setMaximumSize(QSize(17, 96));
 		grid->addWidget(top_label, 0, c + 2);
+	}
 
+	if (QLayoutItem * li = grid->itemAtPosition(1, c + 2))
+	{
+		// flash ico
+	}
+	else
+	{
 		MixerBarV * top_bar = new MixerBarV(this, this, c);
 		grid->addWidget(top_bar, 1, c + 2);
 		connect(top_bar->ui()->offButton, SIGNAL(clicked()), top_bar, SLOT(onClickedOnOff()));
 		connect(top_bar->ui()->onButton, SIGNAL(clicked()), top_bar, SLOT(onClickedOnOn()));
 	}
+}
 
-	for (unsigned r = 0; r < m_rows; ++r)
+void Mixer::addLeftLabel (unsigned r)
+{
+	if (m_config.m_rows[r] == -1)
+		return;
+
+	QGridLayout * grid = ui->grid;
+	if (QLayoutItem * li = grid->itemAtPosition(r + 2, 0))
 	{
-		if (m_config.m_rows[r] == -1)
-			continue;
+	}
+	else
+	{
 		m_config.m_rows[r] = r;
 		QLabel * left_label = new QLabel(this);
 		m_row_labels[r] = left_label;
 		//left_label->setText(tr("%1").arg(r));
 		left_label->setAlignment(Qt::AlignRight);
 		grid->addWidget(left_label, r + 2, 0);
+	}
 
+	if (QLayoutItem * li = grid->itemAtPosition(r + 2, 1))
+	{
+		// flash ico
+	}
+	else
+	{
 		MixerBar * left_bar = new MixerBar(this, this, r);
 		grid->addWidget(left_bar, r + 2, 1);
 		connect(left_bar->ui()->offButton, SIGNAL(clicked()), left_bar, SLOT(onClickedOnOff()));
 		connect(left_bar->ui()->onButton, SIGNAL(clicked()), left_bar, SLOT(onClickedOnOn()));
+	}
+}
 
-		for (unsigned c = 0; c < m_cols; ++c)
+void Mixer::addButtons (unsigned r, unsigned c)
+{
+	QGridLayout * grid = ui->grid;
+
+	if (m_config.m_cols[c] == -1)
+		return;
+
+	if (QLayoutItem * li = grid->itemAtPosition(r + 2, c + 2))
+	{
+	}
+	else
+	{
+		MixerButton * w = new MixerButton(this, r, c);
+		//QToolButton:pressed{ background-color:rgb(0, 88, 64)); }
+		w->setStyleSheet("QToolButton:checked{background-color:rgb(0, 88, 64); color:rgb(0, 255, 127);}");
+		m_buttons[r][c] = w;
+		connect(w, SIGNAL(clicked(bool)), w, SLOT(onClicked(bool)));
+		grid->addWidget(w, r + 2, c + 2);
+	}
+}
+
+void Mixer::setupMixer (MixerConfig & config)
+{
+	m_config = config;
+
+	for (auto & outer : m_buttons)
+		for (MixerButton * & b : outer)
+			b = nullptr;
+
+	for (unsigned c = 0; c < m_config.m_cols.size(); ++c)
+	{
+		if (m_config.m_cols[c] < 0)
+			continue;
+		addTopLabel(c);
+	}
+
+	for (unsigned r = 0; r < m_config.m_rows.size(); ++r)
+	{
+		if (m_config.m_rows[r] < 0)
+			continue;
+		addLeftLabel(r);
+
+		for (unsigned c = 0; c < m_config.m_cols.size(); ++c)
 		{
-			if (m_config.m_cols[c] == -1)
+			if (m_config.m_cols[c] < 0)
 				continue;
-
-			MixerButton * w = new MixerButton(this, r, c);
-			//QToolButton:pressed{ background-color:rgb(0, 88, 64)); }
-			w->setStyleSheet("QToolButton:checked{background-color:rgb(0, 88, 64); color:rgb(0, 255, 127);}");
-			m_buttons[r][c] = w;
-			connect(w, SIGNAL(clicked(bool)), w, SLOT(onClicked(bool)));
-			grid->addWidget(w, r + 2, c + 2);
+			addButtons(r, c);
 		}
-
-		MixerBar * right_bar = new MixerBar(this, this, r);
-		grid->addWidget(right_bar, r + 2, m_cols + 2);
 	}
 }
 
@@ -134,74 +191,6 @@ void Mixer::addXDictionary (Dict const & d)
 	}
 	m_has_dict_x = true;
 	hideUnknownLabels();
-}
-
-void Mixer::hideUnknownLabels ()
-{
-	if (m_has_dict_x && m_has_dict_y)
-	{
-		QGridLayout * grid = ui->grid;
-
-		for (unsigned r = 0; r < m_rows; ++r)
-		{
-			if (m_row_labels[r] && m_row_labels[r]->text().isEmpty())
-			{
-				for (unsigned c = 0; c < m_cols; ++c)
-				{
-					//if (m_col_labels[c]->text().isEmpty())
-					{
-						//grid->addWidget(nullptr, 0, c + 2); // top_label
-						{
-							// remove mixer button
-							QLayoutItem * li = grid->itemAtPosition(r + 2, c + 2);
-							grid->removeItem(li);
-							li->widget()->hide();
-						}
-					}
-				}
-				// remove left label
-				QLayoutItem * lill = grid->itemAtPosition(r + 2, 0);
-				grid->removeItem(lill);
-				lill->widget()->hide();
-					
-				// remove left bar
-				QLayoutItem * lilb = grid->itemAtPosition(r + 2, 1);
-				grid->removeItem(lilb);
-				lilb->widget()->hide();
-				// remove right bar
-				QLayoutItem * lirb = grid->itemAtPosition(r + 2, m_cols + 2);
-				grid->removeItem(lirb);
-				lirb->widget()->hide();
-			}
-			else
-			{
-				for (unsigned c = 0; c < m_cols; ++c)
-				{
-					if (m_col_labels[c] && m_col_labels[c]->text().isEmpty())
-					{
-						// remove mixer button
-						QLayoutItem * li = grid->itemAtPosition(r + 2, c + 2);
-						grid->removeItem(li);
-						li->widget()->hide();
-					}
-				}
-			}
-		}
-		for (unsigned c = 0; c < m_cols; ++c)
-		{
-			if (m_col_labels[c] && m_col_labels[c]->text().isEmpty())
-			{
-				// remove top label
-				QLayoutItem * litl = grid->itemAtPosition(0, c + 2);
-				grid->removeItem(litl);
-				litl->widget()->hide();
-				// remove top bar
-				QLayoutItem * litb = grid->itemAtPosition(1, c + 2);
-				grid->removeItem(litb);
-				litb->widget()->hide();
-			}
-		}
-	}
 }
 
 void Mixer::startRubberBand (QPoint const & origin)
@@ -256,22 +245,24 @@ void Mixer::applyConfig (MixerConfig & config)
 	QPainter painter(&m_pixmap);
 	m_pixmap.fill(Qt::black);
 
-	for (unsigned r = 0; r < m_rows; ++r)
+	for (unsigned r = 0; r < m_config.m_rows.size(); ++r)
 	{
 		level_t const rval = 1u << r;
-		for (unsigned c = 0; c < m_cols; ++c)
+		for (unsigned c = 0; c < m_config.m_cols.size(); ++c)
 		{
-			MixerButton * const b = m_buttons[r][c];
-			level_t const l = m_config.m_state[c];
-			if (l & rval)
+			if (MixerButton * const b = m_buttons[r][c])
 			{
-				b->setChecked(true);
-				painter.setBrush(QBrush(Qt::green));
-				painter.drawPoint(QPoint(c, r));
-			}
-			else
-			{
-				b->setChecked(false);
+				level_t const l = m_config.m_state[c];
+				if (l & rval)
+				{
+					b->setChecked(true);
+					painter.setBrush(QBrush(Qt::green));
+					painter.drawPoint(QPoint(c, r));
+				}
+				else
+				{
+					b->setChecked(false);
+				}
 			}
 		}
 	}
@@ -280,42 +271,42 @@ void Mixer::applyConfig (MixerConfig & config)
 
 void Mixer::setRowTo (int row, bool on)
 {
-	for (unsigned c = 0; c < m_cols; ++c)
+	for (unsigned c = 0; c < m_config.m_cols.size(); ++c)
 	{
 		setValueTo(row, c, on);
-		MixerButton * const b = m_buttons[row][c];
-		b->setChecked(on);
+		if (MixerButton * const b = m_buttons[row][c])
+			b->setChecked(on);
 	}
 }
 
 void Mixer::setColTo (int col, bool on)
 {
-	for (unsigned r = 0; r < m_rows; ++r)
+	for (unsigned r = 0; r < m_config.m_rows.size(); ++r)
 	{
 		setValueTo(r, col, on);
-		MixerButton * const b = m_buttons[r][col];
-		b->setChecked(on);
+		if (MixerButton * const b = m_buttons[r][col])
+			b->setChecked(on);
 	}
 }
 
 void Mixer::onAllButton ()
 {
-	for (unsigned r = 0; r < m_rows; ++r)
-		for (unsigned c = 0; c < m_cols; ++c)
+	for (unsigned r = 0; r < m_config.m_rows.size(); ++r)
+		for (unsigned c = 0; c < m_config.m_cols.size(); ++c)
 		{
 			setValueTo(r, c, true);
-			MixerButton * const b = m_buttons[r][c];
-			b->setChecked(true);
+			if (MixerButton * const b = m_buttons[r][c])
+				b->setChecked(true);
 		}
 }
 void Mixer::onNoneButton ()
 {
-	for (unsigned r = 0; r < m_rows; ++r)
-		for (unsigned c = 0; c < m_cols; ++c)
+	for (unsigned r = 0; r < m_config.m_rows.size(); ++r)
+		for (unsigned c = 0; c < m_config.m_cols.size(); ++c)
 		{
 			setValueTo(r, c, false);
-			MixerButton * const b = m_buttons[r][c];
-			b->setChecked(false);
+			if (MixerButton * const b = m_buttons[r][c])
+				b->setChecked(false);
 		}
 }
 
@@ -332,3 +323,91 @@ void Mixer::onDictionaryArrived (int type, Dict const & d)
 		case 1: addXDictionary(d); break;
 	}
 }
+
+void Mixer::dataInputRowCol (unsigned row, unsigned col)
+{
+	addTopLabel(col);
+	addLeftLabel(row);
+	addButtons(row, col);
+
+	//QPainter painter(&m_pixmap);
+	//m_pixmap.fill(Qt::black);
+
+  QPainter p(&m_pixmap);
+  p.setPen(Qt::blue);
+  p.drawPoint(row, col);
+  p.end();
+
+	m_button->setIcon(QIcon(m_pixmap));
+
+}
+
+void Mixer::hideUnknownLabels ()
+{
+// 	if (m_has_dict_x && m_has_dict_y)
+// 	{
+// 		QGridLayout * grid = ui->grid;
+// 
+// 		for (unsigned r = 0; r < m_rows; ++r)
+// 		{
+// 			if (m_row_labels[r] && m_row_labels[r]->text().isEmpty())
+// 			{
+// 				for (unsigned c = 0; c < m_cols; ++c)
+// 				{
+// 					//if (m_col_labels[c]->text().isEmpty())
+// 					{
+// 						//grid->addWidget(nullptr, 0, c + 2); // top_label
+// 						{
+// 							// remove mixer button
+// 							QLayoutItem * li = grid->itemAtPosition(r + 2, c + 2);
+// 							grid->removeItem(li);
+// 							li->widget()->hide();
+// 						}
+// 					}
+// 				}
+// 				// remove left label
+// 				QLayoutItem * lill = grid->itemAtPosition(r + 2, 0);
+// 				grid->removeItem(lill);
+// 				lill->widget()->hide();
+// 					
+// 				// remove left bar
+// 				QLayoutItem * lilb = grid->itemAtPosition(r + 2, 1);
+// 				grid->removeItem(lilb);
+// 				lilb->widget()->hide();
+// 				// remove right bar
+// 				QLayoutItem * lirb = grid->itemAtPosition(r + 2, m_cols + 2);
+// 				grid->removeItem(lirb);
+// 				lirb->widget()->hide();
+// 			}
+// 			else
+// 			{
+// 				for (unsigned c = 0; c < m_cols; ++c)
+// 				{
+// 					if (m_col_labels[c] && m_col_labels[c]->text().isEmpty())
+// 					{
+// 						// remove mixer button
+// 						QLayoutItem * li = grid->itemAtPosition(r + 2, c + 2);
+// 						grid->removeItem(li);
+// 						li->widget()->hide();
+// 					}
+// 				}
+// 			}
+// 		}
+// 		for (unsigned c = 0; c < m_cols; ++c)
+// 		{
+// 			if (m_col_labels[c] && m_col_labels[c]->text().isEmpty())
+// 			{
+// 				// remove top label
+// 				QLayoutItem * litl = grid->itemAtPosition(0, c + 2);
+// 				grid->removeItem(litl);
+// 				litl->widget()->hide();
+// 				// remove top bar
+// 				QLayoutItem * litb = grid->itemAtPosition(1, c + 2);
+// 				grid->removeItem(litb);
+// 				litb->widget()->hide();
+// 			}
+// 		}
+// 	}
+}
+
+

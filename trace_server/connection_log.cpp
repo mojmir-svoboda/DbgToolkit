@@ -3,6 +3,7 @@
 #include "mainwindow.h"
 #include "constants.h"
 #include <utils/utils.h>
+#include <widgets/mixer.h>
 
 datalogs_t::iterator Connection::findOrCreateLog (QString const & tag)
 {
@@ -20,6 +21,10 @@ datalogs_t::iterator Connection::findOrCreateLog (QString const & tag)
 bool Connection::handleLogCommand (DecodedCommand const & cmd, E_ReceiveMode mode)
 {
 	if (getClosestFeatureState(e_data_log) == e_FtrDisabled) return true;
+
+	logs::proto::tag2type<logs::proto::int_<logs::proto::tag_lvl>> lvl = cmd.choice.log.lvl;
+	logs::proto::tag2type<logs::proto::int_<logs::proto::tag_ctx>> ctx = cmd.choice.log.ctx;
+	m_mixer->dataInput(lvl, ctx);
 
 	OCTET_STRING const widget = cmd.choice.log.wdgt;
 	QString const tag(g_MainLogName); // @FIXME
