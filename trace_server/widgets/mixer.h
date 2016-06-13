@@ -44,6 +44,7 @@ struct Mixer : QWidget
 		void setValueTo (int row, int col, bool val);
 		void addYDictionary (Dict const & d);
 		void addXDictionary (Dict const & d);
+		void fillMixerGaps ();
 		void hideUnknownLabels ();
 
 		template<typename T0, typename T1>

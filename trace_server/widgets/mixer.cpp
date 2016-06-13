@@ -165,32 +165,34 @@ void Mixer::addYDictionary (Dict const & d)
 {
 	for (level_t l = 0; l < m_row_labels.size(); ++l)
 	{
-		if (m_row_labels[l])
+		level_t const val = 1 << l;
+		QString const & s = d.findNameFor(val);
+		if (!s.isEmpty())
 		{
-			level_t const val = 1 << l;
-			QString const & s = d.findNameFor(val);
-			if (!s.isEmpty())
-				m_row_labels[l]->setText(s);
+			if (!m_row_labels[l])
+				addLeftLabel(l);
+			m_row_labels[l]->setText(s);
 		}
 	}
 	m_has_dict_y = true;
-	hideUnknownLabels();
+	fillMixerGaps();
 }
 void Mixer::addXDictionary (Dict const & d)
 {
 	for (context_t c = 0; c < m_col_labels.size(); ++c)
 	{
-		if (m_col_labels[c])
+		context_t const one = 1;
+		context_t const val = one << c;
+		QString const & s = d.findNameFor(val);
+		if (!s.isEmpty())
 		{
-			context_t const one = 1;
-			context_t const val = one << c;
-			QString const & s = d.findNameFor(val);
-			if (!s.isEmpty())
-				m_col_labels[c]->setText(s);
+			if (!m_col_labels[c])
+				addTopLabel(c);
+			m_col_labels[c]->setText(s);
 		}
 	}
 	m_has_dict_x = true;
-	hideUnknownLabels();
+	fillMixerGaps();
 }
 
 void Mixer::startRubberBand (QPoint const & origin)
@@ -340,6 +342,26 @@ void Mixer::dataInputRowCol (unsigned row, unsigned col)
 
 	m_button->setIcon(QIcon(m_pixmap));
 
+}
+
+void Mixer::fillMixerGaps ()
+{
+	if (m_has_dict_x && m_has_dict_y)
+	{
+		for (unsigned r = 0; r < m_row_labels.size(); ++r)
+		{
+			if (m_row_labels[r] && !m_row_labels[r]->text().isEmpty())
+			{
+				for (unsigned c = 0; c < m_col_labels.size(); ++c)
+				{
+					if (m_col_labels[c] && !m_col_labels[c]->text().isEmpty())
+					{
+						addButtons(r, c);
+					}
+				}
+			}
+		}
+	}
 }
 
 void Mixer::hideUnknownLabels ()
