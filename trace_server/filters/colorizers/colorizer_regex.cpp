@@ -338,9 +338,9 @@ void ColorizerRegex::recompileColorRegex (ColorizedText & ct)
 	if (!child)
 		return;
 
-	QRegularExpression regex(qregex);
+	std::wregex regex(qregex.toStdWString().c_str());
 	QString reason;
-	if (regex.isValid())
+	//if (regex)
 	{
 		ct.m_regex = regex;
 
@@ -357,14 +357,14 @@ void ColorizerRegex::recompileColorRegex (ColorizedText & ct)
 			reason = "not checked";
 		}
 	}
-	else
-	{
-		if (child)
-		{
-			child->setData(QBrush(Qt::red), Qt::BackgroundRole);
-			reason = regex.errorString();
-		}
-	}
+// 	else
+// 	{
+// 		if (child)
+// 		{
+// 			child->setData(QBrush(Qt::red), Qt::BackgroundRole);
+// 			//reason = regex.errorString();
+// 		}
+// 	}
 
 	child->setToolTip(reason);
 	QStandardItem * item = m_model->item(child->row(), 3);

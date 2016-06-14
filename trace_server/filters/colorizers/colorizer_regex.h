@@ -6,6 +6,7 @@
 #include <vector>
 #include <QStandardItemModel>
 #include <QStyledItemDelegate>
+#include <regex>
 
 #include <widgets/logs/logtablemodel.h>
 
@@ -14,35 +15,68 @@ struct ColorizedText {
 	QColor	m_fgcolor;
 	QColor	m_bgcolor;
 	QString m_regex_str;
-	QRegularExpression m_regex;
+	//QRegularExpression m_regex;
+	std::wregex m_regex;
 
-	bool isValid () const { return m_regex.isValid(); }
+	bool isValid () const { return true; }
 
 	bool accept (QString str) const
 	{
 		if (m_is_enabled)
-			if (m_regex.isValid())
-			{
-				QRegularExpressionMatch m = m_regex.match(str);
-				return m.hasMatch();
-			}
+		{
+			int const ln = str.size() + 1;
+			wchar_t * raw_str = (wchar_t *)alloca(ln * sizeof(wchar_t));
+			int const n = str.toWCharArray(raw_str);
+			bool const ret = std::regex_match(raw_str, raw_str + n, m_regex);
+			return ret;
+		}
 		return false;
 	}
 
 	ColorizedText () { }
 
 	ColorizedText (QString const & rs, QColor const & col, QColor const & bgcol)
-        : m_fgcolor(col), m_bgcolor(bgcol), m_regex_str(rs), m_regex(rs), m_is_enabled(0)
+        : m_fgcolor(col), m_bgcolor(bgcol), m_regex_str(rs), m_regex(rs.toStdWString().c_str()), m_is_enabled(0)
 	{ }
 
-	template <class ArchiveT>
-	void serialize (ArchiveT & ar, unsigned const version)
+	template<class Archive>
+	void save (Archive & ar, unsigned const version) const
 	{
-		ar & boost::serialization::make_nvp("is_enabled", m_is_enabled);
-		ar & boost::serialization::make_nvp("fgcolor", m_fgcolor);
-		ar & boost::serialization::make_nvp("bgcolor", m_bgcolor);
-		ar & boost::serialization::make_nvp("regex_str", m_regex_str);
-		ar & boost::serialization::make_nvp("regex", m_regex);
+		ar << boost::serialization::make_nvp("is_enabled", m_is_enabled);
+		ar << boost::serialization::make_nvp("fgcolor", m_fgcolor);
+		ar << boost::serialization::make_nvp("bgcolor", m_bgcolor);
+		ar << boost::serialization::make_nvp("regex_str", m_regex_str);
+	}
+
+	template<class Archive>
+	void load (Archive & ar, unsigned const version)
+	{
+		ar >> boost::serialization::make_nvp("is_enabled", m_is_enabled);
+		ar >> boost::serialization::make_nvp("fgcolor", m_fgcolor);
+		ar >> boost::serialization::make_nvp("bgcolor", m_bgcolor);
+		ar >> boost::serialization::make_nvp("regex_str", m_regex_str);
+
+		try
+		{
+			std::wstring s = m_regex_str.toStdWString();
+			m_regex = std::wregex(s.c_str());
+		}
+		catch (std::regex_error const & e)
+		{
+			qDebug("std exception: %s", e.what());
+			//qError("fok");
+		}
+		catch (std::exception const & e)
+		{
+			qDebug("std exception: %s", e.what());
+			//qError("fok");
+		}
+	}
+
+	template <class ArchiveT>
+	void serialize(ArchiveT & ar, unsigned const version)
+	{
+		boost::serialization::split_member(ar, *this, version);
 	}
 };
 
