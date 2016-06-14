@@ -4,6 +4,7 @@
 #include <mixerconfig.h>
 #include "appdata.h"
 #include <QPixmap>
+#include <QTimer>
 
 namespace Ui { class Mixer; }
 struct RubberBand;
@@ -23,6 +24,7 @@ struct Mixer : QWidget
 		std::array<QLabel *, n_levels> m_row_labels;
 		MixerConfig m_config;
 		QPixmap m_pixmap;
+		QTimer m_timer;
 		bool m_has_dict_x;
 		bool m_has_dict_y;
 
@@ -73,6 +75,7 @@ public slots:
 		void onNoneButton ();
 		void onApplyButton ();
 		void onDictionaryArrived (int type, Dict const & dict);
+		void onTimerHit ();
 signals:
 		void mixerChanged ();
 };

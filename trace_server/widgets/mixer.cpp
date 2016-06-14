@@ -17,7 +17,7 @@ Mixer::Mixer (QWidget * parent, QToolButton * butt, unsigned rows, unsigned cols
 // 	, m_cols(cols)
 	, m_rubberBand(new RubberBand(QRubberBand::Rectangle, this))
 	, m_button(butt)
-	, m_pixmap(cols, rows)
+	, m_pixmap(m_col_labels.size(), m_row_labels.size())
 	, m_has_dict_x(false)
 	, m_has_dict_y(false)
 {
@@ -31,10 +31,15 @@ Mixer::Mixer (QWidget * parent, QToolButton * butt, unsigned rows, unsigned cols
 
 	m_pixmap.fill(Qt::black);
 	m_button->setIcon(QIcon(m_pixmap));
+
+	m_timer.setInterval(100); // 100 ms refresh ( 10 Hz )
+	connect(&m_timer, SIGNAL(timeout()), this, SLOT(onTimerHit()));
+	m_timer.start();
 }
 
 Mixer::~Mixer ()
 {
+	m_timer.stop();
 	delete ui;
 	if (m_rubberBand)
 		delete m_rubberBand;
@@ -47,7 +52,6 @@ void Mixer::addTopLabel (unsigned c)
 		return;
 
 	m_config.m_cols[c] = c;
-
 	QGridLayout * grid = ui->grid;
 
 	if (QLayoutItem * li = grid->itemAtPosition(0, c + 2))
@@ -245,7 +249,6 @@ void Mixer::applyConfig (MixerConfig & config)
 {
 	m_config = config;
 	QPainter painter(&m_pixmap);
-	m_pixmap.fill(Qt::black);
 
 	for (unsigned r = 0; r < m_config.m_rows.size(); ++r)
 	{
@@ -268,7 +271,6 @@ void Mixer::applyConfig (MixerConfig & config)
 			}
 		}
 	}
-	m_button->setIcon(QIcon(m_pixmap));
 }
 
 void Mixer::setRowTo (int row, bool on)
@@ -326,22 +328,27 @@ void Mixer::onDictionaryArrived (int type, Dict const & d)
 	}
 }
 
+void Mixer::onTimerHit ()
+{
+	m_pixmap.fill(Qt::black);
+	m_button->setIcon(QIcon(m_pixmap));
+}
+
 void Mixer::dataInputRowCol (unsigned row, unsigned col)
 {
 	addTopLabel(col);
 	addLeftLabel(row);
 	addButtons(row, col);
 
-	//QPainter painter(&m_pixmap);
-	//m_pixmap.fill(Qt::black);
-
   QPainter p(&m_pixmap);
-  p.setPen(Qt::blue);
+  p.setPen(Qt::green);
   p.drawPoint(row, col);
   p.end();
 
 	m_button->setIcon(QIcon(m_pixmap));
+	//m_button->update();
 
+	//if (MixerButton * const b = m_buttons[r][c])
 }
 
 void Mixer::fillMixerGaps ()
