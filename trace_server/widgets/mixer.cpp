@@ -17,7 +17,7 @@ Mixer::Mixer (QWidget * parent, QToolButton * butt, unsigned rows, unsigned cols
 // 	, m_cols(cols)
 	, m_rubberBand(new RubberBand(QRubberBand::Rectangle, this))
 	, m_button(butt)
-	, m_pixmap(m_col_labels.size(), m_row_labels.size())
+	, m_pixmap(QSize(m_col_labels.size(), m_row_labels.size()))
 	, m_has_dict_x(false)
 	, m_has_dict_y(false)
 {
@@ -346,7 +346,6 @@ void Mixer::dataInputRowCol (unsigned row, unsigned col)
   p.end();
 
 	m_button->setIcon(QIcon(m_pixmap));
-	//m_button->update();
 
 	//if (MixerButton * const b = m_buttons[r][c])
 }
