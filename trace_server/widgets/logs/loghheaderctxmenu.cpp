@@ -106,9 +106,33 @@ void LogHHeaderCtxMenu::init ()
 
 void LogHHeaderCtxMenu::onAllButton ()
 {
+	QStandardItemModel * uimodel = static_cast<QStandardItemModel *>(m_ui->view->model());
+	QStandardItem * cs_root = uimodel->invisibleRootItem();
+	for (int r = 0, re = cs_root->rowCount(); r < re; ++r)
+	{
+		if (QStandardItem * const si = cs_root->child(r, 0))
+		{
+			if (si->checkState() == Qt::Unchecked)
+			{
+				si->setCheckState(Qt::Checked);
+			}
+		}
+	}
 }
 void LogHHeaderCtxMenu::onNoneButton ()
 {
+	QStandardItemModel * uimodel = static_cast<QStandardItemModel *>(m_ui->view->model());
+	QStandardItem * cs_root = uimodel->invisibleRootItem();
+	for (int r = 0, re = cs_root->rowCount(); r < re; ++r)
+	{
+		if (QStandardItem * const si = cs_root->child(r, 0))
+		{
+			if (si->checkState() == Qt::Checked)
+			{
+				si->setCheckState(Qt::Unchecked);
+			}
+		}
+	}
 }
 void LogHHeaderCtxMenu::onDefaultButton ()
 {
