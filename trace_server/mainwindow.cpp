@@ -112,7 +112,7 @@ MainWindow::MainWindow (QWidget * parent, QString const & iface, unsigned short 
 
 	/// status widget
 	m_status_widget = new QLabel(m_server->getRunningStatus());
-	m_status_widget->setAlignment(Qt::AlignRight);
+	m_status_widget->setAlignment(Qt::AlignHCenter);
 	if (statusBar())
 		statusBar()->hide();
 
@@ -496,9 +496,6 @@ void MainWindow::setupMenuBar ()
 
 	menuBar()->setCornerWidget(m_status_widget, Qt::TopRightCorner);
 	connect(m_status_widget, SIGNAL(clicked()), this, SLOT(onDockManagerButton()));
-	m_status_widget->setStyleSheet("\
-		QToolButton  { border: 1px solid #8f8f91; border-radius: 2px; } \
-		QToolButton:checked { background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #dadbdd, stop: 1 #d6d7da); }");
 
 	// File
 	m_file_menu = menuBar()->addMenu(tr("&File"));

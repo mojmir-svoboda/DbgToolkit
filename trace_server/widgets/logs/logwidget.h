@@ -112,7 +112,7 @@ namespace logs {
 		LogWidget * mkFindAllCloneLogWidget (FindConfig const & fc);
 		void registerLinkedWidget (DockedWidgetBase * l);
 		void unregisterLinkedWidget (DockedWidgetBase * l);
-		//void findAndSelect (FindConfig const & fc);
+		void findAndSelect (FindConfig const & fc);
 		//void findAndSelectNext (FindConfig const & fc);
 		//void findAndSelectPrev (FindConfig const & fc);
 		//void currSelection (QModelIndexList & sel) const;

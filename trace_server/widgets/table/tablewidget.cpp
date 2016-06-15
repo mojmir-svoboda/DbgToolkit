@@ -1055,15 +1055,15 @@ namespace table {
 
 		saveFindConfig();
 
-		if (select_only)
-		{
-			if (fc.m_next)
-				findAndSelectNext(this, fc);
-			else if (fc.m_prev)
-				findAndSelectPrev(this, fc);
-			else
-				findAndSelect(this, fc);
-		}
+// 		if (select_only)
+// 		{
+// 			if (fc.m_next)
+// 				findAndSelectNext(this, fc);
+// 			else if (fc.m_prev)
+// 				findAndSelectPrev(this, fc);
+// 			else
+// 				findAndSelect(this, fc);
+// 		}
 		/*else
 		{
 			LogWidget * result_widget = 0;

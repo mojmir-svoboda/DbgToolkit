@@ -232,6 +232,32 @@ LogWidget * LogWidget::mkFindAllCloneLogWidget (FindConfig const & fc)
 	return child;
 }
 
+void LogWidget::findAndSelect (FindConfig const & fc)
+{
+	QModelIndex start = m_tableview->model()->index(0, 0);
+
+	// if selected column
+	//	QModelIndexList indexes = model()->match(start, Qt::DisplayRole, QVariant(fc.m_str), -1, Qt::MatchFixedString);
+	QModelIndexList indexes;
+	findInWholeTable(m_tableview, fc, indexes);
+
+	QItemSelectionModel * selection_model = m_tableview->selectionModel();
+
+	QItemSelection selection;
+	foreach(QModelIndex index, indexes)
+	{
+
+		QModelIndex left = m_tableview->model()->index(index.row(), 0);
+		QModelIndex right = m_tableview->model()->index(index.row(), m_tableview->model()->columnCount() - 1);
+
+		QItemSelection sel(left, right);
+		selection.merge(sel, QItemSelectionModel::Select);
+	}
+	selection_model->select(selection, QItemSelectionModel::Select);
+
+	m_connection->getMainWindow()->onStatusChanged(tr("Selected %1 lines").arg(selection.size()));
+}
+
 void LogWidget::handleFindAction (FindConfig const & fc)
 {
 	bool const select_only = !fc.m_refs && !fc.m_clone;
@@ -253,7 +279,7 @@ void LogWidget::handleFindAction (FindConfig const & fc)
 		else if (fc.m_prev)
 			findAndSelectPrev(m_tableview, fc);
 		else
-			findAndSelect(m_tableview, fc);
+			findAndSelect(fc);
 	}
 	else
 	{

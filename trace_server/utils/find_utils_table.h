@@ -17,30 +17,6 @@ inline void findInWholeTable (QTableView * tableview, FindConfig const & fc, QMo
 	}
 }
 
-inline void findAndSelect (QTableView * tableview, FindConfig const & fc)
-{
-	QModelIndex start = tableview->model()->index(0, 0);
-
-	// if selected column
-	//	QModelIndexList indexes = model()->match(start, Qt::DisplayRole, QVariant(fc.m_str), -1, Qt::MatchFixedString);
-	QModelIndexList indexes;
-	findInWholeTable(tableview, fc, indexes);
-
-	QItemSelectionModel * selection_model = tableview->selectionModel();
-
-	QItemSelection selection;
-	foreach(QModelIndex index, indexes)
-	{
-
-		QModelIndex left = tableview->model()->index(index.row(), 0);
-		QModelIndex right = tableview->model()->index(index.row(), tableview->model()->columnCount() - 1);
-
-		QItemSelection sel(left, right);
-		selection.merge(sel, QItemSelectionModel::Select);
-	}
-	selection_model->select(selection, QItemSelectionModel::Select);
-}
-
 inline void currSelection (QTableView * tableview, QModelIndexList & sel)
 {
 	sel.clear();
