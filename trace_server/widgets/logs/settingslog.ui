@@ -281,6 +281,13 @@
               </property>
              </spacer>
             </item>
+            <item>
+             <widget class="QPushButton" name="allColumnsButton">
+              <property name="text">
+               <string>All</string>
+              </property>
+             </widget>
+            </item>
            </layout>
           </item>
           <item>
