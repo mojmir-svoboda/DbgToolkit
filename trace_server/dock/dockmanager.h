@@ -6,10 +6,10 @@
 #include "dockedconfig.h"
 #include "dockmanagermodel.h"
 #include "dockmanagerconfig.h"
-#include <widgets/controlbar/controlbarcommon.h>
+#include <widgets/controlbar/controlbardockmanager.h>
 class MainWindow;
 struct DockWidget;
-namespace Ui { class ControlBarCommon; }
+namespace Ui { class ControlBarDockManager; }
 
 struct DockManager : DockManagerView, ActionAble
 {
@@ -31,7 +31,7 @@ public:
 	actionables_t		m_actionables;
 	MainWindow * 		m_main_window;
 	DockWidget * 		m_dockwidget;
-	ControlBarCommon * 	m_control_bar;
+	std::unique_ptr<ControlBarDockManager> 	m_control_bar;
 	DockManagerModel *	m_model;
 	DockManagerConfig	m_config;
 
@@ -43,15 +43,15 @@ public:
 	void removeActionAble (ActionAble & aa);
 	ActionAble const * findActionAble (QString const & dst_joined) const;
 	ActionAble * findActionAble (QString const & dst_joined);
-	Ui::ControlBarCommon * controlUI () { return m_control_bar->ui; }
-	Ui::ControlBarCommon const * controlUI () const { return m_control_bar->ui; }
+	Ui::ControlBarDockManager * controlUI () { return m_control_bar->ui; }
+	Ui::ControlBarDockManager const * controlUI () const { return m_control_bar->ui; }
 
 	void loadConfig (QString const & path);
 	void saveConfig (QString const & path);
 	void applyConfig ();
 
 	virtual bool handleAction (Action * a, E_ActionHandleType sync);
-	virtual QWidget * controlWidget () { return m_control_bar; }
+	virtual QWidget * controlWidget () { return m_control_bar.get(); }
 
 public slots:
 	void onWidgetClosed (DockWidget * w);
