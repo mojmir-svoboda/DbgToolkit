@@ -119,8 +119,6 @@ public slots:
 	void onDockManagerButton ();
 	void onDockManagerVisibilityChanged (bool state);
 	void onDockManagerClosed ();
-	void onMixerButton ();
-	void onMixerClosed();
 	void onSave ();
 	void onSaveAs ();
 

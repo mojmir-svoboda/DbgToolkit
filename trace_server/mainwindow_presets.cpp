@@ -12,6 +12,8 @@
 #include <utils/utils.h>
 #include <utils/utils_history.h>
 #include <serialize/serialize.h>
+#include <widgets/controlbar/controlbardockmanager.h>
+#include <ui_controlbardockmanager.h>
 
 void MainWindow::loadConfig ()
 {

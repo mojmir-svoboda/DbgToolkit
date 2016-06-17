@@ -10,6 +10,7 @@
 #include <trace_proto/trace_proto.h>
 #include <trace_proto/encode_config.h>
 #include <widgets/mixer.h>
+#include <widgets/controlbar/controlbarcommon.h>
 
 QString Connection::getClosestPresetName ()
 {
