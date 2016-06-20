@@ -219,7 +219,6 @@ private:
 	QToolButton *		m_dock_mgr_button;
 	QLabel *			m_status_widget;
 	QSystemTrayIcon * 	m_tray_icon;
-	Mixer	*				m_mixer;
 	std::vector<QString> m_reload_fnames;
 
 	// docked widgets

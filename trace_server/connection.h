@@ -40,7 +40,7 @@
 
 class MainWindow; class Server;
 class QFile; class QDataStream; class QTextStream; class QTcpSocket;
-class ControlBarCommon; struct Mixer;
+class ControlBarCommon; struct Mixer; class ControlWidgetData;
 struct WaveTable;
 
 char const * const g_fileTags[] =  { g_LogTag , g_PlotTag , g_TableTag , g_GanttTag , g_FrameTag  };
@@ -136,6 +136,8 @@ public slots:
 	void onMixerChanged (MixerConfig const & config);
 	void onMixerApplied ();
 	void onMixerButton ();
+	void onDataControlButton ();
+	void onDataControlClosed ();
 	void onMixerClosed ();
 	void onBufferingStateChanged (int state);
 	void onPresetChanged (int idx);
@@ -260,6 +262,7 @@ private:
 	QString m_curr_preset;
 	std::unique_ptr<ControlBarCommon> m_control_bar;
 	std::unique_ptr<Mixer> m_mixer;
+	std::unique_ptr<ControlWidgetData> m_data_control;
 	QDataStream * m_file_tlv_stream;
 	QTextStream * m_file_csv_stream;
 	qint64 m_file_size;

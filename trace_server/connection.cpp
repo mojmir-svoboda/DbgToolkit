@@ -7,9 +7,11 @@
 #include "mainwindow.h"
 #include <serialize/serialize.h>
 #include <widgets/controlbar/controlbarcommon.h>
+#include <ui_controlbarcommon.h>
 #include <widgets/mixer.h>
 #include "ui_mixer.h"
-#include <ui_controlbarcommon.h>
+#include <widgets/controlbar/controlwidgetdata.h>
+#include <ui_controlwidgetdata.h>
 #include "wavetable.h"
 
 GlobalConfig const & Connection::getGlobalConfig () const { return m_main_window->getConfig(); }
@@ -27,8 +29,8 @@ Connection::Connection (QString const & app_name, QObject * parent)
 	, m_marked_for_close(false)
 	, m_curr_preset()
 	, m_control_bar(new ControlBarCommon)
-	//, m_mixer(new Mixer(nullptr, m_control_bar->ui->mixerButton, sizeof(context_t) * CHAR_BIT, sizeof(level_t) * CHAR_BIT))
 	, m_mixer(new Mixer(nullptr, m_control_bar->ui->mixerButton, 0, 0))
+	, m_data_control(new ControlWidgetData)
 	, m_file_tlv_stream(nullptr)
 	, m_file_csv_stream(nullptr)
 	, m_file_size(0)
@@ -66,6 +68,7 @@ Connection::Connection (QString const & app_name, QObject * parent)
 	setConfigValuesToUI(m_config);
 
 	connect(m_control_bar->ui->mixerButton, SIGNAL(clicked()), this, SLOT(onMixerButton()));
+	connect(m_control_bar->ui->dataControlButton, SIGNAL(clicked()), this, SLOT(onDataControlButton()));
 	//connect(m_control_bar->ui->levelSpinBox, SIGNAL(valueChanged(int)), this, SLOT(onLevelValueChanged(int)));
 	connect(m_control_bar->ui->buffCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onBufferingStateChanged(int)));
 	connect(m_control_bar->ui->presetComboBox, SIGNAL(activated(int)), this, SLOT(onPresetChanged(int)));
@@ -74,10 +77,10 @@ Connection::Connection (QString const & app_name, QObject * parent)
 	connect(m_control_bar->ui->presetAddButton, SIGNAL(clicked()), this, SLOT(onPresetAdd()));
 	connect(m_control_bar->ui->presetRmButton, SIGNAL(clicked()), this, SLOT(onPresetRm()));
 	//connect(m_control_bar->ui->presetResetButton, SIGNAL(clicked()), this, SLOT(onPresetReset()));
-	connect(m_control_bar->ui->logSlider, SIGNAL(valueChanged(int)), this, SLOT(onLogsStateChanged(int)));
-	connect(m_control_bar->ui->plotSlider, SIGNAL(valueChanged(int)), this, SLOT(onPlotsStateChanged(int)));
-	connect(m_control_bar->ui->tableSlider, SIGNAL(valueChanged(int)), this, SLOT(onTablesStateChanged(int)));
-	connect(m_control_bar->ui->ganttSlider, SIGNAL(valueChanged(int)), this, SLOT(onGanttsStateChanged(int)));
+	connect(m_data_control->ui->logSlider, SIGNAL(valueChanged(int)), this, SLOT(onLogsStateChanged(int)));
+	connect(m_data_control->ui->plotSlider, SIGNAL(valueChanged(int)), this, SLOT(onPlotsStateChanged(int)));
+	//connect(m_control_bar->ui->tableSlider, SIGNAL(valueChanged(int)), this, SLOT(onTablesStateChanged(int)));
+	connect(m_data_control->ui->ganttSlider, SIGNAL(valueChanged(int)), this, SLOT(onGanttsStateChanged(int)));
 	connect(m_control_bar->ui->clrDataButton, SIGNAL(clicked()), this, SLOT(onClearAllData()));
 
 	m_mixer->setupMixer(m_config.m_mixer);

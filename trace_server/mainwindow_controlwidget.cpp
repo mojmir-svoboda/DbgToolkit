@@ -139,10 +139,10 @@ void MainWindow::setConfigValuesToUI (GlobalConfig const & cfg)
 	//m_dock_mgr.controlUI()->mixerButton
 	m_dock_mgr.controlUI()->buffCheckBox->setChecked(cfg.m_buffered);
 	syncHistoryToWidget(m_dock_mgr.controlUI()->presetComboBox, cfg.m_preset_history);
-	m_dock_mgr.controlUI()->logSlider->setValue(cfg.m_logs_recv_level);
-	m_dock_mgr.controlUI()->plotSlider->setValue(cfg.m_plots_recv_level);
-	m_dock_mgr.controlUI()->tableSlider->setValue(cfg.m_tables_recv_level);
-	m_dock_mgr.controlUI()->ganttSlider->setValue(cfg.m_gantts_recv_level);
+// 	m_dock_mgr.controlUI()->logSlider->setValue(cfg.m_logs_recv_level);
+// 	m_dock_mgr.controlUI()->plotSlider->setValue(cfg.m_plots_recv_level);
+// 	m_dock_mgr.controlUI()->tableSlider->setValue(cfg.m_tables_recv_level);
+// 	m_dock_mgr.controlUI()->ganttSlider->setValue(cfg.m_gantts_recv_level);
 }
 
 void MainWindow::setUIValuesToConfig (GlobalConfig & cfg)

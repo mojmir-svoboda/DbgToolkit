@@ -4,19 +4,30 @@
 #include <QWidget>
 
 namespace Ui {
-class controlwidgetdata;
+class ControlWidgetData;
 }
 
-class controlwidgetdata : public QWidget
+struct ConnectionConfig;
+
+// struct ControlWidgetDataConfig
+// {
+// 	int		  m_logs_recv_level;
+// 	int		  m_plots_recv_level;
+// 	int		  m_tables_recv_level;
+// 	int		  m_gantts_recv_level;
+// };
+
+class ControlWidgetData : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit controlwidgetdata(QWidget *parent = 0);
-    ~controlwidgetdata();
+    explicit ControlWidgetData(QWidget *parent = 0);
+    ~ControlWidgetData();
 
-private:
-    Ui::controlwidgetdata *ui;
+		void applyConfig (ConnectionConfig & config);
+
+    Ui::ControlWidgetData *ui;
 };
 
 #endif // CONTROLWIDGETDATA_H

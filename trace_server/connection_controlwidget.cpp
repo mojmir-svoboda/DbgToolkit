@@ -7,6 +7,8 @@
 //#include "controlbarcommon.h"
 #include "mainwindow.h"
 #include <ui_controlbarcommon.h>
+#include <widgets/controlbar/controlwidgetdata.h>
+#include <ui_controlwidgetdata.h>
 #include <trace_proto/trace_proto.h>
 #include <trace_proto/encode_config.h>
 #include <widgets/mixer.h>
@@ -30,11 +32,11 @@ E_FeatureStates Connection::getClosestFeatureState (E_DataWidgetType type) const
 {
 	switch (type)
 	{
-		case e_data_log  : return static_cast<E_FeatureStates>(m_control_bar->ui->logSlider->value());
-		case e_data_plot : return static_cast<E_FeatureStates>(m_control_bar->ui->plotSlider->value());
-		case e_data_table: return static_cast<E_FeatureStates>(m_control_bar->ui->tableSlider->value());
-		case e_data_gantt: return static_cast<E_FeatureStates>(m_control_bar->ui->ganttSlider->value());
-		case e_data_frame: return static_cast<E_FeatureStates>(m_control_bar->ui->ganttSlider->value());
+		case e_data_log  : return static_cast<E_FeatureStates>(m_data_control->ui->logSlider->value());
+		case e_data_plot : return static_cast<E_FeatureStates>(m_data_control->ui->plotSlider->value());
+		case e_data_table: return static_cast<E_FeatureStates>(m_data_control->ui->tableSlider->value());
+		case e_data_gantt: return static_cast<E_FeatureStates>(m_data_control->ui->ganttSlider->value());
+		case e_data_frame: return static_cast<E_FeatureStates>(m_data_control->ui->ganttSlider->value());
 		default: return e_FtrDisabled;
 	}
 }
@@ -44,10 +46,10 @@ void Connection::setConfigValuesToUI (ConnectionConfig const & cfg)
 	//m_control_bar->ui->levelSpinBox->setValue(cfg.m_level);
 	m_control_bar->ui->buffCheckBox->setChecked(cfg.m_buffered);
 	syncHistoryToWidget(m_control_bar->ui->presetComboBox, cfg.m_preset_history);
-	m_control_bar->ui->logSlider->setValue(cfg.m_logs_recv_level);
-	m_control_bar->ui->plotSlider->setValue(cfg.m_plots_recv_level);
-	m_control_bar->ui->tableSlider->setValue(cfg.m_tables_recv_level);
-	m_control_bar->ui->ganttSlider->setValue(cfg.m_gantts_recv_level);
+	m_data_control->ui->logSlider->setValue(cfg.m_logs_recv_level);
+	m_data_control->ui->plotSlider->setValue(cfg.m_plots_recv_level);
+	m_data_control->ui->tableSlider->setValue(cfg.m_tables_recv_level);
+	m_data_control->ui->ganttSlider->setValue(cfg.m_gantts_recv_level);
 }
 
 void Connection::setUIValuesToConfig (ConnectionConfig & cfg)
@@ -55,18 +57,18 @@ void Connection::setUIValuesToConfig (ConnectionConfig & cfg)
 	//cfg.m_level = m_control_bar->ui->levelSpinBox->value();
 	cfg.m_buffered = m_control_bar->ui->buffCheckBox->isChecked();
 	//
-	cfg.m_logs_recv_level = static_cast<E_FeatureStates>(m_control_bar->ui->logSlider->value());
-	cfg.m_plots_recv_level = static_cast<E_FeatureStates>(m_control_bar->ui->plotSlider->value());
-	cfg.m_tables_recv_level = static_cast<E_FeatureStates>(m_control_bar->ui->tableSlider->value());
-	cfg.m_gantts_recv_level = static_cast<E_FeatureStates>(m_control_bar->ui->ganttSlider->value());
+	cfg.m_logs_recv_level = static_cast<E_FeatureStates>(m_data_control->ui->logSlider->value());
+	cfg.m_plots_recv_level = static_cast<E_FeatureStates>(m_data_control->ui->plotSlider->value());
+	cfg.m_tables_recv_level = static_cast<E_FeatureStates>(m_data_control->ui->tableSlider->value());
+	cfg.m_gantts_recv_level = static_cast<E_FeatureStates>(m_data_control->ui->ganttSlider->value());
 }
 
 void Connection::setMixerUI (MixerConfig const & cfg) { /*m_control_bar->ui->levelSpinBox->setValue(i);*/ }
 void Connection::setBufferedUI (int state) { m_control_bar->ui->buffCheckBox->setChecked(state); }
-void Connection::setLogsUI (int state) { m_control_bar->ui->logSlider->setValue(state); }
-void Connection::setPlotsUI (int state) { m_control_bar->ui->plotSlider->setValue(state); }
-void Connection::setTablesUI (int state) { m_control_bar->ui->tableSlider->setValue(state); }
-void Connection::setGanttsUI (int state) { m_control_bar->ui->ganttSlider->setValue(state); }
+void Connection::setLogsUI (int state) { m_data_control->ui->logSlider->setValue(state); }
+void Connection::setPlotsUI (int state) { m_data_control->ui->plotSlider->setValue(state); }
+void Connection::setTablesUI (int state) { m_data_control->ui->tableSlider->setValue(state); }
+void Connection::setGanttsUI (int state) { m_data_control->ui->ganttSlider->setValue(state); }
 
 void Connection::onLogsStateChanged (int state)
 {
@@ -113,6 +115,29 @@ void Connection::onMixerClosed ()
 {
 	m_control_bar->ui->mixerButton->setChecked(false);
 }
+
+void Connection::onDataControlButton ()
+{
+	if (m_control_bar->ui->dataControlButton->isChecked())
+	{
+		m_data_control->applyConfig(m_config);
+		QPoint pt = m_control_bar->ui->dataControlButton->pos();
+		pt.setX(pt.x() + 32);
+		//m_mixer->move(pt);
+		m_data_control->move(m_control_bar->ui->dataControlButton->mapToGlobal(pt));
+		m_data_control->show();
+	}
+	else
+	{
+		m_data_control->hide();
+	}
+}
+
+void Connection::onDataControlClosed ()
+{
+	m_control_bar->ui->dataControlButton->setChecked(false);
+}
+
 
 void Connection::onBufferingStateChanged (int state)
 {

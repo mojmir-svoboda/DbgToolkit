@@ -118,6 +118,7 @@ set(trace_server_SOURCES
 	widgets/controlbar/controlbarcommon.cpp
 	widgets/controlbar/controlbardockedwidgets.cpp
 	widgets/controlbar/controlbarlog.cpp
+	widgets/controlbar/controlwidgetdata.cpp
 	widgets/setupdialogcsv.cpp
 
 	filters/filterbase.cpp
@@ -287,6 +288,7 @@ set(trace_server_HEADERS
   widgets/controlbar/controlbardockedwidgets.h
   widgets/controlbar/controlbargantts.h
   widgets/controlbar/controlbarlog.h
+	widgets/controlbar/controlwidgetdata.h
   widgets/controlbar/controlbarlogs.h
   widgets/controlbar/controlbarplots.h
   widgets/controlbar/controlbartables.h
@@ -350,6 +352,7 @@ set(trace_server_UI
 	widgets/controlbar/controlbarcommon.ui
 	widgets/controlbar/controlbardockedwidgets.ui
 	widgets/controlbar/controlbarlog.ui
+	widgets/controlbar/controlwidgetdata.ui
 	widgets/findwidget.ui
 	widgets/mixer.ui
 	widgets/mixerbar.ui
