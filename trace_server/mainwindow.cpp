@@ -20,6 +20,8 @@
 #include "constants.h"
 #include <dock/dockwidget.h>
 #include <widgets/setupdialogcsv.h>
+#include <widgets/controlbar/controlbardockmanager.h>
+#include <ui_controlbardockmanager.h>
 #include "ui_setupdialogcsv.h"
 #include <ui_controlbarcommon.h>
 #include <utils/utils.h>
@@ -119,7 +121,6 @@ MainWindow::MainWindow (QWidget * parent, QString const & iface, unsigned short 
 	setupMenuBar();
 
 	//connect(m_dock_mgr.controlUI()->levelSpinBox, SIGNAL(valueChanged(int)), this, SLOT(onLevelValueChanged(int)));
-	//connect(m_dock_mgr.controlUI()->mixerButton, SIGNAL(clicked()), this, SLOT(onMixerButton()));
 	connect(m_dock_mgr.controlUI()->buffCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onBufferingStateChanged(int)));
 	connect(m_dock_mgr.controlUI()->clrDataButton, SIGNAL(clicked()), this, SLOT(onClearAllData()));
 	connect(m_dock_mgr.controlUI()->presetComboBox, SIGNAL(activated(int)), this, SLOT(onPresetChanged(int)));
@@ -129,10 +130,6 @@ MainWindow::MainWindow (QWidget * parent, QString const & iface, unsigned short 
 	connect(m_dock_mgr.controlUI()->presetAddButton, SIGNAL(clicked()), this, SLOT(onPresetAdd()));
 	connect(m_dock_mgr.controlUI()->presetRmButton, SIGNAL(clicked()), this, SLOT(onPresetRm()));
 	//connect(m_dock_mgr.controlUI()->presetResetButton, SIGNAL(clicked()), this, SLOT(onPresetReset()));
-// 	connect(m_data_co->logSlider, SIGNAL(valueChanged(int)), this, SLOT(onLogsStateChanged(int)));
-// 	connect(m_dock_mgr.controlUI()->plotSlider, SIGNAL(valueChanged(int)), this, SLOT(onPlotsStateChanged(int)));
-// 	connect(m_dock_mgr.controlUI()->tableSlider, SIGNAL(valueChanged(int)), this, SLOT(onTablesStateChanged(int)));
-// 	connect(m_dock_mgr.controlUI()->ganttSlider, SIGNAL(valueChanged(int)), this, SLOT(onGanttsStateChanged(int)));
 
 	QTimer::singleShot(0, this, SLOT(loadState()));	// trigger lazy load of settings
 	setWindowTitle(g_traceServerName);

@@ -70,7 +70,7 @@ int main ()
 	TRACE_MSG(LL_FATAL, CTX_Default,  "fatal error");
 	TRACE_MSG(LL_WARNING, CTX_Default, "some warn");
 	TRACE_MSG(LL_WARNING, CTX_Default, "dong");
-	TRACE_MSG(LL_WARNING, CTX_Default, "some warn.. and BAD DONG!");
+	TRACE_MSG(LL_WARNING, CTX_Default, "some warn.. and a DING!");
 	TRACE_MSG(LL_VERBOSE, CTX_Default, "None shall pass!!!");
 
 

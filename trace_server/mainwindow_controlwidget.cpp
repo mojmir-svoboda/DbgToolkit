@@ -6,6 +6,8 @@
 #include <ui_settings.h>
 #include <QMessageBox>
 #include "widgets/mixer.h"
+#include <widgets/controlbar/controlbardockmanager.h>
+#include <ui_controlbardockmanager.h>
 
 void MainWindow::onMixerChanged (MixerConfig const & config)
 {
@@ -148,24 +150,6 @@ void MainWindow::setConfigValuesToUI (GlobalConfig const & cfg)
 void MainWindow::setUIValuesToConfig (GlobalConfig & cfg)
 {
 }
-
-void MainWindow::onMixerButton ()
-{
-// 	if (m_dock_mgr.controlUI()->mixerButton->isChecked())
-// 	{
-// 		m_mixer->show();
-// 	}
-// 	else
-// 	{
-// 		m_mixer->hide();
-// 	}
-}
-
-void MainWindow::onMixerClosed ()
-{
-	m_dock_mgr.controlUI()->mixerButton->setChecked(false);
-}
-
 
 //bool MainWindow::onTopEnabled () const { return ui_settings->onTopCheckBox->isChecked(); }
 

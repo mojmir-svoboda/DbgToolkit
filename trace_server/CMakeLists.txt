@@ -116,6 +116,7 @@ set(trace_server_SOURCES
 	widgets/timecombobox.cpp
 	widgets/buttoncache.cpp
 	widgets/controlbar/controlbarcommon.cpp
+	widgets/controlbar/controlbardockmanager.cpp
 	widgets/controlbar/controlbardockedwidgets.cpp
 	widgets/controlbar/controlbarlog.cpp
 	widgets/controlbar/controlwidgetdata.cpp
@@ -285,6 +286,7 @@ set(trace_server_HEADERS
   widgets/colorizewidget.h
   widgets/combolist.h
   widgets/controlbar/controlbarcommon.h
+  widgets/controlbar/controlbardockmanager.h
   widgets/controlbar/controlbardockedwidgets.h
   widgets/controlbar/controlbargantts.h
   widgets/controlbar/controlbarlog.h
@@ -292,7 +294,6 @@ set(trace_server_HEADERS
   widgets/controlbar/controlbarlogs.h
   widgets/controlbar/controlbarplots.h
   widgets/controlbar/controlbartables.h
-  widgets/controlbar/controlbar_dockmanager.h
   widgets/findconfig.h
   widgets/findwidget.h
   widgets/gantt/arrow.h
@@ -350,6 +351,7 @@ set(trace_server_HEADERS
 set(trace_server_UI
 	mainwindow.ui
 	widgets/controlbar/controlbarcommon.ui
+	widgets/controlbar/controlbardockmanager.ui
 	widgets/controlbar/controlbardockedwidgets.ui
 	widgets/controlbar/controlbarlog.ui
 	widgets/controlbar/controlwidgetdata.ui

@@ -3,9 +3,9 @@
 #include "connection.h"
 #include "dockmanagerconfig.h"
 #include "dockdelegates.h"
-#include <widgets/controlbar/controlbar_dockmanager.h>
+#include <widgets/controlbar/controlbardockmanager.h>
 #include <serialize/serialize.h>
-#include <ui_controlbarcommon.h>
+#include <ui_controlbardockedwidgets.h>
 #include <QScrollBar>
 /*#include <ui_controlbarlogs.h>
 #include <ui_controlbarplots.h>
@@ -16,7 +16,7 @@ DockManager::DockManager (MainWindow * mw, QStringList const & path)
 	: DockManagerView(mw), ActionAble(path)
 	, m_main_window(mw)
 	, m_dockwidget(0)
-	, m_control_bar(0)
+	, m_control_bar(new ControlBarDockManager())
 	, m_model(0)
 	, m_config(g_traceServerName)
 {
@@ -37,7 +37,6 @@ DockManager::DockManager (MainWindow * mw, QStringList const & path)
 	m_dockwidget = dock;
 
 	connect(m_dockwidget, SIGNAL(widgetVisibilityChanged(bool)), m_main_window, SLOT(onDockManagerVisibilityChanged(bool)));
-	m_control_bar = new ControlBarCommon();
 
 	connect(header(), SIGNAL(sectionResized(int, int, int)), this, SLOT(onColumnResized(int, int, int)));
 	connect(m_dockwidget, SIGNAL(dockClosed()), mw, SLOT(onDockManagerClosed()));
