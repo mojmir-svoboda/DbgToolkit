@@ -35,6 +35,11 @@ namespace logs { namespace proto {
 	{
 		constexpr size_t getRecordSize () const { return sizeof(Record); }
 
+		bool canAddRecord () const
+		{
+			return canMoveEnd(getRecordSize());
+		}
+
 		bool addRecord (values_t const & values)
 		{
 			if (char * mem = static_cast<char *>(Malloc(getRecordSize())))
@@ -63,6 +68,11 @@ namespace logs { namespace proto {
 	struct AttrsTable : MemBuffer<VirtualAllocBuffer>
 	{
 		constexpr size_t getAttrsSize () const { return sizeof(Attrs); }
+		bool canAddAttrs () const
+		{
+			return canMoveEnd(getAttrsSize());
+		}
+
 		bool addAttrs ()
 		{
 			if (char * mem = static_cast<char *>(Malloc(getAttrsSize())))
@@ -144,6 +154,9 @@ namespace logs { namespace proto {
 		{
 			//sys::hptimer_t const now = sys::queryTime_us();
 
+			if (!m_data.m_records.canAddRecord() || !m_data.m_attrs.canAddAttrs())
+				return false;
+
 			tag2type<int_<tag_stime>> stime = cmd.m_stime;
 			tag2type<int_<tag_dt>> dt = 0;
 			tag2type<int_<tag_ctime>> ctime = cmd.choice.log.ctime;
@@ -151,9 +164,13 @@ namespace logs { namespace proto {
 			tag2type<int_<tag_ctx>> ctx = cmd.choice.log.ctx;
 			tag2type<int_<tag_tid>> tid = cmd.choice.log.tid;
 			std::tuple<bool, stroffs_t> qtfile = m_data.m_strings.AddQStringDataFromOCTET_STRING(cmd.choice.log.file);
+			if (std::get<0>(qtfile) == false)
+				return false;
 			tag2type<int_<tag_file>> file = std::get<1>(qtfile);
 			tag2type<int_<tag_line>> line = cmd.choice.log.line;
 			std::tuple<bool, stroffs_t> qtfunc = m_data.m_strings.AddQStringDataFromOCTET_STRING(cmd.choice.log.func);
+			if (std::get<0>(qtfunc) == false)
+				return false;
 			tag2type<int_<tag_func>> func = std::get<1>(qtfunc);
 			LogScopeType scptype = static_cast<LogScopeType>(cmd.choice.log.scope);
 			tag2type<int_<tag_msg>> msg;
@@ -181,6 +198,8 @@ namespace logs { namespace proto {
 
 			std::tuple<bool, stroffs_t> qtmsg = m_data.m_strings.AddQStringDataFromOCTET_STRING(cmd.choice.log.msg, indent, scptype);
 			msg = std::get<1>(qtmsg);
+			if (std::get<0>(qtmsg) == false)
+				return false;
 			//QString const & dbg = m_data.m_strings.GetQString(std::get<1>(qtmsg));
 
 			values_t r = std::make_tuple(stime, dt, ctime, tid, lvl, ctx, file, line, func, msg);

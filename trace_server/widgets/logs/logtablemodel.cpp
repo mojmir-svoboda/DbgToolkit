@@ -7,6 +7,7 @@
 #include "findproxymodel.h"
 #include <utils/utils.h>
 #include <sysfn/time_query.h>
+#include <mainwindow.h>
 
 namespace logs {
 
@@ -184,23 +185,43 @@ void LogTableModel::commitCommands (std::vector<DecodedCommand> const & dcmds, E
 	if (rows == 0 || from == -1 || to == -1)
 		return;
 
-	bool signal_model_reset = false;
+	//bool signal_model_reset = false;
+
+	size_t r = 0;
+	bool handler_result = false;
+	for (size_t re = rows; r < re; ++r)
+	{
+		DecodedCommand const & dcmd = dcmds[r];
+		handler_result = m_data.handleLogCommand(dcmd, m_log_widget.m_config);
+		if (!handler_result)
+		{
+			break;
+		}
+	}
+
+	if (handler_result == false && r > 0)
+	{
+		beginInsertRows(QModelIndex(), static_cast<int>(from), static_cast<int>(from) + static_cast<int>(r) - 1);
+		endInsertRows();
+	}
+	else if (handler_result)
 	{
 		beginInsertRows(QModelIndex(), static_cast<int>(from), to);
-
-		for (size_t r = 0, re = rows; r < re; ++r)
-		{
-			DecodedCommand const & dcmd = dcmds[r];
-			m_data.handleLogCommand(dcmd, m_log_widget.m_config);
-		}
-
 		endInsertRows();
 	}
 
 	if (from == 0 && rowCount() > 0)
 		m_log_widget.m_tableview->setCurrentIndex(index(0, 0, QModelIndex()));
 
-	postProcessBatch(static_cast<int>(from), static_cast<int>(from) + static_cast<int>(rows));
+	if (handler_result == false && r > 0)
+		postProcessBatch(static_cast<int>(from), static_cast<int>(from) + static_cast<int>(r) - 1);
+	else if (handler_result)
+		postProcessBatch(static_cast<int>(from), static_cast<int>(from) + static_cast<int>(rows));
+
+	if (handler_result == false)
+	{
+		m_log_widget.m_connection->getMainWindow()->onStatusChanged(tr("Out of memory!"));
+	}
 }
 
 void LogTableModel::postProcessBatch (int src_from, int src_to)

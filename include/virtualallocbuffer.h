@@ -81,12 +81,15 @@ struct VirtualAllocBuffer
 	{
 		size_t const curr_sz = m_region_size;
 		size_t const commit_sz = n - curr_sz;
-		if (mkCommitPages(m_region_base_addr + curr_sz, commit_sz))
+		if (curr_sz + commit_sz <= m_region_capacity && mkCommitPages(m_region_base_addr + curr_sz, commit_sz))
+		{
 			m_region_size += commit_sz;		
 // 		char buff[256];
 // 		snprintf(buff, 256, "# resize %d  base=0x%08x curr=%d commit_sz=%d\n", n, m_region_base_addr, curr_sz, commit_sz);
 // 		OutputDebugStringA(buff);
-		return true;
+			return true;
+		}
+		return false;
 	}
 
 	size_t calcNextSize () const 
