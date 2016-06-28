@@ -514,22 +514,22 @@ namespace logs {
 	}
 }
 
-#include "c:\devel\qt5\qtbase\src\widgets\styles\qcommonstyle_p.h"
-
-	struct lemmein {};
-	template<>
-	inline lemmein QObject::findChild<lemmein>(const QString & aName, Qt::FindChildOptions options) const
-	{
-		QStylePrivate const * spc = static_cast<QStylePrivate const *>(d_func());
-		QStylePrivate * sp = const_cast<QStylePrivate *>(spc);
-		QCommonStylePrivate * csp = static_cast<QCommonStylePrivate *>(sp);
-		if (csp->cachedOption)
-		{
-			delete csp->cachedOption;
-			csp->cachedOption = nullptr;
-		}
-		return lemmein();
-	}
+// #include "c:\devel\qt5\qtbase\src\widgets\styles\qcommonstyle_p.h"
+// 
+// 	struct lemmein {};
+// 	template<>
+// 	inline lemmein QObject::findChild<lemmein>(const QString & aName, Qt::FindChildOptions options) const
+// 	{
+// 		QStylePrivate const * spc = static_cast<QStylePrivate const *>(d_func());
+// 		QStylePrivate * sp = const_cast<QStylePrivate *>(spc);
+// 		QCommonStylePrivate * csp = static_cast<QCommonStylePrivate *>(sp);
+// 		if (csp->cachedOption)
+// 		{
+// 			delete csp->cachedOption;
+// 			csp->cachedOption = nullptr;
+// 		}
+// 		return lemmein();
+// 	}
 
 namespace logs {
 	LogWidget::~LogWidget ()
@@ -546,19 +546,19 @@ namespace logs {
 		delete m_control_bar;
 		m_control_bar = 0;
 
-		QStyle * s_m = m_main_window->dockManager().style();
-		s_m->findChild<lemmein>(QString(), Qt::FindChildrenRecursively);
-
-		QStyle * s_a = qApp->style();
-		s_a->findChild<lemmein>(QString(), Qt::FindChildrenRecursively);
-
-		QStyle * s_t = m_tableview->style();
-		s_t->findChild<lemmein>(QString(), Qt::FindChildrenRecursively);
-		qDebug("~~~ s dm=0x%08x, app=0x%08x tab=0x%08x\n", s_m, s_a, s_t);
-
-		QAbstractItemDelegate * delegate = m_tableview->itemDelegate();
-		delete delegate;
-		m_tableview->setItemDelegate(nullptr);
+// 		QStyle * s_m = m_main_window->dockManager().style();
+// 		s_m->findChild<lemmein>(QString(), Qt::FindChildrenRecursively);
+// 
+// 		QStyle * s_a = qApp->style();
+// 		s_a->findChild<lemmein>(QString(), Qt::FindChildrenRecursively);
+// 
+// 		QStyle * s_t = m_tableview->style();
+// 		s_t->findChild<lemmein>(QString(), Qt::FindChildrenRecursively);
+// 		qDebug("~~~ s dm=0x%08x, app=0x%08x tab=0x%08x\n", s_m, s_a, s_t);
+// 
+// 		QAbstractItemDelegate * delegate = m_tableview->itemDelegate();
+// 		delete delegate;
+// 		m_tableview->setItemDelegate(nullptr);
 
 		qDebug("%s this=0x%08x tag=%s queue=%u", __FUNCTION__, this, m_config.m_tag.toStdString().c_str(), m_queue.capacity());
 		disconnect(this, SIGNAL(customContextMenuRequested(QPoint const &)), this, SLOT(onShowContextMenu(QPoint const &)));
