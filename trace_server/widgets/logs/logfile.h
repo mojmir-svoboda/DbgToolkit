@@ -40,6 +40,15 @@ namespace logs { namespace proto {
 			return canMoveEnd(getRecordSize());
 		}
 
+		bool canAddRecordWithRealloc ()
+		{
+			if (canAddRecord())
+				return true;
+
+			resizeStorage(calcNextSize());
+			return canMoveEnd(getRecordSize());
+		}
+
 		bool addRecord (values_t const & values)
 		{
 			if (char * mem = static_cast<char *>(Malloc(getRecordSize())))
@@ -70,6 +79,14 @@ namespace logs { namespace proto {
 		constexpr size_t getAttrsSize () const { return sizeof(Attrs); }
 		bool canAddAttrs () const
 		{
+			return canMoveEnd(getAttrsSize());
+		}
+		bool canAddAttrsWithRealloc()
+		{
+			if (canAddAttrs())
+				return true;
+
+			resizeStorage(calcNextSize());
 			return canMoveEnd(getAttrsSize());
 		}
 
@@ -154,7 +171,7 @@ namespace logs { namespace proto {
 		{
 			//sys::hptimer_t const now = sys::queryTime_us();
 
-			if (!m_data.m_records.canAddRecord() || !m_data.m_attrs.canAddAttrs())
+			if (!m_data.m_records.canAddRecordWithRealloc() || !m_data.m_attrs.canAddAttrsWithRealloc())
 				return false;
 
 			tag2type<int_<tag_stime>> stime = cmd.m_stime;
