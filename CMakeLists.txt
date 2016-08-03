@@ -5,6 +5,7 @@ set(CMAKE_INSTALL_PREFIX "c:/opt/")
 option(BUILD_SERVER "Builds server (requires Boost and Qt5)." OFF)
 option(BUILD_SAMPLES "Builds samples." OFF)
 option(BUILD_QT_TESTS "Builds qt tests (requires Boost and Qt5)." OFF)
+option(BUILD_ASN1_FILES "Re-generates sources from .asn1 file (requires asn1c)." OFF)
 
 if(BUILD_SAMPLES AND NOT BUILD_SERVER)
   project (DbgToolkitClient VERSION 1.1.0)
