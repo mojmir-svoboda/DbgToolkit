@@ -310,5 +310,16 @@ void LogWidget::showWarningSign ()
 	m_warnimage->warningFindNoMoreMatches();
 }
 
+void LogWidget::onQuickString ()
+{
+	QuickStringConfig & cfg = m_config.m_quick_string_config;
+
+	if (!cfg.m_where.hasValidConfig())
+		fillDefaultConfigWithLogTags(cfg.m_where);
+
+	m_quick_string_widget->applyConfig(cfg);
+	m_quick_string_widget->onActivate();
+}
+
 }
 

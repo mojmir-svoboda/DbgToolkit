@@ -158,6 +158,8 @@ set(trace_server_SOURCES
 	widgets/mixerbar.cpp
 	widgets/mixerbarv.cpp
 	widgets/findwidget.cpp
+	widgets/quickstringconfig.cpp
+	widgets/quickstringwidget.cpp
 	widgets/colorizewidget.cpp
 	widgets/findconfig.cpp
 	widgets/colorizeconfig.cpp
@@ -295,7 +297,9 @@ set(trace_server_HEADERS
   widgets/controlbar/controlbarplots.h
   widgets/controlbar/controlbartables.h
   widgets/findconfig.h
+  widgets/quickstringconfig.h
   widgets/findwidget.h
+  widgets/quickstringwidget.h
   widgets/gantt/arrow.h
   widgets/gantt/frameview.h
   widgets/gantt/frameviewconfig.h
@@ -356,6 +360,7 @@ set(trace_server_UI
 	widgets/controlbar/controlbarlog.ui
 	widgets/controlbar/controlwidgetdata.ui
 	widgets/findwidget.ui
+	widgets/quickstringwidget.ui
 	widgets/mixer.ui
 	widgets/mixerbar.ui
 	widgets/mixerbarv.ui
@@ -424,8 +429,8 @@ add_definitions(${QT_DEFINITIONS})
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 if (BUILD_ASN1_FILES)
-include_directories(${CMAKE_BINARY_DIR}/trace_proto)
-include_directories(${trace_server_SOURCE_DIR})
+  include_directories(${CMAKE_BINARY_DIR}/trace_proto)
+  include_directories(${trace_server_SOURCE_DIR})
 else (BUILD_ASN1_FILES)
   include_directories(${CMAKE_SOURCE_DIR}/trace_proto/generated)
   include_directories(${trace_server_SOURCE_DIR})

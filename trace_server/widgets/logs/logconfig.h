@@ -5,7 +5,9 @@
 #include <dock/dockedconfig.h>
 #include <constants.h>
 #include <widgets/findconfig.h>
+#include <widgets/quickstringconfig.h>
 #include <widgets/colorizeconfig.h>
+#include <boost/serialization/version.hpp>
 #include <serialize/ser_qt.h>
 #include "tagconfig.h"
 
@@ -46,6 +48,7 @@ namespace logs {
 		bool m_csv_has_header;
 		QString m_csv_separator;
 		FindConfig m_find_config;
+		QuickStringConfig m_quick_string_config;
 		ColorizeConfig m_colorize_config;
 
 		LogConfig ()
@@ -112,6 +115,8 @@ namespace logs {
 			ar & boost::serialization::make_nvp("cut_namespaces", m_cut_namespaces);
 			ar & boost::serialization::make_nvp("dt_enabled", m_dt_enabled);
 			ar & boost::serialization::make_nvp("find_config", m_find_config);
+			if (version > 0)
+				ar & boost::serialization::make_nvp("quick_string_config", m_quick_string_config);
 			ar & boost::serialization::make_nvp("simplify_strings", m_simplify_strings);
 			ar & boost::serialization::make_nvp("unquote_strings", m_unquote_strings);
 			ar & boost::serialization::make_nvp("csv_has_header", m_csv_has_header);
@@ -134,9 +139,11 @@ namespace logs {
 		}
 	};
 
+
 	bool loadConfig (LogConfig & config, QString const & fname);
 	bool saveConfig (LogConfig const & config, QString const & fname);
 	void fillDefaultConfig (LogConfig & config);
 	bool validateConfig (logs::LogConfig const & cfg);
 }
 
+BOOST_CLASS_VERSION(logs::LogConfig, 1)

@@ -523,6 +523,8 @@ void MainWindow::setupMenuBar ()
 	actionMenu->addAction(tr("All widgets - Color last line "), this, SLOT(onColorAllLastLine()), all_colorlast);
 	QKeySequence all_scrolllast(Qt::CTRL + Qt::Key_A, Qt::CTRL + Qt::Key_Z);
 	actionMenu->addAction(tr("All widgets - Scroll to last "), this, SLOT(onAllScrollToLast()), all_scrolllast);
+	QKeySequence quick_string(Qt::CTRL + Qt::Key_Q, Qt::CTRL + Qt::Key_S);
+	actionMenu->addAction(tr("Quick - String ! filter"), this, SLOT(onQuickNotString()), quick_string);
 
 	// widget's tool dockable widgets.
 	m_windows_menu = menuBar()->addMenu(tr("&Windows"));
