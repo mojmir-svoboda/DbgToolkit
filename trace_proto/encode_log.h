@@ -1,7 +1,7 @@
 #pragma once
 #include "encoder.h"
-#include <trace_proto/LogScopeType.h>
-#include <trace_proto/LogMsg.h>
+#include <LogScopeType.h>
+#include <LogMsg.h>
 #include <sysfn/os.h>
 
 namespace asn1 {

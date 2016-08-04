@@ -1,7 +1,7 @@
 #pragma once
-#include <trace_proto/OCTET_STRING.h>
+#include <OCTET_STRING.h>
 #define USE_CXX_ALLOCATOR 1
-#include <trace_proto/asn_allocator.h>
+#include <asn_allocator.h>
 #include "membuffer.h"
 
 namespace asn1 {

@@ -167,6 +167,7 @@ private slots:
 	void onClearAllData ();
 	void onColorAllLastLine ();
 	void onAllScrollToLast ();
+	void onQuickNotString ();
 	void onLogsStateChanged (int state);
 	void onPlotsStateChanged (int state);
 	void onTablesStateChanged (int state);

@@ -1,7 +1,7 @@
 #pragma once
 #include <cassert>
 #define USE_CXX_ALLOCATOR 1
-#include <trace_proto/asn_allocator.h>
+#include <asn_allocator.h>
 #include "membuffer.h"
 
 struct Asn1Allocator : Allocator, MemBuffer<HeapBuffer<16384>>

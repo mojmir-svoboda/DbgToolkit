@@ -3,8 +3,8 @@
 #include "membuffer.h"
 #include "virtualallocbuffer.h"
 #include "utils_from_qt5.h"
-#include <trace_proto/LogScopeType.h>
-#include <trace_proto/OCTET_STRING.h>
+#include <LogScopeType.h>
+#include <OCTET_STRING.h>
 
 struct stroffs_t {
 	stroffs_t () : m_idx(0) { }

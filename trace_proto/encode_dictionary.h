@@ -1,8 +1,8 @@
 #pragma once
 #include "encoder.h"
-#include <trace_proto/Command.h>
-#include <trace_proto/Dictionary.h>
-#include <trace_proto/asn_SET_OF.h>
+#include <Command.h>
+#include "Dictionary.h"
+#include <asn_SET_OF.h>
 
 namespace asn1 {
 

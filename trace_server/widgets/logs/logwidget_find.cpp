@@ -9,7 +9,7 @@
 #include "mainwindow.h"
 #include <widgets/warnimage.h>
 #include <utils/find_utils_table.h>
-
+#include <widgets/quickstringwidget.h>
 
 template<class L>
 struct do_recurse_impl;
@@ -308,6 +308,17 @@ void LogWidget::showWarningSign ()
 	m_warnimage->activateWindow();
 	m_warnimage->raise();
 	m_warnimage->warningFindNoMoreMatches();
+}
+
+void LogWidget::onQuickString ()
+{
+	QuickStringConfig & cfg = m_config.m_quick_string_config;
+
+	if (!cfg.m_where.hasValidConfig())
+		fillDefaultConfigWithLogTags(cfg.m_where);
+
+	m_quick_string_widget->applyConfig(cfg);
+	m_quick_string_widget->onActivate();
 }
 
 }

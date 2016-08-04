@@ -17,6 +17,7 @@
 #include <ui_controlbarlog.h>
 #include "mainwindow.h"
 #include <widgets/colorizewidget.h>
+#include <widgets/quickstringwidget.h>
 #include <utils/hsv.h>
 #include <utils/set_with_blocked_signals.h>
 #include "logfilterproxymodel.h"
@@ -55,6 +56,7 @@ namespace logs {
 		, m_kfind_proxy_selection(0)
 		, m_color_regex_model(0)
 		, m_find_widget(0)
+		, m_quick_string_widget(nullptr)
 		, m_colorize_widget(0)
 		, m_window_action(0)
 		, m_linked_parent(0)
@@ -124,6 +126,14 @@ namespace logs {
 		m_find_widget = new FindWidget(m_connection->getMainWindow(), this);
 		m_find_widget->setActionAbleWidget(this);
 		m_find_widget->setParent(m_tableview);
+		m_quick_string_widget = new QuickStringWidget(m_connection->getMainWindow(), this);
+		m_quick_string_widget->setActionAbleWidget(this);
+		m_quick_string_widget->setParent(m_tableview);
+		QKeySequence quick_string_keys(Qt::CTRL + Qt::Key_Q, Qt::CTRL + Qt::Key_S);
+		m_quick_string_action = new QAction(this);
+		m_quick_string_action->setShortcut(quick_string_keys);
+		connect(m_quick_string_action, SIGNAL(triggered()), this, SLOT(onQuickString()));
+
 		m_colorize_widget = new ColorizeWidget(m_connection->getMainWindow(), this);
 		m_colorize_widget->setActionAbleWidget(this);
 		m_colorize_widget->setParent(m_tableview);

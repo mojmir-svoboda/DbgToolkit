@@ -1,6 +1,6 @@
 #pragma once
 #include "encoder.h"
-#include <trace_proto/PlotMarkerMsg.h>
+#include <PlotMarkerMsg.h>
 #include <sysfn/os.h>
 
 namespace asn1 {
