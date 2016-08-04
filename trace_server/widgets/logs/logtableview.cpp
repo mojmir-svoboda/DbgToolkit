@@ -105,6 +105,7 @@ namespace logs {
 				m_log_widget.onColorize();
 				e->accept();
 			}
+
 			/*if (!ctrl && !shift && !alt && e->key() == Qt::Key_Slash)
 			{
 				m_log_widget.onFind();

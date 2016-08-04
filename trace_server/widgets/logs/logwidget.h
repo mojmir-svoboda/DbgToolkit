@@ -300,6 +300,7 @@ namespace logs {
 		QItemSelectionModel * m_kfind_proxy_selection;
 		QStandardItemModel * m_color_regex_model;
 		FindWidget * m_find_widget;
+		QAction * m_quick_string_action;
 		QuickStringWidget * m_quick_string_widget;
 		ColorizeWidget * m_colorize_widget;
 		QAction * m_window_action;

@@ -18,6 +18,14 @@ add_definitions ("-DUSE_CXX_ALLOCATOR") # asn1: use custom c++ allocator for enc
 
 add_definitions ("-D_CRT_SECURE_NO_WARNINGS") # msvc shut up pls
 
+if (BUILD_ASN1_FILES)
+  include_directories(${CMAKE_BINARY_DIR}/trace_proto)
+  include_directories(${trace_server_SOURCE_DIR})
+else (BUILD_ASN1_FILES)
+  include_directories(${CMAKE_SOURCE_DIR}/trace_proto/generated)
+  include_directories(${trace_server_SOURCE_DIR})
+endif (BUILD_ASN1_FILES)
+
 add_library (trace_client_lib STATIC
 	"${CMAKE_SOURCE_DIR}/trace_client/trace.cpp"
 	"${CMAKE_SOURCE_DIR}/trace_client/encoder.cpp"
