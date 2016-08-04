@@ -321,5 +321,28 @@ void LogWidget::onQuickString ()
 	m_quick_string_widget->onActivate();
 }
 
+void LogWidget::handleQuickStringAction (QuickStringConfig const & fc)
+{
+	if (fc.m_regexp)
+	{
+		if (fc.m_regexp_val.pattern().isEmpty())
+			return;
+		if (!fc.m_regexp_val.isValid())
+			return;
+	}
+
+	saveFindConfig();
+
+	if (filterMgr()->getFilterString())
+	{
+		FilteredString & fs = filterMgr()->getFilterString()->findOrCreateFilteredString(fc.m_str);
+		fs.m_case_sensitive = fc.m_case_sensitive;
+		fs.m_is_enabled = true;
+		fs.m_negate_match = true;
+		fs.m_is_regex = fc.m_regexp;
+		fs.m_whole_word = fc.m_whole_word;
+		filterMgr()->getFilterString()->addFilteredString(fs);
+	}
 }
 
+}

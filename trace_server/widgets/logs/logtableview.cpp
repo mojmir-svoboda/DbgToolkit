@@ -1,6 +1,7 @@
 #include "logtableview.h"
 #include "logwidget.h"
 #include <widgets/colorizewidget.h>
+#include <widgets/quickstringwidget.h>
 #include <connection.h>
 
 namespace logs {
@@ -77,6 +78,11 @@ namespace logs {
 					m_log_widget.m_colorize_widget->onCancel();
 					e->accept();
 				}
+				if (m_log_widget.m_quick_string_widget && m_log_widget.m_quick_string_widget->isVisible())
+				{
+					m_log_widget.m_quick_string_widget->onCancel();
+					e->accept();
+				}
 			}
 			if (!ctrl && shift && !alt && e->key() == Qt::Key_Delete)
 			{
@@ -97,6 +103,11 @@ namespace logs {
 			if (ctrl && shift && e->key() == Qt::Key_F)
 			{
 				m_log_widget.onFindAllRefs();
+				e->accept();
+			}
+			if (ctrl && e->key() == Qt::Key_Q)
+			{
+				m_log_widget.onQuickString();
 				e->accept();
 			}
 

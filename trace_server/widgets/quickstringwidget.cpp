@@ -18,6 +18,7 @@ void QuickStringWidget::init ()
 	QLineEdit * le = m_ui->findBox->lineEdit();
 	connect(le, SIGNAL(returnPressed()), this, SLOT(onReturnPressed()));
 	connect(m_ui->addButton, SIGNAL(clicked()), this, SLOT(onAdd()));
+	connect(m_ui->cancelButton, SIGNAL(clicked()), this, SLOT(onCancel()));
 
 	QStandardItemModel * m = new QStandardItemModel;
 	m_ui->whereComboBox->setModel(m);
@@ -121,7 +122,7 @@ void QuickStringWidget::signalRegexpState (E_ExprState state, QString const & re
 
 void QuickStringWidget::makeActionQuickString (QString const & str, Action & a)
 {
-	a.m_type = e_Find;
+	a.m_type = e_QuickString;
 	//a.m_src_path = path();
 	//a.m_src = this;
 	if (m_aa)
@@ -158,8 +159,8 @@ void QuickStringWidget::onAdd ()
 		makeActionQuickString(str, a);
 		m_main_window->dockManager().handleAction(&a, e_Sync);
 		QTimer::singleShot(750, this, SLOT(onResetRegexpState()));
+		onCancel();
 	}
-
 }
 
 void QuickStringWidget::clearUI ()

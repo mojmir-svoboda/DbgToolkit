@@ -107,6 +107,7 @@ namespace logs {
 		//void commitBatchToLinkedModel (int src_from, int src_to, BatchCmd const & batch);
 		void setSrcModel (FindConfig const & fc);
 		void handleFindAction (FindConfig const & fc);
+		void handleQuickStringAction (QuickStringConfig const & fc);
 		void handleColorizeAction (ColorizeConfig const & fc);
 		//void findInWholeTable (FindConfig const & fc, QModelIndexList & result);
 		LogWidget * mkFindAllRefsLogWidget (FindConfig const & fc);

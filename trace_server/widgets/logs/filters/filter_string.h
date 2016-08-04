@@ -110,6 +110,9 @@ struct FilterString : FilterBase
 	void setUIValuesToConfig (FilteredString & cfg);
 	void setDefaultSearchConfig (CheckedComboBoxConfig const & cccfg);
 	void setupModelHeader ();
+	void addFilteredString (FilteredString & cfg);
+	void removeFilteredString (FilteredString const & cfg);
+	void removeFilteredStringFromUI (FilteredString const & cfg);
 
 	QList<FilteredString>	m_data;
 	CheckedComboBoxConfig m_cccfg;

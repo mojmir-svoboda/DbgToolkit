@@ -7,6 +7,8 @@ include("${CMAKE_SOURCE_DIR}/build/msvc_pch.cmake")
 # use this for develoment, if you do not pass it from command line:
 message("trace_server install path=${CMAKE_INSTALL_PREFIX}")
 
+set(CMAKE_PREFIX_PATH "${QTDIR}; ${WINSDK_LIB}")
+
 ### directX
 if (WIN32)
 	include("${CMAKE_CURRENT_SOURCE_DIR}/FindDirectX.cmake")
@@ -28,7 +30,6 @@ message("qt lib path: ${QT_LIB_PATH}")
 message("qt plugins path: ${QT_PLUGINS_PATH}")
 
 set(CMAKE_AUTOMOC ON)
-set(CMAKE_PREFIX_PATH "${QTDIR}; ${WINSDK_LIB}")
 
 include("${CMAKE_CURRENT_SOURCE_DIR}/FindPlugins.cmake")
 
@@ -463,6 +464,7 @@ if (WIN32)
 	FIND_PLUGINS(QTRANS_COMMON NAMES translator_common      DEFAULT_SUFFIXES PATHS ${QT_LIB_PATH})
 	FIND_PLUGINS(QTRANS_HLSL   NAMES translator_hlsl        DEFAULT_SUFFIXES PATHS ${QT_LIB_PATH})
 	FIND_PLUGINS(QPREPROC      NAMES preprocessor           DEFAULT_SUFFIXES PATHS ${QT_LIB_PATH})
+	FIND_PLUGINS(QTPNG      NAMES qtpng           DEFAULT_SUFFIXES PATHS ${QT_LIB_PATH})
 	message("QPA plugin for win: ${QWINDOWS_LIBRARIES}")
 
 	FIND_LIBRARY(DXGUID_LIBRARY      NAMES dxguid      PATHS ${DirectX_LIBRARY_PATHS})
@@ -512,6 +514,7 @@ target_link_libraries(trace_server ${Boost_LIBRARIES}
 	${Qt5Gui_OPENGL_LIBRARIES}
 	${Qt5Widgets_LIBRARIES}
 	${QICO}
+	${QTPNG_LIBRARIES}
 	Qt5::WinMain)
 
 target_link_libraries(trace_server trace_proto trace_version)

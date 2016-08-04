@@ -284,11 +284,9 @@ void FilterString::onStringRm ()
 	if (!item)
 		return;
 	QString const & val = m_model->data(idx, Qt::DisplayRole).toString();
-	m_model->removeRow(idx.row());
-	removeFromStringFilters(val);
-	recompile();
 
-	emitFilterChangedSignal();
+	FilteredString const & fs = findOrCreateFilteredString(val);
+	removeFilteredString(fs);
 }
 
 void FilterString::setConfigToUI ()
@@ -323,24 +321,47 @@ void FilterString::setUIValuesToConfig (FilteredString & cfg)
 	}
 }
 
-void FilterString::onStringAdd ()
+void FilterString::addFilteredString (FilteredString & cfg)
 {
-	QString const qItem = m_ui->qFilterLineEdit->text();
-	if (!qItem.length())
-		return;
-
 	QStandardItem * root = m_model->invisibleRootItem();
-	FilteredString & cfg = findOrCreateFilteredString(qItem);
-	QStandardItem * child = findChildByText(root, qItem);
+	QStandardItem * child = findChildByText(root, cfg.m_regex_str);
 	if (child == 0)
 	{
-		setUIValuesToConfig(cfg);
 		addRowToUI(cfg);
 		recompileRegex(cfg);
 		//recompile();
 		if (cfg.isValid())
 			emitFilterChangedSignal();
 	}
+}
+
+void FilterString::removeFilteredStringFromUI (FilteredString const & cfg)
+{
+	QModelIndex const idx = m_ui->view->currentIndex();
+	QStandardItem * item = m_model->itemFromIndex(idx);
+	if (!item)
+		return;
+	QString const & val = m_model->data(idx, Qt::DisplayRole).toString();
+	m_model->removeRow(idx.row());
+}
+
+void FilterString::removeFilteredString (FilteredString const & cfg)
+{
+	removeFilteredStringFromUI(cfg);
+	removeFromStringFilters(cfg.m_regex_str);
+	recompile();
+
+	emitFilterChangedSignal();
+}
+
+void FilterString::onStringAdd ()
+{
+	QString const qItem = m_ui->qFilterLineEdit->text();
+	if (!qItem.length())
+		return;
+	FilteredString & cfg = findOrCreateFilteredString(qItem);
+	setUIValuesToConfig(cfg);
+	addFilteredString(cfg);
 }
 
 void FilterString::addRowToUI (FilteredString const & cfg)

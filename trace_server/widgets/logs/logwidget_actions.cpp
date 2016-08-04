@@ -42,6 +42,20 @@ bool LogWidget::handleAction (Action * a, E_ActionHandleType sync)
 				return true;
 			}
 		}
+		case e_QuickString:
+		{
+			if (a->m_args.size() > 0)
+			{
+				if (a->m_args.at(0).canConvert<QuickStringConfig>())
+				{
+					QuickStringConfig const fc = a->m_args.at(0).value<QuickStringConfig>();
+					handleQuickStringAction(fc);
+					m_config.m_quick_string_config = fc;
+					// m_config.save
+				}
+				return true;
+			}
+		}
 		case e_Colorize:
 		{
 			if (a->m_args.size() > 0)

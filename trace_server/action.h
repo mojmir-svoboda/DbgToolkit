@@ -19,6 +19,7 @@ enum E_ActionType {
 	, e_Find
 	, e_FindAll
 	, e_FindAllRefs
+	, e_QuickString
 	, e_Colorize
 	, e_ColorTagLastLine
 	, e_ScrollToLastLine
