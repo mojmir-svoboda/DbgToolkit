@@ -121,7 +121,7 @@ namespace plot {
 		m_picker->setStateMachine(new QwtPickerDragPointMachine());
 		m_picker->setRubberBandPen(QColor(Qt::green));
 		m_picker->setRubberBand(QwtPicker::CrossRubberBand);
-		m_picker->setTrackerPen(QColor(Qt::white));
+		m_picker->setTrackerPen(QColor(Qt::black));
 		connect(m_picker, SIGNAL(selected(QRectF const &)), this, SLOT(selected(QRectF const &)));
 		connect(m_picker, SIGNAL(selected(QPointF const &)), this, SLOT(selected(QPointF const &)));
 		connect(m_picker, SIGNAL(selected(QVector<QPointF> const &)), this, SLOT(selected(QVector<QPointF> const &)));
