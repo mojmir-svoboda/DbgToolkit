@@ -105,7 +105,7 @@ namespace logs {
 				m_log_widget.onFindAllRefs();
 				e->accept();
 			}
-			if (ctrl && e->key() == Qt::Key_Q)
+			if (ctrl && !shift && e->key() == Qt::Key_Q)
 			{
 				m_log_widget.onQuickString();
 				e->accept();
