@@ -259,7 +259,13 @@ bool DockManager::handleAction (Action * a, E_ActionHandleType sync)
 	{
 		// message just for me! gr8!
 		a->m_dst_curr_level = lvl;
-		a->m_dst = this;
+
+		// broadcast to children
+		for (auto it = m_actionables.begin(), ite = m_actionables.end(); it != ite; ++it)
+		{
+			if (*it != this)
+				(*it)->handleAction(a, e_Sync);
+		}
 		return true;
 	}
 	else

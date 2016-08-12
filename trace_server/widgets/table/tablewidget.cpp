@@ -979,33 +979,6 @@ namespace table {
 				onFindPrev();
 				e->accept();
 			}
-			// findwidget Tab navigation
-			if (e->key() == Qt::Key_Tab && m_find_widget && m_find_widget->isVisible())
-			{
-				m_find_widget->focusNext();
-				e->ignore();
-				return;
-			}
-			if (e->key() == Qt::Key_Backtab && m_find_widget && m_find_widget->isVisible())
-			{
-				m_find_widget->focusPrev();
-				e->ignore();
-				return;
-			}
-			// colorizewidget Tab navigation
-			if (e->key() == Qt::Key_Tab && m_colorize_widget && m_colorize_widget->isVisible())
-			{
-				m_colorize_widget->focusNext();
-				e->ignore();
-				return;
-			}
-			if (e->key() == Qt::Key_Backtab && m_colorize_widget && m_colorize_widget->isVisible())
-			{
-				m_colorize_widget->focusPrev();
-				e->ignore();
-				return;
-			}
-
 		}
 		QTableView::keyPressEvent(e);
 	}

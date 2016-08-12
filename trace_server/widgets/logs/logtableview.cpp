@@ -105,9 +105,14 @@ namespace logs {
 				m_log_widget.onFindAllRefs();
 				e->accept();
 			}
-			if (ctrl && !shift && e->key() == Qt::Key_Q)
+			if (ctrl && !shift && !alt && e->key() == Qt::Key_Q)
 			{
 				m_log_widget.onQuickString();
+				e->accept();
+			}
+			if (ctrl && !shift && !alt && e->key() == Qt::Key_P)
+			{
+				m_log_widget.onPopAction();
 				e->accept();
 			}
 
@@ -140,31 +145,31 @@ namespace logs {
 				e->accept();
 			}
 			// findwidget Tab navigation
-			if (e->key() == Qt::Key_Tab && m_log_widget.m_find_widget && m_log_widget.m_find_widget->isVisible())
-			{
-				m_log_widget.m_find_widget->focusNext();
-				e->ignore();
-				return;
-			}
-			if (e->key() == Qt::Key_Backtab && m_log_widget.m_find_widget && m_log_widget.m_find_widget->isVisible())
-			{
-				m_log_widget.m_find_widget->focusPrev();
-				e->ignore();
-				return;
-			}
-			// colorizewidget Tab navigation
-			if (e->key() == Qt::Key_Tab && m_log_widget.m_colorize_widget && m_log_widget.m_colorize_widget->isVisible())
-			{
-				m_log_widget.m_colorize_widget->focusNext();
-				e->ignore();
-				return;
-			}
-			if (e->key() == Qt::Key_Backtab && m_log_widget.m_colorize_widget && m_log_widget.m_colorize_widget->isVisible())
-			{
-				m_log_widget.m_colorize_widget->focusPrev();
-				e->ignore();
-				return;
-			}
+// 			if (e->key() == Qt::Key_Tab && m_log_widget.m_find_widget && m_log_widget.m_find_widget->isVisible())
+// 			{
+// 				m_log_widget.m_find_widget->focusNext();
+// 				e->ignore();
+// 				return;
+// 			}
+// 			if (e->key() == Qt::Key_Backtab && m_log_widget.m_find_widget && m_log_widget.m_find_widget->isVisible())
+// 			{
+// 				m_log_widget.m_find_widget->focusPrev();
+// 				e->ignore();
+// 				return;
+// 			}
+// 			// colorizewidget Tab navigation
+// 			if (e->key() == Qt::Key_Tab && m_log_widget.m_colorize_widget && m_log_widget.m_colorize_widget->isVisible())
+// 			{
+// 				m_log_widget.m_colorize_widget->focusNext();
+// 				e->ignore();
+// 				return;
+// 			}
+// 			if (e->key() == Qt::Key_Backtab && m_log_widget.m_colorize_widget && m_log_widget.m_colorize_widget->isVisible())
+// 			{
+// 				m_log_widget.m_colorize_widget->focusPrev();
+// 				e->ignore();
+// 				return;
+// 			}
 
 		}
 		QTableView::keyPressEvent(e);

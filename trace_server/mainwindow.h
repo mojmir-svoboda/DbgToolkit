@@ -45,6 +45,8 @@ class QTimer;
 class Connection;
 class SetupDialogCSV;
 struct Mixer;
+class FindWidget;
+class QuickStringWidget;
 
 class MainWindow : public QMainWindow
 {
@@ -167,7 +169,9 @@ private slots:
 	void onClearAllData ();
 	void onColorAllLastLine ();
 	void onAllScrollToLast ();
-	void onQuickNotString ();
+	void onAllQuickString ();
+	void onAllFind ();
+	void onAllPopAction ();
 	void onLogsStateChanged (int state);
 	void onPlotsStateChanged (int state);
 	void onTablesStateChanged (int state);
@@ -217,6 +221,8 @@ private:
 	QMenu *   			m_tray_menu;
 	QToolButton *		m_dock_mgr_button;
 	QLabel *			m_status_widget;
+	FindWidget *		m_find_widget;
+	QuickStringWidget * m_quick_string_widget;
 	QSystemTrayIcon * 	m_tray_icon;
 	std::vector<QString> m_reload_fnames;
 

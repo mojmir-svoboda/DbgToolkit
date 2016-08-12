@@ -25,14 +25,11 @@ public:
 	void applyConfig (FindConfig & cfg);
 	void applyConfig ();
 	void setMainWindow (MainWindow * mw) { m_main_window = mw; }
-	void focusNext ();
-	void focusPrev ();
 	void setActionAbleWidget (ActionAble * aa) { m_aa = aa; }
 
 public slots:
 	void onCancel ();
 	void onEditTextChanged (QString str);
-	void onFocusChanged (QWidget * old, QWidget * now);
 	void onReturnPressed ();
 	void onFindAllRefs ();
 	void onFindAllClone ();
@@ -52,7 +49,6 @@ protected:
 	void setConfigValuesToUI (FindConfig const & cfg);
 	void setUIValuesToConfig (FindConfig & cfg);
 	void makeActionFind (QString const & str, Action & a);
-	bool isMovingFindWidget () const { return m_moving_widget; }
 	void signalRegexpState (E_ExprState state, QString const & reason);
 
 private:
@@ -61,6 +57,5 @@ private:
 	MainWindow *		m_main_window;
 	FindConfig			m_config;
 	ActionAble *		m_aa;
-	bool				m_moving_widget;
 };
 

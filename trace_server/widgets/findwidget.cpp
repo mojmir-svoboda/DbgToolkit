@@ -36,7 +36,6 @@ FindWidget::FindWidget (MainWindow * mw, QWidget * parent)
 	, m_ui(new Ui::FindWidget)
 	, m_main_window(mw)
 	, m_aa(0)
-	, m_moving_widget(false)
 {
 	hide();
 	init();
@@ -47,7 +46,6 @@ FindWidget::FindWidget (QWidget * parent) // widget coming from Qt creator
 	, m_ui(new Ui::FindWidget)
 	, m_main_window(0)
 	, m_aa(0)
-	, m_moving_widget(false)
 {
 	hide();
 	init();
@@ -71,25 +69,10 @@ void FindWidget::applyConfig ()
 
 void FindWidget::onCancel ()
 {
-	if (isMovingFindWidget())
-	{
-		if (isVisible())
-		{
-			QObject * o = parent();
-			QWidget * w = qobject_cast<QWidget *>(o);
-			w->setFocus();
-			hide();
-			setParent(m_main_window);
-		}
-		move(0,0);
-	}
-	else
-	{
-		QObject * o = parent();
-		QWidget * w = qobject_cast<QWidget *>(o);
-		w->setFocus();
-		hide();
-	}
+	QObject * o = parent();
+	QWidget * w = qobject_cast<QWidget *>(o);
+	w->setFocus();
+	hide();
 }
 
 void FindWidget::onActivate ()
@@ -111,25 +94,6 @@ void FindWidget::onReturnPressed ()
 {
 	onFindNext();
 	//m_config.saveHistory();
-}
-
-void FindWidget::focusNext ()
-{
-	QWidget * const curr =  qApp->focusWidget();
-	QWidget * const next = curr->nextInFocusChain();
-	next->setFocus(Qt::TabFocusReason);
-}
-
-void FindWidget::focusPrev ()
-{
-	QWidget * const curr =  qApp->focusWidget();
-	QWidget * const prev = curr->previousInFocusChain();
-	prev->setFocus(Qt::TabFocusReason);
-}
-
-void FindWidget::onFocusChanged (QWidget * old, QWidget * now)
-{
-	//m_find_widget->onFocusChanged(old, now);
 }
 
 void FindWidget::onResetRegexpState ()

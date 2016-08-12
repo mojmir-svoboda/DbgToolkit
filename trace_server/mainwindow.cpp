@@ -21,6 +21,8 @@
 #include <dock/dockwidget.h>
 #include <widgets/setupdialogcsv.h>
 #include <widgets/controlbar/controlbardockmanager.h>
+#include <widgets/quickstringwidget.h>
+#include <widgets/findwidget.h>
 #include <ui_controlbardockmanager.h>
 #include "ui_setupdialogcsv.h"
 #include <ui_controlbarcommon.h>
@@ -49,6 +51,8 @@ MainWindow::MainWindow (QWidget * parent, QString const & iface, unsigned short 
 	, m_tray_menu(nullptr)
 	, m_dock_mgr_button(nullptr)
 	, m_status_widget(nullptr)
+	, m_find_widget(nullptr)
+	, m_quick_string_widget(nullptr)
 	, m_tray_icon(nullptr)
 	, m_settings_dialog(nullptr)
 	, m_setup_dialog_csv(nullptr)
@@ -117,6 +121,13 @@ MainWindow::MainWindow (QWidget * parent, QString const & iface, unsigned short 
 	m_status_widget->setAlignment(Qt::AlignHCenter);
 	if (statusBar())
 		statusBar()->hide();
+
+	m_find_widget = new FindWidget(this, this);
+	m_find_widget->setActionAbleWidget(&m_dock_mgr);
+	m_find_widget->setParent(this);
+	m_quick_string_widget = new QuickStringWidget(this, this);
+	m_quick_string_widget->setActionAbleWidget(&m_dock_mgr);
+	m_quick_string_widget->setParent(this);
 
 	setupMenuBar();
 
@@ -507,7 +518,7 @@ void MainWindow::setupMenuBar ()
 	syncHistoryToRecent(m_config.m_recent_history);
 
 	m_before_action = m_file_menu->addSeparator();
-	m_file_menu->addAction(tr("Quit program"), this, SLOT(onQuit()), QKeySequence::Quit);
+	m_file_menu->addAction(tr("Quit program"), this, SLOT(onQuit()));
 
 	// View
 	QMenu * viewMenu = menuBar()->addMenu(tr("&View"));
@@ -517,14 +528,20 @@ void MainWindow::setupMenuBar ()
 
 	// View
 	QMenu * actionMenu = menuBar()->addMenu(tr("Actions"));
+	QKeySequence all_undo(Qt::CTRL + Qt::Key_A, Qt::CTRL + Qt::Key_Z);
+	actionMenu->addAction(tr("All widgets - Undo action (if lucky)"), this, SLOT(onAllPopAction()), all_undo);
 	QKeySequence all_deldata(Qt::CTRL + Qt::Key_A, Qt::CTRL + Qt::Key_D);
 	actionMenu->addAction(tr("All widgets - Clear Data"), this, SLOT(onClearAllData()), all_deldata);
 	QKeySequence all_colorlast(Qt::CTRL + Qt::Key_A, Qt::CTRL + Qt::Key_E);
 	actionMenu->addAction(tr("All widgets - Color last line "), this, SLOT(onColorAllLastLine()), all_colorlast);
-	QKeySequence all_scrolllast(Qt::CTRL + Qt::Key_A, Qt::CTRL + Qt::Key_Z);
+	QKeySequence all_scrolllast(Qt::CTRL + Qt::Key_A, Qt::CTRL + Qt::Key_S);
 	actionMenu->addAction(tr("All widgets - Scroll to last "), this, SLOT(onAllScrollToLast()), all_scrolllast);
-	QKeySequence quick_string(Qt::CTRL + Qt::Key_Q, Qt::CTRL + Qt::Key_S);
-	actionMenu->addAction(tr("Quick - String ! filter"), this, SLOT(onQuickNotString()), quick_string);
+	QKeySequence quick_string(Qt::CTRL + Qt::Key_A, Qt::CTRL + Qt::Key_Q);
+	actionMenu->addAction(tr("All widgets - Quick String filter"), this, SLOT(onAllQuickString()), quick_string);
+	QKeySequence all_find(Qt::CTRL + Qt::Key_A, Qt::CTRL + Qt::Key_F);
+	actionMenu->addAction(tr("All widgets - All Find"), this, SLOT(onAllFind()), all_find);
+	
+
 
 	// widget's tool dockable widgets.
 	m_windows_menu = menuBar()->addMenu(tr("&Windows"));

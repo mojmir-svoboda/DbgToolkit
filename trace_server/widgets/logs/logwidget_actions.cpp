@@ -649,6 +649,9 @@ bool LogWidget::processBySounds (QModelIndex const & sourceIndex)
 	return soundMgr()->action(sourceIndex);
 }
 
+void LogWidget::onPopAction ()
+{
+}
 
 
 }

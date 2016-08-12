@@ -109,12 +109,6 @@ void MainWindow::onAllScrollToLast ()
 		(*it)->handleAction(&a, e_Sync);
 }
 
-void MainWindow::onQuickNotString ()
-{
-
-}
-
-
 void MainWindow::onLogsStateChanged (int state)
 {
 	m_config.m_logs_recv_level = state;

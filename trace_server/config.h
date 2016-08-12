@@ -4,6 +4,8 @@
 #include <utils/history.h>
 #include <QDir>
 #include "mixerconfig.h"
+#include "widgets/quickstringconfig.h"
+#include "widgets/findwidgetconfig.h"
 
 struct GlobalConfig {
 	unsigned  m_hotkey;
@@ -31,6 +33,8 @@ struct GlobalConfig {
 
 	History<QString> m_preset_history;
 	History<QString> m_recent_history;
+	FindWidgetConfig m_find_config;
+	QuickStringConfig m_quick_string_config;
 
 	GlobalConfig ()
 		: m_hotkey(0x91 /*VK_SCROLL*/)
@@ -91,9 +95,15 @@ struct GlobalConfig {
 		ar & boost::serialization::make_nvp("trace_port", m_trace_port);
 		ar & boost::serialization::make_nvp("profiler_addr", m_profiler_addr);
 		ar & boost::serialization::make_nvp("profiler_port", m_profiler_port);
+		if (version > 0)
+		{
+			ar & boost::serialization::make_nvp("quick_string", m_quick_string_config);
+		}
 		//ar & boost::serialization::make_nvp("appdir", m_appdir); // do not want this probably
 	}
 };
+
+BOOST_CLASS_VERSION(GlobalConfig, 1)
 
 struct TreeModelItem {
 	/*@member	state
