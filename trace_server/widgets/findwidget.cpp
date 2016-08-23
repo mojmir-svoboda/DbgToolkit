@@ -35,7 +35,6 @@ FindWidget::FindWidget (MainWindow * mw, QWidget * parent)
 	: QWidget(parent)
 	, m_ui(new Ui::FindWidget)
 	, m_main_window(mw)
-	, m_aa(0)
 {
 	hide();
 	init();
@@ -44,8 +43,6 @@ FindWidget::FindWidget (MainWindow * mw, QWidget * parent)
 FindWidget::FindWidget (QWidget * parent) // widget coming from Qt creator
 	: QWidget(parent)
 	, m_ui(new Ui::FindWidget)
-	, m_main_window(0)
-	, m_aa(0)
 {
 	hide();
 	init();
@@ -125,13 +122,14 @@ void FindWidget::signalRegexpState (E_ExprState state, QString const & reason)
 	}
 }
 
-void FindWidget::makeActionFind (QString const & str, Action & a)
+void FindWidget::mkAction (QString const & str, Action & a)
 {
 	a.m_type = e_Find;
 	//a.m_src_path = path();
 	//a.m_src = this;
 	if (m_aa)
 		a.m_dst_path = m_aa->path();
+	a.m_broadcast = m_broadcasting;
 	QVariant fc;
 	fc.setValue(m_config);
 	a.m_args.push_back(fc);
@@ -161,7 +159,7 @@ void FindWidget::find ()
 			}
 		}
 		Action a;
-		makeActionFind(str, a);
+		mkAction(str, a);
 		m_main_window->dockManager().handleAction(&a, e_Sync);
 		QTimer::singleShot(750, this, SLOT(onResetRegexpState()));
 	}

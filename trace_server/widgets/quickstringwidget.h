@@ -25,6 +25,7 @@ public:
 	void applyConfig (QuickStringConfig & cfg);
 	void applyConfig ();
 	void setActionAbleWidget (ActionAble * aa) { m_aa = aa; }
+	void setBroadcasting () { m_broadcasting = true; }
 
 public slots:
 	void onCancel ();
@@ -40,14 +41,15 @@ protected:
 	void clearUI ();
 	void setConfigValuesToUI (QuickStringConfig const & cfg);
 	void setUIValuesToConfig (QuickStringConfig & cfg);
-	void makeActionQuickString (QString const & str, Action & a);
+	void mkAction (QString const & str, Action & a);
 	void signalRegexpState (E_ExprState state, QString const & reason);
 
 private:
 	friend class MainWindow;
-	Ui::QuickStringWidget *	m_ui;
-	MainWindow *		m_main_window;
+	Ui::QuickStringWidget *	m_ui { nullptr };
+	MainWindow *		m_main_window { nullptr };
 	QuickStringConfig			m_config;
-	ActionAble *		m_aa;
+	ActionAble *		m_aa { nullptr };
+	bool m_broadcasting { false };
 };
 

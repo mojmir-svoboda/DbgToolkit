@@ -32,16 +32,16 @@ enum E_ActionType {
 struct ActionAble;
 
 struct Action {
-	E_ActionType m_type;
-	ActionAble * m_src;
+	E_ActionType m_type { e_Visibility };
+	bool m_broadcast { false };
+	ActionAble * m_src { nullptr };
 	QStringList  m_src_path;
-	mutable ActionAble * m_dst;
+	mutable ActionAble * m_dst { nullptr };
 	QStringList m_dst_path;
-	mutable int m_dst_curr_level;
+	mutable int m_dst_curr_level { 0 };
 
 	QList<QVariant> m_args;
 	
-	Action () : m_type(e_Visibility), m_src(0), m_dst(0), m_dst_curr_level(0) { }
 	virtual ~Action () { }
 	virtual E_ActionType type () const { return m_type; }
 };

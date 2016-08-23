@@ -36,7 +36,8 @@ bool LogWidget::handleAction (Action * a, E_ActionHandleType sync)
 				{
 					FindConfig const fc = a->m_args.at(0).value<FindConfig>();
 					handleFindAction(fc);
-					m_config.m_find_config = fc;
+					if (!a->m_broadcast)
+						m_config.m_find_config = fc;
 					// m_config.save
 				}
 				return true;
@@ -50,7 +51,8 @@ bool LogWidget::handleAction (Action * a, E_ActionHandleType sync)
 				{
 					QuickStringConfig const fc = a->m_args.at(0).value<QuickStringConfig>();
 					handleQuickStringAction(fc);
-					m_config.m_quick_string_config = fc;
+					if (!a->m_broadcast)
+						m_config.m_quick_string_config = fc;
 					// m_config.save
 				}
 				return true;

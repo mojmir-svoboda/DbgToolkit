@@ -31,7 +31,6 @@ QuickStringWidget::QuickStringWidget (MainWindow * mw, QWidget * parent)
 	: QWidget(parent)
 	, m_ui(new Ui::QuickStringWidget)
 	, m_main_window(mw)
-	, m_aa(0)
 {
 	hide();
 	init();
@@ -40,7 +39,6 @@ QuickStringWidget::QuickStringWidget (MainWindow * mw, QWidget * parent)
 QuickStringWidget::QuickStringWidget (QWidget * parent) // widget coming from Qt creator
 	: QWidget(parent)
 	, m_ui(new Ui::QuickStringWidget)
-	, m_aa(0)
 {
 	hide();
 	init();
@@ -120,13 +118,14 @@ void QuickStringWidget::signalRegexpState (E_ExprState state, QString const & re
 	}
 }
 
-void QuickStringWidget::makeActionQuickString (QString const & str, Action & a)
+void QuickStringWidget::mkAction (QString const & str, Action & a)
 {
 	a.m_type = e_QuickString;
 	//a.m_src_path = path();
 	//a.m_src = this;
 	if (m_aa)
 		a.m_dst_path = m_aa->path();
+	a.m_broadcast = m_broadcasting;
 	QVariant c;
 	c.setValue(m_config);
 	a.m_args.push_back(c);
@@ -156,7 +155,7 @@ void QuickStringWidget::onAdd ()
 			}
 		}
 		Action a;
-		makeActionQuickString(str, a);
+		mkAction(str, a);
 		m_main_window->dockManager().handleAction(&a, e_Sync);
 		QTimer::singleShot(750, this, SLOT(onResetRegexpState()));
 		onCancel();

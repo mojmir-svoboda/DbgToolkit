@@ -5,7 +5,7 @@
 #include <QDir>
 #include "mixerconfig.h"
 #include "widgets/quickstringconfig.h"
-#include "widgets/findwidgetconfig.h"
+#include "widgets/findconfig.h"
 
 struct GlobalConfig {
 	unsigned  m_hotkey;
@@ -33,7 +33,7 @@ struct GlobalConfig {
 
 	History<QString> m_preset_history;
 	History<QString> m_recent_history;
-	FindWidgetConfig m_find_config;
+	FindConfig m_find_config;
 	QuickStringConfig m_quick_string_config;
 
 	GlobalConfig ()
@@ -99,11 +99,14 @@ struct GlobalConfig {
 		{
 			ar & boost::serialization::make_nvp("quick_string", m_quick_string_config);
 		}
+		if (version > 1)
+		{
+			ar & boost::serialization::make_nvp("find", m_find_config);
+		}
 		//ar & boost::serialization::make_nvp("appdir", m_appdir); // do not want this probably
 	}
 };
-
-BOOST_CLASS_VERSION(GlobalConfig, 1)
+BOOST_CLASS_VERSION(GlobalConfig, 2)
 
 struct TreeModelItem {
 	/*@member	state

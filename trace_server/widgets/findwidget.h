@@ -26,6 +26,7 @@ public:
 	void applyConfig ();
 	void setMainWindow (MainWindow * mw) { m_main_window = mw; }
 	void setActionAbleWidget (ActionAble * aa) { m_aa = aa; }
+	void setBroadcasting () { m_broadcasting = true; }
 
 public slots:
 	void onCancel ();
@@ -48,14 +49,15 @@ protected:
 	void clearUI ();
 	void setConfigValuesToUI (FindConfig const & cfg);
 	void setUIValuesToConfig (FindConfig & cfg);
-	void makeActionFind (QString const & str, Action & a);
+	void mkAction (QString const & str, Action & a);
 	void signalRegexpState (E_ExprState state, QString const & reason);
 
 private:
 	friend class MainWindow;
-	Ui::FindWidget *	m_ui;
-	MainWindow *		m_main_window;
+	Ui::FindWidget *	m_ui { nullptr };
+	MainWindow *		m_main_window { nullptr };
 	FindConfig			m_config;
-	ActionAble *		m_aa;
+	ActionAble *		m_aa { nullptr };
+	bool m_broadcasting { false };
 };
 

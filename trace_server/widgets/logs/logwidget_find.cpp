@@ -258,8 +258,10 @@ void LogWidget::findAndSelect (FindConfig const & fc)
 	m_connection->getMainWindow()->onStatusChanged(tr("Selected %1 lines").arg(selection.size()));
 }
 
-void LogWidget::handleFindAction (FindConfig const & fc)
+void LogWidget::handleFindAction (FindConfig const & fc_orig)
 {
+	FindConfig fc(fc_orig); // in case of All- widgets actions i need to modify configuration
+
 	bool const select_only = !fc.m_refs && !fc.m_clone;
 
 	if (fc.m_regexp)
@@ -271,6 +273,11 @@ void LogWidget::handleFindAction (FindConfig const & fc)
 	}
 
 	saveFindConfig();
+
+	if (0 == fc.m_where.m_states.size())
+	{
+		fillDefaultConfigWithLogTags(fc.m_where);
+	}
 
 	if (select_only)
 	{

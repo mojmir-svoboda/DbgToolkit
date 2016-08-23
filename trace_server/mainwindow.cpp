@@ -124,9 +124,11 @@ MainWindow::MainWindow (QWidget * parent, QString const & iface, unsigned short 
 
 	m_find_widget = new FindWidget(this, this);
 	m_find_widget->setActionAbleWidget(&m_dock_mgr);
+	m_find_widget->setBroadcasting();
 	m_find_widget->setParent(this);
 	m_quick_string_widget = new QuickStringWidget(this, this);
 	m_quick_string_widget->setActionAbleWidget(&m_dock_mgr);
+	m_quick_string_widget->setBroadcasting();
 	m_quick_string_widget->setParent(this);
 
 	setupMenuBar();

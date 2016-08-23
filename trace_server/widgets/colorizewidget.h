@@ -27,6 +27,7 @@ public:
 	void focusNext ();
 	void focusPrev ();
 	void setActionAbleWidget (ActionAble * aa) { m_aa = aa; }
+	void setBroadcasting () { m_broadcasting = true; }
 
 public slots:
 	void onCancel ();
@@ -52,9 +53,10 @@ protected:
 
 private:
 	friend class MainWindow;
-	Ui::ColorizeWidget *	m_ui;
-	MainWindow *		m_main_window;
+	Ui::ColorizeWidget *	m_ui { nullptr };
+	MainWindow *		m_main_window { nullptr };
 	ColorizeConfig			m_config;
-	ActionAble *		m_aa;
+	ActionAble *		m_aa { nullptr }; 
+	bool m_broadcasting { false };
 };
 

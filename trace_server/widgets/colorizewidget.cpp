@@ -150,6 +150,7 @@ void ColorizeWidget::makeActionColorize (QString const & str, Action & a)
 	//a.m_src = this;
 	if (m_aa)
 		a.m_dst_path = m_aa->path();
+	a.m_broadcast = m_broadcasting;
 	QVariant fc;
 	fc.setValue(m_config);
 	a.m_args.push_back(fc);

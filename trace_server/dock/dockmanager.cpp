@@ -242,6 +242,23 @@ bool DockManager::handleAction (Action * a, E_ActionHandleType sync)
 	QStringList const & dst_path = a->m_dst_path;
 	QStringList const & my_addr = path();
 
+	if (a->m_broadcast)
+	{
+		a->m_dst_curr_level = 0;
+
+		// broadcast to children
+		for (auto it = m_actionables.begin(), ite = m_actionables.end(); it != ite; ++it)
+		{
+			if (*it == this)
+				continue;
+			int const dst_sz = (*it)->m_path.size();
+			if (dst_sz == 2) // @NOTE: hey little piggy. 1 is DockManager, 2 must be his direct child
+			{
+				(*it)->handleAction(a, e_Sync);
+			}
+		}
+	}
+
 	if (dst_path.size() == 0)
 	{
 		qWarning("DockManager::handleAction empty dst");
@@ -258,14 +275,6 @@ bool DockManager::handleAction (Action * a, E_ActionHandleType sync)
 	else if (lvl == dst_path.size() - 1)
 	{
 		// message just for me! gr8!
-		a->m_dst_curr_level = lvl;
-
-		// broadcast to children
-		for (auto it = m_actionables.begin(), ite = m_actionables.end(); it != ite; ++it)
-		{
-			if (*it != this)
-				(*it)->handleAction(a, e_Sync);
-		}
 		return true;
 	}
 	else
