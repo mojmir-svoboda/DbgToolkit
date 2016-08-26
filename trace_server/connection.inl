@@ -48,7 +48,7 @@ typename SelectIterator<TypeN>::type Connection::dataWidgetFactory (QString cons
 		if (getClosestFeatureState(static_cast<E_DataWidgetType>(TypeN)) == e_FtrEnabled && visible)
 		{
 			widget->setVisible(visible);
-			getMainWindow()->onDockRestoreButton();
+			getMainWindow()->applyCachedLayout();
 			//m_main_window->restoreDockWidget(dock);
 		}
 		else
@@ -108,7 +108,7 @@ typename SelectIterator<TypeN>::type Connection::dataWidgetFactoryFrom (QString 
 		{
 			widget->setVisible(visible);
 
-			getMainWindow()->onDockRestoreButton();
+			getMainWindow()->applyCachedLayout();
 			//m_main_window->restoreDockWidget(dd->m_wd);
 		}
 		else

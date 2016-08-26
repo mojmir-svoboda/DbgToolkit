@@ -64,6 +64,8 @@ MainWindow::MainWindow (QWidget * parent, QString const & iface, unsigned short 
 {
 	qDebug("================================================================================");
 	qDebug("%s this=0x%08x", __FUNCTION__, this);
+	setWindowTitle(g_traceServerName);
+	setObjectName(g_traceServerName);
 	ui->setupUi(this);
 
 	setStyleSheet( "QMainWindow::separator { background: rgb(150, 150, 150); width: 1px; height: 1px; }");
@@ -86,9 +88,7 @@ MainWindow::MainWindow (QWidget * parent, QString const & iface, unsigned short 
 	m_config.m_dump_mode = dump_mode;
 	m_config.m_trace_addr = iface;
 	m_config.m_trace_port = port;
-	loadConfig();
-	m_config.loadHistory(m_appdir);
-	setConfigValuesToUI(m_config);
+	loadConfig(); // only host:port really needed from config right now. the rest is loaded from loadState
 
 	// tray stuff
 	createTrayActions();
@@ -144,9 +144,7 @@ MainWindow::MainWindow (QWidget * parent, QString const & iface, unsigned short 
 	connect(m_dock_mgr.controlUI()->presetRmButton, SIGNAL(clicked()), this, SLOT(onPresetRm()));
 	//connect(m_dock_mgr.controlUI()->presetResetButton, SIGNAL(clicked()), this, SLOT(onPresetReset()));
 
-	QTimer::singleShot(0, this, SLOT(loadState()));	// trigger lazy load of settings
-	setWindowTitle(g_traceServerName);
-	setObjectName(g_traceServerName);
+	loadState();
 }
 
 MainWindow::~MainWindow()
@@ -273,7 +271,6 @@ void MainWindow::onQuit ()
 
 	m_tray_icon->setVisible(false);
 	m_tray_icon->hide();
-	storeState();
 
 	while (!m_connections.empty())
 	{
@@ -452,20 +449,14 @@ void MainWindow::onShowHelp ()
 	dialog.exec();
 }
 
-void MainWindow::storeGeometry ()
+void MainWindow::applyCachedLayout ()
 {
 	qDebug("%s", __FUNCTION__);
-	QSettings settings("MojoMir", "TraceServer");
-	settings.setValue("geometry", saveGeometry());
-	settings.setValue("windowState", saveState());
-}
-
-void MainWindow::onDockRestoreButton ()
-{
-	qDebug("%s", __FUNCTION__);
-	QSettings settings("MojoMir", "TraceServer");
-	restoreState(settings.value("windowState").toByteArray());
-	restoreGeometry(settings.value("geometry").toByteArray());
+	
+	if (m_geo_data.size())
+		restoreGeometry(m_geo_data);
+	if (m_layout_data.size())
+		restoreState(m_layout_data);
 }
 
 void MainWindow::onRecentFile ()
@@ -589,9 +580,8 @@ void MainWindow::iconActivated (QSystemTrayIcon::ActivationReason reason)
 
 void MainWindow::closeEvent (QCloseEvent * event)
 {
-	storeState();
-
 	m_config.m_hidden = true;
+	saveConfig();
 	hide();
 	event->ignore();
 }

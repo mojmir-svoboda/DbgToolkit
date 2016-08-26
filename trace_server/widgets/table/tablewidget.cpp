@@ -139,7 +139,7 @@ namespace table {
 				Q_ASSERT(a->m_args.size() > 0);
 				bool const on = a->m_args.at(0).toBool();
 				setVisible(on);
-				m_connection->getMainWindow()->onDockRestoreButton();
+				m_connection->getMainWindow()->applyCachedLayout();
 				return true;
 			}
 

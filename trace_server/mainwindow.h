@@ -116,8 +116,7 @@ public slots:
 	void showNormal ();
 	void showMaximized ();
 	void onOnTop (int);
-	void restoreDockedWidgetGeometry ();
-	void onDockRestoreButton ();
+	void applyCachedLayout ();
 	void onDockManagerButton ();
 	void onDockManagerVisibilityChanged (bool state);
 	void onDockManagerClosed ();
@@ -136,8 +135,6 @@ public slots:
 private slots:
 
 	void loadState ();
-	void storeGeometry ();
-	void storeState ();
 	void onTimerHit ();
 	void onQuit ();
 	//void onFocusChanged (QWidget * old, QWidget * now);
@@ -231,6 +228,8 @@ private:
 	QString				m_docked_name;
 	QString 			m_log_name;
 	QString				m_appdir;
+	QByteArray		m_geo_data;
+	QByteArray		m_layout_data;
 
 	int 				m_start_level; // @TODO: to config?
 	float 				m_time_units;

@@ -37,7 +37,9 @@ void MainWindow::saveConfig ()
 
 void MainWindow::setPresetAsCurrent (QString const & pname)
 {
-	m_dock_mgr.controlUI()->presetComboBox->setCurrentIndex(m_dock_mgr.controlUI()->presetComboBox->findText(pname));
+	int const idx = m_dock_mgr.controlUI()->presetComboBox->findText(pname);
+	m_config.m_preset_history.m_current_item = idx;
+	m_dock_mgr.controlUI()->presetComboBox->setCurrentIndex(idx);
 }
 
 QString MainWindow::getCurrentPresetName () const
@@ -63,8 +65,8 @@ void MainWindow::onSaveAs ()
 void MainWindow::onPresetApply (QString const & preset_name)
 {
 	mentionStringInHistory_Ref(preset_name, m_dock_mgr.controlUI()->presetComboBox, m_config.m_preset_history);
-	m_config.saveHistory(m_appdir);
 	setPresetAsCurrent(preset_name);
+	m_config.saveHistory(m_appdir);
 
 	for (size_t i = 0; i < m_connections.size(); ++i)
 	{
@@ -82,8 +84,8 @@ void MainWindow::onPresetSave (QString const & preset_name)
 
 	qDebug("SaveAs to preset_name=%s", preset_name.toStdString().c_str());
 	mentionStringInHistory_Ref(preset_name, m_dock_mgr.controlUI()->presetComboBox, m_config.m_preset_history);
-	m_config.saveHistory(m_appdir);
 	setPresetAsCurrent(preset_name);
+	m_config.saveHistory(m_appdir);
 
 	for (size_t i = 0; i < m_connections.size(); ++i)
 		m_connections[i]->onPresetSave(preset_name);
@@ -93,8 +95,6 @@ void MainWindow::onPresetSave (QString const & preset_name)
 
 	QString const fname = m_config.m_appdir + "/" + preset_name + "." + g_presetLayoutName;
 	saveLayout(fname);
-
-	storeState();
 }
 
 void MainWindow::onPresetEdited ()
@@ -102,8 +102,8 @@ void MainWindow::onPresetEdited ()
 	m_dock_mgr.controlUI()->presetComboBox->blockSignals(0);
 	QString const preset_name = getCurrentPresetName();
 	mentionStringInHistory_Ref(preset_name, m_dock_mgr.controlUI()->presetComboBox, m_config.m_preset_history);
-	m_config.saveHistory(m_appdir);
 	setPresetAsCurrent(preset_name);
+	m_config.saveHistory(m_appdir);
 	m_dock_mgr.controlUI()->presetComboBox->blockSignals(1);
 }
 
@@ -175,24 +175,11 @@ void MainWindow::loadLayout (QString const & fname)
 		QMessageBox::warning(this, tr("Error"), msg);
 		return;
 	}
-}
-
-void MainWindow::storeState ()
-{
-	qDebug("%s", __FUNCTION__);
-	QSettings settings("MojoMir", "TraceServer");
-
-	settings.setValue("geometry", saveGeometry());
-	settings.setValue("windowState", saveState());
-
-}
-
-void MainWindow::restoreDockedWidgetGeometry ()
-{
-	QSettings settings("MojoMir", "TraceServer");
-
-	//restoreGeometry(settings.value("geometry").toByteArray());
-	restoreState(settings.value("windowState").toByteArray());
+	else
+	{
+		m_geo_data = geo_data;
+		m_layout_data = layout_data;
+	}
 }
 
 void MainWindow::loadState ()
@@ -205,10 +192,6 @@ void MainWindow::loadState ()
 	m_dock_mgr.loadConfig(m_config.m_appdir);
 	m_dock_mgr.applyConfig();
 
-	QSettings settings("MojoMir", "TraceServer");
-	restoreGeometry(settings.value("geometry").toByteArray());
-	restoreState(settings.value("windowState").toByteArray());
-
 	if (m_start_level != -1)
 	{
 		qDebug("reading level from command line");
@@ -220,8 +203,6 @@ void MainWindow::loadState ()
 	m_dock_mgr_button->blockSignals(0);
 	m_dock_mgr.m_dockwidget->setVisible(m_dock_mgr.m_config.m_show);
 
-	unsigned const hotkeyCode = settings.value("hotkeyCode").toInt();
-	m_config.m_hotkey = hotkeyCode ? hotkeyCode : VK_SCROLL;
 	registerHotKey();
 	//qApp->uninstallEventFilter(this); // @FIXME
 	qApp->installEventFilter(this);

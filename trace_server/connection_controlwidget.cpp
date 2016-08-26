@@ -273,8 +273,8 @@ void Connection::onPresetSave (QString const & preset_name)
 	qDebug("SaveAs to preset_name=%s", preset_name.toStdString().c_str());
 	QString const path = mkAppPresetPath(getGlobalConfig().m_appdir, m_app_name, preset_name);
 	mentionStringInHistory_Ref(preset_name, m_control_bar->ui->presetComboBox, m_config.m_preset_history);
-	m_config.saveHistory(path);
 	setPresetAsCurrent(preset_name);
+	m_config.saveHistory(path);
 
 	createAppPresetPath(getGlobalConfig().m_appdir, m_app_name, preset_name);
 
