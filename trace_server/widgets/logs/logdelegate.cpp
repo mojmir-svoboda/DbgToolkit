@@ -122,41 +122,42 @@ namespace logs {
 		QColor const cols[] = { QColor(Qt::white), QColor(Qt::yellow), QColor(Qt::red), QColor(Qt::magenta), QColor(Qt::cyan) };
 		float const stops[] = { 0.0f, 30.0f * 1000.0f, 250.0f * 1000.0f, 1000.0f * 1000.0f, 2500.0f * 1000.0f };
 
+		bool const colorize = m_log_widget.config().m_dt_colorize;
 		QVariant const value = index.data(Qt::DisplayRole);
 		if (value.isValid() && !value.isNull())
 		{
 			QVariant value = index.data(Qt::DisplayRole);
 			uint64_t const t64 = value.toULongLong();
 
-			double const t = static_cast<double>(t64);
-
 			option4.text.clear();
-			int idx = 0;
-			for (size_t n = 0; n < sizeof(stops) / sizeof(*stops) - 1; ++n)
+			if (colorize)
 			{
-				float const stop = stops[n];
-				if (t > stop)
-					idx = n;
-				else
-					break;
-			}
+				double const t = static_cast<double>(t64);
 
-			double const col_t = (t - stops[idx]) / (stops[idx + 1] - stops[idx]);
-			double const c_t  = clamp(col_t, 0.0, 1.0);
-			QColor ct = interpolate(cols[idx], cols[idx + 1], c_t);
+				int idx = 0;
+				for (size_t n = 0; n < sizeof(stops) / sizeof(*stops) - 1; ++n)
+				{
+					float const stop = stops[n];
+					if (t > stop)
+						idx = n;
+					else
+						break;
+				}
 
-			painter->save();
-			painter->setBrush(QBrush(ct));
-			painter->drawRect(option4.rect);
-			painter->restore();
-			if (value.isValid())
-			{
-				//float const t_us = static_cast<float>(t64);
-				option4.text = QString::number(t64);
-				//float const t_natural_units = 1000000.0f; // microseconds
-				//float const t = t_us / t_natural_units / m_log_widget.config().m_time_units;
-				//option4.text = QString::number(t, 'f', 3);
+				double const col_t = (t - stops[idx]) / (stops[idx + 1] - stops[idx]);
+				double const c_t  = clamp(col_t, 0.0, 1.0);
+				QColor ct = interpolate(cols[idx], cols[idx + 1], c_t);
+
+				painter->save();
+				painter->setBrush(QBrush(ct));
+				painter->drawRect(option4.rect);
+				painter->restore();
 			}
+			//float const t_us = static_cast<float>(t64);
+			option4.text = QString::number(t64);
+			//float const t_natural_units = 1000000.0f; // microseconds
+			//float const t = t_us / t_natural_units / m_log_widget.config().m_time_units;
+			//option4.text = QString::number(t, 'f', 3);
 
 			QWidget const * widget = option4.widget;
 			if (widget)
@@ -322,8 +323,7 @@ namespace logs {
 				}
 				case proto::tag_dt:
 				{
-					if (m_log_widget.config().m_dt_colorize)
-						paintDiffTime(painter, option4, index);
+					paintDiffTime(painter, option4, index);
 					break;
 				}
 				case proto::tag_msg:
