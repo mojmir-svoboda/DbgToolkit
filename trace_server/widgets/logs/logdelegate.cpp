@@ -322,7 +322,8 @@ namespace logs {
 				}
 				case proto::tag_dt:
 				{
-					paintDiffTime(painter, option4, index);
+					if (m_log_widget.config().m_dt_colorize)
+						paintDiffTime(painter, option4, index);
 					break;
 				}
 				case proto::tag_msg:

@@ -16,67 +16,42 @@ namespace logs {
 	struct LogConfig : DockedConfigBase
 	{
 		QString m_tag;
-		int m_history_ln;
-		QString m_font;
-		int m_fontsize;
-		int m_row_width;
-		int m_indent_level;
-		int m_cut_path_level;
-		int m_cut_namespace_level;
-		int m_curr_tooltab;
+		int m_history_ln { 128 * 128 };
+		QString m_font { "Verdana" };
+		int m_fontsize { 10 };
+		int m_row_width { 18 };
+		int m_indent_level { 2 };
+		int m_cut_path_level { 2 };
+		int m_cut_namespace_level { 3 };
+		int m_curr_tooltab { 1 };
 		TagConfig m_tag_config;
 		std::vector<QString> 	m_columns_setup;		/// column setup for each registered application
 		std::vector<int> 		m_columns_sizes;		/// column sizes for each registered application
 		std::vector<QString> 	m_columns_align;		/// column align for each registered application
 		std::vector<QString> 	m_columns_elide;		/// column elide for each registered application
 		std::vector<std::pair<QColor, QColor>> 	m_thread_colors;		/// predefined coloring of threads
-		//std::vector<QString> 	m_storage_order;
 		QByteArray m_header_setup_stream;
-		bool m_in_view;
-		bool m_filtering;
-		bool m_clr_filters;
-		bool m_scopes_enabled;
-		bool m_dt_scopes_enabled;
-		bool m_indent;
-		bool m_cut_path;
-		bool m_cut_namespaces;
-		bool m_dt_enabled;
-		bool m_filter_proxy;
-		bool m_find_proxy;
-		bool m_simplify_strings;
-		bool m_unquote_strings;
-		bool m_csv_has_header;
+		bool m_in_view { true };
+		bool m_filtering { true };
+		bool m_clr_filters { true };
+		bool m_scopes_enabled { true };
+		bool m_dt_scopes_enabled { true };
+		bool m_indent { true };
+		bool m_cut_path { true };
+		bool m_cut_namespaces { true };
+		bool m_dt_enabled { false };
+		bool m_dt_colorize { false };
+		bool m_filter_proxy { false };
+		bool m_find_proxy { false };
+		bool m_simplify_strings { false };
+		bool m_unquote_strings { false };
+		bool m_csv_has_header { false };
 		QString m_csv_separator;
 		FindConfig m_find_config;
 		QuickStringConfig m_quick_string_config;
 		ColorizeConfig m_colorize_config;
 
-		LogConfig ()
-			: m_tag()
-			, m_history_ln(128*128)
-			, m_font("Verdana")
-			, m_fontsize(10)
-			, m_row_width(18)
-			, m_indent_level(2)
-			, m_cut_path_level(2)
-			, m_cut_namespace_level(3)
-			, m_curr_tooltab(1) // 1 == filters
-			, m_in_view(true)
-			, m_filtering(true)
-			, m_clr_filters(true)
-			, m_scopes_enabled(true)
-			, m_dt_scopes_enabled(true)
-			, m_indent(true)
-			, m_cut_path(true)
-			, m_cut_namespaces(true)
-			, m_dt_enabled(false)
-			, m_filter_proxy(false)
-			, m_find_proxy(false)
-			, m_simplify_strings(false)
-			, m_unquote_strings(false)
-			, m_csv_has_header(false)
-			, m_csv_separator()
-		{ }
+		LogConfig () { }
 
 		LogConfig (QString const & tag)
 			: LogConfig()
@@ -114,6 +89,8 @@ namespace logs {
 			ar & boost::serialization::make_nvp("cut_path", m_cut_path);
 			ar & boost::serialization::make_nvp("cut_namespaces", m_cut_namespaces);
 			ar & boost::serialization::make_nvp("dt_enabled", m_dt_enabled);
+			if (version > 1)
+				ar & boost::serialization::make_nvp("dt_colorize", m_dt_colorize);
 			ar & boost::serialization::make_nvp("find_config", m_find_config);
 			if (version > 0)
 				ar & boost::serialization::make_nvp("quick_string_config", m_quick_string_config);
@@ -146,4 +123,4 @@ namespace logs {
 	bool validateConfig (logs::LogConfig const & cfg);
 }
 
-BOOST_CLASS_VERSION(logs::LogConfig, 1)
+BOOST_CLASS_VERSION(logs::LogConfig, 2)

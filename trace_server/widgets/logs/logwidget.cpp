@@ -756,6 +756,7 @@ namespace logs {
 		setValueWithBlockedSignals(ui->tableRowSizeSpinBox, m_config.m_row_width);
 		setValueWithBlockedSignals(ui->syncGroupSpinBox, m_config.m_sync_group);
 		setCurrentIndexWithBlockedSignals(ui->groupingWidget, m_config.m_curr_tooltab);
+		setCheckedWithBlockedSignals(ui->dtColorizeCheckBox, m_config.m_dt_colorize);
 		// TODO: block signals
 		//bool const old = m_table_view_widget->blockSignals(true);
 		//m_table_view_widget->blockSignals(old);
@@ -779,6 +780,7 @@ namespace logs {
 		m_config.m_indent_level = ui->indentSpinBox->value();
 		m_config.m_scopes_enabled = ui->scopesCheckBox->isChecked();
 		m_config.m_dt_scopes_enabled = ui->dtScopesCheckBox->isChecked();
+		m_config.m_dt_colorize = ui->dtColorizeCheckBox->isChecked();
 		//ui->tableFontComboBox->
 		//ui->tableFontToolButton->
 		m_config.m_row_width = ui->tableRowSizeSpinBox->value();
