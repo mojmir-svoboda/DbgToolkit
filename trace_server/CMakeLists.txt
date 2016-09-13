@@ -66,9 +66,13 @@ add_subdirectory("3rd")
 add_definitions("-DTRACE_ENABLED")
 add_definitions("-DTRACE_STATIC")
 add_definitions("-DUSE_CXX_ALLOCATOR")
+if(BUILD_ASN1_DEBUG)
+	set(ASN1_DEBUG_SOURCES asn1_debug.cpp)
+endif(BUILD_ASN1_DEBUG)
 
 #include_directories(${CMAKE_CURRENT_SOURCE_DIR}/..)
 set(trace_server_SOURCES
+	${ASN1_DEBUG_SOURCES}
 	main.cpp
 	types.cpp
 	qt_plugins.cpp

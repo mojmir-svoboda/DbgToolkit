@@ -67,6 +67,7 @@ _print2fp(Allocator * allocator, const void *buffer, size_t size, void *app_key)
  * Some compilers do not support variable args macros.
  * This function is a replacement of ASN_DEBUG() macro.
  */
+#if !defined REDIR_ASN_DEBUG
 void ASN_DEBUG_f(const char *fmt, ...);
 void ASN_DEBUG_f(const char *fmt, ...) {
 #if _MSC_VER >= 1900
@@ -89,3 +90,4 @@ void ASN_DEBUG_f(const char *fmt, ...) {
 	va_end(ap);
 #endif
 }
+#endif

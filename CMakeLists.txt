@@ -6,6 +6,7 @@ option(BUILD_SERVER "Builds server (requires Boost and Qt5)." OFF)
 option(BUILD_SAMPLES "Builds samples." OFF)
 option(BUILD_QT_TESTS "Builds qt tests (requires Boost and Qt5)." OFF)
 option(BUILD_ASN1_FILES "Re-generates sources from .asn1 file (requires asn1c)." OFF)
+option(BUILD_ASN1_DEBUG "Enables asn1 debug." OFF)
 
 if(BUILD_SAMPLES AND NOT BUILD_SERVER)
   project (DbgToolkitClient VERSION 1.1.0)
@@ -14,6 +15,11 @@ else (BUILD_SAMPLES AND NOT BUILD_SERVER)
 endif (BUILD_SAMPLES AND NOT BUILD_SERVER)
 
 set (CMAKE_VERBOSE_MAKEFILE on)
+
+if(BUILD_ASN1_DEBUG)
+	add_definitions("-DEMIT_ASN_DEBUG=1")
+	add_definitions("-DREDIR_ASN_DEBUG")
+endif(BUILD_ASN1_DEBUG)
 
 # set up include-directories
 include_directories (
