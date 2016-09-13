@@ -1,7 +1,7 @@
 #include <qlogging.h>
 #include <stdarg.h>
 
-#if !defined REDIR_ASN_DEBUG
+#if defined REDIR_ASN_DEBUG
 void ASN_DEBUG_f (const char *fmt, ...)
 {
 	va_list va;
