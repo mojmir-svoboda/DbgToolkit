@@ -53,7 +53,7 @@ class MainWindow : public QMainWindow
 	Q_OBJECT
 
 public:
-	explicit MainWindow (QWidget * parent, QString const & iface, unsigned short port, bool quit_delay, bool dump_mode, QString const & log_name, int level);
+	explicit MainWindow (QWidget * parent, QString const & iface, unsigned short port, bool no_quit_msg_box, bool dump_mode, QString const & log_name, int level);
 	~MainWindow ();
 
 	QTabWidget * getTabTrace ();
@@ -181,8 +181,11 @@ private slots:
 	//void onPresetActivate (int idx);
 
 	void onShowHelp ();
+	void onOptionsAction ();
 
 private:
+	void startServer ();
+	void stopServer ();
 	void showServerStatus ();
 	void setupMenuBar ();
 	void createTrayActions ();
@@ -196,31 +199,31 @@ private:
 	typedef std::vector<Connection *> connections_t;
 	connections_t 		m_connections;
 
-	Ui::MainWindow * 	ui;
-	Ui::SettingsDialog * ui_settings;
-	Ui::Mixer * ui_mixer;
-	QDialog *			m_settings_dialog;
-	SetupDialogCSV *	m_setup_dialog_csv;
+	Ui::MainWindow * 	ui { nullptr };
+	Ui::SettingsDialog * m_settings_ui  { nullptr };
+	Ui::Mixer * ui_mixer  { nullptr };
+	QDialog *			m_settings_dialog  { nullptr };
+	SetupDialogCSV *	m_setup_dialog_csv  { nullptr };
 
-	Ui::HelpDialog * 	m_help;
+	Ui::HelpDialog * 	m_help  { nullptr };
 	GlobalConfig 		m_config;
 
-	QTimer *  			m_timer;
-	Server *  			m_server;
-	QMenu * 			m_windows_menu;
-	QMenu * 			m_file_menu;
-	QAction * 			m_before_action;
+	QTimer *  			m_timer  { nullptr };
+	Server *  			m_server  { nullptr };
+	QMenu * 			m_windows_menu  { nullptr };
+	QMenu * 			m_file_menu  { nullptr };
+	QAction * 			m_before_action  { nullptr };
 	std::vector<QAction *> m_recent_files;
-	QAction * 			m_minimize_action;
-	QAction * 			m_maximize_action;
-	QAction * 			m_restore_action;
-	QAction * 			m_quit_action;
-	QMenu *   			m_tray_menu;
-	QToolButton *		m_dock_mgr_button;
-	QLabel *			m_status_widget;
-	FindWidget *		m_find_widget;
-	QuickStringWidget * m_quick_string_widget;
-	QSystemTrayIcon * 	m_tray_icon;
+	QAction * 			m_minimize_action  { nullptr };
+	QAction * 			m_maximize_action  { nullptr };
+	QAction * 			m_restore_action  { nullptr };
+	QAction * 			m_quit_action  { nullptr };
+	QMenu *   			m_tray_menu  { nullptr };
+	QToolButton *		m_dock_mgr_button  { nullptr };
+	QLabel *			m_status_widget  { nullptr };
+	FindWidget *		m_find_widget  { nullptr };
+	QuickStringWidget * m_quick_string_widget  { nullptr };
+	QSystemTrayIcon * 	m_tray_icon  { nullptr };
 	std::vector<QString> m_reload_fnames;
 
 	// docked widgets
@@ -232,6 +235,6 @@ private:
 	QByteArray		m_layout_data;
 
 	int 				m_start_level; // @TODO: to config?
-	float 				m_time_units;
+	bool m_no_quit_msg_box { false };
 };
 

@@ -106,6 +106,7 @@ namespace logs {
 		connect(m_config_ui->ui()->timeComboBox, SIGNAL(activated(int)), this, SLOT(onChangeTimeUnits(int)));
 		connect(m_config_ui->ui()->scopesCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onCtxMenuShowScopesChanged(int)));
 		connect(m_config_ui->ui()->dtScopesCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onCtxMenuShowdtScopesChanged(int)));
+		connect(m_config_ui->ui()->dtColorizeCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onCtxMenudtColorizeChanged(int)));
 		connect(m_config_ui->ui()->indentSpinBox, SIGNAL(valueChanged(int)), this, SLOT(onCtxMenuIndentChanged(int)));
 		connect(m_config_ui->ui()->cutPathCheckBox, SIGNAL(stateChanged(int)), this, SLOT(onCtxMenuCutPathChanged(int)));
 		connect(m_config_ui->ui()->cutPathSpinBox, SIGNAL(valueChanged(int)), this, SLOT(onCtxMenuCutPathLevelChanged(int)));

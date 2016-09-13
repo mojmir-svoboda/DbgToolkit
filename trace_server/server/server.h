@@ -33,7 +33,7 @@ class Server : public QTcpServer
 {
 	Q_OBJECT
 public:
-	explicit Server (QString addr, unsigned short port, QObject * parent = 0, bool quit_delay = true);
+	explicit Server (QString addr, unsigned short port, QObject * parent = 0, bool no_quit_msg_box = false);
 
 	QString const & getRunningStatus () const { return m_running_server_status; }
 	void stop () { close(); }

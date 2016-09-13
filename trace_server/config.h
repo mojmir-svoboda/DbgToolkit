@@ -8,59 +8,35 @@
 #include "widgets/findconfig.h"
 
 struct GlobalConfig {
-	unsigned  m_hotkey;
-	bool	  m_hidden;
-	bool	  m_was_maximized;
-	bool	  m_dump_mode;
-	bool	  m_auto_scroll;
-	bool	  m_buffered;
-	bool	  m_on_top;
-	int		  m_level;
+	unsigned  m_hotkey { 0x91 /*VK_SCROLL*/ };
+	bool	  m_hidden { false };
+	bool	  m_was_maximized { false };
+	bool	  m_dump_mode  { false };
+	bool	  m_auto_scroll  { false };
+	bool	  m_buffered  { false };
+	bool	  m_on_top  { false };
+	int		  m_level  { 3 };
 	MixerConfig m_mixer;
-	int		  m_logs_recv_level;
-	int		  m_plots_recv_level;
-	int		  m_tables_recv_level;
-	int		  m_gantts_recv_level;
-	QString	  m_time_units_str;
-	float	  m_time_units;
-	QString	  m_font;
-	int		  m_fontsize;
-	QString	  m_trace_addr;
-	unsigned short m_trace_port;
-	QString	  m_profiler_addr;
-	unsigned short m_profiler_port;
-	QString	  m_appdir;
+	int		  m_logs_recv_level { 2 };
+	int		  m_plots_recv_level { 0 };
+	int		  m_tables_recv_level { 0 };
+	int		  m_gantts_recv_level { 0 };
+	QString	  m_time_units_str { "ms" };
+	float	  m_time_units { stringToUnitsValue(m_time_units_str) };
+	QString	  m_font { "Verdana" };
+	int		  m_fontsize { 10 };
+	QString	  m_trace_addr { "127.0.0.1" };
+	unsigned short m_trace_port { g_defaultPort };
+	QString	  m_profiler_addr { "127.0.0.1" };
+	unsigned short m_profiler_port { 13147 };
+	QString	  m_appdir { QDir::homePath() + "/" + g_traceServerDirName };
 
-	History<QString> m_preset_history;
-	History<QString> m_recent_history;
+	History<QString> m_preset_history { 24 };
+	History<QString> m_recent_history { 24 };
 	FindConfig m_find_config;
 	QuickStringConfig m_quick_string_config;
 
-	GlobalConfig ()
-		: m_hotkey(0x91 /*VK_SCROLL*/)
-		, m_hidden(false)
-		, m_was_maximized(false)
-		, m_dump_mode(false)
-		, m_auto_scroll(false)
-		, m_buffered(true)
-		, m_on_top(false)
-		, m_level(3)
-		, m_logs_recv_level(2)
-		, m_plots_recv_level(0)
-		, m_tables_recv_level(0)
-		, m_gantts_recv_level(0)
-		, m_time_units_str("ms")
-		, m_time_units(stringToUnitsValue(m_time_units_str))
-		, m_font("Verdana")
-		, m_fontsize(10)
-		, m_trace_addr("127.0.0.1")
-		, m_trace_port(g_defaultPort)
-		, m_profiler_addr("127.0.0.1")
-		, m_profiler_port(13147)
-		, m_appdir(QDir::homePath() + "/" + g_traceServerDirName)
-		, m_preset_history(16)
-		, m_recent_history(16)
-	{ }
+	GlobalConfig ()	{ }
 
 	void loadHistory (QString const & path);
 	void saveHistory (QString const & path) const;

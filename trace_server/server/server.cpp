@@ -15,7 +15,7 @@
 #include <utils/utils.h>
 //#include <widgets/tableview.h>
 
-Server::Server (QString ip, unsigned short port, QObject * parent, bool quit_delay)
+Server::Server (QString ip, unsigned short port, QObject * parent, bool no_quit_msg_box)
 	: QTcpServer(parent)
 	, m_main_window(0)
 	, m_running_server_status("not started")
@@ -25,7 +25,7 @@ Server::Server (QString ip, unsigned short port, QObject * parent, bool quit_del
 	if (!listen(addr, port))
 	{
 		m_running_server_status = tr("Unable to start server! Reason: %1").arg(errorString());
-		if (quit_delay)
+		if (!no_quit_msg_box)
 		{
 			QMessageBox::critical(0, tr("Error"), m_running_server_status, QMessageBox::Ok, QMessageBox::Ok);
 			QTimer::singleShot(0, qApp, SLOT(quit()));

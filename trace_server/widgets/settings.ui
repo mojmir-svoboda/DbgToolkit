@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>619</width>
-    <height>389</height>
+    <width>441</width>
+    <height>321</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,7 +17,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>2</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="tabNetwork">
       <attribute name="title">
@@ -83,21 +83,21 @@
           </widget>
          </item>
          <item row="2" column="3">
-          <widget class="QLineEdit" name="lineEditLogPort">
+          <widget class="QLineEdit" name="lineEditTracePort">
            <property name="text">
             <string>13127</string>
            </property>
           </widget>
          </item>
          <item row="1" column="3">
-          <widget class="QLineEdit" name="lineEditLogAddr">
+          <widget class="QLineEdit" name="lineEditTraceAddr">
            <property name="text">
             <string>127.0.0.1</string>
            </property>
           </widget>
          </item>
          <item row="4" column="3">
-          <widget class="QLineEdit" name="lineEditProtilerAddr">
+          <widget class="QLineEdit" name="lineEditProfilerAddr">
            <property name="text">
             <string>127.0.0.1</string>
            </property>
@@ -107,49 +107,6 @@
           <widget class="QLineEdit" name="lineEditProfilerPort">
            <property name="text">
             <string>13147</string>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="2">
-          <widget class="QLabel" name="label_12">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="text">
-            <string>Stats Graph:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="3">
-          <widget class="QCheckBox" name="checkBox">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="text">
-            <string>show</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="2">
-          <widget class="QLabel" name="label_11">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="text">
-            <string>Stats Graph:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="3">
-          <widget class="QCheckBox" name="traceStatsCheckBox">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="text">
-            <string>show</string>
-           </property>
-           <property name="checked">
-            <bool>false</bool>
            </property>
           </widget>
          </item>
@@ -164,33 +121,10 @@
       <layout class="QHBoxLayout" name="horizontalLayout">
        <item>
         <layout class="QGridLayout" name="gridLayout_7">
-         <item row="1" column="2">
+         <item row="1" column="1">
           <widget class="QLineEdit" name="presetFolderLineEdit">
            <property name="enabled">
             <bool>false</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="2">
-          <widget class="QLineEdit" name="exportFolderLineEdit"/>
-         </item>
-         <item row="1" column="0">
-          <widget class="QLabel" name="label_13">
-           <property name="text">
-            <string>Preset folder</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="1">
-          <widget class="QCheckBox" name="autoPresetFolderLineEdit">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="text">
-            <string>auto</string>
-           </property>
-           <property name="checked">
-            <bool>true</bool>
            </property>
           </widget>
          </item>
@@ -198,6 +132,16 @@
           <widget class="QLabel" name="label_14">
            <property name="text">
             <string>Export folder</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QLineEdit" name="exportFolderLineEdit"/>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="label_13">
+           <property name="text">
+            <string>Preset folder</string>
            </property>
           </widget>
          </item>
@@ -244,6 +188,27 @@
        </item>
       </layout>
      </widget>
+     <widget class="QWidget" name="tab">
+      <attribute name="title">
+       <string>Misc</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_3">
+       <item row="0" column="0">
+        <layout class="QGridLayout" name="gridLayout_2">
+         <item row="0" column="1">
+          <widget class="TimeComboBox" name="timeUnitsComboBox" native="true"/>
+         </item>
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_7">
+           <property name="text">
+            <string>Preferred units of time</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
     </widget>
    </item>
    <item>
@@ -260,13 +225,6 @@
         </size>
        </property>
       </spacer>
-     </item>
-     <item>
-      <widget class="QPushButton" name="okButton">
-       <property name="text">
-        <string>Ook</string>
-       </property>
-      </widget>
      </item>
      <item>
       <widget class="QPushButton" name="okSaveButton">
@@ -289,6 +247,14 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>TimeComboBox</class>
+   <extends>QWidget</extends>
+   <header location="global">widgets/timecombobox.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

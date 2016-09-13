@@ -144,10 +144,36 @@ void MainWindow::setConfigValuesToUI (GlobalConfig const & cfg)
 // 	m_dock_mgr.controlUI()->plotSlider->setValue(cfg.m_plots_recv_level);
 // 	m_dock_mgr.controlUI()->tableSlider->setValue(cfg.m_tables_recv_level);
 // 	m_dock_mgr.controlUI()->ganttSlider->setValue(cfg.m_gantts_recv_level);
+	int const n = m_settings_ui->timeUnitsComboBox->comboBox()->findText(m_config.m_time_units_str);
+	m_settings_ui->timeUnitsComboBox->comboBox()->setCurrentIndex(n);
+	m_settings_ui->lineEditTraceAddr->setText(m_config.m_trace_addr);
+	m_settings_ui->lineEditTracePort->setText(QString::number(m_config.m_trace_port));
+	m_settings_ui->lineEditProfilerAddr->setText(m_config.m_profiler_addr);
+	m_settings_ui->lineEditProfilerPort->setText(QString::number(m_config.m_profiler_port));
+	m_settings_ui->onTopCheckBox->setChecked(m_config.m_on_top);
+	
+	m_settings_ui->presetFolderLineEdit->setText(m_config.m_appdir);
 }
 
 void MainWindow::setUIValuesToConfig (GlobalConfig & cfg)
 {
+	QString const & curr = m_settings_ui->timeUnitsComboBox->comboBox()->currentText();
+	float const t = stringToUnitsValue(curr);
+	m_config.m_time_units_str = curr;
+	m_config.m_time_units = t;
+
+	m_config.m_on_top = m_settings_ui->onTopCheckBox->isChecked();
+	//m_config.m_? = ui_settings->reuseTabCheckBox->isChecked();
+	QString const new_iface = m_settings_ui->lineEditTraceAddr->text();
+	int const new_port = m_settings_ui->lineEditTracePort->text().toInt();
+
+	if (m_config.m_trace_addr != new_iface || m_config.m_trace_port != new_port)
+	{
+		stopServer();
+		m_config.m_trace_addr = new_iface;
+		m_config.m_trace_port = new_port;
+		startServer();
+	}
 }
 
 //bool MainWindow::onTopEnabled () const { return ui_settings->onTopCheckBox->isChecked(); }

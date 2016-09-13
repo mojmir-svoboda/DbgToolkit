@@ -33,34 +33,17 @@
 #include "qt_plugins.h"
 #include "platform.h"
 
-MainWindow::MainWindow (QWidget * parent, QString const & iface, unsigned short port, bool quit_delay, bool dump_mode, QString const & log_name, int level)
+MainWindow::MainWindow (QWidget * parent, QString const & iface, unsigned short port, bool no_quit_msg_box, bool dump_mode, QString const & log_name, int level)
 	: QMainWindow(parent)
-	, m_time_units(0.001f)
 	, ui(new Ui::MainWindow)
-	, ui_settings(nullptr)
 	, m_help(new Ui::HelpDialog)
 	, m_timer(new QTimer(this))
-	, m_server(nullptr)
-	, m_windows_menu(nullptr)
-	, m_file_menu(nullptr)
-	, m_before_action(nullptr)
-	, m_minimize_action(nullptr)
-	, m_maximize_action(nullptr)
-	, m_restore_action(nullptr)
-	, m_quit_action(nullptr)
-	, m_tray_menu(nullptr)
-	, m_dock_mgr_button(nullptr)
-	, m_status_widget(nullptr)
-	, m_find_widget(nullptr)
-	, m_quick_string_widget(nullptr)
-	, m_tray_icon(nullptr)
-	, m_settings_dialog(nullptr)
-	, m_setup_dialog_csv(nullptr)
 	, m_dock_mgr(this, QStringList(QString(g_traceServerName)))
 	, m_docked_name(g_traceServerName)
 	, m_log_name(log_name)
 	, m_appdir(QDir::homePath() + "/" + g_traceServerDirName)
 	, m_start_level(level)
+	, m_no_quit_msg_box(no_quit_msg_box)
 {
 	qDebug("================================================================================");
 	qDebug("%s this=0x%08x", __FUNCTION__, this);
@@ -73,8 +56,8 @@ MainWindow::MainWindow (QWidget * parent, QString const & iface, unsigned short 
 
 	m_settings_dialog = new QDialog(this);
 	m_settings_dialog->setWindowFlags(Qt::Sheet);
-	ui_settings = new Ui::SettingsDialog();
-	ui_settings->setupUi(m_settings_dialog);
+	m_settings_ui = new Ui::SettingsDialog();
+	m_settings_ui->setupUi(m_settings_dialog);
 
 	m_setup_dialog_csv = new SetupDialogCSV(this);
 	m_setup_dialog_csv->ui->preView->setModel(new QStandardItemModel());
@@ -108,9 +91,7 @@ MainWindow::MainWindow (QWidget * parent, QString const & iface, unsigned short 
 		onOnTop(on_top);
 	}
 
-	m_server = new Server(m_config.m_trace_addr, m_config.m_trace_port, this, quit_delay);
-	connect(m_server, SIGNAL(newConnection(Connection *)), this, SLOT(newConnection(Connection *)));
-	connect(m_server, SIGNAL(statusChanged(QString const &)), this, SLOT(onStatusChanged(QString const &)));
+	startServer();
 
  	m_timer->setInterval(5000);
  	connect(m_timer, SIGNAL(timeout()) , this, SLOT(onTimerHit()));
@@ -118,7 +99,8 @@ MainWindow::MainWindow (QWidget * parent, QString const & iface, unsigned short 
 
 	/// status widget
 	m_status_widget = new QLabel(m_server->getRunningStatus());
-	m_status_widget->setAlignment(Qt::AlignHCenter);
+	m_status_widget->setAlignment(Qt::AlignRight);
+	m_status_widget->setMinimumWidth(256);
 	if (statusBar())
 		statusBar()->hide();
 
@@ -159,7 +141,25 @@ MainWindow::~MainWindow()
 	delete m_tray_menu;
 	delete m_help;
 	delete ui;
-	delete ui_settings;
+	delete m_settings_ui;
+}
+
+void MainWindow::startServer ()
+{
+	qDebug("%s this=0x%08x addr=%s port=%i", __FUNCTION__, this, m_config.m_trace_addr.toLatin1().data(), m_config.m_trace_port);
+	m_server = new Server(m_config.m_trace_addr, m_config.m_trace_port, this, m_no_quit_msg_box);
+	connect(m_server, SIGNAL(newConnection(Connection *)), this, SLOT(newConnection(Connection *)));
+	connect(m_server, SIGNAL(statusChanged(QString const &)), this, SLOT(onStatusChanged(QString const &)));
+}
+
+void MainWindow::stopServer()
+{
+	qDebug("%s this=0x%08x addr=%s port=%i", __FUNCTION__, this, m_config.m_trace_addr.toLatin1().data(), m_config.m_trace_port);
+	m_server->stop();
+	disconnect(m_server, SIGNAL(newConnection(Connection *)), this, SLOT(newConnection(Connection *)));
+	disconnect(m_server, SIGNAL(statusChanged(QString const &)), this, SLOT(onStatusChanged(QString const &)));
+	delete m_server;
+	m_server = nullptr;
 }
 
 void MainWindow::hide ()
@@ -449,6 +449,22 @@ void MainWindow::onShowHelp ()
 	dialog.exec();
 }
 
+void MainWindow::onOptionsAction()
+{
+	setConfigValuesToUI(m_config);
+
+	// set signal and slot for "Buttons"
+	connect(m_settings_ui->okSaveButton, SIGNAL(clicked()), m_settings_dialog, SLOT(accept()));
+	connect(m_settings_ui->cancelButton, SIGNAL(clicked()), m_settings_dialog, SLOT(reject()));
+
+	int const retval = m_settings_dialog->exec();
+	if (retval == QDialog::Rejected)
+		return;
+
+	setUIValuesToConfig(m_config);
+	saveConfig();
+}
+
 void MainWindow::applyCachedLayout ()
 {
 	qDebug("%s", __FUNCTION__);
@@ -515,29 +531,34 @@ void MainWindow::setupMenuBar ()
 
 	// View
 	QMenu * viewMenu = menuBar()->addMenu(tr("&View"));
-	viewMenu->addAction(tr("&Save preset"), this, SLOT(onSave()), QKeySequence::Save);
-	viewMenu->addAction(tr("Save preset &as..."), this, SLOT(onSaveAs()), QKeySequence(Qt::ControlModifier + Qt::ShiftModifier + Qt::Key_S));
+	viewMenu->addAction(tr("&Save preset"), this, SLOT(onSave()), Qt::Key_F5);
+	viewMenu->addAction(tr("&Apply preset"), this, SLOT(onApply()), Qt::Key_F9);
+	viewMenu->addAction(tr("Save preset &as..."), this, SLOT(onSaveAs()), QKeySequence(Qt::ControlModifier + Qt::ShiftModifier + Qt::Key_F5));
 	viewMenu->addSeparator();
 
 	// View
 	QMenu * actionMenu = menuBar()->addMenu(tr("Actions"));
-	QKeySequence all_undo(Qt::CTRL + Qt::Key_A, Qt::CTRL + Qt::Key_Z);
+	QKeySequence all_undo(Qt::CTRL + Qt::Key_S, Qt::CTRL + Qt::Key_Z);
 	actionMenu->addAction(tr("All widgets - Undo action (if lucky)"), this, SLOT(onAllPopAction()), all_undo);
-	QKeySequence all_deldata(Qt::CTRL + Qt::Key_A, Qt::CTRL + Qt::Key_D);
+	QKeySequence all_deldata(Qt::CTRL + Qt::Key_S, Qt::CTRL + Qt::Key_D);
 	actionMenu->addAction(tr("All widgets - Clear Data"), this, SLOT(onClearAllData()), all_deldata);
-	QKeySequence all_colorlast(Qt::CTRL + Qt::Key_A, Qt::CTRL + Qt::Key_E);
+	QKeySequence all_colorlast(Qt::CTRL + Qt::Key_S, Qt::CTRL + Qt::Key_E);
 	actionMenu->addAction(tr("All widgets - Color last line "), this, SLOT(onColorAllLastLine()), all_colorlast);
-	QKeySequence all_scrolllast(Qt::CTRL + Qt::Key_A, Qt::CTRL + Qt::Key_S);
+	QKeySequence all_scrolllast(Qt::CTRL + Qt::Key_S, Qt::CTRL + Qt::Key_S);
 	actionMenu->addAction(tr("All widgets - Scroll to last "), this, SLOT(onAllScrollToLast()), all_scrolllast);
-	QKeySequence quick_string(Qt::CTRL + Qt::Key_A, Qt::CTRL + Qt::Key_Q);
+	QKeySequence quick_string(Qt::CTRL + Qt::Key_S, Qt::CTRL + Qt::Key_Q);
 	actionMenu->addAction(tr("All widgets - Quick String filter"), this, SLOT(onAllQuickString()), quick_string);
-	QKeySequence all_find(Qt::CTRL + Qt::Key_A, Qt::CTRL + Qt::Key_F);
+	QKeySequence all_find(Qt::CTRL + Qt::Key_S, Qt::CTRL + Qt::Key_F);
 	actionMenu->addAction(tr("All widgets - All Find"), this, SLOT(onAllFind()), all_find);
 	
 
 
 	// widget's tool dockable widgets.
 	m_windows_menu = menuBar()->addMenu(tr("&Windows"));
+
+	// Tools
+	QMenu * tools = menuBar()->addMenu(tr("&Tools"));
+	tools->addAction(tr("&Options"), this, SLOT(onOptionsAction()));
 
 	// Help
 	QMenu * helpMenu = menuBar()->addMenu(tr("&Help"));
@@ -547,12 +568,6 @@ void MainWindow::setupMenuBar ()
 	QAction * ver = helpMenu->addAction(tr("Version %1").arg(g_Version));
 	ver->setEnabled(false);
 
-	// Tools
-	//QMenu * tools = menuBar()->addMenu(tr("&Settings"));
-	//tools->addAction(tr("&Options"), this, SLOT(onSetupAction()), QKeySequence(Qt::AltModifier + Qt::ShiftModifier + Qt::Key_O));
-	//tools->addAction(tr("Save Current Filter As..."), this, SLOT(onSaveCurrentFileFilter()));
-	//tools->addSeparator();
-	//tools->addAction(tr("Save options now (this will NOT save presets)"), this, SLOT(storeState()), QKeySequence(Qt::AltModifier + Qt::ControlModifier + Qt::ShiftModifier + Qt::Key_O));
 
 	// Help
 	//QMenu * helpMenu = menuBar()->addMenu(tr("&Help"));
