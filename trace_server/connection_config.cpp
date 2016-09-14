@@ -138,21 +138,21 @@ bool Connection::handleConfigCommand (DecodedCommand const & cmd)
 
 bool Connection::handleDictionary (DecodedCommand const & cmd)
 {
-	::DictPair * * const ptr = cmd.choice.dict.dict.list.array;
-	size_t const count = cmd.choice.dict.dict.list.count;
+	int64_t ** const ptr_val = cmd.choice.dict.value.list.array;
+	OCTET_STRING_t ** const ptr_name = cmd.choice.dict.name.list.array;
+	size_t const count = cmd.choice.dict.value.list.count;
 	int const type = cmd.choice.dict.type;
 
 	for (size_t i = 0; i < count; ++i)
 	{
-		::DictPair * * const ptr_i = ptr + i;
-		::DictPair * const mem_pair = *ptr_i;
-		char const * raw_name = reinterpret_cast<char const *>(mem_pair->name.buf);
-		QString const name = QString::fromLatin1(raw_name, mem_pair->name.size);
-		uint64_t const val = ptr[i]->value;
+		int64_t const val_i = (*ptr_val)[i];
+		OCTET_STRING_t const & name_i = (*ptr_name)[i];
+		char const * raw_name = reinterpret_cast<char const *>(name_i.buf);
+		QString const name = QString::fromLatin1(raw_name, name_i.size);
 		switch (type)
 		{
-			case 0:	m_app_data.m_dict_lvl.add(val, name); break;
-			case 1: m_app_data.m_dict_ctx.add(val, name); break;
+			case 0:	m_app_data.m_dict_lvl.add(val_i, name); break;
+			case 1: m_app_data.m_dict_ctx.add(val_i, name); break;
 		}
 	}
 

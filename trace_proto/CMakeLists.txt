@@ -78,7 +78,6 @@ if (BUILD_ASN1_FILES)
   set(TRACE_ASN1_HEADERS
     ConfigMsg.h
     Command.h
-    DictPair.h
     DictionaryMsg.h
     LogMsg.h
     LogScopeType.h
@@ -91,7 +90,6 @@ if (BUILD_ASN1_FILES)
     ConfigMsg.c
     Command.c
     DictionaryMsg.c
-    DictPair.c
     LogMsg.c
     LogScopeType.c
     PlotMsg.c
