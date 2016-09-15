@@ -56,6 +56,12 @@ void MainWindow::onSave ()
 	onPresetSave(preset_name);
 }
 
+void MainWindow::onApply ()
+{
+	QString const preset_name = getCurrentPresetName();
+	onPresetApply(preset_name);
+}
+
 void MainWindow::onSaveAs ()
 {
 	QString const preset_name = promptAndCreatePresetName();

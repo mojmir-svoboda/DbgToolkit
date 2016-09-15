@@ -122,6 +122,7 @@ public slots:
 	void onDockManagerClosed ();
 	void onSave ();
 	void onSaveAs ();
+	void onApply ();
 
 	void onChangeSetupDialogCSV (int n);
 	void onChangeSeparatorDialogCSV (int n);
