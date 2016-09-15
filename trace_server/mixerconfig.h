@@ -13,7 +13,7 @@ struct MixerConfig
 	MixerConfig ()
 		: m_default(true)
 	{
-		m_state.fill(0);
+		m_state.fill(1);
 		m_rows.resize(sizeof(level_t) * CHAR_BIT, -2);
 		m_cols.resize(sizeof(context_t) * CHAR_BIT, -2);
 	}

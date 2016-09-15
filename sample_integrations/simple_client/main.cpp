@@ -81,7 +81,7 @@ int main ()
 	char const * ctx_names[]{ "Default", "Main", "Render", "Other"};
 	TRACE_SET_CONTEXT_DICTIONARY(ctx_values, ctx_names, sizeof(ctx_values) / sizeof(*ctx_values));
 
-	TRACE_CONNECT("192.168.39.102", "13127");
+	TRACE_CONNECT("127.0.0.1", "13127");
 
 	TRACE_SCOPE(LL_NORMAL, CTX_Default);
 	TRACE_MSG(LL_NORMAL, CTX_Default,  "Text with \"Error\" keyword inside");
