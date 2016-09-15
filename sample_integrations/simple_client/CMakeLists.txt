@@ -26,7 +26,11 @@ else (BUILD_ASN1_FILES)
   include_directories(${trace_server_SOURCE_DIR})
 endif (BUILD_ASN1_FILES)
 
+if(BUILD_ASN1_DEBUG)
+	set(ASN1_DEBUG_SOURCES asn1_debug.cpp)
+endif(BUILD_ASN1_DEBUG)
 add_library (trace_client_lib STATIC
+  ${ASN1_DEBUG_SOURCES}
 	"${CMAKE_SOURCE_DIR}/trace_client/trace.cpp"
 	"${CMAKE_SOURCE_DIR}/trace_client/encoder.cpp"
 	"${CMAKE_SOURCE_DIR}/trace_client/decoder.cpp"
