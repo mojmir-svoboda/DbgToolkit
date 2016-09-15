@@ -7,6 +7,23 @@
 #include "foo.h"
 #include "bar.h"
 
+#if defined REDIR_ASN_DEBUG
+void ASN_DEBUG_f(const char *fmt, ...)
+{
+	char buff[4096];
+	va_list argptr;
+	va_start(argptr, fmt);
+	int n = _vsnprintf_s(buff, 4096, fmt, argptr);
+	va_end(argptr);
+	if (n > 0)
+	{
+		buff[n] = '\n';
+		buff[n + 1] = '\0';
+		OutputDebugStringA(buff);
+	}
+}
+#endif
+
 void sleep_ms (int ms)
 {
 #if defined WIN32 || defined WIN64
@@ -57,12 +74,14 @@ int main ()
 #endif
 	TRACE_APPNAME("Simple Client");
 	TRACE_SET_LEVEL(CTX_Other | CTX_Main | CTX_Default, LL_NORMAL | LL_ERROR | LL_FATAL | LL_WARNING);
-	trace::DictionaryPair lvl_dict[] { {LL_VERBOSE, "Verbose"}, {LL_DEBUG, "Debug"}, {LL_NORMAL, "Normal"}, {LL_WARNING, "Warn"}, {LL_ERROR, "Error"}, {LL_FATAL, "Fatal"} };
-	TRACE_SET_LEVEL_DICTIONARY(lvl_dict, sizeof(lvl_dict) / sizeof(*lvl_dict));
-	trace::DictionaryPair ctx_dict[]{ { CTX_Default, "Default" },{ CTX_Main, "Main" },{ CTX_Render, "Render" },{ CTX_Other, "Other" }};
-	TRACE_SET_CONTEXT_DICTIONARY(ctx_dict, sizeof(ctx_dict) / sizeof(*ctx_dict));
+	trace::level_t lvl_values[] { LL_VERBOSE, LL_DEBUG, LL_NORMAL, LL_WARNING, LL_ERROR, LL_FATAL };
+	char const * lvl_names[]{ "Verbose", "Debug", "Normal", "Warn",  "Error", "Fatal"};
+	TRACE_SET_LEVEL_DICTIONARY(lvl_values, lvl_names, sizeof(lvl_values) / sizeof(*lvl_values));
+	trace::context_t ctx_values[]{ CTX_Default, CTX_Main, CTX_Render, CTX_Other};
+	char const * ctx_names[]{ "Default", "Main", "Render", "Other"};
+	TRACE_SET_CONTEXT_DICTIONARY(ctx_values, ctx_names, sizeof(ctx_values) / sizeof(*ctx_values));
 
-	TRACE_CONNECT("localhost", "13127");
+	TRACE_CONNECT("192.168.39.102", "13127");
 
 	TRACE_SCOPE(LL_NORMAL, CTX_Default);
 	TRACE_MSG(LL_NORMAL, CTX_Default,  "Text with \"Error\" keyword inside");

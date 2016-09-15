@@ -145,8 +145,8 @@ bool Connection::handleDictionary (DecodedCommand const & cmd)
 
 	for (size_t i = 0; i < count; ++i)
 	{
-		int64_t const val_i = (*ptr_val)[i];
-		OCTET_STRING_t const & name_i = (*ptr_name)[i];
+		int64_t const val_i = *ptr_val[i];
+		OCTET_STRING_t const & name_i = *ptr_name[i];
 		char const * raw_name = reinterpret_cast<char const *>(name_i.buf);
 		QString const name = QString::fromLatin1(raw_name, name_i.size);
 		switch (type)

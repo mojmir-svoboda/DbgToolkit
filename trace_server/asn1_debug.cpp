@@ -7,8 +7,8 @@ void ASN_DEBUG_f (const char *fmt, ...)
 	va_list va;
 	va_start(va, fmt);
 	char tmp[1024];
-	vsnprintf_s(tmp, 1024, fmt, va);
-	QMessageLogger(QT_MESSAGELOG_FILE, QT_MESSAGELOG_LINE, QT_MESSAGELOG_FUNC).debug("%s",tmp);
+	if (vsnprintf_s(tmp, 1024, fmt, va) > 0)
+		QMessageLogger(QT_MESSAGELOG_FILE, QT_MESSAGELOG_LINE, QT_MESSAGELOG_FUNC).debug("%s",tmp);
 	va_end(va);
 }
 #endif

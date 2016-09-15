@@ -245,8 +245,8 @@
 /** @macro		TRACE_SET_LEVEL_DICT
  *  @brief      
  */
-#	define TRACE_SET_LEVEL_DICTIONARY(dictpairs, size)		trace::SetLevelDictionary(dictpairs, size)
-#	define TRACE_SET_CONTEXT_DICTIONARY(dictpairs, size)		trace::SetContextDictionary(dictpairs, size)
+#	define TRACE_SET_LEVEL_DICTIONARY(values, names, size)		trace::SetLevelDictionary(values, names, size)
+#	define TRACE_SET_CONTEXT_DICTIONARY(values, names, size)		trace::SetContextDictionary(values, names, size)
 
 /** @macro		TRACE_FLUSH
  *  @brief      forces flush of all buffers into socket
@@ -288,12 +288,8 @@
 		TRACE_API void SetRuntimeLevelForContext (context_t ctx, level_t level);
 		TRACE_API level_t GetRuntimeLevelForContext (context_t ctx);
 
-		struct DictionaryPair {
-			uint64_t first;
-			char const * second;
-		};
-		TRACE_API void SetLevelDictionary (DictionaryPair const * pairs, size_t sz);
-		TRACE_API void SetContextDictionary (DictionaryPair const * pairs, size_t sz);
+		TRACE_API void SetLevelDictionary (level_t const * values, char const * names[], size_t sz);
+		TRACE_API void SetContextDictionary (context_t const * values, char const * names[], size_t sz);
 
 		/**@fn		SetRuntimeBuffering
 		 * @brief	adjusts run-time buffering of log message filtering
