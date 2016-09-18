@@ -21,7 +21,6 @@
 		struct ClientConfig
 		{
 			bool m_buffered;
-			bool m_defaultMixer;
 			std::string  m_appName;
 			std::string  m_hostName;
 			std::string  m_hostPort;
@@ -40,13 +39,8 @@
 				, m_hostName("localhost")
 				, m_hostPort("13127")
 				, m_buffered(false)
-				, m_defaultMixer(true)
 				, m_mixer()
-			{
-				level_t const one = 0;
-				level_t const fill = ~(one);
-				m_mixer.fill(fill);
-			}
+			{ }
 		};
 		ClientConfig g_Config;
 
@@ -62,24 +56,16 @@
 
 		void SetRuntimeLevelForContext (context_t ctx, level_t level)
 		{
-			if (g_Config.m_defaultMixer)
-			{
-				g_Config.m_mixer.fill(0);
-				g_Config.m_defaultMixer = false;
-			}
 			for (unsigned b = 0; ctx; ++b, ctx >>= 1)
 			{
 				if (ctx & 1)
 					g_Config.m_mixer[b] = level;
 			}
 		}
-		level_t GetRuntimeLevelForContext (context_t ctx)
+		level_t GetRuntimeLevelForContextBit (context_t b)
 		{
-			for (unsigned b = 0; ctx; ++b, ctx >>= 1)
-			{
-				if (ctx & 1)
-					return g_Config.m_mixer[b];
-			}
+			if (b < g_Config.m_mixer.size())
+				return g_Config.m_mixer[b];
 			return 0;
 		}
 		level_t * GetRuntimeCfgData () { return g_Config.m_mixer.data(); }

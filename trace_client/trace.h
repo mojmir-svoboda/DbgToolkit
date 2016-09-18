@@ -286,7 +286,7 @@
 		 * @brief	adjusts run-time context of log message filtering
 		 **/
 		TRACE_API void SetRuntimeLevelForContext (context_t ctx, level_t level);
-		TRACE_API level_t GetRuntimeLevelForContext (context_t ctx);
+		TRACE_API level_t GetRuntimeLevelForContextBit (context_t ctx);
 
 		TRACE_API void SetLevelDictionary (level_t const * values, char const * names[], size_t sz);
 		TRACE_API void SetContextDictionary (context_t const * values, char const * names[], size_t sz);
@@ -310,8 +310,17 @@
 		 */
 		inline bool RuntimeFilterPredicate (level_t level, context_t context)
 		{
-			const context_t curr_level_in_ctx = GetRuntimeLevelForContext(context);
-			return (level & curr_level_in_ctx) != 0;
+			context_t ctx = context;
+			for (unsigned b = 0; ctx; ++b, ctx >>= 1)
+			{
+				if (ctx & 1)
+				{
+					const context_t curr_level_in_ctx = GetRuntimeLevelForContextBit(b);
+					if (curr_level_in_ctx & level)
+						return true;
+				}
+			}
+			return false;
 		}
 
 		/**@fn		Write to log
