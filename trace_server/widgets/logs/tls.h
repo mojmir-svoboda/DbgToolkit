@@ -40,7 +40,11 @@ struct ThreadSpecific
 	int decrIndent (int idx)
 	{
 		if (idx >= 0 && idx < (int)m_indents.size())
-			return --m_indents[idx];
+		{
+			int const i = --m_indents[idx];
+			Q_ASSERT(i >= 0); // if asserts, this means there is more scope_exits than scope_entries. maybe filtered out?
+			return i;
+		}
 		return 0;
 	}
 

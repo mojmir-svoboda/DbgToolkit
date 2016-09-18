@@ -205,6 +205,8 @@ namespace logs { namespace proto {
 						--indent; // indent is decreased after this call, that's why
 				}
 			}
+
+			Q_ASSERT(indent >= 0);
 			// set dt
  			unsigned long long last_t = m_tls.lastTime(thread_idx);
 			if (last_t == 0)
@@ -232,9 +234,16 @@ namespace logs { namespace proto {
 			{
 				int const idx = m_tls.findThreadId(tid);
 				if (scptype == LogScopeType_scopeEntry)
-					m_tls.incrIndent(idx);
+				{
+					int const i = m_tls.incrIndent(idx);
+					//qDebug("in: %2d %s:%i", i, std::string((char*)cmd.choice.log.file.buf, cmd.choice.log.file.size).c_str(), cmd.choice.log.line);
+				}
 				if (scptype == LogScopeType_scopeExit)
-					m_tls.decrIndent(idx);
+				{
+					int const i = m_tls.decrIndent(idx);
+					if (i < 0)
+						qWarning("scope entry/exit mismatch indent=%2d in scope at %s:%i", i, std::string((char*)cmd.choice.log.file.buf, cmd.choice.log.file.size).c_str(), cmd.choice.log.line);
+				}
 			}
 
 			return true;

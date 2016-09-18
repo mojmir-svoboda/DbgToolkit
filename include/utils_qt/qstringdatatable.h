@@ -22,6 +22,7 @@ struct QStringDataTable : MemBuffer<VirtualAllocBuffer>
 
 	strop_t AddQStringDataFromUtf8 (char const * buff, size_t sz, size_t indent, LogScopeType scptype)
 	{
+		Q_ASSERT(indent >= 0);
 		enum { qstring_sz = sizeof(QArrayData) };
 
 		int const scope_tag_sz = scptype == LogScopeType_scopeNone ? 0 : 2;
