@@ -15,9 +15,7 @@
 
 namespace trace {
 
-	namespace socks {
-		bool WriteToSocket(char const * buff, size_t ln);
-	}
+	bool WriteToSocket (char const * buff, size_t ln);
 
 	level_t * GetRuntimeCfgData ();
 	size_t GetRuntimeCfgSize ();
@@ -36,7 +34,7 @@ namespace trace {
 			asn1::Header & hdr = asn1::encode_header(tmp, N);
 			const size_t n = encode_body_fn(tmp + sizeof(asn1::Header), N - sizeof(asn1::Header));
 			hdr.m_len = n;
-			socks::WriteToSocket(tmp, n + sizeof(asn1::Header));
+			WriteToSocket(tmp, n + sizeof(asn1::Header));
 		}
 	}
 

@@ -88,9 +88,7 @@
 			g_Config.m_contextNamesDict = std::move(tmp_names);
 		}
 	
-		namespace socks {
-			bool WriteToSocket (char const * buff, size_t ln);
-		}
+		bool WriteToSocket (char const * buff, size_t ln);
 
 		template<typename T>
 		void SendDictionary (int type, T const * values, char const * names[], size_t dict_sz)
@@ -107,7 +105,7 @@
 			if (const size_t n = asn1::encode_dictionary(msg + sizeof(asn1::Header), max_msg_size - sizeof(asn1::Header), type, asn1_values, names, dict_sz))
 			{
 				hdr.m_len = n;
-				socks::WriteToSocket(msg, n + sizeof(asn1::Header));
+				WriteToSocket(msg, n + sizeof(asn1::Header));
 			}
 		}
 
@@ -123,7 +121,7 @@
 			if (const size_t n = asn1::encode_config(msg + sizeof(asn1::Header), max_msg_size - sizeof(asn1::Header), GetAppName(), mixer_ptr, mixer_sz, g_Config.m_buffered, sys::get_pid()))
 			{
 				hdr.m_len = n;
-				socks::WriteToSocket(msg, n + sizeof(asn1::Header));
+				WriteToSocket(msg, n + sizeof(asn1::Header));
 			}
 
 			if (size_t n = g_Config.m_levelValuesDict.size())
