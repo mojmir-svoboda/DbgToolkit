@@ -80,6 +80,9 @@ namespace trace {
 		void StartReconnect ()
 		{
 			m_connected = false;
+			if (m_terminated)
+				return;
+
 			DBG_OUT("Reconnect started\n");
 			SetClientTimer(m_reconnect_ms);
 			asio::async_connect(m_socket, m_endpoints, std::bind(&Client::OnConnect, this, std::placeholders::_1, m_endpoints));
@@ -93,6 +96,8 @@ namespace trace {
 
 		void StartClientTimer ()
 		{
+			if (m_terminated)
+				return;
 			DBG_OUT("StartClientTimer\n");
 			m_timer.async_wait(std::bind(&Client::OnClientTimer, this));
 		}
