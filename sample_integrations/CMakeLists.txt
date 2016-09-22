@@ -1,1 +1,2 @@
 add_subdirectory(simple_client)
+add_subdirectory(cpp11_client)
