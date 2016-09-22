@@ -269,6 +269,11 @@ namespace trace {
 		//socks::g_ThreadSend.Resume();
 	}
 
+	bool WriteToSocket (char const * buff, size_t ln)
+	{
+		return socks::WriteToSocket(buff, ln);
+	}
+
 	void Disconnect ()
 	{
 		Flush();

@@ -6,8 +6,6 @@ find_package (Threads)
 
 message ("Current dir: ${CMAKE_CURRENT_SOURCE_DIR}")
 
-option(BUILD_SAMPLES_WITH_ASIO "Uses asio library for networking." ON)
-
 add_definitions ("-DTRACE_CONFIG_INCLUDE=\"${CMAKE_CURRENT_SOURCE_DIR}/sample_config.h\"")
 add_definitions ("-DTRACE_LEVELS_INCLUDE=\"${CMAKE_CURRENT_SOURCE_DIR}/default_levels.h\"")
 add_definitions ("-DTRACE_CONTEXTS_INCLUDE=\"${CMAKE_CURRENT_SOURCE_DIR}/default_contexts.h\"")
@@ -31,15 +29,7 @@ endif (BUILD_ASN1_FILES)
 if(BUILD_ASN1_DEBUG)
 	set(ASN1_DEBUG_SOURCES asn1_debug.cpp)
 endif(BUILD_ASN1_DEBUG)
-if(BUILD_SAMPLES_WITH_ASIO)
-  # asio
-  add_definitions("-DASIO_STANDALONE")
-  include_directories (${CMAKE_SOURCE_DIR}/3rd/asio/include)
-
-  set(NETWORKING_SOURCES "${CMAKE_SOURCE_DIR}/trace_client/socket_asio.cpp")
-else()
-  set(NETWORKING_SOURCES "${CMAKE_SOURCE_DIR}/trace_client/socket_win.cpp")
-endif()
+set(NETWORKING_SOURCES "${CMAKE_SOURCE_DIR}/trace_client/socket_win.cpp")
 
 add_library (trace_client_lib STATIC
   ${ASN1_DEBUG_SOURCES}
