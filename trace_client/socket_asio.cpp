@@ -29,6 +29,72 @@ namespace trace {
 	void OnConnectionEstablished ();
 	void OnConnectionConfigCommand (Command const & cmd);
 
+	struct SpinLock
+	{
+		std::atomic_flag m_lock { ATOMIC_FLAG_INIT };
+
+		void Lock ()
+		{
+			while (m_lock.test_and_set(std::memory_order_acquire))
+				;
+		}
+		
+		void Unlock ()
+		{
+			m_lock.clear(std::memory_order_release);
+		}
+	};
+
+	//using buffptr_t = std::atomic<size_t>;
+	struct MsgHeader
+	{
+		uint32_t m_size { 0 };
+		uint32_t m_allocated { 0 };
+	};
+
+	struct ClientMemory
+	{
+		//buffptr_t m_readPtr;
+		//buffptr_t m_writePtr;
+		SpinLock m_lock;
+		uint32_t m_readPtr { 0 };
+		uint32_t m_writePtr { 0 };
+
+		enum : size_t { e_memSize = 1024 * 1024 };
+		enum : size_t { e_memAlign = 64 };
+		alignas(e_memAlign) char m_memory[e_memSize];
+
+		ClientMemory ()
+		{
+			//static_assert(alignof(m_readPtr) == 16, "problem");
+			//m_readPtr.store(0, std::memory_order_relaxed);
+			//m_writePtr.store(0, std::memory_order_relaxed);
+		}
+
+		char * AcquireMem (size_t n)
+		{
+			char * mem = nullptr;
+			m_lock.Lock();
+			size_t const curr_wr_ptr = m_writePtr; //m_writePtr.load(std::memory_order_acquire);
+			size_t curr_space = e_memSize - curr_wr_ptr;
+			void * const curr_mem = m_memory + curr_wr_ptr;
+			void * next_mem = m_memory + curr_wr_ptr + n;
+			if (std::align(e_memAlign, n, next_mem, curr_space))
+			{
+				mem = static_cast<char *>(curr_mem);
+				char * const nmem = static_cast<char *>(next_mem);
+				size_t const aligned_sz = nmem - mem;
+				m_writePtr += aligned_sz;
+				MsgHeader * hdr = new (mem) MsgHeader;
+				hdr->m_allocated = aligned_sz;
+			}
+			m_lock.Unlock();
+			return mem;
+		}
+	};
+
+	ClientMemory g_ClientMemory;
+
 	struct Client
 	{
 		bool m_terminated { false };
@@ -165,7 +231,13 @@ namespace trace {
 				DBG_OUT("OnConnect: connected\n");
 				CancelClientTimer();
 				OnConnected();
+				OnConnectFlush();
 			}
+		}
+
+		void OnConnectFlush ()
+		{
+			
 		}
 
 		bool DoConnect (asio::ip::tcp::resolver::results_type const & endpoints)
@@ -211,6 +283,28 @@ namespace trace {
 		{
 		}
 
+// 		void do_write()
+// 		{
+// 			asio::async_write(socket_,
+// 				asio::buffer(write_msgs_.front().data(),
+// 					write_msgs_.front().length()),
+// 				[this](std::error_code ec, std::size_t /*length*/)
+// 			{
+// 				if (!ec)
+// 				{
+// 					write_msgs_.pop_front();
+// 					if (!write_msgs_.empty())
+// 					{
+// 						do_write();
+// 					}
+// 				}
+// 				else
+// 				{
+// 					socket_.close();
+// 				}
+// 			});
+// 		}
+
 
 		bool WriteToSocket (char const * request, size_t ln)
 		{
@@ -248,8 +342,39 @@ namespace trace {
 					}
 				}
 			}
+			else
+			{
+				if (!WriteToBuffer(buff, ln))
+				{
+				}
+			}
 			return true;
 		}
+
+		char * AcquireBufferMem (size_t ln)
+		{
+			char * mem = g_ClientMemory.AcquireMem(ln);
+			return mem;
+		}
+
+// 		char * ReleaseBufferMem (char const * buff, size_t ln)
+// 		{
+// 		}
+
+		bool WriteToBuffer (char const * buff, size_t ln)
+		{
+			char * mem = AcquireBufferMem(ln);
+			if (mem)
+			{
+				memcpy(mem + sizeof(MsgHeader), buff, ln);
+				MsgHeader * hdr = reinterpret_cast<MsgHeader *>(mem);
+				hdr->m_size = ln;
+				//ReleaseBufferMem(mem, ln);
+				return true;
+			}
+			return false;
+		}
+
 
 		void Close ()
 		{
