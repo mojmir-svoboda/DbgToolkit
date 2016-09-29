@@ -78,7 +78,7 @@ namespace trace {
 			size_t const curr_wr_ptr = m_writePtr; //m_writePtr.load(std::memory_order_acquire);
 			size_t curr_space = e_memSize - curr_wr_ptr;
 			void * const curr_mem = m_memory + curr_wr_ptr;
-			void * next_mem = m_memory + curr_wr_ptr + n;
+			void * next_mem = m_memory + curr_wr_ptr + n + sizeof(MsgHeader);
 			if (std::align(e_memAlign, n, next_mem, curr_space))
 			{
 				mem = static_cast<char *>(curr_mem);
@@ -231,13 +231,7 @@ namespace trace {
 				DBG_OUT("OnConnect: connected\n");
 				CancelClientTimer();
 				OnConnected();
-				OnConnectFlush();
 			}
-		}
-
-		void OnConnectFlush ()
-		{
-			
 		}
 
 		bool DoConnect (asio::ip::tcp::resolver::results_type const & endpoints)
@@ -283,27 +277,34 @@ namespace trace {
 		{
 		}
 
-// 		void do_write()
-// 		{
-// 			asio::async_write(socket_,
-// 				asio::buffer(write_msgs_.front().data(),
-// 					write_msgs_.front().length()),
-// 				[this](std::error_code ec, std::size_t /*length*/)
-// 			{
-// 				if (!ec)
+		void OnAsyncWrite(std::error_code ec, std::size_t ln)
+		{
+			if (!ec)
+			{
+// 				write_msgs_.pop_front();
+// 				if (!write_msgs_.empty())
 // 				{
-// 					write_msgs_.pop_front();
-// 					if (!write_msgs_.empty())
-// 					{
-// 						do_write();
-// 					}
+// 					do_write();
 // 				}
-// 				else
-// 				{
-// 					socket_.close();
-// 				}
-// 			});
-// 		}
+			}
+			else
+			{
+				OnSocketError(ec);
+				StartReconnect();
+				StartClientTimer();
+			}
+		}
+
+		void do_write ()
+		{
+			g_ClientMemory.m_lock.Lock();
+			size_t const rd_ptr = g_ClientMemory.m_readPtr;
+			char const * const mem = g_ClientMemory.m_memory + rd_ptr;
+			MsgHeader const * const hdr = reinterpret_cast<MsgHeader const *>(mem);
+			g_ClientMemory.m_lock.Unlock();
+			asio::async_write(m_socket, asio::buffer(mem + sizeof(MsgHeader), hdr->m_size),
+				std::bind(&Client::OnAsyncWrite, this));
+		}
 
 
 		bool WriteToSocket (char const * request, size_t ln)
@@ -317,18 +318,15 @@ namespace trace {
 			{
 				if (m_buffered)
 				{
-// 					asio::async_write(m_socket,
-// 							asio::buffer(buff, ln),
-// 							[this](std::error_code ec, std::size_t /*length*/)
-// 							{
-// 								if (!ec)
-// 								{
-// 								}
-// 								else
-// 								{
-// 								m_socket.close();
-// 								}
-// 							});
+					char * buff_ptr = nullptr;
+					if (WriteToBuffer(buff, ln, buff_ptr))
+					{
+						DoAsyncWrite(buff_ptr, ln);
+					}
+					else
+					{
+						// no room, spin/block
+					}
 				}
 				else
 				{
@@ -361,20 +359,45 @@ namespace trace {
 // 		{
 // 		}
 
-		bool WriteToBuffer (char const * buff, size_t ln)
+		bool WriteToBuffer (char const * msg, size_t ln, char * & buff_ptr)
 		{
 			char * mem = AcquireBufferMem(ln);
 			if (mem)
 			{
-				memcpy(mem + sizeof(MsgHeader), buff, ln);
+				memcpy(mem + sizeof(MsgHeader), msg, ln);
 				MsgHeader * hdr = reinterpret_cast<MsgHeader *>(mem);
 				hdr->m_size = ln;
 				//ReleaseBufferMem(mem, ln);
+				buff_ptr = mem + sizeof(MsgHeader);
 				return true;
 			}
+			buff_ptr = nullptr;
 			return false;
 		}
 
+		void OnConnectFlush ()
+		{
+			g_ClientMemory.m_lock.Lock();
+
+			while (g_ClientMemory.m_readPtr != g_ClientMemory.m_writePtr)
+			{
+				char const * const mem = g_ClientMemory.m_memory + g_ClientMemory.m_readPtr;
+				MsgHeader const * const hdr = reinterpret_cast<MsgHeader const *>(mem);
+				std::error_code ec;
+				asio::write(m_socket, asio::buffer(mem + sizeof(MsgHeader), hdr->m_size), ec);
+				if (ec)
+				{
+					OnSocketError(ec);
+					StartReconnect();
+					StartClientTimer();
+				}
+				else
+				{
+					g_ClientMemory.m_readPtr += hdr->m_allocated;
+				}
+			}
+			g_ClientMemory.m_lock.Unlock();
+		}
 
 		void Close ()
 		{
@@ -480,7 +503,16 @@ namespace trace {
 					return false;
 				}
 
-				OnConnectionConfigCommand(m_dcd_ctx.m_command);
+				if (m_dcd_ctx.m_command.present == Command_PR_config)
+				{
+					OnConnectionConfigCommand(m_dcd_ctx.m_command);
+					OnConnectFlush();
+					DBG_OUT("reconnect ok, buffered data send");
+				}
+				else
+				{
+					assert(0);
+				}
 			}
 
 			m_dcd_ctx.resetCurrentCommand();
