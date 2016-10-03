@@ -14,10 +14,17 @@
 #else
 void dbg_out (char const * format, ...)
 {
+	using clock_t = std::chrono::high_resolution_clock;
+	using us = std::chrono::duration<long long, std::nano>;
+	static clock_t::time_point start_us = clock_t::now();
+	clock_t::time_point now_us = clock_t::now();
+	us t = now_us - start_us;
+
 	char buffer[256];
+	size_t n = snprintf(buffer, 256, "%10lld|%8x|", std::chrono::duration_cast<std::chrono::microseconds>(t), std::this_thread::get_id());
 	va_list argptr;
 	va_start(argptr, format);
-	vsnprintf(buffer, 256, format, argptr);
+	vsnprintf(buffer + n, 256 - n, format, argptr);
 	va_end(argptr);
 	OutputDebugStringA(buffer);
 }
@@ -75,6 +82,7 @@ namespace trace {
 		{
 			char * mem = nullptr;
 			m_lock.Lock();
+
 			size_t const curr_wr_ptr = m_writePtr; //m_writePtr.load(std::memory_order_acquire);
 			size_t curr_space = e_memSize - curr_wr_ptr;
 			void * const curr_mem = m_memory + curr_wr_ptr;
@@ -88,6 +96,7 @@ namespace trace {
 				MsgHeader * hdr = new (mem) MsgHeader;
 				hdr->m_allocated = aligned_sz;
 			}
+
 			m_lock.Unlock();
 			return mem;
 		}
@@ -117,6 +126,7 @@ namespace trace {
 			: m_timer(m_io)
 			, m_socket(m_io)
 		{
+			DBG_OUT("Client created\n");
 			m_asn1_allocator.resizeStorage(m_asn1_buffer_sz);
 		}
 
@@ -172,7 +182,7 @@ namespace trace {
 		{
 			DBG_OUT("Connected!\n");
 			m_connected = true;
-			DoReadHeader();
+			StartAsyncRead();
 			OnConnectionEstablished();
 		}
 
@@ -279,13 +289,10 @@ namespace trace {
 
 		void OnAsyncWrite(std::error_code ec, std::size_t ln)
 		{
+			DBG_OUT("OnAsyncWrite sz=%i ec=0x%x\n", ln, ec);
 			if (!ec)
 			{
-// 				write_msgs_.pop_front();
-// 				if (!write_msgs_.empty())
-// 				{
-// 					do_write();
-// 				}
+				AsyncWriteNext();
 			}
 			else
 			{
@@ -295,15 +302,20 @@ namespace trace {
 			}
 		}
 
-		void do_write ()
+		void AsyncWriteNext ()
 		{
+			DBG_OUT("AsyncWriteNext\n");
+			m_pendingWrite.store(true, std::memory_order_release);
+
 			g_ClientMemory.m_lock.Lock();
 			size_t const rd_ptr = g_ClientMemory.m_readPtr;
 			char const * const mem = g_ClientMemory.m_memory + rd_ptr;
 			MsgHeader const * const hdr = reinterpret_cast<MsgHeader const *>(mem);
-			g_ClientMemory.m_lock.Unlock();
 			asio::async_write(m_socket, asio::buffer(mem + sizeof(MsgHeader), hdr->m_size),
-				std::bind(&Client::OnAsyncWrite, this));
+				std::bind(&Client::OnAsyncWrite, this, std::placeholders::_1, std::placeholders::_2));
+			size_t const new_rd_ptr = rd_ptr + hdr->m_allocated;
+			g_ClientMemory.m_writePtr = new_rd_ptr;
+			g_ClientMemory.m_lock.Unlock();
 		}
 
 
@@ -321,7 +333,9 @@ namespace trace {
 					char * buff_ptr = nullptr;
 					if (WriteToBuffer(buff, ln, buff_ptr))
 					{
-						DoAsyncWrite(buff_ptr, ln);
+// 						const bool has_pending = m_pendingWrite.load(std::memory_order_acquire);
+// 						if (!has_pending)
+// 							StartAsyncWrite();
 					}
 					else
 					{
@@ -342,7 +356,8 @@ namespace trace {
 			}
 			else
 			{
-				if (!WriteToBuffer(buff, ln))
+				char * buff_ptr = nullptr;
+				if (!WriteToBuffer(buff, ln, buff_ptr))
 				{
 				}
 			}
@@ -377,6 +392,15 @@ namespace trace {
 
 		void OnConnectFlush ()
 		{
+			if (m_buffered)
+			{
+// 				const bool has_pending = m_pendingWrite.load(std::memory_order_acquire);
+// 				if (!has_pending)
+// 					AsyncWriteNext();
+			}
+			else
+			{
+				DBG_OUT("Flush on connect (sync)\n");
 			g_ClientMemory.m_lock.Lock();
 
 			while (g_ClientMemory.m_readPtr != g_ClientMemory.m_writePtr)
@@ -398,9 +422,11 @@ namespace trace {
 			}
 			g_ClientMemory.m_lock.Unlock();
 		}
+		}
 
 		void Close ()
 		{
+			DBG_OUT("Cli::Close\n");
 			asio::post(m_io, [this]() { m_socket.close(); });
 		}
 
@@ -415,9 +441,14 @@ namespace trace {
 			}
 		}
 
-		void DoReadHeader ()
+		void StartAsyncRead ()
 		{
 			DBG_OUT("Starting async read.\n");
+			DoReadHeader ();
+		}
+
+		void DoReadHeader ()
+		{
 			asio::async_read(m_socket,
 				asio::buffer(m_dcd_ctx.getEndPtr(), sizeof(asn1::Header)),
 				[this](std::error_code ec, std::size_t length)
@@ -463,7 +494,7 @@ namespace trace {
 						parseASN1();
 						m_dcd_ctx.resetCurrentCommand();
 						m_asn1_allocator.Reset();
-						DoReadHeader();
+						StartAsyncRead();
 					}
 					else
 					{
@@ -507,7 +538,7 @@ namespace trace {
 				{
 					OnConnectionConfigCommand(m_dcd_ctx.m_command);
 					OnConnectFlush();
-					DBG_OUT("reconnect ok, buffered data send");
+					DBG_OUT("reconnect ok, buffered data send\n");
 				}
 				else
 				{
@@ -525,6 +556,7 @@ namespace trace {
 
 	void Connect (char const * host, char const * port)
 	{
+		DBG_OUT("Trace connecting to server %s:%s\n", host, port);
 		sys::setTimeStart();
 		SetHostName(host);
 		SetHostPort(port);
@@ -535,6 +567,7 @@ namespace trace {
 
 	void Disconnect ()
 	{
+		DBG_OUT("Trace disconnecting...");
 		if (g_Client)
 		{
 			g_Client->Done();
@@ -544,6 +577,7 @@ namespace trace {
 
 	void Flush ()
 	{
+		DBG_OUT("Trace flushing...");
 		if (g_Client)
 			g_Client->Flush();
 	}
