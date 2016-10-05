@@ -39,7 +39,7 @@
 //bb::fakeScopeGuardUsage(&guard_name)
 
 
-namespace bb { namespace detail {
+namespace trace { namespace detail {
 
 	struct ScopeGuardBase
 	{
@@ -109,7 +109,7 @@ namespace bb { namespace detail {
 }} // namespace bb::detail
 
 
-namespace bb {
+namespace trace {
 
 	typedef detail::ScopeGuardBase const & scope_guard_t;
 
