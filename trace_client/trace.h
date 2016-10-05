@@ -228,10 +228,10 @@
 /* Basic setup and utilitary macros                                          */
 /*****************************************************************************/
 
-/**	@macro		TRACE_APPNAME
- *	@brief		sets application name that will be sent to server to identify
+/**	@macro		TRACE_INIT
+ *	@brief		initializes trace client
  **/
-#	define TRACE_APPNAME(name) trace::SetAppName(name)
+#	define TRACE_INIT(name) trace::Init(name)
 /**	@macro		TRACE_CONNECT
  *	@brief		connects to server and sends application name to server
  **/
@@ -276,25 +276,15 @@
 
 	namespace trace {
 
-		/**@fn		SetAppName
-		 * @brief	sets identification string of client application
+		/**@fn		Init
+		 *  @brief	initializes client (creates instance)
+		 *	also sets identification string of client application
 		 **/
-		TRACE_API void SetAppName (char const *);
-		TRACE_API char const * GetAppName ();
-
-		/**@fn		SetHostName
-		 * @brief	sets address of the host the client will connect to
-		 *				if not specified client will connect to "localhost" by default
-		 **/
-		TRACE_API void SetHostName (char const * addr);
-		TRACE_API char const * GetHostName ();
-
-		/**@fn		SetHostPort
-		 * @brief	sets port of the host the client will connect to
-		 *				if not specified client will connect to "13127" by default
-		 **/
-		TRACE_API void SetHostPort (char const * port);
-		TRACE_API char const * GetHostPort ();
+		TRACE_API bool Init (char const * appName);
+		/**@fn		Done
+		*  @brief	deinitializes client (destroys instance)
+		**/
+		TRACE_API void Done ();
 
 		TRACE_API void Connect (char const * host, char const * port);
 		TRACE_API void Disconnect ();
@@ -312,13 +302,11 @@
 		 * @brief	adjusts run-time buffering of log message filtering
 		 **/
 		TRACE_API void SetRuntimeBuffering (bool level);
-		TRACE_API bool GetRuntimeBuffering ();
 
 		/**@fn		ExportToCSV
 		 * @brief	client sends command to force server dump content to csv
 		 **/
 		TRACE_API void ExportToCSV (char const *);
-
 
 		TRACE_API void Flush ();
 

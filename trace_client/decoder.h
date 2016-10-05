@@ -47,27 +47,17 @@ namespace trace {
 				asn_dec_rval_t const rval = ber_decode(&m_asn1_allocator, 0, &asn_DEF_Command, &cmd_void_ptr, payload, hdr.m_len);
 				if (rval.code != RC_OK)
 				{
-					m_dcd_ctx.resetCurrentCommand();
-					m_asn1_allocator.Reset();
 					assert(0);
 					return false;
 				}
-
-				if (m_dcd_ctx.m_command.present == Command_PR_config)
-				{
-					OnConnectionConfigCommand(m_dcd_ctx.m_command);
-					OnConnectFlush();
-					DBG_OUT("reconnect ok, buffered data send\n");
-				}
-				else
-				{
-					assert(0);
-				}
 			}
+			return true;
+		}
 
+		void resetDecoder ()
+		{
 			m_dcd_ctx.resetCurrentCommand();
 			m_asn1_allocator.Reset();
-			return true;
 		}
 	};
 }

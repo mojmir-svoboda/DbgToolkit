@@ -17,27 +17,15 @@ namespace trace {
 
 	bool WriteToSocket (char const * buff, size_t ln);
 
-	level_t * GetRuntimeCfgData ();
-	size_t GetRuntimeCfgSize ();
-
 	template <size_t N, typename FnT>
 	inline void WriteMessageWithHeader (FnT const & encode_body_fn)
 	{
-		if (GetRuntimeBuffering())
-		{
-			//char buffer[max_msg_sz];
-			//size_t const n = fn(buffer, max_msg_sz);
-		}
-		else
-		{
-			char tmp[N];
-			asn1::Header & hdr = asn1::encode_header(tmp, N);
-			const size_t n = encode_body_fn(tmp + sizeof(asn1::Header), N - sizeof(asn1::Header));
-			hdr.m_len = n;
-			WriteToSocket(tmp, n + sizeof(asn1::Header));
-		}
+		char tmp[N];
+		asn1::Header & hdr = asn1::encode_header(tmp, N);
+		const size_t n = encode_body_fn(tmp + sizeof(asn1::Header), N - sizeof(asn1::Header));
+		hdr.m_len = n;
+		WriteToSocket(tmp, n + sizeof(asn1::Header));
 	}
-
 
 	// message logging
 	void WriteLog (level_t level, context_t context, char const * file, int line, char const * fn, char const * fmt, va_list args)

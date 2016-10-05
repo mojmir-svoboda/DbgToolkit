@@ -8,6 +8,8 @@
 #include <asio.hpp>
 #include <sysfn/time_query.h>
 #include <ScopeGuard.h>
+#include "decoder.h"
+#include "ClientConfig.h"
 
 namespace trace {
 
@@ -82,6 +84,7 @@ namespace trace {
 	struct Client
 	{
 		SpinLock m_lock;
+		ClientConfig m_config;
 		bool m_terminated { false };
 		bool m_connected { false };
 		bool m_buffered { false };
@@ -105,6 +108,9 @@ namespace trace {
 
 		bool Init (char const * host, char const * port)
 		{
+			m_config.SetHostName(host);
+			m_config.SetHostPort(port);
+
 			try
 			{
 				asio::ip::tcp::resolver resolver(m_io);
@@ -137,7 +143,7 @@ namespace trace {
 			}
 		}
 
-		//bool IsConnected () const { return m_connected; }
+		bool IsConnected () const { return m_connected; }
 		void SetClientTimer (long long ms) // !MT
 		{
 			m_timer.expires_from_now(std::chrono::milliseconds(ms));
@@ -474,9 +480,16 @@ namespace trace {
 						if (m_decoder.m_dcd_ctx.canMoveEnd(length))
 						{
 							m_decoder.m_dcd_ctx.moveEnd(length);
-							m_decoder.parseASN1();
-							m_dcd_ctx.resetCurrentCommand();
-							m_asn1_allocator.Reset();
+							if (m_decoder.parseASN1())
+							{
+								OnConnectionConfigCommand(m_decoder.m_dcd_ctx.m_command);
+							}
+							else
+							{
+								DBG_OUT("Cannot decode received asn1 message.\n");
+							}
+
+							m_decoder.resetDecoder();
 							StartAsyncRead();
 						}
 						else
@@ -492,5 +505,64 @@ namespace trace {
 					}
 				});
 		}
+
+				template<typename T>
+		void SendDictionary (int type, T const * values, char const * names[], size_t dict_sz)
+		{
+			// send config message
+			enum : size_t { max_msg_size = 8192 };
+			char msg[max_msg_size];
+			asn1::Header & hdr = asn1::encode_header(msg, max_msg_size);
+
+			int64_t * const asn1_values = reinterpret_cast<int64_t *>(alloca(dict_sz * sizeof(int64_t)));
+			for (size_t i = 0; i < dict_sz; ++i)
+				asn1_values[i] = values[i];
+
+			if (const size_t n = asn1::encode_dictionary(msg + sizeof(asn1::Header), max_msg_size - sizeof(asn1::Header), type, asn1_values, names, dict_sz))
+			{
+				hdr.m_len = n;
+				WriteToSocket(msg, n + sizeof(asn1::Header));
+			}
+		}
+
+		// on connect (to server) callback
+		void OnConnectionEstablished ()
+		{
+			OutputDebugStringA("LOG: connected, sending config to server\n");
+			enum : size_t { max_msg_size = 1024 };
+			char msg[max_msg_size];
+			asn1::Header & hdr = asn1::encode_header(msg, max_msg_size);
+			char const * mixer_ptr = reinterpret_cast<char const *>(m_config.m_mixer.data());
+			size_t const mixer_sz = m_config.m_mixer.size() * sizeof(level_t);
+			if (const size_t n = asn1::encode_config(msg + sizeof(asn1::Header), max_msg_size - sizeof(asn1::Header), m_config.m_appName, mixer_ptr, mixer_sz, m_config.m_buffered, sys::get_pid()))
+			{
+				hdr.m_len = n;
+				WriteToSocket(msg, n + sizeof(asn1::Header));
+			}
+
+			if (size_t n = m_config.m_levelValuesDict.size())
+				SendDictionary(0, &m_config.m_levelValuesDict[0], &m_config.m_levelNamesDict[0], n);
+			if (size_t n = m_config.m_contextValuesDict.size())
+				SendDictionary(1, &m_config.m_contextValuesDict[0], &m_config.m_contextNamesDict[0], n);
+		}
+
+		// on config received (from server) callback
+		void OnConnectionConfigCommand (Command const & cmd)
+		{
+			bool buffered = cmd.choice.config.buffered == 1;
+			char grr[256];
+			_snprintf_s(grr, 256, "LOG: received config command: buff=%u\n", buffered);
+			OutputDebugString(grr);
+
+/*			SetRuntimeBuffering(buffered);*/ // %%#$#$#&#@^#!^#@%^#%^@#%^@#%^@#%^
+
+			OCTET_STRING const & omixer = cmd.choice.config.mixer;
+			char const * const ptr = reinterpret_cast<char const *>(omixer.buf);
+			level_t const * levels = reinterpret_cast<level_t const *>(ptr);
+			assert(m_config.m_mixer.size() == omixer.size / sizeof(level_t));
+			for (level_t & l : m_config.m_mixer)
+				l = *levels++;
+		}
+
 	};
 }

@@ -36,7 +36,7 @@ int main ()
 #if defined WIN32
 	setvbuf(stdout, 0, _IONBF, 0);
 #endif
-	TRACE_APPNAME("Simple Client");
+	TRACE_INIT("SampleClient");
 	TRACE_SET_LEVEL(CTX_Other | CTX_Main | CTX_Init, LL_INFO | LL_ERROR | LL_FATAL | LL_WARNING);
 	trace::level_t lvl_values[] { LL_VERBOSE, LL_DEBUG, LL_INFO, LL_WARNING, LL_ERROR, LL_FATAL };
 	char const * lvl_names[]{ "Verbose", "Debug", "Normal", "Warn",  "Error", "Fatal"};
