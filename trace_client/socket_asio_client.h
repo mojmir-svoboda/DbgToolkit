@@ -352,7 +352,7 @@ namespace trace {
 				else
 				{
 					std::error_code const ec = SyncWriteToSocket(buff, ln);
-					if (!ec)
+					if (ec)
 					{
 						scope_guard_t on_exit_unlock = mkScopeGuard(std::mem_fun(&SpinLock::Unlock), &m_lock);
 						OnSocketError(ec);
