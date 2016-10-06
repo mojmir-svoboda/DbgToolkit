@@ -12,15 +12,11 @@
 
 namespace trace {
 
-	void OnConnectionEstablished ();
-	void OnConnectionConfigCommand (Command const & cmd);
-
 	struct Decoder
 	{
-		// decoder part
+		unsigned m_asn1_buffer_sz { 4096 };
 		Asn1Allocator m_asn1_allocator;
 		DecodingContext m_dcd_ctx;
-		unsigned m_asn1_buffer_sz { 4096 };
 
 		Decoder ()
 		{
@@ -42,6 +38,7 @@ namespace trace {
 				if (av < size_estimate)
 				{	// not enough memory for asn1 decoder
 					assert(0);
+					return false;
 				}
 
 				asn_dec_rval_t const rval = ber_decode(&m_asn1_allocator, 0, &asn_DEF_Command, &cmd_void_ptr, payload, hdr.m_len);

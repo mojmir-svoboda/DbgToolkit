@@ -128,7 +128,10 @@ namespace trace {
 					const bool stopped = m_io.stopped();
 					if (stopped)
 						m_io.restart();
-					StartReconnect();
+
+					SetClientTimer(m_reconnect_ms);
+					asio::async_connect(m_socket, m_endpoints,
+							std::bind(&Client::OnConnect, this, std::placeholders::_1, m_endpoints));
 					StartClientTimer();
 				}
 
@@ -149,26 +152,27 @@ namespace trace {
 			m_timer.expires_from_now(std::chrono::milliseconds(ms));
 		}
 
-		void CancelClientTimer () // !MT safe
+		void CancelClientTimer () // !MT safe, T*
 		{
 			m_timer.cancel();
 		}
-		void StartClientTimer () // !MT safe
+		void StartClientTimer () // !MT safe, T*, Tio
 		{
 			if (m_terminated)
 				return;
 			DBG_OUT("StartClientTimer\n");
-			m_timer.async_wait(std::bind(&Client::OnClientTimer, this));
+			m_timer.async_wait(std::bind(&Client::OnClientTimer, this, std::placeholders::_1));
 		}
 
-
-		void OnClientTimer () // MT safe
+		void OnClientTimer (std::error_code const & error) // MT safe, Tio
 		{
+			if (error)
+				return;
+
 			scope_guard_t on_exit_unlock = mkScopeGuard(std::mem_fun(&SpinLock::Unlock), &m_lock);
 
 			if (m_terminated)
 				return;
-
 			if (m_connected)
 				return;
 
@@ -184,15 +188,15 @@ namespace trace {
 			StartClientTimer();
 		}
 
-		void StartReconnect ()
+		void StartReconnect () // !MT safe, T*
 		{
-			m_connected = false;
-			if (m_terminated)
-				return;
-
 			DBG_OUT("Reconnect started\n");
+
+			m_connected = false;
+
 			SetClientTimer(m_reconnect_ms);
-			asio::async_connect(m_socket, m_endpoints, std::bind(&Client::OnConnect, this, std::placeholders::_1, m_endpoints));
+			asio::async_connect(m_socket, m_endpoints,
+					std::bind(&Client::OnConnect, this, std::placeholders::_1, m_endpoints));
 
 			++m_reconnect_retry_count;
 // 			if (m_reconnect_retry_count >= m_reconnect_retry_count_max)
@@ -201,7 +205,7 @@ namespace trace {
 // 			}
 		}
 
-		void OnConnected ()
+		void OnConnected () // !MT safe, Tio
 		{
 			DBG_OUT("Connected!\n");
 			m_connected = true;
@@ -209,7 +213,7 @@ namespace trace {
 			OnConnectionEstablished();
 		}
 
-		void OnConnect (asio::error_code const & ec, asio::ip::tcp::resolver::results_type::iterator endpoint_iter)
+		void OnConnect (asio::error_code const & ec, asio::ip::tcp::resolver::results_type::iterator endpoint_iter) // ?MT safe, Tio
 		{
 			if (m_terminated)
 				return;
@@ -233,7 +237,7 @@ namespace trace {
 			}
 		}
 
-		bool DoConnect (asio::ip::tcp::resolver::results_type const & endpoints)
+		bool DoConnect (asio::ip::tcp::resolver::results_type const & endpoints) // Tmain
 		{
 			m_connected = false;
 			asio::error_code result = asio::error::would_block;
@@ -255,7 +259,7 @@ namespace trace {
 		}
 
 
-		void ThreadFunc ()
+		void ThreadFunc () // Tio
 		{
 			DBG_OUT("Started thread for io\n");
 			m_io.run();
@@ -308,12 +312,26 @@ namespace trace {
 		}
 
 
-		bool WriteToSocket (char const * request, size_t ln)
+		std::error_code SyncWriteToSocket (char const * request, size_t ln) // MT safe (maybe)
 		{
-			return Write(request, ln);
+			std::error_code ec;
+			asio::write(m_socket, asio::buffer(request, ln), ec); // should be MT safe on win32
+			return ec;
 		}
 
-		bool Write (char const * buff, size_t ln)
+		void OnSocketError (std::error_code const & ec) // !MT safe, T*
+		{
+			DBG_OUT("OnSocketError: code=%d msg=%s\n", ec.value(), ec.message().c_str());
+			m_connected = false;
+			if (m_socket.is_open())
+			{
+				DBG_OUT("OnSocketError: closing socket.\n");
+				m_socket.close();
+			}
+		}
+
+		bool WriteToSocket (char const * request, size_t ln) { return Write(request, ln); } 
+		bool Write (char const * buff, size_t ln) // ?MT safe, T*
 		{
 			if (IsConnected())
 			{
@@ -333,13 +351,14 @@ namespace trace {
 				}
 				else
 				{
-					std::error_code ec;
-					asio::write(m_socket, asio::buffer(buff, ln), ec);
-					if (ec)
+					std::error_code const ec = SyncWriteToSocket(buff, ln);
+					if (!ec)
 					{
+						scope_guard_t on_exit_unlock = mkScopeGuard(std::mem_fun(&SpinLock::Unlock), &m_lock);
 						OnSocketError(ec);
 						StartReconnect();
 						StartClientTimer();
+						return false;
 					}
 				}
 			}
@@ -348,6 +367,7 @@ namespace trace {
 				char * buff_ptr = nullptr;
 				if (!WriteToBuffer(buff, ln, buff_ptr))
 				{
+					return false;
 				}
 			}
 			return true;
@@ -390,44 +410,33 @@ namespace trace {
 			else
 			{
 				DBG_OUT("Flush on connect (sync)\n");
-			g_ClientMemory.m_lock.Lock();
+				g_ClientMemory.m_lock.Lock();
 
-			while (g_ClientMemory.m_readPtr != g_ClientMemory.m_writePtr)
-			{
-				char const * const mem = g_ClientMemory.m_memory + g_ClientMemory.m_readPtr;
-				MsgHeader const * const hdr = reinterpret_cast<MsgHeader const *>(mem);
-				std::error_code ec;
-				asio::write(m_socket, asio::buffer(mem + sizeof(MsgHeader), hdr->m_size), ec);
-				if (ec)
+				while (g_ClientMemory.m_readPtr != g_ClientMemory.m_writePtr)
 				{
-					OnSocketError(ec);
-					StartReconnect();
-					StartClientTimer();
+					char const * const mem = g_ClientMemory.m_memory + g_ClientMemory.m_readPtr;
+					MsgHeader const * const hdr = reinterpret_cast<MsgHeader const *>(mem);
+					std::error_code ec;
+					asio::write(m_socket, asio::buffer(mem + sizeof(MsgHeader), hdr->m_size), ec);
+					if (ec)
+					{
+						OnSocketError(ec);
+						StartReconnect();
+						StartClientTimer();
+					}
+					else
+					{
+						g_ClientMemory.m_readPtr += hdr->m_allocated;
+					}
 				}
-				else
-				{
-					g_ClientMemory.m_readPtr += hdr->m_allocated;
-				}
+				g_ClientMemory.m_lock.Unlock();
 			}
-			g_ClientMemory.m_lock.Unlock();
-		}
 		}
 
 		void Close ()
 		{
 			DBG_OUT("Cli::Close\n");
 			asio::post(m_io, [this]() { m_socket.close(); });
-		}
-
-		void OnSocketError (std::error_code const & ec)
-		{
-			DBG_OUT("OnSocketError: code=%d msg=%s\n", ec.value(), ec.message().c_str());
-			m_connected = false;
-			if (m_socket.is_open())
-			{
-				DBG_OUT("OnSocketError: closing socket.\n");
-				m_socket.close();
-			}
 		}
 
 		void StartAsyncRead ()
@@ -482,7 +491,8 @@ namespace trace {
 							m_decoder.m_dcd_ctx.moveEnd(length);
 							if (m_decoder.parseASN1())
 							{
-								OnConnectionConfigCommand(m_decoder.m_dcd_ctx.m_command);
+								if (m_decoder.m_dcd_ctx.m_command.present == Command_PR_config)
+									OnConnectionConfigCommand(m_decoder.m_dcd_ctx.m_command);
 							}
 							else
 							{
@@ -506,7 +516,7 @@ namespace trace {
 				});
 		}
 
-				template<typename T>
+		template<typename T>
 		void SendDictionary (int type, T const * values, char const * names[], size_t dict_sz)
 		{
 			// send config message
@@ -521,7 +531,7 @@ namespace trace {
 			if (const size_t n = asn1::encode_dictionary(msg + sizeof(asn1::Header), max_msg_size - sizeof(asn1::Header), type, asn1_values, names, dict_sz))
 			{
 				hdr.m_len = n;
-				WriteToSocket(msg, n + sizeof(asn1::Header));
+				SyncWriteToSocket(msg, n + sizeof(asn1::Header));
 			}
 		}
 
@@ -537,7 +547,7 @@ namespace trace {
 			if (const size_t n = asn1::encode_config(msg + sizeof(asn1::Header), max_msg_size - sizeof(asn1::Header), m_config.m_appName, mixer_ptr, mixer_sz, m_config.m_buffered, sys::get_pid()))
 			{
 				hdr.m_len = n;
-				WriteToSocket(msg, n + sizeof(asn1::Header));
+				SyncWriteToSocket(msg, n + sizeof(asn1::Header));
 			}
 
 			if (size_t n = m_config.m_levelValuesDict.size())

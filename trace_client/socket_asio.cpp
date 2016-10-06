@@ -21,9 +21,6 @@
 
 namespace trace {
 
-	void OnConnectionEstablished ();
-	void OnConnectionConfigCommand (Command const & cmd);
-
 	ClientMemory g_ClientMemory;
 	std::unique_ptr<Client> g_Client = nullptr;
 
@@ -37,11 +34,6 @@ namespace trace {
 		return g_Client.get() != nullptr;
 	}
 
-	void Done ()
-	{
-		g_Client.reset();
-	}
-
 	void SetRuntimeLevelForContext (context_t ctx, level_t level)
 	{
 		g_Client->m_config.SetRuntimeLevelForContext(ctx, level);
@@ -50,8 +42,6 @@ namespace trace {
 	{
 		return g_Client->m_config.GetRuntimeLevelForContextBit(b);
 	}
-	//level_t * GetRuntimeCfgData () { return g_Config.m_mixer.data(); }
-	//size_t GetRuntimeCfgSize () { return g_Config.m_mixer.size(); }
 
 	void SetRuntimeBuffering (bool buffered) { g_Client->m_config.m_buffered = buffered; }
 	bool GetRuntimeBuffering () { return g_Client->m_config.m_buffered; }
