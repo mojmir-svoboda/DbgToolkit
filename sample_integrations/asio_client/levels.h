@@ -10,3 +10,4 @@ const trace::level_t LL_WARNING			=  (1u <<  2);
 const trace::level_t LL_INFO				=  (1u <<  3);
 const trace::level_t LL_DEBUG				=  (1u <<  4);
 const trace::level_t LL_VERBOSE			=  (1u <<  5);
+const trace::level_t LL_SPAM  			=  (1u <<  6);

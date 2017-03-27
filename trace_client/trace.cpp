@@ -3,11 +3,6 @@
 #include <array>
 #include <vector>
 #include <sysfn/time_query.h>
-#include <trace_proto/encoder.h>
-#include <trace_proto/header.h>
-#include <trace_proto/encode_config.h>
-#include <trace_proto/encode_log.h>
-#include <trace_proto/encode_dictionary.h>
 
 	namespace sys {
 		hptimer_t g_Start = 0, g_Freq = 1000000;
@@ -16,23 +11,17 @@
 #if defined TRACE_ENABLED
 	namespace trace {
 
-		using mixervalues_t = std::array<level_t, sizeof(context_t) * CHAR_BIT>;
-
-
-		bool WriteToSocket (char const * buff, size_t ln);
-
 		// message logging
-		void WriteLog (level_t level, context_t context, char const * file, int, char const *, char const *, va_list);
-		void WriteVA (level_t level, context_t context, char const * file, int line, char const * fn, char const * fmt, va_list args)
+		void WriteMsgVA_impl (level_t level, context_t context, char const * file, int, char const *, char const *, va_list);
+		void WriteMsgVA (level_t level, context_t context, char const * file, int line, char const * fn, char const * fmt, va_list args)
 		{
-			if (RuntimeFilterPredicate(level, context))
-				WriteLog(level, context, file, line, fn, fmt, args);
+			WriteMsgVA_impl(level, context, file, line, fn, fmt, args);
 		}
-		void Write (level_t level, context_t context, char const * file, int line, char const * fn, char const * fmt, ...)
+		void WriteMsg (level_t level, context_t context, char const * file, int line, char const * fn, char const * fmt, ...)
 		{
 			va_list args;
 			va_start(args, fmt);
-			WriteVA(level, context, file, line, fn, fmt, args);
+			WriteMsgVA(level, context, file, line, fn, fmt, args);
 			va_end(args);
 		}
 
@@ -47,30 +36,30 @@
 		ScopedLog::ScopedLog (level_t level, context_t context, char const * file, int line, char const * fn, char const * fmt, ...)
 			: m_level(level), m_context(context), m_file(file), m_line(line), m_fn(fn), m_start(sys::queryTime_us()), m_enabled(true)
 		{
-			if (m_enabled && RuntimeFilterPredicate(level, context))
-			{
-				va_list args;
-				va_start(args, fmt);
-				WriteScopeVA(e_Entry, level, context, file, line, fn, fmt, args);
-				va_end(args);
-			}
+// 			if (m_enabled && RuntimeFilterPredicate(level, context))
+// 			{
+// 				va_list args;
+// 				va_start(args, fmt);
+// 				WriteScopeVA(e_Entry, level, context, file, line, fn, fmt, args);
+// 				va_end(args);
+// 			}
 		}
 		ScopedLog::ScopedLog (bool enabled, level_t level, context_t context, char const * file, int line, char const * fn, char const * fmt, ...)
 			: m_level(level), m_context(context), m_file(file), m_line(line), m_fn(fn), m_start(sys::queryTime_us()), m_enabled(enabled)
 		{
-			if (m_enabled && RuntimeFilterPredicate(level, context))
-			{
-				va_list args;
-				va_start(args, fmt);
-				WriteScopeVA(e_Entry, level, context, file, line, fn, fmt, args);
-				va_end(args);
-			}
+// 			if (m_enabled && RuntimeFilterPredicate(level, context))
+// 			{
+// 				va_list args;
+// 				va_start(args, fmt);
+// 				WriteScopeVA(e_Entry, level, context, file, line, fn, fmt, args);
+// 				va_end(args);
+// 			}
 		}
 
 		ScopedLog::~ScopedLog ()
 		{
-			if (m_enabled && RuntimeFilterPredicate(m_level, m_context))
-				WriteScope(e_Exit, m_level, m_context, m_file, m_line, m_fn, "dt=%llu", sys::queryTime_us() - m_start);
+// 			if (m_enabled && RuntimeFilterPredicate(m_level, m_context))
+// 				WriteScope(e_Exit, m_level, m_context, m_file, m_line, m_fn, "dt=%llu", sys::queryTime_us() - m_start);
 		}
 
 
@@ -78,8 +67,8 @@
 		inline void WritePlot_impl (level_t level, context_t context, float x, float y, char const * fmt, va_list args);
 		void WritePlotVA (level_t level, context_t context, float x, float y, char const * fmt, va_list args)
 		{
-			if (RuntimeFilterPredicate(level, context))
-				WritePlot_impl(level, context, x, y, fmt, args);
+// 			if (RuntimeFilterPredicate(level, context))
+// 				WritePlot_impl(level, context, x, y, fmt, args);
 		}
 		void WritePlot (level_t level, context_t context, float x, float y, char const * fmt, ...)
 		{
@@ -91,8 +80,8 @@
 		inline void WritePlotMarker_impl (level_t level, context_t context, float x, float y, char const * fmt, va_list args);
 		void WritePlotMarkerVA (level_t level, context_t context, float x, float y, char const * fmt, va_list args)
 		{
-			if (RuntimeFilterPredicate(level, context))
-				WritePlotMarker_impl(level, context, x, y, fmt, args);
+// 			if (RuntimeFilterPredicate(level, context))
+// 				WritePlotMarker_impl(level, context, x, y, fmt, args);
 		}
 		void WritePlotMarker (level_t level, context_t context, float x, float y, char const * fmt, ...)
 		{
@@ -105,8 +94,8 @@
 		inline void WritePlotClear_impl (level_t level, context_t context, char const * fmt, va_list args);
 		void WritePlotClearVA (level_t level, context_t context, char const * fmt, va_list args)
 		{
-			if (RuntimeFilterPredicate(level, context))
-				WritePlotClear_impl(level, context, fmt, args);
+// 			if (RuntimeFilterPredicate(level, context))
+// 				WritePlotClear_impl(level, context, fmt, args);
 		}
 		void WritePlotClear (level_t level, context_t context, char const * fmt, ...)
 		{
@@ -121,8 +110,8 @@
 		inline void WriteTable_impl (level_t level, context_t context, int x, int y, char const * fmt, va_list args);
 		void WriteTableVA (level_t level, context_t context, int x, int y, char const * fmt, va_list args)
 		{
-			if (RuntimeFilterPredicate(level, context))
-				WriteTable_impl(level, context, x, y, fmt, args);
+// 			if (RuntimeFilterPredicate(level, context))
+// 				WriteTable_impl(level, context, x, y, fmt, args);
 		}
 		void WriteTable (level_t level, context_t context, int x, int y, char const * fmt, ...)
 		{
@@ -135,8 +124,8 @@
 		inline void WriteTable_impl (level_t level, context_t context, int x, int y, Color c, char const * fmt, va_list args);
 		void WriteTableVA (level_t level, context_t context, int x, int y, Color c, char const * fmt, va_list args)
 		{
-			if (RuntimeFilterPredicate(level, context))
-				WriteTable_impl(level, context, x, y, c, fmt, args);
+// 			if (RuntimeFilterPredicate(level, context))
+// 				WriteTable_impl(level, context, x, y, c, fmt, args);
 		}
 		void WriteTable (level_t level, context_t context, int x, int y, Color c, char const * fmt, ...)
 		{
@@ -149,8 +138,8 @@
 		inline void WriteTable_impl (level_t level, context_t context, int x, int y, Color fg, Color bg, char const * fmt, va_list args);
 		void WriteTableVA (level_t level, context_t context, int x, int y, Color fg, Color bg, char const * fmt, va_list args)
 		{
-			if (RuntimeFilterPredicate(level, context))
-				WriteTable_impl(level, context, x, y, fg, bg, fmt, args);
+// 			if (RuntimeFilterPredicate(level, context))
+// 				WriteTable_impl(level, context, x, y, fg, bg, fmt, args);
 		}
 		void WriteTable (level_t level, context_t context, int x, int y, Color fg, Color bg, char const * fmt, ...)
 		{
@@ -163,8 +152,8 @@
 		inline void WriteTableSetColor_impl (level_t level, context_t context, int x, int y, Color fg, char const * fmt, va_list args);
 		void WriteTableSetColorVA (level_t level, context_t context, int x, int y, Color fg, char const * fmt, va_list args)
 		{
-			if (RuntimeFilterPredicate(level, context))
-				WriteTableSetColor_impl(level, context, x, y, fg, fmt, args);
+// 			if (RuntimeFilterPredicate(level, context))
+// 				WriteTableSetColor_impl(level, context, x, y, fg, fmt, args);
 		}
 		void WriteTableSetColor (level_t level, context_t context, int x, int y, Color fg, char const * fmt, ...)
 		{
@@ -177,8 +166,8 @@
 		inline void WriteTableSetColor_impl (level_t level, context_t context, int x, int y, Color fg, Color bg, char const * fmt, va_list args);
 		void WriteTableSetColorVA (level_t level, context_t context, int x, int y, Color fg, Color bg, char const * fmt, va_list args)
 		{
-			if (RuntimeFilterPredicate(level, context))
-				WriteTableSetColor_impl(level, context, x, y, fg, bg, fmt, args);
+// 			if (RuntimeFilterPredicate(level, context))
+// 				WriteTableSetColor_impl(level, context, x, y, fg, bg, fmt, args);
 		}
 		void WriteTableSetColor (level_t level, context_t context, int x, int y, Color fg, Color bg, char const * fmt, ...)
 		{
@@ -191,8 +180,8 @@
 		inline void WriteTableSetHHeader_impl (level_t level, context_t context, int x, char const * name, char const * fmt, va_list args);
 		void WriteTableSetHHeaderVA (level_t level, context_t context, int x, char const * name, char const * fmt, va_list args)
 		{
-			if (RuntimeFilterPredicate(level, context))
-				WriteTableSetHHeader_impl(level, context, x, name, fmt, args);
+// 			if (RuntimeFilterPredicate(level, context))
+// 				WriteTableSetHHeader_impl(level, context, x, name, fmt, args);
 		}
 		void WriteTableSetHHeader (level_t level, context_t context, int x,  char const * name, char const * fmt, ...)
 		{
@@ -204,8 +193,8 @@
 		inline void WriteTableClear_impl (level_t level, context_t context, char const * fmt, va_list args);
 		void WriteTableClearVA (level_t level, context_t context, char const * fmt, va_list args)
 		{
-			if (RuntimeFilterPredicate(level, context))
-				WriteTableClear_impl(level, context, fmt, args);
+// 			if (RuntimeFilterPredicate(level, context))
+// 				WriteTableClear_impl(level, context, fmt, args);
 		}
 		void WriteTableClear (level_t level, context_t context, char const * fmt, ...)
 		{
@@ -222,8 +211,8 @@
 		void WriteGanttBgnVA_Impl (level_t level, context_t context, char const * fmt, va_list args);
 		void WriteGanttBgnVA (level_t level, context_t context, char const * fmt, va_list args)
 		{
-			if (RuntimeFilterPredicate(level, context))
-				WriteGanttBgnVA_Impl(level, context, fmt, args);
+// 			if (RuntimeFilterPredicate(level, context))
+// 				WriteGanttBgnVA_Impl(level, context, fmt, args);
 		}
 		void WriteGanttBgn (level_t level, context_t context, char const * fmt, ...)
 		{
@@ -236,15 +225,15 @@
 		void WriteGanttBgn_Impl (level_t level, context_t context);
 		void WriteGanttBgn (level_t level, context_t context)
 		{
-			if (RuntimeFilterPredicate(level, context))
-				WriteGanttBgn_Impl(level, context);
+// 			if (RuntimeFilterPredicate(level, context))
+// 				WriteGanttBgn_Impl(level, context);
 		}
 
 		void WriteGanttEndVA_Impl (level_t level, context_t context, char const * fmt, va_list args);
 		void WriteGanttEndVA (level_t level, context_t context, char const * fmt, va_list args)
 		{
-			if (RuntimeFilterPredicate(level, context))
-				WriteGanttEndVA_Impl(level, context, fmt, args);
+// 			if (RuntimeFilterPredicate(level, context))
+// 				WriteGanttEndVA_Impl(level, context, fmt, args);
 		}
 		void WriteGanttEnd (level_t level, context_t context, char const * fmt, ...)
 		{
@@ -257,15 +246,15 @@
 		void WriteGanttEnd_Impl (level_t level, context_t context);
 		void WriteGanttEnd (level_t level, context_t context)
 		{
-			if (RuntimeFilterPredicate(level, context))
-				WriteGanttEnd_Impl(level, context);
+// 			if (RuntimeFilterPredicate(level, context))
+// 				WriteGanttEnd_Impl(level, context);
 		}
 
 		void WriteGanttFrameBgnVA_Impl (level_t level, context_t context, char const * fmt, va_list args);
 		void WriteGanttFrameBgnVA (level_t level, context_t context, char const * fmt, va_list args)
 		{
-			if (RuntimeFilterPredicate(level, context))
-				WriteGanttFrameBgnVA_Impl(level, context, fmt, args);
+// 			if (RuntimeFilterPredicate(level, context))
+// 				WriteGanttFrameBgnVA_Impl(level, context, fmt, args);
 		}
 		void WriteGanttFrameBgn (level_t level, context_t context, char const * fmt, ...)
 		{
@@ -277,15 +266,15 @@
 		void WriteGanttFrameBgn_Impl(level_t level, context_t context);
 		void WriteGanttFrameBgn (level_t level, context_t context)
 		{
-			if (RuntimeFilterPredicate(level, context))
-				WriteGanttFrameBgn_Impl(level, context);
+// 			if (RuntimeFilterPredicate(level, context))
+// 				WriteGanttFrameBgn_Impl(level, context);
 		}
 
 		void WriteGanttFrameEndVA_Impl (level_t level, context_t context, char const * fmt, va_list args);
 		void WriteGanttFrameEndVA (level_t level, context_t context, char const * fmt, va_list args)
 		{
-			if (RuntimeFilterPredicate(level, context))
-				WriteGanttFrameEndVA_Impl(level, context, fmt, args);
+// 			if (RuntimeFilterPredicate(level, context))
+// 				WriteGanttFrameEndVA_Impl(level, context, fmt, args);
 		}
 		void WriteGanttFrameEnd (level_t level, context_t context, char const * fmt, ...)
 		{
@@ -297,15 +286,15 @@
 		void WriteGanttFrameEnd_Impl (level_t level, context_t context);
 		void WriteGanttFrameEnd (level_t level, context_t context)
 		{
-			if (RuntimeFilterPredicate(level, context))
-				WriteGanttFrameEnd_Impl(level, context);
+// 			if (RuntimeFilterPredicate(level, context))
+// 				WriteGanttFrameEnd_Impl(level, context);
 		}
 
 		void WriteGanttClearVA_Impl (level_t level, context_t context, char const * fmt, va_list args);
 		void WriteGanttClearVA (level_t level, context_t context, char const * fmt, va_list args)
 		{
-			if (RuntimeFilterPredicate(level, context))
-				WriteGanttClearVA_Impl(level, context, fmt, args);
+// 			if (RuntimeFilterPredicate(level, context))
+// 				WriteGanttClearVA_Impl(level, context, fmt, args);
 		}
 		void WriteGanttClear (level_t level, context_t context, char const * fmt, ...)
 		{
@@ -318,8 +307,8 @@
 		void WriteGanttScopeBgnVA_Impl (level_t level, context_t context, char * tag_buff, size_t max_size, char const * fmt, va_list args);
 		void WriteGanttScopeBgnVA (level_t level, context_t context, char * tag_buff, size_t max_size, char const * fmt, va_list args)
 		{
-			if (RuntimeFilterPredicate(level, context))
-				WriteGanttScopeBgnVA_Impl(level, context, tag_buff, max_size, fmt, args);
+// 			if (RuntimeFilterPredicate(level, context))
+// 				WriteGanttScopeBgnVA_Impl(level, context, tag_buff, max_size, fmt, args);
 		}
 		ScopedGantt::ScopedGantt (level_t level, context_t context, char const * fmt, ...)
 		{
@@ -350,8 +339,8 @@
 		inline void WriteSound_impl (level_t level, context_t context, float vol, int loop, char const * fmt, va_list args);
 		void WriteSoundVA (level_t level, context_t context, float vol, int loop, char const * fmt, va_list args)
 		{
-			if (RuntimeFilterPredicate(level, context))
-				WriteSound_impl(level, context, vol, loop, fmt, args);
+// 			if (RuntimeFilterPredicate(level, context))
+// 				WriteSound_impl(level, context, vol, loop, fmt, args);
 		}
 		void WriteSound (level_t level, context_t context, float vol, int loop, char const * fmt, ...)
 		{
@@ -366,5 +355,4 @@
 	}
 
 #else // tracing is NOT enabled
-	; // the perfect line
 #endif

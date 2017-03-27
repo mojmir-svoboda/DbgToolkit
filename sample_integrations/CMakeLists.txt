@@ -1,2 +1,5 @@
-add_subdirectory(simple_client)
-add_subdirectory(cpp11_client)
+add_subdirectory(asio_client)
+add_subdirectory(asio_file_client)
+add_subdirectory(file_client)
+add_subdirectory(file_file_client)
+#add_subdirectory(simple_client)

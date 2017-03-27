@@ -8,7 +8,6 @@
 #include <array>
 #include <windows.h>
 #include "test_vaarg.h"
-#include "utils_sleep.h"
 
 unsigned g_Quit = 0;
 
@@ -19,10 +18,10 @@ void thread_func ()
 	while (!g_Quit)
 	{
 		static int i = 0;
-		++i; // i know, unprotected access.. not important
+		++i; // i know, race condition.. not important
 		++j;
 		TRACE_MSG(LL_INFO, CTX_Main,  "Thread tick i=%u j=%u", i, j);
-		sleep_ms(16);
+		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 	}
 }
 
@@ -37,15 +36,23 @@ int main ()
 	setvbuf(stdout, 0, _IONBF, 0);
 #endif
 	TRACE_INIT("SampleClient");
-	TRACE_SET_LEVEL(CTX_Other | CTX_Main | CTX_Init, LL_INFO | LL_ERROR | LL_FATAL | LL_WARNING);
-	trace::level_t lvl_values[] { LL_VERBOSE, LL_DEBUG, LL_INFO, LL_WARNING, LL_ERROR, LL_FATAL };
-	char const * lvl_names[]{ "Verbose", "Debug", "Normal", "Warn",  "Error", "Fatal"};
+	//TRACE_SINK_INIT(0, "127.0.0.1", "13127");
+	TRACE_SINK_INIT(0,  "192.168.39.102", "13127");
+	TRACE_SINK_INIT(1, "errors_and_warns.txt");
+
+	trace::level_t lvl_values[] { LL_SPAM, LL_VERBOSE, LL_DEBUG, LL_INFO, LL_WARNING, LL_ERROR, LL_FATAL };
+	char const * lvl_names[]{ "Spam", "Verbose", "Debug", "Normal", "Warn",  "Error", "Fatal"};
 	TRACE_SET_LEVEL_DICTIONARY(lvl_values, lvl_names, sizeof(lvl_values) / sizeof(*lvl_values));
+
 	trace::context_t ctx_values[]{ CTX_Init, CTX_Main, CTX_Render, CTX_Other};
 	char const * ctx_names[]{ "Init", "Main", "Render", "Other"};
 	TRACE_SET_CONTEXT_DICTIONARY(ctx_values, ctx_names, sizeof(ctx_values) / sizeof(*ctx_values));
 
-	TRACE_CONNECT("127.0.0.1", "13127");
+	TRACE_SET_SINK_LEVEL(0, CTX_Other | CTX_Main | CTX_Init, LL_INFO | LL_ERROR | LL_FATAL | LL_WARNING);
+	TRACE_SET_SINK_LEVEL(1, CTX_Other | CTX_Main | CTX_Init, LL_ERROR | LL_FATAL | LL_WARNING);
+
+	TRACE_CONNECT();
+	TRACE_SINK_SET_BUFFERED(1, false); // set buffered comes after fopen
 
 	TRACE_SCOPE(LL_INFO, CTX_Main);
 	TRACE_MSG(LL_INFO, CTX_Main,  "Text with \"Error\" keyword inside");
@@ -55,6 +62,7 @@ int main ()
 	TRACE_MSG(LL_WARNING, CTX_Main, "dong");
 	TRACE_MSG(LL_WARNING, CTX_Main, "some warn.. and a DING!");
 	TRACE_MSG(LL_VERBOSE, CTX_Main, "None shall pass!!!");
+	TRACE_MSG(LL_SPAM, CTX_Main, "Spam, Spam Spam Spam... Lovely Spaaam!");
 
 	{
 		TRACE_SCOPE_MSG(LL_INFO, CTX_Main, "main scope");
@@ -72,17 +80,17 @@ int main ()
 		foo();
 		Bar bar;
 
-		for (int i = 0; i < 64; ++i)
-		{
-			float x = 3.1415926535f * 2.0f / 128.0f * static_cast<float>(i);
-			TRACE_PLOT_XY(LL_INFO, CTX_Render, x, sinf(x), "sample_plot/sin(x)");
-			TRACE_PLOT_XY(LL_INFO, CTX_Render, x, cosf(x), "sample_plot/cos(x)");
-			if (i == 31)
-				TRACE_PLOT_XY_MARKER(LL_INFO, CTX_Render, x, cosf(x), "sample_plot/sin(x)");
-			if (i == 63)
-				TRACE_PLOT_XY_MARKER(LL_INFO, CTX_Render, x, cosf(x), "sample_plot/m1");
-			TRACE_MSG(LL_INFO, CTX_Render, "sample_plot i = %i", i);
-		}
+// 		for (int i = 0; i < 64; ++i)
+// 		{
+// 			float x = 3.1415926535f * 2.0f / 128.0f * static_cast<float>(i);
+// 			TRACE_PLOT_XY(LL_INFO, CTX_Render, x, sinf(x), "sample_plot/sin(x)");
+// 			TRACE_PLOT_XY(LL_INFO, CTX_Render, x, cosf(x), "sample_plot/cos(x)");
+// 			if (i == 31)
+// 				TRACE_PLOT_XY_MARKER(LL_INFO, CTX_Render, x, cosf(x), "sample_plot/sin(x)");
+// 			if (i == 63)
+// 				TRACE_PLOT_XY_MARKER(LL_INFO, CTX_Render, x, cosf(x), "sample_plot/m1");
+// 			TRACE_MSG(LL_INFO, CTX_Render, "sample_plot i = %i", i);
+// 		}
 
 		std::array<std::thread, 3> thrs;
 		for (std::thread & t : thrs)
@@ -95,22 +103,19 @@ int main ()
 		for (;;)
 		{
 			static int i = 0;
-			s += 100;
+			//s += 100;
 			
-			sleep_ms(s);
-			//sleep_ms(1000);
+			std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
-			TRACE_MSG(LL_INFO, CTX_Main,  "normal message i=%u from main thread", i);
-			TRACE_MSG(LL_VERBOSE, CTX_Main,  "verbose message i=%u from main thread", i);
-			TRACE_MSG(LL_DEBUG, CTX_Main, "debug message i=%u from main thread", i);
-
-			TRACE_MSG(LL_VERBOSE, CTX_Main, "verbose message i=%u from render subsys", i);
-			TRACE_MSG(LL_DEBUG, CTX_Main, "debug message i=%u from render subsys", i);
-			TRACE_MSG(LL_WARNING, CTX_Main, "warn message i=%u from render subsys", i);
-			TRACE_MSG(LL_ERROR, CTX_Main, "err message i=%u from render subsys", i);
+			//TRACE_MSG(LL_INFO, CTX_Main,  "normal message i=%u from main thread", i);
+			//TRACE_MSG(LL_VERBOSE, CTX_Main,  "verbose message i=%u from main thread", i);
+			//TRACE_MSG(LL_DEBUG, CTX_Main, "debug message i=%u from main thread", i);
+			//TRACE_MSG(LL_WARNING, CTX_Main, "warn message i=%u from render subsys", i);
+			//TRACE_MSG(LL_ERROR, CTX_Main, "err message i=%u from render subsys", i);
+			TRACE_MSG(LL_SPAM, CTX_Main, "err message i=%u from render subsys", i);
 
 			++i;
-			if (i == 1000)
+			if (i == 2000)
 				break;
 		}
 
@@ -120,5 +125,6 @@ int main ()
 	}
 
 	TRACE_DISCONNECT();
+	TRACE_DONE();
 }
 
