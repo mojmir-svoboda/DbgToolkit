@@ -53,7 +53,7 @@ if (Boost_FOUND)
 	include_directories(${Boost_INCLUDE_DIR})
 	add_definitions( "-DHAS_BOOST" )
 
-	set(BOOST_LIBS thread date_time system regex serialization filesystem)
+  set(BOOST_LIBS serialization)
 	find_package(Boost COMPONENTS ${BOOST_LIBS} REQUIRED)
 endif()
 message("boost: ${Boost_LIBRARIES}")
@@ -486,7 +486,7 @@ if (WIN32)
 	endif()
 
   FIND_PLUGINS(QPCRE         NAMES qtpcre                DEFAULT_SUFFIXES PATHS ${QT_LIB_PATH})
-  FIND_PLUGINS(QHARFBUZZ     NAMES qtharfbuzzng          DEFAULT_SUFFIXES PATHS ${QT_LIB_PATH})
+  FIND_PLUGINS(QHARFBUZZ     NAMES qtharfbuzz          DEFAULT_SUFFIXES PATHS ${QT_LIB_PATH})
   FIND_PLUGINS(QFREETYPE     NAMES qtfreetype            DEFAULT_SUFFIXES PATHS ${QT_LIB_PATH})
 
 	target_link_libraries(trace_server
