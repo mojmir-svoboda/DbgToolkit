@@ -2,6 +2,20 @@
 #include <private/qsimd_p.h>
 #include <private/qutfcodec_p.h>
 
+#if (defined(__SSE2__) && defined(QT_COMPILER_SUPPORTS_SSE2)) \
+    || (defined(__ARM_NEON__) && defined(Q_PROCESSOR_ARM_64))
+static Q_ALWAYS_INLINE uint qBitScanReverse(unsigned v) Q_DECL_NOTHROW
+{
+	uint result = qCountLeadingZeroBits(v);
+	// Now Invert the result: clz will count *down* from the msb to the lsb, so the msb index is 31
+	// and the lsb index is 0. The result for _bit_scan_reverse is expected to be the index when
+	// counting up: msb index is 0 (because it starts there), and the lsb index is 31.
+	result ^= sizeof(unsigned) * 8 - 1;
+	return result;
+}
+#endif
+
+
 //from Qt
 static inline bool simdDecodeAscii (ushort *& dst, const uchar *& nextAscii, const uchar *& src, const uchar * end)
 {
@@ -43,7 +57,7 @@ static inline bool simdDecodeAscii (ushort *& dst, const uchar *& nextAscii, con
 		// find the next probable ASCII character
 		// we don't want to load 16 bytes again in this loop if we know there are non-ASCII
 		// characters still coming
-		n = _bit_scan_reverse(n);
+		n = qBitScanReverse(n);
 		nextAscii = src + (n / BitSpacing) + 1;
 		return false;
 
