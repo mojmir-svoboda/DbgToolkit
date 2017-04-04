@@ -15,11 +15,7 @@ if (WIN32)
 endif (WIN32)
 
 ### Qt
-find_package(Qt5Widgets REQUIRED)
-find_package(Qt5Core REQUIRED)
-find_package(Qt5Network REQUIRED)
-find_package(Qt5OpenGL REQUIRED)
-find_package(Qt5Multimedia REQUIRED)
+find_package(Qt5 COMPONENTS Core Widgets Network OpenGL Multimedia REQUIRED)
 find_program(QT_QMAKE_EXECUTABLE NAMES qmake qmake5 qmake-qt5 qmake-mac PATHS ${QTROOTS})
 message("qmake: ${QT_QMAKE_EXECUTABLE}")
 
