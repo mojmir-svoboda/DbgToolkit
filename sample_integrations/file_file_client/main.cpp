@@ -47,8 +47,8 @@ int main ()
 	char const * ctx_names[]{ "Init", "Main", "Render", "Other"};
 	TRACE_SET_CONTEXT_DICTIONARY(ctx_values, ctx_names, sizeof(ctx_values) / sizeof(*ctx_values));
 
-	TRACE_SET_SINK_LEVEL(0, CTX_Other | CTX_Main | CTX_Init, LL_INFO | LL_ERROR | LL_FATAL);
-	TRACE_SET_SINK_LEVEL(1, CTX_Other | CTX_Main | CTX_Init, LL_ERROR | LL_FATAL);
+	TRACE_SINK_SET_LEVEL(0, CTX_Other | CTX_Main | CTX_Init, LL_INFO | LL_ERROR | LL_FATAL);
+	TRACE_SINK_SET_LEVEL(1, CTX_Other | CTX_Main | CTX_Init, LL_ERROR | LL_FATAL);
 
 	TRACE_CONNECT();
 	//TRACE_SINK_SET_BUFFERED(0, false); // set buffered comes after fopen

@@ -1,6 +1,10 @@
 #pragma once
 #if defined TRACE_ENABLED
 # include "FileClientWriters.h"
+#if defined WIN32 || defined WIN64
+#	include <windows.h>
+# include <debugapi.h>
+#endif
 
 namespace trace {
 

@@ -36,8 +36,8 @@ int main ()
 	setvbuf(stdout, 0, _IONBF, 0);
 #endif
 	TRACE_INIT("SampleClient");
-	//TRACE_SINK_INIT(0, "127.0.0.1", "13127");
-	TRACE_SINK_INIT(0,  "192.168.39.102", "13127");
+	TRACE_SINK_INIT(0, "127.0.0.1", "13127");
+	//TRACE_SINK_INIT(0,  "192.168.39.102", "13127");
 	TRACE_SINK_INIT(1, "errors_and_warns.txt");
 
 	trace::level_t lvl_values[] { LL_SPAM, LL_VERBOSE, LL_DEBUG, LL_INFO, LL_WARNING, LL_ERROR, LL_FATAL };
@@ -48,8 +48,8 @@ int main ()
 	char const * ctx_names[]{ "Init", "Main", "Render", "Other"};
 	TRACE_SET_CONTEXT_DICTIONARY(ctx_values, ctx_names, sizeof(ctx_values) / sizeof(*ctx_values));
 
-	TRACE_SET_SINK_LEVEL(0, CTX_Other | CTX_Main | CTX_Init, LL_INFO | LL_ERROR | LL_FATAL | LL_WARNING);
-	TRACE_SET_SINK_LEVEL(1, CTX_Other | CTX_Main | CTX_Init, LL_ERROR | LL_FATAL | LL_WARNING);
+	TRACE_SINK_SET_LEVEL(0, CTX_Other | CTX_Main | CTX_Init, LL_INFO | LL_ERROR | LL_FATAL | LL_WARNING);
+	TRACE_SINK_SET_LEVEL(1, CTX_Other | CTX_Main | CTX_Init, LL_ERROR | LL_FATAL | LL_WARNING);
 
 	TRACE_CONNECT();
 	TRACE_SINK_SET_BUFFERED(1, false); // set buffered comes after fopen
