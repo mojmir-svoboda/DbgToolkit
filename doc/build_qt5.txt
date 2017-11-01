@@ -45,27 +45,47 @@ Common part:
 ------------
 
 Set paths:
+
 	set PATH=c:/Program Files (x86)/Git/bin;%PATH%
 	set PATH=C:\strawberry\perl\bin;%PATH%
-	set PATH=c:\qt5\qtbase\gnuwin32\bin;%PATH%
-	set PATH=C:\Python33;%PATH%
+	set PATH=c:\Python34;C:\Python33;%PATH%
 
-cd to future qt5 location:
-	cd c:/devel
+	REM Edit this location to point to the source code of Qt
+
+	SET _ROOT=C:\devel\qt5.9
+
+	SET PATH=%_ROOT%\qtbase\bin;%_ROOT%\gnuwin32\bin;%PATH%
+
+	REM Uncomment the below line when using a git checkout of the source repository
+	SET PATH=%_ROOT%\qtrepotools\bin;%PATH%
+
+	REM Uncomment the below line when building with OpenSSL enabled. If so, make sure the directory points to the correct location (binaries for OpenSSL).
+	REM SET PATH=C:\OpenSSL-Win32\bin;%PATH%
+
+	REM When compiling with ICU, uncomment the lines below and change <icupath> appropriately:
+	REM SET INCLUDE=<icupath>\include;%INCLUDE%
+	REM SET LIB=<icupath>\lib;%LIB%
+	REM SET PATH=<icupath>\lib;%PATH%
+
+	REM Contrary to earlier recommendations, do NOT set QMAKESPEC.
+
+	cd %_ROOT%
 
 Clone git of Qt5:
-	git clone git://code.qt.io/qt/qt5.git
+	git clone git://code.qt.io/qt/qt5.git .
+
+	SET _ROOT=
 
 cd to qt5:
-	cd qt5
 
 init subrepositories:
 	perl init-repository @-skip qtwebkit@
 init subrepositories:
 
-	set QTDIR=c:\devel\qt5
-	set PATH=%QTDIR%\bin;%PATH%
-	set QMAKESPEC=win32-msvc2015
+	REM set QTDIR=c:\devel\qt5.9
+	REM set PATH=%QTDIR%\bin;%PATH%
+
+	configure.bat -debug-and-release -opensource -confirm-license -platform win32-msvc2017 -static -ltcg -no-openvg -no-gif -no-dbus -no-sql-sqlite -no-qml-debug -qt-pcre -no-icu -nomake examples -nomake tests -mp
 
 More on config options at http://doc.qt.io/qt-5/configure-options.html
 (like -prefix "c:\qt\qt5.0.0b" etc)
