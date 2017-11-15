@@ -21,6 +21,7 @@ message("qmake: ${QT_QMAKE_EXECUTABLE}")
 
 get_filename_component(QT_QMAKE_PATH ${QT_QMAKE_EXECUTABLE} PATH)
 get_filename_component(QT_PLUGINS_PATH "${QT_QMAKE_PATH}/../plugins" ABSOLUTE)
+get_filename_component(QT_MM_PLUGINS_PATH "${QT_QMAKE_PATH}/../../qtmultimedia/plugins" ABSOLUTE)
 get_filename_component(QT_LIB_PATH "${QT_QMAKE_PATH}/../lib" ABSOLUTE)
 message("qt lib path: ${QT_LIB_PATH}")
 message("qt plugins path: ${QT_PLUGINS_PATH}")
@@ -30,16 +31,16 @@ set(CMAKE_AUTOMOC ON)
 include("${CMAKE_CURRENT_SOURCE_DIR}/FindPlugins.cmake")
 
 set(LIBRARY_OUTPUT_PATH
-   ${PROJECT_BINARY_DIR}/Bin
-   CACHE PATH
-   "Single Directory for all Libraries"
-   )
+	 ${PROJECT_BINARY_DIR}/Bin
+	 CACHE PATH
+	 "Single Directory for all Libraries"
+	 )
 
 set(EXECUTABLE_OUTPUT_PATH
-   ${PROJECT_BINARY_DIR}/Bin
-   CACHE PATH
-   "Single Directory for all Executables."
-   )
+	 ${PROJECT_BINARY_DIR}/Bin
+	 CACHE PATH
+	 "Single Directory for all Executables."
+	 )
 
 ### boost
 set(Boost_DEBUG 0)
@@ -49,7 +50,7 @@ if (Boost_FOUND)
 	include_directories(${Boost_INCLUDE_DIR})
 	add_definitions( "-DHAS_BOOST" )
 
-  set(BOOST_LIBS serialization)
+	set(BOOST_LIBS serialization)
 	find_package(Boost COMPONENTS ${BOOST_LIBS} REQUIRED)
 endif()
 message("boost: ${Boost_LIBRARIES}")
@@ -211,146 +212,146 @@ set(trace_server_SOURCES
 	)
 
 set(trace_server_HEADERS
-  action.h
-  config.h
-  connection.h
-  connectionconfig.h
-  constants.h
-  dock/dock.h
-  dock/dockdelegates.h
-  dock/dockedconfig.h
-  dock/dockedinfo.h
-  dock/dockedwidgets.h
-  dock/dockmanager.h
-  dock/dockmanagerconfig.h
-  dock/dockmanagermodel.h
-  dock/dockmanagerview.h
-  dock/dockwidget.h
-  filters/colorizers/colorizermgr.h
-  filters/colorizers/colorizer_regex.h
-  filters/colorizers/colorizer_row.h
-  filters/colorizers/colorizer_string.h
-  filters/file_filter.hpp
-  filters/filterbase.h
-  widgets/logs/filters/filtermgr.h
-  filters/filtermgrbase.h
-  filters/filtersctxmenu.h
-  widgets/logs/filters/filter_ctx.h
-  widgets/logs/filters/filter_fileline.h
-  widgets/logs/filters/filter_lvl.h
+	action.h
+	config.h
+	connection.h
+	connectionconfig.h
+	constants.h
+	dock/dock.h
+	dock/dockdelegates.h
+	dock/dockedconfig.h
+	dock/dockedinfo.h
+	dock/dockedwidgets.h
+	dock/dockmanager.h
+	dock/dockmanagerconfig.h
+	dock/dockmanagermodel.h
+	dock/dockmanagerview.h
+	dock/dockwidget.h
+	filters/colorizers/colorizermgr.h
+	filters/colorizers/colorizer_regex.h
+	filters/colorizers/colorizer_row.h
+	filters/colorizers/colorizer_string.h
+	filters/file_filter.hpp
+	filters/filterbase.h
+	widgets/logs/filters/filtermgr.h
+	filters/filtermgrbase.h
+	filters/filtersctxmenu.h
+	widgets/logs/filters/filter_ctx.h
+	widgets/logs/filters/filter_fileline.h
+	widgets/logs/filters/filter_lvl.h
 	#widgets/logs/filters/filter_regex.h
-  widgets/logs/filters/filter_row.h
-  widgets/logs/filters/filter_script.h
-  widgets/logs/filters/filter_string.h
-  widgets/logs/filters/filter_tid.h
-  widgets/logs/filters/filter_time.h
+	widgets/logs/filters/filter_row.h
+	widgets/logs/filters/filter_script.h
+	widgets/logs/filters/filter_string.h
+	widgets/logs/filters/filter_tid.h
+	widgets/logs/filters/filter_time.h
 	widgets/logs/sounds/soundmgr.h
 	widgets/logs/sounds/sound_regex.h
-  filters/nnode.hpp
-  mainwindow.h
-  models/baseproxymodel.h
-  models/basetablemodel.h
-  models/filterproxymodel.h
-  models/movablelistmodel.h
-  models/sparseproxymodel.h
-  models/treemodel.h
-  models/treeproxy.h
-  platform.h
-  qt_plugins.h
-  serialize/serialize.h
-  serialize/ser_qbytearray.h
-  serialize/ser_qcolor.h
-  serialize/ser_qlist.h
-  serialize/ser_qregexp.h
-  serialize/ser_qstring.h
-  serialize/ser_qstringlist.h
-  serialize/ser_qt.h
-  serialize/ser_qvector.h
-  server/server.h
-  syncwidgets.h
-  types.h
-  utils/delegates.h
-  utils/find_utils_table.h
-  utils/hash.h
-  utils/history.h
-  utils/hsv.h
-  utils/set_with_blocked_signals.h
-  utils/utils.h
-  utils/utils_boost.h
-  utils/utils_color.h
-  utils/utils_file_filters.h
-  utils/utils_history.h
-  utils/utils_openfilelinewith.h
-  utils/utils_qsettings.h
-  utils/utils_qstandarditem.h
-  utils/utils_std.h
-  widgets/buttoncache.h
-  widgets/colorizeconfig.h
-  widgets/colorizewidget.h
-  widgets/combolist.h
-  widgets/controlbar/controlbarcommon.h
-  widgets/controlbar/controlbardockmanager.h
-  widgets/controlbar/controlbardockedwidgets.h
-  widgets/controlbar/controlbargantts.h
-  widgets/controlbar/controlbarlog.h
+	filters/nnode.hpp
+	mainwindow.h
+	models/baseproxymodel.h
+	models/basetablemodel.h
+	models/filterproxymodel.h
+	models/movablelistmodel.h
+	models/sparseproxymodel.h
+	models/treemodel.h
+	models/treeproxy.h
+	platform.h
+	qt_plugins.h
+	serialize/serialize.h
+	serialize/ser_qbytearray.h
+	serialize/ser_qcolor.h
+	serialize/ser_qlist.h
+	serialize/ser_qregexp.h
+	serialize/ser_qstring.h
+	serialize/ser_qstringlist.h
+	serialize/ser_qt.h
+	serialize/ser_qvector.h
+	server/server.h
+	syncwidgets.h
+	types.h
+	utils/delegates.h
+	utils/find_utils_table.h
+	utils/hash.h
+	utils/history.h
+	utils/hsv.h
+	utils/set_with_blocked_signals.h
+	utils/utils.h
+	utils/utils_boost.h
+	utils/utils_color.h
+	utils/utils_file_filters.h
+	utils/utils_history.h
+	utils/utils_openfilelinewith.h
+	utils/utils_qsettings.h
+	utils/utils_qstandarditem.h
+	utils/utils_std.h
+	widgets/buttoncache.h
+	widgets/colorizeconfig.h
+	widgets/colorizewidget.h
+	widgets/combolist.h
+	widgets/controlbar/controlbarcommon.h
+	widgets/controlbar/controlbardockmanager.h
+	widgets/controlbar/controlbardockedwidgets.h
+	widgets/controlbar/controlbargantts.h
+	widgets/controlbar/controlbarlog.h
 	widgets/controlbar/controlwidgetdata.h
-  widgets/controlbar/controlbarlogs.h
-  widgets/controlbar/controlbarplots.h
-  widgets/controlbar/controlbartables.h
-  widgets/findconfig.h
-  widgets/quickstringconfig.h
-  widgets/findwidget.h
-  widgets/quickstringwidget.h
-  widgets/gantt/arrow.h
-  widgets/gantt/frameview.h
-  widgets/gantt/frameviewconfig.h
-  widgets/gantt/frameviewctxmenu.h
-  widgets/gantt/ganttconfig.h
-  widgets/gantt/ganttctxmenu.h
-  widgets/gantt/ganttdata.h
-  widgets/gantt/ganttitem.h
-  widgets/gantt/ganttview.h
-  widgets/gantt/ganttwidget.h
-  widgets/gantt/histogram.h
-  widgets/gantt/scalewidget.h
-  widgets/gantt/scrollbar.h
-  widgets/gantt/scrollzoomer.h
-  widgets/help.h
-  widgets/label.h
-  widgets/mixer.h
-  widgets/mixerbutton.h
-  widgets/mixerbar.h
-  widgets/mixerbarv.h
-  widgets/logs/findproxymodel.h
-  widgets/logs/logconfig.h
-  widgets/logs/logctxmenu.h
-  widgets/logs/loghheaderctxmenu.h
-  widgets/logs/logdelegate.h
-  widgets/logs/logfile.h
-  widgets/logs/logfile_protocol.h
-  widgets/logs/logfilterproxymodel.h
-  widgets/logs/logselectionproxymodel.h
-  widgets/logs/logtablemodel.h
-  widgets/logs/logtableview.h
-  widgets/logs/logwidget.h
-  widgets/logs/tls.h
-  widgets/movabletabwidget.h
-  widgets/plot/curves.h
-  widgets/plot/plotconfig.h
-  widgets/plot/plotctxmenu.h
-  widgets/plot/plottypes.h
-  widgets/plot/plotwidget.h
-  widgets/setupdialogcsv.h
-  widgets/table/editableheaderview.h
-  widgets/table/tableconfig.h
-  widgets/table/tablectxmenu.h
-  widgets/table/tablemodel.h
-  widgets/table/tablewidget.h
-  widgets/tableview.h
-  widgets/timecombobox.h
-  widgets/treeview.h
-  widgets/warnimage.h
-  winpch.h
+	widgets/controlbar/controlbarlogs.h
+	widgets/controlbar/controlbarplots.h
+	widgets/controlbar/controlbartables.h
+	widgets/findconfig.h
+	widgets/quickstringconfig.h
+	widgets/findwidget.h
+	widgets/quickstringwidget.h
+	widgets/gantt/arrow.h
+	widgets/gantt/frameview.h
+	widgets/gantt/frameviewconfig.h
+	widgets/gantt/frameviewctxmenu.h
+	widgets/gantt/ganttconfig.h
+	widgets/gantt/ganttctxmenu.h
+	widgets/gantt/ganttdata.h
+	widgets/gantt/ganttitem.h
+	widgets/gantt/ganttview.h
+	widgets/gantt/ganttwidget.h
+	widgets/gantt/histogram.h
+	widgets/gantt/scalewidget.h
+	widgets/gantt/scrollbar.h
+	widgets/gantt/scrollzoomer.h
+	widgets/help.h
+	widgets/label.h
+	widgets/mixer.h
+	widgets/mixerbutton.h
+	widgets/mixerbar.h
+	widgets/mixerbarv.h
+	widgets/logs/findproxymodel.h
+	widgets/logs/logconfig.h
+	widgets/logs/logctxmenu.h
+	widgets/logs/loghheaderctxmenu.h
+	widgets/logs/logdelegate.h
+	widgets/logs/logfile.h
+	widgets/logs/logfile_protocol.h
+	widgets/logs/logfilterproxymodel.h
+	widgets/logs/logselectionproxymodel.h
+	widgets/logs/logtablemodel.h
+	widgets/logs/logtableview.h
+	widgets/logs/logwidget.h
+	widgets/logs/tls.h
+	widgets/movabletabwidget.h
+	widgets/plot/curves.h
+	widgets/plot/plotconfig.h
+	widgets/plot/plotctxmenu.h
+	widgets/plot/plottypes.h
+	widgets/plot/plotwidget.h
+	widgets/setupdialogcsv.h
+	widgets/table/editableheaderview.h
+	widgets/table/tableconfig.h
+	widgets/table/tablectxmenu.h
+	widgets/table/tablemodel.h
+	widgets/table/tablewidget.h
+	widgets/tableview.h
+	widgets/timecombobox.h
+	widgets/treeview.h
+	widgets/warnimage.h
+	winpch.h
 	)
 
 set(trace_server_UI
@@ -412,7 +413,7 @@ add_executable(trace_server WIN32
 		${trace_server_UI_SRCS}
 		${trace_server_RESOURCES_RCC}
 		${trace_server_SOURCES}
-    ${trace_server_HEADERS}
+		${trace_server_HEADERS}
 		${trace_server_WIN32_RESOURCES}
 )
 
@@ -430,11 +431,11 @@ add_definitions(${QT_DEFINITIONS})
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 if (BUILD_ASN1_FILES)
-  include_directories(${CMAKE_BINARY_DIR}/trace_proto)
-  include_directories(${trace_server_SOURCE_DIR})
+	include_directories(${CMAKE_BINARY_DIR}/trace_proto)
+	include_directories(${trace_server_SOURCE_DIR})
 else (BUILD_ASN1_FILES)
-  include_directories(${CMAKE_SOURCE_DIR}/trace_proto/generated)
-  include_directories(${trace_server_SOURCE_DIR})
+	include_directories(${CMAKE_SOURCE_DIR}/trace_proto/generated)
+	include_directories(${trace_server_SOURCE_DIR})
 endif (BUILD_ASN1_FILES)
 
 add_definitions(${QT_DEFINITIONS})
@@ -450,28 +451,28 @@ add_definitions(-DSTATIC)
 add_definitions(-DQT_STATICPLUGIN)
 get_filename_component(QT_IMG_PLUGINS_PATH "${QT_PLUGINS_PATH}/imageformats" ABSOLUTE)
 get_filename_component(QT_PLATFORM_PLUGINS_PATH "${QT_PLUGINS_PATH}/platforms" ABSOLUTE)
-get_filename_component(QT_AUDIO_PLUGINS_PATH "${QT_PLUGINS_PATH}/audio" ABSOLUTE)
+get_filename_component(QT_AUDIO_PLUGINS_PATH "${QT_MM_PLUGINS_PATH}/audio" ABSOLUTE)
 
-FIND_PLUGINS(QICO          NAMES qico                   DEFAULT_SUFFIXES PATHS ${QT_IMG_PLUGINS_PATH})
+FIND_PLUGINS(QICO					 NAMES qico										DEFAULT_SUFFIXES PATHS ${QT_IMG_PLUGINS_PATH})
 message("plugin ico: ${QICO_LIBRARIES}")
 target_link_libraries(trace_server ${QICO_LIBRARIES})
 
 if (WIN32)
-	FIND_PLUGINS(QWINDOWS      NAMES qwindows               DEFAULT_SUFFIXES PATHS ${QT_PLATFORM_PLUGINS_PATH})
-  FIND_PLUGINS(QAUDIOWINDOWS NAMES qtaudio_windows        DEFAULT_SUFFIXES PATHS ${QT_AUDIO_PLUGINS_PATH})
-  #FIND_PLUGINS(QPLATFORM     NAMES Qt5PlatformSupport     DEFAULT_SUFFIXES PATHS ${QT_LIB_PATH})
-  FIND_PLUGINS(QFONTDB     NAMES Qt5FontDatabaseSupport   DEFAULT_SUFFIXES PATHS ${QT_LIB_PATH})
-  FIND_PLUGINS(QWINEVENTS     NAMES Qt5EventDispatcherSupport DEFAULT_SUFFIXES PATHS ${QT_LIB_PATH})
-  FIND_PLUGINS(QTHEMES     NAMES Qt5ThemeSupport DEFAULT_SUFFIXES PATHS ${QT_LIB_PATH})
-  FIND_PLUGINS(QACCESS     NAMES Qt5AccessibilitySupport DEFAULT_SUFFIXES PATHS ${QT_LIB_PATH})
-	FIND_PLUGINS(QTRANSLATOR   NAMES translator             DEFAULT_SUFFIXES PATHS ${QT_LIB_PATH})
-	FIND_PLUGINS(QTRANS_COMMON NAMES translator_common      DEFAULT_SUFFIXES PATHS ${QT_LIB_PATH})
-	FIND_PLUGINS(QTRANS_HLSL   NAMES translator_hlsl        DEFAULT_SUFFIXES PATHS ${QT_LIB_PATH})
-	FIND_PLUGINS(QPREPROC      NAMES preprocessor           DEFAULT_SUFFIXES PATHS ${QT_LIB_PATH})
-  FIND_PLUGINS(QTPNG      NAMES qtlibpng           DEFAULT_SUFFIXES PATHS ${QT_LIB_PATH})
+	FIND_PLUGINS(QWINDOWS			 NAMES qwindows								DEFAULT_SUFFIXES PATHS ${QT_PLATFORM_PLUGINS_PATH})
+	FIND_PLUGINS(QAUDIOWINDOWS NAMES qtaudio_windows				 DEFAULT_SUFFIXES PATHS ${QT_AUDIO_PLUGINS_PATH})
+	#FIND_PLUGINS(QPLATFORM			NAMES Qt5PlatformSupport		 DEFAULT_SUFFIXES PATHS ${QT_LIB_PATH})
+	FIND_PLUGINS(QFONTDB		 NAMES Qt5FontDatabaseSupport		DEFAULT_SUFFIXES PATHS ${QT_LIB_PATH})
+	FIND_PLUGINS(QWINEVENTS			NAMES Qt5EventDispatcherSupport DEFAULT_SUFFIXES PATHS ${QT_LIB_PATH})
+	FIND_PLUGINS(QTHEMES		 NAMES Qt5ThemeSupport DEFAULT_SUFFIXES PATHS ${QT_LIB_PATH})
+	FIND_PLUGINS(QACCESS		 NAMES Qt5AccessibilitySupport DEFAULT_SUFFIXES PATHS ${QT_LIB_PATH})
+	FIND_PLUGINS(QTRANSLATOR	 NAMES translator							DEFAULT_SUFFIXES PATHS ${QT_LIB_PATH})
+	FIND_PLUGINS(QTRANS_COMMON NAMES translator_common			DEFAULT_SUFFIXES PATHS ${QT_LIB_PATH})
+	FIND_PLUGINS(QTRANS_HLSL	 NAMES translator_hlsl				DEFAULT_SUFFIXES PATHS ${QT_LIB_PATH})
+	FIND_PLUGINS(QPREPROC			 NAMES preprocessor						DEFAULT_SUFFIXES PATHS ${QT_LIB_PATH})
+	FIND_PLUGINS(QTPNG			NAMES qtlibpng					 DEFAULT_SUFFIXES PATHS ${QT_LIB_PATH})
 	message("QPA plugin for win: ${QWINDOWS_LIBRARIES}")
 
-	FIND_LIBRARY(DXGUID_LIBRARY      NAMES dxguid      PATHS ${DirectX_LIBRARY_PATHS})
+	FIND_LIBRARY(DXGUID_LIBRARY			 NAMES dxguid			 PATHS ${DirectX_LIBRARY_PATHS})
 	FIND_LIBRARY(D3DCOMPILER_LIBRARY NAMES d3dcompiler PATHS ${DirectX_LIBRARY_PATHS})
 	message("DirectX: ${DXGUID_LIBRARY} ${D3DCOMPILER_LIBRARY}")
 
@@ -485,23 +486,24 @@ if (WIN32)
 		set(TRANSLATOR_LIBRARIES ${TRANSLATOR_LIBRARIES} ${QTRANS_HLSL_LIBRARY})
 	endif()
 
-  FIND_PLUGINS(QPCRE         NAMES qtpcre                DEFAULT_SUFFIXES PATHS ${QT_LIB_PATH})
-  FIND_PLUGINS(QHARFBUZZ     NAMES qtharfbuzz          DEFAULT_SUFFIXES PATHS ${QT_LIB_PATH})
-  FIND_PLUGINS(QFREETYPE     NAMES qtfreetype            DEFAULT_SUFFIXES PATHS ${QT_LIB_PATH})
+	FIND_PLUGINS(QPCRE				 NAMES qtpcre2						 DEFAULT_SUFFIXES PATHS ${QT_LIB_PATH})
+	FIND_PLUGINS(QHARFBUZZ		 NAMES qtharfbuzz					 DEFAULT_SUFFIXES PATHS ${QT_LIB_PATH})
+	FIND_PLUGINS(QFREETYPE		 NAMES qtfreetype					 DEFAULT_SUFFIXES PATHS ${QT_LIB_PATH})
 
 	target_link_libraries(trace_server
+		Mincore
 		wsock32 ws2_32 Iphlpapi
 		imm32 winmm d3d9 ${DXGUID_LIBRARY} ${D3DCOMPILER_LIBRARY} dwrite
-    dwmapi uxtheme
+		dwmapi uxtheme
 		${QPLATFORM_LIBRARY}
 		${TRANSLATOR_LIBRARIES}
 		${QPREPROC_LIBRARY}
-    ${QWINDOWS_LIBRARY} ${QFONTDB_LIBRARY} ${QWINEVENTS_LIBRARY} ${QTHEMES_LIBRARY} ${QACCESS_LIBRARY}
-    ${QPCRE_LIBRARY}
-    ${QHARFBUZZ_LIBRARY}
-    ${QFREETYPE_LIBRARY}
-    ${QAUDIOWINDOWS_LIBRARY} Strmiids
-    )
+		${QWINDOWS_LIBRARY} ${QFONTDB_LIBRARY} ${QWINEVENTS_LIBRARY} ${QTHEMES_LIBRARY} ${QACCESS_LIBRARY}
+		${QPCRE_LIBRARY}
+		${QHARFBUZZ_LIBRARY}
+		${QFREETYPE_LIBRARY}
+		${QAUDIOWINDOWS_LIBRARY} Strmiids
+		)
 elseif (UNIX)
 	message("not implemented yet, but should be trivial to do so")
 elseif (APPLE)
@@ -530,8 +532,8 @@ install(TARGETS trace_server
 	ARCHIVE DESTINATION lib/static)
 
 if(MSVC)
-  add_definitions("-D_SCL_SECURE_NO_WARNINGS")
-  set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+	add_definitions("-D_SCL_SECURE_NO_WARNINGS")
+	set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 	#install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/../utils/bin/VisualStudioFileOpenTool.all.exe
 	#	DESTINATION .)
 	install(FILES ${CMAKE_CURRENT_BINARY_DIR}/Debug/trace_server.pdb

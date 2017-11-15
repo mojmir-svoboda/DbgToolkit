@@ -11,6 +11,7 @@
 #include <boost/serialization/utility.hpp>
 #include <boost/serialization/serialization.hpp>
 #include <boost/serialization/vector.hpp>
+#include <boost/serialization/array.hpp>
 #include <fstream>
 #include <serialize/ser_qt.h>
 
